@@ -61,7 +61,7 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecEnum {
             propertySpecs.add(
                     propertySpecService
                             .referenceSpec(Calendar.class)
-                            .named(DeviceMessageAttributes.activityCalendarCodeTableAttributeName)
+                            .named(DeviceMessageAttributes.activityCalendarAttributeName)
                             .fromThesaurus(thesaurus)
                             .markRequired()
                             .finish());
@@ -87,7 +87,7 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecEnum {
             propertySpecs.add(
                     propertySpecService
                             .referenceSpec(Calendar.class)
-                            .named(DeviceMessageAttributes.activityCalendarCodeTableAttributeName)
+                            .named(DeviceMessageAttributes.activityCalendarAttributeName)
                             .fromThesaurus(thesaurus)
                             .markRequired()
                             .finish());
@@ -131,7 +131,7 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecEnum {
             propertySpecs.add(
                     propertySpecService
                             .referenceSpec(Calendar.class)
-                            .named(DeviceMessageAttributes.activityCalendarCodeTableAttributeName)
+                            .named(DeviceMessageAttributes.activityCalendarAttributeName)
                             .fromThesaurus(thesaurus)
                             .markRequired()
                             .finish());
@@ -163,7 +163,7 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecEnum {
             propertySpecs.add(
                     propertySpecService
                             .referenceSpec(Calendar.class)
-                            .named(DeviceMessageAttributes.activityCalendarCodeTableAttributeName)
+                            .named(DeviceMessageAttributes.activityCalendarAttributeName)
                             .fromThesaurus(thesaurus)
                             .markRequired()
                             .finish());
@@ -188,7 +188,7 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecEnum {
             propertySpecs.add(
                     propertySpecService
                             .referenceSpec(Calendar.class)
-                            .named(DeviceMessageAttributes.specialDaysCodeTableAttributeName)
+                            .named(DeviceMessageAttributes.specialDaysAttributeName)
                             .fromThesaurus(thesaurus)
                             .markRequired()
                             .finish());
@@ -215,7 +215,7 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecEnum {
             propertySpecs.add(
                     propertySpecService
                             .referenceSpec(Calendar.class)
-                            .named(DeviceMessageAttributes.specialDaysCodeTableAttributeName)
+                            .named(DeviceMessageAttributes.specialDaysAttributeName)
                             .fromThesaurus(thesaurus)
                             .markRequired()
                             .finish());
@@ -274,7 +274,7 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecEnum {
             propertySpecs.add(
                     propertySpecService
                             .referenceSpec(Calendar.class)
-                            .named(DeviceMessageAttributes.activityCalendarCodeTableAttributeName)
+                            .named(DeviceMessageAttributes.activityCalendarAttributeName)
                             .fromThesaurus(thesaurus)
                             .markRequired()
                             .finish());
@@ -308,7 +308,7 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecEnum {
             propertySpecs.add(
                     propertySpecService
                             .referenceSpec(Calendar.class)
-                            .named(DeviceMessageAttributes.specialDaysCodeTableAttributeName)
+                            .named(DeviceMessageAttributes.specialDaysAttributeName)
                             .fromThesaurus(thesaurus)
                             .markRequired()
                             .finish());
