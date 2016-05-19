@@ -14,4 +14,5 @@ public interface EndDeviceCommand {
     EndDevice getEndDevice();
     Map<String, Object> getAttributes();
     List<Long> getDeviceMessageIds();
+    String getName();
 }
