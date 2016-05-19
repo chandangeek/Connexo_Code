@@ -4,6 +4,7 @@ Ext.define('Mdc.timeofuseondevice.view.ActionMenu', {
     plain: true,
     border: false,
     shadow: false,
+    record: null,
     items: [
         {
             itemId: 'activate-calendar-tou',
@@ -14,7 +15,7 @@ Ext.define('Mdc.timeofuseondevice.view.ActionMenu', {
         },
         {
             itemId: 'clear-tariff-tou',
-            text: Uni.I18n.translate('timeofuse.clearPassiveTariff', 'MDC', 'Clear passive tariff'),
+            text: Uni.I18n.translate('timeofuse.clearPassiveCalendar', 'MDC', 'Clear passive calendar'),
             privileges: Mdc.privileges.DeviceCommands.executeCommands,
             action: 'cleartariff',
             dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.clearAndDisable

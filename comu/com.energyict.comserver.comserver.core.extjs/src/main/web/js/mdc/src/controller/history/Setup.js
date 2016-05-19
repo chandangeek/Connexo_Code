@@ -621,7 +621,13 @@ Ext.define('Mdc.controller.history.Setup', {
                                             route: '{calendarId}/viewpreview',
                                             privileges: Mdc.privileges.DeviceType.view,
                                             controller: 'Mdc.timeofuse.controller.TimeOfUse',
-                                            action: 'showPreviewCalendarView'
+                                            action: 'showPreviewCalendarView',
+                                            callback: function (route) {
+                                                this.getApplication().on('timeofusecalendarloaded', function (name) {
+                                                    route.setTitle(Uni.I18n.translate('general.previewX', 'MDC', "Preview '{0}'", name));
+                                                }, {single: true});
+                                                return this;
+                                            }
                                         }
                                     }
                                 }
@@ -1669,7 +1675,13 @@ Ext.define('Mdc.controller.history.Setup', {
                                     privileges: Mdc.privileges.Device.viewDevice,
                                     dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
                                     dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.timeOfUseAllowed,
-                                    action: 'showPreviewCalendarView'
+                                    action: 'showPreviewCalendarView',
+                                    callback: function (route) {
+                                        this.getApplication().on('timeofusecalendarloaded', function (name) {
+                                            route.setTitle(Uni.I18n.translate('general.previewX', 'MDC', "Preview '{0}'", name));
+                                        }, {single: true});
+                                        return this;
+                                    }
                                 }
                             }
                         },

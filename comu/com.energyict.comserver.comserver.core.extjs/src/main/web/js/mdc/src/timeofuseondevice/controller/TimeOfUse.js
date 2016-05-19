@@ -55,7 +55,7 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
                             if (view.down('device-tou-preview-form')) {
                                 if (!(Object.keys(result).length === 0 && result.constructor === Object)) {
                                     view.down('device-tou-preview-form').fillFieldContainers(resultSet.records[0]);
-
+                                    view.down('tou-device-action-menu').record = resultSet.records[0].getActiveCalendar();
 
                                 }
                                 view.down('#wrappingPanel').setLoading(false);
@@ -96,7 +96,8 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
             case 'verifycalendars':
                 break;
             case 'viewpreview':
-                me.redirectToPreview(1);
+                debugger;
+                me.redirectToPreview(menu.record.get('id'));
                 break;
         }
     },
@@ -119,12 +120,12 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
             success: function (record) {
                 me.getApplication().fireEvent('loadDevice', record);
                 view = Ext.widget('tou-device-view-calendar-setup', {
-                    url: '/api/cal/calendars/timeofusecalendars',
+                    url: '/api/ddr/devices/device/timeofuse',
                     calendarId: calendarId,
                     device: record
                 });
                 view.on('timeofusecalendarloaded', function (newRecord) {
-                    me.getApplication().fireEvent('timeofusecalendarloaded', newRecord.get('name'))
+                    me.getApplication().fireEvent('timeofusecalendarloaded', newRecord.get('name'));
                     return true;
                 }, {single: true});
                 me.getApplication().fireEvent('changecontentevent', view);
