@@ -16,13 +16,12 @@ Ext.define('Dxp.view.log.Setup', {
         me.side = [
             {
                 xtype: 'panel',
-                title: Uni.I18n.translate('general.dataExportTask', 'DES', 'Data export task'),
                 ui: 'medium',
                 items: [
                     {
                         xtype: 'dxp-log-menu',
                         itemId: 'log-view-menu',
-                        toggle: 0
+                        router: me.router
                     }
                 ]
             }

@@ -1,21 +1,29 @@
 Ext.define('Dxp.view.log.Menu', {
-    extend: 'Uni.view.navigation.SubMenu',
+    extend: 'Uni.view.menu.SideMenu',
     alias: 'widget.dxp-log-menu',
-    toggle: null,
     router: null,
-
+    title: Uni.I18n.translate('general.dataExportTask', 'DES', 'Data export task'),
     initComponent: function () {
         var me = this;
-        me.callParent(me);
 
-        me.add(
-            {
-                text: Uni.I18n.translate('general.log', 'DES', 'Log'),
-                itemId: 'tasks-log-link'
-            }
-        );
+        if (me.router.arguments.taskId) {
+            me.menuItems = [
+                {
+                    text: Uni.I18n.translate('general.overview', 'DES', 'Overview'),
+                    itemId: 'tasks-view-link',
+                    href: '#/administration/dataexporttasks/' + me.router.arguments.taskId
+                }
+            ];
 
-        me.toggleMenuItem(me.toggle);
+            me.menuItems.push(
+                {
+                    text: Uni.I18n.translate('general.log', 'DES', 'Log'),
+                    itemId: 'tasks-log-link',
+                    href: me.router.getRoute('administration/dataexporttasks/dataexporttask/history/occurrence').buildUrl()
+                }
+            );
+        }
+        me.callParent(arguments);
     }
 });
 

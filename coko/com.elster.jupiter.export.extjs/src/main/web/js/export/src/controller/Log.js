@@ -28,7 +28,7 @@ Ext.define('Dxp.controller.Log', {
             view,
             runStartedOn,
             runStartedOnFormatted,
-            sideMenu,
+            taskLink,
             occurrenceTask;
 
         historyStore.getProxy().setUrl(router.arguments);
@@ -47,9 +47,9 @@ Ext.define('Dxp.controller.Log', {
                         task: record,
                         runStartedOn: runStartedOnFormatted
                     });
-                    sideMenu = view.down('#log-view-menu');
+                    taskLink = view.down('#log-view-menu #tasks-view-link');
+                    taskLink.setText(record.get('name'));
                     me.getApplication().fireEvent('dataexporttaskload', record);
-                    sideMenu.setTitle(record.get('name'));
                     view.down('#log-preview-form').loadRecord(occurrenceTask);
                     view.down('#reason-field').setVisible(occurrenceTask.get('status')==='Failed');
                     view.down('#run-started-on').setValue(runStartedOnFormatted);
