@@ -3,6 +3,7 @@ package com.elster.jupiter.calendar.importers.impl;
 import com.elster.jupiter.calendar.MessageSeeds;
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.FileImporter;;
+import com.elster.jupiter.util.exception.MessageSeed;
 import org.xml.sax.SAXException;
 
 import javax.validation.ConstraintViolationException;
@@ -66,7 +67,7 @@ public class TimeOfUseCalendarImporter implements FileImporter {
     }
 
     private void logImportFailed(FileImportOccurrence fileImportOccurrence, Throwable e) {
-        MessageSeeds.IMPORT_FAILED_OTHER_ERROR.log(fileImportOccurrence.getLogger(), context.getThesaurus(), e.getLocalizedMessage());
+        fileImportOccurrence.getLogger().severe(e.getLocalizedMessage());
     }
 
     private void log(FileImportOccurrence fileImportOccurrence, MessageSeeds messageSeeds) {
