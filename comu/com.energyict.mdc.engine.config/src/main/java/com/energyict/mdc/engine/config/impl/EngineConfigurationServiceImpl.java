@@ -12,7 +12,6 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
@@ -73,7 +72,7 @@ import static com.energyict.mdc.engine.config.impl.ComServerImpl.OFFLINE_COMSERV
 import static com.energyict.mdc.engine.config.impl.ComServerImpl.ONLINE_COMSERVER_DISCRIMINATOR;
 import static com.energyict.mdc.engine.config.impl.ComServerImpl.REMOTE_COMSERVER_DISCRIMINATOR;
 
-@Component(name = "com.energyict.mdc.engine.config", service = {EngineConfigurationService.class, InstallService.class, MessageSeedProvider.class, TranslationKeyProvider.class, PrivilegesProvider.class}, property = "name=" + EngineConfigurationService.COMPONENT_NAME)
+@Component(name = "com.energyict.mdc.engine.config", service = {EngineConfigurationService.class, MessageSeedProvider.class, TranslationKeyProvider.class, PrivilegesProvider.class}, property = "name=" + EngineConfigurationService.COMPONENT_NAME)
 public class EngineConfigurationServiceImpl implements EngineConfigurationService, MessageSeedProvider, TranslationKeyProvider, OrmClient, PrivilegesProvider {
 
     private volatile DataModel dataModel;
