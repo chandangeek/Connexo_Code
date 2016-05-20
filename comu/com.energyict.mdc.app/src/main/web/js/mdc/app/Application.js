@@ -16,6 +16,7 @@ Ext.define('MdcApp.Application', {
         'Mdc.privileges.Communication',
         'Mdc.privileges.DataCollectionKpi',
         'Mdc.privileges.DeviceConfigurationEstimations',
+        'Mdc.privileges.Monitor',
         'Yfn.privileges.Yellowfin',
         'Isu.privileges.Issue',
         'Dxp.privileges.DataExport',
@@ -25,7 +26,8 @@ Ext.define('MdcApp.Application', {
         'Bpm.privileges.BpmManagement',
         'Dbp.privileges.DeviceProcesses',
         'Mdc.privileges.UsagePoint',
-        'Scs.privileges.ServiceCall'
+        'Scs.privileges.ServiceCall',
+        'Mdc.privileges.Monitor'
     ],
     controllers: [
         'MdcApp.controller.Main'
