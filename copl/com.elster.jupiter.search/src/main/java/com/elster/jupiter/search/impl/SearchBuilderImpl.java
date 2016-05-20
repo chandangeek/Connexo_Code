@@ -216,8 +216,7 @@ public class SearchBuilderImpl<T> implements SearchBuilder<T> {
 
         @Override
         public SearchBuilder<T> is(Boolean value) throws InvalidValueException {
-            addCondition(this, new SearchablePropertyConstant(value, this.property));
-            return SearchBuilderImpl.this;
+            return this.addConditionWithOperator(Operator.EQUAL, value);
         }
 
         @Override
@@ -284,31 +283,6 @@ public class SearchBuilderImpl<T> implements SearchBuilder<T> {
         @Override
         public Condition getCondition() {
             return this.contains;
-        }
-    }
-
-    /**
-     * Provides an implementation for the {@link SearchablePropertyCondition} interface
-     * that compares a {@link SearchableProperty} against boolean value.
-     */
-    private class SearchablePropertyConstant implements SearchablePropertyCondition {
-
-        private final Condition condition;
-        private final SearchableProperty property;
-
-        private SearchablePropertyConstant(Boolean value, SearchableProperty property) {
-            this.condition = value ? Condition.TRUE : Condition.FALSE;
-            this.property = property;
-        }
-
-        @Override
-        public SearchableProperty getProperty() {
-            return this.property;
-        }
-
-        @Override
-        public Condition getCondition() {
-            return this.condition;
         }
     }
 
