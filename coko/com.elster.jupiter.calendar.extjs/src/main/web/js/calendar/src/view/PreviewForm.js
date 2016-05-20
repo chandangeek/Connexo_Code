@@ -16,6 +16,11 @@ Ext.define('Cal.view.PreviewForm', {
             },
             items: [
                 {
+                    xtype: 'displayfield',
+                    fieldLabel: Uni.I18n.translate('general.startOfCalculations', 'CAL', 'Start of calculations'),
+                    name: 'startYear'
+                },
+                {
                     xtype: 'fieldcontainer',
                     fieldLabel: Uni.I18n.translate('general.periods', 'CAL', 'Periods'),
                     itemId: 'periodField'
@@ -38,6 +43,8 @@ Ext.define('Cal.view.PreviewForm', {
     fillFieldContainers: function (calendarRecord) {
         var me = this;
         Ext.suspendLayouts();
+
+        me.down('form').loadRecord(calendarRecord);
 
         me.down('#periodField').removeAll();
         calendarRecord.periods().each(function (record) {
