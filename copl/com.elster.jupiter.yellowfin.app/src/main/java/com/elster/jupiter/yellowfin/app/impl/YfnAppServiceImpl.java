@@ -78,7 +78,7 @@ public class YfnAppServiceImpl implements YfnAppService, TranslationKeyProvider,
                 bind(YellowfinService.class).toInstance(yellowfinService);
             }
         });
-        upgradeService.register(InstallIdentifier.identifier(YfnAppService.COMPONENTNAME), dataModel, YfnAppInstaller.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier("YFA"), dataModel, YfnAppInstaller.class, Collections.emptyMap());
     }
 
     @Deactivate
