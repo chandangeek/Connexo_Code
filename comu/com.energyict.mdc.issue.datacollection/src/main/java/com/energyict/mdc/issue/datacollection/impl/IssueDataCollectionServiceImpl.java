@@ -18,7 +18,6 @@ import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.metering.impl.upgraders.UpgraderV10_2;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -45,6 +44,7 @@ import com.energyict.mdc.issue.datacollection.impl.database.TableSpecs;
 import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
 import com.energyict.mdc.issue.datacollection.impl.i18n.TranslationKeys;
 import com.energyict.mdc.issue.datacollection.impl.install.Installer;
+import com.energyict.mdc.issue.datacollection.impl.install.UpgraderV10_2;
 import com.energyict.mdc.issue.datacollection.impl.records.OpenIssueDataCollectionImpl;
 
 import com.google.common.collect.ImmutableMap;
