@@ -639,7 +639,20 @@ public class DemoServiceImpl {
     }
 
     @SuppressWarnings("unused")
-    public void createDemoData(String comServerName, String host, String startDate, String numberOfDevicesPerType ){
+    public void createDemoData(String comServerName, String host, String startDate, String numberOfDevicesPerType ) {
+        this.createDemoData(comServerName, host, startDate, numberOfDevicesPerType, false);
+    }
+
+    /**
+     *
+     * @param comServerName
+     * @param host
+     * @param startDate
+     * @param numberOfDevicesPerType
+     * @param skipFirmwareManagementData in case you don't want the firmware management data is created
+     */
+    @SuppressWarnings("unused")
+    public void createDemoData(String comServerName, String host, String startDate, String numberOfDevicesPerType, boolean skipFirmwareManagementData) {
         executeTransaction(() -> {
             CreateDemoDataCommand command = injector.getInstance(CreateDemoDataCommand.class);
             command.setComServerName(comServerName);
@@ -653,6 +666,7 @@ public class DemoServiceImpl {
             } else {
                 command.setDevicesPerType(Integer.valueOf(numberOfDevicesPerType));
             }
+            command.setSkipFirmwareManagementData(skipFirmwareManagementData);
             command.run();
         });
     }
