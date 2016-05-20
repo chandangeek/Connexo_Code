@@ -154,13 +154,13 @@ public class CalendarResourceTest extends CalendarApplicationTest {
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel jsonModel = JsonModel.model((InputStream) response.getEntity());
         assertThat(jsonModel.<Integer>get("id")).isEqualTo(1);
-        assertThat(jsonModel.<Integer>get("weekTemplate[0].type")).isEqualTo(5);
         assertThat(jsonModel.<Integer>get("weekTemplate[1].type")).isEqualTo(5);
-        assertThat(jsonModel.<Integer>get("weekTemplate[2].type")).isEqualTo(7);
+        assertThat(jsonModel.<Integer>get("weekTemplate[1].type")).isEqualTo(5);
         assertThat(jsonModel.<Integer>get("weekTemplate[3].type")).isEqualTo(7);
         assertThat(jsonModel.<Integer>get("weekTemplate[4].type")).isEqualTo(7);
         assertThat(jsonModel.<Integer>get("weekTemplate[5].type")).isEqualTo(7);
         assertThat(jsonModel.<Integer>get("weekTemplate[6].type")).isEqualTo(7);
+        assertThat(jsonModel.<Integer>get("weekTemplate[7].type")).isEqualTo(7);
 
         JSONArray periods = jsonModel.get("periods");
         assertThat(periods).hasSize(2);

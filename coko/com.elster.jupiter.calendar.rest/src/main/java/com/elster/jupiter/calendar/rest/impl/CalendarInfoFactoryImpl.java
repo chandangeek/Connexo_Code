@@ -78,15 +78,15 @@ public class CalendarInfoFactoryImpl implements CalendarInfoFactory {
         CalendarInfo calendarInfo = new CalendarInfo();
         addBasicInformation(calendar, calendarInfo);
         Map<Long, PeriodTransition> periodTransistions = new HashMap<>();
-        Map<DayOfWeek, DayType> dayTypesPerDay = calculateWeekInfo(calendar, localDate, periodTransistions);
+        Map<LocalDate, DayType> dayTypesPerDay = calculateWeekInfo(calendar, localDate, periodTransistions);
         calendarInfo.weekTemplate = new ArrayList<>();
         Map<Long, DayType> dayTypes = new HashMap<>();
         Map<Long, Event> events = new HashMap<>();
-        int counter = 0;
-        for (DayOfWeek day : dayTypesPerDay.keySet()) {
-            DayType dayType = dayTypesPerDay.get(day);
+        int counter = -1;
+        for (LocalDate date : dayTypesPerDay.keySet()) {
+            DayType dayType = dayTypesPerDay.get(date);
             DayInfo dayInfo = new DayInfo();
-            dayInfo.name = thesaurus.getTranslations().get(day.name());
+            dayInfo.name = thesaurus.getTranslations().get(date.getDayOfWeek().name());
             LocalDate calculatedDate  = localDate.plusDays(counter);
             dayInfo.date = calculatedDate.toEpochDay();
             dayInfo.inCalendar = isDayInCalendar(calendar, calculatedDate);
@@ -115,14 +115,14 @@ public class CalendarInfoFactoryImpl implements CalendarInfoFactory {
     }
 
     private boolean isDayInCalendar(Calendar calendar, LocalDate calculatedDate) {
-        return calendar.getStartYear().getValue() <= calculatedDate.getYear();
+        return calendar.getStartYear().getValue() <= calculatedDate.getYear() && calculatedDate.getYear() <= calendar.getEndYear().getValue();
     }
 
-    private Map<DayOfWeek, DayType> calculateWeekInfo(Calendar calendar, LocalDate localDate, Map<Long, PeriodTransition> periodTransistions) {
-        Map<DayOfWeek, DayType> dayTypesPerDay = new LinkedHashMap<>(DayOfWeek.values().length);
-        for (int i = 0; i < DayOfWeek.values().length; i++) {
+    private Map<LocalDate, DayType> calculateWeekInfo(Calendar calendar, LocalDate localDate, Map<Long, PeriodTransition> periodTransistions) {
+        Map<LocalDate, DayType> dayTypesPerDay = new LinkedHashMap<>(DayOfWeek.values().length + 1);
+        for (int i = -1; i < DayOfWeek.values().length; i++) {
             DayType dayType = getDaytypeForDate(calendar, localDate.plusDays(i), periodTransistions);
-            dayTypesPerDay.put(localDate.plusDays(i).getDayOfWeek(), dayType);
+            dayTypesPerDay.put(localDate.plusDays(i), dayType);
         }
 
         return dayTypesPerDay;
