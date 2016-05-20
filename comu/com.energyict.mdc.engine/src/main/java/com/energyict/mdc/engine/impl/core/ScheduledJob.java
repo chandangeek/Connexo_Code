@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.impl.core;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
 
+import java.time.Instant;
 import java.util.List;
 
 /**
@@ -119,6 +120,8 @@ public interface ScheduledJob {
      * because the current system timestamp is not or no longer within that window.
      */
     public void rescheduleToNextComWindow (ComServerDAO comServerDAO);
+
+    public void rescheduleToNextComWindow (ComServerDAO comServerDAO, Instant startingPoint);
 
     /**
      * Adds the token for this ScheduledJob.

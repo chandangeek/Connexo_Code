@@ -2,7 +2,9 @@ package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 
+import java.time.Instant;
 import java.util.List;
 
 /**
@@ -51,6 +53,10 @@ public abstract class AbstractRescheduleBehavior {
         this.comServerDAO.executionCompleted(this.connectionTask);
     }
 
+    protected void performRescheduleNotExecutedComTasks(Instant startingPoint) {
+        notExecutedComTaskExecutions.forEach(comTaskExecution -> this.comServerDAO.executionRescheduled(comTaskExecution, startingPoint));
+    }
+
     ConnectionTask getConnectionTask(){
         return this.connectionTask;
     }
@@ -66,5 +72,43 @@ public abstract class AbstractRescheduleBehavior {
     int getNumberOfFailedComTasks(){
         return (this.failedComTaskExecutions != null?this.failedComTaskExecutions.size():0)
                 + (this.getNotExecutedComTaskExecutions() != null?this.getNotExecutedComTaskExecutions().size():0);
+    }
+
+    public void performRescheduling(RescheduleBehavior.RescheduleReason reason) {
+        switch (reason) {
+            case CONNECTION_SETUP: {
+                performRetryForConnectionSetupError();
+                break;
+            }
+            case CONNECTION_BROKEN: {
+                performRetryForConnectionException();
+                break;
+            }
+            case COMTASKS: {
+                performRetryForCommunicationTasks();
+                break;
+            }
+            case OUTSIDE_COM_WINDOW: {
+                //TODO verify if this is still valid
+                this.performRetryForNotExecutedCommunicationTasks();
+                break;
+            }
+        }
+    }
+
+    public void rescheduleOutsideWindow(Instant startingPoint) {
+        performRescheduleNotExecutedComTasks(startingPoint);
+    }
+
+    protected abstract void performRetryForConnectionSetupError();
+
+    protected abstract void performRetryForConnectionException();
+
+    protected abstract void performRetryForCommunicationTasks();
+
+    protected abstract void performRetryForNotExecutedCommunicationTasks();
+
+    ScheduledConnectionTask getScheduledConnectionTask() {
+        return (ScheduledConnectionTask) getConnectionTask();
     }
 }

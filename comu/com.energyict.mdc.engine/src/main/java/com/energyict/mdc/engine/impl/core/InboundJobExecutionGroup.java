@@ -13,6 +13,7 @@ import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -154,6 +155,11 @@ public class InboundJobExecutionGroup extends JobExecution {
 
     @Override
     public void rescheduleToNextComWindow (ComServerDAO comServerDAO) {
+        // rescheduling is done in the device for inbound communication
+    }
+
+    @Override
+    public void rescheduleToNextComWindow(ComServerDAO comServerDAO, Instant startingPoint) {
         // rescheduling is done in the device for inbound communication
     }
 

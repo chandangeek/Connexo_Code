@@ -37,9 +37,10 @@ import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.devices.DeviceCommandExecutorImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
-import com.energyict.mdc.engine.impl.monitor.*;
+import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
+import com.energyict.mdc.engine.impl.monitor.ScheduledComPortMonitorImplMBean;
+import com.energyict.mdc.engine.impl.monitor.ServerScheduledComPortOperationalStatistics;
 import com.energyict.mdc.engine.monitor.ScheduledComPortMonitor;
-import com.energyict.mdc.engine.monitor.ScheduledComPortOperationalStatistics;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.ComPortType;
@@ -78,15 +79,18 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.LogManager;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyCollection;
 import static org.mockito.Matchers.anyList;
@@ -611,7 +615,7 @@ public class SingleThreadedScheduledComPortTest {
             // Asserts
             verify(comServerDAO, atLeastOnce()).findExecutableOutboundComTasks(comPort);
             verify(this.serialConnectionTask1, atLeastOnce()).getCommunicationWindow();
-            scheduledComPort.verifyNoConnectionTaskLockAttemptCalls();
+            scheduledComPort.verifyConnectionTaskLockAttemptCalls();
             scheduledComPort.verifyNoComTaskLockAttemptCalls();
             verify(this.deviceCommandExecutor, times(1)).execute(any(DeviceCommand.class), any(DeviceCommandExecutionToken.class));
         } finally {

@@ -2,7 +2,7 @@ package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -64,37 +64,20 @@ public class RescheduleBehaviorForMinimizeConnections extends AbstractReschedule
     @Override
     public void performRescheduling(RescheduleReason reason) {
         this.getScheduledConnectionTask().setMaxNumberOfTries(this.getMaxConnectionTryAttempts());
-        switch (reason) {
-            case CONNECTION_SETUP: {
-                performRetryForConnectionSetupError();
-                break;
-            }
-            case CONNECTION_BROKEN: {
-                performRetryForConnectionException();
-                break;
-            }
-            case COMTASKS: {
-                performRetryForCommunicationTasks();
-                break;
-            }
-            case OUTSIDE_COM_WINDOW: {
-                this.performRetryForNotExecutedCommunicationTasks();
-                break;
-            }
-        }
+        super.performRescheduling(reason);
     }
 
-    private void performRetryForConnectionSetupError() {
+    protected void performRetryForConnectionSetupError() {
         retryConnectionTask();
     }
 
-    private void performRetryForConnectionException() {
+    protected void performRetryForConnectionException() {
         rescheduleSuccessfulComTasks();
         retryFailedComTasks();
         retryConnectionTask();
     }
 
-    private void performRetryForCommunicationTasks() {
+    protected void performRetryForCommunicationTasks() {
         if(getNumberOfFailedComTasks() > 0){
             retryConnectionTask();
         } else {
@@ -105,7 +88,7 @@ public class RescheduleBehaviorForMinimizeConnections extends AbstractReschedule
         performRetryForNotExecutedCommunicationTasks();
     }
 
-    private void performRetryForNotExecutedCommunicationTasks() {
+    protected void performRetryForNotExecutedCommunicationTasks() {
         this.rescheduleNotExecutedComTasks();
     }
 
@@ -118,9 +101,5 @@ public class RescheduleBehaviorForMinimizeConnections extends AbstractReschedule
             }
         }
         return this.maxConnectionTryAttempts;
-    }
-
-    private ScheduledConnectionTask getScheduledConnectionTask() {
-        return (ScheduledConnectionTask) getConnectionTask();
     }
 }
