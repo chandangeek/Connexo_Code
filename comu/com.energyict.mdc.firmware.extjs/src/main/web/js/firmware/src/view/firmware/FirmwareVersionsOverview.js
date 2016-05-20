@@ -41,7 +41,7 @@ Ext.define('Fwc.view.firmware.FirmwareVersionsOverview', {
                     activeTab: me.firmwareManagementAllowed ? 1 : 0,
                     items: [
                         {
-                            title: Uni.I18n.translate('general.firmwareManagementOptions', 'MDC', 'Firmware management options'),
+                            title: Uni.I18n.translate('general.specifications', 'MDC', 'Specifications'),
                             itemId: 'mdc-options-tab',
                             items: [
                                 {

@@ -28,7 +28,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
         this.content = [
             {
                 xtype: 'form',
-                title: Uni.I18n.translate('general.firmwareManagementOptions.edit', 'FWC', 'Edit firmware management options'),
+                title: Uni.I18n.translate('general.firmwareManagementSpecifications.edit', 'FWC', 'Edit firmware management specifications'),
                 ui: 'large',
                 border: false,
                 width: 850,
