@@ -87,8 +87,10 @@ public class CalendarInfoFactoryImpl implements CalendarInfoFactory {
             DayType dayType = dayTypesPerDay.get(day);
             DayInfo dayInfo = new DayInfo();
             dayInfo.name = thesaurus.getTranslations().get(day.name());
+            LocalDate calculatedDate  = localDate.plusDays(counter);
+            dayInfo.date = calculatedDate.toEpochDay();
+            dayInfo.inCalendar = isDayInCalendar(calendar, calculatedDate);
             dayInfo.type = dayType.getId();
-            dayInfo.date = localDate.plusDays(counter).toEpochDay();
             calendarInfo.weekTemplate.add(dayInfo);
             dayTypes.put(dayType.getId(), dayType);
             dayType.getEventOccurrences()
@@ -110,6 +112,10 @@ public class CalendarInfoFactoryImpl implements CalendarInfoFactory {
         addPeriods(calendarInfo, periodList);
 
         return calendarInfo;
+    }
+
+    private boolean isDayInCalendar(Calendar calendar, LocalDate calculatedDate) {
+        return calendar.getStartYear().getValue() <= calculatedDate.getYear();
     }
 
     private Map<DayOfWeek, DayType> calculateWeekInfo(Calendar calendar, LocalDate localDate, Map<Long, PeriodTransition> periodTransistions) {
@@ -161,6 +167,7 @@ public class CalendarInfoFactoryImpl implements CalendarInfoFactory {
     private void addBasicInformation(Calendar calendar, CalendarInfo calendarInfo) {
         calendarInfo.name = calendar.getName();
         calendarInfo.category = calendar.getCategory().getName();
+        calendarInfo.startYear = calendar.getStartYear().getValue();
         calendarInfo.id = calendar.getId();
         calendarInfo.description = calendar.getDescription();
         calendarInfo.timeZone = calendar.getTimeZone() == null ? "" : calendar.getTimeZone().getDisplayName();

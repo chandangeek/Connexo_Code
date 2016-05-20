@@ -15,6 +15,7 @@ import java.io.InputStream;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.Year;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -68,6 +69,8 @@ public class CalendarResourceTest extends CalendarApplicationTest {
         when(calendar.getId()).thenReturn(1L);
         when(calendar.getName()).thenReturn(CALENDAR_NAME);
         when(calendar.getDescription()).thenReturn(CALENDAR_DESCRIPTION);
+        when(calendar.getStartYear()).thenReturn(Year.of(2010));
+        when(calendar.getEndYear()).thenReturn(Year.of(2020));
 
         Category category = mock(Category.class);
         when(category.getName()).thenReturn("ToU");
