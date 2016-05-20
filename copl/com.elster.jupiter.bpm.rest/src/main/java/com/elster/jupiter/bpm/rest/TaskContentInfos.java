@@ -30,7 +30,7 @@ public class TaskContentInfos {
         JSONObject outputContent = null;
         try {
             status = obj.getString("taskStatus");
-            contentProperties = obj.getJSONArray("fields");
+            contentProperties = obj.getJSONArray("field");
             content = obj.getJSONObject("content");
             outputContent = obj.getJSONObject("outContent");
             if(outputContent != null){

@@ -30,7 +30,7 @@ public class ProcessDefinitionInfos {
         if (processList != null) {
             for(int i = 0; i < processList.length(); i++) {
                 try {
-                    JSONObject task = processList.getJSONObject(i);
+                    JSONObject task = processList.getJSONObject(i).getJSONObject("process-definition");
                     ProcessDefinitionInfo result = new ProcessDefinitionInfo(task);
                     processes.add(result);
                     total++;

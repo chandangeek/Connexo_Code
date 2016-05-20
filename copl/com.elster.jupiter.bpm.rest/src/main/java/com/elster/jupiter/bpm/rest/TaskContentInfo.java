@@ -31,7 +31,7 @@ public class TaskContentInfo {
     public TaskContentInfo(JSONObject field,JSONObject content, JSONObject outputContent, String status){
         try {
             key = field.getString("type") + field.getString("id");
-            JSONArray arr = field.getJSONArray("properties");
+            JSONArray arr = field.getJSONArray("property");
             if (arr != null){
                 for(int i = 0; i < arr.length(); i++) {
                     JSONObject prop = arr.getJSONObject(i);
