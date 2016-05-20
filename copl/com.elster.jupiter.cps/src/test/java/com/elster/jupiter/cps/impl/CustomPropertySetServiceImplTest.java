@@ -302,7 +302,7 @@ public class CustomPropertySetServiceImplTest {
         testInstance.setOrmService(this.ormService, false);
         testInstance.setNlsService(this.nlsService);
         testInstance.setTransactionService(this.transactionService);
-        testInstance.setSearchService(mock(SearchService.class));
+        testInstance.setSearchService(this.searchService);
         testInstance.addCustomPropertySet(this.customPropertySet);
         when(this.serviceDataModel.isInstalled()).thenReturn(true);
         when(this.serviceDataModel.getInstance(RegisteredCustomPropertySetImpl.class)).thenReturn(new RegisteredCustomPropertySetImpl(this.serviceDataModel, this.threadPrincipalService, testInstance));
@@ -376,7 +376,7 @@ public class CustomPropertySetServiceImplTest {
         CustomPropertySetServiceImpl testInstance = new CustomPropertySetServiceImpl();
         testInstance.setOrmService(this.ormService, false);
         testInstance.setNlsService(this.nlsService);
-        testInstance.setSearchService(mock(SearchService.class));
+        testInstance.setSearchService(this.searchService);
         testInstance.setTransactionService(this.transactionService);
         testInstance.addCustomPropertySet(this.versionedCustomPropertySet);
         when(this.serviceDataModel.getInstance(RegisteredCustomPropertySetImpl.class)).thenReturn(new RegisteredCustomPropertySetImpl(this.serviceDataModel, this.threadPrincipalService, testInstance));
