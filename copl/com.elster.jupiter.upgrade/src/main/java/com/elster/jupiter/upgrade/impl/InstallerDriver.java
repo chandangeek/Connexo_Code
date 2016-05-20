@@ -2,7 +2,6 @@ package com.elster.jupiter.upgrade.impl;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
-import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.util.Holder;
@@ -36,11 +35,13 @@ final class InstallerDriver implements Migration {
 
     @Override
     public void migrate(Connection connection) throws Exception {
-        try (TransactionContext context = transactionService.getContext()) {
-            installer.get().install(dataModelUpgrader);
-            installAwareMigrationResolver.installed();
-            context.commit();
-        }
+        transactionService.builder()
+                .principal(() -> "Installer")
+                .run(() -> {
+                            installer.get().install(dataModelUpgrader);
+                            installAwareMigrationResolver.installed();
+                        }
+                );
     }
 
     @Override

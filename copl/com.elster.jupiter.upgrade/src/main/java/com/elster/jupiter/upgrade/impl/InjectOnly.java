@@ -10,7 +10,7 @@ import com.elster.jupiter.orm.SqlDialect;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.orm.associations.RefAny;
-import com.elster.jupiter.orm.impl.TableImpl;
+//import com.elster.jupiter.orm.impl.TableImpl;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -73,7 +73,7 @@ public class InjectOnly implements DataModel {
     }
 
     @Override
-    public TableImpl<?> getTable(String tableName, Version version) {
+    public Table<?> getTable(String tableName, Version version) {
         throw new UnsupportedOperationException();
     }
 

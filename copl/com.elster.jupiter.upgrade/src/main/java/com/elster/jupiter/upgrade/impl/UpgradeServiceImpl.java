@@ -25,9 +25,7 @@ import javax.inject.Inject;
 import javax.sql.DataSource;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 @Component(name = "com.elster.jupiter.upgrade", immediate = true, service = UpgradeService.class)
 public class UpgradeServiceImpl implements UpgradeService {
@@ -38,7 +36,6 @@ public class UpgradeServiceImpl implements UpgradeService {
     private volatile OrmService ormService;
     private boolean doUpgrade;
     private Map<InstallIdentifier, UpgradeClasses> registered = new HashMap<>();
-    private Set<String> installed = new HashSet<>();
 
     public UpgradeServiceImpl() {
     }
@@ -82,8 +79,7 @@ public class UpgradeServiceImpl implements UpgradeService {
                     throw new RuntimeException("Upgrade needed for " + installIdentifier);
                 }
             }
-            installed.add(dataModel.getName());
-        } catch (RuntimeException e) { // TODO (maybe seperate exc handling for both modes?)
+        } catch (RuntimeException e) { // TODO (maybe separate exc handling for both modes?)
             e.printStackTrace();
             throw e;
         }
