@@ -24,6 +24,7 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
     public static final String AARQ_RETRIES_PROPERTY = "AARQRetries";
     public static final String USE_EQUIPMENT_IDENTIFIER_AS_SERIAL = "UseEquipmentIdentifierAsSerialNumber";
     public static final String POLLING_DELAY = "PollingDelay";
+    public static final String INITIAL_FRAME_COUNTER = "InitialFrameCounter";
 
     public static final boolean USE_EQUIPMENT_IDENTIFIER_AS_SERIAL_DEFAULT_VALUE = false;
     public static final BigDecimal DEFAULT_SERVER_LOWER_MAC_ADDRESS = BigDecimal.valueOf(17);
@@ -54,7 +55,8 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
                 this.aarqTimeoutPropertySpec(),
                 this.lastSeenDatePropertySpec(),
                 this.aarqRetriesPropertySpec(),
-                this.pollingDelayPropertySpec()
+                this.pollingDelayPropertySpec(),
+                this.initialFrameCounter()
         );
     }
 
@@ -96,5 +98,9 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
 
     private PropertySpec aarqRetriesPropertySpec() {
         return PropertySpecFactory.bigDecimalPropertySpec(AARQ_RETRIES_PROPERTY, BigDecimal.valueOf(2));
+    }
+
+    private PropertySpec initialFrameCounter() {
+        return PropertySpecFactory.bigDecimalPropertySpec(INITIAL_FRAME_COUNTER);
     }
 }
