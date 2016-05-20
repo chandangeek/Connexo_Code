@@ -30,7 +30,6 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
@@ -101,7 +100,6 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     private volatile UserService userService;
     private volatile CommunicationTaskService communicationTaskService;
     private volatile MeteringGroupsService meteringGroupsService;
-    private volatile DeviceDataModelService deviceDataModelService;
     private volatile UpgradeService upgradeService;
 
     // For OSGI
@@ -145,11 +143,6 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     @Reference
     public void setCommunicationTaskService(CommunicationTaskService communicationTaskService) {
         this.communicationTaskService = communicationTaskService;
-    }
-
-    @Reference
-    public void setDeviceDataModelService(DeviceDataModelService deviceDataModelService) {
-        this.deviceDataModelService = deviceDataModelService;
     }
 
     @Reference
