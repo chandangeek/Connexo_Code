@@ -18,8 +18,8 @@ import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
@@ -78,7 +78,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     private volatile ConnectionTaskService connectionTaskService;
     private volatile CommunicationTaskService communicationTaskService;
     private volatile UpgradeService upgradeService;
-    private volatile DeviceDataModelService deviceDataModelService;
+    private volatile DeviceService deviceService;
 
     // For OSGi framework only
     public TopologyServiceImpl() {
@@ -87,7 +87,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
 
     // For unit testing purposes only
     @Inject
-    public TopologyServiceImpl(OrmService ormService, NlsService nlsService, Clock clock, ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService, UpgradeService upgradeService) {
+    public TopologyServiceImpl(OrmService ormService, NlsService nlsService, Clock clock, ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService, UpgradeService upgradeService, DeviceService deviceService) {
         this();
         setOrmService(ormService);
         setNlsService(nlsService);
@@ -95,6 +95,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
         setConnectionTaskService(connectionTaskService);
         setCommunicationTaskService(communicationTaskService);
         setUpgradeService(upgradeService);
+        setDeviceDataService(deviceService);
         activate();
     }
 
@@ -652,8 +653,8 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     }
 
     @Reference
-    public void setDeviceDataModelService(DeviceDataModelService deviceDataModelService) {
-        this.deviceDataModelService = deviceDataModelService;
+    public void setDeviceDataService(DeviceService deviceDataModelService) {
+        this.deviceService = deviceService;
     }
 
     @Reference
