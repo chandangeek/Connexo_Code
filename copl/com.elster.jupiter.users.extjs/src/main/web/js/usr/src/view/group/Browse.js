@@ -10,7 +10,7 @@ Ext.define('Usr.view.group.Browse', {
         'Usr.view.group.GroupActionMenu',
         'Ext.panel.Panel',
         'Uni.view.container.PreviewContainer',
-        'Uni.view.notifications.NoItemsFoundPanel'
+        'Uni.util.FormEmptyMessage'
     ],
 
     content: [
@@ -29,11 +29,8 @@ Ext.define('Usr.view.group.Browse', {
                         xtype: 'groupList'
                     },
                     emptyComponent: {
-                        xtype: 'no-items-found-panel',
-                        title: Uni.I18n.translate('role.Browse.NoItemsFoundPanel.title', 'USR', 'No roles found'),
-                        reasons: [
-                            Uni.I18n.translate('role.Browse.NoItemsFoundPanel.item', 'USR', 'An error occurred while loading the roles.')
-                        ]
+                        xtype: 'uni-form-empty-message',
+                        text: Uni.I18n.translate('role.Browse.empty', 'USR', 'An error occurred while loading the roles.')
                     },
                     previewComponent: {
                         xtype: 'groupDetails'
