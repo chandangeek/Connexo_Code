@@ -1,7 +1,6 @@
 package com.elster.jupiter.system.app.impl;
 
 import com.elster.jupiter.appserver.AppService;
-import com.elster.jupiter.appserver.rest.impl.AppServerApplication;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.cps.CustomPropertySetService;
@@ -61,7 +60,6 @@ public class SysAppServiceImpl implements SysAppService, TranslationKeyProvider,
     private volatile LicenseService licenseService;
     private volatile TimeService timeService;
     private volatile BpmService bpmService;
-    private volatile AppServerApplication appServerApplication;
     private volatile LifeCycleService lifeCycleService;
     private volatile FileImportService fileImportService;
     private volatile CustomPropertySetService customPropertySetService;
@@ -80,7 +78,6 @@ public class SysAppServiceImpl implements SysAppService, TranslationKeyProvider,
                              LicenseService licenseService,
                              TimeService timeService,
                              BpmService bpmService,
-                             AppServerApplication appServerApplication,
                              LifeCycleService lifeCycleService,
                              FileImportService fileImportService,
                              CustomPropertySetService customPropertySetService,
@@ -95,7 +92,6 @@ public class SysAppServiceImpl implements SysAppService, TranslationKeyProvider,
         setLicenseService(licenseService);
         setTimeService(timeService);
         setBpmService(bpmService);
-        setAppServerApplication(appServerApplication);
         setLifeCycleService(lifeCycleService);
         setFileImportService(fileImportService);
         setCustomPropertySetService(customPropertySetService);
@@ -108,19 +104,24 @@ public class SysAppServiceImpl implements SysAppService, TranslationKeyProvider,
 
     @Activate
     public final void activate(BundleContext context) {
-        HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, HTTP_RESOURCE_LOCAL_NAME, new BundleResolver(context), new DefaultStartPage(APPLICATION_NAME));
-        App app = new App(APPLICATION_KEY, APPLICATION_NAME, APPLICATION_ICON, HTTP_RESOURCE_ALIAS, resource, user -> isAllowed(user));
+        try {
+            HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, HTTP_RESOURCE_LOCAL_NAME, new BundleResolver(context), new DefaultStartPage(APPLICATION_NAME));
+            App app = new App(APPLICATION_KEY, APPLICATION_NAME, APPLICATION_ICON, HTTP_RESOURCE_ALIAS, resource, user -> isAllowed(user));
 
-        registration = context.registerService(App.class, app, null);
+            registration = context.registerService(App.class, app, null);
 
-        DataModel dataModel = upgradeService.newNonOrmDataModel();
-        dataModel.register(new AbstractModule() {
-            @Override
-            protected void configure() {
-                bind(UserService.class).toInstance(userService);
-            }
-        });
-        upgradeService.register(InstallIdentifier.identifier(COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
+            DataModel dataModel = upgradeService.newNonOrmDataModel();
+            dataModel.register(new AbstractModule() {
+                @Override
+                protected void configure() {
+                    bind(UserService.class).toInstance(userService);
+                }
+            });
+            upgradeService.register(InstallIdentifier.identifier("SSA"), dataModel, Installer.class, Collections.emptyMap());
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            throw e;
+        }
     }
 
     @Deactivate
@@ -151,11 +152,6 @@ public class SysAppServiceImpl implements SysAppService, TranslationKeyProvider,
     @Reference
     public void setBpmService(BpmService bpmService) {
         this.bpmService = bpmService;
-    }
-
-    @Reference
-    public void setAppServerApplication(AppServerApplication appServerApplication) {
-        this.appServerApplication = appServerApplication;
     }
 
     @Reference
