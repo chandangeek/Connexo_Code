@@ -607,7 +607,7 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
         // TODO: Validate the given arrival date
 
         me.wizardInformation.arrivalDate = dateField.getValue();
-        me.wizardInformation.dataLogger.get('dataLoggerSlaveDevices')[0] = me.wizardInformation.arrivalDate;
+        me.wizardInformation.dataLogger.get('dataLoggerSlaveDevices')[0]["arrivalDate"] = me.wizardInformation.arrivalDate;
         endMethod();
     },
 
