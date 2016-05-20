@@ -449,6 +449,8 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
     void removeReadingTypeObisCodeUsage(ReadingType readingType);
 
+    Channel.ChannelUpdater getChannelUpdaterFor(Channel channel);
+
     /**
      * Builder that support basic value setters for a ScheduledConnectionTask.
      */

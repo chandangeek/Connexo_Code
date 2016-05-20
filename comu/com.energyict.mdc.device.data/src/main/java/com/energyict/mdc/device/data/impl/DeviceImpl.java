@@ -379,8 +379,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         if (alreadyPersistent) {
             Save.UPDATE.save(dataModel, this);
             Optional<Meter> meter = findKoreMeter(getMdcAmrSystem());
-            meter.ifPresent( foundMeter -> {
-                if (foundMeter.getMRID()!=null &&
+            meter.ifPresent(foundMeter -> {
+                if (foundMeter.getMRID() != null &&
                         !foundMeter.getMRID().equals(this.getmRID())) {
                     foundMeter.setMRID(getmRID());
                 }
@@ -747,7 +747,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     @Override
     public Optional<BigDecimal> getMultiplierAt(Instant multiplierEffectiveTimeStamp) {
         List<MeterActivation> meterActivationsMostRecentFirst = getMeterActivationsMostRecentFirst();
-        Optional<MeterActivation> meterActivationForEffectiveTimeStamp = meterActivationsMostRecentFirst.stream().filter(meterActivation -> meterActivation.getInterval().toOpenClosedRange().contains(multiplierEffectiveTimeStamp)).findAny();
+        Optional<MeterActivation> meterActivationForEffectiveTimeStamp = meterActivationsMostRecentFirst.stream()
+                .filter(meterActivation -> meterActivation.getInterval().toOpenClosedRange().contains(multiplierEffectiveTimeStamp))
+                .findAny();
         if (meterActivationForEffectiveTimeStamp.isPresent()) {
             return meterActivationForEffectiveTimeStamp.get().getMultiplier(getDefaultMultiplierType());
         } else {
@@ -985,11 +987,26 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     public Optional<ReadingType> getCalculatedReadingTypeFromMeterConfiguration(ReadingType readingType, Instant timeStamp) {
         Optional<MeterConfiguration> configuration = findKoreMeter(getMdcAmrSystem()).get().getConfiguration(timeStamp);
         if (configuration.isPresent()) {
-            Optional<MeterReadingTypeConfiguration> mrtConfiguration = configuration.get().getReadingTypeConfigs().stream().filter(meterReadingTypeConfiguration -> meterReadingTypeConfiguration.getMeasured().equals(readingType)).findAny();
+            Optional<MeterReadingTypeConfiguration> mrtConfiguration = configuration.get()
+                    .getReadingTypeConfigs()
+                    .stream()
+                    .filter(meterReadingTypeConfiguration -> meterReadingTypeConfiguration.getMeasured().equals(readingType))
+                    .findAny();
             if (mrtConfiguration.isPresent()) {
                 return mrtConfiguration.get().getCalculated();
             } else {
                 return Optional.empty();
+            }
+        }
+        return Optional.empty();
+    }
+
+    public Optional<MeterReadingTypeConfiguration> getChannelReadingTypeConfiguration(Channel channel) {
+        Optional<Meter> koreMeter = findKoreMeter(getMdcAmrSystem());
+        if (koreMeter.isPresent()) {
+            Optional<MeterConfiguration> configuration = koreMeter.get().getConfiguration(clock.instant());
+            if (configuration.isPresent()) {
+                return configuration.get().getReadingTypeConfiguration(channel.getReadingType());
             }
         }
         return Optional.empty();
@@ -1113,7 +1130,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 dataModel.touch(this);
             }
         } else {
-            throw DeviceProtocolPropertyException.propertyDoesNotExistForDeviceProtocol(name, this.getDeviceProtocolPluggableClass().getDeviceProtocol(), this, thesaurus, MessageSeeds.DEVICE_PROPERTY_NOT_ON_DEVICE_PROTOCOL);
+            throw DeviceProtocolPropertyException.propertyDoesNotExistForDeviceProtocol(name, this.getDeviceProtocolPluggableClass()
+                    .getDeviceProtocol(), this, thesaurus, MessageSeeds.DEVICE_PROPERTY_NOT_ON_DEVICE_PROTOCOL);
         }
     }
 
@@ -1337,9 +1355,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     /**
      * Adds meter readings for a single channel to the timeslot-map.
      *
-     * @param interval                    The interval over which meter readings are requested
-     * @param meter                       The meter for which readings are requested
-     * @param mdcChannel                  The meter's channel for which readings are requested
+     * @param interval The interval over which meter readings are requested
+     * @param meter The meter for which readings are requested
+     * @param mdcChannel The meter's channel for which readings are requested
      * @param sortedLoadProfileReadingMap The map to add the readings too in the correct timeslot
      * @return true if any readings were added to the map, false otherwise
      */
@@ -1397,9 +1415,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
      * just a list of placeholders for each reading interval within the requestedInterval for all timestamps
      * that occur with the bounds of a meter activation and load profile's last reading.
      *
-     * @param loadProfile       The LoadProfile
+     * @param loadProfile The LoadProfile
      * @param requestedInterval interval over which user wants to see readings
-     * @param meter             The Meter
+     * @param meter The Meter
      * @return The map
      */
     private Map<Instant, LoadProfileReadingImpl> getPreFilledLoadProfileReadingMap(LoadProfile loadProfile, Range<Instant> requestedInterval, Meter meter) {
@@ -1488,7 +1506,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                         .truncatedTo(this.truncationUnit(loadProfile));    // round start time to interval boundary
         ZonedDateTime latestAttemptBefore = nextAttempt;
 
-        while (nextAttempt.toInstant().isBefore(requestedIntervalClippedToMeterActivation.lowerEndpoint()) || nextAttempt.toInstant().equals(requestedIntervalClippedToMeterActivation.lowerEndpoint())) {
+        while (nextAttempt.toInstant().isBefore(requestedIntervalClippedToMeterActivation.lowerEndpoint()) || nextAttempt.toInstant()
+                .equals(requestedIntervalClippedToMeterActivation.lowerEndpoint())) {
             latestAttemptBefore = nextAttempt;
             nextAttempt = nextAttempt.plus(this.intervalLength(loadProfile));
         }
@@ -1510,7 +1529,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                                 zoneId)
                         .with(ChronoField.DAY_OF_MONTH, 1).toLocalDate().atStartOfDay(zoneId);
 
-        while (nextAttempt.toInstant().isAfter(requestedIntervalClippedToMeterActivation.lowerEndpoint()) || nextAttempt.toInstant().equals(requestedIntervalClippedToMeterActivation.lowerEndpoint())) {
+        while (nextAttempt.toInstant().isAfter(requestedIntervalClippedToMeterActivation.lowerEndpoint()) || nextAttempt.toInstant()
+                .equals(requestedIntervalClippedToMeterActivation.lowerEndpoint())) {
             nextAttempt = nextAttempt.minus(this.intervalLength(loadProfile));
         }
         return nextAttempt;
@@ -1649,7 +1669,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
      * Activate the meter. Either end the current MeterActivation and create a new one, or just create a new one.
      * Depending on 'copyMultiplier' also copy the multiplierValue
      *
-     * @param start          start of the meterActivation
+     * @param start start of the meterActivation
      * @param copyMultiplier indication to copy the multiplier
      * @return the new meterActivation
      */
@@ -1826,7 +1846,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
      * Sorts the {@link MeterActivation}s of the specified {@link Meter}
      * that overlap with the {@link Interval}, where the most recent activations are returned first.
      *
-     * @param meter    The Meter
+     * @param meter The Meter
      * @param interval The Interval
      * @return The List of MeterActivation
      */
@@ -2178,7 +2198,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     public Optional<ReadingTypeObisCodeUsage> getReadingTypeObisCodeUsage(ReadingType readingType) {
-        if (readingType==null) return Optional.empty();
+        if (readingType == null) {
+            return Optional.empty();
+        }
         for (ReadingTypeObisCodeUsageImpl readingTypeObisCodeUsage : readingTypeObisCodeUsages) {
             if (readingTypeObisCodeUsage.getReadingType().getMRID().equals(readingType.getMRID())) {
                 return Optional.of(readingTypeObisCodeUsage);
@@ -2196,7 +2218,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public void removeReadingTypeObisCodeUsage(ReadingType readingType) {
-        for (java.util.Iterator<ReadingTypeObisCodeUsageImpl> iterator = readingTypeObisCodeUsages.iterator(); iterator.hasNext();) {
+        for (java.util.Iterator<ReadingTypeObisCodeUsageImpl> iterator = readingTypeObisCodeUsages.iterator(); iterator.hasNext(); ) {
             ReadingTypeObisCodeUsageImpl readingTypeObisCodeUsage = iterator.next();
             if (readingTypeObisCodeUsage.getReadingType().getMRID().equals(readingType.getMRID())) {
                 iterator.remove();
@@ -2447,6 +2469,156 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             ManuallyScheduledComTaskExecution comTaskExecution = super.add();
             return (ManuallyScheduledComTaskExecution) DeviceImpl.this.add((ComTaskExecutionImpl) comTaskExecution);
         }
+    }
+
+    @Override
+    public Channel.ChannelUpdater getChannelUpdaterFor(Channel channel) {
+        return new ChannelUpdaterImpl(channel);
+    }
+
+    private class ChannelUpdaterImpl implements Channel.ChannelUpdater {
+
+        private final Channel channel;
+        private Integer overruledNbrOfFractionDigits;
+        private BigDecimal overruledOverflowValue;
+        private ObisCode overruledObisCode;
+
+        public ChannelUpdaterImpl(Channel channel) {
+            this.channel = channel;
+        }
+
+        @Override
+        public void setNumberOfFractionDigits(Integer overruledNbrOfFractionDigits) {
+            this.overruledNbrOfFractionDigits = overruledNbrOfFractionDigits;
+        }
+
+        @Override
+        public void setOverflowValue(BigDecimal overruledOverflowValue) {
+            this.overruledOverflowValue = overruledOverflowValue;
+        }
+
+        @Override
+        public void setObisCode(ObisCode overruledObisCode) {
+            this.overruledObisCode = overruledObisCode;
+        }
+
+        @Override
+        public void update() {
+            Instant updateInstant = DeviceImpl.this.clock.instant();
+            DeviceImpl.this.findKoreMeter(getMdcAmrSystem()).ifPresent(koreMeter -> {
+                Optional<MeterConfiguration> currentMeterConfiguration = koreMeter.getConfiguration(updateInstant);
+                if (requiredToCreateNewMeterConfiguration(currentMeterConfiguration, channel.getReadingType())) { // if we need to update it
+                    if (currentMeterConfiguration.isPresent()) {
+                        MeterConfiguration meterConfiguration = currentMeterConfiguration.get();
+                        meterConfiguration.endAt(updateInstant);
+                        Meter.MeterConfigurationBuilder newMeterConfigBuilder = koreMeter.startingConfigurationOn(updateInstant);
+                        meterConfiguration.getReadingTypeConfigs().stream().forEach(meterReadingTypeConfiguration -> {
+                            Meter.MeterReadingTypeConfigurationBuilder meterReadingTypeConfigurationBuilder = newMeterConfigBuilder.configureReadingType(meterReadingTypeConfiguration.getMeasured());
+                            if (channelWeNeedToUpdate(meterReadingTypeConfiguration)) {
+                                if (overruledOverflowValue == null) {
+                                    meterReadingTypeConfigurationBuilder.withOverflowValue(channel.getChannelSpec().getOverflow().orElse(null));
+                                } else {
+                                    meterReadingTypeConfigurationBuilder.withOverflowValue(overruledOverflowValue);
+                                }
+                            } else if (meterReadingTypeConfiguration.getOverflowValue().isPresent()) {
+                                meterReadingTypeConfigurationBuilder.withOverflowValue(meterReadingTypeConfiguration.getOverflowValue().get());
+                            }
+                            if (channelWeNeedToUpdate(meterReadingTypeConfiguration)) {
+                                if (overruledNbrOfFractionDigits == null) {
+                                    meterReadingTypeConfigurationBuilder.withNumberOfFractionDigits(channel.getChannelSpec().getNbrOfFractionDigits());
+                                } else {
+                                    meterReadingTypeConfigurationBuilder.withNumberOfFractionDigits(overruledNbrOfFractionDigits);
+                                }
+                            } else if (meterReadingTypeConfiguration.getNumberOfFractionDigits().isPresent()) {
+                                meterReadingTypeConfigurationBuilder.withNumberOfFractionDigits(meterReadingTypeConfiguration.getNumberOfFractionDigits().getAsInt());
+                            }
+                            meterReadingTypeConfiguration.getCalculated()
+                                    .ifPresent(readingType -> meterReadingTypeConfigurationBuilder.withMultiplierOfType(getDefaultMultiplierType()).calculating(readingType));
+                        });
+                        newMeterConfigBuilder.create();
+                    } else {
+                        Meter.MeterConfigurationBuilder newMeterConfigBuilder = koreMeter.startingConfigurationOn(updateInstant);
+                        getDeviceConfiguration().getChannelSpecs().forEach(channelSpec -> {
+                            Meter.MeterReadingTypeConfigurationBuilder meterReadingTypeConfigurationBuilder = newMeterConfigBuilder.configureReadingType(channelSpec.getReadingType());
+                            if (channelWeNeedToUpdate(channelSpec) && overruledOverflowValue != null) {
+                                meterReadingTypeConfigurationBuilder.withOverflowValue(overruledOverflowValue);
+                            } else if (channelSpec.getOverflow().isPresent()) {
+                                meterReadingTypeConfigurationBuilder.withOverflowValue(channelSpec.getOverflow().get());
+                            }
+                            if (channelWeNeedToUpdate(channelSpec) && overruledNbrOfFractionDigits != null) {
+                                meterReadingTypeConfigurationBuilder.withNumberOfFractionDigits(overruledNbrOfFractionDigits);
+                            } else {
+                                meterReadingTypeConfigurationBuilder.withNumberOfFractionDigits(channelSpec.getNbrOfFractionDigits());
+                            }
+                            if (getMultiplier().compareTo(BigDecimal.ONE) == 1 && channelSpec.isUseMultiplier()) {
+                                meterReadingTypeConfigurationBuilder.withMultiplierOfType(getDefaultMultiplierType()).calculating(getMultipliedReadingTypeForChannelSpec(channelSpec));
+                            }
+                        });
+                        newMeterConfigBuilder.create();
+                    }
+                }
+            });
+            Optional<ReadingTypeObisCodeUsage> readingTypeObisCodeUsageOptional = DeviceImpl.this.getReadingTypeObisCodeUsage(channel.getReadingType());
+            boolean currentlyNoOverruledObisCodeAlthoughRequested = overruledObisCode != null && // obiscode overruling requested...
+                    !readingTypeObisCodeUsageOptional.isPresent(), // ...while currently there is none
+                    currentOverruledObisCodeIsNotTheCorrectOne = overruledObisCode != null && // obiscode overruling requested and...
+                            readingTypeObisCodeUsageOptional.isPresent() && // ...the currently present one...
+                            !readingTypeObisCodeUsageOptional.get().getObisCode().equals(overruledObisCode), // ...is different
+                    currentOverruledObisCodeIsNotNeeded = overruledObisCode == null && // no obiscode overruling requested...
+                            readingTypeObisCodeUsageOptional.isPresent(); // ...however, currently present
+
+            if (currentOverruledObisCodeIsNotTheCorrectOne || currentOverruledObisCodeIsNotNeeded) {
+                DeviceImpl.this.removeReadingTypeObisCodeUsage(channel.getReadingType());
+            }
+            if (currentOverruledObisCodeIsNotTheCorrectOne || currentlyNoOverruledObisCodeAlthoughRequested) {
+                DeviceImpl.this.addReadingTypeObisCodeUsage(channel.getReadingType(), overruledObisCode);
+            }
+        }
+
+        private boolean requiredToCreateNewMeterConfiguration(Optional<MeterConfiguration> meterConfiguration, ReadingType readingType) {
+            if (meterConfiguration.isPresent()) {
+                boolean required;
+                Optional<MeterReadingTypeConfiguration> readingTypeConfiguration = meterConfiguration.get().getReadingTypeConfiguration(readingType);
+                if (overruledOverflowValue == null) {
+                    required = readingTypeConfiguration.isPresent() && readingTypeConfiguration.get().getOverflowValue().isPresent();
+                } else {
+                    required = !readingTypeConfiguration.isPresent() || readingTypeConfiguration.get().getOverflowValue().get().equals(overruledOverflowValue);
+                }
+
+                if (overruledNbrOfFractionDigits == null) {
+                    required |= readingTypeConfiguration.isPresent() && readingTypeConfiguration.get().getNumberOfFractionDigits().isPresent();
+                } else {
+                    required |= !readingTypeConfiguration.isPresent() || readingTypeConfiguration.get().getNumberOfFractionDigits().getAsInt() != overruledNbrOfFractionDigits;
+                }
+                return required;
+            } else {
+                return true;
+            }
+        }
+
+        private boolean channelWeNeedToUpdate(ChannelSpec channelSpec) {
+            return channelSpec.getReadingType().equals(channel.getReadingType());
+        }
+
+        private boolean channelWeNeedToUpdate(MeterReadingTypeConfiguration meterReadingTypeConfiguration) {
+            return meterReadingTypeConfiguration.getMeasured().equals(channel.getReadingType());
+        }
+
+        private ReadingType getMultipliedReadingTypeForChannelSpec(ChannelSpec channelSpec) {
+            ReadingType calculatedReadingType = channelSpec.getCalculatedReadingType().get();
+            if (channelSpec.getReadingType().isCumulative()) {
+                String code = readingTypeUtilService.createReadingTypeCodeBuilderFrom(calculatedReadingType)
+                        .accumulate(channelSpec.getReadingType().getAccumulation()).code();
+                return readingTypeUtilService.findOrCreateReadingType(code, calculatedReadingType.getAliasName());
+            } else {
+                return calculatedReadingType;
+            }
+        }
+
+    }
+
+    private Optional<MeterConfiguration> getMeterConfiguration(Instant on) {
+        return findOrCreateKoreMeter(getMdcAmrSystem()).getConfiguration(on);
     }
 
     private enum RegisterFactory {

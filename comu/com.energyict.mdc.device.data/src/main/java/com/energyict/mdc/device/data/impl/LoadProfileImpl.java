@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.metering.MeterReadingTypeConfiguration;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.orm.DataModel;
@@ -18,6 +19,7 @@ import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.ReadingTypeObisCodeUsage;
 import com.energyict.mdc.device.data.impl.configchange.ServerLoadProfileForConfigChange;
+
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
@@ -268,7 +270,27 @@ public class LoadProfileImpl implements ServerLoadProfileForConfigChange {
 
         @Override
         public Optional<BigDecimal> getOverflow() {
-            return channelSpec.getOverflow();
+            Optional<MeterReadingTypeConfiguration> channelReadingTypeConfiguration = LoadProfileImpl.this.device.get().getChannelReadingTypeConfiguration(this);
+            if (channelReadingTypeConfiguration.isPresent()) {
+                Optional<BigDecimal> overflowValue = channelReadingTypeConfiguration.get().getOverflowValue();
+                if (overflowValue.isPresent()) {
+                    return overflowValue;
+                } else {
+                    return channelSpec.getOverflow();
+                }
+            } else {
+                return channelSpec.getOverflow();
+            }
+        }
+
+        @Override
+        public int getNrOfFractionDigits() {
+            Optional<MeterReadingTypeConfiguration> channelReadingTypeConfiguration = LoadProfileImpl.this.device.get().getChannelReadingTypeConfiguration(this);
+            if (channelReadingTypeConfiguration.isPresent()) {
+                return channelReadingTypeConfiguration.get().getNumberOfFractionDigits().orElse(channelSpec.getNbrOfFractionDigits());
+            } else {
+                return channelSpec.getNbrOfFractionDigits();
+            }
         }
 
         @Override
