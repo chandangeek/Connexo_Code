@@ -38,6 +38,7 @@ import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Registration;
+import com.elster.jupiter.util.concurrent.DelayedRegistrationHandler;
 import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
@@ -114,6 +115,7 @@ public class AppServiceImpl implements IAppService, Subscriber, PrivilegesProvid
     @GuardedBy("reconfigureLock")
     private Set<ImportSchedule> servedImportSchedules = new HashSet<>();
     private final Object reconfigureLock = new Object();
+    private final DelayedRegistrationHandler delayedNotifications = new DelayedRegistrationHandler();
 
     public AppServiceImpl() {
         threadGroup = new ThreadGroup("AppServer message listeners");
@@ -136,6 +138,7 @@ public class AppServiceImpl implements IAppService, Subscriber, PrivilegesProvid
         setUpgradeService(upgradeService);
 
         activate(bundleContext);
+        delayedNotifications.ready();
     }
 
     @Activate
@@ -168,6 +171,7 @@ public class AppServiceImpl implements IAppService, Subscriber, PrivilegesProvid
 
         } catch (RuntimeException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw e;
         }
     }
 
@@ -437,22 +441,23 @@ public class AppServiceImpl implements IAppService, Subscriber, PrivilegesProvid
     @Override
     public void handle(Object notification, Object... notificationDetails) {
         if (notification instanceof InvalidateCacheRequest) {
-            InvalidateCacheRequest invalidateCacheRequest = (InvalidateCacheRequest) notification;
-            Properties properties = new Properties();
-            properties.put(COMPONENT_NAME_KEY, invalidateCacheRequest.getComponentName());
-            properties.put(TABLE_NAME, invalidateCacheRequest.getTableName());
-            AppServerCommand command = new AppServerCommand(Command.INVALIDATE_CACHE, properties);
+            delayedNotifications.handle(() -> {
+                InvalidateCacheRequest invalidateCacheRequest = (InvalidateCacheRequest) notification;
+                Properties properties = new Properties();
+                properties.put(COMPONENT_NAME_KEY, invalidateCacheRequest.getComponentName());
+                properties.put(TABLE_NAME, invalidateCacheRequest.getTableName());
+                AppServerCommand command = new AppServerCommand(Command.INVALIDATE_CACHE, properties);
 
-            Optional<DestinationSpec> allServerDestination = messageService.getDestinationSpec(ALL_SERVERS);
-            if (allServerDestination.isPresent()) {
-                allServerDestination.get().message(jsonService.serialize(command)).send();
-            } else {
-                if (upgradeService.isInstalled(identifier(COMPONENT_NAME), version(1, 0))) {
-                    LOGGER.log(Level.SEVERE, "Could not notify other servers of InvalidateCacheRequest. AllServers queue does not exist!");
+                Optional<DestinationSpec> allServerDestination = messageService.getDestinationSpec(ALL_SERVERS);
+                if (allServerDestination.isPresent()) {
+                    allServerDestination.get().message(jsonService.serialize(command)).send();
+                } else {
+                    if (upgradeService.isInstalled(identifier(COMPONENT_NAME), version(1, 0))) {
+                        LOGGER.log(Level.SEVERE, "Could not notify other servers of InvalidateCacheRequest. AllServers queue does not exist!");
+                    }
                 }
-            }
+            });
         }
-
     }
 
     @Override
@@ -480,6 +485,7 @@ public class AppServiceImpl implements IAppService, Subscriber, PrivilegesProvid
         this.threadPrincipalService = threadPrincipalService;
     }
 
+    @Reference
     public void setUpgradeService(UpgradeService upgradeService) {
         this.upgradeService = upgradeService;
     }

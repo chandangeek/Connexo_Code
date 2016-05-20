@@ -6,6 +6,7 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
@@ -33,7 +34,7 @@ class Installer implements FullInstaller {
     }
 
     public void install(DataModelUpgrader dataModelUpgrader) {
-        createTables();
+        createTables(dataModelUpgrader);
         createBatchExecutor();
         createAllServerTopic();
     }
@@ -60,11 +61,12 @@ class Installer implements FullInstaller {
         }
     }
 
-    private void createTables() {
+    private void createTables(DataModelUpgrader dataModelUpgrader) {
         try {
-            dataModel.install(true, true);
-        } catch (Exception e) {
+            dataModelUpgrader.upgrade(dataModel, Version.latest());
+        } catch (RuntimeException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw e;
         }
     }
 
