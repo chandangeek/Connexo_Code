@@ -12,7 +12,6 @@ import com.elster.jupiter.metering.config.NullNode;
 import com.elster.jupiter.metering.config.OperationNode;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableNode;
-import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeRequirementNode;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.nls.Thesaurus;
@@ -23,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class MetrologyConfigurationInfo {
@@ -101,14 +101,12 @@ public class MetrologyConfigurationInfo {
         readingTypeDeliverable.getFormula().getExpressionNode().accept(readingTypeVisitor);
         readingTypeVisitor.readingTypeRequirementNodes
                 .stream()
-                .forEach(n -> meterRoles.add(findMeterRole(n.getReadingTypeRequirement())));
+                .map(ReadingTypeRequirementNode::getReadingTypeRequirement)
+                .map(requirement -> ((UsagePointMetrologyConfiguration) requirement.getMetrologyConfiguration()).getMeterRoleFor(requirement))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .forEach(meterRoles::add);
         return meterRoles;
-    }
-
-    private MeterRole findMeterRole(ReadingTypeRequirement requirement) {
-        return ((UsagePointMetrologyConfiguration) requirement.getMetrologyConfiguration())
-                .getMeterRoleFor(requirement)
-                .get();
     }
 
     private PurposeInfo asDetailedInfo(MetrologyContract metrologyContract, UsagePointMetrologyConfiguration metrologyConfiguration) {
