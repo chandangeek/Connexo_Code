@@ -184,12 +184,6 @@ public class UsagePointMeterTechInfGTWCustomPropertySet implements CustomPropert
                     .varChar(255)
                     .map(UsagePointMeterTechInfGTWDomExt.Fields.CONVERSION_METROLOGY.javaName())
                     .add();
-//            table.addQuantityColumns(UsagePointMeterTechInfGTWDomExt.Fields.CAPACITY_MIN.databaseName(), false,
-//                    UsagePointMeterTechInfGTWDomExt.Fields.CAPACITY_MIN.javaName());
-//            table.addQuantityColumns(UsagePointMeterTechInfGTWDomExt.Fields.CAPACITY_MAX.databaseName(), false,
-//                    UsagePointMeterTechInfGTWDomExt.Fields.CAPACITY_MAX.javaName());
-//            table.addQuantityColumns(UsagePointMeterTechInfGTWDomExt.Fields.CAPACITY_NOM.databaseName(), false,
-//                    UsagePointMeterTechInfGTWDomExt.Fields.CAPACITY_NOM.javaName());
             table.addQuantityColumns(UsagePointMeterTechInfGTWDomExt.Fields.PRESSURE_MAX.databaseName(), false,
                     UsagePointMeterTechInfGTWDomExt.Fields.PRESSURE_MAX.javaName());
         }
