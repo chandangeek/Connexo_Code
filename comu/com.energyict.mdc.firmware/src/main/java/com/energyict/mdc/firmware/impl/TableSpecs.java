@@ -30,7 +30,7 @@ public enum TableSpecs {
             Column deviceTypeColumn = table.column("DEVICETYPE").number().notNull().add();
             Column firmwareType = table.column("TYPE").number().map(FirmwareVersionImpl.Fields.FIRMWARETYPE.fieldName()).conversion(ColumnConversion.NUMBER2ENUM).add();
             table.column("STATUS").number().map(FirmwareVersionImpl.Fields.FIRMWARESTATUS.fieldName()).conversion(ColumnConversion.NUMBER2ENUM).add();
-            table.column("FIRMWAREFILE").type("blob").map(FirmwareVersionImpl.Fields.FIRMWAREFILE.fieldName()).conversion(ColumnConversion.BLOB2BYTE).add();
+            table.column("FIRMWAREFILE").blob().map(FirmwareVersionImpl.Fields.FIRMWAREFILE.fieldName()).add();
             table.addAuditColumns();
             table.primaryKey("FWC_PK_FIRMWARE").on(idColumn).add();
             table.foreignKey("FWC_FK_DEVICETYPE").on(deviceTypeColumn).map(FirmwareVersionImpl.Fields.DEVICETYPE.fieldName()).references(DeviceConfigurationService.COMPONENTNAME, "DTC_DEVICETYPE").onDelete(DeleteRule.CASCADE).add();
