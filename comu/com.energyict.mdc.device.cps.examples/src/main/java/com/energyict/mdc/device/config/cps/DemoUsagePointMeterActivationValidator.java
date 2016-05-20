@@ -12,10 +12,10 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.search.SearchablePropertyOperator;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-
+import org.osgi.service.component.annotations.Component;
 import javax.inject.Inject;
 
-
+@Component(name = "com.energyict.mdc.device.config.cps.DemoUsagePointMeterActivationValidator", service = CustomUsagePointMeterActivationValidator.class, immediate = true)
 public class DemoUsagePointMeterActivationValidator implements CustomUsagePointMeterActivationValidator {
 
     private volatile DeviceService deviceService;
