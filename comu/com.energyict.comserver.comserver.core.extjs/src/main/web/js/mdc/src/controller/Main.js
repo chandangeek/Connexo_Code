@@ -104,7 +104,8 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.MonitorProcesses',
         'Mdc.controller.Search',
         'Mdc.timeofuse.controller.TimeOfUse',
-        'Mdc.controller.setup.ServiceCalls'
+        'Mdc.controller.setup.ServiceCalls',
+        'Mdc.timeofuseondevice.controller.TimeOfUse'
     ],
 
     stores: [
