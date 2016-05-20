@@ -93,18 +93,13 @@ Ext.define('Mdc.view.setup.devicetype.SideMenu', {
         var me = this;
         me.addMenuItems([{
             title: Uni.I18n.translate('general.specifications', 'MDC', 'Specifications'),
+            itemId: 'specifications-menu-item',
             items: [
-                {
-                    text: Uni.I18n.translate('general.firmwareManagementOptions', 'MDC', 'Firmware management options'),
-                    privileges: Mdc.privileges.DeviceType.view,
-                    itemId: 'firmwareoptionsLink',
-                    href: '#/administration/devicetypes/' + me.deviceTypeId + '/firmware/options'
-                },
                 {
                     text: Uni.I18n.translate('general.firmwareVersions', 'MDC', 'Firmware versions'),
                     privileges: Mdc.privileges.DeviceType.view,
                     itemId: 'firmwareversionsLink',
-                    href: '#/administration/devicetypes/' + me.deviceTypeId + '/firmware/versions'
+                    href: '#/administration/devicetypes/' + me.deviceTypeId + '/firmwareversions'
                 },
                 {
                     text: Uni.I18n.translate('devicetypemenu.timeOfUseCalendars', 'MDC', 'Time of use calendars'),
