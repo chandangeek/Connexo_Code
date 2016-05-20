@@ -54,13 +54,13 @@ public class ChannelInfo {
         info.lastValueTimestamp = channel.getLastDateTime().orElse(null);
         info.readingType = new ReadingTypeInfo(channel.getReadingType());
         channel.getCalculatedReadingType(clock.instant()).ifPresent(readingType1 -> info.calculatedReadingType = new ReadingTypeInfo(readingType1));
-        channel.getOverflow().ifPresent(overflow -> info.overflowValue = overflow);
-        channel.getOverflow().ifPresent(overflow -> info.overruledOverflowValue = overflow); // Todo: change this to the real overruled value
+        channel.getChannelSpec().getOverflow().ifPresent(channelSpecOverflow -> info.overflowValue = channelSpecOverflow);
+        channel.getOverflow().ifPresent(overruledOverflowValue -> info.overruledOverflowValue = overruledOverflowValue);
         info.flowUnit = channel.getUnit().isFlowUnit() ? "flow" : "volume";
         info.obisCode = channel.getChannelSpec().getDeviceObisCode();
         info.overruledObisCode = channel.getObisCode();
         info.nbrOfFractionDigits = channel.getChannelSpec().getNbrOfFractionDigits();
-        info.overruledNbrOfFractionDigits = info.nbrOfFractionDigits; // Todo: change this to the real overruled value
+        info.overruledNbrOfFractionDigits = channel.getNrOfFractionDigits();
         info.loadProfileId = channel.getLoadProfile().getId();
         info.version = channel.getLoadProfile().getVersion();
         Device device = channel.getDevice();

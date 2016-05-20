@@ -6,19 +6,28 @@ import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
-import com.elster.jupiter.rest.util.*;
+import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.common.services.ListPager;
-import com.energyict.mdc.device.data.*;
+import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceValidation;
+import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.rest.DeviceStatesRestricted;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.issue.datavalidation.NotEstimatedBlock;
+
 import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
@@ -26,13 +35,30 @@ import com.google.common.collect.Range;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Provider;
-import javax.ws.rs.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.HttpMethod;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -84,30 +110,53 @@ public class ChannelResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE})
-    public Response updateRegister(@PathParam("mRID") String mRID, @PathParam("channelid") long channelId, ChannelInfo channelInfo) {
+    public Response updateChannel(@PathParam("mRID") String mRID, @PathParam("channelid") long channelId, ChannelInfo channelInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
-        Optional<ReadingTypeObisCodeUsage> readingTypeObisCodeUsageOptional = device.getReadingTypeObisCodeUsage(channel.getReadingType());
-        boolean currentlyNoOverruledObisCodeAlthoughRequested =
-            !channelInfo.overruledObisCode.equals(channelInfo.obisCode) && // obiscode overruling requested...
-            !readingTypeObisCodeUsageOptional.isPresent(), // ...while currently there is none
-        currentOverruledObisCodeIsNotTheCorrectOne =
-            !channelInfo.overruledObisCode.equals(channelInfo.obisCode) && // obiscode overruling requested and...
-            readingTypeObisCodeUsageOptional.isPresent() && // ...the currently present one...
-            !readingTypeObisCodeUsageOptional.get().getObisCode().equals(channelInfo.overruledObisCode), // ...is different
-        currentOverruledObisCodeIsNotNeeded =
-            channelInfo.overruledObisCode.equals(channelInfo.obisCode) && // no obiscode overruling requested...
-            readingTypeObisCodeUsageOptional.isPresent(); // ...however, currently present
-
-        if (currentOverruledObisCodeIsNotTheCorrectOne || currentOverruledObisCodeIsNotNeeded) {
-            device.removeReadingTypeObisCodeUsage(channel.getReadingType());
-        }
-        if (currentOverruledObisCodeIsNotTheCorrectOne || currentlyNoOverruledObisCodeAlthoughRequested) {
-            device.addReadingTypeObisCodeUsage(channel.getReadingType(), channelInfo.overruledObisCode);
-        }
+//        updateOverruledObisCode(channelInfo, device, channel);
+        updateMeterConfiguration(channelInfo, device, channel);
         device.save();
         return Response.ok().build();
     }
+
+    /**
+     * Update the fraction digits and overrule value for the given channel (if applicable)
+     */
+    private void updateMeterConfiguration(ChannelInfo channelInfo, Device device, Channel channel) {
+        Channel.ChannelUpdater channelUpdater = device.getChannelUpdaterFor(channel);
+        if (!Objects.equals(channelInfo.overruledNbrOfFractionDigits, channelInfo.nbrOfFractionDigits)) {
+            channelUpdater.setNumberOfFractionDigits(channelInfo.overruledNbrOfFractionDigits);
+        }
+        if (!channelInfo.overruledOverflowValue.equals(channelInfo.overflowValue)) {
+            channelUpdater.setOverflowValue(channelInfo.overruledOverflowValue);
+        }
+        if (!channelInfo.overruledObisCode.equals(channelInfo.obisCode)) {
+            channelUpdater.setObisCode(channelInfo.overruledObisCode);
+        }
+        channelUpdater.update();
+    }
+//
+//    //TODO move this logic to the updater?
+//    private void updateOverruledObisCode(ChannelInfo channelInfo, Device device, Channel channel) {
+//        Optional<ReadingTypeObisCodeUsage> readingTypeObisCodeUsageOptional = device.getReadingTypeObisCodeUsage(channel.getReadingType());
+//        boolean currentlyNoOverruledObisCodeAlthoughRequested =
+//            !channelInfo.overruledObisCode.equals(channelInfo.obisCode) && // obiscode overruling requested...
+//            !readingTypeObisCodeUsageOptional.isPresent(), // ...while currently there is none
+//        currentOverruledObisCodeIsNotTheCorrectOne =
+//            !channelInfo.overruledObisCode.equals(channelInfo.obisCode) && // obiscode overruling requested and...
+//            readingTypeObisCodeUsageOptional.isPresent() && // ...the currently present one...
+//            !readingTypeObisCodeUsageOptional.get().getObisCode().equals(channelInfo.overruledObisCode), // ...is different
+//        currentOverruledObisCodeIsNotNeeded =
+//            channelInfo.overruledObisCode.equals(channelInfo.obisCode) && // no obiscode overruling requested...
+//            readingTypeObisCodeUsageOptional.isPresent(); // ...however, currently present
+//
+//        if (currentOverruledObisCodeIsNotTheCorrectOne || currentOverruledObisCodeIsNotNeeded) {
+//            device.removeReadingTypeObisCodeUsage(channel.getReadingType());
+//        }
+//        if (currentOverruledObisCodeIsNotTheCorrectOne || currentlyNoOverruledObisCodeAlthoughRequested) {
+//            device.addReadingTypeObisCodeUsage(channel.getReadingType(), channelInfo.overruledObisCode);
+//        }
+//    }
 
     @GET @Transactional
     @Path("/{channelId}/customproperties")
