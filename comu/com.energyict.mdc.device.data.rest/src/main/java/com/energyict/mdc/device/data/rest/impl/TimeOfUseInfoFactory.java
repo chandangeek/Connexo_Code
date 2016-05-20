@@ -35,7 +35,9 @@ public class TimeOfUseInfoFactory {
                 info.activeCalendar =  this.calendarInfoFactory.nameOnly(activeCalendar.get().getAllowedCalendar().getName());
                 info.activeIsGhost = true;
             }
-            info.lastVerified = activeCalendar.get().getLastVerifiedDate().toEpochMilli();
+            if(activeCalendar.get().getLastVerifiedDate() != null) {
+                info.lastVerified = activeCalendar.get().getLastVerifiedDate().toEpochMilli();
+            }
         }
 
         if(passiveCalendars.size() > 0) {
