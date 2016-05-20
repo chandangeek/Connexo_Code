@@ -54,6 +54,14 @@ public class CalendarInfoFactoryImpl implements CalendarInfoFactory {
         this.thesaurus = nlsService.getThesaurus(CalendarApplication.COMPONENT_NAME, Layer.REST);
     }
 
+    @Override
+    public CalendarInfo nameOnly(String name) {
+        CalendarInfo calendarInfo = new CalendarInfo();
+        calendarInfo.name = name;
+        return calendarInfo;
+    }
+
+    @Override
     public CalendarInfo detailedFromCalendar(Calendar calendar) {
         CalendarInfo calendarInfo = new CalendarInfo();
 
@@ -170,6 +178,7 @@ public class CalendarInfoFactoryImpl implements CalendarInfoFactory {
         calendarInfo.startYear = calendar.getStartYear().getValue();
         calendarInfo.id = calendar.getId();
         calendarInfo.description = calendar.getDescription();
+        calendarInfo.startYear = calendar.getStartYear().getValue();
         calendarInfo.timeZone = calendar.getTimeZone() == null ? "" : calendar.getTimeZone().getDisplayName();
     }
 
