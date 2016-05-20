@@ -1,6 +1,7 @@
 package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.rest.util.IdWithNameInfo;
+import com.elster.jupiter.rest.util.hypermedia.LinkInfo;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 

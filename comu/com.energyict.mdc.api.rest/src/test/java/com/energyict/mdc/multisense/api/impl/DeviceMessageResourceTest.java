@@ -1,6 +1,7 @@
 package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.devtools.tests.FakeBuilder;
+import com.elster.jupiter.rest.util.hypermedia.LinkInfo;
 import com.elster.jupiter.rest.util.hypermedia.Relation;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;

@@ -1,5 +1,6 @@
 package com.energyict.mdc.multisense.api.impl;
 
+import com.elster.jupiter.rest.util.hypermedia.LinkInfo;
 import com.elster.jupiter.rest.util.hypermedia.Relation;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.config.ComTaskEnablement;
