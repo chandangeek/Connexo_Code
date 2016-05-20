@@ -2,6 +2,10 @@ package com.energyict.mdc.device.topology.impl;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.readings.IntervalReading;
+import com.elster.jupiter.metering.readings.Reading;
+import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
+import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.topology.DataLoggerChannelUsage;
@@ -9,6 +13,7 @@ import com.energyict.mdc.device.topology.DataLoggerChannelUsage;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
 
 /**
  * Represents the link between a Data Logger and its gateway
@@ -38,15 +43,36 @@ public class DataLoggerReferenceImpl extends AbstractPhysicalGatewayReferenceImp
         return Collections.unmodifiableList(dataLoggerChannelUsages);
     }
 
-//    /**
-//     * Data from each DataLogger Channel is transferred to the slave channel for this DataLoggerReference's interval
-//     */
-//    public void transferChannelData(){
-//         this.dataLoggerChannelUsages.stream().forEach(this::transferChannelData);
-//    }
-//
-//    private void transferChannelData(DataLoggerChannelUsage channelUsage){
-//        channelUsage.getDataLoggerChannel().getReadings(channelUsage, this.getInterval());
-//
-//    }
+    /**
+     * Data from each DataLogger Channel is transferred to the slave channel for this DataLoggerReference's interval
+     */
+    public void transferChannelDataToSlave(){
+         this.dataLoggerChannelUsages.stream().forEach(this::transferChannelData);
+    }
+
+    private void transferChannelData(DataLoggerChannelUsage channelUsage){
+        MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+
+        Channel dataloggerChannel = channelUsage.getDataLoggerChannel();
+        Channel slaveChannel = channelUsage.getSlaveChannel();
+        if (dataloggerChannel.isRegular()) {
+            List<IntervalReading> readings = new ArrayList<>();
+            readings.addAll(dataloggerChannel.getIntervalReadings(this.getRange()));
+            if (readings.isEmpty()){
+                return;
+            }
+            IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(slaveChannel.getMainReadingType().getMRID());
+            intervalBlock.addAllIntervalReadings(readings);
+            meterReading.addAllIntervalBlocks(Collections.singletonList(intervalBlock));
+        } else {
+            List<Reading> readings = new ArrayList<>();
+            readings.addAll(dataloggerChannel.getRegisterReadings(this.getRange()));
+            if (readings.isEmpty()){
+                return;
+            }
+            meterReading.addAllReadings(readings);
+        }
+        this.getOrigin().store(meterReading);
+    }
+
 }

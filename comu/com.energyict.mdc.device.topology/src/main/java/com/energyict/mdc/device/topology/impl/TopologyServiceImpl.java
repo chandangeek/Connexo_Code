@@ -346,6 +346,7 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
         slaveDataLoggerChannelMap.forEach((k,v) -> this.addChannelDataLoggerUsage(dataLoggerReference, k, v));
         slaveDataLoggerRegisterMap.forEach((k,v) -> this.addRegisterDataLoggerUsage(dataLoggerReference, k, v));
         Save.CREATE.validate(this.dataModel, dataLoggerReference);
+        dataLoggerReference.transferChannelDataToSlave();
         this.dataModel.persist(dataLoggerReference);
     }
 
