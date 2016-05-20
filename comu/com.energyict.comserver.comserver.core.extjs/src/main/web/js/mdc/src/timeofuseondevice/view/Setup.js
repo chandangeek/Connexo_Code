@@ -34,7 +34,7 @@ Ext.define('Mdc.timeofuseondevice.view.Setup', {
             xtype: 'panel',
             itemId: 'wrappingPanel',
             ui: 'large',
-            title: Uni.I18n.translate('general.timeOfUseCalendars', 'MDC', 'Time of use calendars'),
+            title: Uni.I18n.translate('general.timeOfUse', 'MDC', 'Time of use'),
             layout: {
                 type: 'vbox',
                 align: 'stretch',
