@@ -103,7 +103,7 @@ Ext.define('Uni.view.calendar.TimeOfUsePreview', {
             dayTypeId = record.get('id'),
             dayArray = calendarRecord.get('weekTemplate'),
             response = '';
-        for (i = 0; i < dayArray.length; i++) {
+        for (i = 1; i < dayArray.length; i++) {
             if (dayArray[i].type === dayTypeId) {
                 response += dayArray[i].name + ', '
             }
