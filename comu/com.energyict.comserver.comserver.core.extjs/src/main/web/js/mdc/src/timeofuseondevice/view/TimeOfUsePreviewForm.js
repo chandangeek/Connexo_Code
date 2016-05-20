@@ -25,7 +25,7 @@ Ext.define('Mdc.timeofuseondevice.view.TimeOfUsePreviewForm', {
                 {
                     xtype: 'displayfield',
                     fieldLabel: Uni.I18n.translate('general.lastVerifief', 'MDC', 'Last verified'),
-                    itemId: 'lastVefirifiedDisplayField',
+                    itemId: 'lastVerifiedDisplayField',
                     value: '-'
                 },
                 {
@@ -80,15 +80,15 @@ Ext.define('Mdc.timeofuseondevice.view.TimeOfUsePreviewForm', {
 
             me.down('#startYear').setValue(calendarRecord.get('startYear'));
 
-            if (record.get('lastVerified')) {
+            if (record.get('lastVerified') && record.get('lastVerified') !== 0) {
                 var creationTime = record.get('lastVerified');
                 if (new Date(creationTime).toDateString() === new Date().toDateString()) {
-                    me.down('#lastVefirifiedDisplayField').setValue(Uni.DateTime.formatTimeLong(new Date(creationTime)));
+                    me.down('#lastVerifiedDisplayField').setValue(Uni.DateTime.formatTimeLong(new Date(creationTime)));
                 } else {
-                    me.down('#lastVefirifiedDisplayField').setValue(Uni.DateTime.formatDateLong(new Date(creationTime)));
+                    me.down('#lastVerifiedDisplayField').setValue(Uni.DateTime.formatDateLong(new Date(creationTime)));
                 }
             } else {
-                me.down('#lastVefirifiedDisplayField').setValue('-');
+                me.down('#lastVerifiedDisplayField').setValue('-');
             }
         }
 

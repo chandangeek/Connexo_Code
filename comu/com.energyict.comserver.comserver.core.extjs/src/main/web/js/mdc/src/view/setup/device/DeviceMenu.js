@@ -172,7 +172,7 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                         href: '#/devices/' + encodeURIComponent(mRID) + '/firmware'
                     },
                     {
-                        text: Uni.I18n.translate('timeofuse.timeOfUseCalendars', 'MDC', 'Time of use calendars'),
+                        text: Uni.I18n.translate('general.timeOfUse', 'MDC', 'Time of use'),
                         itemId: 'deviceTimeOfUseLink',
                         privileges: Mdc.privileges.Device.viewDevice,
                         dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.timeOfUseAllowed,
