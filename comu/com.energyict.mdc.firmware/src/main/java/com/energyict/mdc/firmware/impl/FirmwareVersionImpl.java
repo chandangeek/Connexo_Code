@@ -289,12 +289,6 @@ public final class FirmwareVersionImpl implements FirmwareVersion {
         }
 
         @Override
-        public FirmwareVersionBuilder setFirmwareFile(byte[] firmwareFile) {
-            underConstruction.setFirmwareFile(firmwareFile);
-            return this;
-        }
-
-        @Override
         public FirmwareVersionBuilder setExpectedFirmwareSize(Integer fileSize) {
             underConstruction.setExpectedFirmwareSize(fileSize);
             return this;
