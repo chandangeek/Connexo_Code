@@ -4,7 +4,10 @@ import org.flywaydb.core.api.MigrationVersion;
 
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 
 public final class Version implements Comparable<Version> {
@@ -23,7 +26,11 @@ public final class Version implements Comparable<Version> {
     }
 
     public static Version version(int major, int... parts) {
-        return version(Arrays.stream(parts).mapToObj(Integer::toString).collect(Collectors.joining(".")));
+        String versionString = Stream.of(IntStream.of(major), Arrays.stream(parts))
+                .flatMapToInt(Function.identity())
+                .mapToObj(Integer::toString)
+                .collect(Collectors.joining("."));
+        return version(versionString);
     }
 
     @Override

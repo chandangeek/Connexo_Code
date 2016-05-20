@@ -1,7 +1,6 @@
 package com.elster.jupiter.orm;
 
 import com.elster.jupiter.orm.associations.RefAny;
-import com.elster.jupiter.orm.impl.TableImpl;
 
 import aQute.bnd.annotation.ConsumerType;
 import aQute.bnd.annotation.ProviderType;
@@ -70,7 +69,7 @@ public interface DataModel {
      */
     RefAny asRefAny(Object object);
 
-    TableImpl<?> getTable(String tableName, Version version);
+    Table<?> getTable(String tableName, Version version);
 
     /*
          * Adds a table in the default schema of the database user to the DataModel that maps to the type specified by the second argument
