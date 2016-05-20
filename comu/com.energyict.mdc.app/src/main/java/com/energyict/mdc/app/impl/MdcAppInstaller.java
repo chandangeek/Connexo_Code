@@ -16,7 +16,7 @@ import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.yellowfin.YellowfinService;
 import com.energyict.mdc.app.MdcAppService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.impl.DeviceDataModelService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.engine.monitor.app.MdcMonitorAppService;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.scheduling.SchedulingService;
@@ -42,7 +42,7 @@ public class MdcAppInstaller {
     private volatile AppService appService;
     private volatile IssueService issueService;
     private volatile DeviceConfigurationService deviceConfigurationService;
-    private volatile DeviceDataModelService deviceDataModelService;
+    private volatile DeviceService deviceService;
     private volatile SchedulingService schedulingService;
     private volatile ValidationService validationService;
     private volatile YellowfinService yellowfinService;
@@ -63,7 +63,7 @@ public class MdcAppInstaller {
                 bind(UserService.class).toInstance(userService);
             }
         });
-        upgradeService.register(InstallIdentifier.identifier(MdcAppService.COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier("MDA"), dataModel, Installer.class, Collections.emptyMap());
     }
 
     static class Installer implements FullInstaller {
@@ -252,8 +252,8 @@ public class MdcAppInstaller {
     }
 
     @Reference
-    public void setDeviceDataModelService(DeviceDataModelService deviceDataModelService) {
-        this.deviceDataModelService = deviceDataModelService;
+    public void setDeviceService(DeviceService deviceService) {
+        this.deviceService = deviceService;
     }
 
     @Reference
