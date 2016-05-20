@@ -675,7 +675,6 @@
                 <module>../com.elster.jupiter.orm</module>
                 <module>../com.elster.jupiter.orm.schema.oracle</module>
                 <module>../com.elster.jupiter.osgi.goodies</module>
-                <module>../com.elster.jupiter.platform.api.rest</module>
                 <module>../com.elster.jupiter.properties</module>
                 <module>../com.elster.jupiter.public.rest.util</module>
                 <module>../com.elster.jupiter.pubsub</module>
