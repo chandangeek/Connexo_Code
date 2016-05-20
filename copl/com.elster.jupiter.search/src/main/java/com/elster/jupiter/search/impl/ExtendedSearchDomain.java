@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Provides an implementation for the {@link SearchDomain} interface
@@ -57,36 +58,24 @@ public class ExtendedSearchDomain implements SearchDomain {
 
     @Override
     public List<SearchableProperty> getProperties() {
-        List<SearchDomainExtension> extensions = this.searchService.getSearchExtensions()
-                .stream()
-                .filter(extension -> extension.isExtensionFor(this.originalDomain, Collections.emptyList()))
-                .collect(Collectors.toList());
-        if (!extensions.isEmpty()) {
-            List<SearchableProperty> allProperties = new ArrayList<>(this.originalDomain.getProperties());
-            extensions.stream()
-                    .forEach(extension -> extension.getProperties()
-                            .stream()
-                            .forEach(property -> allProperties.add(new SearchDomainExtensionSearchableProperty(this, extension, property))));
-            return allProperties;
-        }
-        return this.originalDomain.getProperties();
+        return Stream.concat(
+                this.originalDomain.getProperties().stream(),
+                this.searchService.getSearchExtensions()
+                        .stream()
+                        .filter(extension -> extension.isExtensionFor(this.originalDomain, Collections.emptyList()))
+                        .flatMap(extension -> extension.getProperties().stream().map(property -> new SearchDomainExtensionSearchableProperty(this, extension, property)))
+        ).collect(Collectors.toList());
     }
 
     @Override
     public List<SearchableProperty> getPropertiesWithConstrictions(List<SearchablePropertyConstriction> constrictions) {
-        List<SearchDomainExtension> extensions = this.searchService.getSearchExtensions()
-                .stream()
-                .filter(extension -> extension.isExtensionFor(this.originalDomain, constrictions))
-                .collect(Collectors.toList());
-        if (!extensions.isEmpty()) {
-            List<SearchableProperty> allProperties = new ArrayList<>(this.originalDomain.getPropertiesWithConstrictions(constrictions));
-            extensions.stream()
-                    .forEach(extension -> extension.getPropertiesWithConstrictions(constrictions)
-                            .stream()
-                            .forEach(property -> allProperties.add(new SearchDomainExtensionSearchableProperty(this, extension, property))));
-            return allProperties;
-        }
-        return this.originalDomain.getPropertiesWithConstrictions(constrictions);
+        return Stream.concat(
+                this.originalDomain.getPropertiesWithConstrictions(constrictions).stream(),
+                this.searchService.getSearchExtensions()
+                        .stream()
+                        .filter(extension -> extension.isExtensionFor(this.originalDomain, constrictions))
+                        .flatMap(extension -> extension.getPropertiesWithConstrictions(constrictions).stream().map(property -> new SearchDomainExtensionSearchableProperty(this, extension, property)))
+        ).collect(Collectors.toList());
     }
 
     @Override

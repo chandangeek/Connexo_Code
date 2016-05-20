@@ -36,6 +36,7 @@ public interface SearchService {
     void unregister(SearchDomain searchDomain);
 
     void unregister(SearchDomainExtension searchDomainExtension);
+
     /**
      * Gets all the registered {@link SearchDomain}s.
      *
@@ -98,8 +99,8 @@ public interface SearchService {
      *
      * @param domainClass The domain class
      * @return The SearchBuilder
-     * @see SearchDomain#getDomainClass()
      * @throws IllegalArgumentException
+     * @see SearchDomain#getDomainClass()
      */
     @SuppressWarnings("unchecked")
     default <T> SearchBuilder<T> search(Class<T> domainClass) {

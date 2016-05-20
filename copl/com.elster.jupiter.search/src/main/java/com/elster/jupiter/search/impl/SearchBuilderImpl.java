@@ -97,15 +97,10 @@ public class SearchBuilderImpl<T> implements SearchBuilder<T> {
         private Object attemptConvertToValidValue(Object value) {
             try {
                 PropertySpec specification = this.property.getSpecification();
-                if (specification.isReference()) {
-                    if (value instanceof String) {
-                        String id = (String) value;
-                        return specification.getValueFactory().fromStringValue(id);
-                    } else {
-                        return specification.getValueFactory().valueFromDatabase(value);
-                    }
-                } else if (value instanceof String) {
+                if (value instanceof String) {
                     return specification.getValueFactory().fromStringValue((String) value);
+                } else if (specification.isReference()) {
+                    return specification.getValueFactory().valueFromDatabase(value);
                 } else {
                     return value;
                 }

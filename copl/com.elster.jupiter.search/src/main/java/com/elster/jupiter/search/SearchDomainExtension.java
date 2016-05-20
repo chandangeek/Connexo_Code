@@ -18,7 +18,7 @@ public interface SearchDomainExtension {
      * when the {@link SearchablePropertyConstriction}s are applied.
      * An extension is meant to add additional SearchProperties to a SearchDomain
      *
-     * @return true if this SearchDomainExtension extends the given
+     * @return true if this SearchDomainExtension extends the given one
      */
     boolean isExtensionFor(SearchDomain domain, List<SearchablePropertyConstriction> constrictions);
 
@@ -36,7 +36,7 @@ public interface SearchDomainExtension {
      * that can be used to specify criteria
      * to search for values of this SearchDomain
      * after values have been selected for properties
-     * that are know to affect the available properties
+     * that are known to affect the available properties
      * of this SearchDomain.
      * <p>
      * Note that implementation classes may throw an IllegalArgumentException
