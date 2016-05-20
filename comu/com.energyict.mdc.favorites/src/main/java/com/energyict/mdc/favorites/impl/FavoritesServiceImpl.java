@@ -117,6 +117,7 @@ public class FavoritesServiceImpl implements FavoritesService, MessageSeedProvid
         //Required for initialization data models in correct sequence
     }
 
+    @Reference
     public void setUpgradeService(UpgradeService upgradeService) {
         this.upgradeService = upgradeService;
     }
