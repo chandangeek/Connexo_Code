@@ -5,7 +5,6 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
@@ -21,7 +20,7 @@ import java.util.Collections;
         property = {"subscriber=" + UsagePointFileImporterMessageHandler.SUBSCRIBER_NAME,
                 "destination=" + UsagePointFileImporterMessageHandler.DESTINATION_NAME,
                 "name=" + UsagePointFileImporterMessageHandler.APP_NAME},
-        service = {MessageHandlerFactory.class, InstallService.class}, immediate = true)
+        service = {MessageHandlerFactory.class}, immediate = true)
 public class UsagePointFileImporterMessageHandler implements MessageHandlerFactory {
     public static final String APP_NAME = "MTI";
     public static final String DESTINATION_NAME = "UsagePointFileImport";
@@ -64,4 +63,8 @@ public class UsagePointFileImporterMessageHandler implements MessageHandlerFacto
         this.transactionService = transactionService;
     }
 
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
+    }
 }

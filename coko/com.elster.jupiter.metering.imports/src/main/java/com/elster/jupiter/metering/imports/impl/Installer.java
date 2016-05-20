@@ -7,10 +7,13 @@ import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.util.exception.ExceptionCatcher;
 
+import javax.inject.Inject;
+
 final class Installer implements FullInstaller {
 
     private final MessageService messageService;
 
+    @Inject
     Installer(MessageService messageService) {
         this.messageService = messageService;
     }
