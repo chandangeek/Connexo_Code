@@ -17,7 +17,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DoesNotExistException;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryExecutor;
-import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.UpgradeService;
@@ -74,7 +73,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(
         name = "com.elster.jupiter.users",
-        service = {UserService.class, InstallService.class, MessageSeedProvider.class, TranslationKeyProvider.class, PrivilegesProvider.class},
+        service = {UserService.class, MessageSeedProvider.class, TranslationKeyProvider.class},
         immediate = true,
         property = "name=" + UserService.COMPONENTNAME)
 public class UserServiceImpl implements UserService, MessageSeedProvider, TranslationKeyProvider, PrivilegesProvider {
@@ -133,7 +132,6 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
         setMessageService(messageService);
         setJsonService(jsonService);
         setUpgradeService(upgradeService);
-        privilegesProviders.add(this);
         activate(bundleContext);
     }
 
@@ -159,6 +157,7 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
             }
         });
         userPreferencesService = new UserPreferencesServiceImpl(dataModel);
+        addModulePrivileges(this);
         synchronized (privilegeProviderRegistrationLock) {
             upgradeService.register(identifier(COMPONENTNAME), dataModel, InstallerImpl.class, Collections.emptyMap());
         }
