@@ -106,7 +106,7 @@ Ext.define('Cal.controller.Calendars', {
             calendarId: id
         });
         view.on('timeofusecalendarloaded', function (newRecord) {
-            me.getApplication().fireEvent('timeofusecalendarloaded', newRecord.get('name'))
+            me.getApplication().fireEvent('timeofusecalendarloaded', newRecord.get('name'));
             return true;
         }, {single: true});
         me.getApplication().fireEvent('changecontentevent', view);
