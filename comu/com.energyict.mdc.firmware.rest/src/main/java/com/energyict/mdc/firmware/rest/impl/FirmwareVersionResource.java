@@ -117,8 +117,8 @@ public class FirmwareVersionResource {
         FirmwareVersionBuilder firmwareVersionBuilder = firmwareService.newFirmwareVersion(deviceType, firmwareVersion, firmwareStatus, firmwareType);
         byte[] firmwareFile = loadFirmwareFile(fileInputStream);
         setExpectedFirmwareSize(firmwareVersionBuilder, firmwareFile);;
-        firmwareVersionBuilder.create();
-        setFirmwareFile(firmwareVersionBuilder, firmwareFile);
+        FirmwareVersion version = firmwareVersionBuilder.create();
+        setFirmwareFile(version, firmwareFile);
 
         return Response.ok().header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN).build();
     }
@@ -253,13 +253,9 @@ public class FirmwareVersionResource {
         }
     }
 
-    private void setFirmwareFile(Object firmwareFileReceiver, byte[] firmwareFile) {
+    private void setFirmwareFile(FirmwareVersion firmwareVersion, byte[] firmwareFile) {
         if (firmwareFile.length > 0) {
-            if (firmwareFileReceiver instanceof FirmwareVersion) {
-                ((FirmwareVersion) firmwareFileReceiver).setFirmwareFile(firmwareFile);
-            } else if (firmwareFileReceiver instanceof FirmwareVersionBuilder) {
-                ((FirmwareVersionBuilder) firmwareFileReceiver).setFirmwareFile(firmwareFile);
-            }
+            firmwareVersion.setFirmwareFile(firmwareFile);
         }
     }
 
