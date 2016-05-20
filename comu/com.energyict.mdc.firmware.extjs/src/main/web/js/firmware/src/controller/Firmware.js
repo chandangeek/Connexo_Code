@@ -424,7 +424,7 @@ Ext.define('Fwc.controller.Firmware', {
         if (view.down('deviceTypeSideMenu')) {
             view.down('deviceTypeSideMenu').setDeviceTypeLink(deviceType.get('name'));
             view.down('deviceTypeSideMenu #conflictingMappingLink').setText(
-                Uni.I18n.translate('deviceConflictingMappings.ConflictingMappingCount', 'MDC', 'Conflicting mappings ({0})', deviceType.get('deviceConflictsCount'))
+                Uni.I18n.translate('deviceConflictingMappings.ConflictingMappingCount', 'FWC', 'Conflicting mappings ({0})', deviceType.get('deviceConflictsCount'))
             );
         }
         view.setLoading(false);

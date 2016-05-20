@@ -32,7 +32,7 @@ Ext.define('Fwc.view.firmware.FirmwareVersionsOverview', {
 
         me.content = {
             ui: 'large',
-            title: Uni.I18n.translate('general.firmwareVersions', 'MDC', 'Firmware versions'),
+            title: Uni.I18n.translate('general.firmwareVersions', 'FWC', 'Firmware versions'),
             items: [
                 {
                     xtype: 'tabpanel',
@@ -41,7 +41,7 @@ Ext.define('Fwc.view.firmware.FirmwareVersionsOverview', {
                     activeTab: me.firmwareManagementAllowed ? 1 : 0,
                     items: [
                         {
-                            title: Uni.I18n.translate('general.specifications', 'MDC', 'Specifications'),
+                            title: Uni.I18n.translate('general.specifications', 'FWC', 'Specifications'),
                             itemId: 'mdc-options-tab',
                             items: [
                                 {
@@ -51,7 +51,7 @@ Ext.define('Fwc.view.firmware.FirmwareVersionsOverview', {
                             ]
                         },
                         {
-                            title: Uni.I18n.translate('general.firmwareVersions', 'MDC', 'Firmware versions'),
+                            title: Uni.I18n.translate('general.firmwareVersions', 'FWC', 'Firmware versions'),
                             itemId: 'mdc-versions-tab',
                             items: [
                                 {

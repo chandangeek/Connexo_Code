@@ -23,7 +23,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
                     {
                         xtype: 'button',
                         iconCls: 'x-uni-action-iconD',
-                        text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+                        text: Uni.I18n.translate('general.actions', 'FWC', 'Actions'),
                         menu: {
                             plain: true,
                             border: false,
@@ -31,7 +31,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
                             items: [
                                 {
                                     itemId: 'mdc-edit-options-btn',
-                                    text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+                                    text: Uni.I18n.translate('general.edit', 'FWC', 'Edit'),
                                     privileges: Mdc.privileges.DeviceType.admin,
                                     action: 'editFirmwareOptions'
                                 }
