@@ -4,6 +4,7 @@ import com.elster.jupiter.system.BundleType;
 import com.elster.jupiter.system.Component;
 import com.elster.jupiter.system.beans.ComponentImpl;
 import com.elster.jupiter.util.UpdatableHolder;
+
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -300,7 +301,8 @@ public class DependenciesParser {
     }
 
     static class VersionNode extends XmlNode {
-
+        static final Pattern PROPERTY_PATTERN = Pattern.compile("\\$\\{([a-z\\.]+)\\}");//${version.version}
+        static final Pattern REVISION_PATTERN = Pattern.compile("(.*)\\$\\{([a-z\\.]+)\\}");
         static final String TAG = "version";
 
         ComponentImpl component;
@@ -317,7 +319,12 @@ public class DependenciesParser {
         }
 
         private String getVersion(String mavenVersion) {
-            Pattern PROPERTY_PATTERN = Pattern.compile("\\$\\{([a-z\\.]+)\\}");//${version.version}
+            Matcher revisionMatcher = REVISION_PATTERN.matcher(mavenVersion);
+            if (revisionMatcher.matches()) {
+                String group = revisionMatcher.group(2);
+                String revision = properties.getProperty(group, "");
+                mavenVersion = revisionMatcher.group(1) + revision;
+            }
             Matcher matcher = PROPERTY_PATTERN.matcher(mavenVersion);
             if (matcher.matches()) {
                 String property = matcher.group(1);
@@ -325,6 +332,7 @@ public class DependenciesParser {
             }
             return OsgiUtils.getOsgiVersion(mavenVersion);
         }
+
     }
 
     static class TypeNode extends XmlNode {
