@@ -22,7 +22,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.transaction.CommitException;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -68,7 +67,7 @@ import java.util.stream.Stream;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-08-10 (13:35)
  */
-@Component(name = "com.elster.jupiter.cps", service = {CustomPropertySetService.class, ServerCustomPropertySetService.class, InstallService.class, TranslationKeyProvider.class, PrivilegesProvider.class}, property = "name=" + CustomPropertySetService.COMPONENT_NAME)
+@Component(name = "com.elster.jupiter.cps", service = {CustomPropertySetService.class, ServerCustomPropertySetService.class, TranslationKeyProvider.class, PrivilegesProvider.class}, property = "name=" + CustomPropertySetService.COMPONENT_NAME)
 public class CustomPropertySetServiceImpl implements ServerCustomPropertySetService, TranslationKeyProvider, PrivilegesProvider {
 
     private static final Logger LOGGER = Logger.getLogger(CustomPropertySetServiceImpl.class.getName());
