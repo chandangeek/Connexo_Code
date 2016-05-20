@@ -89,7 +89,7 @@ Ext.define('Mdc.view.setup.device.DeviceCommunications', {
                 {
                     itemId: 'nextCommunication',
                     text: Uni.I18n.translate('device.communications.nextCommunication', 'MDC', 'Next communication'),
-                    dataIndex: 'plannedDate',
+                    dataIndex: 'nextCommunication',
                     renderer: function (value) {
                         return value ? Uni.DateTime.formatDateTimeShort(value) : '-';
                     },

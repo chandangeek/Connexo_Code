@@ -103,6 +103,7 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.customattributesonvaluesobjects.controller.CustomAttributeSetVersionsOnChannel',
         'Mdc.controller.setup.MonitorProcesses',
         'Mdc.controller.Search',
+        'Mdc.timeofuse.controller.TimeOfUse',
         'Mdc.controller.setup.ServiceCalls'
     ],
 
@@ -289,7 +290,7 @@ Ext.define('Mdc.controller.Main', {
 
         Uni.store.Apps.load({
             callback: function(){
-                if(Mdc.privileges.UsagePoint.checkAdminWithInsight()){
+                if(Mdc.privileges.UsagePoint.canAdmin()){
                     var usagePointsMenuItem = Ext.create('Uni.model.MenuItem', {
                         text: Uni.I18n.translate('general.usagePoints', 'MDC', 'Usage points'),
                         href: '#/usagepoints',
