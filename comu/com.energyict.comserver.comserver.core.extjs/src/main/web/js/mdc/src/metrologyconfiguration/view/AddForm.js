@@ -2,7 +2,8 @@ Ext.define('Mdc.metrologyconfiguration.view.AddForm', {
     extend: 'Ext.form.Panel',
     alias: 'widget.metrology-configurations-add-form',
     requires: [
-        'Uni.form.field.readingtypes.ReadingTypesField'
+        'Uni.form.field.readingtypes.ReadingTypesField',
+        'Uni.form.field.ComboReturnedRecordData'
     ],
 
     returnLink: null,
@@ -36,7 +37,7 @@ Ext.define('Mdc.metrologyconfiguration.view.AddForm', {
                 height: 160
             },
             {
-                xtype: 'combobox',
+                xtype: 'combo-returned-record-data',
                 name: 'serviceCategory',
                 itemId: 'mc-serviceCategory-combobox',
                 fieldLabel: Uni.I18n.translate('general.serviceCategory', 'MDC', 'Service category'),
