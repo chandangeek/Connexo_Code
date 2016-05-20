@@ -205,6 +205,12 @@
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
+                <artifactId>platform.api.rest</artifactId>
+                <version>1.0.0${revision}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.elster.jupiter</groupId>
                 <artifactId>system.app</artifactId>
                 <version>1.2.0${revision}</version>
                 <scope>provided</scope>
@@ -301,6 +307,7 @@
                 <module>../com.elster.jupiter.metering.extjs</module>
                 <module>../com.elster.jupiter.parties</module>
                 <module>../com.elster.jupiter.parties.rest</module>
+                <module>../com.elster.jupiter.platform.api.rest</module>
                 <module>../com.elster.jupiter.system.app</module>
                 <module>../com.elster.jupiter.system.app.help</module>
                 <module>../com.elster.jupiter.systemadmin.extjs</module>
