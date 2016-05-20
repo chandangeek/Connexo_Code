@@ -37,6 +37,11 @@ public final class LazyLoadingBlob implements Blob, IOResource {
     private InternalBlob actualBlob;
     private KeyValue keyValue;
 
+    private LazyLoadingBlob(DataModel dataModel, ColumnImpl column) {
+        this.dataModel = dataModel;
+        this.column = column;
+    }
+
     public static LazyLoadingBlob from(ColumnImpl column) {
         LazyLoadingBlob blob = new LazyLoadingBlob(column.getTable().getDataModel(), column);
         blob.prepareForLoading();
@@ -47,11 +52,6 @@ public final class LazyLoadingBlob implements Blob, IOResource {
         LazyLoadingBlob lazyLoadingBlob = new LazyLoadingBlob(column.getTable().getDataModel(), column);
         lazyLoadingBlob.initFromBlob(simpleBlob);
         return lazyLoadingBlob;
-    }
-
-    private LazyLoadingBlob(DataModel dataModel, ColumnImpl column) {
-        this.dataModel = dataModel;
-        this.column = column;
     }
 
     private void prepareForLoading() {
@@ -84,27 +84,18 @@ public final class LazyLoadingBlob implements Blob, IOResource {
     }
 
     @Override
+    public long length() {
+        return this.actualBlob.length();
+    }    @Override
     public void clear() {
         this.actualBlob.clear();
     }
 
-    @Override
-    public OutputStream setBinaryStream() {
-        return this.actualBlob.setBinaryStream();
-    }
-
-    @Override
-    public long length() {
-        return this.actualBlob.length();
-    }
-
-    @Override
-    public InputStream getBinaryStream() {
-        return this.actualBlob.getBinaryStream();
-    }
-
     private interface InternalBlob extends Blob, IOResource {
         void bindTo(PreparedStatement statement, int index) throws SQLException;
+    }    @Override
+    public OutputStream setBinaryStream() {
+        return this.actualBlob.setBinaryStream();
     }
 
     private static class TransientBlob implements InternalBlob {
@@ -116,17 +107,17 @@ public final class LazyLoadingBlob implements Blob, IOResource {
         }
 
         @Override
+        public void bindTo(PreparedStatement statement, int index) throws SQLException {
+            this.binaryStream = this.actualBlob.getBinaryStream();
+            statement.setBinaryStream(index, this.binaryStream);
+        }        @Override
         public void close() throws IOException {
             if (this.binaryStream != null) {
                 this.binaryStream.close();
             }
         }
 
-        @Override
-        public void bindTo(PreparedStatement statement, int index) throws SQLException {
-            this.binaryStream = this.actualBlob.getBinaryStream();
-            statement.setBinaryStream(index, this.binaryStream);
-        }
+
 
         @Override
         public long length() {
@@ -244,7 +235,7 @@ public final class LazyLoadingBlob implements Blob, IOResource {
         public void clear() {
             this.ensureLoaded();
             try {
-                this.databaseBlob.truncate(1);
+                this.databaseBlob.truncate(0);
             } catch (SQLException e) {
                 throw new UnderlyingSQLFailedException(e);
             }
@@ -260,6 +251,15 @@ public final class LazyLoadingBlob implements Blob, IOResource {
             }
         }
 
+    }    @Override
+    public InputStream getBinaryStream() {
+        return this.actualBlob.getBinaryStream();
     }
+
+
+
+
+
+
 
 }

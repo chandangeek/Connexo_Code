@@ -398,7 +398,9 @@ public enum ColumnConversionImpl {
 
         @Override
         public Object convertToDb(ColumnImpl column, Object value) {
-	        if (value instanceof LazyLoadingBlob) {
+			if (value == null) {
+				return null;
+			} else if (value instanceof LazyLoadingBlob) {
                 return value;
             } else if (value instanceof Blob) {
                 return LazyLoadingBlob.from((Blob) value, column);
@@ -487,8 +489,20 @@ public enum ColumnConversionImpl {
 		}
 	};
 
+	private static final String[] trueStrings = { "1" , "y" ,"yes" , "on" };
+
+	private static boolean toBoolean(String in) {
+		for (String each : trueStrings) {
+			if (each.equalsIgnoreCase(in))
+				return true;
+		}
+		return Boolean.valueOf(in);
+	}
+
 	public abstract Object convertToDb(ColumnImpl column, Object value);
+
 	public abstract Object convertFromDb(ColumnImpl column, ResultSet rs, int index) throws SQLException;
+
 	public abstract Object convert(ColumnImpl column, String in);
 
 	Long getTime(Object value) {
@@ -503,16 +517,6 @@ public enum ColumnConversionImpl {
 		} else {
 			throw new IllegalArgumentException("" + value);
 		}
-	}
-
-	private static final String[] trueStrings = { "1" , "y" ,"yes" , "on" };
-
-	private static boolean toBoolean(String in) {
-		for (String each : trueStrings) {
-			if (each.equalsIgnoreCase(in))
-				return true;
-		}
-		return Boolean.valueOf(in);
 	}
 
 	public static class JsonConverter {
