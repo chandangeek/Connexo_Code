@@ -9,7 +9,6 @@ import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.elster.jupiter.rest.util.properties.StringValidationRules;
 import com.elster.jupiter.validation.rest.BasicPropertyTypes;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -30,28 +29,17 @@ public class LocationInfo {
 
     public LocationInfo(MeteringService meteringService, Thesaurus thesaurus, String mRID) {
         Optional<Location> location = meteringService.findUsagePointLocation(mRID);
-        if (location.isPresent()) {
-            createLocationInfo(meteringService, thesaurus, location.get().getId());
-
-        }
+        location.ifPresent(loc -> createLocationInfo(meteringService, thesaurus, loc.getId()));
     }
 
     public void createLocationInfo(MeteringService meteringService, Thesaurus thesaurus, Long locationId) {
         this.locationId = locationId;
 
-        List<String> lst = new ArrayList<>();
-        meteringService.getFormattedLocationMembers(locationId).stream()
+        List<String> lst = meteringService.getFormattedLocationMembers(locationId).stream()
                 .flatMap(l -> l.stream())
-                .forEach(el -> {
-                    if (el == null){
-                        lst.add("");
-                    }
-                    else {
-                        lst.add(el);
-                    }
-                });
+                .map(loc -> loc == null ? "" : loc)
+                .collect(Collectors.toList());
         unformattedLocationValue  = lst.stream().collect(Collectors.joining(", "));
-
 
         List<List<String>> formattedLocationMembers = meteringService.getFormattedLocationMembers(locationId);
         formattedLocationMembers.stream().skip(1).forEach(list ->
@@ -59,7 +47,6 @@ public class LocationInfo {
         formattedLocationValue = formattedLocationMembers.stream()
                 .flatMap(List::stream).filter(Objects::nonNull)
                 .collect(Collectors.joining(", "));
-
 
         locationValue = meteringService.getFormattedLocationMembers(locationId).stream()
                 .flatMap(l -> l.stream())
@@ -73,7 +60,7 @@ public class LocationInfo {
                 .flatMap(l -> l.stream()).collect(Collectors.toList());
 
         for (int i = 0; i < templateElementsNames.size(); i++) {
-            Boolean isMandatory = false;
+            boolean isMandatory = false;
             String field = templateElementsNames.get(i);
             isMandatory = meteringService.getLocationTemplate().getTemplateMembers().stream()
                     .filter(member -> member.getName().equalsIgnoreCase(field))
