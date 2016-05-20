@@ -105,6 +105,9 @@ Ext.define('Uni.view.calendar.CalendarGraphView', {
                 },
                 borderWidth: 0,
                 formatter: function () {
+                    if(this.series.options.code === undefined) {
+                        return false;
+                    }
                     var fromDate = new Date(),
                         toDate = new Date(),
                         range = this.series.options.range,
@@ -152,7 +155,12 @@ Ext.define('Uni.view.calendar.CalendarGraphView', {
                         },
 
                         formatter: function () {
-                            return this.series.options.label;
+                            var color = '#FFFFFF'
+                            if(this.series.options.code === undefined) {
+                                color = '#686868'
+                            }
+                            return '<span style="font-family: Lato, Helvetica, Arial, Verdana, Sans-serif;color:' + color + ';font-size: 16px;font-weight: bold">'
+                                + this.series.options.label + '</span>';
                         }
                     }
                 }
@@ -210,7 +218,11 @@ Ext.define('Uni.view.calendar.CalendarGraphView', {
             week = [];
         if (record !== null) {
             Ext.Array.each(record.get('weekTemplate'), function (weekDay) {
-                week.push(me.createDayRepresentation(record.dayTypes().findRecord('id', weekDay.type)));
+                if (weekDay.inCalendar) {
+                    week.push(me.createDayRepresentation(record.dayTypes().findRecord('id', weekDay.type)));
+                } else {
+                    week.push(me.createEmptyDay());
+                }
             });
         }
 
@@ -221,18 +233,30 @@ Ext.define('Uni.view.calendar.CalendarGraphView', {
         var me = this,
             day = [],
             period = {};
-
         Ext.Array.each(dayType.ranges().getRange(), function (range, index, ranges) {
             period = {};
             period.from = {hour: range.get('fromHour'), minute: range.get('fromMinute')};
             if (index < ranges.length - 1) {
                 period.to = {hour: ranges[index + 1].get('fromHour'), minute: ranges[index + 1].get('fromMinute')};
             } else {
-                period.to = {hour: 23, minute: 59}
+                period.to = {hour: 24, minute: 00}
             }
             period.event = range.get('event');
             day.push(period)
         });
+        return day;
+    },
+
+    createEmptyDay: function () {
+        var me = this,
+            day = [];
+
+        day.push({
+            from: {hour: 0, minute: 0},
+            to: {hour: 24, minute: 0},
+            event: -1
+        });
+
         return day;
     },
 
@@ -246,16 +270,27 @@ Ext.define('Uni.view.calendar.CalendarGraphView', {
             var blockSize = (minutes / (60 * 24)) * 24;
             var s = [null, null, null, null, null, null, null];
             var event = record.events().findRecord('id', range.event);
-            var label = event.get('name');
-            s[index] = blockSize;
-            indexOf = record.events().indexOf(record.events().findRecord('id', range.event));
+            var label;
+            var color;
+            var code;
+            s[index] = blockSize
+            if(event !== null) {
+                label = event.get('name');
+                indexOf = record.events().indexOf(record.events().findRecord('id', range.event));
+                color = me.colors[indexOf];
+                code = event.get('code');
+            } else {
+                label = Uni.I18n.translate('general.notApplicable', 'UNI', 'Not applicable');
+                color = 'rgba(0,0,0,0)';
+                code = undefined;
+            }
             daySerie.push({
                 data: s,
-                color: me.colors[indexOf],
+                color: color,
                 showInLegend: false,
                 label: label,
                 range: range,
-                code: event.get('code')
+                code: code
             })
         });
         return daySerie.reverse();
