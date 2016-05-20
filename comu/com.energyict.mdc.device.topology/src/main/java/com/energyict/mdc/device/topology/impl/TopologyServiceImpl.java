@@ -25,6 +25,8 @@ import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.TopologyTimeline;
 import com.energyict.mdc.device.topology.TopologyTimeslice;
 
+import com.elster.jupiter.domain.util.DefaultFinder;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Layer;
@@ -350,11 +352,24 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
         this.dataModel.persist(dataLoggerReference);
     }
 
-    @Override
+   @Override
     public List<Device> findDataLoggerSlaves(Device dataLogger) {
         Condition condition = this.getDevicesInTopologyCondition(dataLogger);
         List<DataLoggerReferenceImpl> dataLoggerReferences = this.dataModel.mapper(DataLoggerReferenceImpl.class).select(condition);
         return this.findUniqueReferencingDevices(new ArrayList<>(dataLoggerReferences));
+    }
+
+    @Override
+    public boolean isDataLoggerSlaveCandidate(Device device) {
+        if (!device.getDeviceType().isDataloggerSlave())
+            return false;
+        Condition dataLoggerReferencesHavingThisDeviceAsOrigin = where(PhysicalGatewayReferenceImpl.Field.ORIGIN.fieldName()).isEqualTo(device).and(where("interval").isEffective());
+        return this.dataModel.mapper(DataLoggerReferenceImpl.class).select(dataLoggerReferencesHavingThisDeviceAsOrigin).isEmpty();
+    }
+
+    @Override
+    public Finder<DataLoggerReferenceImpl> findAllEffectiveDataLoggerSlaveDevices() {
+        return DefaultFinder.of(DataLoggerReferenceImpl.class, where("interval").isEffective(), dataModel());
     }
 
     @Override

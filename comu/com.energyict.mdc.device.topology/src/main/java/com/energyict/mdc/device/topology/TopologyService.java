@@ -2,6 +2,8 @@ package com.energyict.mdc.device.topology;
 
 import aQute.bnd.annotation.ProviderType;
 
+import com.elster.jupiter.domain.util.DefaultFinder;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
@@ -9,6 +11,7 @@ import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.CommunicationErrorType;
+import com.energyict.mdc.device.topology.impl.DataLoggerReferenceImpl;
 
 import com.google.common.collect.Range;
 
@@ -248,6 +251,19 @@ public interface TopologyService {
      * @return The List of data logger slaves using the data logger device
      */
     List<Device> findDataLoggerSlaves(Device dataLogger);
+
+
+    /**
+     * @return true if the device is a data logger slave device which is not linked to a data logger
+     */
+    boolean isDataLoggerSlaveCandidate(Device device);
+
+    /**
+     *
+     * @return all data logger data slave devices which at this moment are effectively linked to a datalogger
+     */
+    Finder<DataLoggerReferenceImpl>  findAllEffectiveDataLoggerSlaveDevices();
+
 
     /**
      * @param dataLoggerChannel

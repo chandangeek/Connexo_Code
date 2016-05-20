@@ -27,6 +27,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.assertj.core.api.BooleanAssert;
 import org.assertj.core.api.Condition;
 import org.junit.*;
 
@@ -1261,6 +1262,29 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         assertThat(dataLoggerReference.getGateway().getId()).isEqualTo(dataLogger.getId());
         assertThat(dataLoggerReference.getRange().lowerEndpoint()).isEqualTo(now);
         assertThat(dataLoggerReference.getDataLoggerChannelUsages()).hasSize(0);
+    }
+
+    @Test
+    @Transactional
+    public void isDataLoggerSlaveCandidateTest() {
+        Instant now = LocalDateTime.of(2014, 12, 15, 12, 0).toInstant(ZoneOffset.UTC);
+        when(clock.instant()).thenReturn(now);
+
+        Device slave = createSlaveDevice("Slave2");
+        assertThat(this.getTopologyService().isDataLoggerSlaveCandidate(slave)).isTrue();
+
+        Device dataLogger = createDataLoggerDevice("Data logger enabled");
+        // Business method
+        this.getTopologyService().setDataLogger(slave, dataLogger, now, Collections.emptyMap(), Collections.emptyMap());
+
+        assertThat(this.getTopologyService().isDataLoggerSlaveCandidate(slave)).isFalse();
+    }
+
+    @Test
+    @Transactional
+    public void isDataLoggerSlaveCandidateForNonDataLoggerSlaveDeviceTypeTest() {
+        Device dataLogger = createDataLoggerDevice("Data logger enabled");
+        assertThat(this.getTopologyService().isDataLoggerSlaveCandidate(dataLogger)).isFalse();
     }
 
     @Test
