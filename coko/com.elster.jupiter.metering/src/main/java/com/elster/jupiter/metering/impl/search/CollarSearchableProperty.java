@@ -27,7 +27,7 @@ public class CollarSearchableProperty implements SearchableUsagePointProperty {
 
     private Clock clock;
     private SearchDomain domain;
-    private SearchablePropertyGroup group;
+    private ServiceKindAwareSearchablePropertyGroup group;
     private static final String FIELD_NAME = "detail.collar";
     private String uniqueName;
 
@@ -38,7 +38,7 @@ public class CollarSearchableProperty implements SearchableUsagePointProperty {
         this.thesaurus = thesaurus;
     }
 
-    CollarSearchableProperty init(SearchDomain searchDomain, SearchablePropertyGroup group, Clock clock) {
+    CollarSearchableProperty init(SearchDomain searchDomain, ServiceKindAwareSearchablePropertyGroup group, Clock clock) {
         this.domain = searchDomain;
         this.group = group;
         this.uniqueName = FIELD_NAME.concat(".").concat(group.getId());
@@ -109,7 +109,12 @@ public class CollarSearchableProperty implements SearchableUsagePointProperty {
 
     @Override
     public Condition toCondition(Condition specification) {
-        List<Object> values = new ArrayList<>(((Contains) specification).getCollection());
-        return Where.where(FIELD_NAME).in(values).and(Where.where("detail.interval").isEffective(this.clock.instant()));
+        Contains condition = (Contains) specification;
+        List<Object> values = new ArrayList<>(condition.getCollection());
+        return condition.getOperator()
+                .contains(FIELD_NAME, values)
+                .and(Where.where("detail.interval").isEffective(this.clock.instant()))
+                .and(Where.where("serviceCategory.kind")
+                        .isEqualTo(this.group.getServiceKind()));
     }
 }

@@ -33,13 +33,13 @@ public class Flatten implements ServerExpressionNode.Visitor<Void> {
     }
 
     @Override
-    public Void visitNull(NullNodeImpl nullNode) {
+    public Void visitNull(NullNode nullNode) {
         this.flattened.add(nullNode);
         return null;
     }
 
     @Override
-    public Void visitVariable(VariableReferenceNode variable) {
+    public Void visitSqlFragment(SqlFragmentNode variable) {
         this.flattened.add(variable);
         return null;
     }
@@ -53,6 +53,13 @@ public class Flatten implements ServerExpressionNode.Visitor<Void> {
     @Override
     public Void visitVirtualDeliverable(VirtualDeliverableNode deliverable) {
         this.flattened.add(deliverable);
+        return null;
+    }
+
+    @Override
+    public Void visitUnitConversion(UnitConversionNode unitConversionNode) {
+        this.flattened.add(unitConversionNode);
+        unitConversionNode.getExpressionNode().accept(this);
         return null;
     }
 

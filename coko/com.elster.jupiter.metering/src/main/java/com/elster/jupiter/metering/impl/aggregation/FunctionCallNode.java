@@ -11,24 +11,31 @@ import java.util.List;
 class FunctionCallNode implements ServerExpressionNode {
 
     private final Function function;
+    private final IntermediateDimension intermediateDimension;
     private List<ServerExpressionNode> arguments;
 
-    FunctionCallNode(Function function) {
-        this(function, Collections.emptyList());
+    FunctionCallNode(Function function, IntermediateDimension intermediateDimension) {
+        this(function, intermediateDimension, Collections.emptyList());
     }
 
-    FunctionCallNode(Function function, ServerExpressionNode... arguments) {
-        this(function, Arrays.asList(arguments));
+    FunctionCallNode(Function function, IntermediateDimension intermediateDimension, ServerExpressionNode... arguments) {
+        this(function, intermediateDimension, Arrays.asList(arguments));
     }
 
-    FunctionCallNode(Function function, List<ServerExpressionNode> arguments) {
+    FunctionCallNode(Function function, IntermediateDimension intermediateDimension, List<ServerExpressionNode> arguments) {
         super();
         this.function = function;
+        this.intermediateDimension = intermediateDimension;
         this.arguments = Collections.unmodifiableList(arguments);
     }
 
     Function getFunction() {
         return function;
+    }
+
+    @Override
+    public IntermediateDimension getIntermediateDimension() {
+        return intermediateDimension;
     }
 
     List<ServerExpressionNode> getArguments() {
