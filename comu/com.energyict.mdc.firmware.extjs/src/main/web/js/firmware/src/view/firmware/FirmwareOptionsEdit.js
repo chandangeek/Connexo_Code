@@ -8,6 +8,23 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
     deviceType: null,
 
     initComponent: function () {
+        var me = this;
+
+        me.side = [
+            {
+                xtype: 'panel',
+                ui: 'medium',
+                items: [
+                    {
+                        xtype: 'deviceTypeSideMenu',
+                        itemId: 'stepsMenu',
+                        router: me.router,
+                        deviceTypeId: me.deviceType.getId()
+                    }
+                ]
+            }
+        ];
+
         this.content = [
             {
                 xtype: 'form',
@@ -164,7 +181,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                                 xtype: 'button',
                                 ui: 'link',
                                 itemId: 'cancelLink',
-                                href: '#/administration/devicetypes/' + this.deviceType.data.id + '/firmware/options'
+                                href: '#/administration/devicetypes/' + this.deviceType.data.id + '/firmwareversions'
                             }
                         ]
                     }

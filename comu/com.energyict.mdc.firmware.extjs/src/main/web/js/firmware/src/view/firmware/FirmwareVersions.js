@@ -11,30 +11,11 @@ Ext.define('Fwc.view.firmware.FirmwareVersions', {
     deviceType: null,
 
     initComponent: function () {
-        this.side = [
-            {
-                xtype: 'panel',
-                ui: 'medium',
-                layout: {
-                    type: 'vbox',
-                    align: 'stretch'
-                },
-                items: [
-                    {
-                        xtype: 'deviceTypeSideMenu',
-                        itemId: 'stepsMenu',
-                        router: this.router,
-                        deviceTypeId: this.deviceType.get('id')
-                    }
-                ]
-            }
-        ];
 
         this.content = [
             {
                 xtype: 'panel',
                 ui: 'large',
-                title: this.router.getRoute().getTitle(),
                 layout: {
                     type: 'vbox',
                     align: 'stretch'
