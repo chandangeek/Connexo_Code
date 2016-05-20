@@ -49,7 +49,7 @@ public enum MessageSeeds implements MessageSeed {
     PERIOD_NAME_FIELD_TOO_LONG(2027, Constants.PERIOD_NAME_FIELD_TOO_LONG, "Period name is too long, it must not exceed 80 characters.", Level.SEVERE),
     CAL_MRID_FIELD_TOO_LONG(2028, Constants.CAL_MRID_FIELD_TOO_LONG, "Calendar MRID is too long, it must not exceed 80 characters.", Level.SEVERE),
     CAL_TIMEZONE_FIELD_TOO_LONG(2029, Constants.CAL_TIMEZONE_FIELD_TOO_LONG, "Calendar timezone id is too long, it must not exceed 80 characters.", Level.SEVERE),
-
+    VALID_TRANSITIONS(2030, Constants.VALID_TRANSITIONS, "In case of non recurring transitions, a transition at or before the first day of the start year is required.", Level.SEVERE),
     ;
 
     private final int number;
@@ -139,6 +139,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String PERIOD_NAME_FIELD_TOO_LONG = "calendar.period.name.too.long";
         public static final String CAL_MRID_FIELD_TOO_LONG = "calendar.mrid.too.long";
         public static final String CAL_TIMEZONE_FIELD_TOO_LONG = "calendar.timezone.too.long";
+        public static final String VALID_TRANSITIONS = "calendar.valid.transitions";
 
     }
 }
