@@ -1,7 +1,9 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.cps.ValuesRangeConflictType;
+import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
@@ -16,6 +18,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.rest.IntervalInfo;
@@ -36,6 +39,10 @@ import com.energyict.mdc.device.data.rest.DevicePrivileges;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.TopologyTimeline;
+import com.energyict.mdc.device.topology.impl.AbstractPhysicalGatewayReferenceImpl;
+import com.energyict.mdc.device.topology.impl.DataLoggerReferenceImpl;
+import com.energyict.mdc.device.topology.impl.PhysicalGatewayReferenceImpl;
+import com.energyict.mdc.device.topology.impl.TopologyServiceImpl;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
@@ -68,6 +75,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.Checks.is;
+import static com.elster.jupiter.util.conditions.Where.where;
 
 @Path("/devices")
 public class DeviceResource {
@@ -765,14 +773,14 @@ public class DeviceResource {
     }
 
     private Condition getUnlinkedSlaveDevicesCondition(String dbSearchText) {
-        // TODO: add extra conditions in order to only get
         // a. Datalogger slave devices
-        // b. that are not linked yet to a data logger
         String regex = "*".concat(dbSearchText.replace(" ", "*").concat("*"));
-        return Where.where("mRID").likeIgnoreCase(regex)
+        Condition a = Where.where("mRID").likeIgnoreCase(regex)
             .and(Where.where("deviceType.deviceTypePurpose").isEqualTo(DeviceTypePurpose.DATALOGGER_SLAVE));
+        // b. that are not linked yet to a data logger
+        Condition b = ListOperator.NOT_IN.contains(topologyService.findAllEffectiveDataLoggerSlaveDevices().asSubQuery(DataLoggerReferenceImpl.Field.ORIGIN.fieldName()), "id");
+        return a.and(b);
     }
-
 
     private Predicate<Device> getFilterForCommunicationTopology(JsonQueryFilter filter) {
         Predicate<Device> predicate = d -> true;

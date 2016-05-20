@@ -36,11 +36,8 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.readings.ProfileStatus;
-import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.rest.util.ConstraintViolationInfo;
-import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
@@ -51,6 +48,8 @@ import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Subquery;
+import com.elster.jupiter.util.sql.SqlFragment;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.ObisCode;
@@ -65,7 +64,6 @@ import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
-import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.CIMLifecycleDates;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
@@ -75,8 +73,6 @@ import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.NumericalRegister;
-import com.energyict.mdc.device.data.Reading;
-import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.impl.NumericalRegisterImpl;
 import com.energyict.mdc.device.data.impl.search.DeviceSearchDomain;
 import com.energyict.mdc.device.data.rest.DevicePrivileges;
@@ -86,6 +82,7 @@ import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.topology.TopologyTimeline;
 import com.energyict.mdc.device.topology.impl.DataLoggerLinkException;
+import com.energyict.mdc.device.topology.impl.DataLoggerReferenceImpl;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.masterdata.LoadProfileType;
@@ -101,7 +98,6 @@ import com.energyict.mdc.scheduling.SchedulingService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
-import org.glassfish.jersey.server.internal.process.MappableException;
 
 import org.assertj.core.data.MapEntry;
 import org.junit.Before;
@@ -114,10 +110,10 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
-import java.nio.charset.Charset;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -1601,6 +1597,30 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         mock.interval = new TimeDurationInfo(900);
         mock.parent = new VersionInfo<String>(deviceMRID, version);
         return mock;
+    }
+    @Test
+    public void getUnlinkedSlavesTest() throws Exception {
+        Finder<DataLoggerReferenceImpl> finder = mockFinder(Collections.emptyList());
+        when(topologyService.findAllEffectiveDataLoggerSlaveDevices()).thenReturn(finder);
+
+        Device slave1 = mockDeviceForTopologyTest("slave1");
+        Device slave2 = mockDeviceForTopologyTest("slave2");
+        Finder<Device> finderDevice = mockFinder(Arrays.asList(slave1,slave2));
+        doReturn(finderDevice).when(deviceService).findAllDevices(any(Condition.class));
+
+        String response = target("devices/unlinkeddataloggerslaves")
+                .queryParam("like",  URLEncoder.encode("slave"))
+                .request()
+                .get(String.class);
+
+        verify(topologyService, times(1)).findAllEffectiveDataLoggerSlaveDevices();
+        verify(deviceService,times(1)).findAllDevices(any(Condition.class));
+
+        JsonModel model = JsonModel.create(response);
+        assertThat(model.<Integer>get("$.total")).isEqualTo(2);
+        assertThat(model.<List>get("$.devices")).hasSize(2);
+        assertThat(model.<String>get("$.devices[0].mRID")).isEqualTo("slave1");
+        assertThat(model.<String>get("$.devices[1].mRID")).isEqualTo("slave2");
     }
 
     @Test
