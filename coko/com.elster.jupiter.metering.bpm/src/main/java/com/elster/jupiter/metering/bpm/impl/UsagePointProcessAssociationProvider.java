@@ -203,7 +203,7 @@ public class UsagePointProcessAssociationProvider implements ProcessAssociationP
 
         @Override
         public Object getId() {
-            return connectionState.getId();
+            return connectionState;
         }
 
         @Override
