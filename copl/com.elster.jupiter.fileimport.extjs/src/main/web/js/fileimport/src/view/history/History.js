@@ -74,7 +74,7 @@ Ext.define('Fim.view.history.History', {
                         title: Uni.I18n.translate('importService.history.empty.title', 'FIM', 'No import service history found'),
                         reasons: [
                             Uni.I18n.translate('importService.history.empty.list.item1', 'FIM', 'There is no history available for this import service.'),
-                            Uni.I18n.translate('importService.history.empty.list.item2', 'FIM', 'The filter criteria are too narrow.')
+                            Uni.I18n.translate('importService.history.empty.list.item2', 'FIM', 'No history lines comply with the filter.')
                         ]
                     },
                     previewComponent: {
