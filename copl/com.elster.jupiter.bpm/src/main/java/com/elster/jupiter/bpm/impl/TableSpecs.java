@@ -21,6 +21,7 @@ public enum TableSpecs {
         void describeTable(Table table) {
             table.map(BpmProcessDefinitionImpl.class);
             Column idColumn = table.addAutoIdColumn();
+            table.addVersionCountColumn("VERSIONCOUNT", "number", "versionDB");
             table.column("PROCESSNAME").varChar(NAME_LENGTH).notNull().map("processName").add();
             table.column("ASSOCIATION").varChar(NAME_LENGTH).notNull().map("association").add();
             table.column("VERSION").varChar(NAME_LENGTH).notNull().map("version").add();

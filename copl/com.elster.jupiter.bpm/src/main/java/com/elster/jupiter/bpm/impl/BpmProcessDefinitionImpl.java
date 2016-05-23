@@ -34,6 +34,8 @@ public class BpmProcessDefinitionImpl implements BpmProcessDefinition{
     private String status;
     private String appKey;
 
+    private long versionDB;
+
     // Deprecated, for 10.1 compatibility only
     private List<BpmProcessDeviceState> processDeviceStates = new ArrayList<>();
 
@@ -114,6 +116,11 @@ public class BpmProcessDefinitionImpl implements BpmProcessDefinition{
     @Override
     public String getVersion() {
         return version;
+    }
+
+    @Override
+    public long getVersionDB() {
+        return versionDB;
     }
 
     @Override

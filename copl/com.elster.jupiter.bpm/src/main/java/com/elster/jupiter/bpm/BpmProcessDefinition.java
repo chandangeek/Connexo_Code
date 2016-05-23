@@ -34,6 +34,8 @@ public interface BpmProcessDefinition extends HasDynamicPropertiesWithValues {
 
     String getVersion();
 
+    long getVersionDB();
+
     String getStatus();
 
     String getAppKey();
