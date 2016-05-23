@@ -341,9 +341,7 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
 
     @Override
     public void setDataLogger(Device slave, Device dataLogger, Instant arrivalDate, Map<Channel, Channel> slaveDataLoggerChannelMap, Map<Register, Register> slaveDataLoggerRegisterMap){
-        Instant now = this.clock.instant();
-        this.getPhysicalGatewayReference(slave, now).ifPresent(r -> terminateTemporal(r, arrivalDate));
-
+        this.getPhysicalGatewayReference(slave, arrivalDate).ifPresent(r -> terminateTemporal(r, arrivalDate));
         final DataLoggerReferenceImpl dataLoggerReference = this.newDataLoggerReference(slave, dataLogger, arrivalDate);
         slaveDataLoggerChannelMap.forEach((k,v) -> this.addChannelDataLoggerUsage(dataLoggerReference, k, v));
         slaveDataLoggerRegisterMap.forEach((k,v) -> this.addRegisterDataLoggerUsage(dataLoggerReference, k, v));
@@ -377,7 +375,7 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
         return findDataLoggerChannelUsage(getMeteringChannel(dataLoggerChannel),when).map((dataLoggerChannelUsage) -> {
             Device slaveDevice = dataLoggerChannelUsage.getDataLoggerReference().getOrigin();
             ReadingType slaveChannelReadingType = dataLoggerChannelUsage.getSlaveChannel().getMainReadingType();
-            return slaveDevice.getChannels().stream().filter((channel)-> channel.getReadingType() == slaveChannelReadingType).findFirst().get();
+            return slaveDevice.getChannels().stream().filter((channel)-> channel.getCalculatedReadingType(Instant.now()).orElse(channel.getReadingType()) == slaveChannelReadingType).findFirst().get();
         });
     }
 
@@ -386,7 +384,7 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
         return findDataLoggerChannelUsage(getMeteringChannel(dataLoggerRegister),when).map((dataLoggerChannelUsage) -> {
             Device slaveDevice = dataLoggerChannelUsage.getDataLoggerReference().getOrigin();
             ReadingType slaveChannelReadingType = dataLoggerChannelUsage.getSlaveChannel().getMainReadingType();
-            return slaveDevice.getRegisters().stream().filter((register)-> register.getReadingType() == slaveChannelReadingType).findFirst().get();
+            return slaveDevice.getRegisters().stream().filter((register)-> register.getCalculatedReadingType(Instant.now()).orElse(register.getReadingType()) == slaveChannelReadingType).findFirst().get();
         });
     }
 
