@@ -24,6 +24,7 @@ Ext.define('Fwc.view.firmware.FirmwareVersions', {
                 items: [
                     {
                         xtype: 'uni-form-info-message',
+                        itemId: 'fwc-firmware-versions-info-message',
                         name: 'warning',
                         title: Uni.I18n.translate('deviceFirmware.title.optionsDisabled', 'FWC', 'Firmware management is not allowed on devices of this device type.'),
                         html: Uni.I18n.translate('deviceFirmware.optionsDisabled', 'FWC',

@@ -36,6 +36,7 @@ Ext.define('Fwc.view.firmware.FirmwareVersionsOverview', {
             items: [
                 {
                     xtype: 'tabpanel',
+                    itemId: 'fwc-firmware-versions-tabpanel',
                     deferredRender: false,
                     ui: 'large',
                     activeTab: me.firmwareManagementAllowed ? 1 : 0,
