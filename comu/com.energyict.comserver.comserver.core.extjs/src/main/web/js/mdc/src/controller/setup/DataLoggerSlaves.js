@@ -726,7 +726,10 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
             unlinkWindow = me.getUnlinkWindow(),
             mainView = Ext.ComponentQuery.query('#contentPanel')[0],
             doUnlink = function() {
-                // Todo: Perform the unlink
+                me.wizardInformation.dataLogger.set('dataLoggerSlaveDevices', Ext.Array.filter(me.wizardInformation.dataLogger.get('dataLoggerSlaveDevices'),function(dataLoggerSlaveDevice){
+                    return (dataLoggerSlaveDevice['mRID'] !== unlinkWindow.dataLoggerSlaveRecord.get('mRID'))
+                }));
+                me.doLinkTheSlave();
 
                 // Update grid:
                 me.getSlavesGrid().getStore().removeAt(
