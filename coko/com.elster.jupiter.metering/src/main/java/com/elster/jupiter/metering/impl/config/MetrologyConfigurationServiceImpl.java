@@ -193,7 +193,7 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
     }
 
     @Override
-    public Optional<MetrologyContract> findMetrologyContract(Object id) {
+    public Optional<MetrologyContract> findMetrologyContract(long id) {
         return this.getDataModel().mapper(MetrologyContract.class).getOptional(id);
     }
 
