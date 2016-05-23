@@ -236,19 +236,19 @@ Ext.define('Mtr.readingtypes.controller.BulkAction', {
                 title = Uni.I18n.translate('readingtypesmanagment.bulk.activatereadingtypes', 'MTR', 'Activate reading types');
                 message = Uni.I18n.translate('readingtypesmanagment.bulk.step4applyActivatex', 'MTR', 'Activate {0}?', readingTypesCountTitle.toLowerCase());
                 confirmPageMsg = Uni.I18n.translate('readingtypesmanagment.bulk.step4activateMsgx', 'MTR', 'The reading types will become available');
-                statusPageMsg = Uni.I18n.translate('readingtypesmanagment.bulk.step5activateMsgx', 'MTR', '{0} reading types are queued to activate', readingTypesCountTitle);
+                statusPageMsg = Uni.I18n.translate('readingtypesmanagment.bulk.step5activateMsg1', 'MTR', '{0} reading types have been queued to activate', readingTypesCountTitle);
                 break;
             case 'edit':
                 title = Uni.I18n.translate('readingtypesmanagment.bulk.editereadingtypes', 'MTR', 'Edit reading types');
                 message = Ext.String.format(Uni.I18n.translate('readingtypesmanagment.bulk.step4applyEditx', 'MTR', 'Apply alias \'{0}\' to {1}?'), me.newAlias, readingTypesCountTitle.toLowerCase());
                 confirmPageMsg = Uni.I18n.translate('readingtypesmanagment.bulk.step4editMsg', 'MTR', 'The reading types will change their names');
-                statusPageMsg = Ext.String.format(Uni.I18n.translate('readingtypesmanagment.bulk.step5editMsgx', 'MTR', '{1} are queued to set alias \'{0}\''), me.newAlias, readingTypesCountTitle);
+                statusPageMsg = Ext.String.format(Uni.I18n.translate('readingtypesmanagment.bulk.step5editMsg1', 'MTR', '{1} have been queued to set alias \'{0}\''), me.newAlias, readingTypesCountTitle);
                 break;
             case 'deactivate':
                 title = Uni.I18n.translate('readingtypesmanagment.bulk.deactivatereadingtypes', 'MTR', 'Deactivate reading types');
                 message = Uni.I18n.translate('readingtypesmanagment.bulk.step4applyDeactivate', 'MTR', 'Deactivate {0}?', readingTypesCountTitle.toLowerCase());
                 confirmPageMsg = Uni.I18n.translate('readingtypesmanagment.bulk.step4deactivateMsgx', 'MTR', 'The reading types will become unavailable');
-                statusPageMsg = Uni.I18n.translate('readingtypesmanagment.bulk.step5deactivateMsgx', 'MTR', '{0} are queued to deactivate', readingTypesCountTitle);
+                statusPageMsg = Uni.I18n.translate('readingtypesmanagment.bulk.step5deactivateMsg1', 'MTR', '{0} have been queued to deactivate', readingTypesCountTitle);
                 break;
         }
 
