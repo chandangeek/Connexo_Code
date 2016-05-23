@@ -322,7 +322,8 @@ public class CalendarImpl implements Calendar {
     private List<PeriodTransition> getRecurrentPeriodTransitions() {
         List<PeriodTransition> result = new ArrayList<>();
         int year = startYear;
-        while (year <= endYear) {
+        int toYear = (endYear == 0) ? Year.now().getValue() : endYear;
+        while (year <= toYear) {
             int finalYear = year;
             result.addAll(this.periodTransitionSpecs.stream()
                     .map(spec ->
