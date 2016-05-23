@@ -68,8 +68,8 @@ Ext.define('Est.main.view.AddReadingTypesNoItemsFoundPanel', {
                 title: Uni.I18n.translate('validation.readingType.empty.title', 'EST', 'No reading types found.'),
                 reasons: [
                     Uni.I18n.translate('validation.readingType.empty.list.item1', 'EST', 'No reading types have been added yet.'),
-                    Uni.I18n.translate('validation.readingType.empty.list.item2', 'EST', 'No reading types comply to the filter.'),
-                    Uni.I18n.translate('validation.readingType.empty.list.item3', 'EST', 'All reading types have been already added to rule.')
+                    Uni.I18n.translate('validation.readingType.empty.list.item2', 'EST', 'No reading types comply with the filter.'),
+                    Uni.I18n.translate('validation.readingType.empty.list.item3', 'EST', 'All reading types have already been added to the rule.')
                 ]
             }
         ];

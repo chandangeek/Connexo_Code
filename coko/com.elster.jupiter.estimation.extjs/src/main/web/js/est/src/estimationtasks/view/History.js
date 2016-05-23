@@ -49,7 +49,7 @@ Ext.define('Est.estimationtasks.view.History', {
                         title: Uni.I18n.translate('estimationtasks.estimationtasksHistory.empty.title', 'EST', 'No estimation history found'),
                         reasons: [
                             Uni.I18n.translate('estimationtasks.estimationtasksHistory.empty.list.item1', 'EST', 'There is no history available for this estimation task.'),
-                            Uni.I18n.translate('estimationtasks.estimationtasksHistory.empty.list.item2', 'EST', 'The filter criteria are too narrow.')
+                            Uni.I18n.translate('estimationtasks.estimationtasksHistory.empty.list.item2', 'EST', 'No history lines comply with the filter.')
                         ]
                     },
                     previewComponent: {
