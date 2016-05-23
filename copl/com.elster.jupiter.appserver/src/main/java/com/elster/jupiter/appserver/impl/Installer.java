@@ -18,7 +18,6 @@ import java.util.logging.Logger;
 
 class Installer implements FullInstaller {
 
-    private static final Logger LOGGER = Logger.getLogger(Installer.class.getName());
     private static final String BATCH_EXECUTOR = "batch executor";
     private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
 
@@ -33,41 +32,38 @@ class Installer implements FullInstaller {
         this.messageService = messageService;
     }
 
-    public void install(DataModelUpgrader dataModelUpgrader) {
+    public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
         createTables(dataModelUpgrader);
-        createBatchExecutor();
-        createAllServerTopic();
+        createBatchExecutor(logger);
+        createAllServerTopic(logger);
     }
 
-    private void createAllServerTopic() {
+    private void createAllServerTopic(Logger logger) {
         try {
             QueueTableSpec defaultQueueTableSpec = messageService.getQueueTableSpec("MSG_RAWTOPICTABLE").get();
             DestinationSpec destinationSpec = defaultQueueTableSpec.createDestinationSpec(AppService.ALL_SERVERS, DEFAULT_RETRY_DELAY_IN_SECONDS);
             destinationSpec.activate();
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } catch (RuntimeException e) {
+            logger.log(Level.SEVERE, "Failed to create and activate topic for \"All Servers\".", e);
+            throw e;
         }
     }
 
-    private void createBatchExecutor() {
+    private void createBatchExecutor(Logger logger) {
         try {
             User user = userService.createUser(BATCH_EXECUTOR, "User to execute batch tasks.");
             user.update();
             Group group = userService.createGroup(UserService.BATCH_EXECUTOR_ROLE, UserService.BATCH_EXECUTOR_ROLE_DESCRIPTION);
             group.update();
             user.join(group);
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } catch (RuntimeException e) {
+            logger.log(Level.SEVERE, "Failed to create a batch executor user.", e);
+            throw e;
         }
     }
 
     private void createTables(DataModelUpgrader dataModelUpgrader) {
-        try {
-            dataModelUpgrader.upgrade(dataModel, Version.latest());
-        } catch (RuntimeException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw e;
-        }
+        dataModelUpgrader.upgrade(dataModel, Version.latest());
     }
 
 }
