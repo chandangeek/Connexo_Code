@@ -10,4 +10,5 @@ Export-Package:  \
 	com.energyict.mdc.device.data.kpi,\
 	com.energyict.mdc.device.data.security,\
 	com.energyict.mdc.device.data.tasks,\
-	com.energyict.mdc.device.data.tasks.history
+	com.energyict.mdc.device.data.tasks.history,\
+	com.energyict.mdc.device.data.ami

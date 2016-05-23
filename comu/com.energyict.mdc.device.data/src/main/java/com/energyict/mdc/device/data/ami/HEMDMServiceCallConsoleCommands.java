@@ -25,7 +25,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Optional;
 
-@Component(name = "com.energyict.mdc.servicecall.examples", service = HEMDMServiceCallConsoleCommands.class,
+@Component(name = "com.energyict.mdc.device.data.ami.servicecall.examples", service = HEMDMServiceCallConsoleCommands.class,
         property = {"osgi.command.scope=mdc.metering",
                 "osgi.command.function=disconnect",
                 "osgi.command.function=connect",
@@ -74,7 +74,8 @@ public class HEMDMServiceCallConsoleCommands {
     }
 
     @Activate
-    public void activate(BundleContext context) {
+    public void activate() {
+        System.out.println("Activating Multisense Service Call Console Commands");
     }
 
     @Deactivate

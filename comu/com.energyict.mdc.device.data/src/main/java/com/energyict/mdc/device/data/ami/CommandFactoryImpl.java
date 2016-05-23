@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
-@Component(name = "com.energyict.mdc.metering.endDeviceCommandFactory",
+@Component(name = "com.energyict.mdc.device.data.ami.EndDeviceCommandFactory",
         service = {HeadEndInterface.class, TranslationKeyProvider.class},
         property = "name=EndDeviceCommandFactory", immediate = true)
 public class CommandFactoryImpl implements CommandFactory {
@@ -78,7 +78,7 @@ public class CommandFactoryImpl implements CommandFactory {
 
     @Activate
     public void activate() {
-        System.out.println("Head End CommandFactory activating");
+        System.out.println("Activatiing Head End Command Factory");
     }
 
 

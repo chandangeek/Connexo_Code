@@ -56,7 +56,7 @@ public class MultisenseServiceCallHandler implements ServiceCallHandler {
 
     @Activate
     public void activate() {
-        System.out.println("Activating multisense service call handler");
+        System.out.println("Activating Multisense Service Call Handler");
     }
 
     @Deactivate

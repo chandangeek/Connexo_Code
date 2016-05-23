@@ -15,7 +15,7 @@ import org.osgi.service.component.annotations.Component;
  * @author sva
  * @since 31/03/16 - 13:05
  */
-@Component(name = "com.energyict.mdc.metering.mutisense.logging.handler",
+@Component(name = "com.energyict.mdc.device.data.ami.mutisense.logging.handler",
         service = ServiceCallHandler.class,
         immediate = true,
         property = "name=MultiSenseLoggingHandler")
@@ -26,6 +26,7 @@ public class LoggingHandler implements ServiceCallHandler {
 
     @Activate
     public void activate() {
+        System.out.println("Activating Multisense Logging Handler");
     }
 
     @Override

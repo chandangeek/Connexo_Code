@@ -150,7 +150,7 @@ public class MultiSenseHeadEndInterface implements HeadEndInterface {
 
     @Activate
     public void activate() {
-        System.out.println("MultiSenseHeadEndInterface activating");
+        System.out.println("Activating MultiSense Head End Interface");
     }
 
     @Deactivate

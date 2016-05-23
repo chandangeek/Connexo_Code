@@ -14,7 +14,7 @@ import org.osgi.service.component.annotations.Deactivate;
  * @author sva
  * @since 31/03/16 - 13:05
  */
-@Component(name = "com.com.energyict.mdc.metering.multisense.no.operation.handler",
+@Component(name = "com.energyict.mdc.device.data.ami.multisense.no.operation.handler",
         service = ServiceCallHandler.class,
         immediate = true,
         property = "name=MultiSenseNoOperationHandler")
@@ -25,6 +25,7 @@ public class NoOperationHandler implements ServiceCallHandler {
 
     @Activate
     public void activate() {
+        System.out.println("Activating Multisense No Operation Handler");
     }
 
     @Deactivate

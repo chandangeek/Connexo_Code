@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@Component(name = "com.energyict.mdc.device.data.ami.endDeviceCommand",
+@Component(name = "com.energyict.mdc.device.data.ami.EndDeviceCommand",
         service = {EndDeviceCommand.class, TranslationKeyProvider.class},
         property = "name=EndDeviceCommand", immediate = true)
 public class EndDeviceCommandImpl implements EndDeviceCommand {
@@ -71,7 +71,7 @@ public class EndDeviceCommandImpl implements EndDeviceCommand {
 
     @Activate
     public void activate() {
-        System.out.println("EndDeviceCommand activating");
+        System.out.println("Activating EndDevice Command");
     }
 
     @Deactivate

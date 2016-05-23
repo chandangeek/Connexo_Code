@@ -39,7 +39,7 @@ public class ContactorOperationHandler implements ServiceCallHandler{
 
     @Activate
     public void activate() {
-        System.out.println("Activating contactor operation handler");
+        System.out.println("Activating Contactor Operation Handler");
     }
 
     @Deactivate

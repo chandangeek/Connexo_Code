@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-@Component(name = "com.energyict.mdc.metering.contactor.operation.customPropertySet",
+@Component(name = "com.energyict.mdc.device.data.ami.contactor.operation.customPropertySet",
         service = CustomPropertySet.class,
         immediate = true)
 public class ContactorOperationCustomPropertySet implements CustomPropertySet<ServiceCall, ContactorOperationDomainExtension> {
@@ -60,7 +60,7 @@ public class ContactorOperationCustomPropertySet implements CustomPropertySet<Se
 
     @Activate
     public void activate() {
-        System.out.println("Activating Contactor Operation custom property set");
+        System.out.println("Activating Contactor Operation Custom Property Set");
     }
 
     @Deactivate
@@ -167,8 +167,8 @@ public class ContactorOperationCustomPropertySet implements CustomPropertySet<Se
     }
 
     private class MyPersistenceSupport implements PersistenceSupport<ServiceCall, ContactorOperationDomainExtension> {
-        private final String TABLE_NAME = "SCS_CPS_MULTISENSE_HEITF";
-        private final String FK = "FK_SCS_CPS_MULTISENSE_HEITF";
+        private final String TABLE_NAME = "DDC_CPS_MULTISENSE_HEITF";
+        private final String FK = "FK_DDC_CPS_MULTISENSE_HEITF";
 
         @Override
         public String componentName() {
