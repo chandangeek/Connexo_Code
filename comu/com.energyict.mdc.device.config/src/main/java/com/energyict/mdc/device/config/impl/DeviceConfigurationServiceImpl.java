@@ -1,5 +1,8 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.calendar.Calendar;
+import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.calendar.impl.CalendarImpl;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.QueryService;
@@ -51,6 +54,7 @@ import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.config.TimeOfUseOptions;
 import com.energyict.mdc.device.config.events.EventType;
 import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
@@ -66,6 +70,8 @@ import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.calendars.ProtocolSupportedCalendarOptions;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
@@ -135,6 +141,8 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     private volatile ValidationService validationService;
     private volatile EstimationService estimationService;
     private volatile QueryService queryService;
+    private volatile CalendarService calendarService;
+    private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
 
     private final Set<Privilege> privileges = new HashSet<>();
 
@@ -143,7 +151,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Inject
-    public DeviceConfigurationServiceImpl(OrmService ormService, Clock clock, ThreadPrincipalService threadPrincipalService, EventService eventService, NlsService nlsService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, PluggableService pluggableService, ProtocolPluggableService protocolPluggableService, EngineConfigurationService engineConfigurationService, SchedulingService schedulingService, ValidationService validationService, EstimationService estimationService, MasterDataService masterDataService, FiniteStateMachineService finiteStateMachineService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+    public DeviceConfigurationServiceImpl(OrmService ormService, Clock clock, ThreadPrincipalService threadPrincipalService, EventService eventService, NlsService nlsService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, PluggableService pluggableService, ProtocolPluggableService protocolPluggableService, EngineConfigurationService engineConfigurationService, SchedulingService schedulingService, ValidationService validationService, EstimationService estimationService, MasterDataService masterDataService, FiniteStateMachineService finiteStateMachineService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, CalendarService calendarService) {
         this();
         this.setOrmService(ormService);
         this.setClock(clock);
@@ -162,6 +170,8 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         this.setEstimationService(estimationService);
         this.setFiniteStateMachineService(finiteStateMachineService);
         this.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
+        this.setCalendarService(calendarService);
+        this.setDeviceMessageSpecificationService(deviceMessageSpecificationService);
         this.activate();
         this.install();
     }
@@ -638,6 +648,16 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Reference
+    public void setCalendarService(CalendarService calendarService){
+        this.calendarService = calendarService;
+    }
+
+    @Reference
+    public void setDeviceMessageSpecificationService(DeviceMessageSpecificationService deviceMessageSpecificationService) {
+        this.deviceMessageSpecificationService = deviceMessageSpecificationService;
+    }
+
+    @Reference
     @SuppressWarnings("unused")
     public void setPluggableService(PluggableService pluggableService) {
         // Not actively used but required for foreign keys in TableSpecs
@@ -840,4 +860,27 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         return this.getDataModel().mapper(DeviceConfigConflictMapping.class).getUnique("id", id);
     }
 
+    @Override
+    public Set<ProtocolSupportedCalendarOptions> getSupportedTimeOfUseOptionsFor(DeviceType deviceType) {
+        return deviceType.getDeviceProtocolPluggableClass().getDeviceProtocol().getSupportedMessages().stream()
+                .map(this.deviceMessageSpecificationService::getProtocolSupportedCalendarOptionsFor)
+        .filter(Optional::isPresent)
+        .map(Optional::get)
+        .collect(Collectors.toCollection(HashSet::new));
+    }
+
+    @Override
+    public Optional<TimeOfUseOptions> findTimeOfUseOptions(DeviceType deviceType) {
+        return dataModel.mapper(TimeOfUseOptions.class).getUnique(TimeOfUseOptionsImpl.Fields.DEVICETYPE.fieldName(), deviceType);
+    }
+
+    @Override
+    public Optional<TimeOfUseOptions> findAndLockTimeOfUseOptionsByIdAndVersion(DeviceType deviceType, long version) {
+        return dataModel.mapper(TimeOfUseOptions.class).lockObjectIfVersion(version, deviceType.getId());
+    }
+
+    @Override
+    public TimeOfUseOptions newTimeOfUseOptions(DeviceType deviceType) {
+        return dataModel.getInstance(TimeOfUseOptionsImpl.class).init(deviceType);
+    }
 }

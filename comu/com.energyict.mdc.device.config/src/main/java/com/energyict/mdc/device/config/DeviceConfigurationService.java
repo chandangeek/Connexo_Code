@@ -12,6 +12,7 @@ import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.calendars.ProtocolSupportedCalendarOptions;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
@@ -20,6 +21,7 @@ import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Provides services that relate to {@link DeviceType}s and {@link DeviceConfiguration}s.
@@ -324,4 +326,12 @@ public interface DeviceConfigurationService {
     DeviceConfiguration cloneDeviceConfiguration(DeviceConfiguration templateDeviceConfiguration, String name);
 
     Optional<DeviceConfigConflictMapping> findDeviceConfigConflictMapping(long id);
+
+    Set<ProtocolSupportedCalendarOptions> getSupportedTimeOfUseOptionsFor(DeviceType deviceType);
+
+    Optional<TimeOfUseOptions> findTimeOfUseOptions(DeviceType deviceType);
+
+    Optional<TimeOfUseOptions> findAndLockTimeOfUseOptionsByIdAndVersion(DeviceType deviceType, long version);
+
+    TimeOfUseOptions newTimeOfUseOptions(DeviceType deviceType);
 }
