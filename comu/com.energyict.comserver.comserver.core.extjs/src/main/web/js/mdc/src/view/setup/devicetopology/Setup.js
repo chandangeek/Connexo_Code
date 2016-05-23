@@ -49,7 +49,7 @@ Ext.define('Mdc.view.setup.devicetopology.Setup', {
                         title: Uni.I18n.translate('deviceCommunicationTopology.empty.title', 'MDC', 'No slave devices found'),
                         reasons: [
                             Uni.I18n.translate('deviceCommunicationTopology.empty.list.item1', 'MDC', 'The gateway contains no slave devices.'),
-                            Uni.I18n.translate('deviceCommunicationTopology.empty.list.item2', 'MDC', 'The filter is too narrow.')
+                            Uni.I18n.translate('deviceCommunicationTopology.empty.list.item2', 'MDC', 'No slave devices comply with the filter.')
                         ]
                     }
                 }
