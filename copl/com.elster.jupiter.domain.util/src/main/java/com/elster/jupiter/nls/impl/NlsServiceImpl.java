@@ -103,8 +103,11 @@ public class NlsServiceImpl implements NlsService {
 
     @Override
     public Thesaurus getThesaurus(String componentName, Layer layer) {
-        ThesaurusImpl thesaurus = dataModel.getInstance(ThesaurusImpl.class).init(componentName, layer);
-        thesauri.put(Pair.of(componentName, layer), thesaurus);
+        IThesaurus thesaurus = thesauri.get(Pair.of(componentName, layer));
+        if(thesaurus == null) {
+            thesaurus = dataModel.getInstance(ThesaurusImpl.class).init(componentName, layer);
+            thesauri.put(Pair.of(componentName, layer), thesaurus);
+        }
         return thesaurus;
     }
 
