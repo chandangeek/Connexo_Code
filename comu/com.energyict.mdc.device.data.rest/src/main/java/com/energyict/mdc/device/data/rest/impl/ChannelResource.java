@@ -113,16 +113,6 @@ public class ChannelResource {
     public Response updateChannel(@PathParam("mRID") String mRID, @PathParam("channelid") long channelId, ChannelInfo channelInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
-//        updateOverruledObisCode(channelInfo, device, channel);
-        updateMeterConfiguration(channelInfo, device, channel);
-        device.save();
-        return Response.ok().build();
-    }
-
-    /**
-     * Update the fraction digits and overrule value for the given channel (if applicable)
-     */
-    private void updateMeterConfiguration(ChannelInfo channelInfo, Device device, Channel channel) {
         Channel.ChannelUpdater channelUpdater = device.getChannelUpdaterFor(channel);
         if (!Objects.equals(channelInfo.overruledNbrOfFractionDigits, channelInfo.nbrOfFractionDigits)) {
             channelUpdater.setNumberOfFractionDigits(channelInfo.overruledNbrOfFractionDigits);
@@ -134,29 +124,9 @@ public class ChannelResource {
             channelUpdater.setObisCode(channelInfo.overruledObisCode);
         }
         channelUpdater.update();
+
+        return Response.ok().build();
     }
-//
-//    //TODO move this logic to the updater?
-//    private void updateOverruledObisCode(ChannelInfo channelInfo, Device device, Channel channel) {
-//        Optional<ReadingTypeObisCodeUsage> readingTypeObisCodeUsageOptional = device.getReadingTypeObisCodeUsage(channel.getReadingType());
-//        boolean currentlyNoOverruledObisCodeAlthoughRequested =
-//            !channelInfo.overruledObisCode.equals(channelInfo.obisCode) && // obiscode overruling requested...
-//            !readingTypeObisCodeUsageOptional.isPresent(), // ...while currently there is none
-//        currentOverruledObisCodeIsNotTheCorrectOne =
-//            !channelInfo.overruledObisCode.equals(channelInfo.obisCode) && // obiscode overruling requested and...
-//            readingTypeObisCodeUsageOptional.isPresent() && // ...the currently present one...
-//            !readingTypeObisCodeUsageOptional.get().getObisCode().equals(channelInfo.overruledObisCode), // ...is different
-//        currentOverruledObisCodeIsNotNeeded =
-//            channelInfo.overruledObisCode.equals(channelInfo.obisCode) && // no obiscode overruling requested...
-//            readingTypeObisCodeUsageOptional.isPresent(); // ...however, currently present
-//
-//        if (currentOverruledObisCodeIsNotTheCorrectOne || currentOverruledObisCodeIsNotNeeded) {
-//            device.removeReadingTypeObisCodeUsage(channel.getReadingType());
-//        }
-//        if (currentOverruledObisCodeIsNotTheCorrectOne || currentlyNoOverruledObisCodeAlthoughRequested) {
-//            device.addReadingTypeObisCodeUsage(channel.getReadingType(), channelInfo.overruledObisCode);
-//        }
-//    }
 
     @GET @Transactional
     @Path("/{channelId}/customproperties")

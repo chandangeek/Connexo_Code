@@ -10,8 +10,8 @@ import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.common.services.ListPager;
+import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.ReadingTypeObisCodeUsage;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.security.Privileges;
 
@@ -34,6 +34,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -89,25 +90,20 @@ public class RegisterResource {
     public Response updateRegister(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, RegisterInfo registerInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         Register<?, ?> register = doGetRegister(mRID, registerId);
-        Optional<ReadingTypeObisCodeUsage> readingTypeObisCodeUsageOptional = device.getReadingTypeObisCodeUsage(register.getReadingType());
-        boolean currentlyNoOverruledObisCodeAlthoughRequested =
-            !registerInfo.overruledObisCode.equals(registerInfo.obisCode) && // obiscode overruling requested...
-            !readingTypeObisCodeUsageOptional.isPresent(), // ...while currently there is none
-        currentOverruledObisCodeIsNotTheCorrectOne =
-            !registerInfo.overruledObisCode.equals(registerInfo.obisCode) && // obiscode overruling requested and...
-            readingTypeObisCodeUsageOptional.isPresent() && // ...the currently present one...
-            !readingTypeObisCodeUsageOptional.get().getObisCode().equals(registerInfo.overruledObisCode), // ...is different
-        currentOverruledObisCodeIsNotNeeded =
-            registerInfo.overruledObisCode.equals(registerInfo.obisCode) && // no obiscode overruling requested...
-            readingTypeObisCodeUsageOptional.isPresent(); // ...however, currently present
-
-        if (currentOverruledObisCodeIsNotTheCorrectOne || currentOverruledObisCodeIsNotNeeded) {
-            device.removeReadingTypeObisCodeUsage(register.getReadingType());
+        Register.RegisterUpdater registerUpdater = device.getRegisterUpdaterFor(register);
+        if (register.getRegisterSpec() instanceof NumericalRegisterSpec) {
+            NumericalRegisterInfo numericalRegisterInfo = ((NumericalRegisterInfo) registerInfo);
+            if (!Objects.equals(numericalRegisterInfo.overruledNumberOfFractionDigits, numericalRegisterInfo.numberOfFractionDigits)) {
+                registerUpdater.setNumberOfFractionDigits(numericalRegisterInfo.overruledNumberOfFractionDigits);
+            }
+            if (!numericalRegisterInfo.overruledOverflow.equals(numericalRegisterInfo.overflow)) {
+                registerUpdater.setOverflowValue(numericalRegisterInfo.overruledOverflow);
+            }
         }
-        if (currentOverruledObisCodeIsNotTheCorrectOne || currentlyNoOverruledObisCodeAlthoughRequested) {
-            device.addReadingTypeObisCodeUsage(register.getReadingType(), registerInfo.overruledObisCode);
+        if (!registerInfo.overruledObisCode.equals(registerInfo.obisCode)) {
+            registerUpdater.setObisCode(registerInfo.overruledObisCode);
         }
-        device.save();
+        registerUpdater.update();
         return Response.ok().build();
     }
 
