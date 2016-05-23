@@ -253,8 +253,16 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
             point.x = interval.start;
             point.id = point.x;
             point.y = parseFloat(record.get('value'));
+            point.yValueFormatted = point.y ? Uni.Number.formatNumber(
+                record.get('value').toString(),
+                this.channel && !Ext.isEmpty(this.channel.get('overruledNbrOfFractionDigits')) ? this.channel.get('overruledNbrOfFractionDigits') : -1
+            ) : '';
             point.intervalEnd = interval.end;
             point.collectedValue = record.get('collectedValue');
+            point.collectedValueFormatted = point.collectedValue ? Uni.Number.formatNumber(
+                point.collectedValue.toString(),
+                this.channel && !Ext.isEmpty(this.channel.get('overruledNbrOfFractionDigits')) ? this.channel.get('overruledNbrOfFractionDigits') : -1
+            ) : '';
             point.collectedUnitOfMeasure = collectedUnitOfMeasure;
             point.calculatedUnitOfMeasure = calculatedUnitOfMeasure;
             point.color = okColor;
@@ -297,7 +305,7 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
                     record.set('plotBand', true);
                 }
             }
-        });
+        }, me);
         return {data: data, missedValues: missedValues};
     }
 });

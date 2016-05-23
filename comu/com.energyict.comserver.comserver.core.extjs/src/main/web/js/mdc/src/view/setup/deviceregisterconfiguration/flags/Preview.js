@@ -60,7 +60,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.flags.Preview', {
                             },
                             {
                                 fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.numberOfFractionDigits', 'MDC', 'Number of fraction digits'),
-                                name: 'numberOfFractionDigits'
+                                name: 'overruledNumberOfFractionDigits'
                             }
                         ]
                     }

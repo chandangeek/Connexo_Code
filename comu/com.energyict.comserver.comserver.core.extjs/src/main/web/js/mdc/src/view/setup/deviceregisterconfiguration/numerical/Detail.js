@@ -83,7 +83,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.numerical.Detail', {
                                             },
                                             {
                                                 fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.overflowValue', 'MDC', 'Overflow value'),
-                                                name: 'overflow',
+                                                name: 'overruledOverflow',
                                                 renderer: function (value) {
                                                     if (!Ext.isEmpty(value)) {
                                                         return Ext.String.htmlEncode(value);
@@ -94,7 +94,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.numerical.Detail', {
                                             },
                                             {
                                                 fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.numberOfFractionDigits', 'MDC', 'Number of fraction digits'),
-                                                name: 'numberOfFractionDigits'
+                                                name: 'overruledNumberOfFractionDigits'
                                             },
                                             {
                                                 fieldLabel: Uni.I18n.translate('channelConfig.useMultiplier', 'MDC', 'Use multiplier'),

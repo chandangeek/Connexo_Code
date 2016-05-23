@@ -49,9 +49,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         {ref: 'overflowContainer', selector: '#mdc-device-register-edit-form #overflowValue-container'},
         {ref: 'overflowField', selector: '#mdc-device-register-edit-form #mdc-editOverflowValueField'},
         {ref: 'numberOfFractionDigitsContainer', selector: '#mdc-device-register-edit-form #fractionDigits-container'},
-        {ref: 'numberOfFractionDigitsField', selector: '#mdc-device-register-edit-form #mdc-editNumberOfFractionDigitsField'},
-        {ref: 'overflowField', selector: '#mdc-device-register-edit-form #mdc-editOverflowValueField'}
-
+        {ref: 'numberOfFractionDigitsField', selector: '#mdc-device-register-edit-form #mdc-editNumberOfFractionDigitsField'}
 
     ],
 
@@ -683,7 +681,9 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         form.updateRecord(record);
         if (record.get('type') === 'text') {
             delete record.data.overflow;
+            delete record.data.overruledOverflow;
             delete record.data.numberOfFractionDigits;
+            delete record.data.overruledNumberOfFractionDigits;
         }
         record.save({
             success: function (record) {

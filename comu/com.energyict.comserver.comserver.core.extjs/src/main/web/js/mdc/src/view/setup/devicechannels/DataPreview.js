@@ -8,6 +8,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
         'Mdc.view.setup.devicechannels.ValidationPreview',
         'Uni.form.field.EditedDisplay'
     ],
+    channelRecord: null,
     channels: null,
     frame: false,
 
@@ -250,7 +251,10 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
         }
 
         if (!Ext.isEmpty(value)) {
-            formatValue = Uni.Number.formatNumber(value.toString(), -1);
+            formatValue = Uni.Number.formatNumber(
+                value.toString(),
+                me.channelRecord && !Ext.isEmpty(me.channelRecord.get('overruledNbrOfFractionDigits')) ? me.channelRecord.get('overruledNbrOfFractionDigits') : -1
+            );
             return !Ext.isEmpty(formatValue) ? formatValue + ' ' + unitOfMeasure + ' ' + validationResultText : '';
         } else {
             if(type === 'main'){
