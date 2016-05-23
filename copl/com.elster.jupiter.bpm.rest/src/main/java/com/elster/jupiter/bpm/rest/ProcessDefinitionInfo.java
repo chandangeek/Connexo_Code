@@ -24,6 +24,7 @@ public class ProcessDefinitionInfo {
     public String appKey;
     public List<ProcessesPrivilegesInfo> privileges;
     public List<PropertyInfo> properties = Collections.emptyList();
+    public long versionDB;
 
     public ProcessDefinitionInfo(){
 
@@ -50,6 +51,7 @@ public class ProcessDefinitionInfo {
         this.active = bpmProcessDefinition.getStatus();
         this.appKey = bpmProcessDefinition.getAssociationProvider()
                 .isPresent() ? bpmProcessDefinition.getAssociationProvider().get().getAppKey() : "";
+        this.versionDB = bpmProcessDefinition.getVersionDB();
     }
 
     public ProcessDefinitionInfo(BpmProcessDefinition bpmProcessDefinition, List<Group> groups){
@@ -65,6 +67,7 @@ public class ProcessDefinitionInfo {
         this.privileges = bpmProcessDefinition.getPrivileges().stream()
                 .map(s -> new ProcessesPrivilegesInfo(s.getPrivilegeName(), Privileges.getDescriptionForKey(s.getPrivilegeName()), s.getApplication(), groups))
                 .collect(Collectors.toList());
+        this.versionDB = bpmProcessDefinition.getVersionDB();
     }
 
     public void setProperties(List<PropertyInfo> properties) {

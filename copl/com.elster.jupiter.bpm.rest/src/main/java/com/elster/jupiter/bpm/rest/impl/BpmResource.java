@@ -531,6 +531,13 @@ public class BpmResource {
             });
         } else {
             process = foundProcess.get();
+            if(process.getVersionDB() != info.versionDB){
+                throw conflictFactory.conflict()
+                        .withActualVersion(process::getVersionDB)
+                        .withMessageTitle(MessageSeeds.EDIT_PROCESS_CONCURRENT_TITLE, info.name)
+                        .withMessageBody(MessageSeeds.EDIT_PROCESS_CONCURRENT_BODY, info.name)
+                        .supplier().get();
+            }
             List<BpmProcessPrivilege> oldPrivileges = process.getPrivileges();
 
             process.setAssociation(info.type.toLowerCase());
@@ -554,11 +561,17 @@ public class BpmResource {
     public ProcessDefinitionInfo deactivateProcess(ProcessDefinitionInfo info) {
         Optional<BpmProcessDefinition> bpmProcessDefinition = bpmService.getBpmProcessDefinition(info.name, info.version);
         if (bpmProcessDefinition.isPresent()) {
+            if(bpmProcessDefinition.get().getVersionDB() != info.versionDB){
+                throw conflictFactory.conflict()
+                        .withActualVersion(bpmProcessDefinition.get()::getVersionDB)
+                        .withMessageTitle(MessageSeeds.EDIT_PROCESS_CONCURRENT_TITLE, info.name)
+                        .withMessageBody(MessageSeeds.EDIT_PROCESS_CONCURRENT_BODY, info.name)
+                        .supplier().get();
+            }
             bpmProcessDefinition.get().setStatus(info.active);
             bpmProcessDefinition.get().save();
             return new ProcessDefinitionInfo(bpmProcessDefinition.get());
         }
-
         throw new BpmProcessNotAvailable(thesaurus, info.name + ":" + info.version);
     }
 
