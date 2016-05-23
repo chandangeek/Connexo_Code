@@ -33,7 +33,7 @@ Ext.define('Mdc.view.setup.searchitems.ContentLayout', {
                     title: Uni.I18n.translate('searchItems.empty.title', 'MDC', 'No devices found'),
                     reasons: [
                         Uni.I18n.translate('searchItems.empty.list.item1', 'MDC', 'No devices have been defined yet.'),
-                        Uni.I18n.translate('searchItems.empty.list.item2', 'MDC', 'The search criteria are too narrow.')
+                        Uni.I18n.translate('searchItems.empty.list.item2', 'MDC', 'No devices comply with the filter.')
                     ]
                 }
             },
