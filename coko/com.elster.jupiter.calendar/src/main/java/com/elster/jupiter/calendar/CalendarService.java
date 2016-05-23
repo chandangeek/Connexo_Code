@@ -19,6 +19,8 @@ import java.util.TimeZone;
 @ProviderType
 public interface CalendarService {
 
+    String COMPONENTNAME = "CAL";
+
     /**
      * Starts the building process for a new {@link Calendar}.
      *
@@ -27,9 +29,6 @@ public interface CalendarService {
      * @param start The year from which any timeline will start
      * @return The CalendarBuilder
      */
-
-    String COMPONENTNAME = "CAL";
-
     CalendarBuilder newCalendar(String name, TimeZone timeZone, Year start);
 
     List<Calendar> findAllCalendars();
