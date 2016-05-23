@@ -6,6 +6,7 @@ import com.elster.jupiter.servicecall.ServiceCallHandler;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 
 /**
  * Dummy implementation of {@link ServiceCallHandler} interface which doesn't do a thing.
@@ -24,6 +25,10 @@ public class NoOperationHandler implements ServiceCallHandler {
 
     @Activate
     public void activate() {
+    }
+
+    @Deactivate
+    public void deactivate() {
     }
 
     @Override

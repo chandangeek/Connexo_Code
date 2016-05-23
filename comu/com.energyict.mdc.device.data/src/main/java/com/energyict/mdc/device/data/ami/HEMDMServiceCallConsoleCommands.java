@@ -15,7 +15,10 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.units.Quantity;
 import com.energyict.mdc.device.data.DeviceService;
 
+import org.osgi.framework.BundleContext;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import java.math.BigDecimal;
@@ -68,6 +71,14 @@ public class HEMDMServiceCallConsoleCommands {
     @Reference
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
+    }
+
+    @Activate
+    public void activate(BundleContext context) {
+    }
+
+    @Deactivate
+    public void deactivate() {
     }
 
 

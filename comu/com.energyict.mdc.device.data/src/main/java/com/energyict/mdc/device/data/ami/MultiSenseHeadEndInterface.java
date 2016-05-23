@@ -45,6 +45,7 @@ import com.energyict.mdc.tasks.StatusInformationTask;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
@@ -150,6 +151,10 @@ public class MultiSenseHeadEndInterface implements HeadEndInterface {
     @Activate
     public void activate() {
         System.out.println("MultiSenseHeadEndInterface activating");
+    }
+
+    @Deactivate
+    public void deactivate() {
     }
 
     private void scheduleDeviceCommandsComTaskEnablement(EndDeviceCommand endDeviceCmd) {

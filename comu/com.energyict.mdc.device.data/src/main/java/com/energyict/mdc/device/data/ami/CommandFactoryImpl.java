@@ -43,6 +43,7 @@ public class CommandFactoryImpl implements CommandFactory {
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
 
+
     public CommandFactoryImpl(){}
 
     public CommandFactoryImpl(MeteringService meteringService, DeviceService deviceService, DeviceMessageSpecificationService deviceMessageSpecificationService, NlsService nlsService, Thesaurus thesaurus) {

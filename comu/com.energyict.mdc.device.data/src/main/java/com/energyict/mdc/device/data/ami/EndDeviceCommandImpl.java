@@ -12,6 +12,7 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import java.util.ArrayList;
@@ -71,6 +72,10 @@ public class EndDeviceCommandImpl implements EndDeviceCommand {
     @Activate
     public void activate() {
         System.out.println("EndDeviceCommand activating");
+    }
+
+    @Deactivate
+    public void deactivate() {
     }
 
     @Override

@@ -17,6 +17,7 @@ import com.elster.jupiter.util.units.Quantity;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
@@ -60,6 +61,10 @@ public class ContactorOperationCustomPropertySet implements CustomPropertySet<Se
     @Activate
     public void activate() {
         System.out.println("Activating Contactor Operation custom property set");
+    }
+
+    @Deactivate
+    public void deactivate() {
     }
 
     @Override

@@ -15,6 +15,7 @@ import com.energyict.mdc.device.data.DeviceService;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import java.util.EnumSet;
@@ -56,6 +57,10 @@ public class MultisenseServiceCallHandler implements ServiceCallHandler {
     @Activate
     public void activate() {
         System.out.println("Activating multisense service call handler");
+    }
+
+    @Deactivate
+    public void deactivate() {
     }
 
     @Override
