@@ -1,8 +1,6 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
-import com.elster.jupiter.calendar.impl.CalendarImpl;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.QueryService;
