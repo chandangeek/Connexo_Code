@@ -128,12 +128,12 @@ public class MetrologyConfigurationResourceTest extends MeteringApplicationJerse
         when(metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey())).thenReturn(Optional.of(meterRole));
         when(meteringService.findReadingTypes(Collections.singletonList(readingTypeMrid))).thenReturn(Collections.singletonList(readingType));
         UsagePointMetrologyConfiguration.MetrologyConfigurationReadingTypeRequirementBuilder requirementBuilder = mock(UsagePointMetrologyConfiguration.MetrologyConfigurationReadingTypeRequirementBuilder.class);
-        when(metrologyConfiguration.newReadingTypeRequirement(readingType.getName())).thenReturn(requirementBuilder);
+        when(metrologyConfiguration.newReadingTypeRequirement(readingType.getFullAliasName())).thenReturn(requirementBuilder);
         when(requirementBuilder.withMeterRole(meterRole)).thenReturn(requirementBuilder);
         FullySpecifiedReadingTypeRequirement fullySpecifiedReadingTypeRequirement = mock(FullySpecifiedReadingTypeRequirement.class);
         when(requirementBuilder.withReadingType(readingType)).thenReturn(fullySpecifiedReadingTypeRequirement);
         ReadingTypeDeliverableBuilder deliverableBuilder = mock(ReadingTypeDeliverableBuilder.class);
-        when(metrologyConfiguration.newReadingTypeDeliverable(readingType.getName(), readingType, Formula.Mode.AUTO)).thenReturn(deliverableBuilder);
+        when(metrologyConfiguration.newReadingTypeDeliverable(readingType.getFullAliasName(), readingType, Formula.Mode.AUTO)).thenReturn(deliverableBuilder);
         ReadingTypeDeliverable readingTypeDeliverable = mock(ReadingTypeDeliverable.class);
         when(deliverableBuilder.build(deliverableBuilder.requirement(fullySpecifiedReadingTypeRequirement))).thenReturn(readingTypeDeliverable);
         MetrologyContract metrologyContract = mock(MetrologyContract.class);
@@ -192,5 +192,21 @@ public class MetrologyConfigurationResourceTest extends MeteringApplicationJerse
 
         Response response = target("/metrologyconfigurations").request().post(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    @Test
+    public void testMetrologyConfigurationRemoving() {
+        MetrologyConfigurationInfo info = new MetrologyConfigurationInfo();
+        info.id = 1;
+        info.name = name;
+        info.description = description;
+        info.status = new IdWithNameInfo(status, status.getTranslationKey().getDefaultFormat());
+        info.serviceCategory = new IdWithNameInfo(serviceKind, serviceKind.getDefaultFormat());
+        info.readingTypes = Collections.singletonList(new ReadingTypeInfo(readingType));
+
+        when(metrologyConfigurationService.findAndLockMetrologyConfiguration(info.id, info.version)).thenReturn(Optional.of(mock(UsagePointMetrologyConfiguration.class)));
+
+        Response response = target("metrologyconfigurations/1").request().method("DELETE", Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(200);
     }
 }
