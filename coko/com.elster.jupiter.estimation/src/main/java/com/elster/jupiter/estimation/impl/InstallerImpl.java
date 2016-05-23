@@ -79,10 +79,6 @@ class InstallerImpl implements FullInstaller {
         destinationSpec.subscribe(SUBSCRIBER_NAME);
     }
 
-    private void installDataModel() {
-        dataModel.install(true, true);
-    }
-
     private RelativePeriodCategory getCategory() {
         return timeService.findRelativePeriodCategoryByName(RELATIVE_PERIOD_CATEGORY).orElseThrow(IllegalArgumentException::new);
     }
