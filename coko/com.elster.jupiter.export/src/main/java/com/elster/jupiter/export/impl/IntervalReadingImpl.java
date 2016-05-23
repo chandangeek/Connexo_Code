@@ -3,7 +3,6 @@ package com.elster.jupiter.export.impl;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.IntervalReading;
-import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.util.units.Quantity;
 import com.google.common.collect.Range;
@@ -25,11 +24,6 @@ class IntervalReadingImpl implements IntervalReading {
     private IntervalReadingImpl(IntervalReadingRecord decorated, ReadingType readingType) {
         this.decorated = decorated;
         this.readingType = readingType;
-    }
-
-    @Override
-    public ProfileStatus getProfileStatus() {
-        return decorated.getProfileStatus();
     }
 
     @Override
