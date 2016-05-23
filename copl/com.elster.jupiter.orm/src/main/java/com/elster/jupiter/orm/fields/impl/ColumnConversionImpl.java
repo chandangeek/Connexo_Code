@@ -1,5 +1,6 @@
 package com.elster.jupiter.orm.fields.impl;
 
+import com.elster.jupiter.orm.Blob;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.impl.ColumnImpl;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
@@ -9,25 +10,24 @@ import com.elster.jupiter.util.units.Unit;
 
 import javax.inject.Inject;
 import java.io.File;
-import java.nio.file.Path;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Currency;
 
-// naming convention is DATABASE TYPE 2 JAVATYPE 
+// naming convention is DATABASE TYPE 2 JAVATYPE
 public enum ColumnConversionImpl {
 	NOCONVERSION { // 0
 		@Override
 		public Object convertToDb(ColumnImpl column, Object value) {
 			return value;
 		}
-			
+
 		@Override
 		public Object convertFromDb(ColumnImpl column, ResultSet rs, int index) throws SQLException {
 			return rs.getObject(index);
 		}
-		
+
 		@Override
 		public Object convert(ColumnImpl column, String in) {
 			return in;
@@ -37,13 +37,13 @@ public enum ColumnConversionImpl {
 		@Override
 		public Object convertToDb(ColumnImpl column, Object value) {
 			return value;
-		}	
-		
+		}
+
 		@Override
 		public Object convertFromDb(ColumnImpl column, ResultSet rs, int index) throws SQLException {
 			return rs.getInt(index);
 		}
-		
+
 		@Override
 		public Object convert(ColumnImpl column, String in) {
 			return Integer.valueOf(in);
@@ -55,12 +55,12 @@ public enum ColumnConversionImpl {
 		public Object convertToDb(ColumnImpl column, Object value) {
 			return value == null || ((Integer) value) == 0 ? null : value;
 		}
-		
+
 		@Override
 		public Object convertFromDb(ColumnImpl column, ResultSet rs, int index) throws SQLException {
 			return rs.getInt(index);
 		}
-		
+
 		@Override
 		public Object convert(ColumnImpl column, String in) {
 			return Integer.valueOf(in);
@@ -71,12 +71,12 @@ public enum ColumnConversionImpl {
 		public Object convertToDb(ColumnImpl column, Object value) {
 			return value;
 		}
-		
+
 		@Override
 		public Object convertFromDb(ColumnImpl column, ResultSet rs, int index) throws SQLException {
 			return rs.getLong(index);
 		}
-		
+
 		@Override
 		public Object convert(ColumnImpl column, String in) {
 			return Long.valueOf(in);
@@ -88,12 +88,12 @@ public enum ColumnConversionImpl {
 		public Object convertToDb(ColumnImpl column, Object value) {
 			return value == null || ((Long) value) == 0 ? null : value;
 		}
-		
+
 		@Override
 		public Object convertFromDb(ColumnImpl column, ResultSet rs, int index) throws SQLException {
-			return rs.getLong(index); 
+			return rs.getLong(index);
 		}
-		
+
 		@Override
 		public Object convert(ColumnImpl column, String in) {
 			return Long.valueOf(in);
@@ -104,12 +104,12 @@ public enum ColumnConversionImpl {
 		public Object convertToDb(ColumnImpl column, Object value) {
 			return value == null ? null : (Boolean) value ? "Y" : "N";
 		}
-		
+
 		@Override
 		public Object convertFromDb(ColumnImpl column, ResultSet rs, int index) throws SQLException {
 			return "Y".equals(rs.getString(index)) || "YES".equalsIgnoreCase(rs.getString(index));
 		}
-		
+
 		@Override
 		public Object convert(ColumnImpl column, String in) {
 			return toBoolean(in);
@@ -120,12 +120,12 @@ public enum ColumnConversionImpl {
 		public Object convertToDb(ColumnImpl column, Object value) {
 			return value == null ? null : (Boolean) value ? 1 : 0;
 		}
-		
+
 		@Override
 		public Object convertFromDb(ColumnImpl column, ResultSet rs, int index) throws SQLException {
 			return 1 == rs.getInt(index);
 		}
-		
+
 		@Override
 		public Object convert(ColumnImpl column, String in) {
 			return toBoolean(in);
@@ -136,13 +136,13 @@ public enum ColumnConversionImpl {
 		@Override
 		public Object convertToDb(ColumnImpl column, Object value) {
 			return getTime(value);
-		}	
-		
+		}
+
 		@Override
 		public Object convertFromDb(ColumnImpl column, ResultSet rs, int index) throws SQLException {
 			return Instant.ofEpochMilli(rs.getLong(index));
-		}		
-		
+		}
+
 		@Override
 		public Object convert(ColumnImpl column, String in) {
 			return  Instant.ofEpochMilli(Long.valueOf(in));
@@ -152,53 +152,53 @@ public enum ColumnConversionImpl {
 	NUMBER2ENUM { // 9
 		@Override
 		public Object convertToDb(ColumnImpl column, Object value) {
-			return value == null ? null : ((Enum<?>) value).ordinal();			
+			return value == null ? null : ((Enum<?>) value).ordinal();
 		}
-		
+
 		@Override
 		public Object convertFromDb(ColumnImpl column, ResultSet rs, int index) throws SQLException {
 			// returns the enum ordinal , create the enum with correct ordinal is handled by Mapper implementation
 			int value = rs.getInt(index);
 			return rs.wasNull() ? null : value;
 		}
-		
+
 		public Object convert(ColumnImpl column, String in) {
 			throw new UnsupportedOperationException();
 		}
-		
+
 	},
 	// convert number to enum field by ordinal + 1
-	// useful in to avoid 0 in database, which often means Not Applicable 
+	// useful in to avoid 0 in database, which often means Not Applicable
 	NUMBER2ENUMPLUSONE { // 10
 		@Override
 		public Object convertToDb(ColumnImpl column, Object value) {
-			return value == null ? null : ((Enum<?>) value).ordinal() + 1;			
+			return value == null ? null : ((Enum<?>) value).ordinal() + 1;
 		}
-		
+
 		@Override
 		public Object convertFromDb(ColumnImpl column, ResultSet rs, int index) throws SQLException {
 			// returns the enum ordinal , create the enum with correct ordinal is handled by Mapper implementation
 			int value = rs.getInt(index);
 			return rs.wasNull() ? null : value - 1;
 		}
-		
+
 		public Object convert(ColumnImpl column, String in) {
 			throw new UnsupportedOperationException();
 		}
-		
+
 	},
 	CHAR2ENUM {  // 11
 		@Override
 		public Object convertToDb(ColumnImpl column, Object value) {
-			return value == null ? null : ((Enum<?>) value).name();			
+			return value == null ? null : ((Enum<?>) value).name();
 		}
-		
+
 		@Override
 		public Object convertFromDb(ColumnImpl column, ResultSet rs, int index) throws SQLException {
 			// returns the enum name , create the enum with correct ordinal is handled by Mapper implementation
 			return rs.getString(index);
 		}
-		
+
 		@Override
 		public Object convert(ColumnImpl column, String in) {
 			throw new UnsupportedOperationException();
@@ -210,7 +210,7 @@ public enum ColumnConversionImpl {
 		public Object convertToDb(ColumnImpl column, Object value) {
 			return value;
 		}
-		
+
 		@Override
 		public Object convertFromDb(ColumnImpl column, ResultSet rs, int index) throws SQLException {
 			return rs.getString(index);
@@ -220,19 +220,19 @@ public enum ColumnConversionImpl {
 			return in;
 		}
 	},
-	
+
 	NUMBER2INTWRAPPER { // 13
 		@Override
 		public Object convertToDb(ColumnImpl column, Object value) {
 			return  value;
 		}
-		
+
 		@Override
 		public Object convertFromDb(ColumnImpl column, ResultSet rs, int index) throws SQLException {
 			int result = rs.getInt(index);
-			return rs.wasNull() ? null : result;						
+			return rs.wasNull() ? null : result;
 		}
-		
+
 		@Override
 		public Object convert(ColumnImpl column, String in) {
 			return Integer.valueOf(in);
@@ -260,30 +260,30 @@ public enum ColumnConversionImpl {
 		public Object convertToDb(ColumnImpl column, Object value) {
 			return  value == null ? null : ((Unit) value).getAsciiSymbol();
 		}
-		
+
 		@Override
 		public Object convertFromDb(ColumnImpl column, ResultSet rs, int index) throws SQLException {
 			String asciiSymbol = rs.getString(index);
-			return asciiSymbol == null ? null : Unit.get(asciiSymbol);						
+			return asciiSymbol == null ? null : Unit.get(asciiSymbol);
 		}
-		
+
 		@Override
 		public Object convert(ColumnImpl column, String in) {
 			return Unit.get(in);
 		}
 	},
-	CHAR2CURRENCY { 
+	CHAR2CURRENCY {
 		@Override
 		public Object convertToDb(ColumnImpl column, Object value) {
 			return  value == null ? null : ((Currency) value).getCurrencyCode();
 		}
-		
+
 		@Override
 		public Object convertFromDb(ColumnImpl column, ResultSet rs, int index) throws SQLException {
 			String iso4217Code = rs.getString(index);
-			return iso4217Code == null ? null : Currency.getInstance(iso4217Code);						
+			return iso4217Code == null ? null : Currency.getInstance(iso4217Code);
 		}
-		
+
 		@Override
 		public Object convert(ColumnImpl column, String in) {
 			return Currency.getInstance(in);
@@ -318,7 +318,7 @@ public enum ColumnConversionImpl {
         }
 
         @Override
-        public Object convertFromDb(ColumnImpl column, ResultSet rs, int index) throws SQLException {
+        public Object convertFromDb(ColumnImpl column, ResultSet rs, int index) {
             throw new UnsupportedOperationException();
         }
     },
@@ -338,8 +338,8 @@ public enum ColumnConversionImpl {
             java.sql.Date date = rs.getDate(index);
             return date == null ? null : Instant.ofEpochMilli(date.getTime());
         }
-    	
-    }, 
+
+    },
     TIMESTAMP2INSTANT {
     	@Override
         public Object convert(ColumnImpl column, String in) {
@@ -355,7 +355,7 @@ public enum ColumnConversionImpl {
         public Object convertFromDb(ColumnImpl column, ResultSet rs, int index) throws SQLException {
             java.sql.Timestamp timestamp = rs.getTimestamp(index);
             return timestamp == null ? null : Instant.ofEpochMilli(timestamp.getTime());
-        }    	
+        }
     },
     CLOB2STRING {
     	@Override
@@ -371,8 +371,8 @@ public enum ColumnConversionImpl {
         @Override
         public Object convertFromDb(ColumnImpl column, ResultSet rs, int index) throws SQLException {
             return rs.getString(index);
-        }    	
-    	
+        }
+
     },
     BLOB2BYTE {
     	@Override
@@ -388,7 +388,29 @@ public enum ColumnConversionImpl {
         @Override
         public Object convertFromDb(ColumnImpl column, ResultSet rs, int index) throws SQLException {
             return rs.getBytes(index);
-        }    	
+        }
+    },
+    BLOB2SQLBLOB {
+    	@Override
+        public Object convert(ColumnImpl column, String in) {
+		    return in;
+        }
+
+        @Override
+        public Object convertToDb(ColumnImpl column, Object value) {
+	        if (value instanceof LazyLoadingBlob) {
+                return value;
+            } else if (value instanceof Blob) {
+                return LazyLoadingBlob.from((Blob) value, column);
+	        } else {
+		        throw new IllegalArgumentException("Conversion " + name() + " only supports PersistentBlob and SimpleBlob values but not " + value.getClass().getName());
+	        }
+        }
+
+        @Override
+        public Object convertFromDb(ColumnImpl column, ResultSet rs, int index) {
+            return LazyLoadingBlob.from(column);
+        }
     },
     NUMBERINUTCSECONDS2INSTANT {
     	@Override
@@ -403,22 +425,22 @@ public enum ColumnConversionImpl {
 
         @Override
         public Object convertFromDb(ColumnImpl column, ResultSet rs, int index) throws SQLException {
-        	long value = rs.getLong(index);				 
+        	long value = rs.getLong(index);
 			return rs.wasNull() ? null : Instant.ofEpochSecond(value);
-		} 	
+		}
     },
 	NUMBER2INSTANT {
 		@Override
 		public Object convertToDb(ColumnImpl column, Object value) {
 			return getTime(value);
-		}	
-		
+		}
+
 		@Override
 		public Object convertFromDb(ColumnImpl column, ResultSet rs, int index) throws SQLException {
-			long value = rs.getLong(index);				 
+			long value = rs.getLong(index);
 			return rs.wasNull() ? null : Instant.ofEpochMilli(value);
 		}
-		
+
 		@Override
 		public Object convert(ColumnImpl column, String in) {
 			return  Instant.ofEpochMilli(Long.valueOf(in));
@@ -432,7 +454,7 @@ public enum ColumnConversionImpl {
 
 		@Override
 		public Object convertToDb(ColumnImpl column, Object value) {
-			return ((Path) value).toString();
+			return value.toString();
 		}
 
 		@Override
@@ -465,12 +487,11 @@ public enum ColumnConversionImpl {
 		}
 	};
 
-
 	public abstract Object convertToDb(ColumnImpl column, Object value);
 	public abstract Object convertFromDb(ColumnImpl column, ResultSet rs, int index) throws SQLException;
 	public abstract Object convert(ColumnImpl column, String in);
-	
-	Long getTime(Object value) {	
+
+	Long getTime(Object value) {
 		if (value == null) {
 			return null;
 		}
@@ -478,37 +499,35 @@ public enum ColumnConversionImpl {
 			return ((Instant) value).toEpochMilli();
 		}
 		if (value instanceof Long) {
-			return (Long) value;			
+			return (Long) value;
 		} else {
 			throw new IllegalArgumentException("" + value);
 		}
 	}
 
 	private static final String[] trueStrings = { "1" , "y" ,"yes" , "on" };
-	
+
 	private static boolean toBoolean(String in) {
 		for (String each : trueStrings) {
-			if (each.equalsIgnoreCase(in)) 
-				return true; 
+			if (each.equalsIgnoreCase(in))
+				return true;
 		}
 		return Boolean.valueOf(in);
 	}
 
-
-	
 	public static class JsonConverter {
 		private final JsonService jsonService;
-		
+
 		@Inject
 		JsonConverter(JsonService jsonService) {
 			this.jsonService = jsonService;
 		}
-		
+
         public Object convert(String in) {
             Object[] objects = jsonService.deserialize(in, Object[].class);
             return objects;
         }
-		
+
         public Object convertToDb(Object value) {
             return jsonService.serialize(value);
         }
