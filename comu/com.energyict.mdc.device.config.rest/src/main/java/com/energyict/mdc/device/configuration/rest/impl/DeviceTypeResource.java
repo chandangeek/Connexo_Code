@@ -20,6 +20,7 @@ import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceMessageFile;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.DeviceTypePurpose;
 import com.energyict.mdc.device.config.IncompatibleDeviceLifeCycleChangeException;
@@ -68,6 +69,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
@@ -505,9 +507,39 @@ public class DeviceTypeResource {
     }
 
     @GET
+    @Path("/{id}/files")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.VIEW_DEVICE_TYPE)
+    public Response getFiles(@PathParam("id") long id) {
+        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
+        List<DeviceMessageFileInfo> files = deviceType.getDeviceMessageFiles()
+                .stream()
+                .map(DeviceMessageFileInfo::new)
+                .collect(Collectors.toList());
+
+        return Response.ok(files).build();
+    }
+
+    @DELETE
+    @Path("/{id}/files/{fileId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
+    public Response deleteFile(@PathParam("id") long id, @PathParam("fileId") long fileId, DeviceMessageFileInfo info) {
+        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
+        DeviceMessageFile file = deviceType.getDeviceMessageFiles()
+                .stream()
+                .filter(deviceMessageFile -> deviceMessageFile.getId() == fileId)
+                .findFirst()
+                .orElseThrow(IllegalArgumentException::new);
+        deviceType.removeDeviceMessageFile(file);
+        return Response.ok().build();
+    }
+
+    @GET
     @Path("/{id}/timeofuse")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_DEVICE_TYPE,Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE_TYPE, Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
     public Response getCalendars(@PathParam("id") long id) {
         List<AllowedCalendarInfo> infos;
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
@@ -535,10 +567,10 @@ public class DeviceTypeResource {
     @GET
     @Path("/{id}/timeofuse/{calendarId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_DEVICE_TYPE,Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE_TYPE, Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
     public Response getCalendar(@PathParam("id") long id, @PathParam("calendarId") long calendarId, @QueryParam("weekOf") long milliseconds) {
-        if(milliseconds <= 0) {
-            return  Response.ok(calendarService.findCalendar(calendarId)
+        if (milliseconds <= 0) {
+            return Response.ok(calendarService.findCalendar(calendarId)
                     .map(calendarInfoFactory::detailedFromCalendar)
                     .orElseThrow(IllegalArgumentException::new)).build();
         } else {
@@ -591,8 +623,8 @@ public class DeviceTypeResource {
     @GET
     @Transactional
     @Path("/{id}/timeofuseoptions/{dummyid}")
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8" )
-    @RolesAllowed({Privileges.Constants.VIEW_DEVICE_TYPE,Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE_TYPE, Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
     public Response getTimeOfUseManagementOptions(@PathParam("id") long id) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         TimeOfUseOptionsInfo timeOfUseOptionsInfo = getTimeOfUseOptions(deviceType);
@@ -603,13 +635,13 @@ public class DeviceTypeResource {
     @PUT
     @Transactional
     @Path("/{id}/timeofuseoptions/{dummyid}")
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8" )
-    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8" )
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public Response changeTimeOfUseOptions(@PathParam("id") long id, @PathParam("dummyid") long dummyID, TimeOfUseOptionsInfo info) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         Optional<TimeOfUseOptions> timeOfUseOptions = resourceHelper.findAndLockTimeOfUseOptionsByIdAndVersion(deviceType, info.version);
-        if (info.isAllowed && info.allowedOptions != null){
+        if (info.isAllowed && info.allowedOptions != null) {
             Set<ProtocolSupportedCalendarOptions> supportedCalendarOptions = deviceConfigurationService.getSupportedTimeOfUseOptionsFor(deviceType);
             Set<ProtocolSupportedCalendarOptions> newAllowedOptions = info.allowedOptions.stream()
                     .map(allowedOption -> ProtocolSupportedCalendarOptions.from((String) allowedOption.id))
@@ -631,13 +663,16 @@ public class DeviceTypeResource {
         TimeOfUseOptionsInfo timeOfUseOptionsInfo = new TimeOfUseOptionsInfo();
         Set<ProtocolSupportedCalendarOptions> supportedCalendarOptions = deviceConfigurationService.getSupportedTimeOfUseOptionsFor(deviceType);
         Optional<TimeOfUseOptions> timeOfUseOptions = deviceConfigurationService.findTimeOfUseOptions(deviceType);
-        Set<ProtocolSupportedCalendarOptions> allowedOptions = timeOfUseOptions.map(TimeOfUseOptions::getOptions).orElse(Collections.emptySet());
+        Set<ProtocolSupportedCalendarOptions> allowedOptions = timeOfUseOptions.map(TimeOfUseOptions::getOptions)
+                .orElse(Collections.emptySet());
 
         supportedCalendarOptions.stream()
-                .forEach(op -> timeOfUseOptionsInfo.supportedOptions.add(new OptionInfo(op.getId(), thesaurus.getString(op.getId(), op.getId()))));
+                .forEach(op -> timeOfUseOptionsInfo.supportedOptions.add(new OptionInfo(op.getId(), thesaurus.getString(op
+                        .getId(), op.getId()))));
         allowedOptions.stream()
                 .forEach(op ->
-                timeOfUseOptionsInfo.allowedOptions.add(new OptionInfo(op.getId(), thesaurus.getString(op.getId(), op.getId()))));
+                        timeOfUseOptionsInfo.allowedOptions.add(new OptionInfo(op.getId(), thesaurus.getString(op.getId(), op
+                                .getId()))));
 
         timeOfUseOptionsInfo.isAllowed = !allowedOptions.isEmpty();
         timeOfUseOptionsInfo.version = timeOfUseOptions.map(TimeOfUseOptions::getVersion).orElse(0L);
