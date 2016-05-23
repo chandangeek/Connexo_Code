@@ -8,55 +8,81 @@ import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.search.SearchablePropertyOperator;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+
 import javax.inject.Inject;
 
-@Component(name = "com.energyict.mdc.device.config.cps.DemoUsagePointMeterActivationValidator", service = CustomUsagePointMeterActivationValidator.class, immediate = true)
+@Component(name = "com.energyict.mdc.device.config.cps.DemoUsagePointMeterActivationValidator",
+        service = {CustomUsagePointMeterActivationValidator.class}, immediate = true)
+@SuppressWarnings("unused")
 public class DemoUsagePointMeterActivationValidator implements CustomUsagePointMeterActivationValidator {
 
     private volatile DeviceService deviceService;
     private volatile CustomPropertySetService customPropertySetService;
     private volatile Thesaurus thesaurus;
 
-
-    @Override
-    public void validateActivation(MeterRole meterRole, Meter meter, UsagePoint usagePoint) {
-        if ((usagePoint.getServiceCategory().getKind() == ServiceKind.ELECTRICITY) && ((UsagePointMetrologyConfiguration) usagePoint.getMetrologyConfiguration().get())
-                .getUsagePointRequirements()
-                .stream()
-                .anyMatch(r -> r.toValueBean().propertyName.equals("prepay") &&
-                        r.toValueBean().operator == SearchablePropertyOperator.EQUAL &&
-                        r.toValueBean().values.stream().anyMatch(v -> v.equals("true")))) {
-            if (!checkConditions(meter, usagePoint)) {
-                throw new CustomUsagePointMeterActivationValidationException(thesaurus, MessageSeeds.WRONG_PREPAY_AND_METERMECHANISM_EXCEPTION);
-            }
-        }
-    }
-
-    private boolean checkConditions(Meter meter, UsagePoint usagePoint) {
-        Device device = deviceService.findByUniqueMrid(meter.getMRID()).get();
-        return usagePoint.forCustomProperties()
-                .getAllPropertySets()
-                .stream()
-                .anyMatch(cas -> (cas.getValues().getProperty("prepay") != null)
-                        && (cas.getValues().getProperty("prepay").equals("PP")))
-                && device.getDeviceType()
-                .getCustomPropertySets()
-                .stream()
-                .anyMatch(cas -> cas.getCustomPropertySet().getName().equals("CAS2") && customPropertySetService.getUniqueValuesFor(cas.getCustomPropertySet(), device)
-                        .getProperty("meterMechanism")
-                        .equals("CR"));
+    public DemoUsagePointMeterActivationValidator() {
     }
 
     @Inject
     public DemoUsagePointMeterActivationValidator(DeviceService deviceService, CustomPropertySetService customPropertySetService, Thesaurus thesaurus) {
-        this.deviceService = deviceService;
-        this.customPropertySetService = customPropertySetService;
+        this.setDeviceService(deviceService);
+        this.setCustomPropertySetService(customPropertySetService);
         this.thesaurus = thesaurus;
     }
 
+    @Reference(cardinality = ReferenceCardinality.MANDATORY)
+    public void setDeviceService(DeviceService deviceService) {
+        this.deviceService = deviceService;
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MANDATORY)
+    public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
+        this.customPropertySetService = customPropertySetService;
+    }
+
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus("CPS", Layer.DOMAIN);
+    }
+
+    @Override
+    public void validateActivation(MeterRole meterRole, Meter meter, UsagePoint usagePoint) {
+        if ((usagePoint.getServiceCategory().getKind() == ServiceKind.ELECTRICITY)) {
+            if (checkUsagePointConditions(usagePoint)) {
+                if (!checkMeterConditions(meter)) {
+                    throw new CustomUsagePointMeterActivationValidationException(thesaurus, MessageSeeds.WRONG_METERMECHANISM_VALUE_EXCEPTION, "Prepay", "Meter mechanism");
+                }
+            }
+        }
+    }
+
+
+
+    private boolean checkMeterConditions(Meter meter) {
+        Device device = deviceService.findByUniqueMrid(meter.getMRID()).get();
+        return device.getDeviceType()
+                .getCustomPropertySets()
+                .stream()
+                .anyMatch(cas -> cas.getCustomPropertySet().getName().equals("MeterSpecs") && customPropertySetService.getUniqueValuesFor(cas.getCustomPropertySet(), device)
+                        .getProperty("meterMechanism")
+                        .equals("Credit"));
+    }
+
+    private boolean checkUsagePointConditions(UsagePoint usagePoint) {
+        return usagePoint.forCustomProperties()
+                .getAllPropertySets()
+                .stream()
+                .filter(cas -> cas.getCustomPropertySet().getId().equals("com.elster.jupiter.metering.cps.impl.UsagePointGeneralDomainExtension"))
+                .anyMatch(cas -> (cas.getValues().getProperty("prepay") != null)
+                        && (cas.getValues().getProperty("prepay").equals(true)));
+    }
 }

@@ -3,6 +3,7 @@ package com.energyict.mdc.device.config.cps;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.CustomPropertySetValues;
+import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.CustomUsagePointMeterActivationValidationException;
 import com.elster.jupiter.metering.Meter;
@@ -61,7 +62,9 @@ public class DemoUsagePointMeterActivationValidatorTest {
     @Mock
     private RegisteredCustomPropertySet registeredCustomPropertySet;
     @Mock
-    private CustomPropertySet<DeviceType, com.elster.jupiter.cps.PersistentDomainExtension<DeviceType>> customPropertySet;
+    private CustomPropertySet customPropertySet;
+    @Mock
+    private CustomPropertySet usagePointCustomPropertySet;
     @Mock
     private ConstraintValidatorContext constraintValidatorContext;
     @Mock
@@ -82,7 +85,10 @@ public class DemoUsagePointMeterActivationValidatorTest {
         when(deviceService.findByUniqueMrid("Test")).thenReturn(Optional.of(device));
         when(usagePoint.forCustomProperties()).thenReturn(usagePointCasExtension);
         when(usagePointCasExtension.getAllPropertySets()).thenReturn(Collections.singletonList(usagePointPropertySet));
-        customPropertySetValues.setProperty("prepay", "PP");
+        when(usagePointPropertySet.getCustomPropertySet()).thenReturn(usagePointCustomPropertySet);
+
+        when(usagePointCustomPropertySet.getId()).thenReturn("com.elster.jupiter.metering.cps.impl.UsagePointGeneralDomainExtension");
+        customPropertySetValues.setProperty("prepay", true);
         when(usagePointPropertySet.getValues()).thenReturn(customPropertySetValues);
         when(usagePoint.getServiceCategory()).thenReturn(serviceCategory);
         when(serviceCategory.getKind()).thenReturn(ServiceKind.ELECTRICITY);
@@ -98,7 +104,7 @@ public class DemoUsagePointMeterActivationValidatorTest {
         when(device.getDeviceType()).thenReturn(deviceType);
         when(deviceType.getCustomPropertySets()).thenReturn(Collections.singletonList(registeredCustomPropertySet));
         when(registeredCustomPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
-        when(customPropertySet.getName()).thenReturn("CAS2");
+        when(customPropertySet.getName()).thenReturn("MeterSpecs");
 
         customPropertySetValues.setProperty("meterMechanism", "CR");
         when(customPropertySetService.getUniqueValuesFor(anyObject(), anyObject())).thenReturn(customPropertySetValues);

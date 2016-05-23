@@ -6,7 +6,8 @@ import java.util.logging.Level;
 
 
 public enum MessageSeeds implements MessageSeed {
-    WRONG_PREPAY_AND_METERMECHANISM_EXCEPTION(1, Keys.WRONG_PREPAY_AND_METERMECHANISM_EXCEPTION, "/'Prepay/' value of usage point or /'Meter mechanism/' of meter are not correct");
+    WRONG_METERMECHANISM_VALUE_EXCEPTION(1, Keys.WRONG_METERMECHANISM_VALUE_EXCEPTION, "''{0}'' attribute value of meter is not correct");
+
 
     private final int number;
     private final String key;
@@ -50,6 +51,6 @@ public enum MessageSeeds implements MessageSeed {
     }
 
     public static final class Keys {
-        public static final String WRONG_PREPAY_AND_METERMECHANISM_EXCEPTION = "IncorrectValuesForCustomValidations";
+        public static final String WRONG_METERMECHANISM_VALUE_EXCEPTION = "IncorrectValuesForCustomValidations";
     }
 }
