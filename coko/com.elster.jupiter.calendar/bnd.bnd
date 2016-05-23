@@ -9,3 +9,5 @@ Private-Package: com.elster.jupiter.calendar.impl,\
 Export-Package: com.elster.jupiter.calendar,\
   com.elster.jupiter.calendar.security,\
   com.elster.jupiter.calendar.importers
+Import-Package: com.sun.xml.internal.bind, *
+

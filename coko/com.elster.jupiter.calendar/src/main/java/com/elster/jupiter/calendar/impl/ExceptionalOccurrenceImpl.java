@@ -111,4 +111,11 @@ public abstract class ExceptionalOccurrenceImpl implements ExceptionalOccurrence
         dayType.set(this.getCalendar().getDayTypes().stream().filter(type -> type.getName().equals(dayType.get().getName())).findFirst().get());
         Save.CREATE.save(calendarService.getDataModel(), this, Save.Create.class);
     }
+
+    void delete() {
+        if (id == 0) {
+            return;
+        }
+        calendarService.getDataModel().remove(this);
+    }
 }

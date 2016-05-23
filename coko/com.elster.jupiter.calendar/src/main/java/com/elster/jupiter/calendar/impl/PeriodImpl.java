@@ -152,6 +152,13 @@ public class PeriodImpl implements Period {
         }
     }
 
+    void delete() {
+        if (id == 0) {
+            return;
+        }
+        calendarService.getDataModel().remove(this);
+    }
+
 
     void save() {
         monday.set(

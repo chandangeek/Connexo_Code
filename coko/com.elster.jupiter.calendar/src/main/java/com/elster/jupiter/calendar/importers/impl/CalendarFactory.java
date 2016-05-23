@@ -1,7 +1,9 @@
 package com.elster.jupiter.calendar.importers.impl;
 
+import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.MessageSeeds;
+import com.elster.jupiter.calendar.impl.CalendarBuilderImpl;
 import com.elster.jupiter.calendar.impl.xmlbinding.DayType;
 import com.elster.jupiter.calendar.impl.xmlbinding.Event;
 import com.elster.jupiter.calendar.impl.xmlbinding.FixedOccurrence;
@@ -21,7 +23,6 @@ import java.time.LocalTime;
 import java.time.MonthDay;
 import java.time.Year;
 import java.time.ZoneId;
-import java.time.zone.ZoneRulesException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -48,12 +49,19 @@ public class CalendarFactory {
 
     public com.elster.jupiter.calendar.Calendar getCalendar(com.elster.jupiter.calendar.impl.xmlbinding.Calendar calendar) {
         this.calendar = calendar;
-        CalendarService.CalendarBuilder builder =
-            service.newCalendar(
-                    getCalendarName(),
-                    getTimeZone(),
-                    getStartYear())
-                   .description(getDescription()).mRID(getMRID());
+
+        CalendarService.CalendarBuilder builder = service.findCalendarByMRID(calendar.getMRID())
+                .map(c -> c.redefine()
+                        .name(getCalendarName())
+                        .timeZone(getTimeZone())
+                        .startYear(getStartYear())
+                        .description(getDescription())
+                        .mRID(getMRID()))
+                .orElseGet(() -> service.newCalendar(
+                        getCalendarName(),
+                        getTimeZone(),
+                        getStartYear())
+                        .description(getDescription()).mRID(getMRID()));
 
         events = new HashMap<BigInteger, String>();
         for (Event event : calendar.getEvents().getEvent()) {
@@ -235,5 +243,7 @@ public class CalendarFactory {
         }
         return eventName;
     }
+
+
 
 }

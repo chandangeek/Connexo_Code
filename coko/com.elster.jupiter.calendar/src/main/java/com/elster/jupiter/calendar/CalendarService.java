@@ -42,6 +42,9 @@ public interface CalendarService {
 
     @ProviderType
     interface CalendarBuilder {
+        CalendarBuilder name(String name);
+        CalendarBuilder timeZone(TimeZone timeZone);
+        CalendarBuilder startYear(Year start);
         CalendarBuilder endYear(Year setStartYear);
         CalendarBuilder mRID(String mRID);
         CalendarBuilder description(String description);

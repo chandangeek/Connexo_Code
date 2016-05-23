@@ -49,10 +49,10 @@ public class EventImpl implements Event {
     private Instant modTime;
     private String userName;
 
-    private final CalendarService calendarService;
+    private final ServerCalendarService calendarService;
 
     @Inject
-    EventImpl(CalendarService calendarService) {
+    EventImpl(ServerCalendarService calendarService) {
         this.calendarService = calendarService;
     }
 
@@ -101,5 +101,12 @@ public class EventImpl implements Event {
     @Override
     public String getUserName() {
         return userName;
+    }
+
+    public void delete() {
+        if (id == 0) {
+            return;
+        }
+        calendarService.getDataModel().remove(this);
     }
 }

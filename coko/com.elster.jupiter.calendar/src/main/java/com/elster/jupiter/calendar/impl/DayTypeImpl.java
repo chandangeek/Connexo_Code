@@ -111,6 +111,13 @@ public class DayTypeImpl implements DayType {
         return userName;
     }
 
+    public void delete() {
+        if (id == 0) {
+            return;
+        }
+        calendarService.getDataModel().remove(this);
+    }
+
     EventOccurrence addEventOccurrence(EventOccurrence eventOccurrence) {
         Save.CREATE.validate(calendarService.getDataModel(), eventOccurrence);
         this.eventOccurrences.add(eventOccurrence);

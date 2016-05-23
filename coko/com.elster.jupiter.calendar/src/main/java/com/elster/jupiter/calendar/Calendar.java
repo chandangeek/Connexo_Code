@@ -117,6 +117,8 @@ public interface Calendar extends HasId, HasName {
 
     void save();
 
+    CalendarService.CalendarBuilder redefine();
+
     void delete();
 
     Year getStartYear();

@@ -35,8 +35,9 @@ public class TimeOfUseCalendarImporter implements FileImporter {
             com.elster.jupiter.calendar.impl.xmlbinding.Calendar result =
                     (com.elster.jupiter.calendar.impl.xmlbinding.Calendar) u.unmarshal(fileImportOccurrence.getContents());
             log(fileImportOccurrence, MessageSeeds.VALIDATION_OF_FILE_SUCCEEDED);
+            boolean isUpdate = context.getCalendarService().findCalendarByMRID(result.getMRID()).isPresent();
             com.elster.jupiter.calendar.Calendar calendar = factory.getCalendar(result);
-            log(fileImportOccurrence, MessageSeeds.CALENDAR_CREATED);
+            logCreationOrUpdate(fileImportOccurrence, isUpdate);
             markSuccess(fileImportOccurrence, calendar);
         } catch (JAXBException e) {
             logValidationFailed(fileImportOccurrence, e);
@@ -53,6 +54,14 @@ public class TimeOfUseCalendarImporter implements FileImporter {
         } catch (Throwable e) {
             logImportFailed(fileImportOccurrence, e);
             markFailure(fileImportOccurrence);
+        }
+    }
+
+    private void logCreationOrUpdate(FileImportOccurrence fileImportOccurrence, boolean isUpdate) {
+        if (isUpdate) {
+            log(fileImportOccurrence, MessageSeeds.CALENDAR_UPDATED);
+        } else {
+            log(fileImportOccurrence, MessageSeeds.CALENDAR_CREATED);
         }
     }
 

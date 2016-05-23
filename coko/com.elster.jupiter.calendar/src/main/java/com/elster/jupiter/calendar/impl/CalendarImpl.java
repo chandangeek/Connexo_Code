@@ -1,6 +1,7 @@
 package com.elster.jupiter.calendar.impl;
 
 import com.elster.jupiter.calendar.Calendar;
+import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.Category;
 import com.elster.jupiter.calendar.DayType;
 import com.elster.jupiter.calendar.Event;
@@ -32,6 +33,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
 
@@ -182,14 +184,51 @@ public class CalendarImpl implements Calendar {
     @Override
     public void save() {
         if (this.getId() > 0) {
-            Save.UPDATE.save(calendarService.getDataModel(), this, Save.Update.class);
+            doUpdate();
         } else {
-            Save.CREATE.save(calendarService.getDataModel(), this, Save.Create.class);
-            saveDayTypes();
-            savePeriods();
-            savePeriodTransitionSpecs();
-            saveExceptionalOccurrences();
+            doSave();
         }
+    }
+
+    private void doSave() {
+        Save.CREATE.save(calendarService.getDataModel(), this, Save.Create.class);
+        saveDayTypes();
+        savePeriods();
+        savePeriodTransitionSpecs();
+        saveExceptionalOccurrences();
+    }
+
+    private void doUpdate() {
+        Save.UPDATE.save(calendarService.getDataModel(), this, Save.Update.class);
+        saveDayTypes();
+        savePeriods();
+        savePeriodTransitionSpecs();
+        saveExceptionalOccurrences();
+    }
+
+    @Override
+    public CalendarService.CalendarBuilder redefine(){
+        for (ExceptionalOccurrence occurrence : this.getExceptionalOccurrences()) {
+            ((ExceptionalOccurrenceImpl) occurrence).delete();
+        }
+
+        for (PeriodTransitionSpec periodTransitionSpec : this.getPeriodTransitionSpecs()) {
+            ((PeriodTransitionSpecImpl) periodTransitionSpec).delete();
+        }
+
+        for (Period period : this.getPeriods()) {
+            ((PeriodImpl) period).delete();
+        }
+
+        for (DayType dayType : this.getDayTypes()) {
+            ((DayTypeImpl) dayType).delete();
+        }
+        exceptionalOccurrences.clear();
+        periodTransitionSpecs.clear();
+        periods.clear();
+        dayTypes.clear();
+        events.clear();
+        return new CalendarBuilderImpl(calendarService.getDataModel(), this);
     }
 
     private void saveDayTypes() {

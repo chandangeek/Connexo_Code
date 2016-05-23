@@ -24,10 +24,33 @@ public class CalendarBuilderImpl implements CalendarService.CalendarBuilder {
         this.calendarImpl = this.dataModel.getInstance(CalendarImpl.class);
     }
 
+     CalendarBuilderImpl(DataModel dataModel, CalendarImpl calendarImpl) {
+        this.dataModel = dataModel;
+        this.calendarImpl = calendarImpl;
+    }
+
     void init(String name, TimeZone timeZone, Year start) {
         this.calendarImpl.setName(name);
         this.calendarImpl.setTimeZone(timeZone);
         this.calendarImpl.setStartYear(start);
+    }
+
+    @Override
+    public CalendarService.CalendarBuilder name(String name) {
+        this.calendarImpl.setName(name);
+        return this;
+    }
+
+    @Override
+    public CalendarService.CalendarBuilder timeZone(TimeZone timeZone) {
+        this.calendarImpl.setTimeZone(timeZone);
+        return this;
+    }
+
+    @Override
+    public CalendarService.CalendarBuilder startYear(Year start) {
+        this.calendarImpl.setStartYear(start);
+        return this;
     }
 
     @Override
