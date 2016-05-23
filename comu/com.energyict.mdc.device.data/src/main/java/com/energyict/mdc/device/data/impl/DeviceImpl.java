@@ -2601,7 +2601,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 if (overruledOverflowValue == null) {
                     required = readingTypeConfiguration.isPresent() && readingTypeConfiguration.get().getOverflowValue().isPresent();
                 } else {
-                    required = !readingTypeConfiguration.isPresent() || readingTypeConfiguration.get().getOverflowValue().get().equals(overruledOverflowValue);
+                    required = !readingTypeConfiguration.isPresent() || !readingTypeConfiguration.get().getOverflowValue().get().equals(overruledOverflowValue);
                 }
 
                 if (overruledNbrOfFractionDigits == null) {
@@ -2723,7 +2723,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 if (overruledOverflowValue == null) {
                     required = readingTypeConfiguration.isPresent() && readingTypeConfiguration.get().getOverflowValue().isPresent();
                 } else {
-                    required = !readingTypeConfiguration.isPresent() || readingTypeConfiguration.get().getOverflowValue().get().equals(overruledOverflowValue);
+                    required = !readingTypeConfiguration.isPresent() || !readingTypeConfiguration.get().getOverflowValue().get().equals(overruledOverflowValue);
                 }
 
                 if (overruledNbrOfFractionDigits == null) {
