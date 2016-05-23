@@ -11,6 +11,11 @@
     <packaging>bundle</packaging>
     <name>[Jupiter] com.elster.jupiter.calendar</name>
 
+    <properties>
+        <my-definitions.xsd>${basedir}\src\main\resources\calendar-import-format.xsd</my-definitions.xsd>
+        <my.output>${basedir}/target/generated-sources</my.output>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.osgi</groupId>
@@ -60,6 +65,14 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
+            <artifactId>fileimport</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>properties</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
             <artifactId>bootstrap</artifactId>
             <scope>test</scope>
         </dependency>
@@ -98,10 +111,31 @@
             <artifactId>messaging.h2</artifactId>
             <scope>test</scope>
         </dependency>
-        <!--<dependency>-->
-        <!--<groupId>com.google.inject</groupId>-->
-        <!--<artifactId>guice</artifactId>-->
-        <!--<version>4.0-beta5</version>-->
-        <!--</dependency>-->
     </dependencies>
+
+    <build>
+        <plugins>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>jaxb2-maven-plugin</artifactId>
+                <version>2.2</version>
+                <executions>
+                    <execution>
+                        <id>generate-my-classes</id>
+                        <phase>generate-sources</phase>
+                        <goals><goal>xjc</goal></goals>
+                        <configuration>
+                            <packageName>com.elster.jupiter.calendar.impl.xmlbinding</packageName>
+                            <sources><source>${my-definitions.xsd}</source></sources>
+                            <outputDirectory>${my.output}</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
+    </build>
+
+
 </project>

@@ -22,4 +22,5 @@ public interface PeriodTransitionSpec {
     Period getPeriod();
 
     Calendar getCalendar();
+
 }

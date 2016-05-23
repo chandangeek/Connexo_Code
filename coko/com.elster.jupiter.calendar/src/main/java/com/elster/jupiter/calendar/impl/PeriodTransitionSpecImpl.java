@@ -82,6 +82,13 @@ public abstract class PeriodTransitionSpecImpl implements PeriodTransitionSpec {
         return this.period.orNull();
     }
 
+    void delete() {
+        if (id == 0) {
+            return;
+        }
+        calendarService.getDataModel().remove(this);
+    }
+
     protected int getDay() {
         return day;
     }

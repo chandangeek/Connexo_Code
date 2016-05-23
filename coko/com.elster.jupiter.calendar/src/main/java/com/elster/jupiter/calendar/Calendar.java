@@ -113,7 +113,11 @@ public interface Calendar extends HasId, HasName {
 
     String getUserName();
 
+    String getMRID();
+
     void save();
+
+    CalendarService.CalendarBuilder redefine();
 
     void delete();
 

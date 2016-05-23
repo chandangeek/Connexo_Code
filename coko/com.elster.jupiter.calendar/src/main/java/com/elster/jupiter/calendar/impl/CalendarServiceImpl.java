@@ -181,6 +181,11 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
     }
 
     @Override
+    public Optional<Calendar> findCalendarByMRID(String mRID) {
+        return this.getDataModel().mapper(Calendar.class).getUnique("mRID", mRID);
+    }
+
+    @Override
     public Optional<Category> findTimeOfUseCategory() {
         return this.getDataModel().mapper(Category.class).getUnique("name", TIME_OF_USE_CATEGORY_NAME);
     }
