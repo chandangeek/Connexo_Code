@@ -37,7 +37,7 @@ class Installer implements FullInstaller {
     }
 
     @Override
-    public void install(DataModelUpgrader dataModelUpgrader) {
+    public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
         dataModelUpgrader.upgrade(dataModel, Version.latest());
         List<LifeCycleCategory> categories = new ArrayList<>();
         for (LifeCycleCategoryKind category : LifeCycleCategoryKind.values()) {
@@ -45,7 +45,8 @@ class Installer implements FullInstaller {
             try {
                 dataModel.persist(newCategory);
             } catch (UnderlyingSQLFailedException ex){
-                Logger.getLogger(this.getClass().getName()).warning("The LifeCycleCategory '" + newCategory.getName() + "' already exists");
+                logger.getLogger(this.getClass().getName()).warning("The LifeCycleCategory '" + newCategory.getName() + "' already exists");
+                throw ex;
             }
             categories.add(newCategory);
         }
