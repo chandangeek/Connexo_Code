@@ -9,7 +9,8 @@ Ext.define('Dxp.view.tasks.HistoryGrid', {
         'Uni.grid.column.Duration',
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Dxp.view.tasks.HistoryActionMenu'
+        'Dxp.view.tasks.HistoryActionMenu',
+        'Uni.DateTime'
     ],
 
     initComponent: function () {
