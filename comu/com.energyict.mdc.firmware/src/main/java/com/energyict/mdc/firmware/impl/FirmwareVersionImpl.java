@@ -48,7 +48,7 @@ public final class FirmwareVersionImpl implements FirmwareVersion {
     private FirmwareType firmwareType;
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private FirmwareStatus firmwareStatus;
-    private Blob firmwareFile;
+    private Blob firmwareFile = SimpleBlob.empty();
     @Max(value = FirmwareService.MAX_FIRMWARE_FILE_SIZE, message = "{" + MessageSeeds.Keys.MAX_FILE_SIZE_EXCEEDED + "}")
     private Long firmwareFileSize = null; // set this size for validation reason
     private boolean hasFirmwareFile = false; // boolean indicating whether or not the firmware file has been set/updated
@@ -139,9 +139,7 @@ public final class FirmwareVersionImpl implements FirmwareVersion {
 
     @Override
     public byte[] getFirmwareFile() {
-        return firmwareFile == null
-                ? new byte[0]
-                : readFirmwareVersionBytes(firmwareFile.getBinaryStream());
+        return readFirmwareVersionBytes(firmwareFile.getBinaryStream());
     }
 
     @Override
@@ -149,14 +147,10 @@ public final class FirmwareVersionImpl implements FirmwareVersion {
         try {
             this.hasFirmwareFile = true;
             this.firmwareFileSize = (long) firmwareFile.length;
-            if (this.firmwareFile == null) {
-                this.firmwareFile = SimpleBlob.fromBytes(firmwareFile);
-            } else {
-                this.firmwareFile.clear();
-                BufferedOutputStream firmwareBlobWriter = new BufferedOutputStream(this.firmwareFile.setBinaryStream());
-                firmwareBlobWriter.write(firmwareFile);
-                firmwareBlobWriter.close();
-            }
+            this.firmwareFile.clear();
+            BufferedOutputStream firmwareBlobWriter = new BufferedOutputStream(this.firmwareFile.setBinaryStream());
+            firmwareBlobWriter.write(firmwareFile);
+            firmwareBlobWriter.close();
             this.dataModel.update(this, "firmwareFile");
         } catch (IOException e) {
             throw new FirmwareIOException(thesaurus, e);
@@ -225,8 +219,9 @@ public final class FirmwareVersionImpl implements FirmwareVersion {
     /**
      * Tests if the firmware file of this {@link FirmwareVersion} is empty or not<br/>
      * <b>Remark:</b> in case no firmware file was set, this method will return false!
+     *
      * @return true in case the firmware file of this FirmwareVersion is empty
-     *         false in case no firmware file has been set, or in case the set firmware file is not empty
+     * false in case no firmware file has been set, or in case the set firmware file is not empty
      */
     public boolean isEmptyFile() {
         return this.firmwareFileSize != null && this.firmwareFileSize == 0;
@@ -235,10 +230,8 @@ public final class FirmwareVersionImpl implements FirmwareVersion {
     public void dropFirmwareFile() {
         this.hasFirmwareFile = false;
         this.firmwareFileSize = null;
-        if (this.firmwareFile != null) {
-            this.firmwareFile.clear();
-            this.dataModel.update(this, "firmwareFile");
-        }
+        this.firmwareFile.clear();
+        this.dataModel.update(this, "firmwareFile");
     }
 
     public FirmwareStatus getOldFirmwareStatus() {
@@ -252,11 +245,13 @@ public final class FirmwareVersionImpl implements FirmwareVersion {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        } else if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         FirmwareVersionImpl that = (FirmwareVersionImpl) o;
-
         return id == that.id;
 
     }
