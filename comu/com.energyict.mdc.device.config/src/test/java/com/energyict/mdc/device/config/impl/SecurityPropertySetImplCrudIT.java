@@ -234,6 +234,7 @@ public class SecurityPropertySetImplCrudIT {
                     injector.getInstance(MeteringService.class),
                     injector.getInstance(MdcReadingTypeUtilService.class),
                     injector.getInstance(UserService.class),
+                    injector.getInstance(PluggableService.class),
                     protocolPluggableService,
                     injector.getInstance(EngineConfigurationService.class),
                     injector.getInstance(SchedulingService.class),

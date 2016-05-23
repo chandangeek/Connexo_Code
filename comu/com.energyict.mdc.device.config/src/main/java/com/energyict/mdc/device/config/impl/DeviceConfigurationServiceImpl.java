@@ -1,8 +1,6 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
-import com.elster.jupiter.calendar.impl.CalendarImpl;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.QueryService;
@@ -154,7 +152,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Inject
-    public DeviceConfigurationServiceImpl(OrmService ormService, Clock clock, ThreadPrincipalService threadPrincipalService, EventService eventService, NlsService nlsService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, PluggableService pluggableService, ProtocolPluggableService protocolPluggableService, EngineConfigurationService engineConfigurationService, SchedulingService schedulingService, ValidationService validationService, EstimationService estimationService, MasterDataService masterDataService, FiniteStateMachineService finiteStateMachineService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, CalendarService calendarService) {
+    public DeviceConfigurationServiceImpl(OrmService ormService, Clock clock, ThreadPrincipalService threadPrincipalService, EventService eventService, NlsService nlsService, PropertySpecService propertySpecService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, PluggableService pluggableService, ProtocolPluggableService protocolPluggableService, EngineConfigurationService engineConfigurationService, SchedulingService schedulingService, ValidationService validationService, EstimationService estimationService, MasterDataService masterDataService, FiniteStateMachineService finiteStateMachineService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, CalendarService calendarService) {
         this();
         this.setOrmService(ormService);
         this.setClock(clock);
@@ -573,6 +571,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                 bind(SchedulingService.class).toInstance(schedulingService);
                 bind(ValidationService.class).toInstance(validationService);
                 bind(EstimationService.class).toInstance(estimationService);
+                bind(CalendarService.class).toInstance(calendarService);
             }
         };
     }

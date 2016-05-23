@@ -2,8 +2,8 @@ package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.util.sql.SqlBuilder;
+import com.energyict.mdc.device.config.DeviceMessageFile;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.protocol.api.DeviceMessageFile;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;

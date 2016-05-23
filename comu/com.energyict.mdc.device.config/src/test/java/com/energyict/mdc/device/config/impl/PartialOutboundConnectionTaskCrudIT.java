@@ -73,6 +73,7 @@ import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
+import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -254,6 +255,7 @@ public class PartialOutboundConnectionTaskCrudIT {
                     injector.getInstance(MeteringService.class),
                     injector.getInstance(MdcReadingTypeUtilService.class),
                     injector.getInstance(UserService.class),
+                    injector.getInstance(PluggableService.class),
                     protocolPluggableService,
                     engineConfigurationService,
                     schedulingService,
