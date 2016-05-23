@@ -1059,7 +1059,6 @@ public enum TableSpecs {
             table.unique("UK_DTC_DEVICEMESSAGEFILENAME").on(id, name).add();
         }
     },
-
     DTC_DEVICETYPECALENDARUSAGE {
         @Override
         void addTo(DataModel dataModel) {
@@ -1086,7 +1085,6 @@ public enum TableSpecs {
                     .add();
         }
     },
-
     DTC_TIMEOFUSEMANAGEMENTOPTIONS {
         @Override
         void addTo(DataModel dataModel) {
@@ -1112,8 +1110,7 @@ public enum TableSpecs {
                     .map(TimeOfUseOptionsImpl.Fields.DEVICETYPE.fieldName())
                     .add();
         }
-    }
-    ;
+    };
 
     abstract void addTo(DataModel component);
 }

@@ -10,8 +10,8 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceMessageFile;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.protocol.api.DeviceMessageFile;
 
 import com.google.common.base.MoreObjects;
 
@@ -71,6 +71,11 @@ public class DeviceMessageFileImpl implements DeviceMessageFile {
     private BigDecimal sizeInMB() {
         BigDecimal byteToMBScaler = BigDecimal.valueOf(1024 * 1024);
         return BigDecimal.valueOf(this.contents.length()).divide(byteToMBScaler, 3, BigDecimal.ROUND_CEILING);
+    }
+
+    @Override
+    public DeviceType getDeviceType() {
+        return deviceType.orNull();
     }
 
     @Override
