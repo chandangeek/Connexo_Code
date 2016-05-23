@@ -106,7 +106,7 @@ public class DemoUsagePointMeterActivationValidatorTest {
         when(registeredCustomPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
         when(customPropertySet.getName()).thenReturn("MeterSpecs");
 
-        customPropertySetValues.setProperty("meterMechanism", "CR");
+        customPropertySetValues.setProperty("meterMechanism", "Credit");
         when(customPropertySetService.getUniqueValuesFor(anyObject(), anyObject())).thenReturn(customPropertySetValues);
     }
 
@@ -119,7 +119,7 @@ public class DemoUsagePointMeterActivationValidatorTest {
     @Test(expected = CustomUsagePointMeterActivationValidationException.class)
     public void validateFailureTest() {
         DemoUsagePointMeterActivationValidator validator = new DemoUsagePointMeterActivationValidator(deviceService, customPropertySetService, thesaurus);
-        customPropertySetValues.setProperty("meterMechanism", "CM");
+        customPropertySetValues.setProperty("meterMechanism", "Prepayment");
         validator.validateActivation(meterRole, meter, usagePoint);
     }
 }
