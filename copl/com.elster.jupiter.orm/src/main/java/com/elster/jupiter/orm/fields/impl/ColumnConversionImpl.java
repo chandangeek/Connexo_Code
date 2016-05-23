@@ -398,10 +398,8 @@ public enum ColumnConversionImpl {
 
         @Override
         public Object convertToDb(ColumnImpl column, Object value) {
-			if (value == null) {
-				return null;
-			} else if (value instanceof LazyLoadingBlob) {
-                return value;
+			if (value instanceof LazyLoadingBlob) {
+				return value;
             } else if (value instanceof Blob) {
                 return LazyLoadingBlob.from((Blob) value, column);
 	        } else {
