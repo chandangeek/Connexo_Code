@@ -61,7 +61,7 @@ Ext.define('Mtr.readingtypes.view.Overview', {
                         title: Uni.I18n.translate('readingtypesmanagment.empty.title', 'MTR', 'No reading types found'),
                         reasons: [
                             Uni.I18n.translate('readingtypesmanagment.empty.list.noReadingTypes', 'MTR', 'No reading types added yet.'),
-                            Uni.I18n.translate('readingtypesmanagment.empty.list.filter', 'MTR', 'Filter is too narrow.')
+                            Uni.I18n.translate('readingtypesmanagment.empty.list.filter', 'MTR', 'No reading types comply with the filter.')
                         ],
                         stepItems: [
                             {
