@@ -126,8 +126,8 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionLogMain', {
                             xtype: 'no-items-found-panel',
                             title: Uni.I18n.translate('deviceconnectionhistoryLog.empty.title', 'MDC', 'No logs found'),
                             reasons: [
-                                Uni.I18n.translate('deviceconnectionhistoryLog.empty.list.item1', 'MDC', 'The communication failed before communication logs could be created'),
-                                Uni.I18n.translate('deviceconnectionhistoryLog.empty.list.item2', 'MDC', 'The filter is too narrow')
+                                Uni.I18n.translate('deviceconnectionhistoryLog.empty.list.item1', 'MDC', 'The communication failed before communication logs could be created.'),
+                                Uni.I18n.translate('deviceconnectionhistoryLog.empty.list.item2', 'MDC', 'No log lines comply with the filter.')
                             ],
                             margin: '16 0 0 0'
                         },

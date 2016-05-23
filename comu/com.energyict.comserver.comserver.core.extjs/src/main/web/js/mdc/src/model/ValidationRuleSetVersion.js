@@ -10,12 +10,21 @@ Ext.define('Mdc.model.ValidationRuleSetVersion', {
                 startDate = record.get('startDate');
                 endDate = record.get('endDate');
                 if (startDate && endDate) {
-                    result = Uni.I18n.translate('validationResults.version.fromx', 'MDC', 'From {0}',[Uni.DateTime.formatDateTimeLong(new Date(startDate))])+ ' - ' +
-                        Uni.I18n.translate('validationResults.version.untilx', 'MDC', 'Until {0}',[Uni.DateTime.formatDateTimeLong(new Date(endDate))]);
+                    result = Uni.I18n.translate('validationResults.version.fromxUntily', 'MDC', 'From {0} - Until {1}',
+                        [Uni.DateTime.formatDateTime(new Date(startDate), Uni.DateTime.LONG, Uni.DateTime.SHORT),
+                         Uni.DateTime.formatDateTime(new Date(endDate), Uni.DateTime.LONG, Uni.DateTime.SHORT)],
+                        false
+                    );
                 } else if (startDate) {
-                    result = Uni.I18n.translate('validationResults.version.fromx', 'MDC', 'From {0}'[Uni.DateTime.formatDateTimeLong(new Date(startDate))]);
+                    result = Uni.I18n.translate('validationResults.version.fromx', 'MDC', 'From {0}',
+                        Uni.DateTime.formatDateTime(new Date(startDate), Uni.DateTime.LONG, Uni.DateTime.SHORT),
+                        false
+                    );
                 } else if (endDate) {
-                    result = Uni.I18n.translate('validationResults.version.untilx', 'MDC', 'Until {0}',[Uni.DateTime.formatDateTimeLong(new Date(endDate))]);
+                    result = Uni.I18n.translate('validationResults.version.untilx', 'MDC', 'Until {0}',
+                        Uni.DateTime.formatDateTime(new Date(endDate), Uni.DateTime.LONG, Uni.DateTime.SHORT),
+                        false
+                    );
                 }else {
                     result = Uni.I18n.translate('validationResults.version.notStart', 'MDC', 'Always')
                 }
@@ -23,7 +32,7 @@ Ext.define('Mdc.model.ValidationRuleSetVersion', {
 			}                
 		},
 		'startDate',
-		'endDate',
+		'endDate'
 
     ],	
 	proxy: {

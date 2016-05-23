@@ -8,7 +8,7 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingSetup', {
     requires: [
         'Mdc.view.setup.device.DeviceMenu',
         'Uni.view.container.PreviewContainer',
-        'Uni.view.notifications.NoItemsFoundPanel'
+        'Uni.util.FormEmptyMessage'
     ],
 
     initComponent: function () {
@@ -57,14 +57,10 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingSetup', {
     },
 
     getEmptyComponent: function () {
-            return  {
-                xtype: 'no-items-found-panel',
-                title: Uni.I18n.translate('devicesecuritysetting.empty.title', 'MDC', 'No security settings found'),
-                reasons: [
-                    Uni.I18n.translate('devicesecuritysetting.empty.list.item1', 'MDC', 'No security settings have been defined yet.')
-                ]
-            };
-
+        return  {
+            xtype: 'uni-form-empty-message',
+            text: Uni.I18n.translate('devicesecuritysetting.empty', 'MDC', 'No security settings have been defined yet.')
+        };
     }
 });
 

@@ -11,7 +11,7 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskAddCommandCategories', {
     },
     requires: [
         'Uni.view.container.EmptyGridContainer',
-        'Uni.view.notifications.NoItemsFoundPanel',
+        'Uni.util.FormEmptyMessage',
         'Mdc.view.setup.comtasks.AddCommandCategoriesGrid'
     ],
 
@@ -33,12 +33,9 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskAddCommandCategories', {
                     maxHeight: 600
                 },
                 emptyComponent: {
-                    xtype: 'no-items-found-panel',
+                    xtype: 'uni-form-empty-message',
                     margin: '15 0 20 0',
-                    title: Uni.I18n.translate('comtask.addCommandCategories.empty.title', 'MDC', 'No command categories found'),
-                    reasons: [
-                        Uni.I18n.translate('comtask.addCommandCategories.empty.list.item1', 'MDC', 'All command categories have already been added to the communication task.')
-                    ]
+                    text: Uni.I18n.translate('comtask.addCommandCategories.empty', 'MDC', 'All command categories have already been added to the communication task.')
                 }
             },
             {
