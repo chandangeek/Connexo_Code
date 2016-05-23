@@ -3,7 +3,8 @@ Ext.define('Mdc.metrologyconfiguration.view.AddForm', {
     alias: 'widget.metrology-configurations-add-form',
     requires: [
         'Uni.form.field.readingtypes.ReadingTypesField',
-        'Uni.form.field.ComboReturnedRecordData'
+        'Uni.form.field.ComboReturnedRecordData',
+        'Uni.util.FormErrorMessage'
     ],
 
     returnLink: null,
