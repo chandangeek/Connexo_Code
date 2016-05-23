@@ -1,59 +1,50 @@
 package com.elster.jupiter.validators.impl;
 
-import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.ReadingRecord;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.readings.ProfileStatus;
-import com.elster.jupiter.metering.readings.ProfileStatus.Flag;
+import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.readings.ProtocolReadingQualities;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.SimpleNlsKey;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.HasIdAndName;
-import com.elster.jupiter.properties.PropertySelectionMode;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.properties.*;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.validation.ValidationResult;
-
 import com.google.common.collect.Range;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.time.Instant;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 class IntervalStateValidator extends AbstractValidator {
 
-    static final String INTERVAL_FLAGS = "intervalFlags";
+    //TODO replace by reading qualities
 
-    private Set<Flag> selectedFlags;
+    static final String INTERVAL_FLAGS = "intervalFlags";
     private final IntervalFlag[] POSSIBLE_FLAGS = {
-            new IntervalFlag(Flag.BADTIME, "badTime", "Bad time"),
-            new IntervalFlag(Flag.BATTERY_LOW, "batteryLow", "Battery low"),
-            new IntervalFlag(Flag.CONFIGURATIONCHANGE, "configurationChange", "Configuration change"),
-            new IntervalFlag(Flag.CORRUPTED, "corrupted", "Corrupted"),
-            new IntervalFlag(Flag.DEVICE_ERROR, "deviceError", "Device error"),
-            new IntervalFlag(Flag.MISSING, "missing", "Missing"),
-            new IntervalFlag(Flag.OTHER, "other", "Other"),
-            new IntervalFlag(Flag.OVERFLOW, "overflow", "Overflow"),
-            new IntervalFlag(Flag.PHASEFAILURE, "phaseFailure", "Phase failure"),
-            new IntervalFlag(Flag.POWERDOWN, "powerDown", "Power down"),
-            new IntervalFlag(Flag.POWERUP, "powerUp", "Power up"),
-            new IntervalFlag(Flag.WATCHDOGRESET, "watchdogReset", "Watchdog reset"),
-            new IntervalFlag(Flag.TEST, "test", "Test")
+            new IntervalFlag(ProtocolReadingQualities.BADTIME, "badTime", "Bad time"),
+            new IntervalFlag(ProtocolReadingQualities.BATTERY_LOW, "batteryLow", "Battery low"),
+            new IntervalFlag(ProtocolReadingQualities.CONFIGURATIONCHANGE, "configurationChange", "Configuration change"),
+            new IntervalFlag(ProtocolReadingQualities.CORRUPTED, "corrupted", "Corrupted"),
+            new IntervalFlag(ProtocolReadingQualities.DEVICE_ERROR, "deviceError", "Device error"),
+            new IntervalFlag(ProtocolReadingQualities.MISSING, "missing", "Missing"),
+            new IntervalFlag(ProtocolReadingQualities.MODIFIED, "modified", "Modified"),
+            new IntervalFlag(ProtocolReadingQualities.OTHER, "other", "Other"),
+            new IntervalFlag(ProtocolReadingQualities.OVERFLOW, "overflow", "Overflow"),
+            new IntervalFlag(ProtocolReadingQualities.PHASEFAILURE, "phaseFailure", "Phase failure"),
+            new IntervalFlag(ProtocolReadingQualities.POWERDOWN, "powerDown", "Power down"),
+            new IntervalFlag(ProtocolReadingQualities.POWERUP, "powerUp", "Power up"),
+            new IntervalFlag(ProtocolReadingQualities.WATCHDOGRESET, "watchdogReset", "Watchdog reset"),
+            new IntervalFlag(ProtocolReadingQualities.REVERSERUN, "reverseRun", "Reverse run"),
+            new IntervalFlag(ProtocolReadingQualities.SHORTLONG, "shortLong", "Short long"),
+            new IntervalFlag(ProtocolReadingQualities.TEST, "test", "Test")
     };
+
+    private Set<ProtocolReadingQualities> selectedFlags;
 
 
     IntervalStateValidator(Thesaurus thesaurus, PropertySpecService propertySpecService) {
@@ -75,8 +66,7 @@ class IntervalStateValidator extends AbstractValidator {
         Object property = properties.get(INTERVAL_FLAGS);
         if (property instanceof Collection) {
             selectedFlags = ((Collection<IntervalFlag>) property).stream().map(IntervalFlag::getFlag).collect(Collectors.toSet());
-        }
-        else {
+        } else {
             selectedFlags = new HashSet<>();
             selectedFlags.add(((IntervalFlag) property).getFlag());
         }
@@ -84,8 +74,11 @@ class IntervalStateValidator extends AbstractValidator {
 
     @Override
     public ValidationResult validate(IntervalReadingRecord intervalReadingRecord) {
-        Set<ProfileStatus.Flag> readingFlags = intervalReadingRecord.getProfileStatus().getFlags();
-        return Collections.disjoint(selectedFlags, readingFlags) ? ValidationResult.VALID : ValidationResult.SUSPECT;
+        List<? extends ReadingQualityRecord> readingQualities = intervalReadingRecord.getReadingQualities();
+
+        //TODO replace by reading qualities
+        //Set<ProfileStatus.Flag> readingFlags = intervalReadingRecord.getProfileStatus().getFlags();
+        return Collections.disjoint(selectedFlags, readingQualities) ? ValidationResult.VALID : ValidationResult.SUSPECT;
     }
 
     @Override
@@ -123,12 +116,12 @@ class IntervalStateValidator extends AbstractValidator {
         return Collections.singletonList(INTERVAL_FLAGS);
     }
 
-    private class IntervalFlagValueFactory implements ValueFactory <IntervalFlag> {
+    private class IntervalFlagValueFactory implements ValueFactory<IntervalFlag> {
 
         @Override
         public IntervalFlag fromStringValue(String stringValue) {
             for (IntervalFlag flagParameter : POSSIBLE_FLAGS) {
-                if (stringValue.equals(flagParameter.getId())){
+                if (stringValue.equals(flagParameter.getId())) {
                     return flagParameter;
                 }
             }
@@ -159,8 +152,7 @@ class IntervalStateValidator extends AbstractValidator {
         public void bind(PreparedStatement statement, int offset, IntervalFlag value) throws SQLException {
             if (value != null) {
                 statement.setObject(offset, valueToDatabase(value));
-            }
-            else {
+            } else {
                 statement.setNull(offset, Types.VARCHAR);
             }
         }
@@ -169,8 +161,7 @@ class IntervalStateValidator extends AbstractValidator {
         public void bind(SqlBuilder builder, IntervalFlag value) {
             if (value != null) {
                 builder.addObject(valueToDatabase(value));
-            }
-            else {
+            } else {
                 builder.addNull(Types.VARCHAR);
             }
         }
@@ -178,17 +169,17 @@ class IntervalStateValidator extends AbstractValidator {
 
     class IntervalFlag extends HasIdAndName {
 
-        private Flag flag;
+        private ProtocolReadingQualities flag;
         private String id;
         private String name;
 
-        IntervalFlag(Flag flag, String id, String name) {
+        IntervalFlag(ProtocolReadingQualities flag, String id, String name) {
             this.flag = flag;
             this.id = id;
             this.name = name;
         }
 
-        public Flag getFlag() {
+        public ProtocolReadingQualities getFlag() {
             return flag;
         }
 
@@ -205,5 +196,4 @@ class IntervalStateValidator extends AbstractValidator {
             return getBaseKey() + "." + id;
         }
     }
-
 }
