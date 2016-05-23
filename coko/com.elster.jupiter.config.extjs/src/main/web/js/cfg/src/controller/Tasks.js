@@ -18,7 +18,6 @@ Ext.define('Cfg.controller.Tasks', {
 
     stores: [
         'Cfg.store.DeviceGroups',
-        //'Cfg.store.UsagePointGroups',
         'Cfg.store.DaysWeeksMonths',
         'Cfg.store.ValidationTasks',
         'Cfg.store.ValidationTasksHistory',
@@ -199,7 +198,7 @@ Ext.define('Cfg.controller.Tasks', {
     loadGroup: function (appName, view) {
         var me = this,
             onGroupsLoad = function (records) {
-                if (!records.length && view.rendered) {
+                if (records && !records.length && view.rendered) {
                     Ext.suspendLayouts();
                     view.down('#field-validation-task-group').showNoItemsField();
                     Ext.resumeLayouts(true);
@@ -256,33 +255,43 @@ Ext.define('Cfg.controller.Tasks', {
             success: function (record) {
                 var schedule = record.get('schedule'),
                     taskForm,
-                    recurrenceTypeCombo;
-                if (view.rendered) {
-                    me.getStore('Cfg.store.MetrologyContracts').getProxy().setUrl(record.get('metrologyConfiguration').id);
-                    me.getStore('Cfg.store.MetrologyContracts').load({
-                        callback: function () {
-                            taskForm = view.down('#frm-add-validation-task');
-                            recurrenceTypeCombo = view.down('#cbo-recurrence-type');
+                    recurrenceTypeCombo,
+                    callback = function () {
+                        taskForm = view.down('#frm-add-validation-task');
+                        recurrenceTypeCombo = view.down('#cbo-recurrence-type');
 
-                            view.setLoading(false);
-                            me.taskModel = record;
-                            Ext.suspendLayouts();
-                            me.getApplication().fireEvent('validationtaskload', record);
-                            taskForm.setTitle(Uni.I18n.translate('general.editx', 'CFG', "Edit '{0}'", [record.get('name')]));
-                            taskForm.loadRecord(record);
+                        view.setLoading(false);
+                        me.taskModel = record;
+                        Ext.suspendLayouts();
+                        me.getApplication().fireEvent('validationtaskload', record);
+                        taskForm.setTitle(Uni.I18n.translate('general.editx', 'CFG', "Edit '{0}'", [record.get('name')]));
+                        taskForm.loadRecord(record);
 
-                            if (record.data.nextRun && (record.data.nextRun !== 0)) {
-                                //if (schedule) {
-                                view.down('#rgr-validation-tasks-recurrence-trigger').setValue({recurrence: true});
-                                view.down('#num-recurrence-number').setValue(schedule.count);
-                                recurrenceTypeCombo.setValue(schedule.timeUnit);
-                                view.down('#start-on').setValue(record.data.nextRun);
-                            } else {
-                                recurrenceTypeCombo.setValue(recurrenceTypeCombo.store.getAt(2));
-                            }
-                            Ext.resumeLayouts(true);
+                        if (record.data.nextRun && (record.data.nextRun !== 0)) {
+                            view.down('#rgr-validation-tasks-recurrence-trigger').setValue({recurrence: true});
+                            view.down('#num-recurrence-number').setValue(schedule.count);
+                            recurrenceTypeCombo.setValue(schedule.timeUnit);
+                            view.down('#start-on').setValue(record.data.nextRun);
+                        } else {
+                            recurrenceTypeCombo.setValue(recurrenceTypeCombo.store.getAt(2));
                         }
-                    });
+
+                        Ext.resumeLayouts(true);
+                    };
+                if (view.rendered) {
+                    switch (appName) {
+                        case me.MULTISENSE_KEY:{
+                            callback();
+                        }
+                            break;
+                        case me.INSIGHT_KEY:{
+                            me.getStore('Cfg.store.MetrologyContracts').getProxy().setUrl(record.get('metrologyConfiguration').id);
+                            me.getStore('Cfg.store.MetrologyContracts').load({
+                                callback: callback
+                            });
+                        }
+                            break;
+                    }
                 }
             }
         });
@@ -454,7 +463,6 @@ Ext.define('Cfg.controller.Tasks', {
     removeOperation: function (record) {
         var me = this;
 
-        //me.setActualFieldToNull(record);
         record.destroy({
             success: function () {
                 if (me.getPage()) {
@@ -631,8 +639,6 @@ Ext.define('Cfg.controller.Tasks', {
             record.set('nextRun', null);
             record.set('schedule', null);
         }
-
-        record.set('application', Uni.util.Application.getAppName()); //Clear
 
         record.endEdit();
         record.save({

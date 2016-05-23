@@ -11,7 +11,7 @@ Ext.define('Cfg.view.validationtask.DataSourcesPreviewContainer', {
     initComponent: function () {
         var me = this,
             fieldRenderer = function (value) {
-                return value && value.name ? value.name : '-';
+                return value && value.displayValue ? value.displayValue : '-';
             };
 
         switch (Uni.util.Application.getAppName()) {

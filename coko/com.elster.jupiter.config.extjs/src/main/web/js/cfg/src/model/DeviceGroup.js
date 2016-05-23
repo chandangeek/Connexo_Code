@@ -4,7 +4,7 @@ Ext.define('Cfg.model.DeviceGroup', {
     fields: [
         { name: 'id', type: 'int'},
         { name: 'mRID', type: 'string'},
-        { name: 'name', type: 'string'},
+        { name: 'displayValue', type: 'string'},
         { name: 'dynamic', type: 'boolean'},
         { name: 'criteria'}
     ]

@@ -14,7 +14,7 @@ Ext.define('Cfg.model.ValidationTask', {
             name: 'metrologyContract',
             defaultValue: null
         },
-        'schedule', 'nextRun', 'lastRun', 'application',
+        'schedule', 'nextRun', 'lastRun',
         {
             name: 'schedule',
             defaultValue: null

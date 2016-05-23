@@ -31,7 +31,7 @@ Ext.define('Cfg.view.validationtask.DataSourcesContainer', {
                         required: true,
                         editable: false,
                         queryMode: 'local',
-                        displayField: 'name',
+                        displayField: 'displayValue',
                         valueField: 'id',
                         name: 'deviceGroup',
                         store: 'Cfg.store.DeviceGroups',
@@ -57,7 +57,7 @@ Ext.define('Cfg.view.validationtask.DataSourcesContainer', {
                         required: true,
                         editable: false,
                         queryMode: 'local',
-                        displayField: 'name',
+                        displayField: 'displayValue',
                         valueField: 'id',
                         labelWidth: 250,
                         width: 565,
@@ -93,7 +93,7 @@ Ext.define('Cfg.view.validationtask.DataSourcesContainer', {
                         editable: false,
                         required: true,
                         queryMode: 'local',
-                        displayField: 'name',
+                        displayField: 'displayValue',
                         valueField: 'id',
                         labelWidth: 250,
                         width: 565,
@@ -141,8 +141,8 @@ Ext.define('Cfg.view.validationtask.DataSourcesContainer', {
         var me = this,
             setToRecord = function (combo) {
                 record.set(combo.name, {
-                    id: combo.getValue(),
-                    name: combo.getDisplayValue()
+                    id: combo.getValue() || 0,
+                    displayValue: combo.getDisplayValue()
                 });
             };
         switch (me.appName) {
