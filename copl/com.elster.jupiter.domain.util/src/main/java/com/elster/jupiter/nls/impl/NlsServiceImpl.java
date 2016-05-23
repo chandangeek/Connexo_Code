@@ -47,6 +47,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -463,7 +464,7 @@ public class NlsServiceImpl implements NlsService {
         }
 
         @Override
-        public void install(DataModelUpgrader dataModelUpgrader) {
+        public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
             nlsService.doInstall(dataModelUpgrader);
         }
 
