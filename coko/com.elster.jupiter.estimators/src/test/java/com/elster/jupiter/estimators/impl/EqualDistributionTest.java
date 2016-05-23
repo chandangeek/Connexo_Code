@@ -25,7 +25,8 @@ import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.readings.ProfileStatus;
+import com.elster.jupiter.metering.readings.ProtocolReadingQualities;
+import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -37,10 +38,7 @@ import com.google.common.collect.Range;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.ZonedDateTime;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -50,6 +48,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -58,9 +57,8 @@ import static com.elster.jupiter.estimators.impl.EqualDistribution.ADVANCE_READI
 import static com.elster.jupiter.estimators.impl.EqualDistribution.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS;
 import static java.util.Arrays.asList;
 import static org.mockito.AdditionalMatchers.cmpEq;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EqualDistributionTest {
@@ -146,8 +144,27 @@ public class EqualDistributionTest {
         doReturn(Optional.of(intervalReadingRecord1)).when(bulkCimChannel).getReading(BEFORE.toInstant());
         doReturn(Optional.of(intervalReadingRecord2)).when(bulkCimChannel).getReading(ESTIMATABLE3.toInstant());
         doReturn(Optional.of(intervalReadingRecord2)).when(bulkCimChannel).getReading(AFTER.toInstant());
-        doReturn(ProfileStatus.of(ProfileStatus.Flag.POWERDOWN)).when(intervalReadingRecord1).getProfileStatus();
-        doReturn(ProfileStatus.of(ProfileStatus.Flag.POWERUP)).when(intervalReadingRecord2).getProfileStatus();
+        doReturn(Arrays.asList(mockReadingQuality(ProtocolReadingQualities.POWERDOWN.getCimCode()))).when(intervalReadingRecord1).getReadingQualities();
+        doReturn(Arrays.asList(mockReadingQuality(ProtocolReadingQualities.POWERUP.getCimCode()))).when(intervalReadingRecord2).getReadingQualities();
+
+        when(intervalReadingRecord1.hasReadingQuality(Matchers.<ReadingQualityType>any())).then(invocationOnMock -> {
+            for (ReadingQuality readingQuality : intervalReadingRecord1.getReadingQualities()) {
+                if (readingQuality.getTypeCode().equals(((ReadingQualityType) invocationOnMock.getArguments()[0]).getCode())) {
+                    return true;
+                }
+            }
+            return false;
+        });
+
+        when(intervalReadingRecord2.hasReadingQuality(Matchers.<ReadingQualityType>any())).then(invocationOnMock -> {
+            for (ReadingQuality readingQuality : intervalReadingRecord2.getReadingQualities()) {
+                if (readingQuality.getTypeCode().equals(((ReadingQualityType) invocationOnMock.getArguments()[0]).getCode())) {
+                    return true;
+                }
+            }
+            return false;
+        });
+
         doReturn(Unit.WATT_HOUR.amount(BigDecimal.valueOf(5014, 2))).when(intervalReadingRecord1).getQuantity(bulkReadingType);
         doReturn(Unit.WATT_HOUR.amount(BigDecimal.valueOf(54897, 3))).when(intervalReadingRecord2).getQuantity(bulkReadingType);
         doReturn(BigDecimal.valueOf(5014, 2)).when(intervalReadingRecord1).getValue();
@@ -203,6 +220,15 @@ public class EqualDistributionTest {
         logRecorder = new LogRecorder(Level.ALL);
         LOGGER.addHandler(logRecorder);
         LoggingContext.get().with("rule", "rule");
+    }
+
+    private ReadingQualityRecord mockReadingQuality(String code) {
+        ReadingQualityRecord readingQuality = mock(ReadingQualityRecord.class);
+        ReadingQualityType readingQualityType = new ReadingQualityType(code);
+        when(readingQuality.getType()).thenReturn(readingQualityType);
+        when(readingQuality.isActual()).thenReturn(true);
+        when(readingQuality.getTypeCode()).thenReturn(code);
+        return readingQuality;
     }
 
     @After
@@ -452,7 +478,7 @@ public class EqualDistributionTest {
 
     @Test
     public void testEqualDistributionDoesNotEstimateWhenBeforeBulkReadingHasOverflowFlag() {
-        doReturn(ProfileStatus.of(ProfileStatus.Flag.OVERFLOW)).when(intervalReadingRecord1).getProfileStatus();
+        doReturn(Arrays.asList(mockReadingQuality(ProtocolReadingQualities.OVERFLOW.getCimCode()))).when(intervalReadingRecord1).getReadingQualities();
 
         Map<String, Object> properties = new HashMap<String, Object>();
         properties.put(ADVANCE_READINGS_SETTINGS, BulkAdvanceReadingsSettings.INSTANCE);
@@ -512,7 +538,7 @@ public class EqualDistributionTest {
 
     @Test
     public void testEqualDistributionDoesNotEstimateWhenAfterBulkReadingHasOverflowFlag() {
-        doReturn(ProfileStatus.of(ProfileStatus.Flag.OVERFLOW)).when(intervalReadingRecord2).getProfileStatus();
+        doReturn(Arrays.asList(mockReadingQuality(ProtocolReadingQualities.OVERFLOW.getCimCode()))).when(intervalReadingRecord2).getReadingQualities();
 
         Map<String, Object> properties = new HashMap<String, Object>();
         properties.put(ADVANCE_READINGS_SETTINGS, BulkAdvanceReadingsSettings.INSTANCE);

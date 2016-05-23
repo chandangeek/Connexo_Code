@@ -5,12 +5,8 @@ import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.estimation.EstimationResult;
 import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.estimators.AbstractEstimator;
-import com.elster.jupiter.metering.BaseReadingRecord;
-import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.CimChannel;
-import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.readings.ProfileStatus;
+import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.readings.ProtocolReadingQualities;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -137,7 +133,8 @@ public class PowerGapFill extends AbstractEstimator implements Estimator {
         if (successiveReading == null) {
             return false;
         }
-        if (!successiveReading.getProfileStatus().getFlags().contains(ProfileStatus.Flag.POWERUP)) {
+
+        if (!successiveReading.hasReadingQuality(ProtocolReadingQualities.POWERUP.getReadingQualityType())) {
             String message = "Failed estimation with {rule}: Block {block} since the successive reading does not have the power up flag.";
             LoggingContext.get().info(getLogger(), message);
             return false;
@@ -146,7 +143,8 @@ public class PowerGapFill extends AbstractEstimator implements Estimator {
         if (precedingReading == null) {
             return false;
         }
-        if (!precedingReading.getProfileStatus().getFlags().contains(ProfileStatus.Flag.POWERDOWN)) {
+
+        if (!precedingReading.hasReadingQuality(ProtocolReadingQualities.POWERDOWN.getReadingQualityType())) {
             String message = "Failed estimation with {rule}: Block {block} since the preceding reading does not have the power down flag.";
             LoggingContext.get().info(getLogger(), message);
             return false;
@@ -271,7 +269,7 @@ public class PowerGapFill extends AbstractEstimator implements Estimator {
             return Optional.empty();
         }
         IntervalReadingRecord intervalReadingRecord = (IntervalReadingRecord) reading.get();
-        if (!intervalReadingRecord.getProfileStatus().getFlags().contains(ProfileStatus.Flag.POWERUP)) {
+        if (!intervalReadingRecord.hasReadingQuality(ProtocolReadingQualities.POWERUP.getReadingQualityType())) {
             String message = "Failed estimation with {rule}: Block {block} since the reading at the end of the block does not have the power up flag.";
             LoggingContext.get().info(getLogger(), message);
             return Optional.empty();
@@ -294,7 +292,7 @@ public class PowerGapFill extends AbstractEstimator implements Estimator {
             return Optional.empty();
         }
         IntervalReadingRecord intervalReadingRecord = (IntervalReadingRecord) reading.get();
-        if (!intervalReadingRecord.getProfileStatus().getFlags().contains(ProfileStatus.Flag.POWERDOWN)) {
+        if (!intervalReadingRecord.hasReadingQuality(ProtocolReadingQualities.POWERDOWN.getReadingQualityType())) {
             String message = "Failed estimation with {rule}: Block {block} since the reading preceding the block does not have the power down flag.";
             LoggingContext.get().info(getLogger(), message);
             return Optional.empty();

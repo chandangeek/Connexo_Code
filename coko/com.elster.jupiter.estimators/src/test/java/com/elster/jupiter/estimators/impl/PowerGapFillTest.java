@@ -3,46 +3,35 @@ package com.elster.jupiter.estimators.impl;
 import com.elster.jupiter.devtools.tests.fakes.LogRecorder;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.devtools.tests.rules.Using;
-import com.elster.jupiter.estimation.Estimatable;
-import com.elster.jupiter.estimation.EstimationBlock;
-import com.elster.jupiter.estimation.EstimationResult;
-import com.elster.jupiter.estimation.EstimationRule;
-import com.elster.jupiter.estimation.EstimationRuleProperties;
-import com.elster.jupiter.estimation.Estimator;
-import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.CimChannel;
-import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.readings.ProfileStatus;
+import com.elster.jupiter.estimation.*;
+import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.readings.ProtocolReadingQualities;
+import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.util.logging.LoggingContext;
 import com.elster.jupiter.util.units.Unit;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
+import org.mockito.Matchers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import org.junit.*;
-import org.junit.rules.*;
-import org.junit.runner.*;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
 import static com.elster.jupiter.estimators.impl.PowerGapFill.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS;
 import static org.mockito.AdditionalMatchers.cmpEq;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PowerGapFillTest {
@@ -100,8 +89,26 @@ public class PowerGapFillTest {
         doReturn(Optional.of(readingRecord1)).when(bulkCimChannel).getReading(BEFORE.toInstant());
         doReturn(Optional.of(readingRecord2)).when(bulkCimChannel).getReading(ESTIMATABLE3.toInstant());
         doReturn(Optional.of(readingRecord2)).when(bulkCimChannel).getReading(AFTER.toInstant());
-        doReturn(ProfileStatus.of(ProfileStatus.Flag.POWERDOWN)).when(readingRecord1).getProfileStatus();
-        doReturn(ProfileStatus.of(ProfileStatus.Flag.POWERUP)).when(readingRecord2).getProfileStatus();
+        doReturn(Arrays.asList(mockReadingQuality(ProtocolReadingQualities.POWERDOWN.getCimCode()))).when(readingRecord1).getReadingQualities();
+        doReturn(Arrays.asList(mockReadingQuality(ProtocolReadingQualities.POWERUP.getCimCode()))).when(readingRecord2).getReadingQualities();
+
+        when(readingRecord1.hasReadingQuality(Matchers.<ReadingQualityType>any())).then(invocationOnMock -> {
+            for (ReadingQuality readingQuality : readingRecord1.getReadingQualities()) {
+                if (readingQuality.getTypeCode().equals(((ReadingQualityType) invocationOnMock.getArguments()[0]).getCode())) {
+                    return true;
+                }
+            }
+            return false;
+        });
+
+        when(readingRecord2.hasReadingQuality(Matchers.<ReadingQualityType>any())).then(invocationOnMock -> {
+            for (ReadingQuality readingQuality : readingRecord2.getReadingQualities()) {
+                if (readingQuality.getTypeCode().equals(((ReadingQualityType) invocationOnMock.getArguments()[0]).getCode())) {
+                    return true;
+                }
+            }
+            return false;
+        });
 
         doReturn(Unit.WATT_HOUR.amount(BigDecimal.valueOf(5014, 2))).when(readingRecord1).getQuantity(bulkReadingType);
         doReturn(Unit.WATT_HOUR.amount(BigDecimal.valueOf(54897, 3))).when(readingRecord2).getQuantity(bulkReadingType);
@@ -117,6 +124,15 @@ public class PowerGapFillTest {
         LOGGER.addHandler(logRecorder);
 
         LoggingContext.get().with("rule", "rule");
+    }
+
+    private ReadingQualityRecord mockReadingQuality(String code) {
+        ReadingQualityRecord readingQuality = mock(ReadingQualityRecord.class);
+        ReadingQualityType readingQualityType = new ReadingQualityType(code);
+        when(readingQuality.getType()).thenReturn(readingQualityType);
+        when(readingQuality.isActual()).thenReturn(true);
+        when(readingQuality.getTypeCode()).thenReturn(code);
+        return readingQuality;
     }
 
     @After
@@ -290,7 +306,7 @@ public class PowerGapFillTest {
 
     @Test
     public void testPowerGapFillDoesNotEstimateWhenBeforeReadingDoesNotHavePowerDownFlag() {
-        doReturn(ProfileStatus.of()).when(readingRecord1).getProfileStatus();
+        doReturn(Collections.emptyList()).when(readingRecord1).getReadingQualities();
 
         Map<String, Object> properties = new HashMap<String, Object>();
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
@@ -307,7 +323,7 @@ public class PowerGapFillTest {
 
     @Test
     public void testPowerGapFillDoesNotEstimateWhenLastReadingDoesNotHavePowerUpFlag() {
-        doReturn(ProfileStatus.of()).when(readingRecord2).getProfileStatus();
+        doReturn(Collections.emptyList()).when(readingRecord2).getReadingQualities();
 
         Map<String, Object> properties = new HashMap<String, Object>();
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
@@ -402,7 +418,7 @@ public class PowerGapFillTest {
     @Test
     public void testPowerGapFillDoesNotEstimateBulkWhenBeforeReadingDoesNotHavePowerDownFlag() {
         doReturn(bulkReadingType).when(estimationBlock).getReadingType();
-        doReturn(ProfileStatus.of()).when(readingRecord1).getProfileStatus();
+        doReturn(Collections.emptyList()).when(readingRecord1).getReadingQualities();
 
         Map<String, Object> properties = new HashMap<String, Object>();
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
@@ -421,7 +437,7 @@ public class PowerGapFillTest {
     @Test
     public void testPowerGapFillDoesNotEstimateBulkWhenLastReadingDoesNotHavePowerUpFlag() {
         doReturn(bulkReadingType).when(estimationBlock).getReadingType();
-        doReturn(ProfileStatus.of()).when(readingRecord2).getProfileStatus();
+        doReturn(Collections.emptyList()).when(readingRecord2).getReadingQualities();
 
         Map<String, Object> properties = new HashMap<String, Object>();
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);

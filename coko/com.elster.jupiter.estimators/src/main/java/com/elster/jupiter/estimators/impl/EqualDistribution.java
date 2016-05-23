@@ -1,23 +1,10 @@
 package com.elster.jupiter.estimators.impl;
 
 import com.elster.jupiter.cbo.QualityCodeIndex;
-import com.elster.jupiter.estimation.AdvanceReadingsSettings;
-import com.elster.jupiter.estimation.AdvanceReadingsSettingsWithoutNoneFactory;
-import com.elster.jupiter.estimation.BulkAdvanceReadingsSettings;
-import com.elster.jupiter.estimation.Estimatable;
-import com.elster.jupiter.estimation.EstimationBlock;
-import com.elster.jupiter.estimation.EstimationResult;
-import com.elster.jupiter.estimation.Estimator;
-import com.elster.jupiter.estimation.NoneAdvanceReadingsSettings;
-import com.elster.jupiter.estimation.ReadingTypeAdvanceReadingsSettings;
+import com.elster.jupiter.estimation.*;
 import com.elster.jupiter.estimators.AbstractEstimator;
-import com.elster.jupiter.metering.BaseReadingRecord;
-import com.elster.jupiter.metering.CimChannel;
-import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingQualityRecord;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.readings.ProfileStatus;
+import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.readings.ProtocolReadingQualities;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -25,7 +12,6 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.util.logging.LoggingContext;
 import com.elster.jupiter.util.streams.Functions;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
@@ -35,11 +21,7 @@ import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.temporal.TemporalAmount;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -378,7 +360,7 @@ public class EqualDistribution extends AbstractEstimator implements Estimator {
     private Optional<BigDecimal> getValueAt(CimChannel bulkCimChannel, Estimatable last) {
         return bulkCimChannel.getReading(last.getTimestamp())
                 .map(IntervalReadingRecord.class::cast)
-                .filter(intervalReadingRecord -> !intervalReadingRecord.getProfileStatus().get(ProfileStatus.Flag.OVERFLOW))
+                .filter(intervalReadingRecord -> !isOverflow(intervalReadingRecord))
                 .filter(intervalReadingRecord -> bulkCimChannel.findReadingQuality(last.getTimestamp()).stream()
                         .filter(ReadingQualityRecord::isActual)
                         .noneMatch(readingQualityRecord -> readingQualityRecord.getType().qualityIndex().filter(QualityCodeIndex.OVERFLOWCONDITIONDETECTED::equals).isPresent()))
@@ -389,11 +371,15 @@ public class EqualDistribution extends AbstractEstimator implements Estimator {
         Instant timestampBefore = bulkCimChannel.getPreviousDateTime(first.getTimestamp());
         return bulkCimChannel.getReading(timestampBefore)
                 .map(IntervalReadingRecord.class::cast)
-                .filter(intervalReadingRecord -> !intervalReadingRecord.getProfileStatus().get(ProfileStatus.Flag.OVERFLOW))
+                .filter(intervalReadingRecord -> !isOverflow(intervalReadingRecord))
                 .filter(intervalReadingRecord -> bulkCimChannel.findReadingQuality(first.getTimestamp()).stream()
                         .filter(ReadingQualityRecord::isActual)
                         .noneMatch(readingQualityRecord -> readingQualityRecord.getType().qualityIndex().filter(QualityCodeIndex.OVERFLOWCONDITIONDETECTED::equals).isPresent()))
                 .flatMap(baseReadingRecord -> Optional.ofNullable(baseReadingRecord.getValue()));
+    }
+
+    private boolean isOverflow(IntervalReadingRecord intervalReadingRecord) {
+        return intervalReadingRecord.hasReadingQuality(ProtocolReadingQualities.OVERFLOW.getReadingQualityType());
     }
 
     @Override
