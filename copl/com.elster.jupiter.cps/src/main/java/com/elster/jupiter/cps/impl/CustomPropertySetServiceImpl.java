@@ -331,7 +331,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         DataModel dataModel = this.newDataModelFor(customPropertySet);
         this.addTableFor(customPropertySet, dataModel);
         dataModel.register(this.getCustomPropertySetModule(dataModel, customPropertySet));
-        dataModel.install(executeDdl, false);
+        dataModel.install(executeDdl, false); // TODO
         return dataModel;
     }
 
