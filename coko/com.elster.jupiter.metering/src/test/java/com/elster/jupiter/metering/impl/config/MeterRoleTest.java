@@ -114,7 +114,8 @@ public class MeterRoleTest {
 
         meterRoles = meteringService.getServiceCategory(ServiceKind.WATER).get().getMeterRoles();
         assertThat(meterRoles.stream().map(MeterRole::getDisplayName).collect(Collectors.toList()))
-                .containsOnly(DefaultMeterRole.CONSUMPTION.getDefaultFormat(), DefaultMeterRole.MAIN.getDefaultFormat(), DefaultMeterRole.CHECK.getDefaultFormat());
+                .containsOnly(DefaultMeterRole.CONSUMPTION.getDefaultFormat(), DefaultMeterRole.MAIN.getDefaultFormat(),
+                        DefaultMeterRole.CHECK.getDefaultFormat(), DefaultMeterRole.PEAK_CONSUMPTION.getDefaultFormat(), DefaultMeterRole.OFF_PEAK_CONSUMPTION.getDefaultFormat());
 
         meterRoles = meteringService.getServiceCategory(ServiceKind.HEAT).get().getMeterRoles();
         assertThat(meterRoles.stream().map(MeterRole::getDisplayName).collect(Collectors.toList()))

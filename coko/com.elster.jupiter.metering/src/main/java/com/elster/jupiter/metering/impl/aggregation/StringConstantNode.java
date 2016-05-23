@@ -1,5 +1,7 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
+import com.elster.jupiter.util.units.Dimension;
+
 /**
  * Models a {@link ServerExpressionNode} that holds a String constant.
  *
@@ -22,6 +24,11 @@ class StringConstantNode implements ServerExpressionNode {
     @Override
     public <T> T accept(Visitor<T> visitor) {
         return visitor.visitConstant(this);
+    }
+
+    @Override
+    public IntermediateDimension getIntermediateDimension() {
+        return IntermediateDimension.of(Dimension.DIMENSIONLESS);
     }
 
 }

@@ -8,6 +8,7 @@ import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
+import com.elster.jupiter.util.conditions.Comparison;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.units.Quantity;
@@ -110,6 +111,9 @@ public class RatedPowerSearchableProperty implements SearchableUsagePointPropert
 
     @Override
     public Condition toCondition(Condition specification) {
-        return specification.and(Where.where("detail.interval").isEffective(this.clock.instant()));
+        Comparison condition = (Comparison) specification;
+        return condition.getOperator()
+                .compare(FIELD_NAME, condition.getValues())
+                .and(Where.where("detail.interval").isEffective(this.clock.instant()));
     }
 }

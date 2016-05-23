@@ -41,4 +41,12 @@ public interface MetrologyContract {
 
     boolean isMandatory();
 
+    Status getStatus();
+
+    interface Status {
+
+        String getKey();
+
+        String getName();
+    }
 }

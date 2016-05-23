@@ -32,6 +32,7 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.util.units.Dimension;
 
 import com.google.common.collect.Range;
 
@@ -207,8 +208,10 @@ public class DataAggregationServiceImplCalculateTest {
         // Setup configuration requirements
         ReadingTypeRequirement consumption = mock(ReadingTypeRequirement.class);
         when(consumption.getName()).thenReturn("A-");
+        when(consumption.getDimension()).thenReturn(Dimension.ENERGY);
         ReadingTypeRequirement production = mock(ReadingTypeRequirement.class);
         when(production.getName()).thenReturn("A+");
+        when(production.getDimension()).thenReturn(Dimension.ENERGY);
         when(this.configuration.getRequirements()).thenReturn(Arrays.asList(consumption, production));
         // Setup configuration deliverables
         ReadingTypeDeliverable netConsumption = mock(ReadingTypeDeliverable.class);
@@ -317,8 +320,10 @@ public class DataAggregationServiceImplCalculateTest {
         // Setup configuration requirements
         ReadingTypeRequirement consumption = mock(ReadingTypeRequirement.class);
         when(consumption.getName()).thenReturn("A-");
+        when(consumption.getDimension()).thenReturn(Dimension.ENERGY);
         ReadingTypeRequirement production = mock(ReadingTypeRequirement.class);
         when(production.getName()).thenReturn("A+");
+        when(production.getDimension()).thenReturn(Dimension.ENERGY);
         when(this.configuration.getRequirements()).thenReturn(Arrays.asList(consumption, production));
         // Setup configuration deliverables
         ReadingTypeDeliverable netConsumption = mock(ReadingTypeDeliverable.class);
@@ -428,8 +433,10 @@ public class DataAggregationServiceImplCalculateTest {
         // Setup configuration requirements
         ReadingTypeRequirement consumption = mock(ReadingTypeRequirement.class);
         when(consumption.getName()).thenReturn("A-");
+        when(consumption.getDimension()).thenReturn(Dimension.ENERGY);
         ReadingTypeRequirement production = mock(ReadingTypeRequirement.class);
         when(production.getName()).thenReturn("A+");
+        when(production.getDimension()).thenReturn(Dimension.ENERGY);
         when(this.configuration.getRequirements()).thenReturn(Arrays.asList(consumption, production));
         // Setup configuration deliverables
         ReadingTypeDeliverable netConsumption = mock(ReadingTypeDeliverable.class);

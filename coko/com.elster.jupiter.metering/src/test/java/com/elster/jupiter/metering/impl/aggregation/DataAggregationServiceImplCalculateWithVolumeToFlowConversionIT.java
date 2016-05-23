@@ -569,7 +569,7 @@ public class DataAggregationServiceImplCalculateWithVolumeToFlowConversionIT {
             String productionWithSelectClause = this.productionWithClauseBuilder.getText();
             assertThat(productionWithSelectClause).doesNotMatch(".*TRUNC.*");
             String consumptionWithSelectClause = this.consumptionWithClauseBuilder.getText();
-            // Assert that the with clause for the the consumption requirement containst aggregation constructs for hourly level
+            // Assert that the with clause for the the consumption requirement contains aggregation constructs for hourly level
             assertThat(consumptionWithSelectClause).matches(".*[trunc|TRUNC]\\(localdate, 'HH'\\).*");
             // Assert that one of the requirements is used as source for the timeline
             assertThat(this.netConsumptionWithClauseBuilder.getText())

@@ -28,6 +28,11 @@ class TimeBasedAggregationNode implements ServerExpressionNode {
         return function;
     }
 
+    @Override
+    public IntermediateDimension getIntermediateDimension() {
+        return this.getAggregatedExpression().getIntermediateDimension();
+    }
+
     ServerExpressionNode getAggregatedExpression() {
         return this.expression;
     }

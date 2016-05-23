@@ -8,8 +8,8 @@ import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.Formula;
+import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
-import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
 import com.google.common.collect.Range;
@@ -125,7 +125,8 @@ public class ReadingTypeDeliverableForMeterActivationDefinitionTest {
         VirtualReadingType expressionReadingType = VirtualReadingType.from(IntervalLength.MONTH1, MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR, Commodity.ELECTRICITY_PRIMARY_METERED);
         when(this.readingType.getMacroPeriod()).thenReturn(MacroPeriod.MONTHLY);
         when(this.readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.NOTAPPLICABLE);
-        ReadingTypeRequirement requirement = mock(ReadingTypeRequirement.class);
+        FullySpecifiedReadingTypeRequirement requirement = mock(FullySpecifiedReadingTypeRequirement.class);
+        when(requirement.getReadingType()).thenReturn(mock(ReadingType.class));
         VirtualFactory virtualFactory = mock(VirtualFactory.class);
         VirtualReadingTypeRequirement virtualRequirement = mock(VirtualReadingTypeRequirement.class);
         when(virtualRequirement.sqlName()).thenReturn("rid97_1001_1");

@@ -2,10 +2,23 @@ package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.MessageSeeds;
+import com.elster.jupiter.metering.config.ConstantNode;
+import com.elster.jupiter.metering.config.ExpressionNode;
+import com.elster.jupiter.metering.config.Formula;
+import com.elster.jupiter.metering.config.FunctionCallNode;
+import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
+import com.elster.jupiter.metering.config.NullNode;
+import com.elster.jupiter.metering.config.OperationNode;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverableNode;
+import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.metering.config.ReadingTypeRequirementNode;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -14,6 +27,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class MetrologyContractImpl implements MetrologyContract {
@@ -110,6 +124,11 @@ public class MetrologyContractImpl implements MetrologyContract {
     }
 
     @Override
+    public Status getStatus() {
+        return new StatusImpl(this.metrologyConfigurationService.getThesaurus(), getMetrologyContractStatusKey());
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -124,5 +143,106 @@ public class MetrologyContractImpl implements MetrologyContract {
     @Override
     public int hashCode() {
         return Long.hashCode(this.id);
+    }
+
+    private static class StatusImpl implements Status {
+        private final Thesaurus thesaurus;
+        private final MetrologyContractStatusKey statusKey;
+
+        public StatusImpl(Thesaurus thesaurus, MetrologyContractStatusKey statusKey) {
+            this.thesaurus = thesaurus;
+            this.statusKey = statusKey;
+        }
+
+        @Override
+        public String getKey() {
+            return this.statusKey.name();
+        }
+
+        @Override
+        public String getName() {
+            return this.thesaurus.getFormat(this.statusKey.getTranslation()).format();
+        }
+    }
+
+    MetrologyContractStatusKey getMetrologyContractStatusKey() {
+        if (this.metrologyConfiguration.isPresent() && this.metrologyConfiguration.get() instanceof UsagePointMetrologyConfiguration) {
+            UsagePointMetrologyConfiguration configuration = (UsagePointMetrologyConfiguration) this.metrologyConfiguration.get();
+            ReadingTypeRequirementChecker requirementChecker = new ReadingTypeRequirementChecker();
+            getDeliverables()
+                    .stream()
+                    .map(ReadingTypeDeliverable::getFormula)
+                    .map(Formula::getExpressionNode)
+                    .forEach(expressionNode -> expressionNode.accept(requirementChecker));
+
+            List<MeterRole> meterRoles = requirementChecker.getReadingTypeRequirements()
+                    .stream()
+                    .map(configuration::getMeterRoleFor)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .collect(Collectors.toList());
+
+            boolean allMeterRolesHasMeters = true;
+            for (MeterRole meterRole : meterRoles) {
+                allMeterRolesHasMeters &= !configuration.getMetersForRole(meterRole).isEmpty();
+            }
+            return allMeterRolesHasMeters ? MetrologyContractStatusKey.COMPLETE : MetrologyContractStatusKey.INCOMPLETE;
+        }
+        return MetrologyContractStatusKey.UNKNOWN;
+    }
+
+    enum MetrologyContractStatusKey {
+        COMPLETE(DefaultMetrologyPurpose.Translation.METROLOGY_CONTRACT_STATUS_COMPLETE),
+        INCOMPLETE(DefaultMetrologyPurpose.Translation.METROLOGY_CONTRACT_STATUS_INCOMPLETE),
+        UNKNOWN(DefaultMetrologyPurpose.Translation.METROLOGY_CONTRACT_STATUS_UNKNOWN);
+
+        private final TranslationKey statusTranslation;
+
+        MetrologyContractStatusKey(TranslationKey statusTranslation) {
+            this.statusTranslation = statusTranslation;
+        }
+
+        TranslationKey getTranslation() {
+            return this.statusTranslation;
+        }
+    }
+
+    private static class ReadingTypeRequirementChecker implements ExpressionNode.Visitor<ReadingTypeRequirementChecker> {
+        private List<ReadingTypeRequirement> readingTypeRequirements = new ArrayList<>();
+
+        @Override
+        public ReadingTypeRequirementChecker visitConstant(ConstantNode constant) {
+            return this;
+        }
+
+        @Override
+        public ReadingTypeRequirementChecker visitRequirement(ReadingTypeRequirementNode requirement) {
+            this.readingTypeRequirements.add(requirement.getReadingTypeRequirement());
+            return this;
+        }
+
+        @Override
+        public ReadingTypeRequirementChecker visitDeliverable(ReadingTypeDeliverableNode deliverable) {
+            return this;
+        }
+
+        @Override
+        public ReadingTypeRequirementChecker visitOperation(OperationNode operationNode) {
+            return this;
+        }
+
+        @Override
+        public ReadingTypeRequirementChecker visitFunctionCall(FunctionCallNode functionCall) {
+            return this;
+        }
+
+        @Override
+        public ReadingTypeRequirementChecker visitNull(NullNode nullNode) {
+            return this;
+        }
+
+        public List<ReadingTypeRequirement> getReadingTypeRequirements() {
+            return this.readingTypeRequirements;
+        }
     }
 }

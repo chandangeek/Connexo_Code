@@ -53,7 +53,6 @@ public class InstallationTimeSearchableProperty implements SearchableUsagePointP
                 .specForValuesOf(new InstantFactory())
                 .named(FIELD_NAME, PropertyTranslationKeys.USAGEPOINT_INSTALLATION_TIME)
                 .fromThesaurus(this.thesaurus)
-                .markExhaustive()
                 .finish();
     }
 
