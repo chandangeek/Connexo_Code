@@ -56,13 +56,21 @@ public final class DevicePrivileges {
     public static List<String> getTimeOfUsePrivilegesFor(Device device, DeviceConfigurationService deviceConfigurationService) {
         Set<ProtocolSupportedCalendarOptions> supportedCalendarOptions = deviceConfigurationService.getSupportedTimeOfUseOptionsFor(device.getDeviceConfiguration().getDeviceType(), true);
         Optional<TimeOfUseOptions> timeOfUseOptions = deviceConfigurationService.findTimeOfUseOptions(device.getDeviceConfiguration().getDeviceType());
+        List<String> privileges = new ArrayList<>();
         Set<ProtocolSupportedCalendarOptions> allowedOptions = timeOfUseOptions.map(TimeOfUseOptions::getOptions).orElse(Collections
                 .emptySet());
         if(allowedOptions.size() > 0) {
             if(supportedCalendarOptions.contains(ProtocolSupportedCalendarOptions.VERIFY_ACTIVE_CALENDAR)) {
                 allowedOptions.add(ProtocolSupportedCalendarOptions.VERIFY_ACTIVE_CALENDAR);
             }
-            return getTimeOfUsePrivileges(allowedOptions) ;
+
+            if (allowedOptions.contains(ProtocolSupportedCalendarOptions.CLEAR_AND_DISABLE_PASSIVE_TARIFF) || allowedOptions
+                    .contains(ProtocolSupportedCalendarOptions.ACTIVATE_PASSIVE_CALENDAR)) {
+                    privileges.add("devices.timeofuse.supportspassive");
+
+            }
+            privileges.addAll(getTimeOfUsePrivileges(allowedOptions));
+            return privileges ;
         } else {
             return Collections.EMPTY_LIST;
         }
