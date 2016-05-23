@@ -3,7 +3,8 @@ Ext.define('Mdc.metrologyconfiguration.view.MetrologyConfigurationsGrid', {
     alias: 'widget.metrology-configurations-grid',
     requires: [
         'Uni.view.toolbar.PagingTop',
-        'Uni.view.toolbar.PagingBottom'
+        'Uni.view.toolbar.PagingBottom',
+        'Mdc.metrologyconfiguration.view.ActionsMenu'
     ],
 
     store: 'Mdc.metrologyconfiguration.store.MetrologyConfigurations',
@@ -29,6 +30,14 @@ Ext.define('Mdc.metrologyconfiguration.view.MetrologyConfigurationsGrid', {
                 dataIndex: 'status',
                 renderer: function (value) {
                     return value ? value.name : '';
+                }
+            },
+            {
+                xtype: 'uni-actioncolumn',
+                privileges: Mdc.privileges.MetrologyConfiguration.canAdmin(),
+                menu: {
+                    xtype: 'metrology-configuration-actions-menu',
+                    itemId: 'metrology-configuration-actions-menu'
                 }
             }
         ];

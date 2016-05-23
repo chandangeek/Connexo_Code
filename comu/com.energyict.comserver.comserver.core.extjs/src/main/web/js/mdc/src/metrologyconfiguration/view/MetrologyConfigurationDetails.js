@@ -1,7 +1,8 @@
 Ext.define('Mdc.metrologyconfiguration.view.MetrologyConfigurationDetails', {
     extend: 'Ext.form.Panel',
     requires: [
-        'Uni.form.field.ReadingTypeDisplay'
+        'Uni.form.field.ReadingTypeDisplay',
+        'Mdc.metrologyconfiguration.view.ActionsMenu'
     ],
     alias: 'widget.metrology-configuration-details',
 
@@ -13,6 +14,20 @@ Ext.define('Mdc.metrologyconfiguration.view.MetrologyConfigurationDetails', {
 
     initComponent: function () {
         var me = this;
+
+        me.tools = [
+            {
+                xtype: 'button',
+                itemId: 'metrology-configuration-actions-button',
+                text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+                iconCls: 'x-uni-action-iconD',
+                privileges: Mdc.privileges.MetrologyConfiguration.canAdmin(),
+                menu: {
+                    xtype: 'metrology-configuration-actions-menu',
+                    itemId: 'metrology-configuration-actions-menu'
+                }
+            }
+        ];
 
         me.items = [
             {
