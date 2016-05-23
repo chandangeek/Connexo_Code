@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
@@ -181,7 +182,8 @@ public abstract class AbstractCollectedDataIntegrationTest {
                 new IssuesModule(),
                 new TopologyModule(),
                 new CustomPropertySetsModule(),
-                new FirmwareModule());
+                new FirmwareModule(),
+                new CalendarModule());
         initializeTopModuleInATransaction();
     }
 
