@@ -6,6 +6,10 @@ import com.elster.jupiter.bpm.BpmProcessPrivilege;
 import com.elster.jupiter.bpm.BpmServer;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.bpm.ProcessAssociationProvider;
+import com.elster.jupiter.bpm.ProcessInstanceInfo;
+import com.elster.jupiter.bpm.ProcessInstanceInfos;
+import com.elster.jupiter.bpm.UserTaskInfo;
+import com.elster.jupiter.bpm.UserTaskInfos;
 import com.elster.jupiter.bpm.rest.AssigneeFilterListInfo;
 import com.elster.jupiter.bpm.rest.BpmProcessNotAvailable;
 import com.elster.jupiter.bpm.rest.BpmResourceAssignUserException;
@@ -24,15 +28,11 @@ import com.elster.jupiter.bpm.rest.ProcessHistoryInfos;
 import com.elster.jupiter.bpm.rest.ProcessInstanceNodeInfos;
 import com.elster.jupiter.bpm.rest.ProcessesPrivilegesInfo;
 import com.elster.jupiter.bpm.rest.PropertyUtils;
-import com.elster.jupiter.bpm.ProcessInstanceInfo;
-import com.elster.jupiter.bpm.ProcessInstanceInfos;
 import com.elster.jupiter.bpm.rest.StartupInfo;
 import com.elster.jupiter.bpm.rest.TaskBulkReportInfo;
 import com.elster.jupiter.bpm.rest.TaskContentInfo;
 import com.elster.jupiter.bpm.rest.TaskContentInfos;
 import com.elster.jupiter.bpm.rest.TaskGroupsInfos;
-import com.elster.jupiter.bpm.UserTaskInfo;
-import com.elster.jupiter.bpm.UserTaskInfos;
 import com.elster.jupiter.bpm.rest.TaskOutputContentInfo;
 import com.elster.jupiter.bpm.rest.VariableInfos;
 import com.elster.jupiter.bpm.rest.resource.StandardParametersBean;
@@ -954,7 +954,7 @@ public class BpmResource {
     }
 
     @GET
-    @Path("/processcontent/{id}/{deploymentId}")
+    @Path("/processcontent/{deploymentId}/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_BPM, Privileges.Constants.ADMINISTRATE_BPM})
     public TaskContentInfos getProcessContent(@PathParam("id") String id,
@@ -981,7 +981,7 @@ public class BpmResource {
     }
 
     @PUT
-    @Path("/processcontent/{id}/{deploymentId}")
+    @Path("/processcontent/{deploymentId}/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_BPM, Privileges.Constants.ADMINISTRATE_BPM})
     public Response startProcessContent(TaskContentInfos taskContentInfos, @PathParam("id") String id,
