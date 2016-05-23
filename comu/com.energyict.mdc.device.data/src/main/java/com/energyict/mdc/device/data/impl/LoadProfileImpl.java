@@ -270,7 +270,7 @@ public class LoadProfileImpl implements ServerLoadProfileForConfigChange {
 
         @Override
         public Optional<BigDecimal> getOverflow() {
-            Optional<MeterReadingTypeConfiguration> channelReadingTypeConfiguration = LoadProfileImpl.this.device.get().getChannelReadingTypeConfiguration(this);
+            Optional<MeterReadingTypeConfiguration> channelReadingTypeConfiguration = LoadProfileImpl.this.device.get().getMeterReadingTypeConfigurationFor(this.getReadingType());
             if (channelReadingTypeConfiguration.isPresent()) {
                 Optional<BigDecimal> overflowValue = channelReadingTypeConfiguration.get().getOverflowValue();
                 if (overflowValue.isPresent()) {
@@ -285,7 +285,7 @@ public class LoadProfileImpl implements ServerLoadProfileForConfigChange {
 
         @Override
         public int getNrOfFractionDigits() {
-            Optional<MeterReadingTypeConfiguration> channelReadingTypeConfiguration = LoadProfileImpl.this.device.get().getChannelReadingTypeConfiguration(this);
+            Optional<MeterReadingTypeConfiguration> channelReadingTypeConfiguration = LoadProfileImpl.this.device.get().getMeterReadingTypeConfigurationFor(this.getReadingType());
             if (channelReadingTypeConfiguration.isPresent()) {
                 return channelReadingTypeConfiguration.get().getNumberOfFractionDigits().orElse(channelSpec.getNbrOfFractionDigits());
             } else {

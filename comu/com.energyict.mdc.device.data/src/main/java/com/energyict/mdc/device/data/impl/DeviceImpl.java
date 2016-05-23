@@ -1001,12 +1001,12 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return Optional.empty();
     }
 
-    public Optional<MeterReadingTypeConfiguration> getChannelReadingTypeConfiguration(Channel channel) {
+    public Optional<MeterReadingTypeConfiguration> getMeterReadingTypeConfigurationFor(ReadingType readingType) {
         Optional<Meter> koreMeter = findKoreMeter(getMdcAmrSystem());
         if (koreMeter.isPresent()) {
             Optional<MeterConfiguration> configuration = koreMeter.get().getConfiguration(clock.instant());
             if (configuration.isPresent()) {
-                return configuration.get().getReadingTypeConfiguration(channel.getReadingType());
+                return configuration.get().getReadingTypeConfiguration(readingType);
             }
         }
         return Optional.empty();
@@ -2476,6 +2476,146 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return new ChannelUpdaterImpl(channel);
     }
 
+    @Override
+    public Register.RegisterUpdater getRegisterUpdaterFor(Register register) {
+        return new RegisterUpdaterImpl(register);
+    }
+
+    private class RegisterUpdaterImpl implements Register.RegisterUpdater {
+
+        private final Register register;
+        private Integer overruledNbrOfFractionDigits;
+        private BigDecimal overruledOverflowValue;
+        private ObisCode overruledObisCode;
+
+        public RegisterUpdaterImpl(Register register) {
+            this.register = register;
+        }
+
+        @Override
+        public void setNumberOfFractionDigits(Integer overruledNbrOfFractionDigits) {
+            this.overruledNbrOfFractionDigits = overruledNbrOfFractionDigits;
+        }
+
+        @Override
+        public void setOverflowValue(BigDecimal overruledOverflowValue) {
+            this.overruledOverflowValue = overruledOverflowValue;
+        }
+
+        @Override
+        public void setObisCode(ObisCode overruledObisCode) {
+            this.overruledObisCode = overruledObisCode;
+        }
+
+        @Override
+        public void update() {
+            Instant updateInstant = DeviceImpl.this.clock.instant();
+            if (register.getRegisterSpec() instanceof NumericalRegisterSpec) { //textRegisters don't have fraction digits and overflow values
+                DeviceImpl.this.findKoreMeter(getMdcAmrSystem()).ifPresent(koreMeter -> {
+                    Optional<MeterConfiguration> currentMeterConfiguration = koreMeter.getConfiguration(updateInstant);
+                    if (requiredToCreateNewMeterConfiguration(currentMeterConfiguration, register.getReadingType())) { // if we need to update it
+                        if (currentMeterConfiguration.isPresent()) {
+                            MeterConfiguration meterConfiguration = currentMeterConfiguration.get();
+                            meterConfiguration.endAt(updateInstant);
+                            Meter.MeterConfigurationBuilder newMeterConfigBuilder = koreMeter.startingConfigurationOn(updateInstant);
+                            NumericalRegisterSpec registerSpec = (NumericalRegisterSpec) register.getRegisterSpec();
+                            meterConfiguration.getReadingTypeConfigs().stream().forEach(meterReadingTypeConfiguration -> {
+                                Meter.MeterReadingTypeConfigurationBuilder meterReadingTypeConfigurationBuilder = newMeterConfigBuilder.configureReadingType(meterReadingTypeConfiguration.getMeasured());
+                                if (registerWeNeedToUpdate(meterReadingTypeConfiguration)) {
+                                    if (overruledOverflowValue == null) {
+                                        meterReadingTypeConfigurationBuilder.withOverflowValue(registerSpec.getOverflowValue().orElse(null));
+                                    } else {
+                                        meterReadingTypeConfigurationBuilder.withOverflowValue(overruledOverflowValue);
+                                    }
+                                } else if (meterReadingTypeConfiguration.getOverflowValue().isPresent()) {
+                                    meterReadingTypeConfigurationBuilder.withOverflowValue(meterReadingTypeConfiguration.getOverflowValue().get());
+                                }
+                                if (registerWeNeedToUpdate(meterReadingTypeConfiguration)) {
+                                    if (overruledNbrOfFractionDigits == null) {
+                                        meterReadingTypeConfigurationBuilder.withNumberOfFractionDigits(registerSpec.getNumberOfFractionDigits());
+                                    } else {
+                                        meterReadingTypeConfigurationBuilder.withNumberOfFractionDigits(overruledNbrOfFractionDigits);
+                                    }
+                                } else if (meterReadingTypeConfiguration.getNumberOfFractionDigits().isPresent()) {
+                                    meterReadingTypeConfigurationBuilder.withNumberOfFractionDigits(meterReadingTypeConfiguration.getNumberOfFractionDigits().getAsInt());
+                                }
+                                meterReadingTypeConfiguration.getCalculated()
+                                        .ifPresent(readingType -> meterReadingTypeConfigurationBuilder.withMultiplierOfType(getDefaultMultiplierType()).calculating(readingType));
+                            });
+                            newMeterConfigBuilder.create();
+                        } else {
+                            Meter.MeterConfigurationBuilder newMeterConfigBuilder = koreMeter.startingConfigurationOn(updateInstant);
+                            getDeviceConfiguration().getRegisterSpecs().stream().filter(spec -> spec instanceof NumericalRegisterSpec)
+                                    .map(numeriaclSpec -> ((NumericalRegisterSpec) numeriaclSpec)).forEach(registerSpec -> {
+                                Meter.MeterReadingTypeConfigurationBuilder meterReadingTypeConfigurationBuilder = newMeterConfigBuilder.configureReadingType(registerSpec.getReadingType());
+                                if (registerWeNeedToUpdate(registerSpec) && overruledOverflowValue != null) {
+                                    meterReadingTypeConfigurationBuilder.withOverflowValue(overruledOverflowValue);
+                                } else if (registerSpec.getOverflowValue().isPresent()) {
+                                    meterReadingTypeConfigurationBuilder.withOverflowValue(registerSpec.getOverflowValue().get());
+                                }
+                                if (registerWeNeedToUpdate(registerSpec) && overruledNbrOfFractionDigits != null) {
+                                    meterReadingTypeConfigurationBuilder.withNumberOfFractionDigits(overruledNbrOfFractionDigits);
+                                } else {
+                                    meterReadingTypeConfigurationBuilder.withNumberOfFractionDigits(registerSpec.getNumberOfFractionDigits());
+                                }
+                                if (getMultiplier().compareTo(BigDecimal.ONE) == 1 && registerSpec.isUseMultiplier()) {
+                                    meterReadingTypeConfigurationBuilder.withMultiplierOfType(getDefaultMultiplierType()).calculating((registerSpec.getCalculatedReadingType().get()));
+                                }
+                            });
+                            newMeterConfigBuilder.create();
+                        }
+                    }
+                });
+            }
+
+            Optional<ReadingTypeObisCodeUsage> readingTypeObisCodeUsageOptional = DeviceImpl.this.getReadingTypeObisCodeUsage(register.getReadingType());
+            boolean currentlyNoOverruledObisCodeAlthoughRequested = overruledObisCode != null && // obiscode overruling requested...
+                    !readingTypeObisCodeUsageOptional.isPresent(), // ...while currently there is none
+                    currentOverruledObisCodeIsNotTheCorrectOne = overruledObisCode != null && // obiscode overruling requested and...
+                            readingTypeObisCodeUsageOptional.isPresent() && // ...the currently present one...
+                            !readingTypeObisCodeUsageOptional.get().getObisCode().equals(overruledObisCode), // ...is different
+                    currentOverruledObisCodeIsNotNeeded = overruledObisCode == null && // no obiscode overruling requested...
+                            readingTypeObisCodeUsageOptional.isPresent(); // ...however, currently present
+
+            if (currentOverruledObisCodeIsNotTheCorrectOne || currentOverruledObisCodeIsNotNeeded) {
+                DeviceImpl.this.removeReadingTypeObisCodeUsage(register.getReadingType());
+            }
+            if (currentOverruledObisCodeIsNotTheCorrectOne || currentlyNoOverruledObisCodeAlthoughRequested) {
+                DeviceImpl.this.addReadingTypeObisCodeUsage(register.getReadingType(), overruledObisCode);
+            }
+            DeviceImpl.this.save(); //just to make sure we increase the version
+        }
+
+        private boolean registerWeNeedToUpdate(RegisterSpec registerSpec) {
+            return registerSpec.getReadingType().equals(register.getReadingType());
+        }
+
+        private boolean registerWeNeedToUpdate(MeterReadingTypeConfiguration meterReadingTypeConfiguration) {
+            return meterReadingTypeConfiguration.getMeasured().equals(register.getReadingType());
+        }
+
+        private boolean requiredToCreateNewMeterConfiguration(Optional<MeterConfiguration> meterConfiguration, ReadingType readingType) {
+            if (meterConfiguration.isPresent()) {
+                boolean required;
+                Optional<MeterReadingTypeConfiguration> readingTypeConfiguration = meterConfiguration.get().getReadingTypeConfiguration(readingType);
+                if (overruledOverflowValue == null) {
+                    required = readingTypeConfiguration.isPresent() && readingTypeConfiguration.get().getOverflowValue().isPresent();
+                } else {
+                    required = !readingTypeConfiguration.isPresent() || readingTypeConfiguration.get().getOverflowValue().get().equals(overruledOverflowValue);
+                }
+
+                if (overruledNbrOfFractionDigits == null) {
+                    required |= readingTypeConfiguration.isPresent() && readingTypeConfiguration.get().getNumberOfFractionDigits().isPresent();
+                } else {
+                    required |= !readingTypeConfiguration.isPresent() || readingTypeConfiguration.get().getNumberOfFractionDigits().getAsInt() != overruledNbrOfFractionDigits;
+                }
+                return required;
+            } else {
+                return true;
+            }
+        }
+    }
+
     private class ChannelUpdaterImpl implements Channel.ChannelUpdater {
 
         private final Channel channel;
@@ -2573,6 +2713,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             if (currentOverruledObisCodeIsNotTheCorrectOne || currentlyNoOverruledObisCodeAlthoughRequested) {
                 DeviceImpl.this.addReadingTypeObisCodeUsage(channel.getReadingType(), overruledObisCode);
             }
+            DeviceImpl.this.save(); //just to make sure we increase the version
         }
 
         private boolean requiredToCreateNewMeterConfiguration(Optional<MeterConfiguration> meterConfiguration, ReadingType readingType) {

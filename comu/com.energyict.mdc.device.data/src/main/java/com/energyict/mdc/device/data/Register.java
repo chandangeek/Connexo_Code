@@ -1,11 +1,12 @@
 package com.energyict.mdc.device.data;
 
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.util.time.Interval;
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.protocol.api.device.BaseRegister;
 
 import aQute.bnd.annotation.ProviderType;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.util.time.Interval;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -98,4 +99,14 @@ public interface Register<R extends Reading, RS extends RegisterSpec> extends Ba
      * @return the optional multiplier
      */
     Optional<BigDecimal> getMultiplier(Instant timeStamp);
+
+    interface RegisterUpdater {
+        void setNumberOfFractionDigits(Integer overruledNbrOfFractionDigits);
+
+        void setOverflowValue(BigDecimal overruledOverflowValue);
+
+        void setObisCode(ObisCode overruledObisCode);
+
+        void update();
+    }
 }

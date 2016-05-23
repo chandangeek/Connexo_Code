@@ -445,11 +445,15 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
     Optional<ReadingTypeObisCodeUsage> getReadingTypeObisCodeUsage(ReadingType readingType);
 
+    //TODO remove from interface?
     void addReadingTypeObisCodeUsage(ReadingType readingType, ObisCode obisCode);
 
+    //TODO remove from interface?
     void removeReadingTypeObisCodeUsage(ReadingType readingType);
 
     Channel.ChannelUpdater getChannelUpdaterFor(Channel channel);
+
+    Register.RegisterUpdater getRegisterUpdaterFor(Register register);
 
     /**
      * Builder that support basic value setters for a ScheduledConnectionTask.
