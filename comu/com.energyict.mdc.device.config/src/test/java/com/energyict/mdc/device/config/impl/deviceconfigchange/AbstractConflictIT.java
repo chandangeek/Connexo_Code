@@ -1,6 +1,8 @@
 package com.energyict.mdc.device.config.impl.deviceconfigchange;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
@@ -75,6 +77,7 @@ import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
@@ -209,7 +212,8 @@ public abstract class AbstractConflictIT {
                     new PluggableModule(),
                     new SchedulingModule(),
                     new TimeModule(),
-                    new CustomPropertySetsModule());
+                    new CustomPropertySetsModule(),
+                    new CalendarModule());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -250,6 +254,8 @@ public abstract class AbstractConflictIT {
                     injector.getInstance(MasterDataService.class),
                     finiteStateMachineService,
                     injector.getInstance(DeviceLifeCycleConfigurationService.class),
+                    injector.getInstance(CalendarService.class),
+                    injector.getInstance(DeviceMessageSpecificationService.class),
                     UpgradeModule.FakeUpgradeService.getInstance());
             ctx.commit();
         }

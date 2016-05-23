@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.metering.ReadingType;
@@ -8,6 +9,7 @@ import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.validation.ValidationRuleSet;
+import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConflictingConnectionMethodSolution;
@@ -25,6 +27,7 @@ import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperty;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.config.TimeOfUseOptions;
 import com.energyict.mdc.device.config.impl.deviceconfigchange.ConflictingConnectionMethodSolutionImpl;
 import com.energyict.mdc.device.config.impl.deviceconfigchange.ConflictingSecuritySetSolutionImpl;
 import com.energyict.mdc.device.config.impl.deviceconfigchange.DeviceConfigConflictMappingImpl;
@@ -795,7 +798,62 @@ public enum TableSpecs {
                     .map(DeviceTypeCustomPropertySetUsageImpl.Fields.CUSTOMPROPERTYSET.fieldName())
                     .add();
         }
-    };
+    },
+
+    DTC_DEVICETYPECALENDARUSAGE {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<AllowedCalendar> table = dataModel.addTable(name(), AllowedCalendar.class);
+            table.map(AllowedCalendarImpl.class);
+            Column id = table.addAutoIdColumn();
+            Column deviceType = table.column("DEVICETYPE").number().notNull().add();
+            Column calendar = table.column("CALENDAR").number().add();
+            table.column("NAME").varChar().map(AllowedCalendarImpl.Fields.NAME.fieldName()).add();
+            table.primaryKey("PK_DTC_CALUSAGE").on(id).add();
+            table.foreignKey("FK_DTC_CALDEVICETYPE")
+                    .references(DTC_DEVICETYPE.name())
+                    .on(deviceType)
+                    .onDelete(CASCADE)
+                    .map(AllowedCalendarImpl.Fields.DEVICETYPE.fieldName())
+                    .reverseMap(DeviceTypeImpl.Fields.ALLOWEDCALENDARS.fieldName())
+                    .composition()
+                    .add();
+            table.foreignKey("FK_DTC_CAL")
+                    .references(Calendar.class)
+                    .on(calendar)
+                    .map(AllowedCalendarImpl.Fields.CALENDAR.fieldName())
+                    .onDelete(CASCADE)
+                    .add();
+        }
+    },
+
+    DTC_TIMEOFUSEMANAGEMENTOPTIONS {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<TimeOfUseOptions> table = dataModel.addTable(name(), TimeOfUseOptions.class);
+            table.map(TimeOfUseOptionsImpl.class);
+            Column deviceTypeColumn = table.column("DEVICETYPE").number().notNull().add();
+            table.column("SEND").type("char(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map(TimeOfUseOptionsImpl.Fields.SEND_ACTIVITY_CALENDAR.fieldName()).add();
+            table.column("SEND_DATE").type("char(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map(TimeOfUseOptionsImpl.Fields.SEND_ACTIVITY_CALENDAR_WITH_DATE.fieldName()).add();
+            table.column("SEND_DATE_TYPE").type("char(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map(TimeOfUseOptionsImpl.Fields.SEND_ACTIVITY_CALENDAR_WITH_DATE_AND_TYPE.fieldName()).add();
+            table.column("SEND_DATE_CONTRACT").type("char(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map(TimeOfUseOptionsImpl.Fields.SEND_ACTIVITY_CALENDAR_WITH_DATE_AND_CONTRACT.fieldName()).add();
+            table.column("SEND_DATE_TIME").type("char(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map(TimeOfUseOptionsImpl.Fields.SEND_ACTIVITY_CALENDAR_WITH_DATETIME.fieldName()).add();
+            table.column("SEND_SPECIAL").type("char(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map(TimeOfUseOptionsImpl.Fields.SEND_SPECIAL_DAYS_CALENDAR.fieldName()).add();
+            table.column("SEND_SPECIAL_TYPE").type("char(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map(TimeOfUseOptionsImpl.Fields.SEND_SPECIAL_DAYS_CALENDAR_WITH_TYPE.fieldName()).add();
+            table.column("SEND_SPECIAL_CONTRACT_DATE").type("char(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map(TimeOfUseOptionsImpl.Fields.SEND_SPECIAL_DAYS_CALENDAR_WITH_CONTRACT_AND_DATE.fieldName()).add();
+            table.column("CLEAR_DISABLE_TARIFF").type("char(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map(TimeOfUseOptionsImpl.Fields.CLEAR_AND_DISABLE_PASSIVE_TARIFF.fieldName()).add();
+            table.column("ACTIVATE_PASSIVE").type("char(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map(TimeOfUseOptionsImpl.Fields.ACTIVATE_PASSIVE_CALENDAR.fieldName()).add();
+            table.addAuditColumns();
+            table.primaryKey("DTC_PK_TIMEOFUSEOPTIONS").on(deviceTypeColumn).add();
+            table.foreignKey("DTC_TOUOPTIONS_FK_DEVICETYPE")
+                    .references(DTC_DEVICETYPE.name())
+                    .on(deviceTypeColumn)
+                    .onDelete(CASCADE)
+                    .map(TimeOfUseOptionsImpl.Fields.DEVICETYPE.fieldName())
+                    .add();
+        }
+    }
+    ;
 
     abstract void addTo(DataModel component);
 }
