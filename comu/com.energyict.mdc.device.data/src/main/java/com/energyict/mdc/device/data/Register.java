@@ -101,11 +101,11 @@ public interface Register<R extends Reading, RS extends RegisterSpec> extends Ba
     Optional<BigDecimal> getMultiplier(Instant timeStamp);
 
     interface RegisterUpdater {
-        void setNumberOfFractionDigits(Integer overruledNbrOfFractionDigits);
+        RegisterUpdater setNumberOfFractionDigits(Integer overruledNbrOfFractionDigits);
 
-        void setOverflowValue(BigDecimal overruledOverflowValue);
+        RegisterUpdater setOverflowValue(BigDecimal overruledOverflowValue);
 
-        void setObisCode(ObisCode overruledObisCode);
+        RegisterUpdater setObisCode(ObisCode overruledObisCode);
 
         void update();
     }

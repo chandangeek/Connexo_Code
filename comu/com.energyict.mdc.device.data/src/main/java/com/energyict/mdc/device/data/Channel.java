@@ -95,11 +95,11 @@ public interface Channel extends BaseChannel {
     ChannelDataUpdater startEditingData();
 
     interface ChannelUpdater {
-        void setNumberOfFractionDigits(Integer overruledNbrOfFractionDigits);
+        ChannelUpdater setNumberOfFractionDigits(Integer overruledNbrOfFractionDigits);
 
-        void setOverflowValue(BigDecimal overruledOverflowValue);
+        ChannelUpdater setOverflowValue(BigDecimal overruledOverflowValue);
 
-        void setObisCode(ObisCode overruledObisCode);
+        ChannelUpdater setObisCode(ObisCode overruledObisCode);
 
         void update();
     }

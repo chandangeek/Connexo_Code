@@ -16,7 +16,6 @@ import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.common.ComWindow;
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
@@ -444,12 +443,6 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     CIMLifecycleDates getLifecycleDates();
 
     Optional<ReadingTypeObisCodeUsage> getReadingTypeObisCodeUsage(ReadingType readingType);
-
-    //TODO remove from interface?
-    void addReadingTypeObisCodeUsage(ReadingType readingType, ObisCode obisCode);
-
-    //TODO remove from interface?
-    void removeReadingTypeObisCodeUsage(ReadingType readingType);
 
     Channel.ChannelUpdater getChannelUpdaterFor(Channel channel);
 

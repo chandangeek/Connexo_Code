@@ -2209,15 +2209,13 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return Optional.empty();
     }
 
-    @Override
-    public void addReadingTypeObisCodeUsage(ReadingType readingType, ObisCode obisCode) {
+    private void addReadingTypeObisCodeUsage(ReadingType readingType, ObisCode obisCode) {
         ReadingTypeObisCodeUsageImpl readingTypeObisCodeUsage = dataModel.getInstance(ReadingTypeObisCodeUsageImpl.class);
         readingTypeObisCodeUsage.initialize(this, readingType, obisCode);
         readingTypeObisCodeUsages.add(readingTypeObisCodeUsage);
     }
 
-    @Override
-    public void removeReadingTypeObisCodeUsage(ReadingType readingType) {
+    private void removeReadingTypeObisCodeUsage(ReadingType readingType) {
         for (java.util.Iterator<ReadingTypeObisCodeUsageImpl> iterator = readingTypeObisCodeUsages.iterator(); iterator.hasNext(); ) {
             ReadingTypeObisCodeUsageImpl readingTypeObisCodeUsage = iterator.next();
             if (readingTypeObisCodeUsage.getReadingType().getMRID().equals(readingType.getMRID())) {
@@ -2493,18 +2491,21 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         }
 
         @Override
-        public void setNumberOfFractionDigits(Integer overruledNbrOfFractionDigits) {
+        public Register.RegisterUpdater setNumberOfFractionDigits(Integer overruledNbrOfFractionDigits) {
             this.overruledNbrOfFractionDigits = overruledNbrOfFractionDigits;
+            return this;
         }
 
         @Override
-        public void setOverflowValue(BigDecimal overruledOverflowValue) {
+        public Register.RegisterUpdater setOverflowValue(BigDecimal overruledOverflowValue) {
             this.overruledOverflowValue = overruledOverflowValue;
+            return this;
         }
 
         @Override
-        public void setObisCode(ObisCode overruledObisCode) {
+        public Register.RegisterUpdater setObisCode(ObisCode overruledObisCode) {
             this.overruledObisCode = overruledObisCode;
+            return this;
         }
 
         @Override
@@ -2628,18 +2629,21 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         }
 
         @Override
-        public void setNumberOfFractionDigits(Integer overruledNbrOfFractionDigits) {
+        public Channel.ChannelUpdater setNumberOfFractionDigits(Integer overruledNbrOfFractionDigits) {
             this.overruledNbrOfFractionDigits = overruledNbrOfFractionDigits;
+            return this;
         }
 
         @Override
-        public void setOverflowValue(BigDecimal overruledOverflowValue) {
+        public Channel.ChannelUpdater setOverflowValue(BigDecimal overruledOverflowValue) {
             this.overruledOverflowValue = overruledOverflowValue;
+            return this;
         }
 
         @Override
-        public void setObisCode(ObisCode overruledObisCode) {
+        public Channel.ChannelUpdater setObisCode(ObisCode overruledObisCode) {
             this.overruledObisCode = overruledObisCode;
+            return this;
         }
 
         @Override
@@ -2756,10 +2760,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             }
         }
 
-    }
-
-    private Optional<MeterConfiguration> getMeterConfiguration(Instant on) {
-        return findOrCreateKoreMeter(getMdcAmrSystem()).getConfiguration(on);
     }
 
     private enum RegisterFactory {
