@@ -1,10 +1,10 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.LoadProfileReading;
 
 import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.google.common.collect.Range;
 
@@ -24,7 +24,7 @@ public class LoadProfileReadingImpl implements LoadProfileReading {
     private Map<Channel, IntervalReadingRecord> values = new HashMap<>();
     private Map<Channel, DataValidationStatus> states = new HashMap<>();
     private Instant readingTime;
-    private final List<ProfileStatus.Flag> flags = new ArrayList<>();
+    private List<ReadingQualityRecord> readingQualities = new ArrayList<>();
 
     @Override
     public Range<Instant> getRange() {
@@ -63,14 +63,14 @@ public class LoadProfileReadingImpl implements LoadProfileReading {
     }
 
     @Override
-    public void setFlags(List<ProfileStatus.Flag> flags) {
-        this.flags.clear();
-        this.flags.addAll(flags);
+    public void setReadingQualities(List<? extends ReadingQualityRecord> readingQualities) {
+        this.readingQualities.clear();
+        this.readingQualities.addAll(readingQualities);
     }
 
     @Override
-    public List<ProfileStatus.Flag> getFlags() {
-        return Collections.unmodifiableList(flags);
+    public List<? extends ReadingQualityRecord> getReadingQualities() {
+        return Collections.unmodifiableList(readingQualities);
     }
 
     @Override

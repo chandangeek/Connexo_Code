@@ -2,7 +2,7 @@ package com.energyict.mdc.device.data;
 
 import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.readings.ProfileStatus;
+import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.google.common.collect.Range;
 
@@ -24,8 +24,8 @@ public interface LoadProfileReading {
 
     Instant getReadingTime();
 
-    void setFlags(List<ProfileStatus.Flag> flags);
+    void setReadingQualities(List<? extends ReadingQualityRecord> readingQualities);
 
-    List<ProfileStatus.Flag> getFlags();
+    List<? extends ReadingQualityRecord> getReadingQualities();
 
 }
