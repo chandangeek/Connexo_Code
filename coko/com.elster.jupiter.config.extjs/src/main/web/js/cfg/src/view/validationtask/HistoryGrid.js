@@ -9,7 +9,8 @@ Ext.define('Cfg.view.validationtask.HistoryGrid', {
         'Uni.grid.column.Duration',
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Cfg.view.validationtask.HistoryActionMenu'
+        'Cfg.view.validationtask.HistoryActionMenu',
+        'Uni.DateTime'
     ],
 
     initComponent: function () {

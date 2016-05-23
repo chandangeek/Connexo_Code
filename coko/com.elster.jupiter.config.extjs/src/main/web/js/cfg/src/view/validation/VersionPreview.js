@@ -27,7 +27,11 @@ Ext.define('Cfg.view.validation.VersionPreview', {
         },
         {
             name: 'description',
-            fieldLabel: Uni.I18n.translate('general.description', 'CFG', 'Description')
+            fieldLabel: Uni.I18n.translate('general.description', 'CFG', 'Description'),
+            htmlEncode: true,
+            renderer: function(value) {
+                return Ext.String.htmlEncode(value).replace(/(?:\r\n|\r|\n)/g, '<br />');
+            }
         },		
 		{
             name: 'numberOfActiveRules',
