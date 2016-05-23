@@ -325,8 +325,8 @@ public class OrmServiceImpl implements OrmService {
 	}
 
     @Override
-    public DataModelUpgrader getDataModelUpgrader() {
-        return new DataModelUpgraderImpl(schemaInfoProvider, this);
+    public DataModelUpgrader getDataModelUpgrader(Logger logger) {
+        return new DataModelUpgraderImpl(schemaInfoProvider, this, logger);
     }
 
     public FileSystem getFileSystem() {

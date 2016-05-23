@@ -17,6 +17,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.logging.Logger;
 
 public class DataModelUpgraderImpl implements DataModelUpgrader {
 
@@ -24,10 +25,12 @@ public class DataModelUpgraderImpl implements DataModelUpgrader {
 
     private final SchemaInfoProvider schemaInfoProvider;
     private final OrmServiceImpl ormService;
+    private final Logger logger;
 
-    public DataModelUpgraderImpl(SchemaInfoProvider schemaInfoProvider, OrmServiceImpl ormService) {
+    public DataModelUpgraderImpl(SchemaInfoProvider schemaInfoProvider, OrmServiceImpl ormService, Logger logger) {
         this.schemaInfoProvider = schemaInfoProvider;
         this.ormService = ormService;
+        this.logger = logger;
     }
 
     @Override
