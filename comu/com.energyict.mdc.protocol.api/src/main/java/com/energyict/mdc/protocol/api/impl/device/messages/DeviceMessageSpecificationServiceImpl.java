@@ -10,6 +10,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.MessageSeeds;
 import com.energyict.mdc.protocol.api.TrackingCategory;
+import com.energyict.mdc.protocol.api.calendars.ProtocolSupportedCalendarOptions;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
@@ -108,6 +109,14 @@ public class DeviceMessageSpecificationServiceImpl implements DeviceMessageSpeci
         return Stream.of(FirmwareDeviceMessage.values())
                 .filter(firmwareDeviceMessage -> firmwareDeviceMessage.getId().equals(deviceMessageId))
                 .map(FirmwareDeviceMessage::getProtocolSupportedFirmwareOption)
+                .findAny().orElse(Optional.empty());
+    }
+
+    @Override
+    public Optional<ProtocolSupportedCalendarOptions> getProtocolSupportedCalendarOptionsFor(DeviceMessageId deviceMessageId) {
+        return Stream.of(ActivityCalendarDeviceMessage.values())
+                .filter(activityCalendarDeviceMessage -> activityCalendarDeviceMessage.getId().equals(deviceMessageId))
+                .map(ActivityCalendarDeviceMessage::getProtocolSupportedCalendarOption)
                 .findAny().orElse(Optional.empty());
     }
 
