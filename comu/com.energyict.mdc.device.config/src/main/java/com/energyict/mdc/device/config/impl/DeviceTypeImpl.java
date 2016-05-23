@@ -19,6 +19,7 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceLifeCycleChangeEvent;
 import com.energyict.mdc.device.config.DeviceMessageEnablementBuilder;
+import com.energyict.mdc.device.config.DeviceMessageFile;
 import com.energyict.mdc.device.config.DeviceMessageUserAction;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.DeviceTypePurpose;
@@ -44,7 +45,6 @@ import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.RegisterType;
-import com.energyict.mdc.protocol.api.DeviceMessageFile;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
@@ -114,7 +114,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
     private boolean deviceProtocolPluggableClassChanged = false;
     private boolean fileManagementEnabled = false;
-    private List<DeviceMessageFile> deviceMessageFiles = new ArrayList<>();
+    private List<DeviceMessageFileImpl> deviceMessageFiles = new ArrayList<>();
     @SuppressWarnings("unused")
     private String userName;
     @SuppressWarnings("unused")
@@ -770,7 +770,9 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     @Override
     public List<DeviceMessageFile> getDeviceMessageFiles() {
-        return Collections.unmodifiableList(this.deviceMessageFiles);
+        return this.deviceMessageFiles
+                .stream()
+                .collect(Collectors.toList());
     }
 
     @Override
