@@ -2,7 +2,7 @@ Ext.define('Fim.view.log.Setup', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.fim-history-log-setup',
     requires: [
-        'Uni.view.notifications.NoItemsFoundPanel',
+        'Uni.util.FormEmptyMessage',
         'Fim.view.log.Menu',
         'Fim.view.log.Grid',
         'Fim.view.log.Preview',
@@ -64,11 +64,8 @@ Ext.define('Fim.view.log.Setup', {
                         xtype: 'fim-history-log-grid'
                     },
                     emptyComponent: {
-                        xtype: 'no-items-found-panel',
-                        title: Uni.I18n.translate('importService.log.empty.title', 'FIM', 'No logs found'),
-                        reasons: [
-                             Uni.I18n.translate('importService.log.startedOnNoLogs', 'FIM', '{0} started on {1} did not create any logs',[me.importService.get('name'),me.runStartedOn])
-                        ]
+                        xtype: 'uni-form-empty-message',
+                        text: Uni.I18n.translate('importService.log.startedOnNoLogs', 'FIM', '{0} started on {1} did not create any logs',[me.importService.get('name'),me.runStartedOn])
                     }
                 }
             ]
