@@ -55,7 +55,7 @@ Ext.define('Fwc.firmwarecampaigns.view.Devices', {
                             title: Uni.I18n.translate('firmware.campaigns.devices.empty.title', 'FWC', 'No devices'),
                             reasons: [
                                 Uni.I18n.translate('firmware.campaigns.devices.empty.list.item1', 'FWC', 'Selected device group doesn\'t contain devices of device type \'{0}\'.', [me.deviceType.localizedValue]),
-                                Uni.I18n.translate('firmware.campaigns.devices.empty.list.item2', 'FWC', 'No devices comply to the filter.')
+                                Uni.I18n.translate('firmware.campaigns.devices.empty.list.item2', 'FWC', 'No devices comply with the filter.')
                             ]
                         }
                     }
