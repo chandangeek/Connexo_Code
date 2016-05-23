@@ -742,11 +742,7 @@ public class DeviceResource {
     }
 
     private List<DeviceTopologyInfo> getDataLoggerSlavesForDevice(Device device) {
-        List<DeviceTopologyInfo> dataLoggerSlaves = new ArrayList<>();
-        if (device.getDeviceConfiguration().isDataloggerEnabled()) {
-            resourceHelper.getDataLoggerSlaves(device);
-        }
-        return dataLoggerSlaves;
+        return (device.getDeviceConfiguration().isDataloggerEnabled() ? resourceHelper.getDataLoggerSlaves(device): Collections.emptyList());
     }
 
     @GET @Transactional
