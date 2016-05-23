@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.config;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
@@ -87,7 +88,8 @@ public class MinimalDeviceTypeInMemoryBootstrapModule {
                 new FiniteStateMachineModule(),
                 new PluggableModule(),
                 new DeviceLifeCycleConfigurationModule(),
-                new DeviceConfigurationModule());
+                new DeviceConfigurationModule(),
+                new CalendarModule());
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             injector.getInstance(ThreadPrincipalService.class);
             ctx.commit();

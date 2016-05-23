@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.Objects;
 import java.util.function.Consumer;
 
@@ -36,6 +37,7 @@ public class DeviceMessageFileImpl implements DeviceMessageFile {
         NAME("name"),
         DEVICE_TYPE("deviceType"),
         CONTENTS("contents"),
+        CREATIONDATE("creationDate")
         ;
 
         private final String javaFieldName;
@@ -59,6 +61,14 @@ public class DeviceMessageFileImpl implements DeviceMessageFile {
     private Blob contents = FileBlob.empty();
     @Max(value = DeviceConfigurationService.MAX_DEVICE_MESSAGE_FILE_SIZE_MB, message = "{" + MessageSeeds.Keys.MAX_FILE_SIZE_EXCEEDED + "}", groups = {Save.Create.class, Save.Update.class})
     private BigDecimal blobSize = BigDecimal.ZERO;
+    @SuppressWarnings("unused")
+    private String userName;
+    @SuppressWarnings("unused")
+    private long version;
+    @SuppressWarnings("unused")
+    private Instant createTime;
+    @SuppressWarnings("unused")
+    private Instant modTime;
 
     DeviceMessageFileImpl init(DeviceType deviceType, Path path) {
         this.deviceType.set(deviceType);
@@ -71,6 +81,11 @@ public class DeviceMessageFileImpl implements DeviceMessageFile {
     private BigDecimal sizeInMB() {
         BigDecimal byteToMBScaler = BigDecimal.valueOf(1024 * 1024);
         return BigDecimal.valueOf(this.contents.length()).divide(byteToMBScaler, 3, BigDecimal.ROUND_CEILING);
+    }
+
+    @Override
+    public Instant getCreateTime() {
+        return createTime;
     }
 
     @Override
