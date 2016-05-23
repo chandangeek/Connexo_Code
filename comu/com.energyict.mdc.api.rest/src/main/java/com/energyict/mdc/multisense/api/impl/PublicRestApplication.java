@@ -106,6 +106,7 @@ public class PublicRestApplication extends Application implements TranslationKey
                 DeviceConfigurationResource.class,
                 DeviceContactorResource.class,
                 DeviceLifecycleActionResource.class,
+                DeviceMessageFileResource.class,
                 DeviceMessageCategoryResource.class,
                 DeviceMessageEnablementResource.class,
                 DeviceMessageSpecificationResource.class,
@@ -324,6 +325,7 @@ public class PublicRestApplication extends Application implements TranslationKey
             bind(DeviceLifecycleActionInfoFactory.class).to(DeviceLifecycleActionInfoFactory.class);
             bind(DeviceTypeInfoFactory.class).to(DeviceTypeInfoFactory.class);
             bind(DeviceConfigurationInfoFactory.class).to(DeviceConfigurationInfoFactory.class);
+            bind(DeviceMessageFileInfoFactory.class).to(DeviceMessageFileInfoFactory.class);
             bind(ConnectionTaskInfoFactory.class).to(ConnectionTaskInfoFactory.class);
             bind(ComPortPoolInfoFactory.class).to(ComPortPoolInfoFactory.class);
             bind(PartialConnectionTaskInfoFactory.class).to(PartialConnectionTaskInfoFactory.class);
