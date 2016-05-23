@@ -12,8 +12,11 @@ import com.google.inject.AbstractModule;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 
 public class UpgradeModule extends AbstractModule {
+
+    private static final Logger LOGGER = Logger.getLogger(UpgradeModule.class.getName());
 
     @Override
     protected void configure() {
@@ -32,7 +35,7 @@ public class UpgradeModule extends AbstractModule {
         @Override
         public void register(InstallIdentifier installIdentifier, DataModel dataModel, Class<? extends FullInstaller> installerClass, Map<Version, Class<? extends Upgrader>> upgraders) {
             FullInstaller installer = dataModel.getInstance(installerClass);
-            installer.install((dataModel1, version) -> dataModel1.install(true, false));
+            installer.install((dataModel1, version) -> dataModel1.install(true, false), LOGGER);
             installed.add(installIdentifier);
         }
 

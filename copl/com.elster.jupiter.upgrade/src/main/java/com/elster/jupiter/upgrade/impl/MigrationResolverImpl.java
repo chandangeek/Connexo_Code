@@ -12,6 +12,7 @@ import org.flywaydb.core.api.resolver.ResolvedMigration;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.orm.Version.version;
@@ -20,11 +21,13 @@ final class MigrationResolverImpl implements InstallAwareMigrationResolver {
 
     private final DataModel dataModel;
     private final Map<Version, Migration> migrations;
+    private final Logger logger;
 
-    public MigrationResolverImpl(DataModel dataModel, DataModelUpgrader dataModelUpgrader, TransactionService transactionService, Class<? extends FullInstaller> installer, Map<Version, Class<? extends Upgrader>> upgraders) {
+    public MigrationResolverImpl(DataModel dataModel, DataModelUpgrader dataModelUpgrader, TransactionService transactionService, Class<? extends FullInstaller> installer, Map<Version, Class<? extends Upgrader>> upgraders, Logger logger) {
         this.dataModel = dataModel;
+        this.logger = logger;
         this.migrations = ImmutableMap.<Version, Migration>builder()
-                .put(version(1, 0), new InstallerDriver(dataModel, dataModelUpgrader, transactionService, this, installer))
+                .put(version(1, 0), new InstallerDriver(dataModel, dataModelUpgrader, transactionService, this, installer, this.logger))
                 .putAll(
                         upgraders
                                 .entrySet()

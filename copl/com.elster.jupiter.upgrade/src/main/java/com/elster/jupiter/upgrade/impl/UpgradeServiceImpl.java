@@ -26,6 +26,7 @@ import javax.sql.DataSource;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
 @Component(name = "com.elster.jupiter.upgrade", immediate = true, service = UpgradeService.class)
 public class UpgradeServiceImpl implements UpgradeService {
@@ -36,6 +37,7 @@ public class UpgradeServiceImpl implements UpgradeService {
     private volatile OrmService ormService;
     private boolean doUpgrade;
     private Map<InstallIdentifier, UpgradeClasses> registered = new HashMap<>();
+    private final Logger logger = Logger.getLogger("com.elster.jupiter.upgrade");
 
     public UpgradeServiceImpl() {
     }
@@ -68,7 +70,7 @@ public class UpgradeServiceImpl implements UpgradeService {
 
         Flyway flyway = createFlyway(installIdentifier);
 
-        flyway.setResolvers(new MigrationResolverImpl(dataModel, dataModelUpgrader, transactionService, installerClass, upgraders));
+        flyway.setResolvers(new MigrationResolverImpl(dataModel, dataModelUpgrader, transactionService, installerClass, upgraders, logger));
 
         try {
             if (doUpgrade) {
@@ -117,7 +119,7 @@ public class UpgradeServiceImpl implements UpgradeService {
 
     @Reference
     public void setOrmService(OrmService ormService) {
-        this.dataModelUpgrader = ormService.getDataModelUpgrader();
+        this.dataModelUpgrader = ormService.getDataModelUpgrader(logger);
         this.ormService = ormService;
     }
 
