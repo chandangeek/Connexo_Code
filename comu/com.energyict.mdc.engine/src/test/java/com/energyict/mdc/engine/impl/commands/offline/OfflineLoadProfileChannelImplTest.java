@@ -2,16 +2,18 @@ package com.energyict.mdc.engine.impl.commands.offline;
 
 import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.config.ChannelSpec;
-
-import org.junit.*;
 
 import java.util.Optional;
 
-import static org.junit.Assert.*;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -38,7 +40,7 @@ public class OfflineLoadProfileChannelImplTest {
         when(device.getId()).thenReturn(DEVICE_ID);
         Channel channel = mock(Channel.class);
         ChannelSpec channelSpec = mock(ChannelSpec.class);
-        when(channelSpec.getDeviceObisCode()).thenReturn(OfflineRegisterImplTest.REGISTER_MAPPING_OBISCODE);
+        when(channel.getObisCode()).thenReturn(OfflineRegisterImplTest.REGISTER_MAPPING_OBISCODE);
         when(channel.getChannelSpec()).thenReturn(channelSpec);
         when(channel.getUnit()).thenReturn(CHANNEL_UNIT);
         when(channel.getLoadProfile()).thenReturn(loadProfile);
