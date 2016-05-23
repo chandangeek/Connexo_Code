@@ -25,7 +25,7 @@ Ext.define('Sam.view.componentslist.Overview', {
                     emptyComponent: {
                         itemId: 'components-no-items-found-panel',
                         xtype: 'uni-form-empty-message',
-                        text: Uni.I18n.translate('components.empty', 'SAM', 'The filter is too narrow')
+                        text: Uni.I18n.translate('components.empty', 'SAM', 'No components comply with the filter.')
                     }
                 }
             ]
