@@ -1,6 +1,7 @@
 package com.energyict.mdc.issue.datavalidation.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
@@ -143,7 +144,8 @@ public class InMemoryIntegrationPersistence {
                 new TasksModule(),
                 new DeviceDataModule(),
                 new IssueModule(),
-                new IssueDataValidationModule());
+                new IssueDataValidationModule(),
+                new CalendarModule());
         if (this.deviceConfigurationService == null) {
             modules.add(new DeviceConfigurationModule());
         }
