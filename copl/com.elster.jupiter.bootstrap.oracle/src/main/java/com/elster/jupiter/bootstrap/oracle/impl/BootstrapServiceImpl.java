@@ -6,7 +6,8 @@ import com.elster.jupiter.bootstrap.PropertyNotFoundException;
 import com.elster.jupiter.util.Holder;
 import com.elster.jupiter.util.HolderBuilder;
 
-import oracle.jdbc.pool.OracleDataSource;
+import oracle.ucp.jdbc.PoolDataSourceFactory;
+import oracle.ucp.jdbc.PoolDataSourceImpl;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -14,7 +15,6 @@ import org.osgi.service.component.annotations.Component;
 import javax.inject.Inject;
 import javax.sql.DataSource;
 import java.sql.SQLException;
-import java.util.Properties;
 
 /**
  * This Component is responsible for creating a DataSource on demand. It does so by getting the needed properties from the BundleContext.
@@ -29,26 +29,22 @@ import java.util.Properties;
  * <ul>
  * <li><code>com.elster.jupiter.datasource.pool.maxlimit</code> : max limit, will default to 50.</li>
  * <li><code>com.elster.jupiter.datasource.pool.maxstatements</code> : max statements, will default to 50.</li>
+ * <li><code>com.elster.jupiter.datasource.pool.oracle.ons.nodes</code> : ons nodes information. </li>
  * </ul>
  */
 @Component(name = "com.elster.jupiter.bootstrap.oracle",
         property = {"osgi.command.scope=orm", "osgi.command.function=dbConnection"})
 public final class BootstrapServiceImpl implements BootstrapService {
 
-    /**
-     * see https://docs.oracle.com/cd/B28359_01/java.111/b31224/concache.htm for doc on oracle implicit connection caching
-     */
-    private static final String MAX_LIMIT = "MaxLimit";
-    private static final String MAX_STATEMENTS_LIMIT = "MaxStatementsLimit";
-    private static final String CONNECTION_WAIT_TIMEOUT = "ConnectionWaitTimeout";
     static final String ORACLE_CONNECTION_POOL_NAME = "OracleConnectionPool";
-    private static final String VALIDATE_CONNECTIONS = "ValidateConnection";
+    public static final String ORACLE_ONS_NODES = "com.elster.jupiter.datasource.pool.oracle.ons.nodes";
 
     private String jdbcUrl;
     private String jdbcUser;
     private String jdbcPassword;
-    private String maxLimit;
-    private String maxStatementsLimit;
+    private int maxLimit;
+    private int maxStatementsLimit;
+    private String onsNodes;
 
     private Holder<DataSource> cache = HolderBuilder.lazyInitialize(this::doCreateDataSource);
 
@@ -65,8 +61,9 @@ public final class BootstrapServiceImpl implements BootstrapService {
         jdbcUrl = getRequiredProperty(context, JDBC_DRIVER_URL);
         jdbcUser = getRequiredProperty(context, JDBC_USER);
         jdbcPassword = getRequiredProperty(context, JDBC_PASSWORD);
-        maxLimit = getOptionalProperty(context, JDBC_POOLMAXLIMIT, "50");
-        maxStatementsLimit = getOptionalProperty(context, JDBC_POOLMAXSTATEMENTS, "50");
+        maxLimit = getOptionalIntProperty(context, JDBC_POOLMAXLIMIT, Integer.parseInt(JDBC_POOLMAXLIMIT_DEFAULT));
+        maxStatementsLimit = getOptionalIntProperty(context, JDBC_POOLMAXSTATEMENTS, Integer.parseInt(JDBC_POOLMAXSTATEMENTS_DEFAULT));
+        onsNodes = getOptionalProperty(context, ORACLE_ONS_NODES, null);
     }
 
     @Override
@@ -85,31 +82,32 @@ public final class BootstrapServiceImpl implements BootstrapService {
         return dataSource;
     }
 
-    // tried to switch to UCP , but ran into OSGI related class loading problems.
-    // for now , we will live with deprecated methods
-    @SuppressWarnings("deprecation")
     private DataSource createDataSourceFromProperties() throws SQLException {
-        OracleDataSource source = new OracleDataSource();
+        PoolDataSourceImpl source = (PoolDataSourceImpl) PoolDataSourceFactory.getPoolDataSource();
+        source.setConnectionFactoryClassName("oracle.jdbc.replay.OracleDataSourceImpl");
         source.setURL(jdbcUrl);
         source.setUser(jdbcUser);
         source.setPassword(jdbcPassword);
-        source.setConnectionCachingEnabled(true);
-        source.setConnectionCacheProperties(connectionCacheProperties());
-        source.setConnectionCacheName(ORACLE_CONNECTION_POOL_NAME);
+        source.setConnectionPoolName(ORACLE_CONNECTION_POOL_NAME);
+        source.setMinPoolSize(3);
+        source.setMaxPoolSize(maxLimit);
+        source.setInitialPoolSize(3);
+        source.setMaxStatements(maxStatementsLimit);
+        //source.setInactiveConnectionTimeout(PropertiesHelper.getInt(INACTIVITY_TIMEOUT, properties, 0));
+        //source.setTimeToLiveConnectionTimeout(PropertiesHelper.getInt(TTL_TIMEOUT, properties, 0));
+        //source.setAbandonedConnectionTimeout(PropertiesHelper.getInt(ABANDONED_CONNECTION_TIMEOUT, properties, 0));
+        //source.setPropertyCycle(PropertiesHelper.getInt(PROPERTY_CHECK_INTERVAL, properties, 900));
+        source.setConnectionWaitTimeout(10);
+        source.setValidateConnectionOnBorrow(true);
+        source.setFastConnectionFailoverEnabled(true);
+        if (onsNodes != null) {
+            source.setONSConfiguration("nodes=" + onsNodes);
+        }
         // for now , no need to set connection properties , but possible interesting keys are
         // defaultRowPrefetch
         // oracle.jdbc.FreeMemoryOnEnterImplicitCache
 
-        return source;
-    }
-
-    private Properties connectionCacheProperties() {
-        Properties connectionCacheProps = new Properties();
-        connectionCacheProps.put(MAX_LIMIT, maxLimit);
-        connectionCacheProps.put(MAX_STATEMENTS_LIMIT, maxStatementsLimit);
-        connectionCacheProps.put(CONNECTION_WAIT_TIMEOUT, "10"); // 10 seconds
-        connectionCacheProps.put(VALIDATE_CONNECTIONS, "true");
-        return connectionCacheProps;
+        return new UcpWrappedDataSource(source);
     }
 
     private String getRequiredProperty(BundleContext context, String property) {
@@ -117,13 +115,19 @@ public final class BootstrapServiceImpl implements BootstrapService {
         if (value == null) {
             throw new PropertyNotFoundException(property);
         }
-        return value;
+        return value.trim();
     }
 
     private String getOptionalProperty(BundleContext context, String property, String defaultValue) {
         String value = context.getProperty(property);
-        return value == null ? defaultValue : value;
+        return value == null ? defaultValue : value.trim();
     }
+
+    private int getOptionalIntProperty(BundleContext context, String propertyName, int defaultValue) {
+        String propertyValue = getOptionalProperty(context, propertyName, null);
+        return propertyValue == null ? defaultValue : Integer.parseInt(propertyValue);
+    }
+
 
     public void dbConnection() {
         StringBuilder sb = new StringBuilder("Connection settings :").append("\n");
