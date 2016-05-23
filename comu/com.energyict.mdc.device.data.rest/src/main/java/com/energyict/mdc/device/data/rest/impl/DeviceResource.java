@@ -1,9 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.cps.ValuesRangeConflictType;
-import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
@@ -39,10 +37,6 @@ import com.energyict.mdc.device.data.rest.DevicePrivileges;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.TopologyTimeline;
-import com.energyict.mdc.device.topology.impl.AbstractPhysicalGatewayReferenceImpl;
-import com.energyict.mdc.device.topology.impl.DataLoggerReferenceImpl;
-import com.energyict.mdc.device.topology.impl.PhysicalGatewayReferenceImpl;
-import com.energyict.mdc.device.topology.impl.TopologyServiceImpl;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
@@ -75,7 +69,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.Checks.is;
-import static com.elster.jupiter.util.conditions.Where.where;
 
 @Path("/devices")
 public class DeviceResource {
@@ -317,7 +310,7 @@ public class DeviceResource {
             if (slaveDeviceInfo.dataLoggerSlaveRegisterInfos != null) {
                 slaveDeviceInfo.dataLoggerSlaveRegisterInfos.stream().map(info -> slaveDataLoggerRegisterPair(slave, info)).forEach((pair) -> registerMap.put(pair.getFirst(), pair.getLast()));
             }
-            topologyService.setDataLogger(slave, dataLogger, slaveDeviceInfo.arrivalDate, channelMap, registerMap);
+            topologyService.setDataLogger(slave, dataLogger, Instant.ofEpochSecond(slaveDeviceInfo.arrivalTimeStamp), channelMap, registerMap);
         }
     }
 
@@ -778,7 +771,7 @@ public class DeviceResource {
         Condition a = Where.where("mRID").likeIgnoreCase(regex)
             .and(Where.where("deviceType.deviceTypePurpose").isEqualTo(DeviceTypePurpose.DATALOGGER_SLAVE));
         // b. that are not linked yet to a data logger
-        Condition b = ListOperator.NOT_IN.contains(topologyService.findAllEffectiveDataLoggerSlaveDevices().asSubQuery(DataLoggerReferenceImpl.Field.ORIGIN.fieldName()), "id");
+        Condition b = ListOperator.NOT_IN.contains(topologyService.findAllEffectiveDataLoggerSlaveDevices().asSubQuery("origin"), "id");
         return a.and(b);
     }
 

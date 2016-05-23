@@ -24,7 +24,7 @@ public class DataLoggerSlaveDeviceInfo {
     public String serialNumber;
     public int yearOfCertification;
     public long version;
-    public Instant arrivalDate;
+    public long arrivalTimeStamp;
 
     public List<DataLoggerSlaveChannelInfo> dataLoggerSlaveChannelInfos;   //mapping slave channel to data logger channel
     public List<DataLoggerSlaveRegisterInfo> dataLoggerSlaveRegisterInfos;   //mapping slave register to data logger register
