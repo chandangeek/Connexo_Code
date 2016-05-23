@@ -20,6 +20,9 @@ public enum TranslationKeys implements TranslationKey {
     PQCOUNTER("ReadingQualityPqCounter", "Pq Counter"),
     SERVICEDISCONNECTSWITCHING("ReadingQualityServiceDisconnectSwitching", "Service Disconnect Switching"),
     POWERFAIL("ReadingQualityPowerFail", "Power Fail"),
+    POWERDOWN("ReadingQualityPowerDown", "Power Down"),
+    POWERUP("ReadingQualityPowerUp", "Power Up"),
+    PHASEFAILURE("ReadingQualityPhaseFailure", "Phase Failure"),
     REVENUEPROTECTION("ReadingQualityRevenueProtection", "Revenue Protection"),
     COVEROPENED("ReadingQualityCoverOpened", "Cover Opened"),
     LOGICALDISCONNECT("ReadingQualityLogicalDisconnect", "Logical Disconnect"),
@@ -44,6 +47,8 @@ public enum TranslationKeys implements TranslationKey {
     CUSTOMERRAD("ReadingQualityCustomerRead", "Customer Read"),
     MANUALREAD("ReadingQualityManualRead", "Manual Read"),
     DSTCHANGEOCCURED("ReadingQualityDstChangeOccurred", "Dst Change Occurred"),
+    CUSTOM_OTHER("ReadingQualityOther", "Other"),
+    CUSTOM_SHORTLONG("ReadingQualityShortLong", "Short long"),
     DATAOUTSIDEEXPECTEDRANGE("ReadingQualityDataOutsideExpectedRange", "Data Outside Expected Range"),
     ERRORCODE("ReadingQualityErrorCode", "Error Code"),
     SUSPECT("ReadingQualitySuspect", "Suspect"),
@@ -65,7 +70,20 @@ public enum TranslationKeys implements TranslationKey {
     DETERMINISTIC("ReadingQualityDeterministic", "Derived - Deterministic"),
     INFERRED("ReadingQualityInferred", "Derived - Inferred"),
     PROJECTEDGENERIC("ReadingQualityProjectedGeneric", "Projected - Generic"),
-    ;
+
+    CATEGORY_VALID("ReadingQualityCategory_VALID", "Valid"),
+    CATEGORY_DIAGNOSTICS("ReadingQualityCategory_DIAGNOSTICS", "Diagnostics"),
+    CATEGORY_POWERQUALITY("ReadingQualityCategory_POWERQUALITY", "Power quality"),
+    CATEGORY_TAMPER("ReadingQualityCategory_TAMPER", "Tamper"),
+    CATEGORY_DATACOLLECTION("ReadingQualityCategory_DATACOLLECTION", "Data collection"),
+    CATEGORY_REASONABILITY("ReadingQualityCategory_REASONABILITY", "Reasonability"),
+    CATEGORY_VALIDATION("ReadingQualityCategory_VALIDATION", "Validation"),
+    CATEGORY_EDITED("ReadingQualityCategory_EDITED", "Edited"),
+    CATEGORY_ESTIMATED("ReadingQualityCategory_ESTIMATED", "Estimated"),
+    CATEGORY_OBSOLETE_OSCILLATORY("ReadingQualityCategory_OBSOLETE_OSCILLATORY", "Oscillatory"),
+    CATEGORY_QUESTIONABLE("ReadingQualityCategory_QUESTIONABLE", "Questionable"),
+    CATEGORY_DERIVED("ReadingQualityCategory_DERIVED", "Derived"),
+    CATEGORY_PROJECTED("ReadingQualityCategory_PROJECTED", "Projected");
 
     private final String key;
     private final String defaultFormat;
