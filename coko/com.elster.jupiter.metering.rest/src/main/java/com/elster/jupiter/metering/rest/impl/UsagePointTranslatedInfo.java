@@ -6,6 +6,7 @@ import java.time.Clock;
 
 public class UsagePointTranslatedInfo extends UsagePointInfo {
     public String displayServiceCategory;
+    public String displayMetrologyConfiguration;
 
     public UsagePointTranslatedInfo(UsagePoint usagePoint, Clock clock) {
         super(usagePoint, clock);
