@@ -38,14 +38,6 @@ Ext.define('Dxp.view.tasks.AddReadingTypesToTaskSetup', {
                     },
                     emptyComponent: {
                         xtype: 'addReadingTypesNoItemsFoundPanel'
-                        //xtype: 'no-items-found-panel',
-                        //margin: '15 0 20 0',
-                        //title: Uni.I18n.translate('validation.readingType.empty.title', 'DES', 'No reading types found.'),
-                        //reasons: [
-                        //    Uni.I18n.translate('validation.readingType.empty.list.item1', 'DES', 'No reading types have been added yet.'),
-                        //    Uni.I18n.translate('validation.readingType.empty.list.item2', 'DES', 'No reading types comply to the filter.'),
-                        //    Uni.I18n.translate('dataExportTasks.readingType.empty.list.item3', 'DES', 'All reading types have already been added to the data export task.')
-                        //]
                     }
                 },
                 {
