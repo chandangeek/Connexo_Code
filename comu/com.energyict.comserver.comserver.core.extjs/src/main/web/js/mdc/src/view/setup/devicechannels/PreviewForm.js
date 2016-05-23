@@ -67,11 +67,11 @@ Ext.define('Mdc.view.setup.devicechannels.PreviewForm', {
                                 },
                                 {
                                     fieldLabel: Uni.I18n.translate('channelConfig.overflowValue', 'MDC', 'Overflow value'),
-                                    name: 'overflowValue'
+                                    name: 'overruledOverflowValue'
                                 },
                                 {
                                     fieldLabel: Uni.I18n.translate('channelConfig.numberOfFractionDigits', 'MDC' ,'Number of fraction digits'),
-                                    name: 'nbrOfFractionDigits'
+                                    name: 'overruledNbrOfFractionDigits'
                                 },
                                 {
                                     fieldLabel: Uni.I18n.translate('channelConfig.useMultiplier', 'MDC', 'Use multiplier'),

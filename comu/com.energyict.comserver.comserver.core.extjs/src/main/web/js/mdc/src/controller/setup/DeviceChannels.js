@@ -38,8 +38,7 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
         {ref: 'overflowContainer', selector: '#mdc-device-channel-edit-form #overflowValue-container'},
         {ref: 'overflowField', selector: '#mdc-device-channel-edit-form #mdc-editOverflowValueField'},
         {ref: 'numberOfFractionDigitsContainer', selector: '#mdc-device-channel-edit-form #fractionDigits-container'},
-        {ref: 'numberOfFractionDigitsField', selector: '#mdc-device-channel-edit-form #mdc-editNumberOfFractionDigitsField'},
-        {ref: 'overflowField', selector: '#mdc-device-channel-edit-form #mdc-editOverflowValueField'}
+        {ref: 'numberOfFractionDigitsField', selector: '#mdc-device-channel-edit-form #mdc-editNumberOfFractionDigitsField'}
 
     ],
 
