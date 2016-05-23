@@ -50,7 +50,7 @@ Ext.define('Imt.channeldata.view.Setup', {
                         title: Uni.I18n.translate('channels.empty.title', 'IMT', 'No channels found'),
                         reasons: [
                             Uni.I18n.translate('channels.empty.list.item1', 'IMT', 'No channels have been defined yet.'),
-                            Uni.I18n.translate('channels.empty.list.item2', 'IMT', 'No channels comply to the filter.')
+                            Uni.I18n.translate('channels.empty.list.item2', 'IMT', 'No channels comply with the filter.')
                         ],
                         margins: '16 0 0 0'
                     },
