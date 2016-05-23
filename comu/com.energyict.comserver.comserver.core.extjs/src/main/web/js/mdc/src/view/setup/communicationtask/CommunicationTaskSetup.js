@@ -46,7 +46,7 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskSetup', {
                             itemId: 'no-communication-task',
                             title: Uni.I18n.translate('communicationtasks.empty.title', 'MDC', 'No communication task configurations found'),
                             reasons: [
-                                Uni.I18n.translate('communicationtasks.empty.list.item1', 'MDC', 'No communication task configurations have been defined yet.'),
+                                Uni.I18n.translate('communicationtasks.empty.list.item1', 'MDC', 'No communication task configurations have been defined yet.')
                             ],
                             stepItems: [
                                 {

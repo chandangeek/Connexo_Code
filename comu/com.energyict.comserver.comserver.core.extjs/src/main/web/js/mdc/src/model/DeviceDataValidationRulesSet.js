@@ -30,16 +30,24 @@ Ext.define('Mdc.model.DeviceDataValidationRulesSet', {
                 if (numberOfVersions === 0 || hasCurrent === false){
                     result = '-';
                 } else if (startDate && endDate) {
-                    result = Ext.String.format(Uni.I18n.translate('validationResults.version.fromx', 'MDC', 'From {0}',[Uni.DateTime.formatDateTimeLong(new Date(startDate))])+ ' - ' +
-                    Uni.I18n.translate('validationResults.version.untilx', 'MDC', 'Until {0}',[Uni.DateTime.formatDateTimeLong(new Date(endDate))]));
+                    result = Uni.I18n.translate('validationResults.version.fromxUntily', 'MDC', 'From {0} - Until {1}',
+                        [Uni.DateTime.formatDateTime(new Date(startDate), Uni.DateTime.LONG, Uni.DateTime.SHORT),
+                         Uni.DateTime.formatDateTime(new Date(endDate), Uni.DateTime.LONG, Uni.DateTime.SHORT)],
+                        false
+                    );
                 } else if (startDate) {
-                    result = Ext.String.format(Uni.I18n.translate('validationResults.version.fromx', 'MDC', 'From {0}'), Uni.DateTime.formatDateTimeLong(new Date(startDate)));
+                    result = Uni.I18n.translate('validationResults.version.fromx', 'MDC', 'From {0}',
+                        Uni.DateTime.formatDateTime(new Date(startDate), Uni.DateTime.LONG, Uni.DateTime.SHORT),
+                        false
+                    );
                 } else if (endDate) {
-                    result = Ext.String.format(Uni.I18n.translate('validationResults.version.untilx', 'MDC', 'Until {0}',[Uni.DateTime.formatDateTimeLong(new Date(endDate))]));
+                    result = Uni.I18n.translate('validationResults.version.untilx', 'MDC', 'Until {0}',
+                        Uni.DateTime.formatDateTime(new Date(endDate), Uni.DateTime.LONG, Uni.DateTime.SHORT),
+                        false
+                    );
                 }else {
                     result = Ext.String.format(Uni.I18n.translate('validationResults.version.notStart', 'MDC', 'Always'))
                 }
-
 				return result;
             }
         }
