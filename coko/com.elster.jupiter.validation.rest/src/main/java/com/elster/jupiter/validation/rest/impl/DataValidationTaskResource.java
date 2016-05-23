@@ -184,7 +184,6 @@ public class DataValidationTaskResource {
     @PUT
     @Path("/{id}/trigger")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @Transactional
     @RolesAllowed({Privileges.Constants.VIEW_VALIDATION_CONFIGURATION, Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
     public Response triggerDataValidationTask(@HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName,
                                               @PathParam("id") long id,
@@ -276,7 +275,7 @@ public class DataValidationTaskResource {
         return meteringGroupsService.findEndDeviceGroup(endDeviceGroupId).orElse(null);
     }
 
-    private MetrologyContract metrologyContract(Object metrologyContractId) {
+    private MetrologyContract metrologyContract(long metrologyContractId) {
         return metrologyConfigurationService.findMetrologyContract(metrologyContractId).orElse(null);
     }
 

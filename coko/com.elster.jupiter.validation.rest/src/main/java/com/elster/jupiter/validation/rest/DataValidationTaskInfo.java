@@ -2,7 +2,7 @@ package com.elster.jupiter.validation.rest;
 
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.rest.util.IdWithNameInfo;
+import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
 import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeService;
@@ -21,9 +21,9 @@ public class DataValidationTaskInfo {
 
     public long id = 0;
     public String name = "blank_name";
-    public MeterGroupInfo deviceGroup;
-    public IdWithNameInfo metrologyConfiguration;
-    public IdWithNameInfo metrologyContract;
+    public IdWithDisplayValueInfo<Long> deviceGroup;
+    public IdWithDisplayValueInfo metrologyConfiguration;
+    public IdWithDisplayValueInfo<Long> metrologyContract;
     public PeriodicalExpressionInfo schedule;
     public DataValidationTaskHistoryInfo lastValidationOccurence;
     public Long nextRun;
@@ -44,13 +44,13 @@ public class DataValidationTaskInfo {
         id = dataValidationTask.getId();
         name = dataValidationTask.getName();
         if (dataValidationTask.getEndDeviceGroup().isPresent()) {
-            deviceGroup = new MeterGroupInfo(dataValidationTask.getEndDeviceGroup().get());
+            deviceGroup = new IdWithDisplayValueInfo<>(dataValidationTask.getEndDeviceGroup().get().getId(), dataValidationTask.getEndDeviceGroup().get().getName());
         }
 
         if (dataValidationTask.getMetrologyContract().isPresent()) {
             MetrologyContract contract = dataValidationTask.getMetrologyContract().get();
-            metrologyContract = new IdWithNameInfo(contract.getId(), contract.getMetrologyPurpose().getName());
-            metrologyConfiguration = new IdWithNameInfo(contract.getMetrologyConfiguration());
+            metrologyContract = new IdWithDisplayValueInfo<>(contract.getId(), contract.getMetrologyPurpose().getName());
+            metrologyConfiguration = new IdWithDisplayValueInfo<>(contract.getMetrologyConfiguration().getId(), contract.getMetrologyConfiguration().getName());
         }
 
         if (Never.NEVER.equals(dataValidationTask.getScheduleExpression())) {

@@ -4,7 +4,8 @@ package com.elster.jupiter.validation.rest.impl;
 
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
-import com.elster.jupiter.rest.util.IdWithNameInfo;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.validation.security.Privileges;
@@ -23,17 +24,18 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Path("/field")
-public class MetrologyConfigurationsAndContractsResource {
-
+public class DeviceGroupAndMetrologyContractResource {
 
     private final MetrologyConfigurationService metrologyConfigurationService;
+    private final MeteringGroupsService meteringGroupsService;
 
     @Inject
-    public MetrologyConfigurationsAndContractsResource(MetrologyConfigurationService metrologyConfigurationService) {
+    public DeviceGroupAndMetrologyContractResource(MetrologyConfigurationService metrologyConfigurationService,
+                                                   MeteringGroupsService meteringGroupsService) {
 
         this.metrologyConfigurationService = metrologyConfigurationService;
+        this.meteringGroupsService = meteringGroupsService;
     }
-
 
     @GET
     @Path("/metrologyconfigurations")
@@ -41,10 +43,10 @@ public class MetrologyConfigurationsAndContractsResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.VIEW_VALIDATION_CONFIGURATION})
     public PagedInfoList getMetrologyConfigurations(@BeanParam JsonQueryParameters queryParameters) {
-        List<IdWithNameInfo> infos = metrologyConfigurationService.findAllMetrologyConfigurations()
+        List<IdWithDisplayValueInfo> infos = metrologyConfigurationService.findAllMetrologyConfigurations()
                 .stream()
                 .filter(metrologyConfiguration -> metrologyConfiguration instanceof UsagePointMetrologyConfiguration)
-                .map(IdWithNameInfo::new)
+                .map(mc -> new IdWithDisplayValueInfo<>(mc.getId(), mc.getName()))
                 .collect(Collectors.toList());
 
         return PagedInfoList.fromCompleteList("metrologyConfigurations", infos, queryParameters);
@@ -56,11 +58,26 @@ public class MetrologyConfigurationsAndContractsResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.VIEW_VALIDATION_CONFIGURATION})
     public PagedInfoList getMetrologyContracts(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters) {
-        List<IdWithNameInfo> infos = metrologyConfigurationService.findMetrologyConfiguration(id).get().getContracts()
+        List<IdWithDisplayValueInfo> infos = metrologyConfigurationService.findMetrologyConfiguration(id).get().getContracts()
                 .stream()
-                .map(mc -> new IdWithNameInfo(mc.getId(), mc.getMetrologyPurpose().getName()))
+                .map(mc -> new IdWithDisplayValueInfo<>(mc.getId(), mc.getMetrologyPurpose().getName()))
                 .collect(Collectors.toList());
 
         return PagedInfoList.fromCompleteList("metrologyContracts", infos, queryParameters);
+    }
+
+    @GET
+    @Path("/metergroups")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.VIEW_VALIDATION_CONFIGURATION,
+            Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE, Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
+    public PagedInfoList getDeviceGroups(@BeanParam JsonQueryParameters queryParameters) {
+        List<IdWithDisplayValueInfo> infos = meteringGroupsService.findEndDeviceGroups()
+                .stream()
+                .map(deviceGroup -> new IdWithDisplayValueInfo<>(deviceGroup.getId(), deviceGroup.getName()))
+                .collect(Collectors.toList());
+
+        return PagedInfoList.fromCompleteList("devicegroups", infos, queryParameters);
     }
 }

@@ -23,6 +23,7 @@ import org.mockito.Mock;
 
 import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.validation.DataValidationOccurrence;
@@ -80,8 +81,8 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
     @Test
     public void getCreateTasksTest() {
         DataValidationTaskInfo info = new DataValidationTaskInfo(dataValidationTask1, thesaurus, timeService);
-        info.deviceGroup = new MeterGroupInfo();
-        info.deviceGroup.id = 1;
+        info.deviceGroup = new IdWithDisplayValueInfo();
+        info.deviceGroup.id = 1L;
         Entity<DataValidationTaskInfo> json = Entity.json(info);
 
         Response response = target("/validationtasks").request().header(HEADER_NAME, MULTISENSE_KEY).post(json);
@@ -93,9 +94,9 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
     public void getCreateTasksMetrologyContractTest() {
         DataValidationTaskInfo info = new DataValidationTaskInfo(dataValidationTask1, thesaurus, timeService);
         info.deviceGroup = null;
-        info.metrologyContract = new IdWithNameInfo();
-        info.metrologyConfiguration = new IdWithNameInfo();
-        info.metrologyContract.id = 1;
+        info.metrologyContract = new IdWithDisplayValueInfo();
+        info.metrologyConfiguration = new IdWithDisplayValueInfo();
+        info.metrologyContract.id = 1L;
         info.metrologyConfiguration.id = 1;
         Entity<DataValidationTaskInfo> json = Entity.json(info);
 
@@ -108,8 +109,8 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
     public void updateTasksTest() {
         DataValidationTaskInfo info = new DataValidationTaskInfo(dataValidationTask1, thesaurus, timeService);
         info.id = TASK_ID;
-        info.deviceGroup = new MeterGroupInfo();
-        info.deviceGroup.id = 1;
+        info.deviceGroup = new IdWithDisplayValueInfo();
+        info.deviceGroup.id = 1L;
 
         Entity<DataValidationTaskInfo> json = Entity.json(info);
         Response response = target("/validationtasks/" + TASK_ID).request().header(HEADER_NAME, MULTISENSE_KEY).put(json);
@@ -121,9 +122,9 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
         DataValidationTaskInfo info = new DataValidationTaskInfo(mockDataValidationTask(TASK_ID, INSIGHT_KEY), thesaurus, timeService);
         info.id = TASK_ID;
         info.deviceGroup = null;
-        info.metrologyContract = new IdWithNameInfo();
-        info.metrologyConfiguration = new IdWithNameInfo();
-        info.metrologyContract.id = 1;
+        info.metrologyContract = new IdWithDisplayValueInfo();
+        info.metrologyConfiguration = new IdWithDisplayValueInfo();
+        info.metrologyContract.id = 1L;
         info.metrologyConfiguration.id = 1;
 
         Entity<DataValidationTaskInfo> json = Entity.json(info);
@@ -135,8 +136,8 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
     public void updateTasksTestBadVersion() {
         DataValidationTaskInfo info = new DataValidationTaskInfo(dataValidationTask1, thesaurus, timeService);
         info.id = TASK_ID;
-        info.deviceGroup = new MeterGroupInfo();
-        info.deviceGroup.id = 1;
+        info.deviceGroup = new IdWithDisplayValueInfo();
+        info.deviceGroup.id = 1L;
         info.version = BAD_VERSION;
 
         Entity<DataValidationTaskInfo> json = Entity.json(info);
@@ -149,9 +150,9 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
         DataValidationTaskInfo info = new DataValidationTaskInfo(dataValidationTask1, thesaurus, timeService);
         info.id = TASK_ID;
         info.deviceGroup = null;
-        info.metrologyContract = new IdWithNameInfo();
-        info.metrologyConfiguration = new IdWithNameInfo();
-        info.metrologyContract.id = 1;
+        info.metrologyContract = new IdWithDisplayValueInfo();
+        info.metrologyConfiguration = new IdWithDisplayValueInfo();
+        info.metrologyContract.id = 1L;
         info.metrologyConfiguration.id = 1;
         info.version = BAD_VERSION;
 
@@ -164,8 +165,8 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
     public void deleteTasksTestBadVersion() {
         DataValidationTaskInfo info = new DataValidationTaskInfo(dataValidationTask1, thesaurus, timeService);
         info.id = TASK_ID;
-        info.deviceGroup = new MeterGroupInfo();
-        info.deviceGroup.id = 1;
+        info.deviceGroup = new IdWithDisplayValueInfo();
+        info.deviceGroup.id = 1L;
         info.version = BAD_VERSION;
 
         Entity<DataValidationTaskInfo> json = Entity.json(info);

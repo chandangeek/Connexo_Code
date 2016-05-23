@@ -1,6 +1,5 @@
 package com.elster.jupiter.validation.rest.impl;
 
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
@@ -9,7 +8,6 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.elster.jupiter.rest.util.BinderProvider;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.time.TimeService;
@@ -32,7 +30,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
-import org.glassfish.hk2.utilities.Binder;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -59,8 +56,7 @@ public class ValidationApplication extends Application implements TranslationKey
         return ImmutableSet.<Class<?>> of(
                 ValidationResource.class,
                 DataValidationTaskResource.class,
-                MeterGroupsResource.class,
-                MetrologyConfigurationsAndContractsResource.class);
+                DeviceGroupAndMetrologyContractResource.class);
     }
 
     @Override
