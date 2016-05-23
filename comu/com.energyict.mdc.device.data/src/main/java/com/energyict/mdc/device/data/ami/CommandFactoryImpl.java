@@ -77,7 +77,7 @@ public class CommandFactoryImpl implements CommandFactory {
 
     @Activate
     public void activate() {
-        System.out.println("HeadEnd CommandFactory activating");
+        System.out.println("Head End CommandFactory activating");
     }
 
 
