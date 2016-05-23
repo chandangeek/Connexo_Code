@@ -6,32 +6,21 @@ import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleSet;
-import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.ReadingQualityRecord;
-import com.elster.jupiter.metering.ReadingQualityType;
-import com.elster.jupiter.metering.ReadingRecord;
-import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
-import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
-import com.energyict.mdc.device.data.BillingReading;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceValidation;
-import com.energyict.mdc.device.data.NumericalReading;
-import com.energyict.mdc.device.data.NumericalRegister;
-import com.energyict.mdc.device.data.Register;
-import com.energyict.mdc.device.data.RegisterDataUpdater;
+import com.energyict.mdc.device.data.*;
 import com.energyict.mdc.masterdata.RegisterType;
-
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -42,22 +31,14 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTest {
 
@@ -110,11 +91,8 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
 
         BillingReading billingReading = mockBillingReading(actualReading1);
         when(actualReading1.edited()).thenReturn(true);
-        ReadingQuality quality = mock(ReadingQuality.class);
-        when(quality.getType()).thenReturn(new ReadingQualityType("2.7.1"));
-        List qualities = new ArrayList<>();
-        qualities.add(quality);
-        when(actualReading1.getReadingQualities()).thenReturn(qualities);
+
+        doReturn(Arrays.asList(mockReadingQuality("2.7.1"))).when(actualReading1).getReadingQualities();
         when(billingReading.getValidationStatus()).thenReturn(Optional.of(dataValidationStatus));
 
         NumericalReading numericalReading = mockNumericalReading(actualReading2);
@@ -123,9 +101,9 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         NumericalReading numericalReadingConfirmed = mockNumericalReading(actualReading3);
         when(numericalReadingConfirmed.getValidationStatus()).thenReturn(Optional.of(dataValidationStatus));
         when(actualReading3.confirmed()).thenReturn(true);
-        ReadingQualityRecord readingQualityEdited = mockReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.EDITGENERIC));
+        ReadingQualityRecord readingQualityEdited = mockReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.EDITGENERIC).getCode());
         doReturn(Arrays.asList(readingQualityEdited)).when(actualReading2).getReadingQualities();
-        ReadingQualityRecord readingQualityConfirmed = mockReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.ACCEPTED));
+        ReadingQualityRecord readingQualityConfirmed = mockReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.ACCEPTED).getCode());
         doReturn(Arrays.asList(readingQualityConfirmed)).when(actualReading3).getReadingQualities();
 
         when(register.getReadings(any(Interval.class))).thenReturn(Arrays.asList(billingReading, numericalReading, numericalReadingConfirmed));
@@ -139,7 +117,7 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
 
         EstimationRule estimationRule = mock(EstimationRule.class);
         ReadingQualityType readingQualityType = ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.ESTIMATED, (int) estimationRule.getId());
-        ReadingQualityRecord readingQualityEstimated = mockReadingQuality(readingQualityType);
+        ReadingQualityRecord readingQualityEstimated = mockReadingQuality(readingQualityType.getCode());
         when(readingQualityEstimated.hasEstimatedCategory()).thenReturn(true);
         when(estimationRule.getId()).thenReturn(13L);
         EstimationRuleSet estimationRuleSet = mock(EstimationRuleSet.class);
@@ -150,10 +128,12 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         doReturn(Arrays.asList(readingQualityEstimated, readingQualityConfirmed)).when(dataValidationStatus).getReadingQualities();
     }
 
-    private ReadingQualityRecord mockReadingQuality(ReadingQualityType readingQualityType) {
-        ReadingQualityRecord readingQualityRecord = mock(ReadingQualityRecord.class);
-        when(readingQualityRecord.getType()).thenReturn(readingQualityType);
-        return readingQualityRecord;
+    private ReadingQualityRecord mockReadingQuality(String code) {
+        ReadingQualityRecord readingQuality = mock(ReadingQualityRecord.class);
+        ReadingQualityType readingQualityType = new ReadingQualityType(code);
+        when(readingQuality.getType()).thenReturn(readingQualityType);
+        when(readingQuality.isActual()).thenReturn(true);
+        return readingQuality;
     }
 
     private NumericalReading mockNumericalReading(ReadingRecord actualReading) {
@@ -204,13 +184,27 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         assertThat(jsonModel.<Number>get("$.data[0].estimatedByRule.ruleSetId")).isEqualTo(15);
         assertThat(jsonModel.<String>get("$.data[0].estimatedByRule.name")).isEqualTo("EstimationRule");
         assertThat(jsonModel.<List<?>>get("$.data[0].estimatedByRule.properties")).isEmpty();
+        assertThat(jsonModel.<List<?>>get("$.data[0].readingQualities")).hasSize(1);
+        assertThat(jsonModel.<String>get("$.data[0].readingQualities[0].cimCode")).isEqualTo("2.7.1");
+        assertThat(jsonModel.<String>get("$.data[0].readingQualities[0].indexName")).isEqualTo("Manually Added");
+        assertThat(jsonModel.<String>get("$.data[0].readingQualities[0].categoryName")).isEqualTo("Edited");
+
         assertThat(jsonModel.<String>get("$.data[1].type")).isEqualTo("numerical");
         assertThat(jsonModel.<String>get("$.data[1].modificationFlag")).isEqualTo("EDITED");
         assertThat(jsonModel.<Number>get("$.data[1].estimatedByRule.id")).isEqualTo(13);
         assertThat(jsonModel.<Number>get("$.data[1].estimatedByRule.ruleSetId")).isEqualTo(15);
         assertThat(jsonModel.<String>get("$.data[1].estimatedByRule.name")).isEqualTo("EstimationRule");
+        assertThat(jsonModel.<List<?>>get("$.data[1].readingQualities")).hasSize(1);
+        assertThat(jsonModel.<String>get("$.data[1].readingQualities[0].cimCode")).isEqualTo("2.7.0");
+        assertThat(jsonModel.<String>get("$.data[1].readingQualities[0].indexName")).isEqualTo("Manually Edited - Generic");
+        assertThat(jsonModel.<String>get("$.data[1].readingQualities[0].categoryName")).isEqualTo("Edited");
+
         assertThat(jsonModel.<List<?>>get("$.data[1].estimatedByRule.properties")).isEmpty();
         assertThat(jsonModel.<Boolean>get("$.data[2].isConfirmed")).isEqualTo(true);
+        assertThat(jsonModel.<List<?>>get("$.data[2].readingQualities")).hasSize(1);
+        assertThat(jsonModel.<String>get("$.data[2].readingQualities[0].cimCode")).isEqualTo("2.10.1");
+        assertThat(jsonModel.<String>get("$.data[2].readingQualities[0].indexName")).isEqualTo("Manually Accepted");
+        assertThat(jsonModel.<String>get("$.data[2].readingQualities[0].categoryName")).isEqualTo("Questionable");
     }
 
     @Test
