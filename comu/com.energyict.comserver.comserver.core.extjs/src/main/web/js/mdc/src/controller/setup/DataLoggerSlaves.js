@@ -607,7 +607,10 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
         // TODO: Validate the given arrival date
 
         me.wizardInformation.arrivalDate = dateField.getValue();
-        me.wizardInformation.dataLogger.get('dataLoggerSlaveDevices')[0]["arrivalDate"] = me.wizardInformation.arrivalDate;
+        Ext.Array.forEach(me.wizardInformation.dataLogger.get('dataLoggerSlaveDevices'), function(dataLoggerSlaveDeviceRecord){
+            dataLoggerSlaveDeviceRecord["arrivalTimeStamp"] =   me.wizardInformation.arrivalDate.getTime()/1000;
+        }, me);
+
         endMethod();
     },
 
