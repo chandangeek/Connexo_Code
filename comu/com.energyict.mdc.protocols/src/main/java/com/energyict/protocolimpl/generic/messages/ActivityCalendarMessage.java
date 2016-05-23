@@ -64,13 +64,15 @@ public class ActivityCalendarMessage {
         try {
             DayProfiles dayProfile = new DayProfiles();
             Array daySchedules = new Array();
+            boolean first = true;
             DayProfileActions fromMidnightToFirst = null;   // We may not need it if the first occurrence starts at midnight
             EventOccurrence lastEventOccurrence = null;
             for (EventOccurrence eventOccurrence : dayType.getEventOccurrences()) {
-                if (!eventOccurrence.getFrom().equals(LocalTime.MIDNIGHT)) {
-                    /* First entry does not start at midngiht,
+                if (first && !eventOccurrence.getFrom().equals(LocalTime.MIDNIGHT)) {
+                    /* First entry does not start at midnight,
                      * add an additional one that will get the same code
                      * as the last event occurrence. */
+                    first = false;
                     fromMidnightToFirst = this.newAction(LocalTime.MIDNIGHT);
                     daySchedules.addDataType(fromMidnightToFirst);
                 }
