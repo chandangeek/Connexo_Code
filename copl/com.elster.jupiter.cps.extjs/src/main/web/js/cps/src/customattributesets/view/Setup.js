@@ -31,7 +31,7 @@ Ext.define('Cps.customattributesets.view.Setup', {
                             title: Uni.I18n.translate('customattributesets.noItems', 'CPS', 'No custom attribute sets found'),
                             reasons: [
                                 Uni.I18n.translate('customattributesets.empty.list.item1', 'CPS', 'No custom attribute sets defined yet.'),
-                                Uni.I18n.translate('customattributesets.empty.list.item2', 'CPS', 'The filter is too narrow.')
+                                Uni.I18n.translate('customattributesets.empty.list.item2', 'CPS', 'No custom attribute sets comply with the filter.')
                             ]
                         },
                         previewComponent: {
