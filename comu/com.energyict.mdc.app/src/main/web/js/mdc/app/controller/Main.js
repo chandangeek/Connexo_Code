@@ -62,7 +62,8 @@ Ext.define('MdcApp.controller.Main', {
         Bpm.privileges.BpmManagement.all(),
         Dbp.privileges.DeviceProcesses.all(),
         Mdc.privileges.UsagePoint.all(),
-        Scs.privileges.ServiceCall.all()
+        Scs.privileges.ServiceCall.all(),
+        Mdc.privileges.Monitor.all()
 
     ),
     controllers: [
