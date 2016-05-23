@@ -2,7 +2,8 @@ Ext.define('Uni.view.search.field.DateTime', {
     extend: 'Uni.view.search.field.internal.Criteria',
     xtype: 'uni-search-criteria-datetime',
     requires: [
-        'Uni.view.search.field.internal.CriteriaLine'
+        'Uni.view.search.field.internal.CriteriaLine',
+        'Uni.form.field.DateTime'
     ],
     text: Uni.I18n.translate('search.field.dateTime.text', 'UNI', 'DateTime'),
     defaults: {
@@ -36,7 +37,7 @@ Ext.define('Uni.view.search.field.DateTime', {
         return Ext.apply({
             xtype: 'uni-search-internal-criterialine',
             width: '455',
-            operator: '==',
+            operator: 'BETWEEN',
             removable: false,
             operatorMap: {
                 '==': 'uni-search-internal-datetimefield',

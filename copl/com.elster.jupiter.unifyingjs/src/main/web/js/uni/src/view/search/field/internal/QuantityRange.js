@@ -57,7 +57,7 @@ Ext.define('Uni.view.search.field.internal.QuantityRange', {
     reset: function() {
         Ext.suspendLayouts();
         this.items.each(function(item){
-            if (item.isFormField) {
+            if (item.xtype === 'uni-search-internal-numberfield' || item.xtype === 'combobox') {
                 item.reset();
             }
         });
@@ -93,7 +93,6 @@ Ext.define('Uni.view.search.field.internal.QuantityRange', {
             {
                 xtype: 'label',
                 itemId: 'label',
-                hidden: this.hideTime,
                 text: Uni.I18n.translate('general.and', 'UNI', 'And').toLowerCase(),
                 padding: 5,
                 margin: 0

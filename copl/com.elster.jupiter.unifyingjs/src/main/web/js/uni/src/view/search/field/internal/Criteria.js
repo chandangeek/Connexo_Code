@@ -36,7 +36,7 @@ Ext.define('Uni.view.search.field.internal.Criteria', {
             this.items.filterBy(function (item) {
                 return Ext.isFunction(item.setValue);
             }).each(function (item, index) {
-                item.setValue(value[index]);
+                item.setValue(!Ext.isEmpty(value) ? value[index] : null);
             });
         } else {
             this.reset();
