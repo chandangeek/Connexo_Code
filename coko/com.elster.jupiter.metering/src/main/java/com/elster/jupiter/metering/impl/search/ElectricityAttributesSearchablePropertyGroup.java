@@ -1,11 +1,11 @@
 package com.elster.jupiter.metering.impl.search;
 
+import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.search.SearchablePropertyGroup;
 
 import javax.inject.Inject;
 
-public class ElectricityAttributesSearchablePropertyGroup implements SearchablePropertyGroup {
+public class ElectricityAttributesSearchablePropertyGroup extends ServiceKindAwareSearchablePropertyGroup {
 
     static final String GROUP_NAME = "serviceKind.electricity";
 
@@ -24,5 +24,10 @@ public class ElectricityAttributesSearchablePropertyGroup implements SearchableP
     @Override
     public String getDisplayName() {
         return PropertyTranslationKeys.USAGEPOINT_GROUP_ELECTRICITY.getDisplayName(thesaurus);
+    }
+
+    @Override
+    public ServiceKind getServiceKind() {
+        return ServiceKind.ELECTRICITY;
     }
 }

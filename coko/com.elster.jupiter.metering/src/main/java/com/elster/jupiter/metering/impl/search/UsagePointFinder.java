@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.impl.search;
 
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
@@ -26,10 +27,10 @@ public class UsagePointFinder implements Finder<UsagePoint> {
 
     UsagePointFinder(ServerMeteringService meteringService, List<SearchablePropertyCondition> conditions) {
         this.meteringService = meteringService;
-        this.finder = DefaultFinder
-                .of(UsagePoint.class, toCondition(conditions), meteringService.getDataModel(),
-                        EffectiveMetrologyConfigurationOnUsagePoint.class, MetrologyConfiguration.class, UsagePointDetail.class)
-                .defaultSortColumn("mRID");
+            this.finder = DefaultFinder
+                    .of(UsagePoint.class, toCondition(conditions), meteringService.getDataModel(),
+                            EffectiveMetrologyConfigurationOnUsagePoint.class, MetrologyConfiguration.class, UsagePointDetail.class, ServiceCategory.class)
+                    .defaultSortColumn("mRID");
     }
 
     private Condition toCondition(List<SearchablePropertyCondition> conditions) {
