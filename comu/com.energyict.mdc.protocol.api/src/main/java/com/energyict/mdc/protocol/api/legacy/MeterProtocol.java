@@ -5,6 +5,7 @@ import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.protocol.api.device.data.BreakerStatus;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.legacy.dynamic.Pluggable;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceDescriptionSupport;
@@ -13,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Date;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
@@ -171,6 +173,18 @@ public interface MeterProtocol extends Pluggable, CachingProtocol, DeviceDescrip
      * @throws UnsupportedException Thrown if method is not supported
      */
     String getFirmwareVersion() throws IOException;
+
+    /**
+     * Gets the current status of the breaker<br/>
+     * Note: if the {@link MeterProtocol} doesn't support breaker functionality (e.g. the device is
+     * not equipped with a breaker), then {@link Optional#empty()} should be returned.
+     *
+     * @return the current status of the breaker
+     * @throws IOException Thrown in case of an exception
+     */
+    default Optional<BreakerStatus> getBreakerStatus() throws IOException {
+        return Optional.empty();
+    }
 
     /**
      * <p>

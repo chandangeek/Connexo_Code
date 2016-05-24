@@ -1,9 +1,12 @@
 package com.energyict.mdc.protocol.api.device.messages;
 
 import aQute.bnd.annotation.ProviderType;
+
+import com.energyict.mdc.protocol.api.calendars.ProtocolSupportedCalendarOptions;
 import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
+import javax.swing.text.html.Option;
 import java.util.List;
 import java.util.Optional;
 
@@ -55,6 +58,8 @@ public interface DeviceMessageSpecificationService {
     public Optional<DeviceMessageSpec> findMessageSpecById(long messageSpecIdDbValue);
 
     public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOptionFor(DeviceMessageId deviceMessageId);
+
+    Optional<ProtocolSupportedCalendarOptions> getProtocolSupportedCalendarOptionsFor(DeviceMessageId deviceMessageId);
 
     public DeviceMessageCategory getFirmwareCategory();
 }
