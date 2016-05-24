@@ -78,7 +78,7 @@ Ext.define('Imt.usagepointmanagement.model.UsagePoint', {
         {name: 'serviceDeliveryRemark', type: 'string'},
         {name: 'techInfo', type: 'auto', defaultValue: {}},
         {name: 'metrologyConfiguration', type: 'auto', defaultValue: null},
-        {name: 'meterActivations', type: 'auto'},
+        {name: 'meterActivations', type: 'auto', defaultValue: null},
         {
             name: 'metrologyConfiguration_id',
             persist: false,
