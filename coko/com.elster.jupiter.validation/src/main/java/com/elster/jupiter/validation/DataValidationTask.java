@@ -1,8 +1,9 @@
 package com.elster.jupiter.validation;
 
 import aQute.bnd.annotation.ProviderType;
+
+import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.orm.HasAuditInfo;
 import com.elster.jupiter.orm.History;
 import com.elster.jupiter.util.time.ScheduleExpression;
@@ -30,13 +31,15 @@ public interface DataValidationTask extends HasAuditInfo {
 
     void setName(String name);
 
+    String getApplication();
+
     Optional<EndDeviceGroup> getEndDeviceGroup();
 
-    Optional<UsagePointGroup> getUsagePointGroup();
+    Optional<MetrologyContract> getMetrologyContract();
 
     void setEndDeviceGroup(EndDeviceGroup endDeviceGroup);
 
-    void setUsagePointGroup(UsagePointGroup usagePointGroup);
+    void setMetrologyContract(MetrologyContract metrologyContract);
 
     long getId();
 
@@ -69,3 +72,4 @@ public interface DataValidationTask extends HasAuditInfo {
     void updateLastRun(Instant triggerTime);
 
 }
+
