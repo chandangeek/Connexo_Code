@@ -470,7 +470,7 @@ Ext.define('Fwc.controller.Firmware', {
         form.getRecord().save({
             backUrl: backUrl,
             success: function () {
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('firmware.options.save.success', 'FWC', 'Firmware management options saved'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('firmware.specs.save.success', 'FWC', 'Firmware management specifications saved'));
                 window.location.href = backUrl;
             },
             failure: function (record, operation) {
