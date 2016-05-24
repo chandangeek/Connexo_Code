@@ -11,6 +11,7 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
@@ -135,18 +136,19 @@ public class ConsoleCommands {
         }
     }
 
-    public void assignValRuleSetToMetrologyConfig(String metrologyConfigName, String ruleSetName) {
+    @Descriptor("Add validation rule set to metrology contract")
+    public void addValidationRuleSetToMetrologyContract(@Descriptor("Metrology contract id") long metrologyContractId, @Descriptor("Validation rule set id") long ruleSetId) {
         try {
             transactionService.builder()
                     .principal(() -> "console")
                     .run(() -> {
-                        MetrologyConfiguration metrologyConfiguration = metrologyConfigurationService
-                                .findMetrologyConfiguration(metrologyConfigName)
-                                .orElseThrow(() -> new IllegalArgumentException("Metrology configuration " + metrologyConfigName + " not found."));
+                        MetrologyContract metrologyContract = metrologyConfigurationService
+                                .findMetrologyContract(1L)
+                                .orElseThrow(() -> new IllegalArgumentException("Metrology contract with id " + metrologyContractId + " not found."));
                         ValidationRuleSet validationRuleSet = validationService
-                                .getValidationRuleSet(ruleSetName)
-                                .orElseThrow(() -> new IllegalArgumentException("Rule set " + ruleSetName + " not found."));
-                        usagePointConfigurationService.addValidationRuleSet(metrologyConfiguration, validationRuleSet);
+                                .getValidationRuleSet(ruleSetId)
+                                .orElseThrow(() -> new IllegalArgumentException("Rule set with id " + ruleSetId + " not found."));
+                        usagePointConfigurationService.addValidationRuleSet(metrologyContract, validationRuleSet);
                     });
         } catch (Exception e) {
             e.printStackTrace();

@@ -3,9 +3,23 @@ package com.elster.jupiter.mdm.usagepoint.config.impl;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.ConstantNode;
+import com.elster.jupiter.metering.config.ExpressionNode;
+import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
+import com.elster.jupiter.metering.config.FunctionCallNode;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.NullNode;
+import com.elster.jupiter.metering.config.OperationNode;
+import com.elster.jupiter.metering.config.PartiallySpecifiedReadingTypeRequirement;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverableNode;
+import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.metering.config.ReadingTypeRequirementNode;
+import com.elster.jupiter.metering.config.ReadingTypeTemplate;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -15,7 +29,10 @@ import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.validation.ValidationRuleSetVersion;
 import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.ValidationVersionStatus;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -25,6 +42,7 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.time.Clock;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -149,12 +167,6 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     }
 
     @Override
-    public Boolean unlink(UsagePoint usagePoint, MetrologyConfiguration mc) {
-        usagePoint.removeMetrologyConfiguration(this.clock.instant());
-        return Boolean.TRUE;
-    }
-
-    @Override
     public Optional<MetrologyConfiguration> findMetrologyConfigurationForUsagePoint(UsagePoint usagePoint) {
         return usagePoint.getMetrologyConfiguration();
     }
@@ -165,47 +177,133 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     }
 
     @Override
-    public List<MetrologyConfiguration> findMetrologyConfigurationsForValidationRuleSet(ValidationRuleSet rs) {
-        return this.getDataModel()
-                .query(MetrologyConfigurationValidationRuleSetUsage.class)
-                .select(where("validationRuleSet").isEqualTo(rs))
+    public void addValidationRuleSet(MetrologyContract metrologyContract, ValidationRuleSet validationRuleSet) {
+        this.dataModel
+                .getInstance(MetrologyContractValidationRuleSetUsageImpl.class)
+                .initAndSave(metrologyContract, validationRuleSet);
+        metrologyContract.save();
+    }
+
+    @Override
+    public void removeValidationRuleSet(MetrologyContract metrologyContract, ValidationRuleSet validationRuleSet) {
+        this.dataModel
+                .mapper(MetrologyContractValidationRuleSetUsage.class)
+                .getUnique(MetrologyContractValidationRuleSetUsageImpl.Fields.METROLOGY_CONTRACT.fieldName(), metrologyContract,
+                        MetrologyContractValidationRuleSetUsageImpl.Fields.VALIDATION_RULE_SET.fieldName(), validationRuleSet)
+                .ifPresent(metrologyContractValidationRuleSetUsage -> dataModel.remove(metrologyContractValidationRuleSetUsage));
+        metrologyContract.save();
+    }
+
+    @Override
+    public List<ValidationRuleSet> getValidationRuleSets(MetrologyContract metrologyContract) {
+        Condition condition = where(MetrologyContractValidationRuleSetUsageImpl.Fields.METROLOGY_CONTRACT.fieldName())
+                .isEqualTo(metrologyContract);
+        return this.dataModel
+                .query(MetrologyContractValidationRuleSetUsage.class)
+                .select(condition)
                 .stream()
-                .map(MetrologyConfigurationValidationRuleSetUsage::getMetrologyConfiguration)
+                .map(MetrologyContractValidationRuleSetUsage::getValidationRuleSet)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public void addValidationRuleSet(MetrologyConfiguration metrologyConfiguration, ValidationRuleSet validationRuleSet) {
-        this.dataModel
-                .getInstance(MetrologyConfigurationValidationRuleSetUsageImpl.class)
-                .initAndSave(metrologyConfiguration, validationRuleSet, this.clock.instant());
+    public boolean isLinkableValidationRuleSet(MetrologyContract metrologyContract, ValidationRuleSet validationRuleSet, List<ValidationRuleSet> linkedValidationRuleSets) {
+        if (linkedValidationRuleSets.contains(validationRuleSet)) {
+            return false;
+        }
+        if (!validationRuleSet.getRuleSetVersions().isEmpty()) {
+            ValidationRuleSetVersion activeRuleSetVersion = validationRuleSet.getRuleSetVersions()
+                    .stream()
+                    .filter(validationRuleSetVersion -> validationRuleSetVersion.getStatus() == ValidationVersionStatus.CURRENT)
+                    .findFirst()
+                    .get();
+            if (!activeRuleSetVersion.getRules().isEmpty()) {
+                List<ReadingType> ruleSetReadingTypes = activeRuleSetVersion
+                        .getRules()
+                        .stream()
+                        .flatMap(rule -> rule.getReadingTypes().stream())
+                        .collect(Collectors.toList());
+                List<String> ruleSetReadingTypeMRIDs = ruleSetReadingTypes
+                        .stream()
+                        .map(ReadingType::getMRID)
+                        .collect(Collectors.toList());
+                if (!metrologyContract.getDeliverables().isEmpty()) {
+                    List<String> deliverableReadingTypeMRIDs = metrologyContract.getDeliverables()
+                            .stream()
+                            .map(readingTypeDeliverable -> readingTypeDeliverable.getReadingType().getMRID())
+                            .collect(Collectors.toList());
+                    if (deliverableReadingTypeMRIDs.stream().anyMatch(ruleSetReadingTypeMRIDs::contains)) {
+                        return true;
+                    } else {
+                        List<ReadingTypeRequirement> readingTypeRequirements = metrologyContract.getDeliverables()
+                                .stream()
+                                .flatMap(deliverable -> getReadingTypeRequirementsOfDeliverable(deliverable).stream())
+                                .collect(Collectors.toList());
+                        for (ReadingTypeRequirement readingTypeRequirement: readingTypeRequirements) {
+                            if (readingTypeRequirement instanceof FullySpecifiedReadingTypeRequirement && ruleSetReadingTypes.contains(((FullySpecifiedReadingTypeRequirement) readingTypeRequirement).getReadingType())) {
+                                return true;
+                            } else if (readingTypeRequirement instanceof PartiallySpecifiedReadingTypeRequirement) {
+                                ReadingTypeTemplate readingTypeTemplate = ((PartiallySpecifiedReadingTypeRequirement) readingTypeRequirement).getReadingTypeTemplate();
+                                return ruleSetReadingTypes.stream().anyMatch(readingTypeTemplate::matches);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return false;
     }
 
-    @Override
-    public void removeValidationRuleSet(MetrologyConfiguration metrologyConfiguration, ValidationRuleSet validationRuleSet) {
-        List<MetrologyConfigurationValidationRuleSetUsage> atMostOneUsage =
-                this.dataModel
-                        .mapper(MetrologyConfigurationValidationRuleSetUsage.class)
-                        .find(
-                                MetrologyConfigurationValidationRuleSetUsageImpl.Fields.METROLOGY_CONFIGURATION.fieldName(), metrologyConfiguration,
-                                MetrologyConfigurationValidationRuleSetUsageImpl.Fields.VALIDATION_RULE_SET.fieldName(), validationRuleSet);
-        if (atMostOneUsage.isEmpty()) {
-            return; // ValidationRuletSet was not added to MetrologyConfiguration before
-        } else {
-            // There can be only 1 because of the primary key
-            atMostOneUsage.get(0).close(this.clock.instant());
+    private List<ReadingTypeRequirement> getReadingTypeRequirementsOfDeliverable(ReadingTypeDeliverable readingTypeDeliverable) {
+        ReadingTypeVisitor readingTypeVisitor = new ReadingTypeVisitor();
+        readingTypeDeliverable.getFormula().getExpressionNode().accept(readingTypeVisitor);
+        return readingTypeVisitor.readingTypeRequirementNodes
+                .stream()
+                .map(ReadingTypeRequirementNode::getReadingTypeRequirement)
+                .collect(Collectors.toList());
+    }
+
+    private class ReadingTypeVisitor implements ExpressionNode.Visitor<Void> {
+
+        private List<ReadingTypeRequirementNode> readingTypeRequirementNodes = new ArrayList<>();
+
+
+        @Override
+        public Void visitConstant(ConstantNode constant) {
+            constant.getChildren().forEach(n -> n.accept(this));
+            return null;
+        }
+
+        @Override
+        public Void visitRequirement(ReadingTypeRequirementNode requirement) {
+            readingTypeRequirementNodes.add(requirement);
+            requirement.getChildren().forEach(n -> n.accept(this));
+            return null;
+        }
+
+        @Override
+        public Void visitDeliverable(ReadingTypeDeliverableNode deliverable) {
+            deliverable.getChildren().forEach(n -> n.accept(this));
+            return null;
+        }
+
+        @Override
+        public Void visitOperation(OperationNode operationNode) {
+            operationNode.getChildren().forEach(n -> n.accept(this));
+            return null;
+        }
+
+        @Override
+        public Void visitFunctionCall(FunctionCallNode functionCall) {
+            functionCall.getChildren().forEach(n -> n.accept(this));
+            return null;
+        }
+
+        @Override
+        public Void visitNull(NullNode nullNode) {
+            nullNode.getChildren().forEach(n -> n.accept(this));
+            return null;
         }
     }
 
-    @Override
-    public List<ValidationRuleSet> getValidationRuleSets(MetrologyConfiguration metrologyConfiguration) {
-        Condition condition = where(MetrologyConfigurationValidationRuleSetUsageImpl.Fields.INTERVAL.fieldName()).isEffective()
-                .and(where(MetrologyConfigurationValidationRuleSetUsageImpl.Fields.METROLOGY_CONFIGURATION.fieldName()).isEqualTo(metrologyConfiguration));
-        return this.dataModel
-                .query(MetrologyConfigurationValidationRuleSetUsage.class)
-                .select(condition)
-                .stream()
-                .map(MetrologyConfigurationValidationRuleSetUsage::getValidationRuleSet)
-                .collect(Collectors.toList());
-    }
 }
