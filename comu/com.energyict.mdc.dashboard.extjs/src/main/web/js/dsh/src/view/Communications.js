@@ -32,7 +32,7 @@ Ext.define('Dsh.view.Communications', {
                 title: Uni.I18n.translate('communication.empty.title', 'DSH', 'No communications found'),
                 reasons: [
                     Uni.I18n.translate('communication.empty.list.item1', 'DSH', 'No communications in the system.'),
-                    Uni.I18n.translate('communication.empty.list.item2', 'DSH', 'No communications found due to applied filters.')
+                    Uni.I18n.translate('communication.empty.list.item2', 'DSH', 'No communications comply with the filter.')
                 ],
                 margins: '16 0 0 0'
             },
