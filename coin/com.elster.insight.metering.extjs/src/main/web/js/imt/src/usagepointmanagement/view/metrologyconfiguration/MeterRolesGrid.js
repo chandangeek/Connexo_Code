@@ -24,16 +24,20 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.MeterRolesGrid'
             },
             {
                 text: Uni.I18n.translate('general.meter', 'IMT', 'Meter'),
-                dataIndex: 'mRID',
+                dataIndex: 'meter',
                 flex: 1,
                 renderer: function (value) {
-                    var url = '',
-                        result = '';
+                    var result = '';
 
                     if (value) {
+                        if(value.url){
+                            result = '<a href="' + value.url + '">' + Ext.String.htmlEncode(value.mRID) + '</a>';
+                        } else {
+                            result = value.mRID;
+                        }
                         //if (Mdc.privileges.Device.canViewDeviceCommunication()) {
-                            url = me.router.getRoute('devices/device').buildUrl({mRID: value});
-                            result = '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
+                        //    url = me.router.getRoute('devices/device').buildUrl({mRID: value});
+                        //    result = '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
                         /*} else {
                             result = Ext.String.htmlEncode(value);
                         }*/

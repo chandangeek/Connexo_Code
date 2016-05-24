@@ -67,15 +67,43 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
             {
                 itemId: 'up-metrology-config-purposes',
                 name: 'purposes',
-                fieldLabel: Uni.I18n.translate('general.label.activePurposes', 'IMT', 'Active purposes'),
-                renderer: function (value) {
-                    var result = '-';
+                xtype: 'fieldcontainer',
+                listeners: {
+                    afterrender: function() {
+                        var fieldcontainer = this,
+                            first = true,
+                            purposes = me.getRecord().get('purposes');
 
-                    if (!Ext.isEmpty(value)) {
-                        // will be implemented in scope of another story
+                        if (!Ext.isEmpty(purposes)) {
+                            Ext.Array.each(purposes, function(purpose){
+                                purpose.active && fieldcontainer.add({
+                                    xtype: 'displayfield',
+                                    labelWidth: 120,
+                                    margin: first ? 0 : '-13 0 0 0',
+                                    fieldLabel: first ? Uni.I18n.translate('general.label.activePurposes', 'IMT', 'Active purposes') : '&nbsp;',
+                                    value: purpose.name,
+                                    renderer: function(value){
+                                        var icon = '&nbsp;&nbsp;&nbsp;&nbsp;<i class="icon '
+                                            + (purpose.status.id == 'incomplete' ? 'icon-warning2' : 'icon-checkmark-circle2')
+                                            + '" style="display: inline-block; width: 16px; height: 16px;" data-qtip="'
+                                            + purpose.status.name
+                                            + '"></i>',
+                                            url = me.router.getRoute('usagepoints/view/purpose').buildUrl({purposeId: purpose.id}),
+                                            link = '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
+                                        return link + icon;
+                                    }
+                                });
+                                first = false;
+                            });
+                        } else {
+                            fieldcontainer.add({
+                                xtype: 'displayfield',
+                                labelWidth: 120,
+                                fieldLabel: first ? Uni.I18n.translate('general.label.activePurposes', 'IMT', 'Active purposes') : '&nbsp;',
+                                value: '-'
+                            })
+                        }
                     }
-
-                    return result;
                 }
             },
             {
@@ -91,7 +119,24 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
 
                     return result;
                 }
-            }
+            },
+            {
+                itemId: 'up-metrology-config-meters-empty',
+                fieldLabel: ' ',
+                hidden: true,
+                htmlEncode: false,
+                renderer: function () {
+                    var url = me.router.getRoute('usagepoints/view/definemetrology').buildUrl({},{fromLandingPage: true}); //to meters
+                    return Uni.I18n.translate('general.label.setMeters', 'IMT', '<a href="{0}">Set meters</a>',url);
+                },
+                listeners: {
+                    beforerender: function() {
+                        if (!me.getRecord().get('name') && Imt.privileges.UsagePoint.canAdministrate()) { //to meters
+                            this.show();
+                        }
+                    }
+                }
+            },
         ];
 
         me.bbar = [
