@@ -25,6 +25,7 @@ public class DataLoggerSlaveDeviceInfo {
     public int yearOfCertification;
     public long version;
     public long arrivalTimeStamp;
+    public long terminationTimeStamp = -1L;
 
     public List<DataLoggerSlaveChannelInfo> dataLoggerSlaveChannelInfos;   //mapping slave channel to data logger channel
     public List<DataLoggerSlaveRegisterInfo> dataLoggerSlaveRegisterInfos;   //mapping slave register to data logger register
@@ -52,6 +53,10 @@ public class DataLoggerSlaveDeviceInfo {
     // for keeping the data logger's channels and registers which are not linked yet
     public boolean placeHolderForUnlinkedDataLoggerChannelsAndRegisters(){
         return is(mRID).emptyOrOnlyWhiteSpace();
+    }
+
+    public boolean terminating(){
+        return terminationTimeStamp >= 0;
     }
 
     static DataLoggerSlaveDeviceInfo from(Device device) {

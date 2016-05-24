@@ -280,16 +280,15 @@ public class DeviceResource {
     }
 
     private void updateDataLoggerChannels(DeviceInfo info, Device dataLogger){
-        if (dataLogger.getDeviceConfiguration().isDataloggerEnabled()){
+        if (dataLogger.getDeviceConfiguration().isDataloggerEnabled()) {
             List<Device> currentSlaves = topologyService.findDataLoggerSlaves(dataLogger);
-            List<Device> slavesToRemove;
-            if (info.dataLoggerSlaveDevices.isEmpty()){
-                slavesToRemove = currentSlaves;
-            }else{
-                slavesToRemove = currentSlaves.stream().filter(((Predicate<? super Device>) (slave) -> isStillADataLoggerSlave(slave, info)).negate()).collect(Collectors.toList());
-            }
-            slavesToRemove.stream().forEach(topologyService::clearDataLogger);
-            info.dataLoggerSlaveDevices.stream().forEach((slaveDeviceInfo) -> setDataLogger(slaveDeviceInfo, dataLogger));
+
+            currentSlaves
+                    .stream()
+                    .filter((slave) -> getTerminatedSlaveDeviceInfo(slave, info).isPresent())
+                    .forEach((slave) -> topologyService.clearDataLogger(slave, Instant.ofEpochSecond(getTerminatedSlaveDeviceInfo(slave, info).get().terminationTimeStamp)));
+
+            info.dataLoggerSlaveDevices.stream().filter(((Predicate<DataLoggerSlaveDeviceInfo>) DataLoggerSlaveDeviceInfo::terminating).negate()).forEach((slaveDeviceInfo) -> setDataLogger(slaveDeviceInfo, dataLogger));
         }
     }
 
@@ -318,8 +317,8 @@ public class DeviceResource {
        return Pair.of(channelInfoToChannel(slave, info.slaveChannel), channelInfoToChannel(info.dataLoggerChannel));
     }
 
-    private boolean isStillADataLoggerSlave(Device slave, DeviceInfo info){
-        return info.dataLoggerSlaveDevices.stream().filter((dataLoggerSlaveDeviceInfo) -> dataLoggerSlaveDeviceInfo.id == slave.getId()).findFirst().isPresent();
+    private Optional<DataLoggerSlaveDeviceInfo> getTerminatedSlaveDeviceInfo(Device slave, DeviceInfo info){
+        return info.dataLoggerSlaveDevices.stream().filter((dataLoggerSlaveDeviceInfo) -> dataLoggerSlaveDeviceInfo.id == slave.getId() && dataLoggerSlaveDeviceInfo.terminating()).findFirst();
     }
 
     private Pair<Register, Register> slaveDataLoggerRegisterPair(Device slave, DataLoggerSlaveRegisterInfo info){
@@ -354,8 +353,10 @@ public class DeviceResource {
     }
 
     private void removeGateway(Device device) {
-        if (topologyService.getPhysicalGateway(device).isPresent()) {
-            topologyService.clearPhysicalGateway(device);
+        if (!device.getDeviceType().isDataloggerSlave()){
+            if (topologyService.getPhysicalGateway(device).isPresent()) {
+                topologyService.clearPhysicalGateway(device);
+            }
         }
     }
 
