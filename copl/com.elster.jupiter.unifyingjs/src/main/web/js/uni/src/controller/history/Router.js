@@ -267,8 +267,10 @@ Ext.define('Uni.controller.history.Router', {
                     var dispatch = function () {
                         if (!Uni.Auth.checkPrivileges(config.privileges)) {
                             crossroads.parse("/error/notfound");
-                        } else if (me.checkForDynamicPrivileges(config, applyAction)) {
-                            //do nothing
+                        } else if (config.dynamicPrivilege) {
+                            if(!me.checkForDynamicPrivileges(config, applyAction)) {
+                                applyAction();
+                            }
                         } else {
                             applyAction();
                         }
@@ -308,7 +310,7 @@ Ext.define('Uni.controller.history.Router', {
         while (path.lastIndexOf('/') > -1) {
             dynamicPrivileges = me.getRoute(path).dynamicPrivilegeStores;
             if (dynamicPrivileges) {
-                Uni.DynamicPrivileges.loadPage(dynamicPrivileges, me.getRoute(path).dynamicPrivilige, applyAction, me);
+                Uni.DynamicPrivileges.loadPage(dynamicPrivileges, config.dynamicPrivilege, applyAction, me);
                 return true;
             }
             index = path.lastIndexOf('/');
