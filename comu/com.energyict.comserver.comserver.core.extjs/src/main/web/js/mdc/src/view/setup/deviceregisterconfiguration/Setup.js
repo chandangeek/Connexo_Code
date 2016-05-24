@@ -8,7 +8,8 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.Setup', {
         'Mdc.view.setup.device.DeviceMenu',
         'Mdc.view.setup.deviceregisterconfiguration.Grid',
         'Uni.view.container.PreviewContainer',
-        'Uni.view.notifications.NoItemsFoundPanel'
+        'Uni.view.container.PreviewContainer',
+        'Uni.util.FormEmptyMessage'
     ],
 
     initComponent: function () {
@@ -42,12 +43,9 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.Setup', {
                             mRID: encodeURIComponent(me.device.get('mRID'))
                         },
                         emptyComponent: {
-                            xtype: 'no-items-found-panel',
+                            xtype: 'uni-form-empty-message',
                             itemId: 'ctr-no-device-register-config',
-                            title: Uni.I18n.translate('deviceregisterconfiguration.empty.title', 'MDC', 'No registers found'),
-                            reasons: [
-                                Uni.I18n.translate('deviceregisterconfiguration.empty.list.item1', 'MDC', 'No registers have been defined yet.')
-                            ]
+                            text: Uni.I18n.translate('deviceregisterconfiguration.empty', 'MDC', 'No registers have been defined yet.')
                         },
                         previewComponent: {
                             xtype: 'container',

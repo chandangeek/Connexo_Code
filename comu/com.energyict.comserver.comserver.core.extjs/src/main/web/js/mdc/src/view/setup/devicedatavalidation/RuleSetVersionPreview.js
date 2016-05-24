@@ -9,7 +9,8 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RuleSetVersionPreview', {
     padding: 0,
     requires: [
         'Mdc.view.setup.devicedatavalidation.RulesGrid',
-        'Mdc.view.setup.devicedatavalidation.RulePreview'
+        'Mdc.view.setup.devicedatavalidation.RulePreview',
+        'Uni.util.FormEmptyMessage'
     ],
     initComponent: function () {
         var me = this;
@@ -23,11 +24,8 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RuleSetVersionPreview', {
                     versionId: me.versionId
                 },
                 emptyComponent: {
-                    xtype: 'no-items-found-panel',
-                    title: Uni.I18n.translate('validation.rules.empty.title', 'MDC', 'No validation rules found'),
-                    reasons: [
-                        Uni.I18n.translate('validation.rules.empty.list.item1', 'MDC', 'No validation rules have been defined yet.')
-                    ]
+                    xtype: 'uni-form-empty-message',
+                    text: Uni.I18n.translate('validation.rules.empty', 'MDC', 'No validation rules have been defined yet.')
                 },
                 previewComponent: {
                     xtype: 'deviceDataValidationRulePreview'

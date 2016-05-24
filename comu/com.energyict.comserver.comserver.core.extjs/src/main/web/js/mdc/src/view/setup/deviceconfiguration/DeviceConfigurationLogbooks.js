@@ -89,7 +89,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationLogbooks', {
                         itemId: 'device-configuration-logbooks-empty-msg',
                         title: Uni.I18n.translate('deviceconfiguration.logbookConfiguration.empty.title', 'MDC', 'No logbook configurations found'),
                         reasons: [
-                            Uni.I18n.translate('deviceconfiguration.logbookConfiguration.empty.list.item1', 'MDC', 'No logbook configurations have been defined yet.'),
+                            Uni.I18n.translate('deviceconfiguration.logbookConfiguration.empty.list.item1', 'MDC', 'No logbook configurations have been defined yet.')
                         ],
                         stepItems: [
                             {
