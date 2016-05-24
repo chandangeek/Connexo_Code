@@ -5,7 +5,8 @@ Ext.define('Fwc.controller.Main', {
         'Uni.controller.Navigation',
         'Uni.store.PortalItems',
         'Mdc.dynamicprivileges.DeviceState',
-        'Mdc.dynamicprivileges.Stores'
+        'Mdc.dynamicprivileges.Stores',
+        'Mdc.dynamicprivileges.DeviceTypeCapability'
     ],
 
     controllers: [
