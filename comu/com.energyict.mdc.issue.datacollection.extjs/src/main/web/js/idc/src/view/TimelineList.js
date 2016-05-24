@@ -1,7 +1,7 @@
 Ext.define('Idc.view.TimelineList', {
     extend: 'Ext.panel.Panel',
     requires: [
-        'Uni.view.notifications.NoItemsFoundPanel'
+        'Uni.util.FormEmptyMessage'
     ],
     alias: 'widget.issue-timeline',
 
@@ -9,12 +9,9 @@ Ext.define('Idc.view.TimelineList', {
     buttonAlign: 'left',
     items: [
         {
-            xtype: 'no-items-found-panel',
+            xtype: 'uni-form-empty-message',
             itemId: 'no-issue-timeline',
-            title: Uni.I18n.translate('general.noTimeline','IDC','No timeline entries'),
-            reasons: [
-                'No activity yet on this issue'
-            ],
+            text: Uni.I18n.translate('general.noActivity', 'IDC', 'No activity yet on this issue'),
             hidden: true
         },
         {
