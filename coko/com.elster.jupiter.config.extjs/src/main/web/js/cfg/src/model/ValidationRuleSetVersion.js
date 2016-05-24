@@ -55,7 +55,7 @@ Ext.define('Cfg.model.ValidationRuleSetVersion', {
                     );
 				} else if (data.endDate) {
 					result = Uni.I18n.translate('validation.version.display.until', 'CFG', "Until {0}",
-                        Uni.DateTime.formatDateTimeLong(new Date(endDate), Uni.DateTime.LONG, Uni.DateTime.SHORT),
+                        Uni.DateTime.formatDateTime(new Date(endDate), Uni.DateTime.LONG, Uni.DateTime.SHORT),
                         false
                     );
 				}else {
