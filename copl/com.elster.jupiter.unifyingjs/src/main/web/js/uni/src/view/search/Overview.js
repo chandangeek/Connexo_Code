@@ -161,7 +161,7 @@ Ext.define('Uni.view.search.Overview', {
                             reasons: [
                                 Uni.I18n.translate('search.overview.noItemsFoundPanel.item1', 'UNI', 'No search criteria have been specified.'),
                                 Uni.I18n.translate('search.overview.noItemsFoundPanel.item2', 'UNI', 'There are no requested items.'),
-                                Uni.I18n.translate('search.overview.noItemsFoundPanel.item3', 'UNI', 'The applied search criteria are too specific.')
+                                Uni.I18n.translate('search.overview.noItemsFoundPanel.item3', 'UNI', 'No search results comply with the filter.')
                             ],
                             margins: '16 0 0 0'
                         }
