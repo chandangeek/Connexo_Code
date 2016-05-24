@@ -7,7 +7,9 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.UsagePoint;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class MeterInfo {
 	
@@ -27,6 +29,7 @@ public class MeterInfo {
     public long installedDate;
     public long removedDate;
     public long retiredDate;
+    public List meterActivations;
     
     public MeterInfo() {
     }
@@ -39,6 +42,10 @@ public class MeterInfo {
         this.name = meter.getName();
         this.serialNumber = meter.getSerialNumber();
         this.utcNumber = meter.getUtcNumber();
+        this.meterActivations = meter.getMeterActivations()
+                .stream()
+                .map(ma -> new MeterActivationInfo(ma, false))
+                .collect(Collectors.toList());
 
         if (meter.getElectronicAddress() != null) {
         	this.eMail1 = meter.getElectronicAddress().getEmail1();

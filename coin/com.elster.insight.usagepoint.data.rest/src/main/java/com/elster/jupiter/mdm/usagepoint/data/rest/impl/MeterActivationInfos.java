@@ -15,23 +15,27 @@ public class MeterActivationInfos {
     }
 
     MeterActivationInfos(MeterActivation meterActivation) {
-        add(meterActivation);
+        add(meterActivation, true);
     }
 
     MeterActivationInfos(Iterable<? extends MeterActivation> meterActivations) {
-        addAll(meterActivations);
+        addAll(meterActivations, true);
     }
 
-    MeterActivationInfo add(MeterActivation meterActivation) {
-        MeterActivationInfo result = new MeterActivationInfo(meterActivation);
+    MeterActivationInfos(Iterable<? extends MeterActivation> meterActivations, boolean includeMeterInfo) {
+        addAll(meterActivations, includeMeterInfo);
+    }
+
+    MeterActivationInfo add(MeterActivation meterActivation, boolean includeMeterInfo) {
+        MeterActivationInfo result = new MeterActivationInfo(meterActivation, includeMeterInfo);
         meterActivations.add(result);
         total++;
         return result;
     }
 
-    void addAll(Iterable<? extends MeterActivation> meterActivations) {
+    void addAll(Iterable<? extends MeterActivation> meterActivations, boolean includeMeterInfo) {
         for (MeterActivation each : meterActivations) {
-            add(each);
+            add(each, includeMeterInfo);
         }
     }
 }

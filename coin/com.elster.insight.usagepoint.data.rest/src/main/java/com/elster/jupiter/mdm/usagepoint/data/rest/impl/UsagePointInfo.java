@@ -47,6 +47,7 @@ public class UsagePointInfo {
     public long createTime;
     public long modTime;
     public MetrologyConfigurationInfo metrologyConfiguration;
+    public List<MeterActivationInfo> meterActivations;
 
     public UsagePointInfo() {
     }

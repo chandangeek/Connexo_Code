@@ -6,6 +6,7 @@ import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.GasDetail;
 import com.elster.jupiter.metering.HeatDetail;
 import com.elster.jupiter.metering.Location;
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.ServiceLocation;
@@ -14,6 +15,7 @@ import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.WaterDetail;
+import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -31,7 +33,9 @@ import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -107,6 +111,27 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         info.displayConnectionState = usagePoint.getConnectionState().getName();
         info.displayServiceCategory = usagePoint.getServiceCategory().getDisplayName();
         info.displayType = this.getUsagePointDisplayType(usagePoint);
+        info.meterActivations = usagePoint.getMeterActivations()
+                .stream()
+                .map(ma -> new MeterActivationInfo(ma, true))
+                .collect(Collectors.toList());
+
+
+        usagePoint.getMetrologyConfiguration()
+                .filter(config -> config instanceof UsagePointMetrologyConfiguration)
+                .map(UsagePointMetrologyConfiguration.class::cast)
+                .ifPresent(mc -> {
+                    info.metrologyConfiguration = new MetrologyConfigurationInfo(mc, usagePoint, this.thesaurus);
+                    info.displayMetrologyConfiguration = mc.getName();
+                });
+
+        addDetailsInfo(info, usagePoint);
+        addCustomPropertySetInfo(info, usagePoint);
+        addLocationInfo(info, usagePoint);
+        return info;
+    }
+
+    private void addDetailsInfo(UsagePointInfo info, UsagePoint usagePoint) {
 
         Optional<? extends UsagePointDetail> detailHolder = usagePoint.getDetail(clock.instant());
         if (detailHolder.isPresent()) {
@@ -120,23 +145,21 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                 info.techInfo = new HeatUsagePointDetailsInfo((HeatDetail) detailHolder.get());
             }
         }
+    }
 
-        usagePoint.getMetrologyConfiguration()
-                .ifPresent(mc -> {
-                    info.metrologyConfiguration = new MetrologyConfigurationInfo((UsagePointMetrologyConfiguration) mc, usagePoint, this.thesaurus);
-                    info.displayMetrologyConfiguration = mc.getName();
-                });
-
+    private void addCustomPropertySetInfo(UsagePointInfo info, UsagePoint usagePoint) {
         UsagePointCustomPropertySetExtension customPropertySetExtension = usagePoint.forCustomProperties();
-
         info.customPropertySets = customPropertySetExtension.getAllPropertySets()
                 .stream()
                 .map(rcps -> customPropertySetInfoFactory.getFullInfo(rcps, rcps.getValues()))
                 .collect(Collectors.toList());
         info.customPropertySets.sort((cas1, cas2) -> cas1.name.compareTo(cas2.name));
+    }
 
+    private void addLocationInfo(UsagePointInfo info, UsagePoint usagePoint) {
         meteringService.findUsagePointGeoCoordinates(usagePoint.getMRID())
                 .ifPresent(coordinates -> info.geoCoordinates = coordinates.getCoordinates().toString());
+
 
         Optional<Location> location = meteringService.findUsagePointLocation(usagePoint.getMRID());
         String formattedLocation = "";
@@ -150,7 +173,6 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                     .collect(Collectors.joining(", "));
         }
         info.location = formattedLocation;
-        return info;
     }
 
     @Override
@@ -208,6 +230,49 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                 .withServicePriority(usagePointInfo.servicePriority)
                 .withServiceDeliveryRemark(usagePointInfo.serviceDeliveryRemark)
                 .withServiceLocationString(usagePointInfo.location);
+    }
+
+    public UsagePointInfo getMetersOnUsagePointInfo(UsagePoint usagePoint) {
+        UsagePointInfo info = new UsagePointInfo();
+        info.id = usagePoint.getId();
+        info.mRID = usagePoint.getMRID();
+        info.installationTime = usagePoint.getInstallationTime().toEpochMilli();
+        info.version = usagePoint.getVersion();
+
+        Map<MeterRole, MeterRoleInfo> mandatoryMeterRoles = new LinkedHashMap<>();
+        usagePoint.getMetrologyConfiguration()
+                .filter(metrologyConfiguration -> metrologyConfiguration instanceof UsagePointMetrologyConfiguration)
+                .map(UsagePointMetrologyConfiguration.class::cast)
+                .ifPresent(metrologyConfiguration -> {
+                    info.metrologyConfiguration = new MetrologyConfigurationInfo();
+                    info.metrologyConfiguration.id = metrologyConfiguration.getId();
+                    info.metrologyConfiguration.name = metrologyConfiguration.getName();
+                    metrologyConfiguration.getMeterRoles()
+                            .stream()
+                            .forEach(meterRole -> mandatoryMeterRoles.put(meterRole, new MeterRoleInfo(meterRole)));
+                });
+
+        Map<MeterRole, MeterInfo> meterRoleToMeterInfoMapping = usagePoint.getMeterActivations(usagePoint.getInstallationTime()).stream()
+                .filter(meterActivation -> meterActivation.getMeterRole().isPresent() && meterActivation.getMeter().isPresent())
+                .collect(Collectors.toMap(meterActivation -> meterActivation.getMeterRole().get(), meterActivation -> {
+                    Meter meter = meterActivation.getMeter().get();
+                    MeterInfo meterInfo = new MeterInfo();
+                    meterInfo.id = meter.getId();
+                    meterInfo.mRID = meter.getMRID();
+                    meterInfo.name = meter.getName();
+                    meterInfo.version = meter.getVersion();
+                    return meterInfo;
+                }));
+
+        info.meterActivations = mandatoryMeterRoles.entrySet().stream()
+                .map(meterRoleEntry -> {
+                    MeterActivationInfo meterActivationInfo = new MeterActivationInfo();
+                    meterActivationInfo.meterRole = meterRoleEntry.getValue();
+                    meterActivationInfo.meter = meterRoleToMeterInfoMapping.get(meterRoleEntry.getKey());
+                    return meterActivationInfo;
+                })
+                .collect(Collectors.toList());
+        return info;
     }
 
     static class EmptyDomain {
