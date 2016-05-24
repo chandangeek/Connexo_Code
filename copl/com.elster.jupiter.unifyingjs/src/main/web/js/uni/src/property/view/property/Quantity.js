@@ -1,33 +1,18 @@
 Ext.define('Uni.property.view.property.Quantity', {
     extend: 'Uni.property.view.property.Base',
-    requires: [
-        'Uni.property.model.MeasurementUnit'
-    ],
 
     msgTarget: 'under',
     getEditCmp: function () {
         var me = this,
-            possibleValues = me.getProperty().getPossibleValues(),
             store = Ext.create('Ext.data.Store', {
-                model: 'Uni.property.model.MeasurementUnit',
-                findUnit: function (data) {
-                    var store = this,
-                        index = store.findBy(function (record) {
-                            return data.unit === record.get('unit') && data.multiplier === record.get('multiplier');
-                        });
-
-                    return store.getAt(index);
-                }
+                fields: ['id', 'displayValue'],
+                data: me.getProperty().getPossibleValues()
             });
-
-        store.loadData(possibleValues, false);
 
         return [
             {
                 xtype: 'numberfield',
                 itemId: me.key + 'value',
-                minValue: 0,
-                autoStripChars: true,
                 allowExponential: false,
                 margin: '0 10 0 0',
                 width: me.width - 90
@@ -41,7 +26,7 @@ Ext.define('Uni.property.view.property.Quantity', {
                 valueField: 'id',
                 queryMode: 'local',
                 forceSelection: true,
-                value: possibleValues[0] ? possibleValues[0].multiplier + possibleValues[0].unit : null
+                value: store.getAt(0) || null
             }
         ];
     },
@@ -52,36 +37,28 @@ Ext.define('Uni.property.view.property.Quantity', {
 
     setValue: function (value) {
         var me = this,
-            combo;
+            valueRegExp = /(\d*)\:\d*\:.*/,
+            unitRegExp = /\d*(\:\d*\:.*)/;
 
+        if (Ext.isObject(value) && Ext.isString(value.id)) {
+            value = value.id
+        }
         if (!me.isEdit) {
             me.down('displayfield').setValue(me.getValueAsDisplayString(value));
-        } else {
-            me.down('numberfield').setValue(value ? value.value : value);
-            if (value && value.unit) {
-                combo = me.down('combobox');
-                combo.setValue(combo.getStore().findUnit(value));
-            }
+        } else if (!Ext.isEmpty(value) && Ext.isString(value)) {
+            Ext.suspendLayouts();
+            me.down('numberfield').setValue(value.replace(valueRegExp, '$1'));
+            me.down('combobox').setValue(value.replace(unitRegExp, '0$1'));
+            Ext.resumeLayouts(true);
         }
     },
 
     getValue: function () {
         var me = this,
-            valueObject = {},
-            value = me.down('numberfield').getValue(),
-            measureCombo = me.down('combobox'),
-            measureComboValue = measureCombo.getValue(),
-            measure = !Ext.isEmpty(measureComboValue)
-                ? measureCombo.findRecordByValue(measureComboValue).getData()
-                : measureComboValue;
+            unitRegExp = /\d*(\:\d*\:.*)/,
+            value = me.down('numberfield').getValue();
 
-        if (Ext.isEmpty(value)) {
-            return null;
-        }
-        valueObject.value = value;
-        valueObject.unit = measure ? measure.unit : measure;
-        valueObject.multiplier = measure ? measure.multiplier : measure;
-        return valueObject;
+        return !Ext.isEmpty(value) ? me.down('combobox').getValue().replace(unitRegExp, value + '$1') : null;
     },
 
     markInvalid: function (error) {
@@ -122,10 +99,13 @@ Ext.define('Uni.property.view.property.Quantity', {
     },
 
     getValueAsDisplayString: function (value) {
-        var me = this;
+        var me = this,
+            valueRegExp = /(\d*)\:\d*\:.*/,
+            unitRegExp = /\d*(\:\d*\:.*)/,
+            possibleValues = me.getProperty().getPossibleValues();
 
-        if (Ext.isObject(value)) {
-            return ('' + (value.value || '') + (value.displayValue ? ' ' + value.displayValue : '') || '-');
+        if (!Ext.isEmpty(value) && Ext.isString(value)) {
+            return value.replace(valueRegExp, '$1') + ' ' + Ext.Array.findBy(possibleValues, function (possibleValue) {return possibleValue.id === value.replace(unitRegExp, '0$1')}).displayValue;
         } else {
             return '-';
         }

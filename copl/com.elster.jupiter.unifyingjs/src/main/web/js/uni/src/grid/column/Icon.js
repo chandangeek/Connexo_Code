@@ -33,7 +33,7 @@ Ext.define('Uni.grid.column.Icon', {
                     [Uni.DateTime.formatDateShort(editedDate), Uni.DateTime.formatTimeShort(editedDate)]
                 );
             res.value = editedDate;
-            res.iconCls = 'uni-icon-edit';
+            res.iconCls = 'icon-pencil4';
             res.tipString = Uni.I18n.translate('general.editedOnX', 'UNI', 'Edited on {0}', formattedEditedDate);
         }
         if (Ext.isDefined(value.deletedTime)) {

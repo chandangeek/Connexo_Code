@@ -27,7 +27,8 @@ Ext.define('Uni.view.search.Overview', {
         'Uni.view.search.field.TimeDuration',
         'Uni.view.search.field.Date',
         'Uni.view.search.field.Clock',
-        'Uni.view.search.field.TimeOfDay'
+        'Uni.view.search.field.TimeOfDay',
+        'Uni.view.search.field.Quantity'
     ],
 
     padding: '16 16 16 16',
@@ -160,7 +161,7 @@ Ext.define('Uni.view.search.Overview', {
                             reasons: [
                                 Uni.I18n.translate('search.overview.noItemsFoundPanel.item1', 'UNI', 'No search criteria have been specified.'),
                                 Uni.I18n.translate('search.overview.noItemsFoundPanel.item2', 'UNI', 'There are no requested items.'),
-                                Uni.I18n.translate('search.overview.noItemsFoundPanel.item3', 'UNI', 'The applied search criteria are too specific.')
+                                Uni.I18n.translate('search.overview.noItemsFoundPanel.item3', 'UNI', 'No search results comply with the filter.')
                             ],
                             margins: '16 0 0 0'
                         }

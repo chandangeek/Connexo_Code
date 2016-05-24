@@ -226,6 +226,7 @@ Ext.define('Uni.controller.Error', {
                         xtype: 'button',
                         text: Uni.I18n.translate('general.tryAgain', 'UNI', 'Try again'),
                         itemId: 'try-again-button',
+                        hidden: requestOptions.operation.dontTryAgain && !responseText.version,
                         ui: 'remove',
                         handler: function (button) {
                             if (!Ext.isEmpty(responseText.version)) {

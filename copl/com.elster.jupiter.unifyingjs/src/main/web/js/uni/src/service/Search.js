@@ -106,8 +106,8 @@ Ext.define('Uni.service.Search', {
     },
 
     defaultColumns: {
-        'com.energyict.mdc.device.data.Device': ['id', 'mRID', 'serialNumber', 'deviceTypeName', 'deviceConfigurationName', 'state.name'],
-        'com.elster.jupiter.metering.UsagePoint': ['mRID', 'displayServiceCategory', 'displayConnectionState', 'openIssues']
+        'com.energyict.mdc.device.data.Device': ['id', 'mRID', 'serialNumber', 'deviceTypeName', 'deviceConfigurationName', 'state.name', 'location'],
+        'com.elster.jupiter.metering.UsagePoint': ['mRID', 'displayServiceCategory', 'displayMetrologyConfiguration']
     },
 
     getDomain: function() {
@@ -305,14 +305,18 @@ Ext.define('Uni.service.Search', {
 
         searchResults.clearFilter(true);
         if (filters && filters.length) {
+            if(searchResults.isLoading()){
+                Ext.Ajax.suspendEvent('requestexception');
+                Ext.Ajax.abort(searchResults.lastRequest);
+                Ext.Ajax.resumeEvent('requestexception');
+            }
             searchResults.addFilter(me.getFilters(), false);
-            searchResults.loadPage(1);
+            searchResults.loadPage(1,{callback: me.fireEvent('applyFilters', me, filters) });
         } else {
             searchResults.removeAll();
             searchResults.fireEvent('load', searchResults, [], true);
+            me.fireEvent('applyFilters', me, filters);
         }
-
-        me.fireEvent('applyFilters', me, filters);
     },
 
     count: function(){
@@ -480,6 +484,12 @@ Ext.define('Uni.service.Search', {
             });
         }
 
+        if (property.get('type') === 'Quantity') {
+            Ext.apply(config, {
+                xtype: 'uni-search-criteria-quantity'
+            });
+        }
+
         if (Ext.isEmpty(config.xtype)) {
             Ext.apply(config, {
                 xtype: 'uni-search-criteria-simple'
@@ -572,7 +582,7 @@ Ext.define('Uni.service.Search', {
         if (deps.length) {
             deps.each(function(criteria) {
                 criteria.beginEdit();
-                if (!Ext.isEmpty(filter.value)) {
+                if (filter && !Ext.isEmpty(filter.value)) {
                     criteria.set('disabled', false);
                 } else {
                     if (!criteria.get('sticky')) {
@@ -584,18 +594,19 @@ Ext.define('Uni.service.Search', {
 
                 criteria.values().clearFilter(true);
                 criteria.values().addFilter(me.getFilters(), false);
-                criteria.refresh(function () {
-                    var f = me.filters.get(criteria.getId());
-                    if (f) {
+
+                var f = me.filters.getByKey(criteria.getId());
+                if (f) {
+                    criteria.refresh(function () {
                         f.value = _.map(f.value, function(v) {
                             return Ext.apply(v, {
                                 criteria: _.intersection(v.criteria, _.map(criteria.values().data.keys, function(v){return v.toString()}))
                             })
                         });
                         me.fireEvent('change', me.filters, f);
-                    }
-                    me.fireEvent('criteriaChange', me.criteria, criteria);
-                });
+                        me.fireEvent('criteriaChange', me.criteria, criteria);
+                    });
+                }
 
                 me.fireEvent('criteriaChange', me.criteria, criteria);
             });
