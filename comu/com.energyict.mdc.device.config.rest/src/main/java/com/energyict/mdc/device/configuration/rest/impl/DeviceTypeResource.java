@@ -8,6 +8,7 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -206,6 +207,20 @@ public class DeviceTypeResource {
                 .map(state -> new DeviceLifeCycleStateInfo(thesaurus, null, state))
                 .collect(Collectors.toList());
         return info;
+    }
+
+    @GET
+    @Transactional
+    @Path("/{id}/capabilities")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE_TYPE})
+    public Response getDeviceTypeCapabilites(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters) {
+        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
+        List<IdWithNameInfo> capabilities =
+                deviceType.getDeviceProtocolPluggableClass().supportsFileManagement() ?
+                        Collections.singletonList(new IdWithNameInfo(null, "devicetype.supports.filemanagement")) :
+                        Collections.emptyList();
+        return Response.ok(PagedInfoList.fromCompleteList("capabilities", capabilities, queryParameters)).build();
     }
 
     @PUT
