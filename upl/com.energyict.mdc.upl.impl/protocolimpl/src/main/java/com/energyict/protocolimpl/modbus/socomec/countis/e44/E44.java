@@ -34,6 +34,8 @@ import java.util.Properties;
  */
 public class E44 extends Modbus {
 
+    private static final String CONNECTION = "Connection";
+
     private ProfileBuilder profileBuilder;
 
     @Override
@@ -46,7 +48,9 @@ public class E44 extends Modbus {
 
     @Override
     protected List doTheGetOptionalKeys() {
-        return new ArrayList();
+        List result = new ArrayList();
+        result.add(CONNECTION);
+        return result;
     }
 
     @Override
@@ -135,6 +139,6 @@ public class E44 extends Modbus {
 
     @Override
     public String getProtocolVersion() {
-        return "$Date: 2013-07-23 10:42:35 +0200 (di, 23 jul 2013) $";
+        return "$Date: 2016-05-24 10:57:07 +0300 (Tue, 24 May 2016)$";
     }
 }

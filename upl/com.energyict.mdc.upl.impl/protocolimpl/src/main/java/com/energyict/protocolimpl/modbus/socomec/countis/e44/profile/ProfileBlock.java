@@ -22,8 +22,8 @@ public class ProfileBlock {
     private ProfileHeader profileHeader;
     private ProfileRecords profileRecords;
 
-    public ProfileBlock(int[] values) {
-        this.profileHeader = ProfileHeader.parse(values, 0);
+    public ProfileBlock(int[] values, double ctRatio) {
+        this.profileHeader = ProfileHeader.parse(values, 0, ctRatio);
         this.profileRecords = ProfileRecords.parse(values, this.profileHeader, this.profileHeader.getWordLength());
     }
 
@@ -52,8 +52,11 @@ public class ProfileBlock {
         List<IntervalData> intervalDatas = new ArrayList<IntervalData>();
         for (ProfileRecord profileRecord : getProfileRecords().getProfileRecords()) {
             List<IntervalValue> intervalValues = new ArrayList<IntervalValue>();
+            double value = profileRecord.getValue() * getProfileHeader().getNumeratorRate() / getProfileHeader().getDenominatorRate();
+            double valueWithCtRate = value * getProfileHeader().getCtRatio();
+
             intervalValues.add(new IntervalValue(
-                    (double) profileRecord.getValue() * getProfileHeader().getNumeratorRate() / getProfileHeader().getDenominatorRate(),
+                    valueWithCtRate,
                     0,
                     0
             ));
