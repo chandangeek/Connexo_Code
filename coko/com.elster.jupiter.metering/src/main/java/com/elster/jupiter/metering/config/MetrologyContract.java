@@ -43,6 +43,12 @@ public interface MetrologyContract {
 
     Status getStatus();
 
+    long getVersion();
+
+    void save();
+
+    long getId();
+
     interface Status {
 
         String getKey();

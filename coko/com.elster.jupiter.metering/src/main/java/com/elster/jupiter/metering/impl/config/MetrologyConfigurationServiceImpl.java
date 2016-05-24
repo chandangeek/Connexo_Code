@@ -13,6 +13,7 @@ import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationBuilder;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationStatus;
+import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableFilter;
@@ -331,5 +332,15 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
             condition = condition.and(where(ReadingTypeDeliverableImpl.Fields.METROLOGY_CONFIGURATION.fieldName()).in(filter.getMetrologyConfigurations()));
         }
         return getDataModel().query(ReadingTypeDeliverable.class, MetrologyConfiguration.class).select(condition);
+    }
+
+    @Override
+    public Optional<MetrologyContract> findMetrologyContract(long id) {
+        return this.getDataModel().mapper(MetrologyContract.class).getUnique("id", id);
+    }
+
+    @Override
+    public Optional<MetrologyContract> findAndLockMetrologyContract(long id, long version) {
+        return this.getDataModel().mapper(MetrologyContract.class).lockObjectIfVersion(version, id);
     }
 }

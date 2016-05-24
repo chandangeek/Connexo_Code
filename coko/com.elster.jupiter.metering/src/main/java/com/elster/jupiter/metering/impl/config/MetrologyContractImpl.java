@@ -24,6 +24,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 
 import javax.inject.Inject;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -57,6 +58,10 @@ public class MetrologyContractImpl implements MetrologyContract {
     private final Reference<MetrologyPurpose> metrologyPurpose = ValueReference.absent();
     private boolean mandatory;
     private List<MetrologyContractReadingTypeDeliverableUsage> deliverables = new ArrayList<>();
+    private String userName;
+    private long version;
+    private Instant createTime;
+    private Instant modTime;
 
     @Inject
     public MetrologyContractImpl(ServerMetrologyConfigurationService metrologyConfigurationService) {
@@ -126,6 +131,23 @@ public class MetrologyContractImpl implements MetrologyContract {
     @Override
     public Status getStatus() {
         return new StatusImpl(this.metrologyConfigurationService.getThesaurus(), getMetrologyContractStatusKey());
+    }
+
+    @Override
+    public long getVersion() {
+        return version;
+    }
+
+    @Override
+    public void save() {
+        if (this.getId() > 0) {
+            this.metrologyConfigurationService.getDataModel().touch(this);
+        }
+    }
+
+    @Override
+    public long getId() {
+        return id;
     }
 
     @Override

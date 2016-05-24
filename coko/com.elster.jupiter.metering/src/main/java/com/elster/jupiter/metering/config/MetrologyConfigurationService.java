@@ -54,4 +54,8 @@ public interface MetrologyConfigurationService {
 
     List<MetrologyPurpose> getMetrologyPurposes();
 
+    Optional<MetrologyContract> findMetrologyContract(long id);
+
+    Optional<MetrologyContract> findAndLockMetrologyContract(long id, long version);
+
 }
