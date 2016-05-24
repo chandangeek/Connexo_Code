@@ -3,9 +3,9 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceMessageEnablement;
@@ -152,25 +152,19 @@ public class DeviceMessageResource {
         return deviceMessageInfoFactory.asInfo(deviceMessage);
     }
 
-    private DeviceMessage<?> findDeviceMessageOrThrowException(Device device, long deviceMessageId) {
-        return device.getMessages().stream().filter(message -> message.getId() == deviceMessageId).findFirst().orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_MESSAGE));
-    }
-
     private boolean hasCommandsWithPrivileges (Device device) {
-        final boolean[] hasCommandsWithPrivileges = {false};
         Set<DeviceMessageId> supportedMessagesSpecs = device.getDeviceType().getDeviceProtocolPluggableClass().getDeviceProtocol().getSupportedMessages();
         List<DeviceMessageId> enabledDeviceMessageIds = device.getDeviceConfiguration().getDeviceMessageEnablements().stream().map(DeviceMessageEnablement::getDeviceMessageId).collect(Collectors.toList());
-        deviceMessageSpecificationService.filteredCategoriesForUserSelection().stream().sorted((c1,c2)->c1.getName().compareToIgnoreCase(c2.getName())).forEach(category-> {
-            List<DeviceMessageSpecInfo> deviceMessageSpecs = category.getMessageSpecifications().stream()
-                    .filter(deviceMessageSpec -> supportedMessagesSpecs.contains(deviceMessageSpec.getId())) // limit to device message specs supported by the protocol
-                    .filter(dms -> enabledDeviceMessageIds.contains(dms.getId())) // limit to device message specs enabled on the config
-                    .filter(dms -> device.getDeviceConfiguration().isAuthorized(dms.getId())) // limit to device message specs whom the user is authorized to
-                    .map(dms -> deviceMessageSpecInfoFactory.asInfoWithMessagePropertySpecs(dms, device))
-                    .collect(Collectors.toList());
-            if (!deviceMessageSpecs.isEmpty()) {
-                hasCommandsWithPrivileges[0] = true;
-            }
-        });
-        return hasCommandsWithPrivileges[0];
+        return deviceMessageSpecificationService.filteredCategoriesForUserSelection()
+                .stream()
+                .flatMap(category->
+                        category.getMessageSpecifications()
+                                .stream()
+                                .filter(deviceMessageSpec -> supportedMessagesSpecs.contains(deviceMessageSpec.getId())) // limit to device message specs supported by the protocol
+                                .filter(dms -> enabledDeviceMessageIds.contains(dms.getId())) // limit to device message specs enabled on the config
+                                .filter(dms -> device.getDeviceConfiguration().isAuthorized(dms.getId()))) // limit to device message specs whom the user is authorized to
+                .findAny()
+                .isPresent();
     }
+
 }
