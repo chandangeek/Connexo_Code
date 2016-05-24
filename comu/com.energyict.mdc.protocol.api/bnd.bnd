@@ -3,6 +3,7 @@
 Private-Package: com.energyict.mdc.protocol.api.impl, \
         com.energyict.mdc.protocol.api.impl.device.messages
 Export-Package: com.energyict.mdc.protocol.api,\
+        com.energyict.mdc.protocol.api.calendars,\
         com.energyict.mdc.protocol.api.cim,\
         com.energyict.mdc.protocol.api.codetables,\
         com.energyict.mdc.protocol.api.channels.serial,\
