@@ -24,17 +24,17 @@ public class DeviceFirmwareHistoryInfoFactory {
     }
 
     public DeviceFirmwareHistoryInfos createDeviceFirmwareHistoryInfos(Device device) {
-        return new DeviceFirmwareHistoryInfos(firmwareService.getFirmwareHistory(device));
+        return new DeviceFirmwareHistoryInfos(firmwareService.getFirmwareHistory(device), thesaurus);
     }
 
     static class DeviceFirmwareHistoryInfos {
         public int total = 0;
         public List<DeviceFirmwareHistoryInfo> deviceFirmwareHistoryInfos = new ArrayList<>();
 
-        DeviceFirmwareHistoryInfos(DeviceFirmwareHistory history){
+        DeviceFirmwareHistoryInfos(DeviceFirmwareHistory history, Thesaurus thesaurus){
             List<DeviceFirmwareVersionHistoryRecord> allHistory = history.history();
             this.total = allHistory.size();
-            deviceFirmwareHistoryInfos = allHistory.stream().map(DeviceFirmwareHistoryInfo::new).collect(Collectors.toList());
+            deviceFirmwareHistoryInfos = allHistory.stream().map(historyRecord -> new DeviceFirmwareHistoryInfo(historyRecord, thesaurus)).collect(Collectors.toList());
         }
     }
 
@@ -43,9 +43,11 @@ public class DeviceFirmwareHistoryInfoFactory {
         public String firmwareType;
         public Instant activationDate;
 
-        DeviceFirmwareHistoryInfo(DeviceFirmwareVersionHistoryRecord historyRecord){
+        DeviceFirmwareHistoryInfo(DeviceFirmwareVersionHistoryRecord historyRecord, Thesaurus thesaurus){
             this.firmwareVersion = historyRecord.getFirmwareVersion().getFirmwareVersion();
-            this.firmwareType = historyRecord.getFirmwareVersion().getFirmwareType().getType();
+            this.firmwareType = thesaurus.getString(
+                historyRecord.getFirmwareVersion().getFirmwareType().getType(),
+                historyRecord.getFirmwareVersion().getFirmwareType().getDescription() );
             this.activationDate = historyRecord.getInterval().getStart();
         }
     }
