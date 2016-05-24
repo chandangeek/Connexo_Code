@@ -4,7 +4,8 @@ Ext.define('Imt.servicecategories.view.Setup', {
     requires: [
         'Imt.servicecategories.view.ServiceCategoriesGrid',
         'Imt.servicecategories.view.CASpanel',
-        'Uni.view.notifications.NoItemsFoundPanel',
+        'Uni.view.container.PreviewContainer',
+        'Uni.util.FormEmptyMessage',
         'Imt.servicecategories.view.ServiceCategoryDetailForm'
     ],
 
@@ -24,12 +25,9 @@ Ext.define('Imt.servicecategories.view.Setup', {
                         itemId: 'service-categories-grid'
                     },
                     emptyComponent: {
-                        xtype: 'no-items-found-panel',
+                        xtype: 'uni-form-empty-message',
                         itemId: 'no-service-categories-found-panel',
-                        title: Uni.I18n.translate('serviceCategories.empty.title', 'IMT', 'No service categories found'),
-                        reasons: [
-                            Uni.I18n.translate('serviceCategories.empty.list.item1', 'IMT', 'No service categories defined yet.')
-                        ]
+                        text: Uni.I18n.translate('serviceCategories.empty.list.item1', 'IMT', 'No service categories defined yet.')
                     },
                     previewComponent: {
                         xtype: 'container',
