@@ -72,7 +72,7 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
         if (this.type === 'device') {
             me.store.setProxy({
                 type: 'rest',
-                url: '/api/ddr/devices/'+ this.mrId +'/whatsgoingon',
+                url: '/api/ddr/devices/'+ encodeURIComponent(this.mrId) +'/whatsgoingon',
                 startParam: null,
                 limitParam: null,
                 reader: {
@@ -83,7 +83,7 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
         } else if (this.type === 'usagepoint') {
             me.store.setProxy({
                 type: 'rest',
-                url: '/api/udr/usagepoints/'+ this.mrId +'/whatsgoingon',
+                url: '/api/udr/usagepoints/'+ encodeURIComponent(this.mrId) +'/whatsgoingon',
                 startParam: null,
                 limitParam: null,
                 reader: {
