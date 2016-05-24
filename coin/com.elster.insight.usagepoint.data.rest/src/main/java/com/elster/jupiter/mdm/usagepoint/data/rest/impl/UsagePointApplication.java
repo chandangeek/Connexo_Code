@@ -11,6 +11,7 @@ import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -65,6 +66,7 @@ public class UsagePointApplication extends Application implements TranslationKey
     private volatile BpmService bpmService;
     private volatile ServiceCallService serviceCallService;
     private volatile MetrologyConfigurationService metrologyConfigurationService;
+    private volatile DataAggregationService dataAggregationService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -170,6 +172,11 @@ public class UsagePointApplication extends Application implements TranslationKey
     }
 
     @Reference
+    public void setDataAggregationService(DataAggregationService dataAggregationService) {
+        this.dataAggregationService = dataAggregationService;
+    }
+
+    @Reference
     public void setServiceCallInfoFactory(ServiceCallInfoFactory serviceCallInfoFactory) {
         this.serviceCallInfoFactory = serviceCallInfoFactory;
     }
@@ -211,6 +218,7 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(usagePointDataService).to(UsagePointDataService.class);
             bind(customPropertySetService).to(CustomPropertySetService.class);
             bind(serviceCallService).to(ServiceCallService.class);
+            bind(dataAggregationService).to(DataAggregationService.class);
             bind(serviceCallInfoFactory).to(ServiceCallInfoFactory.class);
             bind(metrologyConfigurationService).to(MetrologyConfigurationService.class);
             bind(issueService).to(IssueService.class);
