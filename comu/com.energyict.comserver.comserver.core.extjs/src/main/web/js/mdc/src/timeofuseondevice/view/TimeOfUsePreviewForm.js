@@ -75,11 +75,11 @@ Ext.define('Mdc.timeofuseondevice.view.TimeOfUsePreviewForm', {
 
             if (record.get('activeIsGhost')) {
                 me.down('#nameField').setValue(calendarRecord.get('name') + ' (' + Uni.I18n.translate('calendars.ghost', 'MDC', 'Ghost') + ')');
+                me.down('#startYear').hide();
             } else {
                 me.down('#nameField').setValue(calendarRecord.get('name'));
+                me.down('#startYear').setValue(calendarRecord.get('startYear'));
             }
-
-            me.down('#startYear').setValue(calendarRecord.get('startYear'));
 
             if (record.get('lastVerified') && record.get('lastVerified') !== 0) {
                 var creationTime = record.get('lastVerified');
