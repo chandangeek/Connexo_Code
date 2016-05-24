@@ -6,7 +6,6 @@ Ext.define('Isu.view.issues.CommentsList', {
         'Isu.privileges.Issue'
     ],
     alias: 'widget.issue-comments',
-    //title: Uni.I18n.translate('genral.comments','ISU','Comments'),
     ui: 'medium',
     buttonAlign: 'left',
     items: [
@@ -15,7 +14,7 @@ Ext.define('Isu.view.issues.CommentsList', {
             itemId: 'no-issue-comments',
             title: Uni.I18n.translate('general.NoCommentsFound','ISU','No comments found'),
             reasons: [
-                'No comments created yet on this issue'
+                Uni.I18n.translate('general.NoCommentsCreatedYet', 'ISU', 'No comments created yet on this issue')
             ],
             stepItems: [
                 {

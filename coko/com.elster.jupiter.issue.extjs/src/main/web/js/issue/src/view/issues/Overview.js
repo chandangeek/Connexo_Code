@@ -10,7 +10,8 @@ Ext.define('Isu.view.issues.Overview', {
         'Isu.view.issues.Preview',
         'Isu.view.issues.SortingToolbar',
         'Isu.view.issues.GroupingTitle',
-        'Isu.view.issues.NoGroupSelectedPanel'
+        'Isu.view.issues.NoGroupSelectedPanel',
+        'Uni.util.FormEmptyMessage'
     ],
     router: null,
     groupingType: null,
@@ -40,12 +41,9 @@ Ext.define('Isu.view.issues.Overview', {
                         hidden: true
                     },
                     {
-                        xtype: 'no-items-found-panel',
+                        xtype: 'uni-form-empty-message',
                         itemId: 'no-issues-group-panel',
-                        title: Uni.I18n.translate('group.empty.title', 'ISU', 'No groups found'),
-                        reasons: [
-                            Uni.I18n.translate('group.empty.list.item1', 'ISU', 'No groups have been defined yet.')
-                        ],
+                        text: Uni.I18n.translate('group.empty.list.item1', 'ISU', 'No groups have been defined yet.'),
                         hidden: true
                     },
                     {
