@@ -258,7 +258,6 @@ Ext.define('Uni.view.calendar.CalendarGraphView', {
             period = {};
             if ((range.get('fromHour') !== 0 || range.get('fromMinute') !== 0) && !firstPeriodIsMidnight) {
                 day.push(me.getLastPeriodFromLastDay(dayTypeBefore.ranges(), range, dayBeforeInCalendar));
-                firstPeriodIsMidnight = true;
             }
 
             period.from = {hour: range.get('fromHour'), minute: range.get('fromMinute')};
@@ -269,6 +268,7 @@ Ext.define('Uni.view.calendar.CalendarGraphView', {
             }
             period.event = range.get('event');
             day.push(period)
+            firstPeriodIsMidnight = true;
         });
         return day;
     },
