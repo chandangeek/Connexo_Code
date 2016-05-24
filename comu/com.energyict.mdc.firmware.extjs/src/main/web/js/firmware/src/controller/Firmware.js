@@ -223,6 +223,7 @@ Ext.define('Fwc.controller.Firmware', {
         record = form.updateRecord().getRecord();
         var input = form.down('filefield').button.fileInputEl.dom,
             file = input.files[0],
+            backUrl = form.router.getRoute('administration/devicetypes/view/firmwareversions').buildUrl(),
             precallback = function (options, success, response) {
                 if (success) {
                     // setting of hidden fields, needs to request
@@ -238,20 +239,16 @@ Ext.define('Fwc.controller.Firmware', {
             },
             callback = function (options, success, response) {
                 if (success) {
-                    record.doSave(savecallback, form);
+                    record.doSave(
+                        {
+                            backUrl: backUrl,
+                            callback: me.getOnSaveOptionsCallbackFunction(form, backUrl, Uni.I18n.translate('firmware.edit.added.success', 'FWC', 'Firmware version added'))
+                        },
+                        form
+                    );
                 } else {
                     me.setFormErrors(response, form);
                     form.setLoading(false);
-                }
-            },
-            savecallback = function (options, success, response) {
-                form.setLoading(false);
-                if (success) {
-                    form.router.getRoute('administration/devicetypes/view/firmwareversions').forward();
-
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('firmware.edit.added.success', 'FWC', 'Firmware version added'));
-                } else {
-                    me.setFormErrors(response, form);
                 }
             };
 
@@ -304,28 +301,16 @@ Ext.define('Fwc.controller.Firmware', {
             },
             callback = function (options, success, response) {
                 if (success) {
-                    record.doSave(saveOptions, form);
+                    record.doSave(
+                        {
+                            backUrl: backUrl,
+                            callback: me.getOnSaveOptionsCallbackFunction(form, backUrl, Uni.I18n.translate('firmware.edit.updated.success', 'FWC', 'Firmware version saved'))
+                        },
+                        form
+                    );
                 } else {
                     me.setFormErrors(response, form);
                     form.setLoading(false);
-                }
-            },
-            saveOptions = {
-                backUrl: backUrl,
-                callback: function (options, success, response) {
-                    var responseObject = Ext.decode(response.responseText, true);
-
-                    form.setLoading(false);
-                    if (responseObject) {
-                        if (!Ext.isEmpty(responseObject.error)) {
-                            me.getController('Uni.controller.Error').concurrentErrorHandler(options, responseObject);
-                        } else if (!Ext.isEmpty(responseObject.errors)) {
-                            me.setFormErrors(response, form);
-                        }
-                    } else {
-                        window.location.href = backUrl;
-                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('firmware.edit.updated.success', 'FWC', 'Firmware version saved'));
-                    }
                 }
             };
 
@@ -342,6 +327,23 @@ Ext.define('Fwc.controller.Firmware', {
         } else {
             record.set('fileSize', null);
             record.doValidate(precallback);
+        }
+    },
+
+    getOnSaveOptionsCallbackFunction: function(form, backUrl, acknowledgementMessage) {
+        return function (options, success, response) {
+            var responseObject = Ext.decode(response.responseText, true);
+            form.setLoading(false);
+            if (responseObject) {
+                if (!Ext.isEmpty(responseObject.error)) {
+                    me.getController('Uni.controller.Error').concurrentErrorHandler(options, responseObject);
+                } else if (!Ext.isEmpty(responseObject.errors)) {
+                    me.setFormErrors(response, form);
+                }
+            } else {
+                window.location.href = backUrl;
+                me.getApplication().fireEvent('acknowledge', acknowledgementMessage);
+            }
         }
     },
 
