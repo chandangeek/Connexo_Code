@@ -95,6 +95,13 @@ Ext.define('Mdc.view.setup.devicetype.SideMenu', {
             title: Uni.I18n.translate('general.specifications', 'MDC', 'Specifications'),
             items: [
                 {
+                    text: Uni.I18n.translate('general.fileManagement', 'MDC', 'File management'),
+                    privileges: Mdc.privileges.DeviceType.view,
+                    itemId: 'fileManagementLink',
+                    href: '#/administration/devicetypes/' + me.deviceTypeId + '/filemanagement',
+                    dynamicPrivilege: Mdc.dynamicprivileges.DeviceTypeCapability.supportsFileManagement
+                },
+                {
                     text: Uni.I18n.translate('general.firmwareManagementOptions', 'MDC', 'Firmware management options'),
                     privileges: Mdc.privileges.DeviceType.view,
                     itemId: 'firmwareoptionsLink',
@@ -122,6 +129,13 @@ Ext.define('Mdc.view.setup.devicetype.SideMenu', {
             title: Uni.I18n.translate('devicetypemenu.specifications', 'MDC', 'Specifications'),
             itemId: 'specifications-menu-item',
             items: [
+                {
+                    text: Uni.I18n.translate('general.fileManagement', 'MDC', 'File management'),
+                    privileges: Mdc.privileges.DeviceType.view,
+                    itemId: 'fileManagementLink',
+                    href: '#/administration/devicetypes/' + me.deviceTypeId + '/filemanagement',
+                    dynamicPrivilege: Mdc.dynamicprivileges.DeviceTypeCapability.supportsFileManagement
+                },
                 {
                     text: Uni.I18n.translate('devicetypemenu.timeOfUseCalendars', 'MDC', 'Time of use calendars'),
                     privileges: Mdc.privileges.DeviceType.view,

@@ -72,6 +72,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             title: Uni.I18n.translate('general.Overview', 'MDC', 'Overview'),
                             route: '{deviceTypeId}',
                             privileges: Mdc.privileges.DeviceType.view,
+                            dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceTypeCapabilitiesStore,
                             controller: 'Mdc.controller.setup.DeviceTypes',
                             action: 'showDeviceTypeDetailsView',
                             callback: function (route) {
@@ -621,9 +622,24 @@ Ext.define('Mdc.controller.history.Setup', {
                                             route: '{calendarId}/viewpreview',
                                             privileges: Mdc.privileges.DeviceType.view,
                                             controller: 'Mdc.timeofuse.controller.TimeOfUse',
-                                            action: 'showPreviewCalendarView'
+                                            action: 'showPreviewCalendarView',
+                                            callback: function (route) {
+                                                this.getApplication().on('timeofusecalendarloaded', function (name) {
+                                                    route.setTitle(Uni.I18n.translate('general.previewX', 'MDC', "Preview '{0}'", name));
+                                                }, {single: true});
+                                                return this;
+                                            }
                                         }
                                     }
+                                },
+                                filemanagement: {
+                                    title: Uni.I18n.translate('general.fileManagement', 'MDC', 'File management'),
+                                    route: 'filemanagement',
+                                    privileges: Mdc.privileges.DeviceType.view,
+                                    controller: 'Mdc.filemanagement.controller.FileManagement',
+                                    action: 'showFileManagementOverview',
+                                    dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceTypeCapabilitiesStore,
+                                    dynamicPrivilege: Mdc.dynamicprivileges.DeviceTypeCapability.supportsFileManagement
                                 }
                             }
                         }
@@ -1653,6 +1669,32 @@ Ext.define('Mdc.controller.history.Setup', {
                             privileges: Mdc.privileges.DeviceConfigurationEstimations.view,
                             dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore
                         },
+                        timeofuse: {
+                            title: Uni.I18n.translate('general.timeOfUse', 'MDC', 'Time of use'),
+                            route: 'timeofuse',
+                            controller: 'Mdc.timeofuseondevice.controller.TimeOfUse',
+                            privileges: Mdc.privileges.Device.viewDevice,
+                            dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
+                            dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.timeOfUseAllowed,
+                            action: 'showTimeOfUseOverview',
+                            items: {
+                                viewpreview: {
+                                    title: Uni.I18n.translate('tou.viewPreview', 'MDC', 'View preview'),
+                                    route: '{calendarId}/viewpreview',
+                                    controller: 'Mdc.timeofuseondevice.controller.TimeOfUse',
+                                    privileges: Mdc.privileges.Device.viewDevice,
+                                    dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
+                                    dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.timeOfUseAllowed,
+                                    action: 'showPreviewCalendarView',
+                                    callback: function (route) {
+                                        this.getApplication().on('timeofusecalendarloaded', function (name) {
+                                            route.setTitle(Uni.I18n.translate('general.previewX', 'MDC', "Preview '{0}'", name));
+                                        }, {single: true});
+                                        return this;
+                                    }
+                                }
+                            }
+                        },
                         communicationschedules: {
                             title: Uni.I18n.translate('general.communicationPlanning', 'MDC', 'Communication planning'),
                             route: 'communicationplanning',
@@ -2147,6 +2189,7 @@ Ext.define('Mdc.controller.history.Setup', {
                 }
             }
         });
+        router.addConfig(this.routeConfig);
     },
 
     tokenizePreviousTokens: function () {
