@@ -1,6 +1,6 @@
 package com.elster.jupiter.validation.rest.impl;
 
-import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -8,7 +8,6 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.elster.jupiter.rest.util.BinderProvider;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.time.TimeService;
@@ -31,7 +30,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
-import org.glassfish.hk2.utilities.Binder;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -48,6 +46,7 @@ public class ValidationApplication extends Application implements TranslationKey
     private volatile TransactionService transactionService;
     private volatile RestQueryService restQueryService;
     private volatile MeteringGroupsService meteringGroupsService;
+    private volatile MetrologyConfigurationService metrologyConfigurationService;
 
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
@@ -57,8 +56,7 @@ public class ValidationApplication extends Application implements TranslationKey
         return ImmutableSet.<Class<?>> of(
                 ValidationResource.class,
                 DataValidationTaskResource.class,
-                MeterGroupsResource.class,
-                UsagePointGroupsResource.class);
+                DeviceGroupAndMetrologyContractResource.class);
     }
 
     @Override
@@ -90,6 +88,11 @@ public class ValidationApplication extends Application implements TranslationKey
     }
 
     @Reference
+    public void setMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
+        this.metrologyConfigurationService = metrologyConfigurationService;
+    }
+
+    @Reference
     public void setTimeService(TimeService timeService) {
         this.timeService = timeService;
     }
@@ -111,6 +114,7 @@ public class ValidationApplication extends Application implements TranslationKey
             bind(validationService).to(ValidationService.class);
             bind(transactionService).to(TransactionService.class);
             bind(meteringGroupsService).to(MeteringGroupsService.class);
+            bind(metrologyConfigurationService).to(MetrologyConfigurationService.class);
             bind(thesaurus).to(Thesaurus.class);
             bind(timeService).to(TimeService.class);
         }
