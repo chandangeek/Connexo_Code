@@ -1,5 +1,9 @@
 package com.energyict.mdc.device.data.impl.gogo;
 
+import com.elster.jupiter.calendar.Calendar;
+import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.device.config.ComTaskEnablement;
@@ -11,9 +15,21 @@ import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -38,12 +54,16 @@ import java.util.stream.Collectors;
  */
 @Component(name = "com.energyict.mdc.device.data.gogo", service = DeviceDataGoGoCommands.class,
         property = {"osgi.command.scope=" + DeviceDataServices.COMPONENT_NAME,
+                "osgi.command.function=sendCalendarMessage",
                 "osgi.command.function=enableOutboundCommunication",
                 "osgi.command.function=devices"
         }, immediate = true)
 public class DeviceDataGoGoCommands {
 
+    private volatile ThreadPrincipalService threadPrincipalService;
     private volatile TransactionService transactionService;
+    private volatile CalendarService calendarService;
+    private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
     private volatile DeviceService deviceService;
 
     private enum ScheduleFrequency {
@@ -73,6 +93,23 @@ public class DeviceDataGoGoCommands {
 
     }
 
+    @Activate
+    public void activate() {
+        System.out.println("DeviceDataGoGoCommands are ready for business");
+        this.help();
+    }
+
+    private void help() {
+        this.enableOutboundCommunication();
+        this.sendCalendarMessage();
+        System.out.println("devices: prints the list of available devices");
+    }
+
+    @SuppressWarnings("unused")
+    public void enableOutboundCommunication() {
+        System.out.println("enableOutboundCommunication [DAILY | NONE] <schedule options> <device id>+ (i.e. at least one device id)");
+    }
+
     @SuppressWarnings("unused")
     public void enableOutboundCommunication(String scheduleFrequency, String scheduleOption, String... deviceMRIDs) {
         try {
@@ -85,11 +122,15 @@ public class DeviceDataGoGoCommands {
     public void devices() {
         try {
             System.out.println(deviceService.findAllDevices(Condition.TRUE).stream()
-                    .map(device -> device.getId() + " " + device.getName())
+                    .map(this::toString)
                     .collect(Collectors.joining("\n")));
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+    }
+
+    private String toString(Device device) {
+        return device.getId() + " " + device.getName();
     }
 
     private List<Device> findDevices(String... deviceMRIDs) {
@@ -109,9 +150,78 @@ public class DeviceDataGoGoCommands {
         }
     }
 
+    @SuppressWarnings("unused")
+    public void sendCalendarMessage() {
+        System.out.println("sendCalendarMessage <device id> <calendar id> <release date: yyyy-MM-DD>");
+    }
+
+    @SuppressWarnings("unused")
+    public void sendCalendarMessage(long deviceId, long calendarId, String releaseDateString) {
+        this.threadPrincipalService.set(() -> "DeviceDataGoGoCommands");
+        Device device = this.findDeviceOrThrowException(deviceId);
+        Calendar calendar = this.findCalendarOrThrowException(calendarId);
+        Instant releaseDate = this.instantFromString(releaseDateString);
+        DeviceMessageId deviceMessageId = DeviceMessageId.ACTIVITY_CALENDER_SEND;
+        DeviceMessageSpec deviceMessageSpec = this.deviceMessageSpecificationService.findMessageSpecById(deviceMessageId.dbValue()).get();
+        try (TransactionContext context = this.transactionService.getContext()) {
+            DeviceMessage message =
+                    device
+                        .newDeviceMessage(deviceMessageId)
+                        .setReleaseDate(releaseDate)
+                        .addProperty(
+                                DeviceMessageConstants.activityCalendarNameAttributeName,
+                                calendar.getName())
+                        .addProperty(
+                                DeviceMessageConstants.activityCalendarAttributeName,
+                                calendar)
+                        .add();
+            System.out.println("message created with id " + message.getId());
+            context.commit();
+        } finally {
+            this.threadPrincipalService.clear();
+        }
+    }
+
+    private Device findDeviceOrThrowException(long deviceId) {
+        return this.deviceService
+                .findDeviceById(deviceId)
+                .orElseThrow(() -> new IllegalArgumentException("Device with id " + deviceId + " does not exist"));
+    }
+
+    private Calendar findCalendarOrThrowException(long id) {
+        return this.calendarService
+                .findCalendar(id)
+                .orElseThrow(() -> new IllegalArgumentException("Calendar with id " + id + " does not exist"));
+    }
+
+    private Instant instantFromString(String aString) {
+        try {
+            return LocalDate.parse(aString, DateTimeFormatter.ISO_LOCAL_DATE).atStartOfDay(ZoneId.systemDefault()).toInstant();
+        }
+        catch (DateTimeParseException e) {
+            System.out.printf("%s cannot be parsed from format " + DateTimeFormatter.ISO_LOCAL_DATE.toString(), aString);
+            throw e;
+        }
+    }
+
+    @Reference
+    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+        this.threadPrincipalService = threadPrincipalService;
+    }
+
     @Reference
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
+    }
+
+    @Reference
+    public void setCalendarService(CalendarService calendarService) {
+        this.calendarService = calendarService;
+    }
+
+    @Reference
+    public void setDeviceMessageSpecificationService(DeviceMessageSpecificationService deviceMessageSpecificationService) {
+        this.deviceMessageSpecificationService = deviceMessageSpecificationService;
     }
 
     @Reference
