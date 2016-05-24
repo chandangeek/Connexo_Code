@@ -84,7 +84,6 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
                                 xtype: 'displayfield',
                                 name: 'allowedOptions',
                                 itemId: 'allowed-options',
-                          /*      fieldCls: 'x-form-display-field-multiple-values',*/
                                 fieldStyle: 'margin-top : 3px;',
                                 fieldLabel: Uni.I18n.translate('general.firmwareManagementOptions', 'FWC', 'Firmware management options'),
                                 renderer: function (value) {

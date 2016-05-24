@@ -32,6 +32,7 @@ Ext.define('Fwc.controller.Firmware', {
     ],
 
     deviceTypeId: null,
+    forceSpecsTabActivation: false,
 
     init: function () {
         this.control({
@@ -69,6 +70,16 @@ Ext.define('Fwc.controller.Firmware', {
             },
             'firmware-options #mdc-edit-options-btn': {
                 click: this.chooseOptionsAction
+            },
+            'firmware-options-edit #cancelLink': {
+                click: function() {
+                    this.forceSpecsTabActivation = true;
+                }
+            },
+            'firmware-options-edit #saveButton': {
+                click: function() {
+                    this.forceSpecsTabActivation = true;
+                }
             }
         });
     },
@@ -103,7 +114,6 @@ Ext.define('Fwc.controller.Firmware', {
         }).show({
             msg: Uni.I18n.translate('firmware.deprecate.msg', 'FWC', 'It will not be possible to upload this firmware version on devices.'),
             title: Uni.I18n.translate('firmware.deprecate.title', 'FWC', "Deprecate {0} firmware '{1}'?",[data.id,firmware.get('firmwareVersion')]),
-            //icon: 'icon-question',
             fn: function (btn) {
                 if (btn === 'confirm') {
                     container.setLoading();
@@ -382,11 +392,13 @@ Ext.define('Fwc.controller.Firmware', {
                         router: me.getController('Uni.controller.history.Router'),
                         deviceType: deviceType,
                         deviceTypeId: deviceTypeId,
-                        firmwareManagementAllowed: optionsRecord.get('isAllowed')
+                        firmwareManagementAllowed: optionsRecord.get('isAllowed'),
+                        tab2Activate: me.forceSpecsTabActivation ? 0 : undefined
                     });
 
                     me.deviceTypeId = deviceTypeId;
                     me.getApplication().fireEvent('changecontentevent', view);
+                    me.forceSpecsTabActivation = false;
 
                     var widget = view.down('firmware-options'),
                         form = widget ? widget.down('form') : null;

@@ -12,6 +12,7 @@ Ext.define('Fwc.view.firmware.FirmwareVersionsOverview', {
     deviceTypeId: null,
     deviceType: null,
     firmwareManagementAllowed: null,
+    tab2Activate: undefined,
 
     initComponent: function () {
         var me = this;
@@ -39,7 +40,7 @@ Ext.define('Fwc.view.firmware.FirmwareVersionsOverview', {
                     itemId: 'fwc-firmware-versions-tabpanel',
                     deferredRender: false,
                     ui: 'large',
-                    activeTab: me.firmwareManagementAllowed ? 1 : 0,
+                    activeTab: !Ext.isEmpty(me.tab2Activate) ? me.tab2Activate : (me.firmwareManagementAllowed ? 1 : 0),
                     items: [
                         {
                             title: Uni.I18n.translate('general.specifications', 'FWC', 'Specifications'),
