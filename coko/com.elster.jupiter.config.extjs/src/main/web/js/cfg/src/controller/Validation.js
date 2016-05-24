@@ -171,6 +171,10 @@ Ext.define('Cfg.controller.Validation', {
                 click: this.chooseRuleSetVersionAction,
                 show: this.onVersionMenuShow
             },
+            'version-action-menu': {
+                click: this.chooseRuleSetVersionAction,
+                show: this.onVersionMenuShow
+            },
             'AddReadingTypesToRuleSetup addReadingTypesNoItemsFoundPanel': {
                 openInfoWindow: this.showSelectedReadingTypes,
                 showNoFoundPanel: this.showNoFoundPanel,
@@ -1186,10 +1190,8 @@ Ext.define('Cfg.controller.Validation', {
 
     chooseRuleSetVersionAction: function (menu, item) {
         var me = this,
-            router = this.getController('Uni.controller.history.Router'),
-            record;
-
-        record = menu.record || me.getVersionsGrid().getSelectionModel().getLastSelected();
+            router = me.getController('Uni.controller.history.Router'),
+            record = menu.record || me.getVersionsGrid().getSelectionModel().getLastSelected();
 
         switch (item.action) {
             case 'cloneVersion':
