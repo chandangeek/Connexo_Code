@@ -68,7 +68,7 @@ Ext.define('Dxp.view.tasks.AddReadingTypesNoItemsFoundPanel', {
                 title: Uni.I18n.translate('validation.readingType.empty.title', 'DES', 'No reading types found.'),
                 reasons: [
                     Uni.I18n.translate('validation.readingType.empty.list.item1', 'DES', 'No reading types have been added yet.'),
-                    Uni.I18n.translate('validation.readingType.empty.list.item2', 'DES', 'No reading types comply to the filter.'),
+                    Uni.I18n.translate('validation.readingType.empty.list.item2', 'DES', 'No reading types comply with the filter.'),
                     Uni.I18n.translate('validation.readingType.empty.list.item3', 'DES', 'All reading types have been already added to rule.')
                 ]
             }
