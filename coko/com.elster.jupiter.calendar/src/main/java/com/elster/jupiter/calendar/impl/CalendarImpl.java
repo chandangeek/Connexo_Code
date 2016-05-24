@@ -16,7 +16,6 @@ import com.elster.jupiter.calendar.RecurrentExceptionalOccurrence;
 import com.elster.jupiter.calendar.RecurrentPeriodTransitionSpec;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -71,7 +70,6 @@ public class CalendarImpl implements Calendar {
             return javaFieldName;
         }
     }
-
 
     private long id;
     @NotEmpty(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
@@ -336,7 +334,6 @@ public class CalendarImpl implements Calendar {
         return result;
     }
 
-
     DayType addDayType(DayType dayType) {
         Save.CREATE.validate(calendarService.getDataModel(), dayType);
         this.dayTypes.add(dayType);
@@ -391,7 +388,6 @@ public class CalendarImpl implements Calendar {
         return abstractCalendar;
     }
 
-
     void setmRID(String mRID) {
         this.mRID = mRID;
     }
@@ -412,4 +408,5 @@ public class CalendarImpl implements Calendar {
             this.timeZoneName = timeZone.getID();
         }
     }
+
 }

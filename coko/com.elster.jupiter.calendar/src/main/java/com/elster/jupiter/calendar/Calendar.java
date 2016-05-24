@@ -41,6 +41,20 @@ import java.util.TimeZone;
 public interface Calendar extends HasId, HasName {
 
     /**
+     * Gets the Year on which this Calendar starts producing {@link Event}s.
+     *
+     * @return The start of this Calendar
+     */
+    Year getStartYear();
+
+    /**
+     * Gets the last Year during which this Calendar produces {@link Event}s.
+     *
+     * @return The start of this Calendar
+     */
+    Year getEndYear();
+
+    /**
      * Gets the TimeZone that was used to defined the occurrences
      * of the {@link Event}s. Note that this is mostly for
      * reference purposes. The occurrence of each Event
@@ -120,10 +134,6 @@ public interface Calendar extends HasId, HasName {
     CalendarService.CalendarBuilder redefine();
 
     void delete();
-
-    Year getStartYear();
-
-    Year getEndYear();
 
     boolean isAbstract();
 
