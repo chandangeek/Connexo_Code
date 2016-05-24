@@ -5,6 +5,7 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 
@@ -68,5 +69,18 @@ public class ResourceHelper {
                         .withActualParent(() -> getCurrentMetrologyConfigurationVersion(info.parent.id), info.parent.id)
                         .withActualVersion(() -> getCurrentMetrologyConfigurationVersion(info.parent.id))
                         .supplier());
+    }
+
+    public MetrologyContract findAndLockContractOnMetrologyConfiguration(MetrologyContractInfo metrologyContractInfo) {
+        return metrologyConfigurationService.findAndLockMetrologyContract(metrologyContractInfo.id, metrologyContractInfo.version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(metrologyContractInfo.name)
+                .withActualVersion(() -> getCurrentMetrologyContractVersion(metrologyContractInfo.id))
+                .supplier());
+    }
+
+    public Long getCurrentMetrologyContractVersion(long id) {
+        return metrologyConfigurationService.findMetrologyContract(id)
+                .map(MetrologyContract::getVersion)
+                .orElse(null);
     }
 }
