@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.ViewPrivilege;
@@ -34,6 +35,7 @@ import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -255,7 +257,8 @@ public class InMemoryIntegrationPersistence {
                 new KpiModule(),
                 new TasksModule(),
                 new DeviceDataModule(),
-                new SchedulingModule());
+                new SchedulingModule(),
+                new CalendarModule());
         this.transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             this.jsonService = injector.getInstance(JsonService.class);
@@ -538,7 +541,7 @@ public class InMemoryIntegrationPersistence {
         return injector.getInstance(DeviceConfigConflictMappingHandler.class);
     }
 
-    public DeviceSearchDomain getDeviceSearchDomain() {
+    public SearchDomain getDeviceSearchDomain() {
         return deviceSearchDomain;
     }
 
