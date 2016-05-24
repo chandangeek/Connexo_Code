@@ -152,14 +152,18 @@ public class DataAggregationServiceImpl implements DataAggregationService {
      * @param period The requested period in time
      */
     private void prepare(MeterActivation meterActivation, ReadingTypeDeliverable deliverable, Range<Instant> period, VirtualFactory virtualFactory, Map<MeterActivation, List<ReadingTypeDeliverableForMeterActivation>> deliverablesPerMeterActivation) {
-        ServerExpressionNode virtualizedExpression = this.copyAndVirtualizeReferences(deliverable, meterActivation, virtualFactory, deliverablesPerMeterActivation, deliverable.getFormula().getMode());
+        ServerExpressionNode copied = this.copy(deliverable, meterActivation, virtualFactory, deliverablesPerMeterActivation, deliverable.getFormula().getMode());
+        copied.accept(new FinishRequirementAndDeliverableNodes());
+        ServerExpressionNode withUnitConversion;
         VirtualReadingType readingType;
         if (Formula.Mode.AUTO.equals(deliverable.getFormula().getMode())) {
-            readingType = this.inferReadingType(deliverable, virtualizedExpression);
+            withUnitConversion = copied.accept(new ApplyUnitConversion(deliverable.getFormula().getMode(), VirtualReadingType.from(deliverable.getReadingType())));
+            readingType = this.inferReadingType(deliverable, withUnitConversion);
         } else {
+            withUnitConversion = copied;
             readingType = VirtualReadingType.from(deliverable.getReadingType());
         }
-        ServerExpressionNode withMultipliers = virtualizedExpression.accept(new ApplyCurrentAndOrVoltageTransformer(this.meteringService, meterActivation));
+        ServerExpressionNode withMultipliers = withUnitConversion.accept(new ApplyCurrentAndOrVoltageTransformer(this.meteringService, meterActivation));
         deliverablesPerMeterActivation
                 .get(meterActivation)
                 .add(this.readingTypeDeliverableForMeterActivationFactory
@@ -174,19 +178,17 @@ public class DataAggregationServiceImpl implements DataAggregationService {
     }
 
     /**
-     * Copies the formula of the {@link ReadingTypeDeliverable} and replaces
-     * references to requirements and deliverables with virtual references
-     * as described by {@link CopyAndVirtualizeReferences}.
+     * Copies the formula of the {@link ReadingTypeDeliverable} as described by {@link Copy}.
      *
      * @param deliverable The ReadingTypeDeliverable
      * @param meterActivation The MeterActivation
      * @param deliverablesPerMeterActivation The Map that provides a {@link ReadingTypeDeliverableForMeterActivation} for each {@link MeterActivation}
      *@param mode The mode  @return The copied formula with virtual requirements and deliverables
      */
-    private ServerExpressionNode copyAndVirtualizeReferences(ReadingTypeDeliverable deliverable, MeterActivation meterActivation, VirtualFactory virtualFactory, Map<MeterActivation, List<ReadingTypeDeliverableForMeterActivation>> deliverablesPerMeterActivation, Formula.Mode mode) {
+    private ServerExpressionNode copy(ReadingTypeDeliverable deliverable, MeterActivation meterActivation, VirtualFactory virtualFactory, Map<MeterActivation, List<ReadingTypeDeliverableForMeterActivation>> deliverablesPerMeterActivation, Formula.Mode mode) {
         ServerFormula formula = (ServerFormula) deliverable.getFormula();
-        CopyAndVirtualizeReferences visitor =
-                new CopyAndVirtualizeReferences(
+        Copy visitor =
+                new Copy(
                         mode,
                         virtualFactory,
                         new ReadingTypeDeliverablePerMeterActivationProviderImpl(deliverablesPerMeterActivation),
@@ -223,23 +225,13 @@ public class DataAggregationServiceImpl implements DataAggregationService {
     private void appendAllToSqlBuilder(ClauseAwareSqlBuilder sqlBuilder, VirtualFactory virtualFactory, Map<MeterActivation, List<ReadingTypeDeliverableForMeterActivation>> deliverablesPerMeterActivation) {
         /* Oracle requires that all WITH clauses are generated in the correct order,
          * i.e. one WITH clause can only refer to an already defined with clause.
-         * It suffices to append the definition for all requirements and deliverables
-         * first but therefore we need to virtualize them all first. */
-        deliverablesPerMeterActivation
-                .values()
-                .stream()
-                .flatMap(Collection::stream)
-                .forEach(this::finish);
+         * It suffices to append the definition for all requirements and deliverables. */
         virtualFactory.allRequirements().stream().forEach(requirement -> requirement.appendDefinitionTo(sqlBuilder));
         deliverablesPerMeterActivation
                 .values()
                 .stream()
                 .flatMap(Collection::stream)
                 .forEach(each -> each.appendDefinitionTo(sqlBuilder));
-    }
-
-    private void finish(ReadingTypeDeliverableForMeterActivation readingTypeDeliverableForMeterActivation) {
-        readingTypeDeliverableForMeterActivation.finish();
     }
 
     private Map<ReadingType, List<CalculatedReadingRecord>> execute(SqlBuilder sqlBuilder) throws SQLException {

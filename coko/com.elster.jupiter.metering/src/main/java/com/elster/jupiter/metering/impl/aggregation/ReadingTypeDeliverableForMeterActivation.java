@@ -69,6 +69,10 @@ class ReadingTypeDeliverableForMeterActivation {
         return this.deliverable.getReadingType();
     }
 
+    VirtualReadingType getTargetReadingType() {
+        return targetReadingType;
+    }
+
     /**
      * Returns the String that should be used in SQL statements to refer
      * to the data produced by this VirtualReadingTypeRequirement.
@@ -92,8 +96,8 @@ class ReadingTypeDeliverableForMeterActivation {
         return this.getRange().toString();
     }
 
-    void finish() {
-        this.expressionNode.accept(new FinishRequirementAndDeliverableNodes());
+    void appendSimpleReferenceTo(SqlBuilder sqlBuilder) {
+        sqlBuilder.append(this.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.VALUE.sqlName());
     }
 
     void appendReferenceTo(SqlBuilder sqlBuilder, VirtualReadingType targetReadingType) {
@@ -125,6 +129,7 @@ class ReadingTypeDeliverableForMeterActivation {
         withClauseBuilder.append("SELECT ");
         SqlConstants.TimeSeriesColumnNames
                 .appendAllDeliverableSelectValues(
+                        this.mode,
                         this.expressionNode,
                         this.expertModeIntervalLength(),
                         this.targetReadingType,
@@ -181,7 +186,7 @@ class ReadingTypeDeliverableForMeterActivation {
                     "Statement for deliverable " + this.deliverable.getName() + " in meter activation " + this.meterActivation.getRange() +
                     " requires time based aggregation because raw data interval length is " + this.expressionReadingType.getIntervalLength() +
                     " and target interval length is " + this.targetReadingType.getIntervalLength());
-            sqlBuilder.append(this.defaultValueAggregationFunctionFor(this.targetReadingType).sqlName());
+            sqlBuilder.append(this.targetReadingType.aggregationFunction().sqlName());
             sqlBuilder.append("(");
             sqlBuilder.append(
                     this.expressionReadingType.buildSqlUnitConversion(
@@ -200,10 +205,6 @@ class ReadingTypeDeliverableForMeterActivation {
                 this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.VALUE, sqlBuilder, this.sqlName());
             }
         }
-    }
-
-    private AggregationFunction defaultValueAggregationFunctionFor(VirtualReadingType readingType) {
-        return readingType.aggregationFunction();
     }
 
     private void appendTimelineToSelectClause(SqlBuilder sqlBuilder) {
@@ -276,7 +277,19 @@ class ReadingTypeDeliverableForMeterActivation {
     private boolean resultValueNeedsTimeBasedAggregation() {
         return !this.expressionReadingType.isDontCare()
             && Formula.Mode.AUTO.equals(this.mode)
-            && this.expressionReadingType.getIntervalLength() != this.targetReadingType.getIntervalLength();
+            && (   this.expressionReadingType.getIntervalLength() != this.targetReadingType.getIntervalLength()
+                || this.unitConversionNodeRequiresTimeBasedAggregation());
+    }
+
+    private boolean unitConversionNodeRequiresTimeBasedAggregation() {
+        Flatten flatteningVisitor = new Flatten();
+        this.expressionNode.accept(flatteningVisitor);
+        return flatteningVisitor
+                .getFlattened()
+                .stream()
+                .filter(node -> node instanceof UnitConversionNode)
+                .map(UnitConversionNode.class::cast)
+                .anyMatch(node -> !node.getSourceReadingType().getIntervalLength().equals(node.getTargetReadingType().getIntervalLength()));
     }
 
     private boolean expertModeAppliesAggregation() {
@@ -297,62 +310,6 @@ class ReadingTypeDeliverableForMeterActivation {
         } else {
             return Optional.empty();
         }
-    }
-
-    private class FinishRequirementAndDeliverableNodes implements ServerExpressionNode.Visitor<Void> {
-        @Override
-        public Void visitVirtualRequirement(VirtualRequirementNode requirement) {
-            requirement.finish();
-            return null;
-        }
-
-        @Override
-        public Void visitVirtualDeliverable(VirtualDeliverableNode deliverable) {
-            return null;
-        }
-
-        @Override
-        public Void visitConstant(NumericalConstantNode constant) {
-            // Nothing to finish here
-            return null;
-        }
-
-        @Override
-        public Void visitConstant(StringConstantNode constant) {
-            // Nothing to finish here
-            return null;
-        }
-
-        @Override
-        public Void visitVariable(VariableReferenceNode variable) {
-            // Nothing to finish here
-            return null;
-        }
-
-        @Override
-        public Void visitNull(NullNodeImpl nullNode) {
-            // Nothing to finish here
-            return null;
-        }
-
-        @Override
-        public Void visitOperation(OperationNode operation) {
-            operation.getLeftOperand().accept(this);
-            operation.getRightOperand().accept(this);
-            return null;
-        }
-
-        @Override
-        public Void visitFunctionCall(FunctionCallNode functionCall) {
-            functionCall.getArguments().forEach(child -> child.accept(this));
-            return null;
-        }
-
-        @Override
-        public Void visitTimeBasedAggregation(TimeBasedAggregationNode aggregationNode) {
-            return aggregationNode.getAggregatedExpression().accept(this);
-        }
-
     }
 
 }

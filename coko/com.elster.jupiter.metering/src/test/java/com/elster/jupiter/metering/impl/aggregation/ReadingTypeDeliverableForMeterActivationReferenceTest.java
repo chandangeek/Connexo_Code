@@ -129,7 +129,7 @@ public class ReadingTypeDeliverableForMeterActivationReferenceTest {
         testInstance.appendReferenceTo(sqlBuilder, targetReadingType);
 
         // Asserts
-        assertThat(sqlBuilder.getText()).isEqualTo("(rod97_1.value / 4E+3)");
+        assertThat(sqlBuilder.getText()).isEqualTo("((rod97_1.value / 4) * 1E+3)");
     }
 
     @Test
@@ -145,7 +145,7 @@ public class ReadingTypeDeliverableForMeterActivationReferenceTest {
         testInstance.appendReferenceTo(sqlBuilder, targetReadingType);
 
         // Asserts
-        assertThat(sqlBuilder.getText()).isEqualTo("(rod97_1.value / 0.004)");
+        assertThat(sqlBuilder.getText()).isEqualTo("((rod97_1.value / 4) * 0.001)");
     }
 
     @Test

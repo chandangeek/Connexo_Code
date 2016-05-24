@@ -29,12 +29,12 @@ public class ProcessStatusFromExpressionNode implements ServerExpressionNode.Vis
     }
 
     @Override
-    public String visitNull(NullNodeImpl nullNode) {
+    public String visitNull(NullNode nullNode) {
         return null;
     }
 
     @Override
-    public String visitVariable(VariableReferenceNode variable) {
+    public String visitSqlFragment(SqlFragmentNode variable) {
         return null;
     }
 
@@ -46,6 +46,11 @@ public class ProcessStatusFromExpressionNode implements ServerExpressionNode.Vis
     @Override
     public String visitVirtualRequirement(VirtualRequirementNode requirement) {
         return requirement.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.PROCESSSTATUS.sqlName();
+    }
+
+    @Override
+    public String visitUnitConversion(UnitConversionNode unitConversionNode) {
+        return unitConversionNode.getExpressionNode().accept(this);
     }
 
     @Override

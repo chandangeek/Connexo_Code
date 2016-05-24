@@ -102,6 +102,19 @@ public class UnitConversionSupport {
     }
 
     /**
+     * Tests if both {@link VirtualReadingType}s are compatible for unit conversion.
+     *
+     * @param first The first VirtualReadingType
+     * @param second The second VirtualReadingType
+     * @return A flag that indicates if both VirtualReadingTypes are compatible or not
+     * @see VirtualReadingType#getDimension()
+     * @see #areCompatibleForAutomaticUnitConversion(Dimension, Dimension)
+     */
+    public static boolean areCompatibleForAutomaticUnitConversion(VirtualReadingType first, VirtualReadingType second) {
+        return areCompatibleForAutomaticUnitConversion(first.getDimension(), second.getDimension());
+    }
+
+    /**
      * Tests if both {@link Dimension}s are compatible for unit conversion.
      *
      * @param first The first Dimension
@@ -215,7 +228,7 @@ public class UnitConversionSupport {
      * @return The expression tree that converts from source to target unit
      * @throws UnsupportedOperationException Thrown when source and target Unit are not of the same {@link Dimension}
      */
-    static ServerExpressionNode unitConversion(VariableReferenceNode variable, ReadingTypeUnit source, MetricMultiplier sourceMultiplier, ReadingTypeUnit target, MetricMultiplier targetMetricMultiplier) {
+    static ServerExpressionNode unitConversion(SqlFragmentNode variable, ReadingTypeUnit source, MetricMultiplier sourceMultiplier, ReadingTypeUnit target, MetricMultiplier targetMetricMultiplier) {
         if (source.equals(target) && sourceMultiplier.equals(targetMetricMultiplier)) {
             return variable;
         } else if (!sameDimension(source, target)) {

@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
+import com.elster.jupiter.metering.config.Formula;
 
 import java.util.EnumSet;
 import java.util.Set;
@@ -240,202 +241,202 @@ public class UnitConversionSupportTest {
 
     @Test
     public void kelvinToCelcius() {
-        VariableReferenceNode variable = new VariableReferenceNode("var");
+        SqlFragmentNode sql = new SqlFragmentNode("var");
 
         // Business method
-        ServerExpressionNode expression = UnitConversionSupport.unitConversion(variable, ReadingTypeUnit.KELVIN, MetricMultiplier.ZERO, ReadingTypeUnit.DEGREESCELSIUS, MetricMultiplier.ZERO);
+        ServerExpressionNode expression = UnitConversionSupport.unitConversion(sql, ReadingTypeUnit.KELVIN, MetricMultiplier.ZERO, ReadingTypeUnit.DEGREESCELSIUS, MetricMultiplier.ZERO);
 
         // Asserts
-        String conversion = expression.accept(new ExpressionNodeToString());
+        String conversion = expression.accept(new ExpressionNodeToString(Formula.Mode.AUTO));
         assertThat(conversion).isEqualTo("(var - 273.15)");
     }
 
     @Test
     public void celciusToKelvin() {
-        VariableReferenceNode variable = new VariableReferenceNode("var");
+        SqlFragmentNode sql = new SqlFragmentNode("var");
 
         // Business method
-        ServerExpressionNode expression = UnitConversionSupport.unitConversion(variable, ReadingTypeUnit.DEGREESCELSIUS, MetricMultiplier.ZERO, ReadingTypeUnit.KELVIN, MetricMultiplier.ZERO);
+        ServerExpressionNode expression = UnitConversionSupport.unitConversion(sql, ReadingTypeUnit.DEGREESCELSIUS, MetricMultiplier.ZERO, ReadingTypeUnit.KELVIN, MetricMultiplier.ZERO);
 
         // Asserts
-        String conversion = expression.accept(new ExpressionNodeToString());
+        String conversion = expression.accept(new ExpressionNodeToString(Formula.Mode.AUTO));
         assertThat(conversion).isEqualTo("(273.15 + var)");
     }
 
     @Test
     public void kelvinToFahrenheit() {
-        VariableReferenceNode variable = new VariableReferenceNode("var");
+        SqlFragmentNode sql = new SqlFragmentNode("var");
 
         // Business method
-        ServerExpressionNode expression = UnitConversionSupport.unitConversion(variable, ReadingTypeUnit.KELVIN, MetricMultiplier.ZERO, ReadingTypeUnit.DEGREESFAHRENHEIT, MetricMultiplier.ZERO);
+        ServerExpressionNode expression = UnitConversionSupport.unitConversion(sql, ReadingTypeUnit.KELVIN, MetricMultiplier.ZERO, ReadingTypeUnit.DEGREESFAHRENHEIT, MetricMultiplier.ZERO);
 
         // Asserts
-        String conversion = expression.accept(new ExpressionNodeToString());
+        String conversion = expression.accept(new ExpressionNodeToString(Formula.Mode.AUTO));
         assertThat(conversion).isEqualTo("((9 * (var - 255.372222222222)) / 5)");
     }
 
     @Test
     public void fahrenheitToKelvin() {
-        VariableReferenceNode variable = new VariableReferenceNode("var");
+        SqlFragmentNode sql = new SqlFragmentNode("var");
 
         // Business method
-        ServerExpressionNode expression = UnitConversionSupport.unitConversion(variable, ReadingTypeUnit.DEGREESFAHRENHEIT, MetricMultiplier.ZERO, ReadingTypeUnit.KELVIN, MetricMultiplier.ZERO);
+        ServerExpressionNode expression = UnitConversionSupport.unitConversion(sql, ReadingTypeUnit.DEGREESFAHRENHEIT, MetricMultiplier.ZERO, ReadingTypeUnit.KELVIN, MetricMultiplier.ZERO);
 
         // Asserts
-        String conversion = expression.accept(new ExpressionNodeToString());
+        String conversion = expression.accept(new ExpressionNodeToString(Formula.Mode.AUTO));
         assertThat(conversion).isEqualTo("(255.372222222222 + ((5 * var) / 9))");
     }
 
     @Test
     public void inchToMeter() {
-        VariableReferenceNode variable = new VariableReferenceNode("var");
+        SqlFragmentNode sql = new SqlFragmentNode("var");
 
         // Business method
-        ServerExpressionNode expression = UnitConversionSupport.unitConversion(variable, ReadingTypeUnit.INCH, MetricMultiplier.ZERO, ReadingTypeUnit.METER, MetricMultiplier.ZERO);
+        ServerExpressionNode expression = UnitConversionSupport.unitConversion(sql, ReadingTypeUnit.INCH, MetricMultiplier.ZERO, ReadingTypeUnit.METER, MetricMultiplier.ZERO);
 
         // Asserts
-        String conversion = expression.accept(new ExpressionNodeToString());
+        String conversion = expression.accept(new ExpressionNodeToString(Formula.Mode.AUTO));
         assertThat(conversion).isEqualTo("(0.0254 * var)");
     }
 
     @Test
     public void meterToInch() {
-        VariableReferenceNode variable = new VariableReferenceNode("var");
+        SqlFragmentNode sql = new SqlFragmentNode("var");
 
         // Business method
-        ServerExpressionNode expression = UnitConversionSupport.unitConversion(variable, ReadingTypeUnit.METER, MetricMultiplier.ZERO, ReadingTypeUnit.INCH, MetricMultiplier.ZERO);
+        ServerExpressionNode expression = UnitConversionSupport.unitConversion(sql, ReadingTypeUnit.METER, MetricMultiplier.ZERO, ReadingTypeUnit.INCH, MetricMultiplier.ZERO);
 
         // Asserts
-        String conversion = expression.accept(new ExpressionNodeToString());
+        String conversion = expression.accept(new ExpressionNodeToString(Formula.Mode.AUTO));
         assertThat(conversion).isEqualTo("(var / 0.0254)");
     }
 
     @Test
     public void footToMeter() {
-        VariableReferenceNode variable = new VariableReferenceNode("var");
+        SqlFragmentNode sql = new SqlFragmentNode("var");
 
         // Business method
-        ServerExpressionNode expression = UnitConversionSupport.unitConversion(variable, ReadingTypeUnit.FOOT, MetricMultiplier.ZERO, ReadingTypeUnit.METER, MetricMultiplier.ZERO);
+        ServerExpressionNode expression = UnitConversionSupport.unitConversion(sql, ReadingTypeUnit.FOOT, MetricMultiplier.ZERO, ReadingTypeUnit.METER, MetricMultiplier.ZERO);
 
         // Asserts
-        String conversion = expression.accept(new ExpressionNodeToString());
+        String conversion = expression.accept(new ExpressionNodeToString(Formula.Mode.AUTO));
         assertThat(conversion).isEqualTo("(0.3048 * var)");
     }
 
     @Test
     public void meterToFoot() {
-        VariableReferenceNode variable = new VariableReferenceNode("var");
+        SqlFragmentNode sql = new SqlFragmentNode("var");
 
         // Business method
-        ServerExpressionNode expression = UnitConversionSupport.unitConversion(variable, ReadingTypeUnit.METER, MetricMultiplier.ZERO, ReadingTypeUnit.FOOT, MetricMultiplier.ZERO);
+        ServerExpressionNode expression = UnitConversionSupport.unitConversion(sql, ReadingTypeUnit.METER, MetricMultiplier.ZERO, ReadingTypeUnit.FOOT, MetricMultiplier.ZERO);
 
         // Asserts
-        String conversion = expression.accept(new ExpressionNodeToString());
+        String conversion = expression.accept(new ExpressionNodeToString(Formula.Mode.AUTO));
         assertThat(conversion).isEqualTo("(var / 0.3048)");
     }
 
     @Test
     public void kiloMeterToFoot() {
-        VariableReferenceNode variable = new VariableReferenceNode("var");
+        SqlFragmentNode sql = new SqlFragmentNode("var");
 
         // Business method
-        ServerExpressionNode expression = UnitConversionSupport.unitConversion(variable, ReadingTypeUnit.METER, MetricMultiplier.KILO, ReadingTypeUnit.FOOT, MetricMultiplier.ZERO);
+        ServerExpressionNode expression = UnitConversionSupport.unitConversion(sql, ReadingTypeUnit.METER, MetricMultiplier.KILO, ReadingTypeUnit.FOOT, MetricMultiplier.ZERO);
 
         // Asserts
-        String conversion = expression.accept(new ExpressionNodeToString());
+        String conversion = expression.accept(new ExpressionNodeToString(Formula.Mode.AUTO));
         assertThat(conversion).isEqualTo("((1E+3 * var) / 0.3048)");
     }
 
     @Test
     public void mileToFoot() {
-        VariableReferenceNode variable = new VariableReferenceNode("var");
+        SqlFragmentNode sql = new SqlFragmentNode("var");
 
         // Business method
-        ServerExpressionNode expression = UnitConversionSupport.unitConversion(variable, ReadingTypeUnit.MILE, MetricMultiplier.ZERO, ReadingTypeUnit.FOOT, MetricMultiplier.ZERO);
+        ServerExpressionNode expression = UnitConversionSupport.unitConversion(sql, ReadingTypeUnit.MILE, MetricMultiplier.ZERO, ReadingTypeUnit.FOOT, MetricMultiplier.ZERO);
 
         // Asserts
-        String conversion = expression.accept(new ExpressionNodeToString());
+        String conversion = expression.accept(new ExpressionNodeToString(Formula.Mode.AUTO));
         assertThat(conversion).isEqualTo("((1609.344 * var) / 0.3048)");
     }
 
     @Test
     public void mileToMeter() {
-        VariableReferenceNode variable = new VariableReferenceNode("var");
+        SqlFragmentNode sql = new SqlFragmentNode("var");
 
         // Business method
-        ServerExpressionNode expression = UnitConversionSupport.unitConversion(variable, ReadingTypeUnit.MILE, MetricMultiplier.ZERO, ReadingTypeUnit.METER, MetricMultiplier.ZERO);
+        ServerExpressionNode expression = UnitConversionSupport.unitConversion(sql, ReadingTypeUnit.MILE, MetricMultiplier.ZERO, ReadingTypeUnit.METER, MetricMultiplier.ZERO);
 
         // Asserts
-        String conversion = expression.accept(new ExpressionNodeToString());
+        String conversion = expression.accept(new ExpressionNodeToString(Formula.Mode.AUTO));
         assertThat(conversion).isEqualTo("(1609.344 * var)");
     }
 
     @Test
     public void mileToKiloMeter() {
-        VariableReferenceNode variable = new VariableReferenceNode("var");
+        SqlFragmentNode sql = new SqlFragmentNode("var");
 
         // Business method
-        ServerExpressionNode expression = UnitConversionSupport.unitConversion(variable, ReadingTypeUnit.MILE, MetricMultiplier.ZERO, ReadingTypeUnit.METER, MetricMultiplier.KILO);
+        ServerExpressionNode expression = UnitConversionSupport.unitConversion(sql, ReadingTypeUnit.MILE, MetricMultiplier.ZERO, ReadingTypeUnit.METER, MetricMultiplier.KILO);
 
         // Asserts
-        String conversion = expression.accept(new ExpressionNodeToString());
+        String conversion = expression.accept(new ExpressionNodeToString(Formula.Mode.AUTO));
         assertThat(conversion).isEqualTo("((1609.344 * var) / 1E+3)");
     }
 
     @Test
     public void meterToMile() {
-        VariableReferenceNode variable = new VariableReferenceNode("var");
+        SqlFragmentNode sql = new SqlFragmentNode("var");
 
         // Business method
-        ServerExpressionNode expression = UnitConversionSupport.unitConversion(variable, ReadingTypeUnit.METER, MetricMultiplier.ZERO, ReadingTypeUnit.MILE, MetricMultiplier.ZERO);
+        ServerExpressionNode expression = UnitConversionSupport.unitConversion(sql, ReadingTypeUnit.METER, MetricMultiplier.ZERO, ReadingTypeUnit.MILE, MetricMultiplier.ZERO);
 
         // Asserts
-        String conversion = expression.accept(new ExpressionNodeToString());
+        String conversion = expression.accept(new ExpressionNodeToString(Formula.Mode.AUTO));
         assertThat(conversion).isEqualTo("(var / 1609.344)");
     }
 
     @Test
     public void meterToMeter() {
-        VariableReferenceNode variable = new VariableReferenceNode("var");
+        SqlFragmentNode sql = new SqlFragmentNode("var");
 
         // Business method
-        ServerExpressionNode expression = UnitConversionSupport.unitConversion(variable, ReadingTypeUnit.METER, MetricMultiplier.ZERO, ReadingTypeUnit.METER, MetricMultiplier.ZERO);
+        ServerExpressionNode expression = UnitConversionSupport.unitConversion(sql, ReadingTypeUnit.METER, MetricMultiplier.ZERO, ReadingTypeUnit.METER, MetricMultiplier.ZERO);
 
         // Asserts
-        String conversion = expression.accept(new ExpressionNodeToString());
+        String conversion = expression.accept(new ExpressionNodeToString(Formula.Mode.AUTO));
         assertThat(conversion).isEqualTo("var");
     }
 
     @Test
     public void meterToKiloMeter() {
-        VariableReferenceNode variable = new VariableReferenceNode("var");
+        SqlFragmentNode sql = new SqlFragmentNode("var");
 
         // Business method
-        ServerExpressionNode expression = UnitConversionSupport.unitConversion(variable, ReadingTypeUnit.METER, MetricMultiplier.ZERO, ReadingTypeUnit.METER, MetricMultiplier.KILO);
+        ServerExpressionNode expression = UnitConversionSupport.unitConversion(sql, ReadingTypeUnit.METER, MetricMultiplier.ZERO, ReadingTypeUnit.METER, MetricMultiplier.KILO);
 
         // Asserts
-        String conversion = expression.accept(new ExpressionNodeToString());
+        String conversion = expression.accept(new ExpressionNodeToString(Formula.Mode.AUTO));
         assertThat(conversion).isEqualTo("(var / 1E+3)");
     }
 
     @Test
     public void kiloMeterToMeter() {
-        VariableReferenceNode variable = new VariableReferenceNode("var");
+        SqlFragmentNode sql = new SqlFragmentNode("var");
 
         // Business method
-        ServerExpressionNode expression = UnitConversionSupport.unitConversion(variable, ReadingTypeUnit.METER, MetricMultiplier.KILO, ReadingTypeUnit.METER, MetricMultiplier.ZERO);
+        ServerExpressionNode expression = UnitConversionSupport.unitConversion(sql, ReadingTypeUnit.METER, MetricMultiplier.KILO, ReadingTypeUnit.METER, MetricMultiplier.ZERO);
 
         // Asserts
-        String conversion = expression.accept(new ExpressionNodeToString());
+        String conversion = expression.accept(new ExpressionNodeToString(Formula.Mode.AUTO));
         assertThat(conversion).isEqualTo("(1E+3 * var)");
     }
 
     @Test(expected = UnsupportedOperationException.class)
     public void literToCelcius() {
-        VariableReferenceNode variable = new VariableReferenceNode("var");
+        SqlFragmentNode sql = new SqlFragmentNode("var");
 
         // Business method
-        UnitConversionSupport.unitConversion(variable, ReadingTypeUnit.LITRE, MetricMultiplier.ZERO, ReadingTypeUnit.DEGREESCELSIUS, MetricMultiplier.ZERO);
+        UnitConversionSupport.unitConversion(sql, ReadingTypeUnit.LITRE, MetricMultiplier.ZERO, ReadingTypeUnit.DEGREESCELSIUS, MetricMultiplier.ZERO);
 
         // Asserts: see expected exception rule
     }
