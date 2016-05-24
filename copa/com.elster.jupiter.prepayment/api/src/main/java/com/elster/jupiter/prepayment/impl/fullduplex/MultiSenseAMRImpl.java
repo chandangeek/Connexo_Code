@@ -2,7 +2,6 @@ package com.elster.jupiter.prepayment.impl.fullduplex;
 
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.prepayment.impl.MessageSeeds;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -29,13 +28,11 @@ import java.sql.Date;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -112,66 +109,27 @@ public class MultiSenseAMRImpl implements FullDuplexInterface {
         scheduleDeviceCommandsComTaskEnablement(device, deviceMessageIds);
     }
 
-    public void configureLoadLimitThresholdAndDuration(EndDevice endDevice, ServiceCall serviceCall, BigDecimal limit, String unit, Integer[] tariffs, Integer loadTolerance) {
+    public void configureLoadLimitThresholdAndDuration(EndDevice endDevice, ServiceCall serviceCall, BigDecimal limit, String unit, Integer loadTolerance) {
         Device device = findDeviceForEndDevice(endDevice);
         List<DeviceMessageId> deviceMessageIds = new ArrayList<>();
-        deviceMessageIds.add(tariffs != null ? DeviceMessageId.LOAD_BALANCING_CONFIGURE_LOAD_LIMIT_THRESHOLD_AND_DURATION_WITH_TARIFFS : DeviceMessageId.LOAD_BALANCING_CONFIGURE_LOAD_LIMIT_THRESHOLD_AND_DURATION);
+        deviceMessageIds.add(DeviceMessageId.LOAD_BALANCING_CONFIGURE_LOAD_LIMIT_THRESHOLD_AND_DURATION);
 
         Map<String, Object> attributes = new HashMap<>();
         attributes.put(DeviceMessageConstants.normalThresholdAttributeName, limit);
         attributes.put(DeviceMessageConstants.unitAttributeName, (unit == null || unit.isEmpty()) ? UNDEFINED : unit);
-        if (tariffs != null) {
-            attributes.put(DeviceMessageConstants.tariffsAttributeName,
-                    Arrays.asList(tariffs)
-                            .stream()
-                            .map(Object::toString)
-                            .collect(Collectors.joining(", ")));
-        }
         attributes.put(DeviceMessageConstants.overThresholdDurationAttributeName, TimeDuration.seconds(loadTolerance));
         createDeviceMessagesOnDevice(device, serviceCall, deviceMessageIds, attributes);
         scheduleDeviceCommandsComTaskEnablement(device, deviceMessageIds);
     }
 
-    public void configureLoadLimitThreshold(EndDevice endDevice, ServiceCall serviceCall, BigDecimal limit, String unit, Integer[] tariffs) {
+    public void configureLoadLimitThreshold(EndDevice endDevice, ServiceCall serviceCall, BigDecimal limit, String unit) {
         Device device = findDeviceForEndDevice(endDevice);
         List<DeviceMessageId> deviceMessageIds = new ArrayList<>();
-        deviceMessageIds.add(tariffs != null ? DeviceMessageId.LOAD_BALANCING_SET_LOAD_LIMIT_THRESHOLD_WITH_TARIFFS : DeviceMessageId.LOAD_BALANCING_SET_LOAD_LIMIT_THRESHOLD);
+        deviceMessageIds.add(DeviceMessageId.LOAD_BALANCING_SET_LOAD_LIMIT_THRESHOLD);
 
         Map<String, Object> attributes = new HashMap<>();
         attributes.put(DeviceMessageConstants.normalThresholdAttributeName, limit);
         attributes.put(DeviceMessageConstants.unitAttributeName, (unit == null || unit.isEmpty()) ? UNDEFINED : unit);
-        if (tariffs != null) {
-            attributes.put(DeviceMessageConstants.tariffsAttributeName,
-                    Arrays.asList(tariffs)
-                            .stream()
-                            .map(Object::toString)
-                            .collect(Collectors.joining(", ")));
-        }
-        createDeviceMessagesOnDevice(device, serviceCall, deviceMessageIds, attributes);
-        scheduleDeviceCommandsComTaskEnablement(device, deviceMessageIds);
-    }
-
-    public void configureLoadLimitDuration(EndDevice endDevice, ServiceCall serviceCall, Integer loadTolerance) {
-        Device device = findDeviceForEndDevice(endDevice);
-        List<DeviceMessageId> deviceMessageIds = new ArrayList<>();
-        deviceMessageIds.add(DeviceMessageId.LOAD_BALANCING_SET_LOAD_LIMIT_DURATION);
-
-        Map<String, Object> attributes = new HashMap<>();
-        attributes.put(DeviceMessageConstants.overThresholdDurationAttributeName, TimeDuration.seconds(loadTolerance));
-        createDeviceMessagesOnDevice(device, serviceCall, deviceMessageIds, attributes);
-        scheduleDeviceCommandsComTaskEnablement(device, deviceMessageIds);
-    }
-
-    public void configureLoadLimitMeasurementReadingType(EndDevice endDevice, ServiceCall serviceCall, String measurementReadingType) {
-        Device device = findDeviceForEndDevice(endDevice);
-        List<DeviceMessageId> deviceMessageIds = new ArrayList<>();
-        deviceMessageIds.add(DeviceMessageId.LOAD_BALANCING_SET_LOAD_LIMIT_MEASUREMENT_READING_TYPE);
-
-        Map<String, Object> attributes = new HashMap<>();
-        Optional<ReadingType> readingType = this.meteringService.getReadingType(measurementReadingType);
-        if (readingType.isPresent()) {
-            attributes.put(DeviceMessageConstants.readingTypeAttributeName, readingType.get());
-        }
         createDeviceMessagesOnDevice(device, serviceCall, deviceMessageIds, attributes);
         scheduleDeviceCommandsComTaskEnablement(device, deviceMessageIds);
     }

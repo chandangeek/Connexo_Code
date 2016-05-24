@@ -1,11 +1,9 @@
 package com.elster.jupiter.prepayment.impl;
 
-import com.energyict.mdc.common.Unit;
+import com.elster.jupiter.util.units.Unit;
 
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Optional;
 
 /**
@@ -14,12 +12,9 @@ import java.util.Optional;
 public class ContactorInfo {
 
     public BreakerStatus status;
-    @XmlJavaTypeAdapter(JsonInstantAdapter.class)
     public Instant activationDate;
     public LoadLimit loadLimit;
     public Integer loadTolerance;
-    public Integer[] tariffs;
-    public String readingType;
     public String callback;
 
     @Override
@@ -36,12 +31,6 @@ public class ContactorInfo {
         if (loadTolerance != null) {
             msgBuilder.append(", loadTolerance: ").append(loadTolerance);
         }
-        if (tariffs != null) {
-            msgBuilder.append(", tariffs: ").append(Arrays.toString(tariffs));
-        }
-        if (readingType != null) {
-            msgBuilder.append(", readingType: ").append(readingType);
-        }
         msgBuilder.append(", callBack: ").append(callback);
         msgBuilder.append("}");
         return msgBuilder.toString();
@@ -55,17 +44,20 @@ public class ContactorInfo {
             return limit;
         }
 
-        public boolean shouldDisableLoadLimit() {
-            return limit != null && limit.equals(BigDecimal.ZERO);
-        }
-
         /**
-         * Get the corresponding {@link Unit} for the given unitCode<br/>
+         * Get the corresponding {@link Unit} for the given unitCode
          *
          * @return An Optional containing the Unit
          */
         public Optional<Unit> getUnit() {
-            return Optional.ofNullable(Unit.get(unit));
+            return Optional.ofNullable(unit != null ? Unit.get(unit) : null);
+        }
+
+        /**
+         * @return true in case the load limit should be disabled, false otherwise
+         */
+        public boolean shouldDisableLoadLimit() {
+            return limit.equals(BigDecimal.ZERO);
         }
     }
 }

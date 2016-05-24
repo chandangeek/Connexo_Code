@@ -39,6 +39,8 @@ import java.util.Optional;
 @Path("usagepoints/{mrid}")
 public class UsagePointResource {
 
+    private static final String UNDEFINED = "undefined";
+
     private final MeteringService meteringService;
     private final DeviceService deviceService;
     private final Clock clock;
@@ -98,20 +100,19 @@ public class UsagePointResource {
      */
     private void validateContactorInfo(ServiceCall serviceCall, ContactorInfo contactorInfo) {
         serviceCall.log(LogLevel.INFO, "Received parameters: " + contactorInfo.toString());
-        if (contactorInfo.status == null) {
-            throw exceptionFactory.newException(MessageSeeds.UNKNOWN_STATUS);
+        if (contactorInfo.status == null && contactorInfo.loadLimit == null) {
+            throw exceptionFactory.newException(MessageSeeds.INCOMPLETE_CONTACTOR_INFO);
         }
-        if (contactorInfo.loadLimit != null) {
-            if (contactorInfo.loadLimit.limit == null || contactorInfo.loadLimit.unit == null) {
-                throw exceptionFactory.newException(MessageSeeds.INCOMPLETE_LOADLIMIT);
-            } else if (!contactorInfo.loadLimit.getUnit().isPresent()) {
-                throw exceptionFactory.newException(MessageSeeds.UNKNOWN_UNIT_CODE);
-            }
+
+        if (contactorInfo.loadLimit != null && (contactorInfo.loadLimit.limit == null || contactorInfo.loadLimit.unit == null)) {
+            throw exceptionFactory.newException(MessageSeeds.INCOMPLETE_LOADLIMIT);
+        } else if (contactorInfo.loadLimit != null && !contactorInfo.loadLimit.getUnit().isPresent()) {
+            throw exceptionFactory.newException(MessageSeeds.UNKNOWN_UNIT_CODE);
         }
-        if (contactorInfo.readingType != null && !this.meteringService.getReadingType(contactorInfo.readingType).isPresent()) {
-            throw exceptionFactory.newException(MessageSeeds.UNKNOWN_READING_TYPE);
-        }
-        if (contactorInfo.loadTolerance != null && contactorInfo.loadTolerance < 0) {
+
+        if (contactorInfo.loadLimit == null && contactorInfo.loadTolerance != null) {
+            throw exceptionFactory.newException(MessageSeeds.TOLERANCE_WITHOUT_LOAD_LIMIT);
+        } else if (contactorInfo.loadTolerance != null && contactorInfo.loadTolerance < 0) {
             serviceCall.log(LogLevel.WARNING, "The specified load tolerance contains a negative value; this value will be ignored (the load tolerance will remain untouched).");
             contactorInfo.loadTolerance = null; // If tolerance is negative, then ignore it
         }

@@ -23,13 +23,9 @@ public interface FullDuplexInterface {
 
     void disableLoadLimiting(EndDevice endDevice, ServiceCall serviceCall);
 
-    void configureLoadLimitThresholdAndDuration(EndDevice endDevice, ServiceCall serviceCall, BigDecimal limit, String unit, Integer[] tariffs, Integer loadTolerance);
+    void configureLoadLimitThresholdAndDuration(EndDevice endDevice, ServiceCall serviceCall, BigDecimal limit, String unit, Integer loadTolerance);
 
-    void configureLoadLimitThreshold(EndDevice endDevice, ServiceCall serviceCall, BigDecimal limit, String unit, Integer[] tariffs);
-
-    void configureLoadLimitDuration(EndDevice endDevice, ServiceCall serviceCall, Integer loadTolerance);
-
-    void configureLoadLimitMeasurementReadingType(EndDevice endDevice, ServiceCall serviceCall, String measurementReadingType);
+    void configureLoadLimitThreshold(EndDevice endDevice, ServiceCall serviceCall, BigDecimal limit, String unit);
 
     void scheduleStatusInformationTask(EndDevice endDevice, Instant scheduleTime);
 

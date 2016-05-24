@@ -17,10 +17,12 @@ public enum MessageSeeds implements MessageSeed {
     UNKNOWN_STATUS(1007, "The requested contactor status is not supported at this time"),
     UNKNOWN_UNIT_CODE(1008, "The requested load limit unit is not supported at this time"),
     INCOMPLETE_LOADLIMIT(1009, "Received incomplete load limit - please make sure to specify both the limit and the unit."),
-    UNKNOWN_READING_TYPE(1010, "The requested load limit reading type is not supported at this time"),
+    TOLERANCE_WITHOUT_LOAD_LIMIT(1010, "Received incomplete load limit - load tolerance can only be used in combination with load limitation"),
     NO_COMTASK_FOR_STATUS_INFORMATION(1011, "A comtask to verify the status information could not be located"),
     NO_SUCH_DEVICE(1012, "No device with MRID {0}"),
+    INCOMPLETE_CONTACTOR_INFO(1013, "Received incomplete request - please make sure to specify contactor status and/or load limit parameters"),
     ;
+
 
     private final int number;
     private final String defaultFormat;

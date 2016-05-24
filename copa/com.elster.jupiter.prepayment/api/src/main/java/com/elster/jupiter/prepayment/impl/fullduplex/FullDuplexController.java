@@ -36,23 +36,25 @@ public class FullDuplexController {
 
     private int performBreakerOperations(EndDevice endDevice, ServiceCall serviceCall, ContactorInfo contactorInfo) {
         int nrOfDeviceCommands = 0;
-        serviceCall.log(LogLevel.INFO, "Handling breaker operations - the breaker will be " + contactorInfo.status.name() + ".");
-        switch (contactorInfo.status) {
-            case CONNECTED:
-                multiSenseAMR.connectBreaker(endDevice, serviceCall, contactorInfo.activationDate);
-                serviceCall.log(LogLevel.FINE, "Scheduled device command to connect the breaker.");
-                nrOfDeviceCommands++;
-                break;
-            case DISCONNECTED:
-                multiSenseAMR.disconnectBreaker(endDevice, serviceCall, contactorInfo.activationDate);
-                serviceCall.log(LogLevel.FINE, "Scheduled device command to disconnect the breaker.");
-                nrOfDeviceCommands++;
-                break;
-            case ARMED:
-                multiSenseAMR.armBreaker(endDevice, serviceCall, contactorInfo.activationDate);
-                serviceCall.log(LogLevel.FINE, "Scheduled two device commands to arm the breaker.");
-                nrOfDeviceCommands += 2; // Will be transmitted as 2 separate DeviceCommands (first a DISCONNECT, then an ARM)
-                break;
+        if (shouldPerformBreakerOperations(contactorInfo)) {
+            serviceCall.log(LogLevel.INFO, "Handling breaker operations - the breaker will be " + contactorInfo.status.getDescription() + ".");
+            switch (contactorInfo.status) {
+                case CONNECTED:
+                    multiSenseAMR.connectBreaker(endDevice, serviceCall, contactorInfo.activationDate);
+                    serviceCall.log(LogLevel.FINE, "Scheduled device command to connect the breaker.");
+                    nrOfDeviceCommands++;
+                    break;
+                case DISCONNECTED:
+                    multiSenseAMR.disconnectBreaker(endDevice, serviceCall, contactorInfo.activationDate);
+                    serviceCall.log(LogLevel.FINE, "Scheduled device command to disconnect the breaker.");
+                    nrOfDeviceCommands++;
+                    break;
+                case ARMED:
+                    multiSenseAMR.armBreaker(endDevice, serviceCall, contactorInfo.activationDate);
+                    serviceCall.log(LogLevel.FINE, "Scheduled two device commands to arm the breaker.");
+                    nrOfDeviceCommands += 2; // Will be transmitted as 2 separate DeviceCommands (first a DISCONNECT, then an ARM)
+                    break;
+            }
         }
         return nrOfDeviceCommands;
     }
@@ -66,30 +68,24 @@ public class FullDuplexController {
                 serviceCall.log(LogLevel.FINE, "Scheduled device command to disable the load limiting");
                 nrOfDeviceCommands++;
             } else if (contactorInfo.loadLimit != null && contactorInfo.loadTolerance != null) {
-                multiSenseAMR.configureLoadLimitThresholdAndDuration(endDevice, serviceCall, contactorInfo.loadLimit.limit, contactorInfo.loadLimit.unit, contactorInfo.tariffs, contactorInfo.loadTolerance);
+                multiSenseAMR.configureLoadLimitThresholdAndDuration(endDevice, serviceCall, contactorInfo.loadLimit.limit, contactorInfo.loadLimit.unit, contactorInfo.loadTolerance);
                 serviceCall.log(LogLevel.FINE, "Scheduled device command to configure the load limit and load tolerance");
                 nrOfDeviceCommands++;
             } else if (contactorInfo.loadLimit != null) {
-                multiSenseAMR.configureLoadLimitThreshold(endDevice, serviceCall, contactorInfo.loadLimit.limit, contactorInfo.loadLimit.unit, contactorInfo.tariffs);
+                multiSenseAMR.configureLoadLimitThreshold(endDevice, serviceCall, contactorInfo.loadLimit.limit, contactorInfo.loadLimit.unit);
                 serviceCall.log(LogLevel.FINE, "Scheduled device command to configure the load limit");
-                nrOfDeviceCommands++;
-            } else if (contactorInfo.loadTolerance != null) {
-                multiSenseAMR.configureLoadLimitDuration(endDevice, serviceCall, contactorInfo.loadTolerance);
-                serviceCall.log(LogLevel.FINE, "Scheduled device command to configure the load limit tolereance");
-                nrOfDeviceCommands++;
-            }
-
-            if (contactorInfo.readingType != null) {
-                multiSenseAMR.configureLoadLimitMeasurementReadingType(endDevice, serviceCall, contactorInfo.readingType);
-                serviceCall.log(LogLevel.FINE, "Scheduled device command to set the load limit measurement type");
                 nrOfDeviceCommands++;
             }
         }
         return nrOfDeviceCommands;
     }
 
+    private boolean shouldPerformBreakerOperations(ContactorInfo contactorInfo) {
+        return contactorInfo.status != null;
+    }
+
     private boolean shouldPerformLoadLimitOperations(ContactorInfo contactorInfo) {
-        return contactorInfo.loadLimit != null || contactorInfo.loadTolerance != null || contactorInfo.readingType != null;
+        return contactorInfo.loadLimit != null;
     }
 
     private void updateNrOfUnconfirmedDeviceCommands(ServiceCall serviceCall, int nrOfDeviceCommands) {

@@ -1,6 +1,5 @@
 package com.energyict.mdc.multisense.api.redknee;
 
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.math.BigDecimal;
 import java.time.Instant;
 
@@ -10,12 +9,9 @@ import java.time.Instant;
 public class ContactorInfo {
 
     public Status status;
-    public LoadLimit loadLimit;
-    @XmlJavaTypeAdapter(JsonInstantAdapter.class)
     public Instant activationDate;
+    public LoadLimit loadLimit;
     public Integer loadTolerance;
-    public Integer[] tariffs;
-    public String readingType;
     public String callback;
 
     public class LoadLimit {
