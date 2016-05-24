@@ -27,7 +27,7 @@ Ext.define('Imt.metrologyconfiguration.view.validation.RuleSetView', {
                     itemId: 'ctr-no-validation-rule',
                     title: Uni.I18n.translate('validation.empty.versions.title', 'IMT', 'No validation rule set versions found'),
                     reasons: [
-                        Uni.I18n.translate('validation.empty.versions.list.item1', 'IMT', 'No validation rule set versions have been added yet.'),
+                        Uni.I18n.translate('validation.empty.versions.list.item1', 'IMT', 'No validation rule set versions have been added yet.')
                     ],
 //                    stepItems: [
 //                        {

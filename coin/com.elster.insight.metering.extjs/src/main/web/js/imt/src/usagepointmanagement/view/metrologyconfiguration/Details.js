@@ -46,7 +46,7 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.Details', {
                         xtype: 'no-items-found-panel',
                         title: Uni.I18n.translate('general.noMetrologyConfiguration', 'IMT', 'No metrology configuration'),
                         reasons: [
-                            Uni.I18n.translate('usagePoint.metrologyConfiguration.empty.reason', 'IMT', 'Metrology configuration has not been defined for this usage point yet')
+                            Uni.I18n.translate('usagePoint.metrologyConfiguration.empty.reason', 'IMT', 'No metrology configuration has been defined for this usage point yet')
                         ],
                         itemId: 'no-metrology-configuration-panel',
                         stepItems: [
