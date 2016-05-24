@@ -19,7 +19,7 @@ Ext.define('Mdc.view.setup.deviceevents.DataTableView', {
             title: Uni.I18n.translate('deviceevents.dataTableView.empty.title', 'MDC', 'No events found'),
             reasons: [
                 Uni.I18n.translate('deviceevents.dataTableView.empty.list.item1', 'MDC', 'No events have been defined yet.'),
-                Uni.I18n.translate('deviceevents.dataTableView.empty.list.item2', 'MDC', 'No events comply to the filter.')
+                Uni.I18n.translate('deviceevents.dataTableView.empty.list.item2', 'MDC', 'No events comply with the filter.')
             ]
         };
         me.previewComponent = {

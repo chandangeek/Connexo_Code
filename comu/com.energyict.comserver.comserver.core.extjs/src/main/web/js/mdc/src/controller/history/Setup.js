@@ -2082,7 +2082,7 @@ Ext.define('Mdc.controller.history.Setup', {
         router.addConfig({
             usagepoints: {
                 disabled: true,
-                title: Uni.I18n.translate('general.usagePointsManagement', 'MDC', 'Usage points management'),
+                title: Uni.I18n.translate('general.usagePoints', 'MDC', 'Usage points'),
                 route: 'usagepoints',
                 items: {
                     add: {
