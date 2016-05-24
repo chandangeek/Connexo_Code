@@ -11,7 +11,13 @@ Ext.define('Cfg.view.validation.VersionActionMenu', {
             text: Uni.I18n.translate('general.edit', 'CFG', 'Edit'),
             privileges: Cfg.privileges.Validation.admin,
             action: 'editVersion'
-        },     
+        },
+        {
+            itemId: 'cloneVersion',
+            text: Uni.I18n.translate('validation.clone', 'CFG', 'Clone'),
+            privileges: Cfg.privileges.Validation.admin,
+            action: 'cloneVersion'
+        },
         {
             itemId: 'deleteVersion',
             text: Uni.I18n.translate('general.remove', 'CFG', 'Remove'),

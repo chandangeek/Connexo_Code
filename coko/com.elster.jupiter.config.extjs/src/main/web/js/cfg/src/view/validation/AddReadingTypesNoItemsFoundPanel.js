@@ -68,7 +68,7 @@ Ext.define('Cfg.view.validation.AddReadingTypesNoItemsFoundPanel', {
                 title: Uni.I18n.translate('validation.readingType.empty.title', 'CFG', 'No reading types found.'),
                 reasons: [
                     Uni.I18n.translate('validation.readingType.empty.list.item1', 'CFG', 'No reading types have been added yet.'),
-                    Uni.I18n.translate('validation.readingType.empty.list.item2', 'CFG', 'No reading types comply to the filter.'),
+                    Uni.I18n.translate('validation.readingType.empty.list.item2', 'CFG', 'No reading types comply with the filter.'),
                     Uni.I18n.translate('validation.readingType.empty.list.item3', 'CFG', 'All reading types have been already added to rule.')
                 ]
             }
