@@ -13,6 +13,8 @@ import com.elster.jupiter.metering.GeoCoordinates;
 import com.elster.jupiter.metering.LifecycleDates;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.ami.EndDeviceCapabilities;
+import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventRecordBuilder;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
@@ -24,6 +26,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.time.Interval;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 
@@ -165,7 +168,7 @@ abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> impleme
     }
 
     @Override
-    public void setLocation(Location location){
+    public void setLocation(Location location) {
         this.location.set(location);
     }
 
@@ -186,8 +189,14 @@ abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> impleme
     }
 
     @Override
-    public void setGeoCoordintes(GeoCoordinates geoCoordinates){
+    public void setGeoCoordintes(GeoCoordinates geoCoordinates) {
         this.geoCoordinates.set(geoCoordinates);
+    }
+
+    @Override
+    public Optional<HeadEndInterface> getHeadEndInterface() {
+        // TODO it is temporal implementation, real code will be done in scope of CXO-608
+        return Optional.of((endDevice) -> new EndDeviceCapabilities(Collections.emptyList()));
     }
 
     @Override
