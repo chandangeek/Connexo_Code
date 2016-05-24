@@ -10,6 +10,7 @@ import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.device.data.BreakerStatus;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
@@ -30,6 +31,7 @@ import com.energyict.protocolimpl.base.ContactorController;
 import com.energyict.protocolimpl.dlms.as220.gmeter.GMeter;
 import com.energyict.protocolimpl.dlms.as220.gmeter.GMeterMessaging;
 import com.energyict.protocolimpl.dlms.as220.gmeter.GasRegister;
+import com.energyict.protocolimpl.dlms.as220.gmeter.GasValveController;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import javax.inject.Inject;
@@ -37,6 +39,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 
 /**
@@ -194,7 +197,7 @@ public class GasDevice extends AS220 implements MessageProtocol{
 			RegisterValue registerValue = gasRegister.getRegisterValue(oc);
 			return ProtocolTools.setRegisterValueObisCode(registerValue, obisCode);
 		} else if(obisCode.equals(ObisCode.fromString("0.0.24.4.129.255"))) {
-            ContactorController.ContactorState cs = getgMeter().getGasValveController().getContactorState();
+			BreakerStatus cs = getgMeter().getGasValveController().getContactorState();
 			return new RegisterValue(obisCode,null, null, null, null, new Date(), 0, cs.name());
         }
         else {
@@ -279,5 +282,11 @@ public class GasDevice extends AS220 implements MessageProtocol{
 			this.messaging = new GMeterMessaging(this);
 		}
 		return this.messaging;
+	}
+
+	@Override
+	public Optional<BreakerStatus> getBreakerStatus() throws IOException {
+		ContactorController cc = new GasValveController(this);
+		return Optional.of(cc.getContactorState());
 	}
 }

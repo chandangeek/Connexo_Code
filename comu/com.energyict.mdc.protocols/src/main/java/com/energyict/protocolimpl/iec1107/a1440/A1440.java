@@ -14,6 +14,7 @@ import com.energyict.mdc.protocol.api.MeterExceptionInfo;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.protocol.api.device.data.BreakerStatus;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
@@ -33,6 +34,7 @@ import com.energyict.mdc.protocol.api.messaging.MessageValue;
 import com.energyict.protocols.util.ProtocolUtils;
 
 import com.energyict.dialer.connection.IEC1107HHUConnection;
+import com.energyict.protocolimpl.base.ContactorController;
 import com.energyict.protocolimpl.base.DataDumpParser;
 import com.energyict.protocolimpl.base.DataParseException;
 import com.energyict.protocolimpl.base.DataParser;
@@ -1040,4 +1042,9 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
         return limitMaxNrOfDays;
     }
 
+    @Override
+    public Optional<BreakerStatus> getBreakerStatus() throws IOException {
+        ContactorController cc = new A1440ContactorController(this);
+        return Optional.of(cc.getContactorState());
+    }
 }
