@@ -306,7 +306,7 @@ Ext.define('Uni.controller.history.Router', {
             index;
 
         while (path.lastIndexOf('/') > -1) {
-            dynamicPrivileges = me.getRoute(path).dynamicPrivilegeStores
+            dynamicPrivileges = me.getRoute(path).dynamicPrivilegeStores;
             if (dynamicPrivileges) {
                 Uni.DynamicPrivileges.loadPage(dynamicPrivileges, me.getRoute(path).dynamicPrivilige, applyAction, me);
                 return true;
