@@ -62,7 +62,6 @@ public abstract class DeviceTransitionImportProcessor<T extends DeviceTransition
     }
 
     protected void afterTransition(Device device, T data, FileImportLogger logger) throws ProcessorException {
-        device.save();
     }
 
     private void performDeviceTransition(T data, Device device, FileImportLogger logger) {
