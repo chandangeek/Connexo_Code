@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
@@ -24,7 +23,6 @@ import java.util.Map;
 
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.overThresholdDurationAttributeName;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.powerQualityThresholdAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.readingTypeAttributeName;
 
 /**
  * Represents a MessageConverter for the legacy WebRTUKP protocol.
@@ -48,8 +46,6 @@ public class A1440MessageConverter extends AbstractMessageConverter {
             return String.valueOf(((BigDecimal) messageAttribute).intValue());
         } else if (propertySpec.getName().equals(overThresholdDurationAttributeName)) {
             return String.valueOf(((TimeDuration) messageAttribute).getSeconds());
-        } else if (propertySpec.getName().equals(readingTypeAttributeName)) {
-            return ((ReadingType) messageAttribute).getMRID();
         }
         return String.valueOf(messageAttribute);
     }
@@ -73,13 +69,9 @@ public class A1440MessageConverter extends AbstractMessageConverter {
         registry.put(DeviceMessageId.DEVICE_ACTIONS_EVENT_LOG_RESET, new LoadLogResetMessageEntry());
         registry.put(DeviceMessageId.DEVICE_ACTIONS_EVENT_LOG_RESET, new EventLogResetMessageEntry());
 
-        registry.put(DeviceMessageId.LOAD_BALANCING_DISABLE_LOAD_LIMITING, new MultipleAttributeMessageEntry("DISABLE_LOAD_LIMITING"));
-        registry.put(DeviceMessageId.LOAD_BALANCING_SET_LOAD_LIMIT_DURATION, new MultipleAttributeMessageEntry("SET_LOAD_LIMIT_DURATION", "Duration"));
+        registry.put(DeviceMessageId.LOAD_BALANCING_DISABLE_LOAD_LIMITING, new MultipleAttributeMessageEntry("DISABLE_LOAD_LIMIT"));
         registry.put(DeviceMessageId.LOAD_BALANCING_SET_LOAD_LIMIT_THRESHOLD, new MultipleAttributeMessageEntry("SET_LOAD_LIMIT_TRESHOLD", "Threshold", "Unit"));
-        registry.put(DeviceMessageId.LOAD_BALANCING_SET_LOAD_LIMIT_THRESHOLD_WITH_TARIFFS, new MultipleAttributeMessageEntry("SET_LOAD_LIMIT_TRESHOLD", "Threshold", "Unit", "Tariff(s)"));
         registry.put(DeviceMessageId.LOAD_BALANCING_CONFIGURE_LOAD_LIMIT_THRESHOLD_AND_DURATION, new MultipleAttributeMessageEntry("CONFIGURE_LOAD_LIMIT", "Threshold", "Unit", "Duration"));
-        registry.put(DeviceMessageId.LOAD_BALANCING_CONFIGURE_LOAD_LIMIT_THRESHOLD_AND_DURATION_WITH_TARIFFS, new MultipleAttributeMessageEntry("CONFIGURE_LOAD_LIMIT", "Threshold", "Unit", "Tariff(s)", "Duration"));
-        registry.put(DeviceMessageId.LOAD_BALANCING_SET_LOAD_LIMIT_MEASUREMENT_READING_TYPE, new MultipleAttributeMessageEntry("SET_LOAD_LIMIT_MEASUREMENT_VALUE", "MeasurementCode"));
 
         return registry;
     }
