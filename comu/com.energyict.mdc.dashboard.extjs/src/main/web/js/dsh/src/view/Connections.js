@@ -37,7 +37,7 @@ Ext.define('Dsh.view.Connections', {
                     title: Uni.I18n.translate('workspace.dataCommunication.connections.empty.title', 'DSH', 'No connections found'),
                     reasons: [
                         Uni.I18n.translate('workspace.dataCommunication.connections.empty.list.item1', 'DSH', 'No connections in the system.'),
-                        Uni.I18n.translate('workspace.dataCommunication.connections.empty.list.item2', 'DSH', 'No connections found due to applied filters.')
+                        Uni.I18n.translate('workspace.dataCommunication.connections.empty.list.item2', 'DSH', 'No connections comply with the filter.')
                     ],
                     margins: '16 0 0 0'
                 },
@@ -66,7 +66,7 @@ Ext.define('Dsh.view.Connections', {
                                     title: Uni.I18n.translate('communication.empty.title', 'DSH', 'No communications found'),
                                     reasons: [
                                         Uni.I18n.translate('communication.empty.list.item1', 'DSH', 'No communications in the system.'),
-                                        Uni.I18n.translate('communication.empty.list.item2', 'DSH', 'No communications found due to applied filters.')
+                                        Uni.I18n.translate('communication.empty.list.item2', 'DSH', 'No communications comply with the filter.')
                                     ]
                                 },
                                 previewComponent: {
