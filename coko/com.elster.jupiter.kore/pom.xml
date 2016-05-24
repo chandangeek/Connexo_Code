@@ -307,7 +307,7 @@
                 <module>../com.elster.jupiter.metering.extjs</module>
                 <module>../com.elster.jupiter.parties</module>
                 <module>../com.elster.jupiter.parties.rest</module>
-                <module>../com.elster.jupiter.platform.api.rest</module>
+                <module>../com.elster.jupiter.pulse.api.rest</module>
                 <module>../com.elster.jupiter.system.app</module>
                 <module>../com.elster.jupiter.system.app.help</module>
                 <module>../com.elster.jupiter.systemadmin.extjs</module>
