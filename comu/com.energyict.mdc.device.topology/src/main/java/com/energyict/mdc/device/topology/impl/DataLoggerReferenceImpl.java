@@ -10,6 +10,9 @@ import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.topology.DataLoggerChannelUsage;
 
+import com.google.common.collect.Range;
+
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -47,32 +50,70 @@ public class DataLoggerReferenceImpl extends AbstractPhysicalGatewayReferenceImp
      * Data from each DataLogger Channel is transferred to the slave channel for this DataLoggerReference's interval
      */
     public void transferChannelDataToSlave(){
-         this.dataLoggerChannelUsages.stream().forEach(this::transferChannelData);
+         this.dataLoggerChannelUsages.stream().forEach(this::transferChannelDataToSlave);
     }
 
-    private void transferChannelData(DataLoggerChannelUsage channelUsage){
+    /**
+     * Closes the current interval.
+     */
+    public void terminate(Instant closingDate){
+        // Data on the slave channels having a dat
+        this.dataLoggerChannelUsages.stream().forEach((usage) -> transferChannelDataToDataLogger(usage, closingDate));
+        super.terminate(closingDate);
+    }
+
+    private void transferChannelDataToSlave(DataLoggerChannelUsage channelUsage){
         MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
 
         Channel dataloggerChannel = channelUsage.getDataLoggerChannel();
         Channel slaveChannel = channelUsage.getSlaveChannel();
-        if (dataloggerChannel.isRegular()) {
-            List<IntervalReading> readings = new ArrayList<>();
-            readings.addAll(dataloggerChannel.getIntervalReadings(this.getRange()));
-            if (readings.isEmpty()){
-                return;
+        if (dataloggerChannel.hasData()) {
+            if (dataloggerChannel.isRegular()) {
+                List<IntervalReading> readings = new ArrayList<>();
+                readings.addAll(dataloggerChannel.getIntervalReadings(this.getRange()));
+                if (readings.isEmpty()) {
+                    return;
+                }
+                IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(slaveChannel.getMainReadingType().getMRID());
+                intervalBlock.addAllIntervalReadings(readings);
+                meterReading.addAllIntervalBlocks(Collections.singletonList(intervalBlock));
+            } else {
+                List<Reading> readings = new ArrayList<>();
+                readings.addAll(dataloggerChannel.getRegisterReadings(this.getRange()));
+                if (readings.isEmpty()) {
+                    return;
+                }
+                meterReading.addAllReadings(readings);
             }
-            IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(slaveChannel.getMainReadingType().getMRID());
-            intervalBlock.addAllIntervalReadings(readings);
-            meterReading.addAllIntervalBlocks(Collections.singletonList(intervalBlock));
-        } else {
-            List<Reading> readings = new ArrayList<>();
-            readings.addAll(dataloggerChannel.getRegisterReadings(this.getRange()));
-            if (readings.isEmpty()){
-                return;
-            }
-            meterReading.addAllReadings(readings);
+            this.getOrigin().store(meterReading);
         }
-        this.getOrigin().store(meterReading);
     }
 
+    private void transferChannelDataToDataLogger(DataLoggerChannelUsage channelUsage, Instant start){
+        MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+
+        Channel slaveChannel = channelUsage.getSlaveChannel();
+        Channel dataloggerChannel = channelUsage.getDataLoggerChannel();
+        if (slaveChannel.hasData()) {
+            if (slaveChannel.isRegular()) {
+                List<IntervalReading> readings = new ArrayList<>();
+                readings.addAll(slaveChannel.getIntervalReadings(Range.openClosed(start, slaveChannel.getLastDateTime())));
+                if (readings.isEmpty()) {
+                    return;
+                }
+                IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(dataloggerChannel.getMainReadingType().getMRID());
+                intervalBlock.addAllIntervalReadings(readings);
+                meterReading.addAllIntervalBlocks(Collections.singletonList(intervalBlock));
+            } else {
+                List<Reading> readings = new ArrayList<>();
+                readings.addAll(slaveChannel.getRegisterReadings(Range.openClosed(start, slaveChannel.getLastDateTime())));
+                if (readings.isEmpty()) {
+                    return;
+                }
+                meterReading.addAllReadings(readings);
+            }
+            slaveChannel.removeReadings(slaveChannel.getReadings(Range.openClosed(start, slaveChannel.getLastDateTime())));
+            this.getGateway().store(meterReading);
+        }
+    }
 }

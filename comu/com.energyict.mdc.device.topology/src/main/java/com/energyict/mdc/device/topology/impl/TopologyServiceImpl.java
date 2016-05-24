@@ -426,8 +426,8 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
         return this.dataModel.getInstance(DataLoggerReferenceImpl.class).createFor(slave, gateway, Interval.startAt(start));
     }
 
-    public void clearDataLogger(Device slave){
-        this.clearPhysicalGateway(slave);
+    public void clearDataLogger(Device slave, Instant when){
+        this.clearPhysicalGateway(slave, when);
     }
 
     private void addChannelDataLoggerUsage(DataLoggerReferenceImpl dataLoggerReference, Channel slave, Channel dataLogger){
@@ -490,8 +490,11 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
 
     @Override
     public void clearPhysicalGateway(Device slave) {
-        Instant instant = this.clock.instant();
-        this.getPhysicalGatewayReference(slave, instant).ifPresent(r -> terminateTemporal(r, instant));
+        clearPhysicalGateway(slave, this.clock.instant());
+    }
+
+    private void clearPhysicalGateway(Device slave, Instant when) {
+        this.getPhysicalGatewayReference(slave, when).ifPresent(r -> terminateTemporal(r, when));
         this.slaveTopologyChanged(slave, Optional.empty());
     }
 

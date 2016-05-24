@@ -242,7 +242,7 @@ public interface TopologyService {
      * Unlink the slave device from its data logger device
      * @param slave to remove from its logger device;
      */
-    void clearDataLogger(Device slave);
+    void clearDataLogger(Device slave, Instant when);
 
     /**
      * Finds the {@link Device}s that are data logger slave devices using to the specified data logger Device.

@@ -610,7 +610,7 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
         assertThat(inMemoryPersistence.getTopologyService().isReferenced(dataLogger.getChannels().get(0))).isTrue();
         assertThat(inMemoryPersistence.getTopologyService().isReferenced(dataLogger.getChannels().get(4))).isTrue();
 
-        inMemoryPersistence.getTopologyService().clearDataLogger(slave1);
+        inMemoryPersistence.getTopologyService().clearDataLogger(slave1, Instant.now());
 
         assertThat(inMemoryPersistence.getTopologyService().isReferenced(dataLogger.getChannels().get(0))).isFalse();
         assertThat(inMemoryPersistence.getTopologyService().isReferenced(dataLogger.getChannels().get(4))).isTrue();
@@ -618,7 +618,7 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
         assertThat(inMemoryPersistence.getTopologyService().dataModel().query(DataLoggerChannelUsageImpl.class).select(Condition.TRUE)).hasSize(4);
         assertThat(inMemoryPersistence.getTopologyService().dataModel().query(DataLoggerReferenceImpl.class).select(Condition.TRUE)).hasSize(2);
 
-        inMemoryPersistence.getTopologyService().clearDataLogger(slave2);
+        inMemoryPersistence.getTopologyService().clearDataLogger(slave2, Instant.now());
         assertThat(inMemoryPersistence.getTopologyService().isReferenced(dataLogger.getChannels().get(4))).isFalse();
     }
 }
