@@ -50,7 +50,7 @@ Ext.define('Mdc.view.setup.devicechannels.Setup', {
                         title: Uni.I18n.translate('devicechannels.empty.title', 'MDC', 'No channels found'),
                         reasons: [
                             Uni.I18n.translate('devicechannels.empty.list.item1', 'MDC', 'No channels have been defined yet.'),
-                            Uni.I18n.translate('devicechannels.empty.list.item2', 'MDC', 'No channels comply to the filter.')
+                            Uni.I18n.translate('devicechannels.empty.list.item2', 'MDC', 'No channels comply with the filter.')
                         ],
                         margins: '16 0 0 0'
                     },

@@ -11,6 +11,7 @@ Ext.define('Mdc.timeofuse.view.Setup', {
     deviceTypeId: null,
     timeOfUseAllowed: null,
     timeOfUseSupported: null,
+    tab2Activate: undefined,
 
     initComponent: function () {
         var me = this;
@@ -36,7 +37,7 @@ Ext.define('Mdc.timeofuse.view.Setup', {
                 {
                     xtype: 'tabpanel',
                     ui: 'large',
-                    activeTab: me.timeOfUseAllowed ? 1 : 0,
+                    activeTab: !Ext.isEmpty(me.tab2Activate) ? me.tab2Activate : (me.timeOfUseAllowed ? 1 : 0),
                     items: [
                         {
                             title: Uni.I18n.translate('general.specifications', 'MDC', 'Specifications'),
