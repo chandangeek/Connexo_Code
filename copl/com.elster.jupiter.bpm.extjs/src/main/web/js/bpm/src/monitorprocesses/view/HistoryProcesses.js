@@ -29,7 +29,7 @@ Ext.define('Bpm.monitorprocesses.view.HistoryProcesses', {
                         reasons: [
                             Uni.I18n.translate('bpm.process.empty.historylist.item1', 'BPM', 'No processes have been defined yet.'),
                             Uni.I18n.translate('bpm.process.empty.historylist.item2', 'BPM', 'Processes exist, but you do not have permission to view them.'),
-                            Uni.I18n.translate('bpm.process.empty.historylist.item3', 'BPM', 'The filter criteria are too narrow.')
+                            Uni.I18n.translate('bpm.process.empty.historylist.item3', 'BPM', 'No processes comply with the filter.')
                         ]
                     },
                     previewComponent: {
