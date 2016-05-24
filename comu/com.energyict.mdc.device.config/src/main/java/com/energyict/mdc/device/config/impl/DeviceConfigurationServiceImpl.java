@@ -21,6 +21,7 @@ import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.PrivilegesProvider;
@@ -67,6 +68,7 @@ import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.pluggable.PluggableService;
+import com.energyict.mdc.protocol.api.DeviceMessageFile;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.calendars.ProtocolSupportedCalendarOptions;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
@@ -126,7 +128,9 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile EventService eventService;
     private volatile Thesaurus thesaurus;
+    private volatile PropertySpecService propertySpecService;
     private volatile MeteringService meteringService;
+    private volatile PluggableService pluggableService;
     private volatile MdcReadingTypeUtilService readingTypeUtilService;
     private volatile EngineConfigurationService engineConfigurationService;
     private volatile MasterDataService masterDataService;
@@ -148,7 +152,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Inject
-    public DeviceConfigurationServiceImpl(OrmService ormService, Clock clock, ThreadPrincipalService threadPrincipalService, EventService eventService, NlsService nlsService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, ProtocolPluggableService protocolPluggableService, EngineConfigurationService engineConfigurationService, SchedulingService schedulingService, ValidationService validationService, EstimationService estimationService, MasterDataService masterDataService, FiniteStateMachineService finiteStateMachineService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, CalendarService calendarService) {
+    public DeviceConfigurationServiceImpl(OrmService ormService, Clock clock, ThreadPrincipalService threadPrincipalService, EventService eventService, NlsService nlsService, PropertySpecService propertySpecService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, PluggableService pluggableService, ProtocolPluggableService protocolPluggableService, EngineConfigurationService engineConfigurationService, SchedulingService schedulingService, ValidationService validationService, EstimationService estimationService, MasterDataService masterDataService, FiniteStateMachineService finiteStateMachineService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, CalendarService calendarService) {
         this();
         this.setOrmService(ormService);
         this.setClock(clock);
@@ -156,7 +160,9 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         this.setUserService(userService);
         this.setEventService(eventService);
         this.setNlsService(nlsService);
+        this.setPropertySpecService(propertySpecService);
         this.setMeteringService(meteringService);
+        this.setPluggableServce(pluggableService);
         this.setProtocolPluggableService(protocolPluggableService);
         this.setReadingTypeUtilService(mdcReadingTypeUtilService);
         this.setEngineConfigurationService(engineConfigurationService);
@@ -513,6 +519,11 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         this.thesaurus = nlsService.getThesaurus(COMPONENTNAME, Layer.DOMAIN);
     }
 
+    @Reference
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
+
     @Override
     public Thesaurus getThesaurus() {
         return thesaurus;
@@ -521,6 +532,11 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Reference
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
+    }
+
+    @Reference
+    public void setPluggableServce(PluggableService pluggableService) {
+        this.pluggableService = pluggableService;
     }
 
     @Reference
@@ -562,6 +578,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                 bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
                 bind(DataModel.class).toInstance(dataModel);
                 bind(EventService.class).toInstance(eventService);
+                bind(PropertySpecService.class).toInstance(propertySpecService);
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(MdcReadingTypeUtilService.class).toInstance(readingTypeUtilService);
@@ -571,6 +588,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                 bind(SchedulingService.class).toInstance(schedulingService);
                 bind(ValidationService.class).toInstance(validationService);
                 bind(EstimationService.class).toInstance(estimationService);
+                bind(CalendarService.class).toInstance(calendarService);
             }
         };
     }
@@ -873,12 +891,16 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Override
     public DeviceConfiguration cloneDeviceConfiguration(DeviceConfiguration templateDeviceConfiguration, String name) {
         return ((ServerDeviceConfiguration) templateDeviceConfiguration).clone(name);
-
     }
 
     @Override
     public Optional<DeviceConfigConflictMapping> findDeviceConfigConflictMapping(long id) {
         return this.getDataModel().mapper(DeviceConfigConflictMapping.class).getUnique("id", id);
+    }
+
+    @Override
+    public Optional<DeviceMessageFile> findDeviceMessageFile(long id) {
+        return this.getDataModel().mapper(DeviceMessageFile.class).getOptional(id);
     }
 
     @Override
@@ -891,7 +913,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toCollection(HashSet::new));
-        if(!checkForVerifyCalendar) {
+        if (!checkForVerifyCalendar) {
             protocolSupportedCalendarOptions.remove(ProtocolSupportedCalendarOptions.VERIFY_ACTIVE_CALENDAR);
         }
 
@@ -913,4 +935,5 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     public TimeOfUseOptions newTimeOfUseOptions(DeviceType deviceType) {
         return dataModel.getInstance(TimeOfUseOptionsImpl.class).init(deviceType);
     }
+
 }

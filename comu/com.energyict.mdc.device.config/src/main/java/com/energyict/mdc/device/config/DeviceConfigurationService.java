@@ -32,9 +32,11 @@ import java.util.Set;
 @ProviderType
 public interface DeviceConfigurationService {
 
-    public static String COMPONENTNAME = "DTC";
+    String COMPONENTNAME = "DTC";
+    int MAX_DEVICE_MESSAGE_FILE_SIZE_MB = 2;
+    int MAX_DEVICE_MESSAGE_FILE_SIZE_BYTES = MAX_DEVICE_MESSAGE_FILE_SIZE_MB * 1024 * 1024;    // 2MB
 
-    public Finder<DeviceType> findAllDeviceTypes();
+    Finder<DeviceType> findAllDeviceTypes();
 
     /**
      * Creates a new {@link DeviceType} with the specified name
@@ -51,7 +53,7 @@ public interface DeviceConfigurationService {
      * @param deviceProtocolPluggableClass The DeviceProtocolPluggableClass
      * @return The newly persisted DeviceType
      */
-    public DeviceType newDeviceType(String name, DeviceProtocolPluggableClass deviceProtocolPluggableClass);
+    DeviceType newDeviceType(String name, DeviceProtocolPluggableClass deviceProtocolPluggableClass);
 
     /**
      * Creates a new {@link DeviceType} with the specified name
@@ -66,7 +68,7 @@ public interface DeviceConfigurationService {
      * @param deviceLifeCycle The DeviceLifeCycle
      * @return The newly persisted DeviceType
      */
-    public DeviceType newDeviceType(String name, DeviceProtocolPluggableClass deviceProtocolPluggableClass, DeviceLifeCycle deviceLifeCycle);
+    DeviceType newDeviceType(String name, DeviceProtocolPluggableClass deviceProtocolPluggableClass, DeviceLifeCycle deviceLifeCycle);
 
     /**
      * Creates a new {@link com.energyict.mdc.device.config.DeviceType.DeviceTypeBuilder} with the specified name
@@ -81,7 +83,7 @@ public interface DeviceConfigurationService {
      * @param deviceLifeCycle The DeviceLifeCycle
      * @return The newly created DeviceType
      */
-    public DeviceType.DeviceTypeBuilder newDeviceTypeBuilder(String name, DeviceProtocolPluggableClass deviceProtocolPluggableClass, DeviceLifeCycle deviceLifeCycle);
+    DeviceType.DeviceTypeBuilder newDeviceTypeBuilder(String name, DeviceProtocolPluggableClass deviceProtocolPluggableClass, DeviceLifeCycle deviceLifeCycle);
 
     /**
      * Creates a new datalogger slave {@link com.energyict.mdc.device.config.DeviceType.DeviceTypeBuilder} with the specified name.
@@ -93,7 +95,7 @@ public interface DeviceConfigurationService {
      * @param deviceLifeCycle The DeviceLifeCycle
      * @return The newly created datalogger slave DeviceType
      */
-    public DeviceType.DeviceTypeBuilder newDataloggerSlaveDeviceTypeBuilder(String name, DeviceLifeCycle deviceLifeCycle);
+    DeviceType.DeviceTypeBuilder newDataloggerSlaveDeviceTypeBuilder(String name, DeviceLifeCycle deviceLifeCycle);
 
     /**
      * Find the {@link DeviceType} which is uniquely identified by the provided ID.
@@ -101,7 +103,7 @@ public interface DeviceConfigurationService {
      * @param deviceTypeId the ID of the DeviceType
      * @return the DeviceType or <code>null</code> if there is no such DeviceType
      */
-    public Optional<DeviceType> findDeviceType(long deviceTypeId);
+    Optional<DeviceType> findDeviceType(long deviceTypeId);
 
     /**
      * Finds and locks a {@link DeviceType} which is uniquely identified by the given ID and with the given VERSION.
@@ -111,7 +113,7 @@ public interface DeviceConfigurationService {
      * @return the DeviceType or empty if either the DeviceType does not exist
      * or the version of the DeviceType is not equal to the specified version
      */
-    public Optional<DeviceType> findAndLockDeviceType(long id, long version);
+    Optional<DeviceType> findAndLockDeviceType(long id, long version);
 
     /**
      * Find the {@link DeviceType} with the specified name.
@@ -119,14 +121,14 @@ public interface DeviceConfigurationService {
      * @param name The name
      * @return the DeviceType or <code>null</code> if there is no such DeviceType
      */
-    public Optional<DeviceType> findDeviceTypeByName(String name);
+    Optional<DeviceType> findDeviceTypeByName(String name);
 
     /**
      * Returns the topic onto which {@link DeviceLifeCycleChangeEvent}s are published.
      *
      * @return The topic
      */
-    public String changeDeviceLifeCycleTopicName();
+    String changeDeviceLifeCycleTopicName();
 
     /**
      * Changes the {@link DeviceLifeCycle} of the specified {@link DeviceType}
@@ -137,7 +139,7 @@ public interface DeviceConfigurationService {
      * @param deviceType The DeviceType
      * @param deviceLifeCycle The new DeviceLifeCycle
      */
-    public void changeDeviceLifeCycle(DeviceType deviceType, DeviceLifeCycle deviceLifeCycle) throws
+    void changeDeviceLifeCycle(DeviceType deviceType, DeviceLifeCycle deviceLifeCycle) throws
             IncompatibleDeviceLifeCycleChangeException;
 
     /**
@@ -146,7 +148,7 @@ public interface DeviceConfigurationService {
      * @param id the id of the DeviceConfiguration
      * @return the DeviceConfiguration or <code>null</code> if there is no such DeviceConfiguration
      */
-    public Optional<DeviceConfiguration> findDeviceConfiguration(long id);
+    Optional<DeviceConfiguration> findDeviceConfiguration(long id);
 
     /**
      * Finds and locks a {@link DeviceConfiguration} which is uniquely identified by the given ID and with the given VERSION.
@@ -190,7 +192,7 @@ public interface DeviceConfigurationService {
      * @param registerType the list of RegisterType
      * @return all the {@link RegisterSpec RegisterSpecs} which are defined for the given parameters
      */
-    public List<RegisterSpec> findActiveRegisterSpecsByDeviceTypeAndRegisterType(DeviceType deviceType, RegisterType registerType);
+    List<RegisterSpec> findActiveRegisterSpecsByDeviceTypeAndRegisterType(DeviceType deviceType, RegisterType registerType);
 
     /**
      * Finds a list of {@link RegisterSpec RegisterSpecs}
@@ -202,7 +204,7 @@ public interface DeviceConfigurationService {
      * @param registerType the list of RegisterType
      * @return all the {@link RegisterSpec RegisterSpecs} which are defined for the given parameters
      */
-    public List<RegisterSpec> findInactiveRegisterSpecsByDeviceTypeAndRegisterType(DeviceType deviceType, RegisterType registerType);
+    List<RegisterSpec> findInactiveRegisterSpecsByDeviceTypeAndRegisterType(DeviceType deviceType, RegisterType registerType);
 
     /**
      * Finds a list of {@link RegisterSpec}s which are modeled by the given RegisterType.
@@ -210,7 +212,7 @@ public interface DeviceConfigurationService {
      * @param measurementType the MeasurementType
      * @return the list of RegisterSpecs
      */
-    public List<RegisterSpec> findRegisterSpecsByMeasurementType(MeasurementType measurementType);
+    List<RegisterSpec> findRegisterSpecsByMeasurementType(MeasurementType measurementType);
 
     /**
      * Find the {@link LoadProfileSpec} with the given ID.
@@ -230,9 +232,9 @@ public interface DeviceConfigurationService {
      * @param loadProfileType the LoadProfileType which models the LoadProfileSpec
      * @return the requested LoadProfileSpec
      */
-    public Optional<LoadProfileSpec> findLoadProfileSpecByDeviceConfigAndLoadProfileType(DeviceConfiguration deviceConfig, LoadProfileType loadProfileType);
+    Optional<LoadProfileSpec> findLoadProfileSpecByDeviceConfigAndLoadProfileType(DeviceConfiguration deviceConfig, LoadProfileType loadProfileType);
 
-    public List<LoadProfileSpec> findLoadProfileSpecsByLoadProfileType(LoadProfileType loadProfileType);
+    List<LoadProfileSpec> findLoadProfileSpecsByLoadProfileType(LoadProfileType loadProfileType);
 
     /**
      * Find a {@link LogBookSpec} with the given ID.
@@ -240,47 +242,47 @@ public interface DeviceConfigurationService {
      * @param id the ID of the LogBookSpec
      * @return the LogBookSpec or <code>null</code> if there is no such LogBookSpec
      */
-    public Optional<LogBookSpec> findLogBookSpec(long id);
+    Optional<LogBookSpec> findLogBookSpec(long id);
 
     Optional<LogBookSpec> findAndLockLogBookSpecByIdAndVersion(long id, long version);
 
-    public Optional<ChannelSpec> findChannelSpecForLoadProfileSpecAndChannelType(LoadProfileSpec loadProfileSpec, ChannelType channelType);
+    Optional<ChannelSpec> findChannelSpecForLoadProfileSpecAndChannelType(LoadProfileSpec loadProfileSpec, ChannelType channelType);
 
-    public List<DeviceConfiguration> findDeviceConfigurationsUsingLoadProfileType(LoadProfileType loadProfileType);
+    List<DeviceConfiguration> findDeviceConfigurationsUsingLoadProfileType(LoadProfileType loadProfileType);
 
-    public List<ChannelSpec> findChannelSpecsForMeasurementType(MeasurementType measurementType);
+    List<ChannelSpec> findChannelSpecsForMeasurementType(MeasurementType measurementType);
 
-    public List<ChannelSpec> findChannelSpecsForChannelTypeInLoadProfileType(ChannelType channelType, LoadProfileType loadProfileType);
+    List<ChannelSpec> findChannelSpecsForChannelTypeInLoadProfileType(ChannelType channelType, LoadProfileType loadProfileType);
 
-    public List<DeviceType> findDeviceTypesUsingLoadProfileType(LoadProfileType loadProfileType);
+    List<DeviceType> findDeviceTypesUsingLoadProfileType(LoadProfileType loadProfileType);
 
-    public List<DeviceType> findDeviceTypesUsingLogBookType(LogBookType logBookType);
+    List<DeviceType> findDeviceTypesUsingLogBookType(LogBookType logBookType);
 
-    public List<DeviceType> findDeviceTypesUsingRegisterType(MeasurementType measurementType);
+    List<DeviceType> findDeviceTypesUsingRegisterType(MeasurementType measurementType);
 
-    public List<DeviceType> findDeviceTypesUsingDeviceLifeCycle(DeviceLifeCycle deviceLifeCycle);
+    List<DeviceType> findDeviceTypesUsingDeviceLifeCycle(DeviceLifeCycle deviceLifeCycle);
 
-    public List<DeviceConfiguration> findDeviceConfigurationsUsingLogBookType(LogBookType logBookType);
+    List<DeviceConfiguration> findDeviceConfigurationsUsingLogBookType(LogBookType logBookType);
 
-    public List<DeviceConfiguration> findDeviceConfigurationsUsingMeasurementType(MeasurementType measurementType);
+    List<DeviceConfiguration> findDeviceConfigurationsUsingMeasurementType(MeasurementType measurementType);
 
-    public boolean isRegisterTypeUsedByDeviceType(RegisterType registerType);
+    boolean isRegisterTypeUsedByDeviceType(RegisterType registerType);
 
-    public List<DeviceType> findDeviceTypesWithDeviceProtocol(DeviceProtocolPluggableClass deviceProtocolPluggableClass);
+    List<DeviceType> findDeviceTypesWithDeviceProtocol(DeviceProtocolPluggableClass deviceProtocolPluggableClass);
 
-    public Finder<DeviceConfiguration> findDeviceConfigurationsUsingDeviceType(DeviceType deviceType);
+    Finder<DeviceConfiguration> findDeviceConfigurationsUsingDeviceType(DeviceType deviceType);
 
     Optional<PartialConnectionTask> findPartialConnectionTask(long id);
 
     Optional<PartialConnectionTask> findAndLockPartialConnectionTaskByIdAndVersion(long id, long version);
 
-    public List<PartialConnectionTask> findByConnectionTypePluggableClass(ConnectionTypePluggableClass connectionTypePluggableClass);
+    List<PartialConnectionTask> findByConnectionTypePluggableClass(ConnectionTypePluggableClass connectionTypePluggableClass);
 
     Optional<ProtocolDialectConfigurationProperties> getProtocolDialectConfigurationProperties(long id);
 
     Optional<ProtocolDialectConfigurationProperties> findAndLockProtocolDialectConfigurationPropertiesByIdAndVersion(long id, long version);
 
-    public List<PartialConnectionTask> findByComPortPool(ComPortPool comPortPool);
+    List<PartialConnectionTask> findByComPortPool(ComPortPool comPortPool);
 
     Optional<SecurityPropertySet> findSecurityPropertySet(long id);
 
@@ -299,7 +301,7 @@ public interface DeviceConfigurationService {
      * @param comSchedule The ComSchedule
      * @return List of ComTasks, including ComTasks already linked to the schedule.
      */
-    public List<ComTask> findAvailableComTasks(ComSchedule comSchedule);
+    List<ComTask> findAvailableComTasks(ComSchedule comSchedule);
 
     /**
      * Finds all currently <i>active</i> DeviceConfigurations for the given DeviceType.
@@ -307,19 +309,19 @@ public interface DeviceConfigurationService {
      * @param deviceType the DeviceType
      * @return the list of <i>active</i> DeviceConfigurations
      */
-    public Finder<DeviceConfiguration> findActiveDeviceConfigurationsForDeviceType(DeviceType deviceType);
+    Finder<DeviceConfiguration> findActiveDeviceConfigurationsForDeviceType(DeviceType deviceType);
 
-    public List<DeviceConfiguration> findDeviceConfigurationsForValidationRuleSet(long validationRuleSetId);
+    List<DeviceConfiguration> findDeviceConfigurationsForValidationRuleSet(long validationRuleSetId);
 
-    public List<ReadingType> getReadingTypesRelatedToConfiguration(DeviceConfiguration configuration);
+    List<ReadingType> getReadingTypesRelatedToConfiguration(DeviceConfiguration configuration);
 
-    public List<DeviceConfiguration> getLinkableDeviceConfigurations(ValidationRuleSet validationRuleSet);
+    List<DeviceConfiguration> getLinkableDeviceConfigurations(ValidationRuleSet validationRuleSet);
 
-    public List<DeviceConfiguration> getLinkableDeviceConfigurations(EstimationRuleSet estimationRuleSet);
+    List<DeviceConfiguration> getLinkableDeviceConfigurations(EstimationRuleSet estimationRuleSet);
 
-    public List<SecurityPropertySet> findUniqueSecurityPropertySets();
+    List<SecurityPropertySet> findUniqueSecurityPropertySets();
 
-    public Finder<DeviceConfiguration> findDeviceConfigurationsForEstimationRuleSet(EstimationRuleSet estimationRuleSet);
+    Finder<DeviceConfiguration> findDeviceConfigurationsForEstimationRuleSet(EstimationRuleSet estimationRuleSet);
 
     DeviceConfiguration cloneDeviceConfiguration(DeviceConfiguration templateDeviceConfiguration, String name);
 
@@ -332,4 +334,5 @@ public interface DeviceConfigurationService {
     Optional<TimeOfUseOptions> findAndLockTimeOfUseOptionsByIdAndVersion(DeviceType deviceType, long version);
 
     TimeOfUseOptions newTimeOfUseOptions(DeviceType deviceType);
+
 }

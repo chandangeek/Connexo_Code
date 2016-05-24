@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
-import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
@@ -190,6 +189,7 @@ public class SecurityPropertySetImplCrudIT {
                     new MasterDataModule(),
                     new BasicPropertiesModule(),
                     new MdcDynamicModule(),
+                    new PluggableModule(),
                     new ProtocolApiModule(),
                     new TasksModule(),
                     new ValidationModule(),
@@ -218,21 +218,23 @@ public class SecurityPropertySetImplCrudIT {
             eventService = new SpyEventService(injector.getInstance(EventService.class));
             FiniteStateMachineService finiteStateMachineService = injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(MeteringService.class);
-            injector.getInstance(PluggableService.class);
             injector.getInstance(MasterDataService.class);
             injector.getInstance(CustomPropertySetService.class);
             injector.getInstance(TaskService.class);
             injector.getInstance(ValidationService.class);
             injector.getInstance(DeviceLifeCycleConfigurationService.class);
+            injector.getInstance(PluggableService.class);
             deviceConfigurationService = new DeviceConfigurationServiceImpl(
                     injector.getInstance(OrmService.class),
                     injector.getInstance(Clock.class),
                     injector.getInstance(ThreadPrincipalService.class),
                     eventService,
                     injector.getInstance(NlsService.class),
+                    injector.getInstance(com.elster.jupiter.properties.PropertySpecService.class),
                     injector.getInstance(MeteringService.class),
                     injector.getInstance(MdcReadingTypeUtilService.class),
                     injector.getInstance(UserService.class),
+                    injector.getInstance(PluggableService.class),
                     protocolPluggableService,
                     injector.getInstance(EngineConfigurationService.class),
                     injector.getInstance(SchedulingService.class),

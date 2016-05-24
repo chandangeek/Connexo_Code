@@ -1,11 +1,14 @@
 package com.energyict.mdc.device.config;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.tasks.ComTask;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
 import java.util.Optional;
@@ -64,9 +67,9 @@ public interface DeviceCommunicationConfiguration {
      */
     boolean removeDeviceMessageEnablement(DeviceMessageId deviceMessageId);
 
-    public List<ComTaskEnablement> getComTaskEnablements();
+    List<ComTaskEnablement> getComTaskEnablements();
 
-    public Optional<ComTaskEnablement> getComTaskEnablementFor(ComTask comTask);
+    Optional<ComTaskEnablement> getComTaskEnablementFor(ComTask comTask);
 
     /**
      * Starts a {@link ComTaskEnablementBuilder} that, once complete, will enable the execution
@@ -77,7 +80,7 @@ public interface DeviceCommunicationConfiguration {
      * @param securityPropertySet The SecurityPropertySet
      * @return The ComTaskEnablementBuilder that builds the enablement
      */
-    public ComTaskEnablementBuilder enableComTask(ComTask comTask, SecurityPropertySet securityPropertySet, ProtocolDialectConfigurationProperties configurationProperties);
+    ComTaskEnablementBuilder enableComTask(ComTask comTask, SecurityPropertySet securityPropertySet, ProtocolDialectConfigurationProperties configurationProperties);
 
     /**
      * Disables the execution of the specified {@link ComTask}
@@ -88,8 +91,7 @@ public interface DeviceCommunicationConfiguration {
      *
      * @param comTask The ComTask
      */
-    public void disableComTask(ComTask comTask);
-
+    void disableComTask(ComTask comTask);
 
     /**
      * Gets the specifications of which DeviceMessageCategory device message categories
@@ -112,6 +114,17 @@ public interface DeviceCommunicationConfiguration {
      * @return true if this DeviceMessage can be performed by the current user, false otherwise
      */
     boolean isAuthorized(DeviceMessageId deviceMessageId);
+
+    /**
+     * Returns the {@link DeviceMessageSpec} in the specified {@link DeviceMessageCategory}
+     * that have been enabled on this configuration and that the user is authorized to execute.
+     *
+     * @param category The DeviceMessageCategory
+     * @return The List of DeviceMessageSpec
+     * @see #getDeviceMessageEnablements()
+     * @see #isAuthorized(DeviceMessageId)
+     */
+    List<DeviceMessageSpec> getEnabledAndAuthorizedDeviceMessageSpecsIn(DeviceMessageCategory category);
 
     /**
      * Set whether or not this configuration should allow all protocol messages with the given deviceMessageUserActions.
