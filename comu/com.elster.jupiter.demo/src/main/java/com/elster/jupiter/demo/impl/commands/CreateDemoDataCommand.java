@@ -37,6 +37,7 @@ public class CreateDemoDataCommand {
     private Integer devicesPerType = null;
     private Location location;
     private GeoCoordinates geoCoordinates;
+    private boolean skipFirmwareMamanagementData;
 
     @Inject
     public CreateDemoDataCommand(
@@ -82,6 +83,10 @@ public class CreateDemoDataCommand {
 
     public void setGeoCoordinates(GeoCoordinates geoCoordinates){
        this.geoCoordinates = geoCoordinates;
+    }
+
+    public void setSkipFirmwareManagementData(boolean skipFirmwareData) {
+        this.skipFirmwareMamanagementData = skipFirmwareData;
     }
 
     public void setStartDate(String startDate) {
@@ -198,8 +203,10 @@ public class CreateDemoDataCommand {
     }
 
     private void setupFirmwareManagementCommand(){
-        SetupFirmwareManagementCommand setupFirmwareManagementCommand = this.setupFirmwareManagementCommandProvider.get();
-        setupFirmwareManagementCommand.run();
+        if (!skipFirmwareMamanagementData) {
+            SetupFirmwareManagementCommand setupFirmwareManagementCommand = this.setupFirmwareManagementCommandProvider.get();
+            setupFirmwareManagementCommand.run();
+        }
     }
 
     private void createImportersCommand(){

@@ -3,6 +3,7 @@ package com.elster.jupiter.demo;
 import com.elster.jupiter.appserver.impl.AppServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
+import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
@@ -208,46 +209,6 @@ public class DemoTest {
     private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private User currentUser;
 
-    private static class MockModule extends AbstractModule {
-        @Override
-        protected void configure() {
-            bind(FtpClientService.class).toInstance(mock(FtpClientService.class));
-            bind(BundleContext.class).toInstance(mock(BundleContext.class));
-            bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
-            bind(UserFileFactory.class).toInstance(mock(UserFileFactory.class));
-            bind(CodeFactory.class).toInstance(mock(CodeFactory.class));
-            bind(CollectedDataFactory.class).toInstance(mock(CollectedDataFactory.class));
-
-            Thesaurus thesaurus = mock(Thesaurus.class);
-            bind(Thesaurus.class).toInstance(thesaurus);
-            bind(MessageInterpolator.class).toInstance(thesaurus);
-
-            LicenseService licenseService = mock(LicenseService.class);
-            License license = mockLicense();
-            when(licenseService.getLicenseForApplication("MDC")).thenReturn(Optional.of(license));
-            bind(LicenseService.class).toInstance(licenseService);
-            bind(SerialComponentService.class).to(SerialIONoModemComponentServiceImpl.class).in(Scopes.SINGLETON);
-            bind(LogService.class).toInstance(mock(LogService.class));
-            bind(KieResources.class).toInstance(mock(KieResources.class));
-            bind(KnowledgeBaseFactoryService.class).toInstance(mock(KnowledgeBaseFactoryService.class, RETURNS_DEEP_STUBS));
-            bind(KnowledgeBuilderFactoryService.class).toInstance(mock(KnowledgeBuilderFactoryService.class, RETURNS_DEEP_STUBS));
-        }
-
-        private License mockLicense() {
-            License license = mock(License.class);
-            Properties properties = new Properties();
-            properties.setProperty("protocols", "all");
-            when(license.getApplicationKey()).thenReturn("MDC");
-            when(license.getDescription()).thenReturn("MDC application license example");
-            when(license.getStatus()).thenReturn(License.Status.ACTIVE);
-            when(license.getType()).thenReturn(License.Type.EVALUATION);
-            when(license.getGracePeriodInDays()).thenReturn(5);
-            when(license.getExpiration()).thenReturn(Instant.parse("9999-12-31T24:00:00Z"));
-            when(license.getLicensedValues()).thenReturn(properties);
-            return license;
-        }
-    }
-
     @Before
     public void setEnvironment() {
         injector = Guice.createInjector(
@@ -332,7 +293,8 @@ public class DemoTest {
                 new FileImportModule(),
                 new MailModule(),
                 new DemoModule(),
-                new CustomPropertySetsModule()
+                new CustomPropertySetsModule(),
+                new CalendarModule()
         );
         doPreparations();
     }
@@ -634,7 +596,7 @@ public class DemoTest {
     public void testExecuteCreateDemoDataTwice() {
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
             demoService.createDemoData("DemoServ", "host", "2014-12-01", "2");
-            demoService.createDemoData("DemoServ", "host", "2014-12-01", "2");
+            demoService.createDemoData("DemoServ", "host", "2014-12-01", "2", true); // Skip firmware management data, as H2 doesn't support update of LOB
         // Calling the command 'createDemoData' twice shouldn't produce errors
     }
 
@@ -673,7 +635,6 @@ public class DemoTest {
 //                   .isPresent()).isTrue();
     }
 
-
     @Test
     public void testFirmwareManagementSetup(){
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
@@ -706,6 +667,7 @@ public class DemoTest {
 
         assertThat(issueCreationService.getCreationRuleQuery().select(Condition.TRUE)).hasSize(4);
     }
+
     @Test
     public void testCreateImportersCommand(){
         FileImportService fileImportService = injector.getInstance(FileImportService.class);
@@ -848,5 +810,45 @@ public class DemoTest {
         SearchService searchService = injector.getInstance(SearchService.class);
         DeviceSearchDomain deviceSearchDomain = injector.getInstance(DeviceSearchDomain.class);
         searchService.register(deviceSearchDomain);
+    }
+
+    private static class MockModule extends AbstractModule {
+        @Override
+        protected void configure() {
+            bind(FtpClientService.class).toInstance(mock(FtpClientService.class));
+            bind(BundleContext.class).toInstance(mock(BundleContext.class));
+            bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
+            bind(UserFileFactory.class).toInstance(mock(UserFileFactory.class));
+            bind(CodeFactory.class).toInstance(mock(CodeFactory.class));
+            bind(CollectedDataFactory.class).toInstance(mock(CollectedDataFactory.class));
+
+            Thesaurus thesaurus = mock(Thesaurus.class);
+            bind(Thesaurus.class).toInstance(thesaurus);
+            bind(MessageInterpolator.class).toInstance(thesaurus);
+
+            LicenseService licenseService = mock(LicenseService.class);
+            License license = mockLicense();
+            when(licenseService.getLicenseForApplication("MDC")).thenReturn(Optional.of(license));
+            bind(LicenseService.class).toInstance(licenseService);
+            bind(SerialComponentService.class).to(SerialIONoModemComponentServiceImpl.class).in(Scopes.SINGLETON);
+            bind(LogService.class).toInstance(mock(LogService.class));
+            bind(KieResources.class).toInstance(mock(KieResources.class));
+            bind(KnowledgeBaseFactoryService.class).toInstance(mock(KnowledgeBaseFactoryService.class, RETURNS_DEEP_STUBS));
+            bind(KnowledgeBuilderFactoryService.class).toInstance(mock(KnowledgeBuilderFactoryService.class, RETURNS_DEEP_STUBS));
+        }
+
+        private License mockLicense() {
+            License license = mock(License.class);
+            Properties properties = new Properties();
+            properties.setProperty("protocols", "all");
+            when(license.getApplicationKey()).thenReturn("MDC");
+            when(license.getDescription()).thenReturn("MDC application license example");
+            when(license.getStatus()).thenReturn(License.Status.ACTIVE);
+            when(license.getType()).thenReturn(License.Type.EVALUATION);
+            when(license.getGracePeriodInDays()).thenReturn(5);
+            when(license.getExpiration()).thenReturn(Instant.parse("9999-12-31T24:00:00Z"));
+            when(license.getLicensedValues()).thenReturn(properties);
+            return license;
+        }
     }
 }
