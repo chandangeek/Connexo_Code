@@ -12,11 +12,6 @@
     <packaging>bundle</packaging>
     <name>[Jupiter] com.elster.jupiter.calendar</name>
 
-    <properties>
-        <my-definitions.xsd>${basedir}\src\main\resources\calendar-import-format.xsd</my-definitions.xsd>
-        <my.output>${basedir}/target/generated-sources</my.output>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.osgi</groupId>
@@ -116,7 +111,6 @@
 
     <build>
         <plugins>
-
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>jaxb2-maven-plugin</artifactId>
@@ -128,8 +122,10 @@
                         <goals><goal>xjc</goal></goals>
                         <configuration>
                             <packageName>com.elster.jupiter.calendar.impl.xmlbinding</packageName>
-                            <sources><source>${my-definitions.xsd}</source></sources>
-                            <outputDirectory>${my.output}</outputDirectory>
+                            <sources>
+                                <source>${basedir}/src/main/resources/calendar-import-format.xsd</source>
+                            </sources>
+                            <outputDirectory>${basedir}/target/generated-sources</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>
@@ -137,6 +133,5 @@
 
         </plugins>
     </build>
-
 
 </project>
