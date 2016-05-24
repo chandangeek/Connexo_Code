@@ -4,7 +4,7 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.Details', {
     requires: [
         'Uni.view.container.PreviewContainer',
         'Imt.usagepointmanagement.view.UsagePointSideMenu',
-        'Uni.view.notifications.NoItemsFoundPanel',
+        'Uni.util.FormEmptyMessage',
         'Imt.usagepointmanagement.store.metrologyconfiguration.MeterRoles',
         'Imt.usagepointmanagement.store.metrologyconfiguration.Purposes',
         'Imt.usagepointmanagement.view.metrologyconfiguration.MeterRolesGrid',
@@ -46,7 +46,7 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.Details', {
                         xtype: 'no-items-found-panel',
                         title: Uni.I18n.translate('general.noMetrologyConfiguration', 'IMT', 'No metrology configuration'),
                         reasons: [
-                            Uni.I18n.translate('usagePoint.metrologyConfiguration.empty.reason', 'IMT', 'Metrology configuration has not been defined for this usage point yet')
+                            Uni.I18n.translate('usagePoint.metrologyConfiguration.empty.reason', 'IMT', 'No metrology configuration has been defined for this usage point yet')
                         ],
                         itemId: 'no-metrology-configuration-panel',
                         stepItems: [
@@ -116,12 +116,9 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.Details', {
                                             itemId: 'metrology-configuration-purposes-grid'
                                         },
                                         emptyComponent: {
-                                            xtype: 'no-items-found-panel',
+                                            xtype: 'uni-form-empty-message',
                                             itemId: 'metrology-configuration-purposes-no-items-found-panel',
-                                            title: Uni.I18n.translate('metrologyConfigurationDetails.empty.title', 'IMT', 'No purposes found'),
-                                            reasons: [
-                                                Uni.I18n.translate('metrologyConfigurationDetails.empty.list.item1', 'IMT', 'No purposes have been defined yet.')
-                                            ]
+                                            text: Uni.I18n.translate('metrologyConfigurationDetails.empty.list.item1', 'IMT', 'No purposes have been defined yet.')
                                         },
                                         previewComponent: {
                                             xtype: 'purposes-preview',

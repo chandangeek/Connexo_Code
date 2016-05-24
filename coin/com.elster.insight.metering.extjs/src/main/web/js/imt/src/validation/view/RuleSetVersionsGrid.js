@@ -21,7 +21,7 @@ Ext.define('Imt.validation.view.RuleSetVersionsGrid', {
                 sortable: false,
                 fixed: true,
                 renderer: function (value, metaData, record) {
-                    metaData.tdAttr = Ext.String.htmlEncode(Ext.String.htmlEncode('data-qtip="' + record.get('description').replace(/(?:\r\n|\r|\n)/g, '<br />') + '"'));
+                    metaData.tdAttr = 'data-qtip="' + Ext.String.htmlEncode(Ext.String.htmlEncode(record.get('description')).replace(/(?:\r\n|\r|\n)/g, '<br />')) + '"';
                     return value;
                 }
             },
@@ -60,7 +60,7 @@ Ext.define('Imt.validation.view.RuleSetVersionsGrid', {
             {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
-                itemsPerPageMsg: 'Versions per page',
+                itemsPerPageMsg: Uni.I18n.translate('general.versionsPerPage', 'IMT', 'Versions per page'),
                 dock: 'bottom',
                 isSecondPagination: me.isSecondPagination,
                 params: {ruleSetId: me.ruleSetId}

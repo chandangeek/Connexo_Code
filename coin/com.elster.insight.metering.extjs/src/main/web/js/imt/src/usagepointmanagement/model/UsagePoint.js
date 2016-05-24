@@ -78,6 +78,7 @@ Ext.define('Imt.usagepointmanagement.model.UsagePoint', {
         {name: 'serviceDeliveryRemark', type: 'string'},
         {name: 'techInfo', type: 'auto', defaultValue: {}},
         {name: 'metrologyConfiguration', type: 'auto', defaultValue: null},
+        {name: 'meterActivations', type: 'auto', defaultValue: null},
         {
             name: 'metrologyConfiguration_id',
             persist: false,
@@ -120,6 +121,17 @@ Ext.define('Imt.usagepointmanagement.model.UsagePoint', {
             model: 'Imt.customattributesonvaluesobjects.model.AttributeSetOnUsagePoint'
         }
     ],
+
+    activateMeters: function (callback, failure) {
+        var me = this;
+        Ext.Ajax.request({
+            url: '../../api/udr/usagepoints/' + encodeURIComponent(me.get('mRID')) + '/activatemeters',
+            method: 'PUT',
+            jsonData: Ext.JSON.encode(me.getProxy().getWriter().getRecordData(me)),
+            success: callback,
+            failure: failure
+        })
+    },
 
     proxy: {
         type: 'rest',

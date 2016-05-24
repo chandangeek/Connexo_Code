@@ -86,7 +86,7 @@ Ext.define('Imt.processes.controller.MonitorProcesses', {
                             },
                             {
                                 name: 'value',
-                                value: mRID
+                                value: record.get('id')
                             }
                         ],
                         successLink: router.getRoute('usagepoints/view/processes').buildUrl({usagePointId: mRID}),

@@ -56,7 +56,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.CustomAttributeSetVersionsG
                 xtype: 'pagingtoolbarbottom',
                 dock: 'bottom',
                 store: me.store,
-                itemsPerPageMsg: Uni.I18n.translate('customattributesets.versions.pagingtoolbarbottom.itemsPerPage', 'IMT', 'Versions per page')
+                itemsPerPageMsg: Uni.I18n.translate('general.versionsPerPage', 'IMT', 'Versions per page'),
             }
         ];
 
