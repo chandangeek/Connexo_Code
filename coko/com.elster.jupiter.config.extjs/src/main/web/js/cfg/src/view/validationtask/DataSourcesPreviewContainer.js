@@ -1,0 +1,50 @@
+Ext.define('Cfg.view.validationtask.DataSourcesPreviewContainer', {
+    extend: 'Ext.form.FieldContainer',
+    alias: 'widget.cfg-data-sources-preview-container',
+    fieldLabel: Uni.I18n.translate('validationTasks.general.dataSources', 'CFG', 'Data sources'),
+    labelAlign: 'top',
+    layout: 'vbox',
+    defaults: {
+        xtype: 'displayfield',
+        labelWidth: 250
+    },
+    initComponent: function () {
+        var me = this,
+            fieldRenderer = function (value) {
+                return value && value.displayValue ? value.displayValue : '-';
+            };
+
+        switch (Uni.util.Application.getAppName()) {
+
+            case 'MultiSense':
+            {
+                me.items = [
+                    {
+                        fieldLabel: Uni.I18n.translate('validationTasks.general.deviceGroup', 'CFG', 'Device group'),
+                        name: 'deviceGroup',
+                        renderer: fieldRenderer
+                    }
+                ];
+            }
+                break;
+            case 'MdmApp':
+            {
+                me.items = [
+                    {
+                        fieldLabel: Uni.I18n.translate('validationTasks.general.metrologyConfiguration', 'CFG', 'Metrology configuration'),
+                        name: 'metrologyConfiguration',
+                        renderer: fieldRenderer
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('validationTasks.general.purpose', 'CFG', 'Purpose'),
+                        name: 'metrologyContract',
+                        renderer: fieldRenderer
+                    }
+                ];
+            }
+                break;
+        }
+        me.callParent(arguments);
+    }
+});
+

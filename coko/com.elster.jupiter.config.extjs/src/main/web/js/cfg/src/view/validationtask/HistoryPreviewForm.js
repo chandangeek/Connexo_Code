@@ -3,8 +3,10 @@ Ext.define('Cfg.view.validationtask.HistoryPreviewForm', {
     alias: 'widget.cfg-tasks-history-preview-form',
 
     requires: [        
-        'Uni.form.field.Duration'
+        'Uni.form.field.Duration',
+        'Cfg.view.validationtask.DataSourcesPreviewContainer'
     ],
+    appName: null,
 
     myTooltip: Ext.create('Ext.tip.ToolTip', {
         renderTo: Ext.getBody()
@@ -20,25 +22,8 @@ Ext.define('Cfg.view.validationtask.HistoryPreviewForm', {
                 labelWidth: 250
             },
             {
-                xtype: 'fieldcontainer',
-                fieldLabel: Uni.I18n.translate('validationTasks.general.dataSources', 'CFG', 'Data sources'),
-                labelAlign: 'top',
-                layout: 'vbox',
-                defaults: {
-                    xtype: 'displayfield',
-                    labelWidth: 250
-                },
-                items: [
-                    {
-                        fieldLabel: Uni.I18n.translate('validationTasks.general.deviceGroup', 'CFG', 'Device group'),
-                        name: 'deviceGroup',
-                        renderer: function (value) {
-                            if (value) {
-                                return Ext.String.htmlEncode(value.name);
-                            }
-                        }
-                    }                    
-                ]
+                xtype: 'cfg-data-sources-preview-container',
+                appName: me.appName
             },
             {
                 xtype: 'fieldcontainer',

@@ -3,7 +3,8 @@ Ext.define('Cfg.view.validationtask.PreviewForm', {
     alias: 'widget.cfg-tasks-preview-form',
 
     requires: [        
-        'Uni.form.field.Duration'        
+        'Uni.form.field.Duration',
+        'Cfg.view.validationtask.DataSourcesPreviewContainer'
     ],
 
     myTooltip: Ext.create('Ext.tip.ToolTip', {
@@ -13,23 +14,8 @@ Ext.define('Cfg.view.validationtask.PreviewForm', {
     appName: null,
 
     initComponent: function () {
-        var me = this,
-            groupFieldConfig = {};
+        var me = this;
 
-        switch (me.appName) {
-            case 'MultiSense':
-                groupFieldConfig = {
-                    fieldLabel: Uni.I18n.translate('validationTasks.general.deviceGroup', 'CFG', 'Device group'),
-                    name: 'deviceGroup'
-                };
-                break;
-            case 'Insight':
-                groupFieldConfig = {
-                    fieldLabel: Uni.I18n.translate('validationTasks.general.usagePointGroup', 'CFG', 'Usage point group'),
-                    name: 'usagePointGroup'
-                };
-                break;
-        }
         me.items = [
             {
                 xtype: 'displayfield',
@@ -38,22 +24,7 @@ Ext.define('Cfg.view.validationtask.PreviewForm', {
                 labelWidth: 250
             },
             {
-                xtype: 'fieldcontainer',
-                fieldLabel: Uni.I18n.translate('validationTasks.general.dataSources', 'CFG', 'Data sources'),
-                labelAlign: 'top',
-                layout: 'vbox',
-                defaults: {
-                    xtype: 'displayfield',
-                    labelWidth: 250
-                },
-                items: [
-                    Ext.apply({
-                        xtype: 'displayfield',
-                        renderer: function (value) {
-                            return value && value.name ? Ext.String.htmlEncode(value.name) : '-';
-                        }
-                    }, groupFieldConfig)
-                ]
+                xtype: 'cfg-data-sources-preview-container'
             },
             {
                 xtype: 'fieldcontainer',
