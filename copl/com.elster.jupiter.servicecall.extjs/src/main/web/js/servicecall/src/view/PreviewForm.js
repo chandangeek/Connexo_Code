@@ -195,7 +195,7 @@ Ext.define('Scs.view.PreviewForm', {
                 labelWidth: 250,
                 fieldLabel: Uni.I18n.translate('general.children', 'SCS', 'Children'),
                 renderer: function(value) {
-                    return '<a href="' + this.router.getRoute('workspace/servicecalls/overview').buildUrl({serviceCallId: this.record.get('id')}) + '">' + value + '</a>'
+                    return '<a href="' + this.router.getRoute('workspace/servicecalls/overview').buildUrl({serviceCallId: this.record.get('id')}) + '?' + '">' + value + '</a>'
                 }
             });
             Ext.each(record.get('children'), function (info) {

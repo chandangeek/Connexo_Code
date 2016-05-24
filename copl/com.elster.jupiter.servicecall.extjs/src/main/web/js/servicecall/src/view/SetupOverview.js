@@ -5,7 +5,7 @@ Ext.define('Scs.view.SetupOverview', {
     serviceCallId: null,
     servicecallParam: null,
     store: null,
-    tab: null,
+    activeTab: 0,
     breadcrumbs: null,
     record: null,
 
@@ -25,7 +25,7 @@ Ext.define('Scs.view.SetupOverview', {
                     xtype: 'tabpanel',
                     ui: 'large',
                     itemId: 'service-call-overview-tab',
-                    activeTab: 0,
+                    activeTab: me.activeTab,
                     breadcrumbs: me.breadcrumbs,
                     items: [
                         {
