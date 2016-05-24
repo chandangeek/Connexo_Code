@@ -2,7 +2,7 @@ package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.impl.search.UsagePointRequirementsSearchDomain;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 
@@ -26,15 +26,16 @@ public class MetrologyConfigurationEqualsContractTest extends EqualsContractTest
     @Mock
     Thesaurus thesaurus;
     @Mock
-    MetrologyConfigurationService metrologyConfigurationService;
+    ServerMetrologyConfigurationService metrologyConfigurationService;
+    @Mock
+    UsagePointRequirementsSearchDomain searchDomain;
 
     private MetrologyConfigurationImpl instanceA;
 
     @Override
     protected Object getInstanceA() {
         if (instanceA == null) {
-            instanceA = new MetrologyConfigurationImpl(dataModel, eventService, thesaurus, metrologyConfigurationService);
-            instanceA.init("name");
+            instanceA = new MetrologyConfigurationImpl(metrologyConfigurationService, eventService);
             Reflection.field("id").ofType(Long.TYPE).in(instanceA).set(INSTANCE_A_ID);
         }
         return instanceA;
@@ -42,28 +43,27 @@ public class MetrologyConfigurationEqualsContractTest extends EqualsContractTest
 
     @Override
     protected Object getInstanceEqualToA() {
-        MetrologyConfigurationImpl other = new MetrologyConfigurationImpl(dataModel, eventService, thesaurus, metrologyConfigurationService);
-        other.init("name");
+        MetrologyConfigurationImpl other = new MetrologyConfigurationImpl(metrologyConfigurationService, eventService);
         Reflection.field("id").ofType(Long.TYPE).in(other).set(INSTANCE_A_ID);
         return other;
     }
 
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
-        MetrologyConfigurationImpl other = new MetrologyConfigurationImpl(dataModel, eventService, thesaurus, metrologyConfigurationService);
-        other.init("name");
+        MetrologyConfigurationImpl other = new MetrologyConfigurationImpl(metrologyConfigurationService, eventService);
         Reflection.field("id").ofType(Long.TYPE).in(other).set(INSTANCE_A_ID + 1);
         return singletonList(other);
     }
 
     @Override
     protected boolean canBeSubclassed() {
-        return false;
+        return true;
     }
 
     @Override
     protected Object getInstanceOfSubclassEqualToA() {
-        return null;
+        UsagePointMetrologyConfigurationImpl subInst = new UsagePointMetrologyConfigurationImpl(metrologyConfigurationService, eventService, searchDomain);
+        Reflection.field("id").ofType(Long.TYPE).in(subInst).set(INSTANCE_A_ID);
+        return subInst;
     }
-
 }

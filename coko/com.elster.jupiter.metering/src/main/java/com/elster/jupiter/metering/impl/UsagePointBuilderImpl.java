@@ -1,6 +1,8 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.metering.GeoCoordinates;
+import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
@@ -25,6 +27,8 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
     private String serviceDeliveryRemark;
     private String serviceLocationString;
     private Instant installationTime;
+    private long locationId;
+    private GeoCoordinates geoCoordinates;
 
     private ServiceCategory serviceCategory;
     private ServiceLocation serviceLocation;
@@ -51,6 +55,18 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
     @Override
     public UsagePointBuilder withMRID(String mRID) {
         this.mRID = mRID;
+        return this;
+    }
+
+    @Override
+    public UsagePointBuilder withLocation(Location location){
+        this.locationId = location.getId();
+        return this;
+    }
+
+    @Override
+    public UsagePointBuilder withGeoCoordinates(GeoCoordinates geoCoordinates){
+        this.geoCoordinates = geoCoordinates;
         return this;
     }
 
@@ -134,6 +150,8 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
         usagePoint.setInstallationTime(installationTime);
         usagePoint.setServiceDeliveryRemark(serviceDeliveryRemark);
         usagePoint.setServiceLocationString(serviceLocationString);
+        usagePoint.setGeoCoordinates(geoCoordinates);
+        usagePoint.setLocation(locationId);
         return usagePoint;
     }
 }

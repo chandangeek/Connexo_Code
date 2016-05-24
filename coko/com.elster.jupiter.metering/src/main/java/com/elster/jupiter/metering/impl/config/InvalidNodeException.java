@@ -1,0 +1,45 @@
+package com.elster.jupiter.metering.impl.config;
+
+import com.elster.jupiter.metering.MessageSeeds;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.config.Function;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.impl.aggregation.IntervalLength;
+import com.elster.jupiter.nls.LocalizedException;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.exception.MessageSeed;
+
+class InvalidNodeException extends LocalizedException {
+
+    InvalidNodeException(Thesaurus thesaurus, MessageSeed messageSeed) {
+        super(thesaurus, messageSeed);
+    }
+
+    InvalidNodeException(Thesaurus thesaurus, MessageSeed messageSeed, int value) {
+        super(thesaurus, messageSeed, value);
+    }
+
+    static InvalidNodeException functionNotAllowedInAutoMode(Thesaurus thesaurus, Function function) {
+        InvalidNodeException exception = new InvalidNodeException(thesaurus, MessageSeeds.FUNCTION_NOT_ALLOWED_IN_AUTOMODE, function.name());
+        exception.set("Function", function);
+        throw exception;
+    }
+
+    static InvalidNodeException incompatibleIntervalLengths(Thesaurus thesaurus, IntervalLength il1, IntervalLength il2) {
+        throw new InvalidNodeException(thesaurus, MessageSeeds.INCOMPATIBLE_INTERVAL_LENGTHS, il1.toString(), il2.toString());
+    }
+
+    static InvalidNodeException deliverableReadingTypeIsNotCompatibleWithFormula(Thesaurus thesaurus, ReadingType readingType, ReadingTypeDeliverable deliverable) {
+        throw new InvalidNodeException(
+                thesaurus,
+                MessageSeeds.READINGTYPE_OF_DELIVERABLE_IS_NOT_COMPATIBLE_WITH_FORMULA,
+                readingType.getMRID() + " (" + readingType.getFullAliasName() + ")",
+                deliverable.getFormula().getExpressionNode().toString(),
+                deliverable.getName());
+    }
+
+    private InvalidNodeException(Thesaurus thesaurus, MessageSeed messageSeed, Object... args) {
+        super(thesaurus, messageSeed, args);
+    }
+
+}

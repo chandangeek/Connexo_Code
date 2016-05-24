@@ -82,8 +82,8 @@ public class EndDeviceSearchDomain implements SearchDomain {
     }
 
     @Override
-    public boolean supports(Class aClass) {
-        return EndDevice.class.equals(aClass);
+    public Class<?> getDomainClass() {
+        return EndDevice.class;
     }
 
     @Override

@@ -16,71 +16,68 @@ import java.util.Optional;
 
 @ProviderType
 public interface UsagePoint extends IdentifiedObject, ReadingContainer {
+
     long getId();
+
+    long getVersion();
+
+    void setMRID(String mRID);
 
     boolean isSdp();
 
+    void setSdp(boolean isSdp);
+
     boolean isVirtual();
+
+    void setVirtual(boolean isVirtual);
 
     String getOutageRegion();
 
+    void setOutageRegion(String outageRegion);
+
+    void setName(String name);
+
     String getAliasName();
+
+    void setAliasName(String aliasName);
 
     String getDescription();
 
+    void setDescription(String description);
+
     String getReadRoute();
 
+    void setReadRoute(String readRoute);
+
     String getServicePriority();
+
+    void setServicePriority(String servicePriority);
 
     List<? extends MeterActivation> getMeterActivations();
 
     Optional<MeterActivation> getCurrentMeterActivation();
 
-    long getServiceLocationId();
-
     Optional<ServiceLocation> getServiceLocation();
+
+    void setServiceLocation(ServiceLocation serviceLocation);
 
     String getServiceLocationString();
 
+    void setServiceLocationString(String serviceLocationString);
+
     ServiceCategory getServiceCategory();
 
-    public Instant getInstallationTime();
+    Instant getInstallationTime();
 
-    public void setInstallationTime(Instant installationTime);
+    void setInstallationTime(Instant installationTime);
 
     String getServiceDeliveryRemark();
 
     void setServiceDeliveryRemark(String serviceDeliveryRemark);
 
-    void setServiceLocation(ServiceLocation serviceLocation);
-
-    public void setServiceLocationString(String serviceLocationString);
-
-    void setServicePriority(String servicePriority);
-
-    void setReadRoute(String readRoute);
-
-    void setOutageRegion(String outageRegion);
-
-    void setVirtual(boolean isVirtual);
-
-    void setSdp(boolean isSdp);
-
-    void setName(String name);
-
-    void setMRID(String mRID);
-
-    void setDescription(String description);
-
-    void setAliasName(String aliasName);
-
-    void update();
-
     Instant getCreateDate();
 
     Instant getModificationDate();
-
-    long getVersion();
 
     MeterActivation activate(Instant start);
 
@@ -95,8 +92,6 @@ public interface UsagePoint extends IdentifiedObject, ReadingContainer {
     Optional<Party> getResponsibleParty(Instant when, MarketRoleKind marketRole);
 
     boolean hasAccountability(User user);
-
-    void delete();
 
     List<? extends UsagePointDetail> getDetail(Range<Instant> range);
 
@@ -123,6 +118,18 @@ public interface UsagePoint extends IdentifiedObject, ReadingContainer {
     UsagePointConfigurationBuilder startingConfigurationOn(Instant startTime);
 
     Optional<UsagePointConfiguration> getConfiguration(Instant time);
+
+    long getLocationId();
+
+    Optional<Location> getLocation();
+
+    void setLocation(long locationId);
+
+    long getGeoCoordinatesId();
+
+    Optional<GeoCoordinates> getGeoCoordinates();
+
+    void setGeoCoordinates(GeoCoordinates geoCoordinates);
 
     /**
      * Applies the specified {@link MetrologyConfiguration} to this UsagePoint
@@ -176,6 +183,12 @@ public interface UsagePoint extends IdentifiedObject, ReadingContainer {
     UsagePointCustomPropertySetExtension forCustomProperties();
 
     ConnectionState getConnectionState();
+
+    void setConnectionState(ConnectionState connectionState);
+
+    void update();
+
+    void delete();
 
     interface UsagePointConfigurationBuilder {
 

@@ -1,6 +1,5 @@
 package com.elster.jupiter.metering.impl;
 
-
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.RecordSpecBuilder;
@@ -11,13 +10,16 @@ import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
+
 import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.Optional;
 
-import static com.elster.jupiter.ids.FieldType.*;
-
+import static com.elster.jupiter.ids.FieldType.INSTANT;
+import static com.elster.jupiter.ids.FieldType.LONGINTEGER;
+import static com.elster.jupiter.ids.FieldType.NUMBER;
+import static com.elster.jupiter.ids.FieldType.TEXT;
 
 public enum RecordSpecs {
 	/*
@@ -28,9 +30,9 @@ public enum RecordSpecs {
 	SINGLEINTERVAL("Single Interval Data",true) {
 		@Override
 		void addFieldSpecs(RecordSpecBuilder recordSpec) {
-			recordSpec.addFieldSpec("Value", NUMBER);
+			recordSpec.addFieldSpec(VALUE, NUMBER);
 		}
-		
+
 		private Object[] toArray(BaseReading reading, ProcessStatus status) {
 			Object[] result = new Object[3];
 			result[0] = status.getBits();
@@ -65,7 +67,7 @@ public enum RecordSpecs {
 	BULKQUANTITYINTERVAL("Bulk Quantity Interval Data",true) {
 		@Override
 		void addFieldSpecs(RecordSpecBuilder recordSpec) {
-			recordSpec.addFieldSpec("Value", NUMBER);
+			recordSpec.addFieldSpec(VALUE, NUMBER);
 			recordSpec.addFieldSpec("Bulk", NUMBER);
 		}
 
@@ -135,7 +137,7 @@ public enum RecordSpecs {
 	BASEREGISTER("Base Register",false) {
 		@Override
 		void addFieldSpecs(RecordSpecBuilder recordSpec) {
-			recordSpec.addFieldSpec("Value", NUMBER);
+			recordSpec.addFieldSpec(VALUE, NUMBER);
 			recordSpec.addFieldSpec("Text", TEXT);
 		}
 
@@ -170,12 +172,12 @@ public enum RecordSpecs {
 	BILLINGPERIOD("Billing Period Register",false) {
 		@Override
 		void addFieldSpecs(RecordSpecBuilder recordSpec) {
-			 recordSpec.addFieldSpec("Value", NUMBER);
+			 recordSpec.addFieldSpec(VALUE, NUMBER);
 			 recordSpec.addFieldSpec("Text", TEXT);
 			 recordSpec.addFieldSpec("From Time", INSTANT);
 			 recordSpec.addFieldSpec("To Time", INSTANT);
 		}
-		
+
 		private Object[] toArray(BaseReading reading, ProcessStatus status) {
 			Object[] result = new Object[5];
 			result[0] = status.getBits();
@@ -240,7 +242,7 @@ public enum RecordSpecs {
 		@Override
 		void addFieldSpecs(RecordSpecBuilder recordSpec) {
 			recordSpec.addFieldSpec("MultipliedValue", NUMBER);
-			recordSpec.addFieldSpec("Value", NUMBER);
+			recordSpec.addFieldSpec(VALUE, NUMBER);
 			recordSpec.addFieldSpec("Text", TEXT);
 		}
 
@@ -271,7 +273,7 @@ public enum RecordSpecs {
         @Override
         void addFieldSpecs(RecordSpecBuilder recordSpec) {
             recordSpec.addFieldSpec("Multiplied Value", NUMBER);
-            recordSpec.addFieldSpec("Value", NUMBER);
+            recordSpec.addFieldSpec(VALUE, NUMBER);
         }
 
         @Override
@@ -296,15 +298,19 @@ public enum RecordSpecs {
         }
     },
 	;
-	  
+
+    public static final String PROCESS_STATUS = "ProcesStatus";
+	public static final String PROFILE_STATUS = "ProfileStatus";
+	public static final String VALUE = "Value";
+
 	private final String specName;
 	private final boolean interval;
-	  
+
 	RecordSpecs(String specName,boolean interval) {
 		this.specName = specName;
 		this.interval = interval;
 	}
-	  
+
 	static void createAll(IdsService idsService) {
 		for (RecordSpecs each : values()) {
 			each.create(idsService);
@@ -313,9 +319,9 @@ public enum RecordSpecs {
 
 	private RecordSpec create(IdsService idsService) {
 		RecordSpecBuilder recordSpecBuilder = idsService.createRecordSpec(MeteringService.COMPONENTNAME, ordinal() + 1, specName)
-				.addFieldSpec("ProcesStatus", LONGINTEGER);
+				.addFieldSpec(PROCESS_STATUS, LONGINTEGER);
 		if (interval) {
-			recordSpecBuilder.addFieldSpec("ProfileStatus", LONGINTEGER);
+			recordSpecBuilder.addFieldSpec(PROFILE_STATUS, LONGINTEGER);
 		}
 		addFieldSpecs(recordSpecBuilder);
 		return recordSpecBuilder.create();
@@ -337,4 +343,5 @@ public enum RecordSpecs {
 	final RecordSpec get(IdsService idsService) {
 		return idsService.getRecordSpec(MeteringService.COMPONENTNAME, ordinal()+1).get();
 	}
+
 }

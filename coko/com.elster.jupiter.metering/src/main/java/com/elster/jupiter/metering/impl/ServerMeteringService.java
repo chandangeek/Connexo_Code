@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 
@@ -19,4 +20,5 @@ public interface ServerMeteringService extends MeteringService {
 
     EndDeviceEventTypeImpl createEndDeviceEventType(String mRID);
 
+    void copyKeyIfMissing(NlsKey name, String localKey);
 }

@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.cbo.ElectronicAddress;
 import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.fsm.FiniteStateMachine;
@@ -14,19 +15,27 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
+@ProviderType
 public interface EndDevice extends IdentifiedObject {
 	String TYPE_IDENTIFIER = "E";
 	long getId();
 	String getSerialNumber();
 	String getUtcNumber();
 	ElectronicAddress getElectronicAddress();
-	AmrSystem getAmrSystem();
+    AmrSystem getAmrSystem();
 	String getAmrId();
 	void update();
     Instant getCreateTime();
     Instant getModTime();
     long getVersion();
     void delete();
+    Optional<Location> getLocation();
+    void setLocation(Location location);
+    long getLocationId();
+    Optional<GeoCoordinates> getGeoCoordinates();
+    long getGeoCoordinatesId();
+    void setGeoCoordintes(GeoCoordinates geoCoordinates);
+
 
     EndDeviceEventRecordBuilder addEventRecord(EndDeviceEventType type, Instant instant);
 

@@ -1,17 +1,30 @@
 package com.elster.jupiter.metering;
 
-public enum BypassStatus {
-    OPEN("Open"),
-    CLOSED("Closed"),
-    UNKNOWN("Unknown");
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 
-    private String displayValue;
+public enum BypassStatus implements TranslationKey {
+    OPEN("bypassStatus.open", "Open"),
+    CLOSED("bypassStatus.closed", "Closed"),
+    UNKNOWN("bypassStatus.unknown", "Unknown");
 
-    BypassStatus(String displayValue) {
-        this.displayValue = displayValue;
+    private String key;
+    private String value;
+
+    BypassStatus(String key, String value) {
+        this.key = key;
+        this.value = value;
     }
 
-    public String getDisplayValue() {
-        return displayValue;
+    public String getKey() {
+        return key;
+    }
+
+    public String getDefaultFormat() {
+        return value;
+    }
+
+    public String getDisplayValue(Thesaurus thesaurus) {
+        return thesaurus.getString(key, value);
     }
 }

@@ -10,7 +10,6 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
-import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.beans.BeanService;
@@ -21,8 +20,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -31,7 +31,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -165,18 +164,6 @@ public class ServiceCategorySearchablePropertyTest {
         // Asserts
         PropertySpec specification = property.getSpecification();
         assertThat(specification.getPossibleValues()).isNotNull();
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void refreshWithTooManyConstrictions() {
-        ServiceCategorySearchableProperty property = this.getTestInstance();
-        SearchableProperty searchableProperty = mock(SearchableProperty.class);
-        SearchablePropertyConstriction constriction = SearchablePropertyConstriction.noValues(searchableProperty);
-
-        // Business method
-        property.refreshWithConstrictions(Collections.singletonList(constriction));
-
-        // Asserts: see expected exception rule
     }
 
     @Test(expected = IllegalArgumentException.class)

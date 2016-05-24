@@ -18,6 +18,7 @@ import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.util.conditions.Condition;
+
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 
@@ -207,8 +208,8 @@ public abstract class AbstractCimChannel implements CimChannel {
         if (readings.isEmpty()) {
             return;
         }
-        ReadingQualityType qualityForUpdate = ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.EDITGENERIC);
-        ReadingQualityType qualityForCreate = ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.ADDED);
+        ReadingQualityType qualityForUpdate = ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.EDITGENERIC);
+        ReadingQualityType qualityForCreate = ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.ADDED);
         modifyReadings(readings, qualityForUpdate, qualityForCreate, ProcessStatus.of(ProcessStatus.Flag.EDITED));
     }
 
@@ -243,7 +244,7 @@ public abstract class AbstractCimChannel implements CimChannel {
                 .filter(ReadingQualityRecord::isConfirmed)
                 .findFirst()
                 .map(ReadingQualityRecord.class::cast)
-                .orElseGet(() -> this.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.ACCEPTED), reading));
+                .orElseGet(() -> this.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.ACCEPTED), reading));
         if (!confirmedQualityRecord.isActual()) {
             confirmedQualityRecord.makeActual();
         }
