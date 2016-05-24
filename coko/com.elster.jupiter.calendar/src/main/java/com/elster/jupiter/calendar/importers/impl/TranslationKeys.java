@@ -5,7 +5,7 @@ import com.elster.jupiter.nls.TranslationKey;
 public enum TranslationKeys implements TranslationKey {
 
     CALENDAR_IMPORTER(CalendarImporterFactory.NAME, "Calendar importer"),
-    CALENDAR_IMPORTED_SUCCESSFULLY("calendar.import.summary.succeeded", "Successfull completed."),
+    CALENDAR_IMPORTED_SUCCESSFULLY("calendar.import.summary.succeeded", "Finished successfully."),
     CALENDAR_IMPORT_FAILED("calendar.import.summary.failed", "Failed to complete, no calendar has been processed.")
     ;
 
