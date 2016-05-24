@@ -12,7 +12,8 @@ Ext.define('Mdc.model.DataLoggerSlaveDevice', {
         {name: 'deviceConfigurationName', type: 'string', useNull: true},
         {name: 'yearOfCertification', type: 'string', useNull: true},
         {name: 'version', type: 'number', useNull: true},
-        {name: 'arrivalTimeStamp',type: 'date', dateFormat: 'time', useNull: true},
+        {name: 'arrivalTimeStamp',type: 'number', useNull: true},
+        {name: 'terminationTimeStamp',type: 'number', useNull: true},
         {name: 'dataLoggerSlaveChannelInfos', type: 'auto', defaultValue: null}
     ],
 

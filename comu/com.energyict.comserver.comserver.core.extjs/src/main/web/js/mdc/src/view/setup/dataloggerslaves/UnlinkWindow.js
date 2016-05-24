@@ -44,7 +44,7 @@ Ext.define('Mdc.view.setup.dataloggerslaves.UnlinkWindow', {
                     items: [
                         {
                             xtype: 'date-time',
-                            valueInMilliseconds: true,
+                            valueInMilliseconds: false,
                             itemId: 'mdc-dataloggerslave-unlink-window-date-picker',
                             layout: 'hbox',
                             labelAlign: 'left',

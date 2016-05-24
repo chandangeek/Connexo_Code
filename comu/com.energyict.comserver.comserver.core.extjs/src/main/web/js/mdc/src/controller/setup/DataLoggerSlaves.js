@@ -724,11 +724,15 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
     onUnlinkDataLoggerSlave: function() {
         var me = this,
             unlinkWindow = me.getUnlinkWindow(),
+            unlinkDate = unlinkWindow.down('#mdc-dataloggerslave-unlink-window-date-picker').getValue();
             mainView = Ext.ComponentQuery.query('#contentPanel')[0],
             doUnlink = function() {
-                me.wizardInformation.dataLogger.set('dataLoggerSlaveDevices', Ext.Array.filter(me.wizardInformation.dataLogger.get('dataLoggerSlaveDevices'),function(dataLoggerSlaveDevice){
-                    return (dataLoggerSlaveDevice['mRID'] !== unlinkWindow.dataLoggerSlaveRecord.get('mRID'))
-                }));
+                Ext.Array.forEach(me.wizardInformation.dataLogger.get('dataLoggerSlaveDevices'), function(dataLoggerSlaveDeviceRecord){
+                    if (dataLoggerSlaveDeviceRecord.id !== 0) { // the container of the unlinked channels
+                        dataLoggerSlaveDeviceRecord['terminationTimeStamp'] = unlinkDate.getTime()/1000;
+                    }
+                }, me);
+
                 me.doLinkTheSlave();
 
                 // Update grid:
