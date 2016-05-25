@@ -1,12 +1,17 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
+import com.elster.jupiter.issue.share.IssueFilter;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.GasDetail;
 import com.elster.jupiter.metering.HeatDetail;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.ServiceLocation;
@@ -23,6 +28,8 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
+import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.ServiceCallService;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -33,6 +40,7 @@ import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +54,9 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
     private volatile Clock clock;
     private volatile Thesaurus thesaurus;
     private volatile MeteringService meteringService;
+    private volatile ServiceCallService serviceCallService;
+    private volatile BpmService bpmService;
+    private volatile IssueService issueService;
     private volatile CustomPropertySetInfoFactory customPropertySetInfoFactory;
     private volatile License license;
 
@@ -53,11 +64,19 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
     }
 
     @Inject
-    public UsagePointInfoFactory(Clock clock, NlsService nlsService, MeteringService meteringService) {
+    public UsagePointInfoFactory(Clock clock,
+                                 NlsService nlsService,
+                                 MeteringService meteringService,
+                                 ServiceCallService serviceCallService,
+                                 BpmService bpmService,
+                                 IssueService issueService) {
         this();
         this.setClock(clock);
         this.setNlsService(nlsService);
         this.setMeteringService(meteringService);
+        this.setServiceCallService(serviceCallService);
+        this.setBpmService(bpmService);
+        this.setIssueService(issueService);
         activate();
     }
 
@@ -74,6 +93,21 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
     @Reference
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
+    }
+
+    @Reference
+    public void setServiceCallService(ServiceCallService serviceCallService) {
+        this.serviceCallService = serviceCallService;
+    }
+
+    @Reference
+    public void setBpmService(BpmService bpmService) {
+        this.bpmService = bpmService;
+    }
+
+    @Reference
+    public void setIssueService(IssueService issueService) {
+        this.issueService = issueService;
     }
 
     @Reference
@@ -130,6 +164,24 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         addLocationInfo(info, usagePoint);
         return info;
     }
+
+    public MeterActivationInfo from(MeterActivation meterActivation, String auth) {
+        MeterActivationInfo info = new MeterActivationInfo();
+        info.id = meterActivation.getId();
+        info.start = meterActivation.getStart() == null ? null : meterActivation.getStart().toEpochMilli();
+        info.end = meterActivation.getEnd() == null ? null : meterActivation.getEnd().toEpochMilli();
+        info.version = meterActivation.getVersion();
+        meterActivation.getMeter().ifPresent(meter -> {
+            info.meter = new MeterInfo(meterActivation.getMeter().get());
+            info.meter.watsGoingOnMeterStatus = getWatsGoingOnMeterStatus(meterActivation.getMeter().get(), auth);
+            info.meter.mRID = meterActivation.getMeter().get().getMRID();
+        });
+
+        return info;
+    }
+
+
+
 
     private void addDetailsInfo(UsagePointInfo info, UsagePoint usagePoint) {
 
@@ -232,7 +284,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                 .withServiceLocationString(usagePointInfo.location);
     }
 
-    public UsagePointInfo getMetersOnUsagePointInfo(UsagePoint usagePoint) {
+    public UsagePointInfo getMetersOnUsagePointInfo(UsagePoint usagePoint, String auth) {
         UsagePointInfo info = new UsagePointInfo();
         info.id = usagePoint.getId();
         info.mRID = usagePoint.getMRID();
@@ -260,6 +312,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                     meterInfo.id = meter.getId();
                     meterInfo.mRID = meter.getMRID();
                     meterInfo.name = meter.getName();
+                    meterInfo.watsGoingOnMeterStatus = getWatsGoingOnMeterStatus(meterActivation.getMeter().get(), auth);
                     meterInfo.version = meter.getVersion();
                     return meterInfo;
                 }));
@@ -273,6 +326,21 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                 })
                 .collect(Collectors.toList());
         return info;
+    }
+
+    public WatsGoingOnMeterStatusInfo getWatsGoingOnMeterStatus(Meter meter, String auth){
+        WatsGoingOnMeterStatusInfo info = new WatsGoingOnMeterStatusInfo();
+        IssueFilter issueFilter = issueService.newIssueFilter();
+        issueFilter.addDevice(meter);
+        issueFilter.addStatus(issueService.findStatus(IssueStatus.OPEN).get());
+        info.openIssues = issueService.findIssues(issueFilter).find().size();
+        info.ongoingServiceCalls = serviceCallService.findServiceCalls(meter, EnumSet.of(DefaultState.ONGOING)).size();
+        info.ongoingProcesses = bpmService.getRunningProcesses(auth, filterFor(meter)).total;
+        return info;
+    }
+
+    private String filterFor(Meter meter) {
+        return "?variableid=deviceId&variablevalue=" + meter.getMRID();
     }
 
     static class EmptyDomain {

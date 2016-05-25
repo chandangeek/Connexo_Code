@@ -55,6 +55,7 @@ import javax.inject.Provider;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -213,9 +214,9 @@ public class UsagePointResource {
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
     @Transactional
     @Path("/{mrid}/meters")
-    public Response getMetersOnUsagePoint(@PathParam("mrid") String mrid) {
+    public Response getMetersOnUsagePoint(@PathParam("mrid") String mrid, @HeaderParam("Authorization") String auth) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mrid);
-        return Response.ok().entity(usagePointInfoFactory.getMetersOnUsagePointInfo(usagePoint)).build();
+        return Response.ok().entity(usagePointInfoFactory.getMetersOnUsagePointInfo(usagePoint, auth)).build();
     }
 
     @PUT
