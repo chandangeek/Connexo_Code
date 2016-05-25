@@ -258,6 +258,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                         meterActivationInfo.meter.mRID = meter.getMRID();
                         meterActivationInfo.meter.name = meter.getName();
                         meterActivationInfo.meter.version = meter.getVersion();
+                        meterActivationInfo.meterRole.activationTime = meterActivationForMeterRole.getStart();
                         meterActivationInfo.id = meterActivationForMeterRole.getId();
                     }
 
