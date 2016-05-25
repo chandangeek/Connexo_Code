@@ -109,7 +109,7 @@ Ext.define('Uni.view.container.EmptyGridContainer', {
     onLoad: function (store, records, successful) {
         var me = this,
             isEmpty = Ext.isDefined(successful)
-                ? !(successful && store.getCount())
+                ? !(successful && store.getCount() && store.getTotalCount())
                 : !me.grid.store.getCount();
 
         me.getLayout().setActiveItem(isEmpty ? me.getEmptyCt() : me.getGridCt());
