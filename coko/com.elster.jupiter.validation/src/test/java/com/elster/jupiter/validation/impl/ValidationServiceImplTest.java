@@ -100,6 +100,7 @@ import static org.mockito.Mockito.when;
 public class ValidationServiceImplTest {
 
     private static final String NAME = "name";
+    private static final String APPLICATION = "MDC";
     private static final long ID = 561651L;
     private ValidationServiceImpl validationService;
 
@@ -107,10 +108,12 @@ public class ValidationServiceImplTest {
     private volatile MessageService messageService;
     @Mock
     private EventService eventService;
-    @Mock
+    @Mock(name = "TestFactory")
     private ValidatorFactory factory;
-    @Mock
-    private Validator validator;
+    @Mock(name = "TestValidator")
+    private Validator validator1;
+    @Mock(name = "YetAnotherValidator")
+    private Validator validator2;
     @Mock
     private DataValidationTask iDataTask;
     @Mock
@@ -130,7 +133,7 @@ public class ValidationServiceImplTest {
     @Mock
     private TaskService taskService;
     @Mock
-    private TaskOccurrence taskOccurence;
+    private TaskOccurrence taskOccurrence;
     @Mock
     private Meter meter;
     @Mock
@@ -201,7 +204,6 @@ public class ValidationServiceImplTest {
     @Mock
     private Query<DataValidationTask> dataValidationTaskQuery;
 
-
     @Before
     public void setUp() {
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
@@ -230,14 +232,21 @@ public class ValidationServiceImplTest {
         doReturn(channel1).when(cimChannel1).getChannel();
         doReturn(channel2).when(cimChannel2).getChannel();
 
-        validationService = new ValidationServiceImpl(clock,messageService , eventService, taskService, meteringService, meteringGroupsService, ormService, queryService, nlsService, mock(UserService.class), mock(Publisher.class));
+        validationService = new ValidationServiceImpl(clock, messageService, eventService, taskService, meteringService, meteringGroupsService, ormService, queryService, nlsService, mock(UserService.class), mock(Publisher.class));
         validationService.addValidationRuleSetResolver(validationRuleSetResolver);
 
-        DataValidationTaskImpl newDataValidationTask = new DataValidationTaskImpl(dataModel,taskService,validationService, thesaurus, () -> destinationSpec);
+        DataValidationTaskImpl newDataValidationTask = new DataValidationTaskImpl(dataModel, taskService, validationService, thesaurus, () -> destinationSpec);
         newDataValidationTask.setRecurrentTask(recurrentTask);
 
-        when(factory.available()).thenReturn(Arrays.asList(validator.getClass().getName()));
-        when(factory.create(validator.getClass().getName(), null)).thenReturn(validator);
+        String validatorName = validator1.toString();
+        String anotherName = validator2.toString();
+        when(factory.available()).thenReturn(Arrays.asList(validatorName, anotherName));
+        when(factory.create(validatorName, null)).thenReturn(validator1);
+        when(factory.createTemplate(validatorName)).thenReturn(validator1);
+        when(factory.create(anotherName, null)).thenReturn(validator2);
+        when(factory.createTemplate(anotherName)).thenReturn(validator2);
+        validationService.addResource(factory);
+
         Provider<ValidationRuleImpl> ruleProvider = () -> new ValidationRuleImpl(dataModel, validatorCreator, thesaurus, meteringService, eventService, () -> new ReadingTypeInValidationRuleImpl(meteringService));
         Provider<ValidationRuleSetVersionImpl> versionProvider = () -> new ValidationRuleSetVersionImpl(dataModel, eventService, ruleProvider);
         when(dataModel.getInstance(ValidationRuleSetImpl.class)).thenAnswer(invocationOnMock -> new ValidationRuleSetImpl(dataModel, eventService, versionProvider));
@@ -278,24 +287,47 @@ public class ValidationServiceImplTest {
     }
 
     @Test
+    public void testGetAvailableValidators() {
+        when(validator1.getSupportedApplications()).thenReturn(ImmutableSet.of("HERO", "BORING"));
+        when(validator2.getSupportedApplications()).thenReturn(Collections.singleton("HERO"));
+        assertThat(validationService.getAvailableValidators())
+                .as("There must be 2 validators in sum")
+                .containsExactly(validator1, validator2);
+        assertThat(validationService.getAvailableValidators("HERO"))
+                .as("Application HERO must be supported by both validators")
+                .containsExactly(validator1, validator2);
+        assertThat(validationService.getAvailableValidators("BADDIE"))
+                .as("Application BADDIE is supported by some validator but must not be...")
+                .isEmpty();
+        assertThat(validationService.getAvailableValidators("BORING"))
+                .as("Application BORING must be supported by only one validator1")
+                .containsExactly(validator1);
+    }
+
+    @Test
     public void testGetImplementation() {
-        validationService.addResource(factory);
-
-        Validator found = validationService.new DefaultValidatorCreator().getValidator(validator.getClass().getName(), null);
-
-        assertThat(found).isNotNull().isEqualTo(validator);
+        ValidationServiceImpl.DefaultValidatorCreator creator = validationService.new DefaultValidatorCreator();
+        assertThat(creator.getValidator(validator1.toString(), null))
+                .isNotNull().isEqualTo(validator1);
+        assertThat(creator.getValidator(validator2.toString(), null))
+                .isNotNull().isEqualTo(validator2);
+        assertThat(creator.getTemplateValidator(validator1.toString()))
+                .isNotNull().isEqualTo(validator1);
+        assertThat(creator.getTemplateValidator(validator2.toString()))
+                .isNotNull().isEqualTo(validator2);
     }
 
     @Test(expected = ValidatorNotFoundException.class)
     public void testGetValidatorThrowsNotFoundExceptionIfNoFactoryProvidesImplementation() {
-        validationService.new DefaultValidatorCreator().getValidator(validator.getClass().getName(), null);
+        validationService.removeResource(factory);
+        validationService.new DefaultValidatorCreator().getValidator(validator1.toString(), null);
     }
 
     @Test
     public void testCreateRuleSet() {
-        ValidationRuleSet validationRuleSet = validationService.createValidationRuleSet(NAME);
-
+        ValidationRuleSet validationRuleSet = validationService.createValidationRuleSet(NAME, APPLICATION);
         assertThat(validationRuleSet.getName()).isEqualTo(NAME);
+        assertThat(validationRuleSet.getApplicationName()).isEqualTo(APPLICATION);
     }
 
     @Test
@@ -313,12 +345,12 @@ public class ValidationServiceImplTest {
         when(meterValidationFactory.getOptional(ID)).thenReturn(Optional.of(meterValidation));
         when(meterValidation.getActivationStatus()).thenReturn(true);
         doAnswer((invocation) -> {
-        		Object meterActivationValidation = invocation.getArguments()[0];
-        		Field field = meterActivationValidation.getClass().getDeclaredField("id");
-    			field.setAccessible(true);
-    			field.set(meterActivationValidation, 1L);
-        		return null;
-    	 	}).when(dataModel).persist(any(IMeterActivationValidation.class));
+            Object meterActivationValidation = invocation.getArguments()[0];
+            Field field = meterActivationValidation.getClass().getDeclaredField("id");
+            field.setAccessible(true);
+            field.set(meterActivationValidation, 1L);
+            return null;
+        }).when(dataModel).persist(any(IMeterActivationValidation.class));
 
         ValidationRuleSet validationRuleSet = mock(IValidationRuleSet.class);
         ValidationRule validationRule = mock(IValidationRule.class);
@@ -345,7 +377,6 @@ public class ValidationServiceImplTest {
                 return input.getChannel();
             }
         }).toSet()).contains(channel1);
-
     }
 
     @Test
@@ -405,7 +436,7 @@ public class ValidationServiceImplTest {
         when(meterValidationFactory.getOptional(ID)).thenReturn(Optional.of(meterValidation));
         when(meterValidation.getActivationStatus()).thenReturn(true);
 
-        ValidationRuleSet validationRuleSet = validationService.createValidationRuleSet(NAME);
+        ValidationRuleSet validationRuleSet = validationService.createValidationRuleSet(NAME, APPLICATION);
         validationRuleSet.save();
 
         when(validationRuleSetResolver.resolve(eq(meterActivation))).thenReturn(Arrays.asList(validationRuleSet));
@@ -417,7 +448,7 @@ public class ValidationServiceImplTest {
         assertThat(meterActivationValidations.get(0).getRuleSet()).isEqualTo(validationRuleSet);
         IMeterActivationValidation activationRuleSet1 = meterActivationValidations.get(0);
 
-        ValidationRuleSet validationRuleSet2 = validationService.createValidationRuleSet(NAME);
+        ValidationRuleSet validationRuleSet2 = validationService.createValidationRuleSet(NAME, APPLICATION);
         validationRuleSet2.save();
 
         when(validationRuleSetResolver.resolve(eq(meterActivation))).thenReturn(Arrays.asList(validationRuleSet, validationRuleSet2));
@@ -479,7 +510,6 @@ public class ValidationServiceImplTest {
         assertThat(validationStatus.get(0).getReadingTimestamp()).isEqualTo(readingDate);
         assertThat(validationStatus.get(0).completelyValidated()).isFalse();
         assertThat(validationStatus.get(0).getReadingQualities()).isEmpty();
-
     }
 
     @Test
@@ -592,7 +622,6 @@ public class ValidationServiceImplTest {
         assertThat(validationStatus.get(1).completelyValidated()).isFalse();
         assertThat((Collection<ReadingQuality>) validationStatus.get(1).getReadingQualities()).containsOnly(readingQuality);
         assertThat(validationStatus.get(1).getOffendedValidationRule(readingQuality)).isNotEmpty();
-
     }
 
     @Test
@@ -640,8 +669,6 @@ public class ValidationServiceImplTest {
         assertThat((Collection<ReadingQuality>) validationStatus.get(1).getReadingQualities()).containsOnly(readingQuality1, readingQuality2);
         assertThat(validationStatus.get(1).getOffendedValidationRule(readingQuality1)).isNotEmpty();
         assertThat(validationStatus.get(1).getOffendedValidationRule(readingQuality2)).isNotEmpty();
-
-
     }
 
     @Test
@@ -654,7 +681,7 @@ public class ValidationServiceImplTest {
 
 
         validationService.activateValidation(meter);
-		validationService.enableValidationOnStorage(meter);
+        validationService.enableValidationOnStorage(meter);
 
         //Check that a MeterValidation object is made
         verify(dataModel).persist(any(MeterValidationImpl.class));
@@ -662,9 +689,7 @@ public class ValidationServiceImplTest {
         // verify that the MeterActivationValidations are managed for the current MeterActivation
         verify(meter).getCurrentMeterActivation();
         verify(validationRuleSetResolver).resolve(meterActivation);
-
     }
-
 
     @Test
     public void testDeactivateMeterValidation() {
@@ -679,9 +704,7 @@ public class ValidationServiceImplTest {
         //Check that a MeterValidation object is made
         verify(meterValidation).setActivationStatus(false);
         verify(meterValidation).save();
-
     }
-
 
     @Test
     public void testEnableValidationOnStorage() {
@@ -696,7 +719,6 @@ public class ValidationServiceImplTest {
         //Check that a MeterValidation object is made
         verify(meterValidation).setValidateOnStorage(true);
         verify(meterValidation).save();
-
     }
 
     @Test
@@ -712,7 +734,6 @@ public class ValidationServiceImplTest {
         //Check that a MeterValidation object is made
         verify(meterValidation).setValidateOnStorage(false);
         verify(meterValidation).save();
-
     }
 
     @Test
@@ -728,7 +749,6 @@ public class ValidationServiceImplTest {
         //Check that a MeterValidation object is made
         verify(meterValidation).setActivationStatus(false);
         verify(meterValidation).save();
-
     }
 
     @Test
@@ -740,7 +760,6 @@ public class ValidationServiceImplTest {
 
         verify(meterValidation, never()).setActivationStatus(anyBoolean());
         verify(dataModel, never()).getInstance(MeterValidationImpl.class);
-
     }
 
     @Test
@@ -756,14 +775,14 @@ public class ValidationServiceImplTest {
     }
 
     @Test
-    public void testGetDataValidationTaskForRecurrentTask(){
+    public void testGetDataValidationTaskForRecurrentTask() {
         when(dataModel.query(DataValidationOccurrence.class, DataValidationTask.class)).thenReturn(taskOccurrenceQueryExecutor);
         when(taskOccurrenceQueryExecutor.select(any())).thenReturn(new ArrayList<DataValidationOccurrence>());
-        assertThat(validationService.findDataValidationOccurrence(taskOccurence).isPresent());
+        assertThat(validationService.findDataValidationOccurrence(taskOccurrence).isPresent());
     }
 
     @Test
-    public void testFindValidationTasks(){
+    public void testFindValidationTasks() {
         when(dataModel.query(DataValidationTask.class)).thenReturn(dataValidationTaskQueryExecutor);
         when(queryService.wrap(eq(dataValidationTaskQueryExecutor))).thenReturn(dataValidationTaskQuery);
         when(dataValidationTaskQueryExecutor.select(any())).thenReturn(new ArrayList<DataValidationTask>());
@@ -771,15 +790,15 @@ public class ValidationServiceImplTest {
     }
 
     @Test
-    public void testCreateValidationOccurrence(){
-        when(taskOccurence.getRecurrentTask()).thenReturn(recurrentTask);
+    public void testCreateValidationOccurrence() {
+        when(taskOccurrence.getRecurrentTask()).thenReturn(recurrentTask);
         when(dataValidationTaskFactory2.getUnique("recurrentTask", recurrentTask)).thenReturn(Optional.of(iDataTask));
-        DataValidationOccurrenceImpl dataValidationOcc = new DataValidationOccurrenceImpl(dataModel,clock);
+        DataValidationOccurrenceImpl dataValidationOcc = new DataValidationOccurrenceImpl(dataModel, clock);
         when(dataModel.getInstance(DataValidationOccurrenceImpl.class)).thenReturn(dataValidationOcc);
-        when(taskOccurence.getTriggerTime()).thenReturn(ZonedDateTime.of(2013, 9, 10, 14, 47, 24, 0, ZoneId.of("Europe/Paris")).toInstant());
-        assertThat(validationService.createValidationOccurrence(taskOccurence)).isEqualTo(dataValidationOcc);
+        when(taskOccurrence.getTriggerTime()).thenReturn(ZonedDateTime.of(2013, 9, 10, 14, 47, 24, 0, ZoneId.of("Europe/Paris")).toInstant());
+        assertThat(validationService.createValidationOccurrence(taskOccurrence)).isEqualTo(dataValidationOcc);
         assertThat(dataValidationOcc.getTask()).isEqualTo(iDataTask);
-        assertThat(dataValidationOcc.getTaskOccurrence()).isEqualTo(taskOccurence);
+        assertThat(dataValidationOcc.getTaskOccurrence()).isEqualTo(taskOccurrence);
     }
 
     @Test
@@ -797,7 +816,7 @@ public class ValidationServiceImplTest {
         when(channelValidationFactory.find(eq("channel"), eq(channel))).thenReturn(Arrays.asList(channelValidation));
         when(channelValidation.getLastChecked()).thenReturn(end);
         Answer<ReadingQualityRecord> answer = invocationOnMock -> {
-            ReadingQualityType rqType = (ReadingQualityType)invocationOnMock.getArguments()[0];
+            ReadingQualityType rqType = (ReadingQualityType) invocationOnMock.getArguments()[0];
             Instant instant = (Instant) invocationOnMock.getArguments()[1];
             return mockReadingQualityRecord(rqType.getCode(), instant);
         };
@@ -815,7 +834,8 @@ public class ValidationServiceImplTest {
         when(mainChannel.findActualReadingQuality(range)).thenReturn(mainRQs);
         List<DataValidationStatus> validationStatus = validationService.getEvaluator().getValidationStatus(mainChannel, bulkChannel, Collections.emptyList(), range);
         assertThat(validationStatus).hasSize(3);
-        Map<Instant, DataValidationStatus> map = validationStatus.stream().collect(Collectors.toMap(DataValidationStatus::getReadingTimestamp, java.util.function.Function.<DataValidationStatus>identity()));
+        Map<Instant, DataValidationStatus> map = validationStatus.stream()
+                .collect(Collectors.toMap(DataValidationStatus::getReadingTimestamp, java.util.function.Function.<DataValidationStatus>identity()));
         assertThat(map.get(start.plus(2, ChronoUnit.DAYS)).getValidationResult()).isEqualTo(ValidationResult.VALID);
         assertThat(map.get(start.plus(3, ChronoUnit.DAYS)).getValidationResult()).isEqualTo(ValidationResult.VALID);
         assertThat(map.get(start.plus(4, ChronoUnit.DAYS)).getValidationResult()).isEqualTo(ValidationResult.SUSPECT);
@@ -834,5 +854,4 @@ public class ValidationServiceImplTest {
         }
         return readingQualityRecord;
     }
-
 }

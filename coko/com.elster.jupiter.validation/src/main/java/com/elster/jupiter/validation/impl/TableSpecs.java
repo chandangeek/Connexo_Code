@@ -4,8 +4,8 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
@@ -42,6 +42,7 @@ public enum TableSpecs {
             Column idColumn = table.addAutoIdColumn();
             Column mRIDColumn = table.column("MRID").varChar(NAME_LENGTH).map("mRID").add();
             Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).map("name").add();
+            table.column("APPLICATION").varChar(NAME_LENGTH).notNull().map("applicationName").add();
             table.column("ALIASNAME").varChar(NAME_LENGTH).map("aliasName").add();
             table.column("DESCRIPTION").varChar(DESCRIPTION_LENGTH).map("description").add();
             Column obsoleteColumn = table.column("OBSOLETE_TIME").map("obsoleteTime").number().conversion(NUMBER2INSTANT).add();
@@ -182,19 +183,21 @@ public enum TableSpecs {
             table.setJournalTableName("VAL_DATAVALIDATIONTASKJRNL");
             Column idColumn = table.addAutoIdColumn();
             Column endDeviceGroupId = table.column("ENDDEVICEGROUP").number().conversion(ColumnConversion.NUMBER2LONG).add();
-            Column usagePointGroupId = table.column("USAGEPOINTGROUP").number().conversion(ColumnConversion.NUMBER2LONG).add();
+            Column metrologyContractId = table.column("METROLOGYCONTRACT").number().conversion(ColumnConversion.NUMBER2LONG).add();
             Column recurrentTaskId = table.column("RECURRENTTASK").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
             table.column("LASTRUN").number().conversion(NUMBER2INSTANT).map("lastRun").notAudited().add();
+            table.column("APPLICATION").varChar(NAME_LENGTH).map("application").add();
             table.addAuditColumns();
             table.foreignKey("VAL_FK_VALTASK2DEVICEGROUP")
                     .on(endDeviceGroupId)
                     .references(EndDeviceGroup.class)
                     .map("endDeviceGroup")
                     .add();
-            table.foreignKey("VAL_FK_VALTASK2USGPNTGROUP")
-                    .on(usagePointGroupId)
-                    .references(UsagePointGroup.class)
-                    .map("usagePointGroup")
+
+            table.foreignKey("VAL_FK_METROLOGYCONTRACT")
+                    .on(metrologyContractId)
+                    .references(MetrologyContract.class)
+                    .map("metrologyContract")
                     .add();
 
             table.primaryKey("VAL_PK_DATAVALIDATIONTASK")

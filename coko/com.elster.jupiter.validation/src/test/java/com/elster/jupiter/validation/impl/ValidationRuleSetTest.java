@@ -9,19 +9,21 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.validation.ReadingTypeInValidationRule;
 import com.elster.jupiter.validation.ValidationRuleProperties;
+
 import com.google.common.collect.ImmutableList;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.inject.Provider;
 import javax.validation.ValidatorFactory;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.fest.reflect.core.Reflection.field;
@@ -34,6 +36,7 @@ public class ValidationRuleSetTest extends EqualsContractTest {
     private static final long ID = 651L;
     private static final long OTHER_ID = 426294L;
     private static final String NAME = "name";
+    private static final String APPLICATION = "MDC";
     private ValidationRuleSetImpl validationRuleSet;
 
     @Mock
@@ -76,7 +79,7 @@ public class ValidationRuleSetTest extends EqualsContractTest {
         when(dataModel.query(IValidationRule.class, IValidationRuleSet.class, ValidationRuleProperties.class)).thenReturn(queryExecutor);
         when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
         when(dataModel.getValidatorFactory().getValidator()).thenReturn(validator);
-        validationRuleSet = new ValidationRuleSetImpl(dataModel, eventService, versionProvider).init(NAME, null);
+        validationRuleSet = new ValidationRuleSetImpl(dataModel, eventService, versionProvider).init(NAME, APPLICATION, null);
     }
     @After
     public void tearDown() {
@@ -85,7 +88,7 @@ public class ValidationRuleSetTest extends EqualsContractTest {
     @Override
     protected Object getInstanceA() {
         if (validationRuleSet == null) {
-            validationRuleSet = new ValidationRuleSetImpl(dataModel, eventService, versionProvider).init(NAME, null);
+            validationRuleSet = new ValidationRuleSetImpl(dataModel, eventService, versionProvider).init(NAME, APPLICATION, null);
             setId(validationRuleSet, ID);
         }
         return validationRuleSet;
@@ -97,14 +100,14 @@ public class ValidationRuleSetTest extends EqualsContractTest {
 
     @Override
     protected Object getInstanceEqualToA() {
-        ValidationRuleSetImpl set = new ValidationRuleSetImpl(dataModel, eventService, versionProvider).init(NAME, null);
+        ValidationRuleSetImpl set = new ValidationRuleSetImpl(dataModel, eventService, versionProvider).init(NAME, APPLICATION, null);
         setId(set, ID);
         return set;
     }
 
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
-        ValidationRuleSetImpl set = new ValidationRuleSetImpl(dataModel, eventService, versionProvider).init(NAME, null);
+        ValidationRuleSetImpl set = new ValidationRuleSetImpl(dataModel, eventService, versionProvider).init(NAME, APPLICATION, null);
         setId(set, OTHER_ID);
         return ImmutableList.of(set);
     }
@@ -122,6 +125,11 @@ public class ValidationRuleSetTest extends EqualsContractTest {
     @Test
     public void testGetNameAfterCreation() {
         assertThat(validationRuleSet.getName()).isEqualTo(NAME);
+    }
+
+    @Test
+    public void testGetApplicationNameAfterCreation() {
+        assertThat(validationRuleSet.getApplicationName()).isEqualTo(APPLICATION);
     }
 
     @Test
