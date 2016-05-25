@@ -58,8 +58,8 @@ import static com.elster.jupiter.util.conditions.Where.where;
  */
 public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigurationService, InstallService, PrivilegesProvider, TranslationKeyProvider {
 
-    private static final String METER_ROLE_KEY_PREFIX = "meter.role.";
-    private static final String METER_PURPOSE_KEY_PREFIX = "metrology.purpose.";
+    static final String METER_ROLE_KEY_PREFIX = "meter.role.";
+    static final String METER_PURPOSE_KEY_PREFIX = "metrology.purpose.";
 
     private volatile ServerMeteringService meteringService;
     private volatile UserService userService;

@@ -10,6 +10,8 @@ import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventRecordBuilder;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
+
+import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
