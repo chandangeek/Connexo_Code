@@ -32,7 +32,7 @@ Ext.define('Fwc.controller.Firmware', {
     ],
 
     deviceTypeId: null,
-    forceSpecsTabActivation: false,
+    tab2Activate: undefined,
 
     init: function () {
         this.control({
@@ -73,12 +73,17 @@ Ext.define('Fwc.controller.Firmware', {
             },
             'firmware-options-edit #cancelLink': {
                 click: function() {
-                    this.forceSpecsTabActivation = true;
+                    this.tab2Activate = 0;
                 }
             },
-            'firmware-options-edit #saveButton': {
+            'firmware-edit #cancelLink': {
                 click: function() {
-                    this.forceSpecsTabActivation = true;
+                    this.tab2Activate = 1;
+                }
+            },
+            'firmware-add #cancelLink': {
+                click: function() {
+                    this.tab2Activate = 1;
                 }
             }
         });
@@ -89,6 +94,7 @@ Ext.define('Fwc.controller.Firmware', {
             router = me.getController('Uni.controller.history.Router'),
             container = me.getContainer();
 
+        this.tab2Activate = 1;
         container.setLoading();
         firmware.getProxy().setUrl(router.arguments.deviceTypeId);
         firmware.setFinal({
@@ -108,6 +114,7 @@ Ext.define('Fwc.controller.Firmware', {
             router = me.getController('Uni.controller.history.Router'),
             container = me.getContainer();
 
+        this.tab2Activate = 1;
         var data = firmware.getAssociatedData().firmwareType;
         Ext.create('Uni.view.window.Confirmation', {
             confirmText: Uni.I18n.translate('general.deprecate', 'FWC', 'Deprecate')
@@ -198,7 +205,9 @@ Ext.define('Fwc.controller.Firmware', {
                         me.getFirmwareForm().down('firmware-status').setValue({id: 'final'});
                     }
                     if (firmware.getFirmwareStatus().getId() === 'final' && firmware.raw.isInUse) {
-                        me.getFirmwareForm().down('uni-form-error-message').setText(Uni.I18n.translate('firmware.edit.versionInUse', 'FWC', 'This version is in use and can not be modified.'));
+                        me.getFirmwareForm().down('uni-form-error-message').setText(
+                            Uni.I18n.translate('firmware.edit.versionInUse', 'FWC', 'This version is in use and can not be modified.')
+                        );
                         me.getFirmwareForm().down('uni-form-error-message').show();
                         me.getFirmwareForm().down('#text-firmware-version').disable();
                         me.getFirmwareForm().down('#firmware-field-file').disable();
@@ -218,6 +227,7 @@ Ext.define('Fwc.controller.Firmware', {
             form = me.getFirmwareForm(),
             record;
 
+        this.tab2Activate = 1;
         form.down('uni-form-error-message').hide();
         form.getForm().clearInvalid();
         record = form.updateRecord().getRecord();
@@ -272,6 +282,8 @@ Ext.define('Fwc.controller.Firmware', {
         var me = this,
             form = me.getFirmwareForm(),
             record;
+
+        this.tab2Activate = 1;
         form.down('uni-form-error-message').hide();
         form.getForm().clearInvalid();
         record = form.updateRecord().getRecord();
@@ -395,12 +407,12 @@ Ext.define('Fwc.controller.Firmware', {
                         deviceType: deviceType,
                         deviceTypeId: deviceTypeId,
                         firmwareManagementAllowed: optionsRecord.get('isAllowed'),
-                        tab2Activate: me.forceSpecsTabActivation ? 0 : undefined
+                        tab2Activate: me.tab2Activate
                     });
 
                     me.deviceTypeId = deviceTypeId;
                     me.getApplication().fireEvent('changecontentevent', view);
-                    me.forceSpecsTabActivation = false;
+                    me.tab2Activate = undefined;
 
                     var widget = view.down('firmware-options'),
                         form = widget ? widget.down('form') : null;
@@ -479,6 +491,7 @@ Ext.define('Fwc.controller.Firmware', {
             allowedOptionsError = form.down('#allowedOptionsError'),
             backUrl = router.getRoute('administration/devicetypes/view/firmwareversions').buildUrl();
 
+        this.tab2Activate = 0;
         form.updateRecord();
         allowedOptionsError.removeAll();
         form.getRecord().save({
