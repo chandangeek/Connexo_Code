@@ -23,11 +23,10 @@ import java.util.function.Consumer;
  */
 public class SetUsagePointToDevicePostBuilder implements Consumer<Device> {
 
+    private static int newUsagePointId = 0;
     private MeteringService meteringService;
     private Clock clock;
     private UsagePointBuilder usagePointBuilder;
-
-    private static int newUsagePointId = 0;
 
     @Inject
     SetUsagePointToDevicePostBuilder(MeteringService meteringService, Clock clock) {
@@ -40,7 +39,7 @@ public class SetUsagePointToDevicePostBuilder implements Consumer<Device> {
     public void accept(Device device) {
         Log.write(this.usagePointBuilder.withMRID(newMRID()).withName(device.getName())
                 .withInstallationTime(clock.instant())
-                .withLocation(device.getLocation())
+                .withLocation(device.getLocation().isPresent() ? device.getLocation().get() : null)
                 .withGeoCoordinates(device.getGeoCoordinates().isPresent() ? device.getGeoCoordinates().get() : null));
         this.usagePointBuilder.create();
         setUsagePoint(device, this.usagePointBuilder.get());
