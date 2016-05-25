@@ -25,7 +25,7 @@ Ext.define('Imt.usagepointsetup.controller.MetrologyConfig', {
         var me = this;
         me.control({
             '#usage-point-edit-meters #save-btn': {
-                click: this.saveButtonClick
+                click: me.saveButtonClick
             }
         });
     },
@@ -83,7 +83,7 @@ Ext.define('Imt.usagepointsetup.controller.MetrologyConfig', {
         var me = this,
             usagePoint = btn.usagePoint,
             mRID = usagePoint.get('mRID'),
-            form = this.getMetersForm(),
+            form = me.getMetersForm(),
             meterActivations = form.getMeterActivations();
         form.getForm().clearInvalid();
         var callback = function () {
@@ -123,16 +123,18 @@ Ext.define('Imt.usagepointsetup.controller.MetrologyConfig', {
 
     makeConfirmationMessage: function (meterActivations, usagePoint) {
 
-        var msg = '',
-            msgTpl = Uni.I18n.translate('metrologyconfiguration.setMeters.confirmation.msg', 'IMT', "Meter '{X}' is already linked to usage point '{Y}' as '{Z}' meter.");
+        var msg = '';
         Ext.each(meterActivations, function (meterAct) {
             meterAct.meter && meterAct.meter.meterActivations && Ext.each(meterAct.meter.meterActivations, function (mact) {
-                if (mact.usagePoint && !Ext.isEmpty(mact.usagePoint.mRID) && (mact.usagePoint.mRID != usagePoint.get('mRID'))) {
+                //if (mact.usagePoint && !Ext.isEmpty(mact.usagePoint.mRID) && (mact.usagePoint.mRID != usagePoint.get('mRID'))) {
+                if (true) {
                     confirm = true;
-                    msg += msgTpl
-                            .replace('{X}', meterAct.meter.mRID)
-                            .replace('{Y}', mact.usagePoint.mRID)
-                            .replace('{Z}', mact.meterRole.name) + '<br>';
+                    msg += Uni.I18n.translate('metrologyconfiguration.setMeters.confirmation.msg', 'IMT', "Meter '{0}' is already linked to usage point '{1}' as '{2}' meter.",
+                            [
+                                meterAct.meter.mRID,
+                                mact.usagePoint.mRID,
+                                mact.meterRole.name
+                            ]) + '<br>';
                 }
             });
         });
