@@ -213,9 +213,11 @@ public class UsagePointResource {
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
     @Transactional
     @Path("/{mrid}/meters")
-    public Response getMetersOnUsagePoint(@PathParam("mrid") String mrid) {
+    public Response getMetersOnUsagePoint(@PathParam("mrid") String mrid, @BeanParam JsonQueryParameters queryParameters) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mrid);
-        return Response.ok().entity(usagePointInfoFactory.getMetersOnUsagePointInfo(usagePoint)).build();
+        return Response.ok()
+                .entity(PagedInfoList.fromCompleteList("meterActivations", usagePointInfoFactory.getMetersOnUsagePointInfo(usagePoint), queryParameters))
+                .build();
     }
 
     @PUT
@@ -582,7 +584,7 @@ public class UsagePointResource {
                 CalculatedMetrologyContractData calculatedMetrologyContractData = dataAggregationService.calculate(usagePoint, metrologyContract, range);
                 List<? extends BaseReadingRecord> channelData = calculatedMetrologyContractData.getCalculatedDataFor(readingTypeDeliverable);
                 outputChannelDataInfoList = channelData.stream().map(OutputChannelDataInfo::asInfo).collect(Collectors.toList());
-            } catch (MetrologyContractDoesNotApplyToUsagePointException|UnderlyingSQLFailedException ex) {
+            } catch (MetrologyContractDoesNotApplyToUsagePointException | UnderlyingSQLFailedException ex) {
                 outputChannelDataInfoList = Collections.emptyList();
             }
         }
