@@ -75,6 +75,11 @@ public class MetrologyContractImpl implements MetrologyContract {
     }
 
     @Override
+    public long getId() {
+        return this.id;
+    }
+
+    @Override
     public MetrologyConfiguration getMetrologyConfiguration() {
         return this.metrologyConfiguration.orNull();
     }
