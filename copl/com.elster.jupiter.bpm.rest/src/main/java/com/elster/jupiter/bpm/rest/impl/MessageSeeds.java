@@ -12,8 +12,9 @@ public enum MessageSeeds implements MessageSeed {
     PROCESS_NOT_AVAILABLE(4, Constants.PROCESS_NOT_AVAILABLE, "Process {0} not available.", Level.SEVERE),
     EDIT_TASK_CONCURRENT_TITLE(5, Constants.EDIT_TASK_CONCURRENT_TITLE, "Failed to save task ''{0}''", Level.SEVERE ),
     EDIT_TASK_CONCURRENT_BODY(6, Constants.EDIT_TASK_CONCURRENT_BODY, "''{0}'' has changed since the page was last updated.", Level.SEVERE ),
-    EDIT_PROCESS_CONCURRENT_TITLE(5, Constants.EDIT_PROCESS_CONCURRENT_TITLE, "Failed to save process ''{0}''", Level.SEVERE ),
-    EDIT_PROCESS_CONCURRENT_BODY(6, Constants.EDIT_PROCESS_CONCURRENT_BODY, "''{0}'' has changed since the page was last updated.", Level.SEVERE ),
+    EDIT_PROCESS_CONCURRENT_TITLE(7, Constants.EDIT_PROCESS_CONCURRENT_TITLE, "Failed to save process ''{0}''", Level.SEVERE ),
+    EDIT_PROCESS_CONCURRENT_BODY(8, Constants.EDIT_PROCESS_CONCURRENT_BODY, "''{0}'' has changed since the page was last updated.", Level.SEVERE ),
+    NO_TASK_WITH_ID(9, Constants.NO_TASK_WITH_ID, "No task with ID ''{0}''", Level.SEVERE ),
     ;
 
     public static final String COMPONENT_NAME = "BPM";
@@ -65,6 +66,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String EDIT_PROCESS_CONCURRENT_TITLE = "BPM.EditProcessConcurrentTitle";
         public static final String EDIT_TASK_CONCURRENT_BODY = "BPM.EditTaskConcurrentBody";
         public static final String EDIT_PROCESS_CONCURRENT_BODY = "BPM.EditProcessConcurrentBody";
+        public static final String NO_TASK_WITH_ID = "BPM.NoTaskWithId";
     }
 
 }

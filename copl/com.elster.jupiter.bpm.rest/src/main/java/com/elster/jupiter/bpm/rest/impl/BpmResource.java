@@ -18,6 +18,7 @@ import com.elster.jupiter.bpm.rest.DeploymentInfos;
 import com.elster.jupiter.bpm.rest.Errors;
 import com.elster.jupiter.bpm.rest.LocalizedFieldException;
 import com.elster.jupiter.bpm.rest.NoBpmConnectionException;
+import com.elster.jupiter.bpm.rest.NoTaskWithIdException;
 import com.elster.jupiter.bpm.rest.NodeInfos;
 import com.elster.jupiter.bpm.rest.PagedInfoListCustomized;
 import com.elster.jupiter.bpm.rest.ProcessAssociationInfo;
@@ -304,13 +305,16 @@ public class BpmResource {
     @Path("/tasks/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_TASK, Privileges.Constants.ASSIGN_TASK, Privileges.Constants.EXECUTE_TASK})
-    public UserTaskInfo getTask(@PathParam("id") long id, @HeaderParam("Authorization") String auth) {
+    public UserTaskInfo getTask(@Context UriInfo uriInfo, @PathParam("id") long id, @HeaderParam("Authorization") String auth, @HeaderParam("X-CONNEXO-APPLICATION-NAME") String appKey) {
         String jsonContent;
         UserTaskInfo taskInfo = new UserTaskInfo();
+        ObjectMapper mapper = new ObjectMapper();
+        String payload;
         try {
             String rest = "/rest/tasks/";
             rest += String.valueOf(id);
-            jsonContent = bpmService.getBpmServer().doGet(rest, auth);
+            payload = mapper.writeValueAsString(getAvailableProcessesByAppKey(uriInfo, auth, appKey));
+            jsonContent = bpmService.getBpmServer().doPost(rest, payload, auth, 0L);
             if (!"".equals(jsonContent)) {
                 JSONObject obj = new JSONObject(jsonContent);
                 taskInfo = new UserTaskInfo(obj, "");
@@ -322,6 +326,11 @@ public class BpmResource {
             throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
                     .entity(this.errorNotFoundMessage)
                     .build());
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        if(taskInfo.id.equals("0")){
+            throw new NoTaskWithIdException(thesaurus, MessageSeeds.NO_TASK_WITH_ID , id);
         }
         return taskInfo;
     }
