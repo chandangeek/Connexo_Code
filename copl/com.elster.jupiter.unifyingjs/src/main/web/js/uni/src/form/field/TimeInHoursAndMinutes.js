@@ -31,6 +31,7 @@ Ext.define('Uni.form.field.TimeInHoursAndMinutes', {
                 width: 70,
                 minValue: 0,
                 maxValue: 23,
+                valueToRaw: me.formatWithTwoDigits,
                 margin: '0 5 5 0',
                 listeners: {
                     blur: {
@@ -52,6 +53,7 @@ Ext.define('Uni.form.field.TimeInHoursAndMinutes', {
                 minValue: 0,
                 maxValue: 59,
                 width: 70,
+                valueToRaw: me.formatWithTwoDigits,
                 margin: '0 5 5 0',
                 listeners: {
                     blur: {
@@ -109,6 +111,17 @@ Ext.define('Uni.form.field.TimeInHoursAndMinutes', {
         } else if (value > field.maxValue) {
             field.setValue(field.maxValue);
         }
-    }
+    },
 
+    formatWithTwoDigits: function (value) {
+        var result = '00';
+        if (value) {
+            if (value < 10 && value > 0) {
+                result = '0' + value;
+            } else if (value >= 10) {
+                result = value;
+            }
+        }
+        return result;
+    }
 });
