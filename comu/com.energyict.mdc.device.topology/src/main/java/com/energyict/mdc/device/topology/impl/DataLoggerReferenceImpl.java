@@ -2,6 +2,8 @@ package com.energyict.mdc.device.topology.impl;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
@@ -104,15 +106,16 @@ public class DataLoggerReferenceImpl extends AbstractPhysicalGatewayReferenceImp
                 IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(dataloggerChannel.getMainReadingType().getMRID());
                 intervalBlock.addAllIntervalReadings(readings);
                 meterReading.addAllIntervalBlocks(Collections.singletonList(intervalBlock));
+                slaveChannel.removeReadings(slaveChannel.getIntervalReadings(Range.openClosed(start, slaveChannel.getLastDateTime())));
             } else {
-                List<Reading> readings = new ArrayList<>();
+                List<ReadingRecord> readings = new ArrayList<>();
                 readings.addAll(slaveChannel.getRegisterReadings(Range.openClosed(start, slaveChannel.getLastDateTime())));
                 if (readings.isEmpty()) {
                     return;
                 }
                 meterReading.addAllReadings(readings);
+                slaveChannel.removeReadings(slaveChannel.getRegisterReadings(Range.openClosed(start, slaveChannel.getLastDateTime())));
             }
-            slaveChannel.removeReadings(slaveChannel.getReadings(Range.openClosed(start, slaveChannel.getLastDateTime())));
             this.getGateway().store(meterReading);
         }
     }
