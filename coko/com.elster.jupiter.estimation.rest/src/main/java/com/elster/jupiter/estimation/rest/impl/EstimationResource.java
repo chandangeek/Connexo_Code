@@ -11,10 +11,8 @@ import com.elster.jupiter.estimation.EstimationTaskOccurrenceFinder;
 import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.estimation.rest.PropertyUtils;
 import com.elster.jupiter.estimation.security.Privileges;
-import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
@@ -49,6 +47,7 @@ import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -61,13 +60,11 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import java.time.Instant;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -75,6 +72,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
 @Path("/estimation")
 public class EstimationResource {
 
+    private static final String APPLICATION_HEADER_PARAM = "X-CONNEXO-APPLICATION-NAME";
     private final RestQueryService queryService;
     private final EstimationService estimationService;
     private final TransactionService transactionService;
@@ -96,7 +94,6 @@ public class EstimationResource {
         this.conflictFactory = conflictFactory;
     }
 
-
     /**
      * Get all estimation rulesets
      *
@@ -107,9 +104,9 @@ public class EstimationResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION,
             Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE, Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
-    public EstimationRuleSetInfos getEstimationRuleSets(@Context UriInfo uriInfo) {
+    public EstimationRuleSetInfos getEstimationRuleSets(@HeaderParam(APPLICATION_HEADER_PARAM) String applicationName, @Context UriInfo uriInfo) {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
-        List<EstimationRuleSet> list = queryRuleSets(params);
+        List<EstimationRuleSet> list = queryRuleSets(params, applicationName);
 
         EstimationRuleSetInfos infos = new EstimationRuleSetInfos(params.clipToLimit(list));
         infos.total = params.determineTotal(list.size());
@@ -117,9 +114,9 @@ public class EstimationResource {
         return infos;
     }
 
-    private List<EstimationRuleSet> queryRuleSets(QueryParameters queryParameters) {
+    private List<EstimationRuleSet> queryRuleSets(QueryParameters queryParameters, String applicationName) {
         Query<EstimationRuleSet> query = estimationService.getEstimationRuleSetQuery();
-        query.setRestriction(where("obsoleteTime").isNull());
+        query.setRestriction(where("applicationName").isEqualTo(applicationName));
         RestQuery<EstimationRuleSet> restQuery = queryService.wrap(query);
         return restQuery.select(queryParameters, Order.ascending("upper(name)"));
     }
@@ -155,11 +152,11 @@ public class EstimationResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION)
-    public Response createEstimationRuleSet(final EstimationRuleSetInfo info) {
+    public Response createEstimationRuleSet(final EstimationRuleSetInfo info, @HeaderParam(APPLICATION_HEADER_PARAM) String applicationName) {
         return Response.status(Response.Status.CREATED).entity(new EstimationRuleSetInfo(transactionService.execute(new Transaction<EstimationRuleSet>() {
             @Override
             public EstimationRuleSet perform() {
-                return estimationService.createEstimationRuleSet(info.name, info.description);
+                return estimationService.createEstimationRuleSet(info.name, applicationName, info.description);
             }
         }))).build();
     }
@@ -208,37 +205,18 @@ public class EstimationResource {
     }
 
     @GET
-    @Path("/{ruleSetId}/rule/{ruleId}/readingtypes")
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION})
-    public ReadingTypeInfos getReadingTypesForRule(@PathParam("ruleSetId") long ruleSetId, @PathParam("ruleId") long ruleId) {
-        ReadingTypeInfos infos = new ReadingTypeInfos();
-        EstimationRuleSet estimationRuleSet = fetchEstimationRuleSet(ruleSetId);
-        EstimationRule estimationRule = getEstimationRuleFromSetOrThrowException(estimationRuleSet, ruleId);
-        Set<ReadingType> readingTypes = estimationRule.getReadingTypes();
-        for (ReadingType readingType : readingTypes) {
-            infos.add(readingType);
-        }
-        infos.total = readingTypes.size();
-        return infos;
-    }
-
-    @GET
     @Path("/estimators")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION})
-    public EstimatorInfos getAvailableEstimatimators(@Context UriInfo uriInfo) {
-        EstimatorInfos infos = new EstimatorInfos();
-        List<Estimator> toAdd = estimationService.getAvailableEstimators();
-        Collections.sort(toAdd, Compare.BY_DISPLAY_NAME);
-        for (Estimator estimator : toAdd) {
-            infos.add(
-                    estimator.getClass().getName(),
-                    estimator.getDisplayName(),
-                    propertyUtils.convertPropertySpecsToPropertyInfos(estimator.getPropertySpecs()));
-        }
-        infos.total = toAdd.size();
-        return infos;
+    public PagedInfoList getAvailableEstimators(@HeaderParam(APPLICATION_HEADER_PARAM) String applicationName, @BeanParam JsonQueryParameters parameters) {
+        List<EstimationInfo> data = estimationService.getAvailableEstimators(applicationName).stream()
+                .sorted(Compare.BY_DISPLAY_NAME)
+                .map(estimator -> new EstimationInfo(
+                        estimator.getClass().getName(),
+                        estimator.getDisplayName(),
+                        propertyUtils.convertPropertySpecsToPropertyInfos(estimator.getPropertySpecs())))
+                .collect(Collectors.toList());
+        return PagedInfoList.fromCompleteList("estimators", data, parameters);
     }
 
     class RuleSetUsageInfo {
