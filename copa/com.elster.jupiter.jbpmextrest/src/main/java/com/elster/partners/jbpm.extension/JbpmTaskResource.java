@@ -88,7 +88,7 @@ public class JbpmTaskResource {
             endIndex++;
         }catch (NumberFormatException e){
         }
-        if(deploymentIds != null && processIds != null) {
+        if(deploymentIds != null && processIds != null && !deploymentIds.isEmpty() && !processIds.isEmpty()) {
             if (emf != null) {
                 EntityManager em = emf.createEntityManager();
                 CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
