@@ -1926,40 +1926,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return this.issueService.query(HistoricalIssue.class).select(where("device").isEqualTo(meter));
     }
 
-    @Override
-    public State getState() {
-        return this.getState(this.clock.instant()).get();
-    }
-
-    @Override
-    public Optional<State> getState(Instant instant) {
-        if (this.id > 0) {
-            Optional<Meter> meter = this.findKoreMeter(getMdcAmrSystem());
-            if (meter.isPresent()) {
-                return meter.get().getState(instant);
-            } else {
-                // Kore meter was not created yet
-                throw new IllegalStateException("Kore meter was not created when this Device was created");
-            }
-        } else {
-            return Optional.of(this.getDeviceType().getDeviceLifeCycle().getFiniteStateMachine().getInitialState());
-        }
-    }
-
-    @Override
-    public StateTimeline getStateTimeline() {
-        return this.getOptionalMeterAspect(EndDevice::getStateTimeline).get();
-    }
-
-    @Override
-    public CIMLifecycleDates getLifecycleDates() {
-        Optional<Meter> meter = this.findKoreMeter(getMdcAmrSystem());
-        if (meter.isPresent()) {
-            return new CIMLifecycleDatesImpl(meter.get(), meter.get().getLifecycleDates());
-        } else {
-            return new NoCimLifecycleDates();
-        }
-    }
 
     @Override
     public List<PassiveEffectiveCalendar> getPassiveCalendars() {
@@ -1982,21 +1948,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 this.dataModel.getInstance(ActiveEffectiveCalendarImpl.class)
                     .initialize(effectivityInterval, this, allowedCalendar, lastVerified)
         );
-    }
-
-    @Override
-    public List<DeviceLifeCycleChangeEvent> getDeviceLifeCycleChangeEvents() {
-        // Merge the StateTimeline with the list of change events from my DeviceType.
-        Deque<StateTimeSlice> stateTimeSlices = new LinkedList<>(this.getStateTimeline().getSlices());
-        Deque<com.energyict.mdc.device.config.DeviceLifeCycleChangeEvent> deviceTypeChangeEvents = new LinkedList<>(this.getDeviceTypeLifeCycleChangeEvents());
-        List<DeviceLifeCycleChangeEvent> changeEvents = new ArrayList<>();
-        boolean notReady;
-        do {
-            DeviceLifeCycleChangeEvent newEvent = this.newEventForMostRecent(stateTimeSlices, deviceTypeChangeEvents);
-            changeEvents.add(newEvent);
-            notReady = !stateTimeSlices.isEmpty() || !deviceTypeChangeEvents.isEmpty();
-        } while (notReady);
-        return changeEvents;
     }
 
     private List<com.energyict.mdc.device.config.DeviceLifeCycleChangeEvent> getDeviceTypeLifeCycleChangeEvents() {
