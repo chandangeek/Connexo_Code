@@ -17,32 +17,38 @@ public class ReadingTypeRequirementChecker implements ExpressionNode.Visitor<Rea
 
     @Override
     public ReadingTypeRequirementChecker visitConstant(ConstantNode constant) {
+        constant.getChildren().forEach(n -> n.accept(this));
         return this;
     }
 
     @Override
     public ReadingTypeRequirementChecker visitRequirement(ReadingTypeRequirementNode requirement) {
         this.readingTypeRequirements.add(requirement.getReadingTypeRequirement());
+        requirement.getChildren().forEach(n -> n.accept(this));
         return this;
     }
 
     @Override
     public ReadingTypeRequirementChecker visitDeliverable(ReadingTypeDeliverableNode deliverable) {
+        deliverable.getChildren().forEach(n -> n.accept(this));
         return this;
     }
 
     @Override
     public ReadingTypeRequirementChecker visitOperation(OperationNode operationNode) {
+        operationNode.getChildren().forEach(n -> n.accept(this));
         return this;
     }
 
     @Override
     public ReadingTypeRequirementChecker visitFunctionCall(FunctionCallNode functionCall) {
+        functionCall.getChildren().forEach(n -> n.accept(this));
         return this;
     }
 
     @Override
     public ReadingTypeRequirementChecker visitNull(NullNode nullNode) {
+        nullNode.getChildren().forEach(n -> n.accept(this));
         return this;
     }
 

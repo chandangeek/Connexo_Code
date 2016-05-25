@@ -1,5 +1,7 @@
 package com.elster.jupiter.metering.config;
 
+import com.elster.jupiter.metering.UsagePoint;
+
 import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
@@ -41,7 +43,7 @@ public interface MetrologyContract {
 
     boolean isMandatory();
 
-    Status getStatus();
+    Status getStatus(UsagePoint usagePoint);
 
     interface Status {
 
