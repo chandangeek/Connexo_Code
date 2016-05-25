@@ -1155,6 +1155,8 @@ public class BpmResource {
                                             outputBindingContents.put(s.outputBinding, theKey);
                                         }
                                     }
+                                } else {
+                                    outputBindingContents.put(s.outputBinding, taskContentInfo.get().propertyValueInfo.value);
                                 }
                             }else {
                                 outputBindingContents.put(s.outputBinding, taskContentInfo.get().propertyValueInfo.value);
