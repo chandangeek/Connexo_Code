@@ -14,9 +14,7 @@ Ext.define('Uni.override.window.MessageBox', {
 
     initComponent: function () {
         var me = this,
-            title = me.title,
-            baseId = me.id,
-            i, button;
+            title = me.title;
 
         me.title = ' ';
 
