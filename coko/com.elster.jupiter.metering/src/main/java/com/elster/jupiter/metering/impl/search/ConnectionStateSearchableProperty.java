@@ -31,7 +31,7 @@ public class ConnectionStateSearchableProperty implements SearchableUsagePointPr
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
     private Clock clock;
-    private static final String FIELD_NAME = "detail.connectionState";
+    private static final String FIELD_NAME = "connectionState";
 
     public ConnectionStateSearchableProperty(SearchDomain domain, PropertySpecService propertySpecService, Thesaurus thesaurus, Clock clock) {
         super();
@@ -103,7 +103,7 @@ public class ConnectionStateSearchableProperty implements SearchableUsagePointPr
 
     @Override
     public Condition toCondition(Condition specification) {
-        return specification.and(Where.where("detail.interval").isEffective(this.clock.instant()));
+        return specification;
     }
 
 }
