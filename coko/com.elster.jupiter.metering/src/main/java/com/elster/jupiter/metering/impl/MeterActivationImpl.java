@@ -4,6 +4,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.EventType;
+import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeterAlreadyLinkedToUsagePoint;
@@ -16,12 +17,14 @@ import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointConfiguration;
+import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Interval;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
@@ -46,7 +49,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.Ranges.does;
-import static com.elster.jupiter.util.streams.Currying.*;
+import static com.elster.jupiter.util.streams.Currying.test;
 import static com.elster.jupiter.util.streams.Predicates.not;
 
 public final class MeterActivationImpl implements IMeterActivation {
@@ -228,7 +231,7 @@ public final class MeterActivationImpl implements IMeterActivation {
     @Override
     public void endAt(Instant end) {
         if (isInvalidEndDate(end)) {
-            throw new IllegalArgumentException();
+            throw new ChannelDataPresentException();
         }
         doEndAt(end);
     }
@@ -542,5 +545,11 @@ public final class MeterActivationImpl implements IMeterActivation {
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());
 
+    }
+
+    class ChannelDataPresentException extends LocalizedException {
+        public ChannelDataPresentException() {
+            super(thesaurus, MessageSeeds.CHANNEL_DATA_PRESENT);
+        }
     }
 }
