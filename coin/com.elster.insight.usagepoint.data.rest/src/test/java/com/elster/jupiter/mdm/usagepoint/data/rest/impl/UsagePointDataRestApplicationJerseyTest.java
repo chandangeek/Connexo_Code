@@ -203,10 +203,6 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         when(contract.getMetrologyConfiguration()).thenReturn(mock);
         when(contract.getDeliverables()).thenReturn(Collections.singletonList(deliverable));
         when(contract.isMandatory()).thenReturn(true);
-        MetrologyContract.Status status = mock(MetrologyContract.Status.class);
-        when(contract.getStatus()).thenReturn(status);
-        when(contract.getStatus().getKey()).thenReturn("INCOMPLETE");
-        when(contract.getStatus().getName()).thenReturn("Incomplete");
         when(mock.getContracts()).thenReturn(Collections.singletonList(contract));
         return mock;
     }

@@ -213,8 +213,8 @@ public class UsagePointResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
     @Transactional
-    @Path("/{mrid}/meters")
-    public Response getMetersOnUsagePoint(@PathParam("mrid") String mrid, @BeanParam JsonQueryParameters queryParameters, @HeaderParam("Authorization") String auth) {
+    @Path("/{mrid}/meteractivations")
+    public Response getMetersOnUsagePoint(@PathParam("mrid") String mrid, @BeanParam JsonQueryParameters queryParameters) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mrid);
         return Response.ok()
                 .entity(PagedInfoList.fromCompleteList("meterActivations", usagePointInfoFactory.getMetersOnUsagePointInfo(usagePoint, auth), queryParameters))
@@ -400,14 +400,6 @@ public class UsagePointResource {
         }
     }
 
-    @GET
-    @Path("/{mrid}/meteractivations")
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
-    public MeterActivationInfos getMeterActivations(@PathParam("mrid") String mRid, @Context SecurityContext securityContext) {
-        UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mRid);
-        return new MeterActivationInfos(usagePoint.getMeterActivations());
-    }
 
     @GET
     @Path("/{id}/readingtypes")
@@ -513,7 +505,7 @@ public class UsagePointResource {
             List<MetrologyContract> metrologyContractList = usagePoint.getMetrologyConfiguration().get().getContracts();
             purposeInfoList = metrologyContractList
                     .stream()
-                    .map(PurposeInfo::asInfo)
+                    .map(metrologyContract -> PurposeInfo.asInfo(metrologyContract, usagePoint))
                     .collect(Collectors.toList());
 
         } else {

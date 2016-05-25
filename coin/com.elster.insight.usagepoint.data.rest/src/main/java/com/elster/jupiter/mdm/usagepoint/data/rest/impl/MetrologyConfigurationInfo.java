@@ -49,11 +49,11 @@ public class MetrologyConfigurationInfo {
         this.activationTime = usagePoint.getInstallationTime();
         this.meterRoles = metrologyConfiguration.getMeterRoles()
                 .stream()
-                .map(mr -> asDetailedInfo(mr, metrologyConfiguration))
+                .map(mr -> asDetailedInfo(mr, metrologyConfiguration, usagePoint))
                 .collect(Collectors.toList());
         this.purposes = metrologyConfiguration.getContracts()
                 .stream()
-                .map(c -> asDetailedInfo(c, metrologyConfiguration))
+                .map(c -> asDetailedInfo(c, metrologyConfiguration, usagePoint))
                 .collect(Collectors.toList());
         this.status = asInfo();
     }
@@ -69,13 +69,13 @@ public class MetrologyConfigurationInfo {
         return info;
     }
 
-    private MeterRoleInfo asDetailedInfo(MeterRole meterRole, UsagePointMetrologyConfiguration metrologyConfiguration) {
+    private MeterRoleInfo asDetailedInfo(MeterRole meterRole, UsagePointMetrologyConfiguration metrologyConfiguration, UsagePoint usagePoint) {
         MeterRoleInfo info = new MeterRoleInfo();
         info.id = meterRole.getKey();
         info.name = meterRole.getDisplayName();
-        MeterActivation meterActivation = !metrologyConfiguration.getMetersForRole(meterRole).isEmpty() ? metrologyConfiguration.getMetersForRole(meterRole)
+        MeterActivation meterActivation = !usagePoint.getMeterActivations(meterRole).isEmpty() ? usagePoint.getMeterActivations(meterRole)
                 .stream()
-                .filter(meterActivation1 -> meterActivation1.getEnd() == null)
+                .filter(meterActivationToCheck -> meterActivationToCheck.getEnd() == null)
                 .findFirst()
                 .orElse(null) : null;
         info.mRID = meterActivation != null ? meterActivation.getMeter().get().getMRID() : null;
@@ -109,21 +109,21 @@ public class MetrologyConfigurationInfo {
         return meterRoles;
     }
 
-    private PurposeInfo asDetailedInfo(MetrologyContract metrologyContract, UsagePointMetrologyConfiguration metrologyConfiguration) {
+    private PurposeInfo asDetailedInfo(MetrologyContract metrologyContract, UsagePointMetrologyConfiguration metrologyConfiguration, UsagePoint usagePoint) {
         PurposeInfo info = new PurposeInfo();
         info.id = metrologyContract.getMetrologyPurpose().getId();
         info.name = metrologyContract.getMetrologyPurpose().getName();
         info.required = metrologyContract.isMandatory();
         info.active = info.required;
-        info.meterRoles = asInfoList(metrologyConfiguration);
+        info.meterRoles = asInfoList(metrologyConfiguration, usagePoint);
         IdWithNameInfo status = new IdWithNameInfo();
-        status.id = metrologyContract.getStatus().getKey().equals("COMPLETE") ? "complete" : "incomplete";
-        status.name = metrologyContract.getStatus().getName();
+        status.id = metrologyContract.getStatus(usagePoint).getKey().equals("COMPLETE") ? "complete" : "incomplete";
+        status.name = metrologyContract.getStatus(usagePoint).getName();
         info.status = status;
         return info;
     }
 
-    private List<MeterRoleInfo> asInfoList(UsagePointMetrologyConfiguration metrologyConfiguration) {
+    private List<MeterRoleInfo> asInfoList(UsagePointMetrologyConfiguration metrologyConfiguration, UsagePoint usagePoint) {
         List<ReadingTypeDeliverable> readingTypeDeliverables = metrologyConfiguration.getContracts()
                 .stream()
                 .flatMap(c -> c.getDeliverables().stream())
@@ -132,16 +132,16 @@ public class MetrologyConfigurationInfo {
                 .stream()
                 .flatMap(d -> getMeterRolesFromReadingTypeDeliverable(d).stream())
                 .distinct()
-                .map(meterRole -> asInfo(metrologyConfiguration, meterRole))
+                .map(meterRole -> asInfo(meterRole, usagePoint))
                 .collect(Collectors.toList());
     }
 
-    private MeterRoleInfo asInfo(UsagePointMetrologyConfiguration metrologyConfiguration, MeterRole meterRole) {
+    private MeterRoleInfo asInfo(MeterRole meterRole, UsagePoint usagePoint) {
         MeterRoleInfo info = new MeterRoleInfo();
         info.name = meterRole.getDisplayName();
-        MeterActivation meterActivation = !metrologyConfiguration.getMetersForRole(meterRole).isEmpty() ? metrologyConfiguration.getMetersForRole(meterRole)
+        MeterActivation meterActivation = !usagePoint.getMeterActivations(meterRole).isEmpty() ? usagePoint.getMeterActivations(meterRole)
                 .stream()
-                .filter(meterActivation1 -> meterActivation1.getEnd() == null)
+                .filter(meterActivationToCheck -> meterActivationToCheck.getEnd() == null)
                 .findFirst()
                 .orElse(null) : null;
         info.mRID = meterActivation != null ? meterActivation.getMeter().get().getMRID() : null;
