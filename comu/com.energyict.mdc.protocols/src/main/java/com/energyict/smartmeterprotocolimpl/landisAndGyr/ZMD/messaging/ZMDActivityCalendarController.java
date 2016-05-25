@@ -7,6 +7,8 @@ package com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD.messaging;
  * Time: 16:16
  */
 
+import com.energyict.mdc.common.ObisCode;
+
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
@@ -19,9 +21,8 @@ import com.energyict.dlms.cosem.attributeobjects.DayProfileActions;
 import com.energyict.dlms.cosem.attributeobjects.DayProfiles;
 import com.energyict.dlms.cosem.attributeobjects.SeasonProfiles;
 import com.energyict.dlms.cosem.attributeobjects.WeekProfiles;
-import com.energyict.protocolimpl.generic.ParseUtils;
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
+import com.energyict.protocolimpl.generic.ParseUtils;
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXml;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD.ZMD;
@@ -339,13 +340,14 @@ public class ZMDActivityCalendarController implements ActivityCalendarController
         }
     }
 
-    /**
-     * Get the name of the current <u>Active</u> Calendar
-     *
-     * @return the name of the current <u>Active</u> Calendar
-     */
+    @Override
     public String getCalendarName() throws IOException {
         return getActivityCalendar().readCalendarNameActive().stringValue();
+    }
+
+    @Override
+    public String getPassiveCalendarName() throws IOException {
+        return getActivityCalendar().readCalendarNamePassive().stringValue();
     }
 
     /**

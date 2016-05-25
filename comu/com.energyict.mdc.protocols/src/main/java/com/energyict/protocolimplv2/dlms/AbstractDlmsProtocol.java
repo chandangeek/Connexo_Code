@@ -3,10 +3,12 @@ package com.energyict.protocolimplv2.dlms;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.SerialComponentService;
@@ -17,12 +19,16 @@ import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
+import com.energyict.mdc.protocol.api.ProtocolException;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
+import com.energyict.mdc.protocol.api.device.data.CollectedCalendar;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
+import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
@@ -32,7 +38,10 @@ import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.cosem.ActivityCalendar;
+import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
+import com.energyict.protocolimpl.dlms.common.DLMSActivityCalendarController;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.nta.dsmr23.ComposedMeterInfo;
@@ -47,7 +56,9 @@ import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
 
 import javax.inject.Provider;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.Clock;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -55,7 +66,7 @@ import java.util.TimeZone;
 import java.util.logging.Logger;
 
 /**
- * Common functionality that is shared between the smart V2 DLMS protocols
+ * Common functionality that is shared between the smart V2 DLMS protocols.
  * <p/>
  * Copyrights EnergyICT
  * Date: 18/10/13
@@ -480,4 +491,121 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
     public CollectedBreakerStatus getBreakerStatus() {
         return collectedDataFactory.createBreakerStatusCollectedData(offlineDevice.getDeviceIdentifier());
     }
+
+    @Override
+    public CollectedCalendar getCollectedCalendar() {
+        CollectedCalendar collectedCalendar = this.getCollectedDataFactory().createCalendarCollectedData(this.offlineDevice.getDeviceIdentifier());
+        try {
+            ActivityCalendar activityCalendar = this.getCosemObjectFactory().getActivityCalendar(DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE);
+            this.updateCollectedCalendar(activityCalendar, collectedCalendar);
+        } catch (ProtocolException e) {
+            this.getIssueService().newProblem(
+                    this.getCalendarRegister(DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE),
+                    this.getThesaurus(),
+                    com.energyict.mdc.protocol.api.MessageSeeds.COULD_NOT_READ_CALENDAR_INFO,
+                    DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE);
+        }
+        return collectedCalendar;
+    }
+
+    private void updateCollectedCalendar(ActivityCalendar activityCalendar, CollectedCalendar collectedCalendar) {
+        try {
+            collectedCalendar.setActiveCalendar(activityCalendar.readCalendarNameActive().stringValue());
+        } catch (IOException e) {
+            this.getIssueService().newProblem(
+                    this.getCalendarRegister(DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE),
+                    this.getThesaurus(),
+                    com.energyict.mdc.protocol.api.MessageSeeds.COULD_NOT_READ_CALENDAR_INFO,
+                    DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE);
+        }
+        try {
+            collectedCalendar.setPassiveCalendar(activityCalendar.readCalendarNamePassive().stringValue());
+        } catch (IOException e) {
+            this.getIssueService().newProblem(
+                    this.getCalendarRegister(DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE),
+                    this.getThesaurus(),
+                    com.energyict.mdc.protocol.api.MessageSeeds.COULD_NOT_READ_CALENDAR_INFO,
+                    DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE);
+        }
+    }
+
+    private CosemObjectFactory getCosemObjectFactory() {
+        return this.getDlmsSession().getCosemObjectFactory();
+    }
+
+    private OfflineRegister getCalendarRegister(ObisCode obisCode) {
+        return new MyOwnPrivateRegister(this.getOfflineDevice(), obisCode);
+    }
+
+    private static class MyOwnPrivateRegister implements OfflineRegister {
+
+        private final OfflineDevice device;
+        private final ObisCode obisCode;
+
+        private MyOwnPrivateRegister(OfflineDevice device, ObisCode obisCode) {
+            this.device = device;
+            this.obisCode = obisCode;
+        }
+
+        @Override
+        public long getRegisterId() {
+            return 0;
+        }
+
+        @Override
+        public ObisCode getObisCode() {
+            return this.obisCode;
+        }
+
+        @Override
+        public boolean inGroup(long registerGroupId) {
+            return false;
+        }
+
+        @Override
+        public boolean inAtLeastOneGroup(Collection<Long> registerGroupIds) {
+            return false;
+        }
+
+        @Override
+        public Unit getUnit() {
+            return Unit.getUndefined();
+        }
+
+        @Override
+        public String getDeviceMRID() {
+            return null;
+        }
+
+        @Override
+        public String getDeviceSerialNumber() {
+            return this.device.getSerialNumber();
+        }
+
+        @Override
+        public ObisCode getAmrRegisterObisCode() {
+            return obisCode;
+        }
+
+        @Override
+        public DeviceIdentifier<?> getDeviceIdentifier() {
+            return this.device.getDeviceIdentifier();
+        }
+
+        @Override
+        public ReadingType getReadingType() {
+            return null;
+        }
+
+        @Override
+        public BigDecimal getOverFlowValue() {
+            return null;
+        }
+
+        @Override
+        public boolean isText() {
+            return true;
+        }
+    }
+
 }

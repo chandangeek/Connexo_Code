@@ -30,6 +30,8 @@ public enum SDKTranslationKeys implements TranslationKey {
     SDKENCRYPTEDSTRINGPROPERTY(Keys.SDKENCRYPTEDSTRINGPROPERTY, "An encrypted string property"),
     DEFAULT_OPTIONAL_PROPERTY("SDK.defaultOptionalProperty", "Default optional property"),
     DELAY_AFTER_REQUEST("SDK.delay.after.request", "Delay after request"),
+    ACTIVE_CALENDAR_NAME("SDK.activeCalendarName", "Active calendar"),
+    PASSIVE_CALENDAR_NAME("SDK.passiveCalendarName", "Passive calendar"),
     ACTIVE_METER_FIRMWARE_VERSION("SDK.activeMeterFirmwareVersion", "Active meter firmware version"),
     PASSIVE_METER_FIRMWARE_VERSION("SDK.passiveMeterFirmwareVersion", "Passive meter firmware version"),
     ACTIVE_COMMUNICATION_FIRMWARE_VERSION("SDK.activeCommunicationFirmwareVersion", "Active communication firmware version"),

@@ -20,6 +20,8 @@ import javax.validation.constraints.Size;
 class SDKFirmwareDialectProperties extends CommonDeviceProtocolDialectProperties {
 
     enum ActualFields {
+        ACTIVE_CALENDAR_NAME("activeCalendarName", SDKTranslationKeys.ACTIVE_METER_FIRMWARE_VERSION, "ActiveCalendar", "ACTIVE_CALENDAR"),
+        PASSIVE_CALENDAR_NAME("passiveCalendarName", SDKTranslationKeys.PASSIVE_METER_FIRMWARE_VERSION, "PassiveCalendar", "PASSIVE_CALENDAR"),
         ACTIVE_METER_FIRMWARE_VERSION("activeMeterFirmwareVersion", SDKTranslationKeys.ACTIVE_METER_FIRMWARE_VERSION, "ActiveMeterFirmwareVersion", "ACTIVE_METER_FIRMWARE_VERSION"),
         PASSIVE_METER_FIRMWARE_VERSION("passiveMeterFirmwareVersion", SDKTranslationKeys.PASSIVE_METER_FIRMWARE_VERSION, "PassiveMeterFirmwareVersion", "PASSIVE_METER_FIRMWARE_VERSION"),
         ACTIVE_COMMUNICATION_FIRMWARE_VERSION("activeCommunicationFirmwareVersion", SDKTranslationKeys.ACTIVE_COMMUNICATION_FIRMWARE_VERSION, "ActiveCommunicationFirmwareVersion", "ACTIVE_COMM_FIRMWARE_VERSION"),

@@ -22,6 +22,7 @@ import com.energyict.mdc.protocol.api.ManufacturerInformation;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.data.BreakerStatus;
 import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
+import com.energyict.mdc.protocol.api.device.data.CollectedCalendar;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
@@ -475,6 +476,15 @@ public class SDKDeviceProtocol implements DeviceProtocol {
         firmwareVersionsCollectedData.setPassiveCommunicationFirmwareVersion((String) this.typedProperties.getProperty(SDKFirmwareDialectProperties.ActualFields.PASSIVE_COMMUNICATION_FIRMWARE_VERSION.propertySpecName(), ""));
         simulateRealCommunicationIfApplicable();
         return firmwareVersionsCollectedData;
+    }
+
+    @Override
+    public CollectedCalendar getCollectedCalendar() {
+        CollectedCalendar collectedCalendar = this.collectedDataFactory.createCalendarCollectedData(this.offlineDevice.getDeviceIdentifier());
+        collectedCalendar.setActiveCalendar((String) this.typedProperties.getProperty(SDKFirmwareDialectProperties.ActualFields.ACTIVE_CALENDAR_NAME.propertySpecName(), ""));
+        collectedCalendar.setPassiveCalendar((String) this.typedProperties.getProperty(SDKFirmwareDialectProperties.ActualFields.PASSIVE_CALENDAR_NAME.propertySpecName(), ""));
+        this.simulateRealCommunicationIfApplicable();
+        return collectedCalendar;
     }
 
     private void simulateRealCommunicationIfApplicable(){
