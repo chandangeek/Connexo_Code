@@ -1,18 +1,13 @@
 package com.elster.jupiter.bpm.rest;
 
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.ByteArrayInputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 public class TaskContentInfo {
 
@@ -31,7 +26,7 @@ public class TaskContentInfo {
     public TaskContentInfo(JSONObject field,JSONObject content, JSONObject outputContent, String status){
         try {
             key = field.getString("type") + field.getString("id");
-            JSONArray arr = field.getJSONArray("property");
+            JSONArray arr = field.getJSONArray("properties");
             if (arr != null){
                 for(int i = 0; i < arr.length(); i++) {
                     JSONObject prop = arr.getJSONObject(i);

@@ -5,7 +5,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 public class TaskContentInfos {
 
@@ -30,7 +34,7 @@ public class TaskContentInfos {
         JSONObject outputContent = null;
         try {
             status = obj.getString("taskStatus");
-            contentProperties = obj.getJSONArray("field");
+            contentProperties = obj.getJSONArray("fields");
             content = obj.getJSONObject("content");
             outputContent = obj.getJSONObject("outContent");
             if(outputContent != null){

@@ -2,6 +2,7 @@ package com.elster.jupiter.bpm.rest;
 
 
 import com.elster.jupiter.bpm.BpmProcessDefinition;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -30,7 +31,7 @@ public class ProcessDefinitionInfos {
         if (processList != null) {
             for(int i = 0; i < processList.length(); i++) {
                 try {
-                    JSONObject task = processList.getJSONObject(i).getJSONObject("process-definition");
+                    JSONObject task = processList.getJSONObject(i);
                     ProcessDefinitionInfo result = new ProcessDefinitionInfo(task);
                     processes.add(result);
                     total++;

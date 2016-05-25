@@ -4,6 +4,7 @@ import com.elster.jupiter.bpm.BpmProcessDefinition;
 import com.elster.jupiter.bpm.security.Privileges;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.users.Group;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -32,7 +33,7 @@ public class ProcessDefinitionInfo {
             this.name = jsonObject.getString("name");
             this.processId = jsonObject.getString("id");
             this.version = jsonObject.getString("version");
-            this.deploymentId = jsonObject.getString("deployment-id");
+            this.deploymentId = jsonObject.getString("deploymentId");
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
