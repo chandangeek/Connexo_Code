@@ -1106,6 +1106,22 @@ Ext.define('Mdc.controller.history.Setup', {
                             }
                         }
                     }
+                },
+                metrologyconfiguration: {
+                    title: Uni.I18n.translate('general.metrologyConfigurations', 'MDC', 'Metrology configurations'),
+                    route: 'metrologyconfiguration',
+                    controller: 'Mdc.metrologyconfiguration.controller.ListView',
+                    action: 'showList',
+                    privileges: Mdc.privileges.MetrologyConfiguration.full(),
+                    items: {
+                        add: {
+                            title: Uni.I18n.translate('general.addMetrologyConfiguration', 'MDC', 'Add metrology configuration'),
+                            route: 'add',
+                            controller: 'Mdc.metrologyconfiguration.controller.AddView',
+                            action: 'showForm',
+                            privileges: Mdc.privileges.MetrologyConfiguration.canAdmin()
+                        }
+                    }
                 }
             }
         },
