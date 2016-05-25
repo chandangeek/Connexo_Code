@@ -64,7 +64,7 @@ Ext.define('Mdc.metrologyconfiguration.controller.AddView', {
 
                     Ext.suspendLayouts();
                     app.fireEvent('loadMetrologyConfiguration', name);
-                    form.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'"), [name]);
+                    form.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", [name]));
                     form.loadRecord(record);
                     Ext.resumeLayouts(true);
                 },
