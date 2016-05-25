@@ -4,15 +4,15 @@ import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleProperties;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.ReadingTypeInEstimationRule;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.tasks.TaskService;
-import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.tasks.RecurrentTask;
+import com.elster.jupiter.time.RelativePeriod;
 
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
@@ -86,8 +86,22 @@ public enum TableSpecs {
             Column ruleIdColumn = table.column("RULEID").number().notNull().conversion(NUMBER2LONG).add();
             Column readingTypeMRIDColumn = table.column("READINGTYPEMRID").varChar(NAME_LENGTH).notNull().map("readingTypeMRID").add();
             table.primaryKey("EST_PK_RTYPEINESTRULE").on(ruleIdColumn, readingTypeMRIDColumn).add();
-            table.foreignKey("EST_FK_RTYPEINESTRULE_RULE").references(EST_ESTIMATIONRULE.name()).onDelete(DeleteRule.RESTRICT).map("rule").reverseMap("readingTypesInRule").composition().on(ruleIdColumn).add();
-            table.foreignKey("EST_FK_RTYPEINESTRULE_RTYPE").references(MeteringService.COMPONENTNAME, "MTR_READINGTYPE").onDelete(RESTRICT).map("readingType").on(readingTypeMRIDColumn).add();
+            table
+                .foreignKey("EST_FK_RTYPEINESTRULE_RULE")
+                .references(EST_ESTIMATIONRULE.name())
+                .onDelete(DeleteRule.RESTRICT)
+                .map("rule")
+                .reverseMap("readingTypesInRule")
+                .composition()
+                .on(ruleIdColumn)
+                .add();
+            table
+                .foreignKey("EST_FK_RTYPEINESTRULE_RTYPE")
+                .references(ReadingType.class)
+                .onDelete(RESTRICT)
+                .map("readingType")
+                .on(readingTypeMRIDColumn)
+                .add();
         }
     },
     EST_ESTIMATIONTASK {
@@ -106,17 +120,17 @@ public enum TableSpecs {
 
             table.foreignKey("EST_FK_ETSK_RECURRENTTASK")
                     .on(recurrentTaskId)
-                    .references(TaskService.COMPONENTNAME, "TSK_RECURRENT_TASK")
+                    .references(RecurrentTask.class)
                     .map("recurrentTask")
                     .add();
             table.foreignKey("EST_FK_ETSK_ENDDEVICEFROUP")
                     .on(endDeviceGroupId)
-                    .references(MeteringGroupsService.COMPONENTNAME, "MTG_ED_GROUP")
+                    .references(EndDeviceGroup.class)
                     .map("endDeviceGroup")
                     .add();
             table.foreignKey("EST_FK_RTET_PERIOD")
                     .on(relativePeriod)
-                    .references(TimeService.COMPONENT_NAME, "TME_RELATIVEPERIOD")
+                    .references(RelativePeriod.class)
                     .map("period")
                     .add();
             table.primaryKey("EST_PK_ESTIMATIONTASK").on(idColumn).add();
