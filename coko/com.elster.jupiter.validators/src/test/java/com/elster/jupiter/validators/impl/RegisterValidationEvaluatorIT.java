@@ -50,17 +50,12 @@ import com.elster.jupiter.validation.ValidationRuleSetResolver;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -71,6 +66,13 @@ import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.elster.jupiter.validation.ValidationResult.SUSPECT;
 import static com.elster.jupiter.validation.ValidationResult.VALID;
@@ -155,7 +157,7 @@ public class RegisterValidationEvaluatorIT {
             meterActivation = meter.activate(date1);
             ValidationService validationService = injector.getInstance(ValidationService.class);
             validationService.addValidatorFactory(injector.getInstance(DefaultValidatorFactory.class));
-            final ValidationRuleSet validationRuleSet = validationService.createValidationRuleSet(MY_RULE_SET);
+            final ValidationRuleSet validationRuleSet = validationService.createValidationRuleSet(MY_RULE_SET, "APP");
             ValidationRuleSetVersion validationRuleSetVersion = validationRuleSet.addRuleSetVersion("Version 1", Instant.EPOCH);
             ValidationRule registerIncreaseRule = validationRuleSetVersion.addRule(ValidationAction.FAIL, REGISTERINCREASE, "minmax")
                     .withReadingType(readingType1)

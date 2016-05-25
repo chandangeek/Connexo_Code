@@ -19,6 +19,7 @@ import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.validation.ValidationResult;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 
 import java.sql.PreparedStatement;
@@ -37,6 +38,7 @@ import java.util.stream.Stream;
 class IntervalStateValidator extends AbstractValidator {
 
     static final String INTERVAL_FLAGS = "intervalFlags";
+    private static final Set<String> SUPPORTED_APPLICATIONS = ImmutableSet.of("MDC", "INS");
 
     private Set<Flag> selectedFlags;
     private final IntervalFlag[] POSSIBLE_FLAGS = {
@@ -121,6 +123,11 @@ class IntervalStateValidator extends AbstractValidator {
     @Override
     public List<String> getRequiredProperties() {
         return Collections.singletonList(INTERVAL_FLAGS);
+    }
+
+    @Override
+    public Set<String> getSupportedApplications() {
+        return SUPPORTED_APPLICATIONS;
     }
 
     private class IntervalFlagValueFactory implements ValueFactory <IntervalFlag> {

@@ -21,8 +21,10 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -157,4 +159,8 @@ public class RegisterIncreaseTest {
         assertThat(validator.getPropertySpec("failEqualData~")).isEmpty();
     }
 
+    @Test
+    public void testGetSupportedApplications() {
+        assertThat(validator.getSupportedApplications()).containsOnly("INS", "MDC");
+    }
 }

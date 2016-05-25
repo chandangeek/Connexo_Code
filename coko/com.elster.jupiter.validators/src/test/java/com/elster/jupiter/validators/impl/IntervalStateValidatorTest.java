@@ -23,8 +23,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -136,4 +138,8 @@ public class IntervalStateValidatorTest {
         assertThat(validationResult).isEqualTo(ValidationResult.VALID);
     }
 
+    @Test
+    public void testGetSupportedApplications() {
+        assertThat(validator.getSupportedApplications()).containsOnly("INS", "MDC");
+    }
 }

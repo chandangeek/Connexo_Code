@@ -224,4 +224,8 @@ public class ThresholdValidatorTest {
         assertThat(thresholdValidator.getReadingQualityCodeIndex().isPresent()).isFalse();
     }
 
+    @Test
+    public void testGetSupportedApplications() {
+        assertThat(thresholdValidator.getSupportedApplications()).containsOnly("INS", "MDC");
+    }
 }

@@ -11,6 +11,7 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.validation.ValidationResult;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
@@ -18,6 +19,7 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /*
  * WARNING: The following implementation does not check the "OVERFLOW" flag on a register.
@@ -26,6 +28,7 @@ import java.util.Map;
 class RegisterIncreaseValidator extends AbstractValidator {
 
     static final String FAIL_EQUAL_DATA = "failEqualData";
+    private static final Set<String> SUPPORTED_APPLICATIONS = ImmutableSet.of("MDC", "INS");
 
     private Channel channel;
     private boolean failEqualData = false;
@@ -94,4 +97,8 @@ class RegisterIncreaseValidator extends AbstractValidator {
         return Collections.singletonList(FAIL_EQUAL_DATA);
     }
 
+    @Override
+    public Set<String> getSupportedApplications() {
+        return SUPPORTED_APPLICATIONS;
+    }
 }
