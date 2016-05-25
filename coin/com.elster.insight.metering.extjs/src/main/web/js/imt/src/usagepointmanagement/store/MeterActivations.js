@@ -3,11 +3,14 @@ Ext.define('Imt.usagepointmanagement.store.MeterActivations', {
     model: 'Imt.usagepointmanagement.model.MeterActivations',
     proxy: {
         type: 'rest',
-        url: '/api/udr/usagepoints/{usagePointMRID}/meteractivations',
+        urlTpl: '/api/udr/usagepoints/{usagePointMRID}/meteractivations',
         timeout: 240000,
         reader: {
             type: 'json',
             root: 'meterActivations'
         }
+    },
+    setMrid: function (mrid) {
+        this.getProxy().url = this.getProxy().urlTpl.replace('{usagePointMRID}', mrid);
     }
 });
