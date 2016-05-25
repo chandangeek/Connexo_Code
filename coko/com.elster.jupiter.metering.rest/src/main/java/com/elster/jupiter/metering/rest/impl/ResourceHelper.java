@@ -6,6 +6,8 @@ import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 
 import javax.inject.Inject;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
 import java.util.Optional;
 
 public class ResourceHelper {
@@ -37,5 +39,15 @@ public class ResourceHelper {
         return metrologyConfigurationService.findMetrologyConfiguration(id)
                 .map(MetrologyConfiguration::getVersion)
                 .orElse(null);
+    }
+
+    public UsagePointMetrologyConfiguration findMetrologyConfiguration(long id) {
+        MetrologyConfiguration metrologyConfiguration = metrologyConfigurationService.findMetrologyConfiguration(id)
+                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        if (metrologyConfiguration instanceof UsagePointMetrologyConfiguration) {
+            return (UsagePointMetrologyConfiguration) metrologyConfiguration;
+        } else {
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
     }
 }

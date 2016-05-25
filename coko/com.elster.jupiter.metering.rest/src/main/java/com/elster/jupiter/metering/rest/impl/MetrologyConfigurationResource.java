@@ -81,6 +81,15 @@ public class MetrologyConfigurationResource {
         return PagedInfoList.fromPagedList("metrologyConfigurations", metrologyConfigurationsInfos, queryParameters);
     }
 
+    @GET
+    @Path("/{id}")
+    @RolesAllowed({Privileges.Constants.VIEW_METROLOGY_CONFIGURATION, Privileges.Constants.ADMINISTER_METROLOGY_CONFIGURATION})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public MetrologyConfigurationInfo getMetrologyConfiguration(@PathParam("id") long id) {
+        UsagePointMetrologyConfiguration metrologyConfiguration = resourceHelper.findMetrologyConfiguration(id);
+        return metrologyConfigurationInfoFactory.asInfo(metrologyConfiguration);
+    }
+
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
