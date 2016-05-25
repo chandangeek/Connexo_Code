@@ -15,8 +15,8 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.util.units.Quantity;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.MessageSeeds;
 import com.energyict.mdc.device.data.exceptions.UnsupportedCommandException;
+import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
@@ -177,7 +177,7 @@ public class CommandFactoryImpl implements CommandFactory {
     @Override
     public EndDeviceCommand createEnableLoadLimitCommand(EndDevice endDevice, Quantity limit) {
         String commandName = EndDeviceCommandImpl.EndDeviceCommandType.ENABLE_LOAD_LIMIT.getName();;
-        //TODO: improve by handling load balancing -
+        //TODO: improve by handling load balancing
         List<DeviceMessageId> deviceMessageIds = new ArrayList<>();
         //deviceMessageIds.add(tariffs != null ? DeviceMessageId.LOAD_BALANCING_SET_LOAD_LIMIT_THRESHOLD_WITH_TARIFFS : DeviceMessageId.LOAD_BALANCING_SET_LOAD_LIMIT_THRESHOLD);
 

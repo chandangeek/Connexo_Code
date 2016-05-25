@@ -2,7 +2,6 @@ package com.energyict.mdc.device.data.ami;
 
 import com.elster.jupiter.cbo.EndDeviceType;
 import com.elster.jupiter.cps.CustomPropertySetService;
-import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.EndDevice;
@@ -22,20 +21,16 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.servicecall.DefaultState;
-import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
-import com.elster.jupiter.servicecall.ServiceCallType;
-import com.elster.jupiter.util.units.Quantity;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
-import com.energyict.mdc.device.data.MessageSeeds;
 import com.energyict.mdc.protocol.api.TrackingCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
@@ -54,7 +49,6 @@ import java.net.URL;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -68,8 +62,6 @@ public class MultiSenseHeadEndInterface implements HeadEndInterface {
 
     private static final String UNDEFINED = "undefined";
     private static final String AMR_SYSTEM = KnownAmrSystem.MDC.getName();
-    //TODO add handler
-    // public final String COMMAND_SCHEDULER_QUEUE_DESTINATION = "SchCmdQD";
 
     private volatile Clock clock;
     private volatile DeviceService deviceService;
@@ -198,7 +190,7 @@ public class MultiSenseHeadEndInterface implements HeadEndInterface {
                                 findFirst().
                                 isPresent())
                         .findAny()
-                        .orElseThrow( () -> new IllegalStateException(MessageSeeds.NO_COMTASK_FOR_COMMAND.getDefaultFormat()))));
+                        .orElseThrow(() -> new IllegalStateException(MessageSeeds.NO_COMTASK_FOR_COMMAND.getDefaultFormat()))));
 
 
         return comTaskEnablements.stream().distinct();
@@ -228,8 +220,8 @@ public class MultiSenseHeadEndInterface implements HeadEndInterface {
         return deviceMessages;
     }
 
-    //@Override
-    public void scheduleStatusInformationTask(EndDevice endDevice, Instant scheduleTime) {
+
+    private void scheduleStatusInformationTask(EndDevice endDevice, Instant scheduleTime) {
         Device device = findDeviceForEndDevice(endDevice);
         ComTaskEnablement comTaskEnablement = getStatusInformationComTaskEnablement(device);
         Optional<ComTaskExecution> existingComTaskExecution = device.getComTaskExecutions().stream()
@@ -249,12 +241,13 @@ public class MultiSenseHeadEndInterface implements HeadEndInterface {
                         findFirst().
                         isPresent())
                 .findAny()
-                .orElseThrow(()->new IllegalStateException(MessageSeeds.NO_COMTASK_FOR_STATUS_INFORMATION.getDefaultFormat()));
+                .orElseThrow(() -> new IllegalStateException(MessageSeeds.NO_COMTASK_FOR_STATUS_INFORMATION.getDefaultFormat()));
     }
 
     private Device findDeviceForEndDevice(EndDevice endDevice) {
         return deviceService.findByUniqueMrid(endDevice.getMRID())
-                .orElseThrow(() -> new IllegalArgumentException(MessageSeeds.NO_SUCH_DEVICE.getDefaultFormat() + " " + endDevice.getMRID()));
+                .orElseThrow(() -> new IllegalArgumentException(MessageSeeds.NO_SUCH_DEVICE.getDefaultFormat() + " " + endDevice
+                        .getMRID()));
     }
 
     @Override
@@ -294,7 +287,7 @@ public class MultiSenseHeadEndInterface implements HeadEndInterface {
 
     @Override
     public CommandFactory getCommandFactory() {
-        return new CommandFactoryImpl(meteringService, deviceService, deviceMessageSpecificationService, nlsService,thesaurus);
+        return new CommandFactoryImpl(meteringService, deviceService, deviceMessageSpecificationService, nlsService, thesaurus);
     }
 
     @Override
@@ -318,9 +311,9 @@ public class MultiSenseHeadEndInterface implements HeadEndInterface {
     }
 
     @Override
-    public CompletionOptions sendCommand(EndDeviceCommand endDeviceCommand, Instant instant, Quantity quantity) {
-        CompletionOptions completionOptions;
-        String commandName = endDeviceCommand.getName();
+    public CompletionOptions sendCommand(EndDeviceCommand endDeviceCommand, Instant instant) {
+      //ALL CODE RELATED TO SERVICECALLS TEMPORARILY MOVED TO demo bundle under amiscs
+        /*  String commandName = endDeviceCommand.getName();
         RegisteredCustomPropertySet customPropertySet = customPropertySetService.findActiveCustomPropertySets(ServiceCall.class)
                 .stream()
                 .filter(cps -> cps.getCustomPropertySet()
@@ -340,17 +333,30 @@ public class MultiSenseHeadEndInterface implements HeadEndInterface {
         ServiceOperationDomainExtension domainExtension = new ServiceOperationDomainExtension();
         domainExtension.setmRIDDevice(device.getmRID());
         domainExtension.setActivationDate(clock.instant());
-        if(Arrays.asList(EndDeviceCommandImpl.EndDeviceCommandType.ARM.getName(),EndDeviceCommandImpl.EndDeviceCommandType.CONNECT.getName(), EndDeviceCommandImpl.EndDeviceCommandType.DISCONNECT.getName() ).contains(commandName))
-            domainExtension.setBreakerStatus(BreakerStatus.valueOf(commandName+"ed"));
-        if(commandName.equals(EndDeviceCommandImpl.EndDeviceCommandType.ENABLE_LOAD_LIMIT)){
-            domainExtension.setLoadLimitEnabled(true);
-            domainExtension.setLoadLimit(quantity);
+        if (Arrays.asList(EndDeviceCommandImpl.EndDeviceCommandType.ARM.getName(), EndDeviceCommandImpl.EndDeviceCommandType.CONNECT
+                .getName(), EndDeviceCommandImpl.EndDeviceCommandType.DISCONNECT.getName()).contains(commandName)) {
+            domainExtension.setBreakerStatus(BreakerStatus.valueOf(commandName + "ed"));
         }
-        if(commandName.equals(EndDeviceCommandImpl.EndDeviceCommandType.DISABLE_LOAD_LIMIT)){
+        if (commandName.equals(EndDeviceCommandImpl.EndDeviceCommandType.ENABLE_LOAD_LIMIT)) {
+            domainExtension.setLoadLimitEnabled(true);
+            Optional<Map.Entry<String, Object>> loadLimit = endDeviceCommand.getAttributes()
+                    .entrySet()
+                    .stream()
+                    .filter(attribute -> attribute.getKey().equals(DeviceMessageConstants.normalThresholdAttributeName))
+                    .findFirst();
+            if (loadLimit.isPresent()) {
+                domainExtension.setLoadLimit((Quantity) loadLimit.get().getValue());
+            }
+        }
+        if (commandName.equals(EndDeviceCommandImpl.EndDeviceCommandType.DISABLE_LOAD_LIMIT)) {
             domainExtension.setLoadLimitEnabled(false);
         }
         //TODO: clean up + set loadLimit
-        domainExtension.setReadingType(getCapabilities(endDeviceCommand.getEndDevice()).getConfiguredReadingTypes().stream().findFirst().get().getName());
+        domainExtension.setReadingType(getCapabilities(endDeviceCommand.getEndDevice()).getConfiguredReadingTypes()
+                .stream()
+                .findFirst()
+                .get()
+                .getName());
         domainExtension.setCallback(getURLForEndDevice(endDeviceCommand.getEndDevice()).get().toString());
         ServiceCall serviceCall;
         if (device != null) {
@@ -370,11 +376,14 @@ public class MultiSenseHeadEndInterface implements HeadEndInterface {
 
         }
         return new CompletionOptionsImpl("Newly created parent service call", null, serviceCall);
+    */
+        return null;
     }
 
     @Override
     public CompletionOptions sendCommand(EndDeviceCommand endDeviceCommand, Instant instant, ServiceCall parentServiceCall) {
-        List<DeviceMessage<Device>> deviceMessages = createDeviceMessagesOnDevice(endDeviceCommand, parentServiceCall);
+        //ALL CODE RELATED TO SERVICECALLS TEMPORARILY MOVED TO demo bundle under amiscs
+       /* List<DeviceMessage<Device>> deviceMessages = createDeviceMessagesOnDevice(endDeviceCommand, parentServiceCall);
         RegisteredCustomPropertySet customPropertySet = customPropertySetService.findActiveCustomPropertySets(ServiceCall.class)
                 .stream()
                 .filter(cps -> cps.getCustomPropertySet()
@@ -392,7 +401,8 @@ public class MultiSenseHeadEndInterface implements HeadEndInterface {
         parentServiceCall.requestTransition(DefaultState.PENDING);
 
         return new CompletionOptionsImpl(getFormattedDeviceMessages(deviceMessages), destinationSpec.get(), parentServiceCall);
-
+*/
+        return null;
     }
 
 

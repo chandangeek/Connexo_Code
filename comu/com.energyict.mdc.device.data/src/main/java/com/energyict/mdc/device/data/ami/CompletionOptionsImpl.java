@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.ami;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.metering.ami.CompletionOptions;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.energyict.mdc.device.data.ami.servicecalls.ContactorOperationDomainExtension;
 
 public class CompletionOptionsImpl implements CompletionOptions {
 

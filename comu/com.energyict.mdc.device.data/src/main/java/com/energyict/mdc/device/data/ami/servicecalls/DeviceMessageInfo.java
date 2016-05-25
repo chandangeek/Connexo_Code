@@ -1,4 +1,4 @@
-package com.energyict.mdc.device.data.ami;
+package com.energyict.mdc.device.data.ami.servicecalls;
 
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 

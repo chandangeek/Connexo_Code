@@ -1,4 +1,4 @@
-package com.energyict.mdc.device.data.ami;
+package com.energyict.mdc.device.data.ami.servicecalls;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.metering.EndDevice;
@@ -9,9 +9,12 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
-
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.ami.servicecalls.ContactorOperationDomainExtension;
+import com.energyict.mdc.device.data.ami.servicecalls.ServiceCallCommands;
+import com.energyict.mdc.device.data.ami.servicecalls.ServiceOperationCustomPropertySet;
+import com.energyict.mdc.device.data.ami.servicecalls.ServiceOperationDomainExtension;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;

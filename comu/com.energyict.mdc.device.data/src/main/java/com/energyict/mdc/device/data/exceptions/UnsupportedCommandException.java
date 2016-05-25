@@ -2,7 +2,7 @@ package com.energyict.mdc.device.data.exceptions;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.device.data.MessageSeeds;
+import com.energyict.mdc.device.data.impl.MessageSeeds;
 
 public final class UnsupportedCommandException extends LocalizedException {
 
