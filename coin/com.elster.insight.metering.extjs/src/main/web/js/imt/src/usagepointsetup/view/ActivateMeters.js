@@ -85,7 +85,9 @@ Ext.define('Imt.usagepointsetup.view.ActivateMeters', {
                         Ext.each(this.getForm().getFields().items, function (combo) {
                             meterActivations.push(
                                 {
-                                    meter: combo.meterData ? combo.meterData : null,
+                                    meter: {
+                                        mRID: combo.getValue()
+                                    },
                                     meterRole: {
                                         id: combo.name,
                                         name: combo.fieldLabel

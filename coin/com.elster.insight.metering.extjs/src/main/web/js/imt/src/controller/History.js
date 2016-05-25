@@ -173,11 +173,11 @@ Ext.define('Imt.controller.History', {
                             privileges: Imt.privileges.UsagePoint.view,
                             items: {
                                 activatemeters: {
-                                    title: Uni.I18n.translate('general.label.metrologyconfiguration', 'IMT', 'Metrology configuration'),
+                                    title: Uni.I18n.translate('general.label.editMeters', 'IMT', 'Edit meters'),
                                     route: 'activatemeters',
                                     controller: 'Imt.usagepointsetup.controller.MetrologyConfig',
                                     action: 'showActivateMeters',
-                                    privileges: Imt.privileges.UsagePoint.view
+                                    privileges: Imt.privileges.UsagePoint.admin
                                 }
                             }
                         },
