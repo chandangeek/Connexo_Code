@@ -50,10 +50,9 @@ Ext.define('Mdc.metrologyconfiguration.controller.AddView', {
                     }
                 ]
             }),
-            form;
+            form = widget.down('#metrology-configurations-add-form');
 
         app.fireEvent('changecontentevent', widget);
-        form = me.getForm();
         me.getStore('Mdc.metrologyconfiguration.store.ServiceCategories').load();
         if (!isEdit) {
             form.loadRecord(Ext.create('Mdc.metrologyconfiguration.model.MetrologyConfiguration'));
