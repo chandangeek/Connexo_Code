@@ -402,6 +402,11 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
     public void testUsagePointMetrologyConfigurationDetails() {
         Optional<MetrologyConfiguration> usagePointMetrologyConfiguration = Optional.of(this.mockMetrologyConfiguration(1, "MetrologyConfiguration"));
         when(usagePoint.getMetrologyConfiguration()).thenReturn(usagePointMetrologyConfiguration);
+        MetrologyContract metrologyContract = usagePointMetrologyConfiguration.get().getContracts().stream().findFirst().get();
+        MetrologyContract.Status status = mock(MetrologyContract.Status.class);
+        when(metrologyContract.getStatus(usagePoint)).thenReturn(status);
+        when(metrologyContract.getStatus(usagePoint).getKey()).thenReturn("INCOMPLETE");
+        when(metrologyContract.getStatus(usagePoint).getName()).thenReturn("Incomplete");
         String json = target("/usagepoints/MRID").request().get(String.class);
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<Number>get("$.metrologyConfiguration.id")).isEqualTo(1);
@@ -421,6 +426,11 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
     public void testUsagePointPurposes() {
         Optional<MetrologyConfiguration> usagePointMetrologyConfiguration = Optional.of(this.mockMetrologyConfiguration(1, "1test"));
         when(usagePoint.getMetrologyConfiguration()).thenReturn(usagePointMetrologyConfiguration);
+        MetrologyContract metrologyContract = usagePointMetrologyConfiguration.get().getContracts().stream().findFirst().get();
+        MetrologyContract.Status status = mock(MetrologyContract.Status.class);
+        when(metrologyContract.getStatus(usagePoint)).thenReturn(status);
+        when(metrologyContract.getStatus(usagePoint).getKey()).thenReturn("INCOMPLETE");
+        when(metrologyContract.getStatus(usagePoint).getName()).thenReturn("Incomplete");
         String json = target("/usagepoints/MRID/purposes").request().get(String.class);
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<Number>get("$.total")).isEqualTo(1);
