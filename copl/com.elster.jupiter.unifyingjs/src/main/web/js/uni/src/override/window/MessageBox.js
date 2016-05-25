@@ -18,6 +18,7 @@ Ext.define('Uni.override.window.MessageBox', {
 
         me.title = ' ';
 
+        this.callParent(arguments);
         this.topContainer.padding = 0;
 
         me.titleComponent = new Ext.panel.Header({
