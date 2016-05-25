@@ -241,7 +241,6 @@ public class PartialOutboundConnectionTaskCrudIT {
             protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
             protocolPluggableService.addLicensedProtocolService(licensedProtocolService);
             protocolPluggableService.addConnectionTypeService(connectionTypeService);
-            injector.getInstance(PluggableService.class);
             injector.getInstance(MasterDataService.class);
             injector.getInstance(TaskService.class);
             injector.getInstance(ValidationService.class);
@@ -252,9 +251,11 @@ public class PartialOutboundConnectionTaskCrudIT {
                     injector.getInstance(ThreadPrincipalService.class),
                     eventService,
                     nlsService,
+                    injector.getInstance(com.elster.jupiter.properties.PropertySpecService.class),
                     injector.getInstance(MeteringService.class),
                     injector.getInstance(MdcReadingTypeUtilService.class),
                     injector.getInstance(UserService.class),
+                    injector.getInstance(PluggableService.class),
                     protocolPluggableService,
                     engineConfigurationService,
                     schedulingService,

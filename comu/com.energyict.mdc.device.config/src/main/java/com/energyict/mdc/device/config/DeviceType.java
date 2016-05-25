@@ -4,6 +4,7 @@ import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
+import com.energyict.mdc.device.config.exceptions.DuplicateDeviceMessageFileException;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
@@ -14,6 +15,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 
 import aQute.bnd.annotation.ProviderType;
 
+import java.nio.file.Path;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -179,6 +181,51 @@ public interface DeviceType extends HasId, HasName {
 
     List<DeviceConfigConflictMapping> getDeviceConfigConflictMappings();
 
+    /**
+     * Tests if this file management is enabled for this DeviceType.
+     * If it is then you can add {@link DeviceMessageFile}s
+     * that can later be sent to devices of this type.
+     *
+     * @return A flag that indicates if file management is enabled for this DeviceType
+     */
+    boolean isFileManagementEnabled();
+
+    /**
+     * Enables file management or does nothing when file management is already enabled.
+     */
+    void enableFileManagement();
+
+    /**
+     * Disables file management or does nothing when file management is already disabled.
+     * In addition, this will delete all {@link DeviceMessageFile}s
+     * that have been added to this DeviceType before.
+     */
+    void disableFileManagement();
+
+    /**
+     * The List of {@link DeviceMessageFile}s that have been added
+     * to this DeviceType. Note that when file management is not enabled
+     * on this DeviceType, this List will always be empty.
+     *
+     * @return The list of DeviceMessageFile
+     */
+    List<DeviceMessageFile> getDeviceMessageFiles();
+
+    /**
+     * Adds a new {@link DeviceMessageFile} to this DeviceType.
+     * The filename part of the Path will be used as the name
+     * of the newly created DeviceMessageFile.
+     * Note that the name of a DeviceMessageFile needs to be unique.
+     * In other words, no two DeviceMessageFile with the same name
+     * can be added to the same DeviceType.
+     *
+     * @param path The path
+     * @throws DuplicateDeviceMessageFileException Thrown if the name part of the Path conflicts with the name of another DeviceMessageFile that was added before
+     */
+    DeviceMessageFile addDeviceMessageFile(Path path);
+
+    void removeDeviceMessageFile(DeviceMessageFile obsolete);
+
     void update();
 
     interface DeviceTypeBuilder {
@@ -189,6 +236,14 @@ public interface DeviceType extends HasId, HasName {
         DeviceTypeBuilder withLogBookTypes(List<LogBookType> logBookTypes);
 
         DeviceTypeBuilder setDescription(String description);
+
+        /**
+         * Enables file management for the DeviceType that is being built.
+         * Note that file management is disabled by default.
+         *
+         * @return The DeviceTypeBuilder to support method chaining
+         */
+        DeviceTypeBuilder enableFileManagement();
 
         DeviceType create();
     }
