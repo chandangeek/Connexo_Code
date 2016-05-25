@@ -19,6 +19,7 @@ import java.io.InputStream;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -73,14 +74,18 @@ public class MeterActivationResourceTest extends PlatformPublicApiJerseyTest {
     }
 
     protected MeterActivation mockMeterActivation(long id, long version, UsagePoint usagePoint) {
+        Instant now = clock.instant();
+        Instant later = now.plusMillis(300000);
+        return mockMeterActivation(id, version, usagePoint, now, later);
+    }
+
+    protected MeterActivation mockMeterActivation(long id, long version, UsagePoint usagePoint, Instant start, Instant end) {
         MeterActivation meterActivation = mock(MeterActivation.class);
         when(meterActivation.getId()).thenReturn(id);
         when(meterActivation.getVersion()).thenReturn(version);
-        Instant now = clock.instant();
-        when(meterActivation.getStart()).thenReturn(now);
-        Instant later = now.plusMillis(300000);
-        when(meterActivation.getEnd()).thenReturn(later);
-        when(meterActivation.getInterval()).thenReturn(Interval.of(Range.closed(now, later)));
+        when(meterActivation.getStart()).thenReturn(start);
+        when(meterActivation.getEnd()).thenReturn(end);
+        when(meterActivation.getInterval()).thenReturn(Interval.of(Range.closed(start, end)));
         when(meterActivation.getUsagePoint()).thenReturn(Optional.of(usagePoint));
         when(meterActivation.getMeter()).thenReturn(Optional.empty());
         return meterActivation;
@@ -165,6 +170,26 @@ public class MeterActivationResourceTest extends PlatformPublicApiJerseyTest {
         meterActivationInfo.interval = new IntervalInfo();
         meterActivationInfo.interval.start = null;
 
+        Response post = target("/usagepoints/16/meteractivations").request().post(Entity.json(meterActivationInfo));
+        assertThat(post.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        JsonModel model = JsonModel.model((ByteArrayInputStream) post.getEntity());
+        Assertions.assertThat(model.<String>get("$.errors[0].id")).isEqualTo("interval.start");
+    }
+
+    @Test
+    public void testCreateMeterActivationWithInvalidStart() throws Exception {
+        MeterActivationInfo meterActivationInfo = new MeterActivationInfo();
+        meterActivationInfo.interval = new IntervalInfo();
+        Instant now = clock.instant();
+        meterActivationInfo.interval.start = now.toEpochMilli();
+        Instant before = now.minus(5, ChronoUnit.MINUTES);
+        Instant before2 = before.minus(5, ChronoUnit.MINUTES);
+        Instant soon = now.plus(5, ChronoUnit.MINUTES);
+        MeterActivation meterActivation1 = mockMeterActivation(1, 1, usagePoint, before2, before);
+        MeterActivation meterActivation2 = mockMeterActivation(1, 1, usagePoint, before, soon);
+        MeterActivation meterActivation3 = mockMeterActivation(1, 1, usagePoint, soon, soon.plus(5, ChronoUnit.MINUTES));
+        doReturn(Arrays.asList(meterActivation1, meterActivation2, meterActivation3)).when(usagePoint)
+                .getMeterActivations();
         Response post = target("/usagepoints/16/meteractivations").request().post(Entity.json(meterActivationInfo));
         assertThat(post.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         JsonModel model = JsonModel.model((ByteArrayInputStream) post.getEntity());

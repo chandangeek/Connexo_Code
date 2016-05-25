@@ -124,12 +124,18 @@ public class MeterActivationResource {
         }
 
         MeterActivation activation;
+        Instant start = Instant.ofEpochMilli(meterActivationInfo.interval.start);
+        if (start.isBefore(usagePoint.getMeterActivations()
+                .get(usagePoint.getMeterActivations().size() - 1)
+                .getStart())) {
+            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_START_TIME, "interval.start");
+        }
         if (meterActivationInfo.meter != null) {
             Meter meter = meteringService.findMeter(meterActivationInfo.meter)
                     .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_METER, "meter"));
-            activation = usagePoint.activate(meter, Instant.ofEpochMilli(meterActivationInfo.interval.start));
+            activation = usagePoint.activate(meter, start);
         } else {
-            activation = usagePoint.activate(Instant.ofEpochMilli(meterActivationInfo.interval.start));
+            activation = usagePoint.activate(start);
         }
         return meterActivationInfoFactory.from(activation, uriInfo, Collections.emptyList());
     }
