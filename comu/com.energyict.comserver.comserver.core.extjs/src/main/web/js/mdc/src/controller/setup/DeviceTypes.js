@@ -174,11 +174,11 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                         deviceLifeCycleLink = widget.down('#details-device-life-cycle-link'),
                         actionMenu = widget.down('device-type-action-menu');
 
-                Ext.suspendLayouts();
-                if (widget.rendered) {
+                    Ext.suspendLayouts();
+                    if (widget.rendered) {
 
-                    widget.down('deviceTypeSideMenu #overviewLink').setText(deviceType.get('name'));
-                    widget.down('deviceTypeSideMenu #conflictingMappingLink').setText(
+                        widget.down('deviceTypeSideMenu #overviewLink').setText(deviceType.get('name'));
+                        widget.down('deviceTypeSideMenu #conflictingMappingLink').setText(
                         Uni.I18n.translate('deviceConflictingMappings.ConflictingMappingCount', 'MDC', 'Conflicting mappings ({0})', deviceType.get('deviceConflictsCount'))
                     );
 
@@ -214,11 +214,11 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                             'No device configurations', '{0} device configuration', '{0} device configurations')
                     );
 
-                    widget.down('form').loadRecord(deviceType);
-                    if (actionMenu) {
-                        actionMenu.record = deviceType;
+                        widget.down('form').loadRecord(deviceType);
+                        if (actionMenu) {
+                            actionMenu.record = deviceType;
+                        }
                     }
-                }
 
                     Ext.resumeLayouts(true);
 

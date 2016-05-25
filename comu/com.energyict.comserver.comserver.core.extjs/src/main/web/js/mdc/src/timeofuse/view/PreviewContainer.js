@@ -12,7 +12,6 @@ Ext.define('Mdc.timeofuse.view.PreviewContainer', {
     ],
 
 
-
     initComponent: function () {
         var me = this;
         me.grid = {
@@ -28,16 +27,16 @@ Ext.define('Mdc.timeofuse.view.PreviewContainer', {
             timeOfUseAllowed: me.timeOfUseAllowed
         };
 
-        me.emptyComponent =  {
+        me.emptyComponent = {
             xtype: 'no-items-found-panel',
-                itemId: 'no-tou-cals',
-                title: Uni.I18n.translate('timeofuse.calendars.empty.title', 'MDC', 'No time of use calendars found'),
-                reasons: [
+            itemId: 'no-tou-cals',
+            title: Uni.I18n.translate('timeofuse.calendars.empty.title', 'MDC', 'No time of use calendars found'),
+            reasons: [
                 Uni.I18n.translate('timeofuse.calendars.empty.list.item1', 'MDC', 'No time of use calendars have been added yet.'),
                 Uni.I18n.translate('timeofuse.calendars.empty.list.item2', 'MDC', 'No time of use calendars have been defined yet.'),
                 Uni.I18n.translate('timeofuse.calendars.empty.list.item3', 'MDC', 'Time of use is not allowed.')
             ],
-                stepItems: [
+            stepItems: [
                 {
                     text: Uni.I18n.translate('timeofuse.addTouCalendars', 'MDC', 'Add time of use calendars'),
                     privileges: Mdc.privileges.DeviceType.admin,
@@ -53,6 +52,6 @@ Ext.define('Mdc.timeofuse.view.PreviewContainer', {
             ]
         },
 
-        me.callParent(arguments);
+            me.callParent(arguments);
     }
 });
