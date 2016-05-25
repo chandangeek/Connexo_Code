@@ -1,7 +1,8 @@
 Ext.define('Imt.usagepointsetup.controller.MetrologyConfig', {
     extend: 'Ext.app.Controller',
     requires: [
-        'Uni.controller.history.Router'
+        'Uni.controller.history.Router',
+        'Imt.usagepointmanagement.controller.View'
     ],
 
     stores: [
@@ -35,51 +36,52 @@ Ext.define('Imt.usagepointsetup.controller.MetrologyConfig', {
             app = me.getApplication(),
             router = me.getController('Uni.controller.history.Router'),
             mainView = Ext.ComponentQuery.query('#contentPanel')[0],
+            usagePointsController = me.getController('Imt.usagepointmanagement.controller.View'),
             metrologyConfig = me.getModel('Imt.usagepointsetup.model.EffectiveMetrologyConfig'),
-            meterActivationsStore = me.getStore('Imt.usagepointmanagement.store.MeterActivations');
-        mainView.setLoading(true);
-        me.getModel('Imt.usagepointmanagement.model.UsagePoint').load(mrid, {
-            success: function (usagePoint) {
-                metrologyConfig.getProxy().setUrl(mrid);
-                metrologyConfig.load(undefined, {
-                    success: function (mconfig) {
-                        meterActivationsStore.setMrid(mrid);
-                        meterActivationsStore.load({
-                            callback: function (records, operation, success) {
-                                if (success) {
-                                    var meterRoles = mconfig.get('meterRoles');
-                                    Ext.Array.each(meterRoles, function (meterRole) {
-                                        meterActivationsStore.each(function (mact) {
-                                            if ((mact.get('meterRole') && mact.get('meterRole').id) == meterRole.id) {
-                                                meterRole.value = mact.get('meter').mRID;
-                                            }
+            meterActivationsStore = me.getStore('Imt.usagepointmanagement.store.MeterActivations'),
+            callback = {
+                success: function (usagePointTypes, usagePoint, purposes) {
+                    metrologyConfig.getProxy().setUrl(mrid);
+                    metrologyConfig.load(undefined, {
+                        success: function (mconfig) {
+                            meterActivationsStore.setMrid(mrid);
+                            meterActivationsStore.load({
+                                callback: function (records, operation, success) {
+                                    if (success) {
+                                        var meterRoles = mconfig.get('meterRoles');
+                                        Ext.Array.each(meterRoles, function (meterRole) {
+                                            meterActivationsStore.each(function (mact) {
+                                                if ((mact.get('meterRole') && mact.get('meterRole').id) == meterRole.id) {
+                                                    meterRole.value = mact.get('meter').mRID;
+                                                }
+                                            });
+                                            meterRole.fieldLabel = meterRole.name;
+                                            meterRole.name = meterRole.id;
                                         });
-                                        meterRole.fieldLabel = meterRole.name;
-                                        meterRole.name = meterRole.id;
-                                    });
 
-                                    widget = Ext.widget('usagePointActivateMeters', {
-                                        router: router,
-                                        usagePoint: usagePoint,
-                                        meterRoles: meterRoles
-                                    });
-                                    app.fireEvent('changeContentEvent', widget);
+                                        widget = Ext.widget('usagePointActivateMeters', {
+                                            router: router,
+                                            usagePoint: usagePoint,
+                                            meterRoles: meterRoles
+                                        });
+                                        app.fireEvent('changeContentEvent', widget);
+                                    }
+                                    mainView.setLoading(false);
                                 }
-                                mainView.setLoading(false);
-                            }
-                        })
+                            })
 
-                    },
-                    callback: function () {
-                        mainView.setLoading(false);
-                    }
-                });
-            },
-            callback: function () {
-                mainView.setLoading(false);
-            }
-        });
-
+                        },
+                        callback: function () {
+                            mainView.setLoading(false);
+                        }
+                    });
+                },
+                failure: function () {
+                    mainView.setLoading(false);
+                }
+            };
+        mainView.setLoading(true);
+        usagePointsController.loadUsagePoint(mrid, callback);
     },
 
 
@@ -97,6 +99,7 @@ Ext.define('Imt.usagepointsetup.controller.MetrologyConfig', {
         var failure = function (response) {
             var errors = Ext.decode(response.responseText, true);
             if (errors && Ext.isArray(errors.errors)) {
+                debugger;
                 form.getForm().markInvalid(errors.errors);
             }
         };
