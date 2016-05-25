@@ -81,8 +81,8 @@ Ext.define('Dsh.view.ConnectionOverview', {
                             },
                             {
                                 link: Uni.I18n.translate('communication.widget.quicklinks.myIssues', 'DSH', 'My open issues'),
-                                href: typeof me.router.getRoute('workspace/datacollectionissues') !== 'undefined'
-                                    ? me.router.getRoute('workspace/datacollectionissues').buildUrl(null, me.router.queryParams) + '?myopenissues=true' : null
+                                href: typeof me.router.getRoute('workspace/issues') !== 'undefined'
+                                    ? me.router.getRoute('workspace/issues').buildUrl(null, me.router.queryParams) + '?myopenissues=true&issueType=datacollection' : null
                             }
                         ]
                     }
