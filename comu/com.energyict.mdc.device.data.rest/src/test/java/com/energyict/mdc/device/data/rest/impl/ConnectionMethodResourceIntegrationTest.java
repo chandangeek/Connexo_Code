@@ -21,6 +21,7 @@ import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
 import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.elster.jupiter.search.SearchService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
@@ -102,17 +103,17 @@ import static org.mockito.Mockito.when;
  */
 public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
 
-    private static final String DEVICE_TYPE_NAME = ConnectionMethodResourceIntegrationTest.class.getSimpleName() + "Type";
-    private static final String DEVICE_CONFIGURATION_NAME = ConnectionMethodResourceIntegrationTest.class.getSimpleName() + "Config";
-    private static final long DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID = 139;
     public static final String AS_1440_INCOMPLETE = "AS1440";
     public static final String AS_1440_COMPLETED = "AS1440Completed";
     public static final String IP_ADDRESS_FROM_PARTIAL = "192.168.1.1";
     public static final BigDecimal PORT_FROM_PARTIAL = BigDecimal.valueOf(4096);
+    private static final String DEVICE_TYPE_NAME = ConnectionMethodResourceIntegrationTest.class.getSimpleName() + "Type";
+    private static final String DEVICE_CONFIGURATION_NAME = ConnectionMethodResourceIntegrationTest.class.getSimpleName() + "Config";
+    private static final long DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID = 139;
+    private static final TimeZone utcTimeZone = TimeZone.getTimeZone("UTC");
     private static InMemoryIntegrationPersistence inMemoryPersistence;
     private static DeviceProtocol deviceProtocol;
     private static DeviceProtocolPluggableClass deviceProtocolPluggableClass;
-    private static final TimeZone utcTimeZone = TimeZone.getTimeZone("UTC");
     private static ConnectionTypePluggableClass outboundIpConnectionTypePluggableClass;
     private static EnumSet<DeviceMessageId> deviceMessageIds;
     private static PartialScheduledConnectionTaskImpl as1440WithoutProperties;
@@ -136,6 +137,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
     private static TopologyService topologyService;
     private static ServiceCallService serviceCallService;
     private static BpmService bpmService;
+    private static ThreadPrincipalService threadPrincipalService;
 
     @Rule
     public TestRule transactionalRule = new TransactionalRule(inMemoryPersistence.getTransactionService());
@@ -156,6 +158,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         topologyService = mock(TopologyService.class);
         serviceCallService = mock(ServiceCallService.class);
         bpmService = mock(BpmService.class);
+        threadPrincipalService = mock(ThreadPrincipalService.class);
 
         inMemoryPersistence = new InMemoryIntegrationPersistence();
         initializeClock();
@@ -345,6 +348,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         application.setServiceCallService(inMemoryPersistence.getServiceCallService());
         application.setBpmService(bpmService);
         application.setServiceCallInfoFactory(inMemoryPersistence.getServiceCallInfoFactory());
+        application.setThreadPrincipalService(inMemoryPersistence.getThreadPrincipalService());
         return application;
     }
 
