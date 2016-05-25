@@ -90,6 +90,8 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                                     {
                                         xtype: 'usage-point-metrology-config',
                                         itemId: 'usage-point-metrology-config',
+                                        meterActivationsStore: me.meterActivationsStore,
+                                        usagePoint: me.usagePoint,
                                         title: Uni.I18n.translate('general.metrologyConfiguration', 'IMT', 'Metrology configuration'),
                                         router: me.router
                                     },
