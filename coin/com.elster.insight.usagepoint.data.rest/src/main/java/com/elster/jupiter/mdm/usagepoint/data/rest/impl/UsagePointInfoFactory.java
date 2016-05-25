@@ -111,11 +111,6 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         info.displayConnectionState = usagePoint.getConnectionState().getName();
         info.displayServiceCategory = usagePoint.getServiceCategory().getDisplayName();
         info.displayType = this.getUsagePointDisplayType(usagePoint);
-        info.meterActivations = usagePoint.getMeterActivations()
-                .stream()
-                .map(ma -> new MeterActivationInfo(ma, true))
-                .collect(Collectors.toList());
-
 
         usagePoint.getMetrologyConfiguration()
                 .filter(config -> config instanceof UsagePointMetrologyConfiguration)
@@ -232,27 +227,19 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                 .withServiceLocationString(usagePointInfo.location);
     }
 
-    public UsagePointInfo getMetersOnUsagePointInfo(UsagePoint usagePoint) {
-        UsagePointInfo info = new UsagePointInfo();
-        info.id = usagePoint.getId();
-        info.mRID = usagePoint.getMRID();
-        info.installationTime = usagePoint.getInstallationTime().toEpochMilli();
-        info.version = usagePoint.getVersion();
-
+    public List<MeterActivationInfo> getMetersOnUsagePointInfo(UsagePoint usagePoint) {
         Map<MeterRole, MeterRoleInfo> mandatoryMeterRoles = new LinkedHashMap<>();
         usagePoint.getMetrologyConfiguration()
                 .filter(metrologyConfiguration -> metrologyConfiguration instanceof UsagePointMetrologyConfiguration)
                 .map(UsagePointMetrologyConfiguration.class::cast)
                 .ifPresent(metrologyConfiguration -> {
-                    info.metrologyConfiguration = new MetrologyConfigurationInfo();
-                    info.metrologyConfiguration.id = metrologyConfiguration.getId();
-                    info.metrologyConfiguration.name = metrologyConfiguration.getName();
                     metrologyConfiguration.getMeterRoles()
                             .stream()
                             .forEach(meterRole -> mandatoryMeterRoles.put(meterRole, new MeterRoleInfo(meterRole)));
                 });
 
-        Map<MeterRole, MeterInfo> meterRoleToMeterInfoMapping = usagePoint.getMeterActivations(usagePoint.getInstallationTime()).stream()
+        Map<MeterRole, MeterInfo> meterRoleToMeterInfoMapping = usagePoint.getMeterActivations(usagePoint.getInstallationTime())
+                .stream()
                 .filter(meterActivation -> meterActivation.getMeterRole().isPresent() && meterActivation.getMeter().isPresent())
                 .collect(Collectors.toMap(meterActivation -> meterActivation.getMeterRole().get(), meterActivation -> {
                     Meter meter = meterActivation.getMeter().get();
@@ -264,7 +251,8 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                     return meterInfo;
                 }));
 
-        info.meterActivations = mandatoryMeterRoles.entrySet().stream()
+        return mandatoryMeterRoles.entrySet()
+                .stream()
                 .map(meterRoleEntry -> {
                     MeterActivationInfo meterActivationInfo = new MeterActivationInfo();
                     meterActivationInfo.meterRole = meterRoleEntry.getValue();
@@ -272,7 +260,6 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                     return meterActivationInfo;
                 })
                 .collect(Collectors.toList());
-        return info;
     }
 
     static class EmptyDomain {

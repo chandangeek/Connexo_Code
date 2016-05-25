@@ -387,18 +387,10 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(meterActivation.getMeterRole()).thenReturn(Optional.of(meterRole1));
         when(meterActivation.getMeter()).thenReturn(Optional.of(meter));
         when(usagePoint.getMeterActivations(now)).thenReturn(Collections.singletonList(meterActivation));
-        when(usagePoint.getId()).thenReturn(1L);
-        when(usagePoint.getMRID()).thenReturn("test");
-        when(usagePoint.getVersion()).thenReturn(1L);
 
         Response response = target("usagepoints/test/meters").request().get();
         JsonModel model = JsonModel.create((ByteArrayInputStream) response.getEntity());
 
-        assertThat(model.<Number>get("$.id")).isEqualTo(1);
-        assertThat(model.<String>get("$.mRID")).isEqualTo("test");
-        assertThat(model.<Number>get("$.version")).isEqualTo(1);
-        assertThat(model.<Number>get("$.metrologyConfiguration.id")).isEqualTo(100);
-        assertThat(model.<String>get("$.metrologyConfiguration.name")).isEqualTo("conf");
         assertThat(model.<List>get("$.meterActivations")).hasSize(2);
         assertThat(model.<String>get("$.meterActivations[0].meter.mRID")).isEqualTo("meter1");
         assertThat(model.<String>get("$.meterActivations[0].meterRole.id")).isEqualTo("key1");
