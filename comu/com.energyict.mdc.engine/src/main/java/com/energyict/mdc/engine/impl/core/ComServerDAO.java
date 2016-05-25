@@ -17,6 +17,7 @@ import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.impl.core.inbound.InboundDAO;
 import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
+import com.energyict.mdc.protocol.api.device.data.CollectedCalendar;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.data.G3TopologyDeviceAddressInformation;
 import com.energyict.mdc.protocol.api.device.data.TopologyNeighbour;
@@ -430,4 +431,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
     void updateFirmwareVersions(CollectedFirmwareVersion collectedFirmwareVersions);
 
     void updateBreakerStatus(CollectedBreakerStatus collectedBreakerStatus);
+
+    void updateCalendars(CollectedCalendar collectedCalendar);
+
 }
