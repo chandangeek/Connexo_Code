@@ -57,6 +57,7 @@ public class IdentificationResponseStructure extends AbstractTableQueryResponseS
     private AbstractCTRObject net;
     private AbstractCTRObject sd;
     private AbstractCTRObject pukS;
+    private AbstractCTRObject idPT;
     private IdentificationProcessIdentify identify;
 
     public IdentificationResponseStructure(boolean longFrame) {
@@ -174,7 +175,9 @@ public class IdentificationResponseStructure extends AbstractTableQueryResponseS
         this.pukS = factory.parse(rawData, ptr, valueAttributeType, "D.6.3");
         ptr += pukS.getLength();
 
-        ptr += 9;   // ID-PT
+        this.idPT = factory.parse(rawData, ptr, valueAttributeType, "17.0.4");
+        ptr += this.idPT.getLength();
+
         ptr += 11;  // ID-SFTW
         ptr += 10;  // Reserved field
 
@@ -254,6 +257,10 @@ public class IdentificationResponseStructure extends AbstractTableQueryResponseS
 
     public AbstractCTRObject getSd() {
         return sd;
+    }
+
+    public AbstractCTRObject getIdPT() {
+        return idPT;
     }
 
     public IdentificationProcessIdentify getIdentify() {
