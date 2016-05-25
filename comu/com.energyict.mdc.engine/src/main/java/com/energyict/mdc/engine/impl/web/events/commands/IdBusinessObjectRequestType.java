@@ -23,7 +23,7 @@ public abstract class IdBusinessObjectRequestType implements RequestType {
     protected abstract String getBusinessObjectTypeName ();
 
     @Override
-    public Request parse (String parameterString) throws BusinessObjectIdParseException {
+    public Request parse(String parameterString) throws BusinessObjectParseException {
         try {
             return newRequestAccording(parameterString);
         }
@@ -32,7 +32,7 @@ public abstract class IdBusinessObjectRequestType implements RequestType {
         }
     }
 
-    protected Request newRequestAccording(String parameterString) throws BusinessObjectIdParseException{
+    protected Request newRequestAccording(String parameterString) throws BusinessObjectParseException {
         Set<Long> ids = this.parseIds(parameterString);
         if (ids.isEmpty()) {
             return this.newRequestForAll();

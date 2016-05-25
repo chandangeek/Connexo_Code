@@ -12,7 +12,7 @@ import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-05 (10:40)
  */
-public class BusinessObjectIdParseException extends RequestParseException {
+public class BusinessObjectIdParseException extends BusinessObjectParseException {
 
     public BusinessObjectIdParseException (String id, String categoryName, NumberFormatException e) {
         super(id + " cannot represent the unique identifier of a " + categoryName + " because it is not numerical", e);
