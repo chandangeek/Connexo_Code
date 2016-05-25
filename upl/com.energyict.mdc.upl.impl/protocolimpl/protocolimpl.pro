@@ -419,7 +419,25 @@
 
 -keep public class com.energyict.protocolimpl.mbus.core.* {
 	public *;
+	protected *;
 }
+-keep public class com.energyict.protocolimpl.modbus.core.* {
+    public *;
+    protected *;
+}
+-keep public class com.energyict.protocolimpl.mbus.core.connection.* {
+    public *;
+    protected *;
+}
+-keep public class com.energyict.protocolimpl.modbus.core.functioncode.* {
+    public *;
+    protected *;
+}
+-keep public class com.energyict.protocolimpl.modbus.core.discover.* {
+    public *;
+    protected *;
+}
+
 
 -keep public class com.energyict.protocolimpl.dlms.* {
 	public *;
