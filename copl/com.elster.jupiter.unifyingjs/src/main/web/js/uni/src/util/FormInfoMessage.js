@@ -9,6 +9,9 @@ Ext.define('Uni.util.FormInfoMessage', {
         type: 'hbox',
         align: 'middle'
     },
+    style: {
+        borderColor: '#71adc7'
+    },
     margin: '7 0 32 0',
     htmlEncode: true,
     iconCmp: null,
@@ -24,6 +27,19 @@ Ext.define('Uni.util.FormInfoMessage', {
         Ext.suspendLayouts();
 
         me.removeAll(true);
+
+        if (Ext.isEmpty(me.iconCmp)) {
+            me.iconCmp = {
+                xtype: 'box',
+                height: 22,
+                width: 26,
+                style: {
+                    fontSize: '22px',
+                    color: '#71adc7'
+                },
+                cls: 'icon-info'
+            };
+        }
         me.add([
             me.iconCmp,
             {
