@@ -279,7 +279,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                 .withServiceLocationString(usagePointInfo.location);
     }
 
-    public List<MeterActivationInfo> getMetersOnUsagePointInfo(UsagePoint usagePoint) {
+    public List<MeterActivationInfo> getMetersOnUsagePointInfo(UsagePoint usagePoint, String auth) {
         Map<MeterRole, MeterRoleInfo> mandatoryMeterRoles = new LinkedHashMap<>();
         usagePoint.getMetrologyConfiguration()
                 .filter(metrologyConfiguration -> metrologyConfiguration instanceof UsagePointMetrologyConfiguration)
