@@ -178,7 +178,7 @@ public class FirmwareVersionResourceTest extends BaseFirmwareTest {
     }
 
     @Test
-    public void testDepricateFirmwareVersion() {
+    public void testDeprecateFirmwareVersion() {
         FirmwareVersionInfo info = new FirmwareVersionInfo();
         info.firmwareStatus = new FirmwareStatusInfo();
         info.firmwareStatus.id = FirmwareStatus.DEPRECATED;
@@ -191,7 +191,7 @@ public class FirmwareVersionResourceTest extends BaseFirmwareTest {
     }
 
     @Test
-    public void testSetaAsFinalFirmwareVersion() {
+    public void testSetAsFinalFirmwareVersion() {
         FirmwareVersionInfo info = new FirmwareVersionInfo();
         info.firmwareStatus = new FirmwareStatusInfo();
         info.firmwareStatus.id = FirmwareStatus.FINAL;

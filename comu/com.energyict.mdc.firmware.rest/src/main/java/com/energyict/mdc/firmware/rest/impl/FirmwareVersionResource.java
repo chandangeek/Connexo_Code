@@ -40,13 +40,12 @@ import java.util.stream.Collectors;
 
 @Path("/devicetypes/{deviceTypeId}/firmwares")
 public class FirmwareVersionResource {
+    private static final String FILTER_STATUS_PARAMETER = "firmwareStatus";
+    private static final String FILTER_TYPE_PARAMETER = "firmwareType";
     private final FirmwareService firmwareService;
     private final ResourceHelper resourceHelper;
     private final ExceptionFactory exceptionFactory;
     private final FirmwareVersionInfoFactory versionFactory;
-
-    private static final String FILTER_STATUS_PARAMETER = "firmwareStatus";
-    private static final String FILTER_TYPE_PARAMETER = "firmwareType";
 
     @Inject
     public FirmwareVersionResource(FirmwareService firmwareService, ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, FirmwareVersionInfoFactory versionFactory) {
@@ -116,8 +115,10 @@ public class FirmwareVersionResource {
         FirmwareStatus firmwareStatus = parseFirmwareStatusField(statusInputStream).orElse(null);
 
         FirmwareVersionBuilder firmwareVersionBuilder = firmwareService.newFirmwareVersion(deviceType, firmwareVersion, firmwareStatus, firmwareType);
-        setFirmwareFile(firmwareVersionBuilder, fileInputStream);
-        firmwareVersionBuilder.create();
+        byte[] firmwareFile = loadFirmwareFile(fileInputStream);
+        setExpectedFirmwareSize(firmwareVersionBuilder, firmwareFile);;
+        FirmwareVersion version = firmwareVersionBuilder.create();
+        setFirmwareFile(version, firmwareFile);
 
         return Response.ok().header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN).build();
     }
@@ -163,8 +164,10 @@ public class FirmwareVersionResource {
         FirmwareVersion firmwareVersion = resourceHelper.lockFirmwareVersionOrThrowException(info);
         firmwareVersion.setFirmwareVersion(info.firmwareVersion);
         parseFirmwareStatusField(statusInputStream).ifPresent(firmwareVersion::setFirmwareStatus);
-        setFirmwareFile(firmwareVersion, fileInputStream);
+        byte[] firmwareFile = loadFirmwareFile(fileInputStream);
+        setExpectedFirmwareSize(firmwareVersion, firmwareFile);
         firmwareVersion.update();
+        setFirmwareFile(firmwareVersion, firmwareFile);
 
         return Response.ok().header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN).build();
     }
@@ -224,7 +227,7 @@ public class FirmwareVersionResource {
         }
     }
 
-    private void setFirmwareFile(Object firmwareFileReceiver, InputStream fileInputStream) {
+    private byte[] loadFirmwareFile(InputStream fileInputStream) {
         try (ByteArrayOutputStream out = new ByteArrayOutputStream(); InputStream fis = fileInputStream) {
             byte[] buffer = new byte[1024];
             int length;
@@ -234,16 +237,25 @@ public class FirmwareVersionResource {
                     throw exceptionFactory.newException(MessageSeeds.MAX_FILE_SIZE_EXCEEDED);
                 }
             }
-            byte[] firmwareFile = out.toByteArray();
-            if (firmwareFile.length > 0) {
-                if (firmwareFileReceiver instanceof FirmwareVersion) {
-                    ((FirmwareVersion)firmwareFileReceiver).setFirmwareFile(firmwareFile);
-                } else if (firmwareFileReceiver instanceof FirmwareVersionBuilder) {
-                    ((FirmwareVersionBuilder)firmwareFileReceiver).setFirmwareFile(firmwareFile);
-                }
-            }
+            return out.toByteArray();
         } catch (IOException ex) {
             throw exceptionFactory.newException(MessageSeeds.FILE_IO);
+        }
+    }
+
+    private void setExpectedFirmwareSize(Object firmwareFileReceiver, byte[] firmwareFile) {
+        if (firmwareFile.length > 0) {
+            if (firmwareFileReceiver instanceof FirmwareVersion) {
+                ((FirmwareVersion) firmwareFileReceiver).setExpectedFirmwareSize(firmwareFile.length);
+            } else if (firmwareFileReceiver instanceof FirmwareVersionBuilder) {
+                ((FirmwareVersionBuilder) firmwareFileReceiver).setExpectedFirmwareSize(firmwareFile.length);
+            }
+        }
+    }
+
+    private void setFirmwareFile(FirmwareVersion firmwareVersion, byte[] firmwareFile) {
+        if (firmwareFile.length > 0) {
+            firmwareVersion.setFirmwareFile(firmwareFile);
         }
     }
 
