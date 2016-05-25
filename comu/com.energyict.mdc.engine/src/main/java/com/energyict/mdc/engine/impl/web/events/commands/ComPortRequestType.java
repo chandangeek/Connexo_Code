@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.web.events.commands;
 
+import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 
 import java.util.Set;
@@ -36,19 +37,22 @@ public class ComPortRequestType extends IdBusinessObjectRequestType {
     }
 
     @Override
-    protected Request newRequestAccording(String parameterString) throws BusinessObjectIdParseException{
+    protected Request newRequestAccording(String parameterString) throws BusinessObjectParseException {
         try{
-            return super.newRequestAccording(parameterString);
-        }catch (BusinessObjectIdParseException e){
             //As the parameterString could not be parsed to a List of long,
             // We consider the parameterString being a comma separated list of comport names
             StringTokenizer tokenizer = new StringTokenizer(parameterString, ",", false);
             String[] comportNames = new String[tokenizer.countTokens()];
-            int i= 0;
+            int i = 0;
             while (tokenizer.hasMoreTokens()) {
-                comportNames[i++] = tokenizer.nextToken().replaceAll("'","").trim();
+                comportNames[i++] = tokenizer.nextToken().replaceAll("'", "").trim();
+            }
+            if (comportNames.length == 0) {
+                return this.newRequestForAll();
             }
             return new ComPortRequest(engineConfigurationService, comportNames);
+        } catch (NotFoundException e) {
+            throw new BusinessObjectParseException(e.getMessage(), e);
         }
     }
 
