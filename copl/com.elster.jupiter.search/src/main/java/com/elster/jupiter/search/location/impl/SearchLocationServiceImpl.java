@@ -140,33 +140,33 @@ public class SearchLocationServiceImpl implements SearchLocationService {
     }
 
     private String getWhereClause(String locationPart) {
-        if (locationPart == null) {
+        if ((locationPart == null) || (locationPart.length() == 0)) {
             return "";
         }
 
         String[] mapLocationPart = locationPart.split(",");
-        String[] mapTemplate = locationTemplate.split("#");
+        String[] mapTemplate = locationTemplate.split(",");
         List<String> resultClause = new ArrayList<String>();
 
-        mapTemplate = Arrays.copyOfRange(mapTemplate, 1, mapTemplate.length);
+        //mapTemplate = Arrays.copyOfRange(mapTemplate, 1, mapTemplate.length);
 
         for (int i = 0; i < mapLocationPart.length; i++) {
             String part = mapLocationPart[i].trim();
             String item = mapTemplate[i];
 
-            if (item.startsWith(",")) {
+            if (item.startsWith("#")) {
                 item = item.substring(1);
             }
-            if (item.endsWith(",")) {
+            if (item.endsWith("#")) {
                 item = item.substring(0, item.length() - 1);
             }
 
             if ((i == mapLocationPart.length - 1) && (!locationPart.endsWith(","))) {
-                resultClause.add(String.format("upper%s LIKE UPPER('%%%s%%')", templateMap.get("#" + item), part));
+                if (part.isEmpty() == false) {
+                    resultClause.add(String.format("upper%s LIKE UPPER('%%%s%%')", templateMap.get("#" + item), part));
+                }
             } else {
-                if (part.isEmpty()) {
-                    resultClause.add(String.format("upper%s is null", templateMap.get("#" + item)));
-                } else {
+                if (part.isEmpty() == false) {
                     resultClause.add(String.format("upper%s = UPPER('%s')", templateMap.get("#" + item), part));
                 }
             }
