@@ -1,10 +1,12 @@
 package com.elster.jupiter.util.geo;
 
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
+
 import com.google.common.collect.ImmutableList;
-import org.junit.Test;
 
 import java.math.BigDecimal;
+
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -47,7 +49,7 @@ public class PositionTest extends EqualsContractTest {
 
     @Test
     public void testToString() {
-        assertThat(NEW_YORK.toString()).isEqualTo("40\u00B042'51\"N 74\u00B00'23\"W");
+        assertThat(NEW_YORK.toString()).isEqualTo("40\u00B042'51''N 74\u00B00'23''W");
     }
 
     @Test
