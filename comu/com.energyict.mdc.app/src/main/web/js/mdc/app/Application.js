@@ -27,7 +27,8 @@ Ext.define('MdcApp.Application', {
         'Dbp.privileges.DeviceProcesses',
         'Mdc.privileges.UsagePoint',
         'Scs.privileges.ServiceCall',
-        'Mdc.privileges.Monitor'
+        'Mdc.privileges.Monitor',
+        'Mdc.privileges.MetrologyConfiguration'
     ],
     controllers: [
         'MdcApp.controller.Main'
