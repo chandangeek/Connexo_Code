@@ -1,11 +1,11 @@
 package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
@@ -13,7 +13,6 @@ import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
-import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.validation.DataValidationOccurrence;
 import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.ReadingTypeInValidationRule;
@@ -148,7 +147,13 @@ public enum TableSpecs {
             table.column("ACTIVE").bool().map("isActive").add();
             table.column("VALIDATEONSTORAGE").bool().map("validateOnStorage").add();
             table.primaryKey("VAL_PK_MA_METER_VALIDATION").on(meterId).add();
-            table.foreignKey("VAL_FK_MA_METER_VALIDATION").references(MeteringService.COMPONENTNAME, "MTR_ENDDEVICE").onDelete(RESTRICT).map("meter").on(meterId).add();
+            table
+                .foreignKey("VAL_FK_MA_METER_VALIDATION")
+                .references(EndDevice.class)
+                .onDelete(RESTRICT)
+                .map("meter")
+                .on(meterId)
+                .add();
         }
     },
 
@@ -162,7 +167,12 @@ public enum TableSpecs {
             table.primaryKey("VAL_PK_RTYPEINVALRULE").on(ruleIdColumn, readingTypeMRIDColumn).add();
             table.foreignKey("VAL_FK_RTYPEINVALRULE_RULE").references(VAL_VALIDATIONRULE.name()).onDelete(DeleteRule.CASCADE).map("rule").reverseMap("readingTypesInRule").composition()
                     .on(ruleIdColumn).add();
-            table.foreignKey("VAL_FK_RTYPEINVALRULE_RTYPE").references(MeteringService.COMPONENTNAME, "MTR_READINGTYPE").onDelete(RESTRICT).map("readingType").on(readingTypeMRIDColumn).add();
+            table
+                .foreignKey("VAL_FK_RTYPEINVALRULE_RTYPE")
+                .references(ReadingType.class)
+                .onDelete(RESTRICT)
+                .map("readingType")
+                .on(readingTypeMRIDColumn).add();
         }
     },
     VAL_DATAVALIDATIONTASK {
