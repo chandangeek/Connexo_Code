@@ -19,6 +19,7 @@ Ext.define('Imt.servicecalls.view.ServiceCallsSetup', {
         'Scs.store.ServiceCallTypes',
         'Scs.store.States'
     ],
+    usagePoint: null,
 
     initComponent: function () {
         var me = this;
@@ -31,7 +32,8 @@ Ext.define('Imt.servicecalls.view.ServiceCallsSetup', {
                         xtype: 'usage-point-management-side-menu',
                         itemId: 'usage-point-management-side-menu',
                         router: me.router,
-                        mRID: me.mRID
+                        mRID: me.mRID,
+                        usagePoint: me.usagePoint
                     }
                 ]
             }
