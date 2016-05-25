@@ -30,6 +30,7 @@ import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.time.CompositeScheduleExpressionParser;
 import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.time.ScheduleExpression;
+
 import com.google.common.collect.Range;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -51,7 +52,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Component(name = "com.elster.jupiter.estimation.console",
-        service = ConsoleCommands.class,
+        service = EstimationConsoleCommands.class,
         property = {"osgi.command.scope=estimation",
                 "osgi.command.function=estimationBlocks",
                 "osgi.command.function=availableEstimators",
@@ -67,7 +68,7 @@ import java.util.stream.Stream;
                 "osgi.command.function=log"
         },
         immediate = true)
-public class ConsoleCommands {
+public class EstimationConsoleCommands {
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ISO_DATE_TIME;
 
@@ -95,18 +96,26 @@ public class ConsoleCommands {
     }
 
     public void availableEstimators() {
-        estimationService.getAvailableEstimators().stream()
+        System.out.println("Usage: availableEstimators <applicationName: INS, MDC>");
+    }
+
+    public void availableEstimators(String applicationName) {
+        estimationService.getAvailableEstimators(applicationName).stream()
                 .peek(est -> System.out.println(est.getDefaultFormat()))
                 .flatMap(est -> est.getPropertySpecs().stream())
                 .map(spec -> spec.getName() + ' ' + spec.getValueFactory().getValueType().toString())
                 .forEach(System.out::println);
     }
 
-    public void createRuleSet(String name) {
+    public void createRuleSet() {
+        System.out.println("Usage: createRuleSet <ruleSetName> <applicationName: INS, MDC>");
+    }
+
+    public void createRuleSet(String name, String applicationName) {
         threadPrincipalService.set(() -> "Console");
         try {
             transactionService.execute(VoidTransaction.of(() -> {
-                EstimationRuleSet estimationRuleSet = estimationService.createEstimationRuleSet(name);
+                EstimationRuleSet estimationRuleSet = estimationService.createEstimationRuleSet(name, applicationName);
                 estimationRuleSet.save();
                 System.out.println(print(estimationRuleSet));
             }));
@@ -268,7 +277,7 @@ public class ConsoleCommands {
         for (ReadingType readingType : channel.getReadingTypes()) {
             System.out.println("Handling reading type " + readingType.getAliasName());
             List<EstimationBlock> blocks = estimationEngine.findBlocksToEstimate(meterActivation, Range.<Instant>all(), readingType);
-            estimator.init(Logger.getLogger(ConsoleCommands.class.getName()));
+            estimator.init(Logger.getLogger(EstimationConsoleCommands.class.getName()));
             EstimationResult result = estimator.estimate(blocks);
             List<EstimationBlock> estimated = result.estimated();
             List<EstimationBlock> remaining = result.remainingToBeEstimated();

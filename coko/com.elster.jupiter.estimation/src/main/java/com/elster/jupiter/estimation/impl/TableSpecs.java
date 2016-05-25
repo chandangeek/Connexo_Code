@@ -34,6 +34,7 @@ public enum TableSpecs {
             Column idColumn = table.addAutoIdColumn();
             Column mRIDColumn = table.column("MRID").varChar(NAME_LENGTH).map("mRID").add();
             Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).map("name").add();
+            table.column("APPLICATION").varChar(NAME_LENGTH).notNull().map("applicationName").add();
             table.column("ALIASNAME").varChar(NAME_LENGTH).map("aliasName").add();
             table.column("DESCRIPTION").varChar(DESCRIPTION_LENGTH).map("description").add();
             Column obsoleteColumn = table.column("OBSOLETE_TIME").map("obsoleteTime").number().conversion(NUMBER2INSTANT).add();
