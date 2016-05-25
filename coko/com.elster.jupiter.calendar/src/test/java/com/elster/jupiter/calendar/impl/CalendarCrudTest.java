@@ -505,6 +505,7 @@ public class CalendarCrudTest {
     public void testUpdate() {
         CalendarService service = getCalendarService();
         service.newCalendar("Test", TimeZone.getTimeZone("Europe/Brussels"), Year.of(2010))
+                .endYear(Year.of(2018))
                 .description("Description remains to be completed :-)")
                 .mRID("Sample-TOU-rates")
                 .addEvent("On peak", 3)

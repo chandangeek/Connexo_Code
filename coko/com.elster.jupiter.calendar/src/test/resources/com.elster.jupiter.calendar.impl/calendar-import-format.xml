@@ -5,7 +5,7 @@
     <category>TOU</category>
     <mRID>optional</mRID>
     <description>From example provide by Robert Ritchy</description>
-    <timezone>CST</timezone>
+    <timezone>America/Chicago</timezone>
     <start-year>2010</start-year>
     <events>
         <event>
