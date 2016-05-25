@@ -3,7 +3,7 @@ Ext.define('Imt.usagepointmanagement.model.metrologyconfiguration.MeterRole', {
     fields: [
         'id', 'name', 'required', 'mRID',
         {
-            name: 'activationDate',
+            name: 'activationTime',
             type: 'date',
             dateFormat: 'time'
         }
