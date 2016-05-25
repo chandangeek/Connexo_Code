@@ -2,6 +2,8 @@ package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.MessageSeeds;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
@@ -116,8 +118,8 @@ public class MetrologyContractImpl implements MetrologyContract {
     }
 
     @Override
-    public Status getStatus() {
-        return new StatusImpl(this.metrologyConfigurationService.getThesaurus(), getMetrologyContractStatusKey());
+    public Status getStatus(UsagePoint usagePoint) {
+        return new StatusImpl(this.metrologyConfigurationService.getThesaurus(), getMetrologyContractStatusKey(usagePoint));
     }
 
     @Override
@@ -157,7 +159,7 @@ public class MetrologyContractImpl implements MetrologyContract {
         }
     }
 
-    MetrologyContractStatusKey getMetrologyContractStatusKey() {
+    MetrologyContractStatusKey getMetrologyContractStatusKey(UsagePoint usagePoint) {
         if (this.metrologyConfiguration.isPresent() && this.metrologyConfiguration.get() instanceof UsagePointMetrologyConfiguration) {
             UsagePointMetrologyConfiguration configuration = (UsagePointMetrologyConfiguration) this.metrologyConfiguration.get();
             ReadingTypeRequirementChecker requirementChecker = new ReadingTypeRequirementChecker();
@@ -176,7 +178,12 @@ public class MetrologyContractImpl implements MetrologyContract {
 
             boolean allMeterRolesHasMeters = true;
             for (MeterRole meterRole : meterRoles) {
-                allMeterRolesHasMeters &= !configuration.getMetersForRole(meterRole).isEmpty();
+                MeterActivation meterActivation = !usagePoint.getMeterActivations(meterRole).isEmpty() ? usagePoint.getMeterActivations(meterRole)
+                        .stream()
+                        .filter(meterActivationToCheck -> meterActivationToCheck.getEnd() == null)
+                        .findFirst()
+                        .orElse(null) : null;
+                allMeterRolesHasMeters &= meterActivation != null;
             }
             return allMeterRolesHasMeters ? MetrologyContractStatusKey.COMPLETE : MetrologyContractStatusKey.INCOMPLETE;
         }
