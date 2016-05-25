@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.config.CustomPropertyNode;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
@@ -46,6 +47,11 @@ class Copy implements ExpressionNode.Visitor<ServerExpressionNode> {
     @Override
     public ServerExpressionNode visitConstant(com.elster.jupiter.metering.config.ConstantNode constant) {
         return new NumericalConstantNode(constant.getValue());
+    }
+
+    @Override
+    public ServerExpressionNode visitProperty(CustomPropertyNode property) {
+        throw new UnsupportedOperationException("Todo: complete me");
     }
 
     @Override

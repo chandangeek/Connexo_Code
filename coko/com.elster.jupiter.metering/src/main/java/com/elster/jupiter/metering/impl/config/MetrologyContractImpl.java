@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.impl.config;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.config.ConstantNode;
+import com.elster.jupiter.metering.config.CustomPropertyNode;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FunctionCallNode;
@@ -212,6 +213,11 @@ public class MetrologyContractImpl implements MetrologyContract {
 
         @Override
         public ReadingTypeRequirementChecker visitConstant(ConstantNode constant) {
+            return this;
+        }
+
+        @Override
+        public ReadingTypeRequirementChecker visitProperty(CustomPropertyNode property) {
             return this;
         }
 

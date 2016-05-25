@@ -1176,12 +1176,28 @@ public enum TableSpecs {
 
             // ReadingTypeDeliverableNodeImpl readingTypeDeliverable value
             table.column("READINGTYPE_DELIVERABLE").number().add();
+
             // ReadingTypeRequirementNodeImpl readingTypeRequirement value
             table.column("READINGTYPE_REQUIREMENT").number().add();
 
+            // CustomPropertyNodeImpl
+            table.column("PROPERTY_SPEC_NAME").map("propertySpecName").varChar().add();
+            Column customPropertySet = table.column("CUSTOM_PROPERTY_SET").number().add();
+
             table.primaryKey("MTR_PK_FORMULA_NODE").on(idColumn).add();
-            table.foreignKey("MTR_VALIDCHILD").references(MTR_FORMULA_NODE.name()).on(parentColumn).onDelete(CASCADE)
-                    .map("parent").reverseMap("children").reverseMapOrder("argumentIndex").add();
+            table.foreignKey("MTR_FORMULANODE_CPS")
+                    .references(RegisteredCustomPropertySet.class)
+                    .on(customPropertySet)
+                    .map("customPropertySet")
+                    .add();
+            table.foreignKey("MTR_VALIDCHILD")
+                    .references(MTR_FORMULA_NODE.name())
+                    .on(parentColumn)
+                    .onDelete(CASCADE)
+                    .map("parent")
+                    .reverseMap("children")
+                    .reverseMapOrder("argumentIndex")
+                    .add();
         }
     },
     MTR_FORMULA {

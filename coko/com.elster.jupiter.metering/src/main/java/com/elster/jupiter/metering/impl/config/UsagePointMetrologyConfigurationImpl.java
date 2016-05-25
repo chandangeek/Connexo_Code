@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl.config;
 
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeterActivation;
@@ -30,8 +31,8 @@ public class UsagePointMetrologyConfigurationImpl extends MetrologyConfiguration
     private List<UsagePointRequirement> usagePointRequirements = new ArrayList<>();
 
     @Inject
-    UsagePointMetrologyConfigurationImpl(ServerMetrologyConfigurationService metrologyConfigurationService, EventService eventService, UsagePointRequirementsSearchDomain searchDomain) {
-        super(metrologyConfigurationService, eventService);
+    UsagePointMetrologyConfigurationImpl(ServerMetrologyConfigurationService metrologyConfigurationService, EventService eventService, CustomPropertySetService customPropertySetService, UsagePointRequirementsSearchDomain searchDomain) {
+        super(metrologyConfigurationService, eventService, customPropertySetService);
         this.searchDomain = searchDomain;
     }
 

@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl.config;
 
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
@@ -73,6 +74,7 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
 
     private final ServerMetrologyConfigurationService metrologyConfigurationService;
     private final EventService eventService;
+    private final CustomPropertySetService customPropertySetService;
 
     @SuppressWarnings("unused")
     private long id;
@@ -101,9 +103,10 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
     private String userName;
 
     @Inject
-    MetrologyConfigurationImpl(ServerMetrologyConfigurationService metrologyConfigurationService, EventService eventService) {
+    MetrologyConfigurationImpl(ServerMetrologyConfigurationService metrologyConfigurationService, EventService eventService, CustomPropertySetService customPropertySetService) {
         this.metrologyConfigurationService = metrologyConfigurationService;
         this.eventService = eventService;
+        this.customPropertySetService = customPropertySetService;
     }
 
     protected ServerMetrologyConfigurationService getMetrologyConfigurationService() {
@@ -290,7 +293,7 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
 
     @Override
     public ReadingTypeDeliverableBuilderImpl newReadingTypeDeliverable(String name, ReadingType readingType, Formula.Mode mode) {
-        return new ReadingTypeDeliverableBuilderImpl(this, name, readingType, mode, this.metrologyConfigurationService.getDataModel(), this.metrologyConfigurationService.getThesaurus());
+        return new ReadingTypeDeliverableBuilderImpl(this, name, readingType, mode, this.customPropertySetService, this.metrologyConfigurationService.getDataModel(), this.metrologyConfigurationService.getThesaurus());
     }
 
     @Override

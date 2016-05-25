@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.AggregationLevel;
 import com.elster.jupiter.metering.config.ConstantNode;
+import com.elster.jupiter.metering.config.CustomPropertyNode;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FunctionCallNode;
@@ -98,6 +99,11 @@ public class DeliverableValidator implements ConstraintValidator<ValidDeliverabl
 
         @Override
         public Boolean visitConstant(ConstantNode constant) {
+            return Boolean.TRUE;
+        }
+
+        @Override
+        public Boolean visitProperty(CustomPropertyNode property) {
             return Boolean.TRUE;
         }
 
