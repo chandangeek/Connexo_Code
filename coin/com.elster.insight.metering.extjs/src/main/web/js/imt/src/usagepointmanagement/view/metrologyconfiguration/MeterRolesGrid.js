@@ -27,26 +27,22 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.MeterRolesGrid'
                 dataIndex: 'mRID',
                 flex: 1,
                 renderer: function (value) {
-                    var url = '',
-                        result = '';
-
+                    var deviceLink;
                     if (value) {
-                        //if (Mdc.privileges.Device.canViewDeviceCommunication()) {
-                            url = me.router.getRoute('devices/device').buildUrl({mRID: value});
-                            result = '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
-                        /*} else {
-                            result = Ext.String.htmlEncode(value);
-                        }*/
+                        if (Uni.store.Apps.checkApp('Multisense')) {
+                            deviceLink = Ext.String.format('<a href="{0}">{1}</a>', Ext.String.format('{0}/devices/{1}', Uni.store.Apps.getAppUrl('Multisense'), encodeURIComponent(value)), Ext.String.htmlEncode(value));
+                        } else {
+                            deviceLink = Ext.String.htmlEncode(value);
+                        }
                     } else {
-                        result = '-';
+                        deviceLink = '-';
                     }
-
-                    return result;
+                    return deviceLink;
                 }
             },
             {
                 text: Uni.I18n.translate('general.activationDate', 'IMT', 'Activation date'),
-                dataIndex: 'activationDate',
+                dataIndex: 'activationTime',
                 flex: 1,
                 renderer: function (value) {
                     return value ? Uni.DateTime.formatDateTimeLong(value) : '-';
@@ -65,8 +61,7 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.MeterRolesGrid'
                         text: Uni.I18n.translate('general.editMeters', 'IMT', 'Edit meters'),
                         itemId: 'edit-meters',
                         privileges: Imt.privileges.UsagePoint.canAdministrate,
-                        href: me.router.getRoute('usagepoints/view/metrologyconfiguration').buildUrl(),
-                        hidden: true
+                        href: me.router.getRoute('usagepoints/view/metrologyconfiguration/activatemeters').buildUrl()
                     }
                 ]
             }
