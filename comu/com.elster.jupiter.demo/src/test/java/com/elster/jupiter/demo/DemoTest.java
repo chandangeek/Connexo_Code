@@ -634,7 +634,7 @@ public class DemoTest {
     public void testExecuteCreateDemoDataTwice() {
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
             demoService.createDemoData("DemoServ", "host", "2014-12-01", "2");
-            demoService.createDemoData("DemoServ", "host", "2014-12-01", "2");
+            demoService.createDemoData("DemoServ", "host", "2014-12-01", "2", true); // Skip firmware management data, as H2 doesn't support update of LOB
         // Calling the command 'createDemoData' twice shouldn't produce errors
     }
 
@@ -673,7 +673,6 @@ public class DemoTest {
 //                   .isPresent()).isTrue();
     }
 
-
     @Test
     public void testFirmwareManagementSetup(){
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
@@ -706,6 +705,7 @@ public class DemoTest {
 
         assertThat(issueCreationService.getCreationRuleQuery().select(Condition.TRUE)).hasSize(4);
     }
+
     @Test
     public void testCreateImportersCommand(){
         FileImportService fileImportService = injector.getInstance(FileImportService.class);
