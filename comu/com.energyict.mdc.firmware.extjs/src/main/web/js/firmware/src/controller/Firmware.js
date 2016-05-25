@@ -195,7 +195,7 @@ Ext.define('Fwc.controller.Firmware', {
         var me = this,
             form = me.getFirmwareForm(),
             record;
-
+        //HIER
         form.down('uni-form-error-message').hide();
         form.getForm().clearInvalid();
         record = form.updateRecord().getRecord();
