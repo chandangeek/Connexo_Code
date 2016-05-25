@@ -127,14 +127,22 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
                     .filter(ma -> ma.isEffectiveAt(this.activationTime))
                     .filter(ma -> !ma.getUsagePoint().isPresent() || !ma.getUsagePoint().get().equals(this.usagePoint))
                     .collect(Collectors.toList());
-            if (!activations.isEmpty()) {
+
+            for (MeterActivation activation : activations) {
                 result = false;
-                String errorMessage = this.metrologyConfigurationService.getThesaurus().getFormat(MessageSeeds.METER_ALREADY_ACTIVE)
-                        .format(mappingEntry.getValue().getMRID(), MeterAlreadyActive.formatted(this.activationTime, this.metrologyConfigurationService.getThesaurus()));
+                String errorMessage;
+                if (activation.getUsagePoint().isPresent() && activation.getMeterRole().isPresent()) {
+                    errorMessage = this.metrologyConfigurationService.getThesaurus().getFormat(MessageSeeds.METER_ALREADY_LINKED_TO_USAGEPOINT)
+                            .format(mappingEntry.getValue().getMRID(), activation.getUsagePoint().get().getMRID(), activation.getMeterRole().get().getDisplayName());
+                } else {
+                    errorMessage = this.metrologyConfigurationService.getThesaurus().getFormat(MessageSeeds.METER_ALREADY_ACTIVE)
+                            .format(mappingEntry.getValue().getMRID(), MeterAlreadyActive.formatted(this.activationTime, this.metrologyConfigurationService.getThesaurus()));
+                }
                 context.buildConstraintViolationWithTemplate(errorMessage)
                         .addPropertyNode(mappingEntry.getKey().getKey())
                         .addConstraintViolation();
             }
+
         }
         return result;
     }
