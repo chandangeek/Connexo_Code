@@ -18,15 +18,16 @@ Ext.define('Cfg.controller.Tasks', {
 
     stores: [
         'Cfg.store.DeviceGroups',
-        'Cfg.store.UsagePointGroups',
         'Cfg.store.DaysWeeksMonths',
         'Cfg.store.ValidationTasks',
-        'Cfg.store.ValidationTasksHistory'
+        'Cfg.store.ValidationTasksHistory',
+        'Cfg.store.MetrologyContracts',
+        'Cfg.store.MetrologyConfigurations'
     ],
 
     models: [
         'Cfg.model.DeviceGroup',
-        'Cfg.model.UsagePointGroup',
+        'Cfg.model.MetrologyContract',
         'Cfg.model.DayWeekMonth',
         'Cfg.model.ValidationTask',
         'Cfg.model.ValidationTaskHistory',
@@ -68,6 +69,8 @@ Ext.define('Cfg.controller.Tasks', {
     fromEdit: false,
     taskModel: null,
     taskId: null,
+    MULTISENSE_KEY: 'MultiSense',
+    INSIGHT_KEY: 'MdmApp',
 
     init: function () {
         this.control({
@@ -99,9 +102,9 @@ Ext.define('Cfg.controller.Tasks', {
             });
 
         me.fromDetails = false;
-        me.getApplication().fireEvent('changecontentevent', view); 
-        
-		if ( Cfg.privileges.Validation.canRun()) {
+        me.getApplication().fireEvent('changecontentevent', view);
+
+        if (Cfg.privileges.Validation.canRun()) {
             Ext.Array.each(Ext.ComponentQuery.query('#run-task'), function (item) {
                 item.show();
             });
@@ -134,12 +137,11 @@ Ext.define('Cfg.controller.Tasks', {
                 if (record.get('status') !== 'Busy') {
                     if (record.get('status') === 'Failed') {
                         view.down('#lbl-reason-field').show();
-                    }  
-					if (Cfg.privileges.Validation.canRun()) {
+                    }
+                    if (Cfg.privileges.Validation.canRun()) {
                         view.down('#run-task').show();
                     }
-                }
-
+                }              
             }
         });
     },
@@ -154,6 +156,7 @@ Ext.define('Cfg.controller.Tasks', {
         store.getProxy().setUrl(router.arguments);
 
         view = Ext.widget('cfg-validation-tasks-history', {
+            appName: Uni.util.Application.getAppName(),
             router: router,
             taskId: currentTaskId
         });
@@ -194,21 +197,19 @@ Ext.define('Cfg.controller.Tasks', {
     loadGroup: function (appName, view) {
         var me = this,
             onGroupsLoad = function (records) {
-                if (!records.length && view.rendered) {
+                if (records && !records.length && view.rendered) {
                     Ext.suspendLayouts();
-                    view.down('#cbo-validation-task-group').hide();
-                    view.down('#no-group-defined').show();
-                    view.down('#field-validation-task-group').combineErrors = true;
+                    view.down('#field-validation-task-group').showNoItemsField();
                     Ext.resumeLayouts(true);
                 }
             };
 
         switch (appName) {
-            case 'MultiSense':
+            case me.MULTISENSE_KEY:
                 me.getStore('Cfg.store.DeviceGroups').load(onGroupsLoad);
                 break;
-            case 'Insight':
-                me.getStore('Cfg.store.UsagePointGroups').load(onGroupsLoad);
+            case me.INSIGHT_KEY:
+                me.getStore('Cfg.store.MetrologyConfigurations').load(onGroupsLoad);
                 break;
         }
     },
@@ -253,34 +254,48 @@ Ext.define('Cfg.controller.Tasks', {
             success: function (record) {
                 var schedule = record.get('schedule'),
                     taskForm,
-                    recurrenceTypeCombo;
+                    recurrenceTypeCombo,
+                    callback = function () {
+                        taskForm = view.down('#frm-add-validation-task');
+                        recurrenceTypeCombo = view.down('#cbo-recurrence-type');
 
+                        view.setLoading(false);
+                        me.taskModel = record;
+                        Ext.suspendLayouts();
+                        me.getApplication().fireEvent('validationtaskload', record);
+                        taskForm.setTitle(Uni.I18n.translate('general.editx', 'CFG', "Edit '{0}'", [record.get('name')]));
+                        taskForm.loadRecord(record);
+
+                        if (record.data.nextRun && (record.data.nextRun !== 0)) {
+                            view.down('#rgr-validation-tasks-recurrence-trigger').setValue({recurrence: true});
+                            view.down('#num-recurrence-number').setValue(schedule.count);
+                            recurrenceTypeCombo.setValue(schedule.timeUnit);
+                            view.down('#start-on').setValue(record.data.nextRun);
+                        } else {
+                            recurrenceTypeCombo.setValue(recurrenceTypeCombo.store.getAt(2));
+                        }
+
+                        Ext.resumeLayouts(true);
+                    };
                 if (view.rendered) {
-                    taskForm = view.down('#frm-add-validation-task');
-                    recurrenceTypeCombo = view.down('#cbo-recurrence-type');
-
-                    view.setLoading(false);
-                    me.taskModel = record;
-                    Ext.suspendLayouts();
-                    me.getApplication().fireEvent('validationtaskload', record);
-                    taskForm.setTitle(Uni.I18n.translate('general.editx', 'CFG', "Edit '{0}'",[record.get('name')]));
-                    taskForm.loadRecord(record);
-
-                    if (record.data.nextRun && (record.data.nextRun !== 0)) {
-                        //if (schedule) {
-                        view.down('#rgr-validation-tasks-recurrence-trigger').setValue({recurrence: true});
-                        view.down('#num-recurrence-number').setValue(schedule.count);
-                        recurrenceTypeCombo.setValue(schedule.timeUnit);
-                        view.down('#start-on').setValue(record.data.nextRun);
-                    } else {
-                        recurrenceTypeCombo.setValue(recurrenceTypeCombo.store.getAt(2));
+                    switch (appName) {
+                        case me.MULTISENSE_KEY:{
+                            callback();
+                        }
+                            break;
+                        case me.INSIGHT_KEY:{
+                            me.getStore('Cfg.store.MetrologyContracts').getProxy().setUrl(record.get('metrologyConfiguration').id);
+                            me.getStore('Cfg.store.MetrologyContracts').load({
+                                callback: callback
+                            });
+                        }
+                            break;
                     }
-                    Ext.resumeLayouts(true);
                 }
             }
         });
     },
-    
+
     showPreview: function (selectionModel, record) {
         var me = this,
             page = me.getPage(),
@@ -298,8 +313,8 @@ Ext.define('Cfg.controller.Tasks', {
                 previewForm.down('#lbl-reason-field').show();
             } else {
                 previewForm.down('#lbl-reason-field').hide();
-            }  
-			if ( Cfg.privileges.Validation.canRun()) {
+            }
+            if (Cfg.privileges.Validation.canRun()) {
                 Ext.Array.each(Ext.ComponentQuery.query('#run-task'), function (item) {
                     item.show();
                 });
@@ -321,7 +336,7 @@ Ext.define('Cfg.controller.Tasks', {
         } else {
             router.arguments.taskId = menu.record.getId();
         }
-        
+
         switch (item.action) {
             case 'viewDetails':
                 route = 'administration/validationtasks/validationtask';
@@ -338,7 +353,7 @@ Ext.define('Cfg.controller.Tasks', {
             case 'viewHistory':
                 route = 'administration/validationtasks/validationtask/history';
                 break;
-			case 'runTask':
+            case 'runTask':
                 me.runTask(menu.record);
                 break;
 
@@ -347,8 +362,8 @@ Ext.define('Cfg.controller.Tasks', {
         route && (route = router.getRoute(route));
         route && route.forward(router.arguments);
     },
-	
-	runTask: function (record) {
+
+    runTask: function (record) {
         var me = this,
             confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
                 confirmText: Uni.I18n.translate('validationTasks.general.run', 'CFG', 'Run'),
@@ -362,14 +377,14 @@ Ext.define('Cfg.controller.Tasks', {
                 xtype: 'panel',
                 itemId: 'date-errors',
                 hidden: true,
-				cls: 'confirmation-window',
+                cls: 'confirmation-window',
                 html: 'sssss'
             }
         );
 
         confirmationWindow.show({
             msg: Uni.I18n.translate('validationTasks.runMsg', 'CFG', 'This validation task will be queued to run at the earliest possible time.'),
-			title: Uni.I18n.translate('validationTasks.runTask', 'CFG', "Run validation task '{0}'?", [record.data.name])
+            title: Uni.I18n.translate('validationTasks.runTask', 'CFG', "Run validation task '{0}'?", [record.data.name])
         });
     },
 
@@ -381,13 +396,8 @@ Ext.define('Cfg.controller.Tasks', {
             store,
             index,
             view;
-        if (!record.get('usagePointGroup') ||record.get('usagePointGroup') === "") {
-        	record.set('usagePointGroup', null);
-        } else {
-        	record.set('deviceGroup', null);
-        }
-        
-        Ext.Ajax.request({			
+
+        Ext.Ajax.request({
             url: '/api/val/validationtasks/' + id + '/trigger',
             method: 'PUT',
             jsonData: record.getRecordData(),
@@ -437,7 +447,7 @@ Ext.define('Cfg.controller.Tasks', {
             confirmationWindow = Ext.create('Uni.view.window.Confirmation');
         confirmationWindow.show({
             msg: Uni.I18n.translate('validationTasks.general.remove.msg', 'CFG', 'This validation task will no longer be available.'),
-            title: Uni.I18n.translate('general.removex', 'CFG', "Remove '{0}'",[record.data.name]),
+            title: Uni.I18n.translate('general.removex', 'CFG', "Remove '{0}'", [record.data.name]),
             config: {},
             fn: function (state) {
                 if (state === 'confirm') {
@@ -450,12 +460,8 @@ Ext.define('Cfg.controller.Tasks', {
     },
 
     removeOperation: function (record) {
-    	  if (!record.get('usagePointGroup') ||record.get('usagePointGroup') === "") {
-          	record.set('usagePointGroup', null);
-          } else {
-          	record.set('deviceGroup', null);
-          }
         var me = this;
+
         record.destroy({
             success: function () {
                 if (me.getPage()) {
@@ -483,14 +489,14 @@ Ext.define('Cfg.controller.Tasks', {
                         itemId: 'remove-error-messagebox',
                         buttons: [
                             {
-                                text: Uni.I18n.translate('general.retry','CFG','Retry'),
+                                text: Uni.I18n.translate('general.retry', 'CFG', 'Retry'),
                                 ui: 'remove',
                                 handler: function (button, event) {
                                     me.removeOperation(record);
                                 }
                             },
                             {
-                                text: Uni.I18n.translate('general.cancel','CFG','Cancel'),
+                                text: Uni.I18n.translate('general.cancel', 'CFG', 'Cancel'),
                                 action: 'cancel',
                                 ui: 'link',
                                 href: '#/administration/validationtasks/',
@@ -517,14 +523,12 @@ Ext.define('Cfg.controller.Tasks', {
             form = page.down('#frm-add-validation-task'),
             formErrorsPanel = form.down('#form-errors'),
             lastDayOfMonth = false,
-            groupCombo = me.getAddPage().down('#cbo-validation-task-group'),
+            dataSourcesContainer = me.getAddPage().down('#field-validation-task-group'),
             startOnDate,
             timeUnitValue,
             dayOfMonth,
             hours,
-            minutes,
-            deviceGroupId,
-            usagePointGroupId;
+            minutes;
 
         var record = me.taskModel || Ext.create('Cfg.model.ValidationTask');
 
@@ -535,12 +539,11 @@ Ext.define('Cfg.controller.Tasks', {
         }
 
         record.set('name', form.down('#txt-task-name').getValue());
-        if (groupCombo) {
-            record.set(groupCombo.name, {
-                id: groupCombo.getValue(),
-                name: groupCombo.getDisplayValue()
-            });
+
+        if (dataSourcesContainer) {
+            dataSourcesContainer.setDataSourcesToRecord(record);
         }
+
         if (form.down('#rgr-validation-tasks-recurrence-trigger').getValue().recurrence) {
             startOnDate = moment(form.down('#start-on').getValue()).valueOf();
             timeUnitValue = form.down('#cbo-recurrence-type').getValue();
@@ -635,8 +638,6 @@ Ext.define('Cfg.controller.Tasks', {
             record.set('nextRun', null);
             record.set('schedule', null);
         }
-
-        record.set('application', Uni.util.Application.getAppName());
 
         record.endEdit();
         record.save({

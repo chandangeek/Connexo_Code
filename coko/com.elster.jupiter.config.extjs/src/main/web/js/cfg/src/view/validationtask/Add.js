@@ -2,8 +2,9 @@ Ext.define('Cfg.view.validationtask.Add', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.cfg-validation-tasks-add',
     requires: [
-        'Uni.form.field.DateTime',        
-        'Uni.util.FormErrorMessage'
+        'Uni.form.field.DateTime',
+        'Uni.util.FormErrorMessage',
+        'Cfg.view.validationtask.DataSourcesContainer'
     ],
 
     edit: false,
@@ -11,32 +12,7 @@ Ext.define('Cfg.view.validationtask.Add', {
     appName: null,
 
     initComponent: function () {
-        var me = this,
-            groupComboConfig = {},
-            groupLabel = '',
-            noGroupDefinedTxt = '';
-
-        switch (me.appName) {
-            case 'MultiSense':
-                groupComboConfig = {
-                    name: 'deviceGroup',
-                    store: 'Cfg.store.DeviceGroups',
-                    emptyText: Uni.I18n.translate('validationTasks.addValidationTask.deviceGroupPrompt', 'CFG', 'Select a device group...'),
-                    disabled: !Cfg.privileges.Validation.canAdministrate()
-                };
-                groupLabel = Uni.I18n.translate('validationTasks.general.deviceGroup', 'CFG', 'Device group');
-                noGroupDefinedTxt = Uni.I18n.translate('validationTasks.general.noDeviceGroup', 'CFG', 'No device group defined yet.');
-                break;
-            case 'Insight':
-                groupComboConfig = {
-                    name: 'usagePointGroup',
-                    store: 'Cfg.store.UsagePointGroups',
-                    emptyText: Uni.I18n.translate('validationTasks.addValidationTask.usagePointGroupPrompt', 'CFG', 'Select a usage point group...')
-                };
-                groupLabel = Uni.I18n.translate('validationTasks.general.usagePointGroup', 'CFG', 'Usage point group');
-                noGroupDefinedTxt = Uni.I18n.translate('validationTasks.general.noUsagePointGroup', 'CFG', 'No usage point group defined yet.');
-                break;
-        }
+        var me = this;
 
         me.content = [
             {
@@ -55,13 +31,13 @@ Ext.define('Cfg.view.validationtask.Add', {
                         name: 'form-errors',
                         margin: '0 0 10 0',
                         hidden: true,
-                        width: 500
+                        width: 565
                     },
                     {
                         xtype: 'textfield',
                         name: 'name',
                         itemId: 'txt-task-name',
-                        width: 500,
+                        width: 565,
                         required: true,
                         fieldLabel: Uni.I18n.translate('general.name', 'CFG', 'Name'),
                         enforceMaxLength: true,
@@ -77,41 +53,10 @@ Ext.define('Cfg.view.validationtask.Add', {
                         ui: 'medium'
                     },
                     {
-                        xtype: 'fieldcontainer',
+                        xtype: 'cfg-data-sources-container',
                         itemId: 'field-validation-task-group',
-                        fieldLabel: groupLabel,
-                        required: true,
-                        layout: 'hbox',
-                        msgTarget: 'under',
-                        items: [
-                            Ext.apply({
-                                xtype: 'combobox',
-                                itemId: 'cbo-validation-task-group',
-                                required: true,
-                                width: 235,
-                                editable: false,
-                                queryMode: 'local',
-                                displayField: 'name',
-                                valueField: 'id',
-                                setValue: function (value) {
-                                    var field = this,
-                                        combo = new Ext.form.field.ComboBox;
-
-                                    if (Ext.isObject(value)) {
-                                        value = value.id;
-                                    }
-                                    combo.setValue.apply(field, [value]);
-                                }
-                            }, groupComboConfig),
-                            {
-                                xtype: 'displayfield',
-                                itemId: 'no-group-defined',
-                                hidden: true,
-                                value: '<div style="color: #FF0000">' + noGroupDefinedTxt + '</div>',
-                                htmlEncode: false,
-                                width: 235
-                            }
-                        ]
+                        appName: me.appName,
+                        edit: me.edit
                     },
                     {
                         title: Uni.I18n.translate('validationTasks.general.schedule', 'CFG', 'Schedule'),
@@ -182,7 +127,7 @@ Ext.define('Cfg.view.validationtask.Add', {
                                         displayField: 'displayValue',
                                         valueField: 'name',
                                         editable: false,
-                                        width: 100,
+                                        width: 125,
                                         listeners: {
                                             focus: {
                                                 fn: function () {
@@ -253,8 +198,6 @@ Ext.define('Cfg.view.validationtask.Add', {
                             }
                         ]
                     }
-					
-                  
                 ]
             }
         ];

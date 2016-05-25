@@ -1,19 +1,19 @@
-Ext.define('Cfg.store.UsagePointGroups', {
+Ext.define('Cfg.store.MetrologyConfigurations', {
     extend: 'Ext.data.Store',
     requires: [
-        'Cfg.model.UsagePointGroup'
+        'Cfg.model.MetrologyContract'
     ],
-    model: 'Cfg.model.UsagePointGroup',
+    model: 'Cfg.model.MetrologyContract',
     autoLoad: false,
     proxy: {
         type: 'rest',
-        url: '/api/val/usagepointgroups',
+        url: '/api/val/field/metrologyconfigurations',
         pageParam: undefined,
         startParam: undefined,
         limitParam: undefined,
         reader: {
             type: 'json',
-            root: 'usagepointgroups'
+            root: 'metrologyConfigurations'
         }
     }
 });
