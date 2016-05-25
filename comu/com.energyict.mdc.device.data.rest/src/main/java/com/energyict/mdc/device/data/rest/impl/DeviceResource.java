@@ -111,6 +111,7 @@ public class DeviceResource {
     private final Provider<GoingOnResource> goingOnResourceProvider;
     private final DeviceInfoFactory deviceInfoFactory;
     private final DeviceAttributesInfoFactory deviceAttributesInfoFactory;
+    private final LocationInfoFactory locationInfoFactory;
     private final DevicesForConfigChangeSearchFactory devicesForConfigChangeSearchFactory;
     private final ServiceCallInfoFactory serviceCallInfoFactory;
     private final TransactionService transactionService;
@@ -150,6 +151,7 @@ public class DeviceResource {
             Provider<GoingOnResource> goingOnResourceProvider,
             DeviceInfoFactory deviceInfoFactory,
             DeviceAttributesInfoFactory deviceAttributesInfoFactory,
+            LocationInfoFactory locationInfoFactory,
             DevicesForConfigChangeSearchFactory devicesForConfigChangeSearchFactory,
             ServiceCallInfoFactory serviceCallInfoFactory,
             TransactionService transactionService,
@@ -186,6 +188,7 @@ public class DeviceResource {
         this.goingOnResourceProvider = goingOnResourceProvider;
         this.deviceInfoFactory = deviceInfoFactory;
         this.deviceAttributesInfoFactory = deviceAttributesInfoFactory;
+        this.locationInfoFactory = locationInfoFactory;
         this.devicesForConfigChangeSearchFactory = devicesForConfigChangeSearchFactory;
         this.serviceCallInfoFactory = serviceCallInfoFactory;
         this.transactionService = transactionService;
@@ -870,5 +873,14 @@ public class DeviceResource {
             return Pattern.compile(filter.replaceAll("([*?])", "\\\\E\\.$1\\\\Q"));
         }
         return null;
+    }
+
+    @GET
+    @Transactional
+    @Path("/locations/{locationId}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
+    public Response getLocationAttributes(@PathParam("locationId") long locationId) {
+        return Response.ok(locationInfoFactory.from(locationId)).build();
     }
 }

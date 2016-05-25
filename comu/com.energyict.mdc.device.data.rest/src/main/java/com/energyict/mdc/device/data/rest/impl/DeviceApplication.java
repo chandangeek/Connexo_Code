@@ -28,6 +28,7 @@ import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
 import com.elster.jupiter.search.SearchService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
 import com.elster.jupiter.transaction.TransactionService;
@@ -131,6 +132,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     private volatile ServiceCallInfoFactory serviceCallInfoFactory;
     private volatile CalendarInfoFactory calendarInfoFactory;
     private volatile CalendarService calendarService;
+    private volatile ThreadPrincipalService threadPrincipalService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -190,6 +192,11 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     @Reference
     public void setBatchService(BatchService batchService) {
         this.batchService = batchService;
+    }
+
+    @Reference
+    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+        this.threadPrincipalService = threadPrincipalService;
     }
 
     @Reference
@@ -331,6 +338,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
         keys.addAll(Arrays.asList(DeviceMessageStatusTranslationKeys.values()));
         keys.addAll(Arrays.asList(ConnectionStrategyTranslationKeys.values()));
         keys.addAll(Arrays.asList(DeviceSearchModelTranslationKeys.values()));
+        keys.addAll(Arrays.asList(LocationTranslationKeys.values()));
         return keys;
     }
 
@@ -505,6 +513,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(EstimationRuleInfoFactory.class).to(EstimationRuleInfoFactory.class);
             bind(com.elster.jupiter.estimation.rest.PropertyUtils.class).to(com.elster.jupiter.estimation.rest.PropertyUtils.class);
             bind(DeviceAttributesInfoFactory.class).to(DeviceAttributesInfoFactory.class);
+            bind(LocationInfoFactory.class).to(LocationInfoFactory.class);
             bind(AppServerHelper.class).to(AppServerHelper.class);
             bind(appService).to(AppService.class);
             bind(messageService).to(MessageService.class);
@@ -517,6 +526,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(bpmService).to(BpmService.class);
             bind(GoingOnResource.class).to(GoingOnResource.class);
             bind(serviceCallInfoFactory).to(ServiceCallInfoFactory.class);
+            bind(threadPrincipalService).to(ThreadPrincipalService.class);
             bind(calendarInfoFactory).to(CalendarInfoFactory.class);
             bind(calendarService).to(CalendarService.class);
             bind(TimeOfUseInfoFactory.class).to(TimeOfUseInfoFactory.class);

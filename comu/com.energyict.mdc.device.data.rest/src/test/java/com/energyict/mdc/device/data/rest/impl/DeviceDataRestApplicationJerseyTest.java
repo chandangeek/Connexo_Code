@@ -31,6 +31,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.search.SearchService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
 import com.elster.jupiter.util.json.JsonService;
@@ -170,6 +171,8 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     CalendarInfoFactory calendarInfoFactory;
     @Mock
     CalendarService calendarService;
+    @Mock
+    private volatile ThreadPrincipalService threadPrincipalService;
 
     @Before
     public void setup() {
@@ -234,6 +237,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         application.setServiceCallService(serviceCallService);
         application.setServiceCallInfoFactory(serviceCallInfoFactory);
         application.setBpmService(bpmService);
+        application.setThreadPrincipalService(threadPrincipalService);
         application.setCalendarInfoFactory(calendarInfoFactory);
         application.setCalendarService(calendarService);
         return application;
