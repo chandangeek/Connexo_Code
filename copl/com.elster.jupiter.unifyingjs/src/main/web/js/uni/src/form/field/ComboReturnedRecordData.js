@@ -13,5 +13,15 @@ Ext.define('Uni.form.field.ComboReturnedRecordData', {
         }
 
         return value;
+    },
+
+    setValue: function () {
+        var me = this;
+
+        if (Ext.isObject(arguments[0])) {
+            arguments[0] = arguments[0][me.valueField];
+        }
+
+        me.callParent(arguments);
     }
 });
