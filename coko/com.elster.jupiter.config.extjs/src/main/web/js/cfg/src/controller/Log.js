@@ -28,7 +28,7 @@ Ext.define('Cfg.controller.Log', {
             view,
             runStartedOn,
             runStartedOnFormatted,
-            sideMenu,
+            taskLink,
             occurrenceTask;
 
         historyStore.getProxy().setUrl(router.arguments);
@@ -40,16 +40,15 @@ Ext.define('Cfg.controller.Log', {
                         r.set(Ext.apply({}, r.raw, record.raw));
                     });
                     occurrenceTask = this.getById(parseInt(occurrenceId));
-                    //runStartedOn = moment(occurrenceTask.startedOn).valueOf();
                     runStartedOnFormatted = occurrenceTask.data.startedOn_formatted;
                     view = Ext.widget('cfg-log-setup', {
                         router: router,
                         task: record,
                         runStartedOn: runStartedOnFormatted
                     });
-                    sideMenu = view.down('#log-view-menu');
+                    taskLink = view.down('#log-view-menu #tasks-view-link');
+                    taskLink.setText(record.get('name'));
                     me.getApplication().fireEvent('validationtaskload', record);
-                    sideMenu.setTitle(record.get('name'));
                     view.down('#log-preview-form').loadRecord(occurrenceTask);
                     view.down('#run-started-on').setValue(runStartedOnFormatted);
                     me.getApplication().fireEvent('changecontentevent', view);

@@ -12,7 +12,7 @@ Ext.define('Cfg.view.validationtask.Menu', {
             {
                 text: Uni.I18n.translate('general.overview', 'CFG', 'Overview'),
                 itemId: 'tasks-view-link',
-                href:  '#/administration/validationtasks/' + this.taskId
+                href: '#/administration/validationtasks/' + me.taskId
             }
         ];
 
@@ -25,7 +25,6 @@ Ext.define('Cfg.view.validationtask.Menu', {
                 }
             );
         }
-
 		
         me.callParent(arguments);
     }

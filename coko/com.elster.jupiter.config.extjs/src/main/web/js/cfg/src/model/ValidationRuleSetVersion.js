@@ -12,11 +12,21 @@ Ext.define('Cfg.model.ValidationRuleSetVersion', {
                 startDate = data.startDate;
                 endDate = data.endDate;
 				if (startDate && endDate) {
-						result = Ext.String.format(Uni.I18n.translate('validation.version.display.fromUntil', 'CFG', "From {0} - Until {1}"), Uni.DateTime.formatDateTimeLong(new Date(startDate)), Uni.DateTime.formatDateTimeLong(new Date(endDate)));
+				    result = Uni.I18n.translate('validation.version.display.fromUntil', 'CFG', "From {0} - Until {1}",
+                        [Uni.DateTime.formatDateTime(new Date(startDate), Uni.DateTime.LONG, Uni.DateTime.SHORT),
+                         Uni.DateTime.formatDateTime(new Date(endDate), Uni.DateTime.LONG, Uni.DateTime.SHORT)],
+                        false
+                    );
 				} else if (data.startDate) {
-					result = Ext.String.format(Uni.I18n.translate('validation.version.display.from', 'CFG', "From {0}"), Uni.DateTime.formatDateTimeLong(new Date(startDate)));						
+					result = Uni.I18n.translate('validation.version.display.from', 'CFG', "From {0}",
+                        Uni.DateTime.formatDateTime(new Date(startDate), Uni.DateTime.LONG, Uni.DateTime.SHORT),
+                        false
+                    );
 				} else if (data.endDate) {
-					result = Ext.String.format(Uni.I18n.translate('validation.version.display.until', 'CFG', "Until {0}"), Uni.DateTime.formatDateTimeLong(new Date(endDate)));												
+					result = Uni.I18n.translate('validation.version.display.until', 'CFG', "Until {0}",
+                        Uni.DateTime.formatDateTime(new Date(endDate), Uni.DateTime.LONG, Uni.DateTime.SHORT),
+                        false
+                    );
 				} else {
 					result = Uni.I18n.translate('general.always', 'CFG', 'Always')
 				}               
@@ -33,11 +43,21 @@ Ext.define('Cfg.model.ValidationRuleSetVersion', {
                 startDate = data.startDate;
                 endDate = data.endDate;
                 if (startDate && endDate) {
-						result = Ext.String.format(Uni.I18n.translate('validation.version.display.fromUntil', 'CFG', "From {0} - Until {1}"), Uni.DateTime.formatDateTimeLong(new Date(startDate)), Uni.DateTime.formatDateTimeLong(new Date(endDate)));
+					result = Uni.I18n.translate('validation.version.display.fromUntil', 'CFG', "From {0} - Until {1}",
+                        [Uni.DateTime.formatDateTime(new Date(startDate), Uni.DateTime.LONG, Uni.DateTime.SHORT),
+                         Uni.DateTime.formatDateTime(new Date(endDate), Uni.DateTime.LONG, Uni.DateTime.SHORT)],
+                        false
+                    );
 				} else if (data.startDate) {
-					result = Ext.String.format(Uni.I18n.translate('validation.version.display.from', 'CFG', "From {0}"), Uni.DateTime.formatDateTimeLong(new Date(startDate)));						
+					result = Uni.I18n.translate('validation.version.display.from', 'CFG', "From {0}",
+                        Uni.DateTime.formatDateTime(new Date(startDate), Uni.DateTime.LONG, Uni.DateTime.SHORT),
+                        false
+                    );
 				} else if (data.endDate) {
-					result = Ext.String.format(Uni.I18n.translate('validation.version.display.until', 'CFG', "Until {0}"), Uni.DateTime.formatDateTimeLong(new Date(endDate)));												
+					result = Uni.I18n.translate('validation.version.display.until', 'CFG', "Until {0}",
+                        Uni.DateTime.formatDateTime(new Date(endDate), Uni.DateTime.LONG, Uni.DateTime.SHORT),
+                        false
+                    );
 				}else {
 					result = Uni.I18n.translate('general.always', 'CFG', 'Always')
 				}
@@ -63,8 +83,7 @@ Ext.define('Cfg.model.ValidationRuleSetVersion', {
             mapping: function (data) {
                 var result;
                 if (data.startDate && (data.startDate !== 0) && (data.startDate !== '')) {
-                    result = moment(data.startDate).format('ddd, DD MMM YYYY HH:mm:ss');
-                    result = Uni.DateTime.formatDateTimeLong(new Date(data.startDate));
+                    result = Uni.DateTime.formatDateTime(new Date(data.startDate), Uni.DateTime.LONG, Uni.DateTime.SHORT);
                 } else {
                     result = '-';
                 }
