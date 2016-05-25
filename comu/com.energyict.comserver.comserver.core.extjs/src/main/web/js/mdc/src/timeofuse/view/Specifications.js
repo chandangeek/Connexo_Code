@@ -26,7 +26,7 @@ Ext.define('Mdc.timeofuse.view.Specifications', {
 
         me.items = {
             xtype: 'tou-devicetype-specifications-form',
-            itemId: 'tou-devicetype-specifications-form',
+            itemId: 'tou-devicetype-specifications-form'
         };
         me.callParent(arguments);
     }
