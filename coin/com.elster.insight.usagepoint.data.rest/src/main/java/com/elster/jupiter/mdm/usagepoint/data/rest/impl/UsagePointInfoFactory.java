@@ -7,6 +7,7 @@ import com.elster.jupiter.metering.GasDetail;
 import com.elster.jupiter.metering.HeatDetail;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.ServiceLocation;
@@ -38,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Component(name = "insight.usagepoint.info.factory", service = {InfoFactory.class}, immediate = true)
@@ -238,25 +240,27 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                             .forEach(meterRole -> mandatoryMeterRoles.put(meterRole, new MeterRoleInfo(meterRole)));
                 });
 
-        Map<MeterRole, MeterInfo> meterRoleToMeterInfoMapping = usagePoint.getMeterActivations(usagePoint.getInstallationTime())
+        Map<MeterRole, MeterActivation> meterRoleToMeterInfoMapping = usagePoint.getMeterActivations(usagePoint.getInstallationTime())
                 .stream()
                 .filter(meterActivation -> meterActivation.getMeterRole().isPresent() && meterActivation.getMeter().isPresent())
-                .collect(Collectors.toMap(meterActivation -> meterActivation.getMeterRole().get(), meterActivation -> {
-                    Meter meter = meterActivation.getMeter().get();
-                    MeterInfo meterInfo = new MeterInfo();
-                    meterInfo.id = meter.getId();
-                    meterInfo.mRID = meter.getMRID();
-                    meterInfo.name = meter.getName();
-                    meterInfo.version = meter.getVersion();
-                    return meterInfo;
-                }));
+                .collect(Collectors.toMap(meterActivation -> meterActivation.getMeterRole().get(), Function.identity()));
 
         return mandatoryMeterRoles.entrySet()
                 .stream()
                 .map(meterRoleEntry -> {
                     MeterActivationInfo meterActivationInfo = new MeterActivationInfo();
                     meterActivationInfo.meterRole = meterRoleEntry.getValue();
-                    meterActivationInfo.meter = meterRoleToMeterInfoMapping.get(meterRoleEntry.getKey());
+                    MeterActivation meterActivationForMeterRole = meterRoleToMeterInfoMapping.get(meterRoleEntry.getKey());
+                    if (meterActivationForMeterRole != null) {
+                        Meter meter = meterActivationForMeterRole.getMeter().get();
+                        meterActivationInfo.meter = new MeterInfo();
+                        meterActivationInfo.meter.id = meter.getId();
+                        meterActivationInfo.meter.mRID = meter.getMRID();
+                        meterActivationInfo.meter.name = meter.getName();
+                        meterActivationInfo.meter.version = meter.getVersion();
+                        meterActivationInfo.id = meterActivationForMeterRole.getId();
+                    }
+
                     return meterActivationInfo;
                 })
                 .collect(Collectors.toList());

@@ -212,7 +212,7 @@ public class UsagePointResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
     @Transactional
-    @Path("/{mrid}/meters")
+    @Path("/{mrid}/meteractivations")
     public Response getMetersOnUsagePoint(@PathParam("mrid") String mrid, @BeanParam JsonQueryParameters queryParameters) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mrid);
         return Response.ok()
@@ -399,14 +399,6 @@ public class UsagePointResource {
         }
     }
 
-    @GET
-    @Path("/{mrid}/meteractivations")
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
-    public MeterActivationInfos getMeterActivations(@PathParam("mrid") String mRid, @Context SecurityContext securityContext) {
-        UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mRid);
-        return new MeterActivationInfos(usagePoint.getMeterActivations());
-    }
 
     @GET
     @Path("/{id}/readingtypes")
