@@ -322,15 +322,20 @@ public class JbpmTaskResource {
         return new TaskSummaryList(runtimeDataService, new ArrayList<>());
     }
 
-    @GET
+    @POST
     @Path("/{taskId: [0-9-]+}/")
     @Produces("application/json")
-    public TaskSummary getTask(@PathParam("taskId") long taskid){
+    public TaskSummary getTask(ProcessDefinitionInfos processDefinitionInfos, @PathParam("taskId") long taskid){
         Task task = internalTaskService.getTaskById(taskid);
         if(task == null){
             return new TaskSummary(getAuditTask(taskid));
         }else {
-            return new TaskSummary(task);
+            for(ProcessDefinitionInfo processDefinitionInfo : processDefinitionInfos.processes){
+                if(processDefinitionInfo.deploymentId.equals(task.getTaskData().getDeploymentId()) && processDefinitionInfo.processId.equals(task.getTaskData().getProcessId())){
+                    return new TaskSummary(task);
+                }
+            }
+            return new TaskSummary();
         }
     }
 
