@@ -244,7 +244,7 @@ public final class LazyLoadingBlob implements Blob, IOResource {
         public void clear() {
             this.ensureLoaded();
             try {
-                this.databaseBlob.truncate(1);
+                this.databaseBlob.truncate(0);
             } catch (SQLException e) {
                 throw new UnderlyingSQLFailedException(e);
             }
