@@ -51,7 +51,7 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
     ],
 
     deviceTypeId: null,
-    forceSpecsTabActivation: false,
+    tab2Activate: undefined,
 
     init: function () {
         var me = this;
@@ -110,12 +110,12 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
                             deviceTypeId: deviceTypeId,
                             timeOfUseAllowed: options.get('isAllowed'),
                             timeOfUseSupported: options.supportedOptions().count() > 0,
-                            tab2Activate: me.forceSpecsTabActivation ? 0 : undefined
+                            tab2Activate: me.tab2Activate
                         });
                         view.down('tou-devicetype-specifications-form').fillOptions(options);
                         me.deviceTypeId = deviceTypeId;
                         me.getApplication().fireEvent('changecontentevent', view);
-                        me.forceSpecsTabActivation = false;
+                        me.tab2Activate = undefined;
                         store.getProxy().setUrl(deviceTypeId);
                         store.load({
                             callback: function (records, operation, success) {
@@ -368,7 +368,7 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
             record,
             id;
 
-        me.forceSpecsTabActivation = true;
+        me.tab2Activate = 0;
         form.updateRecord();
         record = form.getRecord();
         record.allowedOptions().removeAll();
@@ -407,7 +407,7 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
 
     goBackToCalendars: function () {
         var me = this;
-        me.forceSpecsTabActivation = true;
+        me.tab2Activate = 0;
         me.getController('Uni.controller.history.Router').getRoute('administration/devicetypes/view/timeofuse', {deviceTypeId: me.deviceTypeId}).forward();
     },
 
