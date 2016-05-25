@@ -7,6 +7,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
+import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
@@ -115,6 +116,7 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
         translationKeys.addAll(Arrays.asList(Privileges.values()));
         translationKeys.addAll(Arrays.asList(DefaultMetrologyPurpose.Translation.values()));
         translationKeys.addAll(Arrays.asList(DefaultReadingTypeTemplate.TemplateTranslation.values()));
+        translationKeys.addAll(Arrays.asList(MetrologyConfigurationStatus.Translation.values()));
         return translationKeys;
     }
 
