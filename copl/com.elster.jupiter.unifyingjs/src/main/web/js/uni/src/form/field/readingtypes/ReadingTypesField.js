@@ -56,7 +56,8 @@ Ext.define('Uni.form.field.readingtypes.ReadingTypesField', {
                         xtype: 'actioncolumn',
                         align: 'right',
                         items: [{
-                            iconCls: 'uni-icon-delete',
+                            iconCls: ' uni-icon-delete',
+                            disabled: me.disabled,
                             tooltip: Uni.I18n.translate('general.remove', 'UNI', 'Remove'),
                             handler: function (grid, rowIndex) {
                                 grid.getStore().removeAt(rowIndex);
@@ -89,14 +90,14 @@ Ext.define('Uni.form.field.readingtypes.ReadingTypesField', {
         grid.setVisible(hasReadingTypes);
         emptyText.setVisible(!hasReadingTypes);
         Ext.resumeLayouts(true);
-        me.updateLayout();
     },
 
     setValue: function (value) {
         var me = this;
 
         if (Ext.isArray(value) && value.length) {
-            me.down('#added-reading-types-grid').getStore().loadData(value, false);
+            me.down('#added-reading-types-grid').getStore().loadData([], false);
+            me.down('#added-reading-types-grid').getStore().add(value);
         }
         me.updateView();
 
