@@ -1,16 +1,14 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.device.config.AllowedCalendar;
-import com.energyict.mdc.device.config.DeviceType;
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.energyict.mdc.device.config.AllowedCalendar;
+import com.energyict.mdc.device.config.DeviceType;
 
-import javax.inject.Inject;
 import javax.validation.constraints.Size;
 import java.util.Optional;
 
@@ -39,15 +37,15 @@ public class AllowedCalendarImpl implements AllowedCalendar {
     private String name;
     @IsPresent
     private Reference<Calendar> calendar = ValueReference.absent();
-    private DataModel dataModel;
 
-    @Inject
-    public AllowedCalendarImpl (DataModel dataModel) {
-        this.dataModel = dataModel;
+    AllowedCalendarImpl initialize(Calendar calendar, DeviceType deviceType) {
+        this.calendar.set(calendar);
+        this.deviceType.set(deviceType);
+        return this;
     }
 
-    AllowedCalendarImpl initialize (Calendar calendar, DeviceType deviceType) {
-        this.calendar.set(calendar);
+    AllowedCalendarImpl initialize(String ghostName, DeviceType deviceType) {
+        this.name = ghostName;
         this.deviceType.set(deviceType);
         return this;
     }
@@ -77,4 +75,5 @@ public class AllowedCalendarImpl implements AllowedCalendar {
     public Optional<Calendar> getCalendar() {
         return this.calendar.getOptional();
     }
+
 }

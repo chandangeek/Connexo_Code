@@ -78,6 +78,7 @@ import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
+import com.energyict.mdc.protocol.api.device.data.CollectedCalendar;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
@@ -618,6 +619,11 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
 
         @Override
         public CollectedBreakerStatus getBreakerStatus() {
+            return null;
+        }
+
+        @Override
+        public CollectedCalendar getCollectedCalendar() {
             return null;
         }
     }

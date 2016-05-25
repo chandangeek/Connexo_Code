@@ -489,18 +489,25 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     @Override
-    public void addCalendar(Calendar calendar) {
-        AllowedCalendar allowedCalendar = getDataModel().getInstance(AllowedCalendarImpl.class)
-                .initialize(calendar, this);
-        this.allowedCalendars.add(allowedCalendar);
+    public AllowedCalendar addCalendar(Calendar calendar) {
+        return this.addCalendar(this.getDataModel().getInstance(AllowedCalendarImpl.class).initialize(calendar, this));
     }
 
     @Override
-    public void removeCalendar(long allowedCalendarId) {
-        Optional<AllowedCalendar> allowedCalendar = allowedCalendars.stream()
-                .filter(cal -> cal.getId() == allowedCalendarId)
-                .findFirst();
-        allowedCalendar.ifPresent(calendar -> allowedCalendars.remove(calendar));
+    public AllowedCalendar addGhostCalendar(String name) {
+        return this.addCalendar(this.getDataModel().getInstance(AllowedCalendarImpl.class).initialize(name, this));
+    }
+
+    private AllowedCalendar addCalendar(AllowedCalendar calendar) {
+        this.allowedCalendars.add(calendar);
+        this.touch();
+        return calendar;
+    }
+
+    @Override
+    public void removeCalendar(AllowedCalendar allowedCalendar) {
+        this.allowedCalendars.remove(allowedCalendar);
+        this.touch();
     }
 
     @Override
