@@ -1,6 +1,10 @@
 Ext.define('Dlc.devicelifecycles.view.AddForm', {
     extend: 'Ext.form.Panel',
     alias: 'widget.device-life-cycles-add-form',
+    required: [
+        'Uni.util.FormInfoMessage',
+        'Uni.util.FormErrorMessage'
+    ],
     router: null,
     infoText: null,
     btnAction: null,
@@ -22,7 +26,7 @@ Ext.define('Dlc.devicelifecycles.view.AddForm', {
                 xtype: 'uni-form-info-message',
                 itemId: 'info-message',
                 text: me.infoText,
-                margin: '0 0 20 20',
+                margin: '0 0 20 0',
                 hidden: me.hideInfoMsg,
                 width: 800
             },
