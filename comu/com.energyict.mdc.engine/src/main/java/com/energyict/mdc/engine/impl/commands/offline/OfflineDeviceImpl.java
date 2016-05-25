@@ -10,16 +10,17 @@ import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
+import com.energyict.mdc.protocol.api.device.offline.OfflineCalendar;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 
@@ -106,6 +107,8 @@ public class OfflineDeviceImpl implements OfflineDevice {
      */
     private DeviceProtocolCache deviceProtocolCache;
 
+    private List<OfflineCalendar> calendars = Collections.emptyList();
+
     public interface ServiceProvider {
 
         TopologyService topologyService();
@@ -160,6 +163,7 @@ public class OfflineDeviceImpl implements OfflineDevice {
             setAllSentMessages(createOfflineMessageList(getAllSentMessagesIncludingSlaves(device)));
         }
         setDeviceCache(serviceProvider);
+        this.setCalendars();
     }
 
     /**
@@ -440,6 +444,15 @@ public class OfflineDeviceImpl implements OfflineDevice {
 
     private void setDeviceProtocolPluggableClass(DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
         this.deviceProtocolPluggableClass = deviceProtocolPluggableClass;
+    }
+
+    @Override
+    public List<OfflineCalendar> getCalendars() {
+        return Collections.unmodifiableList(this.calendars);
+    }
+
+    private void setCalendars() {
+        this.calendars = this.device.getDeviceType().getAllowedCalendars().stream().map(OfflineCalendarImpl::from).collect(Collectors.toList());
     }
 
 }
