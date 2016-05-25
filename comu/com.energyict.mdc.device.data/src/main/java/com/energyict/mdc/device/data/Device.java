@@ -435,7 +435,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     List<DeviceLifeCycleChangeEvent> getDeviceLifeCycleChangeEvents();
 
     /**
-     * Gets the CIM dates that relate to thie life cycle of this Device.
+     * Gets the CIM dates that relate to the life cycle of this Device.
      *
      * @return The CIMLifecycleDates
      * @since 2.0
@@ -444,7 +444,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
     List<PassiveEffectiveCalendar> getPassiveCalendars();
 
-    void setPassiveCalendars(List<PassiveEffectiveCalendar> passiveCalendars);
+    void addPassiveCalendar(AllowedCalendar passiveCalendar);
 
     Optional<ActiveEffectiveCalendar> getActiveCalendar();
 

@@ -2143,8 +2143,17 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     @Override
-    public void setPassiveCalendars(List<PassiveEffectiveCalendar> passiveCalendars) {
-        this.passiveCalendars = passiveCalendars;
+    public void addPassiveCalendar(AllowedCalendar passiveCalendar) {
+        if (this.getDeviceType().getAllowedCalendars().stream().anyMatch(each -> each.equals(passiveCalendar))) {
+
+        } else {
+            throw new IllegalArgumentException("Calendar is not allowed on device type");
+        }
+        PassiveEffectiveCalendarImpl passiveEffectiveCalendar = new PassiveEffectiveCalendarImpl();
+        passiveEffectiveCalendar.setAllowedCalendar(passiveCalendar);
+        passiveEffectiveCalendar.setDevice(this);
+        passiveEffectiveCalendar.setActivationDate(this.clock.instant());
+        this.passiveCalendars.add(passiveEffectiveCalendar);
     }
 
     @Override
