@@ -4,11 +4,12 @@ Ext.define('Mdc.filemanagement.view.Setup', {
 
     requires: [
         'Mdc.view.setup.devicetype.SideMenu',
-        'Mdc.filemanagement.view.PreviewContainer'
+        'Mdc.filemanagement.view.FilesGrid',
+        'Mdc.filemanagement.view.Specifications'
     ],
 
     deviceTypeId: null,
-    fileManagementAllowed: true,
+    fileManagementEnabled: false,
 
     initComponent: function () {
         var me = this;
@@ -27,41 +28,55 @@ Ext.define('Mdc.filemanagement.view.Setup', {
             }
         ];
 
-        me.content = {
-            ui: 'large',
-            title: Uni.I18n.translate('general.fileManagement', 'MDC', 'File management'),
-            items: [
-                {
-                    xtype: 'tabpanel',
-                    ui: 'large',
-                    activeTab: 0, //me.fileManagementAllowed ? 1 : 0,
-                    items: [
-                        {
-                            title: Uni.I18n.translate('general.specifications', 'MDC', 'Specifications'),
-                            itemId: 'files-specifications-tab',
-                            items: [
-                                {
-                                    //xtype: 'files-specifications-preview-panel'
-                                }
-                            ]
-                        },
-                        {
-                            title: Uni.I18n.translate('general.files', 'MDC', 'Files'),
-                            itemId: 'grid-tab',
-                            //disabled: true,
-                            items: [
-                                {
-                                    xtype: 'files-devicetype-preview-container',
-                                    deviceTypeId: me.deviceTypeId
-                                }
+        if (me.fileManagementEnabled) {
 
-                            ]
-                        }
+            me.content = {
+                ui: 'large',
+                title: Uni.I18n.translate('general.fileManagement', 'MDC', 'File management'),
+                items: [
+                    {
+                        xtype: 'tabpanel',
+                        ui: 'large',
+                        activeTab: me.fileManagementEnabled ? 1 : 0,
+                        items: [
+                            {
+                                title: Uni.I18n.translate('general.specifications', 'MDC', 'Specifications'),
+                                itemId: 'files-specifications-tab',
+                                items: [
+                                    {
+                                        xtype: 'files-specifications-preview-panel'
+                                    }
+                                ]
+                            },
+                            {
+                                title: Uni.I18n.translate('general.files', 'MDC', 'Files'),
+                                itemId: 'grid-tab',
+                                //disabled: true,
+                                items: [
+                                    {
+                                        xtype: 'files-grid',
+                                        itemId: 'files-grid',
+                                        deviceTypeId: me.deviceTypeId
+                                    }
 
-                    ]
-                }
-            ]
-        };
+                                ]
+                            }
+
+                        ]
+                    }
+                ]
+            };
+        } else {
+            me.content = {
+                ui: 'large',
+                items: [
+                    {
+                        xtype: 'files-specifications-preview-panel'
+                    }
+                ],
+                margin: '-17 0 0 0'
+            }
+        }
 
         me.callParent(arguments);
     }

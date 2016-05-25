@@ -1,11 +1,12 @@
 Ext.define('Mdc.filemanagement.view.FilesGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.files-grid',
-    //store: 'Mdc.timeofuse.store.UsedCalendars',
+    store: 'Mdc.filemanagement.store.Files',
     deviceTypeId: null,
     requires: [
         'Uni.grid.column.Action',
         'Uni.view.toolbar.PagingTop',
+        'Ext.form.field.FileView'
     ],
 
     initComponent: function () {
@@ -19,8 +20,11 @@ Ext.define('Mdc.filemanagement.view.FilesGrid', {
             {
                 header: Uni.I18n.translate('general.creationDate', 'MDC', 'Creation date'),
                 dataIndex: 'creationDate',
-                flex: 3
-            },
+                flex: 3,
+                renderer: function(value) {
+                    return value && value !== 0 ? Uni.DateTime.formatDateTime(new Date(value), Uni.DateTime.LONG, Uni.DateTime.LONG) : '-';
+                }
+            }
             //{
             //    xtype: 'uni-actioncolumn',
             //    privileges: Mdc.privileges.DeviceType.view,
@@ -41,9 +45,13 @@ Ext.define('Mdc.filemanagement.view.FilesGrid', {
                 displayMsg: Uni.I18n.translate('filemanagement.pagingtoolbartop.displayMsg', 'MDC', 'No files'),
                 items: [
                     {
-                        xtype: 'button',
-                        text: Uni.I18n.translate('filemanagement.addFile', 'MDC', 'Add file'),
+                        xtype: 'filefield',
+                        buttonText: Uni.I18n.translate('filemanagement.addFile', 'MDC', 'Add file'),
                         privileges: Mdc.privileges.DeviceType.admin,
+                        buttonConfig:  {
+                            ui: 'button'
+                        },
+                        buttonOnly: true,
                         itemId: 'add-file-btn'
                     }
                 ],
