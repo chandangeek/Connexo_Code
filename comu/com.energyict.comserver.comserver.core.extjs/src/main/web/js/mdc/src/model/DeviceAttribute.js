@@ -1,6 +1,5 @@
 Ext.define('Mdc.model.DeviceAttribute', {
     extend: 'Ext.data.Model',
-
     fields: [
         {name: 'mrid', type: 'auto'},
         {name: 'deviceType', type: 'auto'},
@@ -16,8 +15,9 @@ Ext.define('Mdc.model.DeviceAttribute', {
         {name: 'deactivationDate', type: 'auto'},
         {name: 'decommissioningDate', type: 'auto'},
         {name: 'device', defaultValue: null},
-        {name: 'location', type: 'auto'},
         {name: 'multiplier', type: 'auto'},
+        {name: 'geoCoordinates', type: 'auto'},
+        {name: 'location', type: 'auto'},
         {
             name: 'deviceConfigurationDisplay',
             persist: false,
@@ -32,18 +32,7 @@ Ext.define('Mdc.model.DeviceAttribute', {
 
                 return res
             }
-        },
-        {
-            name: 'geoCoordinates',
-            type: 'auto'
-        }/*,
-        {
-            name: 'location',
-            type: 'auto',
-            convert: function (value, record) {
-                return value.displayValue != ""? value.displayValue : record.get('geoCoordinates').displayValue;
-            }
-         }*/
+        }
     ],
 
     proxy: {
