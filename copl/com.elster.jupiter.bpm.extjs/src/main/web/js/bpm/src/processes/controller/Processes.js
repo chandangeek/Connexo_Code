@@ -190,6 +190,7 @@ Ext.define('Bpm.processes.controller.Processes', {
         var me = this,
             editProcessForm = view.down('#frm-edit-process'),
             privilegesGrid, propertyForm;
+        me.getApplication().fireEvent('changecontentevent', view);
 
         editProcessForm.editProcessRecord = record;
         me.getApplication().fireEvent(activate ? 'activateProcesses' : 'editProcesses', name + ':' + version);
@@ -200,7 +201,6 @@ Ext.define('Bpm.processes.controller.Processes', {
         else {
             editProcessForm.loadRecord(record);
         }
-        me.getApplication().fireEvent('changecontentevent', view);
 
         privilegesGrid = me.getPrivilegesGrid();
         propertyForm = me.getPropertyForm();
