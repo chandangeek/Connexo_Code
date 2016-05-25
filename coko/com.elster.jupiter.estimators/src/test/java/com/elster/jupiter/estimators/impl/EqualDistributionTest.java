@@ -692,6 +692,12 @@ public class EqualDistributionTest {
         estimator.validateProperties(Collections.singletonMap(property.getName(), property.getValue()));
     }
 
+    @Test
+    public void testGetSupportedApplications() {
+        assertThat(new EqualDistribution(thesaurus, propertySpecService, meteringService).getSupportedApplications())
+                .containsOnly("INS", "MDC");
+    }
+
     private EstimationRuleProperties estimationRuleProperty(final String name, final Object value) {
         return new EstimationRuleProperties() {
             @Override

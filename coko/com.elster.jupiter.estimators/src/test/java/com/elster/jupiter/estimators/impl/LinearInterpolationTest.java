@@ -246,6 +246,12 @@ public class LinearInterpolationTest {
         estimator.validateProperties(Collections.singletonMap(property.getName(), property.getValue()));
     }
 
+    @Test
+    public void testGetSupportedApplications() {
+        assertThat(new LinearInterpolation(thesaurus, propertySpecService).getSupportedApplications())
+                .containsOnly("INS", "MDC");
+    }
+
     private EstimationRuleProperties estimationRuleProperty(final String name, final Object value) {
         return new EstimationRuleProperties() {
             @Override
