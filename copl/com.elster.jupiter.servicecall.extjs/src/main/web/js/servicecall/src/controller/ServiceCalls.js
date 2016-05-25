@@ -84,10 +84,10 @@ Ext.define('Scs.controller.ServiceCalls', {
     },
 
     showServiceCallSpecifications: function () {
-        this.showServiceCallOverview(arguments, 'specs');
+        this.showServiceCallOverview(arguments);
     },
 
-    showServiceCallOverview: function (arguments, tab) {
+    showServiceCallOverview: function (arguments) {
         var me = this,
             store = Ext.getStore('Scs.store.ServiceCalls'),
             logStore = Ext.getStore('Scs.store.Logs'),
@@ -105,6 +105,7 @@ Ext.define('Scs.controller.ServiceCalls', {
             });
             me.getModel('Scs.model.ServiceCall').load(servicecallId, {
                 success: function (record) {
+
                     logStore.getProxy().setUrl(servicecallId);
                     var parents = record.get('parents');
                     parents.push({id:record.get('id'),name:record.get('name')});
@@ -113,9 +114,9 @@ Ext.define('Scs.controller.ServiceCalls', {
                             router: me.getController('Uni.controller.history.Router'),
                             serviceCallId: record.get('name'),
                             store: store,
-                            tab: tab,
                             breadcrumbs: parents,
-                            record: record
+                            record: record,
+                            activeTab: window.location.href.indexOf('?') > 0 ? 1 : 0
                         });
                         me.setBreadcrumb(parents);
                         view.down('scs-landing-page').updateLandingPage(record);
