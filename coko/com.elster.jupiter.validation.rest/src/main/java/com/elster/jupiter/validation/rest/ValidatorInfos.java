@@ -6,6 +6,12 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @deprecated Marked for deletion.
+ * Pls use {@link com.elster.jupiter.rest.util.PagedInfoList} instead, e.g.
+ * <code>PagedInfoList.fromCompleteList("validators", validatorInfoList, jsonQueryParameters)</code>.
+ */
+@Deprecated
 @XmlRootElement
 public class ValidatorInfos {
 

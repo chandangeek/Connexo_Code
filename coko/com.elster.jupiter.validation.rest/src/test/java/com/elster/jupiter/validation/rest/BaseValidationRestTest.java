@@ -1,9 +1,10 @@
 package com.elster.jupiter.validation.rest;
 
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.Transaction;
@@ -31,9 +32,11 @@ public class BaseValidationRestTest extends FelixRestApplicationJerseyTest {
     @Mock
     private MeteringGroupsService meteringGroupsService;
     @Mock
+    private MetrologyConfigurationService metrologyConfigurationService;
+    @Mock
     protected EndDeviceGroup endDeviceGroup;
     @Mock
-    protected UsagePointGroup usagePointGroup;
+    protected MetrologyContract metrologyContract;
     @Mock
     protected TimeService timeService;
     @Mock
@@ -68,7 +71,7 @@ public class BaseValidationRestTest extends FelixRestApplicationJerseyTest {
         propertyUtils = new PropertyUtils();
         when(validationService.newTaskBuilder()).thenReturn(builder);
         when(meteringGroupsService.findEndDeviceGroup(1)).thenReturn(Optional.of(endDeviceGroup));
-        when(meteringGroupsService.findUsagePointGroup(1)).thenReturn(Optional.of(usagePointGroup));
+        when(metrologyConfigurationService.findMetrologyContract(1)).thenReturn(Optional.of(metrologyContract));
         when(transactionService.execute(Matchers.any())).thenAnswer(invocation -> ((Transaction<?>) invocation.getArguments()[0]).perform());
     }
 
@@ -79,6 +82,7 @@ public class BaseValidationRestTest extends FelixRestApplicationJerseyTest {
         app.setRestQueryService(restQueryService);
         app.setTransactionService(transactionService);
         app.setMeteringGroupsService(meteringGroupsService);
+        app.setMetrologyConfigurationService(metrologyConfigurationService);
         app.setNlsService(nlsService);
         app.setTimeService(timeService);
         return app;
