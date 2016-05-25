@@ -99,8 +99,18 @@ Ext.define('Imt.usagepointsetup.controller.MetrologyConfig', {
         var failure = function (response) {
             var errors = Ext.decode(response.responseText, true);
             if (errors && Ext.isArray(errors.errors)) {
-                debugger;
-                form.getForm().markInvalid(errors.errors);
+                var errorsMap = {};
+                Ext.each(errors.errors, function (err) {
+                    if (!Ext.isEmpty(errorsMap[err.id])) {
+                        errorsMap[err.id].msg += '<br>' + err.msg
+                    } else {
+                        errorsMap[err.id] = {msg: err.msg}
+                    }
+                });
+                var errMsgs = _.map(errorsMap, function (errorObject, id) {
+                    return {id: id, msg: errorObject.msg}
+                });
+                form.getForm().markInvalid(errMsgs);
             }
         };
         usagePoint.set('meterActivations', meterActivations);
