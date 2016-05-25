@@ -183,6 +183,11 @@ public class DeviceTypeResource {
                 return Response.status(Response.Status.BAD_REQUEST).entity(info).build();
             }
         }
+        if(deviceTypeInfo.fileManagementEnabled) {
+            deviceType.enableFileManagement();
+        } else {
+            deviceType.disableFileManagement();
+        }
         deviceType.update();
         return Response.ok(DeviceTypeInfo.from(deviceType)).build();
     }
