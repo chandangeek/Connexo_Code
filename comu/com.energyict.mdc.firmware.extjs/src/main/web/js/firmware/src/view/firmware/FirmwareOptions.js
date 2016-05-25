@@ -15,33 +15,29 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
     initComponent: function () {
         var me = this;
 
-        me.side = [
-            {
-                xtype: 'panel',
-                ui: 'medium',
-                items: [
-                    {
-                        xtype: 'deviceTypeSideMenu',
-                        itemId: 'stepsMenu',
-                        router: me.router,
-                        deviceTypeId: me.deviceType.getId()
-                    }
-                ]
-            }
-        ];
-
         me.content = [
             {
                 ui: 'large',
                 layout: 'hbox',
-                title: Uni.I18n.translate('general.firmwareManagementOptions', 'FWC', 'Firmware management options'),
                 tools: [
                     {
                         xtype: 'button',
-                        itemId: 'button-edit',
-                        name: 'Edit',
-                        text: Uni.I18n.translate('general.edit', 'FWC', 'Edit'),
-                        action: 'editFirmwareOptions'
+                        itemId: 'fwc-specifications-actions-btn',
+                        iconCls: 'x-uni-action-iconD',
+                        text: Uni.I18n.translate('general.actions', 'FWC', 'Actions'),
+                        menu: {
+                            plain: true,
+                            border: false,
+                            shadow: false,
+                            items: [
+                                {
+                                    itemId: 'mdc-edit-options-btn',
+                                    text: Uni.I18n.translate('general.edit', 'FWC', 'Edit'),
+                                    privileges: Mdc.privileges.DeviceType.admin,
+                                    action: 'editFirmwareOptions'
+                                }
+                            ]
+                        }
                     }
                 ],
                 items: [
@@ -88,7 +84,6 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
                                 xtype: 'displayfield',
                                 name: 'allowedOptions',
                                 itemId: 'allowed-options',
-                          /*      fieldCls: 'x-form-display-field-multiple-values',*/
                                 fieldStyle: 'margin-top : 3px;',
                                 fieldLabel: Uni.I18n.translate('general.firmwareManagementOptions', 'FWC', 'Firmware management options'),
                                 renderer: function (value) {

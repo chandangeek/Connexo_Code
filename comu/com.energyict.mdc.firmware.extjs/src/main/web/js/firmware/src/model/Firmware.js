@@ -64,7 +64,8 @@ Ext.define('Fwc.model.Firmware', {
             url: this.proxy.url + (this.hasId() ? '/' + this.getId() : ''),
             form: form.getEl().dom,
             isUpload: true,
-            hasUpload: true
+            hasUpload: true,
+            dontTryAgain: true
         };
 
         if (Ext.isFunction(callback)) {
