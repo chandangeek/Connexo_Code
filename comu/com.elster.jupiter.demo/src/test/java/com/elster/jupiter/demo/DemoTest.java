@@ -108,7 +108,6 @@ import com.energyict.mdc.device.data.importers.impl.devices.remove.DeviceRemoveI
 import com.energyict.mdc.device.data.importers.impl.devices.shipment.DeviceShipmentImporterFactory;
 import com.energyict.mdc.device.data.importers.impl.readingsimport.DeviceReadingsImporterFactory;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
@@ -122,7 +121,6 @@ import com.energyict.mdc.engine.impl.EngineModule;
 import com.energyict.mdc.favorites.impl.FavoritesModule;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareVersion;
-import com.energyict.mdc.firmware.FirmwareVersionFilter;
 import com.energyict.mdc.firmware.impl.FirmwareModule;
 import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.io.impl.MdcIOModule;
@@ -142,8 +140,7 @@ import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
-import com.energyict.mdc.protocol.api.UserFileFactory;
-import com.energyict.mdc.protocol.api.codetables.CodeFactory;
+import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.messages.DlmsAuthenticationLevelMessageValues;
 import com.energyict.mdc.protocol.api.device.messages.DlmsEncryptionLevelMessageValues;
@@ -194,7 +191,9 @@ import java.util.TimeZone;
 import java.util.function.Predicate;
 import java.util.logging.Logger;
 
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -215,8 +214,7 @@ public class DemoTest {
             bind(FtpClientService.class).toInstance(mock(FtpClientService.class));
             bind(BundleContext.class).toInstance(mock(BundleContext.class));
             bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
-            bind(UserFileFactory.class).toInstance(mock(UserFileFactory.class));
-            bind(CodeFactory.class).toInstance(mock(CodeFactory.class));
+            bind(DeviceMessageFileService.class).toInstance(mock(DeviceMessageFileService.class));
             bind(CollectedDataFactory.class).toInstance(mock(CollectedDataFactory.class));
 
             Thesaurus thesaurus = mock(Thesaurus.class);
@@ -636,7 +634,7 @@ public class DemoTest {
     public void testExecuteCreateDemoDataTwice() {
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
             demoService.createDemoData("DemoServ", "host", "2014-12-01", "2");
-            demoService.createDemoData("DemoServ", "host", "2014-12-01", "2");
+            demoService.createDemoData("DemoServ", "host", "2014-12-01", "2", true); // Skip firmware management data, as H2 doesn't support update of LOB
         // Calling the command 'createDemoData' twice shouldn't produce errors
     }
 
@@ -675,7 +673,6 @@ public class DemoTest {
 //                   .isPresent()).isTrue();
     }
 
-
     @Test
     public void testFirmwareManagementSetup(){
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
@@ -708,6 +705,7 @@ public class DemoTest {
 
         assertThat(issueCreationService.getCreationRuleQuery().select(Condition.TRUE)).hasSize(4);
     }
+
     @Test
     public void testCreateImportersCommand(){
         FileImportService fileImportService = injector.getInstance(FileImportService.class);
