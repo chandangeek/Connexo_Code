@@ -27,7 +27,9 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     NO_METROLOGYCONFIG_FOR_ID(18, Keys.NO_METROLOGYCONFIG_FOR_ID, "No metrology configuration with id {0}"),
     USAGE_POINT_LINKED_EXCEPTION(19, Keys.USAGE_POINT_LINKED_EXCEPTION, " Failed to link metrology configuration to '{0}'."),
     USAGE_POINT_LINKED_EXCEPTION_MSG(20, Keys.USAGE_POINT_LINKED_EXCEPTION_MSG, "{0} is already linked to a metrology configuration."),
-    NOT_POSSIBLE_TO_LINK_INACTIVE_METROLOGY_CONFIGURATION_TO_USAGE_POINT(21, Keys.NOT_POSSIBLE_TO_LINK_INACTIVE_METROLOGY_CONFIGURATION_TO_USAGE_POINT, "Not possible to link inactive metrology configuration ''{0}'' to usage point");
+    NOT_POSSIBLE_TO_LINK_INACTIVE_METROLOGY_CONFIGURATION_TO_USAGE_POINT(21, Keys.NOT_POSSIBLE_TO_LINK_INACTIVE_METROLOGY_CONFIGURATION_TO_USAGE_POINT, "Not possible to link inactive metrology configuration ''{0}'' to usage point"),
+    INVALID_COORDINATES(22, "invalidCoordinates", "All coordinates fields must contain valid values"),
+    THIS_FIELD_IS_REQUIRED(23, "ThisFieldIsRequired", "This field is required");
     private final int number;
     private final String key;
     private final String format;

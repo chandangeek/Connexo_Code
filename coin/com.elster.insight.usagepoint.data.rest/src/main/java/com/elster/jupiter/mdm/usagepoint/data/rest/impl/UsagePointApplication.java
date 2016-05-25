@@ -20,6 +20,7 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
 import com.elster.jupiter.transaction.TransactionService;
@@ -60,6 +61,7 @@ public class UsagePointApplication extends Application implements TranslationKey
     private volatile UsagePointDataService usagePointDataService;
     private volatile CustomPropertySetService customPropertySetService;
     private volatile ServiceCallInfoFactory serviceCallInfoFactory;
+    private volatile ThreadPrincipalService threadPrincipalService;
     private volatile License license;
     private volatile IssueService issueService;
     private volatile BpmService bpmService;
@@ -110,6 +112,7 @@ public class UsagePointApplication extends Application implements TranslationKey
         List<TranslationKey> keys = new ArrayList<>();
         Collections.addAll(keys, DefaultTranslationKey.values());
         Collections.addAll(keys, ConnectionStateTranslationKeys.values());
+        Collections.addAll(keys, LocationTranslationKeys.values());
         Collections.addAll(keys, UsagePointModelTranslationKeys.values());
         return keys;
     }
@@ -174,6 +177,11 @@ public class UsagePointApplication extends Application implements TranslationKey
         this.serviceCallInfoFactory = serviceCallInfoFactory;
     }
 
+    @Reference
+    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+        this.threadPrincipalService = threadPrincipalService;
+    }
+
     @Reference(target = "(com.elster.jupiter.license.application.key=" + APP_KEY + ")")
     public void setLicense(License license) {
         this.license = license;
@@ -212,10 +220,10 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(customPropertySetService).to(CustomPropertySetService.class);
             bind(serviceCallService).to(ServiceCallService.class);
             bind(serviceCallInfoFactory).to(ServiceCallInfoFactory.class);
+            bind(threadPrincipalService).to(ThreadPrincipalService.class);
             bind(metrologyConfigurationService).to(MetrologyConfigurationService.class);
             bind(issueService).to(IssueService.class);
             bind(bpmService).to(BpmService.class);
-
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(ResourceHelper.class).to(ResourceHelper.class);
             bind(ChannelResourceHelper.class).to(ChannelResourceHelper.class);
@@ -229,6 +237,7 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(PropertyUtils.class).to(PropertyUtils.class);
             bind(CustomPropertySetInfoFactory.class).to(CustomPropertySetInfoFactory.class);
             bind(UsagePointInfoFactory.class).to(UsagePointInfoFactory.class);
+            bind(LocationInfoFactory.class).to(LocationInfoFactory.class);
             bind(GoingOnResource.class).to(GoingOnResource.class);
         }
     }

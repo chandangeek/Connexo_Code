@@ -8,7 +8,9 @@ import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ConnectionState;
 import com.elster.jupiter.metering.ElectricityDetailBuilder;
+import com.elster.jupiter.metering.GeoCoordinates;
 import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.LocationTemplate;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingQualityRecord;
@@ -22,12 +24,14 @@ import com.elster.jupiter.metering.UsagePointPropertySet;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.metering.impl.GeoCoordinatesImpl;
 import com.elster.jupiter.metering.impl.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationCustomPropertySetUsage;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.YesNoAnswer;
+import com.elster.jupiter.util.geo.SpatialCoordinates;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationEvaluator;
@@ -41,6 +45,7 @@ import java.io.ByteArrayInputStream;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -66,13 +71,11 @@ import static org.mockito.Mockito.when;
 
 public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyTest {
 
-    @Rule
-    public TestRule timeZoneNeutral = Using.timeZoneOfMcMurdo();
-
     public static final Instant NOW = ZonedDateTime.of(2015, 12, 10, 10, 43, 13, 0, ZoneId.systemDefault()).toInstant();
     public static final Instant LAST_READING = ZonedDateTime.of(2015, 12, 9, 10, 43, 13, 0, ZoneId.systemDefault()).toInstant();
     private static long intervalStart = 1410774630000L;
-
+    @Rule
+    public TestRule timeZoneNeutral = Using.timeZoneOfMcMurdo();
     @Mock
     private ValidationEvaluator evaluator;
 
@@ -212,6 +215,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
 
     @Test
     public void testValidateUsagePointGeneralBeforeCreating() {
+        // GeoCoordinates coordinates = mock(GeoCoordinates.class);
 
         UsagePointInfo info = new UsagePointInfo();
         info.mRID = "test";
@@ -219,6 +223,10 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         info.isSdp = true;
         info.isVirtual = true;
         info.techInfo = new ElectricityUsagePointDetailsInfo();
+        info.extendedGeoCoordinates = new CoordinatesInfo();
+        info.extendedLocation = new LocationInfo();
+        info.geoCoordinates = "";
+        info.location = "";
 
         Response response = target("usagepoints").queryParam("validate",true).queryParam("step",1).request().post(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(202);
@@ -229,6 +237,10 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
 
         UsagePointInfo info = new UsagePointInfo();
         info.isVirtual = true;
+        info.geoCoordinates = "";
+        info.location = "";
+        info.extendedGeoCoordinates = new CoordinatesInfo();
+        info.extendedLocation = new LocationInfo();
 
         Response response = target("usagepoints").queryParam("validate",true).queryParam("step",1).request().post(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(400);
@@ -249,6 +261,10 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         info.isSdp = true;
         info.isVirtual = true;
         info.techInfo = new ElectricityUsagePointDetailsInfo();
+        info.geoCoordinates = "";
+        info.location = "";
+        info.extendedGeoCoordinates = new CoordinatesInfo();
+        info.extendedLocation = new LocationInfo();
 
         Response response = target("usagepoints").queryParam("validate",true).queryParam("step",2).request().post(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(202);
@@ -263,6 +279,10 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         info.isSdp = true;
         info.isVirtual = true;
         info.techInfo = new ElectricityUsagePointDetailsInfo();
+        info.geoCoordinates = "";
+        info.location = "";
+        info.extendedGeoCoordinates = new CoordinatesInfo();
+        info.extendedLocation = new LocationInfo();
 
         Response response = target("usagepoints").request().post(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(201);
@@ -276,7 +296,6 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         info.id = 1L;
         info.mRID = "upd";
         info.name = "upd";
-        info.location = "upd";
         info.installationTime = Instant.EPOCH.toEpochMilli();
         info.isSdp = true;
         info.isVirtual = true;
@@ -284,12 +303,15 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         info.serviceDeliveryRemark = "upd";
         info.version = 1L;
         info.techInfo = new ElectricityUsagePointDetailsInfo();
+        info.geoCoordinates = "";
+        info.location = "";
+        info.extendedGeoCoordinates = new CoordinatesInfo();
+        info.extendedLocation = new LocationInfo();
 
         Response response = target("usagepoints/1").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(200);
         verify(usagePoint, never()).setMRID(anyString());
         verify(usagePoint, times(1)).setName("upd");
-        verify(usagePoint, times(1)).setServiceLocationString("upd");
         verify(usagePoint, never()).setInstallationTime(any(Instant.class));
         verify(usagePoint, never()).setSdp(anyBoolean());
         verify(usagePoint, never()).setVirtual(anyBoolean());
@@ -367,5 +389,38 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         assertThat(jsonModel.<String>get("$.metrologyConfiguration.purposes[0].name")).isEqualTo(DefaultMetrologyPurpose.BILLING.getName().getDefaultMessage());
         assertThat(jsonModel.<Boolean>get("$.metrologyConfiguration.purposes[0].required")).isEqualTo(true);
         assertThat(jsonModel.<Boolean>get("$.metrologyConfiguration.purposes[0].active")).isEqualTo(true);
+    }
+
+    @Test
+    public void testGetUsagePointLocation() throws Exception {
+        LocationTemplate locationTemplate = mock(LocationTemplate.class);
+        List<String> templateElementsNames = new ArrayList<>();
+
+        templateElementsNames.add("zipCode");
+        templateElementsNames.add("countryCode");
+        templateElementsNames.add("countryName");
+
+        when(meteringService.getLocationTemplate()).thenReturn(locationTemplate);
+        when(locationTemplate.getTemplateElementsNames()).thenReturn(templateElementsNames);
+
+        LocationTemplate.TemplateField zipCode = mock(LocationTemplate.TemplateField.class);
+        LocationTemplate.TemplateField countryCode = mock(LocationTemplate.TemplateField.class);
+        LocationTemplate.TemplateField countryName = mock(LocationTemplate.TemplateField.class);
+
+        List<LocationTemplate.TemplateField> templateMembers = new ArrayList<>();
+        templateMembers.add(zipCode);
+        templateMembers.add(countryCode);
+        templateMembers.add(countryName);
+        when(locationTemplate.getTemplateMembers()).thenReturn(templateMembers);
+        when(zipCode.getName()).thenReturn("zipCode");
+        when(countryCode.getName()).thenReturn("countryCode");
+        when(countryName.getName()).thenReturn("countryName");
+
+        when(zipCode.isMandatory()).thenReturn(true);
+        when(countryCode.isMandatory()).thenReturn(false);
+        when(countryName.isMandatory()).thenReturn(false);
+
+        Response response = target("usagepoints/locations/1").request().get();
+        assertThat(response.getStatus()).isEqualTo(200);
     }
 }
