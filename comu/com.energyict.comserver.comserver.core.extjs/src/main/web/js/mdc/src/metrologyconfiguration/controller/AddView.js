@@ -32,10 +32,11 @@ Ext.define('Mdc.metrologyconfiguration.controller.AddView', {
         });
     },
 
-    showForm: function () {
+    showForm: function (metrologyConfigurationId) {
         var me = this,
             app = me.getApplication(),
             router = me.getController('Uni.controller.history.Router'),
+            isEdit = !Ext.isEmpty(metrologyConfigurationId),
             widget = Ext.widget('contentcontainer', {
                 itemId: 'metrology-configurations-add-view',
                 content: [
@@ -43,15 +44,36 @@ Ext.define('Mdc.metrologyconfiguration.controller.AddView', {
                         xtype: 'metrology-configurations-add-form',
                         itemId: 'metrology-configurations-add-form',
                         ui: 'large',
-                        title: Uni.I18n.translate('general.addMetrologyConfiguration', 'MDC', 'Add metrology configuration'),
-                        returnLink: router.getRoute('administration/metrologyconfiguration').buildUrl()
+                        title: isEdit ? ' ' : Uni.I18n.translate('general.addMetrologyConfiguration', 'MDC', 'Add metrology configuration'),
+                        returnLink: router.getRoute('administration/metrologyconfiguration').buildUrl(),
+                        isEdit: isEdit
                     }
                 ]
-            });
+            }),
+            form;
 
-        me.getStore('Mdc.metrologyconfiguration.store.ServiceCategories').load();
         app.fireEvent('changecontentevent', widget);
-        me.getForm().loadRecord(Ext.create('Mdc.metrologyconfiguration.model.MetrologyConfiguration'));
+        form = me.getForm();
+        me.getStore('Mdc.metrologyconfiguration.store.ServiceCategories').load();
+        if (!isEdit) {
+            form.loadRecord(Ext.create('Mdc.metrologyconfiguration.model.MetrologyConfiguration'));
+        } else {
+            widget.setLoading();
+            me.getModel('Mdc.metrologyconfiguration.model.MetrologyConfiguration').load(metrologyConfigurationId, {
+                success: function (record) {
+                    var name = record.get('name');
+
+                    Ext.suspendLayouts();
+                    app.fireEvent('loadMetrologyConfiguration', name);
+                    form.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'"), [name]);
+                    form.loadRecord(record);
+                    Ext.resumeLayouts(true);
+                },
+                callback: function () {
+                    widget.setLoading(false);
+                }
+            });
+        }
     },
 
     saveMetrologyConfiguration: function () {

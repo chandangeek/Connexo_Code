@@ -7,6 +7,7 @@ Ext.define('Mdc.metrologyconfiguration.view.AddForm', {
         'Uni.util.FormErrorMessage'
     ],
 
+    isEdit: false,
     returnLink: null,
 
     initComponent: function () {
@@ -43,6 +44,7 @@ Ext.define('Mdc.metrologyconfiguration.view.AddForm', {
                 itemId: 'mc-serviceCategory-combobox',
                 fieldLabel: Uni.I18n.translate('general.serviceCategory', 'MDC', 'Service category'),
                 required: true,
+                disabled: me.isEdit,
                 store: 'Mdc.metrologyconfiguration.store.ServiceCategories',
                 queryMode: 'local',
                 displayField: 'name',
@@ -56,6 +58,7 @@ Ext.define('Mdc.metrologyconfiguration.view.AddForm', {
                 itemId: 'mc-readingTypes-reading-types-field',
                 fieldLabel: Uni.I18n.translate('general.readingTypes', 'MDC', 'Reading types'),
                 required: true,
+                disabled: me.isEdit,
                 isEquidistant: true
             },
             {
@@ -68,9 +71,13 @@ Ext.define('Mdc.metrologyconfiguration.view.AddForm', {
                     {
                         xtype: 'button',
                         itemId: 'mc-add-button',
-                        text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
+                        text: me.isEdit
+                            ? Uni.I18n.translate('general.save', 'MDC', 'Save')
+                            : Uni.I18n.translate('general.add', 'MDC', 'Add'),
                         ui: 'action',
-                        action: 'addMetrologyConfiguration'
+                        action: me.isEdit
+                            ? 'saveMetrologyConfiguration'
+                            : 'addMetrologyConfiguration'
                     },
                     {
                         xtype: 'button',

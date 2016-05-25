@@ -58,6 +58,7 @@ Ext.define('Mdc.metrologyconfiguration.controller.ListView', {
 
     chooseAction: function (menu, item) {
         var me = this,
+            router = me.getController('Uni.controller.history.Router'),
             record = menu.record;
 
         switch (item.action) {
@@ -72,6 +73,10 @@ Ext.define('Mdc.metrologyconfiguration.controller.ListView', {
                         }
                     }
                 });
+                break;
+            case 'edit':
+                router.getRoute('administration/metrologyconfiguration/edit').forward({metrologyConfigurationId: record.getId()});
+                break;
         }
     },
 
