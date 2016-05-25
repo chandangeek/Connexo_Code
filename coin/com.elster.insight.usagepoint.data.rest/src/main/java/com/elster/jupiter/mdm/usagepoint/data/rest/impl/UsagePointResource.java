@@ -510,7 +510,7 @@ public class UsagePointResource {
             List<MetrologyContract> metrologyContractList = usagePoint.getMetrologyConfiguration().get().getContracts();
             purposeInfoList = metrologyContractList
                     .stream()
-                    .map(PurposeInfo::asInfo)
+                    .map(metrologyContract -> PurposeInfo.asInfo(metrologyContract, usagePoint))
                     .collect(Collectors.toList());
 
         } else {
