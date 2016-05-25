@@ -713,6 +713,7 @@ public class BpmResource {
                             .isPresent() ? eachConnexo.getAssociationProvider().get().getName() : "";
                     eachBpm.appKey = eachConnexo.getAssociationProvider()
                             .isPresent() ? eachConnexo.getAssociationProvider().get().getAppKey() : "";
+                    eachBpm.versionDB = eachConnexo.getVersionDB();
                     found = true;
                 }
             }
