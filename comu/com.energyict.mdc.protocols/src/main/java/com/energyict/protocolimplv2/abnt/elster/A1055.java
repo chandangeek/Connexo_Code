@@ -45,6 +45,7 @@ import com.energyict.protocols.impl.channels.serial.optical.rxtx.RxTxOpticalConn
 import com.energyict.protocols.impl.channels.serial.optical.serialio.SioOpticalConnectionType;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
+import com.energyict.protocolimpl.dlms.common.DLMSActivityCalendarController;
 import com.energyict.protocolimplv2.abnt.common.AbntProperties;
 import com.energyict.protocolimplv2.abnt.common.AbstractAbntProtocol;
 import com.energyict.protocolimplv2.abnt.common.LoadProfileBuilder;
@@ -379,6 +380,12 @@ public class A1055 extends AbstractAbntProtocol {
 
     @Override
     public CollectedCalendar getCollectedCalendar() {
+        this.issueService.newWarning(
+                this.offlineDevice,
+                this.thesaurus,
+                com.energyict.mdc.protocol.api.MessageSeeds.READ_CALENDAR_INFO_NOT_SUPPORTED,
+                DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE);
+
         return this.collectedDataFactory.createCalendarCollectedData(this.offlineDevice.getDeviceIdentifier());
     }
 
