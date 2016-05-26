@@ -30,13 +30,13 @@ public class UpgraderV10_2 implements Upgrader {
     }
 
     @Override
-    public void migrate(DataModelUpgrader dataModelUpgrader) throws Exception {
+    public void migrate(DataModelUpgrader dataModelUpgrader) {
         dataModelUpgrader.upgrade(dataModel, VERSION);
         ImmutableList<String> sql = ImmutableList.of(
-                "UPDATE MTR_USAGEPOINTDETAIL SET GROUNDED = 'YES' where MTR_USAGEPOINTDETAIL.GROUNDED = 'Y';",
-                "UPDATE MTR_USAGEPOINTDETAIL SET GROUNDED = 'NO' where MTR_USAGEPOINTDETAIL.GROUNDED = 'N';",
-                "UPDATE MTR_USAGEPOINTDETAILJRNL SET GROUNDED = 'YES' where MTR_USAGEPOINTDETAILJRNL.GROUNDED = 'Y';",
-                "UPDATE MTR_USAGEPOINTDETAILJRNL SET GROUNDED = 'NO' where MTR_USAGEPOINTDETAILJRNL.GROUNDED = 'N';"
+                "UPDATE MTR_USAGEPOINTDETAIL SET GROUNDED = 'YES' where MTR_USAGEPOINTDETAIL.GROUNDED = 'Y'",
+                "UPDATE MTR_USAGEPOINTDETAIL SET GROUNDED = 'NO' where MTR_USAGEPOINTDETAIL.GROUNDED = 'N'",
+                "UPDATE MTR_USAGEPOINTDETAILJRNL SET GROUNDED = 'YES' where MTR_USAGEPOINTDETAILJRNL.GROUNDED = 'Y'",
+                "UPDATE MTR_USAGEPOINTDETAILJRNL SET GROUNDED = 'NO' where MTR_USAGEPOINTDETAILJRNL.GROUNDED = 'N'"
         );
 
         dataModel.useConnectionRequiringTransaction(connection -> {

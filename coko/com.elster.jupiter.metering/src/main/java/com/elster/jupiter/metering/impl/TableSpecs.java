@@ -102,7 +102,7 @@ public enum TableSpecs {
             Column idColumn = table.column("ID").number().notNull().conversion(NUMBER2ENUMPLUSONE).map("kind").add();
             table.column("ALIASNAME").varChar(NAME_LENGTH).map("aliasName").add();
             table.column("DESCRIPTION").varChar(SHORT_DESCRIPTION_LENGTH).map("description").add();
-            table.column("ACTIVE").type("char(1)").conversion(CHAR2BOOLEAN).map("active").notNull().since(version(10, 2)).add();
+            table.column("ACTIVE").type("char(1)").conversion(CHAR2BOOLEAN).map("active").notNull().since(version(10, 2)).installValue("'Y'").add();
             table.addAuditColumns();
             table.primaryKey("MTR_PK_SERVICECATEGORY").on(idColumn).add();
         }
@@ -290,6 +290,7 @@ public enum TableSpecs {
                     .conversion(ColumnConversion.NUMBER2INSTANT)
                     .map("installationTime")
                     .since(version(10, 2))
+                    .installValue("0")
                     .add();
             Column locationIdColumn = table.column("LOCATIONID")
                     .number()
@@ -715,7 +716,7 @@ public enum TableSpecs {
             table.column("SERVICEDELIVERYREMARK").varChar(NAME_LENGTH).map("serviceDeliveryRemark").upTo(version(10, 2)).add();
 
             Column groundedColumn1 = table.column("GROUNDED").type("char(1)").conversion(CHAR2BOOLEAN).map("grounded").upTo(version(10, 2)).add();
-            table.column("GROUNDED").type("varchar2(7)").conversion(CHAR2ENUM).map("grounded").since(version(10, 2)).previously(groundedColumn1).add();
+            table.column("GROUNDED").type("varchar2(7)").conversion(CHAR2ENUM).map("grounded").since(version(10, 2)).previously(groundedColumn1).installValue("'Y'").add();
             table.addQuantityColumns("NOMINALVOLTAGE", false, "nominalServiceVoltage", Range.atLeast(version(10, 2)));
             table.column("PHASECODE").type("varchar2(7)").conversion(CHAR2ENUM).map("phaseCode").add();
             table.addQuantityColumns("PHYSICALCAPACITY", false, "physicalCapacity", Range.atLeast(version(10, 2)));
