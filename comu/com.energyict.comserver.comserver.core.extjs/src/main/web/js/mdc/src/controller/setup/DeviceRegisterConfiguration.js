@@ -22,7 +22,8 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
     models: [
         'Mdc.model.RegisterValidationPreview',
         'Mdc.customattributesonvaluesobjects.model.AttributeSetOnRegister',
-        'Mdc.model.DeviceRegister'
+        'Mdc.model.DeviceRegister',
+        'Mdc.model.DeviceRegisterForPreview'
     ],
 
     stores: [
@@ -229,7 +230,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         previewContainer.removeAll();
         previewContainer.add(widget);
 
-        var model = record.self;
+        var model = Ext.ModelManager.getModel('Mdc.model.DeviceRegisterForPreview');
         model.getProxy().setUrl(record.get('mRID'));
         form.setLoading(true);
         model.load(record.getId(), {
@@ -268,7 +269,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
             success: function (device) {
                 me.getApplication().fireEvent('loadDevice', device);
-                var model = Ext.ModelManager.getModel('Mdc.model.Register');
+                var model = Ext.ModelManager.getModel('Mdc.model.DeviceRegisterForPreview');
                 model.getProxy().setUrl(mRID);
                 model.load(registerId, {
                     success: function (register) {
