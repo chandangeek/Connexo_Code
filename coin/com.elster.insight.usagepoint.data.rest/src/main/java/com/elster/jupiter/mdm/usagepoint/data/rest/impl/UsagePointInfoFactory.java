@@ -161,24 +161,6 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         return info;
     }
 
-    public MeterActivationInfo from(MeterActivation meterActivation, String auth) {
-        MeterActivationInfo info = new MeterActivationInfo();
-        info.id = meterActivation.getId();
-        info.start = meterActivation.getStart() == null ? null : meterActivation.getStart().toEpochMilli();
-        info.end = meterActivation.getEnd() == null ? null : meterActivation.getEnd().toEpochMilli();
-        info.version = meterActivation.getVersion();
-        meterActivation.getMeter().ifPresent(meter -> {
-            info.meter = new MeterInfo(meterActivation.getMeter().get());
-            info.meter.watsGoingOnMeterStatus = getWatsGoingOnMeterStatus(meterActivation.getMeter().get(), auth);
-            info.meter.mRID = meterActivation.getMeter().get().getMRID();
-        });
-
-        return info;
-    }
-
-
-
-
     private void addDetailsInfo(UsagePointInfo info, UsagePoint usagePoint) {
 
         Optional<? extends UsagePointDetail> detailHolder = usagePoint.getDetail(clock.instant());
