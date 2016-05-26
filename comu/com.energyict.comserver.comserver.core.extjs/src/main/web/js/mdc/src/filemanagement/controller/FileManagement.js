@@ -155,28 +155,14 @@ Ext.define('Mdc.filemanagement.controller.FileManagement', {
             }
         });
     },
+
     uploadFile: function () {
-        var me = this,
-            fileInput = document.getElementById(me.getFilesGrid().down('filefield').button.fileInputEl.id),
-            fileReader = new FileReader(),
-            fileToUpload = fileInput.files[0];
-
-        fileReader.onload = function (e) {
-            me.onLoadFile(e, me, fileToUpload.name);
-        };
-
-        fileReader.readAsDataURL(fileToUpload);
-
-    },
-
-    onLoadFile: function (e, scope, filename) {
         var me = this,
             filesGrid = me.getFilesGrid(),
             form = filesGrid.down('form').getEl().dom,
             store = me.getStore('Mdc.filemanagement.store.Files'),
             max_file_size = 2 * 1024 * 1024;
         store.getProxy().setUrl(me.deviceTypeId);
-
         filesGrid.setLoading();
         //if (e.total > max_file_size) {
         //    me.getApplication().getController('Uni.controller.Error')
