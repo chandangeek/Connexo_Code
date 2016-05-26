@@ -1,5 +1,7 @@
 package com.energyict.mdc.multisense.api.impl;
 
+import com.elster.jupiter.rest.util.hypermedia.LinkInfo;
+
 /**
  * Provides information of a {@link com.energyict.mdc.protocol.api.DeviceMessageFile}.
  *
