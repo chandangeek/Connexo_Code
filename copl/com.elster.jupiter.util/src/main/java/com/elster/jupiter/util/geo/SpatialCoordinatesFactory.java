@@ -1,11 +1,13 @@
 package com.elster.jupiter.util.geo;
 
-import java.sql.*;
+import oracle.sql.NUMBER;
 
 import java.math.BigDecimal;
+import java.sql.Array;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Struct;
 import java.util.Arrays;
-
-import oracle.sql.NUMBER;
 
 public class SpatialCoordinatesFactory {
 
@@ -88,7 +90,7 @@ public class SpatialCoordinatesFactory {
             return null;
         }
         String[] parts = stringValue.split(SEPARATOR);
-        if (parts.length != 3) {
+        if (parts.length < 2) {
             throw new IllegalArgumentException("Incorrectly formatted coordinates.Please check format and range.");
         }
 
@@ -101,7 +103,10 @@ public class SpatialCoordinatesFactory {
 
         BigDecimal numericLatitude = new BigDecimal(parts[0].contains(",") ? String.valueOf(parts[0].replace(",", ".")) : parts[0]);
         BigDecimal numericLongitude = new BigDecimal(parts[1].contains(",") ? String.valueOf(parts[1].replace(",", ".")) : parts[1]);
-        BigDecimal numericElevation = new BigDecimal(parts[2]);
+        BigDecimal numericElevation = new BigDecimal(0);
+        if(parts.length == 3 && !parts[2].equals("null")){
+            numericElevation = new BigDecimal(parts[2]);
+        }
         if (numericLatitude.compareTo(BigDecimal.valueOf(-90)) < 0
                 || numericLatitude.compareTo(BigDecimal.valueOf(90)) > 0
                 || numericLongitude.compareTo(BigDecimal.valueOf(-180)) < 0
