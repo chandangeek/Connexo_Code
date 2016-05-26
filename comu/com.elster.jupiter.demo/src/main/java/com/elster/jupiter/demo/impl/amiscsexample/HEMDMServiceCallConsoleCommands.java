@@ -14,7 +14,6 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.units.Quantity;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.ami.BreakerStatus;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
