@@ -39,7 +39,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.billing.Preview', {
                             },
                             {
                                 xtype: 'obis-displayfield',
-                                name: 'obisCode'
+                                name: 'overruledObisCode'
                             },
                             {
                                 fieldLabel: Uni.I18n.translate('general.dataUntil', 'MDC', 'Data until'),
@@ -74,7 +74,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.billing.Preview', {
                             },
                             {
                                 fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.numberOfFractionDigits', 'MDC', 'Number of fraction digits'),
-                                name: 'numberOfFractionDigits'
+                                name: 'overruledNumberOfFractionDigits'
                             },
                             {
                                 fieldLabel: Uni.I18n.translate('channelConfig.useMultiplier', 'MDC', 'Use multiplier'),

@@ -20,7 +20,6 @@ Ext.define('Mdc.timeofuse.model.AllowedCalendar', {
     ],
 
 
-
     associations: [
         {
             name: 'calendar',

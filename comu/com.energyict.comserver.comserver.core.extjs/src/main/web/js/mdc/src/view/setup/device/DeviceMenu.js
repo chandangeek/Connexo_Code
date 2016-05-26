@@ -47,7 +47,7 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                 ]
             },
             {
-                title: Uni.I18n.translate('device.dataSources','MDC','Data sources'),
+                title: Uni.I18n.translate('device.dataSources', 'MDC', 'Data sources'),
                 xtype: 'menu',
                 items: [
                     {
@@ -84,7 +84,7 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                 ]
             },
             {
-                title: Uni.I18n.translate('device.communication','MDC','Communication'),
+                title: Uni.I18n.translate('device.communication', 'MDC', 'Communication'),
                 items: [
                     {
                         text: Uni.I18n.translate('general.generalAttributes', 'MDC', 'General attributes'),
@@ -127,7 +127,7 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                         itemId: 'topologyLink',
                         href: '#/devices/' + encodeURIComponent(mRID) + '/topology',
                         showCondition: me.device.get('gatewayType') === 'LAN'
-                            || me.device.get('gatewayType') === 'HAN'
+                        || me.device.get('gatewayType') === 'HAN'
                     }
                 ]
             },
@@ -140,8 +140,8 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                         privileges: Cfg.privileges.Validation.fineTuneValidation,
                         href: '#/devices/' + encodeURIComponent(mRID) + '/datavalidation',
                         showCondition: me.device.get('hasLogBooks')
-                            || me.device.get('hasLoadProfiles')
-                            || me.device.get('hasRegisters')
+                        || me.device.get('hasLoadProfiles')
+                        || me.device.get('hasRegisters')
                     },
                     {
                         text: Uni.I18n.translate('devicemenu.validationResults', 'MDC', 'Validation results'),
@@ -149,17 +149,34 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                         hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.validationConfiguration', 'privilege.view.validationConfiguration', 'privilege.view.fineTuneValidationConfiguration']),
                         href: '#/devices/' + encodeURIComponent(mRID) + '/validationresults/data',
                         showCondition: me.device.get('hasLogBooks')
-                            || me.device.get('hasLoadProfiles')
-                            || me.device.get('hasRegisters')
+                        || me.device.get('hasLoadProfiles')
+                        || me.device.get('hasRegisters')
                     },
                     {
                         text: Uni.I18n.translate('general.dataEstimation', 'MDC', 'Data estimation'),
                         itemId: 'dataEstimationLink',
                         href: '#/devices/' + encodeURIComponent(mRID) + '/dataestimation',
                         showCondition: me.device.get('hasLogBooks')
-                            || me.device.get('hasLoadProfiles')
-                            || me.device.get('hasRegisters'),
+                        || me.device.get('hasLoadProfiles')
+                        || me.device.get('hasRegisters'),
                         privileges: Mdc.privileges.DeviceConfigurationEstimations.view
+                    }
+                ]
+            },
+            {
+                title: Uni.I18n.translate('general.configuration', 'MDC', 'Configuration'),
+                items: [
+                    {
+                        text: Uni.I18n.translate('general.firmware', 'MDC', 'Firmware'),
+                        itemId: 'device-firmware-link-menu',
+                        href: '#/devices/' + encodeURIComponent(mRID) + '/firmware'
+                    },
+                    {
+                        text: Uni.I18n.translate('general.timeOfUse', 'MDC', 'Time of use'),
+                        itemId: 'deviceTimeOfUseLink',
+                        privileges: Mdc.privileges.Device.viewDevice,
+                        dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.timeOfUseAllowed,
+                        href: '#/devices/' + encodeURIComponent(mRID) + '/timeofuse'
                     }
                 ]
             }

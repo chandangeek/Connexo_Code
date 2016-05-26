@@ -621,7 +621,13 @@ Ext.define('Mdc.controller.history.Setup', {
                                             route: '{calendarId}/viewpreview',
                                             privileges: Mdc.privileges.DeviceType.view,
                                             controller: 'Mdc.timeofuse.controller.TimeOfUse',
-                                            action: 'showPreviewCalendarView'
+                                            action: 'showPreviewCalendarView',
+                                            callback: function (route) {
+                                                this.getApplication().on('timeofusecalendarloaded', function (name) {
+                                                    route.setTitle(Uni.I18n.translate('general.previewX', 'MDC', "Preview '{0}'", name));
+                                                }, {single: true});
+                                                return this;
+                                            }
                                         }
                                     }
                                 }
@@ -1100,6 +1106,22 @@ Ext.define('Mdc.controller.history.Setup', {
                             }
                         }
                     }
+                },
+                metrologyconfiguration: {
+                    title: Uni.I18n.translate('general.metrologyConfigurations', 'MDC', 'Metrology configurations'),
+                    route: 'metrologyconfiguration',
+                    controller: 'Mdc.metrologyconfiguration.controller.ListView',
+                    action: 'showList',
+                    privileges: Mdc.privileges.MetrologyConfiguration.full(),
+                    items: {
+                        add: {
+                            title: Uni.I18n.translate('general.addMetrologyConfiguration', 'MDC', 'Add metrology configuration'),
+                            route: 'add',
+                            controller: 'Mdc.metrologyconfiguration.controller.AddView',
+                            action: 'showForm',
+                            privileges: Mdc.privileges.MetrologyConfiguration.canAdmin()
+                        }
+                    }
                 }
             }
         },
@@ -1152,7 +1174,7 @@ Ext.define('Mdc.controller.history.Setup', {
                     title: Uni.I18n.translate('deviceAdd.title', 'MDC', 'Add device'),
                     route: 'add',
                     controller: 'Mdc.controller.setup.Devices',
-                    privileges: Mdc.privileges.Device.addDevice,
+                    privileges: Mdc.privileges.Device.administrateDevice,
                     action: 'showAddDevice'
                 },
                 device: {
@@ -1463,6 +1485,13 @@ Ext.define('Mdc.controller.history.Setup', {
                                         return this;
                                     },
                                     items: {
+                                        edit: {
+                                            title: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+                                            route: 'edit',
+                                            controller: 'Mdc.controller.setup.DeviceRegisterConfiguration',
+                                            privileges: Mdc.privileges.Device.administrateDevice,
+                                            action: 'editRegister'
+                                        },
                                         editcustomattributes: {
                                             route: 'customattributes/{customAttributeSetId}/edit',
                                             controller: 'Mdc.controller.setup.DeviceRegisterConfiguration',
@@ -1653,6 +1682,32 @@ Ext.define('Mdc.controller.history.Setup', {
                             privileges: Mdc.privileges.DeviceConfigurationEstimations.view,
                             dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore
                         },
+                        timeofuse: {
+                            title: Uni.I18n.translate('general.timeOfUse', 'MDC', 'Time of use'),
+                            route: 'timeofuse',
+                            controller: 'Mdc.timeofuseondevice.controller.TimeOfUse',
+                            privileges: Mdc.privileges.Device.viewDevice,
+                            dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
+                            dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.timeOfUseAllowed,
+                            action: 'showTimeOfUseOverview',
+                            items: {
+                                viewpreview: {
+                                    title: Uni.I18n.translate('tou.viewPreview', 'MDC', 'View preview'),
+                                    route: '{calendarId}/viewpreview',
+                                    controller: 'Mdc.timeofuseondevice.controller.TimeOfUse',
+                                    privileges: Mdc.privileges.Device.viewDevice,
+                                    dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
+                                    dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.timeOfUseAllowed,
+                                    action: 'showPreviewCalendarView',
+                                    callback: function (route) {
+                                        this.getApplication().on('timeofusecalendarloaded', function (name) {
+                                            route.setTitle(Uni.I18n.translate('general.previewX', 'MDC', "Preview '{0}'", name));
+                                        }, {single: true});
+                                        return this;
+                                    }
+                                }
+                            }
+                        },
                         communicationschedules: {
                             title: Uni.I18n.translate('general.communicationPlanning', 'MDC', 'Communication planning'),
                             route: 'communicationplanning',
@@ -1797,6 +1852,13 @@ Ext.define('Mdc.controller.history.Setup', {
                                         return this;
                                     },
                                     items: {
+                                        edit: {
+                                            title: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+                                            route: 'edit',
+                                            controller: 'Mdc.controller.setup.DeviceChannels',
+                                            privileges: Mdc.privileges.Device.administrateDevice,
+                                            action: 'editChannel'
+                                        },
                                         editcustomattributes: {
                                             route: 'customattributes/{customAttributeSetId}/edit',
                                             controller: 'Mdc.controller.setup.DeviceChannelData',

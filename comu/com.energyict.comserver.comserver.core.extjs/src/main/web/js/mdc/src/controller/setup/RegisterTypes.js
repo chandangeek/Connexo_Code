@@ -121,7 +121,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
         if (btn === 'confirm') {
             var me = opt.config.me,
                 registerTypeToDelete = opt.config.registerTypeToDelete,
-                message = Uni.I18n.translate('registertype.acknowlegment.removed', 'MDC', 'Register type removed');
+                message = Uni.I18n.translate('registertype.acknowledgment.removed', 'MDC', 'Register type removed');
             registerTypeToDelete.destroy({
                 success: function () {
                     me.getApplication().fireEvent('acknowledge', message);
@@ -215,9 +215,9 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
                 backUrl: backUrl,
                 success: function () {
                     if (me.mode == 'create') {
-                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('registertype.acknowlegment.added', 'MDC', 'Register type added'));
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('registertype.acknowledgment.added', 'MDC', 'Register type added'));
                     } else {
-                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('registertype.acknowlegment.saved', 'MDC', 'Register type saved'));
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('registertype.acknowledgment.saved', 'MDC', 'Register type saved'));
                     }
                     location.href = backUrl;
                 },

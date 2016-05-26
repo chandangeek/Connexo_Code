@@ -176,7 +176,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 ? '-'
                 : Uni.Number.formatNumber(
                     v.toString(),
-                    me.channelRecord && !Ext.isEmpty(me.channelRecord.get('nbrOfFractionDigits')) ? me.channelRecord.get('nbrOfFractionDigits') : -1
+                    me.channelRecord && !Ext.isEmpty(me.channelRecord.get('overruledNbrOfFractionDigits')) ? me.channelRecord.get('overruledNbrOfFractionDigits') : -1
                 );
 
         if (status === 'notValidated') {

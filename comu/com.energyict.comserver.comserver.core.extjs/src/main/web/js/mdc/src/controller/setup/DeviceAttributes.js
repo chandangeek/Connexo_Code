@@ -139,6 +139,11 @@ Ext.define('Mdc.controller.setup.DeviceAttributes', {
             if(key === 'mRID'){
                 key = 'mrid';
             }
+            else if (key.indexOf('properties.')==0)
+            {
+                key = key.replace('properties.', '')
+                return editForm.down('#' + key);
+            }
             return editForm.down('#' + key + 'Edit');
         } else {
             return null
