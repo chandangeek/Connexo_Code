@@ -101,7 +101,7 @@ public class RequestFrame implements Frame<RequestFrame> {
 
     @Override
     public void generateAndSetCRC() {
-        if (function.isRegularFunction(function)) {
+        if (Function.isRegularFunction(function)) {
             crc = generateCrc();
         }
     }
