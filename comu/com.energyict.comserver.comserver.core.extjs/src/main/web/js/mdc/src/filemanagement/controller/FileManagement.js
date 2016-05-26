@@ -155,15 +155,35 @@ Ext.define('Mdc.filemanagement.controller.FileManagement', {
             }
         });
     },
+    uploadFile: function () {
+        var me = this,
+            fileInput = document.getElementById(me.getFilesGrid().down('filefield').button.fileInputEl.id),
+            fileReader = new FileReader(),
+            fileToUpload = fileInput.files[0];
 
-    uploadFile: function (element) {
+        fileReader.onload = function (e) {
+            me.onLoadFile(e, me, fileToUpload.name);
+        };
+
+        fileReader.readAsDataURL(fileToUpload);
+
+    },
+
+    onLoadFile: function (e, scope, filename) {
         var me = this,
             filesGrid = me.getFilesGrid(),
-            router = me.getController('Uni.controller.history.Router'),
             form = filesGrid.down('form').getEl().dom,
-            message = Uni.I18n.translate('general.successfully.upload.file', 'MDC', 'File successfully uploaded');
+            store = me.getStore('Mdc.filemanagement.store.Files'),
+            max_file_size = 2 * 1024 * 1024;
+        store.getProxy().setUrl(me.deviceTypeId);
 
         filesGrid.setLoading();
+        //if (e.total > max_file_size) {
+        //    me.getApplication().getController('Uni.controller.Error')
+        //        .showError(Uni.I18n.translate('general.failed.to.upload.file', 'MDC', 'Failed to upload file'),
+        //            Uni.I18n.translate('general.fileSizeExceeds2MB', 'MDC', 'File size exceeds 2MB'));
+        //    filesGrid.setLoading(false);
+        //} else {
         Ext.Ajax.request({
             url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/files/upload',
             method: 'POST',
@@ -171,15 +191,18 @@ Ext.define('Mdc.filemanagement.controller.FileManagement', {
             headers: {'Content-type': 'multipart/form-data'},
             isFormUpload: true,
             callback: function (config, success, response) {
-                var responseObject = JSON.parse(response.responseText);
-                filesGrid.setLoading(false);
-                if (Ext.isEmpty(responseObject.errors)) {
-                    debugger;
-                } else {
-                    debugger;
+                if (response.responseText) {
+                    var responseObject = JSON.parse(response.responseText);
+                    if (!responseObject.success) {
+                        me.getApplication().getController('Uni.controller.Error')
+                            .showError(Uni.I18n.translate('general.failed.to.upload.file', 'MDC', 'Failed to upload file'), responseObject.message);
+                    }
                 }
+                store.load();
+                filesGrid.setLoading(false);
             }
         });
+        //}
     }
 
 })
