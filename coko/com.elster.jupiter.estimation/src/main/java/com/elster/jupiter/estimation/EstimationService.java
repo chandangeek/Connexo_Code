@@ -1,10 +1,11 @@
 package com.elster.jupiter.estimation;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
+
+import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -17,9 +18,19 @@ public interface EstimationService {
 
     String COMPONENTNAME = "EST";
 
-    List<String> getAvailableEstimatorImplementations();
+    /**
+     * Filters estimators and returns names of implementations supporting a given <code>targetApplication</code>.
+     * @param targetApplication a string representation of target application.
+     * @return the list of estimator implementation names supporting a given <code>targetApplication</code>.
+     */
+    List<String> getAvailableEstimatorImplementations(String targetApplication);
 
-    List<Estimator> getAvailableEstimators();
+    /**
+     * Filters estimators and returns ones supporting a given <code>targetApplication</code>.
+     * @param targetApplication a string representation of target application.
+     * @return the list of estimators supporting a given <code>targetApplication</code>.
+     */
+    List<Estimator> getAvailableEstimators(String targetApplication);
 
     Optional<Estimator> getEstimator(String implementation);
 
@@ -33,9 +44,9 @@ public interface EstimationService {
 
     EstimationResult previewEstimate(MeterActivation meterActivation, Range<Instant> period, ReadingType readingType, Estimator estimator);
 
-    EstimationRuleSet createEstimationRuleSet(String name);
+    EstimationRuleSet createEstimationRuleSet(String name, String applicationName);
 
-    EstimationRuleSet createEstimationRuleSet(String name, String description);
+    EstimationRuleSet createEstimationRuleSet(String name, String applicationName, String description);
 
     List<? extends EstimationRuleSet> getEstimationRuleSets();
 
