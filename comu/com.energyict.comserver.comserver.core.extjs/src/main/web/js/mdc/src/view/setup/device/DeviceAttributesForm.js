@@ -159,12 +159,24 @@ Ext.define('Mdc.view.setup.device.DeviceAttributesForm', {
                 }
             },
             {
+                name: 'geoCoordinates',
+                itemId: 'fld-device-coordinates',
+                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.coordinates', 'MDC', 'Coordinates'),
+                renderer: function (value) {
+                    if (!Ext.isEmpty(value) && !Ext.isEmpty(value.displayValue) && !Ext.isEmpty(value.displayValue.coordinatesDisplay)) {
+                        return Ext.String.htmlEncode(value.displayValue.coordinatesDisplay);
+                    } else {
+                        return '-'
+                    }
+                }
+            },
+            {
                 name: 'location',
                 itemId: 'fld-device-location',
                 fieldLabel: Uni.I18n.translate('deviceGeneralInformation.location', 'MDC', 'Location'),
                 renderer: function (value) {
-                    if (!Ext.isEmpty(value) && !Ext.isEmpty(value.displayValue)) {
-                        return Ext.String.htmlEncode(value.displayValue).replace(/(?:\\r\\n|\\r|\\n)/g, '<br>');
+                    if (!Ext.isEmpty(value) && !Ext.isEmpty(value.displayValue) && !Ext.isEmpty(value.displayValue.formattedLocationValue)) {
+                        return Ext.String.htmlEncode(value.displayValue.formattedLocationValue).replace(/(?:\\r\\n|\\r|\\n)/g, '<br>');
                     } else {
                         return '-'
                     }
