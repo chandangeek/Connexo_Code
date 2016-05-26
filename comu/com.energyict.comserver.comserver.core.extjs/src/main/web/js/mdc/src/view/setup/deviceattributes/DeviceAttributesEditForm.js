@@ -4,7 +4,9 @@ Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesEditForm', {
 
     requires: [
         'Mdc.view.setup.device.form.DeviceDateField',
-        'Mdc.view.setup.deviceattributes.form.DateFieldEdited'
+        'Mdc.view.setup.deviceattributes.form.DateFieldEdited',
+        'Uni.form.field.Coordinates',
+        'Uni.form.field.Location'
     ],
 
     defaults: {
@@ -119,6 +121,31 @@ Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesEditForm', {
                         }
                     }
                 }
+            },
+            {
+                xtype: 'coordinates',
+                name: 'geoCoordinatesEdit',
+                itemId: 'geoCoordinatesEdit',
+                width: 490,
+                displayResetButton: true,
+                fieldLabel: Uni.I18n.translate('general.coordinates', 'MDC', 'Coordinates')
+            },
+            {
+                xtype: 'location',
+                name: 'locationEdit',
+                itemId: 'locationEdit',
+                width: 490,
+                displayResetButton: true,
+                findLocationsUrl: '/api/jsr/search/com.energyict.mdc.device.data.Device/locationsearchcriteria/location',
+                locationDetailsUrl: '/api/ddr/devices/locations'
+            },
+            {
+                xtype: 'numberfield',
+                name: 'multiplierEdit',
+                minValue: 1,
+                maxValue: 2147483647,
+                itemId: 'multiplierEdit',
+                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.multiplier', 'MDC', 'Multiplier'),
             },
             {
                 name: 'multiplier',

@@ -95,7 +95,7 @@ Ext.define('Mdc.timeofuse.view.PreviewForm', {
 
     calculateDate: function (month, day) {
         var date = new Date();
-        date.setMonth(month);
+        date.setMonth(month - 1);
         date.setDate(day);
 
         return Ext.util.Format.date(date, 'j F')
