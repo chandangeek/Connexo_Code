@@ -78,6 +78,14 @@ public class DeviceMessageFileImpl implements DeviceMessageFile {
         return this;
     }
 
+    DeviceMessageFileImpl init(DeviceType deviceType, InputStream inputStream, String fileName) {
+        this.deviceType.set(deviceType);
+        this.name = fileName;
+        this.contents = FileBlob.from(inputStream);
+        this.blobSize = this.sizeInMB();
+        return this;
+    }
+
     private BigDecimal sizeInMB() {
         BigDecimal byteToMBScaler = BigDecimal.valueOf(1024 * 1024);
         return BigDecimal.valueOf(this.contents.length()).divide(byteToMBScaler, 3, BigDecimal.ROUND_CEILING);

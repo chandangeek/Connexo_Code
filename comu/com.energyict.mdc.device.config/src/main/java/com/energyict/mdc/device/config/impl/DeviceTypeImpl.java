@@ -59,6 +59,7 @@ import com.google.common.collect.Range;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.time.Clock;
 import java.time.Instant;
@@ -805,8 +806,19 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     @Override
     public DeviceMessageFile addDeviceMessageFile(Path path) {
         DeviceMessageFileImpl file = this.getDataModel().getInstance(DeviceMessageFileImpl.class).init(this, path);
+        return createFile(file);
+
+    }
+
+    @Override
+    public DeviceMessageFile addDeviceMessageFile(InputStream inputStream, String fileName) {
+        DeviceMessageFileImpl file = this.getDataModel().getInstance(DeviceMessageFileImpl.class).init(this, inputStream, fileName);
+        return createFile(file);
+    }
+
+    private DeviceMessageFile createFile(DeviceMessageFileImpl file) {
         if (this.deviceMessageFiles.stream().anyMatch(other -> other.getName().equals(file.getName()))) {
-            throw new DuplicateDeviceMessageFileException(this, file.getName(), this.getThesaurus());
+            throw new DuplicateDeviceMessageFileException(this, name, this.getThesaurus());
         }
         Save.CREATE.validate(this.getDataModel(), file);
         this.deviceMessageFiles.add(file);
