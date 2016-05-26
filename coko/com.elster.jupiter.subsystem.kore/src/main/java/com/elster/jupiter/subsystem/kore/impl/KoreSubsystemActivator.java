@@ -2,11 +2,12 @@ package com.elster.jupiter.subsystem.kore.impl;
 
 import com.elster.jupiter.system.BundleType;
 import com.elster.jupiter.system.Component;
-import com.elster.jupiter.system.utils.DependenciesParser;
-import com.elster.jupiter.system.utils.SubsystemModel;
 import com.elster.jupiter.system.SubsystemService;
 import com.elster.jupiter.system.beans.ComponentImpl;
 import com.elster.jupiter.system.beans.SubsystemImpl;
+import com.elster.jupiter.system.utils.DependenciesParser;
+import com.elster.jupiter.system.utils.SubsystemModel;
+
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Deactivate;
@@ -41,9 +42,8 @@ public class KoreSubsystemActivator {
 
         loadProperties(parser, findBundleResource(context, ROOT, "third-party-bundles.properties"));
         parse(parser, findBundleResource(context, "META-INF/maven/com.elster.jupiter.subsystem/kore", "pom.xml"));
-        parse(parser, findBundleResource(context, ROOT, "kore.bom*.pom"));
+        parse(parser, findBundleResource(context, ROOT, "kore*.pom"));
         parse(parser, findBundleResource(context, ROOT, "platform*.pom"));
-        parse(parser, findBundleResource(context, ROOT, "platform.bom*.pom"));
         model.addDependency(buildSelfComponent(context));
 
         List<Component> components = model.mergeDependencies();
@@ -92,7 +92,7 @@ public class KoreSubsystemActivator {
 
     private URL findBundleResource(BundleContext context, String path, String filePattern) {
         Enumeration<URL> entries = context.getBundle().findEntries(path, filePattern, false);
-        if (entries.hasMoreElements()) {
+        if (entries != null && entries.hasMoreElements()) {
             return entries.nextElement();
         }
         LOGGER.log(Level.SEVERE, "Unable to find resource [path=" + path + ", filePattern=" + filePattern + "]");
