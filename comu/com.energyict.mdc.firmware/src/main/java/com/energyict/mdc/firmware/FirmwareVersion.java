@@ -23,6 +23,15 @@ public interface FirmwareVersion extends BaseFirmwareVersion {
 
     void setFirmwareFile(byte[] firmwareFile);
 
+    /**
+     * Initializes the firmware file without updating database<br/>
+     * This should only be used when constructing a new {@Link FirmwareVersion},
+     * elese please use {@link #setFirmwareFile(byte[])}
+     *
+     * @param firmwareFile
+     */
+    void initFirmwareFile(byte[] firmwareFile);
+
     void setExpectedFirmwareSize(long fileSize);
 
     void validate();

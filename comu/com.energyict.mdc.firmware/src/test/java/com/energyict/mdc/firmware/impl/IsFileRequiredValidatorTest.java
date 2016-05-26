@@ -43,11 +43,10 @@ public class IsFileRequiredValidatorTest extends PersistenceTest {
     @Test
     @Transactional
     public void validateFirmwareVersionWithValidFirmwareFileTest() {
-        FirmwareVersion firmwareVersion = inMemoryPersistence.getFirmwareService()
+        inMemoryPersistence.getFirmwareService()
                 .newFirmwareVersion(deviceType, VERSION, FirmwareStatus.FINAL, FirmwareType.METER)
-                .setExpectedFirmwareSize(FIRMWARE_FILE.length)
+                .initFirmwareFile(FIRMWARE_FILE)
                 .create();
-        firmwareVersion.setFirmwareFile(FIRMWARE_FILE);
     }
 
     @Test
@@ -74,9 +73,8 @@ public class IsFileRequiredValidatorTest extends PersistenceTest {
     public void validateFirmwareVersionUpdateWithoutTouchingFirmwareFileTest() {
         FirmwareVersion firmwareVersion = inMemoryPersistence.getFirmwareService()
                 .newFirmwareVersion(deviceType, VERSION, FirmwareStatus.FINAL, FirmwareType.METER)
-                .setExpectedFirmwareSize(FIRMWARE_FILE.length)
+                .initFirmwareFile(FIRMWARE_FILE)
                 .create();
-        firmwareVersion.setFirmwareFile(FIRMWARE_FILE);
 
         FirmwareVersion reloadedFirmwareVersion = inMemoryPersistence.getFirmwareService().getFirmwareVersionById(firmwareVersion.getId()).get();
         reloadedFirmwareVersion.setFirmwareVersion(NEW_VERSION);
