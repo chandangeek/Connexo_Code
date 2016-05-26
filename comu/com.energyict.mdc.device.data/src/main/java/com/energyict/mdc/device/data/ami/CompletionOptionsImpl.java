@@ -20,13 +20,16 @@ public class CompletionOptionsImpl implements CompletionOptions {
     public void whenFinishedSend(String message, DestinationSpec destinationSpec) {
         // save the msg and the name of the destination spec to the custom prop set of the child servicecall
         // moved all service call related code to demo bundle under ami_scsexamples
-        /* this.serviceCall.getExtension(ContactorOperationDomainExtension.class)
-            .ifPresent(extension -> {
-                extension.setDestinationSpecName(destinationSpec.getName());
-                extension.setCompletionMessage(message);
-                this.serviceCall.update(extension);
-            });
-*/
+    /*    this.serviceCall.findChildren()
+                .stream()
+                .filter(child -> child.getExtension(ContactorOperationDomainExtension.class))
+                .findFirst()
+                .ifPresent(extension -> {
+                    extension.setDestinationSpecName(destinationSpec.getName());
+                    extension.setCompletionMessage(message);
+                    this.serviceCall.update(extension);
+                });
+    */
         destinationSpec.message(message).send();
     }
 
