@@ -8,9 +8,6 @@ Ext.define('Imt.usagepointmanagement.store.MeterActivations', {
         reader: {
             type: 'json',
             root: 'meterActivations'
-        },
-        setUrl: function(usagePointMRID) {
-            this.url = this.urlTpl.replace('{usagePointMRID}', usagePointMRID);
         }
     },
     setMrid: function (mrid) {

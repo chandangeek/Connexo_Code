@@ -167,20 +167,22 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
                 if(watsGoingOnMeterStatus.ongoingProcesses){
                     if(!first){
                         result += '<br>';
-                        first = false;
                     }
+                    first = false;
                     result += Uni.I18n.translate('general.label.ongoingProcesses', 'IMT', 'Ongoing processes({0})', watsGoingOnMeterStatus.ongoingProcesses);
                 }
                 if(watsGoingOnMeterStatus.ongoingServiceCalls){
                     if(!first){
                         result += '<br>';
                     }
+                    first = false;
                     result += Uni.I18n.translate('general.label.ongoingServiceCalls', 'IMT', 'Ongoing service calls({0})', watsGoingOnMeterStatus.ongoingServiceCalls);
                 }
-                return result;
+
+                return {result: result, status: !first};
 
             };
-        store.getProxy().setUrl(mRID);
+        store.setMrid(mRID);
 
         store.load({
             callback: function(){
@@ -190,17 +192,17 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
                     }
                 });
                 var count = store.getCount();
-                console.log(count);
                 if (count && count <= 2) {
                     store.each(function (meterActivation) {
                         meterActivation.get('meter') && metersContainer.add({
                             xtype: 'displayfield',
                             labelWidth: 120,
-                            margin: first ? 0 : '-13 0 0 0',
                             fieldLabel: first ? Uni.I18n.translate('general.meters', 'IMT', 'Meters') : '&nbsp;',
                             value: meterActivation.get('meter'),
                             renderer: function (value) {
-                                var tooltip = makeWGOTooltip(value.watsGoingOnMeterStatus),
+                                var result = '',
+                                    gotConfig = makeWGOTooltip(value.watsGoingOnMeterStatus),
+                                    tooltip = gotConfig.result,
                                     icon = '&nbsp;&nbsp;&nbsp;&nbsp;<i class="icon '
                                         + 'icon-warning2'
                                         + '" style="display: inline-block; width: 16px; height: 16px;" data-qtip="'
@@ -208,15 +210,16 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
                                         + '"></i>',
                                     url = Ext.String.format('{0}/devices/{1}', Uni.store.Apps.getAppUrl('MultiSense'), encodeURIComponent(value.mRID)),
                                     link = '<a href="' + url + '">' + Ext.String.htmlEncode(value.mRID) + '</a>',
-                                    activationTime = meterActivation.get('meterRole').activationTimem,
-                                    time = '';
+                                    activationTime = meterActivation.get('meterRole').activationTime;
+                                result += gotConfig.status ? link + icon : link;
 
                                 if (activationTime) {
-                                    time = '<br><span style="font-size: 90%">'
+                                    result += '<br><span style="font-size: 90%">'
                                         + Uni.I18n.translate('general.fromDate.lc', 'IMT', 'from {0}', [Uni.DateTime.formatDateTimeShort(new Date(activationTime))], false)
                                         + '</span>';
                                 }
-                                return link + icon + time;
+
+                                return result;
                             }
                         });
                         first = false;
