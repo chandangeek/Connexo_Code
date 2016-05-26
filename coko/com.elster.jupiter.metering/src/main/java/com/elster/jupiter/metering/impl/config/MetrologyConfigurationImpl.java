@@ -11,6 +11,7 @@ import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationStatus;
+import com.elster.jupiter.metering.config.MetrologyConfigurationUpdater;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
@@ -122,6 +123,11 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
 
     void setName(String name) {
         this.name = name;
+    }
+
+    @Override
+    public MetrologyConfigurationUpdater startUpdate() {
+        return new MetrologyConfigurationUpdaterImpl(this);
     }
 
     @Override

@@ -14,6 +14,8 @@ import java.util.List;
 @ProviderType
 public interface MetrologyConfiguration extends HasId, HasName {
 
+    MetrologyConfigurationUpdater startUpdate();
+
     void updateName(String name);
 
     long getVersion();
