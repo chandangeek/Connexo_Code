@@ -110,7 +110,7 @@ Ext.define('Imt.usagepointsetup.view.ActivateMeters', {
                         }, {
                             xtype: 'button',
                             ui: 'link',
-                            returnLink: me.returnLink,
+                            href: me.returnLink,
                             text: 'Cancel'
                         }]
                     }
