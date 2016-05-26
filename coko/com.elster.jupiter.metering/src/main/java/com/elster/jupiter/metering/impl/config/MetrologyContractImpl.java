@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.impl.config;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.config.ConstantNode;
+import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FunctionCallNode;
@@ -71,6 +72,11 @@ public class MetrologyContractImpl implements MetrologyContract {
 
     private void touch() {
         this.metrologyConfigurationService.getDataModel().touch(this.getMetrologyConfiguration());
+    }
+
+    @Override
+    public long getId() {
+        return this.id;
     }
 
     @Override

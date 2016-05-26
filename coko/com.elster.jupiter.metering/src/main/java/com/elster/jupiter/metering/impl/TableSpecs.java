@@ -1625,6 +1625,7 @@ public enum TableSpecs {
                     .on(metrologyContractColumn)
                     .map(MetrologyContractReadingTypeDeliverableUsage.Fields.METROLOGY_CONTRACT.fieldName())
                     .reverseMap(MetrologyContractImpl.Fields.DELIVERABLES.fieldName())
+                    .onDelete(CASCADE)
                     .composition()
                     .add();
             table.foreignKey("FK_CONTR_DELIVER_TO_DELIVER")
