@@ -205,7 +205,7 @@
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
-                <artifactId>platform.api.rest</artifactId>
+                <artifactId>pulse.api.rest</artifactId>
                 <version>1.0.0${revision}</version>
                 <scope>provided</scope>
             </dependency>
