@@ -73,7 +73,7 @@ public class UpgradeServiceImplIT {
         }
 
         @Override
-        public void migrate(DataModelUpgrader dataModelUpgrader) throws Exception {
+        public void migrate(DataModelUpgrader dataModelUpgrader) {
             invocations++;
         }
     }
@@ -87,7 +87,7 @@ public class UpgradeServiceImplIT {
         }
 
         @Override
-        public void migrate(DataModelUpgrader dataModelUpgrader) throws Exception {
+        public void migrate(DataModelUpgrader dataModelUpgrader) {
             invocations++;
         }
     }

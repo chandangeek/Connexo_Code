@@ -2,6 +2,7 @@ package com.elster.jupiter.upgrade.impl;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.util.Holder;
 import com.elster.jupiter.util.HolderBuilder;
@@ -12,10 +13,12 @@ final class MigrationDriver implements Migration {
 
     private final Holder<Upgrader> upgrader;
     private final DataModelUpgrader dataModelUpgrader;
+    private final TransactionService transactionService;
     private boolean iveBeenInstalled;
 
-    public MigrationDriver(DataModelUpgrader dataModelUpgrader, DataModel dataModel, Class<? extends Upgrader> upgrader) {
+    public MigrationDriver(DataModelUpgrader dataModelUpgrader, DataModel dataModel, TransactionService transactionService, Class<? extends Upgrader> upgrader) {
         this.dataModelUpgrader = dataModelUpgrader;
+        this.transactionService = transactionService;
         this.upgrader = HolderBuilder.lazyInitialize(() -> dataModel.getInstance(upgrader));
     }
 
@@ -35,9 +38,11 @@ final class MigrationDriver implements Migration {
     }
 
     @Override
-    public void migrate(Connection connection) throws Exception {
+    public void migrate(Connection connection) {
         if (!iveBeenInstalled) {
-            upgrader.get().migrate(dataModelUpgrader);
+            transactionService.builder()
+                    .principal(() -> "Installer")
+                    .run(() -> upgrader.get().migrate(dataModelUpgrader));
         }
     }
 

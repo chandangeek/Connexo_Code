@@ -7,5 +7,5 @@ import aQute.bnd.annotation.ConsumerType;
 @ConsumerType
 public interface Upgrader {
 
-    void migrate(DataModelUpgrader dataModelUpgrader) throws Exception;
+    void migrate(DataModelUpgrader dataModelUpgrader);
 }
