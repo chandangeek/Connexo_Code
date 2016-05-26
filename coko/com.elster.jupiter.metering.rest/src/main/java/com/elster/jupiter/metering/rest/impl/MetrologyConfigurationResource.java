@@ -140,8 +140,12 @@ public class MetrologyConfigurationResource {
     public Response deleteMetrologyConfiguration(@PathParam("id") String id, MetrologyConfigurationInfo info) {
         MetrologyConfiguration metrologyConfiguration = resourceHelper.findAndLockMetrologyConfiguration(info);
 
+        if (metrologyConfiguration.isActive()) {
+            throw exceptionFactory.newException(MessageSeeds.YOU_CANNOT_REMOVE_ACTIVE_METROLOGY_CONFIGURATION);
+        }
+
         metrologyConfiguration.delete();
 
-        return Response.status(Response.Status.OK).entity(info).build();
+        return Response.status(Response.Status.OK).build();
     }
 }
