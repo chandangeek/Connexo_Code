@@ -35,6 +35,8 @@ import java.util.Properties;
 public class E44 extends Modbus {
 
     private static final String CONNECTION = "Connection";
+    private static final String APPLY_CTRATIO = "ApplyCTRatio";
+    private boolean applyCtRatio = false;
 
     private ProfileBuilder profileBuilder;
 
@@ -50,12 +52,14 @@ public class E44 extends Modbus {
     protected List doTheGetOptionalKeys() {
         List result = new ArrayList();
         result.add(CONNECTION);
+        result.add(APPLY_CTRATIO);
         return result;
     }
 
     @Override
     protected void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         setInfoTypeResponseTimeout(Integer.parseInt(properties.getProperty("ResponseTimeout", "400").trim()));
+        applyCtRatio = Integer.parseInt(properties.getProperty(APPLY_CTRATIO, "0").trim()) == 1;
     }
 
     @Override
@@ -139,6 +143,10 @@ public class E44 extends Modbus {
 
     @Override
     public String getProtocolVersion() {
-        return "$Date: 2016-05-24 10:57:07 +0300 (Tue, 24 May 2016)$";
+        return "$Date: 2016-05-26 09:53:22 +0300 (Thu, 26 May 2016)$";
+    }
+
+    public boolean isApplyCtRatio() {
+        return applyCtRatio;
     }
 }
