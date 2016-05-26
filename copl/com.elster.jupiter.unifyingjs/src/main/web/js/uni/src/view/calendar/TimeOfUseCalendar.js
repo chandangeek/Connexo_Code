@@ -77,6 +77,13 @@ Ext.define('Uni.view.calendar.TimeOfUseCalendar', {
         });
         me.loadNewData();
         me.down('#tou-filter').down('#filter-apply-all').on('click', me.loadNewData, me)
+        me.down('#tou-filter').down('#filter-clear-all').on('click', me.loadNewDataFromClear, me)
+    },
+
+    loadNewDataFromClear: function() {
+        var me = this;
+        me.down('#tou-filter').down('#filter-clear-all').disable(true);
+        me.loadNewData();
     },
 
     loadNewData: function () {
