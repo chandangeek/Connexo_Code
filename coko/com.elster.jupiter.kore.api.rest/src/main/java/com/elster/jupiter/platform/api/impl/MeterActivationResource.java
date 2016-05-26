@@ -125,7 +125,8 @@ public class MeterActivationResource {
 
         MeterActivation activation;
         Instant start = Instant.ofEpochMilli(meterActivationInfo.interval.start);
-        if (start.isBefore(usagePoint.getMeterActivations()
+
+        if (!usagePoint.getMeterActivations().isEmpty() && start.isBefore(usagePoint.getMeterActivations()
                 .get(usagePoint.getMeterActivations().size() - 1)
                 .getStart())) {
             throw new LocalizedFieldValidationException(MessageSeeds.INVALID_START_TIME, "interval.start");

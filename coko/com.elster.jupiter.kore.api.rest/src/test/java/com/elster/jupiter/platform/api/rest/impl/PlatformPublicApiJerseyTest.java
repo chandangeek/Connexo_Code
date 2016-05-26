@@ -161,6 +161,7 @@ public class PlatformPublicApiJerseyTest extends FelixRestApplicationJerseyTest 
         when(usagePoint.getServiceDeliveryRemark()).thenReturn("remark");
         when(usagePoint.getServicePriority()).thenReturn("service priority");
         when(usagePoint.getMetrologyConfiguration()).thenReturn(Optional.empty());
+        when(usagePoint.getMeterActivations()).thenReturn(Collections.emptyList());
 
         when(usagePoint.forCustomProperties()).thenReturn(extension);
         when(meteringService.findUsagePoint(id)).thenReturn(Optional.of(usagePoint));

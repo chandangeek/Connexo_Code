@@ -196,6 +196,20 @@ public class MeterActivationResourceTest extends PlatformPublicApiJerseyTest {
         Assertions.assertThat(model.<String>get("$.errors[0].id")).isEqualTo("interval.start");
     }
 
+    @Test // CXO-1803
+    public void testCreateMeterActivationWithoutPreviousMeterActivation() throws Exception {
+        MeterActivationInfo meterActivationInfo = new MeterActivationInfo();
+        meterActivationInfo.interval = new IntervalInfo();
+        Instant now = clock.instant();
+        meterActivationInfo.interval.start = now.toEpochMilli();
+
+        MeterActivation meterActivation = mockMeterActivation(1001L, 1L, usagePoint);
+        when(usagePoint.activate(any())).thenReturn(meterActivation);
+
+        Response post = target("/usagepoints/16/meteractivations").request().post(Entity.json(meterActivationInfo));
+        assertThat(post.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    }
+
     @Test
     public void testCreateMeterActivationInvalidMeter() throws Exception {
         MeterActivationInfo meterActivationInfo = new MeterActivationInfo();
