@@ -741,13 +741,11 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     private Optional<Device> getOptionalDeviceByIdentifier(DeviceIdentifier deviceIdentifier) {
-        Device device = null;
         try {
-            device = (Device) deviceIdentifier.findDevice();
+            return Optional.of((Device) deviceIdentifier.findDevice());
         } catch (CanNotFindForIdentifier e) {
-            // ignore
+            return Optional.empty();
         }
-        return Optional.ofNullable(device);
     }
 
     @Override
@@ -787,7 +785,7 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     private void updateCalendars(CollectedCalendar collectedCalendar, Device device) {
-        Instant now = this.getClock().instant();
+        Instant now = this.now();
         collectedCalendar.getActiveCalendar().ifPresent(activeCalendarName -> this.setActiveCalendar(device, activeCalendarName, now));
         collectedCalendar.getPassiveCalendar().ifPresent(passiveCalendarName -> this.setPassiveCalendar(device, passiveCalendarName));
     }
@@ -797,7 +795,10 @@ public class ComServerDAOImpl implements ComServerDAO {
         if (allowedCalendar.isPresent()) {
             device.setActiveCalendar(allowedCalendar.get(), now, now);
         } else {
-            device.getDeviceType().addGhostCalendar(calendarName);
+            device.setActiveCalendar(
+                    device.getDeviceType().addGhostCalendar(calendarName),
+                    now,
+                    now);
         }
     }
 
@@ -806,7 +807,7 @@ public class ComServerDAOImpl implements ComServerDAO {
         if (allowedCalendar.isPresent()) {
             device.addPassiveCalendar(allowedCalendar.get());
         } else {
-            device.getDeviceType().addGhostCalendar(calendarName);
+            device.addPassiveCalendar(device.getDeviceType().addGhostCalendar(calendarName));
         }
     }
 

@@ -20,12 +20,10 @@ public class CollectedCalendarDeviceCommand extends DeviceCommandImpl<CollectedC
     public static final String DESCRIPTION_TITLE = "Collected calendar";
 
     private final CollectedCalendar collectedCalendar;
-    private final ComTaskExecution comTaskExecution;
 
     public CollectedCalendarDeviceCommand(ServiceProvider serviceProvider, CollectedCalendar collectedCalendar, ComTaskExecution comTaskExecution) {
         super(comTaskExecution, serviceProvider);
         this.collectedCalendar = collectedCalendar;
-        this.comTaskExecution = comTaskExecution;
     }
 
     @Override
@@ -37,18 +35,22 @@ public class CollectedCalendarDeviceCommand extends DeviceCommandImpl<CollectedC
 
     @Override
     protected void toJournalMessageDescription(DescriptionBuilder builder, ComServer.LogLevel serverLogLevel) {
-        collectedCalendar.getActiveCalendar().ifPresent(addBuilderProperty(builder, "active calendar"));
-        collectedCalendar.getPassiveCalendar().ifPresent(addBuilderProperty(builder, "passive calendar"));
+        this.collectedCalendar.getActiveCalendar().ifPresent(addBuilderProperty(builder, "active calendar"));
+        this.collectedCalendar.getPassiveCalendar().ifPresent(addBuilderProperty(builder, "passive calendar"));
     }
 
     private Consumer<String> addBuilderProperty(DescriptionBuilder builder, String propertyName) {
-        return fwVersion -> builder.addProperty(propertyName).append(fwVersion);
+        return calendarName -> builder.addProperty(propertyName).append(calendarName);
     }
 
     protected Optional<CollectedCalendarEvent> newEvent(List<Issue> issues) {
-        CollectedCalendarEvent event  =  new CollectedCalendarEvent(new ComServerEventServiceProvider(), collectedCalendar);
-        event.addIssues(issues);
-        return Optional.of(event);
+        if (!this.collectedCalendar.isEmpty()) {
+            CollectedCalendarEvent event = new CollectedCalendarEvent(new ComServerEventServiceProvider(), this.collectedCalendar);
+            event.addIssues(issues);
+            return Optional.of(event);
+        } else {
+            return Optional.empty();
+        }
     }
 
     @Override
