@@ -34,9 +34,14 @@ public final class ExecutionTimerImpl implements ExecutionTimer {
     }
 
     public void activate(BundleContext bundleContext) {
-        Dictionary<String, String> serviceProperties =  new Hashtable<>();
+        Dictionary<String, String> serviceProperties = new Hashtable<>();
         serviceProperties.put("name", "com.elster.jupiter.time.timer." + this.name.replace(" ", "_") + ".jmx");
-        serviceProperties.put("jmx.objectname", "com.elster.jupiter:type=" + this.name);
+        String[] parts = this.name.split(" ");
+        StringBuilder jmxName = new StringBuilder("com.elster.jupiter:type=ExecutionTimers");
+        for (int i = 0; i < parts.length; i++) {
+            jmxName.append(",name").append(i).append("=").append(parts[i]);
+        }
+        serviceProperties.put("jmx.objectname", jmxName.toString());
         this.serviceRegistration = bundleContext.registerService(ExecutionStatisticsImpl.class, this.statistics, serviceProperties);
     }
 
