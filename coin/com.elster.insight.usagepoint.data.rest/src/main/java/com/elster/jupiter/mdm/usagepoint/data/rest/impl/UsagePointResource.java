@@ -6,6 +6,7 @@ import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
@@ -38,6 +39,7 @@ import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.rest.util.RestValidationBuilder;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallFilter;
@@ -67,6 +69,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
+import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -96,6 +99,7 @@ public class UsagePointResource {
     private final Provider<GoingOnResource> goingOnResourceProvider;
 
     private final UsagePointInfoFactory usagePointInfoFactory;
+    private final LocationInfoFactory locationInfoFactory;
     private final ExceptionFactory exceptionFactory;
     private final ResourceHelper resourceHelper;
     private final MetrologyConfigurationService metrologyConfigurationService;
@@ -110,6 +114,7 @@ public class UsagePointResource {
                               UsagePointInfoFactory usagePointInfoFactory,
                               CustomPropertySetInfoFactory customPropertySetInfoFactory,
                               ExceptionFactory exceptionFactory,
+                              LocationInfoFactory locationInfoFactory,
                               Thesaurus thesaurus,
                               ResourceHelper resourceHelper,
                               MetrologyConfigurationService metrologyConfigurationService,
@@ -123,6 +128,7 @@ public class UsagePointResource {
         this.usagePointCustomPropertySetResourceProvider = usagePointCustomPropertySetResourceProvider;
         this.customPropertySetService = customPropertySetService;
         this.usagePointInfoFactory = usagePointInfoFactory;
+        this.locationInfoFactory = locationInfoFactory;
         this.thesaurus = thesaurus;
         this.customPropertySetInfoFactory = customPropertySetInfoFactory;
         this.exceptionFactory = exceptionFactory;
@@ -166,6 +172,18 @@ public class UsagePointResource {
     @Transactional
     public UsagePointInfo updateUsagePoint(@PathParam("id") String id, UsagePointInfo info) {
         UsagePoint usagePoint = resourceHelper.lockUsagePointOrThrowException(info);
+
+        RestValidationBuilder validationBuilder = new RestValidationBuilder();
+        validateGeoCoordinates(validationBuilder, "extendedGeoCoordinates", info.extendedGeoCoordinates);
+        validateLocation(validationBuilder, "location", info.extendedLocation);
+        validationBuilder.validate();
+
+        usagePoint.setGeoCoordinates(usagePointInfoFactory.getGeoCoordinates(info));
+        Location location = usagePointInfoFactory.getLocation(info);
+        if (location != null) {
+            usagePoint.setLocation(location.getId());
+        }
+
         info.writeTo(usagePoint);
         info.techInfo.getUsagePointDetailBuilder(usagePoint, clock).create();
 
@@ -348,12 +366,16 @@ public class UsagePointResource {
     @Transactional
     @SuppressWarnings("unchecked")
     public Response createUsagePoint(UsagePointInfo info, @QueryParam("validate") boolean validate, @QueryParam("step") long step, @QueryParam("customPropertySetId") long customPropertySetId) {
-        new RestValidationBuilder()
-                .notEmpty(info.mRID, "mRID")
+        RestValidationBuilder validationBuilder = new RestValidationBuilder();
+        validateGeoCoordinates(validationBuilder, "extendedGeoCoordinates", info.extendedGeoCoordinates);
+        validateLocation(validationBuilder, "location", info.extendedLocation);
+
+        validationBuilder.notEmpty(info.mRID, "mRID")
                 .notEmpty(info.serviceCategory, "serviceCategory")
                 .notEmpty(info.isSdp, "typeOfUsagePoint")
                 .notEmpty(info.isVirtual, "typeOfUsagePoint")
                 .validate();
+
         validateSeviceKind(info.serviceCategory);
 
         if (validate) {
@@ -400,6 +422,54 @@ public class UsagePointResource {
         }
     }
 
+    private void validateGeoCoordinates(RestValidationBuilder validationBuilder, String fieldName, CoordinatesInfo geoCoordinates) {
+        String spatialCoordinates = geoCoordinates.spatialCoordinates;
+        if (spatialCoordinates == null || spatialCoordinates.length() == 0 || spatialCoordinates.indexOf(":") == -1) {
+            return;
+        }
+        String[] parts = spatialCoordinates.split(":");
+        if (parts.length == 0) {
+            return;
+        }
+
+        if (parts.length != 3) {
+            validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.INVALID_COORDINATES, fieldName));
+            return;
+        }
+
+        if (Arrays.asList(parts)
+                .stream()
+                .anyMatch(element -> element.split(",").length > 2
+                        || element.split(".").length > 2)) {
+            validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.INVALID_COORDINATES, fieldName));
+            return;
+        }
+
+        try {
+            BigDecimal numericLatitude = new BigDecimal(parts[0].contains(",") ? String.valueOf(parts[0].replace(",", ".")) : parts[0]);
+            BigDecimal numericLongitude = new BigDecimal(parts[1].contains(",") ? String.valueOf(parts[1].replace(",", ".")) : parts[1]);
+            BigDecimal numericElevation = new BigDecimal(parts[2]);
+            if (numericLatitude.compareTo(BigDecimal.valueOf(-90)) < 0
+                    || numericLatitude.compareTo(BigDecimal.valueOf(90)) > 0
+                    || numericLongitude.compareTo(BigDecimal.valueOf(-180)) < 0
+                    || numericLongitude.compareTo(BigDecimal.valueOf(180)) > 0) {
+                validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.INVALID_COORDINATES, fieldName));
+            }
+        } catch (Exception e) {
+            validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.INVALID_COORDINATES, fieldName));
+        }
+    }
+
+    private void validateLocation(RestValidationBuilder validationBuilder, String fieldName, LocationInfo editLocation) {
+        if (editLocation.properties != null) {
+            List<PropertyInfo> propertyInfos = Arrays.asList(editLocation.properties);
+            for (PropertyInfo propertyInfo : propertyInfos) {
+                if (propertyInfo.required && ((propertyInfo.propertyValueInfo.value == null) || (propertyInfo.propertyValueInfo.value.toString().length() == 0))) {
+                    validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.THIS_FIELD_IS_REQUIRED, "properties." + propertyInfo.key));
+                }
+            }
+        }
+    }
 
     @GET
     @Path("/{id}/readingtypes")
@@ -582,5 +652,15 @@ public class UsagePointResource {
             }
         }
         return PagedInfoList.fromCompleteList("data", outputChannelDataInfoList, queryParameters);
+    }
+
+    @GET
+    @Transactional
+    @Path("/locations/{locationId}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT,
+            Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
+    public Response getLocationAttributes(@PathParam("locationId") long locationId) {
+        return Response.ok(locationInfoFactory.from(locationId)).build();
     }
 }

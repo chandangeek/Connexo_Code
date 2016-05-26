@@ -8,8 +8,11 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.GasDetail;
+import com.elster.jupiter.metering.GeoCoordinates;
 import com.elster.jupiter.metering.HeatDetail;
 import com.elster.jupiter.metering.Location;
+import com.elster.jupiter.metering.LocationBuilder;
+import com.elster.jupiter.metering.LocationTemplate;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
@@ -28,6 +31,8 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
+import com.elster.jupiter.rest.util.properties.PropertyInfo;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCallService;
 
@@ -40,11 +45,11 @@ import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -59,6 +64,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
     private volatile BpmService bpmService;
     private volatile IssueService issueService;
     private volatile CustomPropertySetInfoFactory customPropertySetInfoFactory;
+    private volatile ThreadPrincipalService threadPrincipalService;
     private volatile License license;
 
     public UsagePointInfoFactory() {
@@ -70,11 +76,13 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                                  MeteringService meteringService,
                                  ServiceCallService serviceCallService,
                                  BpmService bpmService,
-                                 IssueService issueService) {
+                                 IssueService issueService,
+                                 ThreadPrincipalService threadPrincipalService) {
         this();
         this.setClock(clock);
         this.setNlsService(nlsService);
         this.setMeteringService(meteringService);
+        this.setThreadPrincipalService(threadPrincipalService);
         this.setServiceCallService(serviceCallService);
         this.setBpmService(bpmService);
         this.setIssueService(issueService);
@@ -112,6 +120,11 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
     }
 
     @Reference
+    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+        this.threadPrincipalService = threadPrincipalService;
+    }
+
+    @Reference
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(UsagePointApplication.COMPONENT_NAME, Layer.REST);
     }
@@ -129,7 +142,6 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         info.id = usagePoint.getId();
         info.mRID = usagePoint.getMRID();
         info.serviceLocationId = usagePoint.getServiceLocation().map(ServiceLocation::getId).orElse(0L);
-        info.location = usagePoint.getServiceLocationString();
         info.name = usagePoint.getName();
         info.isSdp = usagePoint.isSdp();
         info.isVirtual = usagePoint.isVirtual();
@@ -187,22 +199,11 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
     }
 
     private void addLocationInfo(UsagePointInfo info, UsagePoint usagePoint) {
-        meteringService.findUsagePointGeoCoordinates(usagePoint.getMRID())
-                .ifPresent(coordinates -> info.geoCoordinates = coordinates.getCoordinates().toString());
+        info.extendedGeoCoordinates = new CoordinatesInfo(meteringService, usagePoint.getMRID());
+        info.extendedLocation = new LocationInfo(meteringService, thesaurus, usagePoint.getMRID());
 
-
-        Optional<Location> location = meteringService.findUsagePointLocation(usagePoint.getMRID());
-        String formattedLocation = "";
-        if (location.isPresent()) {
-            List<List<String>> formattedLocationMembers = meteringService.getFormattedLocationMembers(location.get()
-                    .getId());
-            formattedLocationMembers.stream().skip(1).forEach(list ->
-                    list.stream().filter(Objects::nonNull).findFirst().ifPresent(member -> list.set(0, "\\r\\n" + member)));
-            formattedLocation = formattedLocationMembers.stream()
-                    .flatMap(List::stream).filter(Objects::nonNull)
-                    .collect(Collectors.joining(", "));
-        }
-        info.location = formattedLocation;
+        info.geoCoordinates = info.extendedGeoCoordinates.coordinatesDisplay;
+        info.location = info.extendedLocation.locationValue;
     }
 
     @Override
@@ -217,17 +218,17 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         return propertyDescriptionInfoList;
     }
 
-    private PropertyDescriptionInfo createDescription(UsagePointModelTranslationKeys propertyName, Class<?> aClass) {
-        return new PropertyDescriptionInfo(propertyName.getKey(), aClass, thesaurus.getString(propertyName.getKey(), propertyName
-                .getDefaultFormat()));
-    }
-
     @Override
     public Class getDomainClass() {
         if (!Optional.ofNullable(this.license).isPresent()) {
             return EmptyDomain.class;
         }
         return UsagePoint.class;
+    }
+
+    private PropertyDescriptionInfo createDescription(UsagePointModelTranslationKeys propertyName, Class<?> aClass) {
+        return new PropertyDescriptionInfo(propertyName.getKey(), aClass, thesaurus.getString(propertyName.getKey(), propertyName
+                .getDefaultFormat()));
     }
 
     private String getUsagePointDisplayType(UsagePoint usagePoint) {
@@ -248,7 +249,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
     }
 
     public UsagePointBuilder newUsagePointBuilder(UsagePointInfo usagePointInfo) {
-        return meteringService.getServiceCategory(ServiceKind.valueOf(usagePointInfo.serviceCategory))
+        UsagePointBuilder usagePointBuilder = meteringService.getServiceCategory(ServiceKind.valueOf(usagePointInfo.serviceCategory))
                 .orElseThrow(IllegalArgumentException::new)
                 .newUsagePoint(
                         usagePointInfo.mRID,
@@ -259,8 +260,74 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                 .withReadRoute(usagePointInfo.readRoute)
                 .withServicePriority(usagePointInfo.servicePriority)
                 .withServiceDeliveryRemark(usagePointInfo.serviceDeliveryRemark)
-                .withServiceLocationString(usagePointInfo.location);
+                .withServiceLocationString(usagePointInfo.extendedLocation.unformattedLocationValue);
+
+        GeoCoordinates geoCoordinates = getGeoCoordinates(usagePointInfo);
+        if (geoCoordinates != null) {
+            usagePointBuilder.withGeoCoordinates(geoCoordinates);
+        }
+
+        Location location = getLocation(usagePointInfo);
+        if (location != null) {
+            usagePointBuilder.withLocation(location);
+        }
+        return usagePointBuilder;
     }
+
+    public GeoCoordinates getGeoCoordinates(UsagePointInfo usagePointInfo) {
+        if ((usagePointInfo.extendedGeoCoordinates != null) && (usagePointInfo.extendedGeoCoordinates.spatialCoordinates != null)) {
+            return meteringService.createGeoCoordinates(usagePointInfo.extendedGeoCoordinates.spatialCoordinates);
+        }
+        return null;
+    }
+
+    public Location getLocation(UsagePointInfo usagePointInfo) {
+        if ((usagePointInfo.extendedLocation.locationId != null) && (usagePointInfo.extendedLocation.locationId == -1)
+                && (usagePointInfo.extendedLocation.properties != null) && (usagePointInfo.extendedLocation.properties.length > 0)) {
+            List<PropertyInfo> propertyInfoList = Arrays.asList(usagePointInfo.extendedLocation.properties);
+            List<String> locationData = propertyInfoList.stream()
+                    .map(d -> d.propertyValueInfo.value.toString())
+                    .collect(Collectors.toList());
+            LocationBuilder builder = meteringService.newLocationBuilder();
+            Map<String, Integer> ranking = meteringService
+                    .getLocationTemplate()
+                    .getTemplateMembers()
+                    .stream()
+                    .collect(Collectors.toMap(LocationTemplate.TemplateField::getName,
+                            LocationTemplate.TemplateField::getRanking));
+            Optional<LocationBuilder.LocationMemberBuilder> memberBuilder = builder.getMember(threadPrincipalService.getLocale().getLanguage());
+            if (memberBuilder.isPresent()) {
+                setLocationAttributes(memberBuilder.get(), locationData, ranking);
+            } else {
+                setLocationAttributes(builder.member(), locationData, ranking).add();
+            }
+            return builder.create();
+        } else if ((usagePointInfo.extendedLocation.locationId != null) && (usagePointInfo.extendedLocation.locationId > 0)) {
+            return meteringService.findLocation(usagePointInfo.extendedLocation.locationId).get();
+        }
+        return null;
+    }
+
+    private LocationBuilder.LocationMemberBuilder setLocationAttributes(LocationBuilder.LocationMemberBuilder builder, List<String> locationData, Map<String, Integer> ranking) {
+        builder.setCountryCode(locationData.get(ranking.get("countryCode")))
+                .setCountryName(locationData.get(ranking.get("countryName")))
+                .setAdministrativeArea(locationData.get(ranking.get("administrativeArea")))
+                .setLocality(locationData.get(ranking.get("locality")))
+                .setSubLocality(locationData.get(ranking.get("subLocality")))
+                .setStreetType(locationData.get(ranking.get("streetType")))
+                .setStreetName(locationData.get(ranking.get("streetName")))
+                .setStreetNumber(locationData.get(ranking.get("streetNumber")))
+                .setEstablishmentType(locationData.get(ranking.get("establishmentType")))
+                .setEstablishmentName(locationData.get(ranking.get("establishmentName")))
+                .setEstablishmentNumber(locationData.get(ranking.get("establishmentNumber")))
+                .setAddressDetail(locationData.get(ranking.get("addressDetail")))
+                .setZipCode(locationData.get(ranking.get("zipCode")))
+                .isDaultLocation(true)
+                .setLocale(threadPrincipalService.getLocale().getLanguage());
+
+        return builder;
+    }
+
 
     public List<MeterActivationInfo> getMetersOnUsagePointInfo(UsagePoint usagePoint, String auth) {
         Map<MeterRole, MeterRoleInfo> mandatoryMeterRoles = new LinkedHashMap<>();
@@ -301,7 +368,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                 .collect(Collectors.toList());
     }
 
-    public WatsGoingOnMeterStatusInfo getWatsGoingOnMeterStatus(Meter meter, String auth){
+    public WatsGoingOnMeterStatusInfo getWatsGoingOnMeterStatus(Meter meter, String auth) {
         WatsGoingOnMeterStatusInfo info = new WatsGoingOnMeterStatusInfo();
         IssueFilter issueFilter = issueService.newIssueFilter();
         issueFilter.addDevice(meter);
