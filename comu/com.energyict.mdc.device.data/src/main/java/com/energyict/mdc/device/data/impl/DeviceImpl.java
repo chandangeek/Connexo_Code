@@ -2514,7 +2514,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             if (register.getRegisterSpec() instanceof NumericalRegisterSpec) { //textRegisters don't have fraction digits and overflow values
                 DeviceImpl.this.findKoreMeter(getMdcAmrSystem()).ifPresent(koreMeter -> {
                     Optional<MeterConfiguration> currentMeterConfiguration = koreMeter.getConfiguration(updateInstant);
-                    if (requiredToCreateNewMeterConfiguration(currentMeterConfiguration, register.getReadingType())) { // if we need to update it
+                    if (requiredToCreateNewMeterConfiguration(currentMeterConfiguration, register.getReadingType(), overruledOverflowValue, overruledNbrOfFractionDigits)) { // if we need to update it
                         if (currentMeterConfiguration.isPresent()) {
                             MeterConfiguration meterConfiguration = currentMeterConfiguration.get();
                             meterConfiguration.endAt(updateInstant);
@@ -2594,27 +2594,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         private boolean registerWeNeedToUpdate(MeterReadingTypeConfiguration meterReadingTypeConfiguration) {
             return meterReadingTypeConfiguration.getMeasured().equals(register.getReadingType());
         }
-
-        private boolean requiredToCreateNewMeterConfiguration(Optional<MeterConfiguration> meterConfiguration, ReadingType readingType) {
-            if (meterConfiguration.isPresent()) {
-                boolean required;
-                Optional<MeterReadingTypeConfiguration> readingTypeConfiguration = meterConfiguration.get().getReadingTypeConfiguration(readingType);
-                if (overruledOverflowValue == null) {
-                    required = readingTypeConfiguration.isPresent() && readingTypeConfiguration.get().getOverflowValue().isPresent();
-                } else {
-                    required = !readingTypeConfiguration.isPresent() || !readingTypeConfiguration.get().getOverflowValue().get().equals(overruledOverflowValue);
-                }
-
-                if (overruledNbrOfFractionDigits == null) {
-                    required |= readingTypeConfiguration.isPresent() && readingTypeConfiguration.get().getNumberOfFractionDigits().isPresent();
-                } else {
-                    required |= !readingTypeConfiguration.isPresent() || readingTypeConfiguration.get().getNumberOfFractionDigits().getAsInt() != overruledNbrOfFractionDigits;
-                }
-                return required;
-            } else {
-                return true;
-            }
-        }
     }
 
     private class ChannelUpdaterImpl implements Channel.ChannelUpdater {
@@ -2651,7 +2630,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             Instant updateInstant = DeviceImpl.this.clock.instant();
             DeviceImpl.this.findKoreMeter(getMdcAmrSystem()).ifPresent(koreMeter -> {
                 Optional<MeterConfiguration> currentMeterConfiguration = koreMeter.getConfiguration(updateInstant);
-                if (requiredToCreateNewMeterConfiguration(currentMeterConfiguration, channel.getReadingType())) { // if we need to update it
+                if (requiredToCreateNewMeterConfiguration(currentMeterConfiguration, channel.getReadingType(), overruledOverflowValue, overruledNbrOfFractionDigits)) { // if we need to update it
                     if (currentMeterConfiguration.isPresent()) {
                         MeterConfiguration meterConfiguration = currentMeterConfiguration.get();
                         meterConfiguration.endAt(updateInstant);
@@ -2720,27 +2699,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             DeviceImpl.this.save(); //just to make sure we increase the version
         }
 
-        private boolean requiredToCreateNewMeterConfiguration(Optional<MeterConfiguration> meterConfiguration, ReadingType readingType) {
-            if (meterConfiguration.isPresent()) {
-                boolean required;
-                Optional<MeterReadingTypeConfiguration> readingTypeConfiguration = meterConfiguration.get().getReadingTypeConfiguration(readingType);
-                if (overruledOverflowValue == null) {
-                    required = readingTypeConfiguration.isPresent() && readingTypeConfiguration.get().getOverflowValue().isPresent();
-                } else {
-                    required = !readingTypeConfiguration.isPresent() || !readingTypeConfiguration.get().getOverflowValue().get().equals(overruledOverflowValue);
-                }
-
-                if (overruledNbrOfFractionDigits == null) {
-                    required |= readingTypeConfiguration.isPresent() && readingTypeConfiguration.get().getNumberOfFractionDigits().isPresent();
-                } else {
-                    required |= !readingTypeConfiguration.isPresent() || readingTypeConfiguration.get().getNumberOfFractionDigits().getAsInt() != overruledNbrOfFractionDigits;
-                }
-                return required;
-            } else {
-                return true;
-            }
-        }
-
         private boolean channelWeNeedToUpdate(ChannelSpec channelSpec) {
             return channelSpec.getReadingType().equals(channel.getReadingType());
         }
@@ -2759,7 +2717,30 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 return calculatedReadingType;
             }
         }
+    }
 
+    private boolean requiredToCreateNewMeterConfiguration(Optional<MeterConfiguration> meterConfiguration, ReadingType readingType, BigDecimal overruledOverflowValue, Integer overruledNbrOfFractionDigits) {
+        if (meterConfiguration.isPresent()) {
+            boolean required;
+            Optional<MeterReadingTypeConfiguration> readingTypeConfiguration = meterConfiguration.get().getReadingTypeConfiguration(readingType);
+            if (overruledOverflowValue == null) {
+                required = readingTypeConfiguration.isPresent() && readingTypeConfiguration.get().getOverflowValue().isPresent();
+            } else {
+                required = !readingTypeConfiguration.isPresent() || !readingTypeConfiguration.get().getOverflowValue().isPresent() || !readingTypeConfiguration.get()
+                        .getOverflowValue()
+                        .get()
+                        .equals(overruledOverflowValue);
+            }
+
+            if (overruledNbrOfFractionDigits == null) {
+                required |= readingTypeConfiguration.isPresent() && readingTypeConfiguration.get().getNumberOfFractionDigits().isPresent();
+            } else {
+                required |= !readingTypeConfiguration.isPresent() || readingTypeConfiguration.get().getNumberOfFractionDigits().getAsInt() != overruledNbrOfFractionDigits;
+            }
+            return required;
+        } else {
+            return true;
+        }
     }
 
     private enum RegisterFactory {
