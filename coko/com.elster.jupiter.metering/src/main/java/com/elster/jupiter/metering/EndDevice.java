@@ -1,6 +1,5 @@
 package com.elster.jupiter.metering;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.cbo.ElectronicAddress;
 import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.fsm.FiniteStateMachine;
@@ -37,7 +36,7 @@ public interface EndDevice extends IdentifiedObject {
     long getLocationId();
     Optional<GeoCoordinates> getGeoCoordinates();
     long getGeoCoordinatesId();
-    void setGeoCoordintes(GeoCoordinates geoCoordinates);
+    void setGeoCoordinates(GeoCoordinates geoCoordinates);
     Optional<HeadEndInterface> getHeadEndInterface();
 
 

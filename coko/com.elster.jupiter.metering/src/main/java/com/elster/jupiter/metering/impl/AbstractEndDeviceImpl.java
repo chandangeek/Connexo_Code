@@ -193,6 +193,7 @@ abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> impleme
         this.geoCoordinates.set(geoCoordinates);
     }
 
+
     @Override
     public AmrSystem getAmrSystem() {
         if (amrSystem == null) {
