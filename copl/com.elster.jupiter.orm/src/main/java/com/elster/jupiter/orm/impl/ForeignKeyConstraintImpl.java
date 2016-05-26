@@ -381,6 +381,9 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl<ForeignKeyCons
         @Override
         public Builder references(String name) {
             TableImpl<?> referencedTable = constraint.getTable().getDataModel().getTable(name);
+            if (referencedTable == null && constraint.getTable().getName().equals(name)) {
+                referencedTable = constraint.getTable();
+            }
             if (referencedTable == null) {
                 throw new IllegalTableMappingException("Foreign key " + constraint.getName() + " on table " + constraint.getTable().getName() + " the referenced table " + name + " does not exist.");
             }

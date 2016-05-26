@@ -5,14 +5,16 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.schema.ExistingColumn;
 import com.elster.jupiter.orm.schema.ExistingIndex;
 import com.elster.jupiter.orm.schema.ExistingTable;
+
 import com.google.common.collect.ImmutableList;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static com.elster.jupiter.util.Checks.is;
 
 public class TableImpl implements ExistingTable {
 
@@ -50,17 +52,30 @@ public class TableImpl implements ExistingTable {
     }
 
     @Override
-    public void addTo(DataModel dataModel, Optional<String> journalTableName) {
-        Table table = dataModel.addTable(getName(), Object.class);
-        if (journalTableName.isPresent()) {
-            table.setJournalTableName(journalTableName.get());
+    public void addColumnsTo(DataModel dataModel, String journalTableName) {
+        Table table = getOrAddTable(dataModel);
+        if (!is(journalTableName).emptyOrOnlyWhiteSpace()) {
+            table.setJournalTableName(journalTableName);
         }
         for (ColumnImpl column : columns) {
             column.addTo(table);
         }
+    }
+
+    @Override
+    public void addConstraintsTo(DataModel dataModel) {
+        Table table = getOrAddTable(dataModel);
         for (ConstraintImpl constraint : constraints) {
             constraint.addTo(table);
         }
+    }
+
+    private Table getOrAddTable(DataModel dataModel) {
+        Table table = dataModel.getTable(getName());
+        if (table == null) {
+            table = dataModel.addTable(getName(), Object.class);
+        }
+        return table;
     }
 
     public List<ExistingColumn> getPrimaryKeyColumns() {
