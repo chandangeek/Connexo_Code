@@ -5,7 +5,9 @@ Ext.define('Imt.registerdata.view.RegisterTabbedView', {
     requires: [
         'Uni.view.toolbar.PreviousNextNavigation',
         'Imt.registerdata.store.Register',
-        'Imt.registerdata.view.Overview'
+        'Imt.registerdata.view.Overview',
+        'Uni.view.container.PreviewContainer',
+        'Uni.util.FormEmptyMessage'
     ],
     router: null,
     register: null,
@@ -58,12 +60,9 @@ Ext.define('Imt.registerdata.view.RegisterTabbedView', {
                                     registerId: me.registerId
                                 },
                                 emptyComponent: {
-                                    xtype: 'no-items-found-panel',
+                                    xtype: 'uni-form-empty-message',
                                     itemId: 'ctr-no-device-register-config',
-                                    title: Uni.I18n.translate('registerdata.label.register.list.empty', 'IMT', 'No registers found'),
-                                    reasons: [
-                                        Uni.I18n.translate('registerdata.label.register.list.undefined', 'IMT', 'No registers have been defined yet.')
-                                    ]
+                                    text: Uni.I18n.translate('registerdata.label.register.list.undefined', 'IMT', 'No registers have been defined yet.')
                                 },
                                 previewComponent: {
                                     xtype: 'container',

@@ -36,11 +36,23 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointSummary', {
             }
         },
         {
+            name: 'extendedGeoCoordinates',
+            itemId: 'up-summary-geoCoordinates',
+            fieldLabel: Uni.I18n.translate('general.label.coordinates', 'IMT', 'Coordinates'),
+            renderer: function (value) {
+                if (!Ext.isEmpty(value) && !Ext.isEmpty(value.coordinatesDisplay)) {
+                    return Ext.String.htmlEncode(value.coordinatesDisplay);
+                } else {
+                    return '-'
+                }
+            }
+        },
+        {
             itemId: 'up-summary-location',
-            name: 'location',
+            name: 'extendedLocation',
             fieldLabel: Uni.I18n.translate('general.label.location', 'IMT', 'Location'),
             renderer: function (value) {
-                return value ? Ext.String.htmlEncode(value).replace(/(?:\\r\\n|\\r|\\n)/g, '<br>') : '-';
+                return value && value.formattedLocationValue ? Ext.String.htmlEncode(value.formattedLocationValue).replace(/(?:\\r\\n|\\r|\\n)/g, '<br>') : '-';
             }
         },
         {

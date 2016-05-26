@@ -38,7 +38,7 @@ Ext.define('Imt.metrologyconfiguration.view.CustomAttributeSetsAdd', {
                     itemId: 'cas-no-items-found-panel',
                     title: Uni.I18n.translate('Imt.metrologyconfiguration.add.empty.title', 'IMT', 'No custom attribute sets found'),
                     reasons: [
-                        Uni.I18n.translate('Imt.metrologyconfiguration.add.empty.list.item1', 'IMT', 'All cutom attribute sets already added'),
+                        Uni.I18n.translate('Imt.metrologyconfiguration.add.empty.list.item1', 'IMT', 'All custom attribute sets already added'),
                         Uni.I18n.translate('Imt.metrologyconfiguration.add.empty.list.item2', 'IMT', 'No custom attribute sets defined yet')
                     ]
                 }
