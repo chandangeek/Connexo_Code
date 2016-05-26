@@ -130,7 +130,6 @@ public class DataValidationTaskResource {
     @Path("/{dataValidationTaskId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION)
-    @Transactional
     public Response deleteDataValidationTask(@HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName,
                                              @PathParam("dataValidationTaskId") long dataValidationTaskId,
                                              DataValidationTaskInfo info) {
