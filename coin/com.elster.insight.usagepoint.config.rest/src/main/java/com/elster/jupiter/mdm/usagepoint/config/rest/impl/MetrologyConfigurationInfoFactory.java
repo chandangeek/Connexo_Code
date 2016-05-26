@@ -75,7 +75,7 @@ public class MetrologyConfigurationInfoFactory {
     private IdWithNameInfo asInfo(MetrologyConfigurationStatus status) {
         IdWithNameInfo info = new IdWithNameInfo();
         info.id = status.getId();
-        info.name = thesaurus.getFormat(MetrologyConfigurationStatusTranslationKeys.getTranslatedName(status)).format();
+        info.name = thesaurus.getFormat(status.getTranslationKey()).format();
         return info;
     }
 
