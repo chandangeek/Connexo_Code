@@ -5,8 +5,7 @@ Ext.define('Mdc.filemanagement.view.FilesGrid', {
     deviceTypeId: null,
     requires: [
         'Uni.grid.column.Action',
-        'Uni.view.toolbar.PagingTop',
-        'Ext.form.field.FileView'
+        'Uni.view.toolbar.PagingTop'
     ],
 
     initComponent: function () {
@@ -21,7 +20,7 @@ Ext.define('Mdc.filemanagement.view.FilesGrid', {
                 header: Uni.I18n.translate('general.creationDate', 'MDC', 'Creation date'),
                 dataIndex: 'creationDate',
                 flex: 3,
-                renderer: function(value) {
+                renderer: function (value) {
                     return value && value !== 0 ? Uni.DateTime.formatDateTime(new Date(value), Uni.DateTime.LONG, Uni.DateTime.LONG) : '-';
                 }
             }
@@ -40,19 +39,28 @@ Ext.define('Mdc.filemanagement.view.FilesGrid', {
         me.dockedItems = [
             {
                 xtype: 'pagingtoolbartop',
-                //store: me.store,
+                store: me.store,
                 dock: 'top',
                 displayMsg: Uni.I18n.translate('filemanagement.pagingtoolbartop.displayMsg', 'MDC', 'No files'),
                 items: [
                     {
-                        xtype: 'filefield',
-                        buttonText: Uni.I18n.translate('filemanagement.addFile', 'MDC', 'Add file'),
-                        privileges: Mdc.privileges.DeviceType.admin,
-                        buttonConfig:  {
-                            ui: 'button'
+                        xtype: 'form',
+                        autoEl: {
+                            tag: 'form',
+                            enctype: 'multipart/form-data'
                         },
-                        buttonOnly: true,
-                        itemId: 'add-file-btn'
+                        items: [{
+                            xtype: 'filefield',
+                            name: 'uploadField',
+                            buttonText: Uni.I18n.translate('filemanagement.addFile', 'MDC', 'Add file'),
+                            privileges: Mdc.privileges.DeviceType.admin,
+                            buttonConfig: {
+                                ui: 'default'
+                            },
+                            buttonOnly: true,
+                            itemId: 'add-file-btn',
+                            vtype: 'fileUpload'
+                        }]
                     }
                 ],
                 usesExactCount: true,
@@ -64,7 +72,7 @@ Ext.define('Mdc.filemanagement.view.FilesGrid', {
         me.callParent(arguments);
     },
 
-    fnIsDisabled: function() {
+    fnIsDisabled: function () {
         return !this.timeOfUseAllowed;
     }
 });

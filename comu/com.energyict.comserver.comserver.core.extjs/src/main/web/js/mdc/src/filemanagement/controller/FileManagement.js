@@ -35,10 +35,10 @@ Ext.define('Mdc.filemanagement.controller.FileManagement', {
                 click: me.goToEditPage
             },
             'files-devicetype-edit-specs-form #files-save-specs-button': {
-                click: this.saveFileManagementSettings
+                click: me.saveFileManagementSettings
             },
-            'device-type-files-setup #add-file-btn': {
-                click: this.openDialog
+            '#files-grid filefield': {
+                change: me.uploadFile
             }
         });
     },
@@ -156,8 +156,30 @@ Ext.define('Mdc.filemanagement.controller.FileManagement', {
         });
     },
 
-    openDialog: function () {
+    uploadFile: function (element) {
+        var me = this,
+            filesGrid = me.getFilesGrid(),
+            router = me.getController('Uni.controller.history.Router'),
+            form = filesGrid.down('form').getEl().dom,
+            message = Uni.I18n.translate('general.successfully.upload.file', 'MDC', 'File successfully uploaded');
 
+        filesGrid.setLoading();
+        Ext.Ajax.request({
+            url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/files/upload',
+            method: 'POST',
+            form: form,
+            headers: {'Content-type': 'multipart/form-data'},
+            isFormUpload: true,
+            callback: function (config, success, response) {
+                var responseObject = JSON.parse(response.responseText);
+                filesGrid.setLoading(false);
+                if (Ext.isEmpty(responseObject.errors)) {
+                    debugger;
+                } else {
+                    debugger;
+                }
+            }
+        });
     }
 
 })
