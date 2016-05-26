@@ -612,6 +612,7 @@
             <id>test-mdc-bundles</id>
             <modules>
                 <module>../com.elster.jupiter.demo</module>
+                <module>../com.energyict.mdc.protocols.test</module>
             </modules>
         </profile>
 
