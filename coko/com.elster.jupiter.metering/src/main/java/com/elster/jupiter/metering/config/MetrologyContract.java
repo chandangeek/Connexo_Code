@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.config;
 
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.util.HasId;
 
 import aQute.bnd.annotation.ProviderType;
 
@@ -18,7 +19,7 @@ import java.util.List;
  * @since 2016-02-04 (11:46)
  */
 @ProviderType
-public interface MetrologyContract {
+public interface MetrologyContract extends HasId {
 
     /**
      * Returns the {@link MetrologyConfiguration} that defined

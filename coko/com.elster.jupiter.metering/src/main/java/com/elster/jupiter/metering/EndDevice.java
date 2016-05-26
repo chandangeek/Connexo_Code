@@ -53,7 +53,7 @@ public interface EndDevice extends IdentifiedObject {
 
     long getGeoCoordinatesId();
 
-    void setGeoCoordintes(GeoCoordinates geoCoordinates);
+    void setGeoCoordinates(GeoCoordinates geoCoordinates);
 
     Optional<HeadEndInterface> getHeadEndInterface();
 

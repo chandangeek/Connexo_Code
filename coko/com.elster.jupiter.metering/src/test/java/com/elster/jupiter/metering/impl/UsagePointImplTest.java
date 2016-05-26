@@ -8,6 +8,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.ConnectionState;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
@@ -115,6 +116,8 @@ public class UsagePointImplTest {
     @Mock
     private Validator validator;
     @Mock
+    private MeteringService meteringService;
+    @Mock
     private MeterImpl meter;
     @Mock
     private MeterRole meterRole;
@@ -160,7 +163,8 @@ public class UsagePointImplTest {
         when(representation4.getDelegate()).thenReturn(user4);
         when(dataModel.mapper(MeterActivation.class)).thenReturn(meterActivationMapper);
 
-        usagePoint = new UsagePointImpl(clock, dataModel, eventService, thesaurus, meterActivationProvider, accountabilityProvider, customPropertySetService, metrologyConfigurationService).init(MR_ID, serviceCategory);
+        usagePoint = new UsagePointImpl(clock, dataModel, eventService, thesaurus, meterActivationProvider, accountabilityProvider, customPropertySetService, meteringService, metrologyConfigurationService)
+                .init(MR_ID, serviceCategory);
     }
 
     @After

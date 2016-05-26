@@ -189,7 +189,7 @@ abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> impleme
     }
 
     @Override
-    public void setGeoCoordintes(GeoCoordinates geoCoordinates) {
+    public void setGeoCoordinates(GeoCoordinates geoCoordinates) {
         this.geoCoordinates.set(geoCoordinates);
     }
 

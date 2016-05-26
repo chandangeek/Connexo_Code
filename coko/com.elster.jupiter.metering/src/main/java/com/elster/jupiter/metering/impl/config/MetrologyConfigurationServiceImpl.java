@@ -10,12 +10,14 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
+import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationBuilder;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationStatus;
+import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableFilter;
@@ -120,6 +122,7 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
         translationKeys.addAll(Arrays.asList(Privileges.values()));
         translationKeys.addAll(Arrays.asList(DefaultMetrologyPurpose.Translation.values()));
         translationKeys.addAll(Arrays.asList(DefaultReadingTypeTemplate.TemplateTranslation.values()));
+        translationKeys.addAll(Arrays.asList(MetrologyConfigurationStatus.Translation.values()));
         return translationKeys;
     }
 
@@ -196,6 +199,10 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
         return !atLeastOneUsagePoint.isEmpty();
     }
 
+    @Override
+    public Optional<MetrologyContract> findMetrologyContract(long id) {
+        return this.getDataModel().mapper(MetrologyContract.class).getOptional(id);
+    }
 
     @Override
     public ServerFormulaBuilder newFormulaBuilder(Formula.Mode mode) {

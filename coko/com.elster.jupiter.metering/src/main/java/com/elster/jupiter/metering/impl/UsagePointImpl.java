@@ -17,6 +17,7 @@ import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceLocation;
@@ -123,6 +124,7 @@ public class UsagePointImpl implements UsagePoint {
     private final Clock clock;
     private final DataModel dataModel;
     private final EventService eventService;
+    private final MeteringService meteringService;
     private final Thesaurus thesaurus;
     private final Provider<MeterActivationImpl> meterActivationFactory;
     private final Provider<UsagePointAccountabilityImpl> accountabilityFactory;
@@ -135,7 +137,7 @@ public class UsagePointImpl implements UsagePoint {
             Clock clock, DataModel dataModel, EventService eventService,
             Thesaurus thesaurus, Provider<MeterActivationImpl> meterActivationFactory,
             Provider<UsagePointAccountabilityImpl> accountabilityFactory,
-            CustomPropertySetService customPropertySetService, ServerMetrologyConfigurationService metrologyConfigurationService) {
+            CustomPropertySetService customPropertySetService, MeteringService meteringService, ServerMetrologyConfigurationService metrologyConfigurationService) {
         this.clock = clock;
         this.dataModel = dataModel;
         this.eventService = eventService;
@@ -143,6 +145,7 @@ public class UsagePointImpl implements UsagePoint {
         this.meterActivationFactory = meterActivationFactory;
         this.accountabilityFactory = accountabilityFactory;
         this.customPropertySetService = customPropertySetService;
+        this.meteringService = meteringService;
         this.metrologyConfigurationService = metrologyConfigurationService;
     }
 
@@ -333,6 +336,7 @@ public class UsagePointImpl implements UsagePoint {
             Save.CREATE.save(dataModel, this);
             eventService.postEvent(EventType.USAGEPOINT_CREATED.topic(), this);
         } else {
+            updateDeviceDefaultLocation();
             Save.UPDATE.save(dataModel, this);
             eventService.postEvent(EventType.USAGEPOINT_UPDATED.topic(), this);
         }
@@ -731,5 +735,41 @@ public class UsagePointImpl implements UsagePoint {
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    private void updateDeviceDefaultLocation() {
+        this.getMeterActivations().stream()
+                .forEach(meterActivation -> meterActivation.getMeter().ifPresent(meter -> {
+                    if (upLocation.isPresent()) {
+                        if (location != upLocation.get().getId()) {
+                            if (!meter.getLocation().isPresent() || meter.getLocationId() == upLocation.get().getId()) {
+                                meteringService.findLocation(location).ifPresent(meter::setLocation);
+                            }
+                        }
+                    } else if (location != 0) {
+                        if (!meter.getLocation().isPresent()) {
+                            meteringService.findLocation(location).ifPresent(meter::setLocation);
+                        }
+                    }
+                    if (geoCoordinates.getOptional().isPresent()) {
+                        GeoCoordinates geo = geoCoordinates.getOptional().get();
+                        dataModel.mapper(UsagePoint.class).getOptional(this.getId()).ifPresent(up -> {
+                            if (up.getGeoCoordinates().isPresent()) {
+                                if (!meter.getGeoCoordinates().isPresent() || meter.getGeoCoordinates()
+                                        .get()
+                                        .getId() == up.getGeoCoordinates().get().getId()) {
+                                    meter.setGeoCoordinates(geo);
+                                }
+                            } else {
+                                if (!meter.getGeoCoordinates().isPresent()) {
+                                    meter.setGeoCoordinates(geo);
+                                }
+                            }
+                        });
+                    } else {
+                        meter.setGeoCoordinates(null);
+                    }
+                    meter.update();
+                }));
     }
 }

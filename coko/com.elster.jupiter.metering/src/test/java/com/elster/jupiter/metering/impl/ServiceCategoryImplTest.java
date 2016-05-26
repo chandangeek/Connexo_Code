@@ -6,6 +6,7 @@ import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
@@ -61,6 +62,8 @@ public class ServiceCategoryImplTest {
     private ValidatorFactory validatorFactory;
     @Mock
     private javax.validation.Validator validator;
+    @Mock
+    private MeteringService meteringService;
 
     @Before
     public void setUp() {
@@ -104,7 +107,7 @@ public class ServiceCategoryImplTest {
 
     @Test
     public void testNewUsagePoint() {
-        when(dataModel.getInstance(UsagePointImpl.class)).thenReturn(new UsagePointImpl(clock, dataModel, eventService, thesaurus, () -> null, () -> null, customPropertySetService, metrologyConfigurationService));
+        when(dataModel.getInstance(UsagePointImpl.class)).thenReturn(new UsagePointImpl(clock, dataModel, eventService, thesaurus, () -> null, () -> null, customPropertySetService, meteringService, metrologyConfigurationService));
 
         UsagePoint usagePoint = serviceCategory.newUsagePoint("mrId", Instant.EPOCH).create();
         assertThat(usagePoint).isInstanceOf(UsagePointImpl.class);
