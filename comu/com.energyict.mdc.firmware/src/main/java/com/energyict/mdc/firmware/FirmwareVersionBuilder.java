@@ -8,8 +8,6 @@ package com.energyict.mdc.firmware;
  */
 public interface FirmwareVersionBuilder {
 
-    FirmwareVersionBuilder setFirmwareFile(byte[] firmwareFile);
-
     FirmwareVersionBuilder setExpectedFirmwareSize(Integer fileSize);
 
     FirmwareVersion create();

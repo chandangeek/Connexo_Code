@@ -22,13 +22,13 @@ public class IsFileRequiredValidator implements ConstraintValidator<IsFileRequir
          */
         if (!FirmwareStatus.GHOST.equals(firmwareVersion.getFirmwareStatus())
                 && !FirmwareStatus.DEPRECATED.equals(firmwareVersion.getFirmwareStatus())) {
-            if (!firmwareVersion.hasFirmwareFile() && firmwareVersion.getId() == 0) {
+            if (!firmwareVersion.hasFirmwareFile() && firmwareVersion.getId() == 0) {   // New firmware version created without firmware file
                 context.disableDefaultConstraintViolation();
                 context.buildConstraintViolationWithTemplate(context.getDefaultConstraintMessageTemplate())
                         .addPropertyNode("firmwareFile")
                         .addConstraintViolation();
                 return false;
-            } else if (firmwareVersion.isEmptyFile()) {
+            } else if (firmwareVersion.isEmptyFile()) {    // Firmware version created/updated with empty firmware file
                 context.disableDefaultConstraintViolation();
                 context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.FILE_IS_EMPTY + "}")
                         .addPropertyNode("firmwareFile")
