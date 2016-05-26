@@ -57,7 +57,7 @@ public class DeviceConfigurationSearchableProperty extends AbstractSearchableDev
 
     @Override
     public boolean affectsAvailableDomainProperties() {
-        return false;
+        return true;
     }
 
     @Override
