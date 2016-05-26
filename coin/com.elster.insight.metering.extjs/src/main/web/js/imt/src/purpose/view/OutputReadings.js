@@ -14,15 +14,22 @@ Ext.define('Imt.purpose.view.OutputReadings', {
             interval = me.interval,
             all = interval.get('all'),
             duration = all.count + all.timeUnit,
-            durations = Ext.create('Uni.store.Durations');
+            durations = Ext.create('Uni.store.Durations'),
+            isComplete = me.purpose.get('status').id === 'complete';
 
         durations.loadData(interval.get('duration'));
         me.items = [
+            {
+                xtype: 'uni-form-empty-message',
+                text: Uni.I18n.translate('readings.list.incomplete', 'IMT', "You can't view readings because purpose is incomplete."),
+                hidden: isComplete
+            },
             {
                 xtype: 'uni-grid-filterpaneltop',
                 itemId: 'output-readings-topfilter',
                 store: 'Imt.purpose.store.Readings',
                 hasDefaultFilters: true,
+                hidden: !isComplete,
                 filters: [
                     {
                         type: 'duration',
@@ -31,7 +38,7 @@ Ext.define('Imt.purpose.view.OutputReadings', {
                         dataIndexTo: 'intervalEnd',
                         defaultFromDate: interval.getIntervalStart(output.get('lastReading') || new Date()),
                         defaultDuration: duration,
-                        text: Uni.I18n.translate('general.startDate', 'MDC', 'Start date'),
+                        text: Uni.I18n.translate('general.startDate', 'IMT', 'Start date'),
                         durationStore: durations,
                         loadStore: false,
                         //hideDateTtimeSelect: me.filterDefault.hideDateTtimeSelect,
@@ -42,10 +49,12 @@ Ext.define('Imt.purpose.view.OutputReadings', {
             {
                 xtype: 'readings-graph',
                 output: me.output,
-                interval: me.interval
+                interval: me.interval,
+                hidden: !isComplete
             },
             {
                 xtype: 'emptygridcontainer',
+                hidden: !isComplete,
                 grid: {
                     xtype: 'readings-list',
                     router: me.router
