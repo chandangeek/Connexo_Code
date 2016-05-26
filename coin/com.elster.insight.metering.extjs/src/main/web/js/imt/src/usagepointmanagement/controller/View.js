@@ -36,8 +36,7 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
         var me = this,
             app = me.getApplication(),
             failure = callback.failure,
-            purposesStore = me.getStore('Imt.usagepointmanagement.store.Purposes'),
-            meterActivationStoreStore = me.getStore('Imt.usagepointmanagement.store.MeterActivations');
+            purposesStore = me.getStore('Imt.usagepointmanagement.store.Purposes');
 
         me.getStore('Imt.usagepointmanagement.store.UsagePointTypes').load(function(usagePointTypes, op, success) {
             if (success) {
