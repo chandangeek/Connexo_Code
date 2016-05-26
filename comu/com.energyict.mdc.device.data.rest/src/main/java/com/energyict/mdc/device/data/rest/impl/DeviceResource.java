@@ -1,5 +1,9 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.calendar.Calendar;
+import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.calendar.rest.CalendarInfo;
+import com.elster.jupiter.calendar.rest.CalendarInfoFactory;
 import com.elster.jupiter.cps.ValuesRangeConflictType;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -24,7 +28,6 @@ import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceMessageEnablement;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -37,7 +40,6 @@ import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.TopologyTimeline;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -58,6 +60,9 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -106,10 +111,14 @@ public class DeviceResource {
     private final Provider<GoingOnResource> goingOnResourceProvider;
     private final DeviceInfoFactory deviceInfoFactory;
     private final DeviceAttributesInfoFactory deviceAttributesInfoFactory;
+    private final LocationInfoFactory locationInfoFactory;
     private final DevicesForConfigChangeSearchFactory devicesForConfigChangeSearchFactory;
     private final ServiceCallInfoFactory serviceCallInfoFactory;
     private final TransactionService transactionService;
     private final ServiceCallService serviceCallService;
+    private final CalendarInfoFactory calendarInfoFactory;
+    private final TimeOfUseInfoFactory timeOfUseInfoFactory;
+    private final CalendarService calendarService;
 
     @Inject
     public DeviceResource(
@@ -139,11 +148,17 @@ public class DeviceResource {
             Provider<DeviceProtocolPropertyResource> devicePropertyResourceProvider,
             Provider<DeviceHistoryResource> deviceHistoryResourceProvider,
             Provider<DeviceLifeCycleActionResource> deviceLifeCycleActionResourceProvider,
-            Provider<GoingOnResource> goingOnResourceProvider, DeviceInfoFactory deviceInfoFactory,
+            Provider<GoingOnResource> goingOnResourceProvider,
+            DeviceInfoFactory deviceInfoFactory,
             DeviceAttributesInfoFactory deviceAttributesInfoFactory,
+            LocationInfoFactory locationInfoFactory,
             DevicesForConfigChangeSearchFactory devicesForConfigChangeSearchFactory,
-            ServiceCallInfoFactory serviceCallInfoFactory, TransactionService transactionService,
-            ServiceCallService serviceCallService) {
+            ServiceCallInfoFactory serviceCallInfoFactory,
+            TransactionService transactionService,
+            ServiceCallService serviceCallService,
+            CalendarInfoFactory calendarInfoFactory,
+            TimeOfUseInfoFactory timeOfUseInfoFactory,
+            CalendarService calendarService) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.deviceService = deviceService;
@@ -173,10 +188,14 @@ public class DeviceResource {
         this.goingOnResourceProvider = goingOnResourceProvider;
         this.deviceInfoFactory = deviceInfoFactory;
         this.deviceAttributesInfoFactory = deviceAttributesInfoFactory;
+        this.locationInfoFactory = locationInfoFactory;
         this.devicesForConfigChangeSearchFactory = devicesForConfigChangeSearchFactory;
         this.serviceCallInfoFactory = serviceCallInfoFactory;
         this.transactionService = transactionService;
         this.serviceCallService = serviceCallService;
+        this.calendarInfoFactory = calendarInfoFactory;
+        this.timeOfUseInfoFactory = timeOfUseInfoFactory;
+        this.calendarService = calendarService;
     }
 
     @GET
@@ -519,6 +538,10 @@ public class DeviceResource {
                 .stream()
                 .map(privilege -> new IdWithNameInfo(null, privilege))
                 .collect(Collectors.toList());
+        privileges.addAll(DevicePrivileges.getTimeOfUsePrivilegesFor(device, deviceConfigurationService)
+                .stream()
+                .map(privilege -> new IdWithNameInfo(null, privilege))
+                .collect(Collectors.toList()));
         return Response.ok(PagedInfoList.fromCompleteList("privileges", privileges, queryParameters)).build();
     }
 
@@ -540,44 +563,33 @@ public class DeviceResource {
             com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_2,
             com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_3,
             com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_4})
-    public PagedInfoList getAllAvailableDeviceCategoriesIncludingMessageSpecsForCurrentUser(@PathParam("mRID") String mrid, @BeanParam JsonQueryParameters queryParameters) {
+    public PagedInfoList getAllAvailableDeviceCategoriesIncludingMessageSpecsForCurrentUser(@PathParam("mRID") String mrid, @BeanParam JsonQueryParameters queryParameters, @Context UriInfo uriInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-
-        Set<DeviceMessageId> supportedMessagesSpecs = device.getDeviceType()
-                .getDeviceProtocolPluggableClass()
-                .getDeviceProtocol()
-                .getSupportedMessages();
-
-        List<DeviceMessageId> enabledDeviceMessageIds = device.getDeviceConfiguration()
-                .getDeviceMessageEnablements()
-                .stream()
-                .map(DeviceMessageEnablement::getDeviceMessageId)
-                .collect(Collectors.toList());
         List<DeviceMessageCategoryInfo> infos = new ArrayList<>();
-
         deviceMessageSpecificationService
                 .filteredCategoriesForUserSelection()
                 .stream()
                 .sorted((c1, c2) -> c1.getName().compareToIgnoreCase(c2.getName()))
                 .forEach(category -> {
-                    List<DeviceMessageSpecInfo> deviceMessageSpecs = category.getMessageSpecifications().stream()
-                            .filter(deviceMessageSpec -> supportedMessagesSpecs.contains(deviceMessageSpec.getId())) // limit to device message specs supported by the protocol
-                            .filter(dms -> enabledDeviceMessageIds.contains(dms.getId())) // limit to device message specs enabled on the config
-                            .filter(dms -> device.getDeviceConfiguration()
-                                    .isAuthorized(dms.getId())) // limit to device message specs whom the user is authorized to
-                            .sorted(Comparator.comparing(DeviceMessageSpec::getName))
-                            .map(dms -> deviceMessageSpecInfoFactory.asInfoWithMessagePropertySpecs(dms, device))
-                            .collect(Collectors.toList());
+                    List<DeviceMessageSpecInfo> deviceMessageSpecs =
+                            device
+                                .getDeviceConfiguration()
+                                .getEnabledAndAuthorizedDeviceMessageSpecsIn(category)
+                                .stream()
+                                .sorted(Comparator.comparing(DeviceMessageSpec::getName))
+                                .map(dms -> deviceMessageSpecInfoFactory.asInfoWithMessagePropertySpecs(dms, device))
+                                .collect(Collectors.toList());
                     if (!deviceMessageSpecs.isEmpty()) {
                         DeviceMessageCategoryInfo info = deviceMessageCategoryInfoFactory.asInfo(category);
                         info.deviceMessageSpecs = deviceMessageSpecs;
                         infos.add(info);
                     }
                 });
-        List<DeviceMessageCategoryInfo> deviceMessageCategoryInfosInPage = ListPager.of(infos)
-                .from(queryParameters)
-                .find();
-        return PagedInfoList.fromPagedList("categories", deviceMessageCategoryInfosInPage, queryParameters);
+        return PagedInfoList
+                    .fromPagedList(
+                        "categories",
+                        ListPager.of(infos).from(queryParameters).find(),
+                        queryParameters);
     }
 
     @Path("/{mRID}/connectionmethods")
@@ -702,7 +714,7 @@ public class DeviceResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("{mRID}/runningservicecalls/{id}")
     public Response cancelServiceCall(@PathParam("mRID") String mrid, @PathParam("id") long serviceCallId, ServiceCallInfo info) {
-        if(info.state.id.equals("sclc.default.cancelled")) {
+        if (info.state.id.equals("sclc.default.cancelled")) {
             serviceCallService.getServiceCall(serviceCallId).ifPresent(ServiceCall::cancel);
             return Response.status(Response.Status.ACCEPTED).build();
         }
@@ -767,6 +779,41 @@ public class DeviceResource {
         return PagedInfoList.fromPagedList("slaveDevices", topologyList, queryParameters);
     }
 
+    @GET
+    @Transactional
+    @Path("/{mRID}/timeofuse")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.VIEW_DEVICE)
+    public Response getCalendarInfo(@PathParam("mRID") String id) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
+        TimeOfUseInfo info = timeOfUseInfoFactory.from(device.getActiveCalendar(), device.getPassiveCalendars(), device, calendarInfoFactory);
+
+        return Response.ok(info).build();
+    }
+
+    @GET
+    @Path("/{mRID}/timeofuse/{calendarId}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.VIEW_DEVICE)
+    public Response getCalendar(@PathParam("id") long id, @PathParam("calendarId") long calendarId, @QueryParam("weekOf") long milliseconds) {
+        if(milliseconds <= 0) {
+            return  Response.ok(calendarService.findCalendar(calendarId)
+                    .map(calendarInfoFactory::detailedFromCalendar)
+                    .orElseThrow(IllegalArgumentException::new)).build();
+        } else {
+            Instant instant = Instant.ofEpochMilli(milliseconds);
+            Calendar calendar = calendarService.findCalendar(calendarId).get();
+            LocalDate localDate = LocalDateTime.ofInstant(instant, ZoneId.of("UTC"))
+                    .toLocalDate();
+
+            return Response.ok(transformToWeekCalendar(calendar, localDate)).build();
+        }
+    }
+
+    private CalendarInfo transformToWeekCalendar(Calendar calendar, LocalDate localDate) {
+        return calendarInfoFactory.detailedWeekFromCalendar(calendar, localDate);
+    }
+
     private Predicate<Device> getFilterForCommunicationTopology(JsonQueryFilter filter) {
         Predicate<Device> predicate = d -> true;
         predicate = addPropertyStringFilterIfAvailabale(filter, "mrid", predicate, Device::getmRID);
@@ -826,5 +873,14 @@ public class DeviceResource {
             return Pattern.compile(filter.replaceAll("([*?])", "\\\\E\\.$1\\\\Q"));
         }
         return null;
+    }
+
+    @GET
+    @Transactional
+    @Path("/locations/{locationId}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
+    public Response getLocationAttributes(@PathParam("locationId") long locationId) {
+        return Response.ok(locationInfoFactory.from(locationId)).build();
     }
 }
