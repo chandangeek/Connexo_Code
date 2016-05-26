@@ -34,6 +34,8 @@ public interface MetrologyConfigurationService {
 
     List<UsagePointMetrologyConfiguration> findLinkableMetrologyConfigurations(UsagePoint usagePoint);
 
+    Optional<MetrologyContract> findMetrologyContract(long id);
+
     boolean isInUse(MetrologyConfiguration metrologyConfiguration);
 
     MeterRole newMeterRole(NlsKey name);
@@ -49,6 +51,8 @@ public interface MetrologyConfigurationService {
     Optional<ReadingTypeTemplate> findReadingTypeTemplate(String name);
 
     MetrologyPurpose createMetrologyPurpose(NlsKey name, NlsKey description);
+
+    Optional<MetrologyPurpose> findMetrologyPurpose(DefaultMetrologyPurpose defaultMetrologyPurpose);
 
     Optional<MetrologyPurpose> findMetrologyPurpose(long id);
 
