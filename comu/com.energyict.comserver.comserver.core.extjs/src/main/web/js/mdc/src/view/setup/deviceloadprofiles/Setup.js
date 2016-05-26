@@ -6,7 +6,8 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.Setup', {
     router: null,
     device: null,
     requires: [
-        'Uni.view.notifications.NoItemsFoundPanel',
+        'Uni.view.container.PreviewContainer',
+        'Uni.util.FormEmptyMessage',
         'Mdc.view.setup.device.DeviceMenu',
         'Mdc.view.setup.deviceloadprofiles.Grid',
         'Mdc.view.setup.deviceloadprofiles.Preview'
@@ -43,12 +44,9 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.Setup', {
                         router: me.router
                     },
                     emptyComponent: {
-                        xtype: 'no-items-found-panel',
+                        xtype: 'uni-form-empty-message',
                         itemId: 'no-load-profile',
-                        title: Uni.I18n.translate('deviceloadprofiles.empty.title', 'MDC', 'No load profiles found'),
-                        reasons: [
-                            Uni.I18n.translate('deviceloadprofiles.empty.list.item1', 'MDC', 'No load profiles have been defined yet.')
-                        ]
+                        text: Uni.I18n.translate('deviceloadprofiles.empty', 'MDC', 'No load profiles have been defined yet.')
                     },
                     previewComponent: {
                         xtype: 'deviceLoadProfilesPreview',

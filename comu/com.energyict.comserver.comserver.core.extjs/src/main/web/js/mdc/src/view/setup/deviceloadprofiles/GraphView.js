@@ -4,7 +4,8 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.GraphView', {
     itemId: 'deviceLoadProfilesGraphView',
 
     requires: [
-        'Uni.view.highstock.GraphView'
+        'Uni.view.highstock.GraphView',
+        'Uni.util.FormEmptyMessage'
     ],
 
     items: [
@@ -13,12 +14,10 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.GraphView', {
             itemId: 'graphContainer'
         },
         {
-            xtype: 'no-items-found-panel',
+            xtype: 'uni-form-empty-message',
             hidden: true,
             itemId: 'emptyGraphMessage',
-            title: Uni.I18n.translate('deviceloadprofiles.data.empty.title', 'MDC', 'No readings found'),
-            reasons: [
-                Uni.I18n.translate('deviceloadprofiles.data.empty.list.item1', 'MDC', 'No readings have been defined yet.') ]
+            text: Uni.I18n.translate('deviceloadprofiles.data.empty', 'MDC', 'No readings have been defined yet.')
         }
     ],
 

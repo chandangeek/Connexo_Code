@@ -7,7 +7,8 @@ Ext.define('Mdc.view.setup.executionlevels.AddExecutionLevels', {
     store: 'AvailableExecLevelsForSecSettingsOfDevConfig',
 
     requires: [
-        'Uni.view.notifications.NoItemsFoundPanel',
+        'Uni.util.FormEmptyMessage',
+        'Uni.util.FormErrorMessage',
         'Mdc.view.setup.executionlevels.AddExecutionLevelsGrid',
         'Uni.view.container.PreviewContainer'
     ],
@@ -31,13 +32,9 @@ Ext.define('Mdc.view.setup.executionlevels.AddExecutionLevels', {
                         itemId: 'execution-level-add-grid'
                     },
                     emptyComponent: {
-                        xtype: 'no-items-found-panel',
-                        title: Uni.I18n.translate('executionlevels.empty.title', 'MDC', 'No privileges found'),
-                        reasons: [
-                            Uni.I18n.translate('executionlevels.empty.list.item1', 'MDC', 'All existing privileges are added to this security set.')
-                        ]
+                        xtype: 'uni-form-empty-message',
+                        text: Uni.I18n.translate('executionlevels.empty', 'MDC', 'All existing privileges are added to this security set.')
                     }
-
                 },
                 {
                     xtype: 'container',

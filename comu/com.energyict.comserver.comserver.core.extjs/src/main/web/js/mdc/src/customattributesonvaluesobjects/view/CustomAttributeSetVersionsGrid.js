@@ -55,7 +55,7 @@ Ext.define('Mdc.customattributesonvaluesobjects.view.CustomAttributeSetVersionsG
                 xtype: 'pagingtoolbarbottom',
                 dock: 'bottom',
                 store: me.store,
-                itemsPerPageMsg: Uni.I18n.translate('customattributesets.versions.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Versions per page')
+                itemsPerPageMsg: Uni.I18n.translate('general.versionsPerPage', 'MDC', 'Versions per page')
             }
         ];
 

@@ -4,7 +4,8 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
     itemId: 'deviceCommunicationTaskHistoryLogGrid',
     requires: [
         'Uni.view.toolbar.PagingTop',
-        'Uni.view.toolbar.PagingBottom'
+        'Uni.view.toolbar.PagingBottom',
+        'Uni.DateTime'
     ],
     store: 'DeviceCommunicationTaskLog',
 
@@ -20,7 +21,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                 dataIndex: 'timestamp',
                 flex: 1,
                 renderer: function (value) {
-                    return value ? Uni.DateTime.formatDateTimeShort(value) : '';
+                    return value ? Uni.DateTime.formatDateTime(value, Uni.DateTime.SHORT, Uni.DateTime.LONG) : '-';
                 }
             },
             {

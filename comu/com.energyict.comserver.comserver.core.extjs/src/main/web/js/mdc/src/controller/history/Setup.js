@@ -593,6 +593,37 @@ Ext.define('Mdc.controller.history.Setup', {
                                             action: 'showAddCustomAttributeSets'
                                         }
                                     }
+                                },
+                                timeofuse: {
+                                    title: Uni.I18n.translate('general.timeOfUseCalendars', 'MDC', 'Time of use calendars'),
+                                    route: 'timeofuse',
+                                    privileges: Mdc.privileges.DeviceType.view,
+                                    controller: 'Mdc.timeofuse.controller.TimeOfUse',
+                                    action: 'showTimeOfUseOverview',
+                                    items: {
+                                        add: {
+                                            title: Uni.I18n.translate('tou.addTouCalendars', 'MDC', 'Add time of use calendars'),
+                                            route: 'add',
+                                            privileges: Mdc.privileges.DeviceType.admin,
+                                            controller: 'Mdc.timeofuse.controller.TimeOfUse',
+                                            action: 'showAddCalendarsView'
+
+                                        },
+                                        edit: {
+                                            title: Uni.I18n.translate('tou.editTouSpecifications', 'MDC', 'Edit time of use specifications'),
+                                            route: 'edit',
+                                            privileges: Mdc.privileges.DeviceType.admin,
+                                            controller: 'Mdc.timeofuse.controller.TimeOfUse',
+                                            action: 'showEditSpecificationsScreen'
+                                        },
+                                        viewpreview: {
+                                            title: Uni.I18n.translate('tou.viewPreview', 'MDC', 'View preview'),
+                                            route: '{calendarId}/viewpreview',
+                                            privileges: Mdc.privileges.DeviceType.view,
+                                            controller: 'Mdc.timeofuse.controller.TimeOfUse',
+                                            action: 'showPreviewCalendarView'
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -2035,20 +2066,20 @@ Ext.define('Mdc.controller.history.Setup', {
         router.addConfig({
             usagepoints: {
                 disabled: true,
-                title: Uni.I18n.translate('general.usagePointsManagement', 'MDC', 'Usage points management'),
+                title: Uni.I18n.translate('general.usagePoints', 'MDC', 'Usage points'),
                 route: 'usagepoints',
                 items: {
                     add: {
                         title: Uni.I18n.translate('general.addUsagePoint', 'MDC', 'Add usage point'),
                         route: 'add',
                         controller: 'Mdc.usagepointmanagement.controller.UsagePoint',
-                        privileges: Mdc.privileges.UsagePoint.admin,
+                        privileges: Mdc.privileges.UsagePoint.canAdmin(),
                         action: 'showAddUsagePoint',
                         callback: me.checkInsightRedirect
                     },
                     usagepoint: {
                         title: Uni.I18n.translate('general.usagePoint', 'MDC', 'Usage point'),
-                        privileges: Mdc.privileges.UsagePoint.view,
+                        privileges: Mdc.privileges.UsagePoint.canView(),
                         route: '{usagePointId}',
                         controller: 'Mdc.usagepointmanagement.controller.UsagePoint',
                         action: 'showUsagePoint',
@@ -2066,7 +2097,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                 title: Uni.I18n.translate('general.editUsagePoint', 'MDC', 'Edit usage point'),
                                 route: 'edit',
                                 controller: 'Mdc.usagepointmanagement.controller.UsagePoint',
-                                privileges: Mdc.privileges.UsagePoint.admin,
+                                privileges: Mdc.privileges.UsagePoint.canAdmin(),
                                 action: 'showEditUsagePoint',
                                 callback: function (route) {
                                     me.checkInsightRedirect(route);
