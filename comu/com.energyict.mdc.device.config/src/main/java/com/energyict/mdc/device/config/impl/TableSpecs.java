@@ -71,7 +71,7 @@ public enum TableSpecs {
             table.column("DESCRIPTION").varChar().map("description").add();
             table.column("DEVICEPROTOCOLPLUGGABLEID").number().conversion(ColumnConversion.NUMBER2LONG).map(DeviceTypeImpl.Fields.DEVICE_PROTOCOL_PLUGGABLE_CLASS.fieldName()).add();
             table.column("DEVICEUSAGETYPE").number().conversion(ColumnConversion.NUMBER2INT).map("deviceUsageTypeId").add();
-            table.column("DEVICETYPEPURPOSE").number().conversion(NUMBER2ENUM).map(DeviceTypeImpl.Fields.DEVICETYPEPURPOSE.fieldName()).since(version(10, 2)).add();
+            table.column("DEVICETYPEPURPOSE").number().notNull().conversion(NUMBER2ENUM).map(DeviceTypeImpl.Fields.DEVICETYPEPURPOSE.fieldName()).since(version(10, 2)).installValue("0").add();
             table.unique("UK_DTC_DEVICETYPE").on(name).add();
             table.primaryKey("PK_DTC_DEVICETYPE").on(id).add();
         }
