@@ -51,6 +51,8 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.TemporalReference;
+import com.elster.jupiter.orm.associations.Temporals;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TemporalExpression;
@@ -63,6 +65,7 @@ import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
@@ -81,6 +84,7 @@ import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.TextualRegisterSpec;
+import com.energyict.mdc.device.data.ActiveEffectiveCalendar;
 import com.energyict.mdc.device.data.CIMLifecycleDates;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
@@ -91,6 +95,7 @@ import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.LogBook;
+import com.energyict.mdc.device.data.PassiveEffectiveCalendar;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.exceptions.CannotChangeDeviceConfigStillUnresolvedConflicts;
@@ -248,6 +253,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private List<ProtocolDialectPropertiesImpl> dialectPropertiesList = new ArrayList<>();
     private List<ProtocolDialectPropertiesImpl> newDialectProperties = new ArrayList<>();
     private List<ProtocolDialectPropertiesImpl> dirtyDialectProperties = new ArrayList<>();
+    private List<PassiveEffectiveCalendar> passiveCalendars = new ArrayList<>();
+    private TemporalReference<ActiveEffectiveCalendar> activeCalendar = Temporals.absent();
+
     private Map<SecurityPropertySet, TypedProperties> dirtySecurityProperties = new HashMap<>();
     private transient DeviceValidationImpl deviceValidation;
     private transient Optional<Meter> meter = Optional.empty();
@@ -1916,6 +1924,30 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     private List<HistoricalIssue> getAllHistoricalIssuesForMeter(Meter meter) {
         return this.issueService.query(HistoricalIssue.class).select(where("device").isEqualTo(meter));
+    }
+
+
+    @Override
+    public List<PassiveEffectiveCalendar> getPassiveCalendars() {
+        return this.passiveCalendars;
+    }
+
+    @Override
+    public void setPassiveCalendars(List<PassiveEffectiveCalendar> passiveCalendars) {
+        this.passiveCalendars = passiveCalendars;
+    }
+
+    @Override
+    public Optional<ActiveEffectiveCalendar> getActiveCalendar() {
+        return activeCalendar.effective(this.clock.instant());
+    }
+
+    public void setActiveCalendar(AllowedCalendar allowedCalendar, Instant effective, Instant lastVerified) {
+        Interval effectivityInterval = Interval.of(Range.atLeast(effective));
+        this.activeCalendar.add(
+                this.dataModel.getInstance(ActiveEffectiveCalendarImpl.class)
+                    .initialize(effectivityInterval, this, allowedCalendar, lastVerified)
+        );
     }
 
     private List<com.energyict.mdc.device.config.DeviceLifeCycleChangeEvent> getDeviceTypeLifeCycleChangeEvents() {
