@@ -98,6 +98,7 @@ Ext.define('Imt.servicecalls.controller.ServiceCalls', {
             success: function (types, usagepoint) {
                 widget = Ext.widget('service-calls-setup', {
                     mRID: usagepoint.get('mRID'),
+                    usagePoint: usagepoint,
                     router: router,
                     activeTab: activeTab
                 });

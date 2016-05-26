@@ -38,6 +38,7 @@ Ext.define('Imt.purpose.view.OutputChannelMain', {
                         items: {
                             xtype: 'output-readings',
                             interval: me.interval,
+                            purpose: me.purpose,
                             output: me.output,
                             router: me.router
                         },
