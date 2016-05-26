@@ -196,7 +196,7 @@ public class MeterActivationResourceTest extends PlatformPublicApiJerseyTest {
         Assertions.assertThat(model.<String>get("$.errors[0].id")).isEqualTo("interval.start");
     }
 
-    @Test // CXO-1803
+    @Test // CXO-1824
     public void testCreateMeterActivationWithoutPreviousMeterActivation() throws Exception {
         MeterActivationInfo meterActivationInfo = new MeterActivationInfo();
         meterActivationInfo.interval = new IntervalInfo();
