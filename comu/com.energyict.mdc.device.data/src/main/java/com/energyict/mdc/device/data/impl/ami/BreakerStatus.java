@@ -1,4 +1,4 @@
-package com.energyict.mdc.device.data.ami;
+package com.energyict.mdc.device.data.impl.ami;
 
 public enum BreakerStatus {
     CONNECTED("connected"),

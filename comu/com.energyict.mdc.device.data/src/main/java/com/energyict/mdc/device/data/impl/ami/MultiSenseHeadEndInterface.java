@@ -1,4 +1,4 @@
-package com.energyict.mdc.device.data.ami;
+package com.energyict.mdc.device.data.impl.ami;
 
 import com.elster.jupiter.cbo.EndDeviceType;
 import com.elster.jupiter.cps.CustomPropertySetService;
@@ -54,7 +54,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@Component(name = "com.energyict.mdc.device.data.ami.MultiSenseHeadEndInterface",
+@Component(name = "com.energyict.mdc.device.data.impl.ami.MultiSenseHeadEndInterface",
         service = {HeadEndInterface.class, TranslationKeyProvider.class},
         property = "name=MultiSenseHeadEndInterface", immediate = true)
 public class MultiSenseHeadEndInterface implements HeadEndInterface {

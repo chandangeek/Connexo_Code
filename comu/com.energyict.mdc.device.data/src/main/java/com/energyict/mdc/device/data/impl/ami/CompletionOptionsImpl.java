@@ -1,4 +1,4 @@
-package com.energyict.mdc.device.data.ami;
+package com.energyict.mdc.device.data.impl.ami;
 
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.metering.ami.CompletionOptions;

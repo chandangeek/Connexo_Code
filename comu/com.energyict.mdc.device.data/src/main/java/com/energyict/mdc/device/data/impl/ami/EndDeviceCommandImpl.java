@@ -1,4 +1,4 @@
-package com.energyict.mdc.device.data.ami;
+package com.energyict.mdc.device.data.impl.ami;
 
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceControlType;
@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@Component(name = "com.energyict.mdc.device.data.ami.EndDeviceCommand",
+@Component(name = "com.energyict.mdc.device.data.impl.ami.EndDeviceCommand",
         service = {EndDeviceCommand.class, TranslationKeyProvider.class},
         property = "name=EndDeviceCommand", immediate = true)
 public class EndDeviceCommandImpl implements EndDeviceCommand {
