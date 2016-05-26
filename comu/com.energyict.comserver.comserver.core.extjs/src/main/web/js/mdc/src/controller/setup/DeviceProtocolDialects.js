@@ -168,7 +168,7 @@ Ext.define('Mdc.controller.setup.DeviceProtocolDialects', {
                 backUrl: form.returnLink,
                 success: function (record) {
                     location.href = form.returnLink;
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceProtocolDialect.acknowlegment', 'MDC', 'Protocol dialect saved') );
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceProtocolDialect.acknowledgment', 'MDC', 'Protocol dialect saved') );
                 },
                 failure: function (record, operation) {
                     var json = Ext.decode(operation.response.responseText);

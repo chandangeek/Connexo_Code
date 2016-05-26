@@ -67,7 +67,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.Grid', {
                 params: [
                     {mRID: me.mRID}
                 ],
-                itemsPerPageMsg: Uni.I18n.translate('devcieregisterconfiguration.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Register configurations per page'),
+                itemsPerPageMsg: Uni.I18n.translate('deviceregisterconfiguration.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Registers per page'),
                 dock: 'bottom'
             }
         ];
