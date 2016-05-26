@@ -29,6 +29,15 @@ public class TimeStampFromExpressionNode implements ServerExpressionNode.Visitor
     }
 
     @Override
+    public String visitProperty(CustomPropertyNode property) {
+        if (property.getCustomPropertySet().isVersioned()) {
+            return property.sqlName() + ".starttime";
+        } else {
+            return null;
+        }
+    }
+
+    @Override
     public String visitSqlFragment(SqlFragmentNode variable) {
         return null;
     }

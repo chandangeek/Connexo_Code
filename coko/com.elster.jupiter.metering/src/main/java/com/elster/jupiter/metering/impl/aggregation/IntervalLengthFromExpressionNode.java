@@ -29,6 +29,11 @@ public class IntervalLengthFromExpressionNode implements ServerExpressionNode.Vi
     }
 
     @Override
+    public IntervalLength visitProperty(CustomPropertyNode property) {
+        return null;
+    }
+
+    @Override
     public IntervalLength visitSqlFragment(SqlFragmentNode variable) {
         return null;
     }

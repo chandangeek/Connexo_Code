@@ -45,6 +45,13 @@ public class ExpressionNodeToSql implements ServerExpressionNode.Visitor<SqlFrag
     }
 
     @Override
+    public SqlFragment visitProperty(CustomPropertyNode property) {
+        SqlBuilder fragment = new SqlBuilder();
+        fragment.append(property.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.VALUE.sqlName());
+        return fragment;
+    }
+
+    @Override
     public SqlFragment visitSqlFragment(SqlFragmentNode variable) {
         return variable.getSqlFragment();
     }

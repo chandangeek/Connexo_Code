@@ -29,6 +29,11 @@ public class ProcessStatusFromExpressionNode implements ServerExpressionNode.Vis
     }
 
     @Override
+    public String visitProperty(CustomPropertyNode property) {
+        return null;
+    }
+
+    @Override
     public String visitNull(NullNode nullNode) {
         return null;
     }

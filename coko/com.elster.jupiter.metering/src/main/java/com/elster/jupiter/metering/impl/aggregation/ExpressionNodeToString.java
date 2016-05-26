@@ -40,6 +40,11 @@ public class ExpressionNodeToString implements ServerExpressionNode.Visitor<Stri
     }
 
     @Override
+    public String visitProperty(CustomPropertyNode property) {
+        return property.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.VALUE.sqlName();
+    }
+
+    @Override
     public String visitSqlFragment(SqlFragmentNode variable) {
         return variable.getSqlFragment().getText();
     }

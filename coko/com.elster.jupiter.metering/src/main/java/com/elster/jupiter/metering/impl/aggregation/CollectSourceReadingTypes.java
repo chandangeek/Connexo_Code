@@ -41,6 +41,12 @@ public class CollectSourceReadingTypes implements ServerExpressionNode.Visitor<V
     }
 
     @Override
+    public VirtualReadingType visitProperty(CustomPropertyNode property) {
+        // This node does not have a preferred reading type so don't add one to the set
+        return null;
+    }
+
+    @Override
     public VirtualReadingType visitSqlFragment(SqlFragmentNode variable) {
         // This node does not have a preferred reading type so don't add one to the set
         return null;

@@ -57,6 +57,12 @@ public class JoinClausesForExpressionNode implements ServerExpressionNode.Visito
     }
 
     @Override
+    public Void visitProperty(CustomPropertyNode property) {
+        this.visitTableName(property.sqlName());
+        return null;
+    }
+
+    @Override
     public Void visitSqlFragment(SqlFragmentNode variable) {
         return null;
     }

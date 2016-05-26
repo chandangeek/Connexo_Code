@@ -29,6 +29,11 @@ public class LocalDateFromExpressionNode implements ServerExpressionNode.Visitor
     }
 
     @Override
+    public String visitProperty(CustomPropertyNode property) {
+        return null;
+    }
+
+    @Override
     public String visitSqlFragment(SqlFragmentNode variable) {
         return null;
     }

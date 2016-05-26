@@ -76,6 +76,12 @@ class ApplyCurrentAndOrVoltageTransformer implements ServerExpressionNode.Visito
     }
 
     @Override
+    public ServerExpressionNode visitProperty(CustomPropertyNode property) {
+        // No replacement
+        return property;
+    }
+
+    @Override
     public ServerExpressionNode visitNull(NullNode nullNode) {
         // No replacement
         return nullNode;

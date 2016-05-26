@@ -33,6 +33,12 @@ public class Flatten implements ServerExpressionNode.Visitor<Void> {
     }
 
     @Override
+    public Void visitProperty(CustomPropertyNode property) {
+        this.flattened.add(property);
+        return null;
+    }
+
+    @Override
     public Void visitNull(NullNode nullNode) {
         this.flattened.add(nullNode);
         return null;

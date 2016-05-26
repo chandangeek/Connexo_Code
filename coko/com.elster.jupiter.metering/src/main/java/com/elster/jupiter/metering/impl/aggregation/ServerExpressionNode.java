@@ -15,6 +15,7 @@ public interface ServerExpressionNode {
         T visitNull(NullNode nullNode);
         T visitConstant(NumericalConstantNode constant);
         T visitConstant(StringConstantNode constant);
+        T visitProperty(CustomPropertyNode property);
         T visitSqlFragment(SqlFragmentNode variable);
         T visitVirtualRequirement(VirtualRequirementNode requirement);
         T visitVirtualDeliverable(VirtualDeliverableNode deliverable);
@@ -26,6 +27,6 @@ public interface ServerExpressionNode {
 
     <T> T accept(Visitor<T> visitor);
 
-    public IntermediateDimension getIntermediateDimension();
+    IntermediateDimension getIntermediateDimension();
 
 }

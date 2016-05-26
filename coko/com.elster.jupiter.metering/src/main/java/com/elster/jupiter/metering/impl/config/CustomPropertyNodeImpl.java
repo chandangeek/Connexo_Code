@@ -44,6 +44,11 @@ public class CustomPropertyNodeImpl extends AbstractNode implements CustomProper
     }
 
     @Override
+    public RegisteredCustomPropertySet getRegisteredCustomPropertySet() {
+        return this.customPropertySet.orNull();
+    }
+
+    @Override
     public CustomPropertySet getCustomPropertySet() {
         return this.customPropertySet.map(RegisteredCustomPropertySet::getCustomPropertySet).orElse(null);
     }
