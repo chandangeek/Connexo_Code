@@ -6,8 +6,10 @@ import com.elster.jupiter.calendar.rest.CalendarInfo;
 import com.elster.jupiter.calendar.rest.CalendarInfoFactory;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -41,6 +43,10 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.calendars.ProtocolSupportedCalendarOptions;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+import org.glassfish.jersey.media.multipart.FormDataParam;
+
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -58,6 +64,9 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.security.SignedObject;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -553,6 +562,19 @@ public class DeviceTypeResource {
                 .findFirst()
                 .orElseThrow(IllegalArgumentException::new);
         deviceType.removeDeviceMessageFile(file);
+        return Response.ok().build();
+    }
+
+    @POST
+    @Transactional
+    @Path("/{id}/files/upload")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Produces(MediaType.TEXT_PLAIN)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
+    public Response uploadFile(@PathParam("id") long deviceTypeId, @FormDataParam("uploadField") InputStream fileInputStream,
+                                  @FormDataParam("uploadField") FormDataContentDisposition contentDispositionHeader) {
+        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
+        deviceType.addDeviceMessageFile(fileInputStream, contentDispositionHeader.getFileName());
         return Response.ok().build();
     }
 
