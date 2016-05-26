@@ -31,7 +31,7 @@ final class MigrationResolverImpl implements InstallAwareMigrationResolver {
                                 .stream()
                                 .collect(Collectors.toMap(
                                         Map.Entry::getKey,
-                                        entry -> new MigrationDriver(dataModelUpgrader, dataModel, entry.getValue())
+                                        entry -> new MigrationDriver(dataModelUpgrader, dataModel, transactionService, entry.getValue())
                                 ))
                 )
                 .build();
