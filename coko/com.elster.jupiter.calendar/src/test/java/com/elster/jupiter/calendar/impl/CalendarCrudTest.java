@@ -15,6 +15,7 @@ import com.elster.jupiter.calendar.importers.impl.CalendarFactory;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.transaction.TransactionService;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -71,6 +72,10 @@ public class CalendarCrudTest {
 
     private ServerCalendarService getCalendarService() {
         return inMemoryBootstrapModule.getCalendarService();
+    }
+
+    private TransactionService getTransactionService() {
+        return inMemoryBootstrapModule.getTransactionService();
     }
 
     @Test
