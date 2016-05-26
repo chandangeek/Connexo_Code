@@ -38,6 +38,7 @@ Ext.define('Imt.usagepointsetup.controller.MetrologyConfig', {
             mainView = Ext.ComponentQuery.query('#contentPanel')[0],
             usagePointsController = me.getController('Imt.usagepointmanagement.controller.View'),
             metrologyConfig = me.getModel('Imt.usagepointsetup.model.EffectiveMetrologyConfig'),
+            returnLink = router.queryParams.fromLandingPage ? router.getRoute('usagepoints/view').buildUrl() : router.getRoute('usagepoints/view/metrologyconfiguration').buildUrl(),
             meterActivationsStore = me.getStore('Imt.usagepointmanagement.store.MeterActivations'),
             callback = {
                 success: function (usagePointTypes, usagePoint, purposes) {
@@ -61,6 +62,7 @@ Ext.define('Imt.usagepointsetup.controller.MetrologyConfig', {
 
                                         widget = Ext.widget('usagePointActivateMeters', {
                                             router: router,
+                                            returnLink: returnLink,
                                             usagePoint: usagePoint,
                                             meterRoles: meterRoles
                                         });

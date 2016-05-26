@@ -5,6 +5,7 @@ Ext.define('Imt.usagepointsetup.view.ActivateMeters', {
     router: null,
     usagePoint: null,
     meterRoles: null,
+    returnLink: null,
     requires: [
         'Imt.usagepointmanagement.view.UsagePointSideMenu'
     ],
@@ -109,6 +110,7 @@ Ext.define('Imt.usagepointsetup.view.ActivateMeters', {
                         }, {
                             xtype: 'button',
                             ui: 'link',
+                            returnLink: me.returnLink,
                             text: 'Cancel'
                         }]
                     }
