@@ -17,6 +17,7 @@ import com.google.common.base.MoreObjects;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Size;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
