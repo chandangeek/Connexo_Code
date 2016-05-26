@@ -142,6 +142,12 @@ public class MetrologyConfigurationResource {
     @RolesAllowed({Privileges.Constants.ADMINISTER_METROLOGY_CONFIGURATION})
     @Transactional
     public Response updateMetrologyConfiguration(@PathParam("id") long id, MetrologyConfigurationInfo info, @Context SecurityContext securityContext) {
+        new RestValidationBuilder()
+                .notEmpty(info.name, "name")
+                .notEmpty(info.serviceCategory, "serviceCategory")
+                .notEmpty(info.readingTypes, "readingTypes")
+                .validate();
+
         UsagePointMetrologyConfiguration metrologyConfiguration = resourceHelper.findAndLockMetrologyConfiguration(info);
 
         metrologyConfiguration.startUpdate()
