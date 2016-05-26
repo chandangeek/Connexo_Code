@@ -4,11 +4,14 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.util.cron.CronExpression;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+@ProviderType
 public interface AppService {
 
     /**

@@ -32,6 +32,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.pubsub.Subscriber;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.soap.whiteboard.WebServicesService;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.PrivilegesProvider;
@@ -255,7 +256,7 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber, 
     }
 
     private void reconfigureWebServices() {
-
+        // TODO Complete
     }
 
     private void reconfigureImportSchedules() {
@@ -358,7 +359,7 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber, 
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "USR", "MSG", "NLS");
+        return Arrays.asList("ORM", "USR", "MSG", "NLS", WebServicesService.COMPONENT_NAME);
     }
 
     @Override

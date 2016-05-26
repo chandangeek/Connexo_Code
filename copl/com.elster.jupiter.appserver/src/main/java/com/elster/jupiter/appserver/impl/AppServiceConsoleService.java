@@ -12,6 +12,9 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.soap.whiteboard.EndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.WebServicesService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
@@ -58,7 +61,9 @@ import java.util.stream.Stream;
                 "osgi.command.function=getTimeZone",
                 "osgi.command.function=getTimeZones",
                 "osgi.command.function=report",
-                "osgi.command.function=setLogLevel"}, immediate = true)
+                "osgi.command.function=setLogLevel",
+                "osgi.command.function=supportWebService"
+        }, immediate = true)
 public class AppServiceConsoleService {
 
     private volatile IAppService appService;
@@ -68,6 +73,8 @@ public class AppServiceConsoleService {
     private volatile CronExpressionParser cronExpressionParser;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile MessageHandlerLauncherService messageHandlerLauncherService;
+    private volatile WebServicesService webServicesService;
+    private volatile EndPointConfigurationService endPointConfigurationService;
 
     public AppServiceConsoleService() {
         super();
@@ -370,6 +377,32 @@ public class AppServiceConsoleService {
                 .forEach(System.out::println);
     }
 
+    public void supportWebService() {
+        System.out.println("usage: supportWebService <EndPoint>");
+        System.out.println("  The named end point (EndPointConfiguration) will be published on this appserver when the end point gets activated");
+    }
+
+    public void supportWebService(String endPointConfigName) {
+        threadPrincipalService.set(() -> "console");
+        try (TransactionContext context = transactionService.getContext()) {
+
+            Optional<AppServer> appServer = appService.getAppServer();
+            if (!appServer.isPresent()) {
+                System.err.println("You do not seem to be running an app server on this machine. Make sure you have configured and activated an app server. You might need to use 'appserver:become'.");
+                return;
+            }
+            Optional<EndPointConfiguration> endPointConfiguration = endPointConfigurationService.getEndPointConfiguration(endPointConfigName);
+            if (!endPointConfiguration.isPresent()) {
+                System.err.println("There is no end point configuration with that name");
+                return;
+            }
+            appServer.get().supportEndPoint(endPointConfiguration.get());
+            context.commit();
+        } finally {
+            threadPrincipalService.clear();
+        }
+    }
+
     private void printSubscriberExecutionSpecs(Stream<AppServer> appServerStream) {
         appServerStream
                 .flatMap(server -> server.getSubscriberExecutionSpecs().stream())
@@ -410,5 +443,15 @@ public class AppServiceConsoleService {
     @Reference
     public void setMessageHandlerLauncherService(MessageHandlerLauncherService messageHandlerLauncherService) {
         this.messageHandlerLauncherService = messageHandlerLauncherService;
+    }
+
+    @Reference
+    public void setWebServicesService(WebServicesService webServicesService) {
+        this.webServicesService = webServicesService;
+    }
+
+    @Reference
+    public void setEndPointConfigurationService(EndPointConfigurationService endPointConfigurationService) {
+        this.endPointConfigurationService = endPointConfigurationService;
     }
 }

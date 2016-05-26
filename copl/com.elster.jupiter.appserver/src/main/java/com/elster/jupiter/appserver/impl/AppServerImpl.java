@@ -20,12 +20,15 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.soap.whiteboard.EndPointConfiguration;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
@@ -34,6 +37,7 @@ import java.security.Principal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -54,6 +58,8 @@ public class AppServerImpl implements AppServer {
     private final Thesaurus thesaurus;
     private final TransactionService transactionService;
     private final ThreadPrincipalService threadPrincipalService;
+    private final Provider<WebServiceForAppServerImpl> webServiceForAppServerProvider;
+
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     @Size(max = APP_SERVER_NAME_SIZE, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_14 + "}")
     @Pattern(regexp = "[a-zA-Z0-9\\-]+", groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.APPSERVER_NAME_INVALID_CHARS + "}")
@@ -72,7 +78,11 @@ public class AppServerImpl implements AppServer {
     private String userName;
 
     @Inject
-    AppServerImpl(DataModel dataModel, CronExpressionParser cronExpressionParser, FileImportService fileImportService, MessageService messageService, JsonService jsonService, Thesaurus thesaurus, TransactionService transactionService, ThreadPrincipalService threadPrincipalService) {
+    AppServerImpl(DataModel dataModel, CronExpressionParser cronExpressionParser, FileImportService fileImportService,
+                  MessageService messageService, JsonService jsonService, Thesaurus thesaurus,
+                  TransactionService transactionService, ThreadPrincipalService threadPrincipalService,
+                  Provider<WebServiceForAppServerImpl> webServiceForAppServerProvider
+    ) {
         this.dataModel = dataModel;
         this.cronExpressionParser = cronExpressionParser;
         this.fileImportService = fileImportService;
@@ -81,6 +91,7 @@ public class AppServerImpl implements AppServer {
         this.thesaurus = thesaurus;
         this.transactionService = transactionService;
         this.threadPrincipalService = threadPrincipalService;
+        this.webServiceForAppServerProvider = webServiceForAppServerProvider;
     }
 
     static AppServerImpl from(DataModel dataModel, String name, CronExpression scheduleFrequency) {
@@ -253,6 +264,27 @@ public class AppServerImpl implements AppServer {
     @Override
     public long getVersion() {
         return this.version;
+    }
+
+    @Override
+    public void supportEndPoint(EndPointConfiguration endPointConfiguration) {
+        Objects.nonNull(endPointConfiguration);
+        WebServiceForAppServerImpl link = webServiceForAppServerProvider.get().init(this, endPointConfiguration);
+        link.save();
+    }
+
+    @Override
+    public void dropEndPointSupport(EndPointConfiguration endPointConfiguration) {
+        Objects.nonNull(endPointConfiguration);
+        List<WebServiceForAppServer> links = dataModel.query(WebServiceForAppServer.class)
+                .select(
+                        Where.where(WebServiceForAppServerImpl.Fields.EndPointConfiguration.fieldName())
+                                .isEqualTo(endPointConfiguration)
+                                .and(Where.where(WebServiceForAppServerImpl.Fields.AppServer.fieldName())
+                                        .isEqualTo(this)));
+        if (!links.isEmpty()) {
+            dataModel.mapper(WebServiceForAppServer.class).remove(links.get(0)); // there can only be one anyway
+        }
     }
 
     private SubscriberExecutionSpecImpl getSubscriberExecutionSpec(SubscriberExecutionSpec subscriberExecutionSpec) {

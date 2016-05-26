@@ -2,12 +2,16 @@ package com.elster.jupiter.appserver;
 
 import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.messaging.SubscriberSpec;
+import com.elster.jupiter.soap.whiteboard.EndPointConfiguration;
 import com.elster.jupiter.util.cron.CronExpression;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 
+@ProviderType
 public interface AppServer {
 
     CronExpression getScheduleFrequency();
@@ -49,6 +53,24 @@ public interface AppServer {
     void delete();
     
     long getVersion();
+
+    /**
+     * Enable support for an mentioned EndPoint, using the mentioned configuration. Whenever the endpoint becomes
+     * enabled, this appserver will publish it. An enabled endpoint will be published on all appservers it is supported
+     * on. Support of an endpoint can be dropped with dropEndPointSupport
+     *
+     * @param endPointConfiguration The configuration to use to publish an endpoint
+     */
+    void supportEndPoint(EndPointConfiguration endPointConfiguration);
+
+    /**
+     * Stop supporting an EndPoint. If an EndPoint is currently published on the AppServer, it will be removed and from now on,
+     * EndPoint will no longer be published for this EndPointConfiguration on the AppServer if the EndPointConfig is enabled.
+     * If you wnt to start supporting an EndPoint again, use supportConfiguration.
+     *
+     * @param endPointConfiguration The configuration to disable
+     */
+    void dropEndPointSupport(EndPointConfiguration endPointConfiguration);
 
     interface BatchUpdate extends AutoCloseable {
 
