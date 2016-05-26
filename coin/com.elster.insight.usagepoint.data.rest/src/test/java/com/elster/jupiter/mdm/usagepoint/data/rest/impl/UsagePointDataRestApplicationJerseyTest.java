@@ -22,6 +22,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
+import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.MeterRole;
@@ -33,9 +34,9 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirementNode;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.metering.impl.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
 import com.elster.jupiter.validation.ValidationService;
@@ -64,7 +65,8 @@ import static org.mockito.Mockito.when;
 public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicationJerseyTest {
 
     static long firmwareComTaskId = 445632136865L;
-
+    @Mock
+    static SecurityContext securityContext;
     @Mock
     Clock clock;
     @Mock
@@ -82,8 +84,6 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
     @Mock
     ValidationService validationService;
     @Mock
-    static SecurityContext securityContext;
-    @Mock
     UsagePointDataService usagePointDataService;
     @Mock
     CustomPropertySetService customPropertySetService;
@@ -98,15 +98,8 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
     IssueService issueService;
     @Mock
     BpmService bpmService;
-
-    @Provider
-    @Priority(Priorities.AUTHORIZATION)
-    private static class SecurityRequestFilter implements ContainerRequestFilter {
-        @Override
-        public void filter(ContainerRequestContext requestContext) throws IOException {
-            requestContext.setSecurityContext(securityContext);
-        }
-    }
+    @Mock
+    ThreadPrincipalService threadPrincipalService;
 
     @Override
     protected Application getApplication() {
@@ -135,6 +128,7 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         application.setServiceCallService(serviceCallService);
         application.setServiceCallInfoFactory(serviceCallInfoFactory);
         application.setMetrologyConfigurationService(metrologyConfigurationService);
+        application.setThreadPrincipalService(threadPrincipalService);
         return application;
     }
 
@@ -205,5 +199,14 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         when(contract.getStatus().getName()).thenReturn("Incomplete");
         when(mock.getContracts()).thenReturn(Collections.singletonList(contract));
         return mock;
+    }
+
+    @Provider
+    @Priority(Priorities.AUTHORIZATION)
+    private static class SecurityRequestFilter implements ContainerRequestFilter {
+        @Override
+        public void filter(ContainerRequestContext requestContext) throws IOException {
+            requestContext.setSecurityContext(securityContext);
+        }
     }
 }
