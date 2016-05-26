@@ -7,9 +7,11 @@ import com.elster.jupiter.calendar.rest.CalendarInfoFactory;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -30,6 +32,7 @@ import com.energyict.mdc.device.config.IncompatibleDeviceLifeCycleChangeExceptio
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.TimeOfUseOptions;
+import com.energyict.mdc.device.config.exceptions.DeviceMessageFileTooBigException;
 import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
@@ -51,6 +54,7 @@ import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.swing.text.html.Option;
+import javax.validation.ConstraintViolationException;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -62,8 +66,13 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.security.SignedObject;
@@ -96,6 +105,7 @@ public class DeviceTypeResource {
     private final ProtocolPluggableService protocolPluggableService;
     private final CalendarInfoFactory calendarInfoFactory;
     private final CalendarService calendarService;
+    private final ExceptionFactory exceptionFactory;
     private final Thesaurus thesaurus;
 
     @Inject
@@ -109,6 +119,7 @@ public class DeviceTypeResource {
             Provider<LoadProfileTypeResource> loadProfileTypeResourceProvider,
             CalendarInfoFactory calendarInfoFactory,
             CalendarService calendarService,
+            ExceptionFactory exceptionFactory,
             Thesaurus thesaurus) {
         this.resourceHelper = resourceHelper;
         this.masterDataService = masterDataService;
@@ -119,6 +130,7 @@ public class DeviceTypeResource {
         this.deviceConflictMappingResourceProvider = deviceConflictMappingResourceProvider;
         this.calendarInfoFactory = calendarInfoFactory;
         this.calendarService = calendarService;
+        this.exceptionFactory = exceptionFactory;
         this.thesaurus = thesaurus;
     }
 
@@ -569,13 +581,14 @@ public class DeviceTypeResource {
     @Transactional
     @Path("/{id}/files/upload")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    @Produces(MediaType.TEXT_PLAIN)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public Response uploadFile(@PathParam("id") long deviceTypeId, @FormDataParam("uploadField") InputStream fileInputStream,
                                   @FormDataParam("uploadField") FormDataContentDisposition contentDispositionHeader) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
-        deviceType.addDeviceMessageFile(fileInputStream, contentDispositionHeader.getFileName());
-        return Response.ok().build();
+        addFileToDeviceType(deviceType, fileInputStream, contentDispositionHeader.getFileName());
+
+        return Response.ok().header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN).build();
     }
 
     @GET
@@ -815,6 +828,23 @@ public class DeviceTypeResource {
         } else {
             return new AllowedCalendarInfo(allowedCalendar, calendarInfoFactory.summaryFromCalendar(allowedCalendar.getCalendar()
                     .get()));
+        }
+    }
+
+    private void addFileToDeviceType(DeviceType deviceType, InputStream inputStream, String fileName) {
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream(); InputStream fis = inputStream) {
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = fis.read(buffer)) != -1) {
+                out.write(buffer, 0, length);
+                if (out.size() > DeviceConfigurationService.MAX_DEVICE_MESSAGE_FILE_SIZE_BYTES) {
+                    throw new DeviceMessageFileTooBigException(DeviceConfigurationService.MAX_DEVICE_MESSAGE_FILE_SIZE_MB, thesaurus);
+                }
+            }
+            byte[] firmwareFile = out.toByteArray();
+            deviceType.addDeviceMessageFile(new ByteArrayInputStream(firmwareFile), fileName);
+        } catch (IOException ex) {
+            throw exceptionFactory.newException(MessageSeeds.FILE_IO);
         }
     }
 }
