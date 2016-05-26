@@ -44,7 +44,6 @@ Ext.define('Mdc.metrologyconfiguration.view.AddForm', {
                 itemId: 'mc-serviceCategory-combobox',
                 fieldLabel: Uni.I18n.translate('general.serviceCategory', 'MDC', 'Service category'),
                 required: true,
-                disabled: me.isEdit,
                 store: 'Mdc.metrologyconfiguration.store.ServiceCategories',
                 queryMode: 'local',
                 displayField: 'name',
@@ -58,7 +57,6 @@ Ext.define('Mdc.metrologyconfiguration.view.AddForm', {
                 itemId: 'mc-readingTypes-reading-types-field',
                 fieldLabel: Uni.I18n.translate('general.readingTypes', 'MDC', 'Reading types'),
                 required: true,
-                disabled: me.isEdit,
                 isEquidistant: true
             },
             {
@@ -92,5 +90,17 @@ Ext.define('Mdc.metrologyconfiguration.view.AddForm', {
         ];
 
         me.callParent(arguments);
+    },
+
+    loadRecord: function (record) {
+        var me = this,
+            status = record.get('status'),
+            editable = Ext.isObject(status) && status.id === 'active';
+
+        Ext.suspendLayouts();
+        me.down('#mc-serviceCategory-combobox').setDisabled(editable);
+        me.down('#mc-readingTypes-reading-types-field').setDisabled(editable);
+        me.callParent(arguments);
+        Ext.resumeLayouts(true);
     }
 });

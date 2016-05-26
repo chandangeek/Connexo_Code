@@ -94,7 +94,9 @@ Ext.define('Mdc.metrologyconfiguration.controller.AddView', {
 
                 page.setLoading(false);
                 if (success) {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('metrologyconfiguration.addMetrologyConfigurationSuccess', 'MDC', 'Metrology configuration added'));
+                    me.getApplication().fireEvent('acknowledge', operation.action === 'update'
+                        ? Uni.I18n.translate('metrologyconfiguration.saveMetrologyConfigurationSuccess', 'MDC', 'Metrology configuration saved')
+                        : Uni.I18n.translate('metrologyconfiguration.addMetrologyConfigurationSuccess', 'MDC', 'Metrology configuration added'));
                     if (page.rendered) {
                         window.location.href = form.returnLink;
                     }
