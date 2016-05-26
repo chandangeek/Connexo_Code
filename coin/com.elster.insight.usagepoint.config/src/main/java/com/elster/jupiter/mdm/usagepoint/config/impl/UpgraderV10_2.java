@@ -18,7 +18,7 @@ class UpgraderV10_2 implements Upgrader {
     }
 
     @Override
-    public void migrate(DataModelUpgrader dataModelUpgrader) throws Exception {
+    public void migrate(DataModelUpgrader dataModelUpgrader) {
         dataModelUpgrader.upgrade(dataModel, Version.latest());
 
     }
