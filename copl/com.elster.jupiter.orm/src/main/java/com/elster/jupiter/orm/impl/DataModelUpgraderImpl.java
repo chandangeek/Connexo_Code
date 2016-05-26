@@ -15,7 +15,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -74,13 +73,14 @@ public class DataModelUpgraderImpl implements DataModelUpgrader {
                     .mapper(ExistingTable.class)
                     .getEager(tableName)
                     .ifPresent(userTable -> {
+                        userTable.addColumnsTo(currentDataModel, journalTableName);
                         userTable.getConstraints()
                                 .stream()
                                 .filter(ExistingConstraint::isForeignKey)
                                 .map(ExistingConstraint::getReferencedTableName)
                                 .filter(referencedTableName -> !tableName.equalsIgnoreCase(referencedTableName) && currentDataModel.getTable(referencedTableName) == null)
                                 .forEach(referencedTableName -> addTableToExistingModel(currentDataModel, schemaMetaDataModel, referencedTableName, null, processedTables));
-                        userTable.addTo(currentDataModel, Optional.ofNullable(journalTableName));
+                        userTable.addConstraintsTo(currentDataModel);
                     });
         }
     }

@@ -947,6 +947,10 @@ public class TableDdlGeneratorIT {
                 assertThat(resultSet.findColumn("MOVIE")).isEqualTo(4);
                 assertThat(resultSet.getMetaData().getColumnCount()).isEqualTo(4);
             }
+            try (Statement statement = connection.createStatement()) {
+                int i = statement.executeUpdate("insert into TST_ACTOR values (1, 'John Wayne', 5, 1)");
+                assertThat(i).isEqualTo(1);
+            }
         }
 
         ormService.getDataModelUpgrader().upgrade(dataModel, version(13, 0));
@@ -959,6 +963,11 @@ public class TableDdlGeneratorIT {
                 assertThat(resultSet.findColumn("LEAD")).isEqualTo(3);
                 assertThat(resultSet.findColumn("MOVIE")).isEqualTo(4);
                 assertThat(resultSet.getMetaData().getColumnCount()).isEqualTo(4);
+                assertThat(resultSet.next()).isTrue();
+                assertThat(resultSet.getLong(1)).isEqualTo(1);
+                assertThat(resultSet.getString(2)).isEqualTo("John Wayne");
+                assertThat(resultSet.getLong(3)).isEqualTo(5);
+                assertThat(resultSet.getLong(4)).isEqualTo(1);
             }
         }
     }
@@ -1531,7 +1540,7 @@ public class TableDdlGeneratorIT {
         }
     }
 
-    // makes a nullable column non null
+    // renames a table
     private void the13thVersionsCode(DataModel dataModel) {
         {
             Table<Movie3> movieTable = dataModel.addTable("TST_MOVIE", Movie3.class);
@@ -1667,4 +1676,5 @@ public class TableDdlGeneratorIT {
             actorTable.primaryKey("TST_ACTOR_PK").on(idColumn).add();
         }
     }
+
 }

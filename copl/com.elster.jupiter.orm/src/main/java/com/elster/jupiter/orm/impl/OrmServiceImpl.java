@@ -304,7 +304,7 @@ public class OrmServiceImpl implements OrmService {
                         }
                     }
                 }
-                userTable.addTo(existingModel, Optional.ofNullable(journalTableName));
+                userTable.addTo(existingModel, journalTableName);
             }
         }
     }
