@@ -25,10 +25,12 @@ import static java.util.stream.Collectors.toList;
 public class DeviceTypeInfoFactory extends SelectableFieldFactory<DeviceTypeInfo, DeviceType> {
 
     private final Provider<DeviceConfigurationInfoFactory> deviceConfigurationInfoFactoryProvider;
+    private final Provider<DeviceMessageFileInfoFactory> deviceMessageFileInfoFactoryProvider;
 
     @Inject
-    public DeviceTypeInfoFactory(Provider<DeviceConfigurationInfoFactory> deviceConfigurationInfoFactory) {
+    public DeviceTypeInfoFactory(Provider<DeviceConfigurationInfoFactory> deviceConfigurationInfoFactory, Provider<DeviceMessageFileInfoFactory> deviceMessageFileInfoFactoryProvider) {
         this.deviceConfigurationInfoFactoryProvider = deviceConfigurationInfoFactory;
+        this.deviceMessageFileInfoFactoryProvider = deviceMessageFileInfoFactoryProvider;
     }
 
     public LinkInfo asLink(DeviceType deviceType, Relation relation, UriInfo uriInfo) {
@@ -81,8 +83,10 @@ public class DeviceTypeInfoFactory extends SelectableFieldFactory<DeviceTypeInfo
         map.put("deviceConfigurations", (deviceTypeInfo, deviceType, uriInfo) -> {
             deviceTypeInfo.deviceConfigurations = deviceConfigurationInfoFactoryProvider.get().asLink(deviceType.getConfigurations(), Relation.REF_RELATION, uriInfo);
         });
+        map.put("deviceMessageFiles", (deviceTypeInfo, deviceType, uriInfo) -> {
+            deviceTypeInfo.deviceMessageFiles = deviceMessageFileInfoFactoryProvider.get().asLink(deviceType.getDeviceMessageFiles(), Relation.REF_RELATION, uriInfo);
+        });
         return map;
     }
-
 
 }
