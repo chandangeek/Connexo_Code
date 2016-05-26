@@ -150,10 +150,11 @@ public final class LazyLoadingBlob implements Blob, IOResource {
     }
 
     private class PersistentBlob implements InternalBlob {
+        private boolean loaded = false;
         private java.sql.Blob databaseBlob;
 
         private void ensureLoaded() {
-            if (this.databaseBlob == null) {
+            if (!this.loaded) {
                 this.loadBlob();
             }
         }
@@ -195,6 +196,8 @@ public final class LazyLoadingBlob implements Blob, IOResource {
             try (PreparedStatement statement = sqlBuilder.prepare(connection)) {
                 try (ResultSet resultSet = statement.executeQuery()) {
                     if (resultSet.next()) {
+                        this.loaded = true;
+                        // Note that the following may return null if the blob was empty on the database
                         this.databaseBlob = resultSet.getBlob(1);
                     } else {
                         throw new UnsupportedOperationException("Owning object for blob in column " + columnName() + " of table " + tableName() + " identified by " + keyValue + " no longer exists");
@@ -224,7 +227,11 @@ public final class LazyLoadingBlob implements Blob, IOResource {
         public long length() {
             try {
                 this.ensureLoaded();
-                return this.databaseBlob.length();
+                if (this.databaseBlob != null) {
+                    return this.databaseBlob.length();
+                } else {
+                    return 0;
+                }
             } catch (SQLException e) {
                 throw new UnderlyingSQLFailedException(e);
             }
@@ -234,7 +241,11 @@ public final class LazyLoadingBlob implements Blob, IOResource {
         public InputStream getBinaryStream() {
             this.ensureLoaded();
             try {
-                return this.databaseBlob.getBinaryStream();
+                if (this.databaseBlob != null) {
+                    return this.databaseBlob.getBinaryStream();
+                } else {
+                    return new EmptyStream();
+                }
             } catch (SQLException e) {
                 throw new UnderlyingSQLFailedException(e);
             }
@@ -244,7 +255,11 @@ public final class LazyLoadingBlob implements Blob, IOResource {
         public void clear() {
             this.ensureLoaded();
             try {
-                this.databaseBlob.truncate(0);
+                if (this.databaseBlob != null) {
+                    this.databaseBlob.truncate(0);
+                } else {
+                    this.databaseBlob = dataModel.getConnection(true).createBlob();
+                }
             } catch (SQLException e) {
                 throw new UnderlyingSQLFailedException(e);
             }
@@ -260,6 +275,23 @@ public final class LazyLoadingBlob implements Blob, IOResource {
             }
         }
 
+    }
+
+    private static class EmptyStream extends InputStream {
+        @Override
+        public int read() throws IOException {
+            return -1;
+        }
+
+        @Override
+        public int read(byte[] b, int off, int len) throws IOException {
+            return -1;
+        }
+
+        @Override
+        public int available() throws IOException {
+            return 0;
+        }
     }
 
 }
