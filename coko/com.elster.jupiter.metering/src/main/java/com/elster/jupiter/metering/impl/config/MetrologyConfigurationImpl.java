@@ -279,7 +279,7 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
 
     @Override
     public List<ReadingTypeRequirement> getRequirements() {
-        return Collections.unmodifiableList(this.readingTypeRequirements);
+        return Collections.unmodifiableList(new ArrayList<>(this.readingTypeRequirements));
     }
 
     @Override
