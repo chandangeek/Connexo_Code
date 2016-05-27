@@ -3,6 +3,7 @@ package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects;
 import com.energyict.cpo.ObjectMapperFactory;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.cosem.ClientTypeManager;
 import com.energyict.dlms.cosem.DeviceTypeManager;
 import com.energyict.dlms.cosem.ScheduleManager;
@@ -12,6 +13,7 @@ import com.energyict.mdc.meterdata.CollectedMessage;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.NotInObjectListException;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.Beacon3100Messaging;
@@ -57,9 +59,30 @@ public class MasterDataSync {
             return collectedMessage;
         }
 
-        syncSchedules(allMasterData);
-        syncClientTypes(allMasterData);
-        syncDeviceTypes(allMasterData);
+
+        MasterDataAnalyser masterDataAnalyser = analyseWhatToSync(allMasterData);
+
+        /**
+         * Do the synchronization sequence
+         * order of those operation is very important!
+         * see https://jira.eict.vpdc/browse/COMMUNICATION-1613
+         */
+
+        createSchedules(masterDataAnalyser.getSchedulesToAdd());
+        createClientTypes(masterDataAnalyser.getClientTypesToAdd());
+        createDeviceTypes(masterDataAnalyser.getDeviceTypesToAdd());
+
+        updateDeviceTypes(masterDataAnalyser.getDeviceTypesToUpdate());
+        updateClientTypes(masterDataAnalyser.getClientTypesToUpdate());
+        updateSchedules(masterDataAnalyser.getSchedulesToUpdate());
+
+        deleteDeviceTypes(masterDataAnalyser.getDeviceTypesToDelete());
+        deleteClientTypes(masterDataAnalyser.getClientTypesToDelete());
+        deleteSchedules(masterDataAnalyser.getSchedulesToDelete());
+        /**
+         * synchronization sequence ended
+         */
+
 
         collectedMessage.setDeviceProtocolInformation(getInfoMessage());
 
@@ -76,6 +99,23 @@ public class MasterDataSync {
 
         return collectedMessage;
     }
+
+    private MasterDataAnalyser analyseWhatToSync(AllMasterData allMasterData) throws IOException {
+        MasterDataAnalyser masterDataAnalyser = new MasterDataAnalyser();
+
+        masterDataAnalyser.analyseClientTypes( getProtocol().getDlmsSession().getCosemObjectFactory().getClientTypeManager().readClients(),
+                allMasterData.getClientTypes(),
+                getIsFirmwareVersion140OrAbove());
+
+        masterDataAnalyser.analyseDeviceTypes(getProtocol().getDlmsSession().getCosemObjectFactory().getDeviceTypeManager().readDeviceTypes(),
+                allMasterData.getDeviceTypes());
+
+        masterDataAnalyser.analyseSchedules(getProtocol().getDlmsSession().getCosemObjectFactory().getScheduleManager().readSchedules(),
+                allMasterData.getSchedules());
+
+        return masterDataAnalyser;
+    }
+
 
     // truncate to max 4000 - as supported by varchar field in oracle
     protected String getInfoMessage() {
@@ -169,141 +209,134 @@ public class MasterDataSync {
         }
     }
 
-    private void syncDeviceTypes(AllMasterData allMasterData) throws IOException {
-        final DeviceTypeManager deviceTypeManager = getProtocol().getDlmsSession().getCosemObjectFactory().getDeviceTypeManager();
-        final Array existingBeaconDeviceTypesArray = deviceTypeManager.readDeviceTypes();
 
-        Map<Long, AbstractDataType> existingBeaconDeviceTypes = new HashMap<>();
-        Map<Long, Boolean> active = new HashMap<>();
+    private void createSchedules(List<Beacon3100Schedule> schedulesToAdd) throws NotInObjectListException {
+        ScheduleManager scheduleManager = getProtocol().getDlmsSession().getCosemObjectFactory().getScheduleManager();
 
-        for (AbstractDataType existingDeviceType : existingBeaconDeviceTypesArray) {
-            if (existingDeviceType.isStructure() && existingDeviceType.getStructure().nrOfDataTypes() > 0) {
-                final long existingDeviceTypeId = existingDeviceType.getStructure().getDataType(0).longValue(); //First element of the structure is the deviceType ID
-                existingBeaconDeviceTypes.put(existingDeviceTypeId, existingDeviceType);
-                active.put(existingDeviceTypeId, false); // for start consider that beacon items are obsolete
-            }
-        }
-
-        info.append("DeviceType Sync:\n");
-
-        for (Beacon3100DeviceType deviceType : allMasterData.getDeviceTypes()) {
-            active.put(deviceType.getId(), true); // types found in masterdata are still active
-
-            if (existingBeaconDeviceTypes.containsKey(deviceType.getId())) {
-                if (deviceType.equals( existingBeaconDeviceTypes.get(deviceType.getId()))){
-                    // do nothing, the same
-                    info.append("-DeviceType SKIPPED: [").append(deviceType.getId()).append("] ").append(deviceType.getName()).append("\n");
-                } else {
-                    info.append("-DeviceType UPDATED: [").append(deviceType.getId()).append("] ").append(deviceType.getName()).append("\n");
-                    deviceTypeManager.updateDeviceType(deviceType.toStructure());
-                }
-            } else {
-                info.append("-Device type ADDED: [").append(deviceType.getId()).append("] ").append(deviceType.getName()).append("\n");
-                deviceTypeManager.addDeviceType(deviceType.toStructure());
-            }
-        }
-
-        // delete the remaining inactive items
-        for (Long beaconDeviceTypeId : active.keySet()){
-            if (!active.get(beaconDeviceTypeId)){
-                try {
-                    deviceTypeManager.removeDeviceType(beaconDeviceTypeId);
-                    info.append("-DeviceType DELETED: [" + beaconDeviceTypeId + "]\n");
-                } catch (Exception ex){
-                    info.append("-Could not delete DeviceType [" + beaconDeviceTypeId + "] - " + ex.getMessage() + "\n");
-                }
-            }
-        }
-    }
-
-    private void syncClientTypes(AllMasterData allMasterData) throws IOException {
-        final ClientTypeManager clientTypeManager = getProtocol().getDlmsSession().getCosemObjectFactory().getClientTypeManager();
-        final Array clientTypesArray = clientTypeManager.readClients();
-
-        Map<Long, AbstractDataType> existingClientTypes = new HashMap<>();
-        Map<Long, Boolean> active = new HashMap<>();
-
-        for (AbstractDataType clientType : clientTypesArray) {
-            if (clientType.isStructure() && clientType.getStructure().nrOfDataTypes() > 0) {
-                final long clientTypeId = clientType.getStructure().getDataType(0).longValue(); //First element of the structure is the clientType ID
-                existingClientTypes.put(clientTypeId, clientType);
-                active.put(clientTypeId, false); // for start consider that beacon items are obsolete
-            }
-        }
-
-        info.append("ClientType Sync:\n");
-        boolean isFirmwareVersion140OrAbove = getIsFirmwareVersion140OrAbove();
-        for (Beacon3100ClientType beacon3100ClientType : allMasterData.getClientTypes()) {
-            beacon3100ClientType.setIsFirmware140orAbove(isFirmwareVersion140OrAbove);
-            active.put(beacon3100ClientType.getId(), true); // types found in masterdata are still active
-            if (existingClientTypes.containsKey(beacon3100ClientType.getId())) {
-                if (beacon3100ClientType.equals( existingClientTypes.get(beacon3100ClientType.getId()))){
-                    // do nothing, the same
-                    info.append("-ClientType SKIPPED: [").append(beacon3100ClientType.getId()).append("] ClientMacAddress:").append(beacon3100ClientType.getClientMacAddress()).append("\n");
-                } else {
-                    info.append("-ClientType UPDATED: [").append(beacon3100ClientType.getId()).append("] ClientMacAddress:").append(beacon3100ClientType.getClientMacAddress()).append("\n");
-                    clientTypeManager.updateClientType(beacon3100ClientType.toStructure());
-                }
-            } else {
-                info.append("-ClientType ADDED: [").append(beacon3100ClientType.getId()).append("]\n");
-                clientTypeManager.addClientType(beacon3100ClientType.toStructure());
-            }
-        }
-
-        // delete the remaining inactive items
-        for (Long clientTypeId : active.keySet()){
-            if (!active.get(clientTypeId)){
-                try {
-                    clientTypeManager.removeClientType(clientTypeId);
-                    info.append("-ClientType DELETED: [" + clientTypeId + "]\n");
-                } catch (Exception ex){
-                    info.append("-Could not delete client type [" + clientTypeId + "] - "+ex.getMessage() +"\n");
-                }
-            }
-        }
-    }
-
-    private void syncSchedules(AllMasterData allMasterData) throws IOException {
-        final ScheduleManager scheduleManager = getProtocol().getDlmsSession().getCosemObjectFactory().getScheduleManager();
-        final Array schedulesArray = scheduleManager.readSchedules();
-
-        HashMap<Long, AbstractDataType> existingSchedules = new HashMap<>();
-        Map<Long, Boolean> active = new HashMap<>();
-        for (AbstractDataType schedule : schedulesArray) {
-            if (schedule.isStructure() && schedule.getStructure().nrOfDataTypes() > 0) {
-                final long scheduleId = schedule.getStructure().getDataType(0).longValue(); //First element of the structure is the schedule ID
-                existingSchedules.put(scheduleId, schedule);
-                active.put(scheduleId, false);
-            }
-        }
-
-        info.append("Schedules Sync:\n");
-
-        for (Beacon3100Schedule beacon3100Schedule : allMasterData.getSchedules()) {
-            active.put(beacon3100Schedule.getId(), true);
-            if (existingSchedules.containsKey(beacon3100Schedule.getId())) {
-                if (beacon3100Schedule.equals( existingSchedules.get(beacon3100Schedule.getId()))){
-                    // do nothing, the same
-                    info.append("-Schedule SKIPPED: [").append(beacon3100Schedule.getId()).append("] ").append(beacon3100Schedule.getName()).append("\n");
-                } else {
-                    info.append("-Schedule UPDATED: [").append(beacon3100Schedule.getId()).append("] ").append(beacon3100Schedule.getName()).append("\n");
-                    scheduleManager.updateSchedule(beacon3100Schedule.toStructure());
-                }
-            } else {
-                info.append("-Schedule ADDED: [").append(beacon3100Schedule.getId()).append("] ").append(beacon3100Schedule.getName()).append("\n");
+        info.append("*** CREATING Schedules ***\n");
+        for (Beacon3100Schedule beacon3100Schedule : schedulesToAdd){
+            try {
                 scheduleManager.addSchedule(beacon3100Schedule.toStructure());
+                info.append("- Schedule ADDED: [").append(beacon3100Schedule.getId()).append("] ").append(beacon3100Schedule.getName()).append("\n");
+            } catch (IOException ex) {
+                info.append("- Could not add schedule [" + beacon3100Schedule.getId() + "]: " + ex.getMessage() + "\n");
+
             }
         }
+    }
 
-        // delete the remaining inactive items
-        for (Long scheduleId : active.keySet()){
-            if (!active.get(scheduleId)){
-                try{
-                    scheduleManager.removeSchedule(scheduleId);
-                    info.append("-Schedule DELETED: [" + scheduleId + "]\n");
-                } catch (Exception ex){
-                    info.append("-Could not remove schedule [" + scheduleId + "] from beacon- " + ex.getMessage() + "\n");
-                }
+    private void updateSchedules(List<Beacon3100Schedule> schedulesToUpdate) throws IOException {
+        ScheduleManager scheduleManager = getProtocol().getDlmsSession().getCosemObjectFactory().getScheduleManager();
+
+        info.append("*** UPDATING Schedules ***\n");
+        for (Beacon3100Schedule beacon3100Schedule : schedulesToUpdate){
+            try {
+                scheduleManager.updateSchedule(beacon3100Schedule.toStructure());
+                info.append("- Schedule UPDATED: [").append(beacon3100Schedule.getId()).append("] ").append(beacon3100Schedule.getName()).append("\n");
+            } catch (IOException ex) {
+                info.append("- Could not update schedule [" + beacon3100Schedule.getId() + "]: " + ex.getMessage() + "\n");
+            }
+        }
+    }
+
+    private void deleteSchedules(List<Long> schedulesToDelete) throws IOException {
+        ScheduleManager scheduleManager = getProtocol().getDlmsSession().getCosemObjectFactory().getScheduleManager();
+
+        info.append("*** DELETING Schedules ***\n");
+        for (Long beacon3100ScheduleId : schedulesToDelete){
+            try {
+                scheduleManager.removeSchedule(beacon3100ScheduleId);
+                info.append("- Schedule DELETED: [").append(beacon3100ScheduleId).append("]\n");
+            } catch (IOException ex) {
+                info.append("- Could not delete schedule [" + beacon3100ScheduleId + "]: " + ex.getMessage() + "\n");
+            }
+        }
+    }
+
+
+    private void createClientTypes(List<Beacon3100ClientType> clientTypesToAdd) throws NotInObjectListException {
+        ClientTypeManager clientTypeManager = getProtocol().getDlmsSession().getCosemObjectFactory().getClientTypeManager();
+
+        info.append("*** CREATING ClientTypes ***\n");
+        for (Beacon3100ClientType beacon3100ClientType : clientTypesToAdd){
+            try {
+                clientTypeManager.addClientType(beacon3100ClientType.toStructure());
+                info.append("- ClientType ADDED: [").append(beacon3100ClientType.getId()).append("] ClientMacAddress:").append(beacon3100ClientType.getClientMacAddress()).append("\n");
+            } catch (IOException ex) {
+                info.append("- Could not add ClientType [" + beacon3100ClientType.getId() + "]: " + ex.getMessage() + "\n");
+            }
+        }
+    }
+
+
+    private void updateClientTypes(List<Beacon3100ClientType> clientTypesToUpdate) throws NotInObjectListException {
+        ClientTypeManager clientTypeManager = getProtocol().getDlmsSession().getCosemObjectFactory().getClientTypeManager();
+
+        info.append("*** UPDATING ClientTypes ***\n");
+        for (Beacon3100ClientType beacon3100ClientType : clientTypesToUpdate){
+            try {
+                clientTypeManager.updateClientType(beacon3100ClientType.toStructure());
+                info.append("- ClientType UPDATED: [").append(beacon3100ClientType.getId()).append("] ClientMacAddress:").append(beacon3100ClientType.getClientMacAddress()).append("\n");
+            } catch (IOException ex) {
+                info.append("- Could not update ClientType [" + beacon3100ClientType.getId() + "]: " + ex.getMessage() + "\n");
+            }
+        }
+    }
+
+
+    private void deleteClientTypes(List<Long> clientTypesToDelete) throws NotInObjectListException {
+        ClientTypeManager clientTypeManager = getProtocol().getDlmsSession().getCosemObjectFactory().getClientTypeManager();
+
+        info.append("*** DELETING ClientTypes ***\n");
+        for (Long beacon3100ClientTypeId : clientTypesToDelete){
+            try {
+                clientTypeManager.removeClientType(beacon3100ClientTypeId);
+                info.append("- ClientType DELETED: [").append(beacon3100ClientTypeId).append("]\n");
+            } catch (IOException ex) {
+                info.append("- Could not delete client type [" + beacon3100ClientTypeId + "]: " + ex.getMessage() + "\n");
+            }
+        }
+    }
+
+    private void createDeviceTypes(List<Beacon3100DeviceType> devicesTypesToAdd) throws NotInObjectListException {
+        DeviceTypeManager deviceTypeManager = getProtocol().getDlmsSession().getCosemObjectFactory().getDeviceTypeManager();
+
+        info.append("*** CREATING DeviceTypes ***\n");
+        for (Beacon3100DeviceType beacon3100DeviceType : devicesTypesToAdd){
+            try {
+                deviceTypeManager.addDeviceType(beacon3100DeviceType.toStructure());
+                info.append("- DeviceType ADDED: [").append(beacon3100DeviceType.getId()).append("]: ").append(beacon3100DeviceType.getName()).append("\n");
+            } catch (IOException ex) {
+                info.append("- Could not add DeviceType [" + beacon3100DeviceType.getId() + "]: " + ex.getMessage() + "\n");
+            }
+        }
+    }
+
+    private void updateDeviceTypes(List<Beacon3100DeviceType> devicesTypesToUpdate) throws NotInObjectListException {
+        DeviceTypeManager deviceTypeManager = getProtocol().getDlmsSession().getCosemObjectFactory().getDeviceTypeManager();
+
+        info.append("*** UPDATING DeviceTypes ***\n");
+        for (Beacon3100DeviceType beacon3100DeviceType : devicesTypesToUpdate){
+            try {
+                deviceTypeManager.updateDeviceType(beacon3100DeviceType.toStructure());
+                info.append("- DeviceType UPDATED: [").append(beacon3100DeviceType.getId()).append("]: ").append(beacon3100DeviceType.getName()).append("\n");
+            } catch (IOException ex) {
+                info.append("- Could not update DeviceType [" + beacon3100DeviceType.getId() + "]: " + ex.getMessage() + "\n");
+            }
+        }
+    }
+
+
+    private void deleteDeviceTypes(List<Long> devicesTypesToDelete) throws NotInObjectListException {
+        DeviceTypeManager deviceTypeManager = getProtocol().getDlmsSession().getCosemObjectFactory().getDeviceTypeManager();
+
+        info.append("*** DELETING DeviceTypes ***\n");
+        for (Long beacon3100DeviceTypeId : devicesTypesToDelete){
+            try {
+                deviceTypeManager.removeDeviceType(beacon3100DeviceTypeId);
+                info.append("- DeviceType DELETED: [").append(beacon3100DeviceTypeId).append("]\n");
+            } catch (IOException ex) {
+                info.append("- Could not delete DeviceType [" + beacon3100DeviceTypeId + "]: " + ex.getMessage() + "\n");
             }
         }
     }
