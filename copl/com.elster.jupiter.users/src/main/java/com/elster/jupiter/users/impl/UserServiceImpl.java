@@ -308,7 +308,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
                         group.get().grant(applicationName, privilege);
                     }
                     catch(DoesNotExistException e){
-                        System.out.println("Privilege " + privilege + " not yet registered; grant is delayed for " + groupName + "on " + applicationName);
+                        System.out.println("Privilege " + privilege + " not yet registered; grant is delayed for " + groupName + " on " + applicationName);
                         if(!privilegesNotYetRegistered.containsKey(privilege)){
                             privilegesNotYetRegistered.put(privilege, new ArrayList<>());
                         }
