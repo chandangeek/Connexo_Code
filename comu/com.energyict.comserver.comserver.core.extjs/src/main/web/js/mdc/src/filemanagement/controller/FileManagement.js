@@ -43,7 +43,10 @@ Ext.define('Mdc.filemanagement.controller.FileManagement', {
             },
             'form filefield': {
                 change: me.uploadFile
-            }
+            },
+            'files-grid actioncolumn': {
+                removeEvent: me.removeFile
+            },
         });
     },
 
@@ -63,6 +66,7 @@ Ext.define('Mdc.filemanagement.controller.FileManagement', {
                     callback: function (records, operation, success) {
                         if (success === true) {
                             me.updateCounter(store.getCount());
+                            me.updateGridHeight();
                         }
                     }
                 });
@@ -165,7 +169,7 @@ Ext.define('Mdc.filemanagement.controller.FileManagement', {
             form,
             store = me.getStore('Mdc.filemanagement.store.Files'),
             max_file_size = 2 * 1024 * 1024;
-        if(fileField.up('#no-files')) {
+        if (fileField.up('#no-files')) {
             form = setup.down('files-devicetype-preview-container').down('#no-files').down('form').getEl().dom;
         } else {
             form = setup.down('files-devicetype-preview-container').down('#files-grid').down('form').getEl().dom;
@@ -191,13 +195,62 @@ Ext.define('Mdc.filemanagement.controller.FileManagement', {
                     callback: function (records, operation, success) {
                         if (success === true) {
                             me.updateCounter(store.getCount());
+                            me.updateGridHeight();
                         }
                     }
                 });
                 setup.setLoading(false);
             }
         });
+    },
+
+    removeFile: function (record) {
+        var me = this,
+            setup = me.getSetup(),
+            store = me.getStore('Mdc.filemanagement.store.Files'),
+            confirmationWindow;
+        record.getProxy().setUrl(me.deviceTypeId);
+        confirmationWindow = Ext.create('Uni.view.window.Confirmation');
+        confirmationWindow.show(
+            {
+                msg: Uni.I18n.translate('file.remove.msg', 'MDC', 'The file will no longer be available to send to a device. Pending commands will fail to execute.'),
+                title: Uni.I18n.translate('general.removeX', 'MDC', "Remove '{0}'?", record.get('name')),
+                fn: function (state) {
+                    if (state === 'confirm') {
+                        setup.down('files-devicetype-preview-container').down('#files-grid').setLoading();
+                        record.destroy({
+                            callback: function (record, operation, success) {
+                                store.load({
+                                    callback: function (records, operation, success) {
+                                        setup.down('files-devicetype-preview-container').down('#files-grid').setLoading(false);
+                                        if (success === true) {
+                                            me.updateCounter(store.getCount());
+                                            me.updateGridHeight();
+                                        }
+                                    }
+                                });
+                            }
+                        });
+                    }
+                }
+            });
+    },
+
+    updateGridHeight: function () {
+        var me = this,
+            setup = me.getSetup(),
+            grid = setup.down('files-grid'),
+            panel = setup.down('tabpanel'),
+            pageHeight = setup.getHeight() - panel.getHeader().getHeight(),
+            maxHeight = window.innerHeight - 280;
+
+        if(maxHeight < 400) {
+            maxHeight = 400;
+        }
+        grid.maxHeight = maxHeight;
+        grid.updateLayout();
     }
+
 
 })
 ;

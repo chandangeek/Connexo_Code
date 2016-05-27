@@ -7,6 +7,7 @@ Ext.define('Mdc.filemanagement.view.FilesGrid', {
         'Uni.grid.column.Action',
         'Uni.view.toolbar.PagingTop'
     ],
+    forceFit: true,
 
     initComponent: function () {
         var me = this;
@@ -23,17 +24,22 @@ Ext.define('Mdc.filemanagement.view.FilesGrid', {
                 renderer: function (value) {
                     return value && value !== 0 ? Uni.DateTime.formatDateTime(new Date(value), Uni.DateTime.LONG, Uni.DateTime.LONG) : '-';
                 }
+            },
+            {
+                xtype: 'actioncolumn',
+                align: 'right',
+                header: Uni.I18n.translate('general.actions', 'APR', 'Actions'),
+                items: [
+                    {
+                        iconCls: 'uni-icon-delete',
+                        itemId: 'apr-remove-import-service-btn',
+                        tooltip: Uni.I18n.translate('general.remove', 'APR', 'Remove'),
+                        handler: function (grid, rowIndex, colIndex, column, event, record) {
+                            this.fireEvent('removeEvent', record);
+                        }
+                    }
+                ]
             }
-            //{
-            //    xtype: 'uni-actioncolumn',
-            //    privileges: Mdc.privileges.DeviceType.view,
-            //    isDisabled: me.fnIsDisabled,
-            //    timeOfUseAllowed: me.timeOfUseAllowed,
-            //    menu: {
-            //        xtype: 'tou-devicetype-action-menu'
-            //    },
-            //    flex: 0.7
-            //}
         ];
 
         me.dockedItems = [

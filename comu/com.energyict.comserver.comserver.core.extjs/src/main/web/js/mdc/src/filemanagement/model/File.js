@@ -17,13 +17,13 @@ Ext.define('Mdc.filemanagement.model.File', {
     proxy: {
         type: 'rest',
         timeout: 120000,
-        urlTpl: '/api/ddr/devices/{mRID}/channels/{channelID}/validationpreview',
+        urlTpl: '/api/dtc/devicetypes/{deviceTypeId}/files',
         reader: {
             type: 'json'
         },
 
-        setUrl: function (mRID, channelId) {
-            this.url = this.urlTpl.replace('{mRID}', encodeURIComponent(mRID)).replace('{channelID}', channelId);
+        setUrl: function (deviceTypeId) {
+            this.url = this.urlTpl.replace('{deviceTypeId}', deviceTypeId);
         }
     }
 });

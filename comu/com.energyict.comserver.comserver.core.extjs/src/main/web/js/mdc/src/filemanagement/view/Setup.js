@@ -5,7 +5,8 @@ Ext.define('Mdc.filemanagement.view.Setup', {
     requires: [
         'Mdc.view.setup.devicetype.SideMenu',
         'Mdc.filemanagement.view.PreviewContainer',
-        'Mdc.filemanagement.view.Specifications'
+        'Mdc.filemanagement.view.Specifications',
+        'Uni.util.FormEmptyMessage'
     ],
 
     deviceTypeId: null,
@@ -53,6 +54,18 @@ Ext.define('Mdc.filemanagement.view.Setup', {
                                 itemId: 'grid-tab',
                                 //disabled: true,
                                 items: [
+                                    {
+                                        xtype: 'form',
+                                        items: [
+                                            {
+                                                xtype: 'uni-form-empty-message',
+                                                itemId: 'maxFileSizeMessage',
+                                                margin: '5 0 5 0',
+                                                text: Uni.I18n.translate('filemanagement.maxAllowedFileSize2MB', 'MDC', 'The maximum allowed file size is 2MB')
+                                            }
+                                        ]
+                                    },
+
                                     {
                                         xtype: 'files-devicetype-preview-container',
                                         itemId: 'files-devicetype-preview-container',
