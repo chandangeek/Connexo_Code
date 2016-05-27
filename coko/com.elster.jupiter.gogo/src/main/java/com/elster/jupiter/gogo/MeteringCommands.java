@@ -409,7 +409,7 @@ public class MeteringCommands {
         //find reading type
         Optional<ReadingType> readingType = meteringService.getReadingType(readingTypeMRID);
         if (!readingType.isPresent()) {
-            System.out.println("Unknown reading type '" + readingType + "'. Skipping.");
+            System.out.println("Unknown reading type '" + readingTypeMRID + "'. Skipping.");
             return;
         }
         //parse timestamp
