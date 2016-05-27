@@ -1,6 +1,8 @@
 package com.elster.jupiter.validation.rest;
 
+import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
 import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeService;
@@ -19,14 +21,14 @@ public class DataValidationTaskInfo {
 
     public long id = 0;
     public String name = "blank_name";
-    public MeterGroupInfo deviceGroup;
-    public UsagePointGroupInfo usagePointGroup;
+    public IdWithDisplayValueInfo<Long> deviceGroup;
+    public IdWithDisplayValueInfo metrologyConfiguration;
+    public IdWithDisplayValueInfo<Long> metrologyContract;
     public PeriodicalExpressionInfo schedule;
     public DataValidationTaskHistoryInfo lastValidationOccurence;
     public Long nextRun;
     public Long lastRun;
     public long version;
-    public String application;
 
     public DataValidationTaskInfo(DataValidationTask dataValidationTask, Thesaurus thesaurus, TimeService timeService) {
         populate(dataValidationTask);
@@ -42,10 +44,13 @@ public class DataValidationTaskInfo {
         id = dataValidationTask.getId();
         name = dataValidationTask.getName();
         if (dataValidationTask.getEndDeviceGroup().isPresent()) {
-            deviceGroup = new MeterGroupInfo(dataValidationTask.getEndDeviceGroup().get());
+            deviceGroup = new IdWithDisplayValueInfo<>(dataValidationTask.getEndDeviceGroup().get().getId(), dataValidationTask.getEndDeviceGroup().get().getName());
         }
-        if (dataValidationTask.getUsagePointGroup().isPresent()) {
-            usagePointGroup = new UsagePointGroupInfo(dataValidationTask.getUsagePointGroup().get());
+
+        if (dataValidationTask.getMetrologyContract().isPresent()) {
+            MetrologyContract contract = dataValidationTask.getMetrologyContract().get();
+            metrologyContract = new IdWithDisplayValueInfo<>(contract.getId(), contract.getMetrologyPurpose().getName());
+            metrologyConfiguration = new IdWithDisplayValueInfo<>(contract.getMetrologyConfiguration().getId(), contract.getMetrologyConfiguration().getName());
         }
 
         if (Never.NEVER.equals(dataValidationTask.getScheduleExpression())) {

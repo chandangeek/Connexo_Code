@@ -1,53 +1,47 @@
 package com.elster.jupiter.validation.rest;
 
+import com.elster.jupiter.devtools.ExtjsFilter;
+import com.elster.jupiter.devtools.tests.FakeBuilder;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
+import com.elster.jupiter.util.time.Never;
+import com.elster.jupiter.validation.DataValidationOccurrence;
+import com.elster.jupiter.validation.DataValidationOccurrenceFinder;
+import com.elster.jupiter.validation.DataValidationTask;
+import com.elster.jupiter.validation.DataValidationTaskBuilder;
+
+import com.jayway.jsonpath.JsonModel;
+
+import javax.ws.rs.HttpMethod;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
+import java.io.InputStream;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.Optional;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.io.InputStream;
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.Optional;
-
-import javax.ws.rs.HttpMethod;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
-
-import com.elster.jupiter.devtools.tests.FakeBuilder;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Matchers;
-import org.mockito.Mock;
-
-import com.elster.jupiter.devtools.ExtjsFilter;
-import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.metering.groups.UsagePointGroup;
-import com.elster.jupiter.rest.util.QueryParameters;
-import com.elster.jupiter.rest.util.RestQuery;
-import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.util.time.Never;
-import com.elster.jupiter.validation.DataValidationOccurrence;
-import com.elster.jupiter.validation.DataValidationOccurrenceFinder;
-import com.elster.jupiter.validation.DataValidationTask;
-import com.elster.jupiter.validation.DataValidationTaskBuilder;
-import com.jayway.jsonpath.JsonModel;
-
 public class DataValidationTaskResourceTest extends BaseValidationRestTest {
 
     public static final int TASK_ID = 750;
+    public static final String INSIGHT_KEY = "INS";
+    public static final String MULTISENSE_KEY = "MDC";
+    public static final String HEADER_NAME = "X-CONNEXO-APPLICATION-NAME";
     public static final long OK_VERSION = 23L;
     public static final long BAD_VERSION = 21L;
 
     @Mock
     protected EndDeviceGroup endDeviceGroup;
-    
-    @Mock
-    protected UsagePointGroup usagePointGroup;
 
     DataValidationTaskBuilder taskBuilder;
 
@@ -57,7 +51,7 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        dataValidationTask1 = mockDataValidationTask(TASK_ID);
+        dataValidationTask1 = mockDataValidationTask(TASK_ID, MULTISENSE_KEY);
         taskBuilder = FakeBuilder.initBuilderStub(dataValidationTask1, DataValidationTaskBuilder.class);
         when(validationService.newTaskBuilder()).thenReturn(taskBuilder);
         when(validationService.findValidationTask(anyLong())).thenReturn(Optional.of(dataValidationTask1));
@@ -65,39 +59,46 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
 
     @Test
     public void getTasksTest() {
-        mockDataValidationTasks(mockDataValidationTask(13));
+        mockDataValidationTasks(mockDataValidationTask(13, MULTISENSE_KEY), mockDataValidationTask(15, INSIGHT_KEY));
 
-        Response response1 = target("/validationtasks").request().get();
-        assertThat(response1.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        String jsonFromMultisense = target("/validationtasks").request().header(HEADER_NAME, MULTISENSE_KEY).get(String.class);
 
-        DataValidationTaskInfos infos = response1.readEntity(DataValidationTaskInfos.class);
-        assertThat(infos.total).isEqualTo(1);
-        assertThat(infos.dataValidationTasks).hasSize(1);
+        JsonModel jsonModelFromMultisense = JsonModel.create(jsonFromMultisense);
+        assertThat(jsonModelFromMultisense.<Number>get("$.total")).isEqualTo(1);
+        assertThat(jsonModelFromMultisense.<Number>get("$.dataValidationTasks[0].id")).isEqualTo(13);
+        assertThat(jsonModelFromMultisense.<String>get("$.dataValidationTasks[0].name")).isEqualTo("Name");
+
+        String jsonFromInsight = target("/validationtasks").request().header(HEADER_NAME, INSIGHT_KEY).get(String.class);
+
+        JsonModel jsonModelFromInsight = JsonModel.create(jsonFromInsight);
+        assertThat(jsonModelFromInsight.<Number>get("$.total")).isEqualTo(1);
+        assertThat(jsonModelFromInsight.<Number>get("$.dataValidationTasks[0].id")).isEqualTo(15);
+        assertThat(jsonModelFromInsight.<String>get("$.dataValidationTasks[0].name")).isEqualTo("Name");
     }
 
     @Test
     public void getCreateTasksTest() {
         DataValidationTaskInfo info = new DataValidationTaskInfo(dataValidationTask1, thesaurus, timeService);
-        info.deviceGroup = new MeterGroupInfo();
-        info.deviceGroup.id = 1;
-        info.application = "Admin";
+        info.deviceGroup = new IdWithDisplayValueInfo();
+        info.deviceGroup.id = 1L;
         Entity<DataValidationTaskInfo> json = Entity.json(info);
 
-        Response response = target("/validationtasks").request().post(json);
+        Response response = target("/validationtasks").request().header(HEADER_NAME, MULTISENSE_KEY).post(json);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
     }
     
     @Test
-    public void getCreateTasksUsagePointGroupTest() {
+    public void getCreateTasksMetrologyContractTest() {
         DataValidationTaskInfo info = new DataValidationTaskInfo(dataValidationTask1, thesaurus, timeService);
         info.deviceGroup = null;
-        info.usagePointGroup = new UsagePointGroupInfo();
-        info.usagePointGroup.id = 1;
-        info.application = "Admin";
+        info.metrologyContract = new IdWithDisplayValueInfo();
+        info.metrologyConfiguration = new IdWithDisplayValueInfo();
+        info.metrologyContract.id = 1L;
+        info.metrologyConfiguration.id = 1;
         Entity<DataValidationTaskInfo> json = Entity.json(info);
 
-        Response response = target("/validationtasks").request().post(json);
+        Response response = target("/validationtasks").request().header(HEADER_NAME, INSIGHT_KEY).post(json);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
     }
@@ -106,51 +107,55 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
     public void updateTasksTest() {
         DataValidationTaskInfo info = new DataValidationTaskInfo(dataValidationTask1, thesaurus, timeService);
         info.id = TASK_ID;
-        info.deviceGroup = new MeterGroupInfo();
-        info.deviceGroup.id = 1;
+        info.deviceGroup = new IdWithDisplayValueInfo();
+        info.deviceGroup.id = 1L;
 
         Entity<DataValidationTaskInfo> json = Entity.json(info);
-        Response response = target("/validationtasks/" + TASK_ID).request().put(json);
-        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
+        Response response = target("/validationtasks/" + TASK_ID).request().header(HEADER_NAME, MULTISENSE_KEY).put(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
     
     @Test
-    public void updateTasksUsagePointGroupTest() {
-        DataValidationTaskInfo info = new DataValidationTaskInfo(dataValidationTask1, thesaurus, timeService);
+    public void updateTasksMetrologyContractTest() {
+        DataValidationTaskInfo info = new DataValidationTaskInfo(mockDataValidationTask(TASK_ID, INSIGHT_KEY), thesaurus, timeService);
         info.id = TASK_ID;
         info.deviceGroup = null;
-        info.usagePointGroup = new UsagePointGroupInfo();
-        info.usagePointGroup.id = 1;
+        info.metrologyContract = new IdWithDisplayValueInfo();
+        info.metrologyConfiguration = new IdWithDisplayValueInfo();
+        info.metrologyContract.id = 1L;
+        info.metrologyConfiguration.id = 1;
 
         Entity<DataValidationTaskInfo> json = Entity.json(info);
-        Response response = target("/validationtasks/" + TASK_ID).request().put(json);
-        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
+        Response response = target("/validationtasks/" + TASK_ID).request().header(HEADER_NAME, INSIGHT_KEY).put(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 
     @Test
     public void updateTasksTestBadVersion() {
         DataValidationTaskInfo info = new DataValidationTaskInfo(dataValidationTask1, thesaurus, timeService);
         info.id = TASK_ID;
-        info.deviceGroup = new MeterGroupInfo();
-        info.deviceGroup.id = 1;
+        info.deviceGroup = new IdWithDisplayValueInfo();
+        info.deviceGroup.id = 1L;
         info.version = BAD_VERSION;
 
         Entity<DataValidationTaskInfo> json = Entity.json(info);
-        Response response = target("/validationtasks/" + TASK_ID).request().put(json);
+        Response response = target("/validationtasks/" + TASK_ID).request().header(HEADER_NAME, MULTISENSE_KEY).put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
     }
     
     @Test
-    public void updateTasksTestBadUsagePointGroupVersion() {
+    public void updateTasksTestBadMetrologyContractVersion() {
         DataValidationTaskInfo info = new DataValidationTaskInfo(dataValidationTask1, thesaurus, timeService);
         info.id = TASK_ID;
         info.deviceGroup = null;
-        info.usagePointGroup = new UsagePointGroupInfo();
-        info.usagePointGroup.id = 1;
+        info.metrologyContract = new IdWithDisplayValueInfo();
+        info.metrologyConfiguration = new IdWithDisplayValueInfo();
+        info.metrologyContract.id = 1L;
+        info.metrologyConfiguration.id = 1;
         info.version = BAD_VERSION;
 
         Entity<DataValidationTaskInfo> json = Entity.json(info);
-        Response response = target("/validationtasks/" + TASK_ID).request().put(json);
+        Response response = target("/validationtasks/" + TASK_ID).request().header(HEADER_NAME, MULTISENSE_KEY).put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
     }
 
@@ -158,8 +163,8 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
     public void deleteTasksTestBadVersion() {
         DataValidationTaskInfo info = new DataValidationTaskInfo(dataValidationTask1, thesaurus, timeService);
         info.id = TASK_ID;
-        info.deviceGroup = new MeterGroupInfo();
-        info.deviceGroup.id = 1;
+        info.deviceGroup = new IdWithDisplayValueInfo();
+        info.deviceGroup.id = 1L;
         info.version = BAD_VERSION;
 
         Entity<DataValidationTaskInfo> json = Entity.json(info);
@@ -174,7 +179,9 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
                 .queryParam("filter", ExtjsFilter.filter().property("startedOnFrom", 1441490400000L).property("startedOnTo", 1441058400000L).create())
                 .queryParam("start", "0")
                 .queryParam("limit", "10")
-                .request().get();
+                .request()
+                .header(HEADER_NAME, MULTISENSE_KEY)
+                .get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         JsonModel jsonModel = JsonModel.create((InputStream) response.getEntity());
         assertThat(jsonModel.<Boolean> get("$.success")).isEqualTo(false);
@@ -189,7 +196,9 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
                 .queryParam("filter", ExtjsFilter.filter().property("finishedOnFrom", 1441490400000L).property("finishedOnTo", 1441058400000L).create())
                 .queryParam("start", "0")
                 .queryParam("limit", "10")
-                .request().get();
+                .request()
+                .header(HEADER_NAME, MULTISENSE_KEY)
+                .get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         JsonModel jsonModel = JsonModel.create((InputStream) response.getEntity());
         assertThat(jsonModel.<Boolean> get("$.success")).isEqualTo(false);
@@ -204,19 +213,18 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
                 .queryParam("filter", ExtjsFilter.filter().property("startedOnTo", 1441058400000L).create())
                 .queryParam("start", "0")
                 .queryParam("limit", "10")
-                .request().get();
+                .request()
+                .header(HEADER_NAME, MULTISENSE_KEY)
+                .get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 
     private void mockDataValidationTasks(DataValidationTask... validationTasks) {
-        Query<DataValidationTask> query = mock(Query.class);
-        when(validationService.findValidationTasksQuery()).thenReturn(query);
-        RestQuery<DataValidationTask> restQuery = mock(RestQuery.class);
-        when(restQueryService.wrap(query)).thenReturn(restQuery);
-        when(restQuery.select(any(QueryParameters.class), any(Order.class))).thenReturn(Arrays.asList(validationTasks));
+
+        when(validationService.findValidationTasks()).thenReturn(Arrays.asList(validationTasks));
     }
 
-    private DataValidationTask mockDataValidationTask(int id) {
+    private DataValidationTask mockDataValidationTask(int id, String appName) {
         Long lid = Long.valueOf(id);
         DataValidationTask validationTask = mock(DataValidationTask.class);
         when(validationTask.getId()).thenReturn(lid);
@@ -224,7 +232,8 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
         when(validationTask.getName()).thenReturn("Name");
         when(validationTask.getLastRun()).thenReturn(Optional.<Instant> empty());
         when(validationTask.getEndDeviceGroup()).thenReturn(Optional.of(endDeviceGroup));
-        when(validationTask.getUsagePointGroup()).thenReturn(Optional.empty());
+        when(validationTask.getApplication()).thenReturn(appName);
+        when(validationTask.getMetrologyContract()).thenReturn(Optional.empty());
         DataValidationOccurrenceFinder finder = mock(DataValidationOccurrenceFinder.class);
         when(finder.setLimit(anyInt())).thenReturn(finder);
         when(finder.setStart(anyInt())).thenReturn(finder);

@@ -1,11 +1,11 @@
 package com.elster.jupiter.validation.rest.impl;
 
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionBuilder;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
@@ -29,14 +29,16 @@ import com.elster.jupiter.validation.rest.ValidationRuleSetInfo;
 import com.elster.jupiter.validation.rest.ValidationRuleSetInfos;
 import com.elster.jupiter.validation.rest.ValidationRuleSetVersionInfo;
 import com.elster.jupiter.validation.rest.ValidationRuleSetVersionInfos;
-import com.elster.jupiter.validation.rest.ValidatorInfos;
+import com.elster.jupiter.validation.rest.ValidatorInfo;
 import com.elster.jupiter.validation.security.Privileges;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
+import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -55,7 +57,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -63,6 +64,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
 @Path("/validation")
 public class ValidationResource {
 
+    private static final String APPLICATION_HEADER_PARAM = "X-CONNEXO-APPLICATION-NAME";
     private final RestQueryService queryService;
     private final ValidationService validationService;
     private final TransactionService transactionService;
@@ -89,9 +91,9 @@ public class ValidationResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.VIEW_VALIDATION_CONFIGURATION,
             Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE, Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
-    public Response getValidationRuleSets(@Context UriInfo uriInfo) {
+    public Response getValidationRuleSets(@HeaderParam(APPLICATION_HEADER_PARAM) String applicationName, @Context UriInfo uriInfo) {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
-        List<ValidationRuleSet> list = queryRuleSets(params);
+        List<ValidationRuleSet> list = queryRuleSets(params, applicationName);
 
         ValidationRuleSetInfos infos = new ValidationRuleSetInfos(params.clipToLimit(list));
         infos.total = params.determineTotal(list.size());
@@ -103,10 +105,10 @@ public class ValidationResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION)
-    public Response createValidationRuleSet(final ValidationRuleSetInfo info) {
+    public Response createValidationRuleSet(final ValidationRuleSetInfo info, @HeaderParam(APPLICATION_HEADER_PARAM) String applicationName) {
         return Response.status(Response.Status.CREATED)
                 .entity(new ValidationRuleSetInfo(transactionService.execute(
-                        () -> validationService.createValidationRuleSet(info.name, info.description)))).build();
+                        () -> validationService.createValidationRuleSet(info.name, applicationName, info.description)))).build();
     }
 
     @PUT
@@ -153,9 +155,9 @@ public class ValidationResource {
         return Response.status(Response.Status.NO_CONTENT).build();
     }
 
-    private List<ValidationRuleSet> queryRuleSets(QueryParameters queryParameters) {
+    private List<ValidationRuleSet> queryRuleSets(QueryParameters queryParameters, String applicationName) {
         Query<ValidationRuleSet> query = validationService.getRuleSetQuery();
-        query.setRestriction(where("obsoleteTime").isNull());
+        query.setRestriction(where("applicationName").isEqualTo(applicationName));
         RestQuery<ValidationRuleSet> restQuery = queryService.wrap(query);
         return restQuery.select(queryParameters, Order.ascending("upper(name)"));
     }
@@ -170,7 +172,6 @@ public class ValidationResource {
 
         ValidationRuleSet ruleSet = validationService.getValidationRuleSet(ruleSetId).orElseThrow(
                 () -> new WebApplicationException(Response.Status.NOT_FOUND));
-
 
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
 
@@ -297,7 +298,6 @@ public class ValidationResource {
         ValidationRuleInfos infos = validationRuleInfoFactory.createValidationRuleInfos(rules.stream().map(validationRuleInfoFactory::createValidationRuleInfo).collect(Collectors.toList()));
         return Response.ok(infos).build();
     }
-
 
     @POST
     @Path("/{ruleSetId}/versions/{ruleSetVersionId}/rules")
@@ -442,44 +442,18 @@ public class ValidationResource {
     }
 
     @GET
-    @Path("/{ruleSetId}/versions/{ruleSetVersionId}/rules/{ruleId}/readingtypes")
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.VIEW_VALIDATION_CONFIGURATION})
-    public ReadingTypeInfos getReadingTypesForRule(@PathParam("ruleSetId") final long ruleSetId,
-                                                   @PathParam("ruleSetVersionId") final long ruleSetVersionId,
-                                                   @PathParam("ruleId") long ruleId, @Context SecurityContext securityContext) {
-        ReadingTypeInfos infos = new ReadingTypeInfos();
-
-        Optional<? extends ValidationRuleSet> ruleSetRef = validationService.getValidationRuleSet(ruleSetId);
-        if (!ruleSetRef.isPresent() || ruleSetRef.get().getObsoleteDate() != null) {
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
-        }
-
-        ValidationRuleSetVersion ruleSetVersion = getValidationRuleVersionFromSetOrThrowException(ruleSetRef.get(), ruleSetVersionId);
-        ValidationRule validationRule = getValidationRuleFromVersionOrThrowException(ruleSetVersion, ruleId);
-        Set<ReadingType> readingTypes = validationRule.getReadingTypes();
-        for (ReadingType readingType : readingTypes) {
-            infos.add(readingType);
-        }
-        infos.total = readingTypes.size();
-        return infos;
-    }
-
-    @GET
     @Path("/validators")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.VIEW_VALIDATION_CONFIGURATION})
-    public ValidatorInfos getAvailableValidators(@Context UriInfo uriInfo) {
-
-        List<Validator> toAdd = validationService.getAvailableValidators();
-        Collections.sort(toAdd, Compare.BY_DISPLAY_NAME);
-
-        ValidatorInfos infos = new ValidatorInfos();
-        for (Validator validator : toAdd) {
-            infos.add(validator.getClass().getName(), validator.getDisplayName(), propertyUtils.convertPropertySpecsToPropertyInfos(validator.getPropertySpecs()));
-        }
-
-        return infos;
+    public PagedInfoList getAvailableValidators(@HeaderParam(APPLICATION_HEADER_PARAM) String applicationName, @BeanParam JsonQueryParameters parameters) {
+        List<ValidatorInfo> data = validationService.getAvailableValidators(applicationName).stream()
+                .sorted(Compare.BY_DISPLAY_NAME)
+                .map(validator -> new ValidatorInfo(
+                        validator.getClass().getName(),
+                        validator.getDisplayName(),
+                        propertyUtils.convertPropertySpecsToPropertyInfos(validator.getPropertySpecs())))
+                .collect(Collectors.toList());
+        return PagedInfoList.fromCompleteList("validators", data, parameters);
     }
 
     private enum Compare implements Comparator<Validator> {
@@ -492,9 +466,7 @@ public class ValidationResource {
     }
 
     private Instant makeInstant(Long startDate) {
-        if (startDate != null)
-            return Instant.ofEpochMilli(startDate);
-        return null;
+        return startDate == null ? null : Instant.ofEpochMilli(startDate);
     }
 
     private Long getCurrentRuleSetVersion(long id) {

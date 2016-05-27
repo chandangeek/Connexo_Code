@@ -28,9 +28,7 @@ import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.VersionInfo;
-import com.elster.jupiter.rest.util.properties.PredefinedPropertyValuesInfo;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
-import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
 import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.validation.ValidationAction;
@@ -40,15 +38,14 @@ import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
 import com.elster.jupiter.validation.ValidationVersionStatus;
 import com.elster.jupiter.validation.Validator;
+
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -62,9 +59,18 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class ValidationResourceTest extends BaseValidationRestTest {
     public static final long OK_VERSION = 23L;
@@ -72,12 +78,13 @@ public class ValidationResourceTest extends BaseValidationRestTest {
     public static final long V_RULE_SET_ID = 14L;
     public static final long V_RULE_VERSION_ID = 18L;
     public static final long V_RULE_ID = 3L;
+    private static final String APPLICATION_HEADER_PARAM = "X-CONNEXO-APPLICATION-NAME";
     private final Instant startDate = Instant.ofEpochMilli(1412341200000L);
 
     @Test
     public void testGetValidationRuleSetsNoRuleSets() {
         mockValidationRuleSets();
-        ValidationRuleSetInfos response = target("/validation").request().get(ValidationRuleSetInfos.class);
+        ValidationRuleSetInfos response = target("/validation").request().header(APPLICATION_HEADER_PARAM, "APP").get(ValidationRuleSetInfos.class);
 
         assertThat(response.total).isEqualTo(0);
         assertThat(response.ruleSets).hasSize(0);
@@ -86,7 +93,7 @@ public class ValidationResourceTest extends BaseValidationRestTest {
     @Test
     public void testGetValidationRuleSets() {
         mockValidationRuleSets(mockValidationRuleSet(V_RULE_SET_ID));
-        ValidationRuleSetInfos response = target("/validation").request().get(ValidationRuleSetInfos.class);
+        ValidationRuleSetInfos response = target("/validation").request().header(APPLICATION_HEADER_PARAM, "APP").get(ValidationRuleSetInfos.class);
         assertThat(response.total).isEqualTo(1);
 
         List<ValidationRuleSetInfo> ruleSetInfos = response.ruleSets;
@@ -197,56 +204,43 @@ public class ValidationResourceTest extends BaseValidationRestTest {
     }
 
     @Test
-    public void testGetValidatorsNoValidators() {
-        when(validationService.getAvailableValidators()).thenReturn(Collections.emptyList());
+    public void testGetValidatorsNoValidators() throws IOException {
+        when(validationService.getAvailableValidators("APP")).thenReturn(Collections.emptyList());
 
-        ValidatorInfos validatorInfos = target("/validation/validators").request().get(ValidatorInfos.class);
+        Response response = target("/validation/validators").request().header(APPLICATION_HEADER_PARAM, "APP").get();
 
-        assertThat(validatorInfos.total).isEqualTo(0);
-        assertThat(validatorInfos.validators).hasSize(0);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        JsonModel body = JsonModel.create((ByteArrayInputStream)response.getEntity());
+        assertThat(body.<Integer>get("$.total")).isZero();
+        assertThat(body.<List>get("$.validators")).isEmpty();
     }
 
-
     @Test
-    public void testGetValidators() {
+    public void testGetValidators() throws IOException {
         List<Validator> mockValidator = Arrays.asList(mockValidator("B Validator"), mockValidator("A Validator"));
-        when(validationService.getAvailableValidators()).thenReturn(mockValidator);
+        when(validationService.getAvailableValidators("APP")).thenReturn(mockValidator);
 
-        ValidatorInfos validatorInfos = target("/validation/validators").request().get(ValidatorInfos.class);
+        Response response = target("/validation/validators").request().header(APPLICATION_HEADER_PARAM, "APP").get();
 
-        assertThat(validatorInfos.total).isEqualTo(2);
-        List<ValidatorInfo> validators = validatorInfos.validators;
-        assertThat(validators).hasSize(2);
-
-        ValidatorInfo validatorAInfo = validators.get(0);
-        assertThat(validatorAInfo.displayName).isEqualTo("A Validator");
-        assertThat(validatorAInfo.implementation).isNotNull();
-
-        ValidatorInfo validatorBInfo = validators.get(1);
-        assertThat(validatorBInfo.displayName).isEqualTo("B Validator");
-        assertThat(validatorBInfo.implementation).isNotNull();
-
-        List<PropertyInfo> propertyInfos = validatorAInfo.properties;
-        assertThat(propertyInfos).hasSize(1);
-
-        PropertyInfo propertyInfo = propertyInfos.get(0);
-        assertThat(propertyInfo.key).isEqualTo("listvalue");
-        assertThat(propertyInfo.required).isEqualTo(false);
-
-        PropertyTypeInfo typeInfo = propertyInfo.propertyTypeInfo;
-        PredefinedPropertyValuesInfo<?> predefinedValuesInfo = typeInfo.predefinedPropertyValuesInfo;
-        assertThat(predefinedValuesInfo.selectionMode).isEqualTo(PropertySelectionMode.LIST);
-
-        Object[] possibleValuesInfo = predefinedValuesInfo.possibleValues;
-        assertThat(possibleValuesInfo).hasSize(2);
-
-        Map<?, ?> possibleValue1 = (Map<?, ?>) possibleValuesInfo[0];
-        assertThat(possibleValue1.get("id")).isEqualTo("1");
-        assertThat(possibleValue1.get("name")).isEqualTo("first");
-
-        Map<?, ?> possibleValue2 = (Map<?, ?>) possibleValuesInfo[1];
-        assertThat(possibleValue2.get("id")).isEqualTo("2");
-        assertThat(possibleValue2.get("name")).isEqualTo("second");
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        JsonModel body = JsonModel.create((ByteArrayInputStream)response.getEntity());
+        assertThat(body.<Integer>get("$.total")).isEqualTo(2);
+        assertThat(body.<List>get("$.validators")).hasSize(2);
+        assertThat(body.<String>get("$.validators[0].displayName")).isEqualTo("A Validator");
+        assertThat(body.<String>get("$.validators[0].implementation")).isNotNull();
+        assertThat(body.<String>get("$.validators[1].displayName")).isEqualTo("B Validator");
+        assertThat(body.<String>get("$.validators[1].implementation")).isNotNull();
+        assertThat(body.<List>get("$.validators[0].properties")).hasSize(1);
+        JsonModel property0 = JsonModel.model(body.<Object>get("$.validators[0].properties[0]"));
+        assertThat(property0.<String>get("key")).isEqualTo("listvalue");
+        assertThat(property0.<Boolean>get("required")).isEqualTo(false);
+        JsonModel predefinedPropertyValuesInfo = JsonModel.model(property0.<Object>get("$.propertyTypeInfo.predefinedPropertyValuesInfo"));
+        assertThat(predefinedPropertyValuesInfo.<String>get("$.selectionMode")).isEqualTo(PropertySelectionMode.LIST.name());
+        assertThat(predefinedPropertyValuesInfo.<List>get("$.possibleValues")).hasSize(2);
+        assertThat(predefinedPropertyValuesInfo.<String>get("$.possibleValues[0].id")).isEqualTo("1");
+        assertThat(predefinedPropertyValuesInfo.<String>get("$.possibleValues[0].name")).isEqualTo("first");
+        assertThat(predefinedPropertyValuesInfo.<String>get("$.possibleValues[1].id")).isEqualTo("2");
+        assertThat(predefinedPropertyValuesInfo.<String>get("$.possibleValues[1].name")).isEqualTo("second");
     }
 
     @Test
@@ -430,8 +424,8 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         info.description = "desc";
 
         ValidationRuleSet ruleSet = mockValidationRuleSet(V_RULE_SET_ID);
-        when(validationService.createValidationRuleSet(info.name, info.description)).thenReturn(ruleSet);
-        Response response = target("/validation").request().post(Entity.json(info));
+        when(validationService.createValidationRuleSet(info.name, "APP", info.description)).thenReturn(ruleSet);
+        Response response = target("/validation").request().header(APPLICATION_HEADER_PARAM, "APP").post(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
     }
 
@@ -617,21 +611,6 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
     }
 
-    @Test
-    public void testGetReadingTypes() throws Exception {
-        ValidationRuleSet ruleSet = mockValidationRuleSet(V_RULE_SET_ID);
-        ValidationRuleSetVersion ruleSetVersion = mockValidationRuleSetVersion(V_RULE_VERSION_ID, ruleSet);
-        ValidationRule validationRule = mockValidationRule(V_RULE_ID, ruleSetVersion);
-
-        ReadingType readingType = mockReadingType();
-        when(validationRule.getReadingTypes()).thenReturn(new HashSet<>(Arrays.asList(readingType)));
-        Response response = target("/validation/" + V_RULE_SET_ID + "/versions/" + V_RULE_VERSION_ID + "/rules/" + V_RULE_ID + "/readingtypes").request().get();
-
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
-        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
-    }
-
     private void mockValidationRuleSets(ValidationRuleSet... validationRuleSets) {
         Query<ValidationRuleSet> query = mock(Query.class);
         when(validationService.getRuleSetQuery()).thenReturn(query);
@@ -783,34 +762,21 @@ public class ValidationResourceTest extends BaseValidationRestTest {
     }
 
     private ValueFactory getValueFactoryFor(BasicPropertyTypes propertyType) {
-        ValueFactory valueFactory = null;
         switch (propertyType) {
+            case NUMBER:
+               return new BigDecimalFactory();
+            case NULLABLE_BOOLEAN:
+               return new ThreeStateFactory();
+            case BOOLEAN:
+               return new BooleanFactory();
+            case TEXT:
+               return new StringFactory();
+            case RELATIVEPERIOD:
+               return new RelativePeriodFactory(this.timeService);
             case UNKNOWN:
-                break;
-            case NUMBER: {
-                valueFactory = new BigDecimalFactory();
-                break;
-            }
-            case NULLABLE_BOOLEAN: {
-                valueFactory = new ThreeStateFactory();
-                break;
-            }
-            case BOOLEAN: {
-                valueFactory = new BooleanFactory();
-                break;
-            }
-            case TEXT: {
-                valueFactory = new StringFactory();
-                break;
-            }
-            case RELATIVEPERIOD: {
-                valueFactory = new RelativePeriodFactory(this.timeService);
-                break;
-            }
             default:
-                break;
+                return null;
         }
-        return valueFactory;
     }
 
     private Validator mockValidator(String displayName) {
