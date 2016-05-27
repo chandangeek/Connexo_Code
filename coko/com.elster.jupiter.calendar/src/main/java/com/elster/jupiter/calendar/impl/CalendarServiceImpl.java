@@ -6,6 +6,8 @@ import com.elster.jupiter.calendar.Category;
 import com.elster.jupiter.calendar.MessageSeeds;
 import com.elster.jupiter.calendar.security.Privileges;
 import com.elster.jupiter.domain.util.DefaultFinder;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.events.impl.EventServiceImpl;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -54,15 +56,17 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
     private volatile UserService userService;
+    private volatile EventService eventService;
 
     public CalendarServiceImpl() {
     }
 
     @Inject
-    public CalendarServiceImpl(OrmService ormService, NlsService nlsService, UserService userService) {
+    public CalendarServiceImpl(OrmService ormService, NlsService nlsService, UserService userService, EventService eventService) {
         setOrmService(ormService);
         setNlsService(nlsService);
         setUserService(userService);
+        setEventService(eventService);
         activate();
         if (!dataModel.isInstalled()) {
             install();
@@ -83,8 +87,13 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
     }
 
     @Reference
-    public void setUserService(UserService userService) {
+     public void setUserService(UserService userService) {
         this.userService = userService;
+    }
+
+    @Reference
+    public void setEventService(EventService eventService) {
+        this.eventService = eventService;
     }
 
     @Activate
@@ -99,13 +108,13 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
         } catch (Exception e) {
             e.printStackTrace();
         }
-        InstallerImpl installer = new InstallerImpl(this, dataModel);
+        InstallerImpl installer = new InstallerImpl(eventService, dataModel);
         installer.install();
     }
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList(OrmService.COMPONENTNAME, UserService.COMPONENTNAME);
+        return Arrays.asList(OrmService.COMPONENTNAME, UserService.COMPONENTNAME, EventService.COMPONENTNAME);
     }
 
     private Module getModule() {
@@ -116,6 +125,7 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(CalendarService.class).toInstance(CalendarServiceImpl.this);
+                bind(EventService.class).toInstance(eventService);
                 bind(ServerCalendarService.class).toInstance(CalendarServiceImpl.this);
             }
         };
