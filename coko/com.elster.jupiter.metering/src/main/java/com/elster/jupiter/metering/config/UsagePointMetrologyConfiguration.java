@@ -1,6 +1,5 @@
 package com.elster.jupiter.metering.config;
 
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.search.SearchablePropertyValue;
 
 import aQute.bnd.annotation.ProviderType;
@@ -27,8 +26,6 @@ public interface UsagePointMetrologyConfiguration extends MetrologyConfiguration
     void removeUsagePointRequirement(UsagePointRequirement requirement);
 
     List<UsagePointRequirement> getUsagePointRequirements();
-
-    List<MeterActivation> getMetersForRole(MeterRole meterRole);
 
     @ProviderType
     interface MetrologyConfigurationReadingTypeRequirementBuilder extends MetrologyConfiguration.MetrologyConfigurationReadingTypeRequirementBuilder {

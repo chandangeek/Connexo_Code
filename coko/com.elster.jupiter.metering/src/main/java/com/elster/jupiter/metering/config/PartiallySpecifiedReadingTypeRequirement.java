@@ -40,10 +40,6 @@ public interface PartiallySpecifiedReadingTypeRequirement extends ReadingTypeReq
 
     ReadingTypeUnit getUnit();
 
-    /**
-     * @return A string value based on attributes
-     */
-    String getDescription();
 
     /**
      * @return A string value of attribute

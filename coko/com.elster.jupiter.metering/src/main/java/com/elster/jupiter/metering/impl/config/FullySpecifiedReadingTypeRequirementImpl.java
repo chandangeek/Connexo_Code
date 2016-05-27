@@ -87,4 +87,9 @@ public class FullySpecifiedReadingTypeRequirementImpl extends ReadingTypeRequire
         return getReadingType().getUnit();
     }
 
+    @Override
+    public String getDescription() {
+        return readingType.map(ReadingType::getFullAliasName).orElse("");
+    }
+
 }

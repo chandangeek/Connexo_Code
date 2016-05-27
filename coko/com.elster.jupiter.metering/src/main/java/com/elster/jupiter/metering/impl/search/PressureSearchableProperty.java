@@ -10,7 +10,6 @@ import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.util.conditions.Comparison;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.units.Quantity;
 
@@ -27,7 +26,7 @@ public class PressureSearchableProperty implements SearchableUsagePointProperty 
     private final Thesaurus thesaurus;
 
     private SearchDomain domain;
-    private SearchablePropertyGroup group;
+    private ServiceKindAwareSearchablePropertyGroup group;
     private Clock clock;
     private static final String FIELD_NAME = "detail.pressure";
     private String uniqueName;
@@ -38,7 +37,7 @@ public class PressureSearchableProperty implements SearchableUsagePointProperty 
         this.thesaurus = thesaurus;
     }
 
-    PressureSearchableProperty init(SearchDomain domain, SearchablePropertyGroup group, Clock clock) {
+    PressureSearchableProperty init(SearchDomain domain, ServiceKindAwareSearchablePropertyGroup group, Clock clock) {
         this.domain = domain;
         this.group = group;
         this.clock = clock;
@@ -108,13 +107,9 @@ public class PressureSearchableProperty implements SearchableUsagePointProperty 
 
     @Override
     public Condition toCondition(Condition specification) {
-        if (((Comparison) specification).getOperator().equals(Operator.BETWEEN)) {
-            return Where.where(FIELD_NAME)
-                    .between(((Comparison) specification).getValues()[0])
-                    .and(((Comparison) specification).getValues()[1])
-                    .and(Where.where("detail.interval").isEffective(this.clock.instant()));
-        }
-        return Where.where(FIELD_NAME).isEqualTo((((Comparison) specification).getValues()[0]))
-                .and(Where.where("detail.interval").isEffective(this.clock.instant()));
+        Comparison condition = (Comparison) specification;
+        return condition.getOperator().compare(FIELD_NAME, condition.getValues())
+                .and(Where.where("detail.interval").isEffective(this.clock.instant()))
+                .and(Where.where("serviceCategory.kind").isEqualTo(this.group.getServiceKind()));
     }
 }
