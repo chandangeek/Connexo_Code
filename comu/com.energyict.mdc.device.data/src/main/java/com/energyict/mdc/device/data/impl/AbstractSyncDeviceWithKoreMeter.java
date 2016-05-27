@@ -170,6 +170,8 @@ public abstract class AbstractSyncDeviceWithKoreMeter implements SyncDeviceWithK
             newMeterActivation = device.getMeter().get().activate(end);
         }
         multiplier.ifPresent(m -> newMeterActivation.setMultiplier(multiplierType, m));
+        // We need channels on the newMeterActivation;
+        this.addKoreChannelsIfNecessary(newMeterActivation);
         return newMeterActivation;
     }
 
