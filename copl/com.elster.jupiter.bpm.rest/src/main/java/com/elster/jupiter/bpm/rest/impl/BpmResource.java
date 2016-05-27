@@ -1019,11 +1019,9 @@ public class BpmResource {
     @RolesAllowed(Privileges.Constants.EXECUTE_TASK)
     public Response postTaskContent(TaskContentInfos taskContentInfos,
                                     @PathParam("id") long id,
-                                    @Context SecurityContext securityContext,
                                     @HeaderParam("Authorization") String auth) {
         String postResult = null;
         List<Errors> err = new ArrayList<>();
-        String userName = securityContext.getUserPrincipal().getName();
         if(!taskContentInfos.action.equals("startTask")) {
             TaskContentInfos taskContents = getTaskContent(id, auth);
             taskContentInfos.properties.stream()
@@ -1054,7 +1052,7 @@ public class BpmResource {
         }
         JSONObject obj = null;
         if(taskContentInfos.action.equals("startTask")){
-            String rest = "/rest/tasks/" + id + "/contentstart/" + userName + "/";
+            String rest = "/rest/tasks/" + id + "/contentstart";
             postResult = bpmService.getBpmServer().doPost(rest, null, auth, 0);
         }
         if(taskContentInfos.action.equals("completeTask")){
@@ -1064,7 +1062,7 @@ public class BpmResource {
             String stringJson = null;
             try {
                 stringJson = mapper.writeValueAsString(taskOutputContentInfo);
-                String rest = "/rest/tasks/" + id + "/contentcomplete/" + userName + "/";
+                String rest = "/rest/tasks/" + id + "/contentcomplete";
                 postResult = bpmService.getBpmServer().doPost(rest, stringJson, auth, 0);
             } catch (JsonProcessingException e) {
             }
