@@ -688,7 +688,7 @@
                 <module>../com.elster.jupiter.servicecall.rest</module>
                 <module>../com.elster.jupiter.servicecalltype.extjs</module>
                 <module>../com.elster.jupiter.soap.whiteboard</module>
-                <module>../com.elster.jupiter.soap.whiteboard.cxf</module>
+                <module>../com.elster.jupiter.soap.whiteboard.cxf</module> <!--To be merged into soap.whiteboard -->
                 <module>../com.elster.jupiter.system</module>
                 <!-- todo rename to license -->
                 <module>../com.elster.jupiter.systemadmin</module>
