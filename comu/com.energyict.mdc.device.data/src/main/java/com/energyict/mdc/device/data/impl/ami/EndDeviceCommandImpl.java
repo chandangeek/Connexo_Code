@@ -5,6 +5,7 @@ import com.elster.jupiter.metering.EndDeviceControlType;
 import com.elster.jupiter.metering.ami.EndDeviceCommand;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecService;
 import com.energyict.mdc.common.rest.FieldValidationException;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
@@ -17,7 +18,6 @@ import org.osgi.service.component.annotations.Reference;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @Component(name = "com.energyict.mdc.device.data.impl.ami.EndDeviceCommand",
         service = {EndDeviceCommand.class, TranslationKeyProvider.class},
@@ -27,7 +27,9 @@ public class EndDeviceCommandImpl implements EndDeviceCommand {
     private volatile EndDeviceControlType endDeviceControlType;
     private volatile EndDevice endDevice;
     private volatile List<DeviceMessageId> deviceMessageIds;
-    private volatile Map<String, Object> attributes;
+    private volatile PropertySpecService propertySpecService;
+    //private volatile Map<String, Object> attributes;
+    private volatile List<PropertySpec> commandArgumentSpecs = new ArrayList<>();
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
 
 
@@ -41,7 +43,7 @@ public class EndDeviceCommandImpl implements EndDeviceCommand {
         private final String typeName;
 
 
-        EndDeviceCommandType (String typeName) {
+        EndDeviceCommandType(String typeName) {
             this.typeName = typeName;
         }
 
@@ -55,19 +57,33 @@ public class EndDeviceCommandImpl implements EndDeviceCommand {
     public EndDeviceCommandImpl() {
     }
 
-    public EndDeviceCommandImpl(String commandName, EndDevice endDevice, EndDeviceControlType endDeviceControlType, List<DeviceMessageId> deviceMessageIds, Map<String, Object> attributes, DeviceMessageSpecificationService deviceMessageSpecificationService) {
+    public EndDeviceCommandImpl(String commandName, EndDevice endDevice, EndDeviceControlType endDeviceControlType, List<DeviceMessageId> deviceMessageIds, PropertySpecService propertySpecService, DeviceMessageSpecificationService deviceMessageSpecificationService) {
         this.commandName = commandName;
         this.endDeviceControlType = endDeviceControlType;
         this.endDevice = endDevice;
         this.deviceMessageIds = deviceMessageIds;
-        this.attributes = attributes;
+        this.propertySpecService = propertySpecService;
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
     }
+
+    EndDeviceCommandImpl init() {
+        initCommandArgumentSpecs();
+        return this;
+    }
+
 
     @Reference
     public void setDeviceMessageSpecificationService(DeviceMessageSpecificationService deviceMessageSpecificationService) {
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
     }
+
+    @Reference
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
+
+
+
 
     @Activate
     public void activate() {
@@ -78,6 +94,7 @@ public class EndDeviceCommandImpl implements EndDeviceCommand {
     public void deactivate() {
     }
 
+
     @Override
     public EndDeviceControlType getEndDeviceControlType() {
         return endDeviceControlType;
@@ -85,9 +102,6 @@ public class EndDeviceCommandImpl implements EndDeviceCommand {
 
     @Override
     public List<PropertySpec> getCommandArgumentSpecs() {
-        List<PropertySpec> commandArgumentSpecs = new ArrayList<>();
-        getDeviceMessageSpecs().stream()
-                .forEach(messageSpec -> commandArgumentSpecs.addAll(messageSpec.getPropertySpecs()));
         return commandArgumentSpecs;
     }
 
@@ -96,10 +110,11 @@ public class EndDeviceCommandImpl implements EndDeviceCommand {
         return endDevice;
     }
 
-    @Override
+ /*   @Override
     public Map<String, Object> getAttributes() {
         return attributes;
     }
+*/
 
     @Override
     public void setPropertyValue(PropertySpec propertySpec, Object value) {
@@ -111,16 +126,24 @@ public class EndDeviceCommandImpl implements EndDeviceCommand {
             if (!propertySpec.getValueFactory().getValueType().isAssignableFrom(value.getClass())) {
                 throw new FieldValidationException("Incorrect type", propertySpec.getName());
             }
-            attributes.put(propertySpec.getName(),value);
+            PropertySpec newPropertySpec = propertySpecService.
+                    specForValuesOf(propertySpec.getValueFactory())
+                    .named(propertySpec.getName(), propertySpec.getDisplayName())
+                    .describedAs(propertySpec.getDescription())
+                    .setDefaultValue(value)
+                    .finish();
+            argumentSpecs.set(argumentSpecs.indexOf(propertySpec), newPropertySpec);
+
+
 
         }
     }
 
     @Override
-    public List<Long> getDeviceMessageIds(){
-        List<Long> deviceMessageIds = new ArrayList<>();
-        deviceMessageIds.stream().forEach(id -> deviceMessageIds.add(id.longValue()));
-        return deviceMessageIds;
+    public List<Long> getDeviceMessageIds() {
+        List<Long> longDeviceMessageIds = new ArrayList<>();
+        deviceMessageIds.stream().forEach(id -> longDeviceMessageIds.add(id.dbValue()));
+        return longDeviceMessageIds;
     }
 
     private List<DeviceMessageSpec> getDeviceMessageSpecs() {
@@ -131,10 +154,12 @@ public class EndDeviceCommandImpl implements EndDeviceCommand {
         return deviceMessageSpecs;
     }
 
-    public String getName(){
+    public String getName() {
         return commandName;
     }
 
-
-
- }
+    private void initCommandArgumentSpecs() {
+        getDeviceMessageSpecs().stream()
+                .forEach(messageSpec -> commandArgumentSpecs.addAll(messageSpec.getPropertySpecs()));
+    }
+}

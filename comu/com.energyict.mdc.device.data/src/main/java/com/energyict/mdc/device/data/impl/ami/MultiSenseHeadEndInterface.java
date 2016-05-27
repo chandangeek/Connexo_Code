@@ -21,6 +21,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.energyict.mdc.device.config.ComTaskEnablement;
@@ -45,6 +46,8 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.time.Clock;
 import java.time.Instant;
@@ -73,13 +76,14 @@ public class MultiSenseHeadEndInterface implements HeadEndInterface {
     private volatile Thesaurus thesaurus;
     private volatile ServiceCallService serviceCallService;
     private volatile CustomPropertySetService customPropertySetService;
+    private volatile PropertySpecService propertySpecService;
 
     //For OSGI purposes
     public MultiSenseHeadEndInterface() {
     }
 
     @Inject
-    public MultiSenseHeadEndInterface(Clock clock, DeviceService deviceService, MeteringService meteringService, DeviceMessageSpecificationService deviceMessageSpecificationService, DeviceConfigurationService deviceConfigurationService, MessageService messageService, NlsService nlsService, Thesaurus thesaurus, ServiceCallService serviceCallService, CustomPropertySetService customPropertySetService) {
+    public MultiSenseHeadEndInterface(Clock clock, DeviceService deviceService, MeteringService meteringService, DeviceMessageSpecificationService deviceMessageSpecificationService, DeviceConfigurationService deviceConfigurationService, MessageService messageService, NlsService nlsService, Thesaurus thesaurus, ServiceCallService serviceCallService, CustomPropertySetService customPropertySetService, PropertySpecService propertySpecService) {
         this.clock = clock;
         this.deviceService = deviceService;
         this.meteringService = meteringService;
@@ -90,6 +94,7 @@ public class MultiSenseHeadEndInterface implements HeadEndInterface {
         this.thesaurus = thesaurus;
         this.serviceCallService = serviceCallService;
         this.customPropertySetService = customPropertySetService;
+        this.propertySpecService = propertySpecService;
     }
 
     @Reference
@@ -137,6 +142,11 @@ public class MultiSenseHeadEndInterface implements HeadEndInterface {
     @Reference
     public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
         this.customPropertySetService = customPropertySetService;
+    }
+
+    @Reference
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
     }
 
 
@@ -207,10 +217,11 @@ public class MultiSenseHeadEndInterface implements HeadEndInterface {
                             .setTrackingId("" + serviceCall.getId())
                             .setReleaseDate(clock.instant());
                     for (PropertySpec propertySpec : endDeviceCommand.getCommandArgumentSpecs()) {
-                        if (endDeviceCommand.getAttributes().containsKey(propertySpec.getName())) {
+                       /* if (endDeviceCommand.getAttributes().containsKey(propertySpec.getName())) {
                             deviceMessageBuilder.addProperty(propertySpec.getName(), endDeviceCommand.getAttributes()
                                     .get(propertySpec.getName()));
-                        }
+                         */
+                            deviceMessageBuilder.addProperty(propertySpec.getName(), propertySpec);
                     }
                     deviceMessages.add(deviceMessageBuilder.add());
                 }
@@ -251,16 +262,16 @@ public class MultiSenseHeadEndInterface implements HeadEndInterface {
     }
 
     @Override
-    public Optional<URL> getURLForEndDevice(EndDevice endDevice) {
+    public Optional<URI> getURIForEndDevice(EndDevice endDevice) {
         if (endDevice.getAmrSystem().is(KnownAmrSystem.MDC)) {
             Device device = findDeviceForEndDevice(endDevice);
-            URL url = null;
+            URI uri = null;
             try {
-                url = new URL("/devices/" + device.getmRID());
-            } catch (MalformedURLException e) {
+                uri = new URI("/devices/" + device.getmRID());
+            } catch (URISyntaxException e) {
                 e.printStackTrace();
             }
-            return Optional.of(url);
+            return Optional.of(uri);
         } else {
             return Optional.empty();
         }
@@ -287,7 +298,7 @@ public class MultiSenseHeadEndInterface implements HeadEndInterface {
 
     @Override
     public CommandFactory getCommandFactory() {
-        return new CommandFactoryImpl(meteringService, deviceService, deviceMessageSpecificationService, nlsService, thesaurus);
+        return new CommandFactoryImpl(meteringService, deviceService, deviceMessageSpecificationService, nlsService, thesaurus, propertySpecService);
     }
 
     @Override
