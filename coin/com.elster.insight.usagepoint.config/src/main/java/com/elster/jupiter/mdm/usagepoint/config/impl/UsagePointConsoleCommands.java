@@ -36,23 +36,19 @@ import java.util.List;
 import java.util.Optional;
 
 @Component(name = "com.elster.insight.usagepoint.config.console",
-        service = ConsoleCommands.class,
+        service = UsagePointConsoleCommands.class,
         property = {"osgi.command.scope=usagepoint",
                 "osgi.command.function=createMetrologyConfiguration",
                 "osgi.command.function=renameMetrologyConfiguration",
                 "osgi.command.function=deleteMetrologyConfiguration",
                 "osgi.command.function=metrologyConfigurations",
                 "osgi.command.function=linkUsagePointToMetrologyConfiguration",
-                "osgi.command.function=createValidationRuleSet",
-                "osgi.command.function=assignValRuleSetToMetrologyConfig",
-                "osgi.command.function=createMeter",
+                "osgi.command.function=addValidationRuleSetToMetrologyContract",
                 "osgi.command.function=createUsagePoint",
                 "osgi.command.function=saveRegister",
                 "osgi.command.function=saveLP",
-                "osgi.command.function=getLpReadings",
-                "osgi.command.function=activateValidation",
-                "osgi.command.function=deactivateValidation"}, immediate = true)
-public class ConsoleCommands {
+                "osgi.command.function=getLpReadings"}, immediate = true)
+public class UsagePointConsoleCommands {
 
     private volatile UsagePointConfigurationService usagePointConfigurationService;
     private volatile MetrologyConfigurationService metrologyConfigurationService;
@@ -155,22 +151,6 @@ public class ConsoleCommands {
         }
     }
 
-    @Descriptor("Create a meter")
-    public void createMeter(@Descriptor("System id (usually 2)") long amrSystemId,
-            @Descriptor("EA_MS Meter ID") String amrid,
-            @Descriptor("MRID") String mrId) {
-        transactionService.builder()
-                .principal(() -> "console")
-                .run(() -> {
-                    AmrSystem amrSystem = meteringService
-                            .findAmrSystem(amrSystemId)
-                            .orElseThrow(() -> new IllegalArgumentException("amr System not found"));
-                    Meter meter = amrSystem.newMeter(amrid).setName(amrid).setMRID(mrId).create();
-                    meter.update();
-                    System.out.println("Meter " + amrid + " created with ID: " + meter.getId());
-                });
-    }
-
     @Descriptor("Create a usage point")
     public void createUsagePoint(@Descriptor("System id (usually 2)") long amrSystemId,
             @Descriptor("Meter ID") String mrId,
@@ -243,46 +223,6 @@ public class ConsoleCommands {
                         .orElseThrow(() -> new IllegalArgumentException("Meter not found " + amrid));
                 meter.store(createLPReading(cim, values, Instant.parse(timestamp), minutes));
                 System.out.println("Save LP for ID: " + meter.getId());
-            });
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Descriptor("Activate Validation on a Usage Point")
-    public void activateValidation(@Descriptor("Usage Point MRID") String mrid,
-            @Descriptor("lastChecked (2015-05-14T10:15:30Z)") String lastChecked) {
-        try {
-            transactionService.builder()
-            .principal(() -> "console")
-            .run(() -> {
-                UsagePoint usagePoint = meteringService
-                        .findUsagePoint(mrid)
-                        .orElseThrow(() -> new IllegalArgumentException("Usage point not found with mrid " + mrid));
-                Meter meter = usagePoint.getMeter(Instant.now())
-                        .orElseThrow(() -> new IllegalArgumentException("Meter not found for usage point with mrid " + mrid));
-                validationService.activateValidation(meter);
-                validationService.updateLastChecked(usagePoint.getCurrentMeterActivation().get(), Instant.parse(lastChecked));
-                System.out.println("Validation activated for meter: " + meter.getMRID() + " at usage point " + mrid);
-            });
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Descriptor("Deactivate Validation on a Usage Point")
-    public void deactivateValidation(@Descriptor("Usage Point MRID") String mrid) {
-        try {
-            transactionService.builder()
-            .principal(() -> "console")
-            .run(() -> {
-                UsagePoint usagePoint = meteringService
-                        .findUsagePoint(mrid)
-                        .orElseThrow(() -> new IllegalArgumentException("Usage point not found with mrid " + mrid));
-                Meter meter = usagePoint.getMeter(Instant.now())
-                        .orElseThrow(() -> new IllegalArgumentException("Meter not found for usage point with mrid " + mrid));
-                validationService.deactivateValidation(meter);
-                System.out.println("Validation deactivated for meter: " + meter.getMRID() + " at usage point " + mrid);
             });
         } catch (Exception e) {
             e.printStackTrace();
