@@ -48,39 +48,6 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
 
     private ReadingType readingTypeForChannel1, readingTypeForChannel2, readingTypeForChannel3, readingTypeForChannel4, readingTypeForChannel5, readingTypeForChannel6;
 
-
-    @Before
-    @Transactional
-    public void initializeMocks() {
-        super.initializeMocks();
-    }
-
-    @After
-    @Transactional
-    public void removeSetup() {
-//        if (dataLoggerConfiguration != null) {
-//            dataLoggerConfiguration.deactivate();
-//        }
-//        if (slave1DeviceConfiguration != null) {
-//            slave1DeviceConfiguration.deactivate();
-//        }
-//        if (slave2DeviceConfiguration != null) {
-//            slave2DeviceConfiguration.deactivate();
-//        }
-//        if (slave1DeviceType != null) {
-//            slave1DeviceType.delete();
-//        }
-//        if (slave2DeviceType != null) {
-//            slave2DeviceType.delete();
-//        }
-//        if (dataLoggerDeviceType != null) {
-//            dataLoggerDeviceType.delete();
-//        }
-//        inMemoryPersistence.getMasterDataService().findAllLoadProfileTypes().stream().forEach(LoadProfileType::delete);
-//        inMemoryPersistence.getMasterDataService().findAllRegisterTypes().stream().forEach(RegisterType::delete);
-
-    }
-
     private void setUpForDataLoggerEnabledDevice() {
         // set up for first loadProfile
         readingTypeForChannel1 = inMemoryPersistence.getReadingTypeUtilService().getReadingTypeFrom(ObisCode.fromString("1.0.1.8.0.255"), kiloWattHours);
@@ -264,8 +231,6 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
                 .stream()
                 .map(Channel::getReadingType)
                 .collect(Collectors.toList())).containsExactly(readingType1, readingType2, readingType3, readingType4, readingType5, readingType6);
-
-        dataLogger.delete();
     }
 
     @Test
@@ -289,8 +254,6 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
                 .get();
 
         assertThat(slave1.getChannels().stream().map(Channel::getReadingType).collect(Collectors.toList())).containsExactly(readingType1, readingType2, readingType3);
-
-        slave1.delete();
     }
 
     @Test
@@ -308,8 +271,6 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
                 .get();
 
         assertThat(slave2.getChannels().stream().map(Channel::getReadingType).collect(Collectors.toList())).containsExactly(readingType1);
-
-        slave2.delete();
     }
 
     @Test(expected = ConstraintViolationException.class)
@@ -325,9 +286,6 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
         HashMap<Register, Register> registerMapping = new HashMap<>();
 
         inMemoryPersistence.getTopologyService().setDataLogger(slave1, dataLogger,  Instant.now(), channelMapping, registerMapping);
-
-        slave1.delete();
-        dataLogger.delete();
     }
 
 
@@ -345,9 +303,6 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
         HashMap<Register, Register> registerMapping = new HashMap<>();
 
         inMemoryPersistence.getTopologyService().setDataLogger(slave1, dataLogger, Instant.now(), channelMapping, registerMapping);
-
-        slave1.delete();
-        dataLogger.delete();
     }
 
     @Test
@@ -365,9 +320,6 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
         HashMap<Register, Register> registerMapping = new HashMap<>();
 
         inMemoryPersistence.getTopologyService().setDataLogger(slave2, dataLogger, Instant.now(), channelMapping, registerMapping );
-
-        slave2.delete();
-        dataLogger.delete();
     }
 
     @Test
@@ -390,8 +342,6 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
 
         assertThat(inMemoryPersistence.getTopologyService().dataModel().query(DataLoggerChannelUsageImpl.class).select(Condition.TRUE).isEmpty());
         assertThat(inMemoryPersistence.getTopologyService().dataModel().query(DataLoggerReferenceImpl.class).select(Condition.TRUE).isEmpty());
-
-        dataLogger.delete();
     }
 
     @Test
@@ -413,8 +363,6 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
 
         assertThat(inMemoryPersistence.getTopologyService().dataModel().query(DataLoggerChannelUsageImpl.class).select(Condition.TRUE).isEmpty());
         assertThat(inMemoryPersistence.getTopologyService().dataModel().query(DataLoggerReferenceImpl.class).select(Condition.TRUE).isEmpty());
-
-        slave2.delete();
     }
 
     @Test
@@ -447,8 +395,6 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
 
         assertThat(inMemoryPersistence.getTopologyService().dataModel().query(DataLoggerChannelUsageImpl.class).select(Condition.TRUE).isEmpty());
         assertThat(inMemoryPersistence.getTopologyService().dataModel().query(DataLoggerReferenceImpl.class).select(Condition.TRUE).isEmpty());
-
-        dataLogger.delete();
     }
 
     @Test
@@ -468,9 +414,6 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
         List<Device> slaves = inMemoryPersistence.getTopologyService().findDataLoggerSlaves(dataLogger);
 
         assertThat(slaves.contains(slave2));
-
-        slave2.delete();
-        dataLogger.delete();
     }
 
     @Test
@@ -489,9 +432,6 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
         inMemoryPersistence.getTopologyService().setDataLogger(slave2, dataLogger, Instant.now(), channelMapping, registerMapping);
 
         assertThat(inMemoryPersistence.getTopologyService().isReferenced(dataLogger.getChannels().get(0))).isTrue();
-
-        slave2.delete();
-        dataLogger.delete();
     }
 
     @Test
@@ -509,9 +449,6 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
         inMemoryPersistence.getTopologyService().setDataLogger(slave2, dataLogger, Instant.now(), channelMapping, registerMapping);
 
         assertThat(inMemoryPersistence.getTopologyService().getSlaveChannel(dataLogger.getChannels().get(0),  Instant.now())).isPresent();
-
-        slave2.delete();
-        dataLogger.delete();
     }
 
     @Test
@@ -529,9 +466,6 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
         inMemoryPersistence.getTopologyService().setDataLogger(slave2, dataLogger,  Instant.now(), channelMapping, registerMapping);
 
         assertThat(inMemoryPersistence.getTopologyService().getSlaveChannel(dataLogger.getChannels().get(1),  Instant.now())).isEmpty();
-
-        slave2.delete();
-        dataLogger.delete();
     }
 
     @Test(expected = ConstraintViolationException.class)
@@ -549,9 +483,6 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
         channelMapping1.put(slave1.getChannels().get(2), dataLogger.getChannels().get(0));
         HashMap<Register, Register> registerMapping1 = new HashMap<>();
         inMemoryPersistence.getTopologyService().setDataLogger(slave1, dataLogger, Instant.now(), channelMapping1, registerMapping1);
-
-        slave1.delete();
-        dataLogger.delete();
     }
 
     @Test(expected = ConstraintViolationException.class)
@@ -578,10 +509,6 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
         channelMapping2.put(slave2.getChannels().get(0), dataLogger.getChannels().get(0));
         HashMap<Register, Register> registerMapping2 = new HashMap<>();
         inMemoryPersistence.getTopologyService().setDataLogger(slave2, dataLogger,  Instant.now(), channelMapping2, registerMapping2);
-
-        slave1.delete();
-        slave2.delete();
-        dataLogger.delete();
     }
 
     @Test

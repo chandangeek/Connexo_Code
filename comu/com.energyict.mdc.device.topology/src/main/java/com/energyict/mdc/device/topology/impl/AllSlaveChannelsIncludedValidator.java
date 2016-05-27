@@ -26,6 +26,6 @@ public class AllSlaveChannelsIncludedValidator implements ConstraintValidator<Al
     public boolean isValid(DataLoggerReferenceImpl dataLoggerReference, ConstraintValidatorContext constraintValidatorContext) {
         Device slave = dataLoggerReference.getOrigin();
         return dataLoggerReference.getDataLoggerChannelUsages().stream().map(DataLoggerChannelUsage::getSlaveChannel).collect(Collectors.toSet()).size() ==
-               slave.getChannels().size();
+               slave.getChannels().size()+slave.getRegisters().size();
     }
 }

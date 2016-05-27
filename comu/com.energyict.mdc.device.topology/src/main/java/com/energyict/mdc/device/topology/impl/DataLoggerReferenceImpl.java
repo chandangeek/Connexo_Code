@@ -2,8 +2,8 @@ package com.energyict.mdc.device.topology.impl;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingRecord;
+import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
@@ -18,6 +18,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 
 /**
@@ -52,7 +53,7 @@ public class DataLoggerReferenceImpl extends AbstractPhysicalGatewayReferenceImp
      * Data from each DataLogger Channel is transferred to the slave channel for this DataLoggerReference's interval
      */
     public void transferChannelDataToSlave(){
-         this.dataLoggerChannelUsages.stream().forEach(this::transferChannelDataToSlave);
+        this.dataLoggerChannelUsages.stream().forEach(this::transferChannelDataToSlave);
     }
 
     /**
@@ -61,6 +62,7 @@ public class DataLoggerReferenceImpl extends AbstractPhysicalGatewayReferenceImp
     public void terminate(Instant closingDate){
         // Data on the slave channels having a dat
         this.dataLoggerChannelUsages.stream().forEach((usage) -> transferChannelDataToDataLogger(usage, closingDate));
+        this.getOrigin().activate(closingDate);   //current Meter Activation is stopped and a new one is started
         super.terminate(closingDate);
     }
 
@@ -72,7 +74,7 @@ public class DataLoggerReferenceImpl extends AbstractPhysicalGatewayReferenceImp
         if (dataloggerChannel.hasData()) {
             if (dataloggerChannel.isRegular()) {
                 List<IntervalReading> readings = new ArrayList<>();
-                readings.addAll(dataloggerChannel.getIntervalReadings(this.getRange()));
+                readings.addAll(dataloggerChannel.getIntervalReadings(getInterval().toOpenRange()));
                 if (readings.isEmpty()) {
                     return;
                 }
@@ -93,8 +95,8 @@ public class DataLoggerReferenceImpl extends AbstractPhysicalGatewayReferenceImp
 
     private void transferChannelDataToDataLogger(DataLoggerChannelUsage channelUsage, Instant start){
         MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
-
-        Channel slaveChannel = channelUsage.getSlaveChannel();
+        // Make sure we are using the current Meter Activation channels instances
+        Channel slaveChannel = getOrigin().getCurrentMeterActivation().get().getChannels().stream().filter((each) -> each.getId() ==  channelUsage.getSlaveChannel().getId()).findFirst().get();
         Channel dataloggerChannel = channelUsage.getDataLoggerChannel();
         if (slaveChannel.hasData()) {
             if (slaveChannel.isRegular()) {
@@ -106,15 +108,15 @@ public class DataLoggerReferenceImpl extends AbstractPhysicalGatewayReferenceImp
                 IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(dataloggerChannel.getMainReadingType().getMRID());
                 intervalBlock.addAllIntervalReadings(readings);
                 meterReading.addAllIntervalBlocks(Collections.singletonList(intervalBlock));
-                slaveChannel.removeReadings(slaveChannel.getIntervalReadings(Range.openClosed(start, slaveChannel.getLastDateTime())));
+                slaveChannel.removeReadings(slaveChannel.getIntervalReadings(Range.greaterThan(start)));
             } else {
                 List<ReadingRecord> readings = new ArrayList<>();
-                readings.addAll(slaveChannel.getRegisterReadings(Range.openClosed(start, slaveChannel.getLastDateTime())));
+                readings.addAll(slaveChannel.getRegisterReadings(Range.atLeast(start)));
                 if (readings.isEmpty()) {
                     return;
                 }
                 meterReading.addAllReadings(readings);
-                slaveChannel.removeReadings(slaveChannel.getRegisterReadings(Range.openClosed(start, slaveChannel.getLastDateTime())));
+                slaveChannel.removeReadings(readings);
             }
             this.getGateway().store(meterReading);
         }

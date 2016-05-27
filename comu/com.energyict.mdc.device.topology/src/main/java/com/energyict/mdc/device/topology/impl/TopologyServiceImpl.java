@@ -343,8 +343,8 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
     public void setDataLogger(Device slave, Device dataLogger, Instant arrivalDate, Map<Channel, Channel> slaveDataLoggerChannelMap, Map<Register, Register> slaveDataLoggerRegisterMap){
         this.getPhysicalGatewayReference(slave, arrivalDate).ifPresent(r -> terminateTemporal(r, arrivalDate));
         final DataLoggerReferenceImpl dataLoggerReference = this.newDataLoggerReference(slave, dataLogger, arrivalDate);
-        slaveDataLoggerChannelMap.forEach((k,v) -> this.addChannelDataLoggerUsage(dataLoggerReference, k, v));
-        slaveDataLoggerRegisterMap.forEach((k,v) -> this.addRegisterDataLoggerUsage(dataLoggerReference, k, v));
+        slaveDataLoggerChannelMap.forEach((slaveChannel, dataLoggerChannel) -> this.addChannelDataLoggerUsage(dataLoggerReference, slaveChannel, dataLoggerChannel));
+        slaveDataLoggerRegisterMap.forEach((slaveRegister, dataLoggerRegister) -> this.addRegisterDataLoggerUsage(dataLoggerReference, slaveRegister, dataLoggerRegister));
         Save.CREATE.validate(this.dataModel, dataLoggerReference);
         dataLoggerReference.transferChannelDataToSlave();
         this.dataModel.persist(dataLoggerReference);
