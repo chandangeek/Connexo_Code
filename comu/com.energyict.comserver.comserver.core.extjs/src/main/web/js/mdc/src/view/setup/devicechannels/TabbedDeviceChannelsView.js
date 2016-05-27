@@ -260,6 +260,7 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
             point.color = okColor;
             point.tooltipColor = tooltipOkColor;
             point.multiplier = record.get('multiplier');
+            point.showReadingQualitiesIcon = !Ext.isEmpty(record.get('readingQualities'));
 
             if (mainValidationInfo.valueModificationFlag == 'EDITED') {
                 point.edited = true;
