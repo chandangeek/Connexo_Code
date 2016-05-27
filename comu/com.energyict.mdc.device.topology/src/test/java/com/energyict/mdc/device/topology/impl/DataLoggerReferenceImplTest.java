@@ -424,10 +424,10 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
          assertThat(intervals1).hasSize(2976); //month may: 31*24*4
          assertThat(intervals2).hasSize(2976); //month may: 31*24*4
          assertThat(intervals3).hasSize(2976); //month may: 31*24*4
-//Todo  LastReading needs still to be set
-//         assertThat(slave.getChannels().get(0).getLastReading().get()).isEqualTo(endOfData);
-//         assertThat(slave.getChannels().get(1).getLastReading().get()).isEqualTo(endOfData);
-//         assertThat(slave.getChannels().get(2).getLastReading().get()).isEqualTo(endOfData);
+
+         assertThat(slave.getChannels().get(0).getLastReading().get()).isEqualTo(endOfData);
+         assertThat(slave.getChannels().get(1).getLastReading().get()).isEqualTo(endOfData);
+         assertThat(slave.getChannels().get(2).getLastReading().get()).isEqualTo(endOfData);
          assertThat(slave.getChannels().get(0).getLastDateTime().get()).isEqualTo(endOfData);
          assertThat(slave.getChannels().get(1).getLastDateTime().get()).isEqualTo(endOfData);
          assertThat(slave.getChannels().get(2).getLastDateTime().get()).isEqualTo(endOfData);

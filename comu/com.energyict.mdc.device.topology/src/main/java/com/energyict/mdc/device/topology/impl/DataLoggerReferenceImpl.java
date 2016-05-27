@@ -3,13 +3,13 @@ package com.energyict.mdc.device.topology.impl;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ReadingRecord;
-import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.topology.DataLoggerChannelUsage;
 
 import com.google.common.collect.Range;
@@ -18,8 +18,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
-
 
 /**
  * Represents the link between a Data Logger and its gateway
@@ -52,8 +50,8 @@ public class DataLoggerReferenceImpl extends AbstractPhysicalGatewayReferenceImp
     /**
      * Data from each DataLogger Channel is transferred to the slave channel for this DataLoggerReference's interval
      */
-    public void transferChannelDataToSlave(){
-        this.dataLoggerChannelUsages.stream().forEach(this::transferChannelDataToSlave);
+    void transferChannelDataToSlave(TopologyServiceImpl topologyService){
+        this.dataLoggerChannelUsages.stream().forEach((channelUsage) -> transferChannelDataToSlave(topologyService, channelUsage));
     }
 
     /**
@@ -66,11 +64,12 @@ public class DataLoggerReferenceImpl extends AbstractPhysicalGatewayReferenceImp
         super.terminate(closingDate);
     }
 
-    private void transferChannelDataToSlave(DataLoggerChannelUsage channelUsage){
+    private void transferChannelDataToSlave(TopologyServiceImpl topologyService, DataLoggerChannelUsage channelUsage){
         MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
 
         Channel dataloggerChannel = channelUsage.getDataLoggerChannel();
         Channel slaveChannel = channelUsage.getSlaveChannel();
+
         if (dataloggerChannel.hasData()) {
             if (dataloggerChannel.isRegular()) {
                 List<IntervalReading> readings = new ArrayList<>();
@@ -81,6 +80,7 @@ public class DataLoggerReferenceImpl extends AbstractPhysicalGatewayReferenceImp
                 IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(slaveChannel.getMainReadingType().getMRID());
                 intervalBlock.addAllIntervalReadings(readings);
                 meterReading.addAllIntervalBlocks(Collections.singletonList(intervalBlock));
+
             } else {
                 List<Reading> readings = new ArrayList<>();
                 readings.addAll(dataloggerChannel.getRegisterReadings(this.getRange()));
@@ -90,6 +90,16 @@ public class DataLoggerReferenceImpl extends AbstractPhysicalGatewayReferenceImp
                 meterReading.addAllReadings(readings);
             }
             this.getOrigin().store(meterReading);
+            if (dataloggerChannel.isRegular()){
+                updateLastReadingIfApplicable(topologyService, slaveChannel);
+            }
+        }
+    }
+
+    private void updateLastReadingIfApplicable(TopologyServiceImpl topologyService, Channel channel){
+        LoadProfile toUpdate =  topologyService.getChannel(this.getOrigin(), channel).map(com.energyict.mdc.device.data.Channel::getLoadProfile).get();
+        if (!toUpdate.getLastReading().isPresent() || toUpdate.getLastReading().get().isBefore(channel.getLastDateTime())) {
+            this.getOrigin().getLoadProfileUpdaterFor(toUpdate).setLastReading(channel.getLastDateTime()).update();
         }
     }
 

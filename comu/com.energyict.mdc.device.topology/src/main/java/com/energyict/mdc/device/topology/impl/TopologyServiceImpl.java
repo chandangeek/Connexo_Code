@@ -346,7 +346,7 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
         slaveDataLoggerChannelMap.forEach((slaveChannel, dataLoggerChannel) -> this.addChannelDataLoggerUsage(dataLoggerReference, slaveChannel, dataLoggerChannel));
         slaveDataLoggerRegisterMap.forEach((slaveRegister, dataLoggerRegister) -> this.addRegisterDataLoggerUsage(dataLoggerReference, slaveRegister, dataLoggerRegister));
         Save.CREATE.validate(this.dataModel, dataLoggerReference);
-        dataLoggerReference.transferChannelDataToSlave();
+        dataLoggerReference.transferChannelDataToSlave(this);
         this.dataModel.persist(dataLoggerReference);
     }
 
@@ -372,20 +372,35 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
 
     @Override
     public Optional<Channel> getSlaveChannel(Channel dataLoggerChannel, Instant when) {
-        return findDataLoggerChannelUsage(getMeteringChannel(dataLoggerChannel),when).map((dataLoggerChannelUsage) -> {
-            Device slaveDevice = dataLoggerChannelUsage.getDataLoggerReference().getOrigin();
-            ReadingType slaveChannelReadingType = dataLoggerChannelUsage.getSlaveChannel().getMainReadingType();
-            return slaveDevice.getChannels().stream().filter((channel)-> channel.getCalculatedReadingType(Instant.now()).orElse(channel.getReadingType()) == slaveChannelReadingType).findFirst().get();
-        });
+        return findDataLoggerChannelUsage(getMeteringChannel(dataLoggerChannel),when)
+                .map((dataLoggerChannelUsage) -> getChannel(dataLoggerChannelUsage.getDataLoggerReference().getOrigin(),dataLoggerChannelUsage.getSlaveChannel()).get());
+//        return findDataLoggerChannelUsage(getMeteringChannel(dataLoggerChannel),when).map((dataLoggerChannelUsage) -> {
+//            Device slaveDevice = dataLoggerChannelUsage.getDataLoggerReference().getOrigin();
+//            ReadingType slaveChannelReadingType = dataLoggerChannelUsage.getSlaveChannel().getMainReadingType();
+//            return slaveDevice.getChannels().stream().filter((channel)-> channel.getCalculatedReadingType(Instant.now()).orElse(channel.getReadingType()) == slaveChannelReadingType).findFirst().get();
+//        });
     }
+
+    Optional<Channel> getChannel(Device device, com.elster.jupiter.metering.Channel channel){
+        ReadingType readingType = channel.getMainReadingType();
+        return device.getChannels().stream().filter((mdcChannel)-> mdcChannel.getCalculatedReadingType(Instant.now()).orElse(mdcChannel.getReadingType()) == readingType).findFirst();
+    }
+
 
     @Override
     public Optional<Register> getSlaveRegister(Register dataLoggerRegister, Instant when) {
-        return findDataLoggerChannelUsage(getMeteringChannel(dataLoggerRegister),when).map((dataLoggerChannelUsage) -> {
-            Device slaveDevice = dataLoggerChannelUsage.getDataLoggerReference().getOrigin();
-            ReadingType slaveChannelReadingType = dataLoggerChannelUsage.getSlaveChannel().getMainReadingType();
-            return slaveDevice.getRegisters().stream().filter((register)-> register.getCalculatedReadingType(Instant.now()).orElse(register.getReadingType()) == slaveChannelReadingType).findFirst().get();
-        });
+        return findDataLoggerChannelUsage(getMeteringChannel(dataLoggerRegister),when)
+                .map((dataLoggerChannelUsage) -> getRegister(dataLoggerChannelUsage.getDataLoggerReference().getOrigin(),dataLoggerChannelUsage.getSlaveChannel()).get());
+//        return findDataLoggerChannelUsage(getMeteringChannel(dataLoggerRegister),when).map((dataLoggerChannelUsage) -> {
+//            Device slaveDevice = dataLoggerChannelUsage.getDataLoggerReference().getOrigin();
+//            ReadingType slaveChannelReadingType = dataLoggerChannelUsage.getSlaveChannel().getMainReadingType();
+//            return slaveDevice.getRegisters().stream().filter((register)-> register.getCalculatedReadingType(Instant.now()).orElse(register.getReadingType()) == slaveChannelReadingType).findFirst().get();
+//        });
+    }
+
+    Optional<Register> getRegister(Device device, com.elster.jupiter.metering.Channel channel){
+        ReadingType readingType = channel.getMainReadingType();
+        return device.getRegisters().stream().filter((mdcChannel)-> mdcChannel.getCalculatedReadingType(Instant.now()).orElse(mdcChannel.getReadingType()) == readingType).findFirst();
     }
 
     @Override
