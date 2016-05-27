@@ -131,6 +131,13 @@
                 <module>../com.elster.insight.usagepoint.data.rest</module>
             </modules>
         </profile>
+
+        <profile>
+            <id>test-mdm-bundles</id>
+            <modules>
+                <module>../com.elster.jupiter.mdm.test.api.rest</module>
+            </modules>
+        </profile>
     </profiles>
 
 </project>
