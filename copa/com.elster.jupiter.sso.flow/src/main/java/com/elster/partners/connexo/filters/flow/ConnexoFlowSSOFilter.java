@@ -65,6 +65,12 @@ public class ConnexoFlowSSOFilter extends ConnexoAbstractSSOFilter {
                     groups.add(new GroupImpl(role));
                 }
 
+                // Bug in jBPM 6.4.0 web console - only the default admin role is allowed to access AdministrationPerspective
+                RoleImpl defaultAdmin = new RoleImpl("admin");
+                if(!roles.contains(defaultAdmin)){
+                    roles.add(defaultAdmin);
+                }
+
                 ConnexoUberfireSubject subject = new ConnexoUberfireSubject(principal.getName(), groups, roles);
                 identityService.setSubject(subject);
 
