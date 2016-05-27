@@ -73,7 +73,7 @@ Ext.define('Uni.model.timeofuse.Calendar', {
             type: 'json'
         },
 
-        setUrl: function(url) {
+        setUrl: function (url) {
             this.url = url;
         }
     }

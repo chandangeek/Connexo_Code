@@ -221,8 +221,8 @@ Ext.define('Uni.form.field.Coordinates', {
                 longField.setValue(me.convertDDToDMS(field.getValue(), 'long'));
             }
             else if (field.itemId == 'txt-coordinate-elev') {
-                elevField.setValue(Ext.String.format('{0} {1}', field.getValue(), Uni.I18n.translate('coordinates.elevationUnit', 'UNI', 'm')));
-            }
+                elevField.setValue(Ext.String.format('{0} {1}', field.getValue(), Uni.I18n.translate('coordinates.elevationUnit', 'UNI', 'm '))); // Intentionally added space in translation
+            }                                                                                                                                     // as I18nAnalyzer has problems with single character translations
             // defaultButton.setDisabled(me.getValue().spatialCoordinates == me.displayValue.usagePointSpatialCoordinates);
         }
         else {

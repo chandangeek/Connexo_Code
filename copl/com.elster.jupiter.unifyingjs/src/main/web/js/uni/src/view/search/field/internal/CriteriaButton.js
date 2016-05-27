@@ -90,7 +90,7 @@ Ext.define('Uni.view.search.field.internal.CriteriaButton', {
         }
     },
 
-    onClickEvent: function() {
+    onClickEvent: function () {
         this.toggle(false);
     },
 
