@@ -1052,7 +1052,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     }
 
     @Override
-    public EndDeviceControlType createEndDeviceControlType(String mRID) {
+    public EndDeviceControlTypeImpl createEndDeviceControlType(String mRID) {
         EndDeviceControlTypeImpl endDeviceControlType = dataModel.getInstance(EndDeviceControlTypeImpl.class).init(mRID);
         dataModel.persist(endDeviceControlType);
         return endDeviceControlType;
