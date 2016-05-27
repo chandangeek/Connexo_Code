@@ -143,7 +143,7 @@ Ext.define('Usr.view.user.Details', {
                                 },
                                 {
                                     xtype: 'fieldcontainer',
-                                    fieldLabel: '<h3>' + Uni.I18n.translate('user.activity.section', 'USR', 'Activity section') + '</h3>',
+                                    fieldLabel: '<h3>' + Uni.I18n.translate('user.activity.section', 'USR', 'Recent activity') + '</h3>',
                                     labelAlign: 'top',
                                     layout: 'vbox',
                                     defaults: {
@@ -154,7 +154,7 @@ Ext.define('Usr.view.user.Details', {
                                         {
                                             xtype: 'displayfield',
                                             name: 'lastSuccessfulLogin',
-                                            fieldLabel: Uni.I18n.translate('general.lastSuccessfulLogin', 'USR', 'Last successful attempt'),
+                                            fieldLabel: Uni.I18n.translate('general.lastSuccessfulLogin', 'USR', 'Last successful login'),
                                             renderer: function (value) {
                                                 if (value) {
                                                     var lastSuccessfulLogin = moment(value).toDate();
@@ -169,7 +169,7 @@ Ext.define('Usr.view.user.Details', {
                                         {
                                             xtype: 'displayfield',
                                             name: 'lastUnSuccessfulLogin',
-                                            fieldLabel: Uni.I18n.translate('general.lastUnSuccessfulLogin', 'USR', 'Last unsuccessful attempt'),
+                                            fieldLabel: Uni.I18n.translate('general.lastUnSuccessfulLogin', 'USR', 'Last unsuccessful login'),
                                             renderer: function (value) {
                                                 if (value) {
                                                     var lastUnSuccessfulLogin = moment(value).toDate();
