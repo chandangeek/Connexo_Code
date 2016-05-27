@@ -26,8 +26,6 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
 import java.time.Clock;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -69,7 +67,7 @@ public class UsagePointConfigurationApplication extends Application implements T
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
-        this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST);
+        this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST).join(nlsService.getThesaurus(MeteringService.COMPONENTNAME, Layer.DOMAIN));
     }
 
     @Override
@@ -84,9 +82,7 @@ public class UsagePointConfigurationApplication extends Application implements T
 
     @Override
     public List<TranslationKey> getKeys() {
-        List<TranslationKey> keys = new ArrayList<>();
-        keys.addAll(Arrays.asList(MetrologyConfigurationStatusTranslationKeys.values()));
-        return keys;
+        return Collections.emptyList();
     }
 
     @Reference
