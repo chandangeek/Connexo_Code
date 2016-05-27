@@ -66,10 +66,10 @@ public class IDISMessageConverter extends AbstractMessageConverter {
             return convertSpecialDaysCodeTableToXML((Code) messageAttribute);
         } else if (propertySpec.getName().equals(resumeFirmwareUpdateAttributeName)) {
             return messageAttribute.toString();
-        } else if (propertySpec.getName().equals(configUserFileAttributeName)
-                || propertySpec.getName().equals(firmwareUpdateFileAttributeName)) {
-            FirmwareVersion firmwareVersion = ((FirmwareVersion) messageAttribute);
-            return new String(firmwareVersion.getFirmwareFile());  //Bytes of the userFile, as a string
+        } else if (propertySpec.getName().equals(configUserFileAttributeName)) {
+            return "";  //TODO file management
+        } else if (propertySpec.getName().equals(firmwareUpdateFileAttributeName)) {
+            return messageAttribute.toString();     //This is the path of the temp file representing the FirmwareVersion
         } else if (propertySpec.getName().equals(monitoredValueAttributeName)) {
             return String.valueOf(MonitoredValue.fromDescription(messageAttribute.toString()));
         } else if (propertySpec.getName().equals(actionWhenUnderThresholdAttributeName)) {

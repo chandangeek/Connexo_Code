@@ -38,9 +38,10 @@ public class ABBA230MessageConverter extends AbstractMessageConverter {
 
     @Override
     public String format(PropertySpec propertySpec, Object messageAttribute) {
-        if (propertySpec.getName().equals(DeviceMessageConstants.firmwareUpdateFileAttributeName) || propertySpec.getName().equals(DeviceMessageConstants.MeterScheme)) {
-            FirmwareVersion firmwareVersion = ((FirmwareVersion) messageAttribute);
-            return GenericMessaging.zipAndB64EncodeContent(firmwareVersion.getFirmwareFile());  //Bytes of the firmwareFile as string
+        if (propertySpec.getName().equals(DeviceMessageConstants.firmwareUpdateFileAttributeName)) {
+            return messageAttribute.toString();     //This is the path of the temp file representing the FirmwareVersion
+        } else if (propertySpec.getName().equals(DeviceMessageConstants.MeterScheme)) {
+            return "";  //TODO file management
         } else {
             return messageAttribute.toString();
         }

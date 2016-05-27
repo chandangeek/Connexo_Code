@@ -55,8 +55,7 @@ public class AS300MessageConverter extends AbstractMessageConverter {
             case DeviceMessageConstants.PricingInformationActivationDateAttributeName:
                 return europeanDateTimeFormat.format((Date) messageAttribute);
             case DeviceMessageConstants.firmwareUpdateFileAttributeName:
-                FirmwareVersion firmwareVersion = ((FirmwareVersion) messageAttribute);
-                return GenericMessaging.zipAndB64EncodeContent(firmwareVersion.getFirmwareFile());  //Bytes of the firmwareFile as string
+                return messageAttribute.toString();     //This is the path of the temp file representing the FirmwareVersion
             case DeviceMessageConstants.activityCalendarActivationDateAttributeName:
                 return String.valueOf(((Date) messageAttribute).getTime()); //Millis since 1970
             case activityCalendarCodeTableAttributeName:

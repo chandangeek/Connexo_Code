@@ -63,8 +63,7 @@ public class SmartWebRtuKpMessageConverter extends AbstractMessageConverter {
                 || propertySpec.getName().equals(emergencyProfileActivationDateAttributeName)) {
             return String.valueOf(((Date) messageAttribute).getTime()); // WebRTU format of the dateTime is milliseconds
         } else if (propertySpec.getName().equals(firmwareUpdateFileAttributeName)) {
-            FirmwareVersion firmwareVersion = ((FirmwareVersion) messageAttribute);
-            return GenericMessaging.zipAndB64EncodeContent(firmwareVersion.getFirmwareFile());  //Bytes of the firmwareFile as string
+            return messageAttribute.toString();     //This is the path of the temp file representing the FirmwareVersion
         } else if (propertySpec.getName().equals(activityCalendarCodeTableAttributeName)) {
             return String.valueOf(((Code) messageAttribute).getId());
         } else if (propertySpec.getName().equals(encryptionLevelAttributeName)) {

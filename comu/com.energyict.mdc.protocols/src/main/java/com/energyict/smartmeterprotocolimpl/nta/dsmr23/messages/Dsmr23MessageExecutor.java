@@ -1,5 +1,11 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages;
 
+import com.energyict.dlms.DLMSMeterConfig;
+import com.energyict.dlms.DlmsSession;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.cosem.*;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
@@ -8,75 +14,26 @@ import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.codetables.CodeCalendar;
-import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
-import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.protocol.api.device.data.MessageEntry;
-import com.energyict.mdc.protocol.api.device.data.MessageResult;
-import com.energyict.mdc.protocol.api.device.data.MeterData;
-import com.energyict.mdc.protocol.api.device.data.MeterDataMessageResult;
-import com.energyict.mdc.protocol.api.device.data.MeterReadingData;
-import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.device.data.*;
 import com.energyict.mdc.protocol.api.device.data.Register;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
-import com.energyict.protocols.messaging.LegacyLoadProfileRegisterMessageBuilder;
-import com.energyict.protocols.messaging.LegacyPartialLoadProfileMessageBuilder;
-
-import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.DlmsSession;
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.AxdrType;
-import com.energyict.dlms.axrdencoding.BitString;
-import com.energyict.dlms.axrdencoding.BooleanObject;
-import com.energyict.dlms.axrdencoding.Integer16;
-import com.energyict.dlms.axrdencoding.Integer32;
-import com.energyict.dlms.axrdencoding.Integer64;
-import com.energyict.dlms.axrdencoding.Integer8;
-import com.energyict.dlms.axrdencoding.NullData;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.TypeEnum;
-import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.axrdencoding.Unsigned32;
-import com.energyict.dlms.axrdencoding.Unsigned8;
-import com.energyict.dlms.axrdencoding.VisibleString;
-import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.ActivityCalendar;
-import com.energyict.dlms.cosem.AssociationLN;
-import com.energyict.dlms.cosem.AssociationSN;
-import com.energyict.dlms.cosem.AutoConnect;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.Data;
-import com.energyict.dlms.cosem.Disconnector;
-import com.energyict.dlms.cosem.ExtendedRegister;
-import com.energyict.dlms.cosem.ImageTransfer;
-import com.energyict.dlms.cosem.Limiter;
-import com.energyict.dlms.cosem.PPPSetup;
-import com.energyict.dlms.cosem.ScriptTable;
-import com.energyict.dlms.cosem.SecuritySetup;
-import com.energyict.dlms.cosem.SingleActionSchedule;
-import com.energyict.dlms.cosem.SpecialDaysTable;
 import com.energyict.protocolimpl.generic.MessageParser;
 import com.energyict.protocolimpl.generic.messages.ActivityCalendarMessage;
-import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 import com.energyict.protocolimpl.generic.messages.MessageHandler;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocols.messaging.LegacyLoadProfileRegisterMessageBuilder;
+import com.energyict.protocols.messaging.LegacyPartialLoadProfileMessageBuilder;
 import com.energyict.smartmeterprotocolimpl.eict.NTAMessageHandler;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
+import java.io.File;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.time.Clock;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Level;
 
 /**
@@ -954,11 +911,12 @@ public class Dsmr23MessageExecutor extends MessageParser {
     protected void doFirmwareUpgrade(MessageHandler messageHandler, MessageEntry messageEntry) throws IOException {
         log(Level.INFO, "Handling message Firmware upgrade");
 
-        String firmwareContent = messageHandler.getFirmwareContent();
+        String path = messageHandler.getFirmwareFilePath();
 
-        byte[] imageData = GenericMessaging.b64DecodeAndUnZipToOriginalContent(firmwareContent);
         ImageTransfer it = getCosemObjectFactory().getImageTransfer();
-        it.upgrade(imageData);
+        try (final RandomAccessFile file = new RandomAccessFile(new File(path), "r")) {
+            it.upgrade(new ImageTransfer.RandomAccessFileImageBlockSupplier(file), true, ImageTransfer.DEFAULT_IMAGE_NAME, false);
+        }
         if ("".equalsIgnoreCase(messageHandler.getActivationDate())) { // Do an execute now
             it.imageActivation();
 

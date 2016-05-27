@@ -921,8 +921,7 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
         if (propertySpec.getName().equals(DeviceMessageConstants.broadCastLogTableEntryTTLAttributeName)) {
             return String.valueOf(((TimeDuration) messageAttribute).getSeconds());
         } else if (propertySpec.getName().equals(DeviceMessageConstants.configUserFileAttributeName)) {
-            FirmwareVersion firmwareVersion = ((FirmwareVersion) messageAttribute);
-            return GenericMessaging.zipAndB64EncodeContent(firmwareVersion.getFirmwareFile());  //Bytes of the firmwareFile as string
+            return "";  //TODO file management
         } else if (propertySpec.getName().equals(DeviceMessageConstants.encryptionLevelAttributeName)) {
             return String.valueOf(DlmsEncryptionLevelMessageValues.getValueFor(messageAttribute.toString()));
         } else if (propertySpec.getName().equals(DeviceMessageConstants.authenticationLevelAttributeName)) {

@@ -17,12 +17,10 @@ import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.messages.RtuMessageKeyIdConstants;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.Base64;
 import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Stream;
 import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
@@ -863,7 +861,7 @@ public abstract class GenericMessaging implements Messaging {
         msgVal.setValue(" ");
         tagSpec.add(msgVal);
         MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(
-                RtuMessageConstant.FIRMWARE_CONTENT, true);
+                RtuMessageConstant.FIRMWARE_PATH, true);
         tagSpec.add(msgAttrSpec);
 
         /*

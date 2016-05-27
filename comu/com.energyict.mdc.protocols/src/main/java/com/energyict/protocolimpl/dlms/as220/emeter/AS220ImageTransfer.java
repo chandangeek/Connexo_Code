@@ -31,7 +31,7 @@ public class AS220ImageTransfer {
 	private final ImageTransfer imageTransfer;
 
 	private Unsigned32 size = null; 	// the size of the image
-	private byte[] data = null; // the complete image in byte
+	private byte[]  data = null; // the complete image in byte
 	private int blockCount = -1; // the amount of block numbers
 
 	private final int maxBlockRetryCount = 3;
@@ -74,10 +74,10 @@ public class AS220ImageTransfer {
 		}
 
 		// We requested an inlined file...
-		if (builder.getUserFile() != null) {
+		if (builder.getPath() != null) {
 			getAs220().getLogger().info("Pulling out user file and dispatching to the device...");
 
-			this.data = builder.getUserFile().loadFileInByteArray();
+			this.data = builder.getFirmwareBytes();
 
 			if (this.data.length == 0) {
 			    errorMessage = "Length of the upgrade file is not valid [" + this.data.length + " bytes], failing message.";
@@ -88,7 +88,7 @@ public class AS220ImageTransfer {
 
 			}
 		} else {
-		    errorMessage = "The message did not contain a user file to use for the upgrade, message fails...";
+		    errorMessage = "The message did not contain a path to use for the upgrade, message fails...";
 		    getAs220().getLogger().log(Level.WARNING, errorMessage);
 
 		    throw new IOException(errorMessage);

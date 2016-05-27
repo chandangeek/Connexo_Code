@@ -2,10 +2,11 @@ package com.energyict.protocolimplv2.nta.dsmr23.messages;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.mdc.common.Password;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.topology.TopologyService;
-import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.codetables.CodeCalendar;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
@@ -15,18 +16,11 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.exceptions.GeneralParseException;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
-import com.energyict.protocols.mdc.services.impl.MessageSeeds;
-
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.axrdencoding.Unsigned8;
-import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageUtils;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractDlmsMessaging;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.io.IOException;
 import java.util.Date;
@@ -34,30 +28,14 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.UserFileConfigAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activityCalendarCodeTableAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.authenticationLevelAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.contactorActivationDateAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.encryptionLevelAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.firmwareUpdateActivationDateAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.fromDateAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.loadProfileAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.meterTimeAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.newAuthenticationKeyAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.newEncryptionKeyAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.newPasswordAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.overThresholdDurationAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.specialDaysCodeTableAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.toDateAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.*;
 
 /**
  * Class that:
  * - Formats the device message attributes from objects to proper string values
  * - Executes a given message
  * - Has a list of all supported device message specs
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 22/11/13
  * Time: 11:32
@@ -65,6 +43,7 @@ import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConsta
  */
 public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMessageSupport {
 
+    public static final String SEPARATOR = ";";
     private final Set<DeviceMessageId> supportedMessages = EnumSet.of(
             DeviceMessageId.CONTACTOR_OPEN,
             DeviceMessageId.CONTACTOR_OPEN_WITH_ACTIVATION_DATE,
@@ -99,35 +78,28 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
             DeviceMessageId.LOAD_PROFILE_PARTIAL_REQUEST,
             DeviceMessageId.LOAD_PROFILE_REGISTER_REQUEST
     );
-    public static final String SEPARATOR = ";";
-
+    private final AbstractMessageExecutor messageExecutor;
+    private final TopologyService topologyService;
     /**
      * Boolean indicating whether or not to show the MBus related messages in EIServer
      */
     protected boolean supportMBus = true;
-
     /**
      * Boolean indicating whether or not to show the GPRS related messages in EIServer
      */
     protected boolean supportGPRS = true;
-
     /**
      * Boolean indicating whether or not to show the messages related to resetting the meter in EIServer
      */
     protected boolean supportMeterReset = true;
-
     /**
      * Boolean indicating whether or not to show the messages related to configuring the limiter in EIServer
      */
     protected boolean supportLimiter = true;
-
     /**
      * Boolean indicating whether or not to show the message to reset the alarm window in EIServer
      */
     protected boolean supportResetWindow = true;
-
-    private final AbstractMessageExecutor messageExecutor;
-    private final TopologyService topologyService;
 
     public Dsmr23Messaging(AbstractMessageExecutor messageExecutor, TopologyService topologyService) {
         super(messageExecutor.getProtocol());
@@ -144,8 +116,9 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
     public String format(PropertySpec propertySpec, Object messageAttribute) {
         switch (propertySpec.getName()) {
             case UserFileConfigAttributeName:
+                return "";  //TODO file management
             case firmwareUpdateFileAttributeName:
-                return ProtocolTools.getHexStringFromBytes(((FirmwareVersion) messageAttribute).getFirmwareFile(), "");
+                return messageAttribute.toString();     //This is the path of the temp file representing the FirmwareVersion
             case activityCalendarCodeTableAttributeName:
                 return convertCodeTableToXML((Code) messageAttribute);
             case authenticationLevelAttributeName:

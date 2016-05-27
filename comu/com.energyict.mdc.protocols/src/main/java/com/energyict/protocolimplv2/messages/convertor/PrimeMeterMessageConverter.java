@@ -70,8 +70,7 @@ public class PrimeMeterMessageConverter extends AbstractMessageConverter {
                 || propertySpec.getName().equals(MulticastAddress3AttributeName)) {
             return ((HexString) messageAttribute).getContent();
         } else if (propertySpec.getName().equals(firmwareUpdateFileAttributeName)) {
-            FirmwareVersion firmwareVersion = ((FirmwareVersion) messageAttribute);
-            return GenericMessaging.zipAndB64EncodeContent(firmwareVersion.getFirmwareFile());  //Bytes of the firmwareFile as string
+            return messageAttribute.toString();     //This is the path of the temp file representing the FirmwareVersion
         }
         return messageAttribute.toString();
     }

@@ -1,5 +1,13 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo.messaging;
 
+import com.energyict.dlms.DlmsSession;
+import com.energyict.dlms.ParseUtils;
+import com.energyict.dlms.ScalerUnit;
+import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.util.DateTime;
+import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.xmlparsing.GenericDataToWrite;
+import com.energyict.dlms.xmlparsing.XmlToDlms;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
@@ -9,30 +17,6 @@ import com.energyict.mdc.protocol.api.UserFileShadow;
 import com.energyict.mdc.protocol.api.codetables.CodeFactory;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
-import com.energyict.protocols.messaging.TimeOfUseMessageBuilder;
-
-import com.energyict.dlms.DlmsSession;
-import com.energyict.dlms.ParseUtils;
-import com.energyict.dlms.ScalerUnit;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.BitString;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.TypeEnum;
-import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.axrdencoding.Unsigned32;
-import com.energyict.dlms.axrdencoding.util.DateTime;
-import com.energyict.dlms.cosem.ActivePassive;
-import com.energyict.dlms.cosem.ActivityCalendar;
-import com.energyict.dlms.cosem.ChangeOfSupplierManagement;
-import com.energyict.dlms.cosem.ChangeOfTenantManagement;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.Disconnector;
-import com.energyict.dlms.cosem.ImageTransfer;
-import com.energyict.dlms.cosem.SingleActionSchedule;
-import com.energyict.dlms.xmlparsing.GenericDataToWrite;
-import com.energyict.dlms.xmlparsing.XmlToDlms;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.protocolimpl.generic.MessageParser;
@@ -40,12 +24,15 @@ import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 import com.energyict.protocolimpl.generic.messages.MessageHandler;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocols.messaging.TimeOfUseMessageBuilder;
 import com.energyict.smartmeterprotocolimpl.eict.NTAMessageHandler;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.AS300;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
+import java.io.File;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -377,9 +364,7 @@ public class AS300MessageExecutor extends MessageParser {
         if ((trackingId != null) && trackingId.toLowerCase().contains(RESUME)) {
             resume = true;
         }
-        String firmwareContent = messageHandler.getFirmwareContent();
-
-        byte[] imageData = GenericMessaging.b64DecodeAndUnZipToOriginalContent(firmwareContent);
+        String path = messageHandler.getFirmwareFilePath();
 
         String[] parts = content.split("=");
         Date date = null;
@@ -406,7 +391,9 @@ public class AS300MessageExecutor extends MessageParser {
             }
         }
         it.setUsePollingVerifyAndActivate(true);
-        it.upgrade(imageData, false);
+        try (final RandomAccessFile file = new RandomAccessFile(new File(path), "r")) {
+            it.upgrade(new ImageTransfer.RandomAccessFileImageBlockSupplier(file), false, ImageTransfer.DEFAULT_IMAGE_NAME, false);
+        }
         if (date != null) {
             SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(IMAGE_ACTIVATION_SCHEDULER_OBIS);
             Array dateArray = convertUnixToDateTimeArray(String.valueOf(date.getTime() / 1000));

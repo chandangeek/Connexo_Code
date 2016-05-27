@@ -125,8 +125,7 @@ public class Dsmr50MessageConverter extends Dsmr40MessageConverter {
         } else if (propertySpec.getName().equals(specialDaysCodeTableAttributeName)) {
             return convertSpecialDaysCodeTableToXML((Code) messageAttribute);
         } else if (propertySpec.getName().equals(firmwareUpdateFileAttributeName)) {
-            FirmwareVersion firmwareVersion = ((FirmwareVersion) messageAttribute);
-            return new String(firmwareVersion.getFirmwareFile());  //Bytes of the userFile, as a string
+            return messageAttribute.toString();     //This is the path of the temp file representing the FirmwareVersion
         } else if (propertySpec.getName().equals(resumeFirmwareUpdateAttributeName)
                 || propertySpec.getName().equals(plcTypeFirmwareUpdateAttributeName)) {
             return ((Boolean) messageAttribute).toString();

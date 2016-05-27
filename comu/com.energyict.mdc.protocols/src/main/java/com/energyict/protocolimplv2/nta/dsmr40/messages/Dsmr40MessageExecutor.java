@@ -1,6 +1,9 @@
 package com.energyict.protocolimplv2.nta.dsmr40.messages;
 
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.BitString;
+import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.cosem.*;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.topology.TopologyService;
@@ -16,13 +19,14 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
-import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
-import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.nta.dsmr23.messages.Dsmr23MessageExecutor;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -147,11 +151,9 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
     }
 
     protected void upgradeFirmwareWithActivationDateAndImageIdentifier(OfflineDeviceMessage pendingMessage) throws IOException {
-        String userFile = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateFileAttributeName).getDeviceMessageAttributeValue();
+        String path = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateFileAttributeName).getDeviceMessageAttributeValue();
         String activationDate = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateActivationDateAttributeName).getDeviceMessageAttributeValue();
         String imageIdentifier = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateImageIdentifierAttributeName).getDeviceMessageAttributeValue(); // Will return empty string if the MessageAttribute could not be found
-        byte[] image = ProtocolTools.getBytesFromHexString(userFile, "");
-
 
         ImageTransfer it = getCosemObjectFactory().getImageTransfer();
         if (isResume(pendingMessage)) {
@@ -166,10 +168,13 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
         it.setPollingDelay(10000);
         it.setPollingRetries(30);
         it.setDelayBeforeSendingBlocks(5000);
-        if (imageIdentifier.isEmpty()) {
-            it.upgrade(image, false);
-        } else {
-            it.upgrade(image, false, imageIdentifier, false);
+
+        try (RandomAccessFile file = new RandomAccessFile(new File(path), "r")) {
+            if (imageIdentifier.isEmpty()) {
+                it.upgrade(new ImageTransfer.RandomAccessFileImageBlockSupplier(file), false, ImageTransfer.DEFAULT_IMAGE_NAME, false);
+            } else {
+                it.upgrade(new ImageTransfer.RandomAccessFileImageBlockSupplier(file), false, imageIdentifier, false);
+            }
         }
 
         if (activationDate.isEmpty()) {

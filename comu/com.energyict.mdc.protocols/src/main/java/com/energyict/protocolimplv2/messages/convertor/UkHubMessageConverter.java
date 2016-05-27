@@ -39,11 +39,11 @@ public class UkHubMessageConverter extends AbstractMessageConverter {
             case DeviceMessageConstants.ZigBeeConfigurationActivationDateAttributeName:
                 return europeanDateTimeFormat.format((Date) messageAttribute);
             case DeviceMessageConstants.UserFileConfigAttributeName:
-            case DeviceMessageConstants.firmwareUpdateFileAttributeName:
             case DeviceMessageConstants.ZigBeeConfigurationHANRestoreUserFileAttributeName:
+                return "";  //TODO file management
+            case DeviceMessageConstants.firmwareUpdateFileAttributeName:
             case DeviceMessageConstants.ZigBeeConfigurationFirmwareUpdateUserFileAttributeName:
-                FirmwareVersion firmwareVersion = ((FirmwareVersion) messageAttribute);
-                return GenericMessaging.zipAndB64EncodeContent(firmwareVersion.getFirmwareFile());  //Bytes of the firmwareFile as string
+                return messageAttribute.toString();     //This is the path of the temp file representing the FirmwareVersion
             default:
                 return messageAttribute.toString();
         }

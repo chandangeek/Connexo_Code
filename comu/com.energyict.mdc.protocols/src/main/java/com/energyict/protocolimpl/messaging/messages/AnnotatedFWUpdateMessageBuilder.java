@@ -3,7 +3,6 @@ package com.energyict.protocolimpl.messaging.messages;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.protocols.messaging.FirmwareUpdateMessageBuilder;
 import com.energyict.protocols.messaging.MessageBuilder;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -36,9 +35,9 @@ public class AnnotatedFWUpdateMessageBuilder extends FirmwareUpdateMessageBuilde
             sb.append(getUrl());
             sb.append("', ");
         }
-        if (getUserFile() != null) {
-            sb.append("UserFile='");
-            sb.append(getUserFile().getName());
+        if (getPath() != null) {
+            sb.append("Path='");
+            sb.append(getPath());
             sb.append('\'');
         }
         return sb.toString();

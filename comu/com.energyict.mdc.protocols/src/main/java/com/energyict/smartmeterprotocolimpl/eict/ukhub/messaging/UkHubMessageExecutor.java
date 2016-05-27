@@ -1,5 +1,11 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.messaging;
 
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.DlmsSession;
+import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.attributeobjects.RegisterZigbeeDeviceData;
+import com.energyict.dlms.cosem.attributeobjects.ZigBeeIEEEAddress;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
@@ -8,38 +14,11 @@ import com.energyict.mdc.protocol.api.UserFileFactory;
 import com.energyict.mdc.protocol.api.UserFileShadow;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
-
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.DlmsSession;
-import com.energyict.dlms.axrdencoding.AXDRDecoder;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.BitString;
-import com.energyict.dlms.axrdencoding.BooleanObject;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.axrdencoding.Unsigned32;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.Data;
-import com.energyict.dlms.cosem.GenericInvoke;
-import com.energyict.dlms.cosem.GenericRead;
-import com.energyict.dlms.cosem.GenericWrite;
-import com.energyict.dlms.cosem.ImageTransfer;
-import com.energyict.dlms.cosem.ProfileGeneric;
-import com.energyict.dlms.cosem.SingleActionSchedule;
-import com.energyict.dlms.cosem.ZigBeeSASStartup;
-import com.energyict.dlms.cosem.ZigBeeSETCControl;
-import com.energyict.dlms.cosem.ZigbeeHanManagement;
-import com.energyict.dlms.cosem.attributeobjects.RegisterZigbeeDeviceData;
-import com.energyict.dlms.cosem.attributeobjects.ZigBeeIEEEAddress;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.protocolimpl.generic.MessageParser;
 import com.energyict.protocolimpl.generic.ParseUtils;
 import com.energyict.protocolimpl.generic.csvhandling.CSVParser;
 import com.energyict.protocolimpl.generic.csvhandling.TestObject;
-import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 import com.energyict.protocolimpl.generic.messages.MessageHandler;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -49,7 +28,9 @@ import com.energyict.smartmeterprotocolimpl.eict.ukhub.UkHub;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
+import java.io.File;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -274,9 +255,7 @@ public class UkHubMessageExecutor extends MessageParser {
         if ((trackingId != null) && trackingId.toLowerCase().contains(RESUME)) {
             resume = true;
         }
-        String firmwareContent = messageHandler.getFirmwareContent();
-
-        byte[] imageData = GenericMessaging.b64DecodeAndUnZipToOriginalContent(firmwareContent);
+        String path = messageHandler.getFirmwareFilePath();
 
         String[] parts = content.split("=");
         Date date = null;
@@ -302,7 +281,10 @@ public class UkHubMessageExecutor extends MessageParser {
                 it.setStartIndex(lastTransferredBlockNumber);
             }
         }
-        it.upgrade(imageData);
+        try (final RandomAccessFile file = new RandomAccessFile(new File(path), "r")) {
+            it.upgrade(new ImageTransfer.RandomAccessFileImageBlockSupplier(file), true, ImageTransfer.DEFAULT_IMAGE_NAME, false);
+        }
+
         if (date != null) {
             SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(ObisCodeProvider.IMAGE_ACTIVATION_SCHEDULER);
             Array dateArray = convertUnixToDateTimeArray(String.valueOf(date.getTime() / 1000));
@@ -318,37 +300,37 @@ public class UkHubMessageExecutor extends MessageParser {
 
     private void zigbeeNCPFirmwareUpdate(MessageHandler messageHandler, String content) throws IOException {
         getLogger().info("Executing Zigbee NCP firmware update message");
-        String firmwareContent = messageHandler.getFirmwareContent();
+        String path = messageHandler.getFirmwareFilePath();
 
-        byte[] imageData = GenericMessaging.b64DecodeAndUnZipToOriginalContent(firmwareContent);
+        String[] parts = content.split("=");
+        Date date = null;
+        try {
+            if (parts.length > 2) {
+                String dateString = parts[2].substring(1).split("\"")[0];
 
-            String[] parts = content.split("=");
-            Date date = null;
-            try {
-                if (parts.length > 2) {
-                    String dateString = parts[2].substring(1).split("\"")[0];
-
-                    SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-                    date = formatter.parse(dateString);
-                }
-            } catch (ParseException e) {
-                log(Level.SEVERE, "Error while parsing the activation date: " + e.getMessage());
-                throw new NestedIOException(e);
-            } catch (NumberFormatException e) {
-                log(Level.SEVERE, "Error while parsing the time duration: " + e.getMessage());
-                throw new NestedIOException(e);
+                SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+                date = formatter.parse(dateString);
             }
-
-            ImageTransfer it = getCosemObjectFactory().getImageTransfer(ObisCodeProvider.ZIGBEE_NCP_FIRMWARE_UPDATE);
-            it.upgrade(imageData);
-            if (date != null) {
-                SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(ObisCodeProvider.IMAGE_ACTIVATION_SCHEDULER);
-                Array dateArray = convertUnixToDateTimeArray(String.valueOf(date.getTime() / 1000));
-                sas.writeExecutionTime(dateArray);
-            } else {
-                it.imageActivation();
-            }
+        } catch (ParseException e) {
+            log(Level.SEVERE, "Error while parsing the activation date: " + e.getMessage());
+            throw new NestedIOException(e);
+        } catch (NumberFormatException e) {
+            log(Level.SEVERE, "Error while parsing the time duration: " + e.getMessage());
+            throw new NestedIOException(e);
         }
+
+        ImageTransfer it = getCosemObjectFactory().getImageTransfer(ObisCodeProvider.ZIGBEE_NCP_FIRMWARE_UPDATE);
+        try (final RandomAccessFile file = new RandomAccessFile(new File(path), "r")) {
+            it.upgrade(new ImageTransfer.RandomAccessFileImageBlockSupplier(file), true, ImageTransfer.DEFAULT_IMAGE_NAME, false);
+        }
+        if (date != null) {
+            SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(ObisCodeProvider.IMAGE_ACTIVATION_SCHEDULER);
+            Array dateArray = convertUnixToDateTimeArray(String.valueOf(date.getTime() / 1000));
+            sas.writeExecutionTime(dateArray);
+        } else {
+            it.imageActivation();
+        }
+    }
 
     private void changeHanSAS(MessageHandler messageHandler) throws IOException {
         log(Level.INFO, "Sending message : Change Zigbee HAN SAS");

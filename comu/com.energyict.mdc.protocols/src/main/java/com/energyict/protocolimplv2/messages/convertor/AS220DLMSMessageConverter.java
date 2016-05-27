@@ -123,8 +123,7 @@ public class AS220DLMSMessageConverter extends AbstractMessageConverter {
         } else if (propertySpec.getName().equals(RawDataAttributeName)) {
             return ((HexString) messageAttribute).getContent();
         } else if (propertySpec.getName().equals(firmwareUpdateFileAttributeName)) {
-            FirmwareVersion firmwareVersion = ((FirmwareVersion) messageAttribute);
-            return new String(firmwareVersion.getFirmwareFile());
+            return messageAttribute.toString();     //This is the path of the temp file representing the FirmwareVersion
         }
         return EMPTY_FORMAT;
     }

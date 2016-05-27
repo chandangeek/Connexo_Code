@@ -1,7 +1,9 @@
 package com.energyict.protocolimplv2.edp.messages;
 
 import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.axrdencoding.util.*;
+import com.energyict.dlms.axrdencoding.util.AXDRDate;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.axrdencoding.util.AXDRTime;
 import com.energyict.dlms.cosem.*;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.issues.IssueService;
@@ -13,11 +15,12 @@ import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
+import com.energyict.protocols.util.TempFileLoader;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
-import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 
 import java.io.IOException;
@@ -257,8 +260,9 @@ public class EDPMessageExecutor extends AbstractMessageExecutor {
     }
 
     private void upgradeFirmware(OfflineDeviceMessage pendingMessage) throws IOException, ParseException {
-        String userFileContents = pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue();
-        byte[] binaryImage = Base64.getDecoder().decode(userFileContents);
+        String path = pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue();
+        String base64encodedImage = new String(TempFileLoader.loadTempFile(path));
+        byte[] binaryImage = Base64.getDecoder().decode(base64encodedImage);
 
         ImageTransfer imageTransfer = getCosemObjectFactory().getImageTransfer();
         imageTransfer.setBooleanValue(0x01);    //Meter only takes 0x01 as boolean value "true"

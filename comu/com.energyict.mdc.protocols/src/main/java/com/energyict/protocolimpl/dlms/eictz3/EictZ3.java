@@ -1,102 +1,37 @@
 package com.energyict.protocolimpl.dlms.eictz3;
 
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.dialer.connection.IEC1107HHUConnection;
+import com.energyict.dlms.*;
+import com.energyict.dlms.aso.*;
+import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.Register;
 import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.HHUEnabler;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.MessageProtocol;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
-import com.energyict.mdc.protocol.api.UnsupportedException;
-import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
-import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.protocol.api.device.data.MessageEntry;
-import com.energyict.mdc.protocol.api.device.data.MessageResult;
-import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
-import com.energyict.mdc.protocol.api.device.data.RegisterProtocol;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+import com.energyict.mdc.protocol.api.*;
+import com.energyict.mdc.protocol.api.device.data.*;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
 import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
-import com.energyict.mdc.protocol.api.messaging.Message;
-import com.energyict.mdc.protocol.api.messaging.MessageAttribute;
-import com.energyict.mdc.protocol.api.messaging.MessageAttributeSpec;
-import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
-import com.energyict.mdc.protocol.api.messaging.MessageElement;
-import com.energyict.mdc.protocol.api.messaging.MessageSpec;
-import com.energyict.mdc.protocol.api.messaging.MessageTag;
-import com.energyict.mdc.protocol.api.messaging.MessageTagSpec;
-import com.energyict.mdc.protocol.api.messaging.MessageValue;
-import com.energyict.mdc.protocol.api.messaging.MessageValueSpec;
-import com.energyict.protocols.messaging.FirmwareUpdateMessageBuilder;
-import com.energyict.protocols.util.CacheMechanism;
-import com.energyict.protocols.util.ProtocolUtils;
-
-import com.energyict.dialer.connection.IEC1107HHUConnection;
-import com.energyict.dlms.DLMSCache;
-import com.energyict.dlms.DLMSConnection;
-import com.energyict.dlms.DLMSConnectionException;
-import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.DLMSObis;
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.DataContainer;
-import com.energyict.dlms.DataStructure;
-import com.energyict.dlms.HDLC2Connection;
-import com.energyict.dlms.ParseUtils;
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.ScalerUnit;
-import com.energyict.dlms.TCPIPConnection;
-import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.dlms.aso.AssociationControlServiceElement;
-import com.energyict.dlms.aso.ConformanceBlock;
-import com.energyict.dlms.aso.LocalSecurityProvider;
-import com.energyict.dlms.aso.SecurityContext;
-import com.energyict.dlms.aso.SecurityProvider;
-import com.energyict.dlms.aso.XdlmsAse;
-import com.energyict.dlms.axrdencoding.AXDRDecoder;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.AxdrType;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.TypeEnum;
-import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.cosem.CapturedObject;
-import com.energyict.dlms.cosem.CapturedObjectsHelper;
-import com.energyict.dlms.cosem.Clock;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.DataAccessResultCode;
-import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.dlms.cosem.DemandRegister;
-import com.energyict.dlms.cosem.Disconnector;
-import com.energyict.dlms.cosem.ExtendedRegister;
-import com.energyict.dlms.cosem.ImageTransfer;
-import com.energyict.dlms.cosem.MBusClient;
-import com.energyict.dlms.cosem.ProfileGeneric;
-import com.energyict.dlms.cosem.Register;
-import com.energyict.dlms.cosem.ScriptTable;
-import com.energyict.dlms.cosem.SingleActionSchedule;
-import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.mdc.protocol.api.messaging.*;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.dlms.Z3.AARQ;
-import com.energyict.protocolimpl.dlms.nta.eventhandling.DisconnectControlLog;
-import com.energyict.protocolimpl.dlms.nta.eventhandling.EventsLog;
-import com.energyict.protocolimpl.dlms.nta.eventhandling.FraudDetectionLog;
-import com.energyict.protocolimpl.dlms.nta.eventhandling.MbusLog;
-import com.energyict.protocolimpl.dlms.nta.eventhandling.PowerFailureLog;
+import com.energyict.protocolimpl.dlms.nta.eventhandling.*;
 import com.energyict.protocolimpl.generic.messages.MessageHandler;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
+import com.energyict.protocols.messaging.FirmwareUpdateMessageBuilder;
+import com.energyict.protocols.util.CacheMechanism;
+import com.energyict.protocols.util.ProtocolUtils;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
@@ -110,15 +45,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -1951,8 +1878,10 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
 
             final FirmwareUpdateMessageBuilder builder = new FirmwareUpdateMessageBuilder();
 
+            byte[] firmwareBytes;
             try {
                 builder.initFromXml(messageEntry.getContent());
+                firmwareBytes = builder.getFirmwareBytes();
             } catch (final SAXException e) {
                 logger.log(Level.SEVERE, "Cannot process firmware upgrade message due to an XML parsing error [" + e.getMessage() + "]", e);
 
@@ -1966,15 +1895,12 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
                 return MessageResult.createFailed(messageEntry);
             }
 
-            // We requested an inlined file...
-            if (builder.getUserFile() != null) {
+            if (firmwareBytes != null) {
                 logger.info("Pulling out user file and dispatching to the device...");
 
-                final byte[] upgradeFileData = builder.getUserFile().loadFileInByteArray();
-
-                if (upgradeFileData.length > 0) {
+                if (firmwareBytes.length > 0) {
                     try {
-                        this.upgradeDevice(builder.getUserFile().loadFileInByteArray());
+                        this.upgradeDevice(firmwareBytes);
                     } catch (final IOException e) {
                         if (logger.isLoggable(Level.SEVERE)) {
                             logger.log(Level.SEVERE, "Caught an IO error when trying upgrade [" + e.getMessage() + "]", e);
@@ -1982,7 +1908,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
                     }
                 } else {
                     if (logger.isLoggable(Level.WARNING)) {
-                        logger.log(Level.WARNING, "Length of the upgrade file is not valid [" + upgradeFileData + " bytes], failing message.");
+                        logger.log(Level.WARNING, "Length of the upgrade file is not valid [" + firmwareBytes.length + " bytes], failing message.");
                     }
 
                     return MessageResult.createFailed(messageEntry);

@@ -44,14 +44,14 @@ public class FirmwareUpgrade extends PrimeMessageExecutor {
             final FirmwareUpdateMessageBuilder builder = new FirmwareUpdateMessageBuilder();
             builder.initFromXml(messageEntry.getContent());
 
-            if (builder.getUserFile() == null) {
+            if (builder.getFirmwareBytes() == null) {
                 String message = "The message did not contain a user file to use for the upgrade, message fails...";
                 getLogger().severe(message);
                 throw new IOException(message);
             }
 
             getLogger().info("Pulling out user file and dispatching to the device...");
-            final byte[] base64Data = builder.getUserFile().loadFileInByteArray();
+            final byte[] base64Data = builder.getFirmwareBytes();
 
             getLogger().info("Decoding BASE64 content ...");
             final Base64EncoderDecoder b64 = new Base64EncoderDecoder();

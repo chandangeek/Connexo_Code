@@ -133,8 +133,7 @@ public class Messaging implements DeviceMessageSupport {
             case DeviceMessageConstants.loadProfileAttributeName:
                 return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute, this.topologyService);
             case DeviceMessageConstants.firmwareUpdateFileAttributeName:
-                FirmwareVersion firmwareVersion = ((FirmwareVersion) messageAttribute);
-                return new String(firmwareVersion.getFirmwareFile());  //Bytes of the firmwareVersion, as a string
+                return messageAttribute.toString();     //This is the path of the temp file representing the FirmwareVersion
             default:
                 return messageAttribute.toString();
         }

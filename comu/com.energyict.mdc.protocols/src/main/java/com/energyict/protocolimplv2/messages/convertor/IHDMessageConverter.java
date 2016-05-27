@@ -33,8 +33,7 @@ public class IHDMessageConverter extends AbstractMessageConverter {
             case DeviceMessageConstants.firmwareUpdateActivationDateAttributeName:
                 return europeanDateTimeFormat.format((Date) messageAttribute);
             case DeviceMessageConstants.firmwareUpdateFileAttributeName:
-                FirmwareVersion firmwareVersion = ((FirmwareVersion) messageAttribute);
-                return GenericMessaging.zipAndB64EncodeContent(firmwareVersion.getFirmwareFile());  //Bytes of the firmwareFile as string
+                return messageAttribute.toString();     //This is the path of the temp file representing the FirmwareVersion
             default:
                 return messageAttribute.toString();
         }
