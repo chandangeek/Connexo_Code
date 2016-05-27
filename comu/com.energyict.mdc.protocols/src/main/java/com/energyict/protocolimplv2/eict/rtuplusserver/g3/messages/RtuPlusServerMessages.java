@@ -8,7 +8,6 @@ import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Password;
-import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.MessageSeeds;
