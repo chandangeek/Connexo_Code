@@ -22,11 +22,11 @@ public interface DeviceProtocolPluggableClass extends PluggableClass {
      *
      * @return The DeviceProtocol version
      */
-    public String getVersion ();
+    String getVersion ();
 
-    public DeviceProtocol getDeviceProtocol ();
+    DeviceProtocol getDeviceProtocol ();
 
-    public TypedProperties getProperties ();
+    TypedProperties getProperties ();
 
     default boolean supportsFileManagement() {
         Set<DeviceMessageId> fileMessages = EnumSet.of(
@@ -34,7 +34,8 @@ public interface DeviceProtocolPluggableClass extends PluggableClass {
                 DeviceMessageId.CONFIGURATION_CHANGE_UPLOAD_METER_SCHEME,
                 DeviceMessageId.CONFIGURATION_CHANGE_UPLOAD_SWITCH_POINT_CLOCK_SETTINGS,
                 DeviceMessageId.CONFIGURATION_CHANGE_UPLOAD_SWITCH_POINT_CLOCK_UPDATE_SETTINGS,
-                DeviceMessageId.ADVANCED_TEST_USERFILE_CONFIG
+                DeviceMessageId.ADVANCED_TEST_USERFILE_CONFIG,
+                DeviceMessageId.ACTIVITY_CALENDAR_WRITE_CONTRACTS_FROM_XML_USERFILE
         );
         return this.getDeviceProtocol()
                 .getSupportedMessages()
