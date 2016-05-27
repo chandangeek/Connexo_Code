@@ -326,7 +326,7 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
 
     @Override
     public List<ReadingTypeDeliverable> getDeliverables() {
-        return Collections.unmodifiableList(this.deliverables);
+        return Collections.unmodifiableList(new ArrayList<>(this.deliverables));
     }
 
     void create() {

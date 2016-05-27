@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl.config;
 
+import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationUpdater;
 
@@ -20,6 +21,12 @@ public class MetrologyConfigurationUpdaterImpl implements MetrologyConfiguration
     @Override
     public MetrologyConfigurationUpdater setDescription(String description) {
         this.underConstruction.setDescription(description);
+        return this;
+    }
+
+    @Override
+    public MetrologyConfigurationUpdater setServiceCategory(ServiceCategory serviceCategory) {
+        this.underConstruction.setServiceCategory(serviceCategory);
         return this;
     }
 
