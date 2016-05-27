@@ -563,6 +563,7 @@ public class DeviceTypeResource {
 
     @DELETE
     @Path("/{id}/files/{fileId}")
+    @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)

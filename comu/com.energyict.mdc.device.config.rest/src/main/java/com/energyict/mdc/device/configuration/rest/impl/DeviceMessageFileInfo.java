@@ -13,4 +13,8 @@ public class DeviceMessageFileInfo {
         this.creationDate = file.getCreateTime().toEpochMilli();
     }
 
+    public DeviceMessageFileInfo() {
+
+    }
+
 }
