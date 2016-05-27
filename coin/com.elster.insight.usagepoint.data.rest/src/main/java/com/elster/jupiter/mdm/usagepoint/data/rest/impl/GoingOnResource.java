@@ -3,15 +3,9 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.bpm.ProcessInstanceInfo;
 import com.elster.jupiter.bpm.UserTaskInfo;
-import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.issue.share.IssueFilter;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.KnownAmrSystem;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -20,7 +14,6 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.users.User;
-import com.elster.jupiter.util.streams.Functions;
 
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -65,7 +58,7 @@ public class GoingOnResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    public Response getGoingOn(@PathParam("mRID") String mrid, @BeanParam JsonQueryParameters queryParameters, @Context SecurityContext securityContext, @HeaderParam("authorization") String auth) {
+    public Response getGoingOn(@PathParam("mRID") String mrid, @BeanParam JsonQueryParameters queryParameters, @Context SecurityContext securityContext, @HeaderParam("authorization") String auth, @HeaderParam("X-CONNEXO-APPLICATION-NAME") String appKey) {
 
         UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mrid);
 
@@ -81,7 +74,7 @@ public class GoingOnResource {
                 .map(goingOnInfoFactory::toGoingOnInfo)
                 .collect(Collectors.toList());
 
-        List<GoingOnInfo> processInstances = bpmService.getRunningProcesses(auth, filterFor(usagePoint))
+        List<GoingOnInfo> processInstances = bpmService.getRunningProcesses(auth, filterFor(usagePoint), appKey)
                 .processes
                 .stream()
                 .map(goingOnInfoFactory::toGoingOnInfo)
