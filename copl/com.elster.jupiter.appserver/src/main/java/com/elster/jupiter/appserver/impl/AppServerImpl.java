@@ -22,7 +22,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.soap.whiteboard.EndPointConfiguration;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
@@ -41,9 +40,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
+import static java.util.stream.Collectors.toList;
 
 @UniqueCaseInsensitive(fields = "name", groups = Save.Create.class, message = "{" + MessageSeeds.Keys.NAME_MUST_BE_UNIQUE + "}")
 public class AppServerImpl implements AppServer {
@@ -142,7 +141,7 @@ public class AppServerImpl implements AppServer {
             importSchedulesOnAppServer = getImportScheduleOnAppServerFactory().find("appServer", this)
                     .stream()
                     .filter(importService -> importService.getAppServer().getName().equals(this.getName()))
-                    .collect(Collectors.toList());
+                    .collect(toList());
         }
         return importSchedulesOnAppServer;
     }
@@ -278,13 +277,22 @@ public class AppServerImpl implements AppServer {
         Objects.nonNull(endPointConfiguration);
         List<WebServiceForAppServer> links = dataModel.query(WebServiceForAppServer.class)
                 .select(
-                        Where.where(WebServiceForAppServerImpl.Fields.EndPointConfiguration.fieldName())
+                        where(WebServiceForAppServerImpl.Fields.EndPointConfiguration.fieldName())
                                 .isEqualTo(endPointConfiguration)
-                                .and(Where.where(WebServiceForAppServerImpl.Fields.AppServer.fieldName())
+                                .and(where(WebServiceForAppServerImpl.Fields.AppServer.fieldName())
                                         .isEqualTo(this)));
         if (!links.isEmpty()) {
             dataModel.mapper(WebServiceForAppServer.class).remove(links.get(0)); // there can only be one anyway
         }
+    }
+
+    @Override
+    public List<EndPointConfiguration> supportedEndPoints() {
+        List<WebServiceForAppServer> links =
+                dataModel
+                        .query(WebServiceForAppServer.class)
+                        .select(where(WebServiceForAppServerImpl.Fields.AppServer.fieldName()).isEqualTo(this));
+        return links.stream().map(WebServiceForAppServer::getEndPointConfiguration).collect(toList());
     }
 
     private SubscriberExecutionSpecImpl getSubscriberExecutionSpec(SubscriberExecutionSpec subscriberExecutionSpec) {

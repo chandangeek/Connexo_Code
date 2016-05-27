@@ -62,7 +62,8 @@ import java.util.stream.Stream;
                 "osgi.command.function=getTimeZones",
                 "osgi.command.function=report",
                 "osgi.command.function=setLogLevel",
-                "osgi.command.function=supportWebService"
+                "osgi.command.function=supportEndPoint",
+                "osgi.command.function=supportedEndPoints"
         }, immediate = true)
 public class AppServiceConsoleService {
 
@@ -377,12 +378,12 @@ public class AppServiceConsoleService {
                 .forEach(System.out::println);
     }
 
-    public void supportWebService() {
-        System.out.println("usage: supportWebService <EndPoint>");
+    public void supportEndPoint() {
+        System.out.println("usage: supportEndPoint <EndPoint>");
         System.out.println("  The named end point (EndPointConfiguration) will be published on this appserver when the end point gets activated");
     }
 
-    public void supportWebService(String endPointConfigName) {
+    public void supportEndPoint(String endPointConfigName) {
         threadPrincipalService.set(() -> "console");
         try (TransactionContext context = transactionService.getContext()) {
 
@@ -401,6 +402,16 @@ public class AppServiceConsoleService {
         } finally {
             threadPrincipalService.clear();
         }
+    }
+
+    public void supportedEndPoints() {
+        Optional<AppServer> appServer = appService.getAppServer();
+        if (!appServer.isPresent()) {
+            System.err.println("You do not seem to be running an app server on this machine.");
+            return;
+        }
+
+        appServer.get().supportedEndPoints().stream().map(EndPointConfiguration::getName).forEach(System.out::println);
     }
 
     private void printSubscriberExecutionSpecs(Stream<AppServer> appServerStream) {

@@ -72,6 +72,15 @@ public interface AppServer {
      */
     void dropEndPointSupport(EndPointConfiguration endPointConfiguration);
 
+    /**
+     * Get a list of EndPointConfigurations that will be used to publish endpoints once the config is enabled.
+     * Once the config is enabled, this appserver will publish an endpoint (for inbound) or register a service (for outbound)
+     * Upon disabling, the created object will be torn down again.
+     *
+     * @return List of supported configurations
+     */
+    List<EndPointConfiguration> supportedEndPoints();
+
     interface BatchUpdate extends AutoCloseable {
 
         SubscriberExecutionSpec createActiveSubscriberExecutionSpec(SubscriberSpec subscriberSpec, int threadCount);
