@@ -317,9 +317,14 @@ public class BpmServiceImpl implements BpmService, InstallService, PrivilegesPro
 
     @Override
     public ProcessInstanceInfos getRunningProcesses(String authorization, String filter) {
+        return getRunningProcesses(authorization, filter, null);
+    }
+
+    @Override
+    public ProcessInstanceInfos getRunningProcesses(String authorization, String filter, String appKey) {
         ProcessInstanceInfos runningProcesses = this.getBpmServer().getRunningProcesses(authorization, filter);
 
-        List<BpmProcessDefinition> activeProcesses = this.getActiveBpmProcessDefinitions();
+        List<BpmProcessDefinition> activeProcesses = appKey != null ? this.getActiveBpmProcessDefinitions(appKey) : this.getActiveBpmProcessDefinitions();
         List<ProcessInstanceInfo> filteredRunningProcesses = runningProcesses.processes.stream()
                 .filter(process -> activeProcesses.stream()
                         .anyMatch(activeProcess -> process.name.equals(activeProcess.getProcessName()) && process.version
