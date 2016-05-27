@@ -17,7 +17,7 @@ Ext.define('Mdc.metrologyconfiguration.view.ActionsMenu', {
         }
     ],
     listeners: {
-        beforerender: function () {
+        beforeshow: function () {
             var me = this,
                 isActive = me.record.get('status').id === 'active',
                 removeItem = me.down('[action=remove]');
