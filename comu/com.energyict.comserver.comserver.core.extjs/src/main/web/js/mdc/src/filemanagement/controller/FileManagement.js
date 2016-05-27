@@ -23,6 +23,10 @@ Ext.define('Mdc.filemanagement.controller.FileManagement', {
         {
             ref: 'editForm',
             selector: 'files-devicetype-edit-specs-form'
+        },
+        {
+            ref: 'setup',
+            selector: 'device-type-files-setup'
         }
     ],
 
@@ -37,7 +41,7 @@ Ext.define('Mdc.filemanagement.controller.FileManagement', {
             'files-devicetype-edit-specs-form #files-save-specs-button': {
                 click: me.saveFileManagementSettings
             },
-            '#files-grid filefield': {
+            'form filefield': {
                 change: me.uploadFile
             }
         });
@@ -141,7 +145,6 @@ Ext.define('Mdc.filemanagement.controller.FileManagement', {
         record.beginEdit();
         record.set('fileManagementEnabled', form.down('#files-allowed-radio-field').checked);
         record.endEdit(true);
-        debugger;
         record.save({
             success: function () {
                 me.getController('Uni.controller.history.Router').getRoute('administration/devicetypes/view/filemanagement', {deviceTypeId: me.deviceTypeId}).forward();
@@ -156,20 +159,19 @@ Ext.define('Mdc.filemanagement.controller.FileManagement', {
         });
     },
 
-    uploadFile: function () {
+    uploadFile: function (fileField) {
         var me = this,
-            filesGrid = me.getFilesGrid(),
-            form = filesGrid.down('form').getEl().dom,
+            setup = me.getSetup(),
+            form,
             store = me.getStore('Mdc.filemanagement.store.Files'),
             max_file_size = 2 * 1024 * 1024;
+        if(fileField.up('#no-files')) {
+            form = setup.down('files-devicetype-preview-container').down('#no-files').down('form').getEl().dom;
+        } else {
+            form = setup.down('files-devicetype-preview-container').down('#files-grid').down('form').getEl().dom;
+        }
         store.getProxy().setUrl(me.deviceTypeId);
-        filesGrid.setLoading();
-        //if (e.total > max_file_size) {
-        //    me.getApplication().getController('Uni.controller.Error')
-        //        .showError(Uni.I18n.translate('general.failed.to.upload.file', 'MDC', 'Failed to upload file'),
-        //            Uni.I18n.translate('general.fileSizeExceeds2MB', 'MDC', 'File size exceeds 2MB'));
-        //    filesGrid.setLoading(false);
-        //} else {
+        setup.setLoading();
         Ext.Ajax.request({
             url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/files/upload',
             method: 'POST',
@@ -177,6 +179,7 @@ Ext.define('Mdc.filemanagement.controller.FileManagement', {
             headers: {'Content-type': 'multipart/form-data'},
             isFormUpload: true,
             callback: function (config, success, response) {
+                fileField.reset();
                 if (response.responseText) {
                     var responseObject = JSON.parse(response.responseText);
                     if (!responseObject.success) {
@@ -184,11 +187,16 @@ Ext.define('Mdc.filemanagement.controller.FileManagement', {
                             .showError(Uni.I18n.translate('general.failed.to.upload.file', 'MDC', 'Failed to upload file'), responseObject.message);
                     }
                 }
-                store.load();
-                filesGrid.setLoading(false);
+                store.load({
+                    callback: function (records, operation, success) {
+                        if (success === true) {
+                            me.updateCounter(store.getCount());
+                        }
+                    }
+                });
+                setup.setLoading(false);
             }
         });
-        //}
     }
 
 })

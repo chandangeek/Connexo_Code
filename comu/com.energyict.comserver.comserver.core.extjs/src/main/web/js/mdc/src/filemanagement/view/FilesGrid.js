@@ -44,6 +44,9 @@ Ext.define('Mdc.filemanagement.view.FilesGrid', {
                 displayMsg: Uni.I18n.translate('filemanagement.pagingtoolbartop.displayMsg', 'MDC', 'No files'),
                 items: [
                     {
+                        style: {
+                            marginBottom: '0'
+                        },
                         xtype: 'form',
                         autoEl: {
                             tag: 'form',
@@ -52,10 +55,16 @@ Ext.define('Mdc.filemanagement.view.FilesGrid', {
                         items: [{
                             xtype: 'filefield',
                             name: 'uploadField',
+                            style: {
+                                marginBottom: '0'
+                            },
                             buttonText: Uni.I18n.translate('filemanagement.addFile', 'MDC', 'Add file'),
                             privileges: Mdc.privileges.DeviceType.admin,
                             buttonConfig: {
-                                ui: 'default'
+                                ui: 'default',
+                                style: {
+                                    marginBottom: '0'
+                                }
                             },
                             buttonOnly: true,
                             itemId: 'add-file-btn',

@@ -7,10 +7,13 @@ Ext.define('Mdc.filemanagement.view.Specifications', {
         'Mdc.filemanagement.view.SpecificationsActionMenu'
     ],
     ui: 'large',
+    showTitle: false,
 
     initComponent: function () {
         var me = this;
-        me.title =  Uni.I18n.translate('general.fileManagement', 'MDC', 'File management');
+        if(me.showTitle) {
+            me.title =  Uni.I18n.translate('general.fileManagement', 'MDC', 'File management');
+        }
         me.tools = [
             {
                 xtype: 'button',

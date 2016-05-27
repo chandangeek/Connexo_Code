@@ -4,7 +4,7 @@ Ext.define('Mdc.filemanagement.view.Setup', {
 
     requires: [
         'Mdc.view.setup.devicetype.SideMenu',
-        'Mdc.filemanagement.view.FilesGrid',
+        'Mdc.filemanagement.view.PreviewContainer',
         'Mdc.filemanagement.view.Specifications'
     ],
 
@@ -54,8 +54,8 @@ Ext.define('Mdc.filemanagement.view.Setup', {
                                 //disabled: true,
                                 items: [
                                     {
-                                        xtype: 'files-grid',
-                                        itemId: 'files-grid',
+                                        xtype: 'files-devicetype-preview-container',
+                                        itemId: 'files-devicetype-preview-container',
                                         deviceTypeId: me.deviceTypeId
                                     }
 
@@ -71,7 +71,8 @@ Ext.define('Mdc.filemanagement.view.Setup', {
                 ui: 'large',
                 items: [
                     {
-                        xtype: 'files-specifications-preview-panel'
+                        xtype: 'files-specifications-preview-panel',
+                        showTitle: true
                     }
                 ],
                 margin: '-17 0 0 0'
