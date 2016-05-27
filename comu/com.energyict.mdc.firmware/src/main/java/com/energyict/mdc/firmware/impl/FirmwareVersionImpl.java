@@ -13,11 +13,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.firmware.FirmwareService;
-import com.energyict.mdc.firmware.FirmwareStatus;
-import com.energyict.mdc.firmware.FirmwareType;
-import com.energyict.mdc.firmware.FirmwareVersion;
-import com.energyict.mdc.firmware.FirmwareVersionBuilder;
+import com.energyict.mdc.firmware.*;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Max;
@@ -54,7 +50,6 @@ public final class FirmwareVersionImpl implements FirmwareVersion {
     private boolean hasFirmwareFile = false; // boolean indicating whether or not the firmware file has been set/updated
     @SuppressWarnings("unused")
     private Instant createTime;
-    @SuppressWarnings("unused")
     private Instant modTime;
     @SuppressWarnings("unused")
     private String userName;
@@ -158,6 +153,11 @@ public final class FirmwareVersionImpl implements FirmwareVersion {
     }
 
     @Override
+    public InputStream getFirmwareFileAsStream() {
+        return firmwareFile.getBinaryStream();
+    }
+
+    @Override
     public void setExpectedFirmwareSize(long fileSize) {
         this.firmwareFileSize = fileSize;
         this.hasFirmwareFile = true;
@@ -207,6 +207,10 @@ public final class FirmwareVersionImpl implements FirmwareVersion {
         } catch (IOException e) {
             throw new FirmwareIOException(thesaurus, e);
         }
+    }
+
+    public Instant getModTime() {
+        return modTime;
     }
 
     /**

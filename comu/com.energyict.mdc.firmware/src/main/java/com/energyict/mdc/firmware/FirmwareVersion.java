@@ -3,6 +3,9 @@ package com.energyict.mdc.firmware;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.protocol.api.firmware.BaseFirmwareVersion;
 
+import java.io.InputStream;
+import java.time.Instant;
+
 public interface FirmwareVersion extends BaseFirmwareVersion {
 
     FirmwareType getFirmwareType();
@@ -19,6 +22,8 @@ public interface FirmwareVersion extends BaseFirmwareVersion {
 
     byte[] getFirmwareFile();
 
+    InputStream getFirmwareFileAsStream();
+
     DeviceType getDeviceType();
 
     void setFirmwareFile(byte[] firmwareFile);
@@ -33,4 +38,5 @@ public interface FirmwareVersion extends BaseFirmwareVersion {
 
     long getVersion();
 
+    Instant getModTime();
 }
