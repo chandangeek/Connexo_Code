@@ -11,13 +11,15 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.model.ComScheduleBuilder;
 import com.energyict.mdc.tasks.ComTask;
-import org.apache.commons.lang3.StringUtils;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
+
+import com.google.common.base.Strings;
 
 import java.time.Instant;
 import java.util.Optional;
+
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -121,7 +123,7 @@ public class ComScheduleImplTest extends PersistenceTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.TOO_LONG + "}", property = "name")
     public void testNameMaxLength() throws Exception {
-        String illegalName = StringUtils.repeat("x", Table.NAME_LENGTH + 1);
+        String illegalName = Strings.repeat("x", Table.NAME_LENGTH + 1);
         inMemoryPersistence.getSchedulingService()
                 .newComSchedule(illegalName, temporalExpression(TEN_MINUTES, TWENTY_SECONDS), Instant.now())
                 .addComTask(simpleComTask)
@@ -132,7 +134,7 @@ public class ComScheduleImplTest extends PersistenceTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.TOO_LONG + "}", property = "mRID")
     public void testMridMaxLength() throws Exception {
-        String illegalMrid = StringUtils.repeat("x", Table.NAME_LENGTH + 1);
+        String illegalMrid = Strings.repeat("x", Table.NAME_LENGTH + 1);
         inMemoryPersistence.getSchedulingService()
                 .newComSchedule("name", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), Instant.now())
                 .mrid(illegalMrid)
