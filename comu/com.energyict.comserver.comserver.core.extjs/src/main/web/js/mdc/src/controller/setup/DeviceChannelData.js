@@ -20,7 +20,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     stores: [
         'Mdc.customattributesonvaluesobjects.store.ChannelCustomAttributeSets',
         'Mdc.store.ChannelOfLoadProfileOfDeviceData',
-        'Mdc.store.DataIntervalAndZoomLevels',
+        'Uni.store.DataIntervalAndZoomLevels',
         'Mdc.store.LoadProfileDataDurations',
         'Mdc.store.Clipboard',
         'Mdc.store.Estimators',
@@ -271,7 +271,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
     setDataFilter: function (channel, contentName, router) {
         var me = this,
-            intervalStore = me.getStore('Mdc.store.DataIntervalAndZoomLevels'),
+            intervalStore = me.getStore('Uni.store.DataIntervalAndZoomLevels'),
             dataIntervalAndZoomLevels = intervalStore.getIntervalRecord(channel.get('interval')),
             all = dataIntervalAndZoomLevels.get('all'),
             durationsStore = me.getStore('Mdc.store.LoadProfileDataDurations'),

@@ -1,11 +1,11 @@
 Ext.define('Mdc.view.setup.devicechannels.GraphView', {
-    extend: 'Mdc.view.setup.highstock.GraphView',
+    extend: 'Uni.view.highstock.GraphView',
 
     alias: 'widget.deviceLoadProfileChannelGraphView',
     itemId: 'deviceLoadProfileChannelGraphView',
 
     requires: [
-        'Mdc.view.setup.highstock.GraphView'
+        'Uni.view.highstock.GraphView'
     ],
 
     items: [

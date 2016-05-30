@@ -62,7 +62,7 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsFilter', {
 
     getIntervalLoadProfileParam: function () {
         var me = this,
-            zoomLevelsStore = Ext.getStore('Mdc.store.DataIntervalAndZoomLevels'),
+            zoomLevelsStore = Ext.getStore('Uni.store.DataIntervalAndZoomLevels'),
             loadProfileStore = Ext.getStore('Mdc.store.LoadProfilesOfDevice'),
             filterParams = me.getFilterParams(false, !me.filterObjectEnabled),
             result = [];
