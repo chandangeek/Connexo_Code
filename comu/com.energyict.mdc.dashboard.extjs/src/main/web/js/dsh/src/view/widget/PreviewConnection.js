@@ -149,7 +149,7 @@ Ext.define('Dsh.view.widget.PreviewConnection', {
                             return '-';
                         } else {
                             return '<tpl><span class="icon-checkmark"></span>' + success + '<br></tpl>' +
-                                '<tpl><span class="icon-close"></span>' + failed + '<br></tpl>' +
+                                '<tpl><span class="icon-cross"></span>' + failed + '<br></tpl>' +
                                 '<tpl><span class="icon-stop2"></span>' + notCompleted + '</tpl>'
                                 ;
                         }

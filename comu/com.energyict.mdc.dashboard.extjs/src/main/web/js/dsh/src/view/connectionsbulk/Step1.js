@@ -93,7 +93,7 @@ Ext.define('Dsh.view.connectionsbulk.Step1', {
                             var template = '';
                             if (val.numberOfSuccessfulTasks || val.numberOfFailedTasks || val.numberOfIncompleteTasks) {
                                 template += '<span class="icon-checkmark"></span>' + (val.numberOfSuccessfulTasks ? val.numberOfSuccessfulTasks : '0');
-                                template += '<span class="icon-close"></span>' + (val.numberOfFailedTasks ? val.numberOfFailedTasks : '0');
+                                template += '<span class="icon-cross"></span>' + (val.numberOfFailedTasks ? val.numberOfFailedTasks : '0');
                                 template += '<span class="icon-stop2"></span>' + (val.numberOfIncompleteTasks ? val.numberOfIncompleteTasks : '0');
                             }
                             return template;
