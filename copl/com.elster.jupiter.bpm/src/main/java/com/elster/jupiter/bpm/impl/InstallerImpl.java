@@ -10,10 +10,8 @@ import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.exception.ExceptionCatcher;
 
 import javax.inject.Inject;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 //import com.elster.jupiter.bpm.security.Privileges;
@@ -37,35 +35,32 @@ class InstallerImpl implements FullInstaller {
     }
 
     @Override
-    public void install(DataModelUpgrader dataModelUpgrader) {
-        createBPMQueue(messageService);
-        ExceptionCatcher.executing(
-                () -> dataModelUpgrader.upgrade(dataModel, Version.latest()),
-                this::createDefaultRoles
-        ).andHandleExceptionsWith(Throwable::printStackTrace)
-                .execute();
+    public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
+        doTry(
+                "Create BPM queue.",
+                this::createBPMQueue,
+                logger
+        );
+        dataModelUpgrader.upgrade(dataModel, Version.latest());
+        doTry(
+                "Create default roles for BPM",
+                this::createDefaultRoles,
+                logger
+        );
     }
 
-    private void createBPMQueue(MessageService messageService) {
-        try {
-            QueueTableSpec defaultQueueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
-            DestinationSpec destinationSpec = defaultQueueTableSpec.createDestinationSpec(BpmService.BPM_QUEUE_DEST, DEFAULT_RETRY_DELAY_IN_SECONDS);
-            destinationSpec.activate();
-            destinationSpec.subscribe(BpmService.BPM_QUEUE_SUBSC);
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        }
+    private void createBPMQueue() {
+        QueueTableSpec defaultQueueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
+        DestinationSpec destinationSpec = defaultQueueTableSpec.createDestinationSpec(BpmService.BPM_QUEUE_DEST, DEFAULT_RETRY_DELAY_IN_SECONDS);
+        destinationSpec.activate();
+        destinationSpec.subscribe(BpmService.BPM_QUEUE_SUBSC);
     }
 
     private void createDefaultRoles() {
-        try {
-            Group group = userService.createGroup(BPM_DESIGNER_ROLE, BPM_DESIGNER_ROLE_DESCRIPTION);
-            userService.grantGroupWithPrivilege(group.getName(), BpmService.COMPONENTNAME, new String[] {"privilege.design.bpm"});
-            //TODO: workaround: attached Bpm designer to user admin !!! to remove this line when the user can be created/added to system
-            userService.getUser(1).ifPresent(u -> u.join(group));
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        }
+        Group group = userService.createGroup(BPM_DESIGNER_ROLE, BPM_DESIGNER_ROLE_DESCRIPTION);
+        userService.grantGroupWithPrivilege(group.getName(), BpmService.COMPONENTNAME, new String[]{"privilege.design.bpm"});
+        //TODO: workaround: attached Bpm designer to user admin !!! to remove this line when the user can be created/added to system
+        userService.getUser(1).ifPresent(u -> u.join(group));
     }
 
 }
