@@ -7,26 +7,30 @@ import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.FullInstaller;
 
 import javax.inject.Inject;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class InstallerImpl implements FullInstaller {
 
     private final DataModel dataModel;
-	private final MessageService messageService;
+    private final MessageService messageService;
 
-	@Inject
+    @Inject
     public InstallerImpl(DataModel dataModel, MessageService messageService) {
         this.dataModel = dataModel;
-		this.messageService = messageService;
-	}
+        this.messageService = messageService;
+    }
 
-    public void install(DataModelUpgrader dataModelUpgrader) {
-		dataModelUpgrader.upgrade(dataModel, Version.latest());
-		createQueueTables();
-	}
-	
-	private void createQueueTables() {
-		messageService.createQueueTableSpec("MSG_RAWQUEUETABLE", "RAW", false);
-		messageService.createQueueTableSpec("MSG_RAWTOPICTABLE" , "RAW", true);
-	}
-	
+    public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
+        dataModelUpgrader.upgrade(dataModel, Version.latest());
+        createQueueTables(logger);
+    }
+
+    private void createQueueTables(Logger logger) {
+        messageService.createQueueTableSpec("MSG_RAWQUEUETABLE", "RAW", false);
+        logger.log(Level.INFO, "Created QueueTable MSG_RAWQUEUETABLE");
+        messageService.createQueueTableSpec("MSG_RAWTOPICTABLE", "RAW", true);
+        logger.log(Level.INFO, "Created QueueTable MSG_RAWQUEUETABLE");
+    }
+
 }
