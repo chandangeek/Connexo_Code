@@ -106,7 +106,7 @@ public class MdcAppInstaller implements InstallService {
                 com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_TYPE,
 
                 //Devices
-                com.energyict.mdc.device.data.security.Privileges.Constants.ADD_DEVICE,
+                com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTRATE_DEVICE,
                 com.energyict.mdc.device.data.security.Privileges.Constants.REMOVE_DEVICE,
                 com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DEVICE,
                 com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTRATE_DEVICE_ATTRIBUTE,
