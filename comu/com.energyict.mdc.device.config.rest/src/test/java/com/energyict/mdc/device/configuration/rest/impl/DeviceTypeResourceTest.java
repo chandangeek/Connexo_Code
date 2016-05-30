@@ -1,5 +1,12 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.calendar.Calendar;
+import com.elster.jupiter.calendar.Category;
+import com.elster.jupiter.calendar.DayType;
+import com.elster.jupiter.calendar.Event;
+import com.elster.jupiter.calendar.EventOccurrence;
+import com.elster.jupiter.calendar.Period;
+import com.elster.jupiter.calendar.PeriodTransition;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.devtools.tests.Answers;
@@ -22,6 +29,7 @@ import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
@@ -54,15 +62,22 @@ import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.math.BigDecimal;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.Year;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.TimeZone;
 import java.util.stream.LongStream;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
@@ -75,6 +90,7 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -1587,6 +1603,88 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         Entity<ChangeDeviceLifeCycleInfo> json = Entity.json(info);
         Response response = target("/devicetypes/1/devicelifecycle").request().put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+    }
+
+    @Test
+    @Ignore
+    public void getCalendars() throws Exception {
+        mockCalendar();
+        Response response = target("/devicetypes/timeofusecalendars").request().get();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        JsonModel jsonModel = JsonModel.model((InputStream) response.getEntity());
+        assertThat(jsonModel.<String>get("[0].name")).isEqualTo("CALENDAR_NAME");
+    }
+
+    @Test
+    public void getCalendarsForDeviceType() throws Exception {
+        DeviceType deviceType = mockDeviceType("mRID", 1L);
+        when(deviceConfigurationService.findDeviceType(1L)).thenReturn(Optional.of(deviceType));
+        Calendar calendar = mockCalendar();
+        AllowedCalendar allowedCalendar = mock(AllowedCalendar.class);
+        when(allowedCalendar.isGhost()).thenReturn(false);
+        when(allowedCalendar.getName()).thenReturn("CALENDAR_NAME");
+        when(allowedCalendar.getCalendar()).thenReturn(Optional.of(calendar));
+        when(deviceType.getAllowedCalendars()).thenReturn(Collections.singletonList(allowedCalendar));
+
+        Response response = target("/devicetypes/1/timeofuse").request().get();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        JsonModel jsonModel = JsonModel.model((InputStream) response.getEntity());
+        assertThat(jsonModel.<String>get("[0].name")).isEqualTo("CALENDAR_NAME");
+        assertThat(jsonModel.<Boolean>get("[0].ghost")).isEqualTo(false);
+        assertThat(jsonModel.<String>get("[0].calendar.name")).isEqualTo("CALENDAR_NAME");
+    }
+
+    private Calendar mockCalendar() {
+        Calendar calendar = mock(Calendar.class);
+        when(calendar.getId()).thenReturn(1L);
+        when(calendar.getName()).thenReturn("CALENDAR_NAME");
+        when(calendar.getDescription()).thenReturn("CALENDAR_DESCRIPTION");
+        when(calendar.getStartYear()).thenReturn(Year.of(2010));
+
+        Category category = mock(Category.class);
+        when(category.getName()).thenReturn("ToU");
+        when(calendar.getCategory()).thenReturn(category);
+
+        when(calendar.getTimeZone()).thenReturn(TimeZone.getDefault());
+
+        Event event = mock(Event.class);
+        when(event.getId()).thenReturn(2L);
+        when(event.getName()).thenReturn("EVENT_NAME");
+        when(event.getCode()).thenReturn(3L);
+        when(calendar.getEvents()).thenReturn(Collections.singletonList(event));
+
+        DayType dayType = mock(DayType.class);
+        EventOccurrence eventOccurrence = mock(EventOccurrence.class);
+        when(eventOccurrence.getEvent()).thenReturn(event);
+        when(eventOccurrence.getId()).thenReturn(4L);
+        when(eventOccurrence.getFrom()).thenReturn(LocalTime.MIDNIGHT);
+        when(dayType.getEventOccurrences()).thenReturn(Collections.singletonList(eventOccurrence));
+        when(dayType.getId()).thenReturn(5L);
+        when(dayType.getName()).thenReturn("DAY_TYPE_NAME");
+
+        ArrayList<DayType> dayTypes = new ArrayList<>();
+        dayTypes.add(dayType);
+
+        when(calendar.getDayTypes()).thenReturn(dayTypes);
+
+        PeriodTransition periodTransition = mock(PeriodTransition.class);
+        Period period = mock(Period.class);
+        when(period.getName()).thenReturn("PERIOD_NAME");
+        when(period.getId()).thenReturn(1L);
+        when(periodTransition.getPeriod()).thenReturn(period);
+        for(DayOfWeek dayOfWeek: DayOfWeek.values()) {
+            when(period.getDayType(dayOfWeek)).thenReturn(dayType);
+        }
+        when(periodTransition.getOccurrence()).thenReturn(LocalDate.of(2016,3,7));
+
+        List<PeriodTransition> periodTransitions = new ArrayList<>();
+        periodTransitions.add(periodTransition);
+
+        when(calendar.getTransitions()).thenReturn(periodTransitions);
+        when(calendarService.findCalendar(1)).thenReturn(Optional.of(calendar));
+        when(calendarService.findAllCalendars()).thenReturn(Collections.singletonList(calendar));
+
+        return calendar;
     }
 
     private ConnectionTask<?, ?> mockConnectionTask(long partialConnectionTaskId) {

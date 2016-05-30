@@ -2,6 +2,7 @@ package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.security.Privileges;
+import com.energyict.mdc.protocol.api.calendars.ProtocolSupportedCalendarOptions;
 
 import java.util.logging.Level;
 
@@ -125,7 +126,18 @@ public enum MessageSeeds implements MessageSeed {
     CONCURRENT_FAIL_DEACTIVATE_TITLE(211, "ConcurrentFailDeActivateTitle", "Failed to deactivate ''{0}''"),
     CONCURRENT_FAIL_ACTIVATE_BODY(212, "ConcurrentFailActivateBody", "{0} has changed since the page was last updated."),
     CONCURRENT_FAIL_DEACTIVATE_BODY(213, "ConcurrentFailDeActivateBody", "{0} has changed since the page was last updated."),
+    CALENDAR_OPTION_SEND(214, Keys.CALENDAR_OPTION_SEND, "Send activity calendar"),
+    CALENDAR_OPTION_SEND_WITH_DATE(215, Keys.CALENDAR_OPTION_SEND_WITH_DATE, "Send activity calendar with activation date"),
+    CALENDAR_OPTION_SEND_WITH_DATE_TYPE(216, Keys.CALENDAR_OPTION_SEND_WITH_DATE_TYPE, "Send activity calendar with activation date and type"),
+    CALENDAR_OPTION_SEND_WITH_DATE_CONTRACT(217, Keys.CALENDAR_OPTION_SEND_WITH_DATE_CONTRACT, "Send activity calendar with activation date and contract"),
+    CALENDAR_OPTION_SEND_WITH_DATETIME(218, Keys.CALENDAR_OPTION_SEND_WITH_DATETIME, "Send activity calendar with activation date and time"),
+    CALENDAR_OPTION_SEND_SPECIAL_DAYS(219, Keys.CALENDAR_OPTION_SEND_SPECIAL_DAYS, "Send special days calendar"),
+    CALENDAR_OPTION_SEND_SPECIAL_DAYS_TYPE(220, Keys.CALENDAR_OPTION_SEND_SPECIAL_DAYS_TYPE, "Send special days calendar with type"),
+    CALENDAR_OPTION_SEND_SPECIAL_DAYS_CONTRACT_DATE(221, Keys.CALENDAR_OPTION_SEND_SPECIAL_DAYS_CONTRACT_DATE, "Send special days calendar with contract and activation date"),
+    CALENDAR_OPTION_CLEAR_DISABLE_TARIFF(222, Keys.CALENDAR_OPTION_CLEAR_DISABLE_TARIFF, "Clear and disable passive tariff"),
+    CALENDAR_OPTION_ACTIVATE_PASSIVE(223, Keys.CALENDAR_OPTION_ACTIVATE_PASSIVE, "Activate passive calendar"),
     ;
+
 
     private final int number;
     private final String key;
@@ -254,5 +266,17 @@ public enum MessageSeeds implements MessageSeed {
         public static final String WAVENISSECURITYSUPPORT_ENCRYPTIONLEVEL_0 = "WavenisSecuritySupport.encryptionlevel.0";
         public static final String SOLVED = "Solved";
         public static final String UNSOLVED = "Unsolved";
+
+        public static final String CALENDAR_OPTION_SEND = ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR.getId();
+        public static final String CALENDAR_OPTION_SEND_WITH_DATE= ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR_WITH_DATE.getId();
+        public static final String CALENDAR_OPTION_SEND_WITH_DATE_TYPE = ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR_WITH_DATE_AND_TYPE.getId();
+        public static final String CALENDAR_OPTION_SEND_WITH_DATE_CONTRACT = ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR_WITH_DATE_AND_CONTRACT.getId();
+        public static final String CALENDAR_OPTION_SEND_WITH_DATETIME = ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR_WITH_DATETIME.getId();
+        public static final String CALENDAR_OPTION_SEND_SPECIAL_DAYS = ProtocolSupportedCalendarOptions.SEND_SPECIAL_DAYS_CALENDAR.getId();
+        public static final String CALENDAR_OPTION_SEND_SPECIAL_DAYS_TYPE = ProtocolSupportedCalendarOptions.SEND_SPECIAL_DAYS_CALENDAR_WITH_TYPE.getId();
+        public static final String CALENDAR_OPTION_SEND_SPECIAL_DAYS_CONTRACT_DATE = ProtocolSupportedCalendarOptions.SEND_SPECIAL_DAYS_CALENDAR_WITH_CONTRACT_AND_DATE.getId();
+        public static final String CALENDAR_OPTION_CLEAR_DISABLE_TARIFF = ProtocolSupportedCalendarOptions.CLEAR_AND_DISABLE_PASSIVE_TARIFF.getId();
+        public static final String CALENDAR_OPTION_ACTIVATE_PASSIVE = ProtocolSupportedCalendarOptions.ACTIVATE_PASSIVE_CALENDAR.getId();
+
     }
 }

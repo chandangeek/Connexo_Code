@@ -1,5 +1,9 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.calendar.Calendar;
+import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.calendar.rest.CalendarInfo;
+import com.elster.jupiter.calendar.rest.CalendarInfoFactory;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
@@ -13,6 +17,7 @@ import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.common.services.ListPager;
+import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -20,6 +25,7 @@ import com.energyict.mdc.device.config.DeviceTypePurpose;
 import com.energyict.mdc.device.config.IncompatibleDeviceLifeCycleChangeException;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.config.TimeOfUseOptions;
 import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
@@ -30,11 +36,13 @@ import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.RegisterTypeInfo;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.calendars.ProtocolSupportedCalendarOptions;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Provider;
+import javax.swing.text.html.Option;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -48,8 +56,14 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Year;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -68,6 +82,8 @@ public class DeviceTypeResource {
     private final Provider<DeviceConfigConflictMappingResource> deviceConflictMappingResourceProvider;
     private final Provider<LoadProfileTypeResource> loadProfileTypeResourceProvider;
     private final ProtocolPluggableService protocolPluggableService;
+    private final CalendarInfoFactory calendarInfoFactory;
+    private final CalendarService calendarService;
     private final Thesaurus thesaurus;
 
     @Inject
@@ -79,6 +95,8 @@ public class DeviceTypeResource {
             ProtocolPluggableService protocolPluggableService,
             Provider<DeviceConfigurationResource> deviceConfigurationResourceProvider,
             Provider<LoadProfileTypeResource> loadProfileTypeResourceProvider,
+            CalendarInfoFactory calendarInfoFactory,
+            CalendarService calendarService,
             Thesaurus thesaurus) {
         this.resourceHelper = resourceHelper;
         this.masterDataService = masterDataService;
@@ -87,6 +105,8 @@ public class DeviceTypeResource {
         this.loadProfileTypeResourceProvider = loadProfileTypeResourceProvider;
         this.deviceConfigurationResourceProvider = deviceConfigurationResourceProvider;
         this.deviceConflictMappingResourceProvider = deviceConflictMappingResourceProvider;
+        this.calendarInfoFactory = calendarInfoFactory;
+        this.calendarService = calendarService;
         this.thesaurus = thesaurus;
     }
 
@@ -486,6 +506,153 @@ public class DeviceTypeResource {
         return Response.ok().build();
     }
 
+    @GET
+    @Path("/{id}/timeofuse")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE_TYPE,Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
+    public Response getCalendars(@PathParam("id") long id) {
+        List<AllowedCalendarInfo> infos;
+        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
+        infos = deviceType.getAllowedCalendars()
+                .stream()
+                .map(this::getAllowedCalendarInfo)
+                .collect(Collectors.toList());
+
+        return Response.ok(infos).build();
+    }
+
+    @DELETE
+    @Transactional
+    @Path("/{id}/timeofuse/{calendarId}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
+    public Response removeCalendar(@PathParam("id") long id, @PathParam("calendarId") long calendarId, AllowedCalendarInfo allowedCalendarInfo) {
+        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
+        deviceType.removeCalendar(allowedCalendarInfo.id);
+        return Response.ok().build();
+    }
+
+
+    @GET
+    @Path("/{id}/timeofuse/{calendarId}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE_TYPE,Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
+    public Response getCalendar(@PathParam("id") long id, @PathParam("calendarId") long calendarId, @QueryParam("weekOf") long milliseconds) {
+        if(milliseconds <= 0) {
+            return  Response.ok(calendarService.findCalendar(calendarId)
+                    .map(calendarInfoFactory::detailedFromCalendar)
+                    .orElseThrow(IllegalArgumentException::new)).build();
+        } else {
+            Instant instant = Instant.ofEpochMilli(milliseconds);
+            Calendar calendar = calendarService.findCalendar(calendarId).get();
+            LocalDate localDate = LocalDateTime.ofInstant(instant, ZoneId.of("UTC"))
+                    .toLocalDate();
+
+            return Response.ok(transformToWeekCalendar(calendar, localDate)).build();
+        }
+    }
+
+    @GET
+    @Path("/{id}/unusedcalendars")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
+    public Response getUnusedCalendars(@PathParam("id") long id) {
+        Set<Calendar> usedCalendars;
+        List<CalendarInfo> infos;
+        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
+        usedCalendars = deviceType.getAllowedCalendars()
+                .stream()
+                .filter(ac -> !ac.isGhost())
+                .map(allowedCalendar -> allowedCalendar.getCalendar().get())
+                .collect(Collectors.toSet());
+
+        infos = calendarService.findAllCalendars()
+                .stream()
+                .filter(calendar -> !usedCalendars.contains(calendar))
+                .map(calendarInfoFactory::summaryFromCalendar)
+                .collect(Collectors.toList());
+
+        return Response.ok(infos).build();
+    }
+
+    @PUT
+    @Transactional
+    @Path("/{id}/unusedcalendars")
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
+    public Response addCalendar(@PathParam("id") long id, List<CalendarInfo> calendarInfos) {
+        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
+        calendarInfos.stream()
+                .forEach(info -> deviceType.addCalendar(calendarService.findCalendar(info.id).get()));
+
+        return Response.ok().build();
+    }
+
+    @GET
+    @Transactional
+    @Path("/{id}/timeofuseoptions/{dummyid}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8" )
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE_TYPE,Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
+    public Response getTimeOfUseManagementOptions(@PathParam("id") long id) {
+        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
+        TimeOfUseOptionsInfo timeOfUseOptionsInfo = getTimeOfUseOptions(deviceType);
+
+        return Response.ok(timeOfUseOptionsInfo).build();
+    }
+
+    @PUT
+    @Transactional
+    @Path("/{id}/timeofuseoptions/{dummyid}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8" )
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8" )
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
+    public Response changeTimeOfUseOptions(@PathParam("id") long id, @PathParam("dummyid") long dummyID, TimeOfUseOptionsInfo info) {
+        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
+        Optional<TimeOfUseOptions> timeOfUseOptions = resourceHelper.findAndLockTimeOfUseOptionsByIdAndVersion(deviceType, info.version);
+        if (info.isAllowed && info.allowedOptions != null){
+            Set<ProtocolSupportedCalendarOptions> supportedCalendarOptions = deviceConfigurationService.getSupportedTimeOfUseOptionsFor(deviceType, false);
+            Set<ProtocolSupportedCalendarOptions> newAllowedOptions = info.allowedOptions.stream()
+                    .map(allowedOption -> ProtocolSupportedCalendarOptions.from((String) allowedOption.id))
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .filter(supportedCalendarOptions::contains)
+                    .collect(Collectors.toSet());
+            TimeOfUseOptions options = timeOfUseOptions.orElseGet(() -> deviceConfigurationService.newTimeOfUseOptions(deviceType));
+            options.setOptions(newAllowedOptions);
+            options.save();
+        } else {
+            timeOfUseOptions.ifPresent(TimeOfUseOptions::delete);
+        }
+        return Response.ok(getTimeOfUseOptions(deviceType)).build();
+    }
+
+
+    private TimeOfUseOptionsInfo getTimeOfUseOptions(DeviceType deviceType) {
+        TimeOfUseOptionsInfo timeOfUseOptionsInfo = new TimeOfUseOptionsInfo();
+        Set<ProtocolSupportedCalendarOptions> supportedCalendarOptions = deviceConfigurationService.getSupportedTimeOfUseOptionsFor(deviceType, false);
+        Optional<TimeOfUseOptions> timeOfUseOptions = deviceConfigurationService.findTimeOfUseOptions(deviceType);
+        Set<ProtocolSupportedCalendarOptions> allowedOptions = timeOfUseOptions.map(TimeOfUseOptions::getOptions).orElse(Collections.emptySet());
+
+        supportedCalendarOptions.stream()
+                .forEach(op -> timeOfUseOptionsInfo.supportedOptions.add(new OptionInfo(op.getId(), thesaurus.getString(op.getId(), op.getId()))));
+        allowedOptions.stream()
+                .forEach(op ->
+                timeOfUseOptionsInfo.allowedOptions.add(new OptionInfo(op.getId(), thesaurus.getString(op.getId(), op.getId()))));
+
+        timeOfUseOptionsInfo.isAllowed = !allowedOptions.isEmpty();
+        timeOfUseOptionsInfo.version = timeOfUseOptions.map(TimeOfUseOptions::getVersion).orElse(0L);
+
+        return timeOfUseOptionsInfo;
+
+    }
+
+    private CalendarInfo transformToWeekCalendar(Calendar calendar, LocalDate localDate) {
+        return calendarInfoFactory.detailedWeekFromCalendar(calendar, localDate);
+    }
+
+
     private void updateRegisterTypeAssociations(DeviceType deviceType, List<RegisterTypeInfo> newRegisterTypeInfos) {
         Set<Long> newRegisterTypeIds = asIdz(newRegisterTypeInfos);
         Set<Long> existingRegisterTypeIds = asIds(deviceType.getRegisterTypes());
@@ -565,5 +732,14 @@ public class DeviceTypeResource {
             registerTypeInfos.add(info);
         }
         return registerTypeInfos;
+    }
+
+    private AllowedCalendarInfo getAllowedCalendarInfo(AllowedCalendar allowedCalendar) {
+        if (allowedCalendar.isGhost()) {
+            return new AllowedCalendarInfo(allowedCalendar);
+        } else {
+            return new AllowedCalendarInfo(allowedCalendar, calendarInfoFactory.summaryFromCalendar(allowedCalendar.getCalendar()
+                    .get()));
+        }
     }
 }
