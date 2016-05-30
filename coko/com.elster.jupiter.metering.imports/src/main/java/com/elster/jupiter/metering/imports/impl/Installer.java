@@ -5,9 +5,9 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.upgrade.FullInstaller;
-import com.elster.jupiter.util.exception.ExceptionCatcher;
 
 import javax.inject.Inject;
+import java.util.logging.Logger;
 
 final class Installer implements FullInstaller {
 
@@ -19,17 +19,22 @@ final class Installer implements FullInstaller {
     }
 
     @Override
-    public void install(DataModelUpgrader dataModelUpgrader) {
+    public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
         if (!messageService.getDestinationSpec(UsagePointFileImporterMessageHandler.DESTINATION_NAME).isPresent()) {
-            ExceptionCatcher.executing(
-                    () -> {
-                        QueueTableSpec queueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
-                        DestinationSpec destinationSpec = queueTableSpec.createDestinationSpec(UsagePointFileImporterMessageHandler.DESTINATION_NAME, 60);
-                        destinationSpec.save();
-                        destinationSpec.activate();
-                        destinationSpec.subscribe(UsagePointFileImporterMessageHandler.SUBSCRIBER_NAME);
-                    }
-            ).andHandleExceptionsWith(Throwable::printStackTrace).execute();
+            doTry(
+                    "Create Usage Point import queue",
+                    this::createQueue,
+                    logger
+            );
+            createQueue();
         }
+    }
+
+    private void createQueue() {
+        QueueTableSpec queueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
+        DestinationSpec destinationSpec = queueTableSpec.createDestinationSpec(UsagePointFileImporterMessageHandler.DESTINATION_NAME, 60);
+        destinationSpec.save();
+        destinationSpec.activate();
+        destinationSpec.subscribe(UsagePointFileImporterMessageHandler.SUBSCRIBER_NAME);
     }
 }
