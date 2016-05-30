@@ -20,7 +20,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     stores: [
         'Mdc.customattributesonvaluesobjects.store.ChannelCustomAttributeSets',
         'Mdc.store.ChannelOfLoadProfileOfDeviceData',
-        'Mdc.store.DataIntervalAndZoomLevels',
+        'Uni.store.DataIntervalAndZoomLevels',
         'Mdc.store.LoadProfileDataDurations',
         'Mdc.store.Clipboard',
         'Mdc.store.Estimators',
@@ -125,6 +125,8 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
     showSpecifications: function (mRID, channelId) {
         var me = this;
+        me.fromSpecification = true;
+        me.getController('Mdc.controller.setup.DeviceChannels').fromSpecification = true;
         me.showOverview({mRID: mRID, channelId: channelId}, 'spec')
     },
 
@@ -169,9 +171,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             },
             onDeviceLoad = function(device) {
                 me.getApplication().fireEvent('loadDevice', device);
-                channel.getProxy().setUrl({
-                    mRID: mRID
-                });
+                channel.getProxy().setUrl(mRID);
                 channel.load(channelId, {
                     success: function (channel) {
                         me.getApplication().fireEvent('channelOfLoadProfileOfDeviceLoad', channel);
@@ -235,6 +235,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             widget.down('#custom-attribute-sets-placeholder-form-id').loadStore(customAttributesStore);
         });
         me.fromSpecification = true;
+        me.getController('Mdc.controller.setup.DeviceChannels').fromSpecification = true;
         if (menu) {
             menu.record = channel;
             var validateNowChannel = menu.down('#validateNowChannel');
@@ -270,7 +271,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
     setDataFilter: function (channel, contentName, router) {
         var me = this,
-            intervalStore = me.getStore('Mdc.store.DataIntervalAndZoomLevels'),
+            intervalStore = me.getStore('Uni.store.DataIntervalAndZoomLevels'),
             dataIntervalAndZoomLevels = intervalStore.getIntervalRecord(channel.get('interval')),
             all = dataIntervalAndZoomLevels.get('all'),
             durationsStore = me.getStore('Mdc.store.LoadProfileDataDurations'),
@@ -823,9 +824,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
             success: function (device) {
                 var model = Ext.ModelManager.getModel('Mdc.model.ChannelOfLoadProfilesOfDevice');
-                model.getProxy().setUrl({
-                    mRID: mRID
-                });
+                model.getProxy().setUrl(mRID);
                 model.load(channelId, {
                     success: function (channel) {
 
@@ -870,7 +869,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     },
 
     toPreviousPage: function () {
-        if (this.fromSpecification == true) {
+        if (this.fromSpecification) {
             this.getController('Uni.controller.history.Router').getRoute('devices/device/channels/channel').forward();
         } else {
             this.getController('Uni.controller.history.Router').getRoute('devices/device/channels').forward();
@@ -878,7 +877,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     },
 
     getPreviousPageUrl: function () {
-        if (this.fromSpecification == true) {
+        if (this.fromSpecification) {
             return this.getController('Uni.controller.history.Router').getRoute('devices/device/channels/channel').buildUrl();
         } else {
             return this.getController('Uni.controller.history.Router').getRoute('devices/device/channels').buildUrl();

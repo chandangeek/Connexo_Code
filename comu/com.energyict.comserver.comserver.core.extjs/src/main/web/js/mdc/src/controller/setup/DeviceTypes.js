@@ -404,7 +404,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             record.set(values);
             record.save({
                 success: function (record) {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceType.acknowlegment.added', 'MDC', 'Device type added'));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceType.acknowledgment.added', 'MDC', 'Device type added'));
                     location.href = '#/administration/devicetypes/' + encodeURIComponent(record.get('id'));
                 },
                 failure: function (record, operation) {
@@ -441,7 +441,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                     ? router.getRoute('administration/devicetypes/view').buildUrl()
                     : router.getRoute('administration/devicetypes').buildUrl(),
                 success: function (record) {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceType.acknowlegment.saved', 'MDC', 'Device type saved'));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceType.acknowledgment.saved', 'MDC', 'Device type saved'));
                     router.queryParams.fromDetails ? router.getRoute('administration/devicetypes/view').forward() : router.getRoute('administration/devicetypes').forward();
                 },
                 failure: function (record, operation) {
@@ -496,7 +496,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                 success: function () {
                     var grid = me.getDeviceTypeGrid(),
                         gridPagingToolbar;
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceType.acknowlegment.removed', 'MDC', 'Device type removed'));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceType.acknowledgment.removed', 'MDC', 'Device type removed'));
                     if (router.currentRoute === 'administration/devicetypes/view') {
                         router.getRoute('administration/devicetypes').forward();
                     } else if (grid) {

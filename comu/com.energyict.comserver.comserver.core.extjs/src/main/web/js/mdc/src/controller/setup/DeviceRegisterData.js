@@ -149,7 +149,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
                 onDependenciesLoad();
             }
         });
-        registerModel.getProxy().setExtraParam('mRID', encodeURIComponent(mRID));
+        registerModel.getProxy().setUrl(mRID);
         registerModel.load(registerId, {
             success: function (record) {
                 registerBeingViewed = record;

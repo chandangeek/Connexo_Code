@@ -280,7 +280,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                     method: 'POST',
                     jsonData: jsonValues,
                     success: function () {
-                        me.handleSuccessRequest(Uni.I18n.translate('channelconfiguration.acknowlegment.added', 'MDC', 'Channel configuration added'));
+                        me.handleSuccessRequest(Uni.I18n.translate('channelconfiguration.acknowledgment.added', 'MDC', 'Channel configuration added'));
                         router.getRoute('administration/devicetypes/view/deviceconfigurations/view/loadprofiles/channels').forward();
                     },
                     callback: function () {
@@ -312,7 +312,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                 record.save({
                     backUrl: router.getRoute('administration/devicetypes/view/deviceconfigurations/view/loadprofiles/channels').buildUrl(),
                     success: function () {
-                        me.handleSuccessRequest(Uni.I18n.translate('channelconfiguration.acknowlegment.saved', 'MDC', 'Channel configuration saved'));
+                        me.handleSuccessRequest(Uni.I18n.translate('channelconfiguration.acknowledgment.saved', 'MDC', 'Channel configuration saved'));
                         router.getRoute('administration/devicetypes/view/deviceconfigurations/view/loadprofiles/channels').forward(router.arguments);
                     },
                     failure: function (record, operation) {

@@ -1188,7 +1188,7 @@ Ext.define('Mdc.controller.history.Setup', {
                     title: Uni.I18n.translate('deviceAdd.title', 'MDC', 'Add device'),
                     route: 'add',
                     controller: 'Mdc.controller.setup.Devices',
-                    privileges: Mdc.privileges.Device.addDevice,
+                    privileges: Mdc.privileges.Device.administrateDevice,
                     action: 'showAddDevice'
                 },
                 device: {
@@ -1499,6 +1499,13 @@ Ext.define('Mdc.controller.history.Setup', {
                                         return this;
                                     },
                                     items: {
+                                        edit: {
+                                            title: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+                                            route: 'edit',
+                                            controller: 'Mdc.controller.setup.DeviceRegisterConfiguration',
+                                            privileges: Mdc.privileges.Device.administrateDevice,
+                                            action: 'editRegister'
+                                        },
                                         editcustomattributes: {
                                             route: 'customattributes/{customAttributeSetId}/edit',
                                             controller: 'Mdc.controller.setup.DeviceRegisterConfiguration',
@@ -1859,6 +1866,13 @@ Ext.define('Mdc.controller.history.Setup', {
                                         return this;
                                     },
                                     items: {
+                                        edit: {
+                                            title: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+                                            route: 'edit',
+                                            controller: 'Mdc.controller.setup.DeviceChannels',
+                                            privileges: Mdc.privileges.Device.administrateDevice,
+                                            action: 'editChannel'
+                                        },
                                         editcustomattributes: {
                                             route: 'customattributes/{customAttributeSetId}/edit',
                                             controller: 'Mdc.controller.setup.DeviceChannelData',
