@@ -21,7 +21,6 @@ import javax.inject.Inject;
 import java.util.logging.Logger;
 
 public class Installer implements FullInstaller {
-    private static final Logger LOG = Logger.getLogger("IssueInstaller");
 
     private static final String ISSUE_OVERDUE_TASK_NAME = "IssueOverdueTask";
     private static final String ISSUE_OVERDUE_TASK_SCHEDULE = "0 0/1 * 1/1 * ? *";
@@ -43,12 +42,28 @@ public class Installer implements FullInstaller {
     }
 
     @Override
-    public void install(DataModelUpgrader dataModelUpgrader) {
-        run(() -> dataModelUpgrader.upgrade(dataModel, Version.latest()), "database schema. Execute command 'ddl " + IssueService.COMPONENT_NAME + "' and apply the sql script manually");
-        run(this::createViews, "view for all issues");
-        run(this::createStatuses, "default statuses");
-        run(this::createIssueOverdueTask, "overdue task");
-        run(this::createActionTypes, "action types");
+    public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
+        dataModelUpgrader.upgrade(dataModel, Version.latest());
+        doTry(
+                "view for all issues",
+                this::createViews,
+                logger
+        );
+        doTry(
+                "default statuses",
+                this::createStatuses,
+                logger
+        );
+        doTry(
+                "overdue task",
+                this::createIssueOverdueTask,
+                logger
+        );
+        doTry(
+                "action types",
+                this::createActionTypes,
+                logger
+        );
     }
 
     private void createViews(){
@@ -81,14 +96,6 @@ public class Installer implements FullInstaller {
     private void createActionTypes() {
         IssueType type = null;
         issueActionService.createActionType(IssueDefaultActionsFactory.ID, AssignIssueAction.class.getName(), type);
-    }
-
-    public static void run(Runnable runnable, String explanation){
-        try {
-            runnable.run();
-        } catch (Exception stEx){
-            LOG.warning("[" + IssueService.COMPONENT_NAME + "] Unable to install " + explanation);
-        }
     }
 
 }
