@@ -10,7 +10,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.FullInstaller;
-import com.elster.jupiter.util.exception.ExceptionCatcher;
 
 import javax.inject.Inject;
 import java.time.Instant;
@@ -36,14 +35,23 @@ class Installer implements FullInstaller {
     }
 
     @Override
-    public void install(DataModelUpgrader dataModelUpgrader) {
-        ExceptionCatcher.executing(
-                () -> dataModelUpgrader.upgrade(dataModel, Version.latest()),
+    public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
+        dataModelUpgrader.upgrade(dataModel, Version.latest());
+        doTry(
+                "Create KPI Vault",
                 this::createVault,
+                logger
+        );
+        doTry(
+                "Create KPI Record Spec",
                 this::createRecordSpec,
-                this::createEventTypes
-        ).andHandleExceptionsWith(this::logException)
-                .execute();
+                logger
+        );
+        doTry(
+                "Create event types for KPI",
+                this::createEventTypes,
+                logger
+        );
     }
 
     private void createRecordSpec() {
