@@ -186,7 +186,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 ? '-'
                 : Uni.Number.formatNumber(
                     v.toString(),
-                    me.channelRecord && !Ext.isEmpty(me.channelRecord.get('nbrOfFractionDigits')) ? me.channelRecord.get('nbrOfFractionDigits') : -1
+                    me.channelRecord && !Ext.isEmpty(me.channelRecord.get('overruledNbrOfFractionDigits')) ? me.channelRecord.get('overruledNbrOfFractionDigits') : -1
                 );
 
         if (status === 'notValidated') {
@@ -200,7 +200,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
         if (validationInfo.estimatedByRule && !record.isModified('value')) {
             icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:#33CC33;"></span>';
         } else if (validationInfo.isConfirmed && !record.isModified('value')) {
-            icon = '<span class="icon-checkmark3" style="margin-left:10px; position:absolute;"></span>';
+            icon = '<span class="icon-checkmark" style="margin-left:10px; position:absolute;"></span>';
         }
         return value + icon;
     }

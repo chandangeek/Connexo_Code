@@ -104,7 +104,10 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.MonitorProcesses',
         'Mdc.controller.Search',
         'Mdc.timeofuse.controller.TimeOfUse',
-        'Mdc.controller.setup.ServiceCalls'
+        'Mdc.controller.setup.ServiceCalls',
+        'Mdc.timeofuseondevice.controller.TimeOfUse',
+        'Mdc.metrologyconfiguration.controller.ListView',
+        'Mdc.metrologyconfiguration.controller.AddView'
     ],
 
     stores: [
@@ -288,34 +291,45 @@ Ext.define('Mdc.controller.Main', {
             }
         }
 
-        Uni.store.Apps.load({
-            callback: function(){
-                if(Mdc.privileges.UsagePoint.canAdmin()){
-                    var usagePointsMenuItem = Ext.create('Uni.model.MenuItem', {
-                        text: Uni.I18n.translate('general.usagePoints', 'MDC', 'Usage points'),
-                        href: '#/usagepoints',
-                        glyph: 'usagepoints',
-                        portal: 'usagepoints',
-                        index: 20
-                    });
-                    Uni.store.MenuItems.add(usagePointsMenuItem);
+        if (Mdc.privileges.MetrologyConfiguration.full()) {
+            Uni.store.PortalItems.add(Ext.create('Uni.model.PortalItem', {
+                title: Uni.I18n.translate('general.usagePointManagement', 'MDC', 'Usage point management'),
+                portal: 'administration',
+                items: [
+                    {
+                        text: Uni.I18n.translate('general.metrologyConfigurations', 'MDC', 'Metrology configurations'),
+                        itemId: 'lnk-metrology-configurations',
+                        href: '#/administration/metrologyconfiguration',
+                        route: 'add'
+                    }
+                ]
+            }));
+        }
 
-                    var portalItem = Ext.create('Uni.model.PortalItem', {
-                        title: Uni.I18n.translate('general.usagePointManagement', 'MDC', 'Usage point management'),
-                        portal: 'usagepoints',
-                        route: 'usagepoints',
-                        items: [
-                            {
-                                text: Uni.I18n.translate('usagePointAdd.title', 'MDC', 'Add usage point'),
-                                itemId: 'lnk-add-usagepoints',
-                                href: '#/usagepoints/add',
-                                route: 'add'
-                            }
-                        ]
-                    });
-                    Uni.store.PortalItems.add(portalItem);
-                }
-            }
-        });
+        if(Mdc.privileges.UsagePoint.canAdmin()){
+            var usagePointsMenuItem = Ext.create('Uni.model.MenuItem', {
+                text: Uni.I18n.translate('general.usagePoints', 'MDC', 'Usage points'),
+                href: '#/usagepoints',
+                glyph: 'usagepoints',
+                portal: 'usagepoints',
+                index: 20
+            });
+            Uni.store.MenuItems.add(usagePointsMenuItem);
+
+            var portalItem = Ext.create('Uni.model.PortalItem', {
+                title: Uni.I18n.translate('general.usagePointManagement', 'MDC', 'Usage point management'),
+                portal: 'usagepoints',
+                route: 'usagepoints',
+                items: [
+                    {
+                        text: Uni.I18n.translate('usagePointAdd.title', 'MDC', 'Add usage point'),
+                        itemId: 'lnk-add-usagepoints',
+                        href: '#/usagepoints/add',
+                        route: 'add'
+                    }
+                ]
+            });
+            Uni.store.PortalItems.add(portalItem);
+        }
     }
 });

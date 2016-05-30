@@ -367,9 +367,9 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                     success: function (record) {
                         location.href = backUrl;
                         if (isNewRecord === true) {
-                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('connectionmethod.acknowlegment.add', 'MDC', 'Connection method added'));
+                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('connectionmethod.acknowledgment.add', 'MDC', 'Connection method added'));
                         } else {
-                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('connectionmethod.acknowlegment.save', 'MDC', 'Connection method saved'));
+                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('connectionmethod.acknowledgment.save', 'MDC', 'Connection method saved'));
                         }
                         // me.showConnectionMethods(me.deviceTypeId, me.deviceConfigurationId);
                     },
@@ -425,7 +425,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
             connectionMethodToDelete.destroy({
                 success: function () {
                     me.getController('Uni.controller.history.Router').getRoute().forward();
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('connectionmethod.acknowlegment.remove', 'MDC', 'Connection method removed'));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('connectionmethod.acknowledgment.remove', 'MDC', 'Connection method removed'));
                 }
             });
 
@@ -581,9 +581,9 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
             isNotEdit: true,
             success: function () {
                 if (connectionMethod.get('isDefault') === true) {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('connectionmethod.acknowlegment.setAsDefault', 'MDC', 'Connection method set as default'));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('connectionmethod.acknowledgment.setAsDefault', 'MDC', 'Connection method set as default'));
                 } else {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('connectionmethod.acknowlegment.removeDefault', 'MDC', 'Connection method removed as default'));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('connectionmethod.acknowledgment.removeDefault', 'MDC', 'Connection method removed as default'));
                 }
             },
             callback: function () {

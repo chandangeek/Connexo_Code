@@ -604,9 +604,9 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
             isNotEdit: true,
             success: function () {
                 if (connectionMethod.get('isDefault') === true) {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconnectionmethod.acknowlegment.setAsDefault', 'MDC', 'Connection method set as default'));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconnectionmethod.acknowledgment.setAsDefault', 'MDC', 'Connection method set as default'));
                 } else {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconnectionmethod.acknowlegment.removeDefault', 'MDC', 'Connection method removed as default'));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconnectionmethod.acknowledgment.removeDefault', 'MDC', 'Connection method removed as default'));
                 }
                 router.getRoute().forward();
             },
@@ -638,9 +638,9 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
             isNotEdit: true,
             success: function () {
                 if (connectionMethod.get('status') === 'connectionTaskStatusActive') {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconnectionmethod.acknowlegment.activated', 'MDC', 'Connection method activated'));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconnectionmethod.acknowledgment.activated', 'MDC', 'Connection method activated'));
                 } else {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconnectionmethod.acknowlegment.deactivated', 'MDC', 'Connection method deactivated'));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconnectionmethod.acknowledgment.deactivated', 'MDC', 'Connection method deactivated'));
                 }
                 router.getRoute().forward();
             }

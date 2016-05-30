@@ -13,7 +13,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
 
     stores: [
         'Mdc.store.LoadProfilesOfDeviceData',
-        'Mdc.store.DataIntervalAndZoomLevels',
+        'Uni.store.DataIntervalAndZoomLevels',
         'Mdc.store.LoadProfileDataDurations',
         'Mdc.store.LoadProfilesOfDevice'
     ],
@@ -106,7 +106,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
 
         initView = function (device) {
             var record = me.getLoadProfile(),
-                dataIntervalAndZoomLevels = me.getStore('Mdc.store.DataIntervalAndZoomLevels').getIntervalRecord(record.get('interval')),
+                dataIntervalAndZoomLevels = me.getStore('Uni.store.DataIntervalAndZoomLevels').getIntervalRecord(record.get('interval')),
                 durationsStore = me.getStore('Mdc.store.LoadProfileDataDurations');
 
             durationsStore.loadData(dataIntervalAndZoomLevels.get('duration'));
@@ -213,7 +213,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
         var me = this,
             container = this.getDeviceLoadProfilesGraphView(),
             dataStore = me.getStore('Mdc.store.LoadProfilesOfDeviceData'),
-            zoomLevelsStore = me.getStore('Mdc.store.DataIntervalAndZoomLevels'),
+            zoomLevelsStore = me.getStore('Uni.store.DataIntervalAndZoomLevels'),
             title = loadProfileRecord.get('name'),
             currentAxisTopValue = 2,
             currentLine = 0,

@@ -67,7 +67,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.flags.Detail', {
                                             },
                                             {
                                                 xtype: 'obis-displayfield',
-                                                name: 'obisCode'
+                                                name: 'overruledObisCode'
                                             },
                                             {
                                                 xtype: 'displayfield',
@@ -91,7 +91,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.flags.Detail', {
                                             },
                                             {
                                                 fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.numberOfFractionDigits', 'MDC', 'Number of fraction digits'),
-                                                name: 'numberOfFractionDigits'
+                                                name: 'overruledNumberOfFractionDigits'
                                             }
                                         ]
                                     },
