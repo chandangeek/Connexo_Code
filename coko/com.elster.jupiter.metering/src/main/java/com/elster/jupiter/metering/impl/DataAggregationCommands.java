@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.aggregation.CalculatedMetrologyContractData;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.config.MetrologyConfigurationStatus;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -143,7 +144,7 @@ public class DataAggregationCommands {
         try (TransactionContext context = transactionService.getContext()) {
             metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigId)
                     .orElseThrow(() -> new NoSuchElementException("No such metrology configuration"))
-                    .activate();
+                    .setStatus(MetrologyConfigurationStatus.ACTIVE);
 
             context.commit();
         }
