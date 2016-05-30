@@ -284,6 +284,8 @@ public interface DeviceConfigurationService {
 
     List<PartialConnectionTask> findByComPortPool(ComPortPool comPortPool);
 
+    List<AllowedCalendar> findAllowedCalendars(String name);
+
     Optional<SecurityPropertySet> findSecurityPropertySet(long id);
 
     Optional<SecurityPropertySet> findAndLockSecurityPropertySetByIdAndVersion(long id, long version);

@@ -35,6 +35,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
+import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.ChannelSpecLinkType;
 import com.energyict.mdc.device.config.ComTaskEnablement;
@@ -474,6 +475,11 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Override
     public List<PartialConnectionTask> findByComPortPool(ComPortPool comPortPool) {
         return dataModel.query(PartialConnectionTask.class).select(where("comPortPool").isEqualTo(comPortPool));
+    }
+
+    @Override
+    public List<AllowedCalendar> findAllowedCalendars(String name) {
+        return dataModel.query(AllowedCalendar.class).select(where("name").isEqualTo(name));
     }
 
     @Override

@@ -77,4 +77,10 @@ public class AllowedCalendarImpl implements AllowedCalendar {
     public Optional<Calendar> getCalendar() {
         return this.calendar.getOptional();
     }
+
+    void replaceGhostBy(Calendar newCalendar) {
+        calendar.set(newCalendar);
+        name = null;
+        dataModel.update(this);
+    }
 }
