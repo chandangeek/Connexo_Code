@@ -154,11 +154,12 @@ Ext.define('Mdc.filemanagement.controller.FileManagement', {
             confirmText: Uni.I18n.translate('general.save', 'MDC', 'Save'),
         });
 
+
         if(!form.down('#files-allowed-radio-field').checked) {
             confirmationWindow.show(
                 {
                     msg: Uni.I18n.translate('filemanagement.disable.msg', 'MDC', 'You will not be able to use these files anymore, existing files will be removed from the system. This action is irreversible.'),
-                    title: Uni.I18n.translate('general.disbaleFileManagement', 'MDC', "Disable file management?"),
+                    title: Uni.I18n.translate('general.disableFileManagement', 'MDC', "Disable file management?"),
                     fn: function (state) {
                         if (state === 'confirm') {
                             record.beginEdit();
@@ -167,6 +168,7 @@ Ext.define('Mdc.filemanagement.controller.FileManagement', {
                             record.save({
                                 success: function () {
                                     me.getController('Uni.controller.history.Router').getRoute('administration/devicetypes/view/filemanagement', {deviceTypeId: me.deviceTypeId}).forward();
+                                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('filemanagement.disabled', 'MDC', 'File management disabled'))
                                 },
                                 failure: function (record, operation) {
                                     formErrorsPanel.show();
@@ -186,6 +188,7 @@ Ext.define('Mdc.filemanagement.controller.FileManagement', {
             record.save({
                 success: function () {
                     me.getController('Uni.controller.history.Router').getRoute('administration/devicetypes/view/filemanagement', {deviceTypeId: me.deviceTypeId}).forward();
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('filemanagement.enabled', 'MDC', 'File management enabled'));
                 },
                 failure: function (record, operation) {
                     formErrorsPanel.show();
