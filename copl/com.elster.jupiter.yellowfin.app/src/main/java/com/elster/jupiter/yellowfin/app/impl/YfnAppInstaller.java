@@ -25,20 +25,19 @@ class YfnAppInstaller implements FullInstaller {
     }
 
     @Override
-    public void install(DataModelUpgrader dataModelUpgrader) {
-        createDefaultRoles();
-
+    public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
+        doTry(
+                "Create default roles for YFN",
+                this::createDefaultRoles,
+                logger
+        );
     }
 
     private void createDefaultRoles() {
-        try {
-            Group group = userService.createGroup(REPORT_DESIGNER_ROLE, REPORT_DESIGNER_ROLE_DESCRIPTION);
-            userService.grantGroupWithPrivilege(group.getName(), "YFN", new String[] {"privilege.design.reports"});
-            //TODO: workaround: attached Report designer to user admin !!! to remove this line when the user can be created/added to system
-            userService.getUser(1).ifPresent(u -> u.join(group));
-        } catch (Exception e) {
-            this.logger.severe(e.getMessage());
-        }
+        Group group = userService.createGroup(REPORT_DESIGNER_ROLE, REPORT_DESIGNER_ROLE_DESCRIPTION);
+        userService.grantGroupWithPrivilege(group.getName(), "YFN", new String[]{"privilege.design.reports"});
+        //TODO: workaround: attached Report designer to user admin !!! to remove this line when the user can be created/added to system
+        userService.getUser(1).ifPresent(u -> u.join(group));
     }
 
 }
