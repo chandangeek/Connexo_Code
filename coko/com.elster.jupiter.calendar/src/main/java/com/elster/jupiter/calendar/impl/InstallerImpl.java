@@ -5,7 +5,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.exception.ExceptionCatcher;
 
 import javax.inject.Inject;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -24,11 +23,13 @@ public class InstallerImpl {
         this.dataModel = dataModel;
     }
 
-    public void install() {
-        ExceptionCatcher.executing(
-                this::createTOUCategory
-        ).andHandleExceptionsWith(Throwable::printStackTrace)
-                .execute();
+    public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
+        dataModelUpgrader.upgrade(dataModel, Version.latest());
+        doTry(
+                "Create default Calendar categories.",
+                this::createTOUCategory,
+                logger
+        );
     }
 
     private void createTOUCategory() {
