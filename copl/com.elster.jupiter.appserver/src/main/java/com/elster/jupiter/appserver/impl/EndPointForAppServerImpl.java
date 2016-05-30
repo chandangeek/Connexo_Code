@@ -42,7 +42,7 @@ public class EndPointForAppServerImpl implements WebServiceForAppServer {
         }
     }
 
-    public EndPointForAppServerImpl init(AppServer appServer, EndPointConfiguration endPointConfiguration) {
+    EndPointForAppServerImpl init(AppServer appServer, EndPointConfiguration endPointConfiguration) {
         this.appServer.set(appServer);
         this.endPointConfiguration.set(endPointConfiguration);
         return this;
