@@ -164,7 +164,6 @@
         <dependency>
             <groupId>javassist</groupId>
             <artifactId>javassist</artifactId>
-            <version>3.4.GA</version>
         </dependency>
 
         <!-- Web libraries -->
@@ -172,20 +171,14 @@
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-server</artifactId>
-            <version>${jetty-server.version}</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-servlet</artifactId>
-            <version>${jetty-server.version}</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-websocket</artifactId>
-            <version>${jetty-server.version}</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.json</groupId>
@@ -207,11 +200,6 @@
         </dependency>
 
         <!-- Testing -->
-        <!--<dependency>-->
-            <!--<groupId>com.google.inject</groupId>-->
-            <!--<artifactId>guice</artifactId>-->
-            <!--<version>4.0-beta5</version>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>devtools</artifactId>
@@ -301,11 +289,6 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>http.whiteboard</artifactId>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>com.google.inject</groupId>-->
-            <!--<artifactId>guice</artifactId>-->
-            <!--<version>4.0-beta5</version>-->
-        <!--</dependency>-->
     </dependencies>
 
     <build>
