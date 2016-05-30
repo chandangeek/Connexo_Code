@@ -13,6 +13,7 @@ import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validators.MissingRequiredProperty;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
@@ -20,6 +21,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static com.elster.jupiter.validation.ValidationResult.NOT_VALIDATED;
 import static com.elster.jupiter.validation.ValidationResult.SUSPECT;
@@ -29,6 +31,7 @@ class ThresholdValidator extends AbstractValidator {
 
     static final String MIN = "minimum";
     static final String MAX = "maximum";
+    private static final Set<String> SUPPORTED_APPLICATIONS = ImmutableSet.of("MDC", "INS");
 
     private Quantity minimum;
     private Quantity maximum;
@@ -101,6 +104,11 @@ class ThresholdValidator extends AbstractValidator {
     @Override
     public List<String> getRequiredProperties() {
         return Arrays.asList(MIN, MAX);
+    }
+
+    @Override
+    public Set<String> getSupportedApplications() {
+        return SUPPORTED_APPLICATIONS;
     }
 
     private ValidationResult validateQuantity(Quantity toValidate) {

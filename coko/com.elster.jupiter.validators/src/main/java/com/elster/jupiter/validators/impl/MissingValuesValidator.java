@@ -10,6 +10,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.validation.ValidationResult;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -29,6 +30,7 @@ import java.util.stream.Collectors;
 class MissingValuesValidator extends AbstractValidator {
 
     private static final String READING_QUALITY_TYPE_CODE = "3.5.259";
+    private static final Set<String> SUPPORTED_APPLICATIONS = ImmutableSet.of("MDC", "INS");
 
     private Set<Instant> instants;
     private ReadingType readingType;
@@ -102,5 +104,10 @@ class MissingValuesValidator extends AbstractValidator {
     @Override
     public List<String> getRequiredProperties() {
         return Collections.emptyList();
+    }
+
+    @Override
+    public Set<String> getSupportedApplications() {
+        return SUPPORTED_APPLICATIONS;
     }
 }
