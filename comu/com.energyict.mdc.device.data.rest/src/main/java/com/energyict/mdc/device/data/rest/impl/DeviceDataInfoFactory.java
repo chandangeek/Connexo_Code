@@ -48,10 +48,6 @@ public class DeviceDataInfoFactory {
         this.clock = clock;
     }
 
-    private static BigDecimal getRoundedBigDecimal(BigDecimal value, Channel channel) {
-        return value != null ? value.setScale(channel.getChannelSpec().getNbrOfFractionDigits(), BigDecimal.ROUND_UP) : value;
-    }
-
     public ChannelDataInfo createChannelDataInfo(Channel channel, LoadProfileReading loadProfileReading, boolean isValidationActive, DeviceValidation deviceValidation) {
         ChannelDataInfo channelIntervalInfo = new ChannelDataInfo();
         channelIntervalInfo.interval = IntervalInfo.from(loadProfileReading.getRange());
