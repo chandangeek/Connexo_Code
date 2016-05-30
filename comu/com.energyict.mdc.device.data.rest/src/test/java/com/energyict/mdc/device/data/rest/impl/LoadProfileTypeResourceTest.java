@@ -138,12 +138,14 @@ public class LoadProfileTypeResourceTest extends DeviceDataRestApplicationJersey
         when(channel1.getId()).thenReturn(CHANNEL_ID1);
         when(channel1.getChannelSpec()).thenReturn(channelSpec);
         when(channel1.getInterval()).thenReturn(new TimeDuration(900));
+        when(channel1.getNrOfFractionDigits()).thenReturn(3);
         when(channel2.getDevice()).thenReturn(device);
         when(channel2.getReadingType()).thenReturn(readingType);
         when(channel2.getCalculatedReadingType(any())).thenReturn(Optional.of(calculatedReadingType));
         when(channel2.getId()).thenReturn(CHANNEL_ID2);
         when(channel2.getChannelSpec()).thenReturn(channelSpec);
         when(channel2.getInterval()).thenReturn(new TimeDuration(900));
+        when(channel2.getNrOfFractionDigits()).thenReturn(3);
         when(device.forValidation()).thenReturn(deviceValidation);
         when(device.getZone()).thenReturn(ZoneId.systemDefault());
         when(deviceValidation.isValidationActive(channel1, NOW)).thenReturn(true);

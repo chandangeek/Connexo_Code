@@ -222,6 +222,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(validationRuleSetVersion.getRuleSet()).thenReturn(mock(ValidationRuleSet.class));
         when(validationRule.getRuleSetVersion()).thenReturn(validationRuleSetVersion);
         when(channelSpec.getNbrOfFractionDigits()).thenReturn(3);
+        when(channel.getNrOfFractionDigits()).thenReturn(3);
         when(channelSpec.getOverflow()).thenReturn(Optional.empty());
         when(deviceValidation.getValidationResult(any())).thenReturn(ValidationResult.SUSPECT);
         when(channel.getLastDateTime()).thenReturn(Optional.of(NOW));
