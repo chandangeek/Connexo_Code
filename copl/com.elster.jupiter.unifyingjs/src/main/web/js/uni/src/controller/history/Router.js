@@ -302,19 +302,19 @@ Ext.define('Uni.controller.history.Router', {
     checkForDynamicPrivileges: function (config, applyAction) {
         var me = this,
             path = config.key,
-            dynamicPrivileges,
+            route,
             index;
 
         while (path.lastIndexOf('/') > -1) {
-            dynamicPrivileges = me.getRoute(path).dynamicPrivilegeStores;
-            if (dynamicPrivileges) {
-                Uni.DynamicPrivileges.loadPage(dynamicPrivileges, config.dynamicPrivilege, applyAction, me);
-                return true;
+            route = me.getRoute(path);
+            if(route !== me.routes["notfound"]) {
+                if (route.dynamicPrivilegeStores) {
+                    Uni.DynamicPrivileges.loadPage(route.dynamicPrivilegeStores, config.dynamicPrivilege, applyAction, me);
+                    return true;
+                }
             }
             index = path.lastIndexOf('/');
-            if (index === -1) {
-                break;
-            } else {
+            if (index !== -1) {
                 path = path.substring(0, index);
             }
         }
