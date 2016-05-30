@@ -127,7 +127,9 @@ public enum MessageSeeds implements MessageSeed {
             " and all communication tasks in that shared communication schedule should have the same connection method, security set, protocol dialect and/or urgency", Level.SEVERE),
     NO_SUCH_COMTASK_ENABLEMENT(2102, Keys.NO_SUCH_COM_TASK_ENABLEMENT, "No comtask enablement with id {0}"),
     TRACKING_ID_MISSING(2103, Keys.DEVICE_MESSAGE_TRACKING_ID_MISSING, "Tracking id is missing"),
-    TRACKING_CATEGORY_MISSING(2104, Keys.DEVICE_MESSAGE_TRACKING_CATEGORY_MISSING, "Tracking category is missing")
+    TRACKING_CATEGORY_MISSING(2104, Keys.DEVICE_MESSAGE_TRACKING_CATEGORY_MISSING, "Tracking category is missing"),
+    DUPLICATE_REGISTER_OBISCODE(2105, Keys.DUPLICATE_REGISTER_OBISCODE, "The obiscode {0} must be uniqe for all registers of your device"),
+    DUPLICATE_CHANNEL_OBISCODE(2106, Keys.DUPLICATE_CHANNEL_OBISCODE, "The obiscode {0} must be uniqe for all the channels of your loadprofile")
     ;
 
     private final int number;
@@ -285,5 +287,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String NO_SUCH_COM_TASK_ENABLEMENT = "NoSuchComTaskEnablement";
         public static final String DEVICE_MESSAGE_TRACKING_ID_MISSING = "TrackingIdMissing";
         public static final String DEVICE_MESSAGE_TRACKING_CATEGORY_MISSING = "TrackingCategoryMissing";
+        public static final String DUPLICATE_REGISTER_OBISCODE = "duplicate.register.obiscode";
+        public static final String DUPLICATE_CHANNEL_OBISCODE = "duplicate.channel.obiscode";
     }
 }

@@ -103,6 +103,7 @@ import com.energyict.mdc.device.data.exceptions.CannotChangeDeviceConfigStillUnr
 import com.energyict.mdc.device.data.exceptions.CannotDeleteComScheduleFromDevice;
 import com.energyict.mdc.device.data.exceptions.DeviceConfigurationChangeException;
 import com.energyict.mdc.device.data.exceptions.DeviceProtocolPropertyException;
+import com.energyict.mdc.device.data.exceptions.DuplicateAttributeException;
 import com.energyict.mdc.device.data.exceptions.MultiplierConfigurationException;
 import com.energyict.mdc.device.data.exceptions.NoMeterActivationAt;
 import com.energyict.mdc.device.data.exceptions.ProtocolDialectConfigurationPropertiesIsRequiredException;
@@ -171,6 +172,7 @@ import java.util.Collections;
 import java.util.Deque;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -1348,7 +1350,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 dataModel.touch(this);
             }
         } else {
-            throw DeviceProtocolPropertyException.propertyDoesNotExistForDeviceProtocol(name, this.getDeviceProtocolPluggableClass().getDeviceProtocol(), this, thesaurus, MessageSeeds.DEVICE_PROPERTY_NOT_ON_DEVICE_PROTOCOL);
+            throw DeviceProtocolPropertyException.propertyDoesNotExistForDeviceProtocol(name, this.getDeviceProtocolPluggableClass()
+                    .getDeviceProtocol(), this, thesaurus, MessageSeeds.DEVICE_PROPERTY_NOT_ON_DEVICE_PROTOCOL);
         }
     }
 
@@ -1655,12 +1658,12 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 meterActivation.setMultiplier(getDefaultMultiplierType(), getMultiplier());
                 if (usagePoint != null) {
                     usagePoint.getLocation().ifPresent(loc -> {
-                        if(!location.isPresent()){
+                        if (!location.isPresent()) {
                             setLocation(loc);
                         }
                     });
                     usagePoint.getGeoCoordinates().ifPresent(geo -> {
-                        if(!geoCoordinates.isPresent()) {
+                        if (!geoCoordinates.isPresent()) {
                             setGeoCoordinates(geo);
                         }
                     });
@@ -1962,7 +1965,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         Interval effectivityInterval = Interval.of(Range.atLeast(effective));
         this.activeCalendar.add(
                 this.dataModel.getInstance(ActiveEffectiveCalendarImpl.class)
-                    .initialize(effectivityInterval, this, allowedCalendar, lastVerified)
+                        .initialize(effectivityInterval, this, allowedCalendar, lastVerified)
         );
     }
 
@@ -2482,7 +2485,17 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             if (currentOverruledObisCodeIsNotTheCorrectOne || currentlyNoOverruledObisCodeAlthoughRequested) {
                 DeviceImpl.this.addReadingTypeObisCodeUsage(register.getReadingType(), overruledObisCode);
             }
+
+            validateUniqueObisCode();
             DeviceImpl.this.save(); //just to make sure we increase the version
+        }
+
+        private void validateUniqueObisCode() {
+            Set<ObisCode> uniqueObisCodes = new HashSet<>();
+            DeviceImpl.this.getRegisters().stream().filter(register1 -> !uniqueObisCodes.add(register1.getDeviceObisCode())).findAny()
+                    .ifPresent(register2 -> {
+                        throw DuplicateAttributeException.forRegisterObisCode(thesaurus, register2);
+                    });
         }
 
         private boolean registerWeNeedToUpdate(RegisterSpec registerSpec) {
@@ -2594,7 +2607,16 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             if (currentOverruledObisCodeIsNotTheCorrectOne || currentlyNoOverruledObisCodeAlthoughRequested) {
                 DeviceImpl.this.addReadingTypeObisCodeUsage(channel.getReadingType(), overruledObisCode);
             }
+            validateUniqueObisCode();
             DeviceImpl.this.save(); //just to make sure we increase the version
+        }
+
+        private void validateUniqueObisCode() {
+            Set<ObisCode> uniqueObisCodes = new HashSet<>();
+            channel.getLoadProfile().getChannels().stream().filter(channel1 -> !uniqueObisCodes.add(channel1.getObisCode())).findAny()
+                    .ifPresent(channel2 -> {
+                        throw DuplicateAttributeException.forChannelObisCode(thesaurus, channel2);
+                    });
         }
 
         private boolean channelWeNeedToUpdate(ChannelSpec channelSpec) {
@@ -2823,7 +2845,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
 
-
     @Override
     public List<ScheduledConnectionTask> getScheduledConnectionTasks() {
         return this.getConnectionTaskImpls()
@@ -2849,7 +2870,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
 
-
     @Override
     public void removeConnectionTask(ConnectionTask<?, ?> connectionTask) {
         this.connectionTasks
@@ -2861,12 +2881,10 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
 
-
     @Override
     public List<ComTaskExecution> getComTaskExecutions() {
         return comTaskExecutions.stream().filter(((Predicate<ComTaskExecution>) ComTaskExecution::isObsolete).negate()).collect(Collectors.toList());
     }
-
 
 
     @Override
@@ -2935,12 +2953,10 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
 
-
     @Override
     public boolean hasSecurityProperties(SecurityPropertySet securityPropertySet) {
         return this.hasSecurityProperties(clock.instant(), securityPropertySet);
     }
-
 
 
     @Override
@@ -3005,9 +3021,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
 
-
-
-
     @Override
     public State getState() {
         return this.getState(this.clock.instant()).get();
@@ -3059,9 +3072,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
 
-
-
-
     @Override
     public long getVersion() {
         return version;
@@ -3071,30 +3081,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     public Instant getCreateTime() {
         return createTime;
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 }
