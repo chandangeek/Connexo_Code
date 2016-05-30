@@ -3,14 +3,13 @@ package com.energyict.mdc.engine.impl.meterdata;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
 import com.energyict.mdc.engine.impl.commands.store.StoreConfigurationUserFile;
-import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.device.data.CollectedConfigurationInformation;
 import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 
 /**
  * Provides an implementation for the {@link CollectedConfigurationInformation}
- * that keeps track of the information in a {@link UserFile}.
+ * that keeps track of the information in a UserFile.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-10-16 (15:44)
