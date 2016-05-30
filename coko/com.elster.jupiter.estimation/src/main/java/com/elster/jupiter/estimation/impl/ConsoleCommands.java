@@ -52,7 +52,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Component(name = "com.elster.jupiter.estimation.console",
-        service = EstimationConsoleCommands.class,
+        service = ConsoleCommands.class,
         property = {"osgi.command.scope=estimation",
                 "osgi.command.function=estimationBlocks",
                 "osgi.command.function=availableEstimators",
@@ -68,7 +68,7 @@ import java.util.stream.Stream;
                 "osgi.command.function=log"
         },
         immediate = true)
-public class EstimationConsoleCommands {
+public class ConsoleCommands {
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ISO_DATE_TIME;
 
@@ -277,7 +277,7 @@ public class EstimationConsoleCommands {
         for (ReadingType readingType : channel.getReadingTypes()) {
             System.out.println("Handling reading type " + readingType.getAliasName());
             List<EstimationBlock> blocks = estimationEngine.findBlocksToEstimate(meterActivation, Range.<Instant>all(), readingType);
-            estimator.init(Logger.getLogger(EstimationConsoleCommands.class.getName()));
+            estimator.init(Logger.getLogger(ConsoleCommands.class.getName()));
             EstimationResult result = estimator.estimate(blocks);
             List<EstimationBlock> estimated = result.estimated();
             List<EstimationBlock> remaining = result.remainingToBeEstimated();
@@ -354,7 +354,7 @@ public class EstimationConsoleCommands {
         try (TransactionContext context = transactionService.getContext()) {
             EstimationTask estimationTask = estimationService.newBuilder()
                     .setName(name)
-                    .setApplication("Admin")
+                    .setApplication("MDC")
                     .setNextExecution(Instant.ofEpochMilli(nextExecution))
                     .setEndDeviceGroup(endDeviceGroup(groupId))
                     .setScheduleExpression(parse(scheduleExpression)).create();

@@ -64,6 +64,8 @@ public interface EstimationService {
 
     EstimationTaskBuilder newBuilder();
 
+    List<? extends EstimationTask> findEstimationTasks();
+
     Optional<? extends EstimationTask> findEstimationTask(long id);
 
     Optional<? extends EstimationTask> findAndLockEstimationTask(long id, long version);

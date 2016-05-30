@@ -312,7 +312,7 @@ public class EstimationTaskImplIT {
         return estimationService.newBuilder()
                 .scheduleImmediately()
                 .setName(name)
-                .setApplication("Admin")
+                .setApplication("MDC")
                 .setEndDeviceGroup(endDeviceGroup)
                 .setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)))
                 .create();

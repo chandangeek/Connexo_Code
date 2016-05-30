@@ -423,6 +423,11 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
     }
 
     @Override
+    public List<? extends EstimationTask> findEstimationTasks() {
+        return getEstimationTaskQuery().select(Condition.TRUE, Order.descending("lastRun").nullsLast());
+    }
+
+    @Override
     public Optional<? extends EstimationTask> findEstimationTask(long id) {
         return dataModel.mapper(IEstimationTask.class).getOptional(id);
     }
