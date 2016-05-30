@@ -8,7 +8,11 @@ import com.energyict.mdc.engine.config.RemoteComServer;
 import com.energyict.mdc.engine.config.security.Privileges;
 import com.energyict.mdc.engine.status.ComServerType;
 
-import java.util.logging.Logger;
+import org.glassfish.jersey.client.ClientProperties;
+import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
+import org.glassfish.jersey.jackson.JacksonFeature;
+import org.joda.time.DateTimeConstants;
+
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.ClientErrorException;
@@ -22,13 +26,10 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
-import org.glassfish.jersey.client.ClientProperties;
-import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
-import org.glassfish.jersey.jackson.JacksonFeature;
-import org.joda.time.DateTimeConstants;
+import java.util.logging.Logger;
 
 /**
- * Models the REST resource that gets the summary of all the statusse
+ * Models the REST resource that gets the summary of all the statuses
  * of the {@link com.energyict.mdc.engine.config.ComServer}s
  * that are configured in the system by invoking the
  * {@link ComServerStatusResource} for each such ComServer.
@@ -76,15 +77,11 @@ public class ComServerStatusSummaryResource {
     }
 
     private void addStatusInfo(ComServerStatusSummaryInfo statusSummaryInfo, OnlineComServer comServer, Client jerseyClient, UriBuilder uriBuilder) {
-        String defaultUri = uriBuilder.build(comServer.getName()).toString();
-        String statusUri = comServer.usesDefaultStatusUri()? defaultUri :comServer.getStatusUri();
-        this.addStatusInfo(statusSummaryInfo, jerseyClient, comServer.getId(), comServer.getName(), statusUri, ComServerType.ONLINE);
+        this.addStatusInfo(statusSummaryInfo, jerseyClient, comServer.getId(), comServer.getName(), comServer.getStatusUri(), ComServerType.ONLINE);
     }
 
     private void addStatusInfo(ComServerStatusSummaryInfo statusSummaryInfo, RemoteComServer comServer, Client jerseyClient, UriBuilder uriBuilder) {
-        String defaultUri = uriBuilder.build(comServer.getName()).toString();
-        String statusUri = comServer.usesDefaultStatusUri()? defaultUri :comServer.getStatusUri();
-        this.addStatusInfo(statusSummaryInfo, jerseyClient, comServer.getId(), comServer.getName(), statusUri, ComServerType.REMOTE);
+        this.addStatusInfo(statusSummaryInfo, jerseyClient, comServer.getId(), comServer.getName(), comServer.getStatusUri(), ComServerType.REMOTE);
     }
 
     private void addStatusInfo(ComServerStatusSummaryInfo statusSummaryInfo, Client jerseyClient, long comServerId, String comServerName, String statusUri, ComServerType comServerType) {
