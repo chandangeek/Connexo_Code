@@ -5,10 +5,10 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.FullInstaller;
-import com.elster.jupiter.util.exception.ExceptionCatcher;
 
 import javax.inject.Inject;
 import java.util.Arrays;
+import java.util.logging.Logger;
 
 class InstallerImpl implements FullInstaller {
 
@@ -22,14 +22,13 @@ class InstallerImpl implements FullInstaller {
     }
 
     @Override
-    public void install(DataModelUpgrader dataModelUpgrader) {
-
-        ExceptionCatcher.executing(
-                () -> dataModelUpgrader.upgrade(dataModel, Version.latest()),
-                this::installEventTypes
-        ).andHandleExceptionsWith(Throwable::printStackTrace)
-                .execute();
-
+    public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
+        dataModelUpgrader.upgrade(dataModel, Version.latest());
+        doTry(
+                "Install event types for FIM",
+                this::installEventTypes,
+                logger
+        );
     }
 
     private void installEventTypes() {
