@@ -165,6 +165,9 @@ public class MicroActionFactoryImpl implements ServerMicroActionFactory {
             case SET_MULTIPLIER: {
                 return new SetMultiplier(thesaurus);
             }
+            case REMOVE_LOCATION: {
+                return new RemoveLocation(thesaurus);
+            }
             default: {
                 throw new IllegalArgumentException("Unknown or unsupported MicroAction " + microAction.name());
             }
