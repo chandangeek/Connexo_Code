@@ -32,7 +32,9 @@ public interface MetrologyConfiguration extends HasId, HasName {
 
     boolean isActive();
 
-    void setStatus(MetrologyConfigurationStatus status);
+    void activate();
+
+    void deactivate();
 
     List<RegisteredCustomPropertySet> getCustomPropertySets();
 

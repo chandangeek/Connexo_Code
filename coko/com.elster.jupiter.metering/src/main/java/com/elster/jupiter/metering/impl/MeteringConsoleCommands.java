@@ -18,7 +18,6 @@ import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
-import com.elster.jupiter.metering.config.MetrologyConfigurationStatus;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
@@ -775,7 +774,7 @@ public class MeteringConsoleCommands {
         try (TransactionContext context = transactionService.getContext()) {
             metrologyConfigurationService.findMetrologyConfiguration(name)
                     .orElseThrow(() -> new NoSuchElementException("No such metrology configuration"))
-                    .setStatus(MetrologyConfigurationStatus.ACTIVE);
+                    .activate();
             context.commit();
         }
     }

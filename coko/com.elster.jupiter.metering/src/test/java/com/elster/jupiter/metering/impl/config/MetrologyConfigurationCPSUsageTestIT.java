@@ -4,20 +4,18 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
-import com.elster.jupiter.metering.config.MetrologyConfigurationStatus;
 import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
 import com.elster.jupiter.metering.impl.cps.UsagePointTestCustomPropertySet;
 import com.elster.jupiter.transaction.TransactionContext;
-
-import java.util.Optional;
-import java.util.function.Consumer;
-
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.util.Optional;
+import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -119,7 +117,7 @@ public class MetrologyConfigurationCPSUsageTestIT {
     public void testAddCPSToActiveMetrologyConfig() {
         inTransaction(ctx -> {
             MetrologyConfiguration metrologyConfiguration = getMetrologyConfiguration();
-            metrologyConfiguration.setStatus(MetrologyConfigurationStatus.ACTIVE);
+            metrologyConfiguration.activate();
             metrologyConfiguration.addCustomPropertySet(getRegisteredCPS());
             ctx.commit();
         });
@@ -185,7 +183,7 @@ public class MetrologyConfigurationCPSUsageTestIT {
             MetrologyConfiguration metrologyConfiguration = getMetrologyConfiguration();
             RegisteredCustomPropertySet registeredCPS = getRegisteredCPS();
             metrologyConfiguration.addCustomPropertySet(registeredCPS);
-            metrologyConfiguration.setStatus(MetrologyConfigurationStatus.ACTIVE);
+            metrologyConfiguration.activate();
             metrologyConfiguration.addCustomPropertySet(getRegisteredCPS());
             ctx.commit();
         });

@@ -165,9 +165,19 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
     }
 
     @Override
-    public void setStatus(MetrologyConfigurationStatus status) {
-        this.status = status;
-        this.update();
+    public void activate() {
+        if (MetrologyConfigurationStatus.INACTIVE == status) {
+            this.status = MetrologyConfigurationStatus.ACTIVE;
+            this.update();
+        }
+    }
+
+    @Override
+    public void deactivate() {
+        if (MetrologyConfigurationStatus.ACTIVE == status) {
+            this.status = MetrologyConfigurationStatus.INACTIVE;
+            this.update();
+        }
     }
 
     @Override

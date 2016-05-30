@@ -14,7 +14,6 @@ import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
-import com.elster.jupiter.metering.config.MetrologyConfigurationStatus;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeTemplate;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
@@ -362,7 +361,7 @@ public class UsagePointMetrologyConfigurationTestIT {
         serviceKindBean.operator = SearchablePropertyOperator.EQUAL;
         serviceKindBean.values = Collections.singletonList("ELECTRICITY");
         metrologyConfiguration.addUsagePointRequirement(serviceKindBean);
-        metrologyConfiguration.setStatus(MetrologyConfigurationStatus.ACTIVE);
+        metrologyConfiguration.activate();
 
         metrologyConfiguration = getMetrologyConfigurationService()
                 .newUsagePointMetrologyConfiguration("config 2", serviceCategory)
@@ -372,7 +371,7 @@ public class UsagePointMetrologyConfigurationTestIT {
         serviceKindBean.operator = SearchablePropertyOperator.EQUAL;
         serviceKindBean.values = Collections.singletonList("GAS");
         metrologyConfiguration.addUsagePointRequirement(serviceKindBean);
-        metrologyConfiguration.setStatus(MetrologyConfigurationStatus.ACTIVE);
+        metrologyConfiguration.activate();
 
         UsagePoint usagePoint = serviceCategory.newUsagePoint("UsagePoint1", inMemoryBootstrapModule.getClock().instant()).create();
         List<UsagePointMetrologyConfiguration> metrologyConfigurations = getMetrologyConfigurationService().findLinkableMetrologyConfigurations(usagePoint);
