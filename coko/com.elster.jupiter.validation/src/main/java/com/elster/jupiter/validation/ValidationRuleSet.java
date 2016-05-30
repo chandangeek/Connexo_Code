@@ -1,8 +1,9 @@
 package com.elster.jupiter.validation;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.metering.ReadingType;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.time.Instant;
 import java.util.Collection;
@@ -13,9 +14,13 @@ public interface ValidationRuleSet extends IdentifiedObject {
 
     long getId();
 
+    String getApplicationName();
+
     void setMRID(String mRID);
 
     void setName(String name);
+
+    void setApplicationName(String applicationName);
 
     void setAliasName(String aliasName);
 

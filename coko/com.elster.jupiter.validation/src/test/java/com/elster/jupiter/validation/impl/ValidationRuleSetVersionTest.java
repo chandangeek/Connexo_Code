@@ -7,19 +7,24 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryExecutor;
-import com.elster.jupiter.validation.*;
+import com.elster.jupiter.validation.ReadingTypeInValidationRule;
+import com.elster.jupiter.validation.ValidationAction;
+import com.elster.jupiter.validation.ValidationRule;
+import com.elster.jupiter.validation.ValidationRuleProperties;
+
 import com.google.common.collect.ImmutableList;
+
+import javax.inject.Provider;
+import javax.validation.ValidatorFactory;
+import java.util.Arrays;
+import java.util.Collections;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import javax.inject.Provider;
-import javax.validation.ValidatorFactory;
-import java.util.Arrays;
-import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.fest.reflect.core.Reflection.field;
@@ -32,6 +37,7 @@ public class ValidationRuleSetVersionTest extends EqualsContractTest {
     private static final long ID = 651L;
     private static final long OTHER_ID = 426294L;
     private static final String NAME = "name";
+    private static final String APPLICATION = "MDC";
     private ValidationRuleSetImpl validationRuleSet;
     private ValidationRuleSetVersionImpl validationRuleSetVersion;
 
@@ -75,7 +81,7 @@ public class ValidationRuleSetVersionTest extends EqualsContractTest {
         when(dataModel.query(IValidationRule.class, IValidationRuleSet.class, ValidationRuleProperties.class)).thenReturn(queryExecutor);
         when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
         when(dataModel.getValidatorFactory().getValidator()).thenReturn(validator);
-        validationRuleSet = new ValidationRuleSetImpl(dataModel, eventService, versionProvider).init(NAME, null);
+        validationRuleSet = new ValidationRuleSetImpl(dataModel, eventService, versionProvider).init(NAME, APPLICATION, null);
         validationRuleSetVersion = new ValidationRuleSetVersionImpl(dataModel, eventService, ruleProvider).init(validationRuleSet, null, null);
     }
     @After

@@ -49,6 +49,9 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
     @Size(min = 0, max = Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
     private String description;
     private Instant obsoleteTime;
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class})
+    @Size(min = 0, max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
+    private String applicationName;
 
     private long version;
     private Instant createTime;
@@ -70,12 +73,13 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
         this.validationRuleSetVersionProvider = validationRuleSetValidationProvider;
     }
 
-    ValidationRuleSetImpl init(String name) {
-        return init(name, null);
+    ValidationRuleSetImpl init(String name, String applicationName) {
+        return init(name, applicationName, null);
     }
 
-    ValidationRuleSetImpl init(String name, String description) {
+    ValidationRuleSetImpl init(String name, String applicationName, String description) {
         this.name = Checks.is(name).emptyOrOnlyWhiteSpace() ? null : name.trim();
+        this.applicationName = Checks.is(applicationName).emptyOrOnlyWhiteSpace() ? null : applicationName.trim();
         this.description = description;
         return this;
     }
@@ -101,6 +105,11 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
     }
 
     @Override
+    public String getApplicationName() {
+        return applicationName;
+    }
+
+    @Override
     public long getId() {
         return id;
     }
@@ -113,6 +122,11 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
     @Override
     public void setName(String name) {
         this.name = name != null ? name.trim() : null;
+    }
+
+    @Override
+    public void setApplicationName(String applicationName) {
+        this.applicationName = applicationName != null ? applicationName.trim() : null;
     }
 
     @Override
