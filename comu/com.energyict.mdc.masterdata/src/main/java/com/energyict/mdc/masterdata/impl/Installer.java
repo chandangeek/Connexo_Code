@@ -9,7 +9,6 @@ import com.elster.jupiter.upgrade.FullInstaller;
 import com.energyict.mdc.masterdata.MasterDataService;
 
 import javax.inject.Inject;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -19,8 +18,6 @@ import java.util.logging.Logger;
  * @since 2014-04-11 (16:46)
  */
 class Installer implements FullInstaller {
-
-    private final Logger logger = Logger.getLogger(Installer.class.getName());
 
     private final DataModel dataModel;
     private final EventService eventService;
@@ -37,15 +34,18 @@ class Installer implements FullInstaller {
     }
 
     @Override
-    public void install(DataModelUpgrader dataModelUpgrader) {
-        try {
-            dataModelUpgrader.upgrade(dataModel, Version.latest());
-        }
-        catch (Exception e) {
-            this.logger.log(Level.SEVERE, e.getMessage(), e);
-        }
-        createEventTypes();
-        createDefaults();
+    public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
+        dataModelUpgrader.upgrade(dataModel, Version.latest());
+        doTry(
+                "Create event types for MDC master data",
+                this::createEventTypes,
+                logger
+        );
+        doTry(
+                "Create default register types",
+                this::createDefaults,
+                logger
+        );
 
     }
 
@@ -59,12 +59,7 @@ class Installer implements FullInstaller {
 
     private void createEventTypes() {
         for (EventType eventType : EventType.values()) {
-            try {
-                eventType.install(this.eventService);
-            }
-            catch (Exception e) {
-                this.logger.log(Level.SEVERE, e.getMessage(), e);
-            }
+            eventType.install(this.eventService);
         }
     }
 
