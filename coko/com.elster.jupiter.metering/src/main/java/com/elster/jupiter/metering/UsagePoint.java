@@ -177,6 +177,8 @@ public interface UsagePoint extends HasId, IdentifiedObject {
 
     void setConnectionState(ConnectionState connectionState);
 
+    void setConnectionState(ConnectionState connectionState, Instant instant);
+
     void update();
 
     void delete();

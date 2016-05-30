@@ -23,6 +23,7 @@ import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointAccountability;
 import com.elster.jupiter.metering.UsagePointConfiguration;
+import com.elster.jupiter.metering.UsagePointConnectionState;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointReadingTypeConfiguration;
 import com.elster.jupiter.metering.config.ExpressionNode;
@@ -318,7 +319,6 @@ public enum TableSpecs {
             table.column("READROUTE").varChar(NAME_LENGTH).map("readRoute").add();
             table.column("SERVICEPRIORITY").varChar(NAME_LENGTH).map("servicePriority").add();
             table.column("SERVICEDELIVERYREMARK").varChar(SHORT_DESCRIPTION_LENGTH).map("serviceDeliveryRemark").add();
-            table.column("CONNECTIONSTATE").type("varchar2(30)").conversion(CHAR2ENUM).map("connectionState").add();
             table.column("INSTALLATIONTIME")
                     .number()
                     .notNull()
@@ -876,6 +876,26 @@ public enum TableSpecs {
                     .reverseMap("detail")
                     .composition()
                     .add();
+        }
+    },
+    MTR_USAGEPOINTCONNECTIONSTATE {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<UsagePointConnectionState> table = dataModel.addTable(name(), UsagePointConnectionState.class);
+            table.map(UsagePointConnectionStateImpl.class);
+            Column usagePoint = table.column("USAGEPOINT").notNull().number().add();
+            List<Column> intervalColumns = table.addIntervalColumns("interval");
+            table.addAuditColumns();
+            table.column("CONNECTIONSTATE").type("varchar2(30)").conversion(CHAR2ENUM).map("connectionState").add();
+            table.primaryKey("PK_MTR_USAGEPOINTCONNECTIONSTATE").on(usagePoint, intervalColumns.get(0)).add();
+            table.foreignKey("FK_MTR_CONNECTIONSTATE_USAGEPOINT").
+                    on(usagePoint).
+                    references(UsagePoint.class).
+                    onDelete(CASCADE).
+                    map("usagePoint").
+                    reverseMap("connectionState").
+                    composition().
+                    add();
         }
     },
     MTR_METROLOGYCONFIG {

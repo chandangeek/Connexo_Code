@@ -24,6 +24,7 @@ import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointAccountability;
 import com.elster.jupiter.metering.UsagePointConfiguration;
+import com.elster.jupiter.metering.UsagePointConnectionState;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointDetailBuilder;
@@ -98,7 +99,7 @@ public class UsagePointImpl implements UsagePoint {
     private Instant installationTime;
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String serviceDeliveryRemark;
-    private ConnectionState connectionState = ConnectionState.UNDER_CONSTRUCTION;
+    private TemporalReference<UsagePointConnectionState> connectionState = Temporals.absent();
     @SuppressWarnings("unused")
     private long version;
     @SuppressWarnings("unused")
@@ -333,6 +334,10 @@ public class UsagePointImpl implements UsagePoint {
 
     void doSave() {
         if (id == 0) {
+            if(installationTime==null) {
+                throw new IllegalStateException();
+            }
+            this.setConnectionState(ConnectionState.UNDER_CONSTRUCTION, installationTime);
             Save.CREATE.save(dataModel, this);
             eventService.postEvent(EventType.USAGEPOINT_CREATED.topic(), this);
         } else {
@@ -471,12 +476,36 @@ public class UsagePointImpl implements UsagePoint {
 
     @Override
     public ConnectionState getConnectionState() {
-        return connectionState;
+        return this.connectionState.effective(this.clock.instant()).map(UsagePointConnectionState::getConnectionState).orElseThrow(IllegalStateException::new);
     }
 
     @Override
     public void setConnectionState(ConnectionState connectionState) {
-        this.connectionState = connectionState;
+        Instant effective = this.clock.instant();
+        this.closeCurrentConnectionState(effective);
+        this.createNewState(effective,connectionState);
+        this.touch();
+    }
+
+    @Override
+    public void setConnectionState(ConnectionState connectionState, Instant effective) {
+        this.closeCurrentConnectionState(effective);
+        this.createNewState(effective,connectionState);
+        this.touch();
+    }
+
+    private void closeCurrentConnectionState(Instant now){
+        UsagePointConnectionState currentState = this.connectionState.effective(now).get();
+        currentState.close(now);
+        this.dataModel.update(currentState);
+    }
+
+    private void createNewState(Instant effective, ConnectionState connectionState) {
+        Interval stateEffectivityInterval = Interval.of(Range.atLeast(effective));
+        UsagePointConnectionState usagePointConnectionState = this.dataModel
+                .getInstance(UsagePointConnectionStateImpl.class)
+                .initialize(stateEffectivityInterval, this, connectionState);
+        this.connectionState.add(usagePointConnectionState);
     }
 
     @Override
