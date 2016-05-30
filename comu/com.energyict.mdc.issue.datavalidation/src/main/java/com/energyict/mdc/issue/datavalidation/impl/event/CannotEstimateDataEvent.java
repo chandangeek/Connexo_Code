@@ -15,6 +15,7 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.issue.datavalidation.OpenIssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.impl.MessageSeeds;
+
 import com.google.common.collect.Range;
 import com.google.inject.Inject;
 
@@ -51,7 +52,7 @@ public class CannotEstimateDataEvent extends DataValidationEvent {
             Channel channel = findChannel().get();
             ReadingType readingType = findReadingType().get();
             List<ReadingQualityRecord> actualReadingQuality = channel.getCimChannel(readingType).get()
-                    .findActualReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), Range.closed(startTime, endTime));
+                    .findActualReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), Range.closed(startTime, endTime));
             actualReadingQuality.forEach(rq -> dataValidationIssue.addNotEstimatedBlock(channel, readingType, rq.getReadingTimestamp()));
         }
     }

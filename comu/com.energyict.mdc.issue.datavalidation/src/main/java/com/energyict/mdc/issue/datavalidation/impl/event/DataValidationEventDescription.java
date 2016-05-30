@@ -1,12 +1,12 @@
 package com.energyict.mdc.issue.datavalidation.impl.event;
 
-import java.util.Map;
-
-import org.osgi.service.event.EventConstants;
-
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.ReadingQualityType;
+
+import org.osgi.service.event.EventConstants;
+
+import java.util.Map;
 
 
 public enum DataValidationEventDescription {
@@ -17,7 +17,7 @@ public enum DataValidationEventDescription {
         public boolean matches(Map<?, ?> map) {
             if (super.matches(map)) {
                 String readingQualityCode = (String) map.get("readingQualityTypeCode");
-                return ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT).getCode().equals(readingQualityCode);
+                return ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT).getCode().equals(readingQualityCode);
             }
             return false;
         }
