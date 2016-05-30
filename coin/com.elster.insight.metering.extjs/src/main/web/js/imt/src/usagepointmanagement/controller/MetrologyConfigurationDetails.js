@@ -35,23 +35,28 @@ Ext.define('Imt.usagepointmanagement.controller.MetrologyConfigurationDetails', 
 
     showUsagePointMetrologyConfiguration: function (mRID) {
         var me = this,
-            router = me.getController('Uni.controller.history.Router');
+            viewport = Ext.ComponentQuery.query('viewport')[0],
+            router = me.getController('Uni.controller.history.Router'),
+            usagePointsController = me.getController('Imt.usagepointmanagement.controller.View');
 
-        me.getModel('Imt.usagepointmanagement.model.UsagePoint').load(mRID, {
-            success: function (record) {
+        usagePointsController.loadUsagePoint(mRID, {
+            success: function (types, usagePoint) {
                 me.getApplication().fireEvent('changecontentevent', Ext.widget('usage-point-metrology-configuration-details', {
                     itemId: 'usage-point-metrology-configuration-details',
                     router: router,
-                    usagePoint: record,
-                    meterRolesAvailable: record.get('metrologyConfiguration_meterRoles')
+                    usagePoint: usagePoint,
+                    meterRolesAvailable: usagePoint.get('metrologyConfiguration_meterRoles')
                 }));
+            },
+            failure: function () {
+                viewport.setLoading(false);
             }
         });
     },
 
     showPreview: function (selectionModel, record) {
         var me = this;
-
+        
         Ext.suspendLayouts();
         me.getPage().down('purposes-preview').setTitle(Ext.String.htmlEncode(record.get('name')));
         me.getPage().down('#purposes-preview-container').removeAll(true);
@@ -61,10 +66,21 @@ Ext.define('Imt.usagepointmanagement.controller.MetrologyConfigurationDetails', 
             }
         ));
         Ext.Array.each(record.get('meterRoles'), function (meterRole) {
+            var deviceLink;
+            if (meterRole.mRID) {
+                if (Uni.store.Apps.checkApp('Multisense')) {
+                    deviceLink = Ext.String.format('<a href="{0}">{1}</a>', Ext.String.format('{0}/devices/{1}', Uni.store.Apps.getAppUrl('Multisense'), encodeURIComponent(meterRole.mRID)), Ext.String.htmlEncode(meterRole.mRID));
+                } else {
+                    deviceLink = Ext.String.htmlEncode(meterRole.mRID);
+                }                
+            } else {
+                deviceLink = '-';
+            }
             me.getPage().down('#purposes-preview-container').add(Ext.widget('displayfield', {
+                    htmlEncode: false,
                     fieldLabel: meterRole.name,
                     itemId: meterRole.mRID,
-                    value: meterRole.mRID || '-'
+                    value: deviceLink
                 }
             ));
         });

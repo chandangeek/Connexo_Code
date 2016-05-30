@@ -36,36 +36,31 @@ Ext.define('Imt.usagepointhistory.controller.History', {
     showHistory: function (mRID) {
         var me = this,
             app = me.getApplication(),
+            viewport = Ext.ComponentQuery.query('viewport')[0],
             router = me.getController('Uni.controller.history.Router'),
             customAttributesStore = me.getStore('Imt.customattributesonvaluesobjects.store.UsagePointCustomAttributeSets'),
-            mainView = Ext.ComponentQuery.query('#contentPanel')[0],
-            dependenciesCounter = 2,
-            showPage = function () {
-                var widget, tabPanel;
+            usagePointsController = me.getController('Imt.usagepointmanagement.controller.View');
 
-                dependenciesCounter--;
-                if (!dependenciesCounter) {
+        viewport.setLoading();
+        usagePointsController.loadUsagePoint(mRID, {
+            success: function (types, usagePoint) {
+                customAttributesStore.getProxy().setUrl(mRID);
+                customAttributesStore.load(function () {
+                    var widget, tabPanel;
+
                     widget =  Ext.widget('usage-point-history', {
                         itemId: 'usage-point-history',
                         router: router,
                         usagePoint: usagePoint
                     });
                     app.fireEvent('changecontentevent',widget);
-                    mainView.setLoading(false);
+                    viewport.setLoading(false);
                     tabPanel = widget.down('#usage-point-history-tab-panel');
                     tabPanel.fireEvent('beforetabchange', tabPanel, tabPanel.getActiveTab(), undefined, undefined, true);
-                }
+                });
             },
-            usagePoint;
-
-        customAttributesStore.getProxy().setUrl(mRID);
-        customAttributesStore.load(showPage);
-        mainView.setLoading();
-        me.getModel('Imt.usagepointmanagement.model.UsagePoint').load(mRID, {
-            success: function (record) {
-                usagePoint = record;
-                app.fireEvent('usagePointLoaded', record);
-                showPage();
+            failure: function () {
+                viewport.setLoading(false);
             }
         });
     },

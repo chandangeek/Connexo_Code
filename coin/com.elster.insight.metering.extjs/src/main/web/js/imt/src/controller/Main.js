@@ -11,32 +11,26 @@ Ext.define('Imt.controller.Main', {
         'Imt.devicemanagement.controller.Device',
         'Imt.usagepointmanagement.model.UsagePoint',
         'Imt.devicemanagement.model.Device',
-        'Imt.channeldata.controller.Channels',
-        'Imt.channeldata.controller.ChannelData',
-        'Imt.registerdata.controller.View',
         'Imt.validation.controller.UsagePointDataValidation',
         'Imt.metrologyconfiguration.controller.ValidationRuleSets',
         'Imt.dynamicprivileges.UsagePoint',
         'Imt.dynamicprivileges.Stores',
         'Imt.processes.controller.MonitorProcesses',
-        'Imt.servicecalls.controller.ServiceCalls'
+        'Imt.servicecalls.controller.ServiceCalls',
+        'Imt.metrologyconfiguration.controller.View',
+        'Imt.usagepointsetup.controller.MetrologyConfig'
     ],
 
     privileges: [],
     models: [
         'Imt.usagepointmanagement.model.UsagePoint',
         'Imt.metrologyconfiguration.model.MetrologyConfiguration',
-        'Imt.devicemanagement.model.Device',
-        'Imt.channeldata.model.Channel',
-        'Imt.registerdata.model.Register'
+        'Imt.devicemanagement.model.Device'
     ],
     controllers: [
-		'Imt.usagepointmanagement.controller.View',
-		'Imt.usagepointmanagement.controller.Edit',
-		'Imt.devicemanagement.controller.Device',
-        'Imt.channeldata.controller.Channels',
-        'Imt.channeldata.controller.ChannelData',
-        'Imt.registerdata.controller.View',
+        'Imt.usagepointmanagement.controller.View',
+        'Imt.usagepointmanagement.controller.Edit',
+        'Imt.devicemanagement.controller.Device',
         'Imt.metrologyconfiguration.controller.View',
         'Imt.metrologyconfiguration.controller.Edit',
         'Imt.metrologyconfiguration.controller.ViewList',
@@ -49,6 +43,8 @@ Ext.define('Imt.controller.Main', {
         'Imt.customattributesonvaluesobjects.controller.CustomAttributeSetVersions',
         'Imt.processes.controller.MonitorProcesses',
         'Imt.usagepointmanagement.controller.Attributes',
+        'Imt.usagepointsetup.controller.MetrologyConfig',
+        'Imt.purpose.controller.Purpose',
         'Imt.usagepointmanagement.controller.MetrologyConfigurationDetails'
     ],
     stores: [
@@ -69,10 +65,10 @@ Ext.define('Imt.controller.Main', {
         this.callParent();
     },
 
-    initHistorians: function() {
+    initHistorians: function () {
         this.getController('Imt.controller.History');
     },
-    
+
     initMenu: function () {
     	if (Imt.privileges.UsagePoint.canAdministrate()) {
 	        var menuItem = Ext.create('Uni.model.MenuItem', {

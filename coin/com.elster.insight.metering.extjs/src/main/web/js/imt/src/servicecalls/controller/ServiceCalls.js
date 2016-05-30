@@ -83,17 +83,22 @@ Ext.define('Imt.servicecalls.controller.ServiceCalls', {
 
     showTabbedView: function (mRID, activeTab) {
         var me = this,
+            viewport = Ext.ComponentQuery.query('viewport')[0],
             router = me.getController('Uni.controller.history.Router'),
             widget,
             historyStore = Ext.getStore('Scs.store.object.ServiceCallHistory'),
-            runningStore = Ext.getStore('Scs.store.object.RunningServiceCalls');
+            runningStore = Ext.getStore('Scs.store.object.RunningServiceCalls'),
+            usagePointsController = me.getController('Imt.usagepointmanagement.controller.View');
 
+        viewport.setLoading();
         me.historyAdded = false;
         runningStore.getProxy().setUrl('/api/udr/usagepoints/' + encodeURIComponent(mRID) + '/runningservicecalls');
-        Ext.ModelManager.getModel('Imt.usagepointmanagement.model.UsagePoint').load(mRID, {
-            success: function (usagepoint) {
+
+        usagePointsController.loadUsagePoint(mRID, {
+            success: function (types, usagepoint) {
                 widget = Ext.widget('service-calls-setup', {
                     mRID: usagepoint.get('mRID'),
+                    usagePoint: usagepoint,
                     router: router,
                     activeTab: activeTab
                 });
@@ -104,6 +109,10 @@ Ext.define('Imt.servicecalls.controller.ServiceCalls', {
                 }
                 me.getApplication().fireEvent('usagePointLoaded', usagepoint);
                 me.getApplication().fireEvent('changecontentevent', widget);
+                viewport.setLoading(false);
+            },
+            failure: function () {
+                viewport.setLoading(false);
             }
         });
     },

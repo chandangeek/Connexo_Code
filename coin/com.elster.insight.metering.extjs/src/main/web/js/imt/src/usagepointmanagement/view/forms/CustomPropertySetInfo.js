@@ -15,7 +15,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.CustomPropertySetInfo', {
             {
                 itemId: 'restore-property-form-values-button',
                 text: Uni.I18n.translate('general.restoreToDefault', 'IMT', 'Restore to default'),
-                iconCls: 'icon-spinner12',
+                iconCls: 'icon-rotate-ccw3',
                 iconAlign: 'left',
                 handler: function () {
                     me.restoreAll();

@@ -60,15 +60,16 @@ Ext.define('Imt.usagepointmanagement.controller.Attributes', {
                     Ext.resumeLayouts(true);
                 }
             },
-            usagePoint;
+            usagePoint,
+            usagePointsController = me.getController('Imt.usagepointmanagement.controller.View');
 
         mainView.setLoading();
         me.getStore('Imt.usagepointmanagement.store.UsagePointTypes').load(showPage);
         me.getStore('Imt.usagepointmanagement.store.PhaseCodes').load(showPage);
         me.getStore('Imt.usagepointmanagement.store.BypassStatuses').load(showPage);
-        me.getModel('Imt.usagepointmanagement.model.UsagePoint').load(mRID, {
-            success: function (record) {
-                usagePoint = record;
+        usagePointsController.loadUsagePoint(mRID, {
+            success: function (types, up) {
+                usagePoint = up;
                 showPage();
             },
             failure: function () {

@@ -63,7 +63,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.ViewEditForm', {
                     me.editForm.xtype === 'property-form' ? {
                         itemId: 'edit-form-restore-default-values-button',
                         text: Uni.I18n.translate('general.restoreToDefault', 'IMT', 'Restore to default'),
-                        iconCls: 'icon-spinner12',
+                        iconCls: 'icon-rotate-ccw3',
                         iconAlign: 'left',
                         handler: function () {
                             me.getEditForm().restoreAll();

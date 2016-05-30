@@ -12,6 +12,7 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
 
     router: null,
     usagePoint: null,
+    purposes: null,
 
     initComponent: function () {
         var me = this;
@@ -32,7 +33,7 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                         xtype: 'button',
                         itemId: 'usage-point-refresh-data',
                         text: Uni.I18n.translate('general.refresh', 'IMT', 'Refresh'),
-                        iconCls: 'icon-spinner12',
+                        iconCls: 'icon-spinner11',
                         iconAlign: 'left',
                         margin: '0 16 0 10',
                         handler: function () {
@@ -89,6 +90,8 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                                     {
                                         xtype: 'usage-point-metrology-config',
                                         itemId: 'usage-point-metrology-config',
+                                        meterActivationsStore: me.meterActivationsStore,
+                                        usagePoint: me.usagePoint,
                                         title: Uni.I18n.translate('general.metrologyConfiguration', 'IMT', 'Metrology configuration'),
                                         router: me.router
                                     },
@@ -124,7 +127,8 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                         xtype: 'usage-point-management-side-menu',
                         itemId: 'usage-point-management-side-menu',
                         router: me.router,
-                        usagePoint: me.usagePoint
+                        usagePoint: me.usagePoint,
+                        purposes: me.purposes
                     }
                 ]
             }

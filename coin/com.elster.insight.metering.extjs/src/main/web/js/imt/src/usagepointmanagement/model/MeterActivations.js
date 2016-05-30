@@ -6,6 +6,7 @@ Ext.define('Imt.usagepointmanagement.model.MeterActivations', {
         {name: 'start', type: 'number', useNull: true},
         {name: 'end', type: 'number', useNull: true},
         {name: 'version', type: 'number', useNull: true},
-        {name: 'meter', type: 'auto'}
+        {name: 'meter', type: 'auto'},
+        {name: 'meterRole', type: 'auto'}
     ]
 });

@@ -10,6 +10,9 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointSideMenu', {
     
     initComponent: function () {
         var me = this,
+            usagePoint = me.usagePoint,
+            purposes = usagePoint.get('purposes'),
+            metrologyConfiguration = usagePoint.get('metrologyConfiguration'),
             iconStyle,
             serviceCategory,
             connectionState;
@@ -54,18 +57,45 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointSideMenu', {
                 items: [
                     {
                         text: Uni.I18n.translate('general.label.metrologyconfiguration', 'IMT', 'Metrology configuration'),
-                        itemId: 'usage-point-metrology-configuration-link',
-                        privileges: Imt.privileges.UsagePoint.view,
+                        itemId: 'usage-point-metrology-configuration-link',                        
                         href: me.router.getRoute('usagepoints/view/metrologyconfiguration').buildUrl()
                     }
                 ]
             }
         ];
 
-        if (me.usagePoint) {
+        if (purposes && purposes.length) {
+            var items = [];
+            purposes.map(function(purpose) {
+                if (purpose.get('active')) {
+                    var status = purpose.get('status'),
+                        icon = '&nbsp;&nbsp;<i class="icon ' + (status.id == 'incomplete' ? 'icon-warning2' : 'icon-checkmark-circle2') + '" style="display: inline-block; width: 16px; height: 16px;" data-qtip="'
+                            + status.name
+                            + '"></i>';
+
+                    items.push({
+                        text: purpose.get('name') + icon,
+                        privileges: Imt.privileges.MetrologyConfig.view,
+                        htmlEncode: false,
+                        itemId: 'usage-point-pupose-' + purpose.getId(),
+                        href: me.router.getRoute('usagepoints/view/purpose').buildUrl({purposeId: purpose.getId()})
+                    });
+                }
+            });
+
+            if (items.length) {
+                me.menuItems.push({
+                    title: Uni.I18n.translate('usagepoint.menu.data', 'IMT', 'Data'),
+                    privileges: Imt.privileges.MetrologyConfig.view,
+                    items: items
+                })
+            }
+        }
+
+        if (usagePoint) {
             iconStyle = "color: #686868;font-size: 16px;";
-            serviceCategory = me.usagePoint.get('serviceCategory');
-            connectionState = me.usagePoint.get('connectionState');
+            serviceCategory = usagePoint.get('serviceCategory');
+            connectionState = usagePoint.get('connectionState');
             me.tools = [];
             if (serviceCategory) {
                 me.tools.push({

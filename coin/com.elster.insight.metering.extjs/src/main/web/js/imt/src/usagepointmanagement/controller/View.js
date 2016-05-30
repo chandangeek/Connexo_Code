@@ -20,7 +20,8 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
         'Imt.usagepointmanagement.store.measurementunits.Volume',
         'Imt.usagepointmanagement.store.measurementunits.Pressure',
         'Imt.usagepointmanagement.store.measurementunits.Capacity',
-        'Imt.usagepointmanagement.store.measurementunits.EstimationLoad'
+        'Imt.usagepointmanagement.store.measurementunits.EstimationLoad',
+        'Imt.usagepointmanagement.store.Purposes'
     ],
 
     models: [
@@ -31,32 +32,53 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
         'Imt.usagepointmanagement.view.Setup'
     ],
 
+    loadUsagePoint: function (mRID, callback) {
+        var me = this,
+            app = me.getApplication(),
+            failure = callback.failure,
+            purposesStore = me.getStore('Imt.usagepointmanagement.store.Purposes');
+
+        me.getStore('Imt.usagepointmanagement.store.UsagePointTypes').load(function(usagePointTypes, op, success) {
+            if (success) {
+                me.getModel('Imt.usagepointmanagement.model.UsagePoint').load(mRID, {
+                    success: function (usagePoint) {
+                        app.fireEvent('usagePointLoaded', usagePoint);
+                        purposesStore.getProxy().extraParams = {mRID: mRID};
+                        purposesStore.load(function(purposes, op, success) {
+                            if (success) {
+                                usagePoint.set('purposes', purposes);
+                                app.fireEvent('purposes-loaded', purposes);
+                                callback.success(usagePointTypes, usagePoint, purposes);
+                            } else {
+                                failure();
+                            }
+                        });
+                    },
+                    failure: failure
+                });
+            } else {
+                failure();
+            }
+        });
+    },
+
     showUsagePoint: function (mRID) {
         var me = this,
             app = me.getApplication(),
             router = me.getController('Uni.controller.history.Router'),
-            mainView = Ext.ComponentQuery.query('#contentPanel')[0],
-            dependenciesCounter = 2,
-            showPage = function () {
-                dependenciesCounter--;
-                if (!dependenciesCounter) {
-                    app.fireEvent('usagePointLoaded', usagePoint);
-                    app.fireEvent('changecontentevent', Ext.widget('usage-point-management-setup', {
-                        itemId: 'usage-point-management-setup',
-                        router: router,
-                        usagePoint: usagePoint
-                    }));
-                    mainView.setLoading(false);
-                }
-            },
-            usagePoint;
+            mainView = Ext.ComponentQuery.query('#contentPanel')[0];
 
         mainView.setLoading();
-        me.getStore('Imt.usagepointmanagement.store.UsagePointTypes').load(showPage);
-        me.getModel('Imt.usagepointmanagement.model.UsagePoint').load(mRID, {
-            success: function (record) {
-                usagePoint = record;
-                showPage();
+        me.loadUsagePoint(mRID, {
+            success: function (types, usagePoint, purposes) {
+                app.fireEvent('changecontentevent', Ext.widget('usage-point-management-setup', {
+                    itemId: 'usage-point-management-setup',
+                    meterActivationsStore: me.getStore('Imt.usagepointmanagement.store.MeterActivations'),
+                    router: router,
+                    usagePoint: usagePoint,
+                    purposes: purposes
+                }));
+                mainView.setLoading(false);
             },
             failure: function () {
                 mainView.setLoading(false);

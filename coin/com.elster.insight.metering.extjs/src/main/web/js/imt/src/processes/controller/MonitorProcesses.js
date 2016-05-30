@@ -18,34 +18,34 @@ Ext.define('Imt.processes.controller.MonitorProcesses', {
         {ref: 'overviewLink', selector: '#usage-point-overview-link'}
     ],
 
-    showUsagePointProcesses: function (usagePointId) {
+    showUsagePointProcesses: function (mRID) {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0],
-            router = me.getController('Uni.controller.history.Router');
+            router = me.getController('Uni.controller.history.Router'),
+            usagePointsController = me.getController('Imt.usagepointmanagement.controller.View');
 
         viewport.setLoading();
 
-        Ext.ModelManager.getModel('Imt.usagepointmanagement.model.UsagePoint').load(usagePointId, {
-            success: function (usagepoint) {
+        usagePointsController.loadUsagePoint(mRID, {
+            success: function (types, usagePoint) {
                 var widget;
 
-                me.getApplication().fireEvent('usagePointLoaded', usagepoint);
+                me.getApplication().fireEvent('usagePointLoaded', usagePoint);
                 viewport.setLoading(false);
                 widget = Ext.widget('usage-point-processes-main-view', {
                     router: router,
-                    usagePoint: usagepoint,
+                    usagePoint: usagePoint,
                     properties: {
                         variableId: 'usagePointId',
                         name: 'usagePoint',
-                        value: usagepoint.get('id'),
+                        value: mRID,
                         route: Dbp.privileges.DeviceProcesses.canAssignOrExecute()? 'workspace/tasks/performTask': null
                     }
-            });
-            me.getApplication().fireEvent('changecontentevent', widget);
-            me.getOverviewLink().setText(usagepoint.get('mRID'));
-
+                });
+                me.getApplication().fireEvent('changecontentevent', widget);
+                me.getOverviewLink().setText(usagePoint.get('mRID'));
             },
-            failure: function (response) {
+            failure: function () {
                 viewport.setLoading(false);
             }
         });
@@ -54,25 +54,26 @@ Ext.define('Imt.processes.controller.MonitorProcesses', {
     showUsagePointStartProcess: function (mRID) {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0],
-            router = me.getController('Uni.controller.history.Router');
+            router = me.getController('Uni.controller.history.Router'),
+            usagePointsController = me.getController('Imt.usagepointmanagement.controller.View');
 
         viewport.setLoading();
 
-        Ext.ModelManager.getModel('Imt.usagepointmanagement.model.UsagePoint').load(mRID, {
-            success: function (record) {
+        usagePointsController.loadUsagePoint(mRID, {
+            success: function (types, usagePoint) {
                 var widget;
 
-                me.getApplication().fireEvent('usagePointLoaded', record);
+                me.getApplication().fireEvent('usagePointLoaded', usagePoint);
                 viewport.setLoading(false);
                 widget = Ext.widget('usage-point-processes-start', {
-                    usagePoint: record,
+                    usagePoint: usagePoint,
                     router: router,
                     properties: {
                         activeProcessesParams: {
                             type: 'usagePoint',
-                            metrologyConfigurations: record.raw.metrologyConfiguration ? record.raw.metrologyConfiguration.id : null,
+                            metrologyConfigurations: usagePoint.raw.metrologyConfiguration ? usagePoint.raw.metrologyConfiguration.id : null,
                             privileges: Ext.encode(me.getPrivileges()),
-                            connectionStates: record.get('connectionState').id
+                            connectionStates: usagePoint.get('connectionState').id
                         },
                         startProcessParams: [
                             {
@@ -93,9 +94,8 @@ Ext.define('Imt.processes.controller.MonitorProcesses', {
                     }
                 });
                 me.getApplication().fireEvent('changecontentevent', widget);
-
             },
-            failure: function (response) {
+            failure: function () {
                 viewport.setLoading(false);
             }
         });

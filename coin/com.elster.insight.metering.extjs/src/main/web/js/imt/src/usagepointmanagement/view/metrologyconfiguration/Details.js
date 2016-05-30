@@ -52,7 +52,7 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.Details', {
                         stepItems: [
                             {
                                 text: Uni.I18n.translate('usagePoint.metrologyConfiguration.define', 'IMT', 'Define metrology configuration'),
-                                privileges: Imt.privileges.MetrologyConfig.all,
+                                privileges: Imt.privileges.UsagePoint.canAdministrate,
                                 href: me.router.getRoute('usagepoints/view/definemetrology').buildUrl(),
                                 action: 'define',
                                 itemId: 'define-metrology-configuration'
@@ -148,7 +148,7 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.Details', {
         ];
         me.callParent(arguments);
         purposesStore.fireEvent('load');
-        if (me.meterRolesAvailable) {
+        if (!Ext.isEmpty(me.meterRolesAvailable)) {
             me.down('#metrology-configuration-details-form').insert(2, {
                 xtype: 'meter-roles-grid',
                 store: meterRolesStore,
