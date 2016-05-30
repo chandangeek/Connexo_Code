@@ -104,7 +104,7 @@ Ext.define('Mdc.metrologyconfiguration.controller.ListView', {
             page = me.getPage(),
             isActive = record.get('status').id === 'active';
 
-        record.set('status', {ids: isActive ? 'inactive' : 'active'});
+        record.set('status', {id: isActive ? 'inactive' : 'active'});
         page.setLoading();
         record.save({
             isNotEdit: true,
