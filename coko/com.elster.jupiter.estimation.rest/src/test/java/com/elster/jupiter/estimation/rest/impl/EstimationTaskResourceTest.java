@@ -10,6 +10,8 @@ import com.elster.jupiter.time.RelativeField;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.util.time.Never;
 
+import com.jayway.jsonpath.JsonModel;
+
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.lang.reflect.InvocationHandler;
@@ -18,7 +20,9 @@ import java.lang.reflect.Proxy;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -66,6 +70,9 @@ public class EstimationTaskResourceTest extends EstimationApplicationJerseyTest 
     public static final ZonedDateTime NEXT_EXECUTION = ZonedDateTime.of(2015, 1, 13, 0, 0, 0, 0, ZoneId.systemDefault());
     public static final int TASK_ID = 750;
 
+    public static final String MULTISENSE_KEY = "MDC";
+    public static final String HEADER_NAME = "X-CONNEXO-APPLICATION-NAME";
+
     @Before
     public void setUpMocks() {
         doReturn(query).when(estimationService).getEstimationTaskQuery();
@@ -73,6 +80,7 @@ public class EstimationTaskResourceTest extends EstimationApplicationJerseyTest 
         doReturn(Collections.singletonList(estimationTask)).when(restQuery).select(any(), anyVararg());
         when(estimationTask.getEndDeviceGroup()).thenReturn(endDeviceGroup);
         when(estimationTask.getPeriod()).thenReturn(Optional.of(period));
+        when(estimationTask.getApplication()).thenReturn(MULTISENSE_KEY);
         when(period.getRelativeDateFrom()).thenReturn(new RelativeDate(RelativeField.DAY.minus(1)));
         when(period.getRelativeDateTo()).thenReturn(new RelativeDate());
         when(estimationTask.getNextExecution()).thenReturn(NEXT_EXECUTION.toInstant());
@@ -80,12 +88,14 @@ public class EstimationTaskResourceTest extends EstimationApplicationJerseyTest 
         when(estimationTask.getScheduleExpression()).thenReturn(Never.NEVER);
         when(estimationService.newBuilder()).thenReturn(builder);
         when(estimationTask.getName()).thenReturn("Name");
+        when(estimationTask.getId()).thenReturn(750L);
         when(estimationTask.getLastOccurrence()).thenReturn(Optional.empty());
         when(estimationTask.getLastRun()).thenReturn(Optional.<Instant>empty());
 
         doReturn(Optional.of(estimationTask)).when(estimationService).findEstimationTask(TASK_ID);
         doReturn(Optional.of(estimationTask)).when(estimationService).findAndLockEstimationTask(TASK_ID, 1L);
         doReturn(Optional.empty()).when(estimationService).findAndLockEstimationTask(TASK_ID, 2L);
+        doReturn(Arrays.asList(estimationTask)).when(estimationService).findEstimationTasks();
     }
 
     @After
@@ -95,12 +105,13 @@ public class EstimationTaskResourceTest extends EstimationApplicationJerseyTest 
 
     @Test
     public void getTasksTest() {
-        Response response1 = target("/estimation/tasks").request().get();
-        assertThat(response1.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
-        EstimationTaskInfos infos = response1.readEntity(EstimationTaskInfos.class);
-        assertThat(infos.total).isEqualTo(1);
-        assertThat(infos.estimationTasks).hasSize(1);
+        String jsonFromMultisense = target("/estimation/tasks").request().header(HEADER_NAME, MULTISENSE_KEY).get(String.class);
+
+        JsonModel jsonModelFromMultisense = JsonModel.create(jsonFromMultisense);
+        assertThat(jsonModelFromMultisense.<Number>get("$.total")).isEqualTo(1);
+        assertThat(jsonModelFromMultisense.<Number>get("$.estimationTasks[0].id")).isEqualTo(TASK_ID);
+        assertThat(jsonModelFromMultisense.<String>get("$.estimationTasks[0].name")).isEqualTo("Name");
     }
 
     @Test
@@ -112,7 +123,7 @@ public class EstimationTaskResourceTest extends EstimationApplicationJerseyTest 
         info.version = 1L;
         Entity<EstimationTaskInfo> json = Entity.json(info);
 
-        Response response1 = target("/estimation/tasks/"+TASK_ID+"/trigger").request().put(json);
+        Response response1 = target("/estimation/tasks/"+TASK_ID+"/trigger").request().header(HEADER_NAME, MULTISENSE_KEY).put(json);
         assertThat(response1.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
         verify(estimationTask).triggerNow();
@@ -128,7 +139,7 @@ public class EstimationTaskResourceTest extends EstimationApplicationJerseyTest 
         info.deviceGroup.id = 5;
         Entity<EstimationTaskInfo> json = Entity.json(info);
 
-        Response response = target("/estimation/tasks").request().post(json);
+        Response response = target("/estimation/tasks").request().header(HEADER_NAME, MULTISENSE_KEY).post(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
     }
 
@@ -141,8 +152,8 @@ public class EstimationTaskResourceTest extends EstimationApplicationJerseyTest 
         info.version = 1L;
         Entity<EstimationTaskInfo> json = Entity.json(info);
 
-        Response response = target("/estimation/tasks/" + TASK_ID).request().put(json);
-        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
+        Response response = target("/estimation/tasks/" + TASK_ID).request().header(HEADER_NAME, MULTISENSE_KEY).put(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 
     @Test
@@ -154,7 +165,7 @@ public class EstimationTaskResourceTest extends EstimationApplicationJerseyTest 
         info.version = 2L;
         Entity<EstimationTaskInfo> json = Entity.json(info);
 
-        Response response = target("/estimation/tasks/" + TASK_ID).request().put(json);
+        Response response = target("/estimation/tasks/" + TASK_ID).request().header(HEADER_NAME, MULTISENSE_KEY).put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
     }
 

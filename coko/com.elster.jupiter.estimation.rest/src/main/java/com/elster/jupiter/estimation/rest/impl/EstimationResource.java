@@ -336,41 +336,38 @@ public class EstimationResource {
     @Path("/tasks")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION, Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.UPDATE_ESTIMATION_CONFIGURATION, Privileges.Constants.UPDATE_SCHEDULE_ESTIMATION_TASK, Privileges.Constants.RUN_ESTIMATION_TASK, Privileges.Constants.VIEW_ESTIMATION_TASK, Privileges.Constants.ADMINISTRATE_ESTIMATION_TASK})
-    public EstimationTaskInfos getEstimationTasks(@Context UriInfo uriInfo) {
+    public PagedInfoList getEstimationTasks(@Context UriInfo uriInfo,
+                                            @HeaderParam(APPLICATION_HEADER_PARAM) String applicationName,
+                                            @BeanParam JsonQueryParameters queryParameters) {
+        List<EstimationTaskInfo> infos = estimationService.findEstimationTasks()
+                .stream()
+                .filter(task -> task.getApplication().equals(applicationName))
+                .map(et -> new EstimationTaskInfo(et, thesaurus))
+                .collect(Collectors.toList());
 
-        QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
-        List<? extends EstimationTask> list = queryTasks(params);
-
-        EstimationTaskInfos infos = new EstimationTaskInfos(params.clipToLimit(list), thesaurus);
-        infos.total = params.determineTotal(list.size());
-
-        return infos;
-    }
-
-    private List<? extends EstimationTask> queryTasks(QueryParameters queryParameters) {
-        Query<? extends EstimationTask> query = estimationService.getEstimationTaskQuery();
-        RestQuery<? extends EstimationTask> restQuery = queryService.wrap(query);
-        return restQuery.select(queryParameters, Order.descending("lastRun").nullsLast());
+        return PagedInfoList.fromCompleteList("estimationTasks", infos, queryParameters);
     }
 
     @GET
     @Path("/tasks/{id}/")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION, Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.UPDATE_ESTIMATION_CONFIGURATION, Privileges.Constants.UPDATE_SCHEDULE_ESTIMATION_TASK, Privileges.Constants.RUN_ESTIMATION_TASK, Privileges.Constants.VIEW_ESTIMATION_TASK, Privileges.Constants.ADMINISTRATE_ESTIMATION_TASK})
-    public EstimationTaskInfo getEstimationTask(@PathParam("id") long id, @Context SecurityContext securityContext) {
-        return new EstimationTaskInfo(fetchEstimationTask(id), thesaurus);
+    public EstimationTaskInfo getEstimationTask(@PathParam("id") long id,
+                                                @HeaderParam(APPLICATION_HEADER_PARAM) String applicationName,
+                                                @Context SecurityContext securityContext) {
+        return new EstimationTaskInfo(fetchEstimationTask(id, applicationName), thesaurus);
     }
 
     @PUT
     @Path("/tasks/{id}/trigger")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION, Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.UPDATE_ESTIMATION_CONFIGURATION, Privileges.Constants.UPDATE_SCHEDULE_ESTIMATION_TASK, Privileges.Constants.RUN_ESTIMATION_TASK})
-    public Response triggerEstimationTask(EstimationTaskInfo info) {
-        transactionService.execute(VoidTransaction.of(() -> estimationService.findAndLockEstimationTask(info.id, info.version)
+    public Response triggerEstimationTask(EstimationTaskInfo info, @HeaderParam(APPLICATION_HEADER_PARAM) String applicationName) {
+        transactionService.execute(VoidTransaction.of(() -> findAndLockEstimationTaskByIdAndVersionInApplication(info.id, info.version, applicationName)
                 .orElseThrow(conflictFactory.conflict()
                         .withMessageTitle(MessageSeeds.RUN_TASK_CONCURRENT_TITLE, info.name)
                         .withMessageBody(MessageSeeds.RUN_TASK_CONCURRENT_BODY, info.name)
-                        .withActualVersion(() -> estimationService.findEstimationTask(info.id).map(EstimationTask::getVersion).orElse(null))
+                        .withActualVersion(() -> findEstimationTaskInApplication(info.id, applicationName).map(EstimationTask::getVersion).orElse(null))
                         .supplier())
                 .triggerNow()));
         return Response.status(Response.Status.OK).build();
@@ -381,11 +378,11 @@ public class EstimationResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION)
-    public Response addEstimationTask(EstimationTaskInfo info) {
+    public Response addEstimationTask(EstimationTaskInfo info, @HeaderParam(APPLICATION_HEADER_PARAM) String applicationName) {
         try (TransactionContext context = transactionService.getContext()) {
             EstimationTask dataExportTask = estimationService.newBuilder()
                     .setName(info.name)
-                    .setApplication(info.application)
+                    .setApplication(applicationName)
                     .setScheduleExpression(getScheduleExpression(info))
                     .setNextExecution(info.nextRun == null ? null : Instant.ofEpochMilli(info.nextRun))
                     .setPeriod(getRelativePeriod(info.period))
@@ -399,10 +396,11 @@ public class EstimationResource {
     @Path("/tasks/{id}/")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION)
-    public Response removeEstimationTask(@PathParam("id") long id, EstimationTaskInfo info) {
+    public Response removeEstimationTask(@PathParam("id") long id, EstimationTaskInfo info,
+                                         @HeaderParam(APPLICATION_HEADER_PARAM) String applicationName) {
         String taskName = "id = " + id;
         try (TransactionContext context = transactionService.getContext()) {
-            EstimationTask task = findAndLockTask(info);
+            EstimationTask task = findAndLockTask(info, applicationName);
             taskName = task.getName();
             if (!task.canBeDeleted()) {
                 throw new LocalizedFieldValidationException(MessageSeeds.DELETE_TASK_STATUS_BUSY, "status");
@@ -419,9 +417,10 @@ public class EstimationResource {
     @Path("/tasks/{id}/")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.UPDATE_ESTIMATION_CONFIGURATION, Privileges.Constants.UPDATE_SCHEDULE_ESTIMATION_TASK})
-    public Response updateEstimationTask(@PathParam("id") long id, EstimationTaskInfo info) {
+    public Response updateEstimationTask(@PathParam("id") long id, EstimationTaskInfo info,
+                                         @HeaderParam(APPLICATION_HEADER_PARAM) String applicationName) {
         try (TransactionContext context = transactionService.getContext()) {
-            EstimationTask task = findAndLockTask(info);
+            EstimationTask task = findAndLockTask(info, applicationName);
             task.setName(info.name);
             task.setScheduleExpression(getScheduleExpression(info));
             if (Never.NEVER.equals(task.getScheduleExpression())) {
@@ -434,7 +433,7 @@ public class EstimationResource {
 
             task.update();
             context.commit();
-            return Response.status(Response.Status.CREATED).entity(new EstimationTaskInfo(task, thesaurus)).build();
+            return Response.status(Response.Status.OK).entity(new EstimationTaskInfo(task, thesaurus)).build();
         }
     }
 
@@ -444,9 +443,10 @@ public class EstimationResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION, Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.UPDATE_ESTIMATION_CONFIGURATION, Privileges.Constants.UPDATE_SCHEDULE_ESTIMATION_TASK, Privileges.Constants.RUN_ESTIMATION_TASK, Privileges.Constants.VIEW_ESTIMATION_TASK, Privileges.Constants.ADMINISTRATE_ESTIMATION_TASK})
     public PagedInfoList getEstimationTaskHistory(@PathParam("id") long id, @Context SecurityContext securityContext,
-                                                  @BeanParam JsonQueryFilter filter, @BeanParam JsonQueryParameters parameters) {
+                                                  @BeanParam JsonQueryFilter filter, @BeanParam JsonQueryParameters parameters,
+                                                  @HeaderParam(APPLICATION_HEADER_PARAM) String applicationName) {
 
-        EstimationTask task = fetchEstimationTask(id);
+        EstimationTask task = fetchEstimationTask(id, applicationName);
         EstimationTaskOccurrenceFinder occurrencesFinder = task.getOccurrencesFinder().setStart(parameters.getStart().orElse(0)).setLimit(parameters.getLimit().orElse(10) + 1);
 
         if (filter.hasProperty("startedOnFrom")) {
@@ -479,8 +479,9 @@ public class EstimationResource {
             Privileges.Constants.RUN_ESTIMATION_TASK, Privileges.Constants.VIEW_ESTIMATION_TASK,
             Privileges.Constants.ADMINISTRATE_ESTIMATION_TASK})
     public PagedInfoList getEstimationTaskHistory(@PathParam("id") long id, @PathParam("occurrenceId") long occurrenceId,
+                                                  @HeaderParam(APPLICATION_HEADER_PARAM) String applicationName,
                                                   @BeanParam JsonQueryParameters parameters) {
-        EstimationTask task = fetchEstimationTask(id);
+        EstimationTask task = fetchEstimationTask(id, applicationName);
         TaskOccurrence occurrence = fetchTaskOccurrence(occurrenceId, task);
         LogEntryFinder finder = occurrence.getLogsFinder().setStart(parameters.getStart().orElse(0)).setLimit(parameters.getLimit().orElse(10) + 1);
 
@@ -492,10 +493,10 @@ public class EstimationResource {
         return PagedInfoList.fromPagedList("data", taskOccurrenceLogsList, parameters);
     }
 
-    private EstimationTask findAndLockTask(EstimationTaskInfo info) {
-        return estimationService.findAndLockEstimationTask(info.id, info.version)
+    private EstimationTask findAndLockTask(EstimationTaskInfo info, String applicationName) {
+        return findAndLockEstimationTaskByIdAndVersionInApplication(info.id, info.version, applicationName)
                 .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
-                        .withActualVersion(() -> estimationService.findEstimationTask(info.id).map(EstimationTask::getVersion).orElse(null))
+                        .withActualVersion(() -> findEstimationTaskInApplication(info.id, applicationName).map(EstimationTask::getVersion).orElse(null))
                         .supplier());
     }
 
@@ -567,11 +568,19 @@ public class EstimationResource {
         return timeService.findRelativePeriod(relativePeriodInfo.id).orElse(null);
     }
 
-    private EstimationTask fetchEstimationTask(long id) {
-        return estimationService.findEstimationTask(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+    private EstimationTask fetchEstimationTask(long id, String applicationName) {
+        return findEstimationTaskInApplication(id, applicationName).filter(task -> task.getApplication().equals(applicationName)).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
     private TaskOccurrence fetchTaskOccurrence(long occurrenceId, EstimationTask task) {
         return task.getOccurrence(occurrenceId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+    }
+
+    private Optional<? extends EstimationTask> findEstimationTaskInApplication(long id, String applicationName) {
+        return estimationService.findEstimationTask(id).filter(task -> task.getApplication().equals(applicationName));
+    }
+
+    private Optional<? extends EstimationTask> findAndLockEstimationTaskByIdAndVersionInApplication(long id, long version, String applicationName) {
+        return estimationService.findAndLockEstimationTask(id, version).filter(task -> task.getApplication().equals(applicationName));
     }
 }
