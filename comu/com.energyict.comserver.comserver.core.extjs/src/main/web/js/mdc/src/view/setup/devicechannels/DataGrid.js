@@ -190,7 +190,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
         if (validationInfo.estimatedByRule && !record.isModified('value')) {
             icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:#33CC33;"></span>';
         } else if (validationInfo.isConfirmed && !record.isModified('value')) {
-            icon = '<span class="icon-checkmark3" style="margin-left:10px; position:absolute;"></span>';
+            icon = '<span class="icon-checkmark" style="margin-left:10px; position:absolute;"></span>';
         }
         return value + icon;
     }
