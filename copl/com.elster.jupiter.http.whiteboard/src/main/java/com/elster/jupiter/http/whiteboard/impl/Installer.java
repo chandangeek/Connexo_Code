@@ -5,8 +5,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.FullInstaller;
-import com.elster.jupiter.util.exception.ExceptionCatcher;
-import com.elster.jupiter.util.streams.Currying;
 
 import javax.inject.Inject;
 import java.io.FileWriter;
@@ -15,13 +13,13 @@ import java.io.OutputStreamWriter;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static com.elster.jupiter.util.Checks.is;
 
 class Installer implements FullInstaller {
     private static final Logger LOGGER = Logger.getLogger(Installer.class.getName());
+    private static final String PUBLIC_KEY_FILE_NAME = "publicKey.txt";
 
     private final DataModel dataModel;
     private final DataVaultService dataVaultService;
@@ -35,18 +33,19 @@ class Installer implements FullInstaller {
     }
 
     @Override
-    public void install(DataModelUpgrader dataModelUpgrader) {
-        ExceptionCatcher.executing(
-                Currying.perform(this::installDataModel).on(dataModelUpgrader),
-                this::createKeys,
-                this::dumpPublicKey
-        )
-                .andHandleExceptionsWith(e -> LOGGER.log(Level.SEVERE, e.getMessage(), e))
-                .execute();
-    }
-
-    private void installDataModel(DataModelUpgrader dataModelUpgrader) {
+    public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
         dataModelUpgrader.upgrade(dataModel, Version.latest());
+
+        doTry(
+                "Create Key Pairs",
+                this::createKeys,
+                logger
+        );
+        doTry(
+                "Write public key to file " + PUBLIC_KEY_FILE_NAME,
+                this::dumpPublicKey,
+                logger
+        );
     }
 
     private void createKeys() {
@@ -63,7 +62,7 @@ class Installer implements FullInstaller {
         if (!is(basicAuthentication.getInstallDir()).emptyOrOnlyWhiteSpace()) {
             Path conf = FileSystems.getDefault()
                     .getPath(basicAuthentication.getInstallDir())
-                    .resolve("publicKey.txt");
+                    .resolve(PUBLIC_KEY_FILE_NAME);
             dumpToFile(conf);
         }
     }
