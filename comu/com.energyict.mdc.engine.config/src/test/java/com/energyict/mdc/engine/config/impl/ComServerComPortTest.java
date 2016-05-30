@@ -31,8 +31,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -52,8 +53,8 @@ import static org.assertj.core.api.Fail.fail;
 @RunWith(MockitoJUnitRunner.class)
 public class ComServerComPortTest extends PersistenceTest {
 
-    private static final String QUERY_API_POST_URL = "ws://comserver.energyict.com/queryAPI";
-    private static final String EVENT_REGISTRATION_URL = "ws://comserver.energyict.com/events/registration";
+    private static final String QUERY_API_POST_URL = "ws://comserver.energyict.com/queryAPI/";
+    private static final String EVENT_REGISTRATION_URL = "ws://comserver.energyict.com/events/registration/";
 
     private static final ComServer.LogLevel SERVER_LOG_LEVEL = ComServer.LogLevel.ERROR;
     private static final ComServer.LogLevel COMMUNICATION_LOG_LEVEL = ComServer.LogLevel.TRACE;
@@ -451,8 +452,19 @@ public class ComServerComPortTest extends PersistenceTest {
 
     private OnlineComServer createOnlineComServer() {
         final OnlineComServer.OnlineComServerBuilder<? extends OnlineComServer> onlineComServerBuilder = getEngineModelService().newOnlineComServerBuilder();
-        String name = "Online-" + onlineNameNumber++;
-        onlineComServerBuilder.storeTaskQueueSize(1).storeTaskThreadPriority(1).numberOfStoreTaskThreads(1).queryApiPostUri(QUERY_API_POST_URL).eventRegistrationUri(EVENT_REGISTRATION_URL).name(name).active(true).serverLogLevel(SERVER_LOG_LEVEL).communicationLogLevel(COMMUNICATION_LOG_LEVEL).changesInterPollDelay(CHANGES_INTER_POLL_DELAY).schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
+        String name = "Online-" + onlineNameNumber;                                                                         // Use onlineNameNumber in URLs to ensure uniqueness
+        onlineComServerBuilder.storeTaskQueueSize(1)
+                .storeTaskThreadPriority(1)
+                .numberOfStoreTaskThreads(1)
+                .queryApiPostUri(QUERY_API_POST_URL + onlineNameNumber)
+                .eventRegistrationUri(EVENT_REGISTRATION_URL + onlineNameNumber)
+                .name(name)
+                .active(true)
+                .serverLogLevel(SERVER_LOG_LEVEL)
+                .communicationLogLevel(COMMUNICATION_LOG_LEVEL)
+                .changesInterPollDelay(CHANGES_INTER_POLL_DELAY)
+                .schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
+        onlineNameNumber++;
         return onlineComServerBuilder.create();
     }
 
