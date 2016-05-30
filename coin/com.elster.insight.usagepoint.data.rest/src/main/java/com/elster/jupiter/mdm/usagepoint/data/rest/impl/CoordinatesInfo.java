@@ -17,10 +17,10 @@ public class CoordinatesInfo {
 
     public CoordinatesInfo(MeteringService meteringService, String mRID) {
         Optional<GeoCoordinates> geoCoordinates = meteringService.findUsagePointGeoCoordinates(mRID);
-        coordinatesDisplay = geoCoordinates.isPresent() ? geoCoordinates.get().getCoordinates().toString(): null;
+        coordinatesDisplay = geoCoordinates.isPresent() ? geoCoordinates.get().getCoordinates().toString() : null;
         spatialCoordinates = geoCoordinates.isPresent() ?
                 String.format("%s:%s:%s", geoCoordinates.get().getCoordinates().getLatitude().getValue().toString(),
                         geoCoordinates.get().getCoordinates().getLongitude().getValue().toString(),
-                        geoCoordinates.get().getCoordinates().getElevation().getValue().toString()): null;
+                        geoCoordinates.get().getCoordinates().getElevation().getValue().toString()) : null;
     }
 }

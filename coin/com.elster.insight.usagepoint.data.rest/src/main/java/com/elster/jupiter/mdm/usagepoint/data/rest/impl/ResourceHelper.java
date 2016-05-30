@@ -1,8 +1,10 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
@@ -31,14 +33,19 @@ public class ResourceHelper {
         this.metrologyConfigurationService = metrologyConfigurationService;
     }
 
+    public MeterRole findMeterRoleOrThrowException(String key) {
+        return metrologyConfigurationService.findMeterRole(key)
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_METER_ROLE_FOR_KEY, key));
+    }
+
+    public Meter findMeterOrThrowException(String mrid) {
+        return meteringService.findMeter(mrid)
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_DEVICE_FOR_MRID, mrid));
+    }
+
     public UsagePoint findUsagePointByMrIdOrThrowException(String mrid) {
         return meteringService.findUsagePoint(mrid)
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_USAGE_POINT_FOR_MRID, mrid));
-    }
-
-    public UsagePoint findAndLockUsagePointByMrIdOrThrowException(String mrid, long version) {
-        UsagePoint up = findUsagePointByMrIdOrThrowException(mrid);
-        return lockUsagePointOrThrowException(up.getId(), version, up.getMRID());
     }
 
     public UsagePoint findUsagePointByIdOrThrowException(long id) {
@@ -46,11 +53,19 @@ public class ResourceHelper {
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_USAGE_POINT_FOR_ID, id));
     }
 
-    public ReadingType findReadingTypeByMrIdOrThrowException(String rt_mrid) {
-        return meteringService.getReadingType(rt_mrid).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_READING_TYPE_FOR_MRID, rt_mrid));
+    public UsagePoint findAndLockUsagePointByMrIdOrThrowException(String mrid, long version) {
+        UsagePoint up = findUsagePointByMrIdOrThrowException(mrid);
+        return lockUsagePointOrThrowException(up.getId(), version, up.getMRID());
     }
 
     public UsagePointMetrologyConfiguration findAndLockUsagePointMetrologyConfigurationOrThrowException(long id, long version) {
+        return metrologyConfigurationService.findAndLockMetrologyConfiguration(id, version)
+                .filter(mc -> mc instanceof UsagePointMetrologyConfiguration)
+                .map(UsagePointMetrologyConfiguration.class::cast)
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_METROLOGYCONFIG_FOR_ID, id));
+    }
+
+    public UsagePointMetrologyConfiguration findAndLockActiveUsagePointMetrologyConfigurationOrThrowException(long id, long version) {
         return metrologyConfigurationService
                 .findAndLockMetrologyConfiguration(id, version)
                 .filter(metrologyConfiguration -> metrologyConfiguration instanceof UsagePointMetrologyConfiguration)
@@ -67,12 +82,16 @@ public class ResourceHelper {
 
     }
 
+    public ReadingType findReadingTypeByMrIdOrThrowException(String rt_mrid) {
+        return meteringService.getReadingType(rt_mrid).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_READING_TYPE_FOR_MRID, rt_mrid));
+    }
+
+
     public UsagePoint lockUsagePointOrThrowException(UsagePointInfo info) {
         return lockUsagePointOrThrowException(info.id, info.version, info.mRID);
     }
 
     public UsagePoint lockUsagePointOrThrowException(long id, long version, String name) {
-
         return meteringService.findAndLockUsagePointByIdAndVersion(id, version)
                 .orElseThrow(conflictFactory.contextDependentConflictOn(name)
                         .withActualVersion(() -> meteringService.findUsagePoint(id).map(UsagePoint::getVersion).orElse(null))

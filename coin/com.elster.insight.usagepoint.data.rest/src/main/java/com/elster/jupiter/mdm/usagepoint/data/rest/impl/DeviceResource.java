@@ -4,24 +4,32 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.security.Privileges;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
+import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 @Path("/devices")
 public class DeviceResource {
@@ -77,6 +85,24 @@ public class DeviceResource {
             meterInfos.add(mi);
         }
         return meterInfos;
+    }
+
+    @GET
+    @Path("/available")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public Response getAvailableMeters(@Context UriInfo uriInfo, @BeanParam JsonQueryParameters params) {
+        Query<Meter> meterQuery = meteringService.getMeterQuery();
+        String searchText = params.getLike();
+        Integer start = params.getStart().isPresent() ? params.getStart().get() : 1;
+        Integer limit = params.getLimit().isPresent() ? params.getLimit().get() : 50;
+        String dbSearchText = (searchText != null && !searchText.isEmpty()) ? ("*" + searchText + "*") : "*";
+        Condition condition = where("mRID").likeIgnoreCase(dbSearchText);
+        List<Meter> listMeters = meterQuery.select(condition, start + 1, limit, Order.ascending("mRID"))
+                .stream()
+                .filter(ed -> ed.getState().isPresent() && !ed.getState().get().getName().equals("dlc.default.removed"))
+                .filter(ed -> ed.getState().isPresent() && !ed.getState().get().getName().equals("dlc.default.decomissioned"))
+                .collect(Collectors.toList());
+        return Response.ok().entity(toMeterInfos(listMeters, start, limit)).build();
     }
 
 

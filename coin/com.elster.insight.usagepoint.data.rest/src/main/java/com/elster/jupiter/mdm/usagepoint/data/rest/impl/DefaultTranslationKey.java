@@ -3,10 +3,8 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 import com.elster.jupiter.nls.TranslationKey;
 
 public enum DefaultTranslationKey implements TranslationKey {
-//    PRE_TRANSITION_CHECKS_FAILED("PreTransitionChecksFailed" , "Pretransition checks failed"),
     INCOMPLETE("incomplete", "Incomplete"),
-    COMPLETE("complete", "Complete")
-    ;
+    COMPLETE("complete", "Complete");
 
     private String key;
     private String defaultFormat;
