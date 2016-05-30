@@ -7,7 +7,6 @@ import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.FullInstaller;
 
 import javax.inject.Inject;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -17,8 +16,6 @@ import java.util.logging.Logger;
  * @since 2013-12-23 (15:08)
  */
 public class Installer implements FullInstaller {
-
-    private final Logger logger = Logger.getLogger(Installer.class.getName());
 
     private final DataModel dataModel;
     private final EventService eventService;
@@ -31,28 +28,18 @@ public class Installer implements FullInstaller {
     }
 
     @Override
-    public void install(DataModelUpgrader dataModelUpgrader) {
-        try {
-            dataModelUpgrader.upgrade(dataModel, Version.latest());
-            this.createMasterData();
-        }
-        catch (Exception e) {
-            logger.log(Level.SEVERE, e.getMessage(), e);
-        }
-        createEventTypes();
-    }
-
-    private void createMasterData() {
+    public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
+        dataModelUpgrader.upgrade(dataModel, Version.latest());
+        doTry(
+                "Create event types for MDC pluggable",
+                this::createEventTypes,
+                logger
+        );
     }
 
     private void createEventTypes() {
         for (EventType eventType : EventType.values()) {
-            try {
-                eventType.install(this.eventService);
-            }
-            catch (Exception e) {
-                logger.log(Level.SEVERE, e.getMessage(), e);
-            }
+            eventType.install(this.eventService);
         }
     }
 
