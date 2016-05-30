@@ -14,18 +14,15 @@ import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.exception.ExceptionCatcher;
 
 import javax.inject.Inject;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class InstallerImpl implements FullInstaller {
     public static final String DESTINATION_NAME = ValidationServiceImpl.DESTINATION_NAME;
     public static final String SUBSCRIBER_NAME = ValidationServiceImpl.SUBSCRIBER_NAME;
-    private static final Logger LOGGER = Logger.getLogger(InstallerImpl.class.getName());
 
     private final DataModel dataModel;
     private final EventService eventService;
@@ -46,18 +43,24 @@ public class InstallerImpl implements FullInstaller {
     }
 
     @Override
-    public void install(DataModelUpgrader dataModelUpgrader) {
-        try {
-            dataModelUpgrader.upgrade(dataModel, Version.latest());
-        } catch (Exception ex) {
-            LOGGER.log(Level.SEVERE, "Could not install datamodel : " + ex.getMessage(), ex);
-        }
-        ExceptionCatcher.executing(
+    public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
+        dataModelUpgrader.upgrade(dataModel, Version.latest());
+
+        doTry(
+                "Create event types for VAL",
                 this::createEventTypes,
+                logger
+        );
+        doTry(
+                "Create validation queue",
                 this::createDestinationAndSubscriber,
-                this::createValidationUser
-        ).andHandleExceptionsWith(exception -> LOGGER.log(Level.SEVERE, exception.getMessage(), exception))
-                .execute();
+                logger
+        );
+        doTry(
+                "Create validation user",
+                this::createValidationUser,
+                logger
+        );
 
     }
 
@@ -66,32 +69,21 @@ public class InstallerImpl implements FullInstaller {
         Optional<Group> batchExecutorRole = userService.findGroup(UserService.BATCH_EXECUTOR_ROLE);
         if (batchExecutorRole.isPresent()) {
             validationUser.join(batchExecutorRole.get());
-        } else {
-            LOGGER.log(Level.SEVERE, "Could not add role to '" + ValidationServiceImpl.VALIDATION_USER + "' user because role '" + UserService.BATCH_EXECUTOR_ROLE + "' is not found");
         }
     }
 
     private void createEventTypes() {
         for (EventType eventType : EventType.values()) {
-            try {
-                eventType.install(eventService);
-            } catch (Exception ex) {
-                LOGGER.log(Level.SEVERE, "Could not install eventType '" + eventType.name() + "': " + ex.getMessage(), ex);
-            }
+            eventType.install(eventService);
         }
     }
 
     private void createDestinationAndSubscriber() {
-        try
-        {
-            QueueTableSpec queueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
-            destinationSpec = queueTableSpec.createDestinationSpec(DESTINATION_NAME, 60);
-            destinationSpec.save();
-            destinationSpec.activate();
-            destinationSpec.subscribe(SUBSCRIBER_NAME);
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        }
+        QueueTableSpec queueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
+        destinationSpec = queueTableSpec.createDestinationSpec(DESTINATION_NAME, 60);
+        destinationSpec.save();
+        destinationSpec.activate();
+        destinationSpec.subscribe(SUBSCRIBER_NAME);
     }
 
     private Translation toTranslation(final SimpleNlsKey nlsKey, final Locale locale, final String translation) {
