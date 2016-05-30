@@ -7,15 +7,9 @@ Ext.define('Scs.model.AttributeSetOnServiceCall', {
     fields: [
         {name: 'id', type: 'integer'},
         {name: 'name', type: 'string'},
-        {name: 'customPropertySetId', type: 'string'},
         {name: 'editable', type: 'boolean'},
-        {name: 'timesliced', type: 'boolean'},
-        {name: 'isActive', type: 'boolean'},
-        {name: 'startTime', dateFormat: 'time', type: 'date'},
-        {name: 'endTime', dateFormat: 'time', type: 'date'},
-        {name: 'versionId', type: 'integer'},
-        {name: 'objectTypeId', type: 'integer'},
-        {name: 'objectTypeVersion', type: 'integer'}
+        {name: 'version', type: 'number', persist: false},
+        {name: 'parent', type: 'auto', persist: false}
     ],
 
     associations: [
