@@ -14,7 +14,14 @@ import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecBuilderWizard;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
+import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.units.Quantity;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -26,6 +33,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,37 +44,54 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.validateMockitoUsage;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class DeviceCommandFactoryTest {
+public class EndDeviceCommandFactoryTest {
 
 
     @Mock
     private MeteringService meteringService;
+
     @Mock
     private DeviceService deviceService;
+
     @Mock
     private DeviceMessageSpecificationService deviceMessageSpecificationService;
+
     @Mock
     private DataModel dataModel;
+
     @Mock
     private NlsService nlsService;
+
     @Mock
     private Thesaurus thesaurus;
+
     @Mock
     private HeadEndInterface headEndInterface;
+
     @Mock
     private EndDeviceControlType endDeviceControlType;
+
     @Mock
     private EndDevice endDevice;
+
+    @Mock
+    private TimeService timeService;
+
+    @Mock
+    private OrmService ormService;
+
+    @Mock
+    private BeanService beanService;
+
     @Mock
     private PropertySpecService propertySpecService;
 
@@ -78,12 +103,16 @@ public class DeviceCommandFactoryTest {
 
     @Before
     public void setup() {
-        commandFactory = new CommandFactoryImpl(meteringService, deviceService, deviceMessageSpecificationService, nlsService, thesaurus, propertySpecService);
+        commandFactory = new EndDeviceCommandFactoryImpl(meteringService, deviceService, deviceMessageSpecificationService, nlsService, thesaurus, propertySpecService);
+        propertySpecService = new PropertySpecServiceImpl(this.timeService, this.ormService, this.beanService);
+        Date activationDate = mock(Date.class);
+        ValueFactory valueFactory =  mock(ValueFactory.class);
         when(deviceService.findByUniqueMrid(anyString())).thenReturn(Optional.of(device));
         when(device.getDeviceConfiguration().getDeviceType().getId()).thenReturn(6L);
         when(meteringService.getEndDeviceControlType(anyString())).thenReturn(Optional.of(endDeviceControlType));
         DeviceMessageSpec message = mock(DeviceMessageSpec.class);
         when(deviceMessageSpecificationService.findMessageSpecById(anyLong())).thenReturn(Optional.of(message));
+
     }
 
 
@@ -108,9 +137,6 @@ public class DeviceCommandFactoryTest {
                 .stream()
                 .forEach(id -> armForOpenWithActivationDateCmdMsg.add(DeviceMessageId.havingId(id)));
         assertTrue(armForOpenWithActivationDateCmdMsg.equals(armForOpenWithActivationDateMsg));
-        //assertTrue(!armForOpenWithActivationDateCommand.getAttributes().isEmpty());
-        //assertTrue(((Date) (armForOpenWithActivationDateCommand.getAttributes()
-               // .get("ContactorDeviceMessage.activationdate"))).before(new Date()));
 
         // ARM FOR OPEN WITHOUT ACTIVATION DATE
         String armForOpenWithoutActivationDateCode = EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER)
@@ -130,8 +156,7 @@ public class DeviceCommandFactoryTest {
         armForOpenWithoutActivationDateCommand.getDeviceMessageIds()
                 .stream()
                 .forEach(id -> armForOpenWithOutActivationDateCmdMsg.add(DeviceMessageId.havingId(id)));
-       // assertTrue(armForOpenWithOutActivationDateCmdMsg.equals(armForOpenWithOutActivationDateMsg));
-        //assertTrue(armForOpenWithoutActivationDateCommand.getAttributes().isEmpty());
+        assertTrue(armForOpenWithOutActivationDateCmdMsg.equals(armForOpenWithOutActivationDateMsg));
 
         // ARM FOR CLOSE WITH ACTIVATION DATE
         String armForClosureWithActivationDateCode = EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER)
@@ -153,10 +178,6 @@ public class DeviceCommandFactoryTest {
                 .stream()
                 .forEach(id -> armForClosureWithActivationDateCmdMsg.add(DeviceMessageId.havingId(id)));
         assertTrue(armForClosureWithActivationDateCmdMsg.equals(armForClosureWithActivationDateMsg));
-        //assertTrue(!armForClosureWithActivationDateCommand.getAttributes().isEmpty());
-        //assertTrue(((Date) (armForClosureWithActivationDateCommand.getAttributes()
-         //       .get("ContactorDeviceMessage.activationdate"))).before(new Date()));
-
 
         // ARM FOR CLOSE WITHOUT ACTIVATION DATE
         String armForClosureWithoutActivationDateCode = EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER)
@@ -176,8 +197,7 @@ public class DeviceCommandFactoryTest {
         armForClosureWithoutActivationDateCommand.getDeviceMessageIds()
                 .stream()
                 .forEach(id -> armForClosureWithoutActivationDateCmdMsg.add(DeviceMessageId.havingId(id)));
-        //assertTrue(armForClosureWithoutActivationDateCmdMsg.equals(armForClosureWithoutActivationDateMsg));
-        //assertTrue(armForClosureWithoutActivationDateCommand.getAttributes().isEmpty());
+        assertTrue(armForClosureWithoutActivationDateCmdMsg.equals(armForClosureWithoutActivationDateMsg));
     }
 
 
@@ -201,10 +221,6 @@ public class DeviceCommandFactoryTest {
                 .stream()
                 .forEach(id -> connectWithActivationDateCmdMsg.add(DeviceMessageId.havingId(id)));
         assertTrue(connectWithActivationDateCmdMsg.equals(connectWithActivationDateMsg));
-        //assertTrue(!connectWithActivationDateCommand.getAttributes().isEmpty());
-        //assertTrue(((Date) (connectWithActivationDateCommand.getAttributes()
-         //       .get("ContactorDeviceMessage.activationdate"))).before(new Date()));
-
 
         // CONNECT WITHOUT ACTIVATION DATE
         String connectWithOutActivationDateCode = EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER)
@@ -223,8 +239,7 @@ public class DeviceCommandFactoryTest {
         connectWithOutActivationDateCommand.getDeviceMessageIds()
                 .stream()
                 .forEach(id -> connectWithOutActivationDateCmdMsg.add(DeviceMessageId.havingId(id)));
-       // assertTrue(connectWithOutActivationDateCmdMsg.equals(armForClosureWithoutActivationDateMsg));
-       // assertTrue(connectWithOutActivationDateCommand.getAttributes().isEmpty());
+        assertTrue(connectWithOutActivationDateCmdMsg.equals(armForClosureWithoutActivationDateMsg));
     }
 
 
@@ -238,7 +253,8 @@ public class DeviceCommandFactoryTest {
                 .toCode();
 
         endDeviceControlType = meteringService.createEndDeviceControlType(connectWithActivationDateCode);
-        EndDeviceCommand disconnectWithActivationDateCommand = commandFactory.createDisconnectCommand(endDevice, Instant.now());
+        EndDeviceCommand disconnectWithActivationDateCommand = commandFactory.createDisconnectCommand(endDevice, Instant
+                .now());
         List<DeviceMessageId> disconnectWithActivationDateMsg = new ArrayList<>(
                 Arrays.asList(
                         DeviceMessageId.CONTACTOR_OPEN_WITH_ACTIVATION_DATE
@@ -248,10 +264,6 @@ public class DeviceCommandFactoryTest {
                 .stream()
                 .forEach(id -> disconnectWithActivationDateCmdMsg.add(DeviceMessageId.havingId(id)));
         assertTrue(disconnectWithActivationDateCmdMsg.equals(disconnectWithActivationDateMsg));
-       // assertTrue(!disconnectWithActivationDateCommand.getAttributes().isEmpty());
-       // assertTrue(((Date) (disconnectWithActivationDateCommand.getAttributes()
-        //        .get("ContactorDeviceMessage.activationdate"))).before(new Date()));
-
 
         // DISCONNECT WITHOUT ACTIVATION DATE
         String disconnectWithOutActivationDateCode = EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER)
@@ -270,12 +282,11 @@ public class DeviceCommandFactoryTest {
         disconnectWithOutActivationDateCommand.getDeviceMessageIds()
                 .stream()
                 .forEach(id -> disconnectWithOutActivationDateCmdMsg.add(DeviceMessageId.havingId(id)));
-        //assertTrue(disconnectWithOutActivationDateCmdMsg.equals(disconnectWithOutActivationDateMsg));
-       // assertTrue(disconnectWithOutActivationDateCommand.getAttributes().isEmpty());
+        assertTrue(disconnectWithOutActivationDateCmdMsg.equals(disconnectWithOutActivationDateMsg));
     }
 
     @Test
-    public void createEnableLoadLimitCommand(){
+    public void createEnableLoadLimitCommand() {
         String enableLoadLimitCode = EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER)
                 .domain(EndDeviceDomain.LOADCONTROL)
                 .subDomain(EndDeviceSubDomain.SUPPLYCAPACITYLIMIT)
@@ -294,13 +305,10 @@ public class DeviceCommandFactoryTest {
                 .stream()
                 .forEach(id -> enableLoadLimitCmdMsg.add(DeviceMessageId.havingId(id)));
         assertTrue(enableLoadLimitCmdMsg.equals(enableLoadLimitMsg));
-       // assertTrue(!enableLoadLimitCommand.getAttributes().isEmpty());
-       // assertTrue(((Quantity) (enableLoadLimitCommand.getAttributes()
-       //         .get("LoadBalanceDeviceMessage.parameters.normalthreshold"))).equals(limit));
     }
 
     @Test
-    public void createDisableLoadLimitCommand(){
+    public void createDisableLoadLimitCommand() {
         String disableLoadLimitCode = EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER)
                 .domain(EndDeviceDomain.LOADCONTROL)
                 .subDomain(EndDeviceSubDomain.SUPPLYCAPACITYLIMIT)
@@ -317,7 +325,6 @@ public class DeviceCommandFactoryTest {
         disableLoadLimitCommand.getDeviceMessageIds()
                 .stream()
                 .forEach(id -> disableLoadLimitCmdMsg.add(DeviceMessageId.havingId(id)));
-       // assertTrue(disableLoadLimitCmdMsg.equals(disableLoadLimitMsg));
-       // assertTrue(disableLoadLimitCommand.getAttributes().isEmpty());
+        assertTrue(disableLoadLimitCmdMsg.equals(disableLoadLimitMsg));
     }
 }

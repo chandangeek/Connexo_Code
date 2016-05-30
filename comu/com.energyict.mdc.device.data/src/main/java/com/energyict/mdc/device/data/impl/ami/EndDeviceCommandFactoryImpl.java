@@ -39,7 +39,7 @@ import java.util.stream.Stream;
 @Component(name = "com.energyict.mdc.device.data.impl.ami.EndDeviceCommandFactory",
         service = {HeadEndInterface.class, TranslationKeyProvider.class},
         property = "name=EndDeviceCommandFactory", immediate = true)
-public class CommandFactoryImpl implements CommandFactory {
+public class EndDeviceCommandFactoryImpl implements CommandFactory {
     private volatile MeteringService meteringService;
     private volatile DeviceService deviceService;
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
@@ -48,10 +48,10 @@ public class CommandFactoryImpl implements CommandFactory {
     private volatile PropertySpecService propertySpecService;
 
 
-    public CommandFactoryImpl() {
+    public EndDeviceCommandFactoryImpl() {
     }
 
-    public CommandFactoryImpl(MeteringService meteringService, DeviceService deviceService, DeviceMessageSpecificationService deviceMessageSpecificationService, NlsService nlsService, Thesaurus thesaurus, PropertySpecService propertySpecService) {
+    public EndDeviceCommandFactoryImpl(MeteringService meteringService, DeviceService deviceService, DeviceMessageSpecificationService deviceMessageSpecificationService, NlsService nlsService, Thesaurus thesaurus, PropertySpecService propertySpecService) {
         this.meteringService = meteringService;
         this.deviceService = deviceService;
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
@@ -188,7 +188,6 @@ public class CommandFactoryImpl implements CommandFactory {
     @Override
     public EndDeviceCommand createEnableLoadLimitCommand(EndDevice endDevice, Quantity limit) {
         String commandName = EndDeviceCommandImpl.EndDeviceCommandType.ENABLE_LOAD_LIMIT.getName();
-        ;
         //TODO: improve by handling load balancing
         List<DeviceMessageId> deviceMessageIds = new ArrayList<>();
         //deviceMessageIds.add(tariffs != null ? DeviceMessageId.LOAD_BALANCING_SET_LOAD_LIMIT_THRESHOLD_WITH_TARIFFS : DeviceMessageId.LOAD_BALANCING_SET_LOAD_LIMIT_THRESHOLD);
@@ -244,6 +243,7 @@ public class CommandFactoryImpl implements CommandFactory {
                 .filter(spec -> spec.getName()
                         .equals(propertySpecName))
                 .findFirst();
+        //will only update an existing one
         if (propertySpec.isPresent()) {
             endDeviceCommand.setPropertyValue(propertySpec.get(), value);
         }

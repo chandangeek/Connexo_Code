@@ -6,7 +6,6 @@ import com.elster.jupiter.metering.ami.EndDeviceCommand;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.beans.BeanService;
@@ -28,7 +27,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -41,9 +39,6 @@ public class EndDeviceCommandTest {
 
     @Mock
     private DeviceMessageSpecificationService deviceMessageSpecificationService;
-
-    @Mock
-    private ValueFactory valueFactory;
 
 
     @Mock

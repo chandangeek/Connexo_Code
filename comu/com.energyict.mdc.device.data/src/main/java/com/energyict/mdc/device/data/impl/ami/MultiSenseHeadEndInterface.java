@@ -45,15 +45,15 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -65,6 +65,7 @@ public class MultiSenseHeadEndInterface implements HeadEndInterface {
 
     private static final String UNDEFINED = "undefined";
     private static final String AMR_SYSTEM = KnownAmrSystem.MDC.getName();
+    private static final Logger LOGGER = Logger.getLogger(MultiSenseHeadEndInterface.class.getName());
 
     private volatile Clock clock;
     private volatile DeviceService deviceService;
@@ -269,7 +270,7 @@ public class MultiSenseHeadEndInterface implements HeadEndInterface {
             try {
                 uri = new URI("/devices/" + device.getmRID());
             } catch (URISyntaxException e) {
-                e.printStackTrace();
+                LOGGER.log(Level.SEVERE, "Unable to parse [uri=" + uri.toString() + "]", e);
             }
             return Optional.of(uri);
         } else {
@@ -287,7 +288,8 @@ public class MultiSenseHeadEndInterface implements HeadEndInterface {
         List<EndDeviceControlType> controlTypes = new ArrayList<>();
         Stream.of(EndDeviceControlTypeMapping.values()).forEach(type -> {
             if (type.getEndDeviceControlTypeMRID().startsWith(String.valueOf(endDeviceType) + ".")
-                    || type.getEndDeviceControlTypeMRID().startsWith("0.")) {
+                    || type.getEndDeviceControlTypeMRID().startsWith("0.")
+                    || type.getEndDeviceControlTypeMRID().startsWith("*.")) {
                 meteringService.getEndDeviceControlType(type.getEndDeviceControlTypeMRID())
                         .ifPresent(found -> controlTypes.add(found));
             }
@@ -298,7 +300,7 @@ public class MultiSenseHeadEndInterface implements HeadEndInterface {
 
     @Override
     public CommandFactory getCommandFactory() {
-        return new CommandFactoryImpl(meteringService, deviceService, deviceMessageSpecificationService, nlsService, thesaurus, propertySpecService);
+        return new EndDeviceCommandFactoryImpl(meteringService, deviceService, deviceMessageSpecificationService, nlsService, thesaurus, propertySpecService);
     }
 
     @Override
@@ -393,7 +395,7 @@ public class MultiSenseHeadEndInterface implements HeadEndInterface {
 
     @Override
     public CompletionOptions sendCommand(EndDeviceCommand endDeviceCommand, Instant instant, ServiceCall parentServiceCall) {
-        //ALL CODE RELATED TO SERVICECALLS TEMPORARILY MOVED TO demo bundle under amiscs
+        //ALL CODE RELATED TO SERVICECALLS TEMPORARILY MOVED TO demo bundle under ami_scsexamples
        /* List<DeviceMessage<Device>> deviceMessages = createDeviceMessagesOnDevice(endDeviceCommand, parentServiceCall);
         RegisteredCustomPropertySet customPropertySet = customPropertySetService.findActiveCustomPropertySets(ServiceCall.class)
                 .stream()
@@ -418,7 +420,6 @@ public class MultiSenseHeadEndInterface implements HeadEndInterface {
 
 
     private Optional<DestinationSpec> getDestinationSpec(String name) {
-        // TODO - COMMAND_SCHEDULER_QUEUE_DESTINATION
         return messageService.getDestinationSpec(name);
     }
 
