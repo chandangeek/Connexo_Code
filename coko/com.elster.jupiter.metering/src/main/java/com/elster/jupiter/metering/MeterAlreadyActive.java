@@ -14,7 +14,7 @@ public class MeterAlreadyActive extends LocalizedException {
         super(thesaurus, MessageSeeds.METER_ALREADY_ACTIVE, meter.getName(), formatted(instant, thesaurus));
     }
 
-    private static String formatted(Instant instant, Thesaurus thesaurus) {
+    public static String formatted(Instant instant, Thesaurus thesaurus) {
         DateTimeFormatter dateTimeFormatter = DefaultDateTimeFormatters.mediumDate().withLongTime().build();
         return thesaurus.forLocale(dateTimeFormatter).withZone(ZoneId.of("UTC")).format(instant);
     }

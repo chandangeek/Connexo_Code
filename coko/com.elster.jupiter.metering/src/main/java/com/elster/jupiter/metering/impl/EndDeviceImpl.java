@@ -8,7 +8,8 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import java.time.Clock;
 
-class EndDeviceImpl extends AbstractEndDeviceImpl<EndDeviceImpl> implements EndDevice {
+class
+EndDeviceImpl extends AbstractEndDeviceImpl<EndDeviceImpl> implements EndDevice {
 
     @Inject
 	EndDeviceImpl(Clock clock, DataModel dataModel, EventService eventService, Provider<EndDeviceEventRecordImpl> deviceEventFactory) {

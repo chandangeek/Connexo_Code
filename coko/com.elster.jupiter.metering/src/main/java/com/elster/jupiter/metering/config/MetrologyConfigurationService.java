@@ -1,5 +1,8 @@
 package com.elster.jupiter.metering.config;
 
+import com.elster.jupiter.metering.CustomUsagePointMeterActivationValidationException;
+import com.elster.jupiter.metering.CustomUsagePointMeterActivationValidator;
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.NlsKey;
@@ -34,6 +37,8 @@ public interface MetrologyConfigurationService {
 
     List<UsagePointMetrologyConfiguration> findLinkableMetrologyConfigurations(UsagePoint usagePoint);
 
+    Optional<MetrologyContract> findMetrologyContract(long id);
+
     boolean isInUse(MetrologyConfiguration metrologyConfiguration);
 
     MeterRole newMeterRole(NlsKey name);
@@ -50,8 +55,15 @@ public interface MetrologyConfigurationService {
 
     MetrologyPurpose createMetrologyPurpose(NlsKey name, NlsKey description);
 
+    Optional<MetrologyPurpose> findMetrologyPurpose(DefaultMetrologyPurpose defaultMetrologyPurpose);
+
     Optional<MetrologyPurpose> findMetrologyPurpose(long id);
 
     List<MetrologyPurpose> getMetrologyPurposes();
 
+    void addCustomUsagePointMeterActivationValidator(CustomUsagePointMeterActivationValidator customUsagePointMeterActivationValidator);
+
+    void removeCustomUsagePointMeterActivationValidator(CustomUsagePointMeterActivationValidator customUsagePointMeterActivationValidator);
+
+    void validateUsagePointMeterActivation(MeterRole meterRole, Meter meter, UsagePoint usagePoint) throws CustomUsagePointMeterActivationValidationException;
 }
