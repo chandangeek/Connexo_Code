@@ -47,7 +47,6 @@ import com.energyict.mdc.device.data.NumericalRegister;
 import com.energyict.mdc.device.data.Reading;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.exceptions.CannotDeleteComScheduleFromDevice;
-import com.energyict.mdc.device.data.exceptions.DuplicateAttributeException;
 import com.energyict.mdc.device.data.exceptions.MultiplierConfigurationException;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
@@ -83,7 +82,6 @@ import org.junit.Test;
 import org.junit.rules.TestRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.fest.assertions.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -1662,7 +1660,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         deviceType.addRegisterType(registerType1);
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration("overruleChannelOverFlowTest");
         LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = deviceConfigurationBuilder.newLoadProfileSpec(loadProfileType);
-        BigDecimal overflow = BigDecimal.valueOf(9999);
+        BigDecimal overflow = BigDecimal.valueOf(99999999);
         final int nbrOfFractionDigits = 3;
         deviceConfigurationBuilder.newChannelSpec(channelTypeForRegisterType1, loadProfileSpecBuilder)
                 .nbrOfFractionDigits(nbrOfFractionDigits)
@@ -1688,6 +1686,44 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         Channel updatedChannel = reloadedDevice.getLoadProfiles().get(0).getChannels().stream().filter(channel1 -> channel1.getReadingType().getMRID().equals(channelReadingType)).findFirst().get();
         assertThat(channel.getId() == updatedChannel.getId()); //just to make sure we have the same channel
         assertThat(updatedChannel.getOverflow().get()).isEqualTo(overruledOverflow);
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.OVERFLOW_INCREASED + "}", property = "overruledOverflow")
+    public void overruleChannelOverFlowWithLargerValueTest() {
+        RegisterType registerType1 = this.createRegisterTypeIfMissing(forwardEnergyObisCode, forwardBulkSecondaryEnergyReadingType);
+        RegisterType registerType2 = createRegisterTypeIfMissing(reverseEnergyObisCode, reverseBulkSecondaryEnergyReadingType);
+        LoadProfileType loadProfileType = inMemoryPersistence.getMasterDataService()
+                .newLoadProfileType("LoadProfileType", loadProfileObisCode, TimeDuration.months(1), Arrays.asList(registerType1, registerType2));
+        loadProfileType.save();
+        ChannelType channelTypeForRegisterType1 = loadProfileType.findChannelType(registerType1).get();
+        ChannelType channelTypeForRegisterType2 = loadProfileType.findChannelType(registerType2).get();
+        deviceType.addLoadProfileType(loadProfileType);
+        deviceType.addRegisterType(registerType1);
+        DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration("overruleChannelOverFlowTest");
+        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = deviceConfigurationBuilder.newLoadProfileSpec(loadProfileType);
+        BigDecimal overflow = BigDecimal.valueOf(9999);
+        final int nbrOfFractionDigits = 3;
+        deviceConfigurationBuilder.newChannelSpec(channelTypeForRegisterType1, loadProfileSpecBuilder)
+                .nbrOfFractionDigits(nbrOfFractionDigits)
+                .overflow(overflow)
+                .useMultiplierWithCalculatedReadingType(forwardDeltaPrimaryMonthlyEnergyReadingType);
+        deviceConfigurationBuilder.newChannelSpec(channelTypeForRegisterType2, loadProfileSpecBuilder)
+                .nbrOfFractionDigits(nbrOfFractionDigits)
+                .overflow(overflow);
+
+        DeviceConfiguration deviceConfiguration = deviceConfigurationBuilder.add();
+        deviceConfiguration.activate();
+
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "OverruleTest", "OverruleTest");
+        device.save();
+
+        // business logic to check
+        String channelReadingType = getForwardBulkSecondaryEnergyReadingTypeCodeBuilder().period(MacroPeriod.MONTHLY).code();
+        Channel channel = device.getLoadProfiles().get(0).getChannels().stream().filter(channel1 -> channel1.getReadingType().getMRID().equals(channelReadingType)).findFirst().get();
+        BigDecimal overruledOverflow = BigDecimal.valueOf(456123L);
+        device.getChannelUpdaterFor(channel).setOverflowValue(overruledOverflow).update();
     }
 
     @Test
@@ -1807,7 +1843,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    @Expected(DuplicateAttributeException.class)
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.DUPLICATE_REGISTER_OBISCODE + "}")
     public void overruleRegisterDuplicateObisCodeTest() {
         RegisterType registerType1 = this.createRegisterTypeIfMissing(forwardEnergyObisCode, forwardBulkSecondaryEnergyReadingType);
         RegisterType registerType2 = createRegisterTypeIfMissing(reverseEnergyObisCode, reverseBulkSecondaryEnergyReadingType);
@@ -1831,19 +1867,13 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         // business logic to check
         String registerReadingType = forwardBulkSecondaryEnergyReadingType.getMRID();
         Register<?, ?> register = device.getRegisters().stream().filter(sRegister -> sRegister.getReadingType().getMRID().equals(registerReadingType)).findFirst().get();
-        try {
-            device.getRegisterUpdaterFor(register).setObisCode(reverseEnergyObisCode).update();
-        } catch (DuplicateAttributeException e) {
-            if (e.getMessageSeed().equals(MessageSeeds.DUPLICATE_REGISTER_OBISCODE)) {
-                throw e;
-            }
-        }
-        fail("Should have exited with the duplicate exception");
+
+        device.getRegisterUpdaterFor(register).setObisCode(reverseEnergyObisCode).update();
     }
 
     @Test
     @Transactional
-    @Expected(DuplicateAttributeException.class)
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.DUPLICATE_CHANNEL_OBISCODE + "}")
     public void overruleChannelDuplicateObisCodeTest() {
         RegisterType registerType1 = this.createRegisterTypeIfMissing(forwardEnergyObisCode, forwardBulkSecondaryEnergyReadingType);
         RegisterType registerType2 = createRegisterTypeIfMissing(reverseEnergyObisCode, reverseBulkSecondaryEnergyReadingType);
@@ -1876,14 +1906,8 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         String channelReadingType = getForwardBulkSecondaryEnergyReadingTypeCodeBuilder().period(MacroPeriod.MONTHLY).code();
         Channel channel = device.getLoadProfiles().get(0).getChannels().stream().filter(channel1 -> channel1.getReadingType().getMRID().equals(channelReadingType)).findFirst().get();
 
-        try {
-            device.getChannelUpdaterFor(channel).setObisCode(reverseEnergyObisCode).update();
-        } catch (DuplicateAttributeException e) {
-            if (e.getMessageSeed().equals(MessageSeeds.DUPLICATE_CHANNEL_OBISCODE)) {
-                throw e;
-            }
-        }
-        fail("Should have exited with the duplicate exception");
+        device.getChannelUpdaterFor(channel).setObisCode(reverseEnergyObisCode).update();
+
     }
 
     @Test
@@ -1907,13 +1931,39 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         // business logic to check
         String registerReadingType = forwardBulkSecondaryEnergyReadingType.getMRID();
         Register<?, ?> register = device.getRegisters().stream().filter(sRegister -> sRegister.getReadingType().getMRID().equals(registerReadingType)).findFirst().get();
-        BigDecimal overruledOverflow = BigDecimal.valueOf(6854651L);
+        BigDecimal overruledOverflow = BigDecimal.valueOf(6851L);
         device.getRegisterUpdaterFor(register).setOverflowValue(overruledOverflow).update();
 
         Device reloadedDevice = getReloadedDevice(device);
         Register<?, ?> updatedRegister = reloadedDevice.getRegisters().stream().filter(sRegister -> sRegister.getReadingType().getMRID().equals(registerReadingType)).findFirst().get();
         assertThat(register.getRegisterSpecId() == updatedRegister.getRegisterSpecId()); //just to make sure we have the same channel
         assertThat(((NumericalRegister) updatedRegister).getOverflow().get()).isEqualTo(overruledOverflow);
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.OVERFLOW_INCREASED + "}", property = "overruledOverflow")
+    public void overruleRegisterOverflowExceedConfigValueTest() {
+        final int nbrOfFractionDigits = 3;
+        RegisterType registerType1 = this.createRegisterTypeIfMissing(forwardEnergyObisCode, forwardBulkSecondaryEnergyReadingType);
+        deviceType.addRegisterType(registerType1);
+        DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration("ConfigurationWithRegisterTypes");
+        NumericalRegisterSpec.Builder registerSpecBuilder1 = deviceConfigurationBuilder.newNumericalRegisterSpec(registerType1);
+        registerSpecBuilder1.numberOfFractionDigits(nbrOfFractionDigits);
+        registerSpecBuilder1.overflowValue(overflowValue);
+        registerSpecBuilder1.useMultiplierWithCalculatedReadingType(forwardBulkPrimaryEnergyReadingType);
+
+        DeviceConfiguration deviceConfiguration = deviceConfigurationBuilder.add();
+        deviceConfiguration.activate();
+
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "OverruleTest", "OverruleTest");
+        device.save();
+
+        // business logic to check
+        String registerReadingType = forwardBulkSecondaryEnergyReadingType.getMRID();
+        Register<?, ?> register = device.getRegisters().stream().filter(sRegister -> sRegister.getReadingType().getMRID().equals(registerReadingType)).findFirst().get();
+        BigDecimal overruledOverflow = BigDecimal.valueOf(9999999999L);
+        device.getRegisterUpdaterFor(register).setOverflowValue(overruledOverflow).update();
     }
 
     @Test

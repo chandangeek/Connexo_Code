@@ -103,7 +103,6 @@ import com.energyict.mdc.device.data.exceptions.CannotChangeDeviceConfigStillUnr
 import com.energyict.mdc.device.data.exceptions.CannotDeleteComScheduleFromDevice;
 import com.energyict.mdc.device.data.exceptions.DeviceConfigurationChangeException;
 import com.energyict.mdc.device.data.exceptions.DeviceProtocolPropertyException;
-import com.energyict.mdc.device.data.exceptions.DuplicateAttributeException;
 import com.energyict.mdc.device.data.exceptions.MultiplierConfigurationException;
 import com.energyict.mdc.device.data.exceptions.NoMeterActivationAt;
 import com.energyict.mdc.device.data.exceptions.ProtocolDialectConfigurationPropertiesIsRequiredException;
@@ -112,6 +111,7 @@ import com.energyict.mdc.device.data.impl.configchange.ServerSecurityPropertySer
 import com.energyict.mdc.device.data.impl.constraintvalidators.DeviceConfigurationIsPresentAndActive;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueComTaskScheduling;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueMrid;
+import com.energyict.mdc.device.data.impl.constraintvalidators.ValidOverruledAttributes;
 import com.energyict.mdc.device.data.impl.constraintvalidators.ValidSecurityProperties;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.impl.security.ServerDeviceForValidation;
@@ -172,7 +172,6 @@ import java.util.Collections;
 import java.util.Deque;
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -195,6 +194,7 @@ import static java.util.stream.Collectors.toList;
 @UniqueMrid(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_DEVICE_MRID + "}")
 @UniqueComTaskScheduling(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_COMTASK + "}")
 @ValidSecurityProperties(groups = {Save.Update.class})
+@ValidOverruledAttributes(groups = {Save.Update.class})
 public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDeviceForValidation {
 
     private static final BigDecimal maxMultiplier = BigDecimal.valueOf(Integer.MAX_VALUE);
@@ -2448,7 +2448,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                         } else {
                             Meter.MeterConfigurationBuilder newMeterConfigBuilder = koreMeter.startingConfigurationOn(updateInstant);
                             getDeviceConfiguration().getRegisterSpecs().stream().filter(spec -> spec instanceof NumericalRegisterSpec)
-                                    .map(numeriaclSpec -> ((NumericalRegisterSpec) numeriaclSpec)).forEach(registerSpec -> {
+                                    .map(numericalRegisterSpec -> ((NumericalRegisterSpec) numericalRegisterSpec)).forEach(registerSpec -> {
                                 Meter.MeterReadingTypeConfigurationBuilder meterReadingTypeConfigurationBuilder = newMeterConfigBuilder.configureReadingType(registerSpec.getReadingType());
                                 if (registerWeNeedToUpdate(registerSpec) && overruledOverflowValue != null) {
                                     meterReadingTypeConfigurationBuilder.withOverflowValue(overruledOverflowValue);
@@ -2486,16 +2486,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 DeviceImpl.this.addReadingTypeObisCodeUsage(register.getReadingType(), overruledObisCode);
             }
 
-            validateUniqueObisCode();
-            DeviceImpl.this.save(); //just to make sure we increase the version
-        }
-
-        private void validateUniqueObisCode() {
-            Set<ObisCode> uniqueObisCodes = new HashSet<>();
-            DeviceImpl.this.getRegisters().stream().filter(register1 -> !uniqueObisCodes.add(register1.getDeviceObisCode())).findAny()
-                    .ifPresent(register2 -> {
-                        throw DuplicateAttributeException.forRegisterObisCode(thesaurus, register2);
-                    });
+            DeviceImpl.this.save(); //do validation and make sure the version increases
         }
 
         private boolean registerWeNeedToUpdate(RegisterSpec registerSpec) {
@@ -2607,16 +2598,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             if (currentOverruledObisCodeIsNotTheCorrectOne || currentlyNoOverruledObisCodeAlthoughRequested) {
                 DeviceImpl.this.addReadingTypeObisCodeUsage(channel.getReadingType(), overruledObisCode);
             }
-            validateUniqueObisCode();
-            DeviceImpl.this.save(); //just to make sure we increase the version
-        }
-
-        private void validateUniqueObisCode() {
-            Set<ObisCode> uniqueObisCodes = new HashSet<>();
-            channel.getLoadProfile().getChannels().stream().filter(channel1 -> !uniqueObisCodes.add(channel1.getObisCode())).findAny()
-                    .ifPresent(channel2 -> {
-                        throw DuplicateAttributeException.forChannelObisCode(thesaurus, channel2);
-                    });
+            DeviceImpl.this.save(); //do validation and make sure version increases
         }
 
         private boolean channelWeNeedToUpdate(ChannelSpec channelSpec) {
