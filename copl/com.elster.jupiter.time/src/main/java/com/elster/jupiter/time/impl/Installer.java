@@ -11,7 +11,6 @@ import com.elster.jupiter.time.DefaultRelativePeriodDefinition;
 import com.elster.jupiter.time.EventType;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.upgrade.FullInstaller;
-import com.elster.jupiter.util.exception.ExceptionCatcher;
 
 import javax.inject.Inject;
 import java.util.Arrays;
@@ -36,13 +35,19 @@ class Installer implements FullInstaller {
     }
 
     @Override
-    public void install(DataModelUpgrader dataModelUpgrader) {
-        ExceptionCatcher.executing(
-                () -> dataModelUpgrader.upgrade(dataModel, Version.latest()),
+    public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
+        dataModelUpgrader.upgrade(dataModel, Version.latest());
+        doTry(
+                "Create event types for TME",
                 this::createEventTypes,
-                this::createDefaultRelativePeriods
-        ).andHandleExceptionsWith(e -> logger.log(Level.SEVERE, e.getMessage(), e))
-                .execute();
+                logger
+        );
+        doTry(
+                "Create default Relative Periods",
+                this::createDefaultRelativePeriods,
+                logger
+        );
+
     }
 
     private void createDefaultRelativePeriods() {
