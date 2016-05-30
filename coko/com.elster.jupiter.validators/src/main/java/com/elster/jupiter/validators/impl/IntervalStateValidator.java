@@ -29,7 +29,6 @@ class IntervalStateValidator extends AbstractValidator {
     static final String INTERVAL_FLAGS = "intervalFlags";
     private static final Set<String> SUPPORTED_APPLICATIONS = ImmutableSet.of("MDC", "INS");
 
-    private Set<Flag> selectedFlags;
     private final IntervalFlag[] POSSIBLE_FLAGS = {
             new IntervalFlag(ProtocolReadingQualities.BADTIME, "badTime", "Bad time"),
             new IntervalFlag(ProtocolReadingQualities.BATTERY_LOW, "batteryLow", "Battery low"),
