@@ -3,60 +3,20 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.elster.jupiter</groupId>
-    <artifactId>autotesthelper</artifactId>
+    <parent>
+        <groupId>com.elster.jupiter</groupId>
+        <artifactId>mdm.parent</artifactId>
+        <version>1.1.0${revision}</version>
+        <relativePath>../com.elster.insight.parent/pom.xml</relativePath>
+    </parent>
+
+    <artifactId>mdm.test.api.rest</artifactId>
     <packaging>bundle</packaging>
-    <version>1.0.0-SNAPSHOT</version>
-    <name>Automated test helper</name>
+    <version>1.0.0${revision}</version>
+    <name>mdm-test-api-rest</name>
     <description>
         Provides extra REST resources to access INTERNAL functionality of the application for testing purposes only
     </description>
-
-    <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.felix</groupId>
-                    <artifactId>maven-bundle-plugin</artifactId>
-                    <version>3.0.1-elster-patch-1</version>
-                    <extensions>true</extensions>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <configuration>
-                    <instructions>
-                        <_include>bnd.bnd</_include>
-                    </instructions>
-                    <supportedProjectTypes>
-                        <supportedProjectType>bundle</supportedProjectType>
-                    </supportedProjectTypes>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>com.energyict</groupId>
-                <artifactId>mdc.bom</artifactId>
-                <version>1.2.0-SNAPSHOT</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>mdm.bom</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 
     <dependencies>
         <dependency>
@@ -104,8 +64,4 @@
             <artifactId>orm</artifactId>
         </dependency>
     </dependencies>
-    <properties>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
-    </properties>
 </project>
