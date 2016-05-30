@@ -21,14 +21,15 @@ import static java.util.stream.Collectors.toList;
  */
 @Component(name = "com.elster.jupiter.soap", service = WebServicesGogoCommands.class,
         property = {"osgi.command.scope=ws",
-                "osgi.command.function=services",
+                "osgi.command.function=webservices",
                 "osgi.command.function=endpoints",
                 "osgi.command.function=endpoint",
-                "osgi.command.function=publish",
-                "osgi.command.function=unpublish"
+                "osgi.command.function=activate",
+                "osgi.command.function=deactivate"
         }, immediate = true)
 public class WebServicesGogoCommands {
 
+    public static final MysqlPrint MYSQL_PRINT = new MysqlPrint();
     private WebServicesService webServicesService;
     private EndPointConfigurationService endPointConfigurationService;
     private ThreadPrincipalService threadPrincipalService;
@@ -54,22 +55,23 @@ public class WebServicesGogoCommands {
         this.endPointConfigurationService = endPointConfigurationService;
     }
 
-    public void services() {
+    public void webservices() {
         List<List<?>> collect = webServicesService.getWebServices()
                 .stream()
                 .map(Collections::singletonList)
                 .collect(toList());
         collect.add(0, Collections.singletonList("Web service"));
-        new MysqlPrint().printTableWithHeader(collect);
+        MYSQL_PRINT.printTableWithHeader(collect);
     }
 
     public void endpoints() {
         List<List<?>> collect = endPointConfigurationService.findEndPointConfigurations()
                 .stream()
-                .map(ep -> Arrays.asList(ep.getName(), ep.getWebServiceName(), ep.getUrl(), ep.isActive()))
+                .map(ep -> Arrays.asList(ep.getName(), ep.getWebServiceName(), ep.getUrl(), ep.isActive(), webServicesService
+                        .isPublished(ep)))
                 .collect(toList());
-        collect.add(0, Arrays.asList("Endpoint", "Web service", "URL", "Active"));
-        new MysqlPrint().printTableWithHeader(collect);
+        collect.add(0, Arrays.asList("Endpoint", "Web service", "URL", "Active", "Published"));
+        MYSQL_PRINT.printTableWithHeader(collect);
 
     }
 
@@ -95,11 +97,11 @@ public class WebServicesGogoCommands {
         }
     }
 
-    public void publish() {
-        System.out.println("usage: publish <end point name>");
+    public void activate() {
+        System.out.println("usage: activate <end point name>");
     }
 
-    public void publish(String name) {
+    public void activate(String name) {
         threadPrincipalService.set(() -> "Console");
 
         try (TransactionContext context = transactionService.getContext()) {
@@ -109,11 +111,11 @@ public class WebServicesGogoCommands {
         }
     }
 
-    public void unpublish() {
-        System.out.println("usage: unpublish <end point name>");
+    public void deactivate() {
+        System.out.println("usage: deactivate <end point name>");
     }
 
-    public void unpublish(String name) {
+    public void deactivate(String name) {
         threadPrincipalService.set(() -> "Console");
 
         try (TransactionContext context = transactionService.getContext()) {

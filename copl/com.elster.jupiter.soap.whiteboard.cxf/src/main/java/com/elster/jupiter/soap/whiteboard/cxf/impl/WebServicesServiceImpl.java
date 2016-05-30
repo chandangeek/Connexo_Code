@@ -89,6 +89,11 @@ public class WebServicesServiceImpl implements WebServicesService {
         }
     }
 
+    @Override
+    public boolean isPublished(EndPointConfiguration endPointConfiguration) {
+        return endpoints.containsKey(endPointConfiguration) && endpoints.get(endPointConfiguration).isPublished();
+    }
+
     // called by whiteboard
     public void register(String name, InboundEndPointProvider endPointProvider) {
         webServices.put(name, dataModel.getInstance(InboundEndPointFactoryImpl.class).init(name, endPointProvider));

@@ -37,7 +37,7 @@ public final class OutboundEndPoint implements ManagedEndpoint {
 
     @Override
     public void publish() {
-        if (this.isActive()) {
+        if (this.isPublished()) {
             throw new IllegalStateException("Service already published");
         }
         List<WebServiceFeature> features = new ArrayList<>();
@@ -54,7 +54,7 @@ public final class OutboundEndPoint implements ManagedEndpoint {
 
     @Override
     public void stop() {
-        if (this.isActive()) {
+        if (this.isPublished()) {
             serviceRegistration.unregister();
             serviceRegistration = null;
         } else {
@@ -68,7 +68,7 @@ public final class OutboundEndPoint implements ManagedEndpoint {
     }
 
     @Override
-    public boolean isActive() {
+    public boolean isPublished() {
         return this.serviceRegistration != null;
     }
 }

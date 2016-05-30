@@ -1,7 +1,5 @@
 package com.elster.jupiter.soap.whiteboard.cxf.impl;
 
-import com.elster.jupiter.soap.whiteboard.EndPointConfiguration;
-
 /**
  * Implementors will be self contained Endpoint managers: they contain all intelligence to publish/stop the actual service as endpoint.
  * Inbound endpoints will upon publishing offer a http service (e.g. SOAP) that can be externally reached. Outgoing endpoints
@@ -25,9 +23,9 @@ public interface ManagedEndpoint {
     boolean isInbound();
 
     /**
-     * returns true if the service is active, false otherwise
+     * returns true if the service is currently published (=active/running), false otherwise.
      *
      * @return
      */
-    boolean isActive();
+    boolean isPublished();
 }

@@ -39,7 +39,7 @@ public final class InboundEndPoint implements ManagedEndpoint {
 
     @Override
     public void publish() {
-        if (this.isActive()) {
+        if (this.isPublished()) {
             throw new IllegalStateException("Service already published");
         }
         try (ContextClassLoaderResource ctx = soapProviderSupportFactory.create()) {
@@ -63,7 +63,7 @@ public final class InboundEndPoint implements ManagedEndpoint {
 
     @Override
     public void stop() {
-        if (this.isActive()) {
+        if (this.isPublished()) {
             endpoint.stop();
             endpoint = null;
         } else {
@@ -77,7 +77,7 @@ public final class InboundEndPoint implements ManagedEndpoint {
     }
 
     @Override
-    public boolean isActive() {
+    public boolean isPublished() {
         return endpoint != null;
     }
 }
