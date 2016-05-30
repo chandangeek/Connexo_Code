@@ -131,12 +131,6 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
     }
 
     @Override
-    public void updateName(String name) {
-        this.setName(name);
-        this.update();
-    }
-
-    @Override
     public Instant getCreateTime() {
         return createTime;
     }
