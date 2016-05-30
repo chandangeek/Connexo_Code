@@ -46,7 +46,7 @@ div.#{$prefix}form-spinner-down {
 
   &:before {
     font-family: 'icomoon';
-    content: "\e113";
+    content: "\ea60";  // = icon-calendar2
     font-size: 21px;
     color: $button-default-background-color;
     position: absolute;
