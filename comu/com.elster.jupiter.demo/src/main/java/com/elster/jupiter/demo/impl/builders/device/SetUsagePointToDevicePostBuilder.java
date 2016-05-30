@@ -23,14 +23,13 @@ import java.util.function.Consumer;
  */
 public class SetUsagePointToDevicePostBuilder implements Consumer<Device> {
 
+    private static int newUsagePointId = 0;
     private MeteringService meteringService;
     private Clock clock;
     private UsagePointBuilder usagePointBuilder;
 
-    private static int newUsagePointId = 0;
-
     @Inject
-    SetUsagePointToDevicePostBuilder(MeteringService meteringService, Clock clock){
+    SetUsagePointToDevicePostBuilder(MeteringService meteringService, Clock clock) {
         this.meteringService = meteringService;
         this.clock = clock;
         this.usagePointBuilder = new UsagePointBuilder(meteringService);
@@ -38,20 +37,25 @@ public class SetUsagePointToDevicePostBuilder implements Consumer<Device> {
 
     @Override
     public void accept(Device device) {
-        Log.write(this.usagePointBuilder.withMRID(newMRID()).withName(device.getName()).withInstallationTime(clock.instant()));
+        Log.write(this.usagePointBuilder.withMRID(newMRID()).withName(device.getName())
+                .withInstallationTime(clock.instant())
+                .withLocation(device.getLocation().isPresent() ? device.getLocation().get() : null)
+                .withGeoCoordinates(device.getGeoCoordinates().isPresent() ? device.getGeoCoordinates().get() : null));
+        this.usagePointBuilder.create();
         setUsagePoint(device, this.usagePointBuilder.get());
     }
 
-    private String newMRID(){
+    private String newMRID() {
         return String.format("UP_%04d", ++newUsagePointId);
     }
 
     private void setUsagePoint(Device device, UsagePoint usagePoint) {
-        Optional<Meter> meter=  meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).flatMap(amrSystem -> amrSystem.findMeter(""+device.getId()));
-        if (meter.isPresent()) {
-            System.out.println("==> activating usage point for meter " + meter.get().getMRID());
-            usagePoint.activate(meter.get(), clock.instant());
-        }
+        Optional<Meter> meter = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())
+                .flatMap(amrSystem -> amrSystem.findMeter("" + device.getId()));
+        meter.ifPresent(mtr -> {
+            System.out.println("==> activating usage point for meter " + mtr.getMRID());
+            usagePoint.activate(mtr, clock.instant());
+        });
     }
 
 }

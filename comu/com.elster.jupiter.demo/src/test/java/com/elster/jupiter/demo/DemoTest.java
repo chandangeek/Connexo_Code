@@ -3,6 +3,7 @@ package com.elster.jupiter.demo;
 import com.elster.jupiter.appserver.impl.AppServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
+import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
@@ -107,7 +108,6 @@ import com.energyict.mdc.device.data.importers.impl.devices.remove.DeviceRemoveI
 import com.energyict.mdc.device.data.importers.impl.devices.shipment.DeviceShipmentImporterFactory;
 import com.energyict.mdc.device.data.importers.impl.readingsimport.DeviceReadingsImporterFactory;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
@@ -121,7 +121,6 @@ import com.energyict.mdc.engine.impl.EngineModule;
 import com.energyict.mdc.favorites.impl.FavoritesModule;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareVersion;
-import com.energyict.mdc.firmware.FirmwareVersionFilter;
 import com.energyict.mdc.firmware.impl.FirmwareModule;
 import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.io.impl.MdcIOModule;
@@ -141,8 +140,7 @@ import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
-import com.energyict.mdc.protocol.api.UserFileFactory;
-import com.energyict.mdc.protocol.api.codetables.CodeFactory;
+import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.messages.DlmsAuthenticationLevelMessageValues;
 import com.energyict.mdc.protocol.api.device.messages.DlmsEncryptionLevelMessageValues;
@@ -193,7 +191,10 @@ import java.util.TimeZone;
 import java.util.function.Predicate;
 import java.util.logging.Logger;
 
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -214,8 +215,7 @@ public class DemoTest {
             bind(FtpClientService.class).toInstance(mock(FtpClientService.class));
             bind(BundleContext.class).toInstance(mock(BundleContext.class));
             bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
-            bind(UserFileFactory.class).toInstance(mock(UserFileFactory.class));
-            bind(CodeFactory.class).toInstance(mock(CodeFactory.class));
+            bind(DeviceMessageFileService.class).toInstance(mock(DeviceMessageFileService.class));
             bind(CollectedDataFactory.class).toInstance(mock(CollectedDataFactory.class));
 
             Thesaurus thesaurus = mock(Thesaurus.class);
@@ -332,7 +332,8 @@ public class DemoTest {
                 new FileImportModule(),
                 new MailModule(),
                 new DemoModule(),
-                new CustomPropertySetsModule()
+                new CustomPropertySetsModule(),
+                new CalendarModule()
         );
         doPreparations();
     }
@@ -352,7 +353,7 @@ public class DemoTest {
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
 
         // Business method
-        demoService.createDemoData("DemoServ", "host", "2014-12-01", "2");
+        demoService.createDemoData("DemoServ", "host", "2014-12-01", "2", true); // Skip firmware management data, as H2 doesn't support update of LOB
     }
 
     @Test
@@ -360,7 +361,7 @@ public class DemoTest {
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
 
         // Business method
-        demoService.createDemoData("DemoServ", "host", "2014-12-01", "2");
+        demoService.createDemoData("DemoServ", "host", "2014-12-01", "2", true); // Skip firmware management data, as H2 doesn't support update of LOB
         DeviceService deviceService = injector.getInstance(DeviceService.class);
         Optional<Device> spe010000010156 = deviceService.findByUniqueMrid("SPE010000010001");
         assertThat(spe010000010156.get().getDeviceProtocolProperties().getProperty("NTASimulationTool")).isEqualTo(true);
@@ -371,7 +372,7 @@ public class DemoTest {
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
 
         // Business method
-        demoService.createDemoData("DemoServ", "host", "2014-12-01", "2");
+        demoService.createDemoData("DemoServ", "host", "2014-12-01", "2", true); // Skip firmware management data, as H2 doesn't support update of LOB
 
         DeviceService deviceService = injector.getInstance(DeviceService.class);
         Optional<Device> spe010000010156 = deviceService.findByUniqueMrid("SPE010000010001");
@@ -633,8 +634,8 @@ public class DemoTest {
     @Test
     public void testExecuteCreateDemoDataTwice() {
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
-            demoService.createDemoData("DemoServ", "host", "2014-12-01", "2");
-            demoService.createDemoData("DemoServ", "host", "2014-12-01", "2");
+            demoService.createDemoData("DemoServ", "host", "2014-12-01", "2", true); // Skip firmware management data, as H2 doesn't support update of LOB
+        demoService.createDemoData("DemoServ", "host", "2014-12-01", "2", true);
         // Calling the command 'createDemoData' twice shouldn't produce errors
     }
 
@@ -642,7 +643,7 @@ public class DemoTest {
     public void testStartDate() {
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
         try {
-            demoService.createDemoData("DemoServ", "host", "2020-12-01", "2");
+            demoService.createDemoData("DemoServ", "host", "2020-12-01", "2", true); // Skip firmware management data, as H2 doesn't support update of LOB
         } catch (UnableToCreate e) {
             assertThat(e.getMessage()).contains("Incorrect start date parameter");
         }
@@ -655,7 +656,7 @@ public class DemoTest {
         DeviceLifeCycleConfigurationService  deviceLifeCycleConfigurationService = injector.getInstance(DeviceLifeCycleConfigurationService.class);
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
 
-        demoService.createDemoData("DemoServ", "host", "2015-01-01", "2");
+        demoService.createDemoData("DemoServ", "host", "2015-01-01", "2", true); // Skip firmware management data, as H2 doesn't support update of LOB
         demoService.createDefaultDeviceLifeCycle("2015-01-01");
 
         Optional<DeviceLifeCycle> defaultDeviceLifeCycle = deviceLifeCycleConfigurationService.findDefaultDeviceLifeCycle();
@@ -673,8 +674,8 @@ public class DemoTest {
 //                   .isPresent()).isTrue();
     }
 
-
     @Test
+    @Ignore // Because H2 doesn't support update of LOB
     public void testFirmwareManagementSetup(){
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
 
@@ -702,17 +703,18 @@ public class DemoTest {
         IssueCreationService issueCreationService = issueService.getIssueCreationService();
 
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
-        demoService.createDemoData("DemoServ", "host", "2015-01-01", "2");
+        demoService.createDemoData("DemoServ", "host", "2015-01-01", "2", true); // Skip firmware management data, as H2 doesn't support update of LOB
 
         assertThat(issueCreationService.getCreationRuleQuery().select(Condition.TRUE)).hasSize(4);
     }
+
     @Test
     public void testCreateImportersCommand(){
         FileImportService fileImportService = injector.getInstance(FileImportService.class);
 
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
 
-        demoService.createDemoData("DemoServ", "host", "2015-01-01", "2");
+        demoService.createDemoData("DemoServ", "host", "2015-01-01", "2", true); // Skip firmware management data, as H2 doesn't support update of LOB
         demoService.createImporters();
 
         assertThat(fileImportService.getImportSchedules()).hasSize(9);
@@ -724,7 +726,7 @@ public class DemoTest {
 
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
 
-        demoService.createDemoData("DemoServ", "host", "2015-01-01", "2");
+        demoService.createDemoData("DemoServ", "host", "2015-01-01", "2", true); // Skip firmware management data, as H2 doesn't support update of LOB
         demoService.createDemoUser("MyDemoUser");
 
         Optional<Group> group = userService.getGroup("Demo Users");
@@ -740,7 +742,7 @@ public class DemoTest {
 
     private List<FirmwareVersion> getFirmwareVersions(DeviceType deviceType){
         FirmwareService firmwareService = injector.getInstance(FirmwareService.class);
-        return firmwareService.findAllFirmwareVersions(new FirmwareVersionFilter(deviceType)).find();
+        return firmwareService.findAllFirmwareVersions(firmwareService.filterForFirmwareVersion(deviceType)).find();
     }
 
     protected void doPreparations() {

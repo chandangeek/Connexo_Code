@@ -1,10 +1,51 @@
 package com.elster.jupiter.demo.impl;
 
-import com.elster.jupiter.demo.impl.commands.*;
+import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.demo.impl.commands.CreateA3DeviceCommand;
+import com.elster.jupiter.demo.impl.commands.CreateApplicationServerCommand;
+import com.elster.jupiter.demo.impl.commands.CreateAssignmentRulesCommand;
+import com.elster.jupiter.demo.impl.commands.CreateCollectRemoteDataSetupCommand;
+import com.elster.jupiter.demo.impl.commands.CreateDefaultDeviceLifeCycleCommand;
+import com.elster.jupiter.demo.impl.commands.CreateDeliverDataSetupCommand;
+import com.elster.jupiter.demo.impl.commands.CreateDemoDataCommand;
+import com.elster.jupiter.demo.impl.commands.CreateDemoUserCommand;
+import com.elster.jupiter.demo.impl.commands.CreateDeviceTypeCommand;
+import com.elster.jupiter.demo.impl.commands.CreateEstimationSetupCommand;
+import com.elster.jupiter.demo.impl.commands.CreateG3DemoBoardCommand;
+import com.elster.jupiter.demo.impl.commands.CreateImportersCommand;
+import com.elster.jupiter.demo.impl.commands.CreateNtaConfigCommand;
+import com.elster.jupiter.demo.impl.commands.CreateUserManagementCommand;
+import com.elster.jupiter.demo.impl.commands.CreateValidationSetupCommand;
+import com.elster.jupiter.demo.impl.commands.SetupFirmwareManagementCommand;
+import com.elster.jupiter.demo.impl.commands.devices.CreateDeviceCommand;
+import com.elster.jupiter.demo.impl.commands.devices.CreateG3GatewayCommand;
+import com.elster.jupiter.demo.impl.commands.devices.CreateG3SlaveCommand;
+import com.elster.jupiter.demo.impl.commands.devices.CreateValidationDeviceCommand;
+import com.elster.jupiter.demo.impl.commands.upload.AddIntervalChannelReadingsCommand;
+import com.elster.jupiter.demo.impl.commands.upload.AddNoneIntervalChannelReadingsCommand;
+import com.elster.jupiter.demo.impl.commands.upload.AddRegisterReadingsCommand;
 import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.ids.IdsService;
+import com.elster.jupiter.issue.share.service.IssueAssignmentService;
+import com.elster.jupiter.issue.share.service.IssueCreationService;
+import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.kpi.KpiService;
+import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.search.SearchService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.cron.CronExpressionParser;
+import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
@@ -21,47 +62,6 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 
-import com.elster.jupiter.appserver.AppService;
-import com.elster.jupiter.demo.impl.commands.CreateA3DeviceCommand;
-import com.elster.jupiter.demo.impl.commands.CreateApplicationServerCommand;
-import com.elster.jupiter.demo.impl.commands.CreateAssignmentRulesCommand;
-import com.elster.jupiter.demo.impl.commands.CreateCollectRemoteDataSetupCommand;
-import com.elster.jupiter.demo.impl.commands.CreateDefaultDeviceLifeCycleCommand;
-import com.elster.jupiter.demo.impl.commands.CreateDeliverDataSetupCommand;
-import com.elster.jupiter.demo.impl.commands.CreateDemoDataCommand;
-import com.elster.jupiter.demo.impl.commands.CreateDemoUserCommand;
-import com.elster.jupiter.demo.impl.commands.CreateDeviceTypeCommand;
-import com.elster.jupiter.demo.impl.commands.CreateG3DemoBoardCommand;
-import com.elster.jupiter.demo.impl.commands.CreateImportersCommand;
-import com.elster.jupiter.demo.impl.commands.CreateNtaConfigCommand;
-import com.elster.jupiter.demo.impl.commands.CreateUserManagementCommand;
-import com.elster.jupiter.demo.impl.commands.CreateValidationSetupCommand;
-import com.elster.jupiter.demo.impl.commands.SetupFirmwareManagementCommand;
-import com.elster.jupiter.demo.impl.commands.devices.CreateDeviceCommand;
-import com.elster.jupiter.demo.impl.commands.devices.CreateG3GatewayCommand;
-import com.elster.jupiter.demo.impl.commands.devices.CreateG3SlaveCommand;
-import com.elster.jupiter.demo.impl.commands.devices.CreateValidationDeviceCommand;
-import com.elster.jupiter.demo.impl.commands.upload.AddIntervalChannelReadingsCommand;
-import com.elster.jupiter.demo.impl.commands.upload.AddNoneIntervalChannelReadingsCommand;
-import com.elster.jupiter.demo.impl.commands.upload.AddRegisterReadingsCommand;
-import com.elster.jupiter.export.DataExportService;
-import com.elster.jupiter.ids.IdsService;
-import com.elster.jupiter.issue.share.service.IssueAssignmentService;
-import com.elster.jupiter.issue.share.service.IssueCreationService;
-import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.kpi.KpiService;
-import com.elster.jupiter.license.LicenseService;
-import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.time.TimeService;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.cron.CronExpressionParser;
-import com.elster.jupiter.validation.ValidationService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -639,17 +639,34 @@ public class DemoServiceImpl {
     }
 
     @SuppressWarnings("unused")
-    public void createDemoData(String comServerName, String host, String startDate, String numberOfDevicesPerType ){
+    public void createDemoData(String comServerName, String host, String startDate, String numberOfDevicesPerType ) {
+        this.createDemoData(comServerName, host, startDate, numberOfDevicesPerType, false);
+    }
+
+    /**
+     *
+     * @param comServerName
+     * @param host
+     * @param startDate
+     * @param numberOfDevicesPerType
+     * @param skipFirmwareManagementData in case you don't want the firmware management data is created
+     */
+    @SuppressWarnings("unused")
+    public void createDemoData(String comServerName, String host, String startDate, String numberOfDevicesPerType, boolean skipFirmwareManagementData) {
         executeTransaction(() -> {
             CreateDemoDataCommand command = injector.getInstance(CreateDemoDataCommand.class);
             command.setComServerName(comServerName);
             command.setHost(host);
             command.setStartDate(startDate);
+            if(!dataModel.getSqlDialect().name().equalsIgnoreCase("H2")){
+                command.setGeoCoordinates(meteringService.createGeoCoordinates("40.7922408:-74.4462162:0"));
+            }
             if (numberOfDevicesPerType == null) {
                 command.setDevicesPerType(null);
             } else {
                 command.setDevicesPerType(Integer.valueOf(numberOfDevicesPerType));
             }
+            command.setSkipFirmwareManagementData(skipFirmwareManagementData);
             command.run();
         });
     }

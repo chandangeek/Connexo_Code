@@ -3,7 +3,7 @@ package com.elster.jupiter.demo.impl.templates;
 import com.elster.jupiter.demo.impl.builders.Builder;
 
 /**
- * A <Code>Template</Code> is used as a way to initialize builder with (default) values.
+ * A <code>Template</code> is used as a way to initialize builder with (default) values.
  * On its turn a builder creates the objects
  *
  * @param <T> Type (Class) of object for which the template is used for

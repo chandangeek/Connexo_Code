@@ -5,6 +5,8 @@ import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.elster.jupiter.demo.impl.commands.devices.CreateDeviceCommand;
 import com.elster.jupiter.demo.impl.commands.upload.UploadAllCommand;
 import com.elster.jupiter.demo.impl.commands.upload.ValidateStartDateCommand;
+import com.elster.jupiter.metering.GeoCoordinates;
+import com.elster.jupiter.metering.Location;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -33,6 +35,9 @@ public class CreateDemoDataCommand {
     private String host;
     private String startDate;
     private Integer devicesPerType = null;
+    private Location location;
+    private GeoCoordinates geoCoordinates;
+    private boolean skipFirmwareMamanagementData;
 
     @Inject
     public CreateDemoDataCommand(
@@ -70,6 +75,18 @@ public class CreateDemoDataCommand {
 
     public void setHost(String host) {
         this.host = host;
+    }
+
+    public void setLocation(Location location){
+        this.location = location;
+    }
+
+    public void setGeoCoordinates(GeoCoordinates geoCoordinates){
+       this.geoCoordinates = geoCoordinates;
+    }
+
+    public void setSkipFirmwareManagementData(boolean skipFirmwareData) {
+        this.skipFirmwareMamanagementData = skipFirmwareData;
     }
 
     public void setStartDate(String startDate) {
@@ -141,6 +158,8 @@ public class CreateDemoDataCommand {
         command.setComServerName(this.comServerName);
         command.setHost(this.host);
         command.setDevicesPerType(this.devicesPerType);
+        command.setLocation(location);
+        command.setGeoCoordinates(geoCoordinates);
         command.run();
     }
 
@@ -184,8 +203,10 @@ public class CreateDemoDataCommand {
     }
 
     private void setupFirmwareManagementCommand(){
-        SetupFirmwareManagementCommand setupFirmwareManagementCommand = this.setupFirmwareManagementCommandProvider.get();
-        setupFirmwareManagementCommand.run();
+        if (!skipFirmwareMamanagementData) {
+            SetupFirmwareManagementCommand setupFirmwareManagementCommand = this.setupFirmwareManagementCommandProvider.get();
+            setupFirmwareManagementCommand.run();
+        }
     }
 
     private void createImportersCommand(){
