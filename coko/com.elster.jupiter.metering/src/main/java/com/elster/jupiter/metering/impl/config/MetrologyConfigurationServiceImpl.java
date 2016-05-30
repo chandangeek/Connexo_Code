@@ -44,6 +44,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -67,8 +68,8 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
         this.userService = userService;
     }
 
-    public void install() {
-        new Installer(this.meteringService, this).install();
+    public void install(Logger logger) {
+        new Installer(this.meteringService, this).install(null, logger);
     }
 
     @Override

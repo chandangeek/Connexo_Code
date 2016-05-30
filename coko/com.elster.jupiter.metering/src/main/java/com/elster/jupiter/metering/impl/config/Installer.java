@@ -5,9 +5,12 @@ import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.MeterRole;
-import com.elster.jupiter.util.exception.ExceptionCatcher;
+import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.upgrade.FullInstaller;
 
-public class Installer {
+import java.util.logging.Logger;
+
+public class Installer implements FullInstaller {
 
     private final MeteringService meteringService;
     private final ServerMetrologyConfigurationService metrologyConfigurationService;
@@ -17,14 +20,27 @@ public class Installer {
         this.metrologyConfigurationService = metrologyConfigurationService;
     }
 
-    public void install() {
-        ExceptionCatcher.executing(
+    public void install(DataModelUpgrader upgrader, Logger logger) {
+        doTry(
+                "Create Meter Roles",
                 this::createMeterRoles,
+                logger
+        );
+        doTry(
+                "Create Metrology Purposes",
                 this::createMetrologyPurposes,
+                logger
+        );
+        doTry(
+                "Create Reading Type templates",
                 this::createReadingTypeTemplates,
-                this::createMetrologyConfigurations
-        ).andHandleExceptionsWith(Throwable::printStackTrace)
-                .execute();
+                logger
+        );
+        doTry(
+                "Create Metrology Configurations",
+                this::createMetrologyConfigurations,
+                logger
+        );
     }
 
     private void createMeterRoles() {
