@@ -1351,16 +1351,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         }
     }
 
-    private List<ProfileStatus.Flag> getFlagsFromProfileStatus(ProfileStatus profileStatus) {
-        List<ProfileStatus.Flag> flags = new ArrayList<>();
-        for (ProfileStatus.Flag flag : ProfileStatus.Flag.values()) {
-            if (profileStatus.get(flag)) {
-                flags.add(flag);
-            }
-        }
-        return flags;
-    }
-
     @Override
     public void
     setSecurityProperties(SecurityPropertySet securityPropertySet, TypedProperties typedProperties) {
