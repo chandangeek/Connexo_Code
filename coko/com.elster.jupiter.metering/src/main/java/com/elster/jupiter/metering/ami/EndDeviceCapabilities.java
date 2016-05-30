@@ -10,7 +10,7 @@ public final class EndDeviceCapabilities {
     private List<EndDeviceControlType> controlTypes;
 
     public EndDeviceCapabilities(List<ReadingType> readingTypes, List<EndDeviceControlType> controlTypes) {
-        // todo : secure this : do not assign parameter to the actual member
+        // TODO : secure this : do not assign parameter to the actual member
         this.readingTypes = readingTypes;
         this.controlTypes = controlTypes;
     }
