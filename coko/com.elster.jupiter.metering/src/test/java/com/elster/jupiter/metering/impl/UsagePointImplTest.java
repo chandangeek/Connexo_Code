@@ -6,12 +6,16 @@ import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.ConnectionState;
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointAccountability;
+import com.elster.jupiter.metering.config.DefaultMeterRole;
+import com.elster.jupiter.metering.config.MeterRole;
+import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
@@ -46,6 +50,7 @@ import org.mockito.stubbing.Answer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.fest.reflect.core.Reflection.field;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -101,6 +106,8 @@ public class UsagePointImplTest {
     @Mock
     private CustomPropertySetService customPropertySetService;
     @Mock
+    private ServerMetrologyConfigurationService metrologyConfigurationService;
+    @Mock
     private Thesaurus thesaurus;
     @Mock
     private DataMapper<MeterActivation> meterActivationMapper;
@@ -110,11 +117,20 @@ public class UsagePointImplTest {
     private Validator validator;
     @Mock
     private MeteringService meteringService;
+    @Mock
+    private MeterImpl meter;
+    @Mock
+    private MeterRole meterRole;
+    @Mock
+    private DataMapper<Meter> meterFactory;
 
     @Before
     public void setUp() {
         when(role.getMRID()).thenReturn(MarketRoleKind.ENERGYSERVICECONSUMER.name());
         when(dataModel.mapper(UsagePoint.class)).thenReturn(usagePointFactory);
+        when(dataModel.mapper(Meter.class)).thenReturn(meterFactory);
+        when(meterRole.getKey()).thenReturn(DefaultMeterRole.DEFAULT.getKey());
+        when(meterFactory.getExisting(any())).thenReturn(meter);
         when(dataModel.getInstance(UsagePointAccountabilityImpl.class)).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
@@ -147,7 +163,8 @@ public class UsagePointImplTest {
         when(representation4.getDelegate()).thenReturn(user4);
         when(dataModel.mapper(MeterActivation.class)).thenReturn(meterActivationMapper);
 
-        usagePoint = new UsagePointImpl(clock, dataModel, eventService, thesaurus, meterActivationProvider, accountabilityProvider, customPropertySetService, meteringService).init(MR_ID, serviceCategory);
+        usagePoint = new UsagePointImpl(clock, dataModel, eventService, thesaurus, meterActivationProvider, accountabilityProvider, customPropertySetService, meteringService, metrologyConfigurationService)
+                .init(MR_ID, serviceCategory);
     }
 
     @After
@@ -248,9 +265,10 @@ public class UsagePointImplTest {
     @Test
     public void testGetMeterActivations() {
         ZonedDateTime dateTime = ZonedDateTime.of(2013, 8, 14, 17, 30, 22, 123456789, TimeZoneNeutral.getMcMurdo());
-        activation1 = usagePoint.activate(dateTime.toInstant());
+
+        activation1 = usagePoint.activate(meter, meterRole, dateTime.toInstant());
         activation1.endAt(dateTime.plusYears(1).toInstant());
-        activation2 = usagePoint.activate(dateTime.plusYears(1).toInstant());
+        activation2 = usagePoint.activate(meter, meterRole, dateTime.plusYears(1).toInstant());
 
         List<MeterActivation> meterActivations = new ArrayList<>(usagePoint.getMeterActivations());
         assertThat(meterActivations).hasSize(2)
@@ -261,11 +279,10 @@ public class UsagePointImplTest {
     @Test
     public void testGetCurrentMeterActivations() {
         clock = Clock.fixed(START_DATE.plusYears(2).toInstant(), ZoneId.systemDefault());
-        activation1 = usagePoint.activate(START_DATE.toInstant());
+        activation1 = usagePoint.activate(meter, meterRole, START_DATE.toInstant());
         activation1.endAt(START_DATE.plusYears(1).toInstant());
-        activation2 = usagePoint.activate(START_DATE.plusYears(1).toInstant());
-        assertThat(usagePoint.getCurrentMeterActivation())
-                .contains(activation2);
+        activation2 = usagePoint.activate(meter, meterRole, START_DATE.plusYears(1).toInstant());
+        assertThat(usagePoint.getCurrentMeterActivation()).contains(activation2);
     }
 
     @Test
@@ -281,7 +298,7 @@ public class UsagePointImplTest {
     @Test
     public void testActivate() {
         simulateSavedUsagePoint();
-        MeterActivation meterActivation = usagePoint.activate(START);
+        MeterActivation meterActivation = usagePoint.activate(meter, meterRole, START);
 
         verify(dataModel).persist(meterActivation);
 

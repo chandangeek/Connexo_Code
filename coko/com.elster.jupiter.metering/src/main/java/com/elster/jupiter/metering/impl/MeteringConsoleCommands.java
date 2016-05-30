@@ -481,7 +481,9 @@ public class MeteringConsoleCommands {
                     long id = upMetrologyConfiguration.newReadingTypeRequirement(name).withMeterRole(meterRole).withReadingType(readingType).getId();
                     System.out.println("Requirment created with id: " + id);
                 } catch (IllegalArgumentException e) {
-                    System.out.println("Unknown default meter role: " + meterRoleName + ". Use one of: " + Stream.of(DefaultMeterRole.values()).map(DefaultMeterRole::name).collect(Collectors.joining(", ")));
+                    System.out.println("Unknown default meter role: " + meterRoleName + ". Use one of: " + Stream.of(DefaultMeterRole.values())
+                            .map(DefaultMeterRole::name)
+                            .collect(Collectors.joining(", ")));
                     throw e;
                 }
             } else {
@@ -513,7 +515,9 @@ public class MeteringConsoleCommands {
                     long id = upMetrologyConfiguration.newReadingTypeRequirement(name).withMeterRole(meterRole).withReadingTypeTemplate(template).getId();
                     System.out.println("Requirment created with id: " + id);
                 } catch (IllegalArgumentException e) {
-                    System.out.println("Unknown default meter role: " + meterRoleName + ". Use one of: " + Stream.of(DefaultMeterRole.values()).map(DefaultMeterRole::name).collect(Collectors.joining(", ")));
+                    System.out.println("Unknown default meter role: " + meterRoleName + ". Use one of: " + Stream.of(DefaultMeterRole.values())
+                            .map(DefaultMeterRole::name)
+                            .collect(Collectors.joining(", ")));
                     throw e;
                 }
             } else {

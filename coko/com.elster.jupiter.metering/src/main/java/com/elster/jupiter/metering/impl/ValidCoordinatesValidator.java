@@ -1,7 +1,6 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.GeoCoordinates;
-import com.elster.jupiter.orm.associations.Reference;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
