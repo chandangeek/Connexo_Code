@@ -28,6 +28,15 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
 import static com.elster.jupiter.estimators.impl.PowerGapFill.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS;
 import static org.mockito.AdditionalMatchers.cmpEq;
@@ -487,6 +496,12 @@ public class PowerGapFillTest {
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService);
 
         estimator.validateProperties(Collections.singletonMap(property.getName(), property.getValue()));
+    }
+
+    @Test
+    public void testGetSupportedApplications() {
+        assertThat(new PowerGapFill(thesaurus, propertySpecService).getSupportedApplications())
+                .containsOnly("INS", "MDC");
     }
 
     private EstimationRuleProperties estimationRuleProperty(final String name, final Object value) {

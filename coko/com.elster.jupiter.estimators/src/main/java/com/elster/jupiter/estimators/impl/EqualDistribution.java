@@ -14,6 +14,7 @@ import com.elster.jupiter.util.logging.LoggingContext;
 import com.elster.jupiter.util.streams.Functions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
@@ -21,7 +22,12 @@ import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.temporal.TemporalAmount;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -67,6 +73,7 @@ public class EqualDistribution extends AbstractEstimator implements Estimator {
 
     }
 
+    private static final Set<String> SUPPORTED_APPLICATIONS = ImmutableSet.of("MDC", "INS");
     private final MeteringService meteringService;
     private AdvanceReadingsSettings advanceReadingsSettings;
     private long maxNumberOfConsecutiveSuspects;
@@ -92,6 +99,11 @@ public class EqualDistribution extends AbstractEstimator implements Estimator {
     @Override
     public List<String> getRequiredProperties() {
         return Collections.singletonList(ADVANCE_READINGS_SETTINGS);
+    }
+
+    @Override
+    public Set<String> getSupportedApplications() {
+        return SUPPORTED_APPLICATIONS;
     }
 
     @Override
