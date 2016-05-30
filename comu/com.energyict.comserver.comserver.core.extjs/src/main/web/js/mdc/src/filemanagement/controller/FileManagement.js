@@ -47,6 +47,9 @@ Ext.define('Mdc.filemanagement.controller.FileManagement', {
             'files-grid actioncolumn': {
                 removeEvent: me.removeFile
             },
+            //'#file-management-radio': {
+            //    change
+            //}
         });
     },
 
@@ -141,26 +144,59 @@ Ext.define('Mdc.filemanagement.controller.FileManagement', {
         var me = this,
             form = me.getEditForm(),
             formErrorsPanel = form.down('#form-errors'),
-            record;
+            record,
+            confirmationWindow;
 
         form.updateRecord();
         record = form.getRecord();
         formErrorsPanel.hide();
-        record.beginEdit();
-        record.set('fileManagementEnabled', form.down('#files-allowed-radio-field').checked);
-        record.endEdit(true);
-        record.save({
-            success: function () {
-                me.getController('Uni.controller.history.Router').getRoute('administration/devicetypes/view/filemanagement', {deviceTypeId: me.deviceTypeId}).forward();
-            },
-            failure: function (record, operation) {
-                formErrorsPanel.show();
-                var json = Ext.decode(operation.response.responseText);
-                if (json && json.errors) {
-                    form.getForm().markInvalid(json.errors);
-                }
-            }
+        confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
+            confirmText: Uni.I18n.translate('general.save', 'MDC', 'Save'),
         });
+
+        if(!form.down('#files-allowed-radio-field').checked) {
+            confirmationWindow.show(
+                {
+                    msg: Uni.I18n.translate('filemanagement.disable.msg', 'MDC', 'You will not be able to use these files anymore, existing files will be removed from the system. This action is irreversible.'),
+                    title: Uni.I18n.translate('general.disbaleFileManagement', 'MDC', "Disable file management?"),
+                    fn: function (state) {
+                        if (state === 'confirm') {
+                            record.beginEdit();
+                            record.set('fileManagementEnabled', form.down('#files-allowed-radio-field').checked);
+                            record.endEdit(true);
+                            record.save({
+                                success: function () {
+                                    me.getController('Uni.controller.history.Router').getRoute('administration/devicetypes/view/filemanagement', {deviceTypeId: me.deviceTypeId}).forward();
+                                },
+                                failure: function (record, operation) {
+                                    formErrorsPanel.show();
+                                    var json = Ext.decode(operation.response.responseText);
+                                    if (json && json.errors) {
+                                        form.getForm().markInvalid(json.errors);
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });
+        } else {
+            record.beginEdit();
+            record.set('fileManagementEnabled', form.down('#files-allowed-radio-field').checked);
+            record.endEdit(true);
+            record.save({
+                success: function () {
+                    me.getController('Uni.controller.history.Router').getRoute('administration/devicetypes/view/filemanagement', {deviceTypeId: me.deviceTypeId}).forward();
+                },
+                failure: function (record, operation) {
+                    formErrorsPanel.show();
+                    var json = Ext.decode(operation.response.responseText);
+                    if (json && json.errors) {
+                        form.getForm().markInvalid(json.errors);
+                    }
+                }
+            });
+        }
+
     },
 
     uploadFile: function (fileField) {
@@ -241,7 +277,6 @@ Ext.define('Mdc.filemanagement.controller.FileManagement', {
             setup = me.getSetup(),
             grid = setup.down('files-grid'),
             panel = setup.down('tabpanel'),
-            pageHeight = setup.getHeight() - panel.getHeader().getHeight(),
             maxHeight = window.innerHeight - 280;
 
         if(maxHeight < 400) {

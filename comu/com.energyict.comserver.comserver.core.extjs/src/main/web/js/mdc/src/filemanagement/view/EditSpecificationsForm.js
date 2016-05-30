@@ -31,6 +31,7 @@ Ext.define('Mdc.timeofuse.view.EditSpecificationsForm', {
                     },
                     {
                         xtype: 'fieldcontainer',
+                        itemId: 'file-management-radio',
                         fieldLabel: Uni.I18n.translate('filemanagement.allowFileManagement', 'MDC', 'Allow file management'),
                         defaultType: 'radiofield',
                         required: true,
@@ -45,7 +46,12 @@ Ext.define('Mdc.timeofuse.view.EditSpecificationsForm', {
                                 boxLabel: Uni.I18n.translate('general.no', 'MDC', 'No'),
                                 name: 'fileManagementEnabled',
                                 inputValue: 'false',
-                                checked: true
+                                checked: true,
+                                afterBodyEl: [
+                                    '<div class="x-form-display-field" style="padding-right:10px;padding-left:18px;color:#A0A0A0"><i>',
+                                    Uni.I18n.translate('files.existingFilesWillBeRemoved', 'MDC', 'Existing files will be removed'),
+                                    '</i></div>'
+                                ]
                             }
                         ]
                     },

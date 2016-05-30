@@ -16,7 +16,7 @@ Ext.define('Mdc.fileManagement.view.EditSpecificationsSetup', {
             {
                 xtype: 'panel',
                 ui: 'large',
-                title: Uni.I18n.translate('timeofuse.allowFileManagementQuestion', 'MDC', 'Allow file management?'),
+                title: Uni.I18n.translate('timeofuse.editFileManagementSpecifications', 'MDC', 'Edit file management specifications'),
                 layout: {
                     type: 'vbox',
                     align: 'stretch'
