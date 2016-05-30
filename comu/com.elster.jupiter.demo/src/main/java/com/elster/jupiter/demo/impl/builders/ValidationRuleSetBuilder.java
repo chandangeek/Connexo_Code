@@ -1,6 +1,10 @@
 package com.elster.jupiter.demo.impl.builders;
 
-import com.elster.jupiter.validation.*;
+import com.elster.jupiter.validation.ValidationAction;
+import com.elster.jupiter.validation.ValidationRule;
+import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.validation.ValidationRuleSetVersion;
+import com.elster.jupiter.validation.ValidationService;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
@@ -30,8 +34,7 @@ public class ValidationRuleSetBuilder extends NamedBuilder<ValidationRuleSet, Va
 
     @Override
     public ValidationRuleSet create() {
-        ValidationRuleSet ruleSet = validationService.createValidationRuleSet(getName());
-        ruleSet.setDescription(this.description);
+        ValidationRuleSet ruleSet = validationService.createValidationRuleSet(getName(), "MDC", this.description);
         ValidationRuleSetVersion ruleSetVersion = ruleSet.addRuleSetVersion("Demo Default Version", Instant.EPOCH);
         addRegisterIncreaseValidationRule(ruleSetVersion);
         addDetectMissingValuesValidationRule(ruleSetVersion);

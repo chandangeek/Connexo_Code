@@ -108,7 +108,6 @@ import com.energyict.mdc.device.data.importers.impl.devices.remove.DeviceRemoveI
 import com.energyict.mdc.device.data.importers.impl.devices.shipment.DeviceShipmentImporterFactory;
 import com.energyict.mdc.device.data.importers.impl.readingsimport.DeviceReadingsImporterFactory;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
@@ -122,7 +121,6 @@ import com.energyict.mdc.engine.impl.EngineModule;
 import com.energyict.mdc.favorites.impl.FavoritesModule;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareVersion;
-import com.energyict.mdc.firmware.FirmwareVersionFilter;
 import com.energyict.mdc.firmware.impl.FirmwareModule;
 import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.io.impl.MdcIOModule;
@@ -142,8 +140,7 @@ import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
-import com.energyict.mdc.protocol.api.UserFileFactory;
-import com.energyict.mdc.protocol.api.codetables.CodeFactory;
+import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.messages.DlmsAuthenticationLevelMessageValues;
 import com.energyict.mdc.protocol.api.device.messages.DlmsEncryptionLevelMessageValues;
@@ -194,7 +191,10 @@ import java.util.TimeZone;
 import java.util.function.Predicate;
 import java.util.logging.Logger;
 
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -208,6 +208,45 @@ public class DemoTest {
     protected static Injector injector;
     private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private User currentUser;
+
+    private static class MockModule extends AbstractModule {
+        @Override
+        protected void configure() {
+            bind(FtpClientService.class).toInstance(mock(FtpClientService.class));
+            bind(BundleContext.class).toInstance(mock(BundleContext.class));
+            bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
+            bind(DeviceMessageFileService.class).toInstance(mock(DeviceMessageFileService.class));
+            bind(CollectedDataFactory.class).toInstance(mock(CollectedDataFactory.class));
+
+            Thesaurus thesaurus = mock(Thesaurus.class);
+            bind(Thesaurus.class).toInstance(thesaurus);
+            bind(MessageInterpolator.class).toInstance(thesaurus);
+
+            LicenseService licenseService = mock(LicenseService.class);
+            License license = mockLicense();
+            when(licenseService.getLicenseForApplication("MDC")).thenReturn(Optional.of(license));
+            bind(LicenseService.class).toInstance(licenseService);
+            bind(SerialComponentService.class).to(SerialIONoModemComponentServiceImpl.class).in(Scopes.SINGLETON);
+            bind(LogService.class).toInstance(mock(LogService.class));
+            bind(KieResources.class).toInstance(mock(KieResources.class));
+            bind(KnowledgeBaseFactoryService.class).toInstance(mock(KnowledgeBaseFactoryService.class, RETURNS_DEEP_STUBS));
+            bind(KnowledgeBuilderFactoryService.class).toInstance(mock(KnowledgeBuilderFactoryService.class, RETURNS_DEEP_STUBS));
+        }
+
+        private License mockLicense() {
+            License license = mock(License.class);
+            Properties properties = new Properties();
+            properties.setProperty("protocols", "all");
+            when(license.getApplicationKey()).thenReturn("MDC");
+            when(license.getDescription()).thenReturn("MDC application license example");
+            when(license.getStatus()).thenReturn(License.Status.ACTIVE);
+            when(license.getType()).thenReturn(License.Type.EVALUATION);
+            when(license.getGracePeriodInDays()).thenReturn(5);
+            when(license.getExpiration()).thenReturn(Instant.parse("9999-12-31T24:00:00Z"));
+            when(license.getLicensedValues()).thenReturn(properties);
+            return license;
+        }
+    }
 
     @Before
     public void setEnvironment() {
@@ -314,7 +353,7 @@ public class DemoTest {
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
 
         // Business method
-        demoService.createDemoData("DemoServ", "host", "2014-12-01", "2");
+        demoService.createDemoData("DemoServ", "host", "2014-12-01", "2", true); // Skip firmware management data, as H2 doesn't support update of LOB
     }
 
     @Test
@@ -322,7 +361,7 @@ public class DemoTest {
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
 
         // Business method
-        demoService.createDemoData("DemoServ", "host", "2014-12-01", "2");
+        demoService.createDemoData("DemoServ", "host", "2014-12-01", "2", true); // Skip firmware management data, as H2 doesn't support update of LOB
         DeviceService deviceService = injector.getInstance(DeviceService.class);
         Optional<Device> spe010000010156 = deviceService.findByUniqueMrid("SPE010000010001");
         assertThat(spe010000010156.get().getDeviceProtocolProperties().getProperty("NTASimulationTool")).isEqualTo(true);
@@ -333,7 +372,7 @@ public class DemoTest {
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
 
         // Business method
-        demoService.createDemoData("DemoServ", "host", "2014-12-01", "2");
+        demoService.createDemoData("DemoServ", "host", "2014-12-01", "2", true); // Skip firmware management data, as H2 doesn't support update of LOB
 
         DeviceService deviceService = injector.getInstance(DeviceService.class);
         Optional<Device> spe010000010156 = deviceService.findByUniqueMrid("SPE010000010001");
@@ -595,8 +634,8 @@ public class DemoTest {
     @Test
     public void testExecuteCreateDemoDataTwice() {
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
-            demoService.createDemoData("DemoServ", "host", "2014-12-01", "2");
             demoService.createDemoData("DemoServ", "host", "2014-12-01", "2", true); // Skip firmware management data, as H2 doesn't support update of LOB
+        demoService.createDemoData("DemoServ", "host", "2014-12-01", "2", true);
         // Calling the command 'createDemoData' twice shouldn't produce errors
     }
 
@@ -604,7 +643,7 @@ public class DemoTest {
     public void testStartDate() {
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
         try {
-            demoService.createDemoData("DemoServ", "host", "2020-12-01", "2");
+            demoService.createDemoData("DemoServ", "host", "2020-12-01", "2", true); // Skip firmware management data, as H2 doesn't support update of LOB
         } catch (UnableToCreate e) {
             assertThat(e.getMessage()).contains("Incorrect start date parameter");
         }
@@ -617,7 +656,7 @@ public class DemoTest {
         DeviceLifeCycleConfigurationService  deviceLifeCycleConfigurationService = injector.getInstance(DeviceLifeCycleConfigurationService.class);
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
 
-        demoService.createDemoData("DemoServ", "host", "2015-01-01", "2");
+        demoService.createDemoData("DemoServ", "host", "2015-01-01", "2", true); // Skip firmware management data, as H2 doesn't support update of LOB
         demoService.createDefaultDeviceLifeCycle("2015-01-01");
 
         Optional<DeviceLifeCycle> defaultDeviceLifeCycle = deviceLifeCycleConfigurationService.findDefaultDeviceLifeCycle();
@@ -636,6 +675,7 @@ public class DemoTest {
     }
 
     @Test
+    @Ignore // Because H2 doesn't support update of LOB
     public void testFirmwareManagementSetup(){
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
 
@@ -663,7 +703,7 @@ public class DemoTest {
         IssueCreationService issueCreationService = issueService.getIssueCreationService();
 
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
-        demoService.createDemoData("DemoServ", "host", "2015-01-01", "2");
+        demoService.createDemoData("DemoServ", "host", "2015-01-01", "2", true); // Skip firmware management data, as H2 doesn't support update of LOB
 
         assertThat(issueCreationService.getCreationRuleQuery().select(Condition.TRUE)).hasSize(4);
     }
@@ -674,7 +714,7 @@ public class DemoTest {
 
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
 
-        demoService.createDemoData("DemoServ", "host", "2015-01-01", "2");
+        demoService.createDemoData("DemoServ", "host", "2015-01-01", "2", true); // Skip firmware management data, as H2 doesn't support update of LOB
         demoService.createImporters();
 
         assertThat(fileImportService.getImportSchedules()).hasSize(9);
@@ -686,7 +726,7 @@ public class DemoTest {
 
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
 
-        demoService.createDemoData("DemoServ", "host", "2015-01-01", "2");
+        demoService.createDemoData("DemoServ", "host", "2015-01-01", "2", true); // Skip firmware management data, as H2 doesn't support update of LOB
         demoService.createDemoUser("MyDemoUser");
 
         Optional<Group> group = userService.getGroup("Demo Users");
@@ -810,45 +850,5 @@ public class DemoTest {
         SearchService searchService = injector.getInstance(SearchService.class);
         DeviceSearchDomain deviceSearchDomain = injector.getInstance(DeviceSearchDomain.class);
         searchService.register(deviceSearchDomain);
-    }
-
-    private static class MockModule extends AbstractModule {
-        @Override
-        protected void configure() {
-            bind(FtpClientService.class).toInstance(mock(FtpClientService.class));
-            bind(BundleContext.class).toInstance(mock(BundleContext.class));
-            bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
-            bind(UserFileFactory.class).toInstance(mock(UserFileFactory.class));
-            bind(CodeFactory.class).toInstance(mock(CodeFactory.class));
-            bind(CollectedDataFactory.class).toInstance(mock(CollectedDataFactory.class));
-
-            Thesaurus thesaurus = mock(Thesaurus.class);
-            bind(Thesaurus.class).toInstance(thesaurus);
-            bind(MessageInterpolator.class).toInstance(thesaurus);
-
-            LicenseService licenseService = mock(LicenseService.class);
-            License license = mockLicense();
-            when(licenseService.getLicenseForApplication("MDC")).thenReturn(Optional.of(license));
-            bind(LicenseService.class).toInstance(licenseService);
-            bind(SerialComponentService.class).to(SerialIONoModemComponentServiceImpl.class).in(Scopes.SINGLETON);
-            bind(LogService.class).toInstance(mock(LogService.class));
-            bind(KieResources.class).toInstance(mock(KieResources.class));
-            bind(KnowledgeBaseFactoryService.class).toInstance(mock(KnowledgeBaseFactoryService.class, RETURNS_DEEP_STUBS));
-            bind(KnowledgeBuilderFactoryService.class).toInstance(mock(KnowledgeBuilderFactoryService.class, RETURNS_DEEP_STUBS));
-        }
-
-        private License mockLicense() {
-            License license = mock(License.class);
-            Properties properties = new Properties();
-            properties.setProperty("protocols", "all");
-            when(license.getApplicationKey()).thenReturn("MDC");
-            when(license.getDescription()).thenReturn("MDC application license example");
-            when(license.getStatus()).thenReturn(License.Status.ACTIVE);
-            when(license.getType()).thenReturn(License.Type.EVALUATION);
-            when(license.getGracePeriodInDays()).thenReturn(5);
-            when(license.getExpiration()).thenReturn(Instant.parse("9999-12-31T24:00:00Z"));
-            when(license.getLicensedValues()).thenReturn(properties);
-            return license;
-        }
     }
 }
