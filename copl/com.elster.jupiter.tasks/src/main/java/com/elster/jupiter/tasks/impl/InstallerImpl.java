@@ -6,6 +6,7 @@ import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.FullInstaller;
 
 import javax.inject.Inject;
+import java.util.logging.Logger;
 
 class InstallerImpl implements FullInstaller {
 
@@ -17,7 +18,7 @@ class InstallerImpl implements FullInstaller {
     }
 
     @Override
-    public void install(DataModelUpgrader dataModelUpgrader) {
+    public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
         dataModelUpgrader.upgrade(dataModel, Version.latest());
     }
 }
