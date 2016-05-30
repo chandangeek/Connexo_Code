@@ -8,11 +8,9 @@ import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.FullInstaller;
 
 import javax.inject.Inject;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 class Installer implements FullInstaller {
-    private static final Logger LOGGER = Logger.getLogger(Installer.class.getName());
 
     private final DataModel dataModel;
     private final EventService eventService;
@@ -24,18 +22,18 @@ class Installer implements FullInstaller {
     }
 
     @Override
-    public void install(DataModelUpgrader dataModelUpgrader) {
+    public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
         dataModelUpgrader.upgrade(dataModel, Version.latest());
-        createEventTypes();
+        doTry(
+                "Create event types for MTG",
+                this::createEventTypes,
+                logger
+        );
     }
 
     private void createEventTypes() {
         for (EventType eventType : EventType.values()) {
-            try {
-                eventType.install(eventService);
-            } catch (Exception e) {
-                LOGGER.log(Level.SEVERE, "Could not create event type : " + eventType.name(), e);
-            }
+            eventType.install(eventService);
         }
     }
 
