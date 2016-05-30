@@ -44,12 +44,9 @@ public class MockOnlineComServer implements Cloneable, OnlineComServer {
     private int storeTaskQueueSize = ComServer.MINIMUM_STORE_TASK_QUEUE_SIZE;
     private int numberOfStoreTaskThreads = ComServer.MINIMUM_NUMBER_OF_STORE_TASK_THREADS;
     private int storeTaskThreadPriority = ComServer.MINIMUM_STORE_TASK_THREAD_PRIORITY;
-    private boolean usesDefaultEventRegistrationUri = false;
     private String eventRegistrationUri;
     private String queryAPIPostUri;
-    private boolean usesDefaultQueryApiPostUri = false;
     private String statusUri;
-    private boolean usesDefaultStatusUri = false;
     private long version;
 
     public MockOnlineComServer (String name) {
@@ -155,16 +152,6 @@ public class MockOnlineComServer implements Cloneable, OnlineComServer {
     }
 
     @Override
-    public boolean usesDefaultQueryApiPostUri() {
-        return this.usesDefaultQueryApiPostUri;
-    }
-
-    @Override
-    public void setUsesDefaultQueryAPIPostUri(boolean usesDefaultQueryAPIPostUri) {
-        this.usesDefaultQueryApiPostUri = usesDefaultQueryAPIPostUri;
-    }
-
-    @Override
     public String getQueryApiPostUri () {
         return queryAPIPostUri;
     }
@@ -187,16 +174,6 @@ public class MockOnlineComServer implements Cloneable, OnlineComServer {
     @Override
     public int getStoreTaskQueueSize () {
         return this.storeTaskQueueSize;
-    }
-
-    @Override
-    public boolean usesDefaultStatusUri() {
-        return this.usesDefaultStatusUri;
-    }
-
-    @Override
-    public void setUsesDefaultStatusUri(boolean usesDefaultStatusUri) {
-        this.usesDefaultStatusUri = usesDefaultStatusUri;
     }
 
     @Override
@@ -224,16 +201,6 @@ public class MockOnlineComServer implements Cloneable, OnlineComServer {
     @Override
     public void setStoreTaskThreadPriority(int storeTaskThreadPriority) {
         this.storeTaskThreadPriority = storeTaskThreadPriority;
-    }
-
-    @Override
-    public boolean usesDefaultEventRegistrationUri () {
-        return this.usesDefaultEventRegistrationUri;
-    }
-
-    @Override
-    public void setUsesDefaultEventRegistrationUri(boolean usesDefaultEventRegistrationUri) {
-        this.usesDefaultEventRegistrationUri = usesDefaultEventRegistrationUri;
     }
 
     @Override

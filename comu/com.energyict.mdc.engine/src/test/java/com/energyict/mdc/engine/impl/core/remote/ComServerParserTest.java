@@ -1,19 +1,10 @@
 package com.energyict.mdc.engine.impl.core.remote;
 
-import com.elster.jupiter.datavault.impl.DataVaultModule;
-import com.elster.jupiter.domain.util.impl.DomainUtilModule;
-import com.elster.jupiter.users.impl.UserModule;
-import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.engine.config.OnlineComServer;
-import com.energyict.mdc.engine.config.RemoteComServer;
-import com.energyict.mdc.engine.config.impl.EngineModelModule;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
+import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.nls.NlsService;
@@ -21,10 +12,19 @@ import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.OnlineComServer;
+import com.energyict.mdc.engine.config.RemoteComServer;
+import com.energyict.mdc.engine.config.impl.EngineModelModule;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -33,8 +33,11 @@ import org.json.JSONObject;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
-import org.junit.*;
-import org.junit.rules.*;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -167,6 +170,8 @@ public class ComServerParserTest {
         onlineComServer.storeTaskQueueSize(50);
         onlineComServer.storeTaskThreadPriority(Thread.NORM_PRIORITY);
         onlineComServer.numberOfStoreTaskThreads(1);
+        onlineComServer.eventRegistrationUri("ws://online.comserver.energyict.com:" + ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER + "/events/registration");
+        onlineComServer.queryApiPostUri("ws://online.comserver.energyict.com:" + ComServer.DEFAULT_QUERY_API_PORT_NUMBER + "/remote/queries");
         return onlineComServer.create();
     }
 
@@ -181,6 +186,7 @@ public class ComServerParserTest {
         remoteComServer.changesInterPollDelay(TimeDuration.seconds(1800));
         remoteComServer.schedulingInterPollDelay(TimeDuration.seconds(600));
         remoteComServer.onlineComServer(onlineComServer);
+        remoteComServer.eventRegistrationUri("ws://remote.comserver.energyict.com:" + ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER + "/events/registration");
         return remoteComServer.create();
     }
 
