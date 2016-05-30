@@ -53,7 +53,9 @@ public class UpgraderV10_2 implements Upgrader {
                         "update MTR_MULTIPLIERVALUE set TEMP = (select ID from MTR_MULTIPLIERTYPE where MULITPLIERTYPE = NAME) where MULITPLIERTYPE is not null",
                         "alter table MTR_MULTIPLIERVALUE drop column MULITPLIERTYPE cascade constraints",
                         "alter table MTR_MULTIPLIERVALUE rename column TEMP to MULTIPLIERTYPE",
-                        "alter table MTR_MULTIPLIERTYPE drop constraint MTR_PK_MULTIPLIERTYPE");
+                        "alter table MTR_MULTIPLIERTYPE drop constraint MTR_PK_MULTIPLIERTYPE",
+                        "alter table MTR_MULTIPLIERTYPE add constraint MTR_PK_MULTIPLIERTYPE primary key(ID)"
+                );
 
                 ddl.forEach(command -> {
                     try {
