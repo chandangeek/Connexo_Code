@@ -16,39 +16,17 @@ public class RescheduleBehaviorForInbound extends AbstractRescheduleBehavior imp
         super(comServerDAO, successfulComTaskExecutions, failedComTaskExecutions, notExecutedComTaskExecutions, connectionTask);
     }
 
-    @Override
-    public void performRescheduling(RescheduleReason reason) {
-        switch (reason) {
-            case CONNECTION_SETUP: {
-                performRetryForConnectionSetupError();
-                break;
-            }
-            case CONNECTION_BROKEN: {
-                performRetryForConnectionException();
-                break;
-            }
-            case COMTASKS: {
-                performRetryForCommunicationTasks();
-                break;
-            }
-            case OUTSIDE_COM_WINDOW: {
-                this.performRetryForNotExecutedCommunicationTasks();
-                break;
-            }
-        }
-    }
-
-    private void performRetryForConnectionSetupError() {
+    protected void performRetryForConnectionSetupError() {
         retryConnectionTask();
     }
 
-    private void performRetryForConnectionException() {
+    protected void performRetryForConnectionException() {
         rescheduleSuccessfulComTasks();
         retryFailedComTasks();
         retryConnectionTask();
     }
 
-    private void performRetryForCommunicationTasks() {
+    protected void performRetryForCommunicationTasks() {
         rescheduleSuccessfulComTasks();
         retryFailedComTasks();
         if (getNumberOfFailedComTasks() == 0) {
@@ -58,7 +36,7 @@ public class RescheduleBehaviorForInbound extends AbstractRescheduleBehavior imp
         }
     }
 
-    private void performRetryForNotExecutedCommunicationTasks() {
+    protected void performRetryForNotExecutedCommunicationTasks() {
         this.rescheduleNotExecutedComTasks();
     }
 

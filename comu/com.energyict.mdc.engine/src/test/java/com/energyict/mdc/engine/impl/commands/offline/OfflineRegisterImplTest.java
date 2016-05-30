@@ -4,24 +4,23 @@ import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
-import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierForAlreadyKnownDeviceBySerialNumber;
-import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierForAlreadyKnownDeviceBySerialNumber;
+import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifierType;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 
-import org.junit.Test;
-import org.junit.runner.*;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -83,6 +82,7 @@ public class OfflineRegisterImplTest {
         RegisterSpec mockedRegisterSpec = getMockedRegisterSpec(mockedRegisterGroup);
         when(register.getRegisterSpec()).thenReturn(mockedRegisterSpec);
         when(register.getDevice()).thenReturn(device);
+        when(register.getDeviceObisCode()).thenReturn(REGISTER_MAPPING_OBISCODE);
 
         //Business Methods
         OfflineRegister offlineRegister = new OfflineRegisterImpl(register, this.identificationService);
@@ -106,6 +106,7 @@ public class OfflineRegisterImplTest {
     public void goOfflineHavingNoDeviceRegisterGroupSetTest() {
         Device device = getMockedDevice();
         Register register = getMockedRegister(device);
+        when(register.getDeviceObisCode()).thenReturn(REGISTER_MAPPING_OBISCODE);
 
         //Business Methods
         OfflineRegister offlineRegister = new OfflineRegisterImpl(register, identificationService);

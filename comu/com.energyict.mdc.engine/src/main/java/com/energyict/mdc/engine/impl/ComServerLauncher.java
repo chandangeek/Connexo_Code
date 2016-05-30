@@ -1,5 +1,10 @@
 package com.energyict.mdc.engine.impl;
 
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.Counter;
+import com.elster.jupiter.util.Counters;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
@@ -28,12 +33,6 @@ import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.pluggable.ProtocolDeploymentListener;
-
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.Checks;
-import com.elster.jupiter.util.Counter;
-import com.elster.jupiter.util.Counters;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;

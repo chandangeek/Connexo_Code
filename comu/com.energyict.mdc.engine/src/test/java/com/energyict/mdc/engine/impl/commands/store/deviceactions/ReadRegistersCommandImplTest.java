@@ -8,7 +8,6 @@ import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.TextualRegisterSpec;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.NumericalRegister;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
@@ -36,8 +35,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -129,7 +129,6 @@ public class ReadRegistersCommandImplTest extends AbstractComCommandExecuteTest 
     private Register createMockedRegisters(final ObisCode obisCode) {
         final String serialNumber = "MeterSerialNumber";
         RegisterSpec registerSpec = mock(RegisterSpec.class, withSettings().extraInterfaces(NumericalRegisterSpec.class));
-        when(registerSpec.getDeviceObisCode()).thenReturn(obisCode);
         when(((NumericalRegisterSpec) registerSpec).getOverflowValue()).thenReturn(Optional.empty());
         RegisterGroup registerGroup = mock(RegisterGroup.class);
         when(registerGroup.getId()).thenReturn(1L);
@@ -137,6 +136,7 @@ public class ReadRegistersCommandImplTest extends AbstractComCommandExecuteTest 
         when(mockedDevice.getSerialNumber()).thenReturn(serialNumber);
         when(mockedDevice.getmRID()).thenReturn(serialNumber);
         Register register = mock(Register.class);
+        when(register.getDeviceObisCode()).thenReturn(obisCode);
         when(register.getRegisterSpec()).thenReturn(registerSpec);
         when(register.getDevice()).thenReturn(mockedDevice);
         RegisterType registerType = mock(RegisterType.class);

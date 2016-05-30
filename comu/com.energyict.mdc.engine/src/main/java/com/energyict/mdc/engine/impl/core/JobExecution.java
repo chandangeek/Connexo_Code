@@ -42,6 +42,7 @@ import com.energyict.mdc.engine.impl.commands.store.RescheduleSuccessfulExecutio
 import com.energyict.mdc.engine.impl.commands.store.UnlockScheduledJobDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
 import com.energyict.mdc.engine.impl.core.inbound.ComChannelPlaceHolder;
+import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.issues.IssueService;
@@ -109,6 +110,8 @@ public abstract class JobExecution implements ScheduledJob {
         IdentificationService identificationService();
 
         MeteringService meteringService();
+
+        FirmwareService firmwareService();
 
     }
 
@@ -492,7 +495,7 @@ public abstract class JobExecution implements ScheduledJob {
         return Optional.empty();
     }
 
-    private RescheduleBehavior getRescheduleBehavior(ComServerDAO comServerDAO) {
+    protected RescheduleBehavior getRescheduleBehavior(ComServerDAO comServerDAO) {
         if (!InboundConnectionTask.class.isAssignableFrom(getConnectionTask().getClass())) {
             ScheduledConnectionTask scheduledConnectionTask = (ScheduledConnectionTask) getConnectionTask();
             if (scheduledConnectionTask.getConnectionStrategy().equals(ConnectionStrategy.MINIMIZE_CONNECTIONS)) {

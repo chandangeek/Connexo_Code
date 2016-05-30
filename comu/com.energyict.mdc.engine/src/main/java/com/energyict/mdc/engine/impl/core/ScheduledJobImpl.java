@@ -3,23 +3,25 @@ package com.energyict.mdc.engine.impl.core;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskPropertyProvider;
+import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecution;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.events.ComServerEvent;
-import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.commands.store.RescheduleToNextComWindow;
 import com.energyict.mdc.engine.impl.core.logging.ComPortConnectionLogger;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.events.connection.EstablishConnectionEvent;
+import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
-import com.energyict.mdc.protocol.api.exceptions.ConnectionFailureException;
 
 import java.time.Clock;
+import java.time.Instant;
 import java.util.Calendar;
+import java.util.Optional;
 
 /**
  * Provides code reuse opportunities for component that
@@ -64,7 +66,20 @@ public abstract class ScheduledJobImpl extends JobExecution {
 
     @Override
     public boolean isWithinComWindow () {
-        return this.isWithinComWindow(this.getConnectionTask().getCommunicationWindow());
+        return this.isWithinComWindow(getComWindow());
+    }
+
+    private ComWindow getComWindow(){
+        ComWindow comWindowToUse = this.getConnectionTask().getCommunicationWindow();
+        Optional<ComTaskExecution> firmwareComTaskExecution = getComTaskExecutions().stream().filter(item -> item instanceof FirmwareComTaskExecution).findFirst();
+        if (firmwareComTaskExecution.isPresent()){
+            FirmwareComTaskExecution comTaskExecution = (FirmwareComTaskExecution) firmwareComTaskExecution.get();
+            Optional<FirmwareCampaign> firmwareCampaign = getServiceProvider().firmwareService().getFirmwareCampaign(comTaskExecution);
+            if(firmwareCampaign.isPresent()){
+                comWindowToUse = firmwareCampaign.get().getComWindow();
+            }
+        }
+        return comWindowToUse;
     }
 
     private boolean isWithinComWindow (ComWindow comWindow) {
@@ -87,14 +102,19 @@ public abstract class ScheduledJobImpl extends JobExecution {
                         .flatMap(each -> each.getComTasks().stream())
                         .count();
         this.getExecutionContext().getComSessionBuilder().incrementNotExecutedTasks(numberOfPlannedButNotExecutedTasks);
-        this.getExecutionContext().createJournalEntry(ComServer.LogLevel.INFO, "Rescheduling to next ComWindow because current timestamp is not " + this.getConnectionTask().getCommunicationWindow());
-        this.getExecutionContext().getStoreCommand().add(new RescheduleToNextComWindow(this));
+        this.getExecutionContext().createJournalEntry(ComServer.LogLevel.INFO, "Rescheduling to next ComWindow because current timestamp is not " + getComWindow());
+        this.getExecutionContext().getStoreCommand().add(new RescheduleToNextComWindow(this, getServiceProvider().firmwareService()));
         this.completeSuccessfulComSession();
     }
 
     @Override
     public void rescheduleToNextComWindow (ComServerDAO comServerDAO) {
         this.doReschedule(comServerDAO, RescheduleBehavior.RescheduleReason.OUTSIDE_COM_WINDOW);
+    }
+
+    @Override
+    public void rescheduleToNextComWindow(ComServerDAO comServerDAO, Instant startingPoint) {
+        this.getRescheduleBehavior(comServerDAO).rescheduleOutsideWindow(startingPoint);
     }
 
     /**

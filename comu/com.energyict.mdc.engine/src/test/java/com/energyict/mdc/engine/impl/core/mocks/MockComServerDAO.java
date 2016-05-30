@@ -21,6 +21,7 @@ import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.impl.core.ComJob;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
+import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.data.G3TopologyDeviceAddressInformation;
 import com.energyict.mdc.protocol.api.device.data.TopologyNeighbour;
@@ -343,6 +344,11 @@ public class MockComServerDAO implements ComServerDAO {
     }
 
     @Override
+    public void executionRescheduled(ComTaskExecution comTaskExecution, Instant rescheduleDate) {
+        this.comTaskExecutionLocking.remove(comTaskExecution);
+    }
+
+    @Override
     public void executionCompleted (List<? extends ComTaskExecution> comTaskExecutions) {
         for (ComTaskExecution comTaskExecution : comTaskExecutions) {
             this.executionCompleted(comTaskExecution);
@@ -489,7 +495,12 @@ public class MockComServerDAO implements ComServerDAO {
 
     @Override
     public void updateFirmwareVersions(CollectedFirmwareVersion collectedFirmwareVersions) {
-        //
+
+    }
+
+    @Override
+    public void updateBreakerStatus(CollectedBreakerStatus collectedBreakerStatus) {
+
     }
 
     @Override

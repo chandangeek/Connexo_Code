@@ -1155,6 +1155,9 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         public ManagementBeanFactory managementBeanFactory() {
             return serviceProvider.managementBeanFactory();
         }
+
+        @Override
+        public FirmwareService firmwareService() { return serviceProvider.firmwareService();}
     }
 
     private class ScheduledComPortFactoryServiceProvider implements ScheduledComPortImpl.ServiceProvider {
@@ -1252,6 +1255,8 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         public EventPublisher eventPublisher() {
             return eventMechanism.getEventPublisher();
         }
+
+        public FirmwareService firmwareService() { return serviceProvider.firmwareService();}
 
     }
 }

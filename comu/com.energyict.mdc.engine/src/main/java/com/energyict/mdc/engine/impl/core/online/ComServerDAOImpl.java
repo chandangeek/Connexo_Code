@@ -10,8 +10,6 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfile;
@@ -19,8 +17,10 @@ import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
@@ -51,11 +51,11 @@ import com.energyict.mdc.engine.impl.core.MultiThreadedComJobFactory;
 import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
 import com.energyict.mdc.engine.impl.core.SingleThreadedComJobFactory;
 import com.energyict.mdc.firmware.FirmwareService;
-import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdc.protocol.api.device.BaseRegister;
+import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.data.G3TopologyDeviceAddressInformation;
 import com.energyict.mdc.protocol.api.device.data.TopologyNeighbour;
@@ -216,17 +216,28 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     private Optional<ConnectionTask> refreshConnectionTask(ConnectionTask connectionTask) {
-        Optional<ConnectionTask> reloaded =  getConnectionTaskService().findConnectionTask(connectionTask.getId());
-        if (reloaded.isPresent()){
-            if (reloaded.get().getVersion() == connectionTask.getVersion() ) {
+        Optional<ConnectionTask> reloaded = getConnectionTaskService().findConnectionTask(connectionTask.getId());
+        if (reloaded.isPresent()) {
+            if (reloaded.get().getVersion() == connectionTask.getVersion()) {
                 reloaded = Optional.of(connectionTask);
             }
             if (reloaded.get().isObsolete()) {
-                reloaded =  Optional.empty();
+                reloaded = Optional.empty();
             }
         }
         return reloaded;
-     }
+    }
+
+    private Optional<ConnectionTask> refreshAndLockConnectionTask(ConnectionTask connectionTask) {
+        ConnectionTask reloaded = getConnectionTaskService().attemptLockConnectionTask(connectionTask.getId());
+        if (reloaded != null) {
+            if (reloaded.getVersion() == connectionTask.getVersion()) {
+                return Optional.of(connectionTask);
+            }
+            return Optional.of(reloaded);
+        }
+        return Optional.empty();
+    }
 
     private ComJobFactory getComJobFactoryFor(OutboundComPort comPort) {
         // Zero is not allowed, i.e. rejected by the OutboundComPortImpl validation methods
@@ -259,7 +270,7 @@ public class ComServerDAOImpl implements ComServerDAO {
     @Override
     public ScheduledConnectionTask attemptLock(ScheduledConnectionTask connectionTask, final ComServer comServer) {
         Optional reloaded = refreshConnectionTask(connectionTask);
-        if (reloaded.isPresent()){
+        if (reloaded.isPresent()) {
             return getConnectionTaskService().attemptLockConnectionTask((ScheduledConnectionTask) reloaded.get(), comServer);
         }
         return null;
@@ -308,9 +319,9 @@ public class ComServerDAOImpl implements ComServerDAO {
         DeviceMessage<Device> deviceMessage = identifier.getDeviceMessage();
         return Optional.of(
                 new OfflineDeviceMessageImpl(
-                    deviceMessage,
-                    deviceMessage.getDevice().getDeviceType().getDeviceProtocolPluggableClass().getDeviceProtocol(),
-                    this.serviceProvider.identificationService()));
+                        deviceMessage,
+                        deviceMessage.getDevice().getDeviceType().getDeviceProtocolPluggableClass().getDeviceProtocol(),
+                        this.serviceProvider.identificationService()));
     }
 
     @Override
@@ -354,38 +365,6 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     private void doStoreConfigurationFile(BaseDevice device, DateTimeFormatter timeStampFormat, String fileExtension, byte[] contents) {
         throw new RuntimeException("Storing of UserFiles is currently not supported ...");
-//        try {
-//            String fileName = this.getUniqueUserFileName(timeStampFormat);
-//            UserFileShadow userFileShadow = new UserFileShadow();
-//            userFileShadow.setExtension(fileExtension);
-//            userFileShadow.setName(fileName);
-//            ByteArrayInputStream byteStream = new ByteArrayInputStream(contents);
-//            new UserFileFactoryImpl()
-//            UserFile userFile = MeteringWarehouse.getCurrent().getUserFileFactory().create(userFileShadow);
-//            userFile.updateContents(byteStream);
-//        } finally {
-//            this.closeConnection();
-//        }
-    }
-
-    private String getUniqueUserFileName(DateTimeFormatter timeStampFormat) {
-        String fileName = "Config_" + timeStampFormat.format(getClock().instant());
-        int version = this.getVersion(fileName);
-        if (version > 1) {
-            fileName += "_(" + version + ")";
-        }
-        return fileName;
-    }
-
-    /**
-     * Returns the first available number that can be used to create
-     * a {@link UserFile} with a unique name.
-     *
-     * @param fileName The base name for the UserFile
-     * @return A number that will make the file name unique
-     */
-    private int getVersion(String fileName) {
-        return 1;
     }
 
     @Override
@@ -409,15 +388,10 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void executionStarted(final ConnectionTask connectionTask, final ComServer comServer) {
-        final Optional<ConnectionTask> reloaded = refreshConnectionTask(connectionTask);
-        if (reloaded.isPresent()) {
-            this.executeTransaction(() -> {
-                reloaded.get().executionStarted(comServer);
-                return null;
-            });
-        }
-
-
+        this.executeTransaction(() -> {
+            refreshAndLockConnectionTask(connectionTask).ifPresent(tsk -> tsk.executionStarted(comServer));
+            return null;
+        });
     }
 
     @Override
@@ -458,10 +432,21 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
+    public void executionRescheduled(ComTaskExecution comTaskExecution, Instant rescheduleDate) {
+        getCommunicationTaskService().executionRescheduled(comTaskExecution, rescheduleDate);
+    }
+
+    @Override
     public void executionCompleted(final List<? extends ComTaskExecution> comTaskExecutions) {
-        comTaskExecutions
-                .stream()
-                .forEach(comTaskExecution -> getCommunicationTaskService().executionCompletedFor(comTaskExecution));
+        boolean connectionTaskWasLocked = false;
+        for (ComTaskExecution execution : comTaskExecutions) {
+            if (!connectionTaskWasLocked) {
+                connectionTaskWasLocked = true;
+                execution.getConnectionTask().ifPresent(this::refreshAndLockConnectionTask);
+            }
+            getCommunicationTaskService().executionCompletedFor(execution);
+
+        }
     }
 
     @Override
@@ -533,7 +518,11 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     private List<OfflineDeviceMessage> convertToOfflineDeviceMessages(List<DeviceMessage<Device>> deviceMessages) {
-        return deviceMessages.stream().map(deviceMessage -> new OfflineDeviceMessageImpl(deviceMessage, deviceMessage.getDevice().getDeviceProtocolPluggableClass().getDeviceProtocol(), this.serviceProvider.identificationService())).collect(Collectors.toList());
+        return deviceMessages.stream()
+                .map(deviceMessage -> new OfflineDeviceMessageImpl(deviceMessage, deviceMessage.getDevice()
+                        .getDeviceProtocolPluggableClass()
+                        .getDeviceProtocol(), this.serviceProvider.identificationService()))
+                .collect(Collectors.toList());
     }
 
     private List<DeviceMessage<Device>> doConfirmSentMessagesAndGetPending(DeviceIdentifier<Device> deviceIdentifier, int confirmationCount) {
@@ -597,7 +586,7 @@ public class ComServerDAOImpl implements ComServerDAO {
      * the Device is communicating to the ComServer
      * via the specified {@link InboundConnectionTask}.
      *
-     * @param device         The Device
+     * @param device The Device
      * @param connectionTask The ConnectionTask
      * @return The SecurityPropertySet or <code>null</code> if the Device is not ready for inbound communication
      */
@@ -701,7 +690,8 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void storePathSegments(DeviceIdentifier sourceDeviceIdentifier, List<TopologyPathSegment> topologyPathSegments) {
-        TopologyService.G3CommunicationPathSegmentBuilder g3CommunicationPathSegmentBuilder = serviceProvider.topologyService().addCommunicationSegments(((Device) sourceDeviceIdentifier.findDevice()));
+        TopologyService.G3CommunicationPathSegmentBuilder g3CommunicationPathSegmentBuilder = serviceProvider.topologyService()
+                .addCommunicationSegments(((Device) sourceDeviceIdentifier.findDevice()));
         topologyPathSegments.stream().forEach(topologyPathSegment -> {
             Optional<Device> target = getOptionalDeviceByIdentifier(topologyPathSegment.getTarget());
             Optional<Device> intermediateHop = getOptionalDeviceByIdentifier(topologyPathSegment.getIntermediateHop());
@@ -723,7 +713,8 @@ public class ComServerDAOImpl implements ComServerDAO {
         topologyNeighbours.stream().forEach(topologyNeighbour -> {
             Optional<Device> optionalDevice = getOptionalDeviceByIdentifier(topologyNeighbour.getNeighbour());
             if (optionalDevice.isPresent()) {
-                TopologyService.G3NeighborBuilder g3NeighborBuilder = g3NeighborhoodBuilder.addNeighbor(optionalDevice.get(), ModulationScheme.fromId(topologyNeighbour.getModulationSchema()), Modulation.fromOrdinal(topologyNeighbour.getModulation()), PhaseInfo.fromId(topologyNeighbour.getPhaseDifferential()));
+                TopologyService.G3NeighborBuilder g3NeighborBuilder = g3NeighborhoodBuilder.addNeighbor(optionalDevice.get(), ModulationScheme.fromId(topologyNeighbour.getModulationSchema()), Modulation
+                        .fromOrdinal(topologyNeighbour.getModulation()), PhaseInfo.fromId(topologyNeighbour.getPhaseDifferential()));
                 g3NeighborBuilder.linkQualityIndicator(topologyNeighbour.getLqi());
                 g3NeighborBuilder.timeToLiveSeconds(topologyNeighbour.getNeighbourValidTime());
                 g3NeighborBuilder.toneMap(topologyNeighbour.getToneMap());
@@ -767,8 +758,13 @@ public class ComServerDAOImpl implements ComServerDAO {
         });
     }
 
-    private Instant now() {
-        return this.serviceProvider.clock().instant();
+    @Override
+    public void updateBreakerStatus(CollectedBreakerStatus collectedBreakerStatus) {
+        Optional<Device> optionalDevice = getOptionalDeviceByIdentifier(collectedBreakerStatus.getDeviceIdentifier());
+        optionalDevice.ifPresent(device -> {
+            BreakerStatusStorage breakerStatusStorage = new BreakerStatusStorage(getDeviceDataService(), serviceProvider.clock());
+            breakerStatusStorage.updateBreakerStatus(collectedBreakerStatus.getBreakerStatus(), device);
+        });
     }
 
     @Override
@@ -780,6 +776,10 @@ public class ComServerDAOImpl implements ComServerDAO {
         LoadProfile.LoadProfileUpdater loadProfileUpdater = device.getLoadProfileUpdaterFor(refreshedLoadProfile);
         loadProfileUpdater.setLastReadingIfLater(lastReading);
         loadProfileUpdater.update();
+    }
+
+    private Instant now() {
+        return this.serviceProvider.clock().instant();
     }
 
     private enum FutureMessageState {

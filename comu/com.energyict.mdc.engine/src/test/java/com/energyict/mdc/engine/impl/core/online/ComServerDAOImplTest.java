@@ -1,8 +1,12 @@
 package com.energyict.mdc.engine.impl.core.online;
 
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.data.ActivatedBreakerStatus;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
@@ -14,6 +18,7 @@ import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.OutboundCapableComServer;
 import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.meterdata.DeviceBreakerStatus;
 import com.energyict.mdc.engine.impl.meterdata.DeviceFirmwareVersion;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.FirmwareService;
@@ -21,11 +26,12 @@ import com.energyict.mdc.firmware.FirmwareStatus;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.firmware.FirmwareVersionBuilder;
+import com.energyict.mdc.protocol.api.device.data.BreakerStatus;
+import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.time.Interval;
+import com.google.common.collect.Range;
 
 import java.sql.SQLException;
 import java.time.Clock;
@@ -34,17 +40,24 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertTrue;
+import static junit.framework.TestCase.assertEquals;
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.anyLong;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -89,6 +102,8 @@ public class ComServerDAOImplTest {
     private ComServerDAOImpl.ServiceProvider serviceProvider;
     @Mock
     private FirmwareService firmwareService;
+    @Mock
+    private DeviceService deviceDataModelService;
 
     private ComServerDAO comServerDAO;
 
@@ -102,6 +117,7 @@ public class ComServerDAOImplTest {
         when(this.serviceProvider.communicationTaskService()).thenReturn(this.communicationTaskService);
         when(this.serviceProvider.topologyService()).thenReturn(this.topologyService);
         when(this.serviceProvider.firmwareService()).thenReturn(this.firmwareService);
+        when(this.serviceProvider.deviceService()).thenReturn(this.deviceDataModelService);
         when(this.serviceProvider.clock()).thenReturn(Clock.systemDefaultZone());
         when(this.engineConfigurationService.findComServerBySystemName()).thenReturn(Optional.<ComServer>of(this.comServer));
         when(this.engineConfigurationService.findComServer(COMSERVER_ID)).thenReturn(Optional.<ComServer>of(this.comServer));
@@ -347,7 +363,8 @@ public class ComServerDAOImplTest {
         collectedFirmwareVersion.setActiveMeterFirmwareVersion(newActiveMeterFirmwareVersion);
         FirmwareVersionBuilder firmwareVersionBuilder = mock(FirmwareVersionBuilder.class);
         FirmwareVersion firmwareVersion = mock(FirmwareVersion.class);
-        when(firmwareVersionBuilder.create()).thenReturn(firmwareVersion);        when(firmwareVersion.getFirmwareStatus()).thenReturn(FirmwareStatus.GHOST);
+        when(firmwareVersionBuilder.create()).thenReturn(firmwareVersion);
+        when(firmwareVersion.getFirmwareStatus()).thenReturn(FirmwareStatus.GHOST);
         when(firmwareVersion.getFirmwareType()).thenReturn(FirmwareType.METER);
         when(this.firmwareService.getFirmwareVersionByVersionAndType(newActiveMeterFirmwareVersion, FirmwareType.METER, deviceType)).thenReturn(Optional.empty());
         FirmwareVersion communicationVersionWithSameName = mock(FirmwareVersion.class);
@@ -405,7 +422,8 @@ public class ComServerDAOImplTest {
         collectedFirmwareVersion.setActiveCommunicationFirmwareVersion(myActiveCommunicationFirmwareVersion);
         FirmwareVersionBuilder firmwareVersionBuilder = mock(FirmwareVersionBuilder.class);
         FirmwareVersion firmwareVersion = mock(FirmwareVersion.class);
-        when(firmwareVersionBuilder.create()).thenReturn(firmwareVersion);        when(firmwareVersion.getFirmwareStatus()).thenReturn(FirmwareStatus.GHOST);
+        when(firmwareVersionBuilder.create()).thenReturn(firmwareVersion);
+        when(firmwareVersion.getFirmwareStatus()).thenReturn(FirmwareStatus.GHOST);
         when(firmwareVersion.getFirmwareType()).thenReturn(FirmwareType.COMMUNICATION);
         when(this.firmwareService.getFirmwareVersionByVersionAndType(myActiveCommunicationFirmwareVersion, FirmwareType.COMMUNICATION, deviceType)).thenReturn(Optional.empty());
         FirmwareVersion meterVersionWithSameName = mock(FirmwareVersion.class);
@@ -473,5 +491,95 @@ public class ComServerDAOImplTest {
         // asserts
         verify(activatedFirmwareVersion).setLastChecked(any(Instant.class));
         verify(this.firmwareService, never()).newFirmwareVersion(any(DeviceType.class), any(String.class), any(FirmwareStatus.class), any(FirmwareType.class));
+    }
+
+    @Test
+    public void updateBreakerStatusHavingEmptyBreakerStatusTest() {
+        when(this.deviceIdentifier.findDevice()).thenReturn(this.device);
+        when(this.deviceDataModelService.getActiveBreakerStatus(this.device)).thenReturn(Optional.empty());
+
+        // Business methods
+        CollectedBreakerStatus collectedBreakerStatus = new DeviceBreakerStatus(deviceIdentifier);
+        this.comServerDAO.updateBreakerStatus(collectedBreakerStatus);
+
+        // Asserts
+        verify(this.deviceDataModelService, never()).getActiveBreakerStatus(any(Device.class));
+        verify(this.deviceDataModelService, never()).newActivatedBreakerStatusFrom(any(Device.class), any(BreakerStatus.class), any(Interval.class));
+    }
+
+    @Test
+    public void updateBreakerStatusTest() {
+        when(this.deviceIdentifier.findDevice()).thenReturn(device);
+        when(this.deviceDataModelService.getActiveBreakerStatus(device)).thenReturn(Optional.empty());
+        CollectedBreakerStatus collectedBreakerStatus = new DeviceBreakerStatus(deviceIdentifier);
+        collectedBreakerStatus.setBreakerStatus(BreakerStatus.ARMED);
+        when(this.deviceDataModelService.getActiveBreakerStatus(device)).thenReturn(Optional.empty());
+
+        ArgumentCaptor<Device> deviceCaptor = ArgumentCaptor.forClass(Device.class);
+        ArgumentCaptor<BreakerStatus> breakerStatusCaptor = ArgumentCaptor.forClass(BreakerStatus.class);
+        ArgumentCaptor<Interval> intervalCaptor = ArgumentCaptor.forClass(Interval.class);
+        when(this.deviceDataModelService.newActivatedBreakerStatusFrom(deviceCaptor.capture(), breakerStatusCaptor.capture(), intervalCaptor.capture())).thenReturn(mock(ActivatedBreakerStatus.class));
+
+        // Business methods
+        this.comServerDAO.updateBreakerStatus(collectedBreakerStatus);
+
+        // asserts
+        verify(this.deviceDataModelService, times(1)).newActivatedBreakerStatusFrom(any(Device.class), any(BreakerStatus.class), any(Interval.class));
+
+        assertEquals(device, deviceCaptor.getValue());
+        assertEquals(BreakerStatus.ARMED, breakerStatusCaptor.getValue());
+        assertNotNull(intervalCaptor.getValue());
+        Range<Instant> range = intervalCaptor.getValue().toClosedRange();
+        assertFalse("The upper bound should be unlimited.", range.hasUpperBound());
+        assertTrue("The lower bound should be bound.", range.hasLowerBound());
+        assertTrue("The lower bound should be before current time", range.lowerEndpoint().minusMillis(1).isBefore(Instant.now()));
+    }
+
+    @Test
+    public void updateBreakerStatusWhenDifferentActivatedBreakerStatusAlreadyExistsTest() {
+        when(this.deviceIdentifier.findDevice()).thenReturn(device);
+        ActivatedBreakerStatus activatedBreakerStatus = mock(ActivatedBreakerStatus.class);
+        when(activatedBreakerStatus.getBreakerStatus()).thenReturn(BreakerStatus.DISCONNECTED);
+        when(this.deviceDataModelService.getActiveBreakerStatus(device)).thenReturn(Optional.of(activatedBreakerStatus));
+
+        CollectedBreakerStatus collectedBreakerStatus = new DeviceBreakerStatus(deviceIdentifier);
+        collectedBreakerStatus.setBreakerStatus(BreakerStatus.ARMED);
+
+        ArgumentCaptor<Device> deviceCaptor = ArgumentCaptor.forClass(Device.class);
+        ArgumentCaptor<BreakerStatus> breakerStatusCaptor = ArgumentCaptor.forClass(BreakerStatus.class);
+        ArgumentCaptor<Interval> intervalCaptor = ArgumentCaptor.forClass(Interval.class);
+        when(this.deviceDataModelService.newActivatedBreakerStatusFrom(deviceCaptor.capture(), breakerStatusCaptor.capture(), intervalCaptor.capture())).thenReturn(mock(ActivatedBreakerStatus.class));
+
+        // Business methods
+        this.comServerDAO.updateBreakerStatus(collectedBreakerStatus);
+
+        // asserts
+        verify(this.deviceDataModelService, times(1)).newActivatedBreakerStatusFrom(any(Device.class), any(BreakerStatus.class), any(Interval.class));
+
+        assertEquals(device, deviceCaptor.getValue());
+        assertEquals(BreakerStatus.ARMED, breakerStatusCaptor.getValue());
+        assertNotNull(intervalCaptor.getValue());
+        Range<Instant> range = intervalCaptor.getValue().toClosedRange();
+        assertFalse("The upper bound should be unlimited.", range.hasUpperBound());
+        assertTrue("The lower bound should be bound.", range.hasLowerBound());
+        assertTrue("The lower bound should be before current time", range.lowerEndpoint().minusMillis(1).isBefore(Instant.now()));
+    }
+
+    @Test
+    public void updateLastCheckedForExistingBreakerStatusTest() {
+        when(this.deviceIdentifier.findDevice()).thenReturn(this.device);
+        ActivatedBreakerStatus activatedBreakerStatus = mock(ActivatedBreakerStatus.class);
+        when(activatedBreakerStatus.getBreakerStatus()).thenReturn(BreakerStatus.DISCONNECTED);
+        when(this.deviceDataModelService.getActiveBreakerStatus(device)).thenReturn(Optional.of(activatedBreakerStatus));
+
+        CollectedBreakerStatus collectedBreakerStatus = new DeviceBreakerStatus(deviceIdentifier);
+        collectedBreakerStatus.setBreakerStatus(BreakerStatus.DISCONNECTED);
+
+        // business method
+        this.comServerDAO.updateBreakerStatus(collectedBreakerStatus);
+
+        // asserts
+        verify(activatedBreakerStatus).setLastChecked(any(Instant.class));
+        verify(this.deviceDataModelService, never()).newActivatedBreakerStatusFrom(any(Device.class), any(BreakerStatus.class), any(Interval.class));
     }
 }

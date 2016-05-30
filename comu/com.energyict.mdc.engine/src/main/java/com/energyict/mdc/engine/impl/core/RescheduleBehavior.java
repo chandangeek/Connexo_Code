@@ -1,5 +1,7 @@
 package com.energyict.mdc.engine.impl.core;
 
+import java.time.Instant;
+
 /**
  * The {@link RescheduleBehavior} provides functionality to deal
  * with retries on Communication or Connection level.
@@ -40,5 +42,7 @@ public interface RescheduleBehavior {
     }
 
     public void performRescheduling(RescheduleReason reason);
+
+    public void rescheduleOutsideWindow(Instant startingPoint);
 
 }

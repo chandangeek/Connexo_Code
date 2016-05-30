@@ -11,6 +11,7 @@ import com.energyict.mdc.engine.impl.commands.collect.StatusInformationCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 
@@ -52,5 +53,9 @@ public class StatusInformationCommandImpl extends SimpleComCommand implements St
         CollectedFirmwareVersion firmwareVersions = deviceProtocol.getFirmwareVersions();
         firmwareVersions.setDataCollectionConfiguration(comTaskExecution);
         addCollectedDataItem(firmwareVersions);
+
+        CollectedBreakerStatus breakerStatus = deviceProtocol.getBreakerStatus();
+        breakerStatus.setDataCollectionConfiguration(comTaskExecution);
+        addCollectedDataItem(breakerStatus);
     }
 }

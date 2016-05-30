@@ -1,7 +1,23 @@
 package com.energyict.mdc.engine.impl.meterdata;
 
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.device.data.*;
+import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
+import com.energyict.mdc.protocol.api.device.data.CollectedConfigurationInformation;
+import com.energyict.mdc.protocol.api.device.data.CollectedData;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
+import com.energyict.mdc.protocol.api.device.data.CollectedDeviceCache;
+import com.energyict.mdc.protocol.api.device.data.CollectedDeviceInfo;
+import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
+import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
+import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
+import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
+import com.energyict.mdc.protocol.api.device.data.CollectedRegisterList;
+import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
@@ -9,8 +25,6 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.properties.PropertySpec;
 import org.osgi.service.component.annotations.Component;
 
 import java.util.List;
@@ -130,5 +144,10 @@ public class CollectedDataFactoryImpl implements CollectedDataFactory {
     @Override
     public CollectedFirmwareVersion createFirmwareVersionsCollectedData(DeviceIdentifier deviceIdentifier) {
         return new DeviceFirmwareVersion(deviceIdentifier);
+    }
+
+    @Override
+    public CollectedBreakerStatus createBreakerStatusCollectedData(DeviceIdentifier<?> deviceIdentifier) {
+        return new DeviceBreakerStatus(deviceIdentifier);
     }
 }

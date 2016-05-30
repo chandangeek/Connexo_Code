@@ -58,42 +58,28 @@ public class RescheduleBehaviorForAsap extends AbstractRescheduleBehavior implem
     public void performRescheduling(RescheduleReason reason) {
         ScheduledConnectionTask connectionTask = getScheduledConnectionTask();
         connectionTask.setMaxNumberOfTries(Integer.MAX_VALUE);
-        switch (reason) {
-            case CONNECTION_SETUP: {
-                performRetryForConnectionSetupError();
-                break;
-            }
-            case CONNECTION_BROKEN: {
-                performRetryForConnectionException();
-                break;
-            }
-            case COMTASKS: {
-                performRetryForCommunicationTasks();
-                break;
-            }
-            case OUTSIDE_COM_WINDOW: {
-                this.performRetryForNotExecutedCommunicationTasks();
-                break;
-            }
-        }
+        super.performRescheduling(reason);
     }
 
     /**
      * All ComTasks should be marked as failed, otherwise we can't reschedule with the asap strategy
      */
-    private void performRetryForConnectionSetupError() {
+    @Override
+    protected void performRetryForConnectionSetupError() {
         retryNotExecutedComTasks();
         retryConnectionTask();
     }
 
-    private void performRetryForConnectionException() {
+    @Override
+    protected void performRetryForConnectionException() {
         rescheduleSuccessfulComTasks();
         retryFailedComTasks();
         retryNotExecutedComTasks();
         retryConnectionTask();
     }
 
-    private void performRetryForCommunicationTasks() {
+    @Override
+    protected void performRetryForCommunicationTasks() {
         rescheduleSuccessfulComTasks();
         retryFailedComTasks();
         if (getNumberOfFailedComTasks() == 0) {
@@ -104,7 +90,8 @@ public class RescheduleBehaviorForAsap extends AbstractRescheduleBehavior implem
         performRetryForNotExecutedCommunicationTasks();
     }
 
-    private void performRetryForNotExecutedCommunicationTasks() {
+    @Override
+    protected void performRetryForNotExecutedCommunicationTasks() {
         this.rescheduleNotExecutedComTasks();
     }
 
@@ -128,10 +115,6 @@ public class RescheduleBehaviorForAsap extends AbstractRescheduleBehavior implem
             }
             getComServerDAO().executionFailed(notExecutedComTaskExecution);
         }
-    }
-
-    private ScheduledConnectionTask getScheduledConnectionTask() {
-        return (ScheduledConnectionTask) getConnectionTask();
     }
 
 }
