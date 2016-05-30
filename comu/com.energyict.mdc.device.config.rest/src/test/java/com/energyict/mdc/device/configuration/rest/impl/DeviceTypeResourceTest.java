@@ -32,6 +32,7 @@ import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceMessageFile;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.DeviceTypePurpose;
 import com.energyict.mdc.device.config.GatewayType;
@@ -65,6 +66,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.time.DayOfWeek;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -1605,13 +1607,19 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
     }
 
     @Test
-    @Ignore
-    public void getCalendars() throws Exception {
-        mockCalendar();
-        Response response = target("/devicetypes/timeofusecalendars").request().get();
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    public void testGetFiles() throws Exception {
+        DeviceType deviceType = mockDeviceType("deviceType", 1);
+        DeviceMessageFile file = mock(DeviceMessageFile.class);
+        when(file.getId()).thenReturn(2L);
+        when(file.getName()).thenReturn("fileName");
+        when(file.getDeviceType()).thenReturn(deviceType);
+        when(file.getCreateTime()).thenReturn(Instant.now());
+        when(deviceType.isFileManagementEnabled()).thenReturn(true);
+        when(deviceType.getDeviceMessageFiles()).thenReturn(Collections.singletonList(file));
+        Response response = target("/devicetypes/1/files").request().get();
         JsonModel jsonModel = JsonModel.model((InputStream) response.getEntity());
-        assertThat(jsonModel.<String>get("[0].name")).isEqualTo("CALENDAR_NAME");
+        assertThat(jsonModel.<String>get("[0].name")).isEqualTo("fileName");
+        assertThat(jsonModel.<Integer>get("[0].id")).isEqualTo(2);
     }
 
     @Test
@@ -1670,10 +1678,10 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         when(period.getName()).thenReturn("PERIOD_NAME");
         when(period.getId()).thenReturn(1L);
         when(periodTransition.getPeriod()).thenReturn(period);
-        for(DayOfWeek dayOfWeek: DayOfWeek.values()) {
+        for (DayOfWeek dayOfWeek : DayOfWeek.values()) {
             when(period.getDayType(dayOfWeek)).thenReturn(dayType);
         }
-        when(periodTransition.getOccurrence()).thenReturn(LocalDate.of(2016,3,7));
+        when(periodTransition.getOccurrence()).thenReturn(LocalDate.of(2016, 3, 7));
 
         List<PeriodTransition> periodTransitions = new ArrayList<>();
         periodTransitions.add(periodTransition);
