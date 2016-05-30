@@ -41,17 +41,11 @@ import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
 import com.energyict.mdc.device.data.importers.impl.SimpleNlsMessageFormat;
 import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
-import com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat.*;
+import com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat.SupportedNumberFormatInfo;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
+
 import com.google.common.collect.Range;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
@@ -68,12 +62,33 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Logger;
 
-import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.*;
-import static com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.DATE_FORMAT;
+import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.DELIMITER;
+import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.NUMBER_FORMAT;
+import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.TIME_ZONE;
+import static com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat.FORMAT1;
+import static com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat.FORMAT2;
+import static com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat.FORMAT3;
+import static com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat.FORMAT4;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceReadingsImporterFactoryTest {
@@ -440,7 +455,7 @@ public class DeviceReadingsImporterFactoryTest {
         importer.process(importOccurrence);
 
         verify(logger, never()).info(Matchers.anyString());
-        verify(logger).warning(thesaurus.getFormat(MessageSeeds.READING_DATE_INCORRECT_FOR_DAILY_CHANNEL).format(3, "11.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0"));
+        verify(logger).warning(thesaurus.getFormat(MessageSeeds.READING_DATE_INCORRECT_FOR_DAILY_CHANNEL).format(3, "11.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", context.getClock().getZone()));
         verify(logger, never()).severe(Matchers.anyString());
         verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(1, 1, 1, 1));
     }
@@ -459,7 +474,7 @@ public class DeviceReadingsImporterFactoryTest {
         importer.process(importOccurrence);
 
         verify(logger, never()).info(Matchers.anyString());
-        verify(logger).warning(thesaurus.getFormat(MessageSeeds.READING_DATE_INCORRECT_FOR_MONTHLY_CHANNEL).format(3, "13.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0"));
+        verify(logger).warning(thesaurus.getFormat(MessageSeeds.READING_DATE_INCORRECT_FOR_MONTHLY_CHANNEL).format(3, "13.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", context.getClock().getZone()));
         verify(logger, never()).severe(Matchers.anyString());
         verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(1, 1, 1, 1));
     }
@@ -641,9 +656,7 @@ public class DeviceReadingsImporterFactoryTest {
         verifyNoMoreInteractions(logger);
         verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_FAIL).format(3, 1));
 
-        ArgumentCaptor<MeterReading> readingArgumentCaptor = ArgumentCaptor.forClass(MeterReading.class);
-        verify(device).store(readingArgumentCaptor.capture());
-        assertThat(readingArgumentCaptor.getValue().getIntervalBlocks().get(0).getIntervals()).hasSize(3);
+        verify(device, never()).store(Matchers.any());
     }
 
     @Test
@@ -723,7 +736,7 @@ public class DeviceReadingsImporterFactoryTest {
         verifyNoMoreInteractions(logger);
         verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_FAIL_WITH_WARN).format(2, 2, 1));
         verify(device1).store(Matchers.any());
-        verify(device2).store(Matchers.any());
+        verify(device2, never()).store(Matchers.any());
         verify(device3, never()).store(Matchers.any());
     }
 

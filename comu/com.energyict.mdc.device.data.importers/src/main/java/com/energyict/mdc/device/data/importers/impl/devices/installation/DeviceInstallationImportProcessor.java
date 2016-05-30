@@ -1,6 +1,9 @@
 package com.energyict.mdc.device.data.importers.impl.devices.installation;
 
+import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.metering.LocationBuilder;
+import com.elster.jupiter.metering.LocationTemplate.TemplateField;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.properties.InvalidValueException;
@@ -31,7 +34,64 @@ public class DeviceInstallationImportProcessor extends DeviceTransitionImportPro
     }
 
     @Override
-    protected void afterTransition(Device device, DeviceInstallationImportRecord data, FileImportLogger logger) throws ProcessorException {
+    protected void beforeTransition(Device device, DeviceInstallationImportRecord data) throws ProcessorException {
+        List<String> locationData = data.getLocation();
+        List<String> geoCoordinatesData = data.getGeoCoordinates();
+        EndDevice endDevice = super.getContext().getMeteringService().findEndDevice(data.getDeviceMRID())
+                .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_DEVICE, data.getLineNumber(), data.getDeviceMRID()));
+        if(locationData!=null && !locationData.isEmpty()){
+            LocationBuilder builder = super.getContext().getMeteringService().newLocationBuilder();
+            Map<String, Integer> ranking = super.getContext()
+                    .getMeteringService()
+                    .getLocationTemplate()
+                    .getTemplateMembers()
+                    .stream()
+                    .collect(Collectors.toMap(TemplateField::getName,
+                            TemplateField::getRanking));
+            if(ranking.entrySet().size() != locationData.size()){
+                String fields = super.getContext()
+                        .getMeteringService()
+                        .getLocationTemplate()
+                        .getTemplateMembers()
+                        .stream()
+                        .sorted((t1, t2) -> Integer.compare(t1.getRanking(), t2.getRanking()))
+                        .map(TemplateField::getName)
+                        .map(s -> s = "<" + s + ">")
+                        .collect(Collectors.joining(" "));
+                throw new ProcessorException(MessageSeeds.INCORRECT_LOCATION_FORMAT, fields);
+            }else{
+                super.getContext()
+                        .getMeteringService()
+                        .getLocationTemplate()
+                        .getTemplateMembers()
+                        .stream()
+                        .filter(TemplateField::isMandatory)
+                        .forEach(field -> {
+                            if(locationData.get(field.getRanking()) == null){
+                                throw new ProcessorException(MessageSeeds.LINE_MISSING_LOCATION_VALUE, data.getLineNumber(), field.getName());
+                            }
+                        });
+            }
+            Optional<LocationBuilder.LocationMemberBuilder> memberBuilder = builder.getMember(locationData
+                    .get(ranking.get("locale")));
+            if (memberBuilder.isPresent()) {
+                setLocationAttributes(memberBuilder.get(), data, ranking);
+            } else {
+                setLocationAttributes(builder.member(), data, ranking).add();
+            }
+            endDevice.setLocation(builder.create());
+        }
+
+        if(geoCoordinatesData!=null && !geoCoordinatesData.isEmpty() && geoCoordinatesData.size() > 1){
+            endDevice.setGeoCoordinates(super.getContext().getMeteringService()
+                    .createGeoCoordinates(geoCoordinatesData.stream().reduce((s, t) -> s + ":" + t).get()));
+        }
+        endDevice.update();
+    }
+
+    @Override
+    protected void afterTransition(Device device, DeviceInstallationImportRecord data, FileImportLogger logger) throws
+            ProcessorException {
         super.afterTransition(device, data, logger);
         processUsagePoint(device, data, logger);
     }
@@ -53,7 +113,8 @@ public class DeviceInstallationImportProcessor extends DeviceTransitionImportPro
 
     private void processUsagePoint(Device device, DeviceInstallationImportRecord data, FileImportLogger logger) {
         if (data.getUsagePointMrid() != null) {
-            Optional<UsagePoint> usagePointRef = getContext().getMeteringService().findUsagePoint(data.getUsagePointMrid());
+            Optional<UsagePoint> usagePointRef = getContext().getMeteringService()
+                    .findUsagePoint(data.getUsagePointMrid());
             if (usagePointRef.isPresent()) {
                 setUsagePoint(device, usagePointRef.get(), data);
             } else {
@@ -72,7 +133,9 @@ public class DeviceInstallationImportProcessor extends DeviceTransitionImportPro
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_USAGE_POINT, data.getLineNumber(),
-                        data.getUsagePointMrid(), Arrays.stream(ServiceKind.values()).map(ServiceKind::getDisplayName).collect(Collectors.joining(", "))))
+                        data.getUsagePointMrid(), Arrays.stream(ServiceKind.values())
+                        .map(ServiceKind::getDisplayName)
+                        .collect(Collectors.joining(", "))))
                 .newUsagePoint(data.getUsagePointMrid(), getContext().getClock().instant())
                 .create();
     }
@@ -89,9 +152,10 @@ public class DeviceInstallationImportProcessor extends DeviceTransitionImportPro
     protected List<ExecutableActionProperty> getExecutableActionProperties(DeviceInstallationImportRecord data, Map<String, PropertySpec> allPropertySpecsForAction, FileImportLogger logger, ExecutableAction executableAction) {
         List<ExecutableActionProperty> executableActionProperties = super.getExecutableActionProperties(data, allPropertySpecsForAction, logger, executableAction);
 
-        if(data.getMultiplier() != null){
-            PropertySpec propertySpec = allPropertySpecsForAction.get(DeviceLifeCycleService.MicroActionPropertyName.MULTIPLIER.key());
-            if(propertySpec != null){
+        if (data.getMultiplier() != null) {
+            PropertySpec propertySpec = allPropertySpecsForAction.get(DeviceLifeCycleService.MicroActionPropertyName.MULTIPLIER
+                    .key());
+            if (propertySpec != null) {
                 try {
                     executableActionProperties.add(getContext().getDeviceLifeCycleService()
                             .toExecutableActionProperty(data.getMultiplier(), propertySpec));
@@ -105,5 +169,24 @@ public class DeviceInstallationImportProcessor extends DeviceTransitionImportPro
             }
         }
         return executableActionProperties;
+    }
+
+    private LocationBuilder.LocationMemberBuilder setLocationAttributes(LocationBuilder.LocationMemberBuilder builder, DeviceInstallationImportRecord data, Map<String, Integer> ranking) {
+        builder.setCountryCode(data.getLocation().get(ranking.get("countryCode")))
+                .setCountryName(data.getLocation().get(ranking.get("countryName")))
+                .setAdministrativeArea(data.getLocation().get(ranking.get("administrativeArea")))
+                .setLocality(data.getLocation().get(ranking.get("locality")))
+                .setSubLocality(data.getLocation().get(ranking.get("subLocality")))
+                .setStreetType(data.getLocation().get(ranking.get("streetType")))
+                .setStreetName(data.getLocation().get(ranking.get("streetName")))
+                .setStreetNumber(data.getLocation().get(ranking.get("streetNumber")))
+                .setEstablishmentType(data.getLocation().get(ranking.get("establishmentType")))
+                .setEstablishmentName(data.getLocation().get(ranking.get("establishmentName")))
+                .setEstablishmentNumber(data.getLocation().get(ranking.get("establishmentNumber")))
+                .setAddressDetail(data.getLocation().get(ranking.get("addressDetail")))
+                .setZipCode(data.getLocation().get(ranking.get("zipCode")))
+                .isDaultLocation(true)
+                .setLocale(data.getLocation().get(ranking.get("locale")));
+        return builder;
     }
 }

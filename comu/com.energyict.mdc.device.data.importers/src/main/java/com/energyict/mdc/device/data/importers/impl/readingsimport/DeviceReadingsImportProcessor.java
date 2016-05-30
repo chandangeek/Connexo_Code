@@ -24,13 +24,14 @@ import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
 import com.energyict.mdc.device.data.importers.impl.exceptions.ProcessorException;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
-import com.energyict.mdc.issues.Warning;
+
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -60,7 +61,10 @@ public class DeviceReadingsImportProcessor implements FileImportProcessor<Device
             String readingTypeMRID = data.getReadingTypes().get(i);
             ReadingType readingType = this.context.getMeteringService().getReadingType(readingTypeMRID)
                     .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_SUCH_READING_TYPE, data.getLineNumber(), readingTypeMRID));
-            validateReadingType(readingType, data.getReadingDateTime(), data.getLineNumber());
+            ZoneId deviceZoneId = getMeterActivationEffectiveAt(device.getMeterActivationsMostRecentFirst(), data.getReadingDateTime().toInstant())
+                    .map(MeterActivation::getZoneId)
+                    .orElse(data.getReadingDateTime().getZone());
+            validateReadingType(readingType, data.getReadingDateTime().withZoneSameInstant(deviceZoneId), data.getLineNumber());
             if (i < data.getValues().size()) {
                 BigDecimal readingValue = data.getValues().get(i);
                 ValueValidator validator = createValueValidator(device, readingType, logger, data.getLineNumber());
@@ -109,7 +113,7 @@ public class DeviceReadingsImportProcessor implements FileImportProcessor<Device
             throw new ProcessorException(MessageSeeds.READING_IMPORT_NOT_ALLOWED_FOR_IN_STOCK_DEVICE, data.getLineNumber(), device.getmRID());
         }
         if (device.getState().getName().equals(DefaultState.DECOMMISSIONED.getKey())
-                && !((User)context.getThreadPrincipalService().getPrincipal()).hasPrivilege("MDC", Privileges.Constants.ADMINISTER_DECOMMISSIONED_DEVICE_DATA)) {
+                && !((User) context.getThreadPrincipalService().getPrincipal()).hasPrivilege("MDC", Privileges.Constants.ADMINISTER_DECOMMISSIONED_DEVICE_DATA)) {
             throw new ProcessorException(MessageSeeds.READING_IMPORT_NOT_ALLOWED_FOR_DECOMMISSIONED_DEVICE, data.getLineNumber(), device.getmRID());
         }
     }
@@ -138,7 +142,11 @@ public class DeviceReadingsImportProcessor implements FileImportProcessor<Device
     }
 
     private boolean hasMeterActivationEffectiveAt(List<MeterActivation> meterActivations, Instant timeStamp) {
-        return meterActivations.isEmpty() || meterActivations.stream().filter(ma -> ma.getInterval().toOpenClosedRange().contains(timeStamp)).findFirst().isPresent();
+        return meterActivations.isEmpty() || getMeterActivationEffectiveAt(meterActivations, timeStamp).isPresent();
+    }
+
+    private Optional<MeterActivation> getMeterActivationEffectiveAt(List<MeterActivation> meterActivations, Instant timeStamp) {
+        return meterActivations.stream().filter(ma -> ma.getInterval().toOpenClosedRange().contains(timeStamp)).findFirst();
     }
 
     private void validateReadingType(ReadingType readingType, ZonedDateTime readingDate, long lineNumber) {
@@ -147,10 +155,10 @@ public class DeviceReadingsImportProcessor implements FileImportProcessor<Device
                 throw new ProcessorException(MessageSeeds.NOT_SUPPORTED_READING_TYPE, lineNumber, readingType.getMRID());
             }
             if (MacroPeriod.DAILY == readingType.getMacroPeriod() && !validTimeOfDay(readingDate)) {
-                throw new ProcessorException(MessageSeeds.READING_DATE_INCORRECT_FOR_DAILY_CHANNEL, lineNumber, readingType.getMRID());
+                throw new ProcessorException(MessageSeeds.READING_DATE_INCORRECT_FOR_DAILY_CHANNEL, lineNumber, readingType.getMRID(), readingDate.getZone());
             }
             if (MacroPeriod.MONTHLY == readingType.getMacroPeriod() && !(readingDate.getDayOfMonth() == 1 && validTimeOfDay(readingDate))) {
-                throw new ProcessorException(MessageSeeds.READING_DATE_INCORRECT_FOR_MONTHLY_CHANNEL, lineNumber, readingType.getMRID());
+                throw new ProcessorException(MessageSeeds.READING_DATE_INCORRECT_FOR_MONTHLY_CHANNEL, lineNumber, readingType.getMRID(), readingDate.getZone());
             }
         }
     }
@@ -168,7 +176,7 @@ public class DeviceReadingsImportProcessor implements FileImportProcessor<Device
             }
             NumericalRegisterSpec registerSpec = (NumericalRegisterSpec) register.get().getRegisterSpec();
             return value -> {
-                if(registerSpec.getOverflowValue().isPresent()){
+                if (registerSpec.getOverflowValue().isPresent()) {
                     if (value.compareTo(registerSpec.getOverflowValue().get()) > 0) {
                         throw new ProcessorException(MessageSeeds.READING_VALUE_DOES_NOT_MATCH_REGISTER_CONFIG_OVERFLOW, lineNumber, readingType.getMRID(), device.getmRID());
                     }
@@ -184,7 +192,7 @@ public class DeviceReadingsImportProcessor implements FileImportProcessor<Device
         if (channel.isPresent()) {
             ChannelSpec channelSpec = channel.get().getChannelSpec();
             return value -> {
-                if(channelSpec.getOverflow().isPresent()){
+                if (channelSpec.getOverflow().isPresent()) {
                     if (value.compareTo(channelSpec.getOverflow().get()) > 0) {
                         throw new ProcessorException(MessageSeeds.READING_VALUE_DOES_NOT_MATCH_CHANNEL_CONFIG_OVERFLOW, lineNumber, readingType.getMRID(), device.getmRID());
                     }

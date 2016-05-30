@@ -1,9 +1,14 @@
 package com.energyict.mdc.device.data.importers.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class FileImportRecord {
 
     private long lineNumber;
     private String deviceMRID;
+    private List<String> location = new ArrayList<>();
+    private List<String> geoCoordinates = new ArrayList<>();
 
     public FileImportRecord() {
     }
@@ -26,5 +31,21 @@ public class FileImportRecord {
 
     public String getDeviceMRID() {
         return deviceMRID;
+    }
+
+    public List<String> getLocation() {
+        return location;
+    }
+
+    public void addLocation(String location) {
+        this.location.add(location);
+    }
+
+    public List<String> getGeoCoordinates() {
+        return geoCoordinates;
+    }
+
+    public void setGeoCoordinates(String geoCoordinates){
+        this.geoCoordinates.add(geoCoordinates);
     }
 }

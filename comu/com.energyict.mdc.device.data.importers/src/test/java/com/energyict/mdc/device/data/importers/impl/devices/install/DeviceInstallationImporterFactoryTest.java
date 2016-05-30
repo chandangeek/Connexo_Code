@@ -6,16 +6,11 @@ import com.elster.jupiter.fileimport.FileImporter;
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.KnownAmrSystem;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ServiceCategory;
-import com.elster.jupiter.metering.ServiceKind;
-import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.UsagePointBuilder;
+import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.impl.LocationTemplateImpl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.GatewayType;
@@ -35,21 +30,20 @@ import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.elster.jupiter.metering.LocationBuilder.LocationMemberBuilder;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.omg.CORBA.MARSHAL;
-
 import java.io.ByteArrayInputStream;
-import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+
 
 import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.*;
 import static org.mockito.Matchers.any;
@@ -63,12 +57,24 @@ public class DeviceInstallationImporterFactoryTest {
     private Thesaurus thesaurus;
 
     private DeviceDataImporterContext context;
+
+    private LocationTemplate locationTemplate;
+
+    @Mock
+    private DataModel dataModel;
+
     @Mock
     private DeviceService deviceService;
     @Mock
     private TopologyService topologyService;
     @Mock
     private MeteringService meteringService;
+    @Mock
+    private EndDevice endDevice;
+    @Mock
+    private LocationBuilder locationBuilder;
+    @Mock
+    private LocationMemberBuilder locationMemberBuilder;
     @Mock
     private DeviceLifeCycleService deviceLifeCycleService;
     @Mock
@@ -95,6 +101,30 @@ public class DeviceInstallationImporterFactoryTest {
         context.setFiniteStateMachineService(finiteStateMachineService);
         context.setClock(clock);
         when(context.getThesaurus()).thenReturn(thesaurus);
+        final String templateMembers = "#ccod,#cnam,#adma,#loc,#subloc,#styp,#snam,#snum,#etyp,#enam,#enum,#addtl,#zip,#locale";
+        when(dataModel.getInstance(LocationTemplateImpl.class)).thenReturn(new LocationTemplateImpl(dataModel));
+        locationTemplate =  LocationTemplateImpl.from(dataModel, templateMembers, templateMembers);
+        locationTemplate.parseTemplate(templateMembers,templateMembers);
+        when(context.getMeteringService().getLocationTemplate()).thenReturn(locationTemplate);
+        when(meteringService.newLocationBuilder()).thenReturn(locationBuilder);
+        when(meteringService.findEndDevice("VPB0002")).thenReturn(Optional.of(endDevice));
+        when(locationBuilder.getMember("locale")).thenReturn(Optional.empty());
+        when(locationBuilder.member()).thenReturn(locationMemberBuilder);
+        when(locationMemberBuilder.setCountryName(anyString())).thenReturn(locationMemberBuilder);
+        when(locationMemberBuilder.setCountryCode(anyString())).thenReturn(locationMemberBuilder);
+        when(locationMemberBuilder.setAdministrativeArea(anyString())).thenReturn(locationMemberBuilder);
+        when(locationMemberBuilder.setLocality(anyString())).thenReturn(locationMemberBuilder);
+        when(locationMemberBuilder.setSubLocality(anyString())).thenReturn(locationMemberBuilder);
+        when(locationMemberBuilder.setStreetName(anyString())).thenReturn(locationMemberBuilder);
+        when(locationMemberBuilder.setStreetType(anyString())).thenReturn(locationMemberBuilder);
+        when(locationMemberBuilder.setStreetNumber(anyString())).thenReturn(locationMemberBuilder);
+        when(locationMemberBuilder.setEstablishmentType(anyString())).thenReturn(locationMemberBuilder);
+        when(locationMemberBuilder.setEstablishmentName(anyString())).thenReturn(locationMemberBuilder);
+        when(locationMemberBuilder.setEstablishmentNumber(anyString())).thenReturn(locationMemberBuilder);
+        when(locationMemberBuilder.setAddressDetail(anyString())).thenReturn(locationMemberBuilder);
+        when(locationMemberBuilder.setZipCode(anyString())).thenReturn(locationMemberBuilder);
+        when(locationMemberBuilder.setLocale(anyString())).thenReturn(locationMemberBuilder);
+        when(locationMemberBuilder.isDaultLocation(anyBoolean())).thenReturn(locationMemberBuilder);
     }
 
     private FileImportOccurrence mockFileImportOccurrence(String csv) {
@@ -115,8 +145,8 @@ public class DeviceInstallationImporterFactoryTest {
 
     @Test
     public void testSuccessCaseInstallActive() {
-        String csv = "mrid;installation date;master mrid;usage point;service category;install inactive;start validation\n" +
-                "VPB0002;01/08/2015 00:30;VPB0001;Usage MRID;electricity;false;01/08/2015 00:30";
+        String csv = "mrid;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master mrid;usage point;service category;install inactive;start validation\n" +
+                "VPB0002;01/08/2015 00:30;45.7540873;21.22388;17;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;VPB0001;Usage MRID;electricity;false;01/08/2015 00:30";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
 
@@ -155,7 +185,7 @@ public class DeviceInstallationImporterFactoryTest {
 
     @Test
     public void testBadColumnNumberCase() {
-        String csv = "mrid;installation date;master mrid;usage point;service category;install inactive;start validation\n" +
+        String csv = "mrid;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master mrid;usage point;service category;install inactive;start validation\n" +
                 "VPB0002;";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
@@ -169,8 +199,8 @@ public class DeviceInstallationImporterFactoryTest {
 
     @Test
     public void testMissingMandatoryDeviceMridValueCase() {
-        String csv = "mrid;installation date;master mrid;usage point;service category;install inactive;start validation\n" +
-                "   ;01/08/2015 00:30;VPB0001;Usage MRID;electricity;false;01/08/2015 00:30";
+        String csv = "mrid;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master mrid;usage point;service category;install inactive;start validation\n" +
+                "   ;01/08/2015 00:30;45.7427346;21.2384365;17;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;VPB0001;Usage MRID;electricity;false;01/08/2015 00:30";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
 
@@ -183,8 +213,8 @@ public class DeviceInstallationImporterFactoryTest {
 
     @Test
     public void testMissingMandatoryInstallationDateValueCase() {
-        String csv = "mrid;installation date;master mrid;usage point;service category;install inactive;start validation\n" +
-                "VPB0002;  ;VPB0001;Usage MRID;electricity;false;01/08/2015 00:30";
+        String csv = "mrid;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master mrid;usage point;service category;install inactive;start validation\n"  +
+                "VPB0002;  ;45.7427346;21.2384365;17;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;VPB0001;Usage MRID;electricity;false;01/08/2015 00:30";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
 
@@ -197,13 +227,12 @@ public class DeviceInstallationImporterFactoryTest {
 
     @Test
     public void testBadDeviceMrid() {
-        String csv = "mrid;installation date;master mrid;usage point;service category;install inactive;start validation\n" +
-                "VPB0002;01/08/2015 00:30;VPB0001;Usage MRID;electricity;false;01/08/2015 00:30";
+        String csv = "mrid;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master mrid;usage point;service category;install inactive;start validation\n" +
+                "VPB0002;01/08/2015 00:30;countryCode;countryName;17;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;VPB0001;Usage MRID;electricity;false;01/08/2015 00:30";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
 
         when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.empty());
-
         importer.process(importOccurrence);
         verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
         verify(logger, never()).info(Matchers.anyString());
@@ -213,11 +242,10 @@ public class DeviceInstallationImporterFactoryTest {
 
     @Test
     public void testSuccessCaseAlreadyHasMasterWithTheSameMrid() {
-        String csv = "mrid;installation date;master mrid;usage point;service category;install inactive;start validation\n" +
-                "VPB0002;01/08/2015 00:30;VPB0001;Usage MRID;electricity;bla-bla;01/08/2015 00:30";
+        String csv = "mrid;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master mrid;usage point;service category;install inactive;start validation\n" +
+                "VPB0002;01/08/2015 00:30;45.7427346;21.2384365;17;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;VPB0001;Usage MRID;electricity;false;01/08/2015 00:30";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
-
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(1L);
         when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.of(device));
@@ -252,8 +280,8 @@ public class DeviceInstallationImporterFactoryTest {
 
     @Test
     public void testSuccessCaseAlreadyHasMasterWithDifferentMrid() {
-        String csv = "mrid;installation date;master mrid;usage point;service category;install inactive;start validation\n" +
-                "VPB0002;01/08/2015 00:30;VPB0001;Usage MRID;electricity;bla-bla;01/08/2015 00:30";
+        String csv = "mrid;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master mrid;usage point;service category;install inactive;start validation\n" +
+                "VPB0002;01/08/2015 00:30;45.7427346;21.2384365;17;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;VPB0001;Usage MRID;electricity;false;01/08/2015 00:30";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
 
@@ -293,8 +321,8 @@ public class DeviceInstallationImporterFactoryTest {
 
     @Test
     public void testBadMasterDeviceMrid() {
-        String csv = "mrid;installation date;master mrid;usage point;service category;install inactive;start validation\n" +
-                "VPB0002;01/08/2015 00:30;VPB0001;Usage MRID;electricity;bla-bla;01/08/2015 00:30";
+        String csv = "mrid;installation date;countryCode;countryName;elevation;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master mrid;usage point;service category;install inactive;start validation\n" +
+                "VPB0002;01/08/2015 00:30;45.7540873;21.22388;17;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;VPB0001;Usage MRID;electricity;false;01/08/2015 00:30";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
 
@@ -320,8 +348,8 @@ public class DeviceInstallationImporterFactoryTest {
 
     @Test
     public void testWithoutUsagePoint() {
-        String csv = "mrid;installation date;master mrid;usage point;service category;install inactive;start validation\n" +
-                "VPB0002;01/08/2015 00:30;VPB0001;   ;   ;false;01/08/2015 00:30";
+        String csv = "mrid;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master mrid;usage point;service category;install inactive;start validation\n" +
+                "VPB0002;01/08/2015 00:30;45.7540873;21.22388;17;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;VPB0001; ; ;false;01/08/2015 00:30";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
 
@@ -354,8 +382,8 @@ public class DeviceInstallationImporterFactoryTest {
 
     @Test
     public void testBadUsagePointAndGoodServiceKind() {
-        String csv = "mrid;installation date;master mrid;usage point;service category;install inactive;start validation\n" +
-                "VPB0002;01/08/2015 00:30;VPB0001;Usage MRID;electricity;false;01/08/2015 00:30";
+        String csv = "mrid;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master mrid;usage point;service category;install inactive;start validation\n" +
+                "VPB0002;01/08/2015 00:30;45.7540873;21.22388;17;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;VPB0001;Usage MRID;electricity;false;01/08/2015 00:30";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
 
@@ -396,8 +424,8 @@ public class DeviceInstallationImporterFactoryTest {
 
     @Test
     public void testBadUsagePointAndBadServiceKind() {
-        String csv = "mrid;installation date;master mrid;usage point;service category;install inactive;start validation\n" +
-                "VPB0002;01/08/2015 00:30;VPB0001;Usage MRID;some;false;01/08/2015 00:30";
+        String csv = "mrid;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master mrid;usage point;service category;install inactive;start validation\n" +
+                "VPB0002;01/08/2015 00:30;45.7540873;21.22388;17;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;VPB0001;Usage MRID;some;false;01/08/2015 00:30";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
 
@@ -435,12 +463,12 @@ public class DeviceInstallationImporterFactoryTest {
 
     @Test
     public void testBadUsagePointAndNoServiceKind() {
-        String csv = "mrid;installation date;master mrid;usage point;service category;install inactive;start validation\n" +
-                "VPB0002;01/08/2015 00:30;VPB0001;Usage MRID;    ;false;01/08/2015 00:30";
+        String csv = "mrid;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master mrid;usage point;service category;install inactive;start validation\n" +
+                "VPB0002;01/08/2015 00:30;45.7540873;21.22388;17;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;VPB0001;Usage MRID;    ;false;01/08/2015 00:30";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
 
-        Device device = mock(Device.class);
+       Device device = mock(Device.class);
         when(device.getId()).thenReturn(1L);
         when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.of(device));
         State deviceState = mock(State.class);
@@ -474,8 +502,8 @@ public class DeviceInstallationImporterFactoryTest {
 
     @Test
     public void testSuccessCaseInstallInactive() {
-        String csv = "mrid;installation date;master mrid;usage point;service category;install inactive;start validation\n" +
-                "VPB0002;01/08/2015 00:30;  ;  ;  ;true;01/08/2015 00:30";
+        String csv = "mrid;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master mrid;usage point;service category;install inactive;start validation\n" +
+                "VPB0002;01/08/2015 00:30;45.7540873;21.22388;17;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;  ;  ;  ;true;01/08/2015 00:30";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
 
@@ -502,10 +530,11 @@ public class DeviceInstallationImporterFactoryTest {
 
     @Test
     public void testSuccessCaseInstallActiveWithMultiplier() {
-        String csv = "mrid;installation date;master mrid;usage point;service category;install inactive;start validation;multiplier\n" +
-                "VPB0002;01/08/2015 00:30;;;electricity;false;01/08/2015 00:30;5.6";
+        String csv = "mrid;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master mrid;usage point;service category;install inactive;start validation;multiplier\n" +
+                "VPB0002;01/08/2015 00:30;45.7427346;21.2384365;17;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;;;electricity;false;01/08/2015 00:30;5.6";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
+
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(1L);
         when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.of(device));
@@ -541,10 +570,11 @@ public class DeviceInstallationImporterFactoryTest {
 
     @Test
     public void testFailureCaseInstallActiveWithIncorrectMultiplier() {
-        String csv = "mrid;installation date;master mrid;usage point;service category;install inactive;start validation;multiplier\n" +
-                "VPB0002;01/08/2015 00:30;;;electricity;false;01/08/2015 00:30;abc";
+        String csv = "mrid;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master mrid;usage point;service category;install inactive;start validation;multiplier\n" +
+                "VPB0002;01/08/2015 00:30;45.7427346;21.2384365;17;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;;;electricity;false;01/08/2015 00:30;abc";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
+
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(1L);
         when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.of(device));
@@ -580,10 +610,11 @@ public class DeviceInstallationImporterFactoryTest {
 
     @Test
     public void testSuccessCaseInstallActiveWithMultiplierWhenNotApplicableForAction() {
-        String csv = "mrid;installation date;master mrid;usage point;service category;install inactive;start validation;multiplier\n" +
-                "VPB0002;01/08/2015 00:30;;;electricity;false;01/08/2015 00:30;5.6";
+        String csv = "mrid;installation date;latitude;longitude;countryCode;elevation;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master mrid;usage point;service category;install inactive;start validation;multiplier\n" +
+                "VPB0002;01/08/2015 00:30;45.7427346;21.2384365;17;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;;;electricity;false;01/08/2015 00:30;5.6";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
+
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(1L);
         when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.of(device));
@@ -617,8 +648,8 @@ public class DeviceInstallationImporterFactoryTest {
 
     @Test
     public void testDeviceCanNotBeMovedToThatState() {
-        String csv = "mrid;installation date;master mrid;usage point;service category;install inactive;start validation\n" +
-                "VPB0002;01/08/2015 00:30;VPB0001;Usage MRID;electricity;bla-bla;01/08/2015 00:30";
+        String csv = "mrid;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master mrid;usage point;service category;install inactive;start validation\n" +
+                "VPB0002;01/08/2015 00:30;45.7427346;21.2384365;17;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;VPB0001;Usage MRID;electricity;bla-bla;01/08/2015 00:30";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
 
@@ -640,8 +671,8 @@ public class DeviceInstallationImporterFactoryTest {
 
     @Test
     public void testDeviceAlreadyInThatState() {
-        String csv = "mrid;installation date;master mrid;usage point;service category;install inactive;start validation\n" +
-                "VPB0002;01/08/2015 00:30;VPB0001;Usage MRID;electricity;bla-bla;01/08/2015 00:30";
+        String csv = "mrid;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master mrid;usage point;service category;install inactive;start validation\n" +
+                "VPB0002;01/08/2015 00:30;45.7427346;21.2384365;17;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;VPB0001;Usage MRID;electricity;bla-bla;01/08/2015 00:30";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
 
@@ -660,8 +691,8 @@ public class DeviceInstallationImporterFactoryTest {
 
     @Test
     public void testPreTransitionCheckFailed() {
-        String csv = "mrid;installation date;master mrid;usage point;service category;install inactive;start validation\n" +
-                "VPB0002;01/08/2015 00:30;VPB0001;Usage MRID;electricity;bla-bla;01/08/2015 00:30";
+        String csv = "mrid;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master mrid;usage point;service category;install inactive;start validation\n" +
+                "VPB0002;01/08/2015 00:30;45.7427346;21.2384365;17;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;VPB0001;Usage MRID;electricity;bla-bla;01/08/2015 00:30";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
 
@@ -688,8 +719,8 @@ public class DeviceInstallationImporterFactoryTest {
 
     @Test
     public void testTransitionIsNotSupportedByImporter() {
-        String csv = "mrid;installation date;master mrid;usage point;service category;install inactive;start validation\n" +
-                "VPB0002;01/08/2015 00:30;VPB0001;Usage MRID;electricity;bla-bla;01/08/2015 00:30";
+        String csv = "mrid;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master mrid;usage point;service category;install inactive;start validation\n" +
+                "VPB0002;01/08/2015 00:30;45.7427346;21.2384365;17;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;VPB0001;Usage MRID;electricity;bla-bla;01/08/2015 00:30";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceInstallImporter();
 
@@ -711,4 +742,5 @@ public class DeviceInstallationImporterFactoryTest {
                 .format(2, DefaultState.ACTIVE.getKey(), DefaultState.INACTIVE.getKey(), DefaultState.IN_STOCK.getKey() + ", " + DefaultState.COMMISSIONING.getKey()));
         verify(logger, never()).severe(Matchers.anyString());
     }
+
 }

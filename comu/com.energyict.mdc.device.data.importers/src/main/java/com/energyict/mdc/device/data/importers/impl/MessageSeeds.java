@@ -42,8 +42,8 @@ public enum MessageSeeds implements MessageSeed {
     READING_VALUE_WAS_TRUNCATED_TO_CHANNEL_CONFIG(209, "ReadingValueWasTruncatedToChannelConfig", "Note for line {0}: Reading value was truncated to {1} according to channel configuration.", Level.INFO),
     READING_IMPORT_NOT_ALLOWED_FOR_DECOMMISSIONED_DEVICE(210, "ReadingImportIsNotAllowedForDecommissionedDevices", "Can''t process line {0}: Import service doesn''t have privileges to import readings for device with MRID: {1} since it is in Decommissioned state.", Level.WARNING),
     READING_IMPORT_NOT_ALLOWED_FOR_IN_STOCK_DEVICE(211, "ReadingImportIsNotAllowedForInStockDevices", "Note for line {0}: Reading can''t be imported for device with MRID: {1} since this device is in In Stock state and was not installed or commissioned yet.", Level.WARNING),
-    READING_DATE_INCORRECT_FOR_DAILY_CHANNEL(212, "ReadingDateIncorrectForDailyChannel", "Can''t process line {0}: Reading date is incorrect for reading type {1}. Time of reading date of daily reading must be midnight.", Level.WARNING),
-    READING_DATE_INCORRECT_FOR_MONTHLY_CHANNEL(213, "ReadingDateIncorrectForMonthlyChannel", "Can''t process line {0}: Reading date is incorrect for reading type {1}. Reading date of monthly reading must be the 1st day of the month and time of the day must be midnight.", Level.WARNING),
+    READING_DATE_INCORRECT_FOR_DAILY_CHANNEL(212, "ReadingDateIncorrectForDailyChannel", "Can''t process line {0}: Reading date is incorrect for reading type {1}. Time of reading date of daily reading must be midnight in device timezone ({2}).", Level.WARNING),
+    READING_DATE_INCORRECT_FOR_MONTHLY_CHANNEL(213, "ReadingDateIncorrectForMonthlyChannel", "Can''t process line {0}: Reading date is incorrect for reading type {1}. Reading date of monthly reading must be the 1st day of the month and time of the day must be midnight in device timezone ({2}).", Level.WARNING),
 
     NO_CONNECTION_METHOD_ON_DEVICE(301, "NoSuchConnectionMethodOnDevice", "Can''t process line {0}: Connection method {1} is not supported on the device.", Level.WARNING),
     CONNECTION_METHOD_IS_NOT_UNIQUE_IN_FILE(302, "ConnectionMethodIsNotUniqueInFile", "Failure in line {0}: Connection method name is not unique in the file.", Level.SEVERE),
@@ -57,6 +57,8 @@ public enum MessageSeeds implements MessageSeed {
     SECURITY_SETTINGS_NAME_IS_NOT_UNIQUE_IN_FILE(403, "SecuritySettingsNameIsNotUniqueInFile", "Failure in line {0}: Security settings name is not unique in the file.", Level.WARNING),
     REQUIRED_SECURITY_ATTRIBUTES_MISSED(404, "RequiredSecurityAttributesMissed", "Note for line {0}: Next required attribute(s) is(are) missed: {1}. The state of the security settings is \"Incomplete\".", Level.INFO),
     SECURITY_ATTRIBUTE_INVALID_VALUE(405, "SecurityAttributeInvalidValue", "Can''t process line {0}: Security attribute value ''{1}'' is invalid for attribute ''{2}''", Level.WARNING),
+    INCORRECT_LOCATION_FORMAT(406, "IncorrectLocationFormat", "Incorrect location format. Expected : {0}", Level.SEVERE),
+    LINE_MISSING_LOCATION_VALUE(407, "LineMissingLocationValue", "Format error for line {0}: missing value for field ''{1}''.", Level.SEVERE),
     ;
 
     private final int number;

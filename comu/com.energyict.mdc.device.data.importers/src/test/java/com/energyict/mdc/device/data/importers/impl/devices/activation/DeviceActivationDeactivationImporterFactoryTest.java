@@ -1,7 +1,9 @@
 package com.energyict.mdc.device.data.importers.impl.devices.activation;
 
+import com.energyict.mdc.device.data.CIMLifecycleDates;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
 import com.energyict.mdc.device.data.importers.impl.SimpleNlsMessageFormat;
@@ -133,19 +135,24 @@ public class DeviceActivationDeactivationImporterFactoryTest {
         verify(logger, never()).severe(Matchers.anyString());
     }
 
+
     @Test
     public void testDeactivateTransitionIsNotSupportedByImporter() {
         String csv = "Device MRID;Transition date;Activate\n" +
                 "VPB0001;01/08/2015 00:30;false";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
 
-        Device device = mock(Device.class, RETURNS_DEEP_STUBS);
+        Device device = mock(Device.class);
+        CIMLifecycleDates dates = mock(CIMLifecycleDates.class);
+        DeviceValidation validation = mock(DeviceValidation.class);
         when(deviceService.findByUniqueMrid("VPB0001")).thenReturn(Optional.of(device));
         State deviceState = mock(State.class);
         when(device.getState()).thenReturn(deviceState);
         when(deviceState.getName()).thenReturn(DefaultState.COMMISSIONING.getKey());
-        when(device.getLifecycleDates().getInstalledDate()).thenReturn(Optional.empty());
-        when(device.forValidation().getLastChecked()).thenReturn(Optional.empty());
+        when(device.getLifecycleDates()).thenReturn(dates);
+        when(dates.getInstalledDate()).thenReturn(Optional.empty());
+        when(device.forValidation()).thenReturn(validation);
+        when(validation.getLastChecked()).thenReturn(Optional.empty());
 
         CustomStateTransitionEventType transitionEventType = mock(CustomStateTransitionEventType.class);
         when(finiteStateMachineService.findCustomStateTransitionEventType(Matchers.anyString())).thenReturn(Optional.of(transitionEventType));
