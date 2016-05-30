@@ -9,21 +9,21 @@ import com.elster.jupiter.soap.whiteboard.EndPointConfiguration;
 import javax.inject.Inject;
 
 /**
- * This class links web services to AppServer. If a web service becomes enable/disabled, it shall be enabled/disabled on
+ * This class links web services/endpoint to AppServer. If an end point becomes enable/disabled, it shall be enabled/disabled on
  * all AppServers it is configured for.
  * <p>
- * No enable/disable is possible on a per-appserver basis: don't link the webservice
- * to an appserver if you don't want to enable the web service on the app server.
+ * No enable/disable is possible on a per-appserver basis: don't link the endpoint
+ * to an appserver if you don't want to support the end point on the app server.
  * <p>
  * Created by bvn on 5/18/16.
  */
-public class WebServiceForAppServerImpl implements WebServiceForAppServer {
+public class EndPointForAppServerImpl implements WebServiceForAppServer {
     private final DataModel dataModel;
     private final Reference<AppServer> appServer = Reference.empty();
     private final Reference<EndPointConfiguration> endPointConfiguration = Reference.empty();
 
     @Inject
-    public WebServiceForAppServerImpl(DataModel dataModel) {
+    public EndPointForAppServerImpl(DataModel dataModel) {
         this.dataModel = dataModel;
     }
 
@@ -42,7 +42,7 @@ public class WebServiceForAppServerImpl implements WebServiceForAppServer {
         }
     }
 
-    public WebServiceForAppServerImpl init(AppServer appServer, EndPointConfiguration endPointConfiguration) {
+    public EndPointForAppServerImpl init(AppServer appServer, EndPointConfiguration endPointConfiguration) {
         this.appServer.set(appServer);
         this.endPointConfiguration.set(endPointConfiguration);
         return this;

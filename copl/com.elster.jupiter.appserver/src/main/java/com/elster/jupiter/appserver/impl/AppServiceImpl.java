@@ -215,6 +215,7 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber, 
 
         launchFileImports();
         launchTaskService();
+        launchWebServices();
         listenForMessagesToAppServer();
         listenForMessagesToAllServers();
     }
@@ -250,6 +251,13 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber, 
     private void unserveImportSchedule(ImportSchedule importSchedule) {
         fileImportService.unschedule(importSchedule);
         servedImportSchedules.remove(importSchedule);
+    }
+
+    private void launchWebServices() {
+        Optional<AppServer> appServer = this.getAppServer();
+        if (appServer.isPresent()) {
+            appServer.get().supportedEndPoints().forEach(webServicesService::publishEndPoint);
+        }
     }
 
     private void serveImportSchedule(ImportSchedule importSchedule) {
@@ -392,6 +400,10 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber, 
         appServer = null;
         subscriberExecutionSpecs = Collections.emptyList();
         deactivateTasks.clear();
+        Optional<AppServer> appServer = getAppServer();
+        if (appServer.isPresent()) {
+            appServer.get().supportedEndPoints().forEach(webServicesService::removeEndPoint);
+        }
     }
 
     @Override

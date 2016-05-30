@@ -59,7 +59,7 @@ public class AppServerImpl implements AppServer {
     private final TransactionService transactionService;
     private final ThreadPrincipalService threadPrincipalService;
     private final WebServicesService webServicesService;
-    private final Provider<WebServiceForAppServerImpl> webServiceForAppServerProvider;
+    private final Provider<EndPointForAppServerImpl> webServiceForAppServerProvider;
 
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     @Size(max = APP_SERVER_NAME_SIZE, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_14 + "}")
@@ -82,7 +82,7 @@ public class AppServerImpl implements AppServer {
     AppServerImpl(DataModel dataModel, CronExpressionParser cronExpressionParser, FileImportService fileImportService,
                   MessageService messageService, JsonService jsonService, Thesaurus thesaurus,
                   TransactionService transactionService, ThreadPrincipalService threadPrincipalService,
-                  Provider<WebServiceForAppServerImpl> webServiceForAppServerProvider,
+                  Provider<EndPointForAppServerImpl> webServiceForAppServerProvider,
                   WebServicesService webServicesService) {
         this.dataModel = dataModel;
         this.cronExpressionParser = cronExpressionParser;
@@ -271,7 +271,7 @@ public class AppServerImpl implements AppServer {
     @Override
     public void supportEndPoint(EndPointConfiguration endPointConfiguration) {
         Objects.nonNull(endPointConfiguration);
-        WebServiceForAppServerImpl link = webServiceForAppServerProvider.get().init(this, endPointConfiguration);
+        EndPointForAppServerImpl link = webServiceForAppServerProvider.get().init(this, endPointConfiguration);
         link.save();
         if (endPointConfiguration.isActive()) {
             webServicesService.publishEndPoint(endPointConfiguration);
@@ -283,9 +283,9 @@ public class AppServerImpl implements AppServer {
         Objects.nonNull(endPointConfiguration);
         List<WebServiceForAppServer> links = dataModel.query(WebServiceForAppServer.class)
                 .select(
-                        where(WebServiceForAppServerImpl.Fields.EndPointConfiguration.fieldName())
+                        where(EndPointForAppServerImpl.Fields.EndPointConfiguration.fieldName())
                                 .isEqualTo(endPointConfiguration)
-                                .and(where(WebServiceForAppServerImpl.Fields.AppServer.fieldName())
+                                .and(where(EndPointForAppServerImpl.Fields.AppServer.fieldName())
                                         .isEqualTo(this)));
         if (!links.isEmpty()) {
             dataModel.mapper(WebServiceForAppServer.class).remove(links.get(0)); // there can only be one anyway
@@ -300,7 +300,7 @@ public class AppServerImpl implements AppServer {
         List<WebServiceForAppServer> links =
                 dataModel
                         .query(WebServiceForAppServer.class)
-                        .select(where(WebServiceForAppServerImpl.Fields.AppServer.fieldName()).isEqualTo(this));
+                        .select(where(EndPointForAppServerImpl.Fields.AppServer.fieldName()).isEqualTo(this));
         return links.stream().map(WebServiceForAppServer::getEndPointConfiguration).collect(toList());
     }
 

@@ -69,11 +69,11 @@ public enum TableSpecs {
             table.foreignKey("APS_FK_IMPORTFOLDERAPPSERVER").references(APS_APPSERVER.name()).onDelete(DeleteRule.CASCADE).map("appServer").on(appServerColumn).add();
         }
     },
-    APS_WEBSERVICES() {
+    APS_ENDPOINTS() {
         @Override
         void addTo(DataModel dataModel) {
             Table<WebServiceForAppServer> table = dataModel.addTable(name(), WebServiceForAppServer.class);
-            table.map(WebServiceForAppServerImpl.class);
+            table.map(EndPointForAppServerImpl.class);
             Column appServer = table.column("APPSERVER")
                     .varChar(NAME_LENGTH)
                     .notNull()
@@ -89,13 +89,13 @@ public enum TableSpecs {
                     .on(appServer)
                     .references(AppServer.class)
                     .onDelete(DeleteRule.CASCADE)
-                    .map(WebServiceForAppServerImpl.Fields.AppServer.fieldName())
+                    .map(EndPointForAppServerImpl.Fields.AppServer.fieldName())
                     .add();
             table.foreignKey("APS_FK_ENDPOINTCONFIG")
                     .on(endPointConfiguration)
                     .references(EndPointConfiguration.class)
                     .onDelete(DeleteRule.CASCADE)
-                    .map(WebServiceForAppServerImpl.Fields.EndPointConfiguration.fieldName())
+                    .map(EndPointForAppServerImpl.Fields.EndPointConfiguration.fieldName())
                     .add();
         }
     };
