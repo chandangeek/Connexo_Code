@@ -9,6 +9,7 @@ import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.FullInstaller;
 
 import javax.inject.Inject;
+import java.util.logging.Logger;
 
 import static com.elster.jupiter.events.EventService.JUPITER_EVENTS;
 
@@ -26,8 +27,16 @@ public class InstallerImpl implements FullInstaller {
     }
 
     @Override
-    public void install(DataModelUpgrader dataModelUpgrader) {
+    public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
         dataModelUpgrader.upgrade(dataModel, Version.latest());
+        doTry(
+                "Create and activate the \"" + JUPITER_EVENTS + "\" topic.",
+                () -> createAndActivateJupiterEventsTopic(dataModelUpgrader),
+                logger
+        );
+    }
+
+    private void createAndActivateJupiterEventsTopic(DataModelUpgrader dataModelUpgrader) {
         DestinationSpec destinationSpec = getRawTopicTableSpec().createDestinationSpec(JUPITER_EVENTS, RETRY_DELAY);
         destinationSpec.activate();
     }
