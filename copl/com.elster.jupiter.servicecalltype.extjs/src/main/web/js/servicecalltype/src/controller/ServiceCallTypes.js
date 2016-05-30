@@ -56,6 +56,7 @@ Ext.define('Sct.controller.ServiceCallTypes', {
 
         preview.setTitle(Ext.String.htmlEncode(serviceCallTypeName));
         previewForm.updatePreview(record, preview);
+        preview.down('sct-action-menu').record = record;
     },
 
     chooseAction: function (menu, item) {
