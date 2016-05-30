@@ -32,6 +32,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.pubsub.Subscriber;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.soap.whiteboard.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.WebServicesService;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionService;
@@ -102,6 +103,7 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber, 
     private volatile Thesaurus thesaurus;
     private volatile EventService eventService;
     private volatile ThreadPrincipalService threadPrincipalService;
+    private volatile WebServicesService webServicesService;
 
     private volatile AppServerImpl appServer;
     private volatile List<? extends SubscriberExecutionSpec> subscriberExecutionSpecs = Collections.emptyList();
@@ -118,7 +120,10 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber, 
     }
 
     @Inject
-    AppServiceImpl(OrmService ormService, NlsService nlsService, TransactionService transactionService, MessageService messageService, CronExpressionParser cronExpressionParser, JsonService jsonService, FileImportService fileImportService, TaskService taskService, UserService userService, QueryService queryService, BundleContext bundleContext, ThreadPrincipalService threadPrincipalService) {
+    AppServiceImpl(OrmService ormService, NlsService nlsService, TransactionService transactionService, MessageService messageService,
+                   CronExpressionParser cronExpressionParser, JsonService jsonService, FileImportService fileImportService, TaskService taskService,
+                   UserService userService, QueryService queryService, BundleContext bundleContext, ThreadPrincipalService threadPrincipalService,
+                   WebServicesService webServicesService) {
         this();
         setThreadPrincipalService(threadPrincipalService);
         setOrmService(ormService);
@@ -131,6 +136,7 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber, 
         setTaskService(taskService);
         setUserService(userService);
         setQueryService(queryService);
+        setWebServicesService(webServicesService);
 
         if (!dataModel.isInstalled()) {
             install();
@@ -158,6 +164,7 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber, 
                     bind(AppService.class).toInstance(AppServiceImpl.this);
                     bind(IAppService.class).toInstance(AppServiceImpl.this);
                     bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
+                    bind(WebServicesService.class).toInstance(webServicesService);
                 }
             });
 
@@ -256,7 +263,22 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber, 
     }
 
     private void reconfigureWebServices() {
-        // TODO Complete
+        Optional<AppServer> appServer = this.getAppServer();
+        if (appServer.isPresent()) {
+            for (EndPointConfiguration endPointConfiguration : appServer.get().supportedEndPoints()) {
+                boolean published = webServicesService.isPublished(endPointConfiguration);
+                boolean shouldBePublished = endPointConfiguration.isActive();
+                if (published && !shouldBePublished) {
+                    LOGGER.info("Stopping WebService " + endPointConfiguration.getWebServiceName() + " with config " + endPointConfiguration
+                            .getName());
+                    webServicesService.removeEndPoint(endPointConfiguration);
+                } else if (!published && shouldBePublished) {
+                    LOGGER.info("Publishing WebService " + endPointConfiguration.getWebServiceName() + " with config " + endPointConfiguration
+                            .getName());
+                    webServicesService.publishEndPoint(endPointConfiguration);
+                }
+            }
+        }
     }
 
     private void reconfigureImportSchedules() {
@@ -449,6 +471,11 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber, 
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(AppService.COMPONENT_NAME, Layer.DOMAIN);
+    }
+
+    @Reference
+    public void setWebServicesService(WebServicesService webServicesService) {
+        this.webServicesService = webServicesService;
     }
 
     @Override

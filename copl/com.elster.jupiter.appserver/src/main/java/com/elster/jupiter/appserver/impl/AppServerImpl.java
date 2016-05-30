@@ -21,6 +21,7 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.soap.whiteboard.EndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.WebServicesService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
@@ -75,13 +76,14 @@ public class AppServerImpl implements AppServer {
     private Instant createTime;
     private Instant modTime;
     private String userName;
+    private final WebServicesService webServicesService;
 
     @Inject
     AppServerImpl(DataModel dataModel, CronExpressionParser cronExpressionParser, FileImportService fileImportService,
                   MessageService messageService, JsonService jsonService, Thesaurus thesaurus,
                   TransactionService transactionService, ThreadPrincipalService threadPrincipalService,
-                  Provider<WebServiceForAppServerImpl> webServiceForAppServerProvider
-    ) {
+                  Provider<WebServiceForAppServerImpl> webServiceForAppServerProvider,
+                  WebServicesService webServicesService) {
         this.dataModel = dataModel;
         this.cronExpressionParser = cronExpressionParser;
         this.fileImportService = fileImportService;
@@ -91,6 +93,7 @@ public class AppServerImpl implements AppServer {
         this.transactionService = transactionService;
         this.threadPrincipalService = threadPrincipalService;
         this.webServiceForAppServerProvider = webServiceForAppServerProvider;
+        this.webServicesService = webServicesService;
     }
 
     static AppServerImpl from(DataModel dataModel, String name, CronExpression scheduleFrequency) {
@@ -270,6 +273,9 @@ public class AppServerImpl implements AppServer {
         Objects.nonNull(endPointConfiguration);
         WebServiceForAppServerImpl link = webServiceForAppServerProvider.get().init(this, endPointConfiguration);
         link.save();
+        if (endPointConfiguration.isActive()) {
+            webServicesService.publishEndPoint(endPointConfiguration);
+        }
     }
 
     @Override
@@ -283,6 +289,9 @@ public class AppServerImpl implements AppServer {
                                         .isEqualTo(this)));
         if (!links.isEmpty()) {
             dataModel.mapper(WebServiceForAppServer.class).remove(links.get(0)); // there can only be one anyway
+        }
+        if (endPointConfiguration.isActive()) {
+            webServicesService.removeEndPoint(endPointConfiguration);
         }
     }
 

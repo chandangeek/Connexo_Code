@@ -19,6 +19,7 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.cron.CronExpressionParser;
+import com.elster.jupiter.util.gogo.MysqlPrint;
 import com.elster.jupiter.util.streams.Functions;
 
 import org.osgi.service.component.annotations.Component;
@@ -30,12 +31,15 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toList;
 
 @Component(name = "com.elster.jupiter.appserver.console", service = {AppServiceConsoleService.class},
         property = {"name=" + "APS" + ".console",
@@ -63,6 +67,7 @@ import java.util.stream.Stream;
                 "osgi.command.function=report",
                 "osgi.command.function=setLogLevel",
                 "osgi.command.function=supportEndPoint",
+                "osgi.command.function=dropEndPointSupport",
                 "osgi.command.function=supportedEndPoints"
         }, immediate = true)
 public class AppServiceConsoleService {
@@ -404,14 +409,40 @@ public class AppServiceConsoleService {
         }
     }
 
+    public void dropEndPointSupport(String endPointConfigName) {
+        threadPrincipalService.set(() -> "console");
+        try (TransactionContext context = transactionService.getContext()) {
+
+            Optional<AppServer> appServer = appService.getAppServer();
+            if (!appServer.isPresent()) {
+                System.err.println("You do not seem to be running an app server on this machine. Make sure you have configured and activated an app server. You might need to use 'appserver:become'.");
+                return;
+            }
+            Optional<EndPointConfiguration> endPointConfiguration = endPointConfigurationService.getEndPointConfiguration(endPointConfigName);
+            if (!endPointConfiguration.isPresent()) {
+                System.err.println("There is no end point configuration with that name");
+                return;
+            }
+            appServer.get().dropEndPointSupport(endPointConfiguration.get());
+            context.commit();
+        } finally {
+            threadPrincipalService.clear();
+        }
+    }
+
     public void supportedEndPoints() {
         Optional<AppServer> appServer = appService.getAppServer();
         if (!appServer.isPresent()) {
             System.err.println("You do not seem to be running an app server on this machine.");
             return;
         }
-
-        appServer.get().supportedEndPoints().stream().map(EndPointConfiguration::getName).forEach(System.out::println);
+        MysqlPrint mysqlPrint = new MysqlPrint();
+        List<List<?>> table = appServer.get()
+                .supportedEndPoints()
+                .stream()
+                .map(epc -> Arrays.asList(epc.getName(), webServicesService.isPublished(epc)))
+                .collect(toList());
+        mysqlPrint.printTableWithHeader(Arrays.asList("Name", "Published"), table);
     }
 
     private void printSubscriberExecutionSpecs(Stream<AppServer> appServerStream) {
