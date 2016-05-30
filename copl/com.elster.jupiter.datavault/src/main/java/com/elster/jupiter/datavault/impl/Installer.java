@@ -23,13 +23,8 @@ class Installer implements FullInstaller {
     }
 
     @Override
-    public void install(DataModelUpgrader dataModelUpgrader) {
-        try {
-            dataModelUpgrader.upgrade(dataModel, Version.latest());
-        }
-        catch (Exception e) {
-            logger.log(Level.SEVERE, e.getMessage(), e);
-        }
+    public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
+        dataModelUpgrader.upgrade(dataModel, Version.latest());
         if (dataModel.mapper(OrmKeyStoreImpl.class).find().isEmpty()) {
             generateKeyStore();
         }
@@ -42,6 +37,7 @@ class Installer implements FullInstaller {
             OrmKeyStoreImpl instance = dataModel.getInstance(OrmKeyStoreImpl.class);
             instance.setKeyStore(byteArrayOutputStream);
             instance.save();
+            logger.log(Level.INFO, "Created Key Store");
         } catch (IOException e) {
             throw dataModel.getInstance(ExceptionFactory.class).newException(MessageSeeds.KEYSTORE_CREATION_FAILED);
         }
