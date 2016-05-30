@@ -4,7 +4,7 @@ import com.elster.jupiter.rest.util.properties.PropertyInfo;
 
 import java.util.List;
 
-public class DeviceAccessLevelInfo extends LinkInfo {
+public class DeviceAccessLevelInfo extends LinkInfo<Long> {
     public String name;
     public List<PropertyInfo> properties;
 }

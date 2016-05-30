@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * Created by bvn on 10/28/15.
  */
-public class DeviceMessageSpecificationInfo extends LinkInfo {
+public class DeviceMessageSpecificationInfo extends LinkInfo<Long> {
     public String name;
     public String deviceMessageId;
     public List<PropertyInfo> propertySpecs;

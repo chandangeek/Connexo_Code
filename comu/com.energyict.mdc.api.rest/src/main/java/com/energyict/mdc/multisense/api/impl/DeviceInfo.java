@@ -8,7 +8,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.List;
 
 @XmlRootElement
-public class DeviceInfo extends LinkInfo {
+public class DeviceInfo extends LinkInfo<Long> {
     @NotNull
     public String mRID;
     public String serialNumber;

@@ -2,7 +2,7 @@ package com.energyict.mdc.multisense.api.impl;
 
 import java.util.List;
 
-public class DeviceProtocolPluggableClassInfo extends LinkInfo {
+public class DeviceProtocolPluggableClassInfo extends LinkInfo<Long> {
     public String name;
     public String version;
     public String javaClassName;
