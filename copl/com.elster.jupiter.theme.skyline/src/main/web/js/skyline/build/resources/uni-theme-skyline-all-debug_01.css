@@ -23370,15 +23370,16 @@ a.x-color-picker-item:hover {
 /* including package uni-theme-skyline */
 @font-face {
   font-family: 'icomoon';
-  src: url("fonts/icomoon/fonts/icomoon.eot?-6g0ktj");
-  src: url("fonts/icomoon/fonts/icomoon.eot?#iefix-6g0ktj") format("embedded-opentype"), url("fonts/icomoon/fonts/icomoon.woff?-6g0ktj") format("woff"), url("fonts/icomoon/fonts/icomoon.ttf?-6g0ktj") format("truetype"), url("fonts/icomoon/fonts/icomoon.svg?-6g0ktj#icomoon") format("svg");
+  src: url("fonts/icomoon/fonts/icomoon.eot?swz8dw");
+  src: url("fonts/icomoon/fonts/icomoon.eot?#iefix-swz8dw") format("embedded-opentype"), url("fonts/icomoon/fonts/icomoon.woff?swz8dw") format("woff"), url("fonts/icomoon/fonts/icomoon.ttf?swz8dw") format("truetype"), url("fonts/icomoon/fonts/icomoon.svg?swz8dw#icomoon") format("svg");
   font-weight: normal;
   font-style: normal;
 }
 
 /* line 14, ../../sass/src/fonts/Icomoon.scss */
 [class^="icon-"], [class*=" icon-"] {
-  font-family: 'icomoon';
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'icomoon' !important;
   speak: none;
   font-style: normal;
   font-weight: normal;
@@ -23390,1027 +23391,1027 @@ a.x-color-picker-item:hover {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* line 28, ../../sass/src/fonts/Icomoon.scss */
+/* line 29, ../../sass/src/fonts/Icomoon.scss */
 .icon-home:before {
-  content: "\e000";
+  content: "\e900";
 }
 
 /* line 32, ../../sass/src/fonts/Icomoon.scss */
 .icon-home2:before {
-  content: "\e001";
+  content: "\e901";
 }
 
-/* line 36, ../../sass/src/fonts/Icomoon.scss */
+/* line 35, ../../sass/src/fonts/Icomoon.scss */
 .icon-home3:before {
-  content: "\e002";
+  content: "\e902";
 }
 
-/* line 40, ../../sass/src/fonts/Icomoon.scss */
+/* line 38, ../../sass/src/fonts/Icomoon.scss */
 .icon-home4:before {
-  content: "\e003";
+  content: "\e903";
+}
+
+/* line 41, ../../sass/src/fonts/Icomoon.scss */
+.icon-home5:before {
+  content: "\e904";
 }
 
 /* line 44, ../../sass/src/fonts/Icomoon.scss */
-.icon-home5:before {
-  content: "\e004";
-}
-
-/* line 48, ../../sass/src/fonts/Icomoon.scss */
 .icon-home6:before {
-  content: "\e005";
+  content: "\e905";
 }
 
-/* line 52, ../../sass/src/fonts/Icomoon.scss */
+/* line 47, ../../sass/src/fonts/Icomoon.scss */
 .icon-home7:before {
-  content: "\e006";
+  content: "\e906";
+}
+
+/* line 50, ../../sass/src/fonts/Icomoon.scss */
+.icon-home8:before {
+  content: "\e907";
+}
+
+/* line 53, ../../sass/src/fonts/Icomoon.scss */
+.icon-home9:before {
+  content: "\e908";
 }
 
 /* line 56, ../../sass/src/fonts/Icomoon.scss */
-.icon-home8:before {
-  content: "\e007";
+.icon-office:before {
+  content: "\e909";
 }
 
-/* line 60, ../../sass/src/fonts/Icomoon.scss */
-.icon-home9:before {
-  content: "\e008";
+/* line 59, ../../sass/src/fonts/Icomoon.scss */
+.icon-city:before {
+  content: "\e90a";
 }
 
-/* line 64, ../../sass/src/fonts/Icomoon.scss */
-.icon-home10:before {
-  content: "\e009";
+/* line 62, ../../sass/src/fonts/Icomoon.scss */
+.icon-newspaper:before {
+  content: "\e90b";
+}
+
+/* line 65, ../../sass/src/fonts/Icomoon.scss */
+.icon-magazine:before {
+  content: "\e90c";
 }
 
 /* line 68, ../../sass/src/fonts/Icomoon.scss */
-.icon-home11:before {
-  content: "\e00a";
+.icon-design:before {
+  content: "\e90d";
 }
 
-/* line 72, ../../sass/src/fonts/Icomoon.scss */
-.icon-office:before {
-  content: "\e00b";
+/* line 71, ../../sass/src/fonts/Icomoon.scss */
+.icon-pencil:before {
+  content: "\e90e";
 }
 
-/* line 76, ../../sass/src/fonts/Icomoon.scss */
-.icon-newspaper:before {
-  content: "\e00c";
+/* line 74, ../../sass/src/fonts/Icomoon.scss */
+.icon-pencil2:before {
+  content: "\e90f";
+}
+
+/* line 77, ../../sass/src/fonts/Icomoon.scss */
+.icon-pencil3:before {
+  content: "\e910";
 }
 
 /* line 80, ../../sass/src/fonts/Icomoon.scss */
-.icon-pencil:before {
-  content: "\e00d";
+.icon-pencil4:before {
+  content: "\e911";
 }
 
-/* line 84, ../../sass/src/fonts/Icomoon.scss */
-.icon-pencil2:before {
-  content: "\e00e";
+/* line 83, ../../sass/src/fonts/Icomoon.scss */
+.icon-pencil5:before {
+  content: "\e912";
 }
 
-/* line 88, ../../sass/src/fonts/Icomoon.scss */
-.icon-pencil3:before {
-  content: "\e00f";
+/* line 86, ../../sass/src/fonts/Icomoon.scss */
+.icon-pencil6:before {
+  content: "\e913";
+}
+
+/* line 89, ../../sass/src/fonts/Icomoon.scss */
+.icon-pencil7:before {
+  content: "\e914";
 }
 
 /* line 92, ../../sass/src/fonts/Icomoon.scss */
-.icon-pencil4:before {
-  content: "\e010";
+.icon-eraser:before {
+  content: "\e915";
 }
 
-/* line 96, ../../sass/src/fonts/Icomoon.scss */
-.icon-pencil5:before {
-  content: "\e011";
+/* line 95, ../../sass/src/fonts/Icomoon.scss */
+.icon-eraser2:before {
+  content: "\e916";
 }
 
-/* line 100, ../../sass/src/fonts/Icomoon.scss */
-.icon-pencil6:before {
-  content: "\e012";
+/* line 98, ../../sass/src/fonts/Icomoon.scss */
+.icon-eraser3:before {
+  content: "\e917";
+}
+
+/* line 101, ../../sass/src/fonts/Icomoon.scss */
+.icon-quill:before {
+  content: "\e918";
 }
 
 /* line 104, ../../sass/src/fonts/Icomoon.scss */
-.icon-quill:before {
-  content: "\e013";
-}
-
-/* line 108, ../../sass/src/fonts/Icomoon.scss */
 .icon-quill2:before {
-  content: "\e014";
+  content: "\e919";
 }
 
-/* line 112, ../../sass/src/fonts/Icomoon.scss */
+/* line 107, ../../sass/src/fonts/Icomoon.scss */
 .icon-quill3:before {
-  content: "\e015";
+  content: "\e91a";
+}
+
+/* line 110, ../../sass/src/fonts/Icomoon.scss */
+.icon-quill4:before {
+  content: "\e91b";
+}
+
+/* line 113, ../../sass/src/fonts/Icomoon.scss */
+.icon-pen:before {
+  content: "\e91c";
 }
 
 /* line 116, ../../sass/src/fonts/Icomoon.scss */
-.icon-pen:before {
-  content: "\e016";
+.icon-pen-plus:before {
+  content: "\e91d";
 }
 
-/* line 120, ../../sass/src/fonts/Icomoon.scss */
+/* line 119, ../../sass/src/fonts/Icomoon.scss */
+.icon-pen-minus:before {
+  content: "\e91e";
+}
+
+/* line 122, ../../sass/src/fonts/Icomoon.scss */
 .icon-pen2:before {
-  content: "\e017";
+  content: "\e91f";
 }
 
-/* line 124, ../../sass/src/fonts/Icomoon.scss */
+/* line 125, ../../sass/src/fonts/Icomoon.scss */
 .icon-pen3:before {
-  content: "\e018";
+  content: "\e920";
 }
 
 /* line 128, ../../sass/src/fonts/Icomoon.scss */
 .icon-pen4:before {
-  content: "\e019";
+  content: "\e921";
 }
 
-/* line 132, ../../sass/src/fonts/Icomoon.scss */
+/* line 131, ../../sass/src/fonts/Icomoon.scss */
 .icon-pen5:before {
-  content: "\e01a";
+  content: "\e922";
 }
 
-/* line 136, ../../sass/src/fonts/Icomoon.scss */
+/* line 134, ../../sass/src/fonts/Icomoon.scss */
 .icon-marker:before {
-  content: "\e01b";
+  content: "\e923";
+}
+
+/* line 137, ../../sass/src/fonts/Icomoon.scss */
+.icon-marker2:before {
+  content: "\e924";
 }
 
 /* line 140, ../../sass/src/fonts/Icomoon.scss */
-.icon-home12:before {
-  content: "\e01c";
-}
-
-/* line 144, ../../sass/src/fonts/Icomoon.scss */
-.icon-marker2:before {
-  content: "\e01d";
-}
-
-/* line 148, ../../sass/src/fonts/Icomoon.scss */
 .icon-blog:before {
-  content: "\e01e";
+  content: "\e925";
+}
+
+/* line 143, ../../sass/src/fonts/Icomoon.scss */
+.icon-blog2:before {
+  content: "\e926";
+}
+
+/* line 146, ../../sass/src/fonts/Icomoon.scss */
+.icon-pen6:before {
+  content: "\e927";
+}
+
+/* line 149, ../../sass/src/fonts/Icomoon.scss */
+.icon-brush:before {
+  content: "\e928";
 }
 
 /* line 152, ../../sass/src/fonts/Icomoon.scss */
-.icon-blog2:before {
-  content: "\e01f";
+.icon-spray:before {
+  content: "\e929";
 }
 
-/* line 156, ../../sass/src/fonts/Icomoon.scss */
-.icon-brush:before {
-  content: "\e020";
-}
-
-/* line 160, ../../sass/src/fonts/Icomoon.scss */
+/* line 155, ../../sass/src/fonts/Icomoon.scss */
 .icon-palette:before {
-  content: "\e021";
+  content: "\e92a";
+}
+
+/* line 158, ../../sass/src/fonts/Icomoon.scss */
+.icon-palette2:before {
+  content: "\e92b";
+}
+
+/* line 161, ../../sass/src/fonts/Icomoon.scss */
+.icon-color-sampler:before {
+  content: "\e92c";
 }
 
 /* line 164, ../../sass/src/fonts/Icomoon.scss */
-.icon-palette2:before {
-  content: "\e022";
+.icon-toggle:before {
+  content: "\e92d";
 }
 
-/* line 168, ../../sass/src/fonts/Icomoon.scss */
-.icon-eyedropper:before {
-  content: "\e023";
+/* line 167, ../../sass/src/fonts/Icomoon.scss */
+.icon-bucket:before {
+  content: "\e92e";
 }
 
-/* line 172, ../../sass/src/fonts/Icomoon.scss */
-.icon-eyedropper2:before {
-  content: "\e024";
+/* line 170, ../../sass/src/fonts/Icomoon.scss */
+.icon-bucket2:before {
+  content: "\e92f";
+}
+
+/* line 173, ../../sass/src/fonts/Icomoon.scss */
+.icon-gradient:before {
+  content: "\e930";
 }
 
 /* line 176, ../../sass/src/fonts/Icomoon.scss */
+.icon-eyedropper:before {
+  content: "\e931";
+}
+
+/* line 179, ../../sass/src/fonts/Icomoon.scss */
+.icon-eyedropper2:before {
+  content: "\e932";
+}
+
+/* line 182, ../../sass/src/fonts/Icomoon.scss */
+.icon-eyedropper3:before {
+  content: "\e933";
+}
+
+/* line 185, ../../sass/src/fonts/Icomoon.scss */
 .icon-droplet:before {
-  content: "\e025";
-}
-
-/* line 180, ../../sass/src/fonts/Icomoon.scss */
-.icon-droplet2:before {
-  content: "\e026";
-}
-
-/* line 184, ../../sass/src/fonts/Icomoon.scss */
-.icon-droplet3:before {
-  content: "\e027";
+  content: "\e934";
 }
 
 /* line 188, ../../sass/src/fonts/Icomoon.scss */
-.icon-droplet4:before {
-  content: "\e028";
+.icon-droplet2:before {
+  content: "\e935";
 }
 
-/* line 192, ../../sass/src/fonts/Icomoon.scss */
+/* line 191, ../../sass/src/fonts/Icomoon.scss */
+.icon-droplet-contrast:before {
+  content: "\e936";
+}
+
+/* line 194, ../../sass/src/fonts/Icomoon.scss */
+.icon-color-clear:before {
+  content: "\e937";
+}
+
+/* line 197, ../../sass/src/fonts/Icomoon.scss */
 .icon-paint-format:before {
-  content: "\e029";
-}
-
-/* line 196, ../../sass/src/fonts/Icomoon.scss */
-.icon-paint-format2:before {
-  content: "\e02a";
+  content: "\e938";
 }
 
 /* line 200, ../../sass/src/fonts/Icomoon.scss */
+.icon-stamp:before {
+  content: "\e939";
+}
+
+/* line 203, ../../sass/src/fonts/Icomoon.scss */
+.icon-images:before {
+  content: "\e93a";
+}
+
+/* line 206, ../../sass/src/fonts/Icomoon.scss */
 .icon-image:before {
-  content: "\e02b";
+  content: "\e93b";
 }
 
-/* line 204, ../../sass/src/fonts/Icomoon.scss */
+/* line 209, ../../sass/src/fonts/Icomoon.scss */
 .icon-image2:before {
-  content: "\e02c";
-}
-
-/* line 208, ../../sass/src/fonts/Icomoon.scss */
-.icon-image3:before {
-  content: "\e02d";
+  content: "\e93c";
 }
 
 /* line 212, ../../sass/src/fonts/Icomoon.scss */
-.icon-images:before {
-  content: "\e02e";
+.icon-image-compare:before {
+  content: "\e93d";
 }
 
-/* line 216, ../../sass/src/fonts/Icomoon.scss */
-.icon-image4:before {
-  content: "\e02f";
+/* line 215, ../../sass/src/fonts/Icomoon.scss */
+.icon-images2:before {
+  content: "\e93e";
 }
 
-/* line 220, ../../sass/src/fonts/Icomoon.scss */
-.icon-image5:before {
-  content: "\e030";
+/* line 218, ../../sass/src/fonts/Icomoon.scss */
+.icon-image3:before {
+  content: "\e93f";
+}
+
+/* line 221, ../../sass/src/fonts/Icomoon.scss */
+.icon-images3:before {
+  content: "\e940";
 }
 
 /* line 224, ../../sass/src/fonts/Icomoon.scss */
+.icon-image4:before {
+  content: "\e941";
+}
+
+/* line 227, ../../sass/src/fonts/Icomoon.scss */
+.icon-image5:before {
+  content: "\e942";
+}
+
+/* line 230, ../../sass/src/fonts/Icomoon.scss */
 .icon-image6:before {
-  content: "\e031";
+  content: "\e943";
 }
 
-/* line 228, ../../sass/src/fonts/Icomoon.scss */
-.icon-images2:before {
-  content: "\e032";
-}
-
-/* line 232, ../../sass/src/fonts/Icomoon.scss */
-.icon-image7:before {
-  content: "\e033";
+/* line 233, ../../sass/src/fonts/Icomoon.scss */
+.icon-camera:before {
+  content: "\e944";
 }
 
 /* line 236, ../../sass/src/fonts/Icomoon.scss */
-.icon-camera:before {
-  content: "\e034";
-}
-
-/* line 240, ../../sass/src/fonts/Icomoon.scss */
 .icon-camera2:before {
-  content: "\e035";
+  content: "\e945";
 }
 
-/* line 244, ../../sass/src/fonts/Icomoon.scss */
+/* line 239, ../../sass/src/fonts/Icomoon.scss */
 .icon-camera3:before {
-  content: "\e036";
+  content: "\e946";
+}
+
+/* line 242, ../../sass/src/fonts/Icomoon.scss */
+.icon-shutter:before {
+  content: "\e947";
+}
+
+/* line 245, ../../sass/src/fonts/Icomoon.scss */
+.icon-headphones:before {
+  content: "\e948";
 }
 
 /* line 248, ../../sass/src/fonts/Icomoon.scss */
-.icon-camera4:before {
-  content: "\e037";
+.icon-headset:before {
+  content: "\e949";
 }
 
-/* line 252, ../../sass/src/fonts/Icomoon.scss */
+/* line 251, ../../sass/src/fonts/Icomoon.scss */
 .icon-music:before {
-  content: "\e038";
+  content: "\e94a";
 }
 
-/* line 256, ../../sass/src/fonts/Icomoon.scss */
+/* line 254, ../../sass/src/fonts/Icomoon.scss */
 .icon-music2:before {
-  content: "\e039";
+  content: "\e94b";
+}
+
+/* line 257, ../../sass/src/fonts/Icomoon.scss */
+.icon-music3:before {
+  content: "\e94c";
 }
 
 /* line 260, ../../sass/src/fonts/Icomoon.scss */
-.icon-music3:before {
-  content: "\e03a";
-}
-
-/* line 264, ../../sass/src/fonts/Icomoon.scss */
 .icon-music4:before {
-  content: "\e03b";
+  content: "\e94d";
 }
 
-/* line 268, ../../sass/src/fonts/Icomoon.scss */
+/* line 263, ../../sass/src/fonts/Icomoon.scss */
 .icon-music5:before {
-  content: "\e03c";
+  content: "\e94e";
+}
+
+/* line 266, ../../sass/src/fonts/Icomoon.scss */
+.icon-music6:before {
+  content: "\e94f";
+}
+
+/* line 269, ../../sass/src/fonts/Icomoon.scss */
+.icon-album:before {
+  content: "\e950";
 }
 
 /* line 272, ../../sass/src/fonts/Icomoon.scss */
-.icon-music6:before {
-  content: "\e03d";
+.icon-cassette:before {
+  content: "\e951";
 }
 
-/* line 276, ../../sass/src/fonts/Icomoon.scss */
+/* line 275, ../../sass/src/fonts/Icomoon.scss */
+.icon-tape:before {
+  content: "\e952";
+}
+
+/* line 278, ../../sass/src/fonts/Icomoon.scss */
 .icon-piano:before {
-  content: "\e03e";
+  content: "\e953";
 }
 
-/* line 280, ../../sass/src/fonts/Icomoon.scss */
+/* line 281, ../../sass/src/fonts/Icomoon.scss */
 .icon-guitar:before {
-  content: "\e03f";
+  content: "\e954";
 }
 
 /* line 284, ../../sass/src/fonts/Icomoon.scss */
-.icon-headphones:before {
-  content: "\e040";
+.icon-trumpet:before {
+  content: "\e955";
 }
 
-/* line 288, ../../sass/src/fonts/Icomoon.scss */
-.icon-headphones2:before {
-  content: "\e041";
+/* line 287, ../../sass/src/fonts/Icomoon.scss */
+.icon-speakers:before {
+  content: "\e956";
 }
 
-/* line 292, ../../sass/src/fonts/Icomoon.scss */
+/* line 290, ../../sass/src/fonts/Icomoon.scss */
 .icon-play:before {
-  content: "\e042";
+  content: "\e957";
+}
+
+/* line 293, ../../sass/src/fonts/Icomoon.scss */
+.icon-play2:before {
+  content: "\e958";
 }
 
 /* line 296, ../../sass/src/fonts/Icomoon.scss */
-.icon-play2:before {
-  content: "\e043";
+.icon-clapboard-play:before {
+  content: "\e959";
 }
 
-/* line 300, ../../sass/src/fonts/Icomoon.scss */
-.icon-movie:before {
-  content: "\e044";
+/* line 299, ../../sass/src/fonts/Icomoon.scss */
+.icon-clapboard:before {
+  content: "\e95a";
 }
 
-/* line 304, ../../sass/src/fonts/Icomoon.scss */
-.icon-movie2:before {
-  content: "\e045";
+/* line 302, ../../sass/src/fonts/Icomoon.scss */
+.icon-media:before {
+  content: "\e95b";
+}
+
+/* line 305, ../../sass/src/fonts/Icomoon.scss */
+.icon-presentation:before {
+  content: "\e95c";
 }
 
 /* line 308, ../../sass/src/fonts/Icomoon.scss */
-.icon-movie3:before {
-  content: "\e046";
+.icon-movie:before {
+  content: "\e95d";
 }
 
-/* line 312, ../../sass/src/fonts/Icomoon.scss */
+/* line 311, ../../sass/src/fonts/Icomoon.scss */
 .icon-film:before {
-  content: "\e047";
+  content: "\e95e";
 }
 
-/* line 316, ../../sass/src/fonts/Icomoon.scss */
+/* line 314, ../../sass/src/fonts/Icomoon.scss */
 .icon-film2:before {
-  content: "\e048";
+  content: "\e95f";
+}
+
+/* line 317, ../../sass/src/fonts/Icomoon.scss */
+.icon-film3:before {
+  content: "\e960";
 }
 
 /* line 320, ../../sass/src/fonts/Icomoon.scss */
-.icon-film3:before {
-  content: "\e049";
-}
-
-/* line 324, ../../sass/src/fonts/Icomoon.scss */
 .icon-film4:before {
-  content: "\e04a";
+  content: "\e961";
 }
 
-/* line 328, ../../sass/src/fonts/Icomoon.scss */
-.icon-camera5:before {
-  content: "\e04b";
+/* line 323, ../../sass/src/fonts/Icomoon.scss */
+.icon-video-camera:before {
+  content: "\e962";
+}
+
+/* line 326, ../../sass/src/fonts/Icomoon.scss */
+.icon-video-camera2:before {
+  content: "\e963";
+}
+
+/* line 329, ../../sass/src/fonts/Icomoon.scss */
+.icon-video-camera-slash:before {
+  content: "\e964";
 }
 
 /* line 332, ../../sass/src/fonts/Icomoon.scss */
-.icon-camera6:before {
-  content: "\e04c";
+.icon-video-camera3:before {
+  content: "\e965";
 }
 
-/* line 336, ../../sass/src/fonts/Icomoon.scss */
-.icon-camera7:before {
-  content: "\e04d";
+/* line 335, ../../sass/src/fonts/Icomoon.scss */
+.icon-video-camera4:before {
+  content: "\e966";
 }
 
-/* line 340, ../../sass/src/fonts/Icomoon.scss */
-.icon-camera8:before {
-  content: "\e04e";
+/* line 338, ../../sass/src/fonts/Icomoon.scss */
+.icon-video-camera-slash2:before {
+  content: "\e967";
+}
+
+/* line 341, ../../sass/src/fonts/Icomoon.scss */
+.icon-video-camera5:before {
+  content: "\e968";
 }
 
 /* line 344, ../../sass/src/fonts/Icomoon.scss */
-.icon-camera9:before {
-  content: "\e04f";
+.icon-recording:before {
+  content: "\e969";
 }
 
-/* line 348, ../../sass/src/fonts/Icomoon.scss */
+/* line 347, ../../sass/src/fonts/Icomoon.scss */
 .icon-dice:before {
-  content: "\e050";
+  content: "\e96a";
 }
 
-/* line 352, ../../sass/src/fonts/Icomoon.scss */
+/* line 350, ../../sass/src/fonts/Icomoon.scss */
 .icon-gamepad:before {
-  content: "\e051";
+  content: "\e96b";
+}
+
+/* line 353, ../../sass/src/fonts/Icomoon.scss */
+.icon-gamepad2:before {
+  content: "\e96c";
 }
 
 /* line 356, ../../sass/src/fonts/Icomoon.scss */
-.icon-gamepad2:before {
-  content: "\e052";
-}
-
-/* line 360, ../../sass/src/fonts/Icomoon.scss */
 .icon-gamepad3:before {
-  content: "\e053";
+  content: "\e96d";
 }
 
-/* line 364, ../../sass/src/fonts/Icomoon.scss */
+/* line 359, ../../sass/src/fonts/Icomoon.scss */
 .icon-pacman:before {
-  content: "\e054";
+  content: "\e96e";
+}
+
+/* line 362, ../../sass/src/fonts/Icomoon.scss */
+.icon-spades:before {
+  content: "\e96f";
+}
+
+/* line 365, ../../sass/src/fonts/Icomoon.scss */
+.icon-clubs:before {
+  content: "\e970";
 }
 
 /* line 368, ../../sass/src/fonts/Icomoon.scss */
-.icon-spades:before {
-  content: "\e055";
-}
-
-/* line 372, ../../sass/src/fonts/Icomoon.scss */
-.icon-clubs:before {
-  content: "\e056";
-}
-
-/* line 376, ../../sass/src/fonts/Icomoon.scss */
 .icon-diamonds:before {
-  content: "\e057";
+  content: "\e971";
+}
+
+/* line 371, ../../sass/src/fonts/Icomoon.scss */
+.icon-chess-king:before {
+  content: "\e972";
+}
+
+/* line 374, ../../sass/src/fonts/Icomoon.scss */
+.icon-chess-queen:before {
+  content: "\e973";
+}
+
+/* line 377, ../../sass/src/fonts/Icomoon.scss */
+.icon-chess-rook:before {
+  content: "\e974";
 }
 
 /* line 380, ../../sass/src/fonts/Icomoon.scss */
-.icon-king:before {
-  content: "\e058";
+.icon-chess-bishop:before {
+  content: "\e975";
 }
 
-/* line 384, ../../sass/src/fonts/Icomoon.scss */
-.icon-queen:before {
-  content: "\e059";
+/* line 383, ../../sass/src/fonts/Icomoon.scss */
+.icon-chess-knight:before {
+  content: "\e976";
 }
 
-/* line 388, ../../sass/src/fonts/Icomoon.scss */
-.icon-rock:before {
-  content: "\e05a";
+/* line 386, ../../sass/src/fonts/Icomoon.scss */
+.icon-chess-pawn:before {
+  content: "\e977";
+}
+
+/* line 389, ../../sass/src/fonts/Icomoon.scss */
+.icon-chess:before {
+  content: "\e978";
 }
 
 /* line 392, ../../sass/src/fonts/Icomoon.scss */
-.icon-bishop:before {
-  content: "\e05b";
+.icon-bullhorn:before {
+  content: "\e979";
 }
 
-/* line 396, ../../sass/src/fonts/Icomoon.scss */
-.icon-knight:before {
-  content: "\e05c";
+/* line 395, ../../sass/src/fonts/Icomoon.scss */
+.icon-megaphone:before {
+  content: "\e97a";
 }
 
-/* line 400, ../../sass/src/fonts/Icomoon.scss */
-.icon-pawn:before {
-  content: "\e05d";
+/* line 398, ../../sass/src/fonts/Icomoon.scss */
+.icon-new:before {
+  content: "\e97b";
+}
+
+/* line 401, ../../sass/src/fonts/Icomoon.scss */
+.icon-connection:before {
+  content: "\e97c";
 }
 
 /* line 404, ../../sass/src/fonts/Icomoon.scss */
-.icon-chess:before {
-  content: "\e05e";
+.icon-connection2:before {
+  content: "\e97d";
 }
 
-/* line 408, ../../sass/src/fonts/Icomoon.scss */
-.icon-bullhorn:before {
-  content: "\e05f";
+/* line 407, ../../sass/src/fonts/Icomoon.scss */
+.icon-connection3:before {
+  content: "\e97e";
 }
 
-/* line 412, ../../sass/src/fonts/Icomoon.scss */
-.icon-megaphone:before {
-  content: "\e060";
+/* line 410, ../../sass/src/fonts/Icomoon.scss */
+.icon-connection4:before {
+  content: "\e97f";
+}
+
+/* line 413, ../../sass/src/fonts/Icomoon.scss */
+.icon-podcast:before {
+  content: "\e980";
 }
 
 /* line 416, ../../sass/src/fonts/Icomoon.scss */
-.icon-new:before {
-  content: "\e061";
+.icon-station:before {
+  content: "\e981";
 }
 
-/* line 420, ../../sass/src/fonts/Icomoon.scss */
-.icon-connection:before {
-  content: "\e062";
+/* line 419, ../../sass/src/fonts/Icomoon.scss */
+.icon-station2:before {
+  content: "\e982";
 }
 
-/* line 424, ../../sass/src/fonts/Icomoon.scss */
-.icon-connection2:before {
-  content: "\e063";
+/* line 422, ../../sass/src/fonts/Icomoon.scss */
+.icon-antenna:before {
+  content: "\e983";
+}
+
+/* line 425, ../../sass/src/fonts/Icomoon.scss */
+.icon-satellite-dish:before {
+  content: "\e984";
 }
 
 /* line 428, ../../sass/src/fonts/Icomoon.scss */
-.icon-podcast:before {
-  content: "\e064";
+.icon-satellite-dish2:before {
+  content: "\e985";
 }
 
-/* line 432, ../../sass/src/fonts/Icomoon.scss */
-.icon-radio:before {
-  content: "\e065";
-}
-
-/* line 436, ../../sass/src/fonts/Icomoon.scss */
+/* line 431, ../../sass/src/fonts/Icomoon.scss */
 .icon-feed:before {
-  content: "\e066";
+  content: "\e986";
+}
+
+/* line 434, ../../sass/src/fonts/Icomoon.scss */
+.icon-podcast2:before {
+  content: "\e987";
+}
+
+/* line 437, ../../sass/src/fonts/Icomoon.scss */
+.icon-antenna2:before {
+  content: "\e988";
 }
 
 /* line 440, ../../sass/src/fonts/Icomoon.scss */
-.icon-connection3:before {
-  content: "\e067";
+.icon-mic:before {
+  content: "\e989";
 }
 
-/* line 444, ../../sass/src/fonts/Icomoon.scss */
-.icon-radio2:before {
-  content: "\e068";
+/* line 443, ../../sass/src/fonts/Icomoon.scss */
+.icon-mic-off:before {
+  content: "\e98a";
 }
 
-/* line 448, ../../sass/src/fonts/Icomoon.scss */
-.icon-podcast2:before {
-  content: "\e069";
+/* line 446, ../../sass/src/fonts/Icomoon.scss */
+.icon-mic2:before {
+  content: "\e98b";
+}
+
+/* line 449, ../../sass/src/fonts/Icomoon.scss */
+.icon-mic-off2:before {
+  content: "\e98c";
 }
 
 /* line 452, ../../sass/src/fonts/Icomoon.scss */
-.icon-podcast3:before {
-  content: "\e06a";
+.icon-mic3:before {
+  content: "\e98d";
 }
 
-/* line 456, ../../sass/src/fonts/Icomoon.scss */
-.icon-mic:before {
-  content: "\e06b";
+/* line 455, ../../sass/src/fonts/Icomoon.scss */
+.icon-mic4:before {
+  content: "\e98e";
 }
 
-/* line 460, ../../sass/src/fonts/Icomoon.scss */
-.icon-mic2:before {
-  content: "\e06c";
+/* line 458, ../../sass/src/fonts/Icomoon.scss */
+.icon-mic5:before {
+  content: "\e98f";
+}
+
+/* line 461, ../../sass/src/fonts/Icomoon.scss */
+.icon-book:before {
+  content: "\e990";
 }
 
 /* line 464, ../../sass/src/fonts/Icomoon.scss */
-.icon-mic3:before {
-  content: "\e06d";
+.icon-book2:before {
+  content: "\e991";
 }
 
-/* line 468, ../../sass/src/fonts/Icomoon.scss */
-.icon-mic4:before {
-  content: "\e06e";
+/* line 467, ../../sass/src/fonts/Icomoon.scss */
+.icon-book-play:before {
+  content: "\e992";
 }
 
-/* line 472, ../../sass/src/fonts/Icomoon.scss */
-.icon-mic5:before {
-  content: "\e06f";
+/* line 470, ../../sass/src/fonts/Icomoon.scss */
+.icon-book3:before {
+  content: "\e993";
+}
+
+/* line 473, ../../sass/src/fonts/Icomoon.scss */
+.icon-bookmark:before {
+  content: "\e994";
 }
 
 /* line 476, ../../sass/src/fonts/Icomoon.scss */
-.icon-book:before {
-  content: "\e070";
-}
-
-/* line 480, ../../sass/src/fonts/Icomoon.scss */
-.icon-book2:before {
-  content: "\e071";
-}
-
-/* line 484, ../../sass/src/fonts/Icomoon.scss */
 .icon-books:before {
-  content: "\e072";
+  content: "\e995";
+}
+
+/* line 479, ../../sass/src/fonts/Icomoon.scss */
+.icon-archive:before {
+  content: "\e996";
+}
+
+/* line 482, ../../sass/src/fonts/Icomoon.scss */
+.icon-reading:before {
+  content: "\e997";
+}
+
+/* line 485, ../../sass/src/fonts/Icomoon.scss */
+.icon-library:before {
+  content: "\e998";
 }
 
 /* line 488, ../../sass/src/fonts/Icomoon.scss */
-.icon-reading:before {
-  content: "\e073";
-}
-
-/* line 492, ../../sass/src/fonts/Icomoon.scss */
-.icon-library:before {
-  content: "\e074";
-}
-
-/* line 496, ../../sass/src/fonts/Icomoon.scss */
 .icon-library2:before {
-  content: "\e075";
+  content: "\e999";
+}
+
+/* line 491, ../../sass/src/fonts/Icomoon.scss */
+.icon-graduation:before {
+  content: "\e99a";
+}
+
+/* line 494, ../../sass/src/fonts/Icomoon.scss */
+.icon-file-text:before {
+  content: "\e99b";
+}
+
+/* line 497, ../../sass/src/fonts/Icomoon.scss */
+.icon-profile:before {
+  content: "\e99c";
 }
 
 /* line 500, ../../sass/src/fonts/Icomoon.scss */
-.icon-graduation:before {
-  content: "\e076";
+.icon-file-empty:before {
+  content: "\e99d";
 }
 
-/* line 504, ../../sass/src/fonts/Icomoon.scss */
-.icon-file:before {
-  content: "\e077";
+/* line 503, ../../sass/src/fonts/Icomoon.scss */
+.icon-file-empty2:before {
+  content: "\e99e";
 }
 
-/* line 508, ../../sass/src/fonts/Icomoon.scss */
-.icon-profile:before {
-  content: "\e078";
+/* line 506, ../../sass/src/fonts/Icomoon.scss */
+.icon-files-empty:before {
+  content: "\e99f";
+}
+
+/* line 509, ../../sass/src/fonts/Icomoon.scss */
+.icon-files-empty2:before {
+  content: "\e9a0";
 }
 
 /* line 512, ../../sass/src/fonts/Icomoon.scss */
-.icon-file2:before {
-  content: "\e079";
+.icon-file-plus:before {
+  content: "\e9a1";
 }
 
-/* line 516, ../../sass/src/fonts/Icomoon.scss */
-.icon-file3:before {
-  content: "\e07a";
+/* line 515, ../../sass/src/fonts/Icomoon.scss */
+.icon-file-plus2:before {
+  content: "\e9a2";
 }
 
-/* line 520, ../../sass/src/fonts/Icomoon.scss */
-.icon-file4:before {
-  content: "\e07b";
+/* line 518, ../../sass/src/fonts/Icomoon.scss */
+.icon-file-minus:before {
+  content: "\e9a3";
+}
+
+/* line 521, ../../sass/src/fonts/Icomoon.scss */
+.icon-file-minus2:before {
+  content: "\e9a4";
 }
 
 /* line 524, ../../sass/src/fonts/Icomoon.scss */
-.icon-file5:before {
-  content: "\e07c";
+.icon-file-download:before {
+  content: "\e9a5";
 }
 
-/* line 528, ../../sass/src/fonts/Icomoon.scss */
-.icon-file6:before {
-  content: "\e07d";
+/* line 527, ../../sass/src/fonts/Icomoon.scss */
+.icon-file-download2:before {
+  content: "\e9a6";
 }
 
-/* line 532, ../../sass/src/fonts/Icomoon.scss */
-.icon-files:before {
-  content: "\e07e";
+/* line 530, ../../sass/src/fonts/Icomoon.scss */
+.icon-file-upload:before {
+  content: "\e9a7";
+}
+
+/* line 533, ../../sass/src/fonts/Icomoon.scss */
+.icon-file-upload2:before {
+  content: "\e9a8";
 }
 
 /* line 536, ../../sass/src/fonts/Icomoon.scss */
-.icon-file-plus:before {
-  content: "\e07f";
+.icon-file-check:before {
+  content: "\e9a9";
 }
 
-/* line 540, ../../sass/src/fonts/Icomoon.scss */
-.icon-file-minus:before {
-  content: "\e080";
+/* line 539, ../../sass/src/fonts/Icomoon.scss */
+.icon-file-check2:before {
+  content: "\e9aa";
 }
 
-/* line 544, ../../sass/src/fonts/Icomoon.scss */
-.icon-file-download:before {
-  content: "\e081";
+/* line 542, ../../sass/src/fonts/Icomoon.scss */
+.icon-file-eye:before {
+  content: "\e9ab";
+}
+
+/* line 545, ../../sass/src/fonts/Icomoon.scss */
+.icon-file-eye2:before {
+  content: "\e9ac";
 }
 
 /* line 548, ../../sass/src/fonts/Icomoon.scss */
-.icon-file-upload:before {
-  content: "\e082";
+.icon-file-text2:before {
+  content: "\e9ad";
 }
 
-/* line 552, ../../sass/src/fonts/Icomoon.scss */
-.icon-file-check:before {
-  content: "\e083";
+/* line 551, ../../sass/src/fonts/Icomoon.scss */
+.icon-file-text3:before {
+  content: "\e9ae";
 }
 
-/* line 556, ../../sass/src/fonts/Icomoon.scss */
-.icon-file-remove:before {
-  content: "\e084";
+/* line 554, ../../sass/src/fonts/Icomoon.scss */
+.icon-file-picture:before {
+  content: "\e9af";
+}
+
+/* line 557, ../../sass/src/fonts/Icomoon.scss */
+.icon-file-picture2:before {
+  content: "\e9b0";
 }
 
 /* line 560, ../../sass/src/fonts/Icomoon.scss */
-.icon-file7:before {
-  content: "\e085";
+.icon-file-music:before {
+  content: "\e9b1";
 }
 
-/* line 564, ../../sass/src/fonts/Icomoon.scss */
-.icon-file8:before {
-  content: "\e086";
+/* line 563, ../../sass/src/fonts/Icomoon.scss */
+.icon-file-music2:before {
+  content: "\e9b2";
 }
 
-/* line 568, ../../sass/src/fonts/Icomoon.scss */
-.icon-file-plus2:before {
-  content: "\e087";
+/* line 566, ../../sass/src/fonts/Icomoon.scss */
+.icon-file-play:before {
+  content: "\e9b3";
+}
+
+/* line 569, ../../sass/src/fonts/Icomoon.scss */
+.icon-file-play2:before {
+  content: "\e9b4";
 }
 
 /* line 572, ../../sass/src/fonts/Icomoon.scss */
-.icon-file-minus2:before {
-  content: "\e088";
+.icon-file-video:before {
+  content: "\e9b5";
 }
 
-/* line 576, ../../sass/src/fonts/Icomoon.scss */
-.icon-file-download2:before {
-  content: "\e089";
+/* line 575, ../../sass/src/fonts/Icomoon.scss */
+.icon-file-video2:before {
+  content: "\e9b6";
 }
 
-/* line 580, ../../sass/src/fonts/Icomoon.scss */
-.icon-file-upload2:before {
-  content: "\e08a";
+/* line 578, ../../sass/src/fonts/Icomoon.scss */
+.icon-copy:before {
+  content: "\e9b7";
+}
+
+/* line 581, ../../sass/src/fonts/Icomoon.scss */
+.icon-copy2:before {
+  content: "\e9b8";
 }
 
 /* line 584, ../../sass/src/fonts/Icomoon.scss */
-.icon-file-check2:before {
-  content: "\e08b";
+.icon-file-zip:before {
+  content: "\e9b9";
 }
 
-/* line 588, ../../sass/src/fonts/Icomoon.scss */
-.icon-file-remove2:before {
-  content: "\e08c";
+/* line 587, ../../sass/src/fonts/Icomoon.scss */
+.icon-file-zip2:before {
+  content: "\e9ba";
 }
 
-/* line 592, ../../sass/src/fonts/Icomoon.scss */
-.icon-file9:before {
-  content: "\e08d";
+/* line 590, ../../sass/src/fonts/Icomoon.scss */
+.icon-file-xml:before {
+  content: "\e9bb";
+}
+
+/* line 593, ../../sass/src/fonts/Icomoon.scss */
+.icon-file-xml2:before {
+  content: "\e9bc";
 }
 
 /* line 596, ../../sass/src/fonts/Icomoon.scss */
-.icon-copy:before {
-  content: "\e08e";
+.icon-file-css:before {
+  content: "\e9bd";
 }
 
-/* line 600, ../../sass/src/fonts/Icomoon.scss */
-.icon-copy2:before {
-  content: "\e08f";
+/* line 599, ../../sass/src/fonts/Icomoon.scss */
+.icon-file-css2:before {
+  content: "\e9be";
 }
 
-/* line 604, ../../sass/src/fonts/Icomoon.scss */
-.icon-copy3:before {
-  content: "\e090";
+/* line 602, ../../sass/src/fonts/Icomoon.scss */
+.icon-file-presentation:before {
+  content: "\e9bf";
+}
+
+/* line 605, ../../sass/src/fonts/Icomoon.scss */
+.icon-file-presentation2:before {
+  content: "\e9c0";
 }
 
 /* line 608, ../../sass/src/fonts/Icomoon.scss */
-.icon-copy4:before {
-  content: "\e091";
+.icon-file-stats:before {
+  content: "\e9c1";
 }
 
-/* line 612, ../../sass/src/fonts/Icomoon.scss */
-.icon-paste:before {
-  content: "\e092";
+/* line 611, ../../sass/src/fonts/Icomoon.scss */
+.icon-file-stats2:before {
+  content: "\e9c2";
 }
 
-/* line 616, ../../sass/src/fonts/Icomoon.scss */
-.icon-paste2:before {
-  content: "\e093";
+/* line 614, ../../sass/src/fonts/Icomoon.scss */
+.icon-file-locked:before {
+  content: "\e9c3";
+}
+
+/* line 617, ../../sass/src/fonts/Icomoon.scss */
+.icon-file-locked2:before {
+  content: "\e9c4";
 }
 
 /* line 620, ../../sass/src/fonts/Icomoon.scss */
-.icon-paste3:before {
-  content: "\e094";
+.icon-file-spreadsheet:before {
+  content: "\e9c5";
 }
 
-/* line 624, ../../sass/src/fonts/Icomoon.scss */
-.icon-stack:before {
-  content: "\e095";
+/* line 623, ../../sass/src/fonts/Icomoon.scss */
+.icon-file-spreadsheet2:before {
+  content: "\e9c6";
 }
 
-/* line 628, ../../sass/src/fonts/Icomoon.scss */
-.icon-stack2:before {
-  content: "\e096";
+/* line 626, ../../sass/src/fonts/Icomoon.scss */
+.icon-copy3:before {
+  content: "\e9c7";
+}
+
+/* line 629, ../../sass/src/fonts/Icomoon.scss */
+.icon-copy4:before {
+  content: "\e9c8";
 }
 
 /* line 632, ../../sass/src/fonts/Icomoon.scss */
-.icon-stack3:before {
-  content: "\e097";
+.icon-paste:before {
+  content: "\e9c9";
 }
 
-/* line 636, ../../sass/src/fonts/Icomoon.scss */
-.icon-folder:before {
-  content: "\e098";
+/* line 635, ../../sass/src/fonts/Icomoon.scss */
+.icon-paste2:before {
+  content: "\e9ca";
 }
 
-/* line 640, ../../sass/src/fonts/Icomoon.scss */
-.icon-folder-download:before {
-  content: "\e099";
+/* line 638, ../../sass/src/fonts/Icomoon.scss */
+.icon-paste3:before {
+  content: "\e9cb";
 }
 
-/* line 644, ../../sass/src/fonts/Icomoon.scss */
-.icon-folder-upload:before {
-  content: "\e09a";
-}
-
-/* line 648, ../../sass/src/fonts/Icomoon.scss */
-.icon-folder-plus:before {
-  content: "\e09b";
-}
-
-/* line 652, ../../sass/src/fonts/Icomoon.scss */
-.icon-folder-plus2:before {
-  content: "\e09c";
-}
-
-/* line 656, ../../sass/src/fonts/Icomoon.scss */
-.icon-folder-minus:before {
-  content: "\e09d";
-}
-
-/* line 660, ../../sass/src/fonts/Icomoon.scss */
-.icon-folder-minus2:before {
-  content: "\e09e";
-}
-
-/* line 664, ../../sass/src/fonts/Icomoon.scss */
-.icon-folder8:before {
-  content: "\e09f";
-}
-
-/* line 668, ../../sass/src/fonts/Icomoon.scss */
-.icon-folder-remove:before {
-  content: "\e0a0";
-}
-
-/* line 672, ../../sass/src/fonts/Icomoon.scss */
-.icon-folder2:before {
-  content: "\e0a1";
-}
-
-/* line 676, ../../sass/src/fonts/Icomoon.scss */
-.icon-folder-open:before {
-  content: "\e0a2";
-}
-
-/* line 680, ../../sass/src/fonts/Icomoon.scss */
-.icon-folder3:before {
-  content: "\e0a3";
-}
-
-/* line 684, ../../sass/src/fonts/Icomoon.scss */
-.icon-folder4:before {
-  content: "\e0a4";
-}
-
-/* line 688, ../../sass/src/fonts/Icomoon.scss */
-.icon-folder-plus3:before {
-  content: "\e0a5";
-}
-
-/* line 692, ../../sass/src/fonts/Icomoon.scss */
-.icon-folder-minus3:before {
-  content: "\e0a6";
-}
-
-/* line 696, ../../sass/src/fonts/Icomoon.scss */
-.icon-folder-plus4:before {
-  content: "\e0a7";
-}
-
-/* line 700, ../../sass/src/fonts/Icomoon.scss */
-.icon-folder-remove2:before {
-  content: "\e0a8";
-}
-
-/* line 704, ../../sass/src/fonts/Icomoon.scss */
-.icon-folder-download2:before {
-  content: "\e0a9";
-}
-
-/* line 708, ../../sass/src/fonts/Icomoon.scss */
-.icon-folder-upload2:before {
-  content: "\e0aa";
-}
-
-/* line 712, ../../sass/src/fonts/Icomoon.scss */
-.icon-folder-download3:before {
-  content: "\e0ab";
-}
-
-/* line 716, ../../sass/src/fonts/Icomoon.scss */
-.icon-folder-upload3:before {
-  content: "\e0ac";
-}
-
-/* line 720, ../../sass/src/fonts/Icomoon.scss */
-.icon-folder5:before {
-  content: "\e0ad";
-}
-
-/* line 724, ../../sass/src/fonts/Icomoon.scss */
-.icon-folder-open2:before {
-  content: "\e0ae";
-}
-
-/* line 728, ../../sass/src/fonts/Icomoon.scss */
-.icon-folder6:before {
-  content: "\e0af";
-}
-
-/* line 732, ../../sass/src/fonts/Icomoon.scss */
-.icon-folder-open3:before {
-  content: "\e0b0";
-}
-
-/* line 736, ../../sass/src/fonts/Icomoon.scss */
-.icon-certificate:before {
-  content: "\e0b1";
-}
-
-/* line 740, ../../sass/src/fonts/Icomoon.scss */
-.icon-cc:before {
-  content: "\e0b2";
-}
-
-/* line 744, ../../sass/src/fonts/Icomoon.scss */
-.icon-tag:before {
-  content: "\e0b3";
-}
-
-/* line 748, ../../sass/src/fonts/Icomoon.scss */
-.icon-tag2:before {
-  content: "\e0b4";
-}
-
-/* line 752, ../../sass/src/fonts/Icomoon.scss */
-.icon-tag3:before {
-  content: "\e0b5";
-}
-
-/* line 756, ../../sass/src/fonts/Icomoon.scss */
-.icon-tag4:before {
-  content: "\e0b6";
-}
-
-/* line 760, ../../sass/src/fonts/Icomoon.scss */
-.icon-tag5:before {
-  content: "\e0b7";
-}
-
-/* line 764, ../../sass/src/fonts/Icomoon.scss */
-.icon-tag6:before {
-  content: "\e0b8";
-}
-
-/* line 768, ../../sass/src/fonts/Icomoon.scss */
-.icon-tag7:before {
-  content: "\e0b9";
-}
-
-/* line 772, ../../sass/src/fonts/Icomoon.scss */
-.icon-tags:before {
-  content: "\e0ba";
-}
-
-/* line 776, ../../sass/src/fonts/Icomoon.scss */
-.icon-tags2:before {
-  content: "\e0bb";
-}
-
-/* line 780, ../../sass/src/fonts/Icomoon.scss */
-.icon-tag8:before {
-  content: "\e0bc";
-}
-
-/* line 784, ../../sass/src/fonts/Icomoon.scss */
-.icon-barcode:before {
-  content: "\e0bd";
-}
-
-/* line 788, ../../sass/src/fonts/Icomoon.scss */
-.icon-barcode2:before {
-  content: "\e0be";
-}
-
-/* line 792, ../../sass/src/fonts/Icomoon.scss */
-.icon-qrcode:before {
-  content: "\e0bf";
-}
-
-/* line 796, ../../sass/src/fonts/Icomoon.scss */
-.icon-ticket:before {
-  content: "\e0c0";
-}
-
-/* line 800, ../../sass/src/fonts/Icomoon.scss */
-.icon-cart:before {
-  content: "\e0c1";
-}
-
-/* line 804, ../../sass/src/fonts/Icomoon.scss */
-.icon-cart2:before {
-  content: "\e0c2";
-}
-
-/* line 808, ../../sass/src/fonts/Icomoon.scss */
-.icon-cart3:before {
-  content: "\e0c3";
-}
-
-/* line 812, ../../sass/src/fonts/Icomoon.scss */
-.icon-cart4:before {
-  content: "\e0c4";
-}
-
-/* line 816, ../../sass/src/fonts/Icomoon.scss */
-.icon-cart5:before {
-  content: "\e0c5";
-}
-
-/* line 820, ../../sass/src/fonts/Icomoon.scss */
-.icon-cart6:before {
-  content: "\e0c6";
-}
-
-/* line 824, ../../sass/src/fonts/Icomoon.scss */
-.icon-cart7:before {
-  content: "\e0c7";
-}
-
-/* line 828, ../../sass/src/fonts/Icomoon.scss */
-.icon-cart-plus:before {
-  content: "\e0c8";
-}
-
-/* line 832, ../../sass/src/fonts/Icomoon.scss */
-.icon-cart-minus:before {
-  content: "\e0c9";
-}
-
-/* line 836, ../../sass/src/fonts/Icomoon.scss */
-.icon-cart-add:before {
-  content: "\e0ca";
-}
-
-/* line 840, ../../sass/src/fonts/Icomoon.scss */
-.icon-cart-remove:before {
-  content: "\e0cb";
-}
-
-/* line 844, ../../sass/src/fonts/Icomoon.scss */
-.icon-cart-checkout:before {
-  content: "\e0cc";
+/* line 641, ../../sass/src/fonts/Icomoon.scss */
+.icon-paste4:before {
+  content: "\e9cc";
 }
