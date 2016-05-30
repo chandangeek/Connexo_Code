@@ -44,7 +44,7 @@ public class UserInfo {
         createdOn = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(user.getCreationDate().atZone(ZoneId.systemDefault()));
         modifiedOn = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(user.getModifiedDate().atZone(ZoneId.systemDefault()));
         lastSuccessfulLogin = user.getLastSuccessfulLogin() == null ? null : user.getLastSuccessfulLogin().toString();
-        lastUnSuccessfulLogin = user.getLastSuccessfulLogin() == null ? null : user.getLastUnSuccessfulLogin().toString();
+        lastUnSuccessfulLogin = user.getLastUnSuccessfulLogin() == null ? null : user.getLastUnSuccessfulLogin().toString();
         for (Group group : user.getGroups()) {
             groups.add(new GroupInfo(thesaurus, group));
         }
