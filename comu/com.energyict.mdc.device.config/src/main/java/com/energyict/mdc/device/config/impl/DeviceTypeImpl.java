@@ -782,7 +782,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     @Override
     public void enableFileManagement() {
-        if (!this.fileManagementEnabled) {
+        if (!this.fileManagementEnabled && getDeviceProtocolPluggableClass().supportsFileManagement()) {
             this.fileManagementEnabled = true;
             this.update();
         }
