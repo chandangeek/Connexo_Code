@@ -3,6 +3,7 @@ package com.energyict.mdc.rest.impl.comserver;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.OnlineComServer;
+
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -34,14 +35,11 @@ public class OnlineComServerInfo extends ComServerInfo<OnlineComServer.OnlineCom
 
     private void readFrom(OnlineComServer onlineComServer) {
         this.queryAPIPostUri = onlineComServer.getQueryApiPostUri();
-        this.usesDefaultQueryAPIPostUri = onlineComServer.usesDefaultQueryApiPostUri();
         this.eventRegistrationUri = onlineComServer.getEventRegistrationUri();
-        this.usesDefaultEventRegistrationUri = onlineComServer.usesDefaultEventRegistrationUri();
         this.storeTaskQueueSize = onlineComServer.getStoreTaskQueueSize();
         this.numberOfStoreTaskThreads = onlineComServer.getNumberOfStoreTaskThreads();
         this.storeTaskThreadPriority = onlineComServer.getStoreTaskThreadPriority();
         this.statusUri = onlineComServer.getStatusUri();
-        this.usesDefaultStatusUri = onlineComServer.usesDefaultStatusUri();
     }
 
     public OnlineComServer.OnlineComServerBuilder writeTo(OnlineComServer.OnlineComServerBuilder comServerBuilder, EngineConfigurationService engineConfigurationService) {
@@ -50,25 +48,13 @@ public class OnlineComServerInfo extends ComServerInfo<OnlineComServer.OnlineCom
         if (queryAPIPostUri.isPresent()) {
             comServerBuilder.queryApiPostUri(queryAPIPostUri.get());
         }
-        Optional<Boolean> usesDefaultQueryAPIPostUri = Optional.ofNullable(this.usesDefaultQueryAPIPostUri);
-        if (usesDefaultQueryAPIPostUri.isPresent()) {
-            comServerBuilder.usesDefaultQueryApiPostUri(usesDefaultQueryAPIPostUri.get());
-        }
         Optional<String> eventRegistrationUri = Optional.ofNullable(this.eventRegistrationUri);
         if (eventRegistrationUri.isPresent()) {
             comServerBuilder.eventRegistrationUri(eventRegistrationUri.get());
         }
-        Optional<Boolean> usesDefaultEventRegistrationUri = Optional.ofNullable(this.usesDefaultEventRegistrationUri);
-        if (usesDefaultEventRegistrationUri.isPresent()) {
-            comServerBuilder.usesDefaultEventRegistrationUri(usesDefaultEventRegistrationUri.get());
-        }
         Optional<String> statusUri = Optional.ofNullable(this.statusUri);
         if (statusUri.isPresent()) {
             comServerBuilder.statusUri(statusUri.get());
-        }
-        Optional<Boolean> usesDefaultStatusUri = Optional.ofNullable(this.usesDefaultStatusUri);
-        if (usesDefaultStatusUri.isPresent()) {
-            comServerBuilder.usesDefaultStatusUri(usesDefaultStatusUri.get());
         }
         comServerBuilder.storeTaskQueueSize(this.storeTaskQueueSize != null ? this.storeTaskQueueSize : 0);
         comServerBuilder.storeTaskThreadPriority(this.storeTaskThreadPriority != null ? this.storeTaskThreadPriority : 0);
@@ -81,25 +67,13 @@ public class OnlineComServerInfo extends ComServerInfo<OnlineComServer.OnlineCom
         if (queryAPIPostUri.isPresent()) {
             onlineComServer.setQueryAPIPostUri(queryAPIPostUri.get());
         }
-        Optional<Boolean> usesDefaultQueryAPIPostUri = Optional.ofNullable(this.usesDefaultQueryAPIPostUri);
-        if (usesDefaultQueryAPIPostUri.isPresent()) {
-            onlineComServer.setUsesDefaultQueryAPIPostUri(usesDefaultQueryAPIPostUri.get());
-        }
         Optional<String> eventRegistrationUri = Optional.ofNullable(this.eventRegistrationUri);
         if (eventRegistrationUri.isPresent()) {
             onlineComServer.setEventRegistrationUri(eventRegistrationUri.get());
         }
-        Optional<Boolean> usesDefaultEventRegistrationUri = Optional.ofNullable(this.usesDefaultEventRegistrationUri);
-        if (usesDefaultEventRegistrationUri.isPresent()) {
-            onlineComServer.setUsesDefaultEventRegistrationUri(usesDefaultEventRegistrationUri.get());
-        }
         Optional<String> statusUri = Optional.ofNullable(this.statusUri);
         if (statusUri.isPresent()) {
             onlineComServer.setStatusUri(statusUri.get());
-        }
-        Optional<Boolean> usesDefaultStatusUri = Optional.ofNullable(this.usesDefaultStatusUri);
-        if (usesDefaultStatusUri.isPresent()) {
-            onlineComServer.setUsesDefaultStatusUri(usesDefaultStatusUri.get());
         }
         onlineComServer.setStoreTaskQueueSize(this.storeTaskQueueSize != null ? this.storeTaskQueueSize : 0);
         onlineComServer.setStoreTaskThreadPriority(this.storeTaskThreadPriority != null ? this.storeTaskThreadPriority : 0);
