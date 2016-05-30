@@ -92,8 +92,8 @@ public enum TableSpecs {
             table.column("LANGUAGETAG").type("varchar2(64)").map("languageTag").add();
             Column userDirColumn = table.column("USER_DIRECTORY").number().notNull().add();
             table.column("Active").type("char(1)").conversion(CHAR2BOOLEAN).map("status").add();
-            table.column("LASTSUCCESSFULLOGIN").number().conversion(NUMBER2INSTANT).map("lastSuccessfulLogin").add();
-            table.column("LASTUNSUCCESSFULLOGIN").number().conversion(NUMBER2INSTANT).map("lastUnSuccessfulLogin").add();
+            table.column("LASTSUCCESSFULOGIN").number().conversion(NUMBER2INSTANT).map("lastSuccessfulLogin").add();
+            table.column("LASTUNSUCCESSFULOGIN").number().conversion(NUMBER2INSTANT).map("lastUnSuccessfulLogin").add();
             table.addVersionCountColumn("VERSIONCOUNT", "number", "version");
             table.addCreateTimeColumn("CREATETIME", "createTime");
             table.addModTimeColumn("MODTIME", "modTime");
