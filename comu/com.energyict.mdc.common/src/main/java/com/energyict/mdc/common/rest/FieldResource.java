@@ -1,25 +1,19 @@
 package com.energyict.mdc.common.rest;
 
-import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.Translation;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.util.exception.MessageSeed;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.lang.reflect.Method;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -30,19 +24,13 @@ import java.util.Map;
  */
 
 @Path("/field")
-public class FieldResource {
+public abstract class FieldResource {
 
     private final Thesaurus thesaurus;
-
-    public FieldResource() {
-        thesaurus = new NullObjectThesaurus();
-    }
 
     public FieldResource(Thesaurus thesaurus) {
         this.thesaurus = thesaurus;
     }
-
-
 
     /**
      * This method will return a JSON list of all available field descriptions in this resource
@@ -244,74 +232,6 @@ public class FieldResource {
             list.add(subMap);
         }
         return map;
-    }
-
-    private class NullObjectThesaurus implements Thesaurus {
-
-        @Override
-        public String getString(String key, String defaultMessage) {
-            return key;
-        }
-
-        @Override
-        public String getString(Locale locale, String key, String defaultMessage) {
-            return key;
-        }
-
-        @Override
-        public String getComponent() {
-            return null;
-        }
-
-        @Override
-        public NlsMessageFormat getFormat(MessageSeed seed) {
-            return null;
-        }
-
-        @Override
-        public NlsMessageFormat getFormat(TranslationKey key) {
-            return null;
-        }
-
-        @Override
-        public void addTranslations(Iterable<? extends Translation> translations) {
-
-        }
-
-        @Override
-        public Map<String, String> getTranslations() {
-            return null;
-        }
-
-        @Override
-        public String interpolate(String messageTemplate, Context context) {
-            return messageTemplate;
-        }
-
-        @Override
-        public String interpolate(String messageTemplate, Context context, Locale locale) {
-            return messageTemplate;
-        }
-
-        @Override
-        public String getStringBeyondComponent(String key, String defaultMessage) {
-            return key;
-        }
-
-        @Override
-        public String getStringBeyondComponent(Locale locale, String key, String defaultMessage) {
-            return key;
-        }
-
-        @Override
-        public Thesaurus join(Thesaurus thesaurus) {
-            return this;
-        }
-
-        @Override
-        public DateTimeFormatter forLocale(DateTimeFormatter dateTimeFormatter) {
-            return dateTimeFormatter;
-        }
     }
 
 }
