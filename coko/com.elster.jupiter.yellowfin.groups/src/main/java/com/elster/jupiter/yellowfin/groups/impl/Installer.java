@@ -11,6 +11,7 @@ import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
 
 import javax.inject.Inject;
+import java.util.logging.Logger;
 
 class Installer implements FullInstaller {
     private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
@@ -28,8 +29,13 @@ class Installer implements FullInstaller {
     }
 
     @Override
-    public void install(DataModelUpgrader dataModelUpgrader) {
+    public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
         dataModelUpgrader.upgrade(dataModel, Version.latest());
+        doTry(
+                "Create Yellowfin Task",
+                this::createTask,
+                logger
+        );
         createTask();
     }
 
