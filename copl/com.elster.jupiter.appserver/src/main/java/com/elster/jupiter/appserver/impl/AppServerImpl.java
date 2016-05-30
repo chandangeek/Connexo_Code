@@ -58,6 +58,7 @@ public class AppServerImpl implements AppServer {
     private final Thesaurus thesaurus;
     private final TransactionService transactionService;
     private final ThreadPrincipalService threadPrincipalService;
+    private final WebServicesService webServicesService;
     private final Provider<WebServiceForAppServerImpl> webServiceForAppServerProvider;
 
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
@@ -69,14 +70,13 @@ public class AppServerImpl implements AppServer {
     private boolean recurrentTaskActive = true;
     private boolean active;
     private List<SubscriberExecutionSpecImpl> executionSpecs;
-    private List<ImportScheduleOnAppServerImpl> importSchedulesOnAppServer;
 
+    private List<ImportScheduleOnAppServerImpl> importSchedulesOnAppServer;
     //audit columns
     private long version;
     private Instant createTime;
     private Instant modTime;
     private String userName;
-    private final WebServicesService webServicesService;
 
     @Inject
     AppServerImpl(DataModel dataModel, CronExpressionParser cronExpressionParser, FileImportService fileImportService,
@@ -290,7 +290,7 @@ public class AppServerImpl implements AppServer {
         if (!links.isEmpty()) {
             dataModel.mapper(WebServiceForAppServer.class).remove(links.get(0)); // there can only be one anyway
         }
-        if (endPointConfiguration.isActive()) {
+        if (webServicesService.isPublished(endPointConfiguration)) {
             webServicesService.removeEndPoint(endPointConfiguration);
         }
     }
