@@ -12,8 +12,8 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target({ ElementType.TYPE, ElementType.ANNOTATION_TYPE })
 @Retention(RUNTIME)
 @Documented
-@Constraint(validatedBy = { UniqueCalendarNameValidator.class, })
-public @interface UniqueName {
+@Constraint(validatedBy = { UniqueCategoryNameValidator.class, })
+public @interface UniqueCategoryName {
 
     String message() default "";
 

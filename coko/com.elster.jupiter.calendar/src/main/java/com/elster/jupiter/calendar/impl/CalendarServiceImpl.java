@@ -186,6 +186,11 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
     }
 
     @Override
+    public Optional<Category> findCategoryByName(String name) {
+        return this.getDataModel().mapper(Category.class).getUnique("name", name);
+    }
+
+    @Override
     public Optional<Calendar> findCalendarByName(String name) {
         return this.getDataModel().mapper(Calendar.class).getUnique("name", name);
     }

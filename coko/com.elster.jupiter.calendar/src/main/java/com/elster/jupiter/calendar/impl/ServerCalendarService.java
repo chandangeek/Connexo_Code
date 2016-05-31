@@ -1,11 +1,11 @@
 package com.elster.jupiter.calendar.impl;
 
-import com.elster.jupiter.calendar.CalendarService;
-import com.elster.jupiter.calendar.Category;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
+        import com.elster.jupiter.calendar.CalendarService;
+        import com.elster.jupiter.calendar.Category;
+        import com.elster.jupiter.nls.Thesaurus;
+        import com.elster.jupiter.orm.DataModel;
 
-import java.util.Optional;
+        import java.util.Optional;
 
 /**
  * Created by igh on 18/04/2016.

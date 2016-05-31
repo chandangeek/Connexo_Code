@@ -1,18 +1,18 @@
 package com.elster.jupiter.calendar.impl;
 
-import com.elster.jupiter.calendar.Calendar;
-import com.elster.jupiter.calendar.CalendarService;
-import java.util.List;
-import java.util.Optional;
+        import com.elster.jupiter.calendar.Calendar;
+        import com.elster.jupiter.calendar.CalendarService;
+        import java.util.List;
+        import java.util.Optional;
 
-import javax.inject.Inject;
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+        import javax.inject.Inject;
+        import javax.validation.ConstraintValidator;
+        import javax.validation.ConstraintValidatorContext;
 
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Operator;
+        import com.elster.jupiter.util.conditions.Condition;
+        import com.elster.jupiter.util.conditions.Operator;
 
-public class UniqueCalendarNameValidator implements ConstraintValidator<UniqueName, Calendar> {
+public class UniqueCalendarNameValidator implements ConstraintValidator<UniqueCalendarName, Calendar> {
 
     private String message;
     private CalendarService calendarService;
@@ -23,7 +23,7 @@ public class UniqueCalendarNameValidator implements ConstraintValidator<UniqueNa
     }
 
     @Override
-    public void initialize(UniqueName constraintAnnotation) {
+    public void initialize(UniqueCalendarName constraintAnnotation) {
         message = constraintAnnotation.message();
     }
 

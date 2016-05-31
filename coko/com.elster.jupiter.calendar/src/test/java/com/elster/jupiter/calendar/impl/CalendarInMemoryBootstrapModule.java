@@ -4,6 +4,7 @@ import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
@@ -65,6 +66,7 @@ public class CalendarInMemoryBootstrapModule {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             injector.getInstance(ThreadPrincipalService.class);
             injector.getInstance(CalendarService.class);
+            //injector.getInstance(EventService.class);
             ctx.commit();
         }
     }
@@ -76,6 +78,10 @@ public class CalendarInMemoryBootstrapModule {
     public ServerCalendarService getCalendarService() {
         return injector.getInstance(ServerCalendarService.class);
     }
+
+    /*public EventService getEventService() {
+        return injector.getInstance(EventService.class);
+    }*/
 
     public TransactionService getTransactionService() {
         return injector.getInstance(TransactionService.class);
