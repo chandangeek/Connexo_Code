@@ -6,6 +6,7 @@ import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.users.UserService;
 
 import javax.inject.Inject;
+import java.util.logging.Logger;
 
 final class Installer implements FullInstaller {
 
@@ -17,7 +18,7 @@ final class Installer implements FullInstaller {
     }
 
     @Override
-    public void install(DataModelUpgrader dataModelUpgrader) {
+    public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
         String[] adminPrivileges = getAdminPrivileges();
         userService.grantGroupWithPrivilege(UserService.DEFAULT_ADMIN_ROLE, SysAppService.APPLICATION_KEY, adminPrivileges);
         userService.grantGroupWithPrivilege(UserService.BATCH_EXECUTOR_ROLE, SysAppService.APPLICATION_KEY, adminPrivileges);
