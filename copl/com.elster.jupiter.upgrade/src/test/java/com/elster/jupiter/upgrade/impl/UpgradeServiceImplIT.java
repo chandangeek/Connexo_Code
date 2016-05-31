@@ -32,6 +32,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.logging.Logger;
 
 import org.junit.After;
 import org.junit.Before;
@@ -59,7 +60,7 @@ public class UpgradeServiceImplIT {
         }
 
         @Override
-        public void install(DataModelUpgrader dataModelUpgrader) {
+        public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
             invocations++;
         }
     }
