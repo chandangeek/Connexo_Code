@@ -31,8 +31,6 @@ public class PublicRestApplicationInstaller implements PrivilegesProvider {
 
     static final String COMPONENT_NAME = "MRI";
 
-    private final Logger logger = Logger.getLogger(this.getClass().getName());
-
     private volatile UserService userService;
     private volatile UpgradeService upgradeService;
 
@@ -71,9 +69,17 @@ public class PublicRestApplicationInstaller implements PrivilegesProvider {
         }
 
         @Override
-        public void install(DataModelUpgrader dataModelUpgrader) {
-            createDefaultRoles();
-            assignPrivilegesToDefaultRoles();
+        public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
+            doTry(
+                    "Create default roles for MRI",
+                    this::createDefaultRoles,
+                    logger
+            );
+            doTry(
+                    "Create default roles for MRI",
+                    this::assignPrivilegesToDefaultRoles,
+                    logger
+            );
         }
 
         public void createDefaultRoles() {
