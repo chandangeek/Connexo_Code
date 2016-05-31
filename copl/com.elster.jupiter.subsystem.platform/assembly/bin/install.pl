@@ -40,7 +40,6 @@ my $HOST_NAME, my $CONNEXO_HTTP_PORT, my $TOMCAT_HTTP_PORT;
 my $jdbcUrl, my $dbUserName, my $dbPassword, my $CONNEXO_SERVICE, my $CONNEXO_URL;
 my $FACTS_DB_HOST, my $FACTS_DB_PORT, my $FACTS_DB_NAME, my $FACTS_DBUSER, my $FACTS_DBPASSWORD, my $FACTS_LICENSE;
 my $FLOW_JDBC_URL, my $FLOW_DB_USER, my $FLOW_DB_PASSWORD;
-my $SMTP_HOST, my $SMTP_PORT, my $SMTP_USER, my $SMTP_PASSWORD;
 
 my $TOMCAT_DIR="tomcat";
 my $TOMCAT_BASE="$CONNEXO_DIR/partners"; 
@@ -162,10 +161,6 @@ sub read_config {
                 if ( "$val[0]" eq "FLOW_JDBC_URL" )     {$FLOW_JDBC_URL=$val[1];}
                 if ( "$val[0]" eq "FLOW_DB_USER" )      {$FLOW_DB_USER=$val[1];}
                 if ( "$val[0]" eq "FLOW_DB_PASSWORD" )  {$FLOW_DB_PASSWORD=$val[1];}
-                if ( "$val[0]" eq "SMTP_HOST" )         {$SMTP_HOST=$val[1];}
-                if ( "$val[0]" eq "SMTP_PORT" )         {$SMTP_PORT=$val[1];}
-                if ( "$val[0]" eq "SMTP_USER" )         {$SMTP_USER=$val[1];}
-                if ( "$val[0]" eq "SMTP_PASSWORD" )     {$SMTP_PASSWORD=$val[1];}
             }
         }
         close($FH);
@@ -224,14 +219,6 @@ sub read_config {
             chomp($FLOW_DB_USER=<STDIN>);
             print "Please enter the database password for Connexo Flow: ";
             chomp($FLOW_DB_PASSWORD=<STDIN>);
-            print "Please enter the mail server host name: ";
-            chomp($SMTP_HOST=<STDIN>);
-            print "Please enter the mail server port: ";
-            chomp($SMTP_PORT=<STDIN>);
-            print "Please enter the mail server user: ";
-            chomp($SMTP_USER=<STDIN>);
-            print "Please enter the mail server user password: ";
-            chomp($SMTP_PASSWORD=<STDIN>);
         }
         
         print "\n";
@@ -566,7 +553,6 @@ sub install_flow {
 		my $FLOW_TABLESPACE="flow";
 		my $FLOW_DBUSER="flow";
 		my $FLOW_DBPASSWORD="flow";
-		my $DEMOWS_DIR="$TOMCAT_BASE/$TOMCAT_DIR/webapps/demows";
 
 		print "\n\nInstalling Connexo Flow ...\n";
 		print "==========================================================================\n";
@@ -578,38 +564,16 @@ sub install_flow {
 		system("\"$JAVA_HOME/bin/jar\" -xf flow.war") == 0 or die "$JAVA_HOME/bin/jar -xvf flow.war failed: $?";
 		unlink("$FLOW_DIR/flow.war");
 
-		if (!-d "$DEMOWS_DIR") { make_path("$DEMOWS_DIR"); }
-		copy("$CONNEXO_DIR/partners/flow/demows.war","$DEMOWS_DIR/demows.war");
-		chdir "$DEMOWS_DIR";
-		print "Extracting demows.war\n";
-		system("\"$JAVA_HOME/bin/jar\" -xf demows.war") == 0 or die "$JAVA_HOME/bin/jar -xvf demows.war failed: $?";
-		unlink("$DEMOWS_DIR/demows.war");
-
-		copy("$CONNEXO_DIR/partners/flow/processes.zip","$CATALINA_HOME/processes.zip");
-		chdir "$CATALINA_HOME";
-		print "Extracting processes.zip\n";
-		system("\"$JAVA_HOME/bin/jar\" -xf processes.zip") == 0 or die "$JAVA_HOME/bin/jar -xvf processes.zip failed: $?";
-		unlink("$CATALINA_HOME/processes.zip");
-
 		copy("$CONNEXO_DIR/partners/flow/resources.properties","$CATALINA_HOME/conf/resources.properties");
 		replace_in_file("$CATALINA_HOME/conf/resources.properties",'\${jdbc}',"$FLOW_JDBC_URL");
 		replace_in_file("$CATALINA_HOME/conf/resources.properties",'\${user}',"$FLOW_DB_USER");
 		replace_in_file("$CATALINA_HOME/conf/resources.properties",'\${password}',"$FLOW_DB_PASSWORD");
 
-		copy("$CONNEXO_DIR/partners/flow/CustomWorkItemHandlers.conf","$CONNEXO_DIR/CustomWorkItemHandlers.conf");
-		replace_in_file("$CONNEXO_DIR/CustomWorkItemHandlers.conf",'\${host}',"$SMTP_HOST");
-		replace_in_file("$CONNEXO_DIR/CustomWorkItemHandlers.conf",'\${port}',"$SMTP_PORT");
-		replace_in_file("$CONNEXO_DIR/CustomWorkItemHandlers.conf",'\${user}',"$SMTP_USER");
-		replace_in_file("$CONNEXO_DIR/CustomWorkItemHandlers.conf",'\${password}',"$SMTP_PASSWORD");
-		copy("$CONNEXO_DIR/CustomWorkItemHandlers.conf","$FLOW_DIR/WEB-INF/classes/META-INF/CustomWorkItemHandlers.conf");
-		unlink("$CONNEXO_DIR/CustomWorkItemHandlers.conf");
-
-		copy("$CONNEXO_DIR/partners/flow/SendSomeoneToInspect.bpmn","$CONNEXO_DIR/SendSomeoneToInspect.bpmn");
-		replace_in_file("$CONNEXO_DIR/SendSomeoneToInspect.bpmn",'\${host}',"$HOST_NAME");
-		replace_in_file("$CONNEXO_DIR/SendSomeoneToInspect.bpmn",'\${port}',"$TOMCAT_HTTP_PORT");
-		chdir "$CONNEXO_DIR";
-		system("\"$JAVA_HOME/bin/jar\" -uvf \"$CATALINA_HOME/repositories/kie/org/jbpm/sendsomeone/1.0/sendsomeone-1.0.jar\" SendSomeoneToInspect.bpmn") == 0 or die "$JAVA_HOME/bin/jar -uvf \"$CATALINA_HOME/repositories/kie/org/jbpm/sendsomeone/1.0/sendsomeone-1.0.jar\" SendSomeoneToInspect.bpmn failed: $?";
-		unlink("$CONNEXO_DIR/SendSomeoneToInspect.bpmn");
+		copy("$CONNEXO_DIR/partners/flow/kie-wb-deployment-descriptor.xml","$CONNEXO_DIR/kie-wb-deployment-descriptor.xml");
+		replace_in_file("$CONNEXO_DIR/kie-wb-deployment-descriptor.xml",'\${user}',"$CONNEXO_ADMIN_ACCOUNT");
+		replace_in_file("$CONNEXO_DIR/kie-wb-deployment-descriptor.xml",'\${password}',"$CONNEXO_ADMIN_PASSWORD");
+		copy("$CONNEXO_DIR/kie-wb-deployment-descriptor.xml","$FLOW_DIR/WEB-INF/classes/META-INF/kie-wb-deployment-descriptor.xml");
+		unlink("$CONNEXO_DIR/kie-wb-deployment-descriptor.xml");
 
 		print "Copying extra jar files\n";
 		if (-e "$CONNEXO_DIR/partners/flow/jbpm.extension.jar") {
@@ -786,19 +750,19 @@ sub start_tomcat {
 
 		if ("$INSTALL_FLOW" eq "yes") {
 			print "\nInstalling Connexo Flow content...\n";
-			opendir(DIR,"$CONNEXO_DIR/bundles");
-			my @files = grep(/com\.elster\.jupiter\.bpm-.*\.jar$/,readdir(DIR));
-			closedir(DIR);
+			#opendir(DIR,"$CONNEXO_DIR/bundles");
+			#my @files = grep(/com\.elster\.jupiter\.bpm-.*\.jar$/,readdir(DIR));
+			#closedir(DIR);
 
-			my $BPM_BUNDLE;
-			foreach my $file (@files) {
-				$BPM_BUNDLE="$file";
-			}
-            if ("$ACTIVATE_SSO" eq "yes") {
-                system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.impl.ProcessDeployer http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow $CONNEXO_ADMIN_ACCOUNT $CONNEXO_ADMIN_PASSWORD") == 0 or die "Installing Connexo Flow content failed: $?";
-            } else {
-                system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.impl.ProcessDeployer http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD") == 0 or die "Installing Connexo Flow content failed: $?";
-            }
+			#my $BPM_BUNDLE;
+			#foreach my $file (@files) {
+			#	$BPM_BUNDLE="$file";
+			#}
+            #if ("$ACTIVATE_SSO" eq "yes") {
+            #    system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.impl.ProcessDeployer http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow $CONNEXO_ADMIN_ACCOUNT $CONNEXO_ADMIN_PASSWORD") == 0 or die "Installing Connexo Flow content failed: $?";
+            #} else {
+            #    system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.impl.ProcessDeployer http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD") == 0 or die "Installing Connexo Flow content failed: $?";
+            #}
 		}
 	}
 }
