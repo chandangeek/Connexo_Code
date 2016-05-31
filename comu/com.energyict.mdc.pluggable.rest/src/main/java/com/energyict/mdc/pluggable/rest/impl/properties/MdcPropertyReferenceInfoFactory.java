@@ -1,5 +1,6 @@
 package com.energyict.mdc.pluggable.rest.impl.properties;
 
+import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
@@ -13,6 +14,16 @@ import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.masterdata.LoadProfileType;
+import com.energyict.mdc.pluggable.rest.impl.CalendarInfo;
+import com.energyict.mdc.pluggable.rest.impl.CalendarResource;
+import com.energyict.mdc.pluggable.rest.impl.DeviceMessageFileReferenceInfo;
+import com.energyict.mdc.pluggable.rest.impl.LoadProfileInfo;
+import com.energyict.mdc.pluggable.rest.impl.LoadProfileTypeInfo;
+import com.energyict.mdc.pluggable.rest.impl.LoadProfileTypeResource;
+import com.energyict.mdc.pluggable.rest.impl.LogBookInfo;
+import com.energyict.mdc.pluggable.rest.impl.RegisterInfo;
+import com.energyict.mdc.pluggable.rest.impl.TimeZoneInUseInfo;
+import com.energyict.mdc.protocol.api.DeviceMessageFile;
 import com.energyict.mdc.pluggable.rest.impl.CodeTableInfo;
 import com.energyict.mdc.pluggable.rest.impl.CodeTableResource;
 import com.energyict.mdc.pluggable.rest.impl.LoadProfileInfo;
@@ -51,10 +62,10 @@ public class MdcPropertyReferenceInfoFactory {
         if (property != null) {
             if (TimeZoneInUse.class.isAssignableFrom(property.getClass())) {
                 info = new TimeZoneInUseInfo((TimeZoneInUse) property);
-            } else if (Code.class.isAssignableFrom(property.getClass())) {
-                info = new CodeTableInfo((Code) property);
-            } else if (UserFile.class.isAssignableFrom(property.getClass())) {
-                info = new UserFileReferenceInfo((UserFile) property);
+            } else if (Calendar.class.isAssignableFrom(property.getClass())) {
+                info = new CalendarInfo((Calendar) property);
+            } else if (DeviceMessageFile.class.isAssignableFrom(property.getClass())) {
+                info = new DeviceMessageFileReferenceInfo((DeviceMessageFile) property);
             } else if (LoadProfileType.class.isAssignableFrom(property.getClass())) {
                 info = new LoadProfileTypeInfo((LoadProfileType) property);
             } else if (Password.class.isAssignableFrom(property.getClass())) {
@@ -67,7 +78,7 @@ public class MdcPropertyReferenceInfoFactory {
                 info = new TimeDurationInfo((TimeDuration) property);
             } else if (LoadProfile.class.isAssignableFrom(property.getClass())) {
                 info = new LoadProfileInfo((LoadProfile) property);
-            } else if (LoadProfile.class.isAssignableFrom(property.getClass())) {
+            } else if (Register.class.isAssignableFrom(property.getClass())) {
                 info = new RegisterInfo((Register) property);
             } else if (LogBook.class.isAssignableFrom(property.getClass())) {
                 info = new LogBookInfo((LogBook) property);
@@ -101,10 +112,10 @@ public class MdcPropertyReferenceInfoFactory {
             return SimplePropertyType.TEXT;
         } else if (TimeZoneInUse.class.isAssignableFrom(propertySpec.getValueFactory().getValueType())) {
             return SimplePropertyType.TIMEZONEINUSE;
-        } else if (Code.class.isAssignableFrom(propertySpec.getValueFactory().getValueType())) {
+        } else if (Calendar.class.isAssignableFrom(propertySpec.getValueFactory().getValueType())) {
             return SimplePropertyType.CODETABLE;
-        } else if (UserFile.class.isAssignableFrom(propertySpec.getValueFactory().getValueType())) {
-            return SimplePropertyType.USERFILEREFERENCE;
+        } else if (DeviceMessageFile.class.isAssignableFrom(propertySpec.getValueFactory().getValueType())) {
+            return SimplePropertyType.REFERENCE;
         } else if (LoadProfileType.class.isAssignableFrom(propertySpec.getValueFactory().getValueType())) {
             return SimplePropertyType.LOADPROFILETYPE;
         } else if (TimeDuration.class.isAssignableFrom(propertySpec.getValueFactory().getValueType())) {
@@ -125,13 +136,14 @@ public class MdcPropertyReferenceInfoFactory {
         URI uri = null;
         if (TimeZoneInUse.class.isAssignableFrom(propertyClassType)) {
             // The TimeZoneInUse values are provided as possibleValues
-        } else if (Code.class.isAssignableFrom(propertyClassType)) {
-            uri = uriInfo.getBaseUriBuilder().path(CodeTableResource.class).path("/").build();
-        } else if (UserFile.class.isAssignableFrom(propertyClassType)) {
-            uri = uriInfo.getBaseUriBuilder().path(UserFileReferenceResource.class).path("/").build();
+        } else if (Calendar.class.isAssignableFrom(propertyClassType)) {
+            uri = uriInfo.getBaseUriBuilder().path(CalendarResource.class).path("/").build();
+//        } else if (DeviceMessageFile.class.isAssignableFrom(propertyClassType)) {
+//            uri = uriInfo.getBaseUriBuilder().path(DeviceMessageFileReferenceResource.class).path("/").build();
         } else if (LoadProfileType.class.isAssignableFrom(propertyClassType)) {
             uri = uriInfo.getBaseUriBuilder().path(LoadProfileTypeResource.class).path("/").build();
         }
         return uri;
     }
+
 }

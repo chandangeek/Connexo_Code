@@ -1,10 +1,10 @@
 package com.energyict.mdc.pluggable.rest.impl;
 
-import java.util.Collection;
-import java.util.HashSet;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Collection;
+import java.util.HashSet;
 
 /**
  * Copyrights EnergyICT
@@ -12,9 +12,10 @@ import javax.xml.bind.annotation.XmlRootElement;
  * Time: 15:14
  */
 @XmlRootElement
-public class CodeTableInfos {
+public class CalendarInfos {
 
     @XmlElement
     @XmlElementWrapper(name = "Code")
-    public Collection<? super CodeTableInfo> codeTableInfos = new HashSet<>();
+    public Collection<? super CalendarInfo> codeTableInfos = new HashSet<>();
+
 }

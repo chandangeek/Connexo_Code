@@ -1,5 +1,6 @@
 package com.energyict.mdc.pluggable.rest.impl.properties;
 
+import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.ValueFactory;
@@ -17,8 +18,7 @@ import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.dynamic.LargeStringFactory;
 import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.protocol.api.UserFile;
-import com.energyict.mdc.protocol.api.codetables.Code;
+import com.energyict.mdc.protocol.api.DeviceMessageFile;
 import com.energyict.mdc.protocol.api.firmware.BaseFirmwareVersion;
 import com.energyict.mdc.protocol.api.timezones.TimeZoneInUse;
 
@@ -42,9 +42,9 @@ public enum SimplePropertyType implements PropertyType {
     TIMEDURATION(TimeDuration.class),
     TIMEOFDAY(TimeOfDay.class),
     CLOCK(DateAndTimeFactory.class),
-    CODETABLE(Code.class, true),
+    CODETABLE(Calendar.class, true),
     TIMEZONEINUSE(TimeZoneInUse.class, true),
-    USERFILEREFERENCE(UserFile.class, true),
+    REFERENCE(DeviceMessageFile.class, true),
     EAN13(Ean13.class),
     EAN18(Ean18.class),
     DATE(Date.class),
