@@ -12,7 +12,6 @@ public interface EndDeviceCommand {
     List<PropertySpec> getCommandArgumentSpecs();
     void setPropertyValue(PropertySpec propertySpec, Object value);
     EndDevice getEndDevice();
-    //Map<String, Object> getAttributes();
     List<Long> getDeviceMessageIds();
     String getName();
 }
