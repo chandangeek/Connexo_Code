@@ -3,7 +3,7 @@ Ext.define('Uni.property.view.DefaultButton', {
     xtype: 'uni-default-button',
 
     border: 0,
-    iconCls: 'icon-spinner12',
+    iconCls: 'icon-rotate-ccw3',
     iconAlign: 'center',
     height: 28,
     width: 28,

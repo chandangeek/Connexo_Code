@@ -96,6 +96,8 @@ Ext.define('Uni.grid.FilterPanelTop', {
         var me = this,
             store = Ext.getStore(me.store) || Ext.create(me.store);
 
+        me.noUiFilters = [];
+
         me.dockedItems = [
             {
                 xtype: 'container',
@@ -308,7 +310,9 @@ Ext.define('Uni.grid.FilterPanelTop', {
         }
 
         Ext.apply(options.params, params);
-        me.down('button[action=clearAll]').setDisabled(!((options.params.filter && Ext.decode(options.params.filter).length)));
+        me.down('button[action=clearAll]').setDisabled(!Ext.Array.filter(Ext.decode(options.params.filter, true) || [], function (filter) {
+            return !Ext.Array.contains(me.noUiFilters, filter.property);
+        }).length);
     },
 
     createFiltersObject: function (params) {
@@ -504,6 +508,8 @@ Ext.define('Uni.grid.FilterPanelTop', {
             me.filters.add(component);
             if (filter.type !== 'noui') {
                 me.add(component);
+            } else {
+                me.noUiFilters.push(filter.dataIndex);
             }
             component.on('filterupdate', me.applyFilters, me);
         }

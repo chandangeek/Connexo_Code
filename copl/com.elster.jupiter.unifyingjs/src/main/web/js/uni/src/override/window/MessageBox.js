@@ -3,6 +3,7 @@ Ext.define('Uni.override.window.MessageBox', {
     shadow: false,
 
     title: ' ',
+    htmlEncode: true,
 
     reconfigure: function (cfg) {
         if (((typeof cfg) != 'undefined') && cfg.ui) {
