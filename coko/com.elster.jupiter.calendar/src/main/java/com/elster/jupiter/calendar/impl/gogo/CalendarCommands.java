@@ -73,7 +73,11 @@ public class CalendarCommands {
     public void deleteCalendar(String name) {
         Optional<Calendar> obsolete = this.calendarService.findCalendarByName(name);
         if (obsolete.isPresent()) {
-            this.deleteCalendar(obsolete.get());
+            if (this.calendarService.isCalendarInUse(obsolete.get())) {
+                System.out.println("Calendar with name " + name + " is in use!");
+            } else {
+                this.deleteCalendar(obsolete.get());
+            }
         } else {
             System.out.println("Calendar with name " + name + " not found!");
         }
