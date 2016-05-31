@@ -110,7 +110,7 @@ Ext.define('Uni.view.notifications.NoItemsFoundPanel', {
                             xtype: 'box',
                             height: 22,
                             width: 26,
-                            margin: '5 0 0 5',
+                            margin: '13 0 0 5',
                             style: {
                                 fontSize: '22px',
                                 color: '#eb5642'

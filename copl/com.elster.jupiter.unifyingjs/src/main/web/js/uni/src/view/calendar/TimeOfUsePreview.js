@@ -17,6 +17,11 @@ Ext.define('Uni.view.calendar.TimeOfUsePreview', {
             },
             items: [
                 {
+                    xtype: 'displayfield',
+                    fieldLabel: Uni.I18n.translate('general.startOfCalculations', 'UNI', 'Start of calculations'),
+                    name: 'startYear'
+                },
+                {
                     xtype: 'fieldcontainer',
                     fieldLabel: Uni.I18n.translate('general.period', 'UNI', 'Period'),
                     itemId: 'periodField'
@@ -42,6 +47,7 @@ Ext.define('Uni.view.calendar.TimeOfUsePreview', {
 
         me.setTitle(calendarRecord.get('name'));
 
+        me.down('form').loadRecord(calendarRecord);
         me.down('#periodField').removeAll();
         calendarRecord.periods().each(function (record) {
             me.down('#periodField').add(
@@ -97,8 +103,8 @@ Ext.define('Uni.view.calendar.TimeOfUsePreview', {
             dayTypeId = record.get('id'),
             dayArray = calendarRecord.get('weekTemplate'),
             response = '';
-        for(i = 0; i < dayArray.length; i++) {
-            if(dayArray[i].type === dayTypeId) {
+        for (i = 1; i < dayArray.length; i++) {
+            if (dayArray[i].type === dayTypeId) {
                 response += dayArray[i].name + ', '
             }
         }
