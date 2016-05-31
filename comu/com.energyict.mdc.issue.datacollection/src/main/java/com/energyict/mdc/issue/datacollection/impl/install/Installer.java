@@ -52,27 +52,27 @@ public class Installer implements FullInstaller {
     }
 
     @Override
-    public void install(DataModelUpgrader dataModelUpgrader) {
-        run(() -> {
-            dataModelUpgrader.upgrade(dataModel, Version.latest());
-            new CreateIssueViewOperation(dataModel).execute();
-        }, "database schema. Execute command 'ddl " + IssueDataCollectionService.COMPONENT_NAME + "' and apply the sql script manually");
-        run(this::setAQSubscriber, "aq subscribers");
+    public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
+        dataModelUpgrader.upgrade(dataModel, Version.latest());
+        run(() -> new CreateIssueViewOperation(dataModel).execute(), "database schema. Execute command 'ddl " + IssueDataCollectionService.COMPONENT_NAME + "' and apply the sql script manually", logger);
+        run(this::setAQSubscriber, "aq subscribers", logger);
         run(() -> {
             IssueType issueType = setSupportedIssueType();
             setDataCollectionReasons(issueType);
-        }, "issue reasons and action types");
-        run(this::publishEvents, "event publishing");
+        }, "issue reasons and action types", logger);
+        run(this::publishEvents, "event publishing", logger);
 
     }
 
     private void publishEvents() {
         Set<EventType> eventTypesToPublish = new HashSet<>();
-        eventService.getEventType("com/elster/jupiter/metering/meterreading/CREATED").ifPresent(eventTypesToPublish::add);
+        eventService.getEventType("com/elster/jupiter/metering/meterreading/CREATED")
+                .ifPresent(eventTypesToPublish::add);
         for (DataCollectionEventDescription dataCollectionEventDescription : DataCollectionEventDescription.values()) {
             eventService.getEventType(dataCollectionEventDescription.getTopic()).ifPresent(eventTypesToPublish::add);
         }
-        for (DataCollectionResolveEventDescription dataCollectionEventDescription : DataCollectionResolveEventDescription.values()) {
+        for (DataCollectionResolveEventDescription dataCollectionEventDescription : DataCollectionResolveEventDescription
+                .values()) {
             eventService.getEventType(dataCollectionEventDescription.getTopic()).ifPresent(eventTypesToPublish::add);
         }
         for (EventType eventType : eventTypesToPublish) {
@@ -123,12 +123,12 @@ public class Installer implements FullInstaller {
         issueActionService.createActionType(DataCollectionActionsFactory.ID, CloseIssueAction.class.getName(), issueType, CreationRuleActionPhase.OVERDUE);
     }
 
-    private static void run(Runnable runnable, String explanation) {
-        try {
-            runnable.run();
-        } catch (Exception stEx) {
-            LOG.warning("[" + IssueDataCollectionService.COMPONENT_NAME + "] Unable to install " + explanation);
-        }
+    private void run(Runnable runnable, String explanation, Logger logger) {
+        doTry(
+                explanation,
+                runnable,
+                logger
+        );
     }
 
 }
