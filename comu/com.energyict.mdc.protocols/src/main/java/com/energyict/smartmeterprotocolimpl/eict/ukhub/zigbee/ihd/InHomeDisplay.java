@@ -1,11 +1,11 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.ihd;
 
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.UnsupportedException;
-import com.energyict.mdc.protocol.api.UserFileFactory;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.Register;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
@@ -34,8 +34,8 @@ public class InHomeDisplay extends UkHub {
     }
 
     @Inject
-    public InHomeDisplay(PropertySpecService propertySpecService, OrmClient ormClient, UserFileFactory userFileFactory) {
-        super(propertySpecService, ormClient, userFileFactory);
+    public InHomeDisplay(PropertySpecService propertySpecService, OrmClient ormClient, DeviceMessageFileService deviceMessageFileService) {
+        super(propertySpecService, ormClient, deviceMessageFileService);
     }
 
     @Override
@@ -46,7 +46,7 @@ public class InHomeDisplay extends UkHub {
     @Override
     public MessageProtocol getMessageProtocol() {
         if (messageProtocol == null) {
-            messageProtocol = new InHomeDisplayMessaging(new InHomeDisplayMessageExecutor(this, this.getUserFileFactory()));
+            messageProtocol = new InHomeDisplayMessaging(new InHomeDisplayMessageExecutor(this));
         }
         return messageProtocol;
     }

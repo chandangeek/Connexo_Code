@@ -2,6 +2,7 @@ package com.energyict.protocolimpl.utils;
 
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.ProtocolException;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
@@ -9,9 +10,8 @@ import com.energyict.mdc.protocol.api.device.data.IntervalValue;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
-import com.energyict.mdc.protocol.api.UserFileShadow;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 
 import java.io.ByteArrayInputStream;
@@ -1170,28 +1170,6 @@ public final class ProtocolTools {
     }
 
     /**
-     * Create a UserFileShadow with the given parameters.
-     *
-     * @param name      the name of the userfile
-     * @param content   the content of the userfile
-     * @param extension the extension of the userfile
-     * @return the expected UserFileShadow
-     * @throws IOException if an error occurred during the creation of the file
-     */
-    public static UserFileShadow createUserFileShadow(String name, byte[] content, String extension) throws IOException {
-        UserFileShadow ufs = new UserFileShadow();
-        ufs.setName(name);
-        ufs.setExtension(extension);
-        File file = File.createTempFile("TempUserFile", extension);
-        FileOutputStream fos = new FileOutputStream(file);
-        fos.write(content);
-        fos.close();
-        file.deleteOnExit();
-        ufs.setFile(file);
-        return ufs;
-    }
-
-    /**
      * Check if the ipAddress contains a PortNumber, if not then add the given one
      *
      * @param ipAddress
@@ -1200,11 +1178,7 @@ public final class ProtocolTools {
      */
     public static String checkIPAddressForPortNumber(String ipAddress, String portNumber) {
         if (!ipAddress.contains(":")) {
-            StringBuffer strBuff = new StringBuffer();
-            strBuff.append(ipAddress);
-            strBuff.append(":");
-            strBuff.append(portNumber);
-            return strBuff.toString();
+            return ipAddress + ":" + portNumber;
         }
         return ipAddress;
     }

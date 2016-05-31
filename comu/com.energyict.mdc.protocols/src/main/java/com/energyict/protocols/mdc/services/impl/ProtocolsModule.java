@@ -1,17 +1,18 @@
 package com.energyict.protocols.mdc.services.impl;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.UserFileFactory;
-import com.energyict.mdc.protocol.api.codetables.CodeFactory;
+import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.api.services.DeviceCacheMarshallingService;
@@ -52,8 +53,9 @@ public class ProtocolsModule extends AbstractModule {
         requireBinding(MdcReadingTypeUtilService.class);
         requireBinding(IdentificationService.class);
         requireBinding(CollectedDataFactory.class);
-        requireBinding(CodeFactory.class);
-        requireBinding(UserFileFactory.class);
+        requireBinding(CalendarService.class);
+        requireBinding(DeviceConfigurationService.class);
+        requireBinding(DeviceMessageFileService.class);
         requireBinding(TransactionService.class);
         requireBinding(ProtocolPluggableService.class);
 

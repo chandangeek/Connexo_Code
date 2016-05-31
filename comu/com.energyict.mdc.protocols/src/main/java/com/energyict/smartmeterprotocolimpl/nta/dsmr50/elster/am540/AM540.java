@@ -1,5 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.device.topology.TopologyService;
@@ -47,8 +48,8 @@ public class AM540 extends E350 {
     private static final String TIMEOUT = "timeout";
 
     @Inject
-    public AM540(PropertySpecService propertySpecService, Clock clock, TopologyService topologyService, OrmClient ormClient, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory) {
-        super(propertySpecService, clock, topologyService, ormClient, readingTypeUtilService, loadProfileFactory);
+    public AM540(PropertySpecService propertySpecService, Clock clock, TopologyService topologyService, CalendarService calendarService, OrmClient ormClient, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory) {
+        super(propertySpecService, clock, topologyService, calendarService, ormClient, readingTypeUtilService, loadProfileFactory);
         setHasBreaker(false);
     }
 
@@ -225,7 +226,7 @@ public class AM540 extends E350 {
     @Override
     public MessageProtocol getMessageProtocol() {
         if (messageProtocol == null) {
-            messageProtocol = new AM540Messaging(this, this.getTopologyService(), this.getClock());
+            messageProtocol = new AM540Messaging(this, this.getTopologyService(), this.getClock(), this.getCalendarService());
         }
         return messageProtocol;
     }

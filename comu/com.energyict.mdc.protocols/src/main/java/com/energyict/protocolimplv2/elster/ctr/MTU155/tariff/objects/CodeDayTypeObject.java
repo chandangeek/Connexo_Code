@@ -1,11 +1,11 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.objects;
 
-import com.energyict.mdc.protocol.api.codetables.CodeDayType;
-import com.energyict.mdc.protocol.api.codetables.CodeDayTypeDef;
+import com.elster.jupiter.calendar.DayType;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Copyrights EnergyICT
@@ -38,23 +38,21 @@ public class CodeDayTypeObject implements Serializable {
             DEFAULT
     };
 
-    private int id;
+    private long id;
     private String name;
     private String externalName;
-    private List<CodeDayTypeDefObject> dayTypeDefs = new ArrayList<CodeDayTypeDefObject>();
+    private List<CodeDayTypeDefObject> dayTypeDefs = new ArrayList<>();
 
-    public static CodeDayTypeObject fromCodeDayType(CodeDayType dayType) {
+    public static CodeDayTypeObject from(DayType dayType) {
         CodeDayTypeObject dt = new CodeDayTypeObject();
         dt.setId(dayType.getId());
         dt.setName(dayType.getName());
-        dt.setExternalName(dayType.getExternalName());
-        dt.setDayTypeDefs(new ArrayList<CodeDayTypeDefObject>());
-        List definitions = dayType.getDefinitions();
-        for (Object definition : definitions) {
-            if (definition instanceof CodeDayTypeDef) {
-                dt.getDayTypeDefs().add(CodeDayTypeDefObject.fromCodeDayTypeDef((CodeDayTypeDef) definition));
-            }
-        }
+        dt.setExternalName(null);
+        dt.setDayTypeDefs(
+                dayType.getEventOccurrences()
+                        .stream()
+                        .map(CodeDayTypeDefObject::from)
+                        .collect(Collectors.toList()));
         return dt;
     }
 
@@ -82,28 +80,26 @@ public class CodeDayTypeObject implements Serializable {
         this.dayTypeDefs = dayTypeDefs;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder();
-        sb.append("CodeDayTypeObject");
-        sb.append("{dayTypeDefs=").append(dayTypeDefs);
-        sb.append(", id=").append(id);
-        sb.append(", name='").append(name).append('\'');
-        sb.append(", externalName='").append(externalName).append('\'');
-        sb.append('}');
-        return sb.toString();
+        return "CodeDayTypeObject" +
+               "{dayTypeDefs=" + dayTypeDefs +
+               ", id=" + id +
+               ", name='" + name + '\'' +
+               ", externalName='" + externalName + '\'' +
+               '}';
     }
 
     public boolean isDefault() {
-        return DEFAULT.equals(getName() != null ? getName() : "");
+        return DEFAULT.equals(getName());
     }
 
     public boolean isWeekday() {
@@ -127,4 +123,7 @@ public class CodeDayTypeObject implements Serializable {
         return (getName() != null) && (getName().equals(FORCED_1) || getName().equals(FORCED_2) || getName().equals(FORCED_3));
     }
 
+    public static void main(String[] args) {
+        System.out.println(DEFAULT.equals(null));
+    }
 }

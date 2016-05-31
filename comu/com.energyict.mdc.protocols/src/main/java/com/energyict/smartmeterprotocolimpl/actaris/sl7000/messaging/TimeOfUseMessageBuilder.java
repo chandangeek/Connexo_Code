@@ -1,14 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.actaris.sl7000.messaging;
 
-/**
- * Copyrights EnergyICT
- * User: sva
- * Date: 23/04/12
- * Time: 11:59
- */
-
-import com.energyict.mdc.protocol.api.UserFileFactory;
-import com.energyict.mdc.protocol.api.codetables.CodeFactory;
+import com.elster.jupiter.calendar.CalendarService;
+import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -24,10 +17,10 @@ import java.io.IOException;
  */
 public class TimeOfUseMessageBuilder extends com.energyict.protocols.messaging.TimeOfUseMessageBuilder {
 
-      public static final String RAW_CONTENT_TAG = "Activity_Calendar";
+    public static final String RAW_CONTENT_TAG = "Activity_Calendar";
 
-    public TimeOfUseMessageBuilder(CodeFactory codeFactory, UserFileFactory userFileFactory) {
-        super(codeFactory, userFileFactory);
+    public TimeOfUseMessageBuilder(CalendarService calendarService, DeviceMessageFileService deviceMessageFileService) {
+        super(calendarService, deviceMessageFileService);
     }
 
     /**
@@ -35,8 +28,8 @@ public class TimeOfUseMessageBuilder extends com.energyict.protocols.messaging.T
      */
     @Override
     protected String getMessageContent() throws ParserConfigurationException, IOException {
-        if ((getCodeId() == 0) && (getUserFileId() == 0)) {
-            throw new IllegalArgumentException("Code or userFile needed");
+        if ((getCalendarId() == 0) && (getDeviceMessageFileId() == 0)) {
+            throw new IllegalArgumentException("Calendar or device message file needed");
         }
         StringBuilder builder = new StringBuilder();
         builder.append("<");
@@ -48,9 +41,9 @@ public class TimeOfUseMessageBuilder extends com.energyict.protocols.messaging.T
             addAttribute(builder, getAttributeActivationDate(), getActivationDate().getTime() / 1000);
         }
         builder.append(">");
-        if (getCodeId() > 0l) {
-            String xmlContent = CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(getCodeId(), getActivationDate().getTime(), getName());
-            addChildTag(builder, getTagCode(), getCodeId());
+        if (getCalendarId() > 0L) {
+            String xmlContent = CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(this.getCalendar(), getActivationDate().getTime(), getName());
+            addChildTag(builder, getTagCode(), getCalendarId());
             addChildTag(builder, RAW_CONTENT_TAG, ProtocolTools.compress(xmlContent));
         }
         builder.append("</");
@@ -58,4 +51,5 @@ public class TimeOfUseMessageBuilder extends com.energyict.protocols.messaging.T
         builder.append(">");
         return builder.toString();
     }
+
 }

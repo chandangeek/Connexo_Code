@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.messages.codetableparsing;
 
+import com.elster.jupiter.calendar.Calendar;
 import com.energyict.mdc.common.ApplicationException;
-import com.energyict.mdc.protocol.api.codetables.Code;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -90,32 +90,21 @@ public class CodeTableXmlParsing {
     protected static final Log logger = LogFactory.getLog(CodeTableXmlParsing.class);
 
     /**
-     * Constructor with codeTable id
-     */
-    public CodeTableXmlParsing() {
-    }
-
-    /**
-     * Parse the given CodeTable to a proper xml format for the ActivityCalendar AND SpecialDayTable.
+     * Parse the given {@link Calendar} to a proper xml format for the ActivityCalendar AND SpecialDayTable.
      *
-     * @param id             the id of the {@link Code}
+     * @param calendar The Calendar
      * @param activationTime the time to activate the new calendar(epoch time) Possible values:
-     *                       <ul>
-     *                       <li> <code>0</code> : calendar isn't activated
-     *                       <li> <code>1</code> : passive calendar will be switched to active calendar immediately
-     *                       <li> correct epoch time : time is written
-     *                       </ul>
-     * @param name           the name for the ActivityCalendar
+     *        <ul>
+     *        <li> <code>0</code> : calendar isn't activated
+     *        <li> <code>1</code> : passive calendar will be switched to active calendar immediately
+     *        <li> correct epoch time : time is written
+     *        </ul>
+     * @param name The name for the ActivityCalendar
      * @return the complete xml for the RTUMessage
      * @throws javax.xml.parsers.ParserConfigurationException if a DocumentBuilder cannot be created which satisfies the configuration requested.
      */
-    public static String parseActivityCalendarAndSpecialDayTable(int id, long activationTime, String name) throws ParserConfigurationException {
-        return parseActivityCalendarAndSpecialDayTable(getCode(id), activationTime, name);
-    }
-
-    public static String parseActivityCalendarAndSpecialDayTable(Code codeTable, long activationTime, String name) throws ParserConfigurationException {
-
-        CodeTableParser ctp = new CodeTableParser(codeTable);
+    public static String parseActivityCalendarAndSpecialDayTable(Calendar calendar, long activationTime, String name) throws ParserConfigurationException {
+        CodeTableParser ctp = new CodeTableParser(calendar);
         try {
 
             ctp.parse();
@@ -127,62 +116,23 @@ public class CodeTableXmlParsing {
             Element root = document.createElement(rootTOUMessage);
 
             /*
-             We use the name of the codeTable as activityCalendarName
+             We use the name of the calendar as activityCalendarName
              This way we can track the calendars in the devices
               */
             root.appendChild(createSingleElement(document, rootActCalendarName, name));
-            root.appendChild(createSingleElement(document, codeTableDefinitionTimeZone, codeTable.getDefinitionTimeZone().getDisplayName()));
-            root.appendChild(createSingleElement(document, codeTableDestinationTimeZone, codeTable.getDestinationTimeZone().getDisplayName()));
-            root.appendChild(createSingleElement(document, codeTableInterval, Integer.toString(codeTable.getIntervalInSeconds())));
-            root.appendChild(createSingleElement(document, codeTableFromYear, Integer.toString(codeTable.getYearFrom())));
-            root.appendChild(createSingleElement(document, codeTableToYear, Integer.toString(codeTable.getYearTo())));
-            root.appendChild(createSingleElement(document, codeTableSeasonSetId, Integer.toString(codeTable.getSeasonSetId())));
+            root.appendChild(createSingleElement(document, codeTableDefinitionTimeZone, calendar.getTimeZone().getDisplayName()));
+            root.appendChild(createSingleElement(document, codeTableDestinationTimeZone, calendar.getTimeZone().getDisplayName()));
+            /* Todo: Extract the hard code 15 min to a parameter for this method.
+                     Calling context, i.e. the protocol or a protocol adapater
+                     may need to access the available reading types,
+                     sort them as:
+                     favour Electricity, favour Wh over W, favour smaller intervals over larger intervals
+                     Use the interval of the best match. */
+            root.appendChild(createSingleElement(document, codeTableInterval, Integer.toString(900)));
+            root.appendChild(createSingleElement(document, codeTableFromYear, Integer.toString(calendar.getStartYear().getValue())));
+            root.appendChild(createSingleElement(document, codeTableToYear, Integer.toString(calendar.getEndYear().getValue())));
+            root.appendChild(createSingleElement(document, codeTableSeasonSetId, "0"));
             root.appendChild(createSingleElement(document, rootPassiveCalendarActivationTime, String.valueOf(activationTime)));
-
-            Element rootActCalendar = document.createElement(rootActCodeTable);
-            rootActCalendar.appendChild(convertSeasonProfileToXml(ctp.getSeasonProfiles(), document));
-            rootActCalendar.appendChild(convertWeekProfileToXml(ctp.getWeekProfiles(), document));
-            rootActCalendar.appendChild(convertDayProfileToXml(ctp.getDayProfiles(), document));
-            root.appendChild(rootActCalendar);
-
-            Element rootSpdCalendar = document.createElement(rootSpDCodeTable);
-            rootSpdCalendar.appendChild(convertSpecialDayProfileToXml(ctp.getSpecialDaysProfile(), document));
-            root.appendChild(rootSpdCalendar);
-
-            document.appendChild(root);
-            return getXmlWithoutDocType(document);
-        } catch (ParserConfigurationException e) {
-            logger.error(e.getMessage());
-            throw e;
-        }
-    }
-
-    /**
-     * Parse the given CodeTable to a proper xml format for the ActivityCalendar AND SpecialDayTable.
-     *
-     * @param codeTable     the {@link Code codeTable}
-     * @return the complete xml for the RTUMessage
-     * @throws javax.xml.parsers.ParserConfigurationException if a DocumentBuilder cannot be created which satisfies the configuration requested.
-     */
-    public static String parseActivityCalendarAndSpecialDayTable(Code codeTable) throws ParserConfigurationException {
-        CodeTableParser ctp = new CodeTableParser(codeTable);
-        try {
-
-            ctp.parse();
-
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            Document document = builder.newDocument();
-            Element root = document.createElement(rootTOUMessage);
-
-            root.appendChild(createSingleElement(document, rootActCalendarName, codeTable.getName()));
-            root.appendChild(createSingleElement(document, codeTableDefinitionTimeZone, codeTable.getDefinitionTimeZone().getDisplayName()));
-            root.appendChild(createSingleElement(document, codeTableDestinationTimeZone, codeTable.getDestinationTimeZone().getDisplayName()));
-            root.appendChild(createSingleElement(document, codeTableInterval, Integer.toString(codeTable.getIntervalInSeconds())));
-            root.appendChild(createSingleElement(document, codeTableFromYear, Integer.toString(codeTable.getYearFrom())));
-            root.appendChild(createSingleElement(document, codeTableToYear, Integer.toString(codeTable.getYearTo())));
-            root.appendChild(createSingleElement(document, codeTableSeasonSetId, Integer.toString(codeTable.getSeasonSetId())));
 
             Element rootActCalendar = document.createElement(rootActCodeTable);
             rootActCalendar.appendChild(convertSeasonProfileToXml(ctp.getSeasonProfiles(), document));
@@ -427,12 +377,12 @@ public class CodeTableXmlParsing {
     }
 
     /**
-     * Getter for the {@link Code}
+     * Getter for the {@link Calendar}
      *
-     * @param id the ID of the CodeTable
-     * @return the desired CodeTable
+     * @param id the ID of the Calendar
+     * @return the Calendar
      */
-    protected static Code getCode(int id) {
+    protected static Calendar getCalendar(long id) {
         // Todo: port Code to jupiter, return null as the previous code would have returned null too.
         return null;
     }

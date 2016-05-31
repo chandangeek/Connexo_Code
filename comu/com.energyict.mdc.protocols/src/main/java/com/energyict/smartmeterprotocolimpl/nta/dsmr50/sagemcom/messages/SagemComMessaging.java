@@ -1,5 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr50.sagemcom.messages;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.energyict.mdc.device.topology.TopologyService;
 
 import com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.AM540;
@@ -16,12 +17,12 @@ import java.time.Clock;
  */
 public class SagemComMessaging extends AM540Messaging {
 
-    public SagemComMessaging(AM540 protocol, Clock clock, TopologyService topologyService) {
-        super(protocol, topologyService, clock);
+    public SagemComMessaging(AM540 protocol, Clock clock, TopologyService topologyService, CalendarService calendarService) {
+        super(protocol, topologyService, clock, calendarService);
     }
 
     protected Dsmr50MessageExecutor getMessageExecutor() {
-        return new SagemComDsmr50MessageExecutor(protocol, this.getClock(), this.getTopologyService());
+        return new SagemComDsmr50MessageExecutor(protocol, this.getClock(), this.getTopologyService(), this.getCalendarService());
     }
 
 }

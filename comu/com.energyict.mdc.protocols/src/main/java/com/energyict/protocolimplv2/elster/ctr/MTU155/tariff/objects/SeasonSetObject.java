@@ -1,11 +1,10 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.objects;
 
-import com.energyict.mdc.protocol.api.codetables.Season;
-import com.energyict.mdc.protocol.api.codetables.SeasonSet;
+import com.elster.jupiter.calendar.Calendar;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Copyrights EnergyICT
@@ -14,31 +13,26 @@ import java.util.List;
  */
 public class SeasonSetObject implements Serializable {
 
-    private int id;
+    private long id;
     private String name;
     private List<SeasonObject> seasons;
 
     public SeasonSetObject() {
-
     }
 
-    public static SeasonSetObject fromSeasonSet(SeasonSet seasonSet) {
+    public static SeasonSetObject from(Calendar calendar) {
         SeasonSetObject ss = new SeasonSetObject();
-        ss.setId(seasonSet.getId());
-        ss.setName(seasonSet.getName());
-        List<Season> eiserverSeasons = seasonSet.getSeasons();
-        ss.setSeasons(new ArrayList<>());
-        for (Season eis : eiserverSeasons) {
-            ss.getSeasons().add(SeasonObject.fromSeason(eis));
-        }
+        ss.setId(calendar.getId());
+        ss.setName(calendar.getName());
+        ss.setSeasons(calendar.getPeriods().stream().map(p -> SeasonObject.from(p)).collect(Collectors.toList()));
         return ss;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 
