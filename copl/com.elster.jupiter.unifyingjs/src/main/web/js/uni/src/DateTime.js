@@ -65,15 +65,15 @@ Ext.define('Uni.DateTime', {
         return Ext.Date.format(date, format);
     },
 
-    formatDateTimeShort: function(date) {
+    formatDateTimeShort: function (date) {
         return this.formatDateTime(date, this.SHORT, this.SHORT);
     },
 
-    formatDateTimeLong: function(date) {
+    formatDateTimeLong: function (date) {
         return this.formatDateTime(date, this.LONG, this.LONG);
     },
 
-    formatDateTime: function(date, dateLongOrShort, timeLongOrShort) {
+    formatDateTime: function (date, dateLongOrShort, timeLongOrShort) {
         return this.doFormat(
             date,
             this.LONG === dateLongOrShort
@@ -85,7 +85,7 @@ Ext.define('Uni.DateTime', {
         );
     },
 
-    doFormat: function(date, dateFormat, timeFormat) {
+    doFormat: function (date, dateFormat, timeFormat) {
         var me = this,
             dateTimeFormat,
             orderFormat = Uni.util.Preferences.lookup(me.dateTimeOrderKey, me.dateTimeOrderDefault),
