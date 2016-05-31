@@ -57,7 +57,9 @@ Ext.define('Uni.form.field.readingtypes.ReadingTypesField', {
                         align: 'right',
                         items: [{
                             iconCls: ' uni-icon-delete',
-                            disabled: me.disabled,
+                            isDisabled: function () {
+                                return me.disabled
+                            },
                             tooltip: Uni.I18n.translate('general.remove', 'UNI', 'Remove'),
                             handler: function (grid, rowIndex) {
                                 grid.getStore().removeAt(rowIndex);
