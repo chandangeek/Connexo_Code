@@ -66,30 +66,33 @@ public class MdcAppInstaller {
         upgradeService.register(InstallIdentifier.identifier("MDA"), dataModel, Installer.class, Collections.emptyMap());
     }
 
-    static class Installer implements FullInstaller {
+    public static class Installer implements FullInstaller {
 
-        private static final Logger LOGGER = Logger.getLogger(Installer.class.getName());
         private final UserService userService;
 
         @Inject
-        Installer(UserService userService) {
+        public Installer(UserService userService) {
             this.userService = userService;
         }
 
         @Override
-        public void install(DataModelUpgrader dataModelUpgrader) {
-            createDefaultRoles();
-            assignPrivilegesToDefaultRoles();
+        public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
+            doTry(
+                    "Create default roles for MDA",
+                    this::createDefaultRoles,
+                    logger
+            );
+            doTry(
+                    "Assign privileges to roles for MDA",
+                    this::assignPrivilegesToDefaultRoles,
+                    logger
+            );
         }
 
         public void createDefaultRoles() {
-            try {
-                userService.createGroup(MdcAppService.Roles.METER_EXPERT.value(), MdcAppService.Roles.METER_EXPERT.description());
-                userService.createGroup(MdcAppService.Roles.METER_OPERATOR.value(), MdcAppService.Roles.METER_OPERATOR.description());
-                userService.createGroup(MdcAppService.Roles.REPORT_VIEWER.value(), MdcAppService.Roles.REPORT_VIEWER.description());
-            } catch (Exception e) {
-                LOGGER.severe(e.getMessage());
-            }
+            userService.createGroup(MdcAppService.Roles.METER_EXPERT.value(), MdcAppService.Roles.METER_EXPERT.description());
+            userService.createGroup(MdcAppService.Roles.METER_OPERATOR.value(), MdcAppService.Roles.METER_OPERATOR.description());
+            userService.createGroup(MdcAppService.Roles.REPORT_VIEWER.value(), MdcAppService.Roles.REPORT_VIEWER.description());
         }
 
         private void assignPrivilegesToDefaultRoles() {
