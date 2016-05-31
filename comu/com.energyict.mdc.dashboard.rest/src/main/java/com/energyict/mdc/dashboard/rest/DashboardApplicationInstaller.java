@@ -10,6 +10,7 @@ import com.energyict.mdc.engine.config.security.Privileges;
 
 import javax.inject.Inject;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 class DashboardApplicationInstaller implements FullInstaller {
     private final UserService userService;
@@ -20,10 +21,14 @@ class DashboardApplicationInstaller implements FullInstaller {
     }
 
     @Override
-    public void install(DataModelUpgrader dataModelUpgrader) {
+    public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
         Optional<User> comServerInternalAccessAccount = userService.findUser(ComServerStatusSummaryResource.COM_SERVER_INTERNAL_USER);
         if (!comServerInternalAccessAccount.isPresent()) {
-            setupComServerInternalAccess();
+            doTry(
+                    "Set up Com Server internal access",
+                    this::setupComServerInternalAccess,
+                    logger
+            );
         }
     }
 
