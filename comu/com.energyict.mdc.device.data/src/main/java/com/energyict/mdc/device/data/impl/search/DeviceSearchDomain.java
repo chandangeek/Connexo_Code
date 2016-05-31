@@ -96,8 +96,8 @@ public class DeviceSearchDomain implements SearchDomain {
     }
 
     @Override
-    public boolean supports(Class aClass) {
-        return Device.class.equals(aClass);
+    public Class<?> getDomainClass() {
+        return Device.class;
     }
 
     @Override
@@ -115,7 +115,6 @@ public class DeviceSearchDomain implements SearchDomain {
         ComTaskSearchablePropertyGroup comTaskGroup = injector.getInstance(ComTaskSearchablePropertyGroup.class);
         ConnectionSearchablePropertyGroup connectionGroup = injector.getInstance(ConnectionSearchablePropertyGroup.class);
         TransitionSearchablePropertyGroup transitionGroup = injector.getInstance(TransitionSearchablePropertyGroup.class);
-        FirmwareVersionSearchablePropertyGroup firmwareVersionGroup = injector.getInstance(FirmwareVersionSearchablePropertyGroup.class);
         return Arrays.asList(
                 injector.getInstance(MasterResourceIdentifierSearchableProperty.class).init(this),
                 injector.getInstance(SerialNumberSearchableProperty.class).init(this),
@@ -172,7 +171,7 @@ public class DeviceSearchDomain implements SearchDomain {
                 injector.getInstance(TransitionInstallationDateSearchableProperty.class).init(this, transitionGroup),
                 injector.getInstance(TransitionDeactivationDateSearchableProperty.class).init(this, transitionGroup),
                 injector.getInstance(TransitionDecommissioningDateSearchableProperty.class).init(this, transitionGroup),
-                injector.getInstance(FirmwareVersionNameSearchableProperty.class).init(this, firmwareVersionGroup)
+                injector.getInstance(LocationSearchableProperty.class).init(this)
         );
     }
 
@@ -234,12 +233,12 @@ public class DeviceSearchDomain implements SearchDomain {
             Set<Long> uniquePluggableClasses = new HashSet<>();
             for (Object value : deviceTypeConstriction.get().getConstrainingValues()) {
                 DeviceProtocolPluggableClass pluggableClass = ((DeviceType) value).getDeviceProtocolPluggableClass();
-                if (!uniquePluggableClasses.add(pluggableClass.getId())) {
+                if (pluggableClass==null || !uniquePluggableClasses.add(pluggableClass.getId())) {
                     continue;
                 }
                 for (PropertySpec propertySpec : pluggableClass.getDeviceProtocol().getPropertySpecs()) {
                     dynamicProperties.add(injector.getInstance(GeneralAttributeDynamicSearchableProperty.class)
-                            .init(this, propertiesGroup, propertySpec, deviceTypeConstriction.get().getConstrainingProperty(), pluggableClass));
+                        .init(this, propertiesGroup, propertySpec, deviceTypeConstriction.get().getConstrainingProperty(), pluggableClass));
                 }
             }
             return dynamicProperties;

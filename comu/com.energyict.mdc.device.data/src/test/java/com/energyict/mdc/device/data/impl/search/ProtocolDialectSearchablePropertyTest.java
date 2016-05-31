@@ -207,7 +207,7 @@ public class ProtocolDialectSearchablePropertyTest {
     public void refreshWithTooManyConstrictions() {
         ProtocolDialectSearchableProperty property = this.getTestInstance();
         DeviceType deviceType = mock(DeviceType.class);
-        SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.withValues(this.deviceTypeSearchableProperty, Arrays.asList(deviceType));
+        SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.withValues(this.deviceTypeSearchableProperty, deviceType);
         SearchableProperty otherSearchableProperty = mock(SearchableProperty.class);
         SearchablePropertyConstriction otherConstriction = SearchablePropertyConstriction.noValues(otherSearchableProperty);
 
@@ -220,7 +220,7 @@ public class ProtocolDialectSearchablePropertyTest {
     @Test(expected = IllegalArgumentException.class)
     public void refreshWithConstrictionsOfWrongType() {
         ProtocolDialectSearchableProperty property = this.getTestInstance();
-        SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.withValues(this.deviceTypeSearchableProperty, Arrays.asList("Wrong", "type"));
+        SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.withValues(this.deviceTypeSearchableProperty, "Wrong", "type");
 
         // Business method
         property.refreshWithConstrictions(Arrays.asList(deviceTypeConstriction));
@@ -244,7 +244,7 @@ public class ProtocolDialectSearchablePropertyTest {
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(pluggableClass);
 
         ProtocolDialectSearchableProperty property = this.getTestInstance();
-        SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.withValues(this.deviceTypeSearchableProperty, Arrays.asList(deviceType));
+        SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.withValues(this.deviceTypeSearchableProperty, deviceType);
 
         // Business method
         property.refreshWithConstrictions(Arrays.asList(deviceTypeConstriction));
@@ -282,7 +282,7 @@ public class ProtocolDialectSearchablePropertyTest {
         when(deviceType2.getDeviceProtocolPluggableClass()).thenReturn(pluggableClass2);
 
         ProtocolDialectSearchableProperty property = this.getTestInstance();
-        SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.withValues(this.deviceTypeSearchableProperty, Arrays.asList(deviceType1, deviceType2));
+        SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.withValues(this.deviceTypeSearchableProperty, deviceType1, deviceType2);
 
         // Business method
         property.refreshWithConstrictions(Arrays.asList(deviceTypeConstriction));
@@ -302,7 +302,7 @@ public class ProtocolDialectSearchablePropertyTest {
         ProtocolDialectSearchableProperty property = this.getTestInstance();
         SearchableProperty otherProperty = mock(SearchableProperty.class);
         when(otherProperty.hasName(anyString())).thenReturn(false);
-        SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.withValues(otherProperty, Arrays.asList(mock(DeviceType.class)));
+        SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.withValues(otherProperty, mock(DeviceType.class));
 
         // Business method
         property.refreshWithConstrictions(Arrays.asList(deviceTypeConstriction));

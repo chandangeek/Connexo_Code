@@ -214,7 +214,7 @@ public class StateNameSearchablePropertyTest {
     @Test(expected = IllegalArgumentException.class)
     public void refreshWithConstrictionsOfWrongType() {
         StateNameSearchableProperty property = this.getTestInstance();
-        SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.withValues(this.deviceTypeSearchableProperty, Arrays.asList("Wrong", "type"));
+        SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.withValues(this.deviceTypeSearchableProperty, "Wrong", "type");
 
         // Business method
         property.refreshWithConstrictions(Collections.singletonList(deviceTypeConstriction));
@@ -277,7 +277,7 @@ public class StateNameSearchablePropertyTest {
         when(deviceType2.getName()).thenReturn("DT-Two");
 
         StateNameSearchableProperty property = this.getTestInstance();
-        SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.withValues(this.deviceTypeSearchableProperty, Arrays.asList(deviceType1, deviceType2));
+        SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.withValues(this.deviceTypeSearchableProperty, deviceType1, deviceType2);
 
         // Business method
         property.refreshWithConstrictions(Collections.singletonList(deviceTypeConstriction));

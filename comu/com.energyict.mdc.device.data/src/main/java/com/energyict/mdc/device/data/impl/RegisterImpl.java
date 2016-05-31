@@ -5,7 +5,6 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
-import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.collections.DualIterable;
 import com.elster.jupiter.util.time.Interval;
@@ -156,6 +155,10 @@ public abstract class RegisterImpl<R extends Reading, RS extends RegisterSpec> i
 
     @Override
     public ObisCode getDeviceObisCode() {
+        Optional<ReadingTypeObisCodeUsage> readingTypeObisCodeUsageOptional = getDevice().getReadingTypeObisCodeUsage(getReadingType());
+        if (readingTypeObisCodeUsageOptional.isPresent()) {
+            return readingTypeObisCodeUsageOptional.get().getObisCode();
+        }
         return getRegisterSpec().getDeviceObisCode();
     }
 

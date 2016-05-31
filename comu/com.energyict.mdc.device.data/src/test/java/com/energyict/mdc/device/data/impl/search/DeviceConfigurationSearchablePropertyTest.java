@@ -198,7 +198,7 @@ public class DeviceConfigurationSearchablePropertyTest {
     public void refreshWithTooManyConstrictions() {
         DeviceConfigurationSearchableProperty property = this.getTestInstance();
         DeviceType deviceType = mock(DeviceType.class);
-        SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.withValues(this.deviceTypeSearchableProperty, Arrays.asList(deviceType));
+        SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.withValues(this.deviceTypeSearchableProperty, deviceType);
         SearchableProperty otherSearchableProperty = mock(SearchableProperty.class);
         SearchablePropertyConstriction otherConstriction = SearchablePropertyConstriction.noValues(otherSearchableProperty);
 
@@ -211,7 +211,7 @@ public class DeviceConfigurationSearchablePropertyTest {
     @Test(expected = IllegalArgumentException.class)
     public void refreshWithConstrictionsOfWrongType() {
         DeviceConfigurationSearchableProperty property = this.getTestInstance();
-        SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.withValues(this.deviceTypeSearchableProperty, Arrays.asList("Wrong", "type"));
+        SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.withValues(this.deviceTypeSearchableProperty, "Wrong", "type");
 
         // Business method
         property.refreshWithConstrictions(Arrays.asList(deviceTypeConstriction));
@@ -226,7 +226,7 @@ public class DeviceConfigurationSearchablePropertyTest {
         DeviceConfiguration config2 = mock(DeviceConfiguration.class);
         DeviceType deviceType = mock(DeviceType.class);
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(config1, config2));
-        SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.withValues(this.deviceTypeSearchableProperty, Arrays.asList(deviceType));
+        SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.withValues(this.deviceTypeSearchableProperty, deviceType);
 
         // Business method
         property.refreshWithConstrictions(Arrays.asList(deviceTypeConstriction));
@@ -247,7 +247,7 @@ public class DeviceConfigurationSearchablePropertyTest {
         DeviceConfiguration config2 = mock(DeviceConfiguration.class);
         DeviceType deviceType2 = mock(DeviceType.class);
         when(deviceType2.getConfigurations()).thenReturn(Arrays.asList(config2));
-        SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.withValues(this.deviceTypeSearchableProperty, Arrays.asList(deviceType1, deviceType2));
+        SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.withValues(this.deviceTypeSearchableProperty, deviceType1, deviceType2);
 
         // Business method
         property.refreshWithConstrictions(Arrays.asList(deviceTypeConstriction));
@@ -268,7 +268,7 @@ public class DeviceConfigurationSearchablePropertyTest {
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(config1, config2));
         SearchableProperty otherSearchableProperty = mock(SearchableProperty.class);
         when(otherSearchableProperty.hasName(anyString())).thenReturn(false);
-        SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.withValues(otherSearchableProperty, Arrays.asList(deviceType));
+        SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.withValues(otherSearchableProperty, deviceType);
 
         // Business method
         property.refreshWithConstrictions(Arrays.asList(deviceTypeConstriction));
@@ -326,7 +326,7 @@ public class DeviceConfigurationSearchablePropertyTest {
         DeviceConfiguration config2 = mock(DeviceConfiguration.class);
         when(config2.getDeviceType()).thenReturn(deviceType);
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(config1, config2));
-        SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.withValues(this.deviceTypeSearchableProperty, Arrays.asList(deviceType));
+        SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.withValues(this.deviceTypeSearchableProperty, deviceType);
         property.refreshWithConstrictions(Arrays.asList(deviceTypeConstriction));
 
         // Business method
@@ -351,7 +351,7 @@ public class DeviceConfigurationSearchablePropertyTest {
         when(config2.getDeviceType()).thenReturn(deviceType2);
         when(deviceType2.getConfigurations()).thenReturn(Arrays.asList(config2));
         when(deviceType2.getName()).thenReturn("DT-Two");
-        SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.withValues(this.deviceTypeSearchableProperty, Arrays.asList(deviceType1, deviceType2));
+        SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.withValues(this.deviceTypeSearchableProperty, deviceType1, deviceType2);
         property.refreshWithConstrictions(Arrays.asList(deviceTypeConstriction));
         String expectedDisplayValue = config1Name + " (" + deviceType1.getName() + ")";
         // Business method

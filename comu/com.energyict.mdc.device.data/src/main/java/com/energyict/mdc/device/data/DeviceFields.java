@@ -19,7 +19,8 @@ public enum DeviceFields implements ImplField {
     DEVICEGROUP("deviceGroup"),
     CERT_YEAR("certYear"),
     BATCH("batch"),
-    METER("meter")
+    METER("meter"),
+    LOCATION("location")
     ;
 
     private final String javaFieldName;

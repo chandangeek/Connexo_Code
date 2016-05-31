@@ -200,7 +200,7 @@ public class ComTaskSecuritySettingsSearchablePropertyTest {
     public void refreshWithTooManyConstrictions() {
         SearchableProperty property = this.getTestInstance();
         DeviceType deviceType = mock(DeviceType.class);
-        SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.withValues(this.deviceTypeSearchableProperty, Arrays.asList(deviceType));
+        SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.withValues(this.deviceTypeSearchableProperty, deviceType);
         SearchableProperty otherSearchableProperty = mock(SearchableProperty.class);
         SearchablePropertyConstriction otherConstriction = SearchablePropertyConstriction.noValues(otherSearchableProperty);
 
@@ -213,7 +213,7 @@ public class ComTaskSecuritySettingsSearchablePropertyTest {
     @Test(expected = IllegalArgumentException.class)
     public void refreshWithConstrictionsOfWrongType() {
         SearchableProperty property = this.getTestInstance();
-        SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.withValues(this.deviceTypeSearchableProperty, Arrays.asList("Wrong", "type"));
+        SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.withValues(this.deviceTypeSearchableProperty, "Wrong", "type");
 
         // Business method
         property.refreshWithConstrictions(Arrays.asList(deviceTypeConstriction));
@@ -235,7 +235,7 @@ public class ComTaskSecuritySettingsSearchablePropertyTest {
         when(sps2.getName()).thenReturn("sps2");
 
         SearchableProperty property = this.getTestInstance();
-        SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.withValues(this.deviceTypeSearchableProperty, Arrays.asList(deviceType));
+        SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.withValues(this.deviceTypeSearchableProperty, deviceType);
 
         // Business method
         property.refreshWithConstrictions(Arrays.asList(deviceTypeConstriction));
