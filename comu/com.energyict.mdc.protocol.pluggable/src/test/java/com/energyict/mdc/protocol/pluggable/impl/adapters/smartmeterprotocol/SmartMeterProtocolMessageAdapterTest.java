@@ -1,10 +1,10 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 
+import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.MessageProtocol;
-import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
@@ -38,8 +38,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -165,7 +167,7 @@ public class SmartMeterProtocolMessageAdapterTest {
         SimpleTestSmartMeterProtocol simpleTestMeterProtocol = new SimpleTestSmartMeterProtocol();
         SmartMeterProtocolMessageAdapter messageAdapter = new SmartMeterProtocolMessageAdapter(simpleTestMeterProtocol, this.dataModel, new MessageAdapterMappingFactoryImpl(this.dataModel), this.protocolPluggableService, this.inMemoryPersistence.getIssueService(), this.collectedDataFactory);
         PropertySpec mockPropertySpec = mock(PropertySpec.class);
-        Code simpleCodeTable = mock(Code.class);
+        Calendar simpleCodeTable = mock(Calendar.class);
         Date simpleDate = new Date();
 
         // business method
@@ -173,7 +175,7 @@ public class SmartMeterProtocolMessageAdapterTest {
         final String dateFormat = messageAdapter.format(mockPropertySpec, simpleDate);
 
         // asserts
-        assertThat(codeFormat).isEqualTo(SimpleLegacyMessageConverter.codeTableFormattingResult);
+        assertThat(codeFormat).isEqualTo(SimpleLegacyMessageConverter.calendarFormattingResult);
         assertThat(dateFormat).isEqualTo(SimpleLegacyMessageConverter.dateFormattingResult);
     }
 
