@@ -52,5 +52,6 @@ Ext.define('SystemApp.controller.Main', {
     ],
     onLaunch: function(){
         this.getController('Bpm.controller.Main').addProcessManagement();
+        this.callParent(arguments);
     }
 });
