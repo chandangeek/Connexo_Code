@@ -294,6 +294,10 @@ public class ColumnImpl implements Column {
         return insertValue != null && !insertValue.isEmpty();
     }
 
+    public boolean mandatesRefreshAfterInsert() {
+        return this.hasInsertValue() || this.conversion.equals(ColumnConversionImpl.BLOB2SQLBLOB);
+    }
+
     @Override
     public String getUpdateValue() {
         return updateValue;

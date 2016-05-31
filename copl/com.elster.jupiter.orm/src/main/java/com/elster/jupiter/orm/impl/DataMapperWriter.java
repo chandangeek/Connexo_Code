@@ -293,8 +293,8 @@ public class DataMapperWriter<T> {
     }
 
     private void refresh(T object, boolean afterInsert) throws SQLException {
-        List<ColumnImpl> columns = afterInsert ? getTable().getInsertValueColumns() : getTable().getUpdateValueColumns();
-        if (columns.size() == 0) {
+        List<ColumnImpl> columns = afterInsert ? getTable().getColumnsThatMandateRefreshAfterInsert() : getTable().getUpdateValueColumns();
+        if (columns.isEmpty()) {
             return;
         }
         refresh(object, columns);
