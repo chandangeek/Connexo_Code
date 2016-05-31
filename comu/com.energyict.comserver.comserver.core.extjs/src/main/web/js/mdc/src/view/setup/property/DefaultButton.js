@@ -2,7 +2,7 @@ Ext.define('Mdc.view.setup.property.DefaultButton', {
     extend: 'Ext.button.Button',
     alias: 'widget.defaultButton',
     border: 0,
-    icon: '../sky/build/resources/images/form/restore.png',
+    iconCls: 'icon-rotate-ccw3',
     style: 'background-color: transparent; padding: 5px 3px 2px 3px;',
     scale: 'small',
     action: 'delete',

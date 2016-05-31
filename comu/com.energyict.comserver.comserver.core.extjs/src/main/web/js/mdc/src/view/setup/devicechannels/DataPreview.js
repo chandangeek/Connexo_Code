@@ -244,7 +244,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                 case 'ok':
                     validationResultText = '(' + Uni.I18n.translate('devicechannelsreadings.validationResult.notsuspect', 'MDC', 'Not suspect') + ')';
                     if (!me.channels && validationInfo.isConfirmed) {
-                        validationResultText += '<span class="icon-checkmark3" style="margin-left:5px; vertical-align:top;"></span>';
+                        validationResultText += '<span class="icon-checkmark" style="margin-left:5px; vertical-align:top;"></span>';
                     }
                     break;
             }
