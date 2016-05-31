@@ -108,7 +108,6 @@ import com.energyict.mdc.device.data.importers.impl.devices.remove.DeviceRemoveI
 import com.energyict.mdc.device.data.importers.impl.devices.shipment.DeviceShipmentImporterFactory;
 import com.energyict.mdc.device.data.importers.impl.readingsimport.DeviceReadingsImporterFactory;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
@@ -122,7 +121,6 @@ import com.energyict.mdc.engine.impl.EngineModule;
 import com.energyict.mdc.favorites.impl.FavoritesModule;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareVersion;
-import com.energyict.mdc.firmware.FirmwareVersionFilter;
 import com.energyict.mdc.firmware.impl.FirmwareModule;
 import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.io.impl.MdcIOModule;
@@ -194,7 +192,9 @@ import java.util.TimeZone;
 import java.util.function.Predicate;
 import java.util.logging.Logger;
 
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -837,7 +837,7 @@ public class DemoTest {
 
         MdcAppInstaller mdcAppInstaller = new MdcAppInstaller();
         mdcAppInstaller.setUserService(injector.getInstance(UserService.class));
-        mdcAppInstaller.createDefaultRoles();
+        new MdcAppInstaller.Installer(injector.getInstance(UserService.class)).createDefaultRoles();
     }
 
     private void tuneDeviceCountForSpeedTest() {
