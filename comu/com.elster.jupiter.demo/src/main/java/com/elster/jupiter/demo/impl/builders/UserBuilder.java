@@ -14,12 +14,12 @@ import java.util.stream.Collectors;
 
 /**
  * {@link Builder} for creating {@link User}
- * and join it to the groups defined by <Code>roles</Code>
+ * and join it to the groups defined by <code>roles</code>
 */
 public class UserBuilder extends NamedBuilder<User, UserBuilder> {
 
-    public final static String DEMO_ADMIN_PASSWORD = "D3moAdmin";
-    public final static String DEMO_PASSWORD = "D3mo";
+    public static final String DEMO_ADMIN_PASSWORD = "D3moAdmin";
+    public static final String DEMO_PASSWORD = "D3mo";
 
     private final UserService userService;
 
@@ -105,4 +105,5 @@ public class UserBuilder extends NamedBuilder<User, UserBuilder> {
         user.update();
         return user;
     }
+
 }
