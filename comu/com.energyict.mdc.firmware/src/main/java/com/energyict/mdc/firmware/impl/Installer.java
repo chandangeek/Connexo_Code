@@ -9,7 +9,6 @@ import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.exception.ExceptionCatcher;
 
 import javax.inject.Inject;
 import java.util.Optional;
@@ -34,14 +33,13 @@ public class Installer implements FullInstaller {
     }
 
     @Override
-    public void install(DataModelUpgrader dataModelUpgrader) {
-        ExceptionCatcher.executing(
-                () -> dataModelUpgrader.upgrade(dataModel, Version.latest()),
-                this::createJupiterEventsSubscriber
-        ).andHandleExceptionsWith(Throwable::printStackTrace)
-                .execute();
-        createEventTypesIfNotExist();
-
+    public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
+        dataModelUpgrader.upgrade(dataModel, Version.latest());
+        doTry(
+                "Create events subscriber",
+                this::createJupiterEventsSubscriber,
+                logger
+        );
     }
 
     private void createJupiterEventsSubscriber() {
