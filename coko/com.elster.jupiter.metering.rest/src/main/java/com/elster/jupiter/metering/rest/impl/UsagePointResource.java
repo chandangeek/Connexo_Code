@@ -31,7 +31,6 @@ import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -131,20 +130,6 @@ public class UsagePointResource {
     public UsagePointInfo getUsagePoint(@PathParam("mRID") String mRID, @Context SecurityContext securityContext) {
         UsagePoint usagePoint = fetchUsagePoint(mRID);
         return new UsagePointInfo(usagePoint, clock);
-    }
-
-    @DELETE
-    @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
-    @Path("/{mRID}")
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @Transactional
-    public Response deleteUsagePoint(@PathParam("mRID") String mRID, UsagePointInfo info) {
-        UsagePoint usagePoint = meteringService.findAndLockUsagePointByIdAndVersion(info.id, info.version)
-                .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
-                        .withActualVersion(() -> meteringService.findUsagePoint(mRID).map(UsagePoint::getVersion).orElse(Long.valueOf(0)))
-                        .supplier());
-            usagePoint.delete();
-            return Response.status(Response.Status.OK).entity(info).build();
     }
 
     @POST

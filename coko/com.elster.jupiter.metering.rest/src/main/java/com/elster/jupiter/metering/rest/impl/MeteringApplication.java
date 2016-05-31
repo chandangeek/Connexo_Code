@@ -6,16 +6,11 @@ import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.cbo.EndDeviceType;
 import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.TimeAttribute;
-
-import com.elster.jupiter.cbo.EndDeviceDomain;
-import com.elster.jupiter.cbo.EndDeviceEventOrAction;
-import com.elster.jupiter.cbo.EndDeviceSubDomain;
-import com.elster.jupiter.cbo.EndDeviceType;
-import com.elster.jupiter.cbo.MacroPeriod;
-import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
@@ -27,6 +22,8 @@ import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.exception.MessageSeed;
+
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Activate;
@@ -43,17 +40,11 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 
-@Component(name = "com.elster.jupiter.metering.rest", service = {Application.class, TranslationKeyProvider.class}, immediate = true,
+@Component(name = "com.elster.jupiter.metering.rest", service = {Application.class, TranslationKeyProvider.class, MessageSeedProvider.class}, immediate = true,
         property = {"alias=/mtr", "app=SYS", "name=" + MeteringApplication.COMPONENT_NAME})
-public class MeteringApplication extends Application implements TranslationKeyProvider {
+public class MeteringApplication extends Application implements TranslationKeyProvider, MessageSeedProvider {
     public static final String COMPONENT_NAME = "MTR";
 
     private volatile MeteringService meteringService;
@@ -63,9 +54,11 @@ public class MeteringApplication extends Application implements TranslationKeyPr
     private volatile Thesaurus thesaurus;
     private volatile Clock clock;
     private volatile NlsService nlsService;
+    private volatile MetrologyConfigurationService metrologyConfigurationService;
 
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
+                MetrologyConfigurationResource.class,
                 UsagePointResource.class,
                 DeviceResource.class,
                 ReadingTypeResource.class,
@@ -107,6 +100,11 @@ public class MeteringApplication extends Application implements TranslationKeyPr
         this.thesaurus = nlsService.getThesaurus(getComponentName(), getLayer()).join(nlsService.getThesaurus(getComponentName(), Layer.DOMAIN));
     }
 
+    @Reference
+    public void setMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
+        this.metrologyConfigurationService = metrologyConfigurationService;
+    }
+
     @Activate
     public void activate() {
     }
@@ -131,6 +129,11 @@ public class MeteringApplication extends Application implements TranslationKeyPr
     @Override
     public Layer getLayer() {
         return Layer.REST;
+    }
+
+    @Override
+    public List<MessageSeed> getSeeds() {
+        return Arrays.asList(MessageSeeds.values());
     }
 
     @Override
@@ -168,6 +171,7 @@ public class MeteringApplication extends Application implements TranslationKeyPr
             bind(transactionService).to(TransactionService.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(meteringService).to(MeteringService.class);
+            bind(metrologyConfigurationService).to(MetrologyConfigurationService.class);
             bind(clock).to(Clock.class);
             bind(thesaurus).to(Thesaurus.class);
             bind(thesaurus).to(MessageInterpolator.class);
@@ -176,6 +180,8 @@ public class MeteringApplication extends Application implements TranslationKeyPr
             bind(CustomPropertySetInfoFactory.class).to(CustomPropertySetInfoFactory.class);
             bind(UsagePointInfoFactory.class).to(UsagePointInfoFactory.class);
             bind(serviceCallService).to(ServiceCallService.class);
+            bind(MetrologyConfigurationInfoFactory.class).to(MetrologyConfigurationInfoFactory.class);
+            bind(ResourceHelper.class).to(ResourceHelper.class);
         }
     }
 }
