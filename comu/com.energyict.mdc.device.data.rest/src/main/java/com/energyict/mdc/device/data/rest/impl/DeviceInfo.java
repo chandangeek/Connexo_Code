@@ -12,7 +12,9 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.GatewayType;
+import com.energyict.mdc.device.config.TimeOfUseOptions;
 import com.energyict.mdc.device.configuration.rest.GatewayTypeAdapter;
 import com.energyict.mdc.device.data.Batch;
 import com.energyict.mdc.device.data.BatchService;
@@ -22,12 +24,17 @@ import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.issue.datavalidation.DataValidationIssueFilter;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
+import com.energyict.mdc.protocol.api.calendars.ProtocolSupportedCalendarOptions;
+
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @XmlRootElement
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -59,12 +66,15 @@ public class DeviceInfo extends DeviceVersionInfo {
     public String usagePoint;
     public DeviceEstimationStatusInfo estimationStatus;
     public DeviceLifeCycleStateInfo state;
+    public String location;
+    public LocationInfo locationInfo;
+    public String geoCoordinates;
     public List<DataLoggerSlaveDeviceInfo> dataLoggerSlaveDevices;
 
     public DeviceInfo() {
     }
 
-    public static DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices, BatchService batchService, TopologyService topologyService, IssueService issueService, IssueDataValidationService issueDataValidationService, MeteringService meteringService, Thesaurus thesaurus, DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory) {
+    public static DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices, BatchService batchService, TopologyService topologyService, IssueService issueService, IssueDataValidationService issueDataValidationService, MeteringService meteringService, Thesaurus thesaurus, String location, DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory, String geoCoordinates) {
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         DeviceInfo deviceInfo = new DeviceInfo();
         deviceInfo.id = device.getId();
@@ -111,6 +121,12 @@ public class DeviceInfo extends DeviceVersionInfo {
         deviceInfo.version = device.getVersion();
         deviceInfo.parent = new VersionInfo<>(deviceConfiguration.getId(), deviceConfiguration.getVersion());
         deviceInfo.dataLoggerSlaveDevices = dataLoggerSlaveDeviceInfoFactory.from(device);
+        if(geoCoordinates !=null){
+            deviceInfo.geoCoordinates = geoCoordinates;
+        }
+        if(location!=null){
+            deviceInfo.location = location;
+        }
         return deviceInfo;
     }
 
@@ -121,6 +137,23 @@ public class DeviceInfo extends DeviceVersionInfo {
         filter.setDevice(meter.get());
         filter.addStatus(issueService.findStatus(IssueStatus.OPEN).get());
         return issueDataValidationService.findAllDataValidationIssues(filter).stream().findFirst();
+    }
+
+    public static DeviceInfo from(Device device, String location, String geoCoordinates) {
+        DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
+        DeviceInfo deviceInfo = new DeviceInfo();
+        deviceInfo.id = device.getId();
+        deviceInfo.mRID = device.getmRID();
+        deviceInfo.serialNumber = device.getSerialNumber();
+        deviceInfo.deviceTypeId = device.getDeviceType().getId();
+        deviceInfo.deviceTypeName = device.getDeviceType().getName();
+        deviceInfo.deviceConfigurationId = deviceConfiguration.getId();
+        deviceInfo.deviceConfigurationName = deviceConfiguration.getName();
+        deviceInfo.version = device.getVersion();
+        deviceInfo.parent = new VersionInfo<>(deviceConfiguration.getId(), deviceConfiguration.getVersion());
+        deviceInfo.location = location;
+        deviceInfo.geoCoordinates = geoCoordinates;
+        return deviceInfo;
     }
 
     public static DeviceInfo from(Device device) {

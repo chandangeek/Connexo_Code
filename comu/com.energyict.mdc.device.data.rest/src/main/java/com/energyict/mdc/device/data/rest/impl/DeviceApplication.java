@@ -2,6 +2,9 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.appserver.rest.AppServerHelper;
+import com.elster.jupiter.bpm.BpmService;
+import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.calendar.rest.CalendarInfoFactory;
 import com.elster.jupiter.cbo.EndDeviceDomain;
 import com.elster.jupiter.cbo.EndDeviceEventOrAction;
 import com.elster.jupiter.cbo.EndDeviceSubDomain;
@@ -25,7 +28,9 @@ import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
 import com.elster.jupiter.search.SearchService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
@@ -54,6 +59,7 @@ import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.favorites.FavoritesService;
 import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
@@ -122,6 +128,11 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     private volatile DevicesForConfigChangeSearchFactory devicesForConfigChangeSearchFactory;
     private volatile CustomPropertySetService customPropertySetService;
     private volatile ServiceCallService serviceCallService;
+    private volatile BpmService bpmService;
+    private volatile ServiceCallInfoFactory serviceCallInfoFactory;
+    private volatile CalendarInfoFactory calendarInfoFactory;
+    private volatile CalendarService calendarService;
+    private volatile ThreadPrincipalService threadPrincipalService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -169,6 +180,11 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     }
 
     @Reference
+    public void setBpmService(BpmService bpmService) {
+        this.bpmService = bpmService;
+    }
+
+    @Reference
     public void setMasterDataService(MasterDataService masterDataService) {
         this.masterDataService = masterDataService;
     }
@@ -176,6 +192,11 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     @Reference
     public void setBatchService(BatchService batchService) {
         this.batchService = batchService;
+    }
+
+    @Reference
+    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+        this.threadPrincipalService = threadPrincipalService;
     }
 
     @Reference
@@ -250,6 +271,21 @@ public class DeviceApplication extends Application implements TranslationKeyProv
         this.serviceCallService = serviceCallService;
     }
 
+    @Reference
+    public void setServiceCallInfoFactory(ServiceCallInfoFactory serviceCallInfoFactory) {
+        this.serviceCallInfoFactory = serviceCallInfoFactory;
+    }
+
+    @Reference
+    public void setCalendarInfoFactory(CalendarInfoFactory calendarInfoFactory) {
+        this.calendarInfoFactory = calendarInfoFactory;
+    }
+
+    @Reference
+    public void setCalendarService(CalendarService calendarService) {
+        this.calendarService = calendarService;
+    }
+
     @Override
     public String getComponentName() {
         return COMPONENT_NAME;
@@ -289,6 +325,11 @@ public class DeviceApplication extends Application implements TranslationKeyProv
                 keys.add(new SimpleTranslationKey(eventOrAction.toString(), eventOrAction.getMnemonic()));
             }
         }
+        for (FirmwareType firmwareType : FirmwareType.values()) {
+            if (uniqueIds.add(firmwareType.getType())) {
+                keys.add(new SimpleTranslationKey(firmwareType.getType(), firmwareType.getDescription()));
+            }
+        }
         keys.addAll(Arrays.asList(DefaultTranslationKey.values()));
         keys.addAll(Arrays.asList(TaskStatusTranslationKeys.values()));
         keys.addAll(Arrays.asList(ConnectionTaskSuccessIndicatorTranslationKeys.values()));
@@ -297,6 +338,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
         keys.addAll(Arrays.asList(DeviceMessageStatusTranslationKeys.values()));
         keys.addAll(Arrays.asList(ConnectionStrategyTranslationKeys.values()));
         keys.addAll(Arrays.asList(DeviceSearchModelTranslationKeys.values()));
+        keys.addAll(Arrays.asList(LocationTranslationKeys.values()));
         return keys;
     }
 
@@ -461,6 +503,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(DeviceLifeCycleStateFactory.class).to(DeviceLifeCycleStateFactory.class);
             bind(DeviceInfoFactory.class).to(DeviceInfoFactory.class);
             bind(DeviceLifeCycleHistoryInfoFactory.class).to(DeviceLifeCycleHistoryInfoFactory.class);
+            bind(DeviceFirmwareHistoryInfoFactory.class).to(DeviceFirmwareHistoryInfoFactory.class);
             bind(ValidationInfoFactory.class).to(ValidationInfoFactory.class);
             bind(ValidationRuleInfoFactory.class).to(ValidationRuleInfoFactory.class);
             bind(DeviceDataInfoFactory.class).to(DeviceDataInfoFactory.class);
@@ -470,6 +513,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(EstimationRuleInfoFactory.class).to(EstimationRuleInfoFactory.class);
             bind(com.elster.jupiter.estimation.rest.PropertyUtils.class).to(com.elster.jupiter.estimation.rest.PropertyUtils.class);
             bind(DeviceAttributesInfoFactory.class).to(DeviceAttributesInfoFactory.class);
+            bind(LocationInfoFactory.class).to(LocationInfoFactory.class);
             bind(AppServerHelper.class).to(AppServerHelper.class);
             bind(appService).to(AppService.class);
             bind(messageService).to(MessageService.class);
@@ -480,6 +524,13 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(customPropertySetService).to(CustomPropertySetService.class);
             bind(serviceCallService).to(ServiceCallService.class);
             bind(DataLoggerSlaveDeviceInfoFactory.class).to(DataLoggerSlaveDeviceInfoFactory.class);
+            bind(bpmService).to(BpmService.class);
+            bind(GoingOnResource.class).to(GoingOnResource.class);
+            bind(serviceCallInfoFactory).to(ServiceCallInfoFactory.class);
+            bind(threadPrincipalService).to(ThreadPrincipalService.class);
+            bind(calendarInfoFactory).to(CalendarInfoFactory.class);
+            bind(calendarService).to(CalendarService.class);
+            bind(TimeOfUseInfoFactory.class).to(TimeOfUseInfoFactory.class);
         }
     }
 }

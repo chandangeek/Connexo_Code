@@ -1,12 +1,15 @@
 package com.energyict.mdc.device.data.rest;
 
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.metering.GeoCoordinates;
+import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.rest.impl.DataLoggerSlaveDeviceInfoFactory;
@@ -17,18 +20,16 @@ import com.energyict.mdc.device.data.rest.impl.DeviceSearchModelTranslationKeys;
 import com.energyict.mdc.device.data.rest.impl.DeviceTopologyInfo;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
-@Component(name="device.info.factory", service = { InfoFactory.class }, immediate = true)
+@Component(name = "device.info.factory", service = {InfoFactory.class}, immediate = true)
 public class DeviceInfoFactory implements InfoFactory<Device> {
 
     private Thesaurus thesaurus;
@@ -37,12 +38,13 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
     private IssueService issueService;
     private IssueDataValidationService issueDataValidationService;
     private MeteringService meteringService;
+    private DeviceConfigurationService deviceConfigurationService;
     private DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory;
 
     public DeviceInfoFactory() {}
 
     @Inject
-    public DeviceInfoFactory(Thesaurus thesaurus, BatchService batchService, TopologyService topologyService, IssueService issueService, IssueDataValidationService issueDataValidationService, MeteringService meteringService, DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory) {
+    public DeviceInfoFactory(Thesaurus thesaurus, BatchService batchService, TopologyService topologyService, IssueService issueService, IssueDataValidationService issueDataValidationService, MeteringService meteringService, DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory, DeviceConfigurationService deviceConfigurationService, ) {
         this.thesaurus = thesaurus;
         this.batchService = batchService;
         this.topologyService = topologyService;
@@ -50,6 +52,7 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
         this.issueDataValidationService = issueDataValidationService;
         this.meteringService = meteringService;
         this.dataLoggerSlaveDeviceInfoFactory = dataLoggerSlaveDeviceInfoFactory;
+        this.deviceConfigurationService = deviceConfigurationService;
     }
 
     @Reference
@@ -96,6 +99,20 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
     }
 
     public DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices) {
+        Optional<Location> location = meteringService.findDeviceLocation(device.getmRID());
+        Optional<GeoCoordinates> geoCoordinates = meteringService.findDeviceGeoCoordinates(device.getmRID());
+        String formattedLocation = "";
+        if (location.isPresent()) {
+            List<List<String>> formattedLocationMembers = meteringService.getFormattedLocationMembers(location.get()
+                    .getId());
+            formattedLocationMembers.stream().skip(1).forEach(list ->
+                    list.stream().filter(Objects::nonNull).findFirst().ifPresent(member -> list.set(0, "\\r\\n" + member)));
+            formattedLocation = formattedLocationMembers.stream()
+                    .flatMap(List::stream).filter(Objects::nonNull)
+                    .collect(Collectors.joining(", "));
+        }
+        return DeviceInfo.from(device, slaveDevices, batchService, topologyService, issueService, issueDataValidationService, meteringService, thesaurus, formattedLocation, geoCoordinates
+                .isPresent() ? geoCoordinates.get().getCoordinates().toString() : null);
         return DeviceInfo.from(device, slaveDevices, batchService, topologyService, issueService, issueDataValidationService, meteringService, thesaurus, dataLoggerSlaveDeviceInfoFactory);
     }
 
@@ -106,8 +123,10 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
 
     @Override
     public List<PropertyDescriptionInfo> modelStructure() {
-        List<PropertyDescriptionInfo> infos = new ArrayList<>(21);
+        List<PropertyDescriptionInfo> infos = new ArrayList<>(23);
         infos.add(createDescription("batch", String.class));
+        infos.add(createDescription("deviceTypeId", Long.class));
+        infos.add(createDescription("deviceConfigurationId", Long.class));
         infos.add(createDescription("hasOpenDataCollectionIssues", Boolean.class));
         infos.add(createDescription("serviceCategory", String.class));
         infos.add(createDescription("usagePoint", String.class));
@@ -123,7 +142,9 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
         Collections.sort(infos, Comparator.comparing(pdi -> pdi.propertyName));
 
         // Default columns in proper order
-        infos.add(0, new PropertyDescriptionInfo("state.name", String.class, thesaurus.getFormat(DeviceSearchModelTranslationKeys.STATE).format()));
+        infos.add(0, createDescription("location", String.class));
+        infos.add(0, new PropertyDescriptionInfo("state.name", String.class, thesaurus.getFormat(DeviceSearchModelTranslationKeys.STATE)
+                .format()));
         infos.add(0, createDescription("deviceConfigurationName", String.class));
         infos.add(0, createDescription("deviceTypeName", String.class));
         infos.add(0, createDescription("serialNumber", String.class));

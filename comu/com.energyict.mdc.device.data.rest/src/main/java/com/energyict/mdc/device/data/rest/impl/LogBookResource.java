@@ -8,11 +8,10 @@ import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.security.Privileges;
 
@@ -76,16 +75,17 @@ public class LogBookResource {
     }
 
 
-    @PUT @Transactional
+    @PUT
+    @Transactional
     @Path("{lbid}")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
     public Response updateLogbook(LogBookInfo info, @PathParam("mRID") String mrid, @PathParam("lbid") long logBookId) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         LogBook logBook = findLogBookOrThrowException(device, logBookId);
         Optional<Instant> lastReading = logBook.getLatestEventAdditionDate();
-        if (!lastReading.isPresent() || lastReading.get().compareTo(info.lastReading)!= 0) {
+        if (!lastReading.isPresent() || lastReading.get().compareTo(info.lastReading) != 0) {
             logBook.getDevice().getLogBookUpdaterFor(logBook).setLastReading(info.lastReading).update();
         }
         return Response.status(Response.Status.OK).build();

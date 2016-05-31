@@ -1,5 +1,9 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.calendar.Calendar;
+import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.calendar.rest.CalendarInfo;
+import com.elster.jupiter.calendar.rest.CalendarInfoFactory;
 import com.elster.jupiter.cps.ValuesRangeConflictType;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -9,8 +13,11 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.ServiceCallFilter;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.rest.ServiceCallInfo;
+import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
@@ -61,7 +68,16 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import java.time.Instant;
-import java.util.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
@@ -100,11 +116,17 @@ public class DeviceResource {
     private final Provider<DeviceProtocolPropertyResource> devicePropertyResourceProvider;
     private final Provider<DeviceHistoryResource> deviceHistoryResourceProvider;
     private final Provider<DeviceLifeCycleActionResource> deviceLifeCycleActionResourceProvider;
+    private final Provider<GoingOnResource> goingOnResourceProvider;
     private final DeviceInfoFactory deviceInfoFactory;
     private final DeviceAttributesInfoFactory deviceAttributesInfoFactory;
+    private final LocationInfoFactory locationInfoFactory;
     private final DevicesForConfigChangeSearchFactory devicesForConfigChangeSearchFactory;
+    private final ServiceCallInfoFactory serviceCallInfoFactory;
     private final TransactionService transactionService;
     private final ServiceCallService serviceCallService;
+    private final CalendarInfoFactory calendarInfoFactory;
+    private final TimeOfUseInfoFactory timeOfUseInfoFactory;
+    private final CalendarService calendarService;
 
     @Inject
     public DeviceResource(
@@ -134,11 +156,17 @@ public class DeviceResource {
             Provider<DeviceProtocolPropertyResource> devicePropertyResourceProvider,
             Provider<DeviceHistoryResource> deviceHistoryResourceProvider,
             Provider<DeviceLifeCycleActionResource> deviceLifeCycleActionResourceProvider,
+            Provider<GoingOnResource> goingOnResourceProvider,
             DeviceInfoFactory deviceInfoFactory,
             DeviceAttributesInfoFactory deviceAttributesInfoFactory,
+            LocationInfoFactory locationInfoFactory,
             DevicesForConfigChangeSearchFactory devicesForConfigChangeSearchFactory,
+            ServiceCallInfoFactory serviceCallInfoFactory,
             TransactionService transactionService,
-            ServiceCallService serviceCallService) {
+            ServiceCallService serviceCallService,
+            CalendarInfoFactory calendarInfoFactory,
+            TimeOfUseInfoFactory timeOfUseInfoFactory,
+            CalendarService calendarService) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.deviceService = deviceService;
@@ -165,11 +193,17 @@ public class DeviceResource {
         this.devicePropertyResourceProvider = devicePropertyResourceProvider;
         this.deviceHistoryResourceProvider = deviceHistoryResourceProvider;
         this.deviceLifeCycleActionResourceProvider = deviceLifeCycleActionResourceProvider;
+        this.goingOnResourceProvider = goingOnResourceProvider;
         this.deviceInfoFactory = deviceInfoFactory;
         this.deviceAttributesInfoFactory = deviceAttributesInfoFactory;
+        this.locationInfoFactory = locationInfoFactory;
         this.devicesForConfigChangeSearchFactory = devicesForConfigChangeSearchFactory;
+        this.serviceCallInfoFactory = serviceCallInfoFactory;
         this.transactionService = transactionService;
         this.serviceCallService = serviceCallService;
+        this.calendarInfoFactory = calendarInfoFactory;
+        this.timeOfUseInfoFactory = timeOfUseInfoFactory;
+        this.calendarService = calendarService;
     }
 
     @GET @Transactional
@@ -192,7 +226,7 @@ public class DeviceResource {
     @POST @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.ADD_DEVICE)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE)
     public DeviceInfo addDevice(DeviceInfo info, @Context SecurityContext securityContext) {
         Device newDevice= newDevice(info.deviceConfigurationId, info.batch, info.mRID, info.serialNumber, info.yearOfCertification );
         //TODO: Device Date should go on the device wharehouse (future development) - or to go on Batch - creation date
@@ -216,7 +250,7 @@ public class DeviceResource {
     @PUT @Transactional
     @Path("/changedeviceconfig")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION)
     public Response changeDeviceConfig(BulkRequestInfo request, @BeanParam JsonQueryFilter queryFilter, @Context SecurityContext securityContext) {
         if (request.action == null || (!request.action.equalsIgnoreCase("ChangeDeviceConfiguration"))) {
@@ -225,7 +259,7 @@ public class DeviceResource {
         DeviceConfiguration destinationConfiguration = deviceConfigurationService.findDeviceConfiguration(request.newDeviceConfiguration)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE_CONFIG));
         DevicesForConfigChangeSearch devicesForConfigChangeSearch;
-        if(request.filter != null) {
+        if (request.filter != null) {
             devicesForConfigChangeSearch = devicesForConfigChangeSearchFactory.fromQueryFilter(new JsonQueryFilter(request.filter));
         } else {
             devicesForConfigChangeSearch = devicesForConfigChangeSearchFactory.fromQueryFilter(queryFilter);
@@ -252,8 +286,11 @@ public class DeviceResource {
                 final long deviceConfigurationId = device.getDeviceConfiguration().getId();
                 long conflictId = device.getDeviceType().getDeviceConfigConflictMappings().stream()
                         .filter(conflict -> conflict.getOriginDeviceConfiguration().getId() == deviceConfigurationId
-                                && conflict.getDestinationDeviceConfiguration().getId() == destinationConfiguration.getId()).findFirst().orElseThrow(() -> e).getId();
-                return Response.status(Response.Status.BAD_REQUEST).entity(Pair.of("changeDeviceConfigConflict", conflictId).asMap()).build();
+                                && conflict.getDestinationDeviceConfiguration()
+                                .getId() == destinationConfiguration.getId()).findFirst().orElseThrow(() -> e).getId();
+                return Response.status(Response.Status.BAD_REQUEST)
+                        .entity(Pair.of("changeDeviceConfigConflict", conflictId).asMap())
+                        .build();
             }
         } else {
             try (TransactionContext context = transactionService.getContext()) {
@@ -554,6 +591,10 @@ public class DeviceResource {
                 .stream()
                 .map(privilege -> new IdWithNameInfo(null, privilege))
                 .collect(Collectors.toList());
+        privileges.addAll(DevicePrivileges.getTimeOfUsePrivilegesFor(device, deviceConfigurationService)
+                .stream()
+                .map(privilege -> new IdWithNameInfo(null, privilege))
+                .collect(Collectors.toList()));
         return Response.ok(PagedInfoList.fromCompleteList("privileges", privileges, queryParameters)).build();
     }
 
@@ -574,34 +615,33 @@ public class DeviceResource {
             com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_2,
             com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_3,
             com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_4})
-    public PagedInfoList getAllAvailableDeviceCategoriesIncludingMessageSpecsForCurrentUser(@PathParam("mRID") String mrid, @BeanParam JsonQueryParameters queryParameters) {
+    public PagedInfoList getAllAvailableDeviceCategoriesIncludingMessageSpecsForCurrentUser(@PathParam("mRID") String mrid, @BeanParam JsonQueryParameters queryParameters, @Context UriInfo uriInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-
-        Set<DeviceMessageId> supportedMessagesSpecs = device.getDeviceType().getDeviceProtocolPluggableClass().getDeviceProtocol().getSupportedMessages();
-
-        List<DeviceMessageId> enabledDeviceMessageIds = device.getDeviceConfiguration().getDeviceMessageEnablements().stream().map(DeviceMessageEnablement::getDeviceMessageId).collect(Collectors.toList());
         List<DeviceMessageCategoryInfo> infos = new ArrayList<>();
-
         deviceMessageSpecificationService
                 .filteredCategoriesForUserSelection()
                 .stream()
                 .sorted((c1, c2) -> c1.getName().compareToIgnoreCase(c2.getName()))
                 .forEach(category -> {
-                    List<DeviceMessageSpecInfo> deviceMessageSpecs = category.getMessageSpecifications().stream()
-                            .filter(deviceMessageSpec -> supportedMessagesSpecs.contains(deviceMessageSpec.getId())) // limit to device message specs supported by the protocol
-                            .filter(dms -> enabledDeviceMessageIds.contains(dms.getId())) // limit to device message specs enabled on the config
-                            .filter(dms -> device.getDeviceConfiguration().isAuthorized(dms.getId())) // limit to device message specs whom the user is authorized to
-                            .sorted(Comparator.comparing(DeviceMessageSpec::getName))
-                            .map(dms -> deviceMessageSpecInfoFactory.asInfoWithMessagePropertySpecs(dms, device))
-                            .collect(Collectors.toList());
+                    List<DeviceMessageSpecInfo> deviceMessageSpecs =
+                            device
+                                .getDeviceConfiguration()
+                                .getEnabledAndAuthorizedDeviceMessageSpecsIn(category)
+                                .stream()
+                                .sorted(Comparator.comparing(DeviceMessageSpec::getName))
+                                .map(dms -> deviceMessageSpecInfoFactory.asInfoWithMessagePropertySpecs(dms, device))
+                                .collect(Collectors.toList());
                     if (!deviceMessageSpecs.isEmpty()) {
                         DeviceMessageCategoryInfo info = deviceMessageCategoryInfoFactory.asInfo(category);
                         info.deviceMessageSpecs = deviceMessageSpecs;
                         infos.add(info);
                     }
                 });
-        List<DeviceMessageCategoryInfo> deviceMessageCategoryInfosInPage = ListPager.of(infos).from(queryParameters).find();
-        return PagedInfoList.fromPagedList("categories", deviceMessageCategoryInfosInPage, queryParameters);
+        return PagedInfoList
+                    .fromPagedList(
+                        "categories",
+                        ListPager.of(infos).from(queryParameters).find(),
+                        queryParameters);
     }
 
     @Path("/{mRID}/connectionmethods")
@@ -642,6 +682,11 @@ public class DeviceResource {
     @Path("/{mRID}/logbooks")
     public LogBookResource getLogBookResource() {
         return logBookResourceProvider.get();
+    }
+
+    @Path("/{mRID}/whatsgoingon")
+    public GoingOnResource getGoingOnResource() {
+        return goingOnResourceProvider.get();
     }
 
     @Path("/schedules")
@@ -695,19 +740,69 @@ public class DeviceResource {
         return deviceLifeCycleActionResourceProvider.get();
     }
 
+    @GET
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Path("{mRID}/runningservicecalls")
+    public PagedInfoList getServiceCallsFor(@PathParam("mRID") String mrid, @BeanParam JsonQueryParameters queryParameters) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+        List<ServiceCallInfo> serviceCallInfos = new ArrayList<>();
+        Set<DefaultState> states = EnumSet.of(
+                DefaultState.CREATED,
+                DefaultState.SCHEDULED,
+                DefaultState.PENDING,
+                DefaultState.PAUSED,
+                DefaultState.ONGOING,
+                DefaultState.WAITING);
+
+        serviceCallService.findServiceCalls(device, states)
+                .stream()
+                .forEach(serviceCall -> serviceCallInfos.add(serviceCallInfoFactory.summarized(serviceCall)));
+
+        return PagedInfoList.fromCompleteList("serviceCalls", serviceCallInfos, queryParameters);
+    }
+
     @PUT
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Path("{mRID}/runningservicecalls/{id}")
+    public Response cancelServiceCall(@PathParam("mRID") String mrid, @PathParam("id") long serviceCallId, ServiceCallInfo info) {
+        if (info.state.id.equals("sclc.default.cancelled")) {
+            serviceCallService.getServiceCall(serviceCallId).ifPresent(ServiceCall::cancel);
+            return Response.status(Response.Status.ACCEPTED).build();
+        }
+        throw exceptionFactory.newException(MessageSeeds.BAD_REQUEST);
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Path("{mRID}/servicecallhistory")
+    public PagedInfoList getServiceCallHistoryFor(@PathParam("mRID") String mrid, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter jsonQueryFilter) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+        List<ServiceCallInfo> serviceCallInfos = new ArrayList<>();
+
+        ServiceCallFilter filter = serviceCallInfoFactory.convertToServiceCallFilter(jsonQueryFilter);
+        serviceCallService.getServiceCallFinder(filter)
+                .stream()
+                .filter(serviceCall -> serviceCall.getTargetObject().map(device::equals).orElse(false))
+                .forEach(serviceCall -> serviceCallInfos.add(serviceCallInfoFactory.summarized(serviceCall)));
+
+        return PagedInfoList.fromCompleteList("serviceCalls", serviceCallInfos, queryParameters);
+    }
+
+    @PUT
+    @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/{mRID}/servicecalls")
     public Response cancelServiceCallsFor(@PathParam("mRID") String mrid, ServiceCallInfo serviceCallInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         if (serviceCallInfo.state == null) {
-            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+            throw exceptionFactory.newException(MessageSeeds.BAD_REQUEST);
         }
         if (DefaultState.CANCELLED.getKey().equals(serviceCallInfo.state.id)) {
             serviceCallService.cancelServiceCallsFor(device);
             return Response.accepted().build();
         }
-        throw new WebApplicationException(Response.Status.BAD_REQUEST);
+        throw exceptionFactory.newException(MessageSeeds.BAD_REQUEST);
     }
 
     @GET @Transactional
@@ -772,6 +867,41 @@ public class DeviceResource {
         return a.and(b);
     }
 
+    @GET
+    @Transactional
+    @Path("/{mRID}/timeofuse")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.VIEW_DEVICE)
+    public Response getCalendarInfo(@PathParam("mRID") String id) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
+        TimeOfUseInfo info = timeOfUseInfoFactory.from(device.getActiveCalendar(), device.getPassiveCalendars(), device, calendarInfoFactory);
+
+        return Response.ok(info).build();
+    }
+
+    @GET
+    @Path("/{mRID}/timeofuse/{calendarId}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.VIEW_DEVICE)
+    public Response getCalendar(@PathParam("id") long id, @PathParam("calendarId") long calendarId, @QueryParam("weekOf") long milliseconds) {
+        if(milliseconds <= 0) {
+            return  Response.ok(calendarService.findCalendar(calendarId)
+                    .map(calendarInfoFactory::detailedFromCalendar)
+                    .orElseThrow(IllegalArgumentException::new)).build();
+        } else {
+            Instant instant = Instant.ofEpochMilli(milliseconds);
+            Calendar calendar = calendarService.findCalendar(calendarId).get();
+            LocalDate localDate = LocalDateTime.ofInstant(instant, ZoneId.of("UTC"))
+                    .toLocalDate();
+
+            return Response.ok(transformToWeekCalendar(calendar, localDate)).build();
+        }
+    }
+
+    private CalendarInfo transformToWeekCalendar(Calendar calendar, LocalDate localDate) {
+        return calendarInfoFactory.detailedWeekFromCalendar(calendar, localDate);
+    }
+
     private Predicate<Device> getFilterForCommunicationTopology(JsonQueryFilter filter) {
         Predicate<Device> predicate = d -> true;
         predicate = addPropertyStringFilterIfAvailabale(filter, "mrid", predicate, Device::getmRID);
@@ -829,5 +959,14 @@ public class DeviceResource {
             return Pattern.compile(filter.replaceAll("([*?])", "\\\\E\\.$1\\\\Q"));
         }
         return null;
+    }
+
+    @GET
+    @Transactional
+    @Path("/locations/{locationId}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
+    public Response getLocationAttributes(@PathParam("locationId") long locationId) {
+        return Response.ok(locationInfoFactory.from(locationId)).build();
     }
 }

@@ -29,11 +29,9 @@ import com.energyict.mdc.device.data.NumericalRegister;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.RegisterDataUpdater;
 import com.energyict.mdc.masterdata.RegisterType;
+
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -50,9 +48,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTest {
 
@@ -87,7 +92,7 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
 
     public static final Instant NOW = ZonedDateTime.of(2014, 10, 01, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
 
-    private ReadingQualityType readingQualityTypeConfirmed = new ReadingQualityType("3.10.1");
+    private ReadingQualityType readingQualityTypeConfirmed = new ReadingQualityType("2.10.1");
 
     public RegisterDataResourceTest() {
     }
@@ -106,7 +111,7 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         BillingReading billingReading = mockBillingReading(actualReading1);
         when(actualReading1.edited()).thenReturn(true);
         ReadingQuality quality = mock(ReadingQuality.class);
-        when(quality.getType()).thenReturn(new ReadingQualityType("3.7.1"));
+        when(quality.getType()).thenReturn(new ReadingQualityType("2.7.1"));
         List qualities = new ArrayList<>();
         qualities.add(quality);
         when(actualReading1.getReadingQualities()).thenReturn(qualities);
@@ -118,9 +123,9 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         NumericalReading numericalReadingConfirmed = mockNumericalReading(actualReading3);
         when(numericalReadingConfirmed.getValidationStatus()).thenReturn(Optional.of(dataValidationStatus));
         when(actualReading3.confirmed()).thenReturn(true);
-        ReadingQualityRecord readingQualityEdited = mockReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.EDITGENERIC));
+        ReadingQualityRecord readingQualityEdited = mockReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.EDITGENERIC));
         doReturn(Arrays.asList(readingQualityEdited)).when(actualReading2).getReadingQualities();
-        ReadingQualityRecord readingQualityConfirmed = mockReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.ACCEPTED));
+        ReadingQualityRecord readingQualityConfirmed = mockReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.ACCEPTED));
         doReturn(Arrays.asList(readingQualityConfirmed)).when(actualReading3).getReadingQualities();
 
         when(register.getReadings(any(Interval.class))).thenReturn(Arrays.asList(billingReading, numericalReading, numericalReadingConfirmed));
@@ -133,7 +138,7 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         when(deviceValidation.isValidationActive(any(Register.class), any(Instant.class))).thenReturn(false);
 
         EstimationRule estimationRule = mock(EstimationRule.class);
-        ReadingQualityType readingQualityType = ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, (int) estimationRule.getId());
+        ReadingQualityType readingQualityType = ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.ESTIMATED, (int) estimationRule.getId());
         ReadingQualityRecord readingQualityEstimated = mockReadingQuality(readingQualityType);
         when(readingQualityEstimated.hasEstimatedCategory()).thenReturn(true);
         when(estimationRule.getId()).thenReturn(13L);

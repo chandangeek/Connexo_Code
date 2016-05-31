@@ -231,7 +231,8 @@ public class DeviceComTaskInfoFactory {
         deviceComTasksInfo.ignoreNextExecutionSpecsForInbound = comTaskEnablement.isIgnoreNextExecutionSpecsForInbound();
         ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = comTaskEnablement.getProtocolDialectConfigurationProperties();
         if (protocolDialectConfigurationProperties.getDeviceProtocolDialect() != null) {
-            deviceComTasksInfo.protocolDialect = protocolDialectConfigurationProperties.getDeviceProtocolDialect().getDisplayName();
+            deviceComTasksInfo.protocolDialect = protocolDialectConfigurationProperties.getDeviceProtocolDialect()
+                    .getDisplayName();
         }
         return deviceComTasksInfo;
     }

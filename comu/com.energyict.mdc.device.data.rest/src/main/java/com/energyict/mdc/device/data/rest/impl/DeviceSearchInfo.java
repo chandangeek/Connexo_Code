@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.Batch;
@@ -13,14 +14,18 @@ import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class DeviceSearchInfo {
     public long id;
     public String mRID;
     public String serialNumber;
     public String deviceTypeName;
+    public long deviceTypeId;
     public String deviceConfigurationName;
+    public long deviceConfigurationId;
     public DeviceLifeCycleStateInfo state;
     public String batch;
     public Boolean hasOpenDataCollectionIssues;
@@ -35,6 +40,7 @@ public class DeviceSearchInfo {
     public Instant decommissionDate;
     public Boolean validationActive;
     public Boolean hasOpenDataValidationIssues;
+    public String location;
 
 
     public static DeviceSearchInfo from(Device device, BatchService batchService, TopologyService topologyService, IssueService issueService, IssueDataValidationService issueDataValidationService, MeteringService meteringService, Thesaurus thesaurus) {
@@ -43,7 +49,9 @@ public class DeviceSearchInfo {
         searchInfo.mRID = device.getmRID();
         searchInfo.serialNumber = device.getSerialNumber();
         searchInfo.deviceTypeName = device.getDeviceType().getName();
+        searchInfo.deviceTypeId = device.getDeviceType().getId();
         searchInfo.deviceConfigurationName = device.getDeviceConfiguration().getName();
+        searchInfo.deviceConfigurationId = device.getDeviceConfiguration().getId();
         State deviceState = device.getState();
         searchInfo.state = new DeviceLifeCycleStateInfo(thesaurus, null, deviceState);
         searchInfo.batch = batchService.findBatch(device).map(Batch::getName).orElse(null);
@@ -65,6 +73,9 @@ public class DeviceSearchInfo {
         searchInfo.decommissionDate = lifecycleDates.getRetiredDate().orElse(null);
         searchInfo.validationActive = device.forValidation().isValidationActive();
         searchInfo.hasOpenDataValidationIssues = DeviceInfo.getOpenDataValidationIssue(device, meteringService, issueService, issueDataValidationService).isPresent();
+        searchInfo.location = meteringService.findDeviceLocation(device.getmRID()).map(Location::toString).
+                orElse(meteringService.findDeviceGeoCoordinates(device.getmRID())
+                        .map(coordinates -> coordinates.getCoordinates().toString()).orElse(""));
         return searchInfo;
     }
 }

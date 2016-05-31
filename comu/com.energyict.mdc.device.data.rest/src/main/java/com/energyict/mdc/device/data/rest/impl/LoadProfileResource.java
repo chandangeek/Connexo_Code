@@ -15,8 +15,8 @@ import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.rest.DeviceStatesRestricted;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
+
 import com.google.common.collect.Range;
-import com.sun.tools.xjc.Options;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -106,14 +106,15 @@ public class LoadProfileResource {
     }
 
     @Path("{lpid}")
-    @PUT @Transactional
+    @PUT
+    @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
     public Response updateLoadProfile(LoadProfileInfo info, @PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId) {
         LoadProfile loadProfile = doGetLoadProfile(mrid, loadProfileId);
         Optional<Instant> lastReading = loadProfile.getLastReading();
-        if (!lastReading.isPresent() || lastReading.get().compareTo(info.lastReading)!= 0) {
+        if (!lastReading.isPresent() || lastReading.get().compareTo(info.lastReading) != 0) {
             loadProfile.getDevice().getLoadProfileUpdaterFor(loadProfile).setLastReading(info.lastReading).update();
         }
         return Response.status(Response.Status.OK).build();

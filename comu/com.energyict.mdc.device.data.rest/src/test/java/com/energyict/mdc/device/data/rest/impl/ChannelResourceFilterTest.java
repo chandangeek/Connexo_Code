@@ -22,10 +22,8 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.masterdata.LoadProfileType;
+
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
 
 import java.math.BigDecimal;
 import java.net.URLEncoder;
@@ -34,6 +32,10 @@ import java.util.Arrays;
 import java.util.Currency;
 import java.util.Optional;
 import java.util.PrimitiveIterator.OfInt;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -97,6 +99,7 @@ public class ChannelResourceFilterTest extends DeviceDataRestApplicationJerseyTe
         Channel channel = mock(Channel.class);
         Unit unit = Unit.get("kWh");
         ChannelSpec channelSpec = mock(ChannelSpec.class);
+        when(channelSpec.getOverflow()).thenReturn(Optional.empty());
         when(channel.getInterval()).thenReturn(TimeDuration.minutes(15));
         when(channel.getLastReading()).thenReturn(Optional.<Instant>empty());
         when(channel.getName()).thenReturn("Channel: " + id);

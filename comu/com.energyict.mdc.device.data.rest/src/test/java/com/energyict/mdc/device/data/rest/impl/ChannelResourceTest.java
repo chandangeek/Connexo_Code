@@ -45,17 +45,14 @@ import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.NotEstimatedBlock;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -66,6 +63,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -74,7 +75,10 @@ import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.anyList;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
 
@@ -214,7 +218,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(estimationRule.getRuleSet()).thenReturn(estimationRuleSet);
         when(estimationRuleSet.getId()).thenReturn(15L);
         when(estimationRule.getName()).thenReturn("EstimationRule");
-        ReadingQualityType readingQualityTypeEstimatedByRule = ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, (int) estimationRule.getId());
+        ReadingQualityType readingQualityTypeEstimatedByRule = ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.ESTIMATED, (int) estimationRule.getId());
         when(quality2.getType()).thenReturn(readingQualityTypeEstimatedByRule);
         doReturn(Optional.of(estimationRule)).when(estimationService).findEstimationRuleByQualityType(readingQualityTypeEstimatedByRule);
         //add confirm quality
@@ -236,6 +240,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(validationRule.getImplementation()).thenReturn("isPrime");
         when(validationRule.getDisplayName()).thenReturn("Primes only");
         when(channelSpec.getNbrOfFractionDigits()).thenReturn(3);
+        when(channel.getNrOfFractionDigits()).thenReturn(3);
         when(channelSpec.getOverflow()).thenReturn(Optional.empty());
         when(deviceValidation.getValidationResult(any())).thenReturn(ValidationResult.SUSPECT);
         when(channel.getLastDateTime()).thenReturn(Optional.of(NOW));

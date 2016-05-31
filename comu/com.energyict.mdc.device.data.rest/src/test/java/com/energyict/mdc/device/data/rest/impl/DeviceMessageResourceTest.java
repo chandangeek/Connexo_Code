@@ -20,7 +20,6 @@ import com.elster.jupiter.util.beans.BeanService;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceMessageEnablement;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.rest.DeviceMessageStatusTranslationKeys;
@@ -40,6 +39,7 @@ import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
 import com.energyict.mdc.protocol.api.TrackingCategory;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
@@ -151,7 +151,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         assertThat(model.<Integer>get("$.deviceMessages[0].id")).isEqualTo(1);
         assertThat(model.<String>get("$.deviceMessages[0].messageSpecification.name")).isEqualTo("do delete rule");
         assertThat(model.<String>get("$.deviceMessages[0].messageSpecification.id")).isEqualTo("DEVICE_ACTIONS_DEMAND_RESET");
-        assertThat(model.<String>get("$.deviceMessages[0].trackingId")).isEqualTo("14");
+        assertThat(model.<String>get("$.deviceMessages[0].trackingIdAndName.id")).isEqualTo("14");
         assertThat(model.<String>get("$.deviceMessages[0].trackingCategory.id")).isEqualTo("trackingCategory.serviceCall");
         assertThat(model.<String>get("$.deviceMessages[0].trackingCategory.name")).isEqualTo("Service call");
         assertThat(model.<Boolean>get("$.deviceMessages[0].trackingCategory.activeLink")).isEqualTo(false);
@@ -201,7 +201,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         JsonModel model = JsonModel.create((ByteArrayInputStream) response.getEntity());
 
-        assertThat(model.<String>get("$.errors[0].id")).isEqualTo("trackingId");
+        assertThat(model.<String>get("$.errors[0].id")).isEqualTo("trackingIdAndName");
     }
 
     @Test
@@ -380,23 +380,16 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(Optional.of(device));
 
         ComTaskEnablement comTaskEnablement1 = mockComTaskEnablement(categoryId);
+        DeviceMessageCategory contactorCategory = this.deviceMessageSpecificationService.filteredCategoriesForUserSelection().stream().filter(each -> each.getId() == DeviceMessageCategories.CONTACTOR.ordinal()).findFirst().get();
 
-        // User has access to 2 device messages
-        EnumSet<DeviceMessageId> userAuthorizedDeviceMessages = EnumSet.of(DeviceMessageId.CONTACTOR_OPEN, DeviceMessageId.CONTACTOR_CLOSE);
-
-
-        DeviceMessageEnablement deviceMessageEnablement1 = mock(DeviceMessageEnablement.class);
-        when(deviceMessageEnablement1.getDeviceMessageId()).thenReturn(DeviceMessageId.CONTACTOR_OPEN);
-        DeviceMessageEnablement deviceMessageEnablement2 = mock(DeviceMessageEnablement.class);
-        when(deviceMessageEnablement2.getDeviceMessageId()).thenReturn(DeviceMessageId.CONTACTOR_CLOSE);
-        DeviceMessageEnablement deviceMessageEnablement3 = mock(DeviceMessageEnablement.class);
-        when(deviceMessageEnablement3.getDeviceMessageId()).thenReturn(DeviceMessageId.CONTACTOR_ARM);
+        DeviceMessageSpec deviceMessageSpec1 = contactorCategory.getMessageSpecifications().stream().filter(each -> each.getId().equals(DeviceMessageId.CONTACTOR_OPEN)).findFirst().get();
+        DeviceMessageSpec deviceMessageSpec2 = contactorCategory.getMessageSpecifications().stream().filter(each -> each.getId().equals(DeviceMessageId.CONTACTOR_CLOSE)).findFirst().get();
 
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement1));
-        // 3 device messages are enabled on the device config
-        when(deviceConfiguration.getDeviceMessageEnablements()).thenReturn(Arrays.asList(deviceMessageEnablement1, deviceMessageEnablement2, deviceMessageEnablement3));
-        when(deviceConfiguration.isAuthorized(anyObject())).thenAnswer(invocationOnMock -> userAuthorizedDeviceMessages.contains(invocationOnMock.getArguments()[0]));
+        when(deviceConfiguration
+                .getEnabledAndAuthorizedDeviceMessageSpecsIn(contactorCategory))
+            .thenReturn(Arrays.asList(deviceMessageSpec2, deviceMessageSpec1));
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
 
         ComTaskExecution comTaskExecution1 = mockComTaskExecution(categoryId, true, true);
@@ -439,21 +432,13 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
 
         ComTaskEnablement comTaskEnablement1 = mockComTaskEnablement(categoryId);
 
-        // User has access to 2 device messages
-        EnumSet<DeviceMessageId> userAuthorizedDeviceMessages = EnumSet.of(DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT, DeviceMessageId.CONTACTOR_CLOSE_WITH_OUTPUT);
-
-        DeviceMessageEnablement deviceMessageEnablement1 = mock(DeviceMessageEnablement.class);
-        when(deviceMessageEnablement1.getDeviceMessageId()).thenReturn(DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT);
-        DeviceMessageEnablement deviceMessageEnablement2 = mock(DeviceMessageEnablement.class);
-        when(deviceMessageEnablement2.getDeviceMessageId()).thenReturn(DeviceMessageId.CONTACTOR_CLOSE_WITH_OUTPUT);
-        DeviceMessageEnablement deviceMessageEnablement3 = mock(DeviceMessageEnablement.class);
-        when(deviceMessageEnablement3.getDeviceMessageId()).thenReturn(DeviceMessageId.CONTACTOR_ARM);
+        DeviceMessageCategory contactorCategory = this.deviceMessageSpecificationService.filteredCategoriesForUserSelection().stream().filter(each -> each.getId() == DeviceMessageCategories.CONTACTOR.ordinal()).findFirst().get();
+        DeviceMessageSpec deviceMessageSpec1 = contactorCategory.getMessageSpecifications().stream().filter(each -> each.getId().equals(DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT)).findFirst().get();
+        DeviceMessageSpec deviceMessageSpec2 = contactorCategory.getMessageSpecifications().stream().filter(each -> each.getId().equals(DeviceMessageId.CONTACTOR_CLOSE_WITH_OUTPUT)).findFirst().get();
 
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Collections.singletonList(comTaskEnablement1));
-        // 3 device messages are enabled on the device config
-        when(deviceConfiguration.getDeviceMessageEnablements()).thenReturn(Arrays.asList(deviceMessageEnablement1, deviceMessageEnablement2, deviceMessageEnablement3));
-        when(deviceConfiguration.isAuthorized(anyObject())).thenAnswer(invocationOnMock -> userAuthorizedDeviceMessages.contains(invocationOnMock.getArguments()[0]));
+        when(deviceConfiguration.getEnabledAndAuthorizedDeviceMessageSpecsIn(contactorCategory)).thenReturn(Arrays.asList(deviceMessageSpec1, deviceMessageSpec2));
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
 
         ComTaskExecution comTaskExecution1 = mockComTaskExecution(categoryId, true, true);
@@ -883,6 +868,11 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
 
         @Override
         public CollectedFirmwareVersion getFirmwareVersions() {
+            return null;
+        }
+
+        @Override
+        public CollectedBreakerStatus getBreakerStatus() {
             return null;
         }
     }
