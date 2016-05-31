@@ -9,7 +9,6 @@ import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.config.events.EventType;
 
 import javax.inject.Inject;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -19,8 +18,6 @@ import java.util.logging.Logger;
  * @since 2014-01-30 (15:42)
  */
 class Installer implements FullInstaller {
-
-    private final Logger logger = Logger.getLogger(Installer.class.getName());
 
     private final DataModel dataModel;
     private final EventService eventService;
@@ -35,18 +32,14 @@ class Installer implements FullInstaller {
     }
 
     @Override
-    public void install(DataModelUpgrader dataModelUpgrader) {
+    public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
         dataModelUpgrader.upgrade(dataModel, Version.latest());
         createEventTypes();
     }
 
     private void createEventTypes() {
         for (EventType eventType : EventType.values()) {
-            try {
-                eventType.install(this.eventService);
-            } catch (Exception e) {
-                this.logger.log(Level.SEVERE, e.getMessage(), e);
-            }
+            eventType.install(this.eventService);
         }
     }
 
