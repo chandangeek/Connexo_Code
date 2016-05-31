@@ -11,16 +11,9 @@ import com.energyict.mdc.tasks.TaskService;
 import javax.inject.Inject;
 import java.util.List;
 import java.util.Optional;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Copyrights EnergyICT
- * Date: 9/05/2016
- * Time: 11:50
- */
 class Installer implements FullInstaller {
-    private static final Logger LOGGER = Logger.getLogger(Installer.class.getName());
 
     private final DataModel dataModel;
     private final EventService eventService;
@@ -34,20 +27,28 @@ class Installer implements FullInstaller {
     }
 
     @Override
-    public void install(DataModelUpgrader dataModelUpgrader) {
+    public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
         dataModelUpgrader.upgrade(dataModel, Version.latest());
-        this.createEventTypes();
-        this.createFirmwareComTaskIfNotPresentYet();
-        this.createStatusInformationComTaskIfNotPresentYet();
+        doTry(
+                "Create event types for CTS",
+                this::createEventTypes,
+                logger
+        );
+        doTry(
+                "Create Firmware Com Task",
+                this::createFirmwareComTaskIfNotPresentYet,
+                logger
+        );
+        doTry(
+                "Create Status Information Com Task",
+                this::createStatusInformationComTaskIfNotPresentYet,
+                logger
+        );
     }
 
     private void createEventTypes() {
         for (EventType eventType : EventType.values()) {
-            try {
-                eventType.createIfNotExists(this.eventService);
-            } catch (Exception e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            }
+            eventType.createIfNotExists(this.eventService);
         }
     }
 
@@ -71,7 +72,8 @@ class Installer implements FullInstaller {
     }
 
     private Optional<ComTask> findStatusInformationComTask() {
-        List<ComTask> comTasks = dataModel.mapper(ComTask.class).find("name", ServerTaskService.STATUS_INFORMATION_COMTASK_NAME);
+        List<ComTask> comTasks = dataModel.mapper(ComTask.class)
+                .find("name", ServerTaskService.STATUS_INFORMATION_COMTASK_NAME);
         return comTasks.size() == 1 ? Optional.of(comTasks.get(0)) : Optional.empty();
     }
 
