@@ -139,6 +139,14 @@ public class MetrologyConfigurationResource {
 
         metrologyConfigurationUpdater.complete();
 
+        if (!info.status.id.toString().equals(metrologyConfiguration.getStatus().getId())) {
+            if (metrologyConfiguration.isActive()) {
+                metrologyConfiguration.deactivate();
+            } else {
+                metrologyConfiguration.activate();
+            }
+        }
+
         return Response.ok().entity(metrologyConfigurationInfoFactory.asInfo(metrologyConfiguration)).build();
     }
 

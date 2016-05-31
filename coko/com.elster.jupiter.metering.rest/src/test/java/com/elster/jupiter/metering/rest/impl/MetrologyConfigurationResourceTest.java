@@ -298,4 +298,40 @@ public class MetrologyConfigurationResourceTest extends MeteringApplicationJerse
         //Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
     }
+
+    @Test
+    public void testActivateMetrologyConfiguration() throws Exception {
+        MetrologyConfigurationInfo info = mockMetrologyConfigurationInfo(1L, "config1", "some description", 1L);
+        UsagePointMetrologyConfiguration metrologyConfiguration = mockMetrologyConfiguration(mockMetrologyConfigurationInfo(1L, "config1", "some description", 1L));
+        when(metrologyConfigurationService.findAndLockMetrologyConfiguration(1L, 1L)).thenReturn(Optional.of(metrologyConfiguration));
+        when(metrologyConfigurationService.findMetrologyConfiguration(1L)).thenReturn(Optional.of(metrologyConfiguration));
+        MetrologyConfigurationUpdater metrologyConfigurationUpdater = mock(MetrologyConfigurationUpdater.class);
+        when(metrologyConfiguration.startUpdate()).thenReturn(metrologyConfigurationUpdater);
+        when(metrologyConfigurationUpdater.setName(info.name)).thenReturn(metrologyConfigurationUpdater);
+        when(metrologyConfigurationUpdater.setDescription(info.description)).thenReturn(metrologyConfigurationUpdater);
+
+        //Business method
+        MetrologyConfigurationStatus status = MetrologyConfigurationStatus.ACTIVE;
+        info.status = new IdWithNameInfo(status.getId(), thesaurus.getFormat(status.getTranslationKey()).format());
+        Response response = target("metrologyconfigurations/" + info.id).request().put(Entity.json(info));
+
+        //Asserts
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    }
+
+    @Test
+    public void testActivateMetrologyConfigurationConcurrentModification() throws Exception {
+        MetrologyConfigurationInfo info = mockMetrologyConfigurationInfo(1L, "config1", "some description", 1L);
+        mockMetrologyConfiguration(mockMetrologyConfigurationInfo(1L, "config1", "some description", 2L));
+        when(metrologyConfigurationService.findAndLockMetrologyConfiguration(1L, 1L)).thenReturn(Optional.empty());
+        when(metrologyConfigurationService.findMetrologyConfiguration(1L)).thenReturn(Optional.empty());
+
+        //Business method
+        MetrologyConfigurationStatus status = MetrologyConfigurationStatus.ACTIVE;
+        info.status = new IdWithNameInfo(status.getId(), thesaurus.getFormat(status.getTranslationKey()).format());
+        Response response = target("metrologyconfigurations/" + info.id).request().put(Entity.json(info));
+
+        //Asserts
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+    }
 }
