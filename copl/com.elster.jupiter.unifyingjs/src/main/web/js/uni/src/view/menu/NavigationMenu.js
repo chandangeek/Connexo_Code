@@ -23,7 +23,7 @@ Ext.define('Uni.view.menu.NavigationMenu', {
             this.updateItemCls(index, false)
         },
         click: function (menu, item) {
-            item.index < menu.activeStep ?
+            item && item.index < menu.activeStep ?
                 (menu.jumpBack ? menu.moveTo(item.index) : null) :
                 (menu.jumpForward ? menu.moveTo(item.index) : null)
         }

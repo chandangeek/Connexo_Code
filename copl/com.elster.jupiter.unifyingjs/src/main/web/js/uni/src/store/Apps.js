@@ -6,8 +6,6 @@ Ext.define('Uni.store.Apps', {
     model: 'Uni.model.App',
     storeId: 'apps',
     singleton: true,
-    autoLoad: true,
-
 
     proxy: {
         type: 'ajax',

@@ -54,8 +54,8 @@ Ext.define('Uni.view.search.field.internal.CriteriaButton', {
                 enableKeyNav: false
             }, me.menuConfig),
             listeners: {
-                toggle:     me.onToggle,
-                menuhide:   me.onMenuHideEvent
+                toggle: me.onToggle,
+                click: me.onClickEvent
             }
         });
 
@@ -90,7 +90,7 @@ Ext.define('Uni.view.search.field.internal.CriteriaButton', {
         }
     },
 
-    onMenuHideEvent: function() {
+    onClickEvent: function () {
         this.toggle(false);
     },
 

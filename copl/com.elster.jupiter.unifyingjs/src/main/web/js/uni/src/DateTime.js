@@ -14,8 +14,8 @@ Ext.define('Uni.DateTime', {
     timeShortKey: 'format.time.short',
     timeLongKey: 'format.time.long',
 
-    dateTimeShortKey: 'format.datetime.short',
-    dateTimeLongKey: 'format.datetime.long',
+    dateTimeSeparatorKey: 'format.datetime.separator',
+    dateTimeOrderKey: 'format.datetime.order',
 
     dateShortDefault: 'd M \'y',
     dateLongDefault: 'D d M \'y',
@@ -23,8 +23,11 @@ Ext.define('Uni.DateTime', {
     timeShortDefault: 'H:i',
     timeLongDefault: 'H:i:s',
 
-    dateTimeShortDefault: 'd M \'y - H:i',
-    dateTimeLongDefault: 'D d M \'y - H:i:s',
+    dateTimeSeparatorDefault: '-',
+    dateTimeOrderDefault: 'DT',
+
+    LONG: 'long',
+    SHORT: 'short',
 
     formatDateShort: function (date) {
         date = date || new Date();
@@ -63,20 +66,43 @@ Ext.define('Uni.DateTime', {
     },
 
     formatDateTimeShort: function (date) {
-        date = date || new Date();
-
-        var me = this,
-            format = Uni.util.Preferences.lookup(me.dateTimeShortKey, me.dateTimeShortDefault);
-
-        return Ext.Date.format(date, format);
+        return this.formatDateTime(date, this.SHORT, this.SHORT);
     },
 
     formatDateTimeLong: function (date) {
-        date = date || new Date();
+        return this.formatDateTime(date, this.LONG, this.LONG);
+    },
 
+    formatDateTime: function (date, dateLongOrShort, timeLongOrShort) {
+        return this.doFormat(
+            date,
+            this.LONG === dateLongOrShort
+                ? Uni.util.Preferences.lookup(this.dateLongKey, this.dateLongDefault)
+                : Uni.util.Preferences.lookup(this.dateShortKey, this.dateShortDefault),
+            this.LONG === timeLongOrShort
+                ? Uni.util.Preferences.lookup(this.timeLongKey, this.timeLongDefault)
+                : Uni.util.Preferences.lookup(this.timeShortKey, this.timeShortDefault)
+        );
+    },
+
+    doFormat: function (date, dateFormat, timeFormat) {
         var me = this,
-            format = Uni.util.Preferences.lookup(me.dateTimeLongKey, me.dateTimeLongDefault);
+            dateTimeFormat,
+            orderFormat = Uni.util.Preferences.lookup(me.dateTimeOrderKey, me.dateTimeOrderDefault),
+            separatorFormat = Uni.util.Preferences.lookup(me.dateTimeSeparatorKey, me.dateTimeSeparatorDefault);
 
-        return Ext.Date.format(date, format);
+        date = date || new Date();
+        if (orderFormat.startsWith('T')) {
+            dateTimeFormat = timeFormat;
+        } else {
+            dateTimeFormat = dateFormat;
+        }
+        dateTimeFormat += (' ' + separatorFormat.trim() + ' ');
+        if (orderFormat.startsWith('T')) {
+            dateTimeFormat += dateFormat;
+        } else {
+            dateTimeFormat += timeFormat;
+        }
+        return Ext.Date.format(date, dateTimeFormat);
     }
 });

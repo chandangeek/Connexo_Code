@@ -240,7 +240,15 @@ Ext.define('Uni.controller.history.Router', {
                     // perform redirect on route match
                     if (Ext.isObject(config.redirect)) {
                         var redirectParams = _.extend(me.arguments, config.redirect.params);
-                        me.getRoute(config.redirect.route).forward(redirectParams);
+                        // a case for redirection to different application
+                        if (config.redirect.app && Uni.store.Apps.findRecord('name', config.redirect.app)) {
+                            var url = Uni.store.Apps.findRecord('name', config.redirect.app).get('url'),
+                                route = me.getRoute(config.redirect.route || me.route);
+                            url = url + route.buildUrl(redirectParams).substring(1);
+                            window.location.replace(url);
+                        } else {
+                            me.getRoute(config.redirect.route).forward(redirectParams);
+                        }
                     } else if (Ext.isString(config.redirect)) {
                         me.getRoute(config.redirect).forward(me.arguments);
                     } else {

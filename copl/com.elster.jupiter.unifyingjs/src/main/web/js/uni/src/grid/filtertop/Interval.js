@@ -305,7 +305,7 @@ Ext.define('Uni.grid.filtertop.Interval', {
         var me = this;
         if ( me.getToDateValue() < me.getFromDateValue() ) {
             me.getIntervalForm().markInvalid(
-                Uni.I18n.translate('interval.invalid', 'UNI', "The 'From' date must be smaller than the 'To' date"));
+                Uni.I18n.translate('interval.invalid', 'UNI', "The 'From' date must be before the 'To' date"));
             return false;
         }
         me.getIntervalForm().clearInvalid();

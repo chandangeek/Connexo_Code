@@ -106,5 +106,9 @@ Ext.define('Uni.util.Common', {
         }
 
         return translation;
+    },
+
+    encodeURIComponent: function (component) {
+        return decodeURIComponent(component) === component ? encodeURIComponent(component) : component;
     }
 });

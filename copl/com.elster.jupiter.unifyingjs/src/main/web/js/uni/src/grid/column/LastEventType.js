@@ -10,8 +10,6 @@ Ext.define('Uni.grid.column.LastEventType', {
     ],
 
     renderer: function (value, metaData, record, rowIndex, colIndex) {
-        var me = this;
-
-        return new Uni.form.field.LastEventTypeDisplay().renderer.apply(me, arguments);
+        return Ext.isEmpty(value) ? '-' : new Uni.form.field.LastEventTypeDisplay().renderer.apply(this, arguments);
     }
 });
