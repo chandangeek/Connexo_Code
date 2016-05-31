@@ -27,6 +27,7 @@ import java.nio.file.spi.FileSystemProvider;
 import java.security.Principal;
 import java.sql.SQLException;
 import java.time.Instant;
+import java.util.logging.Logger;
 
 import org.junit.After;
 import org.junit.Before;
@@ -191,7 +192,7 @@ public class LobTest {
         table.primaryKey("TST_PK_LOBS").on(idColumn).add();
         dataModel.register();
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            service.getDataModelUpgrader().upgrade(dataModel, Version.latest());
+            service.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, Version.latest());
         }
         return dataModel;
     }

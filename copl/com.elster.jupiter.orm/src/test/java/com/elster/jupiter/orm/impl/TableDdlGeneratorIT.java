@@ -44,6 +44,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import org.junit.After;
 import org.junit.Before;
@@ -175,7 +176,7 @@ public class TableDdlGeneratorIT {
         the1stVersionsCode(dataModel);
         dataModel.register();
 
-        ormService.getDataModelUpgrader().upgrade(dataModel, Version.latest());
+        ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, Version.latest());
 
         try (Connection connection = InMemoryPersistence.getDataSource().getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM TST_MOVIE")) {
@@ -217,7 +218,7 @@ public class TableDdlGeneratorIT {
         the2ndVersionsCode(dataModel);
         dataModel.register();
 
-        ormService.getDataModelUpgrader().upgrade(dataModel, Version.latest());
+        ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, Version.latest());
 
         try (Connection connection = InMemoryPersistence.getDataSource().getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM TST_MOVIE")) {
@@ -264,7 +265,7 @@ public class TableDdlGeneratorIT {
         the2ndVersionsCode(dataModel);
         dataModel.register();
 
-        ormService.getDataModelUpgrader().upgrade(dataModel, version(1, 0));
+        ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, version(1, 0));
 
         try (Connection connection = InMemoryPersistence.getDataSource().getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM TST_MOVIE")) {
@@ -280,7 +281,7 @@ public class TableDdlGeneratorIT {
             }
         }
 
-        ormService.getDataModelUpgrader().upgrade(dataModel, version(2, 0));
+        ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, version(2, 0));
 
         try (Connection connection = InMemoryPersistence.getDataSource().getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM TST_MOVIE")) {
@@ -336,7 +337,7 @@ public class TableDdlGeneratorIT {
         the3rdVersionsCode(dataModel);
         dataModel.register();
 
-        ormService.getDataModelUpgrader().upgrade(dataModel, Version.latest());
+        ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, Version.latest());
 
         try (Connection connection = InMemoryPersistence.getDataSource().getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM TST_MOVIE")) {
@@ -363,7 +364,7 @@ public class TableDdlGeneratorIT {
         the4thVersionsCode(dataModel);
         dataModel.register();
 
-        ormService.getDataModelUpgrader().upgrade(dataModel, Version.latest());
+        ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, Version.latest());
 
         try (Connection connection = InMemoryPersistence.getDataSource().getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM TST_MOVIE")) {
@@ -390,7 +391,7 @@ public class TableDdlGeneratorIT {
         the5thVersionsCode(dataModel);
         dataModel.register();
 
-        ormService.getDataModelUpgrader().upgrade(dataModel, Version.latest());
+        ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, Version.latest());
 
         try (Connection connection = InMemoryPersistence.getDataSource().getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM TST_MOVIE")) {
@@ -426,7 +427,7 @@ public class TableDdlGeneratorIT {
         the7thVersionsCode(dataModel);
         dataModel.register();
 
-        ormService.getDataModelUpgrader().upgrade(dataModel, Version.latest());
+        ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, Version.latest());
 
         try (Connection connection = InMemoryPersistence.getDataSource().getConnection()) {
             try (ResultSet resultSet = connection.getMetaData().getIndexInfo(null, null, "TST_MOVIE", true, true)) {
@@ -446,7 +447,7 @@ public class TableDdlGeneratorIT {
         the8thVersionsCode(dataModel);
         dataModel.register();
 
-        ormService.getDataModelUpgrader().upgrade(dataModel, Version.latest());
+        ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, Version.latest());
 
         try (Connection connection = InMemoryPersistence.getDataSource().getConnection()) {
             try (ResultSet resultSet = connection.getMetaData().getIndexInfo(null, null, "TST_MOVIE", true, true)) {
@@ -467,7 +468,7 @@ public class TableDdlGeneratorIT {
         the9thVersionsCode(dataModel);
         dataModel.register();
 
-        ormService.getDataModelUpgrader().upgrade(dataModel, Version.latest());
+        ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, Version.latest());
 
         try (Connection connection = InMemoryPersistence.getDataSource().getConnection()) {
             try (ResultSet resultSet = connection.getMetaData().getIndexInfo(null, null, "TST_MOVIE", true, true)) {
@@ -487,7 +488,7 @@ public class TableDdlGeneratorIT {
         the10thVersionsCode(dataModel);
         dataModel.register();
 
-        ormService.getDataModelUpgrader().upgrade(dataModel, Version.latest());
+        ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, Version.latest());
 
         try (Connection connection = InMemoryPersistence.getDataSource().getConnection()) {
             try (ResultSet resultSet = connection.getMetaData()
@@ -504,7 +505,7 @@ public class TableDdlGeneratorIT {
         the11thVersionsCode(dataModel);
         dataModel.register();
 
-        ormService.getDataModelUpgrader().upgrade(dataModel, Version.latest());
+        ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, Version.latest());
 
         try (Connection connection = InMemoryPersistence.getDataSource().getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM TST_ACTOR")) {
@@ -525,7 +526,7 @@ public class TableDdlGeneratorIT {
         the12thVersionsCode(dataModel);
         dataModel.register();
 
-        ormService.getDataModelUpgrader().upgrade(dataModel, Version.latest());
+        ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, Version.latest());
 
         try (Connection connection = InMemoryPersistence.getDataSource().getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM TST_MOVIE")) {
@@ -545,7 +546,7 @@ public class TableDdlGeneratorIT {
         the13thVersionsCode(dataModel);
         dataModel.register();
 
-        ormService.getDataModelUpgrader().upgrade(dataModel, Version.latest());
+        ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, Version.latest());
 
         try (Connection connection = InMemoryPersistence.getDataSource().getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM TST_ROLE")) {
@@ -566,7 +567,7 @@ public class TableDdlGeneratorIT {
         the14thVersionsCode(dataModel);
         dataModel.register();
 
-        ormService.getDataModelUpgrader().upgrade(dataModel, Version.latest());
+        ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, Version.latest());
 
         try (Connection connection = InMemoryPersistence.getDataSource().getConnection()) {
             try (ResultSet resultSet = connection.getMetaData().getColumns(null, null, "TST_MOVIE", "TITLE")) {
@@ -583,7 +584,7 @@ public class TableDdlGeneratorIT {
         the6thVersionsCode(dataModel);
         dataModel.register();
 
-        ormService.getDataModelUpgrader().upgrade(dataModel, Version.latest());
+        ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, Version.latest());
 
         try (Connection connection = InMemoryPersistence.getDataSource().getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM TST_MOVIE")) {
@@ -618,7 +619,7 @@ public class TableDdlGeneratorIT {
         the3rdVersionsCode(dataModel);
         dataModel.register();
 
-        ormService.getDataModelUpgrader().upgrade(dataModel, version(2, 0));
+        ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, version(2, 0));
 
         try (Connection connection = InMemoryPersistence.getDataSource().getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM TST_MOVIE")) {
@@ -630,7 +631,7 @@ public class TableDdlGeneratorIT {
             }
         }
 
-        ormService.getDataModelUpgrader().upgrade(dataModel, Version.latest());
+        ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, Version.latest());
 
         try (Connection connection = InMemoryPersistence.getDataSource().getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM TST_MOVIE")) {
@@ -657,7 +658,7 @@ public class TableDdlGeneratorIT {
         the4thVersionsCode(dataModel);
         dataModel.register();
 
-        ormService.getDataModelUpgrader().upgrade(dataModel, version(3, 0));
+        ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, version(3, 0));
 
         try (Connection connection = InMemoryPersistence.getDataSource().getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM TST_MOVIE")) {
@@ -676,7 +677,7 @@ public class TableDdlGeneratorIT {
             }
         }
 
-        ormService.getDataModelUpgrader().upgrade(dataModel, version(4, 0));
+        ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, version(4, 0));
 
         try (Connection connection = InMemoryPersistence.getDataSource().getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM TST_MOVIE")) {
@@ -703,7 +704,7 @@ public class TableDdlGeneratorIT {
         the5thVersionsCode(dataModel);
         dataModel.register();
 
-        ormService.getDataModelUpgrader().upgrade(dataModel, version(4, 0));
+        ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, version(4, 0));
 
         try (Connection connection = InMemoryPersistence.getDataSource().getConnection()) {
             try (ResultSet resultSet = connection.getMetaData()
@@ -717,7 +718,7 @@ public class TableDdlGeneratorIT {
             }
         }
 
-        ormService.getDataModelUpgrader().upgrade(dataModel, version(5, 0));
+        ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, version(5, 0));
 
         try (Connection connection = InMemoryPersistence.getDataSource().getConnection()) {
             try (ResultSet resultSet = connection.getMetaData()
@@ -739,7 +740,7 @@ public class TableDdlGeneratorIT {
         the6thVersionsCode(dataModel);
         dataModel.register();
 
-        ormService.getDataModelUpgrader().upgrade(dataModel, version(5, 0));
+        ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, version(5, 0));
 
         try (Connection connection = InMemoryPersistence.getDataSource().getConnection()) {
             try (ResultSet resultSet = connection.getMetaData()
@@ -753,7 +754,7 @@ public class TableDdlGeneratorIT {
             }
         }
 
-        ormService.getDataModelUpgrader().upgrade(dataModel, version(6, 0));
+        ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, version(6, 0));
 
         try (Connection connection = InMemoryPersistence.getDataSource().getConnection()) {
             try (ResultSet resultSet = connection.getMetaData()
@@ -775,7 +776,7 @@ public class TableDdlGeneratorIT {
         the7thVersionsCode(dataModel);
         dataModel.register();
 
-        ormService.getDataModelUpgrader().upgrade(dataModel, version(6, 0));
+        ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, version(6, 0));
 
         try (Connection connection = InMemoryPersistence.getDataSource().getConnection()) {
             try (ResultSet resultSet = connection.getMetaData().getIndexInfo(null, null, "TST_MOVIE", true, true)) {
@@ -787,7 +788,7 @@ public class TableDdlGeneratorIT {
             }
         }
 
-        ormService.getDataModelUpgrader().upgrade(dataModel, version(7, 0));
+        ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, version(7, 0));
 
         try (Connection connection = InMemoryPersistence.getDataSource().getConnection()) {
             try (ResultSet resultSet = connection.getMetaData().getIndexInfo(null, null, "TST_MOVIE", true, true)) {
@@ -807,7 +808,7 @@ public class TableDdlGeneratorIT {
         the8thVersionsCode(dataModel);
         dataModel.register();
 
-        ormService.getDataModelUpgrader().upgrade(dataModel, version(7, 0));
+        ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, version(7, 0));
 
         try (Connection connection = InMemoryPersistence.getDataSource().getConnection()) {
             try (ResultSet resultSet = connection.getMetaData().getIndexInfo(null, null, "TST_MOVIE", true, true)) {
@@ -820,7 +821,7 @@ public class TableDdlGeneratorIT {
             }
         }
 
-        ormService.getDataModelUpgrader().upgrade(dataModel, version(8, 0));
+        ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, version(8, 0));
 
         try (Connection connection = InMemoryPersistence.getDataSource().getConnection()) {
             try (ResultSet resultSet = connection.getMetaData().getIndexInfo(null, null, "TST_MOVIE", true, true)) {
@@ -841,7 +842,7 @@ public class TableDdlGeneratorIT {
         the9thVersionsCode(dataModel);
         dataModel.register();
 
-        ormService.getDataModelUpgrader().upgrade(dataModel, version(8, 0));
+        ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, version(8, 0));
 
         try (Connection connection = InMemoryPersistence.getDataSource().getConnection()) {
             try (ResultSet resultSet = connection.getMetaData().getIndexInfo(null, null, "TST_MOVIE", true, true)) {
@@ -853,7 +854,7 @@ public class TableDdlGeneratorIT {
             }
         }
 
-        ormService.getDataModelUpgrader().upgrade(dataModel, version(9, 0));
+        ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, version(9, 0));
 
         try (Connection connection = InMemoryPersistence.getDataSource().getConnection()) {
             try (ResultSet resultSet = connection.getMetaData().getIndexInfo(null, null, "TST_MOVIE", true, true)) {
@@ -873,7 +874,7 @@ public class TableDdlGeneratorIT {
         the10thVersionsCode(dataModel);
         dataModel.register();
 
-        ormService.getDataModelUpgrader().upgrade(dataModel, version(9, 0));
+        ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, version(9, 0));
 
         try (Connection connection = InMemoryPersistence.getDataSource().getConnection()) {
             try (ResultSet resultSet = connection.getMetaData()
@@ -887,7 +888,7 @@ public class TableDdlGeneratorIT {
             }
         }
 
-        ormService.getDataModelUpgrader().upgrade(dataModel, version(10, 0));
+        ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, version(10, 0));
 
         try (Connection connection = InMemoryPersistence.getDataSource().getConnection()) {
             try (ResultSet resultSet = connection.getMetaData()
@@ -904,7 +905,7 @@ public class TableDdlGeneratorIT {
         the11thVersionsCode(dataModel);
         dataModel.register();
 
-        ormService.getDataModelUpgrader().upgrade(dataModel, version(10, 0));
+        ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, version(10, 0));
 
         try (Connection connection = InMemoryPersistence.getDataSource().getConnection()) {
             try (Statement statement = connection.createStatement()) {
@@ -913,7 +914,7 @@ public class TableDdlGeneratorIT {
             }
         }
 
-        ormService.getDataModelUpgrader().upgrade(dataModel, version(11, 0));
+        ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, version(11, 0));
 
         try (Connection connection = InMemoryPersistence.getDataSource().getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM TST_ACTOR")) {
@@ -936,7 +937,7 @@ public class TableDdlGeneratorIT {
         the13thVersionsCode(dataModel);
         dataModel.register();
 
-        ormService.getDataModelUpgrader().upgrade(dataModel, version(12, 0));
+        ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, version(12, 0));
 
         try (Connection connection = InMemoryPersistence.getDataSource().getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM TST_ACTOR")) {
@@ -953,7 +954,7 @@ public class TableDdlGeneratorIT {
             }
         }
 
-        ormService.getDataModelUpgrader().upgrade(dataModel, version(13, 0));
+        ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, version(13, 0));
 
         try (Connection connection = InMemoryPersistence.getDataSource().getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM TST_ROLE")) {
@@ -979,7 +980,7 @@ public class TableDdlGeneratorIT {
         the14thVersionsCode(dataModel);
         dataModel.register();
 
-        ormService.getDataModelUpgrader().upgrade(dataModel, version(13, 0));
+        ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, version(13, 0));
 
         try (Connection connection = InMemoryPersistence.getDataSource().getConnection()) {
             try (ResultSet resultSet = connection.getMetaData().getColumns(null, null, "TST_MOVIE", "TITLE")) {
@@ -988,7 +989,7 @@ public class TableDdlGeneratorIT {
             }
         }
 
-        ormService.getDataModelUpgrader().upgrade(dataModel, version(14, 0));
+        ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, version(14, 0));
 
         try (Connection connection = InMemoryPersistence.getDataSource().getConnection()) {
             try (ResultSet resultSet = connection.getMetaData().getColumns(null, null, "TST_MOVIE", "TITLE")) {
@@ -1005,7 +1006,7 @@ public class TableDdlGeneratorIT {
         the12thVersionsCode(dataModel);
         dataModel.register();
 
-        ormService.getDataModelUpgrader().upgrade(dataModel, version(11, 0));
+        ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, version(11, 0));
 
         try (Connection connection = InMemoryPersistence.getDataSource().getConnection()) {
             try (Statement statement = connection.createStatement()) {
@@ -1014,7 +1015,7 @@ public class TableDdlGeneratorIT {
             }
         }
 
-        ormService.getDataModelUpgrader().upgrade(dataModel, version(12, 0));
+        ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, version(12, 0));
 
         try (Connection connection = InMemoryPersistence.getDataSource().getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM TST_MOVIE")) {
