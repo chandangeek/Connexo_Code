@@ -28,7 +28,6 @@ import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -88,7 +87,8 @@ class Installer implements FullInstaller {
         Map<String, CustomStateTransitionEventType> eventTypes = this.findOrCreateStateTransitionEventTypes(logger);
         return this.createDefaultLifeCycle(
                 DefaultLifeCycleTranslationKey.DEFAULT_DEVICE_LIFE_CYCLE_NAME.getKey(),
-                eventTypes);
+                eventTypes,
+                logger);
     }
 
     private Map<String, CustomStateTransitionEventType> findOrCreateStateTransitionEventTypes(Logger logger) {
@@ -106,7 +106,7 @@ class Installer implements FullInstaller {
     }
 
     public DeviceLifeCycle createDefaultLifeCycle(String name, Logger logger) {
-        return this.createDefaultLifeCycle(name, this.findOrCreateStateTransitionEventTypes(logger));
+        return this.createDefaultLifeCycle(name, this.findOrCreateStateTransitionEventTypes(logger), logger);
     }
 
     private DeviceLifeCycle createDefaultLifeCycle(String name, Map<String, CustomStateTransitionEventType> eventTypes, Logger logger) {

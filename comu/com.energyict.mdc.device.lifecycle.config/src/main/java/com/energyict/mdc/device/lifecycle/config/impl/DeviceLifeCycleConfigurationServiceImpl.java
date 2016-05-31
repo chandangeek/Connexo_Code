@@ -62,6 +62,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -77,6 +78,8 @@ import static com.elster.jupiter.util.conditions.Where.where;
         property = "name=" + DeviceLifeCycleConfigurationService.COMPONENT_NAME)
 @SuppressWarnings("unused")
 public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleConfigurationService, TranslationKeyProvider, MessageSeedProvider, IssueCreationValidator, PrivilegesProvider {
+
+    private static final Logger LOGGER = Logger.getLogger(DeviceLifeCycleConfigurationServiceImpl.class.getName());
 
     private volatile DataModel dataModel;
     private volatile NlsService nlsService;
@@ -214,7 +217,7 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
 
     @Override
     public DeviceLifeCycle newDefaultDeviceLifeCycle(String name) {
-        return dataModel.getInstance(Installer.class).createDefaultLifeCycle(name);
+        return dataModel.getInstance(Installer.class).createDefaultLifeCycle(name, LOGGER);
     }
 
     @Override
