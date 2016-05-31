@@ -82,6 +82,13 @@ public class CalendarInfoFactoryImpl implements CalendarInfoFactory {
     }
 
     @Override
+    public CalendarInfo summaryForOverview(Calendar calendar, boolean calendarInUse) {
+        CalendarInfo calendarInfo = summaryFromCalendar(calendar);
+        calendarInfo.inUse = calendarInUse;
+        return calendarInfo;
+    }
+
+    @Override
     public CalendarInfo detailedWeekFromCalendar(Calendar calendar, LocalDate localDate) {
         CalendarInfo calendarInfo = new CalendarInfo();
         addBasicInformation(calendar, calendarInfo);

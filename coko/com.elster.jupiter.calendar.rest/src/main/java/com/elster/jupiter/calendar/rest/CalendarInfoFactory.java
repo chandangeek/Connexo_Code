@@ -11,6 +11,8 @@ import java.time.LocalDate;
 public interface CalendarInfoFactory {
     CalendarInfo summaryFromCalendar(Calendar calendar);
 
+    CalendarInfo summaryForOverview(Calendar calendar, boolean calendarInUse);
+
     CalendarInfo nameOnly(String name);
 
     CalendarInfo detailedFromCalendar(Calendar calendar);

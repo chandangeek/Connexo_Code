@@ -6,9 +6,12 @@ import com.elster.jupiter.calendar.rest.CalendarInfo;
 import com.elster.jupiter.calendar.rest.CalendarInfoFactory;
 import com.elster.jupiter.calendar.security.Privileges;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.Transactional;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -44,7 +47,7 @@ public class CalendarResource {
     public List<CalendarInfo> getAllTimeOfUseCalendars() {
        return calendarService.findAllCalendars()
                .stream()
-               .map(calendarInfoFactory::summaryFromCalendar)
+               .map(calendar -> calendarInfoFactory.summaryForOverview(calendar, calendarService.isCalendarInUse(calendar)))
                .collect(Collectors.toList());
     }
 
@@ -65,6 +68,23 @@ public class CalendarResource {
             return transformToWeekCalendar(calendar, localDate);
         }
     }
+
+    @DELETE
+    @Path("/timeofusecalendars/{id}")
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.MANAGE_TOU_CALENDARS)
+    public Response removeCalendar(@PathParam("id") long id) {
+        Calendar calendar = calendarService.findCalendar(id).orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_TIME_OF_USE_CALENDAR));
+        if(!calendarService.isCalendarInUse(calendar)) {
+            calendar.delete();
+            return Response.ok().build();
+        } else {
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.TIME_OF_USE_CALENDAR_IN_USE);
+        }
+    }
+
 
     private CalendarInfo transformToWeekCalendar(Calendar calendar, LocalDate localDate) {
         return calendarInfoFactory.detailedWeekFromCalendar(calendar, localDate);

@@ -21,6 +21,7 @@ public class CalendarInfo {
     public List<PeriodInfo> periods;
     public List<DayInfo> weekTemplate;
     public List<DaysPerTypeInfo> daysPerType;
+    public boolean inUse = true;
 
     public CalendarInfo() {
 
