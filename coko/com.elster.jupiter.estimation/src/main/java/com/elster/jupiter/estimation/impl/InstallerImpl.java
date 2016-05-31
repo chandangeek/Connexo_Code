@@ -14,19 +14,22 @@ import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.exception.ExceptionCatcher;
 
 import javax.inject.Inject;
 import java.util.EnumSet;
 import java.util.Optional;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.*;
+import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.LAST_7_DAYS;
+import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.PREVIOUS_MONTH;
+import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.PREVIOUS_WEEK;
+import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.THIS_MONTH;
+import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.THIS_WEEK;
+import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.THIS_YEAR;
+import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.TODAY;
+import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.YESTERDAY;
 
 class InstallerImpl implements FullInstaller {
-
-    private static final Logger LOGGER = Logger.getLogger(InstallerImpl.class.getName());
 
     public static final String DESTINATION_NAME = EstimationServiceImpl.DESTINATION_NAME;
     public static final String SUBSCRIBER_NAME = EstimationServiceImpl.SUBSCRIBER_NAME;
@@ -54,16 +57,34 @@ class InstallerImpl implements FullInstaller {
     }
 
     @Override
-    public void install(DataModelUpgrader dataModelUpgrader) {
-        ExceptionCatcher.executing(
-                () -> dataModelUpgrader.upgrade(dataModel, Version.latest()),
+    public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
+        dataModelUpgrader.upgrade(dataModel, Version.latest());
+
+        doTry(
+                "Create estimation task queue",
                 this::createDestinationAndSubscriber,
+                logger
+        );
+        doTry(
+                "Create relative period category for EST",
                 this::createRelativePeriodCategory,
+                logger
+        );
+        doTry(
+                "Assign default relative periods to EST category",
                 this::createRelativePeriods,
+                logger
+        );
+        doTry(
+                "Create event types for EST",
                 this::createEventTypes,
-                this::createTaskExecutorUser
-        ).andHandleExceptionsWith(Throwable::printStackTrace)
-                .execute();
+                logger
+        );
+        doTry(
+                "Create task execution user",
+                this::createTaskExecutorUser,
+                logger
+        );
 
     }
 
@@ -80,20 +101,23 @@ class InstallerImpl implements FullInstaller {
     }
 
     private RelativePeriodCategory getCategory() {
-        return timeService.findRelativePeriodCategoryByName(RELATIVE_PERIOD_CATEGORY).orElseThrow(IllegalArgumentException::new);
+        return timeService.findRelativePeriodCategoryByName(RELATIVE_PERIOD_CATEGORY)
+                .orElseThrow(IllegalArgumentException::new);
     }
 
     private void createRelativePeriods() {
         RelativePeriodCategory category = getCategory();
 
-        EnumSet.of(LAST_7_DAYS, PREVIOUS_MONTH, PREVIOUS_WEEK, THIS_MONTH, THIS_WEEK, THIS_YEAR, TODAY, YESTERDAY).stream()
+        EnumSet.of(LAST_7_DAYS, PREVIOUS_MONTH, PREVIOUS_WEEK, THIS_MONTH, THIS_WEEK, THIS_YEAR, TODAY, YESTERDAY)
+                .stream()
                 .forEach(definition -> {
-                    RelativePeriod relativePeriod = timeService.findRelativePeriodByName(definition.getPeriodName()).orElseThrow(IllegalArgumentException::new);
+                    RelativePeriod relativePeriod = timeService.findRelativePeriodByName(definition.getPeriodName())
+                            .orElseThrow(IllegalArgumentException::new);
                     relativePeriod.addRelativePeriodCategory(category);
                 });
 
     }
-    
+
     private void createEventTypes() {
         for (EventType eventType : EventType.values()) {
             eventType.install(eventService);
@@ -103,10 +127,6 @@ class InstallerImpl implements FullInstaller {
     private void createTaskExecutorUser() {
         User estimationUser = userService.createUser(EstimationServiceImpl.ESTIMATION_TASKS_USER, "task executor for estimation tasks");
         Optional<Group> batchExecutorRole = userService.findGroup(UserService.BATCH_EXECUTOR_ROLE);
-        if (batchExecutorRole.isPresent()) {
-            estimationUser.join(batchExecutorRole.get());
-        } else {
-            LOGGER.log(Level.SEVERE, "Could not add role to '" + EstimationServiceImpl.ESTIMATION_TASKS_USER + "' user because role '" + UserService.BATCH_EXECUTOR_ROLE + "' is not found");
-        }
+        estimationUser.join(batchExecutorRole.orElseThrow(() -> new IllegalStateException("Role " + UserService.BATCH_EXECUTOR_ROLE + "is not found.")));
     }
 }
