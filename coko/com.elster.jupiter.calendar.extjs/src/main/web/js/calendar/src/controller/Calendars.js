@@ -43,9 +43,7 @@ Ext.define('Cal.controller.Calendars', {
         store.load({
             callback: function (records, operation, success) {
                 if(success === true) {
-                    me.getTimeOfUseGrid().down('pagingtoolbartop #displayItem').setText(
-                        Uni.I18n.translatePlural('general.calendarCount', store.getCount(), 'CAL', 'No time of use calendars', '{0} time of use calendar', '{0} time of use calendars')
-                    );
+                    me.updateCalendarsCounter();
                 }
             }
         });
@@ -84,6 +82,9 @@ Ext.define('Cal.controller.Calendars', {
         switch (item.action) {
             case 'viewpreview':
                 me.loadPreview(menu.record.get('id'));
+                break;
+            case 'remove':
+                me.removeCalendar(menu.record);
         }
     },
 
@@ -110,12 +111,41 @@ Ext.define('Cal.controller.Calendars', {
             return true;
         }, {single: true});
         me.getApplication().fireEvent('changecontentevent', view);
-    }
+    },
 
-    //updateCalendarsCounter: function () {
-    //    var me = this;
-    //    me.getTimeOfUseGrid().down('pagingtoolbartop #displayItem').setText(
-    //        Uni.I18n.translatePlural('general.timeOfUseCalendarCount', me.getTimeOfUseGrid().getStore().getCount(), 'CAL', 'No time of use caldendars', '{0} time of use calendar', '{0} time of use calendars')
-    //    );
-    //}
+    removeCalendar: function (record) {
+        var me = this,
+            confirmationWindow = Ext.create('Uni.view.window.Confirmation'),
+            store = me.getStore('Cal.store.TimeOfUseCalendars');
+
+        record.getProxy().setUrl('/api/cal/calendars/timeofusecalendars');
+        confirmationWindow.show(
+            {
+                msg: Uni.I18n.translate('tou.remove.msg', 'CAL', 'This time of use calendar will no longer be available.'),
+                title: Uni.I18n.translate('general.removeX', 'CAL', "Remove '{0}'?", [record.data.name]),
+                fn: function (state) {
+                    if (state === 'confirm') {
+                        record.destroy({
+                            success: function () {
+                                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('tou.remove.success.msg', 'CAL', 'Time of use calendar removed'));
+                                store.load( {
+                                    callback: function (records, operation, success) {
+                                        if(success === true) {
+                                            me.updateCalendarsCounter();
+                                        }
+                                    }
+                                });
+                            }
+                        });
+                    }
+                }
+            });
+    },
+
+    updateCalendarsCounter: function () {
+        var me = this;
+        me.getTimeOfUseGrid().down('pagingtoolbartop #displayItem').setText(
+            Uni.I18n.translatePlural('general.timeOfUseCalendarCount', me.getTimeOfUseGrid().getStore().getCount(), 'CAL', 'No time of use caldendars', '{0} time of use calendar', '{0} time of use calendars')
+        );
+    }
 });

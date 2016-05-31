@@ -8,18 +8,17 @@ Ext.define('Cal.view.ActionMenu', {
         {
             itemId: 'view-preview-cal',
             text: Uni.I18n.translate('general.viewPreview', 'CAL', 'View preview'),
-            // privileges: Scs.privileges.ServiceCall.admin,
             action: 'viewpreview'
-        }/*,
-         {
-         itemId: 'remove-preview-cal',
-         text: Uni.I18n.translate('general.remove', 'CAL', 'Remove'),
-         // privileges: Scs.privileges.ServiceCall.admin,
-         action: 'remove'
-         //visible: function() {
-         //    return this.record.get('canCancel');
-         //}
-         }*/
+        },
+        {
+            itemId: 'remove-preview-cal',
+            text: Uni.I18n.translate('general.remove', 'CAL', 'Remove'),
+            privileges: Cal.privileges.Calendar.admin,
+            action: 'remove',
+            visible: function () {
+                return !this.record.get('inUse');
+            }
+        }
     ],
     listeners: {
         beforeshow: function () {
