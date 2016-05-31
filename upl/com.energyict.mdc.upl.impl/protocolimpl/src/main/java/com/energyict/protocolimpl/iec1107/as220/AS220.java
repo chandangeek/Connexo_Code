@@ -22,6 +22,7 @@ import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.iec1107.vdew.VDEWTimeStamp;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -335,7 +336,7 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
     }
 
     public String getProtocolVersion() {
-        return "$Date: 2015-11-26 15:23:41 +0200 (Thu, 26 Nov 2015)$";
+        return "$Date: 2016-05-31 09:07:29 +0300 (Tue, 31 May 2016)$";
     }
 
     public String getFirmwareVersion() throws IOException, UnsupportedException {
@@ -847,6 +848,10 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
                     ? getAS220Registry().IEC1107_ADDRESS_EL
                     : getAS220Registry().SERIAL
             );
+        }
+        if(useEquipmentIdentifierAsSerial){
+            byte[] bytesFromHexString = ProtocolTools.getBytesFromHexString(meterSerial, "");
+            return ProtocolTools.getAsciiFromBytes(bytesFromHexString);
         }
         return this.meterSerial;
     }
