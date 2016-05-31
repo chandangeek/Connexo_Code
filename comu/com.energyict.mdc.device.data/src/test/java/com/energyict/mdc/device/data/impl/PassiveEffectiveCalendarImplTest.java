@@ -22,7 +22,7 @@ public class PassiveEffectiveCalendarImplTest extends PersistenceIntegrationTest
 
     private Device createSimpleDeviceWithOneCalendar() {
         Device device = inMemoryPersistence.getDeviceService()
-                .newDevice(deviceConfiguration, "DeviceName", "MyUniqueID");
+                .newDevice(deviceConfiguration, "DeviceName", "MyUniqueID", inMemoryPersistence.getClock().instant());
         Calendar calendar = createCalendar();
         DeviceType deviceType = device.getDeviceConfiguration().getDeviceType();
         deviceType.addCalendar(calendar);
