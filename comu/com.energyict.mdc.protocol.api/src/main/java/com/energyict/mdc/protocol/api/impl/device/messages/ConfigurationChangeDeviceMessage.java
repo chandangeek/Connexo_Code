@@ -5,7 +5,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.dynamic.DateFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.UserFile;
+import com.energyict.mdc.protocol.api.DeviceMessageFile;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import java.math.BigDecimal;
@@ -78,16 +78,16 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecEnum {
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
             propertySpecs.add(
-                    propertySpecService.
-                            stringSpec()
+                    propertySpecService
+                            .stringSpec()
                             .named(DeviceMessageAttributes.converterTypeAttributeName)
                             .fromThesaurus(thesaurus)
                             .markRequired()
                             .addValues("VOL1", "VOL2", "VEN1", "VEN2")
                             .finish());
             propertySpecs.add(
-                    propertySpecService.
-                            stringSpec()
+                    propertySpecService
+                            .stringSpec()
                             .named(DeviceMessageAttributes.converterSerialNumberAttributeName)
                             .fromThesaurus(thesaurus)
                             .markRequired()
@@ -327,7 +327,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecEnum {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
             propertySpecs.add(
                     propertySpecService
-                            .referenceSpec(UserFile.class)
+                            .referenceSpec(DeviceMessageFile.class)
                             .named(ConfigurationChangeDeviceMessageAttributes.MeterScheme)
                             .fromThesaurus(thesaurus)
                             .markRequired()
@@ -340,7 +340,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecEnum {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
             propertySpecs.add(
                     propertySpecService
-                            .referenceSpec(UserFile.class)
+                            .referenceSpec(DeviceMessageFile.class)
                             .named(ConfigurationChangeDeviceMessageAttributes.SwitchPointClockSettings)
                             .fromThesaurus(thesaurus)
                             .markRequired()
@@ -353,7 +353,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecEnum {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
             propertySpecs.add(
                     propertySpecService
-                            .referenceSpec(UserFile.class)
+                            .referenceSpec(DeviceMessageFile.class)
                             .named(ConfigurationChangeDeviceMessageAttributes.SwitchPointClockUpdateSettings)
                             .fromThesaurus(thesaurus)
                             .markRequired()

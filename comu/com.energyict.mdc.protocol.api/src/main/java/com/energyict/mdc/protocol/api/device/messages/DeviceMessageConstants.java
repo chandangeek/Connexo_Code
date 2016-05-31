@@ -25,9 +25,9 @@ public class DeviceMessageConstants {
     public static final String contractAttributeName = "contract";
     public static final String activityCalendarTypeAttributeName = "ActivityCalendarDeviceMessage.activitycalendar.type";
     public static final String activityCalendarNameAttributeName = "ActivityCalendarDeviceMessage.activitycalendar.name";
-    public static final String activityCalendarCodeTableAttributeName = "ActivityCalendarDeviceMessage.activitycalendar.codetable";
+    public static final String activityCalendarAttributeName = "ActivityCalendarDeviceMessage.activitycalendar.codetable";
     public static final String contractsXmlUserFileAttributeName = "ActivityCalendarDeviceMessage.contractsXmlUserFile";
-    public static final String specialDaysCodeTableAttributeName = "ActivityCalendarDeviceMessage.specialdays.codetable";
+    public static final String specialDaysAttributeName = "ActivityCalendarDeviceMessage.specialdays.codetable";
     public static final String activityCalendarActivationDateAttributeName = "ActivityCalendarDeviceMessage.activitycalendar.activationdate";
     public static final String encryptionLevelAttributeName = "SecurityMessage.dlmsencryption.encryptionlevel";
     public static final String authenticationLevelAttributeName = "SecurityMessage.dlmsauthentication.authenticationlevel";
