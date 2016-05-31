@@ -1,10 +1,12 @@
 package com.elster.jupiter.util.geo;
 
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
+
 import com.google.common.collect.ImmutableList;
-import org.junit.Test;
 
 import java.math.BigDecimal;
+
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -135,7 +137,7 @@ public class AngleTest extends EqualsContractTest {
 
     @Test
     public void testToString() {
-        assertThat(ANGLE.toString()).isEqualTo("14\u00B033'36\"");
+        assertThat(ANGLE.toString()).isEqualTo("14\u00B033'36''");
     }
 
 }
