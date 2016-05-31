@@ -128,11 +128,9 @@
             <groupId>com.energyict.dataconcentrator.external</groupId>
             <artifactId>commons-logging</artifactId>
         </dependency>
-
         <dependency>
             <groupId>com.energyict</groupId>
-            <artifactId>xmodem</artifactId>
-            <version>1.0.0</version>
+            <artifactId>serialio-xmodemapi-osgi</artifactId>
             <scope>provided</scope>
         </dependency>
 
