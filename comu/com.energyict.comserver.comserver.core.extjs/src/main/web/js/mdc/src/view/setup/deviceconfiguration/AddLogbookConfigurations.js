@@ -3,7 +3,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.AddLogbookConfigurations', {
     alias: 'widget.add-logbook-configurations',
     requires: [
         'Uni.grid.column.Obis',
-        'Uni.view.notifications.NoItemsFoundPanel',
+        'Uni.util.FormEmptyMessage',
         'Mdc.store.LogbookConfigurations',
         'Mdc.view.setup.deviceconfiguration.AddLogbookConfigurationsGrid'
     ],
@@ -25,12 +25,9 @@ Ext.define('Mdc.view.setup.deviceconfiguration.AddLogbookConfigurations', {
                         itemId: 'add-logbook-configurations-grid'
                     },
                     emptyComponent: {
-                        xtype: 'no-items-found-panel',
+                        xtype: 'uni-form-empty-message',
                         itemId: 'add-logbook-configurations-empty-grid',
-                        title: Uni.I18n.translate('logbooktype.empty.title', 'MDC', 'No logbook types found'),
-                        reasons: [
-                            Uni.I18n.translate('logbooktype.empty.list.item1', 'MDC', 'No logbook types have been defined yet.')
-                        ]
+                        text: Uni.I18n.translate('logbooktype.empty.list.item1', 'MDC', 'No logbook types have been defined yet.')
                     }
                 },
                 {

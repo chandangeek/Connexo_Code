@@ -8,6 +8,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
         'Mdc.view.setup.devicechannels.ValidationPreview',
         'Uni.form.field.EditedDisplay'
     ],
+    channelRecord: null,
     channels: null,
     frame: false,
 
@@ -234,23 +235,26 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             switch (validationInfo.validationResult.split('.')[1]) {
                 case 'notValidated':
                     validationResultText = '(' + Uni.I18n.translate('devicechannelsreadings.validationResult.notvalidated', 'MDC', 'Not validated') + ')' +
-                        '<img style="vertical-align: top; margin-left: 5px" width="16" height="16" src="../sky/build/resources/images/shared/Not-validated.png"/>';
+                        '<span class="icon-flag6" style="margin-left:10px; display:inline-block; vertical-align:top;"></span>';
                     break;
                 case 'suspect':
                     validationResultText = '(' + Uni.I18n.translate('devicechannelsreadings.validationResult.suspect', 'MDC', 'Suspect') + ')' +
-                        '<img style="vertical-align: top; margin-left: 5px" width="16" height="16" src="../sky/build/resources/images/shared/Suspect.png"/>';
+                        '<span class="icon-flag5" style="margin-left:10px; display:inline-block; vertical-align:top; color:red;"></span>';
                     break;
                 case 'ok':
                     validationResultText = '(' + Uni.I18n.translate('devicechannelsreadings.validationResult.notsuspect', 'MDC', 'Not suspect') + ')';
                     if (!me.channels && validationInfo.isConfirmed) {
-                        validationResultText += '<span style="margin-left: 5px; vertical-align: top" class="icon-checkmark3"</span>';
+                        validationResultText += '<span class="icon-checkmark3" style="margin-left:5px; vertical-align:top;"></span>';
                     }
                     break;
             }
         }
 
         if (!Ext.isEmpty(value)) {
-            formatValue = Uni.Number.formatNumber(value.toString(), -1);
+            formatValue = Uni.Number.formatNumber(
+                value.toString(),
+                me.channelRecord && !Ext.isEmpty(me.channelRecord.get('overruledNbrOfFractionDigits')) ? me.channelRecord.get('overruledNbrOfFractionDigits') : -1
+            );
             return !Ext.isEmpty(formatValue) ? formatValue + ' ' + unitOfMeasure + ' ' + validationResultText : '';
         } else {
             if(type === 'main'){

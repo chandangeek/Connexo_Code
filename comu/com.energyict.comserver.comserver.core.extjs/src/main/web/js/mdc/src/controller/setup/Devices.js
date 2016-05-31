@@ -268,6 +268,13 @@ Ext.define('Mdc.controller.setup.Devices', {
     doRefresh: function () {
         this.refreshConnections();
         this.refreshCommunications();
+        this.refreshWhatsGoingOn();
+    },
+
+    refreshWhatsGoingOn: function(){
+        var widget = this.getDeviceSetup();
+        var whatsGoingOnWidget = widget.down('whatsgoingon');
+        whatsGoingOnWidget.buildWidget();
     },
 
     refreshConnections: function () {

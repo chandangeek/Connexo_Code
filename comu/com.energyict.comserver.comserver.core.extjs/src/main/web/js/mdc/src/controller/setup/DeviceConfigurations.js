@@ -177,10 +177,12 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                 Ext.ModelManager.getModel('Mdc.model.DeviceType').load(id, {
                     success: function (deviceType) {
                         me.getApplication().fireEvent('loadDeviceType', deviceType);
-                        widget.down('deviceTypeSideMenu #overviewLink').setText(deviceType.get('name'));
-                        widget.down('deviceTypeSideMenu #conflictingMappingLink').setText(
-                            Uni.I18n.translate('deviceConflictingMappings.ConflictingMappingCount', 'MDC', 'Conflicting mappings ({0})', deviceType.get('deviceConflictsCount'))
-                        );
+                        if (widget.down('deviceTypeSideMenu')) {
+                            widget.down('deviceTypeSideMenu').setDeviceTypeLink(deviceType.get('name'));
+                            widget.down('deviceTypeSideMenu #conflictingMappingLink').setText(
+                                Uni.I18n.translate('deviceConflictingMappings.ConflictingMappingCount', 'MDC', 'Conflicting mappings ({0})', deviceType.get('deviceConflictsCount'))
+                            );
+                        }
                     }
                 });
             }

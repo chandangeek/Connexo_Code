@@ -1,11 +1,11 @@
 Ext.define('Mdc.view.setup.devicechannels.GraphView', {
-    extend: 'Mdc.view.setup.highstock.GraphView',
+    extend: 'Uni.view.highstock.GraphView',
 
     alias: 'widget.deviceLoadProfileChannelGraphView',
     itemId: 'deviceLoadProfileChannelGraphView',
 
     requires: [
-        'Mdc.view.setup.highstock.GraphView'
+        'Uni.view.highstock.GraphView'
     ],
 
     items: [
@@ -100,34 +100,37 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
                 formatter: function (tooltip) {
                     var html = '<b>' + Highcharts.dateFormat('%A, %e %B %Y', this.x),
                         point = this.points[0].point,
-                        deltaIcon,
-                        bulkIcon,
+                        deltaIcon = '',
+                        bulkIcon = '',
                         bgColor,
-                        iconSpan = '<span class="{icon}" ' + 'style="height: 16px; ' + 'width: 16px; ' +
-                            'display: inline-block; ' + 'vertical-align: top; ' + 'margin-left: 4px"></span>',
-                        editedIconSpan = '<span class="uni-icon-edit"' + 'style="height: 13px; ' + 'width: 13px; ' +
-                            'display: inline-block; ' + 'vertical-align: top; ' + 'margin-left: 4px"></span>',
+                        editedIcon = '<span class="icon-pencil4" style="margin-left:4px; display:inline-block; vertical-align:top;"></span>',
                         calculatedValue,
                         collectedValue;
 
                     if (point.delta && point.delta.suspect) {
-                        deltaIcon = 'icon-validation-red';
+                        deltaIcon = '<span class="icon-flag5" style="margin-left:4px; display:inline-block; vertical-align:top; color:red"></span>';
                     } else if (point.delta && point.delta.notValidated) {
-                        deltaIcon = 'icon-validation-black';
+                        deltaIcon = '<span class="icon-flag6" style="margin-left:4px; display:inline-block; vertical-align:top;"></span>';
                     }
 
                     if (point.bulk && point.bulk.suspect)  {
-                        bulkIcon = 'icon-validation-red';
+                        bulkIcon = '<span class="icon-flag5" style="margin-left:4px; display:inline-block; vertical-align:top; color:red"></span>';
                     } else if (point.bulk && point.bulk.notValidated) {
-                        bulkIcon = 'icon-validation-black';
+                        bulkIcon = '<span class="icon-flag6" style="margin-left:4px; display:inline-block; vertical-align:top;"></span>';
                     }
 
                     if (point.collectedValue) {
-                        calculatedValue = point.y ? point.y + ' ' + point.calculatedUnitOfMeasure : Uni.I18n.translate('general.missing', 'MDC', 'Missing');
-                        collectedValue = point.collectedValue ? point.collectedValue + ' ' + point.collectedUnitOfMeasure : Uni.I18n.translate('general.missing', 'MDC', 'Missing');
+                        calculatedValue = point.y
+                            ? point.yValueFormatted + ' ' + point.calculatedUnitOfMeasure
+                            : Uni.I18n.translate('general.missing', 'MDC', 'Missing');
+                        collectedValue = point.collectedValue
+                            ? point.collectedValueFormatted + ' ' + point.collectedUnitOfMeasure
+                            : Uni.I18n.translate('general.missing', 'MDC', 'Missing');
                     } else {
                         // If there's a value (point.y) but no point.collectedValue, then we should call the value "Collected value" (and there's no "Calculated value")
-                        collectedValue = point.y ? point.y + ' ' + point.collectedUnitOfMeasure : Uni.I18n.translate('general.missing', 'MDC', 'Missing');
+                        collectedValue = point.y
+                            ? point.yValueFormatted + ' ' + point.collectedUnitOfMeasure
+                            : Uni.I18n.translate('general.missing', 'MDC', 'Missing');
                         calculatedValue = null;
                     }
                     html += '<br/>' + Uni.I18n.translate('devicechannels.interval', 'MDC', 'Interval') + ' ' + Highcharts.dateFormat('%H:%M', point.x);
@@ -135,10 +138,13 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
                     html += '<table style="margin-top: 10px"><tbody>';
                     bgColor = point.tooltipColor;
                     if (calculatedValue) {
-                        html += '<tr><td><b>' + Uni.I18n.translate('general.calculatedValue', 'MDC', 'Calculated value') + ':</b></td><td>' + calculatedValue + (point.edited ? editedIconSpan : '') + iconSpan.replace('{icon}', deltaIcon) + '</td></tr>';
-                        html += '<tr><td><b>' + Uni.I18n.translate('general.collectedValue', 'MDC', 'Collected value') + ':</b></td><td>' + collectedValue + (point.bulkEdited ? editedIconSpan : '') + iconSpan.replace('{icon}', bulkIcon) + '</td></tr>';
+                        html += '<tr><td><b>' + Uni.I18n.translate('general.calculatedValue', 'MDC', 'Calculated value') + ':</b></td><td>' + calculatedValue +
+                            deltaIcon + (point.edited ? editedIcon : '') + '</td></tr>';
+                        html += '<tr><td><b>' + Uni.I18n.translate('general.collectedValue', 'MDC', 'Collected value') + ':</b></td><td>' + collectedValue +
+                            bulkIcon + (point.bulkEdited ? editedIcon : '') + '</td></tr>';
                     } else {
-                        html += '<tr><td><b>' + Uni.I18n.translate('general.collectedValue', 'MDC', 'Collected value') + ':</b></td><td>' + collectedValue + (point.edited ? editedIconSpan : '') + iconSpan.replace('{icon}', deltaIcon) + '</td></tr>';
+                        html += '<tr><td><b>' + Uni.I18n.translate('general.collectedValue', 'MDC', 'Collected value') + ':</b></td><td>' + collectedValue +
+                            deltaIcon + (point.edited ? editedIcon : '') + '</td></tr>';
                     }
                     if (point.multiplier) {
                         html += '<tr><td><b>' + Uni.I18n.translate('general.multiplier', 'MDC', 'Multiplier') + ':</b></td><td>' + point.multiplier + '</td></tr>';

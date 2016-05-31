@@ -15,7 +15,9 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
         'Mdc.view.setup.device.DeviceConnections',
         'Mdc.view.setup.device.DeviceCommunications',
         'Uni.view.container.PreviewContainer',
-        'Uni.view.notifications.NoItemsFoundPanel'
+        'Uni.view.notifications.NoItemsFoundPanel',
+        'Uni.view.widget.WhatsGoingOn',
+        //'Mdc.view.setup.device.DeviceHealthCheckPanel'
     ],
 
     content: [
@@ -53,7 +55,8 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
             xtype: 'button',
             iconCls: !!flag ? 'icon-star6' : 'icon-star4',
             ui: 'plain',
-            style: 'font-size: 16px',
+            style: 'font-size: 20px',
+            //cls: 'x-panel-header-text-container-large',
             flag: flag,
             pressed: !!flag,
             privileges: Mdc.privileges.Device.flagDevice,
@@ -97,7 +100,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
             closable: false,
             height: 200,
             alignTarget: button,
-            defaultAlign: 'tr-br',
+            defaultAlign: 'tl-br',
             width: 400,
             layout: 'fit',
             items: [ // Let's put an empty grid in just to illustrate fit layout
@@ -175,14 +178,31 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
     initComponent: function () {
         var me = this,
             panel = me.content[0];
-
-        panel.title = me.device.get('mRID');
+        //panel.title = me.device.get('mRID');
+        //panel.title = {
+        //  //  text: me.device.get('mRID'),
+        //    flex: undefined
+        //};
         panel.tools = [
             {
                 xtype: 'toolbar',
                 margin: '0 20 0 0',
+                width: '100%',
+                //flex: 1,
                 items: [
-                    '->',
+                    {
+                        xtype: 'displayfield',
+                        value: me.device.get('mRID'),
+                        fieldCls: 'x-panel-header-text-container-large',
+                        style: 'margin-right: 10px',
+                        //fieldStyle: 'line-height: 30px'
+                        //style: {
+                        //    'color': '#1e7d9e',
+                        //    //'font-size': '24px',
+                        //    //'font-weight': 'bold',
+                        //    //'font-family': 'Open Sans Condensed", helvetica, arial, verdana, sans-serif'
+                        //}
+                    },
                     {
                         xtype: 'container',
                         itemId: 'deviceSetupFlags',
@@ -190,6 +210,11 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                         width: 20,
                         height: 20
                     },
+                    {xtype: 'tbfill'},
+                    //{
+                    //    xtype: 'component',
+                    //    flex: 1
+                    //},
                     {
                         xtype: 'component',
                         itemId: 'last-updated-field',
@@ -246,59 +271,108 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
 
         me.down('#DeviceContainer').add(
             {
-                xtype: 'panel',
+                xtype: 'container',
                 layout: {
                     type: 'hbox',
                     align: 'stretch'
                 },
                 defaults: {
-                    style: {
-                        marginRight: '20px',
-                        padding: '20px'
-                    },
                     flex: 1
                 },
                 items: [
+                    {
+                        xtype: 'container',
+                        flex: 2,
+                        layout: {
+                            type: 'vbox',
+                            align: 'stretch',
+                        },
+                        items: [
+                            {
+                                xtype: 'whatsgoingon',
+                                mrId: me.device.get('mRID'),
+                                type: 'device',
+                                router: me.router,
+                                style: 'margin-bottom: 20px'
+                            },
+                            {
+                                xtype: 'container',
+                                layout: {
+                                    type: 'hbox',
+                                    align: 'stretch'
+                                },
+                                style: 'margin-bottom: 0px',
+                                defaults: {
+                                    flex: 1
+                                },
+                                items: [
+                                    {
+                                        xtype: 'deviceCommunicationTopologyPanel',
+                                        privileges: Mdc.privileges.Device.deviceOperator,
+                                        router: me.router,
+                                        dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.topologyWidget,
+                                    },
+                                    {
+                                        xtype: 'device-data-validation-panel',
+                                        privileges: Cfg.privileges.Validation.fineTuneOnDevice,
+                                        mRID: me.device.get('mRID'),
+                                        dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.validationWidget
+                                    }
+                                ]
+                            }
+                            //{
+                            //    xtype: 'deviceCommunicationTopologyPanel',
+                            //    privileges: Mdc.privileges.Device.deviceOperator,
+                            //    router: me.router,
+                            //    dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.topologyWidget,
+                            //
+                            //},
+                            //{
+                            //    xtype: 'panel',
+                            //    title: 'test2',
+                            //    height: 200
+                            //}
+                        ]
+                    },
+
                     {
                         xtype: 'deviceGeneralInformationPanel',
-                        router: me.router
-                    },
-                    {
-                        xtype: 'deviceCommunicationTopologyPanel',
-                        privileges: Mdc.privileges.Device.deviceOperator,
                         router: me.router,
-                        dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.topologyWidget
+                        style: {
+                            marginRight: '20px',
+                            //padding: '20px'
+                        }
                     }
                 ]
             },
-            {
-                xtype: 'panel',
-                layout: {
-                    type: 'hbox',
-                    align: 'stretch'
-                },
-                defaults: {
-                    style: {
-                        marginRight: '20px',
-                        padding: '20px'
-                    },
-                    flex: 1
-                },
-                items: [
-                    {
-                        xtype: 'deviceOpenIssuesPanel',
-                        privileges: Isu.privileges.Issue.viewAdminDevice,
-                        router: me.router,
-                        dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.issuesWidget
-                    },
-                    {
-                        xtype: 'device-data-validation-panel',
-                        privileges: Cfg.privileges.Validation.fineTuneOnDevice,
-                        mRID: me.device.get('mRID'),
-                        dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.validationWidget
-                    }
-                ]
-            },
+            //{
+            //    xtype: 'panel',
+            //    layout: {
+            //        type: 'hbox',
+            //        align: 'stretch'
+            //    },
+            //    defaults: {
+            //        style: {
+            //            marginRight: '20px',
+            //            padding: '20px'
+            //        },
+            //        flex: 1
+            //    },
+            //    items: [
+            //        {
+            //            xtype: 'deviceOpenIssuesPanel',
+            //            privileges: Isu.privileges.Issue.viewAdminDevice,
+            //            router: me.router,
+            //            dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.issuesWidget
+            //        },
+            //        {
+            //            xtype: 'device-data-validation-panel',
+            //            privileges: Cfg.privileges.Validation.fineTuneOnDevice,
+            //            mRID: me.device.get('mRID'),
+            //            dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.validationWidget
+            //        }
+            //    ]
+            //},
             {
                 xtype: 'panel',
                 privileges: Mdc.privileges.Device.deviceOperator,

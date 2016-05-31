@@ -5,21 +5,6 @@ Ext.define('Mdc.usagepointmanagement.view.UsagePointActionMenu', {
     border: false,
     shadow: false,
 
-    setProcessMenu: function (usagePointID, router) {
-        var me = this;
-        if (Mdc.privileges.Device.canViewProcessMenu()) {
-
-            me.add({
-                itemId: 'action-menu-item-start-proc',
-                privileges: Mdc.privileges.Device.deviceProcesses && Mdc.privileges.Device.deviceExecuteProcesses,
-                text: Uni.I18n.translate('deviceconfiguration.process.startProcess', 'MDC', 'Start process'),
-                href: '#/usagepoints/' + encodeURIComponent(usagePointID) + '/processes/start'
-            });
-
-            me.up('#usage-point-landing-actions-btn').show();
-        }
-    },
-
     initComponent: function () {
         var me = this;
 

@@ -15,7 +15,10 @@ Ext.define('Mdc.view.setup.deviceevents.DataPreview', {
         var me = this,
             items = [{
                 fieldLabel: Uni.I18n.translate('deviceevents.message', 'MDC', 'Message'),
-                name: 'message'
+                name: 'message',
+                renderer: function(value) {
+                    return Ext.isEmpty(value) ? '-' : value;
+                }
             }];
         if (me.eventsView) {
             items.push({
@@ -60,7 +63,7 @@ Ext.define('Mdc.view.setup.deviceevents.DataPreview', {
                                 fieldLabel: Uni.I18n.translate('deviceevents.eventDate', 'MDC', 'Event date'),
                                 name: 'eventDate',
                                 renderer: function (value) {
-                                    return value ? Uni.DateTime.formatDateTimeLong(value) : '';
+                                    return value ? Uni.DateTime.formatDateTimeLong(value) : '-';
                                 }
                             },
                             {
@@ -71,28 +74,28 @@ Ext.define('Mdc.view.setup.deviceevents.DataPreview', {
                                 fieldLabel: Uni.I18n.translate('general.deviceType', 'MDC', 'Device type'),
                                 name: 'deviceType',
                                 renderer: function (value) {
-                                    return value ? value.name + ' ' + '(' + value.id + ')' : '';
+                                    return value ? value.name + ' (' + value.id + ')' : '-';
                                 }
                             },
                             {
                                 fieldLabel: Uni.I18n.translate('deviceevents.domain', 'MDC', 'Domain'),
                                 name: 'domain',
                                 renderer: function (value) {
-                                    return value ? value.name + ' ' + '(' + value.id + ')' : '';
+                                    return value ? value.name + ' ' + '(' + value.id + ')' : '-';
                                 }
                             },
                             {
                                 fieldLabel: Uni.I18n.translate('deviceevents.subDomain', 'MDC', 'Subdomain'),
                                 name: 'subDomain',
                                 renderer: function (value) {
-                                    return value ? value.name + ' ' + '(' + value.id + ')' : '';
+                                    return value ? value.name + ' ' + '(' + value.id + ')' : '-';
                                 }
                             },
                             {
                                 fieldLabel: Uni.I18n.translate('deviceevents.eventOrAction', 'MDC', 'Event or action'),
                                 name: 'eventOrAction',
                                 renderer: function (value) {
-                                    return value ? value.name + ' ' + '(' + value.id + ')' : '';
+                                    return value ? value.name + ' (' + value.id + ')' : '-';
                                 }
                             },
                             {
@@ -111,7 +114,7 @@ Ext.define('Mdc.view.setup.deviceevents.DataPreview', {
                                 fieldLabel: Uni.I18n.translate('deviceevents.readingDate', 'MDC', 'Reading date'),
                                 name: 'readingDate',
                                 renderer: function (value) {
-                                    return value ? Uni.DateTime.formatDateTimeLong(value) : '';
+                                    return value ? Uni.DateTime.formatDateTimeLong(value) : '-';
                                 }
                             }
                         ]

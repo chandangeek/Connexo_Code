@@ -112,7 +112,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
                         collectedReadingType = registerBeingViewed.get('readingType'),
                         collectedUnit = collectedReadingType.names.unitOfMeasure,
                         dataReport = Ext.widget('deviceregisterreportsetup-' + type, {
-                            mRID: encodeURIComponent(mRID),
+                            mRID: mRID,
                             registerId: registerId,
                             unitOfMeasureCollected: collectedUnit
                         }),
@@ -149,7 +149,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
                 onDependenciesLoad();
             }
         });
-        registerModel.getProxy().setExtraParam('mRID', encodeURIComponent(mRID));
+        registerModel.getProxy().setUrl(mRID);
         registerModel.load(registerId, {
             success: function (record) {
                 registerBeingViewed = record;

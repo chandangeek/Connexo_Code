@@ -41,13 +41,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                         itemId: 'info-panel',
                         hidden: true,
                         maxWidth: 800,
-                        minWidth: 650,
-                        iconCmp: {
-                            xtype: 'box',
-                            height: 16,
-                            width: 16,
-                            cls: 'uni-icon-info-small'
-                        }
+                        minWidth: 650
                     },
                     {
                         xtype: 'combobox',

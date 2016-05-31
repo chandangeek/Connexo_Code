@@ -24,10 +24,13 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
         {ref: 'loadTypeGrid', selector: 'loadProfileTypeSetup loadProfileTypeGrid'},
         {ref: 'loadTypePreview', selector: 'loadProfileTypeOnDeviceTypeSetup #loadProfileTypePreview'},
         {ref: 'loadTypeCountContainer', selector: 'loadProfileTypeOnDeviceTypeSetup #loadProfileTypesCountContainer'},
-        {ref: 'loadTypeEmptyListContainer', selector: 'loadProfileTypeOnDeviceTypeSetup #loadProfileTypeEmptyListContainer'},
+        {
+            ref: 'loadTypeEmptyListContainer',
+            selector: 'loadProfileTypeOnDeviceTypeSetup #loadProfileTypeEmptyListContainer'
+        },
         {ref: 'addLoadProfileTypesGrid', selector: '#loadprofile-type-add-grid'},
         {ref: 'uncheckLoadProfileButton', selector: '#uncheckAllLoadProfileTypes'},
-        {ref: 'addLoadProfileTypesSetup', selector: '#loadProfileTypesAddToDeviceTypeSetup' },
+        {ref: 'addLoadProfileTypesSetup', selector: '#loadProfileTypesAddToDeviceTypeSetup'},
         {ref: 'addLoadProfileTypePanel', selector: '#addLoadProfileTypePanel'},
         {ref: 'editLoadProfileTypePage', selector: '#edit-custom-attribute-set-setup-id'}
     ],
@@ -94,7 +97,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
 
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('loadProfileTypes.confirmWindow.removeMsgOnDeviceType', 'MDC', 'This load profile type will no longer be available on this device type.'),
-            title: Uni.I18n.translate('general.removex', 'MDC', "Remove '{0}'?", [ lastSelected.get('name')]),
+            title: Uni.I18n.translate('general.removex', 'MDC', "Remove '{0}'?", [lastSelected.get('name')]),
             config: {
                 me: me
             },
@@ -253,8 +256,8 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
             success: function (deviceType) {
                 scope.getApplication().fireEvent('loadDeviceType', deviceType);
-                if (setSideMenu) {
-                    widget.down('deviceTypeSideMenu #overviewLink').setText(deviceType.get('name'));
+                if (setSideMenu && widget.down('deviceTypeSideMenu')) {
+                    widget.down('deviceTypeSideMenu').setDeviceTypeLink(deviceType.get('name'));
                     widget.down('deviceTypeSideMenu #conflictingMappingLink').setText(Uni.I18n.translate('deviceConflictingMappings.ConflictingMappingCount', 'MDC', 'Conflicting mappings ({0})', [deviceType.get('deviceConflictsCount')]));
                 }
             }

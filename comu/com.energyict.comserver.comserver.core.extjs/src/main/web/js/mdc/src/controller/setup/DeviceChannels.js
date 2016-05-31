@@ -6,14 +6,16 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
     ],
 
     views: [
-        'Mdc.view.setup.devicechannels.Setup'
+        'Mdc.view.setup.devicechannels.Setup',
+        'Mdc.view.setup.devicechannels.EditChannel'
     ],
 
     models: [
         'Mdc.model.Device',
         'Mdc.model.LoadProfileOfDevice',
         'Mdc.model.ChannelOfLoadProfilesOfDevice',
-        'Mdc.model.ChannelValidationPreview'
+        'Mdc.model.ChannelValidationPreview',
+        'Mdc.model.DeviceChannel'
     ],
 
     stores: [
@@ -24,24 +26,26 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
     ],
 
     refs: [
-        {
-            ref: 'page',
-            selector: 'deviceLoadProfileChannelsSetup'
-        },
-        {
-            ref: 'preview',
-            selector: 'deviceLoadProfileChannelsSetup #deviceLoadProfileChannelsPreview'
-        },
-        {
-            ref: 'deviceLoadProfileChannelsPreviewForm',
-            selector: '#deviceLoadProfileChannelsPreviewForm'
-        },
-        {
-            ref: 'deviceLoadProfileChannelsOverviewForm',
-            selector: '#deviceLoadProfileChannelsOverviewForm'
-        }
+        {ref: 'page',selector: 'deviceLoadProfileChannelsSetup'},
+        {ref: 'preview',selector: 'deviceLoadProfileChannelsSetup #deviceLoadProfileChannelsPreview'},
+        {ref: 'deviceLoadProfileChannelsPreviewForm',selector: '#deviceLoadProfileChannelsPreviewForm'},
+        {ref: 'deviceLoadProfileChannelsOverviewForm',selector: '#deviceLoadProfileChannelsOverviewForm'},
+        {ref: 'channelEditForm', selector: '#mdc-device-channel-edit-form'},
+        {ref: 'restoreObisCodeBtn', selector: '#mdc-device-channel-edit-form #mdc-restore-obiscode-btn'},
+        {ref: 'restoreOverflowBtn', selector: '#mdc-device-channel-edit-form #mdc-restore-overflow-btn'},
+        {ref: 'restoreNumberOfFractionDigitsBtn', selector: '#mdc-device-channel-edit-form #mdc-restore-fractionDigits-btn'},
+        {ref: 'overruledObisCodeField', selector: '#mdc-device-channel-edit-form #mdc-editOverruledObisCodeField'},
+        {ref: 'overflowContainer', selector: '#mdc-device-channel-edit-form #overflowValue-container'},
+        {ref: 'overflowField', selector: '#mdc-device-channel-edit-form #mdc-editOverflowValueField'},
+        {ref: 'numberOfFractionDigitsContainer', selector: '#mdc-device-channel-edit-form #fractionDigits-container'},
+        {ref: 'numberOfFractionDigitsField', selector: '#mdc-device-channel-edit-form #mdc-editNumberOfFractionDigitsField'}
 
     ],
+
+    fromSpecification: false,
+    originalObisCodeOfConfig: null, // The OBIS code of the configuration
+    originalOverflowValueOfConfig: null, // The overflow value of the configuration
+    originalNumberOfFractionDigitsOfConfig: null, // The number of fraction digits of the configuration
 
     init: function () {
         this.control({
@@ -53,6 +57,27 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
             },
             '#channelActionMenu': {
                 click: this.chooseAction
+            },
+            '#mdc-device-channel-edit-form #mdc-editOverruledObisCodeField': {
+                change: this.onOverruledObisCodeChange
+            },
+            '#mdc-device-channel-edit-form #mdc-restore-obiscode-btn': {
+                click: this.onRestoreObisCodeBtnClicked
+            },
+            '#mdc-device-channel-edit-form #mdc-editOverflowValueField': {
+                change: this.onOverflowChange
+            },
+            '#mdc-device-channel-edit-form #mdc-restore-overflow-btn': {
+                click: this.onRestoreOverflowBtnClicked
+            },
+            '#mdc-device-channel-edit-form #mdc-editNumberOfFractionDigitsField': {
+                change: this.onNumberOfFractionDigitsChange
+            },
+            '#mdc-device-channel-edit-form #mdc-restore-fractionDigits-btn': {
+                click: this.onRestoreNumberOfFractionDigitsBtnClicked
+            },
+            '#btn-save-channel[action=saveChannel]': {
+                click: this.saveChannel
             }
         });
     },
@@ -79,6 +104,7 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
                 });
             };
 
+        me.fromSpecification = false;
         me.getController('Mdc.controller.setup.DeviceChannelData').fromSpecification = false;
         me.mRID = mRID;
         loadProfilesStore.getProxy().setUrl(mRID);
@@ -137,9 +163,11 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
     chooseAction: function (menu, item) {
         var me = this,
             router = this.getController('Uni.controller.history.Router'),
+            routeParams = router.arguments,
             route,
             filterParams = {};
 
+        routeParams.channelId = menu.record.getId();
         switch (item.action) {
             case 'validateNow':
                 me.showValidateNowMessage(menu.record);
@@ -148,12 +176,13 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
                 filterParams.suspect = 'suspect';
                 route = 'devices/device/channels/channeldata';
                 break;
+            case 'edit':
+                route = 'devices/device/channels/channel/edit';
+                break;
         }
 
         route && (route = router.getRoute(route));
-        route && route.forward({
-            channelId: menu.record.getId()
-        }, filterParams);
+        route && route.forward(routeParams, filterParams);
     },
 
     showValidateNowMessage: function (record) {
@@ -302,11 +331,188 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
             formRecord = form.getRecord();
         }
         formRecord.set('validationInfo_dataValidated',
-            record.get('dataValidated')? Uni.I18n.translate('general.yes', 'MDC', 'Yes')
-                : Uni.I18n.translate('general.no', 'MDC', 'No') + ' ' + '<span class="icon-validation icon-validation-black"></span>');
-        formRecord.set('lastChecked_formatted',
-            Uni.DateTime.formatDateTimeLong(new Date(record.get('lastChecked'))));
+            record.get('dataValidated')
+                ? Uni.I18n.translate('general.yes', 'MDC', 'Yes')
+                : Uni.I18n.translate('general.no', 'MDC', 'No') + '<span class="icon-flag6" style="margin-left:10px; position:absolute;"></span>');
+        formRecord.set('lastChecked_formatted', Uni.DateTime.formatDateTimeLong(new Date(record.get('lastChecked'))));
 
         form.loadRecord(formRecord);
+    },
+
+    editChannel: function(deviceMRID, channelIdAsString) {
+        var me = this,
+            viewport = Ext.ComponentQuery.query('viewport')[0];
+
+        me.mRID = deviceMRID;
+        viewport.setLoading();
+        Ext.ModelManager.getModel('Mdc.model.Device').load(me.mRID, {
+            success: function(device) {
+                var widget = Ext.widget('device-channel-edit', {
+                    itemId: 'mdc-device-channel-edit',
+                    device: device,
+                    returnLink: me.getPreviousPageUrl()
+                });
+                me.getApplication().fireEvent('loadDevice', device);
+                var model = Ext.ModelManager.getModel('Mdc.model.DeviceChannel');
+                model.getProxy().setUrl(me.mRID);
+                model.load(channelIdAsString, {
+                    success: function(channel) {
+                        me.getApplication().fireEvent('channelOfLoadProfileOfDeviceLoad', channel);
+                        widget.setChannel(channel);
+                        me.updateEditChannelFields(channel);
+                        me.originalObisCodeOfConfig = channel.get('obisCode');
+                        me.originalOverflowValueOfConfig = channel.get('overflowValue');
+                        me.originalNumberOfFractionDigitsOfConfig = channel.get('nbrOfFractionDigits');
+                        me.onOverruledObisCodeChange(me.getOverruledObisCodeField(), channel.get('overruledObisCode'));
+                        me.onOverflowChange(me.getOverflowField(), channel.get('overruledOverflowValue'));
+                        me.onNumberOfFractionDigitsChange(me.getNumberOfFractionDigitsField(), channel.get('overruledNbrOfFractionDigits'));
+                        viewport.setLoading(false);
+                    }
+                });
+                me.getApplication().fireEvent('changecontentevent', widget);
+            }
+        });
+    },
+
+    toPreviousPage: function () {
+        if (this.fromSpecification) {
+            this.getController('Uni.controller.history.Router').getRoute('devices/device/channels/channel').forward();
+        } else {
+            this.getController('Uni.controller.history.Router').getRoute('devices/device/channels').forward();
+        }
+    },
+
+    getPreviousPageUrl: function () {
+        if (this.fromSpecification) {
+            return this.getController('Uni.controller.history.Router').getRoute('devices/device/channels/channel').buildUrl();
+        } else {
+            return this.getController('Uni.controller.history.Router').getRoute('devices/device/channels').buildUrl();
+        }
+    },
+
+    updateEditChannelFields: function(channel) {
+        var me = this,
+            isCumulative = channel.get('readingType').isCumulative,
+            overflowContainer = me.getOverflowContainer(),
+            overflowField = me.getOverflowField();
+
+        overflowField.setDisabled(false);
+        overflowContainer.show();
+        me.getNumberOfFractionDigitsField().setDisabled(false);
+        me.getNumberOfFractionDigitsContainer().show();
+
+        overflowContainer.required = isCumulative;
+        overflowField.required = isCumulative;
+        overflowField.allowBlank = !isCumulative;
+        // Geert: I find the following lines of code not so neat. If anyone finds another way to make (dis)appear
+        //        the label's little red star indicating the field is (not) required, please tell me.
+        if (isCumulative && !overflowContainer.labelEl.dom.classList.contains('uni-form-item-label-required')) {
+            overflowContainer.labelEl.dom.classList.add('uni-form-item-label-required');
+        } else if (!isCumulative && overflowContainer.labelEl.dom.classList.contains('uni-form-item-label-required')) {
+            overflowContainer.labelEl.dom.classList.remove('uni-form-item-label-required');
+        }
+        overflowContainer.labelEl.repaint();
+    },
+
+    onOverruledObisCodeChange: function(overruledObisCodeField, newValue) {
+        var me = this;
+        me.getRestoreObisCodeBtn().setDisabled(newValue === me.originalObisCodeOfConfig);
+        me.getRestoreObisCodeBtn().setTooltip(
+            newValue === me.originalObisCodeOfConfig
+                ? null
+                : Uni.I18n.translate(
+                    'general.obisCode.reset.tooltip4',
+                    'MDC',
+                    'Reset to {0}, the OBIS code of the device configuration',
+                    me.originalObisCodeOfConfig
+                  )
+        );
+    },
+
+    onRestoreObisCodeBtnClicked: function() {
+        var me = this;
+        me.getOverruledObisCodeField().setValue(me.originalObisCodeOfConfig);
+        me.onOverruledObisCodeChange(me.getOverruledObisCodeField(), me.originalObisCodeOfConfig);
+    },
+
+    onOverflowChange: function(overflowField, newValue) {
+        var me = this;
+        me.getRestoreOverflowBtn().setDisabled(newValue === me.originalOverflowValueOfConfig);
+        me.getRestoreOverflowBtn().setTooltip(
+            newValue === me.originalOverflowValueOfConfig
+                ? null
+                : Uni.I18n.translate(
+                    'general.overflow.reset.tooltip',
+                    'MDC',
+                    'Reset to {0}, the overflow value of the device configuration',
+                    me.originalOverflowValueOfConfig
+                  )
+        );
+    },
+
+    onRestoreOverflowBtnClicked: function() {
+        var me = this;
+        me.getOverflowField().setValue(me.originalOverflowValueOfConfig);
+        me.onOverflowChange(me.getOverflowField(), me.originalOverflowValueOfConfig);
+    },
+
+    onNumberOfFractionDigitsChange: function(fractionField, newValue) {
+        var me = this;
+        me.getRestoreNumberOfFractionDigitsBtn().setDisabled(newValue === me.originalNumberOfFractionDigitsOfConfig);
+        me.getRestoreNumberOfFractionDigitsBtn().setTooltip(
+            newValue === me.originalNumberOfFractionDigitsOfConfig
+                ? null
+                : Uni.I18n.translate(
+                    'general.numberOfFractionDigits.reset.tooltip',
+                    'MDC',
+                    'Reset to {0}, the number of fraction digits of the device configuration',
+                    me.originalNumberOfFractionDigitsOfConfig
+                  )
+        );
+    },
+
+    onRestoreNumberOfFractionDigitsBtnClicked: function() {
+        var me = this;
+        me.getNumberOfFractionDigitsField().setValue(me.originalNumberOfFractionDigitsOfConfig);
+        me.onNumberOfFractionDigitsChange(me.getNumberOfFractionDigitsField(), me.originalNumberOfFractionDigitsOfConfig);
+    },
+
+    saveChannel: function () {
+        var me = this,
+            form = me.getChannelEditForm(),
+            record = form.getRecord(),
+            baseForm = form.getForm(),
+            errorMsgPnl = form.down('uni-form-error-message');
+
+        Ext.suspendLayouts();
+        baseForm.clearInvalid();
+        errorMsgPnl.hide();
+        Ext.resumeLayouts(true);
+        if (!form.isValid()) {
+            errorMsgPnl.show();
+            return;
+        }
+
+        form.setLoading();
+        form.updateRecord(record);
+        record.save({
+            success: function (record) {
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('channel.acknowledgment.saved', 'MDC', 'Channel saved'));
+                me.toPreviousPage();
+            },
+            failure: function (record, operation) {
+                Ext.suspendLayouts();
+                errorMsgPnl.show();
+                var json = Ext.decode(operation.response.responseText);
+                if (json && json.errors) {
+                    baseForm.markInvalid(json.errors);
+                }
+                Ext.resumeLayouts(true);
+            },
+            callback: function () {
+                form.setLoading(false);
+            }
+        });
     }
+
 });

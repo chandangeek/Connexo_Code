@@ -1,6 +1,5 @@
 Ext.define('Mdc.model.DeviceAttribute', {
     extend: 'Ext.data.Model',
-
     fields: [
         {name: 'mrid', type: 'auto'},
         {name: 'deviceType', type: 'auto'},
@@ -17,6 +16,8 @@ Ext.define('Mdc.model.DeviceAttribute', {
         {name: 'decommissioningDate', type: 'auto'},
         {name: 'device', defaultValue: null},
         {name: 'multiplier', type: 'auto'},
+        {name: 'geoCoordinates', type: 'auto'},
+        {name: 'location', type: 'auto'},
         {
             name: 'deviceConfigurationDisplay',
             persist: false,

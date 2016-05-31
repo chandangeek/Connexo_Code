@@ -15,12 +15,6 @@ Ext.define('Mdc.usagepointmanagement.view.UsagePointSideMenu', {
                         itemId: 'usage-point-overview-link',
                         href: me.router.getRoute('usagepoints/usagepoint').buildUrl({mRID: me.mRID})
                     },
-                    {
-                        text: Uni.I18n.translate('devicemenu.processes', 'MDC', 'Processes'),
-                        privileges: Mdc.privileges.Device.deviceProcesses,
-                        itemId: 'usage-point-processes-link',
-                        href: me.router.getRoute('usagepoints/usagepoint/processes').buildUrl({mRID: me.mRID})
-                    }
                 ]
             }
         ];

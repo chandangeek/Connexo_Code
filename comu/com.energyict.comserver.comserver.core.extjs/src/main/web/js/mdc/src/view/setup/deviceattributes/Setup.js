@@ -56,7 +56,10 @@ Ext.define('Mdc.view.setup.deviceattributes.Setup', {
                     {
                         xtype: 'fieldcontainer',
                         labelAlign: 'top',
-                        layout: 'vbox',
+                        layout: {
+                            type: 'vbox',
+                            align: 'stretch'
+                        },
                         flex: 1,
                         items: [
                             {

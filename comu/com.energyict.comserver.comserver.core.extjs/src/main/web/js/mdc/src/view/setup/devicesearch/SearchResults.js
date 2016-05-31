@@ -28,7 +28,7 @@ Ext.define('Mdc.view.setup.devicesearch.SearchResults', {
                 title: Uni.I18n.translate('devicesearch.empty.title', 'MDC', 'No devices found'),
                 reasons: [
                     Uni.I18n.translate('devicesearch.empty.list.item1', 'MDC', 'There are no devices in the system.'),
-                    Uni.I18n.translate('devicesearch.empty.list.item2', 'MDC', 'No devices match your filter.')
+                    Uni.I18n.translate('devicesearch.empty.list.item2', 'MDC', 'No devices comply with the filter.')
                 ]
             }
         },
@@ -47,7 +47,7 @@ Ext.define('Mdc.view.setup.devicesearch.SearchResults', {
                 title: Uni.I18n.translate('devicesearch.empty.title', 'MDC', 'No devices found'),
                 reasons: [
                     Uni.I18n.translate('devicesearch.empty.list.item1', 'MDC', 'There are no devices in the system.'),
-                    Uni.I18n.translate('devicesearch.empty.list.item2', 'MDC', 'No devices match your filter.')
+                    Uni.I18n.translate('devicesearch.empty.list.item2', 'MDC', 'No devices comply with the filter.')
                 ]
             }
         }/*,

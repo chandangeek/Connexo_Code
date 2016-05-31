@@ -203,8 +203,8 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
             success: function (deviceType) {
                 widget.deviceType = deviceType;
                 scope.getApplication().fireEvent('loadDeviceType', deviceType);
-                if (setSideMenu) {
-                    widget.down('deviceTypeSideMenu #overviewLink').setText(deviceType.get('name'));
+                if (widget.down('deviceTypeSideMenu') && setSideMenu) {
+                    widget.down('deviceTypeSideMenu').setDeviceTypeLink(deviceType.get('name'));
                     widget.down('deviceTypeSideMenu #conflictingMappingLink').setText(Uni.I18n.translate('deviceConflictingMappings.ConflictingMappingCount', 'MDC', 'Conflicting mappings ({0})', [deviceType.get('deviceConflictsCount')]));
                 }
             }
@@ -245,7 +245,7 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
         record.destroy({
             success: function () {
                 me.getController('Uni.controller.history.Router').getRoute().forward();
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('registertype.acknowlegment.removed', 'MDC', 'Register type removed'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('registertype.acknowledgment.removed', 'MDC', 'Register type removed'));
             },
             callback: function () {
                 page.setLoading(false);

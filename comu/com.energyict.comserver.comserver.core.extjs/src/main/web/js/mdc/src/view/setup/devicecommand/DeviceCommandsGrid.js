@@ -14,10 +14,11 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandsGrid', {
                 dataIndex: 'command',
                 renderer: function (val) {
                     var res = val.name;
-                    if (val.status == 'CommandWaiting' || val.status == 'CommandPending') {
-                        (Ext.isDefined(val.willBePickedUpByPlannedComTask) && !val.willBePickedUpByPlannedComTask) ?
-                            res = '<tpl><img src="/apps/sky/build/resources/images/shared/bullet-red.png" class="dev-cmd-wrn" style="margin-top: -2px"><span style="position: relative; top: -3px; left: 8px">' + val.name + '</span></tpl>' :
-                            res = val.name;
+                    if (val.status === 'WAITING' || val.status === 'PENDING') {
+                        res = (Ext.isDefined(val.willBePickedUpByPlannedComTask) && !val.willBePickedUpByPlannedComTask) ||
+                              (Ext.isDefined(val.willBePickedUpByComTask) && !val.willBePickedUpByComTask)
+                            ? '<span class="icon-target" style="display:inline-block; color:rgba(255, 0, 0, 0.3);"></span><span style="position:relative; left:5px;">' + val.name + '</span>'
+                            : val.name;
                     }
                     return res
                 },
@@ -27,7 +28,7 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandsGrid', {
                 header: Uni.I18n.translate('deviceCommands.view.cmdCategory', 'MDC', 'Command category'),
                 dataIndex: 'category',
                 renderer: function (val) {
-                    return val ? Ext.String.htmlEncode(val) : ''
+                    return val ? Ext.String.htmlEncode(val) : '-'
                 },
                 flex: 2
             },
@@ -35,7 +36,7 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandsGrid', {
                 header: Uni.I18n.translate('general.status', 'MDC', 'Status'),
                 dataIndex: 'status',
                 renderer: function (val) {
-                    return val.displayValue ? Ext.String.htmlEncode(val.displayValue) : ''
+                    return val.displayValue ? Ext.String.htmlEncode(val.displayValue) : '-'
                 },
                 flex: 2
             },
@@ -44,7 +45,7 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandsGrid', {
                 dataIndex: 'releaseDate',
                 flex: 2,
                 renderer: function (value) {
-                    return value ? Uni.DateTime.formatDateTimeShort(new Date(value)) : '';
+                    return value ? Uni.DateTime.formatDateTimeShort(new Date(value)) : '-';
                 }
             },
             {
@@ -52,14 +53,14 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandsGrid', {
                 dataIndex: 'sentDate',
                 flex: 2,
                 renderer: function (value) {
-                    return value ? Uni.DateTime.formatDateTimeShort(new Date(value)) : '';
+                    return value ? Uni.DateTime.formatDateTimeShort(new Date(value)) : '-';
                 }
             },
             {
                 header: Uni.I18n.translate('deviceCommands.view.cmdCreatedBy', 'MDC', 'Created By'),
                 dataIndex: 'user',
                 renderer: function (val) {
-                    return val ? Ext.String.htmlEncode(val) : ''
+                    return val ? Ext.String.htmlEncode(val) : '-'
                 },
                 flex: 2
             },
@@ -74,8 +75,7 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandsGrid', {
                 dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.allDeviceCommandPrivileges,
                 isDisabled: function (view, rowIndex, colIndex, item, record) {
                     var status = record.get('status').value;
-
-                    return (status !== 'CommandWaiting' && status !== 'CommandPending');
+                    return (status !== 'WAITING' && status !== 'PENDING');
                 }
             }
         ];
@@ -114,7 +114,7 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandsGrid', {
             view = me.getView(),
             tip = Ext.create('Ext.tip.ToolTip', {
                 target: view.el,
-                delegate: 'img.dev-cmd-wrn',
+                delegate: 'span.icon-target',
                 trackMouse: true,
                 renderTo: Ext.getBody(),
                 listeners: {
@@ -123,8 +123,8 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandsGrid', {
                             rowEl = Ext.get(tip.triggerElement).up('tr'),
                             willBePickedUpByComTask = view.getRecord(rowEl).get('willBePickedUpByComTask'),
                             willBePickedUpByPlannedComTask = view.getRecord(rowEl).get('willBePickedUpByPlannedComTask');
-                        !willBePickedUpByComTask && (res = Uni.I18n.translate('deviceCommands.view.willBePickedUpByComTask', 'MDC', 'This command is not part of a communication task on this device'));
                         !willBePickedUpByPlannedComTask && (res = Uni.I18n.translate('deviceCommands.view.willBePickedUpByPlannedComTask', 'MDC', 'This command is part of a communication task that is not planned to execute'));
+                        !willBePickedUpByComTask && (res = Uni.I18n.translate('deviceCommands.view.willBePickedUpByComTask', 'MDC', 'This command is not part of a communication task on this device'));
                         tip.update(res);
                     }
                 }

@@ -22,7 +22,6 @@ Ext.define('Mdc.view.setup.comserver.ComServerOverview', {
                 {
                     xtype: 'button',
                     text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
-                    privileges: Mdc.privileges.Communication.admin,
                     iconCls: 'x-uni-action-iconD',
                     menu: {
                         xtype: 'comserver-actionmenu',

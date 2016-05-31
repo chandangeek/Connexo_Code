@@ -47,8 +47,9 @@ Ext.define('Mdc.model.Register', {
             name: 'validationInfo_dataValidated',
             persist: false,
             mapping: function (data) {
-                return (data.detailedValidationInfo && data.detailedValidationInfo.dataValidated) ? Uni.I18n.translate('general.yes', 'MDC', 'Yes')
-                    : Uni.I18n.translate('general.no', 'MDC', 'No') + ' ' + '<span class="icon-validation icon-validation-black"></span>';
+                return (data.detailedValidationInfo && data.detailedValidationInfo.dataValidated)
+                    ? Uni.I18n.translate('general.yes', 'MDC', 'Yes')
+                    : Uni.I18n.translate('general.no', 'MDC', 'No') + '<span class="icon-flag6" style="margin-left:10px; position:absolute;"></span>';
             }
         },
         {
@@ -65,13 +66,13 @@ Ext.define('Mdc.model.Register', {
         type: 'rest',
         timeout: 120000,
         url: '/api/ddr/devices/{mRID}/registers',
-        urlTpl: '/api/ddr/devices/{mRID}/registers',
+        urlTpl: '/api/ddr/devices/{0}/registers',
         reader: {
             type: 'json'
         },
 
         setUrl: function (mRID) {
-            this.url = this.urlTpl.replace('{mRID}', encodeURIComponent(mRID));
+            this.url = Ext.String.format(this.urlTpl, encodeURIComponent(mRID));
         }
     }
 });
