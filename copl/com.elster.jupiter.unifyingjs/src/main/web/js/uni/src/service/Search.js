@@ -305,14 +305,18 @@ Ext.define('Uni.service.Search', {
 
         searchResults.clearFilter(true);
         if (filters && filters.length) {
+            if(searchResults.isLoading()){
+                Ext.Ajax.suspendEvent('requestexception');
+                Ext.Ajax.abort(searchResults.lastRequest);
+                Ext.Ajax.resumeEvent('requestexception');
+            }
             searchResults.addFilter(me.getFilters(), false);
-            searchResults.loadPage(1);
+            searchResults.loadPage(1,{callback: me.fireEvent('applyFilters', me, filters) });
         } else {
             searchResults.removeAll();
             searchResults.fireEvent('load', searchResults, [], true);
+            me.fireEvent('applyFilters', me, filters);
         }
-
-        me.fireEvent('applyFilters', me, filters);
     },
 
     count: function(){

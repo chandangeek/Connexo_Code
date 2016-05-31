@@ -19,9 +19,12 @@ Ext.define('Uni.property.view.property.SelectionGrid', {
 
         return  !me.getProperty().getPossibleValues() ?
         {
-            xtype: 'uni-form-error-message',
-            text: Uni.I18n.translate('Uni.property.selectionGrid.error', 'UNI', 'No possible options is available'),
-            hidden: me.getProperty().getPossibleValues()
+            xtype: 'displayfield',
+            value: Uni.I18n.translate('Uni.property.selectionGrid.noItemsDefined', 'UNI', 'No items have been defined yet.'),
+            itemId: 'no-item-defined',
+            fieldStyle: {
+                'color': '#FF0000'
+            }
         } :
         {
             margin: '-7 0 0 0',

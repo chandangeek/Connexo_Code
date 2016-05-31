@@ -44,10 +44,10 @@ Ext.define('Uni.view.calendar.CalendarGraphView', {
             chart: {
                 type: 'column',
                 height: 600,
-                renderTo: me.down('#graphContainer').el.dom
+                renderTo: me.down('#graphContainer').el.dom,
             },
             title: {
-                text: ''
+                text: null
             },
             credits: {
                 enabled: false
@@ -61,7 +61,7 @@ Ext.define('Uni.view.calendar.CalendarGraphView', {
                         color: '#686868',
                         fontWeight: 'normal',
                         fontSize: '13px',
-                        fontFamily: 'Lato, Helvetica, Arial, Verdana, Sans-serif'
+                        fontFamily: 'Lato, Helvetica, Arial, Verdana, Sans-serif',
                     }
                 },
                 lineWidth: 0,
@@ -105,6 +105,9 @@ Ext.define('Uni.view.calendar.CalendarGraphView', {
                 },
                 borderWidth: 0,
                 formatter: function () {
+                    if (this.series.options.code === undefined) {
+                        return false;
+                    }
                     var fromDate = new Date(),
                         toDate = new Date(),
                         range = this.series.options.range,
@@ -116,7 +119,7 @@ Ext.define('Uni.view.calendar.CalendarGraphView', {
                     toDate.setMinutes(range.to.minute);
 
                     html = '<span style="font-family: Lato, Helvetica, Arial, Verdana, Sans-serif;color:#70BB51;font-size: 16px;font-weight: bold">'
-                        + this.series.options.label + '</span>'
+                        + this.series.options.label + ' (' + this.series.options.code + ')' + '</span>'
                     html += '<table style="margin-top: 5px" ><tbody>';
                     html += '<tr><td><b>' + Uni.I18n.translate('general.from', 'UNI', 'From') + ':</b></td><td>' + Uni.DateTime.formatTimeShort(fromDate) + '</td></tr>';
                     html += '<tr><td><b>' + Uni.I18n.translate('general.to', 'UNI', 'To') + ':</b></td><td>' + Uni.DateTime.formatTimeShort(toDate) + '</td></tr>';
@@ -152,7 +155,12 @@ Ext.define('Uni.view.calendar.CalendarGraphView', {
                         },
 
                         formatter: function () {
-                            return this.series.options.label;
+                            var color = '#FFFFFF'
+                            if (this.series.options.code === undefined) {
+                                color = '#686868'
+                            }
+                            return '<span style="font-family: Lato, Helvetica, Arial, Verdana, Sans-serif;color:' + color + ';font-size: 16px;font-weight: bold">'
+                                + this.series.options.label + '</span>';
                         }
                     }
                 }
@@ -177,14 +185,32 @@ Ext.define('Uni.view.calendar.CalendarGraphView', {
     },
 
     getCategories: function (record) {
-        var categories = [];
+        var me = this,
+            categories = [],
+            date = new Date(),
+            midnightTime,
+            weekArray,
+            weekDay,
+            offSet,
+            i;
         if (record !== null) {
-            Ext.Array.each(record.get('weekTemplate'), function (weekDay) {
-                categories.push(weekDay.name);
-            });
+            weekArray = record.get('weekTemplate');
+            for (i = 1; i < weekArray.length; i++) {
+                weekDay = weekArray[i];
+                offSet = me.calculateOffset(weekDay.date);
+                midnightTime = weekDay.date * 86400 * 1000 + offSet * 60 * 1000;
+                date.setTime(midnightTime);
+                categories.push(weekDay.name + '<br/>' + Uni.DateTime.formatDateShort(date));
+            }
         }
 
         return categories;
+    },
+
+    calculateOffset: function (dateInDays) {
+        var date = new Date();
+        date.setTime(dateInDays * 86400 * 1000 + 60 * 1000);
+        return date.getTimezoneOffset();
     },
 
     createWeekSeries: function (record) {
@@ -203,54 +229,107 @@ Ext.define('Uni.view.calendar.CalendarGraphView', {
 
     calculateWeekRepresentation: function (record) {
         var me = this,
-            week = [];
+            week = [],
+            weekArray,
+            weekDay,
+            i;
         if (record !== null) {
-            Ext.Array.each(record.get('weekTemplate'), function (weekDay) {
-                week.push(me.createDayRepresentation(record.dayTypes().findRecord('id', weekDay.type)));
-            });
+
+            weekArray = record.get('weekTemplate');
+            for (i = 1; i < weekArray.length; i++) {
+                weekDay = weekArray[i];
+                if (weekDay.inCalendar) {
+                    week.push(me.createDayRepresentation(record.dayTypes().findRecord('id', weekDay.type), record.dayTypes().findRecord('id', weekArray[i - 1].type), weekArray[i-1].inCalendar));
+                } else {
+                    week.push(me.createEmptyDay());
+                }
+            }
         }
 
         return week;
     },
 
-    createDayRepresentation: function (dayType) {
+    createDayRepresentation: function (dayType, dayTypeBefore, dayBeforeInCalendar) {
         var me = this,
             day = [],
-            period = {};
-
+            period = {},
+            firstPeriodIsMidnight = false;
         Ext.Array.each(dayType.ranges().getRange(), function (range, index, ranges) {
             period = {};
+            if ((range.get('fromHour') !== 0 || range.get('fromMinute') !== 0) && !firstPeriodIsMidnight) {
+                day.push(me.getLastPeriodFromLastDay(dayTypeBefore.ranges(), range, dayBeforeInCalendar));
+            }
+
             period.from = {hour: range.get('fromHour'), minute: range.get('fromMinute')};
             if (index < ranges.length - 1) {
                 period.to = {hour: ranges[index + 1].get('fromHour'), minute: ranges[index + 1].get('fromMinute')};
             } else {
-                period.to = {hour: 23, minute: 59}
+                period.to = {hour: 24, minute: 00}
             }
             period.event = range.get('event');
             day.push(period)
+            firstPeriodIsMidnight = true;
         });
+        return day;
+    },
+
+    getLastPeriodFromLastDay: function (lastDayRanges, nextRange, dayBeforeInCalendar) {
+        var range, period = {};
+        period.from = {hour: 0, minute: 0};
+        period.to = {hour: nextRange.get('fromHour'), minute: nextRange.get('fromMinute')};
+        if(dayBeforeInCalendar) {
+            range = lastDayRanges.getAt(lastDayRanges.getCount() - 1);
+            period.event = range.get('event');
+        } else {
+            period.event = -1;
+        }
+
+        return period;
+    },
+
+    createEmptyDay: function () {
+        var me = this,
+            day = [];
+
+        day.push({
+            from: {hour: 0, minute: 0},
+            to: {hour: 24, minute: 0},
+            event: -1
+        });
+
         return day;
     },
 
     createDaySerie: function (day, index, record) {
         var me = this,
             daySerie = [],
-            indexOf,
-            colorIndex;
+            indexOf;
         day.forEach(function (range) {
             var minutes = (range.to.hour * 60 + range.to.minute) - (range.from.hour * 60 + range.from.minute);
             var blockSize = (minutes / (60 * 24)) * 24;
             var s = [null, null, null, null, null, null, null];
-            var label = record.events().findRecord('id', range.event).get('name');
-            s[index] = blockSize;
-            indexOf = record.events().indexOf(record.events().findRecord('id', range.event));
-            //colorIndex = (indexOf % 8) * 8 + Math.floor(indexOf / 8) * 8;
+            var event = record.events().findRecord('id', range.event);
+            var label;
+            var color;
+            var code;
+            s[index] = blockSize
+            if (event !== null) {
+                label = event.get('name');
+                indexOf = record.events().indexOf(record.events().findRecord('id', range.event));
+                color = me.colors[indexOf];
+                code = event.get('code');
+            } else {
+                label = Uni.I18n.translate('general.notApplicable', 'UNI', 'Not applicable');
+                color = 'rgba(0,0,0,0)';
+                code = undefined;
+            }
             daySerie.push({
                 data: s,
-                color: me.colors[indexOf],
+                color: color,
                 showInLegend: false,
                 label: label,
-                range: range
+                range: range,
+                code: code
             })
         });
         return daySerie.reverse();

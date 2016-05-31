@@ -69,10 +69,21 @@ Ext.define('Uni.view.calendar.TimeOfUseCalendar', {
             timeout: 120000,
             reader: {
                 type: 'json'
+            },
+
+            setUrl: function (url) {
+                this.url = url;
             }
         });
         me.loadNewData();
         me.down('#tou-filter').down('#filter-apply-all').on('click', me.loadNewData, me)
+        me.down('#tou-filter').down('#filter-clear-all').on('click', me.loadNewDataFromClear, me)
+    },
+
+    loadNewDataFromClear: function() {
+        var me = this;
+        me.down('#tou-filter').down('#filter-clear-all').disable(true);
+        me.loadNewData();
     },
 
     loadNewData: function () {
@@ -81,6 +92,7 @@ Ext.define('Uni.view.calendar.TimeOfUseCalendar', {
             UTCtime;
         date = new Date(me.down('#weekOf').getParamValue());
         UTCtime = date.getTime() - date.getTimezoneOffset() * 60 * 1000;
+        me.down('#tou-content-panel').setLoading(true);
         me.model.load(me.calendarId, {
             params: {
                 weekOf: UTCtime
@@ -92,8 +104,12 @@ Ext.define('Uni.view.calendar.TimeOfUseCalendar', {
                     me.down('#calendar-graph-view').record = newRecord;
                     me.down('#calendar-graph-view').drawGraph();//.chart.redraw();
                     me.loadRecord(newRecord);
+                    me.down('#tou-content-panel').setLoading(false);
                 }
                 me.fireEvent('timeofusecalendarloaded', newRecord);
+            },
+            failure: function () {
+                me.down('#tou-content-panel').setLoading(false);
             }
         })
     },
