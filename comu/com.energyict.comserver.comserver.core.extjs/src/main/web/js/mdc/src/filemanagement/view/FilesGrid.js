@@ -28,12 +28,12 @@ Ext.define('Mdc.filemanagement.view.FilesGrid', {
             {
                 xtype: 'actioncolumn',
                 align: 'right',
-                header: Uni.I18n.translate('general.actions', 'APR', 'Actions'),
+                header: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
                 items: [
                     {
                         iconCls: 'uni-icon-delete',
                         itemId: 'apr-remove-import-service-btn',
-                        tooltip: Uni.I18n.translate('general.remove', 'APR', 'Remove'),
+                        tooltip: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
                         handler: function (grid, rowIndex, colIndex, column, event, record) {
                             this.fireEvent('removeEvent', record);
                         }
