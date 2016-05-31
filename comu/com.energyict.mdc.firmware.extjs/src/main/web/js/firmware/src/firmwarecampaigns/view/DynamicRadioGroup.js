@@ -30,17 +30,12 @@ Ext.define('Fwc.firmwarecampaigns.view.DynamicRadioGroup', {
                     break;
             }
             me.add({
-                boxLabel: option.localizedValue,
+                boxLabel: option.localizedValue + (config.showDescription
+                    ? '<div class="uni-icon-info-small" style="width: 16px; height: 16px; margin-left:10px;" data-qtip="'+ msg +'"></div>' : ''),
                 name: me.name,
                 disabled: config.disabled,
                 itemId: me.name + '-option-' + option.id,
-                inputValue: option.id,
-                afterSubTpl: config.showDescription
-                    ? ( config.disabled
-                        ? '<span style="color: lightgrey;padding: 0 0 0 19px; font-style: italic">' + msg + '</span>'
-                        : '<span style="color: grey;padding: 0 0 0 19px; font-style: italic">' + msg + '</span>'
-                      )
-                    : ''
+                inputValue: option.id
             });
         });
         if (config.conditionCheck) {
@@ -61,7 +56,12 @@ Ext.define('Fwc.firmwarecampaigns.view.DynamicRadioGroup', {
             singleRadio.hide();
             me.add({
                 xtype: 'displayfield',
-                value: config.isRecord ? options[0].get('localizedValue') : options[0].localizedValue
+                padding: '0 0 0 0',
+                value: (config.isRecord ? options[0].get('localizedValue') : options[0].localizedValue) +
+                      (config.showDescription
+                          ? '<div class="uni-icon-info-small" style="width: 16px; height: 16px; margin-left:10px;" data-qtip="'+ msg +'"></div>'
+                          : ''),
+                htmlEncode: false
             });
         }
         me.show();

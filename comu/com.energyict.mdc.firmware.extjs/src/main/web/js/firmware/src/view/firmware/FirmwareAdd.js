@@ -8,6 +8,26 @@ Ext.define('Fwc.view.firmware.FirmwareAdd', {
     deviceType: null,
 
     initComponent: function () {
+
+        this.side = [
+            {
+                xtype: 'panel',
+                ui: 'medium',
+                layout: {
+                    type: 'vbox',
+                    align: 'stretch'
+                },
+                items: [
+                    {
+                        xtype: 'deviceTypeSideMenu',
+                        itemId: 'stepsMenu',
+                        router: this.router,
+                        deviceTypeId: this.deviceType.get('id')
+                    }
+                ]
+            }
+        ];
+
         this.content = [
             {
                 xtype: 'panel',

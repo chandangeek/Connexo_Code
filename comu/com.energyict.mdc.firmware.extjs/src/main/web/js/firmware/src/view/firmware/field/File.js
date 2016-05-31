@@ -8,7 +8,7 @@ Ext.define('Fwc.view.firmware.field.File', {
     buttonText: Uni.I18n.translate('firmware.file.select', 'FWC', 'Select file...'),
     afterBodyEl: [
         '<div class="x-form-display-field"><i>',
-        Uni.I18n.translate('firmware.filesize', 'FWC', 'Maximum file size is 50MB'),
+        Uni.I18n.translate('firmware.filesize', 'FWC', 'Maximum file size is 150MB'),
         '</i></div>'
     ]
 });

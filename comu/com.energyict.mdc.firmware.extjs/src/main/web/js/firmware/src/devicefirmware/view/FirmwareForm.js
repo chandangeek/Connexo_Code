@@ -128,14 +128,16 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
     items: [
         {
             xtype: 'displayfield',
+            itemId: 'firmware-version-field',
             fieldLabel: Uni.I18n.translate('device.firmware.field.version', 'FWC', 'Firmware version'),
             name: 'firmwareVersion'
         },
         {
             xtype: 'displayfield',
+            itemId: 'firmware-version-status-field',
             fieldLabel: Uni.I18n.translate('device.firmware.field.status', 'FWC', 'Firmware version status'),
             renderer: function (value) {
-                var result = value ? value.localizedValue : '';
+                var result = value ? value.localizedValue : '-';
 
                 if (value && value.id === 'deprecated') {
                     result += '<span class="icon-warning" style="margin-left: 10px; color: #EB5642; font-size:16px" data-qtip="' +
@@ -149,10 +151,11 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
         },
         {
             xtype: 'displayfield',
+            itemId: 'last-checked-date-field',
             fieldLabel: Uni.I18n.translate('device.firmware.field.date', 'FWC', 'Last checked date'),
             name: 'lastCheckedDate',
             renderer: function (data) {
-                return data ? Uni.DateTime.formatDateTimeShort(data) : '';
+                return data ? Uni.DateTime.formatDateTimeShort(data) : '-';
             }
         }
     ],
