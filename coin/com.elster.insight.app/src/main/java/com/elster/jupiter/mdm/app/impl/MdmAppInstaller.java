@@ -5,6 +5,7 @@ import com.elster.jupiter.mdm.app.MdmAppService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.upgrade.FullInstaller;
+import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.validation.ValidationService;
@@ -15,6 +16,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.util.Collections;
 import java.util.logging.Logger;
 
 @Component(name = "com.elster.jupiter.mdm.app.install", service = {MdmAppInstaller.class}, property = "name=" + MdmAppService.COMPONENTNAME, immediate = true)
@@ -36,11 +38,10 @@ public class MdmAppInstaller {
                 bind(UserService.class).toInstance(userService);
             }
         });
+        upgradeService.register(InstallIdentifier.identifier("DMA"), dataModel, Installer.class, Collections.emptyMap());
     }
 
     static class Installer implements FullInstaller {
-        private static final Logger LOGGER = Logger.getLogger(Installer.class.getName());
-
         private final UserService userService;
 
         @Inject
@@ -49,18 +50,22 @@ public class MdmAppInstaller {
         }
 
         @Override
-        public void install(DataModelUpgrader dataModelUpgrader) {
-            createDefaultRoles();
-            assignPrivilegesToDefaultRoles();
+        public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
+            doTry(
+                    "Create default roles for MDMAPP",
+                    this::createDefaultRoles,
+                    logger
+            );
+            doTry(
+                    "Create default roles for MDMAPP",
+                    this::assignPrivilegesToDefaultRoles,
+                    logger
+            );
         }
 
         private void createDefaultRoles() {
-            try {
-                userService.createGroup(MdmAppService.Roles.METER_EXPERT.value(), MdmAppService.Roles.METER_EXPERT.description());
-                userService.createGroup(MdmAppService.Roles.METER_OPERATOR.value(), MdmAppService.Roles.METER_OPERATOR.description());
-            } catch (Exception e) {
-                LOGGER.severe(e.getMessage());
-            }
+            userService.createGroup(MdmAppService.Roles.METER_EXPERT.value(), MdmAppService.Roles.METER_EXPERT.description());
+            userService.createGroup(MdmAppService.Roles.METER_OPERATOR.value(), MdmAppService.Roles.METER_OPERATOR.description());
         }
 
         private void assignPrivilegesToDefaultRoles() {
@@ -69,19 +74,24 @@ public class MdmAppInstaller {
             userService.grantGroupWithPrivilege(MdmAppService.Roles.METER_OPERATOR.value(), MdmAppService.APPLICATION_KEY, getPrivilegesMeterOperator());
 
             //TODO: workaround: attached Meter expert to user admin !!! to remove this line when the user can be created/added to system
-            userService.getUser(1).ifPresent(u -> u.join(userService.getGroups().stream().filter(e -> e.getName().equals(MdmAppService.Roles.METER_EXPERT.value())).findFirst().get()));
+            userService.getUser(1)
+                    .ifPresent(u -> u.join(userService.getGroups()
+                            .stream()
+                            .filter(e -> e.getName().equals(MdmAppService.Roles.METER_EXPERT.value()))
+                            .findFirst()
+                            .get()));
         }
 
         private String[] getPrivilegesMeterExpert() {
             return MdmAppPrivileges.getApplicationAllPrivileges().stream().toArray(String[]::new);
         }
 
-    private String[] getPrivilegesMeterOperator() {
-        return new String[]{
-                //usage point
-                com.elster.jupiter.metering.security.Privileges.Constants.VIEW_ANY_USAGEPOINT,
-                com.elster.jupiter.metering.security.Privileges.Constants.VIEW_OWN_USAGEPOINT,
-                com.elster.jupiter.metering.security.Privileges.Constants.VIEW_READINGTYPE,
+        private String[] getPrivilegesMeterOperator() {
+            return new String[]{
+                    //usage point
+                    com.elster.jupiter.metering.security.Privileges.Constants.VIEW_ANY_USAGEPOINT,
+                    com.elster.jupiter.metering.security.Privileges.Constants.VIEW_OWN_USAGEPOINT,
+                    com.elster.jupiter.metering.security.Privileges.Constants.VIEW_READINGTYPE,
 
                     //validation
                     com.elster.jupiter.validation.security.Privileges.Constants.VIEW_VALIDATION_CONFIGURATION,
