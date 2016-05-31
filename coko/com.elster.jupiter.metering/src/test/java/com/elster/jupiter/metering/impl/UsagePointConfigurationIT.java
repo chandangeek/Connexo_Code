@@ -230,7 +230,8 @@ public class UsagePointConfigurationIT {
             usagePoint = electricity.newUsagePoint("mrId", Instant.EPOCH).create();
             AmrSystem system = meteringService.findAmrSystem(1).get();
             Meter meter = system.newMeter("meter").create();
-            meterActivation = usagePoint.activate(meter, injector.getInstance(ServerMetrologyConfigurationService.class).findDefaultMeterRole(DefaultMeterRole.DEFAULT), ACTIVE_DATE.toInstant());
+            meterActivation = usagePoint.activate(meter, injector.getInstance(ServerMetrologyConfigurationService.class)
+                    .findDefaultMeterRole(DefaultMeterRole.DEFAULT), ACTIVE_DATE.toInstant());
             context.commit();
         }
         usagePoint = meteringService.findUsagePoint(usagePoint.getId()).get();
