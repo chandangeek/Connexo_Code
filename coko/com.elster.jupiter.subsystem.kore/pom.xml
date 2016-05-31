@@ -177,7 +177,7 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>pulse.api.rest</artifactId>
+            <artifactId>kore.api.rest</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
