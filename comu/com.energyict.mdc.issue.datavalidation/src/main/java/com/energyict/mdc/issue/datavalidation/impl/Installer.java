@@ -9,11 +9,13 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.FullInstaller;
-import com.elster.jupiter.util.exception.ExceptionCatcher;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.issue.datavalidation.impl.event.DataValidationEventDescription;
 import com.energyict.mdc.issue.datavalidation.impl.event.DataValidationEventHandlerFactory;
+
 import com.google.inject.Inject;
+
+import java.util.logging.Logger;
 
 import static com.elster.jupiter.messaging.DestinationSpec.whereCorrelationId;
 
@@ -33,19 +35,28 @@ class Installer implements FullInstaller {
     }
 
     @Override
-    public void install(DataModelUpgrader dataModelUpgrader) {
-        ExceptionCatcher.executing(
-                () -> this.installDataModel(dataModelUpgrader),
-                this::createIssueTypeAndReasons,
-                this::setAQSubscriber,
-                this::publishEvents)
-                .andHandleExceptionsWith(Throwable::printStackTrace)
-                .execute();
-    }
-
-    private void installDataModel(DataModelUpgrader dataModelUpgrader) {
+    public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
         dataModelUpgrader.upgrade(dataModel, Version.latest());
-        new CreateIssueViewOperation(dataModel).execute();
+        doTry(
+                "Create issue view operation",
+                () -> new CreateIssueViewOperation(dataModel).execute(),
+                logger
+        );
+        doTry(
+                "Create issue type and reasons",
+                this::createIssueTypeAndReasons,
+                logger
+        );
+        doTry(
+                "Create event subscriber",
+                this::setAQSubscriber,
+                logger
+        );
+        doTry(
+                "Publish events",
+                this::publishEvents,
+                logger
+        );
     }
 
     private void createIssueTypeAndReasons() {
