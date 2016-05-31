@@ -19,6 +19,7 @@ import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -27,6 +28,7 @@ import com.elster.jupiter.servicecall.ServiceCallService;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -58,9 +60,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Component(name = "com.energyict.mdc.device.data.impl.ami.MultiSenseHeadEndInterface",
-        service = {HeadEndInterface.class},
+        service = {HeadEndInterface.class, TranslationKeyProvider.class},
         property = "name=MultiSenseHeadEndInterface", immediate = true)
-public class MultiSenseHeadEndInterface implements HeadEndInterface {
+public class MultiSenseHeadEndInterface implements HeadEndInterface, TranslationKeyProvider {
 
 
     private static final String UNDEFINED = "undefined";
@@ -132,7 +134,7 @@ public class MultiSenseHeadEndInterface implements HeadEndInterface {
     @Reference
     public final void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
-        this.thesaurus = nlsService.getThesaurus(MeteringService.COMPONENTNAME, Layer.DOMAIN);
+        this.thesaurus = nlsService.getThesaurus(DeviceDataServices.COMPONENT_NAME, Layer.DOMAIN);
     }
 
     @Reference
@@ -436,5 +438,21 @@ public class MultiSenseHeadEndInterface implements HeadEndInterface {
     @Override
     public String getAmrSystem() {
         return AMR_SYSTEM;
+    }
+
+    @Override
+    public String getComponentName() {
+        return DeviceDataServices.COMPONENT_NAME;
+    }
+
+    @Override
+    public Layer getLayer() {
+        return Layer.DOMAIN;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        //TBD
+        return null;
     }
 }

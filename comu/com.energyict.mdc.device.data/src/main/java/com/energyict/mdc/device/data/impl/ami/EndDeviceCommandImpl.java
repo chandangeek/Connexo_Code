@@ -3,7 +3,6 @@ package com.energyict.mdc.device.data.impl.ami;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceControlType;
 import com.elster.jupiter.metering.ami.EndDeviceCommand;
-import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.energyict.mdc.common.rest.FieldValidationException;

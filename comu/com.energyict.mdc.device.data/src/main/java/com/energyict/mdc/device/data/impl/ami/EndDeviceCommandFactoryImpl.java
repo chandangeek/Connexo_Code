@@ -10,11 +10,13 @@ import com.elster.jupiter.metering.ami.EndDeviceCommand;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.util.units.Quantity;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.exceptions.UnsupportedCommandException;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
@@ -36,9 +38,9 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 @Component(name = "com.energyict.mdc.device.data.impl.ami.EndDeviceCommandFactory",
-        service = {CommandFactory.class},
+        service = {CommandFactory.class, TranslationKeyProvider.class},
         property = "name=EndDeviceCommandFactory", immediate = true)
-public class EndDeviceCommandFactoryImpl implements CommandFactory {
+public class EndDeviceCommandFactoryImpl implements CommandFactory, TranslationKeyProvider {
     private volatile MeteringService meteringService;
     private volatile DeviceService deviceService;
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
@@ -78,7 +80,7 @@ public class EndDeviceCommandFactoryImpl implements CommandFactory {
     @Reference
     public final void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
-        this.thesaurus = nlsService.getThesaurus(MeteringService.COMPONENTNAME, Layer.DOMAIN);
+        this.thesaurus = nlsService.getThesaurus(DeviceDataServices.COMPONENT_NAME, Layer.DOMAIN);
     }
 
     @Reference
@@ -249,4 +251,19 @@ public class EndDeviceCommandFactoryImpl implements CommandFactory {
     }
 
 
+    @Override
+    public String getComponentName() {
+        return DeviceDataServices.COMPONENT_NAME;
+    }
+
+    @Override
+    public Layer getLayer() {
+        return Layer.DOMAIN;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        //TBD
+        return null;
+    }
 }
