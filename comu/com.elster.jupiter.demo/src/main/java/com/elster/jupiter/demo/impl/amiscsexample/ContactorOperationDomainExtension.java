@@ -8,7 +8,6 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.util.units.Quantity;
-import com.energyict.mdc.device.data.ami.BreakerStatus;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 
 import javax.validation.constraints.Size;
