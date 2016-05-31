@@ -264,6 +264,7 @@ public class EndDeviceCommandFactoryImpl implements CommandFactory, TranslationK
     @Override
     public List<TranslationKey> getKeys() {
         //TBD
-        return null;
+        List<TranslationKey> keys = new ArrayList<>();
+        return keys;
     }
 }

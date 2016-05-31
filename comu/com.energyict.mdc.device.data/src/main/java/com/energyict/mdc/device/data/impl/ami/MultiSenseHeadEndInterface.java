@@ -453,6 +453,7 @@ public class MultiSenseHeadEndInterface implements HeadEndInterface, Translation
     @Override
     public List<TranslationKey> getKeys() {
         //TBD
-        return null;
+        List<TranslationKey> keys = new ArrayList<>();
+        return keys;
     }
 }
