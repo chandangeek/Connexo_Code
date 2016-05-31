@@ -44,13 +44,28 @@ class Installer implements FullInstaller {
     }
 
     @Override
-    public void install(DataModelUpgrader dataModelUpgrader) {
+    public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
         dataModelUpgrader.upgrade(dataModel, Version.latest());
-        createMasterData();
-        createSecurityAdapterMappings();
-        createMessageAdapterMappings();
-        createCapabilityMappings();
-        createEventTypes();
+        doTry(
+                "Create security adapter mappings",
+                this::createSecurityAdapterMappings,
+                logger
+        );
+        doTry(
+                "Create message adapter mappings",
+                this::createMessageAdapterMappings,
+                logger
+        );
+        doTry(
+                "Create Capability mappings",
+                this::createCapabilityMappings,
+                logger
+        );
+        doTry(
+                "Create event types for PPC",
+                this::createEventTypes,
+                logger
+        );
     }
 
     private void createCapabilityMappings() {
@@ -119,9 +134,6 @@ class Installer implements FullInstaller {
             LOGGER.severe("Could not load the properties from " + propertiesLocation);
         }
         return mappings;
-    }
-
-    private void createMasterData() {
     }
 
     private void createEventTypes() {
