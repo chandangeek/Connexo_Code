@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
@@ -784,10 +785,10 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
 
 
     @Override
-    public List<DeviceType> findDeviceTypesForCalendar(long calendarId) {
+    public List<DeviceType> findDeviceTypesForCalendar(Calendar calendar) {
         return this.getDataModel().
                 query(DeviceType.class, AllowedCalendar.class).
-                select(where("allowedCalendars.allowedCalendarId").isEqualTo(calendarId), new Order[]{Order.ascending("deviceType"), Order.ascending("name")});
+                select(where("allowedCalendars.calendar").isEqualTo(calendar));
     }
 
     @Override

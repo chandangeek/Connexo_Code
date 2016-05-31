@@ -21,7 +21,7 @@ public class DeviceConfigCalendarResolver implements CalendarResolver {
 
     @Override
     public boolean isCalendarInUse(Calendar calendar) {
-        return !deviceConfigurationService.findDeviceTypesForCalendar(calendar.getId()).isEmpty();
+        return !deviceConfigurationService.findDeviceTypesForCalendar(calendar).isEmpty();
     }
 }
 
