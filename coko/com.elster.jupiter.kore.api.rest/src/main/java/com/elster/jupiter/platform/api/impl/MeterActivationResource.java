@@ -131,13 +131,12 @@ public class MeterActivationResource {
                 .getStart())) {
             throw new LocalizedFieldValidationException(MessageSeeds.INVALID_START_TIME, "interval.start");
         }
-        if (meterActivationInfo.meter != null) {
-            Meter meter = meteringService.findMeter(meterActivationInfo.meter)
-                    .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_METER, "meter"));
-            activation = usagePoint.activate(meter, start);
-        } else {
-            activation = usagePoint.activate(start);
+        if (meterActivationInfo.meter == null) {
+            throw new LocalizedFieldValidationException(MessageSeeds.FIELD_MISSING, "meter");
         }
+        Meter meter = meteringService.findMeter(meterActivationInfo.meter)
+                .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_METER, "meter"));
+        activation = usagePoint.activate(meter, start);
         return meterActivationInfoFactory.from(activation, uriInfo, Collections.emptyList());
     }
 

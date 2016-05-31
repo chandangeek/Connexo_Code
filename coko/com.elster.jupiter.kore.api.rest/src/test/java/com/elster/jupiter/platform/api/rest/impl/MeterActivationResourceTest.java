@@ -156,11 +156,11 @@ public class MeterActivationResourceTest extends PlatformPublicApiJerseyTest {
         meterActivationInfo.interval.start = clock.millis();
 
         MeterActivation meterActivation = mockMeterActivation(1001L, 1L, usagePoint);
-        when(usagePoint.activate(any())).thenReturn(meterActivation);
 
-        target("/usagepoints/16/meteractivations").request().post(Entity.json(meterActivationInfo));
-
-        verify(usagePoint, times(1)).activate(clock.instant());
+        Response post = target("/usagepoints/16/meteractivations").request().post(Entity.json(meterActivationInfo));
+        assertThat(post.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        JsonModel model = JsonModel.model((ByteArrayInputStream) post.getEntity());
+        Assertions.assertThat(model.<String>get("$.errors[0].id")).isEqualTo("meter");
 
     }
 
@@ -200,11 +200,15 @@ public class MeterActivationResourceTest extends PlatformPublicApiJerseyTest {
     public void testCreateMeterActivationWithoutPreviousMeterActivation() throws Exception {
         MeterActivationInfo meterActivationInfo = new MeterActivationInfo();
         meterActivationInfo.interval = new IntervalInfo();
+        meterActivationInfo.meter = 123456789L;
         Instant now = clock.instant();
         meterActivationInfo.interval.start = now.toEpochMilli();
+        Meter mock = mock(Meter.class);
+        when(mock.getId()).thenReturn(123456789L);
+        when(meteringService.findMeter(123456789L)).thenReturn(Optional.of(mock));
 
         MeterActivation meterActivation = mockMeterActivation(1001L, 1L, usagePoint);
-        when(usagePoint.activate(any())).thenReturn(meterActivation);
+        when(usagePoint.activate(any(), any())).thenReturn(meterActivation);
 
         Response post = target("/usagepoints/16/meteractivations").request().post(Entity.json(meterActivationInfo));
         assertThat(post.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -215,8 +219,8 @@ public class MeterActivationResourceTest extends PlatformPublicApiJerseyTest {
         MeterActivationInfo meterActivationInfo = new MeterActivationInfo();
         meterActivationInfo.interval = new IntervalInfo();
         meterActivationInfo.interval.start = clock.millis();
-
         meterActivationInfo.meter = 123456789L;
+
         when(meteringService.findMeter(123456789L)).thenReturn(Optional.empty());
 
         Response post = target("/usagepoints/16/meteractivations").request().post(Entity.json(meterActivationInfo));
