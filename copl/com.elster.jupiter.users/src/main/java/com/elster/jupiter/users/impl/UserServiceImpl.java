@@ -845,7 +845,8 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     private void logMessage(String message, String userName, String domain, String ipAddr){
         ipAddr = ipAddr.equals("0:0:0:0:0:0:0:1") ? "localhost" : ipAddr;
         if(message.equals(SUCCESSFUL_LOGIN)){
-            userLogin.log(Level.INFO, message + "[" + domain == null ? userName : domain+ "/" + userName + "] " , ipAddr);
+            userName = domain == null ? userName : domain+ "/" + userName;
+            userLogin.log(Level.INFO, message + "[" + userName + "] " , ipAddr);
             this.findUserIgnoreStatus(userName).ifPresent(user -> {
                 try(TransactionContext context = transactionService.getContext()) {
                     user.setLastSuccessfulLogin(clock.instant());
@@ -854,7 +855,8 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
                 }
             });
         } else {
-            userLogin.log(Level.WARNING, message + "[" + domain == null ? userName : domain +"/" + userName + "] " , ipAddr);
+            userName = domain == null ? userName : domain+ "/" + userName;
+            userLogin.log(Level.WARNING, message + "[" + userName + "] " , ipAddr);
             this.findUserIgnoreStatus(userName).ifPresent(user -> {
                 try(TransactionContext context = transactionService.getContext()) {
                     user.setLastUnSuccessfulLogin(clock.instant());
