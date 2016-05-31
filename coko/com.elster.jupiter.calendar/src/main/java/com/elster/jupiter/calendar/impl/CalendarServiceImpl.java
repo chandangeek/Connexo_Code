@@ -1,6 +1,7 @@
 package com.elster.jupiter.calendar.impl;
 
 import com.elster.jupiter.calendar.Calendar;
+import com.elster.jupiter.calendar.CalendarResolver;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.Category;
 import com.elster.jupiter.calendar.MessageSeeds;
@@ -27,6 +28,8 @@ import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
@@ -36,6 +39,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -57,6 +61,8 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
     private volatile Thesaurus thesaurus;
     private volatile UserService userService;
     private volatile EventService eventService;
+
+    private final List<CalendarResolver> calendarResolvers = new CopyOnWriteArrayList<>();
 
     public CalendarServiceImpl() {
     }
@@ -206,6 +212,16 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
     }
 
     @Override
+    public boolean isCalendarInUse(Calendar calendar) {
+        for (CalendarResolver resolver : calendarResolvers) {
+            if (resolver.isCalendarInUse(calendar)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
     public DataModel getDataModel() {
         return dataModel;
     }
@@ -213,5 +229,14 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
     @Override
     public Thesaurus getThesaurus() {
         return thesaurus;
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addCalendarResolver(CalendarResolver resolver) {
+        calendarResolvers.add(resolver);
+    }
+
+    public void removeCalendarResolver(CalendarResolver resolver) {
+        calendarResolvers.remove(resolver);
     }
 }

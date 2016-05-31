@@ -41,6 +41,8 @@ public interface CalendarService {
 
     Optional<Calendar> findCalendarByMRID(String mRID);
 
+    boolean isCalendarInUse(Calendar calendar);
+
     @ProviderType
     interface CalendarBuilder {
         CalendarBuilder name(String name);
