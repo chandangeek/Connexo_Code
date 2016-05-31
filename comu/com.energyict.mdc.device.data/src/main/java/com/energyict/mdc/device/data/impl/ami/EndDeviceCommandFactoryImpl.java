@@ -7,7 +7,6 @@ import com.elster.jupiter.metering.EndDeviceControlTypeMapping;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ami.CommandFactory;
 import com.elster.jupiter.metering.ami.EndDeviceCommand;
-import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -37,7 +36,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 @Component(name = "com.energyict.mdc.device.data.impl.ami.EndDeviceCommandFactory",
-        service = {HeadEndInterface.class, TranslationKeyProvider.class},
+        service = {CommandFactory.class, TranslationKeyProvider.class},
         property = "name=EndDeviceCommandFactory", immediate = true)
 public class EndDeviceCommandFactoryImpl implements CommandFactory {
     private volatile MeteringService meteringService;

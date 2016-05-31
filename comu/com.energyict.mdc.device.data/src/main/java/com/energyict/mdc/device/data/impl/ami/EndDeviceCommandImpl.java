@@ -28,7 +28,6 @@ public class EndDeviceCommandImpl implements EndDeviceCommand {
     private volatile EndDevice endDevice;
     private volatile List<DeviceMessageId> deviceMessageIds;
     private volatile PropertySpecService propertySpecService;
-    //private volatile Map<String, Object> attributes;
     private volatile List<PropertySpec> commandArgumentSpecs = new ArrayList<>();
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
 
@@ -109,12 +108,6 @@ public class EndDeviceCommandImpl implements EndDeviceCommand {
     public EndDevice getEndDevice() {
         return endDevice;
     }
-
- /*   @Override
-    public Map<String, Object> getAttributes() {
-        return attributes;
-    }
-*/
 
     @Override
     public void setPropertyValue(PropertySpec propertySpec, Object value) {
