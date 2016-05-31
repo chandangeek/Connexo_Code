@@ -4,18 +4,20 @@ import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+
+import javax.inject.Provider;
+import java.time.Clock;
+import java.util.Collections;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import javax.inject.Provider;
-import java.time.Clock;
-import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.fest.reflect.core.Reflection.field;
@@ -36,6 +38,8 @@ public class AmrSystemImplTest extends EqualsContractTest {
     @Mock
     private MeteringService meteringService;
     @Mock
+    private ServerMetrologyConfigurationService metrologyConfigurationService;
+    @Mock
     private EventService eventService;
     @Mock
     private Thesaurus thesaurus;
@@ -50,7 +54,7 @@ public class AmrSystemImplTest extends EqualsContractTest {
 
     @Before
     public void setUp() {
-    	Provider<MeterImpl> meterFactory = () -> new MeterImpl(clock, dataModel, eventService, deviceEventFactory, meteringService, thesaurus,meterActivationFactory);
+        Provider<MeterImpl> meterFactory = () -> new MeterImpl(clock, dataModel, eventService, deviceEventFactory, meteringService, thesaurus, meterActivationFactory, metrologyConfigurationService);
         amrSystem = new AmrSystemImpl(dataModel, meteringService, meterFactory,endDeviceFactory).init(ID, NAME);
     }
 

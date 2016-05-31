@@ -1,5 +1,14 @@
 package com.elster.jupiter.metering.config;
 
+import com.elster.jupiter.metering.CustomUsagePointMeterActivationValidationException;
+import com.elster.jupiter.metering.CustomUsagePointMeterActivationValidator;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.ServiceCategory;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.nls.NlsKey;
+
+import aQute.bnd.annotation.ProviderType;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -9,11 +18,12 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-15 (13:09)
  */
+@ProviderType
 public interface MetrologyConfigurationService {
 
     String COMPONENT_NAME = "MCF";
 
-    MetrologyConfiguration newMetrologyConfiguration(String name);
+    MetrologyConfigurationBuilder newMetrologyConfiguration(String name, ServiceCategory serviceCategory);
 
     Optional<MetrologyConfiguration> findMetrologyConfiguration(long id);
 
@@ -23,6 +33,37 @@ public interface MetrologyConfigurationService {
 
     List<MetrologyConfiguration> findAllMetrologyConfigurations();
 
+    UsagePointMetrologyConfigurationBuilder newUsagePointMetrologyConfiguration(String name, ServiceCategory serviceCategory);
+
+    List<UsagePointMetrologyConfiguration> findLinkableMetrologyConfigurations(UsagePoint usagePoint);
+
+    Optional<MetrologyContract> findMetrologyContract(long id);
+
     boolean isInUse(MetrologyConfiguration metrologyConfiguration);
 
+    MeterRole newMeterRole(NlsKey name);
+
+    MeterRole findDefaultMeterRole(DefaultMeterRole defaultMeterRole);
+
+    Optional<MeterRole> findMeterRole(String key);
+
+    ReadingTypeTemplate.ReadingTypeTemplateAttributeSetter createReadingTypeTemplate(String name);
+
+    List<ReadingTypeTemplate> getReadingTypeTemplates();
+
+    Optional<ReadingTypeTemplate> findReadingTypeTemplate(String name);
+
+    MetrologyPurpose createMetrologyPurpose(NlsKey name, NlsKey description);
+
+    Optional<MetrologyPurpose> findMetrologyPurpose(DefaultMetrologyPurpose defaultMetrologyPurpose);
+
+    Optional<MetrologyPurpose> findMetrologyPurpose(long id);
+
+    List<MetrologyPurpose> getMetrologyPurposes();
+
+    void addCustomUsagePointMeterActivationValidator(CustomUsagePointMeterActivationValidator customUsagePointMeterActivationValidator);
+
+    void removeCustomUsagePointMeterActivationValidator(CustomUsagePointMeterActivationValidator customUsagePointMeterActivationValidator);
+
+    void validateUsagePointMeterActivation(MeterRole meterRole, Meter meter, UsagePoint usagePoint) throws CustomUsagePointMeterActivationValidationException;
 }

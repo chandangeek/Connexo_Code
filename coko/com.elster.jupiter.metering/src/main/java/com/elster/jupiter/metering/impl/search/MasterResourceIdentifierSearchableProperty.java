@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.impl.search;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
@@ -22,12 +23,12 @@ import java.util.Optional;
  */
 public class MasterResourceIdentifierSearchableProperty implements SearchableUsagePointProperty {
 
-    private final UsagePointSearchDomain domain;
+    private final SearchDomain domain;
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
     private static final String FIELDNAME = "mRID";
 
-    public MasterResourceIdentifierSearchableProperty(UsagePointSearchDomain domain, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+    public MasterResourceIdentifierSearchableProperty(SearchDomain domain, PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super();
         this.domain = domain;
         this.propertySpecService = propertySpecService;
@@ -35,7 +36,7 @@ public class MasterResourceIdentifierSearchableProperty implements SearchableUsa
     }
 
     @Override
-    public UsagePointSearchDomain getDomain() {
+    public SearchDomain getDomain() {
         return domain;
     }
 
@@ -66,14 +67,10 @@ public class MasterResourceIdentifierSearchableProperty implements SearchableUsa
 
     @Override
     public String toDisplay(Object value) {
-        if (!this.valueCompatibleForDisplay(value)) {
-            throw new IllegalArgumentException("Value not compatible with domain");
+        if (value instanceof String) {
+            return (String) value;
         }
-        return String.valueOf(value);
-    }
-
-    private boolean valueCompatibleForDisplay(Object value) {
-        return value instanceof String;
+        throw new IllegalArgumentException("Value not compatible with domain");
     }
 
     @Override

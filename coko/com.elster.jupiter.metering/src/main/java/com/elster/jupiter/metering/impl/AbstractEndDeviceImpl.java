@@ -9,8 +9,12 @@ import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
 import com.elster.jupiter.metering.EventType;
+import com.elster.jupiter.metering.GeoCoordinates;
 import com.elster.jupiter.metering.LifecycleDates;
+import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.ami.EndDeviceCapabilities;
+import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventRecordBuilder;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
@@ -22,6 +26,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.time.Interval;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 
@@ -60,6 +65,7 @@ abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> impleme
     private Instant createTime;
     private Instant obsoleteTime;
     private Instant modTime;
+
     @SuppressWarnings("unused")
     private String userName;
 
@@ -68,6 +74,8 @@ abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> impleme
     private Reference<FiniteStateMachine> stateMachine = ValueReference.absent();
     private TemporalReference<EndDeviceLifeCycleStatus> status = Temporals.absent();
     private StateManager stateManager = new NoDeviceLifeCycle();
+    private final Reference<Location> location = ValueReference.absent();
+    private final Reference<GeoCoordinates> geoCoordinates = ValueReference.absent();
 
     private final Clock clock;
     private final DataModel dataModel;
@@ -151,6 +159,44 @@ abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> impleme
     @Override
     public ElectronicAddress getElectronicAddress() {
         return electronicAddress == null ? null : electronicAddress.copy();
+    }
+
+    @Override
+    public long getLocationId() {
+        Optional<Location> location = getLocation();
+        return location.isPresent() ? location.get().getId() : 0L;
+    }
+
+    @Override
+    public void setLocation(Location location) {
+        this.location.set(location);
+    }
+
+    @Override
+    public Optional<Location> getLocation() {
+        return location.getOptional();
+    }
+
+    @Override
+    public long getGeoCoordinatesId() {
+        Optional<GeoCoordinates> coordinates = getGeoCoordinates();
+        return coordinates.isPresent() ? coordinates.get().getId() : 0L;
+    }
+
+    @Override
+    public Optional<GeoCoordinates> getGeoCoordinates() {
+        return geoCoordinates.getOptional();
+    }
+
+    @Override
+    public void setGeoCoordinates(GeoCoordinates geoCoordinates) {
+        this.geoCoordinates.set(geoCoordinates);
+    }
+
+    @Override
+    public Optional<HeadEndInterface> getHeadEndInterface() {
+        // TODO it is temporal implementation, real code will be done in scope of CXO-608
+        return Optional.of((endDevice) -> new EndDeviceCapabilities(Collections.emptyList()));
     }
 
     @Override

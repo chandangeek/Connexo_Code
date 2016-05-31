@@ -4,10 +4,10 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 
 public enum UsagePointConnectedKind implements TranslationKey {
-    UNKNOWN("Unknown", "Unknown"),
-    CONNECTED("connected", "Connected"),
-    PHYSICALLYDISCONNECTED("physically.disconnected", "Physically disconnected"),
-    LOGICALLYDISCONNECTED("logically.disconnected", "Logically disconnected");
+    UNKNOWN("connectionState.unknown", "Unknown"),
+    CONNECTED("connectionState.connected", "Connected"),
+    PHYSICALLYDISCONNECTED("connectionState.physicallyDisconnected", "Physically disconnected"),
+    LOGICALLYDISCONNECTED("connectionState.logicallyDisconnected", "Logically disconnected");
 
     private final String value;
     private final String defaultFormat;

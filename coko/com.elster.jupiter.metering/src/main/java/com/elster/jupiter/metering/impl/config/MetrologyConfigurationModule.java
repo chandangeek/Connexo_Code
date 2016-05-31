@@ -32,6 +32,7 @@ public class MetrologyConfigurationModule extends AbstractModule {
         requireBinding(CustomPropertySetService.class);
 
         bind(MetrologyConfigurationService.class).to(MetrologyConfigurationServiceImpl.class).in(Scopes.SINGLETON);
+        bind(ServerMetrologyConfigurationService.class).to(MetrologyConfigurationServiceImpl.class).in(Scopes.SINGLETON);
     }
 
 }

@@ -11,25 +11,26 @@ import com.elster.jupiter.metering.UsagePointFilter;
 import com.elster.jupiter.metering.WaterDetail;
 import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.units.Unit;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 
-import org.junit.AfterClass;
-import org.junit.Rule;
-import org.junit.Test;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * Created by antfom on 17.02.2016.
- */
 public class UsagePointDetailsPersistentTestIT {
-    static MeteringInMemoryPersistentModule inMemoryPersistentModule = new MeteringInMemoryPersistentModule("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0");
+    static MeteringInMemoryBootstrapModule inMemoryPersistentModule = new MeteringInMemoryBootstrapModule("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0");
 
     @Rule
     public TransactionalRule transactionalRule = new TransactionalRule(inMemoryPersistentModule.getTransactionService());
 
+    @BeforeClass
+    public static void setUp() {
+        inMemoryPersistentModule.activate();
+    }
 
     @AfterClass
     public static void afterClass() {
@@ -38,13 +39,13 @@ public class UsagePointDetailsPersistentTestIT {
 
     @Transactional
     @Test
-    public void testSaveEmpty(){
+    public void testSaveEmpty() {
 
         UsagePoint up = inMemoryPersistentModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY)
                 .get().newUsagePoint("test", Instant.EPOCH).create();
 
         UsagePointFilter usagePointFilter = new UsagePointFilter();
-            usagePointFilter.setMrid("*");
+        usagePointFilter.setMrid("*");
 
         UsagePoint usagePoint = inMemoryPersistentModule.getMeteringService().getUsagePoints(usagePointFilter).find().get(0);
 
@@ -55,7 +56,7 @@ public class UsagePointDetailsPersistentTestIT {
 
     @Transactional
     @Test
-    public void testSaveWithGasDetails(){
+    public void testSaveWithGasDetails() {
 
         UsagePoint up = inMemoryPersistentModule.getMeteringService().getServiceCategory(ServiceKind.GAS)
                 .get().newUsagePoint("test", inMemoryPersistentModule.getClock().instant().minusSeconds(1000)).create();
@@ -67,9 +68,9 @@ public class UsagePointDetailsPersistentTestIT {
                 .withValve(YesNoAnswer.YES)
                 .withBypass(YesNoAnswer.YES)
                 .withBypassStatus(BypassStatus.OPEN)
-                .withGrounded(true)
-                .withInterruptible(true)
-                .withLimiter(true)
+                .withGrounded(YesNoAnswer.YES)
+                .withInterruptible(YesNoAnswer.YES)
+                .withLimiter(YesNoAnswer.YES)
                 .withLoadLimit(Unit.CUBIC_METER_PER_HOUR.amount(BigDecimal.valueOf(123.45)))
                 .withLoadLimiterType("LoadLimit")
                 .withPhysicalCapacity(Unit.CUBIC_METER_PER_HOUR.amount(BigDecimal.valueOf(123.45)))
@@ -91,9 +92,9 @@ public class UsagePointDetailsPersistentTestIT {
         assertThat(gasDetail.isClamped()).isEqualTo(YesNoAnswer.YES);
         assertThat(gasDetail.isBypassInstalled()).isEqualTo(YesNoAnswer.YES);
         assertThat(gasDetail.getBypassStatus().equals(BypassStatus.OPEN)).isTrue();
-        assertThat(gasDetail.isGrounded()).isTrue();
-        assertThat(gasDetail.isInterruptible()).isTrue();
-        assertThat(gasDetail.isLimiter()).isTrue();
+        assertThat(gasDetail.isGrounded()).isEqualTo(YesNoAnswer.YES);
+        assertThat(gasDetail.isInterruptible()).isEqualTo(YesNoAnswer.YES);
+        assertThat(gasDetail.isLimiter()).isEqualTo(YesNoAnswer.YES);
         assertThat(gasDetail.getLoadLimit().equals(Unit.CUBIC_METER_PER_HOUR.amount(BigDecimal.valueOf(123.45)))).isTrue();
         assertThat(gasDetail.getLoadLimiterType().equals("LoadLimit")).isTrue();
         assertThat(gasDetail.getPhysicalCapacity().equals(Unit.CUBIC_METER_PER_HOUR.amount(BigDecimal.valueOf(123.45)))).isTrue();
@@ -102,7 +103,7 @@ public class UsagePointDetailsPersistentTestIT {
 
     @Transactional
     @Test
-    public void testSaveWithWaterDetails(){
+    public void testSaveWithWaterDetails() {
 
         UsagePoint up = inMemoryPersistentModule.getMeteringService().getServiceCategory(ServiceKind.WATER)
                 .get().newUsagePoint("test", inMemoryPersistentModule.getClock().instant().minusSeconds(1000)).create();
@@ -114,8 +115,8 @@ public class UsagePointDetailsPersistentTestIT {
                 .withValve(YesNoAnswer.YES)
                 .withBypass(YesNoAnswer.YES)
                 .withBypassStatus(BypassStatus.OPEN)
-                .withGrounded(true)
-                .withLimiter(true)
+                .withGrounded(YesNoAnswer.YES)
+                .withLimiter(YesNoAnswer.YES)
                 .withLoadLimit(Unit.CUBIC_METER_PER_HOUR.amount(BigDecimal.valueOf(123.45)))
                 .withLoadLimiterType("LoadLimit")
                 .withPhysicalCapacity(Unit.CUBIC_METER_PER_HOUR.amount(BigDecimal.valueOf(123.45)))
@@ -137,8 +138,8 @@ public class UsagePointDetailsPersistentTestIT {
         assertThat(waterDetail.isClamped()).isEqualTo(YesNoAnswer.YES);
         assertThat(waterDetail.isBypassInstalled()).isEqualTo(YesNoAnswer.YES);
         assertThat(waterDetail.getBypassStatus().equals(BypassStatus.OPEN)).isTrue();
-        assertThat(waterDetail.isGrounded()).isTrue();
-        assertThat(waterDetail.isLimiter()).isTrue();
+        assertThat(waterDetail.isGrounded()).isEqualTo(YesNoAnswer.YES);
+        assertThat(waterDetail.isLimiter()).isEqualTo(YesNoAnswer.YES);
         assertThat(waterDetail.getLoadLimit().equals(Unit.CUBIC_METER_PER_HOUR.amount(BigDecimal.valueOf(123.45)))).isTrue();
         assertThat(waterDetail.getLoadLimiterType().equals("LoadLimit")).isTrue();
         assertThat(waterDetail.getPhysicalCapacity().equals(Unit.CUBIC_METER_PER_HOUR.amount(BigDecimal.valueOf(123.45)))).isTrue();
@@ -147,7 +148,7 @@ public class UsagePointDetailsPersistentTestIT {
 
     @Transactional
     @Test
-    public void testSaveWithHeatDetails(){
+    public void testSaveWithHeatDetails() {
 
         UsagePoint up = inMemoryPersistentModule.getMeteringService().getServiceCategory(ServiceKind.HEAT)
                 .get().newUsagePoint("test", inMemoryPersistentModule.getClock().instant().minusSeconds(1000)).create();

@@ -8,7 +8,7 @@ public interface ElectricityDetailBuilder extends UsagePointDetailBuilder{
 
     ElectricityDetailBuilder withCollar(YesNoAnswer collar);
 
-    ElectricityDetailBuilder withGrounded(boolean grounded);
+    ElectricityDetailBuilder withGrounded(YesNoAnswer grounded);
 
     ElectricityDetailBuilder withNominalServiceVoltage(Quantity nominalServiceVoltage);
 
@@ -20,13 +20,13 @@ public interface ElectricityDetailBuilder extends UsagePointDetailBuilder{
 
     ElectricityDetailBuilder withEstimatedLoad(Quantity estimatedLoad);
 
-    ElectricityDetailBuilder withLimiter(boolean limiter);
+    ElectricityDetailBuilder withLimiter(YesNoAnswer limiter);
 
     ElectricityDetailBuilder withLoadLimit(Quantity loadLimit);
 
     ElectricityDetailBuilder withLoadLimiterType(String loadLimiterType);
 
-    ElectricityDetailBuilder withInterruptible(boolean interruptible);
+    ElectricityDetailBuilder withInterruptible(YesNoAnswer interruptible);
 
     ElectricityDetail create();
 

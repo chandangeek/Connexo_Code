@@ -10,10 +10,13 @@ import java.time.Instant;
  * {@link com.elster.jupiter.metering.UsagePoint} and {@link MetrologyConfiguration}
  * that is allowed to change over time.
  */
-public interface UsagePointMetrologyConfiguration extends Effectivity {
+public interface EffectiveMetrologyConfigurationOnUsagePoint extends Effectivity {
 
     MetrologyConfiguration getMetrologyConfiguration();
 
     void close(Instant closingDate);
 
+    boolean isActive();
+
+    void activate();
 }

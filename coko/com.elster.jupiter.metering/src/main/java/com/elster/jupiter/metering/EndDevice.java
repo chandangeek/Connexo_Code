@@ -5,33 +5,65 @@ import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTimeline;
+import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventRecordBuilder;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
+
+import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
+@ProviderType
 public interface EndDevice extends IdentifiedObject {
-	String TYPE_IDENTIFIER = "E";
-	long getId();
-	String getSerialNumber();
-	String getUtcNumber();
-	ElectronicAddress getElectronicAddress();
-	AmrSystem getAmrSystem();
-	String getAmrId();
-	void update();
+    String TYPE_IDENTIFIER = "E";
+
+    long getId();
+
+    String getSerialNumber();
+
+    String getUtcNumber();
+
+    ElectronicAddress getElectronicAddress();
+
+    AmrSystem getAmrSystem();
+
+    String getAmrId();
+
+    void update();
+
     Instant getCreateTime();
+
     Instant getModTime();
+
     long getVersion();
+
     void delete();
+
+    Optional<Location> getLocation();
+
+    void setLocation(Location location);
+
+    long getLocationId();
+
+    Optional<GeoCoordinates> getGeoCoordinates();
+
+    long getGeoCoordinatesId();
+
+    void setGeoCoordinates(GeoCoordinates geoCoordinates);
+
+    Optional<HeadEndInterface> getHeadEndInterface();
+
 
     EndDeviceEventRecordBuilder addEventRecord(EndDeviceEventType type, Instant instant);
 
     List<EndDeviceEventRecord> getDeviceEvents(Range<Instant> range);
+
     List<EndDeviceEventRecord> getDeviceEvents(Range<Instant> range, List<EndDeviceEventType> eventTypes);
+
     List<EndDeviceEventRecord> getDeviceEventsByFilter(EndDeviceEventRecordFilterSpecification filter);
 
     List<EndDeviceEventRecord> getDeviceEventsByReadTime(Range<Instant> range);

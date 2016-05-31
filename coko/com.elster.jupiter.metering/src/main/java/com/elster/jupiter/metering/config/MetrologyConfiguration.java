@@ -1,6 +1,10 @@
 package com.elster.jupiter.metering.config;
 
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.ServiceCategory;
+import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.util.HasName;
 
 import aQute.bnd.annotation.ProviderType;
 
@@ -8,14 +12,9 @@ import java.time.Instant;
 import java.util.List;
 
 @ProviderType
-public interface MetrologyConfiguration {
-    long getId();
-
-    String getName();
+public interface MetrologyConfiguration extends HasId, HasName {
 
     void updateName(String name);
-
-    void delete();
 
     long getVersion();
 
@@ -24,6 +23,12 @@ public interface MetrologyConfiguration {
     Instant getModTime();
 
     String getUserName();
+
+    ServiceCategory getServiceCategory();
+
+    String getDescription();
+
+    MetrologyConfigurationStatus getStatus();
 
     boolean isActive();
 
@@ -37,4 +42,33 @@ public interface MetrologyConfiguration {
 
     void removeCustomPropertySet(RegisteredCustomPropertySet registeredCustomPropertySet);
 
+    List<MetrologyContract> getContracts();
+
+    MetrologyContract addMandatoryMetrologyContract(MetrologyPurpose metrologyPurpose);
+
+    MetrologyContract addMetrologyContract(MetrologyPurpose metrologyPurpose);
+
+    void removeMetrologyContract(MetrologyContract metrologyContract);
+
+    List<ReadingTypeRequirement> getRequirements();
+
+    MetrologyConfigurationReadingTypeRequirementBuilder newReadingTypeRequirement(String name);
+
+    void removeReadingTypeRequirement(ReadingTypeRequirement readingTypeRequirement);
+
+    ReadingTypeDeliverableBuilder newReadingTypeDeliverable(String name, ReadingType readingType, Formula.Mode mode);
+
+    void removeReadingTypeDeliverable(ReadingTypeDeliverable deliverable);
+
+    List<ReadingTypeDeliverable> getDeliverables();
+
+    void delete();
+
+    @ProviderType
+    interface MetrologyConfigurationReadingTypeRequirementBuilder {
+
+        FullySpecifiedReadingTypeRequirement withReadingType(ReadingType readingType);
+
+        PartiallySpecifiedReadingTypeRequirement withReadingTypeTemplate(ReadingTypeTemplate readingTypeTemplate);
+    }
 }

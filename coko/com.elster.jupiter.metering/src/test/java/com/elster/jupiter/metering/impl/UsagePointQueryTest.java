@@ -16,6 +16,7 @@ import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceCategory;
@@ -28,7 +29,9 @@ import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.TransactionService;
@@ -63,6 +66,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UsagePointQueryTest {
@@ -82,39 +86,40 @@ public class UsagePointQueryTest {
 
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
 
-
     private class MockModule extends AbstractModule {
-
         @Override
         protected void configure() {
             bind(BundleContext.class).toInstance(bundleContext);
             bind(EventAdmin.class).toInstance(eventAdmin);
+            bind(SearchService.class).toInstance(mock(SearchService.class));
+            bind(PropertySpecService.class).toInstance(mock(PropertySpecService.class));
+            bind(LicenseService.class).toInstance(mock(LicenseService.class));
         }
     }
 
     @Before
     public void setUp() throws SQLException {
         injector = Guice.createInjector(
-        			new MockModule(),
-        			inMemoryBootstrapModule,
-        			new IdsModule(),
-        			new MeteringModule(),
-        			new PartyModule(),
-        			new EventsModule(),
-        			new InMemoryMessagingModule(),
-        			new DomainUtilModule(),
-        			new OrmModule(),
-        			new UtilModule(),
-        			new ThreadSecurityModule(),
-        			new PubSubModule(),
-        			new UserModule(),
-        			new TransactionModule(false),
-                    new BpmModule(),
-                    new FiniteStateMachineModule(),
-                    new DataVaultModule(),
-                    new NlsModule(),
-                    new CustomPropertySetsModule()
-                );
+                new MockModule(),
+                inMemoryBootstrapModule,
+                new IdsModule(),
+                new MeteringModule(),
+                new PartyModule(),
+                new EventsModule(),
+                new InMemoryMessagingModule(),
+                new DomainUtilModule(),
+                new OrmModule(),
+                new UtilModule(),
+                new ThreadSecurityModule(),
+                new PubSubModule(),
+                new UserModule(),
+                new TransactionModule(false),
+                new BpmModule(),
+                new FiniteStateMachineModule(),
+                new DataVaultModule(),
+                new NlsModule(),
+                new CustomPropertySetsModule()
+        );
         injector.getInstance(TransactionService.class).execute(() -> {
             injector.getInstance(EventService.class);
             injector.getInstance(CustomPropertySetService.class);
@@ -126,16 +131,16 @@ public class UsagePointQueryTest {
 
     @After
     public void tearDown() throws SQLException {
-       inMemoryBootstrapModule.deactivate();
+        inMemoryBootstrapModule.deactivate();
     }
 
     @Test
     public void test() throws SQLException {
-    	UserService userService = injector.getInstance(UserService.class);
-    	final User user = userService.findUser("admin").get();
-    	ThreadPrincipalService threadPrincipalService = injector.getInstance(ThreadPrincipalService.class);
-    	threadPrincipalService.set(user);
-    	getTransactionService().execute(new VoidTransaction() {
+        UserService userService = injector.getInstance(UserService.class);
+        final User user = userService.findUser("admin").get();
+        ThreadPrincipalService threadPrincipalService = injector.getInstance(ThreadPrincipalService.class);
+        threadPrincipalService.set(user);
+        getTransactionService().execute(new VoidTransaction() {
             @Override
             protected void doPerform() {
                 doTest(injector.getInstance(MeteringService.class), user);
@@ -152,13 +157,13 @@ public class UsagePointQueryTest {
     private void doTest(MeteringService meteringService, User user) {
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         ServiceLocation location = meteringService.newServiceLocation()
-                .setMainAddress(new StreetAddress(new StreetDetail("Stasegemsesteenweg","112"), new TownDetail("8500",  "Kortrijk", "BE")))
+                .setMainAddress(new StreetAddress(new StreetDetail("Spinnerijstraat", "101"), new TownDetail("8500", "Kortrijk", "BE")))
                 .setName("EnergyICT")
                 .create();
         UsagePoint usagePoint = serviceCategory.newUsagePoint("mrID", Instant.EPOCH).withServiceLocation(location).create();
         usagePoint.setServiceLocation(location);
         ElectricityDetailImpl detail = (ElectricityDetailImpl) serviceCategory.newUsagePointDetail(usagePoint, Instant.now());
-        detail.setRatedPower(Unit.WATT.amount(BigDecimal.valueOf(1000),3));
+        detail.setRatedPower(Unit.WATT.amount(BigDecimal.valueOf(1000), 3));
         usagePoint.addDetail(detail);
 //        usagePoint.save();
         Query<UsagePoint> query = meteringService.getUsagePointQuery();
@@ -168,11 +173,11 @@ public class UsagePointQueryTest {
         assertThat(query.select(condition).get(0).getServiceCategory().getKind()).isEqualTo(ServiceKind.ELECTRICITY);
         query.setEager();
         assertThat(query.select(condition)).hasSize(1);
-        for (int i = 0 ; i < 10 ; i++) {
-        	usagePoint = serviceCategory.newUsagePoint("mrID" + i, Instant.EPOCH).create();
+        for (int i = 0; i < 10; i++) {
+            usagePoint = serviceCategory.newUsagePoint("mrID" + i, Instant.EPOCH).create();
         }
         assertThat(query.select(Condition.TRUE)).hasSize(11);
-        assertThat(query.select(Condition.TRUE,1,5)).hasSize(5);
+        assertThat(query.select(Condition.TRUE, 1, 5)).hasSize(5);
         assertThat(query.select(meteringService.hasAccountability())).isEmpty();
         PartyService partyService = injector.getInstance(PartyService.class);
         Party party = partyService.newOrganization("Electrabel").create();
@@ -184,8 +189,8 @@ public class UsagePointQueryTest {
         party = partyService.getParty("Electrabel").get();
         usagePoint.addAccountability(role, party, Instant.now());
         assertThat(query.select(meteringService.hasAccountability())).isNotEmpty();
-        assertThat(query.select(Condition.TRUE, Order.descending("mRID").toUpperCase(),Order.ascending("id")).get(0).getMRID()).isEqualTo("mrID9");
+        assertThat(query.select(Condition.TRUE, Order.descending("mRID").toUpperCase(), Order.ascending("id")).get(0).getMRID()).isEqualTo("mrID9");
         assertThat(usagePoint.getCustomer(Instant.now()).get().getMRID()).isEqualTo("Electrabel");
-     }
+    }
 
 }

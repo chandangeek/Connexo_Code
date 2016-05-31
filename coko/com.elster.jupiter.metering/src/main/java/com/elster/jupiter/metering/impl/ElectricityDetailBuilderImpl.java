@@ -18,17 +18,17 @@ public class ElectricityDetailBuilderImpl implements ElectricityDetailBuilder {
 
     private YesNoAnswer collar = YesNoAnswer.UNKNOWN;
 
-    private boolean grounded;
+    private YesNoAnswer grounded;
     private Quantity nominalServiceVoltage;
     private PhaseCode phaseCode;
     private Quantity ratedCurrent;
     private Quantity ratedPower;
     private Quantity estimatedLoad;
-    private boolean limiter;
+    private YesNoAnswer limiter;
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String loadLimiterType;
     private Quantity loadLimit;
-    private boolean interruptible;
+    private YesNoAnswer interruptible;
 
     private UsagePoint usagePoint;
     private Interval interval;
@@ -47,7 +47,7 @@ public class ElectricityDetailBuilderImpl implements ElectricityDetailBuilder {
     }
 
     @Override
-    public ElectricityDetailBuilder withGrounded(boolean grounded) {
+    public ElectricityDetailBuilder withGrounded(YesNoAnswer grounded) {
         this.grounded = grounded;
         return this;
     }
@@ -83,7 +83,7 @@ public class ElectricityDetailBuilderImpl implements ElectricityDetailBuilder {
     }
 
     @Override
-    public ElectricityDetailBuilder withLimiter(boolean limiter) {
+    public ElectricityDetailBuilder withLimiter(YesNoAnswer limiter) {
         this.limiter = limiter;
         return this;
     }
@@ -101,7 +101,7 @@ public class ElectricityDetailBuilderImpl implements ElectricityDetailBuilder {
     }
 
     @Override
-    public ElectricityDetailBuilder withInterruptible(boolean interruptible) {
+    public ElectricityDetailBuilder withInterruptible(YesNoAnswer interruptible) {
         this.interruptible = interruptible;
         return this;
     }

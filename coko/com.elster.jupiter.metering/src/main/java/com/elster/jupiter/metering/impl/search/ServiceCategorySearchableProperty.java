@@ -5,6 +5,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.EnumFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
@@ -24,12 +25,12 @@ import java.util.Optional;
  */
 public class ServiceCategorySearchableProperty implements SearchableUsagePointProperty {
 
-    private final UsagePointSearchDomain domain;
+    private final SearchDomain domain;
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
-    private static final String FIELDNAME = "SERVICEKIND";
+    static final String FIELD_NAME = "SERVICEKIND";
 
-    public ServiceCategorySearchableProperty(UsagePointSearchDomain domain, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+    public ServiceCategorySearchableProperty(SearchDomain domain, PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super();
         this.domain = domain;
         this.propertySpecService = propertySpecService;
@@ -37,13 +38,13 @@ public class ServiceCategorySearchableProperty implements SearchableUsagePointPr
     }
 
     @Override
-    public UsagePointSearchDomain getDomain() {
+    public SearchDomain getDomain() {
         return domain;
     }
 
     @Override
     public boolean affectsAvailableDomainProperties() {
-        return false;
+        return true;
     }
 
     @Override
@@ -53,7 +54,7 @@ public class ServiceCategorySearchableProperty implements SearchableUsagePointPr
 
     @Override
     public Visibility getVisibility() {
-        return Visibility.REMOVABLE;
+        return Visibility.STICKY;
     }
 
     @Override
@@ -68,27 +69,23 @@ public class ServiceCategorySearchableProperty implements SearchableUsagePointPr
 
     @Override
     public String toDisplay(Object value) {
-        if (!this.valueCompatibleForDisplay(value)) {
-            throw new IllegalArgumentException("Value not compatible with domain");
+        if (value instanceof ServiceKind) {
+            ServiceKind serviceKind = (ServiceKind) value;
+            return thesaurus.getStringBeyondComponent(serviceKind.getKey(), serviceKind.getDefaultFormat());
         }
-        return this.toDisplayAfterValidation(value);
+        throw new IllegalArgumentException("Value not compatible with domain");
     }
 
-    private boolean valueCompatibleForDisplay(Object value) {
-        return value instanceof Enum;
-    }
-
-    protected String toDisplayAfterValidation(Object value) {
-        ServiceKind serviceKind = (ServiceKind) value;
-        return this.thesaurus.getStringBeyondComponent(serviceKind.getKey(), serviceKind.getDefaultFormat());
-    }
     @Override
     public PropertySpec getSpecification() {
         return this.propertySpecService
                 .specForValuesOf(new EnumFactory(ServiceKind.class))
-                .named(FIELDNAME, PropertyTranslationKeys.USAGEPOINT_SERVICECATEGORY)
+                .named(FIELD_NAME, PropertyTranslationKeys.USAGEPOINT_SERVICECATEGORY)
                 .fromThesaurus(this.thesaurus)
-                .addValues(ServiceKind.values())
+                .addValues(ServiceKind.ELECTRICITY,
+                        ServiceKind.GAS,
+                        ServiceKind.HEAT,
+                        ServiceKind.WATER)
                 .markExhaustive()
                 .finish();
     }
@@ -100,9 +97,7 @@ public class ServiceCategorySearchableProperty implements SearchableUsagePointPr
 
     @Override
     public void refreshWithConstrictions(List<SearchablePropertyConstriction> constrictions) {
-        if (!constrictions.isEmpty()) {
-            throw new IllegalArgumentException("No constraint to refresh");
-        }
+        //nothing to refresh
     }
 
     @Override

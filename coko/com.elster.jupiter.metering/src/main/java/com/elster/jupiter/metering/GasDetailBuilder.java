@@ -7,13 +7,13 @@ public interface GasDetailBuilder  extends UsagePointDetailBuilder{
 
     GasDetailBuilder withCollar(YesNoAnswer collar);
 
-    GasDetailBuilder withGrounded(boolean grounded);
+    GasDetailBuilder withGrounded(YesNoAnswer grounded);
 
     GasDetailBuilder withPressure(Quantity pressure);
 
     GasDetailBuilder withPhysicalCapacity(Quantity physicalCapacity);
 
-    GasDetailBuilder withLimiter(boolean limiter);
+    GasDetailBuilder withLimiter(YesNoAnswer limiter);
 
     GasDetailBuilder withLoadLimit(Quantity loadLimit);
 
@@ -29,7 +29,7 @@ public interface GasDetailBuilder  extends UsagePointDetailBuilder{
 
     GasDetailBuilder withClamp(YesNoAnswer clamped);
 
-    GasDetailBuilder withInterruptible(boolean interruptible);
+    GasDetailBuilder withInterruptible(YesNoAnswer interruptible);
 
     GasDetail create();
 

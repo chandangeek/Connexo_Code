@@ -1,7 +1,5 @@
 package com.elster.jupiter.metering;
 
-import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
-import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.Commodity;
 import com.elster.jupiter.cbo.FlowDirection;
@@ -10,41 +8,19 @@ import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
-import com.elster.jupiter.cps.CustomPropertySetService;
-import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
-import com.elster.jupiter.domain.util.impl.DomainUtilModule;
-import com.elster.jupiter.events.impl.EventsModule;
-import com.elster.jupiter.fsm.FiniteStateMachineService;
-import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
-import com.elster.jupiter.ids.impl.IdsModule;
-import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
-import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
+import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
-import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.orm.impl.OrmModule;
-import com.elster.jupiter.parties.impl.PartyModule;
-import com.elster.jupiter.pubsub.impl.PubSubModule;
-import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.transaction.TransactionContext;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.impl.TransactionModule;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.UtilModule;
 import com.google.common.collect.Range;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
 
 import java.math.BigDecimal;
-import java.sql.SQLException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -54,90 +30,46 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CumulativeChannelTest {
+    private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = new MeteringInMemoryBootstrapModule("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
 
-    private Injector injector;
-
-    @Mock
-    private BundleContext bundleContext;
-    @Mock
-    private UserService userService;
-    @Mock
-    private EventAdmin eventAdmin;
-
-    private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
-
-
-    private class MockModule extends AbstractModule {
-
-        @Override
-        protected void configure() {
-            bind(UserService.class).toInstance(userService);
-            bind(BundleContext.class).toInstance(bundleContext);
-            bind(EventAdmin.class).toInstance(eventAdmin);
-        }
+    @BeforeClass
+    public static void setUp() {
+        inMemoryBootstrapModule.activate();
     }
 
-    @Before
-    public void setUp() throws SQLException {
-        injector = Guice.createInjector(
-                new MockModule(),
-                inMemoryBootstrapModule,
-                new InMemoryMessagingModule(),
-                new IdsModule(),
-                new MeteringModule("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0"),
-                new PartyModule(),
-                new EventsModule(),
-                new DomainUtilModule(),
-                new OrmModule(),
-                new UtilModule(),
-                new ThreadSecurityModule(),
-                new PubSubModule(),
-                new TransactionModule(),
-                new BpmModule(),
-                new FiniteStateMachineModule(),
-                new NlsModule(),
-                new CustomPropertySetsModule());
-        injector.getInstance(TransactionService.class).execute(() -> {
-            injector.getInstance(CustomPropertySetService.class);
-            injector.getInstance(FiniteStateMachineService.class);
-            injector.getInstance(MeteringService.class);
-            return null;
-        });
-    }
-
-    @After
-    public void tearDown() throws SQLException {
+    @AfterClass
+    public static void tearDown() {
         inMemoryBootstrapModule.deactivate();
     }
 
-    @Test
-    public void test() {
-        MeteringService meteringService = injector.getInstance(MeteringService.class);
-        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-        	AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
-        	Meter meter = amrSystem.newMeter("myMeter").create();
-        	MeterActivation activation = meter.activate(ZonedDateTime.of(2014,1,1,0,0,0,0,ZoneId.systemDefault()).toInstant());
-        	String readingTypeCode = ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_SECONDARY_METERED)
-        			.period(TimeAttribute.MINUTE15)
-        			.accumulate(Accumulation.BULKQUANTITY)
-        			.flow(FlowDirection.FORWARD)
-        			.measure(MeasurementKind.ENERGY)
-        			.in(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR)
-        			.code();
-        	ReadingType readingType = meteringService.getReadingType(readingTypeCode).get();
-            Channel channel = activation.createChannel(readingType);
-            assertThat(channel.getBulkQuantityReadingType().isPresent()).isTrue();
-            ReadingStorer storer = meteringService.createOverrulingStorer();
-            Instant instant = ZonedDateTime.of(2014,1,1,0,0,0,0, ZoneId.systemDefault()).toInstant();
-            storer.addReading(channel.getCimChannel(readingType).get(), IntervalReadingImpl.of(instant, BigDecimal.valueOf(1000)));
-            storer.addReading(channel.getCimChannel(readingType).get(), IntervalReadingImpl.of(instant.plusSeconds(15*60L), BigDecimal.valueOf(1100)));
-            storer.execute();
-            List<BaseReadingRecord> readings = channel.getReadings(Range.openClosed(instant.minusSeconds(15*60L), instant.plusSeconds(15*60L)));
-            assertThat(readings).hasSize(2);
-            assertThat(readings.get(1).getQuantity(0).getValue()).isEqualTo(BigDecimal.valueOf(100));
-            assertThat(readings.get(1).getQuantity(1).getValue()).isEqualTo(BigDecimal.valueOf(1100));
-            ctx.commit();
-        }
-    }
+    @Rule
+    public TransactionalRule transactionalRule = new TransactionalRule(inMemoryBootstrapModule.getTransactionService());
 
+    @Test
+    @Transactional
+    public void test() {
+        MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
+        AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
+        Meter meter = amrSystem.newMeter("myMeter").create();
+        MeterActivation activation = meter.activate(ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant());
+        String readingTypeCode = ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_SECONDARY_METERED)
+                .period(TimeAttribute.MINUTE15)
+                .accumulate(Accumulation.BULKQUANTITY)
+                .flow(FlowDirection.FORWARD)
+                .measure(MeasurementKind.ENERGY)
+                .in(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR)
+                .code();
+        ReadingType readingType = meteringService.getReadingType(readingTypeCode).get();
+        Channel channel = activation.createChannel(readingType);
+        assertThat(channel.getBulkQuantityReadingType().isPresent()).isTrue();
+        ReadingStorer storer = meteringService.createOverrulingStorer();
+        Instant instant = ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
+        storer.addReading(channel.getCimChannel(readingType).get(), IntervalReadingImpl.of(instant, BigDecimal.valueOf(1000)));
+        storer.addReading(channel.getCimChannel(readingType).get(), IntervalReadingImpl.of(instant.plusSeconds(15 * 60L), BigDecimal.valueOf(1100)));
+        storer.execute();
+        List<BaseReadingRecord> readings = channel.getReadings(Range.openClosed(instant.minusSeconds(15 * 60L), instant.plusSeconds(15 * 60L)));
+        assertThat(readings).hasSize(2);
+        assertThat(readings.get(1).getQuantity(0).getValue()).isEqualTo(BigDecimal.valueOf(100));
+        assertThat(readings.get(1).getQuantity(1).getValue()).isEqualTo(BigDecimal.valueOf(1100));
+    }
 }

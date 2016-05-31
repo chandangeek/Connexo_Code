@@ -1,18 +1,18 @@
 package com.elster.jupiter.metering.impl.search;
 
-import com.elster.jupiter.metering.ServiceCategory;
-import com.elster.jupiter.metering.UsagePointConnectedKind;
+import com.elster.jupiter.metering.ConnectionState;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.EnumFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 
-import java.time.Instant;
+import java.time.Clock;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -27,20 +27,22 @@ import java.util.Optional;
  */
 public class ConnectionStateSearchableProperty implements SearchableUsagePointProperty {
 
-    private final UsagePointSearchDomain domain;
+    private final SearchDomain domain;
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
-    private static final String FIELDNAME = "detail.connectionState";
+    private Clock clock;
+    private static final String FIELD_NAME = "connectionState";
 
-    public ConnectionStateSearchableProperty(UsagePointSearchDomain domain, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+    public ConnectionStateSearchableProperty(SearchDomain domain, PropertySpecService propertySpecService, Thesaurus thesaurus, Clock clock) {
         super();
         this.domain = domain;
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
+        this.clock = clock;
     }
 
     @Override
-    public UsagePointSearchDomain getDomain() {
+    public SearchDomain getDomain() {
         return domain;
     }
 
@@ -56,7 +58,7 @@ public class ConnectionStateSearchableProperty implements SearchableUsagePointPr
 
     @Override
     public Visibility getVisibility() {
-        return Visibility.REMOVABLE;
+        return Visibility.STICKY;
     }
 
     @Override
@@ -71,28 +73,20 @@ public class ConnectionStateSearchableProperty implements SearchableUsagePointPr
 
     @Override
     public String toDisplay(Object value) {
-        if (!this.valueCompatibleForDisplay(value)) {
-            throw new IllegalArgumentException("Value not compatible with domain");
+        if (value instanceof ConnectionState) {
+            String string = ((ConnectionState) value).getName();
+            return this.thesaurus.getString(string, string);
         }
-        return this.toDisplayAfterValidation(value);
-    }
-
-    private boolean valueCompatibleForDisplay(Object value) {
-        return value instanceof Enum;
-    }
-
-    protected String toDisplayAfterValidation(Object value) {
-        UsagePointConnectedKind usagePoint = (UsagePointConnectedKind) value;
-        return this.thesaurus.getStringBeyondComponent(usagePoint.getKey(), usagePoint.getDefaultFormat());
+        throw new IllegalArgumentException("Value not compatible with domain");
     }
 
     @Override
     public PropertySpec getSpecification() {
         return this.propertySpecService
-                .specForValuesOf(new EnumFactory(UsagePointConnectedKind.class))
-                .named(FIELDNAME, PropertyTranslationKeys.USAGEPOINT_CONNECTIONSTATE)
+                .specForValuesOf(new EnumFactory(ConnectionState.class))
+                .named(FIELD_NAME, PropertyTranslationKeys.USAGEPOINT_CONNECTIONSTATE)
                 .fromThesaurus(this.thesaurus)
-                .addValues(UsagePointConnectedKind.values())
+                .addValues(ConnectionState.values())
                 .markExhaustive()
                 .finish();
     }
@@ -104,14 +98,12 @@ public class ConnectionStateSearchableProperty implements SearchableUsagePointPr
 
     @Override
     public void refreshWithConstrictions(List<SearchablePropertyConstriction> constrictions) {
-        if (!constrictions.isEmpty()) {
-            throw new IllegalArgumentException("No constraint to refresh");
-        }
+        //nothing to refresh
     }
 
     @Override
     public Condition toCondition(Condition specification) {
-        return specification.and(Where.where("detail.interval").isEffective(Instant.now()));
+        return specification;
     }
 
 }

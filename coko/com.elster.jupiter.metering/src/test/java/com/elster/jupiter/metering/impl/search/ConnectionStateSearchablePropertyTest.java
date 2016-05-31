@@ -1,6 +1,6 @@
 package com.elster.jupiter.metering.impl.search;
 
-import com.elster.jupiter.metering.UsagePointConnectedKind;
+import com.elster.jupiter.metering.ConnectionState;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -10,19 +10,20 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
-import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.beans.impl.DefaultBeanService;
 
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -31,7 +32,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -54,6 +54,8 @@ public class ConnectionStateSearchablePropertyTest {
     private TimeService timeService;
     @Mock
     private OrmService ormService;
+    @Mock
+    private Clock clock;
 
     private BeanService beanService = new DefaultBeanService();
     private PropertySpecService propertySpecService;
@@ -88,14 +90,14 @@ public class ConnectionStateSearchablePropertyTest {
     }
 
     @Test
-    public void testRemovableVisibility() {
+    public void testStickyVisibility() {
         ConnectionStateSearchableProperty property = this.getTestInstance();
 
         // Business method
         SearchableProperty.Visibility visibility = property.getVisibility();
 
         // Asserts
-        assertThat(visibility).isEqualTo(SearchableProperty.Visibility.REMOVABLE);
+        assertThat(visibility).isEqualTo(SearchableProperty.Visibility.STICKY);
     }
 
     @Test
@@ -168,18 +170,6 @@ public class ConnectionStateSearchablePropertyTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void refreshWithTooManyConstrictions() {
-        ConnectionStateSearchableProperty property = this.getTestInstance();
-        SearchableProperty searchableProperty = mock(SearchableProperty.class);
-        SearchablePropertyConstriction constriction = SearchablePropertyConstriction.noValues(searchableProperty);
-
-        // Business method
-        property.refreshWithConstrictions(Collections.singletonList(constriction));
-
-        // Asserts: see expected exception rule
-    }
-
-    @Test(expected = IllegalArgumentException.class)
     public void displayBigDecimal() {
         ConnectionStateSearchableProperty property = this.getTestInstance();
 
@@ -203,19 +193,19 @@ public class ConnectionStateSearchablePropertyTest {
     @Test
     public void displayEnum() {
         ConnectionStateSearchableProperty property = this.getTestInstance();
-        UsagePointConnectedKind valueToDisplay = UsagePointConnectedKind.UNKNOWN;
+        ConnectionState valueToDisplay = ConnectionState.DEMOLISHED;
 
-        when(this.thesaurus.getStringBeyondComponent(eq(UsagePointConnectedKind.UNKNOWN.getKey()), anyString())).thenReturn("Unknown");
-        when(this.thesaurus.getString(eq(UsagePointConnectedKind.UNKNOWN.getKey()), anyString())).thenReturn("Unknown");
+        when(this.thesaurus.getStringBeyondComponent(eq(ConnectionState.DEMOLISHED.getName()), anyString())).thenReturn("Demolished");
+        when(this.thesaurus.getString(eq(ConnectionState.DEMOLISHED.getName()), anyString())).thenReturn("Demolished");
         // Business method
         String displayValue = property.toDisplay(valueToDisplay);
 
         // Asserts
-        assertThat(displayValue).isEqualTo(UsagePointConnectedKind.UNKNOWN.getDisplayName(thesaurus));
+        assertThat(displayValue).isEqualTo(ConnectionState.DEMOLISHED.getName());
     }
 
     private ConnectionStateSearchableProperty getTestInstance() {
-        return new ConnectionStateSearchableProperty(this.domain, this.propertySpecService, this.thesaurus);
+        return new ConnectionStateSearchableProperty(this.domain, this.propertySpecService, this.thesaurus, this.clock);
     }
 
 }

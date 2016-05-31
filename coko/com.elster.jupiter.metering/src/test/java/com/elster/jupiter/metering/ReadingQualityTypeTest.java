@@ -1,14 +1,15 @@
 package com.elster.jupiter.metering;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import org.junit.Test;
-
 import com.elster.jupiter.cbo.QualityCodeCategory;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
+
 import com.google.common.collect.ImmutableList;
+
+import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ReadingQualityTypeTest extends EqualsContractTest {
 
@@ -45,19 +46,19 @@ public class ReadingQualityTypeTest extends EqualsContractTest {
     
     @Test
     public void testUsageBelow() {
-    	ReadingQualityType qualityType = new ReadingQualityType("3.6.4");
-    	assertThat(qualityType.system().get()).isEqualTo(QualityCodeSystem.MDM);
+    	ReadingQualityType qualityType = new ReadingQualityType("2.6.4");
+    	assertThat(qualityType.system().get()).isEqualTo(QualityCodeSystem.MDC);
     	assertThat(qualityType.category().get()).isEqualTo(QualityCodeCategory.VALIDATION);
     	assertThat(qualityType.qualityIndex().get()).isEqualTo(QualityCodeIndex.USAGEBELOW);
-    	assertThat(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.USAGEBELOW)).isEqualTo(qualityType);
+    	assertThat(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.USAGEBELOW)).isEqualTo(qualityType);
     }
     
     @Test
     public void testCustomValidation() {
-    	ReadingQualityType qualityType = new ReadingQualityType("3.6.1004");
-    	assertThat(qualityType.system().get()).isEqualTo(QualityCodeSystem.MDM);
+    	ReadingQualityType qualityType = new ReadingQualityType("2.6.1004");
+    	assertThat(qualityType.system().get()).isEqualTo(QualityCodeSystem.MDC);
     	assertThat(qualityType.category().get()).isEqualTo(QualityCodeCategory.VALIDATION);
     	assertThat(qualityType.qualityIndex().isPresent()).isFalse();
-    	assertThat(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.VALIDATION,1004)).isEqualTo(qualityType);
+    	assertThat(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.VALIDATION,1004)).isEqualTo(qualityType);
     }
 }

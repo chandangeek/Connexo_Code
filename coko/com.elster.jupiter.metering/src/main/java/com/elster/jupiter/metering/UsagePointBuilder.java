@@ -1,7 +1,5 @@
 package com.elster.jupiter.metering;
 
-import java.time.Instant;
-
 public interface UsagePointBuilder {
 
     UsagePointBuilder withAliasName(String aliasName);
@@ -9,6 +7,10 @@ public interface UsagePointBuilder {
     UsagePointBuilder withDescription(String description);
 
     UsagePointBuilder withMRID(String mRID);
+
+    UsagePointBuilder withLocation(Location location);
+
+    UsagePointBuilder withGeoCoordinates(GeoCoordinates geoCoordinates);
 
     UsagePointBuilder withName(String name);
 

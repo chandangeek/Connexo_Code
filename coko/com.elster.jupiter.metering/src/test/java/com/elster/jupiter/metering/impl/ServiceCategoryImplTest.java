@@ -6,8 +6,10 @@ import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.BigDecimalFactory;
@@ -55,14 +57,17 @@ public class ServiceCategoryImplTest {
     @Mock
     private CustomPropertySetService customPropertySetService;
     @Mock
+    private ServerMetrologyConfigurationService metrologyConfigurationService;
+    @Mock
     private ValidatorFactory validatorFactory;
     @Mock
     private javax.validation.Validator validator;
+    @Mock
+    private MeteringService meteringService;
 
     @Before
     public void setUp() {
-        Provider<UsagePointImpl> usagePointFactory = () -> new UsagePointImpl(clock, dataModel, eventService, thesaurus, meterActivationFactory, accountabilityFactory, customPropertySetService);
-        serviceCategory = new ServiceCategoryImpl(dataModel, clock, usagePointFactory, thesaurus).init(ServiceKind.ELECTRICITY);
+        serviceCategory = new ServiceCategoryImpl(dataModel, clock, thesaurus).init(ServiceKind.ELECTRICITY);
         when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
         when(validatorFactory.getValidator()).thenReturn(validator);
         when(validator.validate(any(), anyVararg())).thenReturn(Collections.emptySet());
@@ -102,7 +107,7 @@ public class ServiceCategoryImplTest {
 
     @Test
     public void testNewUsagePoint() {
-        when(dataModel.getInstance(UsagePointImpl.class)).thenReturn(new UsagePointImpl(clock, dataModel, eventService, thesaurus, () -> null, () -> null, customPropertySetService));
+        when(dataModel.getInstance(UsagePointImpl.class)).thenReturn(new UsagePointImpl(clock, dataModel, eventService, thesaurus, () -> null, () -> null, customPropertySetService, meteringService, metrologyConfigurationService));
 
         UsagePoint usagePoint = serviceCategory.newUsagePoint("mrId", Instant.EPOCH).create();
         assertThat(usagePoint).isInstanceOf(UsagePointImpl.class);
