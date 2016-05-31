@@ -3,7 +3,7 @@ Ext.define('Mdc.filemanagement.controller.FileManagement', {
 
     views: [
         'Mdc.filemanagement.view.Setup',
-        'Mdc.fileManagement.view.EditSpecificationsSetup'
+        'Mdc.filemanagement.view.EditSpecificationsSetup'
     ],
 
     stores: [
@@ -279,14 +279,15 @@ Ext.define('Mdc.filemanagement.controller.FileManagement', {
         var me = this,
             setup = me.getSetup(),
             grid = setup.down('files-grid'),
-            panel = setup.down('tabpanel'),
             maxHeight = window.innerHeight - 280;
 
         if(maxHeight < 400) {
             maxHeight = 400;
         }
-        grid.maxHeight = maxHeight;
-        grid.updateLayout();
+        if(grid) {
+            grid.maxHeight = maxHeight;
+            grid.updateLayout();
+        }
     }
 
 
