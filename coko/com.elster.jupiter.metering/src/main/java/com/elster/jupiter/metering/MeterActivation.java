@@ -1,6 +1,8 @@
 package com.elster.jupiter.metering;
 
+import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.orm.associations.Effectivity;
+import com.elster.jupiter.util.HasId;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -9,18 +11,30 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public interface MeterActivation extends Effectivity , ReadingContainer {
-	long getId();
-	Optional<UsagePoint> getUsagePoint();
-	Optional<Meter> getMeter();
-	Channel createChannel(ReadingType main, ReadingType... readingTypes);
+public interface MeterActivation extends HasId, Effectivity, ReadingContainer {
+
+    Optional<UsagePoint> getUsagePoint();
+
+    Optional<Meter> getMeter();
+
+    Optional<MeterRole> getMeterRole();
+
+    Channel createChannel(ReadingType main, ReadingType... readingTypes);
+
     List<Channel> getChannels();
+
     List<ReadingType> getReadingTypes();
-	boolean isCurrent();
+
+    boolean isCurrent();
+
     void endAt(Instant end);
+
     long getVersion();
+
     Instant getStart();
+
     Instant getEnd();
+
     ZoneId getZoneId();
 
     /**

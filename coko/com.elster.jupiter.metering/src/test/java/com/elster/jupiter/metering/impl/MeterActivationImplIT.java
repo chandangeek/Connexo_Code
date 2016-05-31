@@ -1,18 +1,11 @@
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
-import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
-import com.elster.jupiter.cps.CustomPropertySetService;
-import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
-import com.elster.jupiter.domain.util.impl.DomainUtilModule;
-import com.elster.jupiter.events.impl.EventsModule;
-import com.elster.jupiter.fsm.FiniteStateMachineService;
-import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
-import com.elster.jupiter.ids.impl.IdsModule;
-import com.elster.jupiter.license.LicenseService;
-import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
@@ -23,139 +16,85 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.DefaultMeterRole;
+import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
+import com.elster.jupiter.metering.config.Formula;
+import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
+import com.elster.jupiter.metering.config.MeterRole;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverableBuilder;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
-import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.orm.impl.OrmModule;
-import com.elster.jupiter.parties.impl.PartyModule;
-import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.pubsub.impl.PubSubModule;
-import com.elster.jupiter.search.SearchService;
-import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.TransactionContext;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.impl.TransactionModule;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.UtilModule;
 
 import com.google.common.collect.Range;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
 
+import javax.validation.ConstraintViolationException;
 import java.math.BigDecimal;
-import java.sql.SQLException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Optional;
 
-import org.junit.After;
-import org.junit.Before;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MeterActivationImplIT {
 
-    private Injector injector;
+    private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = new MeteringInMemoryBootstrapModule("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
+    @Rule
+    public ExpectedConstraintViolationRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
+    @Rule
+    public TransactionalRule transactionalRule = new TransactionalRule(inMemoryBootstrapModule.getTransactionService());
 
-    @Mock
-    private BundleContext bundleContext;
-    @Mock
-    private UserService userService;
-    @Mock
-    private EventAdmin eventAdmin;
-
-
-    private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
-
-
-    private class MockModule extends AbstractModule {
-
-        @Override
-        protected void configure() {
-            bind(UserService.class).toInstance(userService);
-            bind(BundleContext.class).toInstance(bundleContext);
-            bind(EventAdmin.class).toInstance(eventAdmin);
-            bind(SearchService.class).toInstance(mock(SearchService.class));
-            bind(PropertySpecService.class).toInstance(mock(PropertySpecService.class));
-            bind(LicenseService.class).toInstance(mock(LicenseService.class));
-        }
+    @BeforeClass
+    public static void setUp() {
+        inMemoryBootstrapModule.activate();
     }
 
-    @Before
-    public void setUp() throws SQLException {
-        try {
-            injector = Guice.createInjector(
-                    new MockModule(),
-                    inMemoryBootstrapModule,
-                    new InMemoryMessagingModule(),
-                    new IdsModule(),
-                    new MeteringModule("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0"),
-                    new PartyModule(),
-                    new EventsModule(),
-                    new DomainUtilModule(),
-                    new OrmModule(),
-                    new UtilModule(),
-                    new ThreadSecurityModule(),
-                    new PubSubModule(),
-                    new TransactionModule(),
-                    new BpmModule(),
-                    new FiniteStateMachineModule(),
-                    new NlsModule(),
-                    new CustomPropertySetsModule()
-            );
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        injector.getInstance(TransactionService.class).execute(() -> {
-            injector.getInstance(CustomPropertySetService.class);
-            injector.getInstance(FiniteStateMachineService.class);
-            injector.getInstance(MeteringService.class);
-            return null;
-        });
-    }
-
-    @After
-    public void tearDown() throws SQLException {
+    @AfterClass
+    public static void tearDown() {
         inMemoryBootstrapModule.deactivate();
     }
 
     @Test
+    @Transactional
     public void testPersistence() {
-        MeteringService meteringService = injector.getInstance(MeteringService.class);
-        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            AmrSystem system = meteringService.findAmrSystem(1).get();
-            Meter meter = system.newMeter("1").create();
-            MeterActivation meterActivation = meter.activate(ZonedDateTime.of(2012, 12, 19, 14, 15, 54, 0, ZoneId.systemDefault()).toInstant());
-            ReadingType readingType = meteringService.getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
-            Channel channel = meterActivation.createChannel(readingType);
-            MeterActivation loaded = meteringService.findMeterActivation(meterActivation.getId()).get();
-            assertThat(loaded.getChannels()).hasSize(1).contains(channel);
-        }
+        MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
+        AmrSystem system = meteringService.findAmrSystem(1).get();
+        Meter meter = system.newMeter("testPersistence").create();
+        MeterActivation meterActivation = meter.activate(ZonedDateTime.of(2012, 12, 19, 14, 15, 54, 0, ZoneId.systemDefault()).toInstant());
+        ReadingType readingType = meteringService.getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
+        Channel channel = meterActivation.createChannel(readingType);
+        MeterActivation loaded = meteringService.findMeterActivation(meterActivation.getId()).get();
+        assertThat(loaded.getChannels()).hasSize(1).contains(channel);
     }
 
     @Test
     public void testCOPL854() {
-        MeteringService meteringService = injector.getInstance(MeteringService.class);
+        MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         long meterId, usagePointId;
         Instant start3 = Instant.now();
         Instant start1 = start3.minusSeconds(86400);
         Instant start2 = start3.minusSeconds(43200);
-        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+        try (TransactionContext ctx = inMemoryBootstrapModule.getTransactionService().getContext()) {
             AmrSystem amrSystem = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-            Meter meter = amrSystem.newMeter("1").create();
+            Meter meter = amrSystem.newMeter("testCOPL854").create();
             meterId = meter.getId();
             UsagePoint up = meteringService.getServiceCategory(ServiceKind.ELECTRICITY)
                     .orElseThrow(IllegalArgumentException::new).newUsagePoint("abcd", Instant.EPOCH)
@@ -168,14 +107,14 @@ public class MeterActivationImplIT {
         }
         assertMeterActivations(meterId, usagePointId, start1);
 
-        try (TransactionContext context = injector.getInstance(TransactionService.class).getContext()) {
+        try (TransactionContext context = inMemoryBootstrapModule.getTransactionService().getContext()) {
             Meter meter = meteringService.findMeter(meterId).get();
             meter.getUsagePoint(Instant.now()).get().activate(meter, start2);
             context.commit();
         }
         assertMeterActivations(meterId, usagePointId, start1, start2);
 
-        try (TransactionContext context = injector.getInstance(TransactionService.class).getContext()) {
+        try (TransactionContext context = inMemoryBootstrapModule.getTransactionService().getContext()) {
             UsagePoint up = meteringService.findUsagePoint(usagePointId).get();
             Meter meter = meteringService.findMeter(meterId).get();
 
@@ -186,7 +125,7 @@ public class MeterActivationImplIT {
     }
 
     private void assertMeterActivations(long meterId, long usagePointId, Instant... startTimes) {
-        MeteringService meteringService = injector.getInstance(MeteringService.class);
+        MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         List<? extends MeterActivation> meterActivations = meteringService.findMeter(meterId).get().getMeterActivations();
         assertThat(meterActivations).hasSize(startTimes.length);
         for (int i = 0; i < startTimes.length; i++) {
@@ -202,95 +141,93 @@ public class MeterActivationImplIT {
     }
 
     @Test
+    @Transactional
     public void testAdvanceWithReadings() {
-        MeteringService meteringService = injector.getInstance(MeteringService.class);
-        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            AmrSystem system = meteringService.findAmrSystem(1).get();
-            Meter meter = system.newMeter("1").create();
-            ZonedDateTime startTime = ZonedDateTime.of(2012, 12, 19, 14, 15, 54, 0, ZoneId.systemDefault());
-            ZonedDateTime originalCutOff = ZonedDateTime.of(2012, 12, 25, 0, 0, 0, 0, ZoneId.systemDefault());
-            ZonedDateTime newCutOff = ZonedDateTime.of(2012, 12, 20, 0, 0, 0, 0, ZoneId.systemDefault());
-            MeterActivation meterActivation = meter.activate(startTime.toInstant());
-            meterActivation.endAt(originalCutOff.toInstant());
-            ReadingType readingType = meteringService.getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
-            Channel channel = meterActivation.createChannel(readingType);
-            MeterActivation currentActivation = meter.activate(originalCutOff.toInstant());
-            Channel currentChannel = currentActivation.createChannel(readingType);
-            MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
-            IntervalBlockImpl intervalBlock = IntervalBlockImpl.of("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(newCutOff.minusMinutes(15).toInstant(), BigDecimal.valueOf(4025, 2)));
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(newCutOff.toInstant(), BigDecimal.valueOf(4175, 2)));
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(newCutOff.plusMinutes(15).toInstant(), BigDecimal.valueOf(4225, 2)));
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(originalCutOff.toInstant(), BigDecimal.valueOf(4725, 2)));
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(originalCutOff.plusMinutes(15).toInstant(), BigDecimal.valueOf(4825, 2)));
-            meterReading.addIntervalBlock(intervalBlock);
-            meter.store(meterReading);
+        MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
+        AmrSystem system = meteringService.findAmrSystem(1).get();
+        Meter meter = system.newMeter("testAdvanceWithReadings").create();
+        ZonedDateTime startTime = ZonedDateTime.of(2012, 12, 19, 14, 15, 54, 0, ZoneId.systemDefault());
+        ZonedDateTime originalCutOff = ZonedDateTime.of(2012, 12, 25, 0, 0, 0, 0, ZoneId.systemDefault());
+        ZonedDateTime newCutOff = ZonedDateTime.of(2012, 12, 20, 0, 0, 0, 0, ZoneId.systemDefault());
+        MeterActivation meterActivation = meter.activate(startTime.toInstant());
+        meterActivation.endAt(originalCutOff.toInstant());
+        ReadingType readingType = meteringService.getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
+        Channel channel = meterActivation.createChannel(readingType);
+        MeterActivation currentActivation = meter.activate(originalCutOff.toInstant());
+        Channel currentChannel = currentActivation.createChannel(readingType);
+        MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+        IntervalBlockImpl intervalBlock = IntervalBlockImpl.of("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
+        intervalBlock.addIntervalReading(IntervalReadingImpl.of(newCutOff.minusMinutes(15).toInstant(), BigDecimal.valueOf(4025, 2)));
+        intervalBlock.addIntervalReading(IntervalReadingImpl.of(newCutOff.toInstant(), BigDecimal.valueOf(4175, 2)));
+        intervalBlock.addIntervalReading(IntervalReadingImpl.of(newCutOff.plusMinutes(15).toInstant(), BigDecimal.valueOf(4225, 2)));
+        intervalBlock.addIntervalReading(IntervalReadingImpl.of(originalCutOff.toInstant(), BigDecimal.valueOf(4725, 2)));
+        intervalBlock.addIntervalReading(IntervalReadingImpl.of(originalCutOff.plusMinutes(15).toInstant(), BigDecimal.valueOf(4825, 2)));
+        meterReading.addIntervalBlock(intervalBlock);
+        meter.store(meterReading);
 
-            currentActivation.advanceStartDate(newCutOff.toInstant());
+        currentActivation.advanceStartDate(newCutOff.toInstant());
 
-            assertThat(meter.getMeterActivations()).hasSize(2);
-            MeterActivation first = meter.getMeterActivations().get(0);
-            MeterActivation second = meter.getMeterActivations().get(1);
-            assertThat(first.getRange()).isEqualTo(Range.closedOpen(startTime.toInstant(), newCutOff.toInstant()));
-            assertThat(second.getRange()).isEqualTo(Range.atLeast(newCutOff.toInstant()));
+        assertThat(meter.getMeterActivations()).hasSize(2);
+        MeterActivation first = meter.getMeterActivations().get(0);
+        MeterActivation second = meter.getMeterActivations().get(1);
+        assertThat(first.getRange()).isEqualTo(Range.closedOpen(startTime.toInstant(), newCutOff.toInstant()));
+        assertThat(second.getRange()).isEqualTo(Range.atLeast(newCutOff.toInstant()));
 
-            List<? extends BaseReadingRecord> firstReadings = first.getReadings(Range.all(), readingType);
-            assertThat(firstReadings).hasSize(2);
-            assertThat(firstReadings.get(0).getValue()).isEqualTo(BigDecimal.valueOf(4025, 2));
-            assertThat(firstReadings.get(0).getTimeStamp()).isEqualTo(newCutOff.minusMinutes(15).toInstant());
-            assertThat(firstReadings.get(1).getValue()).isEqualTo(BigDecimal.valueOf(4175, 2));
-            assertThat(firstReadings.get(1).getTimeStamp()).isEqualTo(newCutOff.toInstant());
-            List<? extends BaseReadingRecord> secondReadings = second.getReadings(Range.all(), readingType);
-            assertThat(secondReadings).hasSize(3);
-            assertThat(secondReadings.get(0).getValue()).isEqualTo(BigDecimal.valueOf(4225, 2));
-            assertThat(secondReadings.get(0).getTimeStamp()).isEqualTo(newCutOff.plusMinutes(15).toInstant());
-            assertThat(secondReadings.get(1).getValue()).isEqualTo(BigDecimal.valueOf(4725, 2));
-            assertThat(secondReadings.get(1).getTimeStamp()).isEqualTo(originalCutOff.toInstant());
-            assertThat(secondReadings.get(2).getValue()).isEqualTo(BigDecimal.valueOf(4825, 2));
-            assertThat(secondReadings.get(2).getTimeStamp()).isEqualTo(originalCutOff.plusMinutes(15).toInstant());
+        List<? extends BaseReadingRecord> firstReadings = first.getReadings(Range.all(), readingType);
+        assertThat(firstReadings).hasSize(2);
+        assertThat(firstReadings.get(0).getValue()).isEqualTo(BigDecimal.valueOf(4025, 2));
+        assertThat(firstReadings.get(0).getTimeStamp()).isEqualTo(newCutOff.minusMinutes(15).toInstant());
+        assertThat(firstReadings.get(1).getValue()).isEqualTo(BigDecimal.valueOf(4175, 2));
+        assertThat(firstReadings.get(1).getTimeStamp()).isEqualTo(newCutOff.toInstant());
+        List<? extends BaseReadingRecord> secondReadings = second.getReadings(Range.all(), readingType);
+        assertThat(secondReadings).hasSize(3);
+        assertThat(secondReadings.get(0).getValue()).isEqualTo(BigDecimal.valueOf(4225, 2));
+        assertThat(secondReadings.get(0).getTimeStamp()).isEqualTo(newCutOff.plusMinutes(15).toInstant());
+        assertThat(secondReadings.get(1).getValue()).isEqualTo(BigDecimal.valueOf(4725, 2));
+        assertThat(secondReadings.get(1).getTimeStamp()).isEqualTo(originalCutOff.toInstant());
+        assertThat(secondReadings.get(2).getValue()).isEqualTo(BigDecimal.valueOf(4825, 2));
+        assertThat(secondReadings.get(2).getTimeStamp()).isEqualTo(originalCutOff.plusMinutes(15).toInstant());
 
-            List<? extends BaseReadingRecord> firstChannelReadings = first.getChannels().get(0).getReadings(readingType, Range.all());
-            assertThat(firstChannelReadings).hasSize(2);
-            assertThat(firstChannelReadings.get(0).getValue()).isEqualTo(BigDecimal.valueOf(4025, 2));
-            assertThat(firstChannelReadings.get(0).getTimeStamp()).isEqualTo(newCutOff.minusMinutes(15).toInstant());
-            assertThat(firstChannelReadings.get(1).getValue()).isEqualTo(BigDecimal.valueOf(4175, 2));
-            assertThat(firstChannelReadings.get(1).getTimeStamp()).isEqualTo(newCutOff.toInstant());
-            List<? extends BaseReadingRecord> secondChannelReadings = second.getChannels().get(0).getReadings(readingType, Range.all());
-            assertThat(secondChannelReadings).hasSize(3);
-            assertThat(secondChannelReadings.get(0).getValue()).isEqualTo(BigDecimal.valueOf(4225, 2));
-            assertThat(secondChannelReadings.get(0).getTimeStamp()).isEqualTo(newCutOff.plusMinutes(15).toInstant());
-            assertThat(secondChannelReadings.get(1).getValue()).isEqualTo(BigDecimal.valueOf(4725, 2));
-            assertThat(secondChannelReadings.get(1).getTimeStamp()).isEqualTo(originalCutOff.toInstant());
-            assertThat(secondChannelReadings.get(2).getValue()).isEqualTo(BigDecimal.valueOf(4825, 2));
-            assertThat(secondChannelReadings.get(2).getTimeStamp()).isEqualTo(originalCutOff.plusMinutes(15).toInstant());
-        }
+        List<? extends BaseReadingRecord> firstChannelReadings = first.getChannels().get(0).getReadings(readingType, Range.all());
+        assertThat(firstChannelReadings).hasSize(2);
+        assertThat(firstChannelReadings.get(0).getValue()).isEqualTo(BigDecimal.valueOf(4025, 2));
+        assertThat(firstChannelReadings.get(0).getTimeStamp()).isEqualTo(newCutOff.minusMinutes(15).toInstant());
+        assertThat(firstChannelReadings.get(1).getValue()).isEqualTo(BigDecimal.valueOf(4175, 2));
+        assertThat(firstChannelReadings.get(1).getTimeStamp()).isEqualTo(newCutOff.toInstant());
+        List<? extends BaseReadingRecord> secondChannelReadings = second.getChannels().get(0).getReadings(readingType, Range.all());
+        assertThat(secondChannelReadings).hasSize(3);
+        assertThat(secondChannelReadings.get(0).getValue()).isEqualTo(BigDecimal.valueOf(4225, 2));
+        assertThat(secondChannelReadings.get(0).getTimeStamp()).isEqualTo(newCutOff.plusMinutes(15).toInstant());
+        assertThat(secondChannelReadings.get(1).getValue()).isEqualTo(BigDecimal.valueOf(4725, 2));
+        assertThat(secondChannelReadings.get(1).getTimeStamp()).isEqualTo(originalCutOff.toInstant());
+        assertThat(secondChannelReadings.get(2).getValue()).isEqualTo(BigDecimal.valueOf(4825, 2));
+        assertThat(secondChannelReadings.get(2).getTimeStamp()).isEqualTo(originalCutOff.plusMinutes(15).toInstant());
     }
 
     @Test
+    @Transactional
     public void testAdvanceWithoutData() {
-        MeteringService meteringService = injector.getInstance(MeteringService.class);
-        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            AmrSystem system = meteringService.findAmrSystem(1).get();
-            Meter meter = system.newMeter("1").create();
-            ZonedDateTime startTime = ZonedDateTime.of(2012, 12, 19, 14, 15, 54, 0, ZoneId.systemDefault());
-            ZonedDateTime originalCutOff = ZonedDateTime.of(2012, 12, 25, 0, 0, 0, 0, ZoneId.systemDefault());
-            ZonedDateTime newCutOff = ZonedDateTime.of(2012, 12, 20, 0, 0, 0, 0, ZoneId.systemDefault());
-            MeterActivation meterActivation = meter.activate(startTime.toInstant());
-            meterActivation.endAt(originalCutOff.toInstant());
-            ReadingType readingType = meteringService.getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
-            Channel channel = meterActivation.createChannel(readingType);
-            MeterActivation currentActivation = meter.activate(originalCutOff.toInstant());
-            Channel currentChannel = currentActivation.createChannel(readingType);
+        MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
+        AmrSystem system = meteringService.findAmrSystem(1).get();
+        Meter meter = system.newMeter("testAdvanceWithoutData").create();
+        ZonedDateTime startTime = ZonedDateTime.of(2012, 12, 19, 14, 15, 54, 0, ZoneId.systemDefault());
+        ZonedDateTime originalCutOff = ZonedDateTime.of(2012, 12, 25, 0, 0, 0, 0, ZoneId.systemDefault());
+        ZonedDateTime newCutOff = ZonedDateTime.of(2012, 12, 20, 0, 0, 0, 0, ZoneId.systemDefault());
+        MeterActivation meterActivation = meter.activate(startTime.toInstant());
+        meterActivation.endAt(originalCutOff.toInstant());
+        ReadingType readingType = meteringService.getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
+        Channel channel = meterActivation.createChannel(readingType);
+        MeterActivation currentActivation = meter.activate(originalCutOff.toInstant());
+        Channel currentChannel = currentActivation.createChannel(readingType);
 
-            currentActivation.advanceStartDate(newCutOff.toInstant());
+        currentActivation.advanceStartDate(newCutOff.toInstant());
 
-            assertThat(meter.getMeterActivations()).hasSize(2);
+        assertThat(meter.getMeterActivations()).hasSize(2);
 
-            MeterActivation first = meter.getMeterActivations().get(0);
-            MeterActivation second = meter.getMeterActivations().get(1);
-            assertThat(first.getRange()).isEqualTo(Range.closedOpen(startTime.toInstant(), newCutOff.toInstant()));
-            assertThat(second.getRange()).isEqualTo(Range.atLeast(newCutOff.toInstant()));
-        }
+        MeterActivation first = meter.getMeterActivations().get(0);
+        MeterActivation second = meter.getMeterActivations().get(1);
+        assertThat(first.getRange()).isEqualTo(Range.closedOpen(startTime.toInstant(), newCutOff.toInstant()));
+        assertThat(second.getRange()).isEqualTo(Range.atLeast(newCutOff.toInstant()));
     }
 
     @Test
@@ -298,14 +235,14 @@ public class MeterActivationImplIT {
         ZonedDateTime startTime = ZonedDateTime.of(2012, 12, 19, 14, 15, 54, 0, ZoneId.systemDefault());
         ZonedDateTime originalCutOff = ZonedDateTime.of(2012, 12, 25, 0, 0, 0, 0, ZoneId.systemDefault());
         ZonedDateTime newCutOff = ZonedDateTime.of(2012, 12, 20, 0, 0, 0, 0, ZoneId.systemDefault());
-        MeteringService meteringService = injector.getInstance(MeteringService.class);
+        MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         Meter meter = null;
         MeterActivation currentActivation = null;
         ReadingType readingType = null;
         MeterActivation meterActivation = null;
-        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+        try (TransactionContext ctx = inMemoryBootstrapModule.getTransactionService().getContext()) {
             AmrSystem system = meteringService.findAmrSystem(1).get();
-            meter = system.newMeter("1").create();
+            meter = system.newMeter("testAdvanceWithReadingsAndQualities").create();
             meterActivation = meter.activate(startTime.toInstant());
             meterActivation.endAt(originalCutOff.toInstant());
             readingType = meteringService.getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
@@ -323,14 +260,18 @@ public class MeterActivationImplIT {
             meter.store(meterReading);
             meterActivation.getChannels().get(0).createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), readingType, newCutOff.minusMinutes(15).toInstant());
             meterActivation.getChannels().get(0).createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), readingType, newCutOff.toInstant());
-            ReadingQualityRecord readingQuality = meterActivation.getChannels().get(0).createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), readingType, newCutOff.plusMinutes(15).toInstant());
+            ReadingQualityRecord readingQuality = meterActivation.getChannels()
+                    .get(0)
+                    .createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), readingType, newCutOff.plusMinutes(15).toInstant());
             readingQuality.makePast();
             meterActivation.getChannels().get(0).createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), readingType, originalCutOff.toInstant());
-            currentActivation.getChannels().get(0).createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), readingType, originalCutOff.plusMinutes(15).toInstant());
+            currentActivation.getChannels()
+                    .get(0)
+                    .createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), readingType, originalCutOff.plusMinutes(15).toInstant());
             ctx.commit();
         }
 
-        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+        try (TransactionContext ctx = inMemoryBootstrapModule.getTransactionService().getContext()) {
             currentActivation.advanceStartDate(newCutOff.toInstant());
             ctx.commit();
         }
@@ -383,4 +324,188 @@ public class MeterActivationImplIT {
         assertThat(secondQualities.get(2).getReadingTimestamp()).isEqualTo(originalCutOff.plusMinutes(15).toInstant());
     }
 
+    @Test
+    @Transactional
+    public void testCanCreateMeterActivationWithMeterRole() {
+        ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
+        AmrSystem system = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
+        Meter meter = system.newMeter("testCanCreateMeterActivationWithMeterRole_Meter").create();
+        ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
+        UsagePoint usagePoint = serviceCategory
+                .newUsagePoint("testCanCreateMeterActivationWithMeterRole_UP", inMemoryBootstrapModule.getClock().instant())
+                .create();
+        MeterRole meterRole = inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT);
+        MeterActivation meterActivation = meter.activate(usagePoint, meterRole, inMemoryBootstrapModule.getClock().instant());
+
+        Optional<MeterRole> meterRoleRef = meterActivation.getMeterRole();
+        assertThat(meterRoleRef.isPresent()).isTrue();
+        assertThat(meterRoleRef.get()).isEqualTo(meterRole);
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(property = "main", messageId = "{the.same.meter.activated.twice.on.usage.point}", strict = true)
+    public void testMeterCanNotBeAssignedTwiceForTheSameUsagePoint() {
+        ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
+        AmrSystem system = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
+        Meter meter = system.newMeter("meterForActivation").create();
+        ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
+        Instant now = inMemoryBootstrapModule.getClock().instant();
+        UsagePoint usagePoint = serviceCategory.newUsagePoint("usagePointForActivation", now).create();
+
+        usagePoint.linkMeters()
+                .activate(meter, inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT))
+                .activate(meter, inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.MAIN))
+                .complete();
+    }
+
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(property = "main", messageId = "{the.same.meter.activated.twice.on.usage.point}", strict = true)
+    public void testMeterCanNotBeAssignedTwiceForTheSameUsagePointCase2() {
+        ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
+        AmrSystem system = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
+        Meter meter = system.newMeter("meterForActivation").create();
+        ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
+        Instant now = inMemoryBootstrapModule.getClock().instant();
+        UsagePoint usagePoint = serviceCategory.newUsagePoint("usagePointForActivation", now).create();
+
+        usagePoint.linkMeters()
+                .activate(meter, inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT))
+                .complete();
+
+        List<MeterActivation> meterActivations = meteringService.findUsagePoint(usagePoint.getId()).get().getMeterActivations(now);
+        assertThat(meterActivations).hasSize(1);
+        assertThat(meterActivations.get(0).getMeterRole().get()).isEqualTo(inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT));
+
+        usagePoint.linkMeters()
+                .activate(meter, inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.MAIN))
+                .complete();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(property = "default", messageId = "MTR7003S This meter does not provide reading types matching to Requirement.", strict = true)
+    @Ignore // TODO Activate when meter can provide a real capabilities!
+    public void testMeterDoesNotSatisfyMetrologyRequirements() {
+        ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
+        ServerMetrologyConfigurationService metrologyConfigurationService = inMemoryBootstrapModule.getMetrologyConfigurationService();
+        AmrSystem system = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
+        Meter meter = system.newMeter("meterForActivation").create();
+        ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
+        Instant now = inMemoryBootstrapModule.getClock().instant();
+        UsagePoint usagePoint = serviceCategory.newUsagePoint("usagePointForActivation", now).create();
+        MeterRole meterRole = metrologyConfigurationService.findDefaultMeterRole(DefaultMeterRole.DEFAULT);
+        serviceCategory.addMeterRole(meterRole);
+        UsagePointMetrologyConfiguration metrologyConfiguration = metrologyConfigurationService
+                .newUsagePointMetrologyConfiguration("mConfigForActivation", serviceCategory)
+                .create();
+        metrologyConfiguration.addMeterRole(meterRole);
+        ReadingType readingType = meteringService.getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
+        FullySpecifiedReadingTypeRequirement readingTypeRequirement = metrologyConfiguration.newReadingTypeRequirement("Requirement")
+                .withMeterRole(meterRole)
+                .withReadingType(readingType);
+        ReadingTypeDeliverableBuilder builder = metrologyConfiguration.newReadingTypeDeliverable("Deliverable", readingType, Formula.Mode.AUTO);
+        ReadingTypeDeliverable deliverable = builder.build(builder.requirement(readingTypeRequirement));
+        metrologyConfiguration.addMandatoryMetrologyContract(metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.BILLING).get())
+                .addDeliverable(deliverable);
+        usagePoint.apply(metrologyConfiguration, now);
+
+        usagePoint.linkMeters()
+                .activate(meter, meterRole)
+                .complete();
+    }
+
+    @Test
+    @Transactional
+    public void testActivateAlreadyActiveMeter() {
+        ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
+        AmrSystem system = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
+        Meter meter = system.newMeter("meterForActivation").create();
+        ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
+        Instant now = inMemoryBootstrapModule.getClock().instant();
+        UsagePoint usagePoint = serviceCategory.newUsagePoint("usagePointForActivation", now).create();
+        meter.activate(now);
+
+        try {
+            usagePoint.linkMeters()
+                    .activate(meter, inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.MAIN))
+                    .complete();
+        } catch (ConstraintViolationException ex) {
+            assertThat(ex.getConstraintViolations().size()).isEqualTo(1);
+            assertThat(ex.getConstraintViolations().iterator().next().getPropertyPath().toString()).isEqualTo("main");
+            assertThat(ex.getConstraintViolations().iterator().next().getMessage()).contains("is already active");
+        }
+    }
+
+    @Test
+    @Transactional
+    public void testMeterCanBeLinkedToUsagePoint() {
+        ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
+        AmrSystem system = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
+        Meter meter = system.newMeter("meterForActivation").create();
+        ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
+        Instant now = inMemoryBootstrapModule.getClock().instant();
+        UsagePoint usagePoint = serviceCategory.newUsagePoint("usagePointForActivation", now).create();
+
+        usagePoint.linkMeters()
+                .activate(meter, inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT))
+                .complete();
+
+        Optional<? extends MeterActivation> meterActivation = meteringService.findMeter(meter.getId()).get().getMeterActivation(now);
+        assertThat(meterActivation).isPresent();
+        assertThat(meteringService.findUsagePoint(usagePoint.getId()).get().getMeterActivations(now)).contains(meterActivation.get());
+    }
+
+    @Test
+    @Transactional
+    public void testTwoMetersCanBeLinkedToUsagePoint() {
+        ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
+        AmrSystem system = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
+        Meter meter1 = system.newMeter("meterForActivation1").create();
+        Meter meter2 = system.newMeter("meterForActivation2").create();
+        ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
+        Instant now = inMemoryBootstrapModule.getClock().instant();
+        UsagePoint usagePoint = serviceCategory.newUsagePoint("usagePointForActivation", now).create();
+
+        usagePoint.linkMeters()
+                .activate(meter1, inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT))
+                .activate(meter2, inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.MAIN))
+                .complete();
+
+        Optional<? extends MeterActivation> meterActivation = meteringService.findMeter(meter1.getId()).get().getMeterActivation(now);
+        assertThat(meterActivation).isPresent();
+        assertThat(meteringService.findUsagePoint(usagePoint.getId()).get().getMeterActivations(now)).contains(meterActivation.get());
+
+        meterActivation = meteringService.findMeter(meter2.getId()).get().getMeterActivation(now);
+        assertThat(meterActivation).isPresent();
+        assertThat(meteringService.findUsagePoint(usagePoint.getId()).get().getMeterActivations(now)).contains(meterActivation.get());
+    }
+
+    @Test
+    @Transactional
+    public void testMeterCanBeRemovedFromMeterRoleOnUsagePoint() {
+        ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
+        AmrSystem system = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
+        Meter meter = system.newMeter("meterForActivation").create();
+        ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
+        Instant now = inMemoryBootstrapModule.getClock().instant();
+        UsagePoint usagePoint = serviceCategory.newUsagePoint("usagePointForActivation", now).create();
+
+        usagePoint.linkMeters()
+                .activate(meter, inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT))
+                .complete();
+
+        assertThat(meteringService.findMeter(meter.getId()).get().getMeterActivation(now)).isPresent();
+
+        usagePoint.linkMeters()
+                .activate(meter, inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.MAIN))
+                .clear(inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT))
+                .complete();
+
+        List<MeterActivation> meterActivations = meteringService.findUsagePoint(usagePoint.getId()).get().getMeterActivations(now);
+        assertThat(meterActivations).hasSize(1);
+        assertThat(meterActivations.get(0).getMeterRole().get()).isEqualTo(inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.MAIN));
+    }
 }
