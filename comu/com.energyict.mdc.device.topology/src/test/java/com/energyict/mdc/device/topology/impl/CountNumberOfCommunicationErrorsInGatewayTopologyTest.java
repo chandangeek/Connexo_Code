@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.topology.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.PersistentDomainExtension;
@@ -192,7 +193,8 @@ public class CountNumberOfCommunicationErrorsInGatewayTopologyTest {
                 new MdcDynamicModule(),
                 new ProtocolApiModule(),
                 new PluggableModule(),
-                new SchedulingModule());
+                new SchedulingModule(),
+                new CalendarModule());
         this.transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             injector.getInstance(EventService.class);
