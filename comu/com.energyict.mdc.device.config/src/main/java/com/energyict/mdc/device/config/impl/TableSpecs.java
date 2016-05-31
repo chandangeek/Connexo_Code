@@ -1081,7 +1081,7 @@ public enum TableSpecs {
                     .references(Calendar.class)
                     .on(calendar)
                     .map(AllowedCalendarImpl.Fields.CALENDAR.fieldName())
-                    .onDelete(CASCADE)
+                    //.onDelete(CASCADE)
                     .add();
         }
     },

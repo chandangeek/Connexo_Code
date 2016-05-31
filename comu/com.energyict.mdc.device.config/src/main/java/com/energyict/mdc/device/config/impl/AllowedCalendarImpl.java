@@ -41,6 +41,8 @@ public class AllowedCalendarImpl implements AllowedCalendar {
     private Reference<Calendar> calendar = ValueReference.absent();
     private DataModel dataModel;
 
+    private long allowedCalendarId;
+
     @Inject
     public AllowedCalendarImpl (DataModel dataModel) {
         this.dataModel = dataModel;
@@ -49,6 +51,7 @@ public class AllowedCalendarImpl implements AllowedCalendar {
     AllowedCalendarImpl initialize (Calendar calendar, DeviceType deviceType) {
         this.calendar.set(calendar);
         this.deviceType.set(deviceType);
+        this.allowedCalendarId = calendar.getId();
         return this;
     }
 

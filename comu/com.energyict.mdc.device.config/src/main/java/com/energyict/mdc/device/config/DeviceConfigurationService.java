@@ -315,6 +315,8 @@ public interface DeviceConfigurationService {
 
     List<DeviceConfiguration> findDeviceConfigurationsForValidationRuleSet(long validationRuleSetId);
 
+    List<DeviceType> findDeviceTypesForCalendar(long calendarId);
+
     List<ReadingType> getReadingTypesRelatedToConfiguration(DeviceConfiguration configuration);
 
     List<DeviceConfiguration> getLinkableDeviceConfigurations(ValidationRuleSet validationRuleSet);

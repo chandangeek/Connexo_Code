@@ -782,6 +782,14 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                 select(where("deviceConfValidationRuleSetUsages.validationRuleSetId").isEqualTo(validationRuleSetId), new Order[]{Order.ascending("deviceType"), Order.ascending("name")});
     }
 
+
+    @Override
+    public List<DeviceType> findDeviceTypesForCalendar(long calendarId) {
+        return this.getDataModel().
+                query(DeviceType.class, AllowedCalendar.class).
+                select(where("allowedCalendars.allowedCalendarId").isEqualTo(calendarId), new Order[]{Order.ascending("deviceType"), Order.ascending("name")});
+    }
+
     @Override
     public Finder<DeviceConfiguration> findDeviceConfigurationsForEstimationRuleSet(EstimationRuleSet estimationRuleSet) {
         Condition condition = where(DeviceConfigurationImpl.Fields.DEVICECONF_ESTIMATIONRULESET_USAGES.fieldName() + "." +
