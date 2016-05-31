@@ -10,10 +10,10 @@ import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.RelativePeriodCategory;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.upgrade.FullInstaller;
-import com.elster.jupiter.util.exception.ExceptionCatcher;
 
 import javax.inject.Inject;
 import java.util.EnumSet;
+import java.util.logging.Logger;
 
 import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.LAST_7_DAYS;
 import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.PREVIOUS_MONTH;
@@ -50,14 +50,24 @@ class Installer implements FullInstaller {
     }
 
     @Override
-    public void install(DataModelUpgrader dataModelUpgrader) {
-        ExceptionCatcher.executing(
-                () -> dataModelUpgrader.upgrade(dataModel, Version.latest()),
+    public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
+        dataModelUpgrader.upgrade(dataModel, Version.latest());
+        doTry(
+                "Create Data Export queue",
                 this::createDestinationAndSubscriber,
+                logger
+        );
+        doTry(
+                "Create export Relative Period category",
                 this::createRelativePeriodCategory,
-                this::createRelativePeriods
-        ).andHandleExceptionsWith(Throwable::printStackTrace)
-                .execute();
+                logger
+        );
+        doTry(
+                "",
+                this::createRelativePeriods,
+                logger
+        );
+
 
     }
 
@@ -82,19 +92,22 @@ class Installer implements FullInstaller {
     private void createRelativePeriods() {
         EnumSet.of(LAST_7_DAYS, PREVIOUS_MONTH, PREVIOUS_WEEK, THIS_MONTH, THIS_WEEK, TODAY, YESTERDAY).stream()
                 .forEach(definition -> {
-                    RelativePeriod relativePeriod = timeService.findRelativePeriodByName(definition.getPeriodName()).orElseThrow(IllegalArgumentException::new);
+                    RelativePeriod relativePeriod = timeService.findRelativePeriodByName(definition.getPeriodName())
+                            .orElseThrow(IllegalArgumentException::new);
                     relativePeriod.addRelativePeriodCategory(getCategory(RELATIVE_PERIOD_CATEGORY));
                 });
 
         EnumSet.of(LAST_7_DAYS, PREVIOUS_MONTH, PREVIOUS_WEEK, YESTERDAY).stream()
                 .forEach(definition -> {
-                    RelativePeriod relativePeriod = timeService.findRelativePeriodByName(definition.getPeriodName()).orElseThrow(IllegalArgumentException::new);
+                    RelativePeriod relativePeriod = timeService.findRelativePeriodByName(definition.getPeriodName())
+                            .orElseThrow(IllegalArgumentException::new);
                     relativePeriod.addRelativePeriodCategory(getCategory(RELATIVE_PERIOD_UPDATEWINDOW_CATEGORY));
                 });
 
         EnumSet.of(THIS_MONTH, THIS_WEEK, THIS_YEAR, TODAY).stream()
                 .forEach(definition -> {
-                    RelativePeriod relativePeriod = timeService.findRelativePeriodByName(definition.getPeriodName()).orElseThrow(IllegalArgumentException::new);
+                    RelativePeriod relativePeriod = timeService.findRelativePeriodByName(definition.getPeriodName())
+                            .orElseThrow(IllegalArgumentException::new);
                     relativePeriod.addRelativePeriodCategory(getCategory(RELATIVE_PERIOD_UPDATETIMEFRAME_CATEGORY));
                 });
 
