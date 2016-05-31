@@ -153,8 +153,8 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
         userPreferencesService = new UserPreferencesServiceImpl(dataModel);
     }
 
-    public Optional<User> authenticate(String domain, String userName, String password) {
-        UserDirectory userDirectory = is(domain).empty() ? findDefaultUserDirectory() : getUserDirectory(domain);
+    public Optional<User> authenticate(String domain, String userName, String password, String ipAddr) {
+        UserDirectory userDirectory = is(domain).empty() ? findDefaultUserDirectory() : getUserDirectory(domain, userName, ipAddr);
         return userDirectory.authenticate(userName, password);
     }
 
@@ -167,9 +167,10 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
         }
     }
 
-    private UserDirectory getUserDirectory(String domain) {
+    private UserDirectory getUserDirectory(String domain, String userName, String ipAddr) {
         List<UserDirectory> found = dataModel.query(UserDirectory.class).select(Operator.EQUALIGNORECASE.compare("name", domain));
         if (found.isEmpty()) {
+            logMessage(UNSUCCESSFUL_LOGIN, domain == null ? userName : domain+ "/" + userName, ipAddr);
             throw new NoDomainFoundException(thesaurus, domain);
         }
 
@@ -253,12 +254,12 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
             domain = items[0];
             userName = items[1];
         }
-        Optional<User> user = authenticate(domain, userName, names[1]);
+        Optional<User> user = authenticate(domain, userName, names[1], ipAddr);
         if(user.isPresent() && !user.get().getPrivileges().isEmpty()){
-            logMessage(SUCCESSFUL_LOGIN, userName, ipAddr);
+            logMessage(SUCCESSFUL_LOGIN, domain == null ? userName : domain+ "/" + userName, ipAddr);
         }else{
             if(!userName.equals("")) {
-                logMessage(UNSUCCESSFUL_LOGIN, userName, ipAddr);
+                logMessage(UNSUCCESSFUL_LOGIN, domain == null ? userName : domain+ "/" + userName, ipAddr);
             }
         }
         return user;
