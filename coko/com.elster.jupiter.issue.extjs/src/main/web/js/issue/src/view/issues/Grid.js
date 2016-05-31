@@ -21,7 +21,7 @@ Ext.define('Isu.view.issues.Grid', {
                 itemId: 'issues-grid-id',
                 header: Uni.I18n.translate('general.title.issueId', 'ISU', 'Id'),
                 dataIndex: 'issueId',
-                flex: 0.5,
+                //flex: 0.5,
                 renderer: function (value, metaData, record) {
                     var url = me.router.getRoute(me.router.currentRoute + '/view').buildUrl({issueId: record.getId()}, {issueType: record.get('issueType').uid});
                     return '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
