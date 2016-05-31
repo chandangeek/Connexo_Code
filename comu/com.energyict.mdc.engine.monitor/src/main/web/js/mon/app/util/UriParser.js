@@ -18,6 +18,7 @@ Ext.define('CSMonitor.util.UriParser', {
         this.protocol = parser.protocol;    // => "http:"
         this.hostname = parser.hostname;     // => "example.com"
         this.port = parser.port;             // => "3000"
+        if (!this.port) this.port = "80";
         this.pathname = parser.pathname;     // => "/pathname/"
         this.search = parser.search;           // => "?search=test"
         this.hash = parser.hash;               // => "#hash"
