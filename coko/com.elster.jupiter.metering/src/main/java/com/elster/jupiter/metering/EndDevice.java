@@ -54,10 +54,8 @@ public interface EndDevice extends IdentifiedObject {
     long getGeoCoordinatesId();
 
     void setGeoCoordinates(GeoCoordinates geoCoordinates);
-    Optional<HeadEndInterface> getHeadEndInterface();
 
     Optional<HeadEndInterface> getHeadEndInterface();
-
 
     EndDeviceEventRecordBuilder addEventRecord(EndDeviceEventType type, Instant instant);
 
