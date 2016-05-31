@@ -47,8 +47,12 @@ public class FavoritesLabelInstaller implements FullInstaller {
     }
 
     @Override
-    public void install(DataModelUpgrader dataModelUpgrader) {
-        createLabelCategories();
+    public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
+        doTry(
+                "Create label categories for FLI",
+                this::createLabelCategories,
+                logger
+        );
     }
 
     private void createLabelCategories() {
