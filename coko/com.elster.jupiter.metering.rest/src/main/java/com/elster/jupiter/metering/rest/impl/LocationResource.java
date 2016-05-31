@@ -1,7 +1,12 @@
 package com.elster.jupiter.metering.rest.impl;
 
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.Location;
+import com.elster.jupiter.metering.LocationBuilder;
+import com.elster.jupiter.metering.LocationBuilder.LocationMemberBuilder;
+import com.elster.jupiter.metering.LocationMember;
+import com.elster.jupiter.metering.MessageSeeds;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.QueryParameters;
@@ -9,12 +14,23 @@ import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.metering.LocationBuilder.LocationMemberBuilder;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
+import javax.ws.rs.core.UriInfo;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -106,58 +122,58 @@ public class LocationResource {
     }
 
 
-        @POST
-        @Transactional
-        @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-        @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-        @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
-        public Response createLocation (LocationMemberInfo info){
-            try (TransactionContext context = transactionService.getContext()) {
-                Optional<Location> location = meteringService.findDeviceLocation(info.locationId);
-                if (location.isPresent()) {
-                    Optional<LocationMember> member = location.get().getMember(info.locale);
-                    if (member.isPresent()) {
-                        throw exceptionFactory.newException(MessageSeeds.DUPLICATE_LOCATION_ENTRY);
-                    }
+    @POST
+    @Transactional
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
+    public Response createLocation(LocationMemberInfo info) {
+        try (TransactionContext context = transactionService.getContext()) {
+            Optional<Location> location = meteringService.findDeviceLocation(info.locationId);
+            if (location.isPresent()) {
+                Optional<LocationMember> member = location.get().getMember(info.locale);
+                if (member.isPresent()) {
+                    throw exceptionFactory.newException(MessageSeeds.DUPLICATE_LOCATION_ENTRY);
                 }
-                doCreateLocation(info);
+            }
+            doCreateLocation(info);
+            context.commit();
+            return Response.ok().build();
+        }
+    }
+
+
+    @PUT
+    @Transactional
+    @Path("/{id}")
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
+    public Response updateLocation(@PathParam("id") long id, LocationMemberInfo info, @Context UriInfo uriInfo) {
+        try (TransactionContext context = transactionService.getContext()) {
+            Location location = meteringService.findLocation(id)
+                    .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_LOCATION));
+            Optional<LocationMember> member = location.getMember(info.locale);
+            if (!member.isPresent()) {
+                throw exceptionFactory.newException(MessageSeeds.NO_SUCH_LOCATION);
+            } else {
+                doUpdateLocation(info);
                 context.commit();
-                return Response.ok().build();
+                return Response.ok(info).build();
             }
         }
+    }
 
-
-        @PUT
-        @Transactional
-        @Path("/{id}")
-        @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-        @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-        @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
-        public Response updateLocation ( @PathParam("id") long id, LocationMemberInfo info, @Context UriInfo uriInfo){
-            try (TransactionContext context = transactionService.getContext()) {
-                Location location = meteringService.findLocation(id)
-                        .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_LOCATION));
-                Optional<LocationMember> member = location.getMember(info.locale);
-                if (!member.isPresent()) {
-                    throw exceptionFactory.newException(MessageSeeds.NO_SUCH_LOCATION);
-                } else {
-                    doUpdateLocation(info);
-                    context.commit();
-                    return Response.ok(info).build();
-                }
-            }
-        }
-
-        @DELETE
-        @Transactional
-        @Path("/{id}")
-        @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-        @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
-        public Response deleteLocation ( @PathParam("id") long id){
-            Location location = meteringService.findLocation(id).orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_LOCATION));
-            location.remove();
-            return Response.noContent().build();
-        }
+    @DELETE
+    @Transactional
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
+    public Response deleteLocation(@PathParam("id") long id) {
+        Location location = meteringService.findLocation(id).orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_LOCATION));
+        location.remove();
+        return Response.noContent().build();
+    }
 
     private Location doCreateLocation(LocationMemberInfo info) {
         LocationBuilder builder = meteringService.newLocationBuilder();
