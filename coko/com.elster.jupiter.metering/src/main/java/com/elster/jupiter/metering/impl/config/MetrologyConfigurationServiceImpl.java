@@ -3,16 +3,21 @@ package com.elster.jupiter.metering.impl.config;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.metering.CustomUsagePointMeterActivationValidationException;
+import com.elster.jupiter.metering.CustomUsagePointMeterActivationValidator;
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
+import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationBuilder;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationStatus;
+import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableFilter;
@@ -58,16 +63,18 @@ import static com.elster.jupiter.util.conditions.Where.where;
  */
 public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigurationService, InstallService, PrivilegesProvider, TranslationKeyProvider {
 
-    private static final String METER_ROLE_KEY_PREFIX = "meter.role.";
-    private static final String METER_PURPOSE_KEY_PREFIX = "metrology.purpose.";
+    static final String METER_ROLE_KEY_PREFIX = "meter.role.";
+    static final String METER_PURPOSE_KEY_PREFIX = "metrology.purpose.";
 
     private volatile ServerMeteringService meteringService;
     private volatile UserService userService;
+    private volatile MeterActivationValidatorsWhiteboard activationValidatorsWhiteboard;
 
     @Inject
-    public MetrologyConfigurationServiceImpl(ServerMeteringService meteringService, UserService userService) {
+    public MetrologyConfigurationServiceImpl(ServerMeteringService meteringService, UserService userService, MeterActivationValidatorsWhiteboard activationValidatorsWhiteboard) {
         this.meteringService = meteringService;
         this.userService = userService;
+        this.activationValidatorsWhiteboard = activationValidatorsWhiteboard;
     }
 
     @Override
@@ -115,6 +122,7 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
         translationKeys.addAll(Arrays.asList(Privileges.values()));
         translationKeys.addAll(Arrays.asList(DefaultMetrologyPurpose.Translation.values()));
         translationKeys.addAll(Arrays.asList(DefaultReadingTypeTemplate.TemplateTranslation.values()));
+        translationKeys.addAll(Arrays.asList(MetrologyConfigurationStatus.Translation.values()));
         return translationKeys;
     }
 
@@ -191,6 +199,10 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
         return !atLeastOneUsagePoint.isEmpty();
     }
 
+    @Override
+    public Optional<MetrologyContract> findMetrologyContract(long id) {
+        return this.getDataModel().mapper(MetrologyContract.class).getOptional(id);
+    }
 
     @Override
     public ServerFormulaBuilder newFormulaBuilder(Formula.Mode mode) {
@@ -332,4 +344,20 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
         }
         return getDataModel().query(ReadingTypeDeliverable.class, MetrologyConfiguration.class).select(condition);
     }
+
+    @Override
+    public void addCustomUsagePointMeterActivationValidator(CustomUsagePointMeterActivationValidator customUsagePointMeterActivationValidator) {
+        this.activationValidatorsWhiteboard.addCustomUsagePointMeterActivationValidator(customUsagePointMeterActivationValidator);
+    }
+
+    @Override
+    public void removeCustomUsagePointMeterActivationValidator(CustomUsagePointMeterActivationValidator customUsagePointMeterActivationValidator) {
+        this.activationValidatorsWhiteboard.removeCustomUsagePointMeterActivationValidator(customUsagePointMeterActivationValidator);
+    }
+
+    @Override
+    public void validateUsagePointMeterActivation(MeterRole meterRole, Meter meter, UsagePoint usagePoint) throws CustomUsagePointMeterActivationValidationException {
+        this.activationValidatorsWhiteboard.validateUsagePointMeterActivation(meterRole, meter, usagePoint);
+    }
+
 }

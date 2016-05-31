@@ -13,6 +13,8 @@ import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MultiplierType;
@@ -22,6 +24,8 @@ import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointConfiguration;
 import com.elster.jupiter.metering.UsagePointReadingTypeConfiguration;
+import com.elster.jupiter.metering.config.DefaultMeterRole;
+import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
@@ -227,7 +231,9 @@ public class UsagePointConfigurationIT {
         try (TransactionContext context = transactionService.getContext()) {
             ServiceCategory electricity = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
             usagePoint = electricity.newUsagePoint("mrId", Instant.EPOCH).create();
-            meterActivation = usagePoint.activate(ACTIVE_DATE.toInstant());
+            AmrSystem system = meteringService.findAmrSystem(1).get();
+            Meter meter = system.newMeter("meter").create();
+            meterActivation = usagePoint.activate(meter, injector.getInstance(ServerMetrologyConfigurationService.class).findDefaultMeterRole(DefaultMeterRole.DEFAULT), ACTIVE_DATE.toInstant());
             context.commit();
         }
         usagePoint = meteringService.findUsagePoint(usagePoint.getId()).get();

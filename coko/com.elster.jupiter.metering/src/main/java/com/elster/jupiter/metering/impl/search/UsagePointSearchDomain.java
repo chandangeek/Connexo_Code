@@ -100,8 +100,8 @@ public class UsagePointSearchDomain implements SearchDomain {
     }
 
     @Override
-    public boolean supports(Class aClass) {
-        return UsagePoint.class.equals(aClass);
+    public Class<?> getDomainClass() {
+        return UsagePoint.class;
     }
 
     @Override
