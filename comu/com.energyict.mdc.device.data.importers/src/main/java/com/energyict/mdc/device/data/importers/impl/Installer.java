@@ -5,9 +5,9 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.upgrade.FullInstaller;
-import com.elster.jupiter.util.exception.ExceptionCatcher;
 
 import javax.inject.Inject;
+import java.util.logging.Logger;
 
 class Installer implements FullInstaller {
 
@@ -19,11 +19,12 @@ class Installer implements FullInstaller {
     }
 
     @Override
-    public void install(DataModelUpgrader dataModelUpgrader) {
-        ExceptionCatcher.executing(
-                this::createDestinationAndSubscriber
-        ).andHandleExceptionsWith(Throwable::printStackTrace)
-                .execute();
+    public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
+        doTry(
+                "Create Data Import queue",
+                this::createDestinationAndSubscriber,
+                logger
+        );
     }
 
     private void createDestinationAndSubscriber() {
