@@ -21,13 +21,8 @@ public class Installer implements FullInstaller {
     }
 
     @Override
-    public void install(DataModelUpgrader dataModelUpgrader) {
-        try {
-            dataModelUpgrader.upgrade(dataModel, Version.latest());
-        } catch (Exception e) {
-            logger.severe(e.getMessage());
-        }
-
+    public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
+        dataModelUpgrader.upgrade(dataModel, Version.latest());
     }
 
 }
