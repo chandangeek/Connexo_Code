@@ -7,6 +7,7 @@ import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationStatus;
@@ -14,6 +15,7 @@ import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -167,5 +169,17 @@ public class MetrologyConfigurationCrudTest {
         assertThat(found.get().getDescription()).isEqualTo("New description");
         assertThat(found.get().getServiceCategory().getKind()).isEqualTo(ServiceKind.ELECTRICITY);
         assertThat(found.get().getStatus()).isEqualTo(MetrologyConfigurationStatus.INACTIVE);
+    }
+
+    @Test(expected = CannotDeactivateMetrologyConfiguration.class)
+    @Transactional
+    public void testDeactivateLinkedMetrologyConfiguration() {
+        // Business method
+        MetrologyConfiguration metrologyConfiguration = getMetrologyConfigurationService().newMetrologyConfiguration("Name", getServiceCategory()).withDescription("Description").create();
+        UsagePoint usagePoint = getServiceCategory().newUsagePoint("Usage point", Instant.now()).create();
+
+        metrologyConfiguration.activate();
+        usagePoint.apply(metrologyConfiguration);
+        metrologyConfiguration.deactivate();
     }
 }
