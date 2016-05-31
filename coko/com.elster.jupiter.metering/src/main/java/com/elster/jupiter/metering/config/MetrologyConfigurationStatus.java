@@ -6,8 +6,7 @@ public enum MetrologyConfigurationStatus {
 
     INACTIVE("inactive", Translation.INACTIVE),
     ACTIVE("active", Translation.ACTIVE),
-    DEPRECATED("deprecated", Translation.DEPRECATED),
-    ;
+    DEPRECATED("deprecated", Translation.DEPRECATED),;
 
     private String id;
     private TranslationKey translationKey;

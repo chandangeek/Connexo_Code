@@ -11,14 +11,12 @@ import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Subquery;
-import com.elster.jupiter.util.geo.SpatialCoordinates;
 
 import aQute.bnd.annotation.ProviderType;
 
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @ProviderType

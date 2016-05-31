@@ -19,31 +19,52 @@ import java.util.Optional;
 
 @ProviderType
 public interface EndDevice extends IdentifiedObject {
-	String TYPE_IDENTIFIER = "E";
-	long getId();
-	String getSerialNumber();
-	String getUtcNumber();
-	ElectronicAddress getElectronicAddress();
+    String TYPE_IDENTIFIER = "E";
+
+    long getId();
+
+    String getSerialNumber();
+
+    String getUtcNumber();
+
+    ElectronicAddress getElectronicAddress();
+
     AmrSystem getAmrSystem();
-	String getAmrId();
-	void update();
+
+    String getAmrId();
+
+    void update();
+
     Instant getCreateTime();
+
     Instant getModTime();
+
     long getVersion();
+
     void delete();
+
     Optional<Location> getLocation();
+
     void setLocation(Location location);
+
     long getLocationId();
+
     Optional<GeoCoordinates> getGeoCoordinates();
+
     long getGeoCoordinatesId();
+
     void setGeoCoordinates(GeoCoordinates geoCoordinates);
+    Optional<HeadEndInterface> getHeadEndInterface();
+
     Optional<HeadEndInterface> getHeadEndInterface();
 
 
     EndDeviceEventRecordBuilder addEventRecord(EndDeviceEventType type, Instant instant);
 
     List<EndDeviceEventRecord> getDeviceEvents(Range<Instant> range);
+
     List<EndDeviceEventRecord> getDeviceEvents(Range<Instant> range, List<EndDeviceEventType> eventTypes);
+
     List<EndDeviceEventRecord> getDeviceEventsByFilter(EndDeviceEventRecordFilterSpecification filter);
 
     List<EndDeviceEventRecord> getDeviceEventsByReadTime(Range<Instant> range);

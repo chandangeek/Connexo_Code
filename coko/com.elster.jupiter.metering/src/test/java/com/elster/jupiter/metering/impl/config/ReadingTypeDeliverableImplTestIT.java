@@ -64,9 +64,9 @@ public class ReadingTypeDeliverableImplTestIT {
                     .newMetrologyConfiguration("Test", serviceCategory).create();
             metrologyContract = metrologyConfiguration.addMandatoryMetrologyContract(metrologyPurpose);
             readingType = inMemoryBootstrapModule.getMeteringService().getReadingType("0.0.82.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0")
-            .orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.82.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "cons reading type"));
+                    .orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.82.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "cons reading type"));
             readingType2 = inMemoryBootstrapModule.getMeteringService().getReadingType("0.0.83.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0")
-            .orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.83.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "cons reading type 2"));
+                    .orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.83.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "cons reading type 2"));
             context.commit();
         }
     }
