@@ -9,11 +9,11 @@
         <version>1.2.0${revision}</version>
         <relativePath>../com.elster.jupiter.kore/pom.xml</relativePath>
     </parent>
-    <artifactId>pulse.api.rest</artifactId>
+    <artifactId>kore.api.rest</artifactId>
     <version>1.0.0${revision}</version>
     <packaging>bundle</packaging>
-    <name>[Jupiter] com.elster.jupiter.pulse.api.rest</name>
-    <description>Platform public REST api</description>
+    <name>[Jupiter] com.elster.jupiter.kore.api.rest</name>
+    <description>Kore public REST api</description>
 
     <properties>
         <api.version>1.0</api.version>
@@ -228,7 +228,7 @@
                             <output>
                                 <title>Platform API v${api.version}</title>
                                 <html>
-                                    <baseUrl>http://localhost:8080/public/api/copl/v${api.version}</baseUrl>
+                                    <baseUrl>http://localhost:8080/public/api/coko/v${api.version}</baseUrl>
                                 </html>
                             </output>
 
