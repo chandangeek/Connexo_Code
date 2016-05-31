@@ -1,25 +1,19 @@
 package com.elster.jupiter.calendar.impl;
 
-import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.exception.ExceptionCatcher;
+import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.upgrade.FullInstaller;
 
 import javax.inject.Inject;
 import java.util.logging.Logger;
 
-/**
- * Created by igh on 18/04/2016.
- */
-public class InstallerImpl {
+class InstallerImpl implements FullInstaller {
 
-    private static final Logger LOGGER = Logger.getLogger(InstallerImpl.class.getName());
-
-    private final CalendarService calendarService;
     private final DataModel dataModel;
 
     @Inject
-    public InstallerImpl(CalendarService calendarService, DataModel dataModel) {
-        this.calendarService = calendarService;
+    InstallerImpl(DataModel dataModel) {
         this.dataModel = dataModel;
     }
 
