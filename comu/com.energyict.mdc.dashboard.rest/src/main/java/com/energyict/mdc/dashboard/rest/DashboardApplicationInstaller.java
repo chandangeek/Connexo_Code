@@ -6,11 +6,13 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.dashboard.rest.status.ComServerStatusSummaryResource;
 import com.energyict.mdc.engine.config.security.Privileges;
+
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 /**
  * Insert your comments here.
