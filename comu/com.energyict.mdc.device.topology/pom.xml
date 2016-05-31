@@ -62,7 +62,14 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>events</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.metering</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>metering</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
@@ -149,11 +156,6 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>metering</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
             <artifactId>validation</artifactId>
             <scope>test</scope>
         </dependency>
@@ -170,7 +172,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>cbo</artifactId>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
@@ -205,11 +206,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>tasks</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>mdc.metering</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -265,7 +261,6 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>calendar</artifactId>
             <scope>test</scope>
-        </dependency>
+         </dependency>
     </dependencies>
-
 </project>
