@@ -58,7 +58,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Component(name = "com.energyict.mdc.device.data.impl.ami.MultiSenseHeadEndInterface",
-        service = {HeadEndInterface.class, TranslationKeyProvider.class},
+        service = {HeadEndInterface.class},
         property = "name=MultiSenseHeadEndInterface", immediate = true)
 public class MultiSenseHeadEndInterface implements HeadEndInterface {
 

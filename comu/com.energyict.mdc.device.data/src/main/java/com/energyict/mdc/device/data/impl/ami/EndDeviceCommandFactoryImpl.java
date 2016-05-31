@@ -36,7 +36,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 @Component(name = "com.energyict.mdc.device.data.impl.ami.EndDeviceCommandFactory",
-        service = {CommandFactory.class, TranslationKeyProvider.class},
+        service = {CommandFactory.class},
         property = "name=EndDeviceCommandFactory", immediate = true)
 public class EndDeviceCommandFactoryImpl implements CommandFactory {
     private volatile MeteringService meteringService;

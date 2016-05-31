@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component(name = "com.energyict.mdc.device.data.impl.ami.EndDeviceCommand",
-        service = {EndDeviceCommand.class, TranslationKeyProvider.class},
+        service = {EndDeviceCommand.class},
         property = "name=EndDeviceCommand", immediate = true)
 public class EndDeviceCommandImpl implements EndDeviceCommand {
     private volatile String commandName;
