@@ -43,7 +43,7 @@ public class TariffUploadPassiveMessage extends AbstractMTU155Message {
     @Override
     protected CollectedMessage doExecuteMessage(OfflineDeviceMessage message) throws CTRException {
         String tariffName = getDeviceMessageAttribute(message, DeviceMessageConstants.activityCalendarNameAttributeName).getDeviceMessageAttributeValue();
-        String codeTableBase64 = getDeviceMessageAttribute(message, DeviceMessageConstants.activityCalendarCodeTableAttributeName).getDeviceMessageAttributeValue();
+        String codeTableBase64 = getDeviceMessageAttribute(message, DeviceMessageConstants.activityCalendarAttributeName).getDeviceMessageAttributeValue();
         Date activationDate = new Date(Long.parseLong(getDeviceMessageAttribute(message, DeviceMessageConstants.activityCalendarActivationDateAttributeName).getDeviceMessageAttributeValue()));
 
         try {

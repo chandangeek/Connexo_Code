@@ -4,6 +4,7 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.MessageProtocol;
@@ -77,25 +78,22 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
     private final MdcReadingTypeUtilService readingTypeUtilService;
     private final TopologyService topologyService;
     private final LoadProfileFactory loadProfileFactory;
+    private final DeviceMessageFileService deviceMessageFileService;
 
     public static ScalerUnit[] demandScalerUnits = {new ScalerUnit(0, 30), new ScalerUnit(0, 255), new ScalerUnit(0, 255), new ScalerUnit(0, 255), new ScalerUnit(0, 255)};
     private static final int ELECTRICITY = 0x00;
     private static final int MBUS = 0x01;
 
     @Inject
-    public IskraMx372(PropertySpecService propertySpecService, OrmClient ormClient, Clock clock, MdcReadingTypeUtilService readingTypeUtilService, TopologyService topologyService, LoadProfileFactory loadProfileFactory) {
+    public IskraMx372(PropertySpecService propertySpecService, OrmClient ormClient, Clock clock, MdcReadingTypeUtilService readingTypeUtilService, TopologyService topologyService, LoadProfileFactory loadProfileFactory, DeviceMessageFileService deviceMessageFileService) {
         super(propertySpecService, ormClient);
         this.clock = clock;
         this.readingTypeUtilService = readingTypeUtilService;
         this.topologyService = topologyService;
         this.loadProfileFactory = loadProfileFactory;
+        this.deviceMessageFileService = deviceMessageFileService;
     }
 
-    /**
-     * Getter for the {@link com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties}
-     *
-     * @return the requested Properties
-     */
     @Override
     public DlmsProtocolProperties getProperties() {
         if (this.properties == null) {
@@ -112,12 +110,6 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
         }
     }
 
-    /**
-     * Make a connection to the physical device.
-     * Setup the association and check the objectList
-     *
-     * @throws java.io.IOException if errors occurred during data fetching
-     */
     @Override
     public void connect() throws IOException {
         if (!properties.madeCSDCall()) {
@@ -125,10 +117,6 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
         }
     }
 
-    /**
-     * Disconnect from the physical device.
-     * Close the association and check if we need to close the underlying connection
-     */
     @Override
     public void disconnect() throws IOException {
        if (!properties.madeCSDCall()) {
@@ -136,9 +124,6 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
         }
     }
 
-    /**
-     * Initialization method right after we are connected to the physical device.
-     */
     @Override
     protected void initAfterConnect() throws ConnectionException {
         validateMeterID();
@@ -191,11 +176,6 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
         return devID;
     }
 
-    /**
-     * Search for slave devices
-     *
-     *
-     */
     public void searchForSlaveDevices() throws ConnectionException {
         try {
             messageProtocol.checkMbusDevices();
@@ -205,22 +185,10 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
     }
 
 
-    /**
-     * Get the firmware version of the meter
-     *
-     * @return the version of the meter firmware
-     * @throws java.io.IOException Thrown in case of an exception
-     */
     public String getFirmwareVersion() throws IOException {
         return ((IskraMX372Properties)getProperties()).getFirmwareVersion();
     }
 
-    /**
-     * Get the SerialNumber of the device
-     *
-     * @return the serialNumber of the device
-     * @throws java.io.IOException thrown in case of an exception
-     */
     public String getMeterSerialNumber() throws IOException {
         if (!properties.madeCSDCall()) {
             if (serialnr == null) {
@@ -237,27 +205,10 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
         return cosemObjectFactory;
     }
 
-    /**
-     * This method is used to request a RegisterInfo object that gives info
-     * about the meter's supporting the specific ObisCode. If the ObisCode is
-     * not supported, NoSuchRegister is thrown.
-     *
-     * @param register the Register to request RegisterInfo for
-     * @return RegisterInfo about the ObisCode
-     * @throws java.io.IOException Thrown in case of an exception
-     */
     public RegisterInfo translateRegister(Register register) throws IOException {
         return ObisCodeMapper.getRegisterInfo(register.getObisCode());
     }
 
-    /**
-     * Request an array of RegisterValue objects for an given List of ObisCodes. If the ObisCode is not
-     * supported, there should not be a register value in the list.
-     *
-     * @param registers The Registers for which to request a RegisterValues
-     * @return List<RegisterValue> for an List of ObisCodes
-     * @throws java.io.IOException Thrown in case of an exception
-     */
     public List<RegisterValue> readRegisters(List<Register> registers) throws IOException {
         if (!properties.madeCSDCall()) {
             return getRegisterReader().read(registers);
@@ -282,13 +233,6 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
         }
     }
 
-    /**
-     * Get all the meter events from the device starting from the given date.
-     *
-     * @param lastLogbookDate the date of the last <CODE>MeterEvent</CODE> stored in the database
-     * @return a list of <CODE>MeterEvents</CODE>
-     * @throws java.io.IOException when a logical error occurred
-     */
     public List<MeterEvent> getMeterEvents(Date lastLogbookDate) throws IOException {
         if (!properties.madeCSDCall()) {
             Calendar cal = Calendar.getInstance(getTimeZone());
@@ -312,15 +256,6 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
         return logbook.getMeterEvents(dc);
     }
 
-    /**
-     * Get the configuration(interval, number of channels, channelUnits) of all given LoadProfiles from the meter.
-     * Build up a list of <CODE>LoadProfileConfiguration</CODE> objects and return them so the
-     * framework can validate them to the configuration in EIServer
-     *
-     * @param loadProfilesToRead the <CODE>List</CODE> of <CODE>LoadProfileReaders</CODE> to indicate which profiles will be read
-     * @return a list of <CODE>LoadProfileConfiguration</CODE> objects corresponding with the meter
-     * @throws java.io.IOException if a communication or parsing error occurred
-     */
     public List<LoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) throws IOException {
         if (!properties.madeCSDCall()) {
             List<LoadProfileConfiguration> loadProfileConfigurations = getLoadProfileBuilder().fetchLoadProfileConfiguration(loadProfilesToRead);
@@ -330,22 +265,6 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
         }
     }
 
-    /**
-     * <p>
-     * Fetches one or more LoadProfiles from the device. Each <CODE>LoadProfileReader</CODE> contains a list of necessary
-     * channels({@link LoadProfileReader#channelInfos}) to read. If it is possible then only these channels should be read,
-     * if not then all channels may be returned in the <CODE>ProfileData</CODE>. If {@link LoadProfileReader#channelInfos} contains an empty list
-     * or null, then all channels from the corresponding LoadProfile should be fetched.
-     * </p>
-     * <p>
-     * <b>Implementors should throw an exception if all data since {@link LoadProfileReader#getStartReadingTime()} can NOT be fetched</b>,
-     * as the collecting system will update its lastReading setting based on the returned ProfileData
-     * </p>
-     *
-     * @param loadProfiles a list of <CODE>LoadProfileReader</CODE> which have to be read
-     * @return a list of <CODE>ProfileData</CODE> objects containing interval records
-     * @throws java.io.IOException if a communication or parsing error occurred
-     */
     public List<ProfileData> getLoadProfileData(List<LoadProfileReader> loadProfiles) throws IOException {
         if (!properties.madeCSDCall()) {
             return getLoadProfileBuilder().getLoadProfileData(loadProfiles);
@@ -361,21 +280,10 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
         return loadProfileBuilder;
     }
 
-    /**
-     * Returns implementation version
-     *
-     * @return a version string
-     */
     public String getVersion() {
         return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
     }
 
-    /**
-     * <p></p>
-     *
-     * @return the current device time
-     * @throws java.io.IOException <br>
-     */
     @Override
     public Date getTime() throws IOException {
         if (!properties.madeCSDCall()) {
@@ -385,59 +293,26 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
         }
     }
 
-    /**
-     * Getter for property {@link com.energyict.dlms.DLMSConnection}.
-     *
-     * @return the {@link com.energyict.dlms.DLMSConnection}.
-     */
     public DLMSConnection getDLMSConnection() {
         return getDlmsSession().getDLMSConnection();
     }
 
-    /**
-     * Getter for property meterConfig.
-     *
-     * @return Value of property meterConfig.
-     */
     public DLMSMeterConfig getMeterConfig() {
         return getDlmsSession().getMeterConfig();
     }
 
-    /**
-     * Check if the {@link java.util.TimeZone} is read from the DLMS device, or if the
-     * {@link java.util.TimeZone} from the {@link com.energyict.mdc.protocol.api.legacy.MeterProtocol} should be used.
-     *
-     * @return true is the {@link java.util.TimeZone} is read from the device
-     */
     public boolean isRequestTimeZone() {
         return (((IskraMX372Properties) getProperties()).getRequestTimeZone() == 1) ? true : false;
     }
 
-    /**
-     * Getter for the round trip correction.
-     *
-     * @return the value of the round trip correction
-     */
     public int getRoundTripCorrection() {
         return getProperties().getRoundTripCorrection();
     }
 
-    /**
-     * Getter for the type of reference used in the DLMS protocol. This can be
-     * {@link com.energyict.dlms.ProtocolLink}.SN_REFERENCE or {@link com.energyict.dlms.ProtocolLink}.LN_REFERENCE
-     *
-     * @return {@link com.energyict.dlms.ProtocolLink}.SN_REFERENCE for short name or
-     *         {@link com.energyict.dlms.ProtocolLink}.LN_REFERENCE for long name
-     */
     public int getReference() {
         return 0;
     }
 
-    /**
-     * Getter for the {@link com.energyict.dlms.cosem.StoredValues} object
-     *
-     * @return the {@link com.energyict.dlms.cosem.StoredValues} object
-     */
     public StoredValues getStoredValues() {
         return null;
     }
@@ -458,31 +333,15 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
 
     public IskraMx372Messaging getMessageProtocol() {
         if (messageProtocol == null) {
-            messageProtocol = new IskraMx372Messaging(this, clock, this.topologyService, readingTypeUtilService, loadProfileFactory);
+            messageProtocol = new IskraMx372Messaging(this, clock, this.topologyService, readingTypeUtilService, loadProfileFactory, deviceMessageFileService);
         }
         return messageProtocol;
     }
 
-    /**
-     * Provides the full list of outstanding messages to the protocol.
-     * If for any reason certain messages have to be grouped before they are sent to a device, then this is the place to do it.
-     * At a later timestamp the framework will query each {@link MessageEntry} (see {@link #queryMessage(MessageEntry)}) to actually
-     * perform the message.
-     *
-     * @param messageEntries The list of MessageEntry
-     * @throws java.io.IOException if a logical error occurs
-     */
     public void applyMessages(List messageEntries) throws IOException {
         getMessageProtocol().applyMessages(messageEntries);
     }
 
-    /**
-     * Indicates that each message has to be executed by the protocol.
-     *
-     * @param messageEntry a definition of which message needs to be sent
-     * @return a state of the message which was just sent
-     * @throws java.io.IOException if a logical error occurs
-     */
     public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
         if (!properties.madeCSDCall()) {
             return getMessageProtocol().queryMessage(messageEntry);

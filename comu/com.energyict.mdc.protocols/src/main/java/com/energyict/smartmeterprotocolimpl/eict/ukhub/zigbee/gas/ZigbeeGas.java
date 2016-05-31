@@ -1,12 +1,12 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.MessageProtocol;
-import com.energyict.mdc.protocol.api.UserFileFactory;
 import com.energyict.mdc.protocol.api.WakeUpProtocolSupport;
-import com.energyict.mdc.protocol.api.codetables.CodeFactory;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
@@ -64,19 +64,19 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter,
     private ZigbeeGasEventProfiles zigbeeGasEventProfiles;
     private ZigbeeGasLoadProfile zigbeeGasLoadProfile;
     private ZigbeeGasRegisterFactory registerFactory;
-    protected final CodeFactory codeFactory;
-    protected final UserFileFactory userFileFactory;
+    protected final CalendarService calendarService;
+    protected final DeviceMessageFileService deviceMessageFileService;
 
     @Inject
-    public ZigbeeGas(PropertySpecService propertySpecService, OrmClient ormClient, CodeFactory codeFactory, UserFileFactory userFileFactory) {
+    public ZigbeeGas(PropertySpecService propertySpecService, OrmClient ormClient, CalendarService calendarService, DeviceMessageFileService deviceMessageFileService) {
         super(propertySpecService, ormClient);
-        this.codeFactory = codeFactory;
-        this.userFileFactory = userFileFactory;
+        this.calendarService = calendarService;
+        this.deviceMessageFileService = deviceMessageFileService;
     }
 
     public ZigbeeGasMessaging getMessageProtocol() {
         if (zigbeeGasMessaging == null) {
-            this.zigbeeGasMessaging = new ZigbeeGasMessaging(new ZigbeeMessageExecutor(this, this.codeFactory, this.userFileFactory));
+            this.zigbeeGasMessaging = new ZigbeeGasMessaging(new ZigbeeMessageExecutor(this, this.calendarService, this.deviceMessageFileService));
         }
         return this.zigbeeGasMessaging;
     }
@@ -125,7 +125,7 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter,
      * Get the firmware version of the meter
      *
      * @return the version of the meter firmware
-     * @throws java.io.IOException Thrown in case of an exception
+     * @throws IOException Thrown in case of an exception
      */
     public String getFirmwareVersion() throws IOException {
         if (getProperties().isFirmwareUpdateSession()) {

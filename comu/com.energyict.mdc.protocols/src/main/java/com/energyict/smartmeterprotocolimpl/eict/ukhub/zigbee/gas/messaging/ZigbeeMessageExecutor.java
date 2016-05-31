@@ -1,14 +1,15 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.messaging;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.UserFile;
-import com.energyict.mdc.protocol.api.UserFileFactory;
-import com.energyict.mdc.protocol.api.UserFileShadow;
-import com.energyict.mdc.protocol.api.codetables.CodeFactory;
+import com.energyict.mdc.protocol.api.DeviceMessageFile;
+import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
+import com.energyict.protocols.mdc.StoresConfigurationInformationInSystemGlobalFile;
+import com.energyict.protocols.messaging.DeviceMessageFileByteContentConsumer;
 import com.energyict.protocols.messaging.TimeOfUseMessageBuilder;
 
 import com.energyict.dlms.DLMSUtils;
@@ -65,6 +66,7 @@ import java.util.logging.Level;
  * Date: 10-aug-2011
  * Time: 15:02:34
  */
+@StoresConfigurationInformationInSystemGlobalFile
 public class ZigbeeMessageExecutor extends MessageParser {
 
     private static final ObisCode ChangeOfSupplierNameObisCode = ObisCode.fromString("7.0.1.64.0.255");
@@ -89,16 +91,16 @@ public class ZigbeeMessageExecutor extends MessageParser {
     private static final String RESUME = "resume";
 
     private final AbstractSmartDlmsProtocol protocol;
-    protected final CodeFactory codeFactory;
-    protected final UserFileFactory userFileFactory;
+    protected final CalendarService calendarService;
+    protected final DeviceMessageFileService deviceMessageFileService;
     private ActivityCalendarController activityCalendarController;
 
     private boolean success;
 
-    public ZigbeeMessageExecutor(final AbstractSmartDlmsProtocol protocol, CodeFactory codeFactory, UserFileFactory userFileFactory) {
+    public ZigbeeMessageExecutor(final AbstractSmartDlmsProtocol protocol, CalendarService calendarService, DeviceMessageFileService deviceMessageFileService) {
         this.protocol = protocol;
-        this.codeFactory = codeFactory;
-        this.userFileFactory = userFileFactory;
+        this.calendarService = calendarService;
+        this.deviceMessageFileService = deviceMessageFileService;
     }
 
     private CosemObjectFactory getCosemObjectFactory() {
@@ -312,7 +314,6 @@ public class ZigbeeMessageExecutor extends MessageParser {
         ActivePassive priceInformation = getCosemObjectFactory().getActivePassive(PRICE_MATRIX_OBISCODE);
         Array array = priceInformation.getValue().getArray();
         String priceInfo = "Pricing information unavailable: empty array";
-        String fileName = "PriceInformation_" + protocol.getDlmsSession().getProperties().getSerialNumber() + "_" + ProtocolTools.getFormattedDate("yyyy-MM-dd_HH.mm.ss");
         if (array != null && array.nrOfDataTypes() > 0) {
             StringBuilder sb = new StringBuilder();
 
@@ -332,10 +333,8 @@ public class ZigbeeMessageExecutor extends MessageParser {
             priceInfo = sb.toString();
         }
 
-        UserFileShadow ufs = ProtocolTools.createUserFileShadow(fileName, priceInfo.getBytes("UTF-8"), "txt");
-        this.createUserFile(ufs);
-
-        log(Level.INFO, "Stored price information in userFile: " + fileName);
+        log(Level.SEVERE, "Storing of price information in userFile is no longer supported");
+        throw new UnsupportedOperationException("Creating global Userfiles is not supported in Connexo, file management is now done in the context of device types");
     }
 
     private void setCV(String content) throws IOException {
@@ -556,21 +555,21 @@ public class ZigbeeMessageExecutor extends MessageParser {
 
     private void updateTimeOfUse(final String content) throws IOException {
         log(Level.INFO, "Received update ActivityCalendar message.");
-        final AS300TimeOfUseMessageBuilder builder = new AS300TimeOfUseMessageBuilder(this.codeFactory, this.userFileFactory);
+        final AS300TimeOfUseMessageBuilder builder = new AS300TimeOfUseMessageBuilder(this.calendarService, this.deviceMessageFileService);
 
         try {
             builder.initFromXml(content);
 
-            if (builder.getCodeId() > 0) { // codeTable implementation
+            if (builder.getCalendarId() > 0) { // codeTable implementation
                 log(Level.FINEST, "Parsing the content of the CodeTable.");
                 getActivityCalendarController().parseContent(content);
                 log(Level.FINEST, "Setting the new Passive Calendar Name.");
                 getActivityCalendarController().writeCalendarName("");
                 log(Level.FINEST, "Sending out the new Passive Calendar objects.");
                 getActivityCalendarController().writeCalendar();
-            } else if (builder.getUserFile() != null) { // userFile implementation
+            } else if (builder.getDeviceMessageFile() != null) { // userFile implementation
                 log(Level.FINEST, "Getting UserFile from message");
-                final byte[] userFileData = builder.getUserFile().loadFileInByteArray();
+                final byte[] userFileData = DeviceMessageFileByteContentConsumer.readFrom(builder.getDeviceMessageFile());
                 if (userFileData.length > 0) {
                     log(Level.FINEST, "Sending out the new Passive Calendar objects.");
                     handleXmlToDlms(new String(userFileData, "US-ASCII"));
@@ -685,10 +684,10 @@ public class ZigbeeMessageExecutor extends MessageParser {
         String userFileId = messageHandler.getTestUserFileId();
         Date currentTime;
         if (!"".equalsIgnoreCase(userFileId)) {
-            if (com.energyict.protocolimpl.generic.ParseUtils.isInteger(userFileId)) {
-                UserFile uf = findUserFile();
-                if (uf != null) {
-                    byte[] data = uf.loadFileInByteArray();
+            if (com.energyict.protocolimpl.generic.ParseUtils.isLong(userFileId)) {
+                DeviceMessageFile deviceMessageFile = findDeviceMessageFile(Long.parseLong(userFileId));
+                if (deviceMessageFile != null) {
+                    byte[] data = DeviceMessageFileByteContentConsumer.readFrom(deviceMessageFile);
                     CSVParser csvParser = new CSVParser();
                     csvParser.parse(data);
                     boolean hasWritten;
@@ -815,8 +814,8 @@ public class ZigbeeMessageExecutor extends MessageParser {
         throw new UnsupportedOperationException("Userfiles is not longer supported by Jupiter");
     }
 
-    private UserFile findUserFile() {
-        throw new UnsupportedOperationException("Userfiles is not longer supported by Jupiter");
+    private DeviceMessageFile findDeviceMessageFile(long id) {
+        return this.deviceMessageFileService.findDeviceMessageFile(id).orElse(null);
     }
 
     private void waitCyclus(int delay) throws IOException {
@@ -834,11 +833,6 @@ public class ZigbeeMessageExecutor extends MessageParser {
         } catch (IOException e) {
             throw new IOException("Could not keep connection alive." + e.getMessage());
         }
-    }
-
-
-    private UserFile createUserFile(UserFileShadow shadow) throws SQLException {
-        return this.userFileFactory.createUserFile(shadow);
     }
 
 }

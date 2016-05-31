@@ -1,12 +1,13 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.objects;
 
-import com.energyict.mdc.protocol.api.codetables.Season;
-import com.energyict.mdc.protocol.api.codetables.SeasonTransition;
+import com.elster.jupiter.calendar.Period;
+import com.elster.jupiter.calendar.PeriodTransition;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Copyrights EnergyICT
@@ -16,22 +17,28 @@ import java.util.List;
 public class SeasonObject implements Serializable {
 
     private String name;
-    private int id;
+    private long id;
     private List<SeasonTransitionObject> transitions;
 
     public SeasonObject() {
     }
 
-    public static SeasonObject fromSeason(Season season) {
+    public static SeasonObject from(Period period) {
         SeasonObject so = new SeasonObject();
-        so.setId(season.getId());
-        so.setName(season.getName());
-        so.setTransitions(new ArrayList<>());
-        List<? extends SeasonTransition> eis = season.getTransitions();
-        for (SeasonTransition trans : eis) {
-            so.getTransitions().add(SeasonTransitionObject.fromSeasonTransition(trans));
-        }
+        so.setId(period.getId());
+        so.setName(period.getName());
+        so.setTransitions(
+                transitionsTo(period)
+                        .map(trans -> SeasonTransitionObject.from(trans, period.getCalendar()))
+                        .collect(Collectors.toList()));
         return so;
+    }
+
+    private static Stream<PeriodTransition> transitionsTo(Period period) {
+        return period.getCalendar()
+                .getTransitions()
+                .stream()
+                .filter(transition -> transition.getPeriod().equals(period));
     }
 
     public List<SeasonTransitionObject> getTransitions() {
@@ -41,26 +48,22 @@ public class SeasonObject implements Serializable {
     public List<SeasonTransitionObject> getTransitionsPerYear(int year) {
         List<SeasonTransitionObject> transitionsForYear = new ArrayList<>();
         for (SeasonTransitionObject transition : transitions) {
-            if (transition.getStartCalendar().get(Calendar.YEAR) == year) {
+            if (transition.getStart().getYear() == year) {
                 transitionsForYear.add(transition);
             }
         }
         return transitionsForYear;
     }
 
-    public List<SeasonTransitionObject> getTransitionsForCurrentYear() {
-        return getTransitionsPerYear(Calendar.getInstance().get(Calendar.YEAR));
-    }
-
     public void setTransitions(List<SeasonTransitionObject> transitions) {
         this.transitions = transitions;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 
@@ -78,23 +81,21 @@ public class SeasonObject implements Serializable {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder();
-        sb.append("SeasonObject");
-        sb.append("{id=").append(id);
-        sb.append(", name='").append(name).append('\'');
-        sb.append(", transitions=").append(transitions);
-        sb.append('}');
-        return sb.toString();
+        return "SeasonObject" +
+               "{id=" + id +
+               ", name='" + name + '\'' +
+               ", transitions=" + transitions +
+               '}';
     }
 
     public int getStartMonth(int year) {
         List<SeasonTransitionObject> transitions = getTransitionsPerYear(year);
-        return transitions.isEmpty() ? 0 : transitions.get(0).getStartCalendar().get(Calendar.MONTH) + 1;
+        return transitions.isEmpty() ? 0 : transitions.get(0).getStart().getMonthValue();
     }
 
     public int getStartDay(int year) {
         List<SeasonTransitionObject> transitions = getTransitionsPerYear(year);
-        return transitions.isEmpty() ? 0 : transitions.get(0).getStartCalendar().get(Calendar.DAY_OF_MONTH);
+        return transitions.isEmpty() ? 0 : transitions.get(0).getStart().getDayOfMonth();
     }
 
 }

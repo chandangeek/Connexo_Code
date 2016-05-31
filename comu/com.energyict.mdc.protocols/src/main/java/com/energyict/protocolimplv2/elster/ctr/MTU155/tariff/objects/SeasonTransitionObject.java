@@ -1,10 +1,11 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.objects;
 
-import com.energyict.mdc.protocol.api.codetables.SeasonTransition;
+import com.elster.jupiter.calendar.Calendar;
+import com.elster.jupiter.calendar.PeriodTransition;
 
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.Calendar;
+import java.time.LocalDate;
 
 /**
  * Copyrights EnergyICT
@@ -13,27 +14,27 @@ import java.util.Calendar;
  */
 public class SeasonTransitionObject implements Serializable {
 
-    private int seasonId;
+    private long seasonId;
     private String seasonName;
+    private LocalDate start;
     private Instant startDate;
 
     public SeasonTransitionObject() {
-
     }
 
-    public static SeasonTransitionObject fromSeasonTransition(SeasonTransition trans) {
+    public static SeasonTransitionObject from(PeriodTransition transition, Calendar calendar) {
         SeasonTransitionObject sto = new SeasonTransitionObject();
-        sto.setSeasonId(trans.getSeasonId());
-        sto.setSeasonName(trans.getSeason().getName());
-        sto.setStartDate(trans.getStartDate());
+        sto.setSeasonId(transition.getPeriod().getId());
+        sto.setSeasonName(transition.getPeriod().getName());
+        sto.setStartDate(transition.getOccurrence().atStartOfDay(calendar.getTimeZone().toZoneId()).toInstant());
         return sto;
     }
 
-    public int getSeasonId() {
+    public long getSeasonId() {
         return seasonId;
     }
 
-    public void setSeasonId(int seasonId) {
+    public void setSeasonId(long seasonId) {
         this.seasonId = seasonId;
     }
 
@@ -45,14 +46,16 @@ public class SeasonTransitionObject implements Serializable {
         this.seasonName = seasonName;
     }
 
-    public Instant getStartDate() {
-        return startDate;
+    public LocalDate getStart() {
+        return start;
     }
 
-    public Calendar getStartCalendar() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(getStartDate().toEpochMilli());
-        return calendar;
+    public void setStart(LocalDate start) {
+        this.start = start;
+    }
+
+    public Instant getStartDate() {
+        return startDate;
     }
 
     public void setStartDate(Instant startDate) {
@@ -61,12 +64,11 @@ public class SeasonTransitionObject implements Serializable {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder();
-        sb.append("SeasonTransitionObject");
-        sb.append("{seasonId=").append(seasonId);
-        sb.append(", seasonName='").append(seasonName).append('\'');
-        sb.append(", startDate=").append(startDate);
-        sb.append('}');
-        return sb.toString();
+        return "SeasonTransitionObject" +
+               "{seasonId=" + seasonId +
+               ", seasonName='" + seasonName + '\'' +
+               ", startDate=" + startDate +
+               '}';
     }
+
 }

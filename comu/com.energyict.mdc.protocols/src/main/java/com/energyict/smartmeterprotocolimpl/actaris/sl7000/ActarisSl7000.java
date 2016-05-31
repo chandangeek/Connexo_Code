@@ -1,12 +1,12 @@
 package com.energyict.smartmeterprotocolimpl.actaris.sl7000;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.MessageProtocol;
-import com.energyict.mdc.protocol.api.UserFileFactory;
-import com.energyict.mdc.protocol.api.codetables.CodeFactory;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
@@ -92,14 +92,14 @@ public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements Protocol
     private StoredValuesImpl storedValues;
 
     private Messages messageProtocol;
-    private final CodeFactory codeFactory;
-    private final UserFileFactory userFileFactory;
+    private final CalendarService calendarService;
+    private final DeviceMessageFileService deviceMessageFileService;
 
     @Inject
-    public ActarisSl7000(PropertySpecService propertySpecService, OrmClient ormClient, CodeFactory codeFactory, UserFileFactory userFileFactory) {
+    public ActarisSl7000(PropertySpecService propertySpecService, OrmClient ormClient, CalendarService calendarService, DeviceMessageFileService deviceMessageFileService) {
         super(propertySpecService, ormClient);
-        this.codeFactory = codeFactory;
-        this.userFileFactory = userFileFactory;
+        this.calendarService = calendarService;
+        this.deviceMessageFileService = deviceMessageFileService;
     }
 
     @Override
@@ -298,8 +298,9 @@ public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements Protocol
 
      public Messages getMessageProtocol() {
         if (messageProtocol == null) {
-            messageProtocol = new Messages(this, codeFactory, userFileFactory);
+            messageProtocol = new Messages(this, this.calendarService, this.deviceMessageFileService);
         }
         return messageProtocol;
     }
+
 }

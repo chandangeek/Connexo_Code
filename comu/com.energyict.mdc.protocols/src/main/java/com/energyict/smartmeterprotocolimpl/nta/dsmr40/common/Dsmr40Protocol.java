@@ -1,5 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.common;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
@@ -32,19 +33,22 @@ import java.util.logging.Level;
 @Deprecated //Never released, technical class
 public class Dsmr40Protocol extends AbstractSmartNtaProtocol {
 
+    private final CalendarService calendarService;
+
     @Override
     public String getProtocolDescription() {
         return "DSMR40 technical class";
     }
 
     @Inject
-    public Dsmr40Protocol(PropertySpecService propertySpecService, Clock clock, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory, OrmClient ormClient) {
+    public Dsmr40Protocol(PropertySpecService propertySpecService, Clock clock, TopologyService topologyService, CalendarService calendarService, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory, OrmClient ormClient) {
         super(propertySpecService, clock, topologyService, readingTypeUtilService, loadProfileFactory, ormClient);
+        this.calendarService = calendarService;
     }
 
     @Override
     public MessageProtocol getMessageProtocol() {
-        return new Dsmr40Messaging(new Dsmr40MessageExecutor(this, this.getClock(), this.getTopologyService()));
+        return new Dsmr40Messaging(new Dsmr40MessageExecutor(this, this.getClock(), this.getTopologyService(), this.calendarService));
     }
 
     /**

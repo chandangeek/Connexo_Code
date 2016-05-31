@@ -1,12 +1,15 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
+import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.firmware.FirmwareVersion;
-import com.energyict.mdc.protocol.api.UserFile;
-import com.energyict.mdc.protocol.api.codetables.Code;
+import com.energyict.mdc.protocol.api.DeviceMessageFile;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.exceptions.GeneralParseException;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
+import com.energyict.protocols.messaging.DeviceMessageFileStringContentConsumer;
+
 import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.WebRTUFirmwareUpgradeWithUserFileActivationDateMessageEntry;
@@ -16,15 +19,15 @@ import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.gene
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special.ConfigWithUserFileAndActivationDateMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special.ConfigWithUserFileMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special.TimeOfUseMessageEntry;
-import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import javax.xml.parsers.ParserConfigurationException;
-import java.nio.charset.Charset;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.*;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activityCalendarAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activityCalendarNameAttributeName;
 
 /**
  * Represents a MessageConverter for the legacy IC ZigbeeGas protocol.
@@ -48,7 +51,7 @@ public class ZigbeeGasMessageConverter extends AbstractMessageConverter {
     public String format(PropertySpec propertySpec, Object messageAttribute) {
         switch (propertySpec.getName()) {
             case DeviceMessageConstants.PricingInformationUserFileAttributeName:
-                return new String(((UserFile) messageAttribute).loadFileInByteArray(), Charset.forName("UTF-8"));   // We suppose the UserFile contains regular ASCII
+                return DeviceMessageFileStringContentConsumer.readFrom(((DeviceMessageFile) messageAttribute), "UTF-8");   // We suppose the UserFile contains regular ASCII
             case DeviceMessageConstants.DisplayMessageActivationDate:
             case DeviceMessageConstants.ConfigurationChangeActivationDate:
             case DeviceMessageConstants.firmwareUpdateActivationDateAttributeName:
@@ -60,8 +63,8 @@ public class ZigbeeGasMessageConverter extends AbstractMessageConverter {
                 return GenericMessaging.zipAndB64EncodeContent(firmwareVersion.getFirmwareFile());  //Bytes of the firmwareFile as string
             case DeviceMessageConstants.activityCalendarActivationDateAttributeName:
                 return String.valueOf(((Date) messageAttribute).getTime()); //Millis since 1970
-            case activityCalendarCodeTableAttributeName:
-                Code codeTable = (Code) messageAttribute;
+            case activityCalendarAttributeName:
+                Calendar codeTable = (Calendar) messageAttribute;
                 return String.valueOf(codeTable.getId()) + TimeOfUseMessageEntry.SEPARATOR + encode(codeTable); //The ID and the XML representation of the code table, separated by a |
             default:
                 return messageAttribute.toString();
@@ -103,7 +106,7 @@ public class ZigbeeGasMessageConverter extends AbstractMessageConverter {
         registry.put(DeviceMessageId.ADVANCED_TEST_USERFILE_CONFIG, new MultipleAttributeMessageEntry("Test_Message", "Test_File"));
 
         // Time of Use
-        registry.put(DeviceMessageId.ACTIVITY_CALENDER_SEND_WITH_DATETIME, new TimeOfUseMessageEntry(activityCalendarNameAttributeName, activityCalendarActivationDateAttributeName, activityCalendarCodeTableAttributeName));
+        registry.put(DeviceMessageId.ACTIVITY_CALENDER_SEND_WITH_DATETIME, new TimeOfUseMessageEntry(activityCalendarNameAttributeName, activityCalendarActivationDateAttributeName, activityCalendarAttributeName));
         return registry;
     }
 
@@ -111,7 +114,7 @@ public class ZigbeeGasMessageConverter extends AbstractMessageConverter {
      * Return an XML representation of the code table.
      * The activation date and calendar name are set to 0, because they were stored in different message attributes.
      */
-    protected String encode(Code messageAttribute) {
+    private String encode(Calendar messageAttribute) {
         try {
             return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(messageAttribute, 0, "0");
         } catch (ParserConfigurationException e) {

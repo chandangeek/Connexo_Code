@@ -1,5 +1,6 @@
 package com.energyict.protocols.mdc.services.impl;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -13,6 +14,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -20,8 +22,7 @@ import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.UserFileFactory;
-import com.energyict.mdc.protocol.api.codetables.CodeFactory;
+import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
@@ -99,8 +100,9 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Message
     private volatile SerialComponentService serialComponentService;
     private volatile IdentificationService identificationService;
     private volatile CollectedDataFactory collectedDataFactory;
-    private volatile CodeFactory codeFactory;
-    private volatile UserFileFactory userFileFactory;
+    private volatile CalendarService calendarService;
+    private volatile DeviceConfigurationService deviceConfigurationService;
+    private volatile DeviceMessageFileService deviceMessageFileService;
 
     private Injector injector;
     private volatile DataModel dataModel;
@@ -117,7 +119,7 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Message
 
     // For testing purposes
     @Inject
-    public DeviceProtocolServiceImpl(IssueService issueService, MeteringService meteringService, Clock clock, OrmService ormService, NlsService nlsService, com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService, PropertySpecService propertySpecService, TopologyService topologyService, SocketService socketService, SerialComponentService serialComponentService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, CodeFactory codeFactory, UserFileFactory userFileFactory, TransactionService transactionService, ProtocolPluggableService protocolPluggableService, UpgradeService upgradeService) {
+    public DeviceProtocolServiceImpl(IssueService issueService, MeteringService meteringService, Clock clock, OrmService ormService, NlsService nlsService, com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService, PropertySpecService propertySpecService, TopologyService topologyService, SocketService socketService, SerialComponentService serialComponentService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, CalendarService calendarService, DeviceConfigurationService deviceConfigurationService, DeviceMessageFileService deviceMessageFileService, TransactionService transactionService, ProtocolPluggableService protocolPluggableService, UpgradeService upgradeService) {
         this();
         setMeteringService(meteringService);
         setTransactionService(transactionService);
@@ -133,8 +135,9 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Message
         setReadingTypeUtilService(readingTypeUtilService);
         setIdentificationService(identificationService);
         setCollectedDataFactory(collectedDataFactory);
-        setCodeFactory(codeFactory);
-        setUserFileFactory(userFileFactory);
+        setCalendarService(calendarService);
+        setDeviceConfigurationService(deviceConfigurationService);
+        setDeviceMessageFileService(deviceMessageFileService);
         setProtocolPluggableService(protocolPluggableService);
         setUpgradeService(upgradeService);
         activate();
@@ -168,8 +171,9 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Message
                 bind(IdentificationService.class).toInstance(identificationService);
                 bind(CollectedDataFactory.class).toInstance(collectedDataFactory);
                 bind(LoadProfileFactory.class).toInstance(new CompositeLoadProfileFactory());
-                bind(CodeFactory.class).toInstance(codeFactory);
-                bind(UserFileFactory.class).toInstance(userFileFactory);
+                bind(CalendarService.class).toInstance(calendarService);
+                bind(DeviceConfigurationService.class).toInstance(deviceConfigurationService);
+                bind(DeviceMessageFileService.class).toInstance(deviceMessageFileService);
                 bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
                 bind(DeviceProtocolService.class).toInstance(DeviceProtocolServiceImpl.this);
             }
@@ -305,13 +309,18 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Message
     }
 
     @Reference
-    public void setCodeFactory(CodeFactory codeFactory) {
-        this.codeFactory = codeFactory;
+    public void setCalendarService(CalendarService calendarService) {
+        this.calendarService = calendarService;
     }
 
     @Reference
-    public void setUserFileFactory(UserFileFactory userFileFactory) {
-        this.userFileFactory = userFileFactory;
+    public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
+        this.deviceConfigurationService = deviceConfigurationService;
+    }
+
+    @Reference
+    public void setDeviceMessageFileService(DeviceMessageFileService deviceMessageFileService) {
+        this.deviceMessageFileService = deviceMessageFileService;
     }
 
     @Override
