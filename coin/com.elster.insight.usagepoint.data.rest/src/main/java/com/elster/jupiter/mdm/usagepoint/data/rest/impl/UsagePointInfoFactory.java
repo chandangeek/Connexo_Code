@@ -153,7 +153,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         info.version = usagePoint.getVersion();
         info.createTime = usagePoint.getCreateDate().toEpochMilli();
         info.modTime = usagePoint.getModificationDate().toEpochMilli();
-        info.connectionState = new IdWithNameInfo(usagePoint.getConnectionState(), thesaurus.getFormat(ConnectionStateTranslationKeys
+        info.connectionState = new IdWithNameInfo(usagePoint.getConnectionState().getId(), thesaurus.getFormat(ConnectionStateTranslationKeys
                 .getTranslatedKeys(usagePoint.getConnectionState())).format());
         info.displayConnectionState = usagePoint.getConnectionState().getName();
         info.displayServiceCategory = usagePoint.getServiceCategory().getDisplayName();
