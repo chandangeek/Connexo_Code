@@ -170,7 +170,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     private UserDirectory getUserDirectory(String domain, String userName, String ipAddr) {
         List<UserDirectory> found = dataModel.query(UserDirectory.class).select(Operator.EQUALIGNORECASE.compare("name", domain));
         if (found.isEmpty()) {
-            logMessage(UNSUCCESSFUL_LOGIN, domain == null ? userName : domain+ "/" + userName, ipAddr);
+            logMessage(UNSUCCESSFUL_LOGIN, userName, domain, ipAddr);
             throw new NoDomainFoundException(thesaurus, domain);
         }
 
@@ -236,7 +236,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
 
         if (names.length <= 1) {
             if(names.length == 1) {
-                logMessage(UNSUCCESSFUL_LOGIN, names[0], ipAddr);
+                logMessage(UNSUCCESSFUL_LOGIN, names[0], null, ipAddr);
             }
             return Optional.empty();
         }
@@ -256,10 +256,10 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
         }
         Optional<User> user = authenticate(domain, userName, names[1], ipAddr);
         if(user.isPresent() && !user.get().getPrivileges().isEmpty()){
-            logMessage(SUCCESSFUL_LOGIN, domain == null ? userName : domain+ "/" + userName, ipAddr);
+            logMessage(SUCCESSFUL_LOGIN, userName, domain, ipAddr);
         }else{
             if(!userName.equals("")) {
-                logMessage(UNSUCCESSFUL_LOGIN, domain == null ? userName : domain+ "/" + userName, ipAddr);
+                logMessage(UNSUCCESSFUL_LOGIN, userName, domain, ipAddr);
             }
         }
         return user;
@@ -842,10 +842,10 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
         this.loggedInUsers.remove(user);
     }
 
-    private void logMessage(String message, String userName, String ipAddr){
+    private void logMessage(String message, String userName, String domain, String ipAddr){
         ipAddr = ipAddr.equals("0:0:0:0:0:0:0:1") ? "localhost" : ipAddr;
         if(message.equals(SUCCESSFUL_LOGIN)){
-            userLogin.log(Level.INFO, message + "[" + userName + "] " , ipAddr);
+            userLogin.log(Level.INFO, message + "[" + domain == null ? userName : domain+ "/" + userName + "] " , ipAddr);
             this.findUserIgnoreStatus(userName).ifPresent(user -> {
                 try(TransactionContext context = transactionService.getContext()) {
                     user.setLastSuccessfulLogin(clock.instant());
@@ -854,7 +854,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
                 }
             });
         } else {
-            userLogin.log(Level.WARNING, message + "[" + userName + "] " , ipAddr);
+            userLogin.log(Level.WARNING, message + "[" + domain == null ? userName : domain +"/" + userName + "] " , ipAddr);
             this.findUserIgnoreStatus(userName).ifPresent(user -> {
                 try(TransactionContext context = transactionService.getContext()) {
                     user.setLastUnSuccessfulLogin(clock.instant());
