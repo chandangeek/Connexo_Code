@@ -772,7 +772,7 @@ public class ObjectFactory {
         if (nodeName.equalsIgnoreCase(XMLTags.MPUSH)) {
             NodeList nodes = element.getElementsByTagName(XMLTags.METERDATA);
             Element md = (Element) nodes.item(0);
-            String currentSerialNumber = null;       //The serial number of the master meter, or of the MBus slave meter if MBus registers were received!
+            String currentSerialNumber = "";       //The serial number of the master meter, or of the MBus slave meter if MBus registers were received!
 
             if (md.getNodeName().equalsIgnoreCase(XMLTags.METERDATA)) {
                 NodeList mdNodeList = md.getChildNodes();

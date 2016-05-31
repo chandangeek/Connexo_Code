@@ -74,8 +74,13 @@ public class ACE4000Inbound extends ACE4000 implements BinaryInboundDeviceProtoc
         return collectedDatas;
     }
 
+    @Override
+    public boolean hasSupportForRequestsOnInbound() {
+        return true;
+    }
+
     public String getVersion() {
-        return "$Date: 2015-05-19 16:23:16 +0200 (Tue, 19 May 2015) $";
+        return "$Date: 2016-05-31 16:24:54 +0300 (Tue, 31 May 2016)$";
     }
 
     /**

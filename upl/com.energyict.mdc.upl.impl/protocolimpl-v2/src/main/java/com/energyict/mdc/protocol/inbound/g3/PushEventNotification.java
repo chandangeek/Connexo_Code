@@ -130,7 +130,7 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-03-29 12:57:54 +0200 (Tue, 29 Mar 2016)$";
+        return "$Date: 2016-05-31 16:24:54 +0300 (Tue, 31 May 2016)$";
     }
 
     @Override
@@ -146,5 +146,10 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
     @Override
     public List<PropertySpec> getOptionalProperties() {
         return Collections.emptyList();
+    }
+
+    @Override
+    public boolean hasSupportForRequestsOnInbound() {
+        return false;
     }
 }
