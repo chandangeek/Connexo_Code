@@ -6,13 +6,8 @@ import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
-import com.elster.jupiter.metering.config.PartiallySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
-import com.elster.jupiter.metering.config.ReadingTypeTemplateAttribute;
-import com.elster.jupiter.metering.config.ReadingTypeTemplateAttributeName;
 import com.elster.jupiter.metering.impl.aggregation.IntervalLength;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
@@ -138,28 +133,6 @@ public abstract class ReadingTypeRequirementImpl implements ReadingTypeRequireme
                 .filter(channel -> matches(channel.getMainReadingType()))
                 .collect(Collectors.toList());
     }
-
-    /**
-     * <p>
-     * For {@link FullySpecifiedReadingTypeRequirement} checks that candidate is the same reading type as
-     * {@link FullySpecifiedReadingTypeRequirement#getReadingType()}
-     * </p>
-     * <p>
-     * For {@link PartiallySpecifiedReadingTypeRequirement} checks that each candidate's attribute:
-     * <ul>
-     * <li>is equal to overridden attribute value (if it was overridden,
-     * see {@link PartiallySpecifiedReadingTypeRequirement#overrideAttribute(ReadingTypeTemplateAttributeName, int)})</li>
-     * <li>or is equal to template attribute value (if attribute has code or possible values,
-     * see {@link ReadingTypeTemplateAttribute#matches(ReadingType)})</li>
-     * <li>or has one of system allowed values, see
-     * {@link ReadingTypeTemplateAttributeName.ReadingTypeAttribute#getPossibleValues()}</li>
-     * </ul>
-     * </p>
-     *
-     * @param readingType reading type for check
-     * @return <code>true</code> if all attributes are within limits
-     */
-    abstract boolean matches(ReadingType readingType);
 
     @Override
     public boolean equals(Object o) {

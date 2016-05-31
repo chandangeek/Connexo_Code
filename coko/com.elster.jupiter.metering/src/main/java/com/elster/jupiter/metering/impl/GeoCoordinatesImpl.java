@@ -1,7 +1,9 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.domain.util.Save.Update;
 import com.elster.jupiter.metering.GeoCoordinates;
-import com.elster.jupiter.metering.Location;
+import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
 
@@ -9,6 +11,7 @@ import javax.inject.Inject;
 import java.time.Instant;
 
 
+@ValidCoordinates(groups = {Save.Create.class, Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_LOCATION_ENTRY + "}")
 public class GeoCoordinatesImpl implements GeoCoordinates {
 
 
@@ -60,10 +63,10 @@ public class GeoCoordinatesImpl implements GeoCoordinates {
 
     void doSave() {
         if (hasId()) {
-            dataModel.mapper(GeoCoordinates.class).update(this);
+            Save.UPDATE.save(dataModel, this);
             return;
         }
-        dataModel.mapper(GeoCoordinates.class).persist(this);
+        Save.CREATE.save(dataModel, this);
     }
 
     private boolean hasId() {

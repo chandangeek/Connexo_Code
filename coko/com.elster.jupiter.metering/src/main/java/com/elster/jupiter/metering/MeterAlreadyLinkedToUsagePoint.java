@@ -1,12 +1,15 @@
 package com.elster.jupiter.metering;
 
+import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 
 public class MeterAlreadyLinkedToUsagePoint extends LocalizedException {
 
     public MeterAlreadyLinkedToUsagePoint(Thesaurus thesaurus, MeterActivation meterActivation) {
-        super(thesaurus, MessageSeeds.METER_ALREADY_LINKED_TO_USAGEPOINT, meterActivation.getMeter().map(Meter::getName).orElse(""), meterActivation.getUsagePoint().get().getName());
+        super(thesaurus, MessageSeeds.METER_ALREADY_LINKED_TO_USAGEPOINT, meterActivation.getMeter().map(Meter::getMRID).orElse(""), meterActivation.getUsagePoint()
+                .get()
+                .getMRID(), meterActivation.getMeterRole().map(MeterRole::getDisplayName).orElse(""));
     }
 
 }
