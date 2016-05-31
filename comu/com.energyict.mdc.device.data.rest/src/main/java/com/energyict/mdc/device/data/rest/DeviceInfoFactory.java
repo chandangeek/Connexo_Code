@@ -44,7 +44,7 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
     public DeviceInfoFactory() {}
 
     @Inject
-    public DeviceInfoFactory(Thesaurus thesaurus, BatchService batchService, TopologyService topologyService, IssueService issueService, IssueDataValidationService issueDataValidationService, MeteringService meteringService, DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory, DeviceConfigurationService deviceConfigurationService, ) {
+    public DeviceInfoFactory(Thesaurus thesaurus, BatchService batchService, TopologyService topologyService, IssueService issueService, IssueDataValidationService issueDataValidationService, MeteringService meteringService, DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory, DeviceConfigurationService deviceConfigurationService) {
         this.thesaurus = thesaurus;
         this.batchService = batchService;
         this.topologyService = topologyService;
@@ -111,9 +111,8 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
                     .flatMap(List::stream).filter(Objects::nonNull)
                     .collect(Collectors.joining(", "));
         }
-        return DeviceInfo.from(device, slaveDevices, batchService, topologyService, issueService, issueDataValidationService, meteringService, thesaurus, formattedLocation, geoCoordinates
+        return DeviceInfo.from(device, slaveDevices, batchService, topologyService, issueService, issueDataValidationService, meteringService, thesaurus, dataLoggerSlaveDeviceInfoFactory, formattedLocation, geoCoordinates
                 .isPresent() ? geoCoordinates.get().getCoordinates().toString() : null);
-        return DeviceInfo.from(device, slaveDevices, batchService, topologyService, issueService, issueDataValidationService, meteringService, thesaurus, dataLoggerSlaveDeviceInfoFactory);
     }
 
     @Override
