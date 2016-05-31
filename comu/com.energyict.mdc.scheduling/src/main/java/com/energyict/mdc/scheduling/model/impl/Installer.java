@@ -21,8 +21,6 @@ import java.util.logging.Logger;
  */
 class Installer implements FullInstaller {
 
-    private final Logger logger = Logger.getLogger(Installer.class.getName());
-
     private final DataModel dataModel;
     private final EventService eventService;
 
@@ -34,9 +32,14 @@ class Installer implements FullInstaller {
     }
 
     @Override
-    public void install(DataModelUpgrader dataModelUpgrader) {
+    public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
         dataModelUpgrader.upgrade(dataModel, Version.latest());
-        createEventTypes();
+        doTry(
+                "Create event types for SCH",
+                this::createEventTypes,
+                logger
+        );
+
 
     }
 
