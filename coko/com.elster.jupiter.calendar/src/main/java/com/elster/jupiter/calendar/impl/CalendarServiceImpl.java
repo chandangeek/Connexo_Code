@@ -19,6 +19,7 @@ import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -34,7 +35,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
-import java.util.logging.Level;
 
 /**
  * Created by igh on 18/04/2016.
@@ -58,10 +58,11 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
     }
 
     @Inject
-    public CalendarServiceImpl(OrmService ormService, NlsService nlsService, UserService userService) {
+    public CalendarServiceImpl(OrmService ormService, NlsService nlsService, UserService userService, UpgradeService upgradeService) {
         setOrmService(ormService);
         setNlsService(nlsService);
         setUserService(userService);
+        setUpgradeService(upgradeService);
         activate();
     }
 
