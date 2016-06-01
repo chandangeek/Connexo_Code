@@ -131,6 +131,7 @@ public enum MessageSeeds implements MessageSeed {
     DUPLICATE_REGISTER_OBISCODE(2105, Keys.DUPLICATE_REGISTER_OBISCODE, "The OBIS code must be unique for all registers of your device"),
     DUPLICATE_CHANNEL_OBISCODE(2106, Keys.DUPLICATE_CHANNEL_OBISCODE, "The OBIS code must be unique for all the channels of your load profile"),
     OVERFLOW_INCREASED(2107, Keys.OVERFLOW_INCREASED, "The overflow value should not exceed the value of the configuration"),
+    VETO_CANNOT_CHANGE_OBISCODE_CONFIG_ALREADY_OVERRIDDEN_DEVICE(2108, Keys.VETO_CANNOT_CHANGE_OBISCODE_CONFIG_ALREADY_OVERRIDDEN_DEVICE, "You can not change the OBIS code, you already have devices with an overridden value for this OBIS code: {0}"),
     ;
 
     private final int number;
@@ -291,5 +292,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String DUPLICATE_REGISTER_OBISCODE = "duplicate.register.obiscode";
         public static final String DUPLICATE_CHANNEL_OBISCODE = "duplicate.channel.obiscode";
         public static final String OVERFLOW_INCREASED = "overflow.increased";
+        public static final String VETO_CANNOT_CHANGE_OBISCODE_CONFIG_ALREADY_OVERRIDDEN_DEVICE = "cannot.change.obiscode.config.already.overriden.device";
     }
 }
