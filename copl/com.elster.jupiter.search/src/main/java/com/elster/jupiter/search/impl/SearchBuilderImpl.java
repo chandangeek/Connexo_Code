@@ -96,76 +96,59 @@ public class SearchBuilderImpl<T> implements SearchBuilder<T> {
 
         private Object attemptConvertToValidValue(Object value) {
             try {
-                if (this.property.getSpecification().isReference()) {
-                    if (value instanceof String) {
-                        String id = (String) value;
-                        return this.property.getSpecification().getValueFactory().fromStringValue(id);
-                    }
-                    else {
-                        return this.property.getSpecification().getValueFactory().valueFromDatabase(value);
-                    }
-                }
-                else if (value instanceof String) {
-                    return this.property.getSpecification().getValueFactory().fromStringValue((String) value);
-                }
-                else {
+                PropertySpec specification = this.property.getSpecification();
+                if (value instanceof String) {
+                    return specification.getValueFactory().fromStringValue((String) value);
+                } else if (specification.isReference()) {
+                    return specification.getValueFactory().valueFromDatabase(value);
+                } else {
                     return value;
                 }
-            }
-            catch (RuntimeException e) {
+            } catch (RuntimeException e) {
                 return value;
             }
         }
 
         @Override
         public SearchBuilder<T> in(List<Object> values) throws InvalidValueException {
-            this.validateValues(this.attemptConvertToValidValues(values), this.property.getSpecification());
-            addCondition(
-                    this,
-                    new SearchablePropertyContains(
-                            ListOperator.IN.contains(this.property.getName(), values),
-                            this.property));
+            PropertySpec specification = this.property.getSpecification();
+            this.validateValues(this.attemptConvertToValidValues(values), specification);
+            addCondition(this,
+                    new SearchablePropertyContains(ListOperator.IN.contains(specification.getName(), values), this.property));
             return SearchBuilderImpl.this;
         }
 
         @Override
         public SearchBuilder<T> notIn(List<Object> values) throws InvalidValueException {
-            this.validateValues(this.attemptConvertToValidValues(values), this.property.getSpecification());
-            addCondition(
-                    this,
-                    new SearchablePropertyContains(
-                            ListOperator.NOT_IN.contains(this.property.getName(), values),
-                            this.property));
+            PropertySpec specification = this.property.getSpecification();
+            this.validateValues(this.attemptConvertToValidValues(values), specification);
+            addCondition(this,
+                    new SearchablePropertyContains(ListOperator.NOT_IN.contains(specification.getName(), values), this.property));
             return SearchBuilderImpl.this;
         }
 
         @Override
         public SearchBuilder<T> isEqualTo(Object value) throws InvalidValueException {
             Object actualValue = this.attemptConvertToValidValue(value);
-            this.validateValue(actualValue, this.property.getSpecification());
+            PropertySpec specification = this.property.getSpecification();
+            this.validateValue(actualValue, specification);
             Operator operator;
             if (actualValue instanceof String) {
                 operator = Operator.EQUALIGNORECASE;
-            }
-            else {
+            } else {
                 operator = Operator.EQUAL;
             }
-            addCondition(
-                    this,
-                    new SearchablePropertyComparison(
-                            operator.compare(this.property.getName(), actualValue),
-                            this.property));
+            addCondition(this,
+                    new SearchablePropertyComparison(operator.compare(specification.getName(), actualValue), this.property));
             return SearchBuilderImpl.this;
         }
 
         @Override
         public SearchBuilder<T> isEqualToIgnoreCase(String value) throws InvalidValueException {
-            this.validateValue(value, this.property.getSpecification());
-            addCondition(
-                    this,
-                    new SearchablePropertyComparison(
-                            Operator.EQUALIGNORECASE.compare(this.property.getName(), value),
-                            this.property));
+            PropertySpec specification = this.property.getSpecification();
+            this.validateValue(value, specification);
+            addCondition(this,
+                    new SearchablePropertyComparison(Operator.EQUALIGNORECASE.compare(specification.getName(), value), this.property));
             return SearchBuilderImpl.this;
         }
 
@@ -196,34 +179,28 @@ public class SearchBuilderImpl<T> implements SearchBuilder<T> {
 
         private SearchBuilder<T> addConditionWithOperator(Operator operator, Object value) throws InvalidValueException {
             Object actualValue = this.attemptConvertToValidValue(value);
-            this.validateValue(actualValue, this.property.getSpecification());
-            addCondition(
-                    this,
-                    new SearchablePropertyComparison(
-                            operator.compare(this.property.getName(), actualValue),
-                            this.property));
+            PropertySpec specification = this.property.getSpecification();
+            this.validateValue(actualValue, specification);
+            addCondition(this,
+                    new SearchablePropertyComparison(operator.compare(specification.getName(), actualValue), this.property));
             return SearchBuilderImpl.this;
         }
 
         @Override
         public SearchBuilder<T> like(String wildCardPattern) throws InvalidValueException {
-            this.validateValue(wildCardPattern, this.property.getSpecification());
-            addCondition(
-                    this,
-                    new SearchablePropertyComparison(
-                            Operator.LIKE.compare(this.property.getName(), toOracleSql(wildCardPattern)),
-                            this.property));
+            PropertySpec specification = this.property.getSpecification();
+            this.validateValue(wildCardPattern, specification);
+            addCondition(this,
+                    new SearchablePropertyComparison(Operator.LIKE.compare(specification.getName(), toOracleSql(wildCardPattern)), this.property));
             return SearchBuilderImpl.this;
         }
 
         @Override
         public SearchBuilder<T> likeIgnoreCase(String wildCardPattern) throws InvalidValueException {
-            this.validateValue(wildCardPattern, this.property.getSpecification());
-            addCondition(
-                    this,
-                    new SearchablePropertyComparison(
-                            Operator.LIKEIGNORECASE.compare(this.property.getName(), toOracleSql(wildCardPattern)),
-                            this.property));
+            PropertySpec specification = this.property.getSpecification();
+            this.validateValue(wildCardPattern, specification);
+            addCondition(this,
+                    new SearchablePropertyComparison(Operator.LIKEIGNORECASE.compare(specification.getName(), toOracleSql(wildCardPattern)), this.property));
             return SearchBuilderImpl.this;
         }
 
@@ -239,24 +216,21 @@ public class SearchBuilderImpl<T> implements SearchBuilder<T> {
 
         @Override
         public SearchBuilder<T> is(Boolean value) throws InvalidValueException {
-            addCondition(this, new SearchablePropertyConstant(value, this.property));
-            return SearchBuilderImpl.this;
+            return this.addConditionWithOperator(Operator.EQUAL, value);
         }
 
         @Override
         public SearchBuilder<T> isBetween(Object min, Object max) throws InvalidValueException {
-            validateValues(Arrays.asList(min, max), this.property.getSpecification());
-            if (min instanceof String){
+            PropertySpec specification = this.property.getSpecification();
+            validateValues(Arrays.asList(min, max), specification);
+            if (min instanceof String) {
                 min = toOracleSql((String) min);
             }
-            if (max instanceof String){
+            if (max instanceof String) {
                 max = toOracleSql((String) max);
             }
-            addCondition(
-                    this,
-                    new SearchablePropertyComparison(
-                            Operator.BETWEEN.compare(this.property.getName(), min, max),
-                            this.property));
+            addCondition(this,
+                    new SearchablePropertyComparison(Operator.BETWEEN.compare(specification.getName(), min, max), this.property));
             return SearchBuilderImpl.this;
         }
     }
@@ -309,31 +283,6 @@ public class SearchBuilderImpl<T> implements SearchBuilder<T> {
         @Override
         public Condition getCondition() {
             return this.contains;
-        }
-    }
-
-    /**
-     * Provides an implementation for the {@link SearchablePropertyCondition} interface
-     * that compares a {@link SearchableProperty} against boolean value.
-     */
-    private class SearchablePropertyConstant implements SearchablePropertyCondition {
-
-        private final Condition condition;
-        private final SearchableProperty property;
-
-        private SearchablePropertyConstant(Boolean value, SearchableProperty property) {
-            this.condition = value ? Condition.TRUE : Condition.FALSE;
-            this.property = property;
-        }
-
-        @Override
-        public SearchableProperty getProperty() {
-            return this.property;
-        }
-
-        @Override
-        public Condition getCondition() {
-            return this.condition;
         }
     }
 

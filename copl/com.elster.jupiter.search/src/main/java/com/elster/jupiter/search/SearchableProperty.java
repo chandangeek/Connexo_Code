@@ -112,14 +112,18 @@ public interface SearchableProperty {
      * the client code can/should refresh those properties.
      *
      * @return A flag that indicates if selecting/unselecting values
-     *         of this SearchableProperty affects the available properties
-     *         at the SearchDomain level
+     * of this SearchableProperty affects the available properties
+     * at the SearchDomain level
      * @see {@link SearchDomain#getPropertiesWithConstrictions(java.util.List)}
      */
     boolean affectsAvailableDomainProperties();
 
     Optional<SearchablePropertyGroup> getGroup();
 
+    /**
+     * @return A property specification which describes searchable property type. <p>
+     * Note, that name of this specification will be used as a field name for resulting search condition.
+     */
     PropertySpec getSpecification();
 
     Visibility getVisibility();
