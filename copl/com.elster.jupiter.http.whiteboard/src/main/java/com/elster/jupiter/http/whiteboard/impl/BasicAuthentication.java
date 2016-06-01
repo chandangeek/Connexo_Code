@@ -2,7 +2,6 @@ package com.elster.jupiter.http.whiteboard.impl;
 
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.http.whiteboard.HttpAuthenticationService;
-import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
@@ -10,7 +9,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.ExceptionCatcher;
-import com.elster.jupiter.util.json.JsonService;
+
 import com.google.inject.AbstractModule;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
@@ -76,8 +75,6 @@ public class BasicAuthentication implements HttpAuthenticationService, InstallSe
     private volatile SecurityTokenImpl securityToken;
     private volatile DataModel dataModel;
     private volatile TransactionService transactionService;
-    private volatile MessageService messageService;
-    private volatile JsonService jsonService;
     private int timeout;
     private int tokenRefreshMaxCount;
     private int tokenExpTime;
@@ -85,14 +82,12 @@ public class BasicAuthentication implements HttpAuthenticationService, InstallSe
 
 
     @Inject
-    BasicAuthentication(UserService userService, OrmService ormService, DataVaultService dataVaultService, MessageService messageService, JsonService jsonService) throws
+    BasicAuthentication(UserService userService, OrmService ormService, DataVaultService dataVaultService) throws
             InvalidKeySpecException,
             NoSuchAlgorithmException {
         setUserService(userService);
         setOrmService(ormService);
         setDataVaultService(dataVaultService);
-        setMessageService(messageService);
-        setJsonService(jsonService);
         activate(null);
         if (!dataModel.isInstalled()) {
             install();
@@ -101,16 +96,6 @@ public class BasicAuthentication implements HttpAuthenticationService, InstallSe
 
     public BasicAuthentication() {
 
-    }
-
-    @Reference
-    public void setJsonService(JsonService jsonService){
-        this.jsonService = jsonService;
-    }
-
-    @Reference
-    public void setMessageService(MessageService messageService){
-        this.messageService = messageService;
     }
 
     @Reference
@@ -143,8 +128,6 @@ public class BasicAuthentication implements HttpAuthenticationService, InstallSe
             @Override
             protected void configure() {
                 bind(UserService.class).toInstance(userService);
-                bind(MessageService.class).toInstance(messageService);
-                bind(JsonService.class).toInstance(jsonService);
                 bind(DataVaultService.class).toInstance(dataVaultService);
                 bind(DataModel.class).toInstance(dataModel);
             }
@@ -165,7 +148,7 @@ public class BasicAuthentication implements HttpAuthenticationService, InstallSe
             try {
                 securityToken = new SecurityTokenImpl(dataVaultService.decrypt(keyStore.get().getPublicKey()),
                         dataVaultService.decrypt(keyStore.get().getPrivateKey()),
-                        tokenExpTime, tokenRefreshMaxCount, timeout, messageService, jsonService);
+                        tokenExpTime, tokenRefreshMaxCount, timeout);
             } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
                 throw new RuntimeException(e);
             }
@@ -298,7 +281,7 @@ public class BasicAuthentication implements HttpAuthenticationService, InstallSe
 
 
     private boolean doCookieAuthorization(Cookie tokenCookie, HttpServletRequest request, HttpServletResponse response) {
-        SecurityTokenImpl.TokenValidation validation = securityToken.verifyToken(tokenCookie.getValue(), userService);
+        SecurityTokenImpl.TokenValidation validation = securityToken.verifyToken(tokenCookie.getValue(), userService, request.getRemoteAddr());
         return handleTokenValidation(validation, tokenCookie.getValue(), request, response);
     }
 
@@ -318,22 +301,22 @@ public class BasicAuthentication implements HttpAuthenticationService, InstallSe
         Optional<Cookie> xsrf = getTokenCookie(request);
         if (xsrf.isPresent()) {
             token = xsrf.get().getValue();
-            if (!securityToken.compareTokens(token, authentication.substring(authentication.lastIndexOf(" ") + 1))) {
+            if (!securityToken.compareTokens(token, authentication.substring(authentication.lastIndexOf(" ") + 1), request.getRemoteAddr())) {
                 return deny(request, response);
             }
         }
 
         // Since the cookie value can be updated without updating the authorization header, it should be used here instead of the header
         // The check before ensures the header is also valid syntactically, but it may be expires if only the cookie was updated (Facts, Flow)
-        SecurityTokenImpl.TokenValidation tokenValidation = securityToken.verifyToken(token, userService);
+        SecurityTokenImpl.TokenValidation tokenValidation = securityToken.verifyToken(token, userService, request.getRemoteAddr());
         return handleTokenValidation(tokenValidation, token, request, response);
     }
 
     private boolean doBasicAuthentication(HttpServletRequest request, HttpServletResponse response, String authentication) {
-        Optional<User> user = userService.authenticateBase64(authentication);
+        Optional<User> user = userService.authenticateBase64(authentication, request.getRemoteAddr());
         //securityToken.removeCookie(request, response);
         if (isAuthenticated(user)) {
-            String token = securityToken.createToken(user.get(), 0);
+            String token = securityToken.createToken(user.get(), 0, request.getRemoteAddr());
             response.addCookie(createTokenCookie(token, "/"));
             return allow(request, response, user.get(), token);
         } else {
@@ -411,6 +394,5 @@ public class BasicAuthentication implements HttpAuthenticationService, InstallSe
         cookie.setHttpOnly(true);
         return cookie;
     }
-
 
 }

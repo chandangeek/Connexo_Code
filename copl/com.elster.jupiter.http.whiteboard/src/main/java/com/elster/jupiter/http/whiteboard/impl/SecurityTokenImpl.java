@@ -1,11 +1,8 @@
 package com.elster.jupiter.http.whiteboard.impl;
 
-import com.elster.jupiter.messaging.DestinationSpec;
-import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.json.JsonService;
 
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
@@ -29,10 +26,10 @@ import java.security.spec.X509EncodedKeySpec;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 public class SecurityTokenImpl {
@@ -42,18 +39,16 @@ public class SecurityTokenImpl {
     private final int tokenExpiration;
     private final int maxTokenCount;
     private final int timeOut;
-    private static final String USR_QUEUE_DEST = "UsrQueueDest";
     private static final String TOKEN_INVALID = "Invalid token ";
     private static final String TOKEN_EXPIRED = "Token expired for user ";
     private static final String TOKEN_RENEWAL = "Token renewal for user ";
     private static final String TOKEN_GENERATED = "Token generated for user ";
     private static final String USER_NOT_FOUND = "User not found ";
     private static final String USER_DISABLED = "User account disabled ";
-    private volatile MessageService messageService;
-    private volatile JsonService jsonService;
+    private Logger tokenRenewal = Logger.getLogger("tokenRenewal");
 
 
-    public SecurityTokenImpl(byte[] publicKey, byte[] privateKey, int tokenExpiration, int maxTokenCount, int timeOut, MessageService messageService, JsonService jsonService) throws
+    public SecurityTokenImpl(byte[] publicKey, byte[] privateKey, int tokenExpiration, int maxTokenCount, int timeOut) throws
             NoSuchAlgorithmException,
             InvalidKeySpecException {
         KeyFactory keyFactory = KeyFactory.getInstance("RSA");
@@ -64,15 +59,13 @@ public class SecurityTokenImpl {
         this.tokenExpiration = tokenExpiration;
         this.maxTokenCount = maxTokenCount;
         this.timeOut = timeOut;
-        this.messageService = messageService;
-        this.jsonService = jsonService;
     }
 
     public int getCookieMaxAge() {
         return tokenExpiration + timeOut;
     }
 
-    public String createToken(User user, long count) {
+    public String createToken(User user, long count, String ipAddr) {
         try {
             JWSSigner signer = new RSASSASigner(privateKey);
 
@@ -96,9 +89,9 @@ public class SecurityTokenImpl {
 
             signedJWT.sign(signer);
             if(count > 0){
-                logMessage(TOKEN_RENEWAL, "["+user.getName()+"]");
+                logMessage(TOKEN_RENEWAL, "["+user.getName()+"]", ipAddr);
             }else{
-                logMessage(TOKEN_GENERATED, "["+user.getName()+"]");
+                logMessage(TOKEN_GENERATED, "["+user.getName()+"]", ipAddr);
             }
             return signedJWT.serialize();
 
@@ -141,10 +134,10 @@ public class SecurityTokenImpl {
         }
     }
 
-    public TokenValidation verifyToken(String token, UserService userService) {
+    public TokenValidation verifyToken(String token, UserService userService, String ipAddr) {
         Optional<User> user = Optional.empty();
         try {
-            Optional<SignedJWT> signedJWT = checkTokenIntegrity(token);
+            Optional<SignedJWT> signedJWT = checkTokenIntegrity(token, ipAddr);
             if (signedJWT.isPresent() && (Long) signedJWT.get()
                     .getJWTClaimsSet()
                     .getCustomClaim("cnt") < maxTokenCount) {
@@ -152,7 +145,7 @@ public class SecurityTokenImpl {
                 user = userService.getLoggedInUser(userId);
                 if (new Date().before(new Date(signedJWT.get().getJWTClaimsSet().getExpirationTime().getTime()))) {
                     if(!user.isPresent()) {
-                        logMessage(USER_NOT_FOUND, "[id: " + userId + "]");
+                        logMessage(USER_NOT_FOUND, "[id: " + userId + "]", ipAddr);
                     }
                     return new TokenValidation(user.isPresent(), user.orElse(null), token);
                 } else if (new Date().before(new Date(signedJWT.get()
@@ -162,34 +155,34 @@ public class SecurityTokenImpl {
                     if (userService.getUser(userId).isPresent()) {
                         if(userService.getUser(userId).get().getStatus()) {
                             long count = (Long) signedJWT.get().getJWTClaimsSet().getCustomClaim("cnt");
-                            String newToken = createToken(userService.getLoggedInUser(userId).get(), ++count);
+                            String newToken = createToken(userService.getLoggedInUser(userId).get(), ++count, ipAddr);
                             return new TokenValidation(user.isPresent(), user.orElse(null), newToken);
                         }else {
-                            logMessage(USER_DISABLED, "[" + userService.getUser(userId).get().getName() + "]");
+                            logMessage(USER_DISABLED, "[" + userService.getUser(userId).get().getName() + "]", ipAddr);
                         }
                     } else {
                         if(user.isPresent()) {
-                            logMessage(USER_NOT_FOUND, "[name: " + user.get().getName() + "]");
+                            logMessage(USER_NOT_FOUND, "[name: " + user.get().getName() + "]", ipAddr);
                         } else {
-                            logMessage(USER_NOT_FOUND, "[id: " + userId + "]");
+                            logMessage(USER_NOT_FOUND, "[id: " + userId + "]", ipAddr);
                         }
                     }
                 } else {
-                    logMessage(TOKEN_EXPIRED, "[" + user.get().getName() + "]");
+                    logMessage(TOKEN_EXPIRED, "[" + user.get().getName() + "]", ipAddr);
                 }
             } else {
-                logMessage(TOKEN_INVALID, "[" + token + "]");
+                logMessage(TOKEN_INVALID, "[" + token + "]", ipAddr);
             }
 
         } catch (ParseException e) {
-            logMessage(TOKEN_INVALID, "[" + token + "]");
+            logMessage(TOKEN_INVALID, "[" + token + "]", ipAddr);
         }
         return new TokenValidation(false, null, null);
     }
 
-    public boolean compareTokens(String cookie, String token) {
-        Optional<SignedJWT> jwtCookie = checkTokenIntegrity(cookie);
-        Optional<SignedJWT> jwtToken = checkTokenIntegrity(token);
+    public boolean compareTokens(String cookie, String token, String ipAddr) {
+        Optional<SignedJWT> jwtCookie = checkTokenIntegrity(cookie, ipAddr);
+        Optional<SignedJWT> jwtToken = checkTokenIntegrity(token, ipAddr);
 
         try {
             if (jwtCookie.isPresent() && jwtToken.isPresent()) {
@@ -207,13 +200,13 @@ public class SecurityTokenImpl {
             }
 
         } catch (ParseException e) {
-            logMessage(TOKEN_INVALID, "[" + token + "]");
+            logMessage(TOKEN_INVALID, "[" + token + "]", ipAddr);
         }
-        logMessage(TOKEN_INVALID, "[" + token + "]");
+        logMessage(TOKEN_INVALID, "[" + token + "]", ipAddr);
         return false;
     }
 
-    private Optional<SignedJWT> checkTokenIntegrity(String token) {
+    private Optional<SignedJWT> checkTokenIntegrity(String token, String ipAddr) {
         try {
             if (token != null && !("null".equals(token) || "undefined".equals(token)) && publicKey != null) {
                 SignedJWT signedJWT = SignedJWT.parse(token);
@@ -230,20 +223,18 @@ public class SecurityTokenImpl {
                 }
             }
         } catch (ParseException | JOSEException e) {
-            logMessage(TOKEN_INVALID, "[" + token + "]");
+            logMessage(TOKEN_INVALID, "[" + token + "]", ipAddr);
         }
         return Optional.empty();
     }
 
-    private void logMessage(String message, String userName){
-        Map<String, String> messageProperties = new HashMap<>();
-        messageProperties.put(message, userName);
-        Optional<DestinationSpec> found = messageService.getDestinationSpec(USR_QUEUE_DEST);
-        if(found.isPresent()){
-            String json = jsonService.serialize(messageProperties);
-            found.get().message(json).send();
+    private void logMessage(String message, String userName, String ipAddr){
+        ipAddr = ipAddr.equals("0:0:0:0:0:0:0:1") ? "localhost" : ipAddr;
+        if(message.equals(TOKEN_INVALID)){
+            tokenRenewal.log(Level.WARNING, message + userName + " " , ipAddr);
+        } else if(message.equals(TOKEN_GENERATED) || message.equals(TOKEN_EXPIRED) || message.equals(TOKEN_RENEWAL) || message.equals(USER_DISABLED) || message.equals(USER_NOT_FOUND)){
+            tokenRenewal.log(Level.INFO, message + userName + " " , ipAddr);
         }
     }
-
 
 }
