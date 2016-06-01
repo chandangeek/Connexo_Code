@@ -5,6 +5,7 @@ import com.elster.jupiter.cbo.MeasurementKind;
 import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MultiplierType;
@@ -90,6 +91,8 @@ public class DataAggregationServiceImplCalculateTest {
     private QueryExecutor<EffectiveMetrologyConfigurationOnUsagePoint> queryExecutor;
     @Mock
     private EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration;
+    @Mock
+    private CustomPropertySetService customPropertySetService;
     @Mock
     private ServerMeteringService meteringService;
     @Mock
@@ -582,7 +585,12 @@ public class DataAggregationServiceImplCalculateTest {
     }
 
     private DataAggregationServiceImpl testInstance() {
-        return new DataAggregationServiceImpl(this.meteringService, this::getSqlBuilderFactory, this::getVirtualFactory, this::getReadingTypeDeliverableForMeterActivationFactory);
+        return new DataAggregationServiceImpl(
+                this.customPropertySetService,
+                this.meteringService,
+                this::getSqlBuilderFactory,
+                this::getVirtualFactory,
+                this::getReadingTypeDeliverableForMeterActivationFactory);
     }
 
     private SqlBuilderFactory getSqlBuilderFactory() {

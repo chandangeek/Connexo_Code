@@ -39,7 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class UsagePointMetrologyConfigurationTestIT {
 
     private static final String DEFAULT_SEARCH_PROPERTY = "SERVICEKIND";
-    private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = new MeteringInMemoryBootstrapModule();
+    private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = MeteringInMemoryBootstrapModule.withAllDefaults();
 
     @Rule
     public ExpectedConstraintViolationRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();

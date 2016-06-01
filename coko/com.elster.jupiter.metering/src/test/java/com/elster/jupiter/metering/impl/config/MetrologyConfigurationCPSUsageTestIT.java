@@ -7,6 +7,10 @@ import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
 import com.elster.jupiter.metering.impl.cps.UsagePointTestCustomPropertySet;
 import com.elster.jupiter.transaction.TransactionContext;
+
+import java.util.Optional;
+import java.util.function.Consumer;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -14,15 +18,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.Optional;
-import java.util.function.Consumer;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MetrologyConfigurationCPSUsageTestIT {
     public static final String METROLOGY_CONFIG_NAME = "Test metrology configuration";
-    private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = new MeteringInMemoryBootstrapModule();
+    private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = MeteringInMemoryBootstrapModule.withAllDefaults();
     private static UsagePointTestCustomPropertySet customPropertySet;
 
     @BeforeClass

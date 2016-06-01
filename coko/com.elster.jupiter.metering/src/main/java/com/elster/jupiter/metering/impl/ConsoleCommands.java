@@ -1,6 +1,8 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.cbo.IdentifiedObject;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.GeoCoordinates;
@@ -94,16 +96,44 @@ import java.util.stream.Stream;
         "osgi.command.function=addDeviceGeoCoordinates",
         "osgi.command.function=addUsagePointLocation",
         "osgi.command.function=addUsagePointGeoCoordinates",
-        "osgi.command.function=activateMetrologyConfig"
-
+        "osgi.command.function=activateMetrologyConfig",
+        "osgi.command.function=addCustomPropertySet"
 }, immediate = true)
+@SuppressWarnings("unused")
 public class ConsoleCommands {
 
     private volatile ServerMeteringService meteringService;
     private volatile DataModel dataModel;
     private volatile TransactionService transactionService;
     private volatile ThreadPrincipalService threadPrincipalService;
+    private volatile CustomPropertySetService customPropertySetService;
     private volatile ServerMetrologyConfigurationService metrologyConfigurationService;
+
+    @Reference
+    public void setTransactionService(TransactionService transactionService) {
+        this.transactionService = transactionService;
+    }
+
+    @Reference
+    public void setMetrologyConfigurationService(ServerMetrologyConfigurationService metrologyConfigurationService) {
+        this.metrologyConfigurationService = metrologyConfigurationService;
+    }
+
+    @Reference
+    public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
+        this.customPropertySetService = customPropertySetService;
+    }
+
+    @Reference
+    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+        this.threadPrincipalService = threadPrincipalService;
+    }
+
+    @Reference
+    public void setMeteringService(ServerMeteringService meteringService) {
+        this.meteringService = meteringService;
+        this.dataModel = meteringService.getDataModel();
+    }
 
     public void printDdl() {
         try {
@@ -564,7 +594,7 @@ public class ConsoleCommands {
             ReadingType readingType = meteringService.getReadingType(readingTypeString)
                     .orElseThrow(() -> new IllegalArgumentException("No such reading type"));
 
-            ServerExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService, metrologyConfiguration, mode).parse(formulaString);
+            ServerExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService, customPropertySetService, metrologyConfiguration, mode).parse(formulaString);
 
             long id = ((ReadingTypeDeliverableBuilderImpl) metrologyConfiguration.newReadingTypeDeliverable(name, readingType, mode)).build(node).getId();
             System.out.println("Deliverable created: " + id);
@@ -583,7 +613,7 @@ public class ConsoleCommands {
                     .orElseThrow(() -> new IllegalArgumentException("No such deliverable"));
             ReadingType readingType = meteringService.getReadingType(readingTypeString)
                     .orElseThrow(() -> new IllegalArgumentException("No such reading type"));
-            ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService, deliverable.getMetrologyConfiguration(), Formula.Mode.AUTO).parse(formulaString);
+            ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService, customPropertySetService, deliverable.getMetrologyConfiguration(), Formula.Mode.AUTO).parse(formulaString);
 
             deliverable.setName(name);
             deliverable.setReadingType(readingType);
@@ -626,7 +656,7 @@ public class ConsoleCommands {
         try (TransactionContext context = transactionService.getContext()) {
             ReadingTypeDeliverable deliverable = metrologyConfigurationService.findReadingTypeDeliverable(deliverableId)
                     .orElseThrow(() -> new IllegalArgumentException("No such deliverable"));
-            ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService, deliverable.getMetrologyConfiguration(), Formula.Mode.AUTO).parse(formulaString);
+            ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService, customPropertySetService, deliverable.getMetrologyConfiguration(), Formula.Mode.AUTO).parse(formulaString);
 
             deliverable.getFormula().updateExpression(node);
             deliverable.update();
@@ -698,65 +728,42 @@ public class ConsoleCommands {
         }
     }
 
-    @Reference
-    public void setMeteringService(ServerMeteringService meteringService) {
-        this.meteringService = meteringService;
-        this.dataModel = meteringService.getDataModel();
-    }
-
-    @Reference
-    public void setTransactionService(TransactionService transactionService) {
-        this.transactionService = transactionService;
-    }
-
-    @Reference
-    public void setMetrologyConfigurationService(ServerMetrologyConfigurationService metrologyConfigurationService) {
-        this.metrologyConfigurationService = metrologyConfigurationService;
-    }
-
-    @Reference
-    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
-        this.threadPrincipalService = threadPrincipalService;
-    }
-
     private String explained(ReadingType readingType) {
-        StringBuilder builder = new StringBuilder();
-        builder.append("Macro period             : ")
-                .append(readingType.getMacroPeriod().getDescription())
-                .append('\n');
-        builder.append("Aggregate                : ").append(readingType.getAggregate().getDescription()).append('\n');
-        builder.append("Measuring period         : ")
-                .append(readingType.getMeasuringPeriod().getDescription())
-                .append('\n');
-        builder.append("Accumulation             : ")
-                .append(readingType.getAccumulation().getDescription())
-                .append('\n');
-        builder.append("Flow direction           : ")
-                .append(readingType.getFlowDirection().getDescription())
-                .append('\n');
-        builder.append("Commodity                : ").append(readingType.getCommodity().getDescription()).append('\n');
-        builder.append("Macro period             : ")
-                .append(readingType.getMacroPeriod().getDescription())
-                .append('\n');
-        builder.append("Measurement kind         : ")
-                .append(readingType.getMeasurementKind().getDescription())
-                .append('\n');
-        builder.append("IH numerator             : ")
-                .append(readingType.getInterharmonic().getNumerator())
-                .append('\n');
-        builder.append("IH denominator           : ")
-                .append(readingType.getInterharmonic().getDenominator())
-                .append('\n');
-        builder.append("Argument numerator       : ").append(readingType.getArgument().getNumerator()).append('\n');
-        builder.append("Argument denominator     : ").append(readingType.getArgument().getDenominator()).append('\n');
-        builder.append("Time of use              : ").append(readingType.getTou()).append('\n');
-        builder.append("CPP                      : ").append(readingType.getCpp()).append('\n');
-        builder.append("Consumption tier         : ").append(readingType.getConsumptionTier()).append('\n');
-        builder.append("Phases                   : ").append(readingType.getPhases().getDescription()).append('\n');
-        builder.append("Multiplier               : ").append(readingType.getMultiplier()).append('\n');
-        builder.append("Unit                     : ").append(readingType.getUnit()).append('\n');
-        builder.append("Currency                 : ").append(readingType.getCurrency().toString()).append('\n');
-        return builder.toString();
+        return "Macro period             : " +
+                readingType.getMacroPeriod().getDescription() +
+                '\n' +
+                "Aggregate                : " + readingType.getAggregate().getDescription() + '\n' +
+                "Measuring period         : " +
+                readingType.getMeasuringPeriod().getDescription() +
+                '\n' +
+                "Accumulation             : " +
+                readingType.getAccumulation().getDescription() +
+                '\n' +
+                "Flow direction           : " +
+                readingType.getFlowDirection().getDescription() +
+                '\n' +
+                "Commodity                : " + readingType.getCommodity().getDescription() + '\n' +
+                "Macro period             : " +
+                readingType.getMacroPeriod().getDescription() +
+                '\n' +
+                "Measurement kind         : " +
+                readingType.getMeasurementKind().getDescription() +
+                '\n' +
+                "IH numerator             : " +
+                readingType.getInterharmonic().getNumerator() +
+                '\n' +
+                "IH denominator           : " +
+                readingType.getInterharmonic().getDenominator() +
+                '\n' +
+                "Argument numerator       : " + readingType.getArgument().getNumerator() + '\n' +
+                "Argument denominator     : " + readingType.getArgument().getDenominator() + '\n' +
+                "Time of use              : " + readingType.getTou() + '\n' +
+                "CPP                      : " + readingType.getCpp() + '\n' +
+                "Consumption tier         : " + readingType.getConsumptionTier() + '\n' +
+                "Phases                   : " + readingType.getPhases().getDescription() + '\n' +
+                "Multiplier               : " + readingType.getMultiplier() + '\n' +
+                "Unit                     : " + readingType.getUnit() + '\n' +
+                "Currency                 : " + readingType.getCurrency().toString() + '\n';
     }
 
     public void activateMetrologyConfig(String name) {
@@ -768,4 +775,25 @@ public class ConsoleCommands {
             context.commit();
         }
     }
+
+    public void addCustomPropertySet() {
+        System.out.println("Usage: addCustomPropertySet <metrology configuration id> <custom property set id>");
+    }
+
+    @SuppressWarnings("unchecked")
+    public void addCustomPropertySet(long metrologyConfigurationId, String customPropertySetId) {
+        threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            RegisteredCustomPropertySet customPropertySet = this.customPropertySetService
+                    .findActiveCustomPropertySet(customPropertySetId)
+                    .orElseThrow(() -> new IllegalArgumentException("Unable to find custom property set with id " + customPropertySetId));
+            MetrologyConfiguration metrologyConfiguration =
+                    this.metrologyConfigurationService
+                            .findMetrologyConfiguration(metrologyConfigurationId)
+                            .orElseThrow(() -> new IllegalArgumentException("Unable to find metrology configuration with id " + metrologyConfigurationId));
+            metrologyConfiguration.addCustomPropertySet(customPropertySet);
+            context.commit();
+        }
+    }
+
 }

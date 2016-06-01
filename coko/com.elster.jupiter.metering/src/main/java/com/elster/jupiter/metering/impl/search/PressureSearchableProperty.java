@@ -41,7 +41,7 @@ public class PressureSearchableProperty implements SearchableUsagePointProperty 
         this.domain = domain;
         this.group = group;
         this.clock = clock;
-        this.uniqueName = FIELD_NAME.concat(".").concat(group.getId());
+        this.uniqueName = FIELD_NAME + "." + group.getId();
         return this;
     }
 
@@ -89,9 +89,10 @@ public class PressureSearchableProperty implements SearchableUsagePointProperty 
                 .specForValuesOf(new QuantityValueFactory())
                 .named(uniqueName, PropertyTranslationKeys.USAGEPOINT_PRESSURE)
                 .fromThesaurus(this.thesaurus)
-                .addValues(Quantity.create(new BigDecimal(0), 0, "Pa"),
-                        Quantity.create(new BigDecimal(0), 3, "Pa"),
-                        Quantity.create(new BigDecimal(0), 6, "Pa"))
+                .addValues(
+                        Quantity.create(BigDecimal.ZERO, 0, "Pa"),
+                        Quantity.create(BigDecimal.ZERO, 3, "Pa"),
+                        Quantity.create(BigDecimal.ZERO, 6, "Pa"))
                 .finish();
     }
 

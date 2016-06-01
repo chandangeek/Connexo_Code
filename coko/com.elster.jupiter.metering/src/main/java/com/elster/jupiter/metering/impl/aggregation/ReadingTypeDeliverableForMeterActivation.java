@@ -110,6 +110,9 @@ class ReadingTypeDeliverableForMeterActivation {
     }
 
     void appendDefinitionTo(ClauseAwareSqlBuilder sqlBuilder) {
+        /* Check if the expression tree contains any CustomPropertyNode and
+         * add the definition for it if that was not already done by another ReadingTypeDeliverableForMeterActivation. */
+        this.appendNewCustomPropertyDefinitions(sqlBuilder);
         SqlBuilder withClauseBuilder = sqlBuilder.with(this.sqlName(), Optional.of(sqlComment()), SqlConstants.TimeSeriesColumnNames.names());
         this.appendWithClause(withClauseBuilder);
         SqlBuilder selectClause = sqlBuilder.select();
@@ -117,6 +120,18 @@ class ReadingTypeDeliverableForMeterActivation {
         if (this.expertModeAppliesAggregation()) {
             this.appendWithGroupByClause(withClauseBuilder);
         }
+    }
+
+    private void appendNewCustomPropertyDefinitions(ClauseAwareSqlBuilder sqlBuilder) {
+        Flatten visitor = new Flatten();
+        this.expressionNode.accept(visitor);
+        visitor
+            .getFlattened()
+            .stream()
+            .filter(each -> each instanceof CustomPropertyNode)
+            .map(CustomPropertyNode.class::cast)
+            .filter(each -> !sqlBuilder.withExists(each.sqlName()))
+            .forEach(each -> each.appendDefinitionTo(sqlBuilder));
     }
 
     private void appendWithClause(SqlBuilder withClauseBuilder) {
@@ -138,17 +153,16 @@ class ReadingTypeDeliverableForMeterActivation {
 
     private String appendWithFromClause(SqlBuilder sqlBuilderBuilder) {
         sqlBuilderBuilder.append("  FROM ");
-        String sourceTableName = this.expressionNode.accept(new FromClauseForExpressionNode());
-        if (sourceTableName == null) {
-            // Expression is not backed by a requirement or deliverable that produces a timeline
-            sourceTableName = "dual";
-        }
+        // Use dual as a default when expression is not backed by a requirement or deliverable that produces a timeline
+        FromClauseForExpressionNode fromClauseForExpressionNode = new FromClauseForExpressionNode("dual");
+        this.expressionNode.accept(fromClauseForExpressionNode);
+        String sourceTableName = fromClauseForExpressionNode.getTableName();
         sqlBuilderBuilder.append(sourceTableName);
         return sourceTableName;
     }
 
     private void appendWithJoinClauses(SqlBuilder sqlBuilder, String sourceTableName) {
-        JoinClausesForExpressionNode visitor = new JoinClausesForExpressionNode("  JOIN ", sourceTableName);
+        JoinClausesForExpressionNode visitor = new JoinClausesForExpressionNode(sourceTableName);
         this.expressionNode.accept(visitor);
         Iterator<String> iterator = visitor.joinClauses().iterator();
         while (iterator.hasNext()) {

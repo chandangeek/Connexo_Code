@@ -80,7 +80,7 @@ public class FormulaCrudTest {
     @Mock
     private MetrologyConfiguration config;
 
-    private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = new MeteringInMemoryBootstrapModule();
+    private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = MeteringInMemoryBootstrapModule.withAllDefaults();
 
     @Rule
     public TransactionalRule transactionalRule = new TransactionalRule(inMemoryBootstrapModule.getTransactionService());
@@ -246,7 +246,7 @@ public class FormulaCrudTest {
         Formula.Mode myMode = Formula.Mode.EXPERT;
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
-        ServerExpressionNode node = new ExpressionNodeParser(thesaurus, service, config, myMode).parse("constant(10)");
+        ServerExpressionNode node = new ExpressionNodeParser(thesaurus, service, inMemoryBootstrapModule.getCustomPropertySetService(), config, myMode).parse("constant(10)");
 
         Formula formula = service.newFormulaBuilder(Formula.Mode.EXPERT).init(node).build();
         long formulaId = formula.getId();
@@ -270,7 +270,7 @@ public class FormulaCrudTest {
         Function myFunction = Function.MAX;
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
-        ServerExpressionNode node = new ExpressionNodeParser(service.getThesaurus(), service, config, myMode).parse("max(constant(10), constant(0))");
+        ServerExpressionNode node = new ExpressionNodeParser(service.getThesaurus(), service, inMemoryBootstrapModule.getCustomPropertySetService(), config, myMode).parse("max(constant(10), constant(0))");
 
         Formula formula = service.newFormulaBuilder(Formula.Mode.EXPERT).init(node).build();
 
@@ -306,7 +306,7 @@ public class FormulaCrudTest {
         Function myFunction = Function.MAX;
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
-        ServerExpressionNode node = new ExpressionNodeParser(thesaurus, service, config, myMode).parse("max(constant(1), plus(constant(2), constant(3)))");
+        ServerExpressionNode node = new ExpressionNodeParser(thesaurus, service, inMemoryBootstrapModule.getCustomPropertySetService(), config, myMode).parse("max(constant(1), plus(constant(2), constant(3)))");
 
         Formula formula = service.newFormulaBuilder(Formula.Mode.EXPERT).init(node).build();
 
@@ -345,7 +345,7 @@ public class FormulaCrudTest {
         Formula.Mode myMode = Formula.Mode.AUTO;
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
         try {
-            new ExpressionNodeParser(service.getThesaurus(), service, config, myMode).parse("maxOf(max(constant(1), constant(2)), plus(constant(2), constant(3)))");
+            new ExpressionNodeParser(service.getThesaurus(), service, inMemoryBootstrapModule.getCustomPropertySetService(), config, myMode).parse("maxOf(max(constant(1), constant(2)), plus(constant(2), constant(3)))");
         } catch (InvalidNodeException e) {
             assertEquals(e.getMessageSeed(), MessageSeeds.FUNCTION_NOT_ALLOWED_IN_AUTOMODE);
             assertEquals(e.get("Function"), Function.MAX_AGG);
@@ -361,7 +361,7 @@ public class FormulaCrudTest {
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
         String formulaString = "max(constant(1), min(constant(2), constant(3), constant(4)))";
-        ServerExpressionNode node = new ExpressionNodeParser(service.getThesaurus(), service, config, myMode).parse("max(constant(1), min(constant(2), constant(3), constant(4)))");
+        ServerExpressionNode node = new ExpressionNodeParser(service.getThesaurus(), service, inMemoryBootstrapModule.getCustomPropertySetService(), config, myMode).parse("max(constant(1), min(constant(2), constant(3), constant(4)))");
 
         Formula formula = service.newFormulaBuilder(myMode).init(node).build();
 
@@ -381,13 +381,13 @@ public class FormulaCrudTest {
     @Transactional
     public void testParser() {
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
+        List<Formula> formulasBefore = service.findFormulas();
         String formulaString = "multiply(sum(hour, max(hour, constant(10), constant(0)), constant(5), constant(3)), constant(2))";
-        ServerExpressionNode node = new ExpressionNodeParser(service.getThesaurus(), service, config, Formula.Mode.EXPERT).parse(formulaString);
+        ServerExpressionNode node = new ExpressionNodeParser(service.getThesaurus(), service, inMemoryBootstrapModule.getCustomPropertySetService(), config, Formula.Mode.EXPERT).parse(formulaString);
         service.newFormulaBuilder(Formula.Mode.EXPERT).init(node).build();
+
         List<Formula> formulas = service.findFormulas();
-        for (Formula f : formulas) {
-            System.out.println(f.toString());
-        }
+        assertThat(formulas.size()).isEqualTo(formulasBefore.size() + 1);
     }
 
     @Test
@@ -788,7 +788,7 @@ public class FormulaCrudTest {
                 config.getRequirements().get(0).getId()).get();
 
         try {
-            new ExpressionNodeParser(service.getThesaurus(), service, config, Formula.Mode.AUTO).parse("R(" + req.getId() + ")");
+            new ExpressionNodeParser(service.getThesaurus(), service, inMemoryBootstrapModule.getCustomPropertySetService(), config, Formula.Mode.AUTO).parse("R(" + req.getId() + ")");
         } catch (InvalidNodeException e) {
             assertEquals(e.getMessage(), "Irregular readingtypes are not allowed for a requirement.");
             throw e;
@@ -1360,7 +1360,7 @@ public class FormulaCrudTest {
                 config.getRequirements().get(0).getId()).get();
 
         try {
-            new ExpressionNodeParser(service.getThesaurus(), service, config, Formula.Mode.AUTO).parse("R(" + req.getId() + ")");
+            new ExpressionNodeParser(service.getThesaurus(), service, inMemoryBootstrapModule.getCustomPropertySetService(), config, Formula.Mode.AUTO).parse("R(" + req.getId() + ")");
         } catch (InvalidNodeException e) {
             assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.INVALID_READINGTYPE_IN_REQUIREMENT);
             throw e;
@@ -1393,7 +1393,7 @@ public class FormulaCrudTest {
                 config.getRequirements().get(0).getId()).get();
 
         try {
-            new ExpressionNodeParser(service.getThesaurus(), service, config, Formula.Mode.AUTO).parse("R(" + req.getId() + ")");
+            new ExpressionNodeParser(service.getThesaurus(), service, inMemoryBootstrapModule.getCustomPropertySetService(), config, Formula.Mode.AUTO).parse("R(" + req.getId() + ")");
         } catch (InvalidNodeException e) {
             assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.INVALID_READINGTYPE_IN_REQUIREMENT);
             throw e;
@@ -1409,7 +1409,7 @@ public class FormulaCrudTest {
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
         ServerExpressionNode node =
-                new ExpressionNodeParser(service.getThesaurus(), service, config, myMode)
+                new ExpressionNodeParser(service.getThesaurus(), service, inMemoryBootstrapModule.getCustomPropertySetService(), config, myMode)
                         .parse("minus(constant(10), constant(5))");
 
         Formula formula = service.newFormulaBuilder(myMode).init(node).build();
@@ -1839,7 +1839,7 @@ public class FormulaCrudTest {
         Formula.Mode myMode = Formula.Mode.AUTO;
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
-        ServerExpressionNode node = new ExpressionNodeParser(thesaurus, service, config, myMode).parse(
+        ServerExpressionNode node = new ExpressionNodeParser(thesaurus, service, inMemoryBootstrapModule.getCustomPropertySetService(), config, myMode).parse(
                 "safe_divide(constant(10), constant(20), constant(30))");
 
         Formula formula = service.newFormulaBuilder(myMode).init(node).build();
@@ -1855,7 +1855,7 @@ public class FormulaCrudTest {
         OperationNode operationNode = (OperationNode) myNode;
         assertThat(operationNode.getOperator()).isEqualTo(Operator.SAFE_DIVIDE);
         assertThat(operationNode.getLeftOperand()).isInstanceOf(ConstantNodeImpl.class);
-        assertThat(((ConstantNode) operationNode.getLeftOperand()).getValue()).isEqualTo(new BigDecimal(10));
+        assertThat(((ConstantNode) operationNode.getLeftOperand()).getValue()).isEqualTo(BigDecimal.TEN);
         assertThat(operationNode.getRightOperand()).isInstanceOf(ConstantNodeImpl.class);
         assertThat(((ConstantNode) operationNode.getRightOperand()).getValue()).isEqualTo(new BigDecimal(20));
         assertThat(operationNode.getChildren().get(2)).isInstanceOf(ConstantNodeImpl.class);
@@ -1869,7 +1869,7 @@ public class FormulaCrudTest {
         Formula.Mode myMode = Formula.Mode.AUTO;
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
-        ServerExpressionNode node = new ExpressionNodeParser(thesaurus, service, config, myMode).parse(
+        ServerExpressionNode node = new ExpressionNodeParser(thesaurus, service, inMemoryBootstrapModule.getCustomPropertySetService(), config, myMode).parse(
                 "safe_divide(constant(10), constant(20), null)");
 
         Formula formula = service.newFormulaBuilder(myMode).init(node).build();
@@ -1885,7 +1885,7 @@ public class FormulaCrudTest {
         OperationNode operationNode = (OperationNode) myNode;
         assertThat(operationNode.getOperator()).isEqualTo(Operator.SAFE_DIVIDE);
         assertThat(operationNode.getLeftOperand()).isInstanceOf(ConstantNodeImpl.class);
-        assertThat(((ConstantNode) operationNode.getLeftOperand()).getValue()).isEqualTo(new BigDecimal(10));
+        assertThat(((ConstantNode) operationNode.getLeftOperand()).getValue()).isEqualTo(BigDecimal.TEN);
         assertThat(operationNode.getRightOperand()).isInstanceOf(ConstantNodeImpl.class);
         assertThat(((ConstantNode) operationNode.getRightOperand()).getValue()).isEqualTo(new BigDecimal(20));
         assertThat(operationNode.getChildren().get(2)).isInstanceOf(NullNodeImpl.class);
@@ -1923,7 +1923,7 @@ public class FormulaCrudTest {
         OperationNode operationNode = (OperationNode) myNode;
         assertThat(operationNode.getOperator()).isEqualTo(Operator.SAFE_DIVIDE);
         assertThat(operationNode.getLeftOperand()).isInstanceOf(ConstantNodeImpl.class);
-        assertThat(((ConstantNode) operationNode.getLeftOperand()).getValue()).isEqualTo(new BigDecimal(10));
+        assertThat(((ConstantNode) operationNode.getLeftOperand()).getValue()).isEqualTo(BigDecimal.TEN);
         assertThat(operationNode.getRightOperand()).isInstanceOf(ConstantNodeImpl.class);
         assertThat(((ConstantNode) operationNode.getRightOperand()).getValue()).isEqualTo(new BigDecimal(20));
         assertThat(operationNode.getChildren().get(2)).isInstanceOf(NullNodeImpl.class);

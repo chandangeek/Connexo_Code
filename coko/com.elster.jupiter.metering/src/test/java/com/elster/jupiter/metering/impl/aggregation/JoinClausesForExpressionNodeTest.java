@@ -4,11 +4,15 @@ import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.units.Dimension;
 
 import com.google.common.collect.Range;
@@ -249,9 +253,30 @@ public class JoinClausesForExpressionNodeTest {
         // Business method
         node.accept(testInstance);
 
+        // Asserts
         List<String> joinClauses = testInstance.joinClauses();
         assertThat(joinClauses).hasSize(1);
         assertThat(joinClauses.get(0)).isEqualTo(" JOIN " + expectedJoinTableName + " ON " + expectedJoinTableName + ".timestamp = " + SOURCE_TABLE_NAME + ".timestamp");
+    }
+
+    @Test
+    public void property() {
+        JoinClausesForExpressionNode testInstance = this.testInstance();
+
+        PropertySpec propertySpec = mock(PropertySpec.class);
+        when(propertySpec.getName()).thenReturn("example");
+        RegisteredCustomPropertySet customPropertySet = mock(RegisteredCustomPropertySet.class);
+        when(customPropertySet.getId()).thenReturn(97L);
+        ServerExpressionNode node = new CustomPropertyNode(mock(CustomPropertySetService.class), propertySpec, customPropertySet, mock(UsagePoint.class));
+        String expectedJoinTableName = "rid_cps_97_example";
+
+        // Business method
+        node.accept(testInstance);
+
+        // Asserts
+        List<String> joinClauses = testInstance.joinClauses();
+        assertThat(joinClauses).hasSize(1);
+        assertThat(joinClauses.get(0)).isEqualTo(" JOIN " + expectedJoinTableName + " ON " + expectedJoinTableName + ".timestamp < " + SOURCE_TABLE_NAME + ".timestamp AND " + SOURCE_TABLE_NAME + ".timestamp <= " + expectedJoinTableName + ".timestamp");
     }
 
     private ReadingType mockedReadingType() {
@@ -264,7 +289,7 @@ public class JoinClausesForExpressionNodeTest {
     }
 
     private JoinClausesForExpressionNode testInstance() {
-        return new JoinClausesForExpressionNode(" JOIN ", SOURCE_TABLE_NAME);
+        return new JoinClausesForExpressionNode(SOURCE_TABLE_NAME);
     }
 
 }

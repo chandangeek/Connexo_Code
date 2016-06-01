@@ -4,10 +4,14 @@ import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.AggregationLevel;
 import com.elster.jupiter.metering.config.ConstantNode;
 import com.elster.jupiter.metering.config.ExpressionNode;
@@ -23,6 +27,7 @@ import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationServi
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.units.Dimension;
@@ -63,6 +68,8 @@ public class CopyTest {
     @Mock
     private ReadingTypeDeliverable deliverable;
     @Mock
+    private UsagePoint usagePoint;
+    @Mock
     private MeterActivation meterActivation;
     @Mock
     private ReadingTypeDeliverableForMeterActivationProvider readingTypeDeliverableForMeterActivationProvider;
@@ -78,6 +85,8 @@ public class CopyTest {
     private MetrologyConfiguration metrologyConfiguration;
     @Mock
     private ReadingType readingType;
+    @Mock
+    private CustomPropertySetService customPropertySetService;
 
     private ServerMetrologyConfigurationService metrologyConfigurationService;
 
@@ -498,12 +507,33 @@ public class CopyTest {
         assertThat(safeDivisorNode).isInstanceOf(NumericalConstantNode.class);
     }
 
+    @Test
+    public void copyCustomProperty() {
+        Copy visitor = getTestInstance();
+        ServerFormulaBuilder formulaBuilder = this.metrologyConfigurationService.newFormulaBuilder(Formula.Mode.AUTO);
+        PropertySpec propertySpec = mock(PropertySpec.class);
+        CustomPropertySet customPropertySet = mock(CustomPropertySet.class);
+        when(customPropertySet.getPropertySpecs()).thenReturn(Collections.singletonList(propertySpec));
+        RegisteredCustomPropertySet registeredCustomPropertySet = mock(RegisteredCustomPropertySet.class);
+        when(registeredCustomPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
+        ExpressionNode node = formulaBuilder.property(registeredCustomPropertySet, propertySpec).create();
+
+        // Business method
+        ServerExpressionNode copied = node.accept(visitor);
+
+        // Asserts
+        assertThat(copied).isNotNull();
+        assertThat(copied).isInstanceOf(CustomPropertyNode.class);
+        CustomPropertyNode customPropertyNode = (CustomPropertyNode) copied;
+        assertThat(customPropertyNode.getCustomPropertySet()).isEqualTo(customPropertySet);
+    }
+
     private Copy getTestInstance() {
         return this.getTestInstance(Formula.Mode.AUTO);
     }
 
     private Copy getTestInstance(Formula.Mode mode) {
-        return new Copy(mode, this.virtualFactory, this.readingTypeDeliverableForMeterActivationProvider, this.deliverable, this.meterActivation);
+        return new Copy(mode, this.virtualFactory, this.customPropertySetService, this.readingTypeDeliverableForMeterActivationProvider, this.deliverable, this.usagePoint, this.meterActivation);
     }
 
 }

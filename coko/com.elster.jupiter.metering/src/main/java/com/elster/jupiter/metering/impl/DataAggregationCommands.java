@@ -37,6 +37,7 @@ import java.util.NoSuchElementException;
         "osgi.command.function=matchingChannels",
         "osgi.command.function=showData"
 }, immediate = true)
+@SuppressWarnings("unused")
 public class DataAggregationCommands {
 
     private volatile DataAggregationService dataAggregationService;

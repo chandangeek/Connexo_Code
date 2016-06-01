@@ -1,16 +1,24 @@
 package com.elster.jupiter.metering.impl.config;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.config.AggregationLevel;
 import com.elster.jupiter.metering.config.ConstantNode;
+import com.elster.jupiter.metering.config.CustomPropertyNode;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.Function;
 import com.elster.jupiter.metering.config.FunctionCallNode;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.OperationNode;
+import com.elster.jupiter.metering.config.Operator;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpec;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.Optional;
 
 import org.junit.Before;
@@ -20,6 +28,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
@@ -32,6 +41,8 @@ public class ExpressionNodeParserTest {
     private Thesaurus thesaurus;
     @Mock
     private MetrologyConfiguration config;
+    @Mock
+    private CustomPropertySetService customPropertySetService;
     @Mock
     private ServerMetrologyConfigurationService metrologyConfigurationService;
     @Mock
@@ -52,7 +63,7 @@ public class ExpressionNodeParserTest {
         String formulaString = "sum(R(10))";
 
         // Business method
-        new ExpressionNodeParser(this.thesaurus, this.metrologyConfigurationService, config, Formula.Mode.EXPERT).parse(formulaString);
+        new ExpressionNodeParser(this.thesaurus, this.metrologyConfigurationService, customPropertySetService, config, Formula.Mode.EXPERT).parse(formulaString);
 
         // Asserts: see expected exception rule
     }
@@ -62,7 +73,7 @@ public class ExpressionNodeParserTest {
         String formulaString = "sum(R(10), month)";
 
         // Business method
-        ExpressionNode node = new ExpressionNodeParser(this.thesaurus, this.metrologyConfigurationService, config, Formula.Mode.EXPERT).parse(formulaString);
+        ExpressionNode node = new ExpressionNodeParser(this.thesaurus, this.metrologyConfigurationService, customPropertySetService, config, Formula.Mode.EXPERT).parse(formulaString);
 
         // Asserts
         assertThat(node).isInstanceOf(FunctionCallNode.class);
@@ -76,7 +87,7 @@ public class ExpressionNodeParserTest {
         String formulaString = "sum(R(10), MONTH)";
 
         // Business method
-        ExpressionNode node = new ExpressionNodeParser(this.thesaurus, this.metrologyConfigurationService, config, Formula.Mode.EXPERT).parse(formulaString);
+        ExpressionNode node = new ExpressionNodeParser(this.thesaurus, this.metrologyConfigurationService, customPropertySetService, config, Formula.Mode.EXPERT).parse(formulaString);
 
         // Asserts
         assertThat(node).isInstanceOf(FunctionCallNode.class);
@@ -90,7 +101,7 @@ public class ExpressionNodeParserTest {
         String formulaString = "sum(R(10), MontH)";
 
         // Business method
-        ExpressionNode node = new ExpressionNodeParser(this.thesaurus, this.metrologyConfigurationService, config, Formula.Mode.EXPERT).parse(formulaString);
+        ExpressionNode node = new ExpressionNodeParser(this.thesaurus, this.metrologyConfigurationService, customPropertySetService, config, Formula.Mode.EXPERT).parse(formulaString);
 
         // Asserts
         assertThat(node).isInstanceOf(FunctionCallNode.class);
@@ -104,7 +115,7 @@ public class ExpressionNodeParserTest {
         String formulaString = "maxOf(R(10), week)";
 
         // Business method
-        ExpressionNode node = new ExpressionNodeParser(this.thesaurus, this.metrologyConfigurationService, config, Formula.Mode.EXPERT).parse(formulaString);
+        ExpressionNode node = new ExpressionNodeParser(this.thesaurus, this.metrologyConfigurationService, customPropertySetService, config, Formula.Mode.EXPERT).parse(formulaString);
 
         // Asserts
         assertThat(node).isInstanceOf(FunctionCallNode.class);
@@ -118,7 +129,7 @@ public class ExpressionNodeParserTest {
         String formulaString = "minOf(R(10), week)";
 
         // Business method
-        ExpressionNode node = new ExpressionNodeParser(this.thesaurus, this.metrologyConfigurationService, config, Formula.Mode.EXPERT).parse(formulaString);
+        ExpressionNode node = new ExpressionNodeParser(this.thesaurus, this.metrologyConfigurationService, customPropertySetService, config, Formula.Mode.EXPERT).parse(formulaString);
 
         // Asserts
         assertThat(node).isInstanceOf(FunctionCallNode.class);
@@ -132,7 +143,7 @@ public class ExpressionNodeParserTest {
         String formulaString = "max(constant(100), constant(10), constant(5))";
 
         // Business method
-        ExpressionNode node = new ExpressionNodeParser(this.thesaurus, this.metrologyConfigurationService, config, Formula.Mode.EXPERT).parse(formulaString);
+        ExpressionNode node = new ExpressionNodeParser(this.thesaurus, this.metrologyConfigurationService, customPropertySetService, config, Formula.Mode.EXPERT).parse(formulaString);
 
         // Asserts
         assertThat(node).isInstanceOf(FunctionCallNode.class);
@@ -156,7 +167,7 @@ public class ExpressionNodeParserTest {
         String formulaString = "min(constant(100), constant(10), constant(5))";
 
         // Business method
-        ExpressionNode node = new ExpressionNodeParser(this.thesaurus, this.metrologyConfigurationService, config, Formula.Mode.EXPERT).parse(formulaString);
+        ExpressionNode node = new ExpressionNodeParser(this.thesaurus, this.metrologyConfigurationService, customPropertySetService, config, Formula.Mode.EXPERT).parse(formulaString);
 
         // Asserts
         assertThat(node).isInstanceOf(FunctionCallNode.class);
@@ -180,7 +191,7 @@ public class ExpressionNodeParserTest {
         String formulaString = "sqrt(constant(100))";
 
         // Business method
-        ExpressionNode node = new ExpressionNodeParser(this.thesaurus, this.metrologyConfigurationService, config, Formula.Mode.EXPERT).parse(formulaString);
+        ExpressionNode node = new ExpressionNodeParser(this.thesaurus, this.metrologyConfigurationService, customPropertySetService, config, Formula.Mode.EXPERT).parse(formulaString);
 
         // Asserts
         assertThat(node).isInstanceOf(FunctionCallNode.class);
@@ -198,7 +209,7 @@ public class ExpressionNodeParserTest {
         String formulaString = "power(constant(10), constant(3))";
 
         // Business method
-        ExpressionNode node = new ExpressionNodeParser(this.thesaurus, this.metrologyConfigurationService, config, Formula.Mode.EXPERT).parse(formulaString);
+        ExpressionNode node = new ExpressionNodeParser(this.thesaurus, this.metrologyConfigurationService, customPropertySetService, config, Formula.Mode.EXPERT).parse(formulaString);
 
         // Asserts
         assertThat(node).isInstanceOf(FunctionCallNode.class);
@@ -219,7 +230,7 @@ public class ExpressionNodeParserTest {
         String formulaString = "max(sum(R(10), day), sum(R(11), hour))";
 
         // Business method
-        ExpressionNode node = new ExpressionNodeParser(this.thesaurus, this.metrologyConfigurationService, config, Formula.Mode.EXPERT).parse(formulaString);
+        ExpressionNode node = new ExpressionNodeParser(this.thesaurus, this.metrologyConfigurationService, customPropertySetService, config, Formula.Mode.EXPERT).parse(formulaString);
 
         // Asserts
         assertThat(node).isInstanceOf(FunctionCallNode.class);
@@ -237,6 +248,38 @@ public class ExpressionNodeParserTest {
         assertThat(sumR11.getFunction()).isEqualTo(Function.SUM);
         assertThat(sumR11.getAggregationLevel()).contains(AggregationLevel.HOUR);
         assertThat(sumR11.getChildren()).hasSize(1);
+    }
+
+    @Test
+    public void existingProperties() {
+        PropertySpec antennaPower = mock(PropertySpec.class);
+        when(antennaPower.getName()).thenReturn("antennaPower");
+        PropertySpec antennaCount = mock(PropertySpec.class);
+        when(antennaCount.getName()).thenReturn("antennaCount");
+        CustomPropertySet customPropertySet = mock(CustomPropertySet.class);
+        when(customPropertySet.getPropertySpecs()).thenReturn(Arrays.asList(antennaPower, antennaCount));
+        RegisteredCustomPropertySet registeredCustomPropertySet = mock(RegisteredCustomPropertySet.class);
+        when(registeredCustomPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
+        when(this.customPropertySetService.findActiveCustomPropertySet("c.e.j.metering.cps.ExampleCPS")).thenReturn(Optional.of(registeredCustomPropertySet));
+        String formulaString = "multiply(property(c.e.j.metering.cps.ExampleCPS, antennaPower), property(c.e.j.metering.cps.ExampleCPS, antennaCount))";
+
+        // Business method
+        ExpressionNode node = new ExpressionNodeParser(this.thesaurus, this.metrologyConfigurationService, customPropertySetService, config, Formula.Mode.EXPERT).parse(formulaString);
+
+        // Asserts
+        assertThat(node).isInstanceOf(OperationNode.class);
+        OperationNode multiplication = (OperationNode) node;
+        assertThat(multiplication.getOperator()).isEqualTo(Operator.MULTIPLY);
+        ExpressionNode leftOperand = multiplication.getLeftOperand();
+        assertThat(leftOperand).isInstanceOf(CustomPropertyNode.class);
+        CustomPropertyNode antennaPowerNode = (CustomPropertyNode) leftOperand;
+        assertThat(antennaPowerNode.getPropertySpec().getName()).isEqualTo(antennaPower.getName());
+        assertThat(antennaPowerNode.getCustomPropertySet()).isEqualTo(customPropertySet);
+        ExpressionNode rightOperand = multiplication.getRightOperand();
+        assertThat(rightOperand).isInstanceOf(CustomPropertyNode.class);
+        CustomPropertyNode antennaCountNode = (CustomPropertyNode) rightOperand;
+        assertThat(antennaCountNode.getPropertySpec().getName()).isEqualTo(antennaCount.getName());
+        assertThat(antennaCountNode.getCustomPropertySet()).isEqualTo(customPropertySet);
     }
 
 }

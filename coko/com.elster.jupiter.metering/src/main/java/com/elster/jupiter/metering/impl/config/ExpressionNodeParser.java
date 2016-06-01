@@ -1,5 +1,7 @@
 package com.elster.jupiter.metering.impl.config;
 
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.config.AggregationLevel;
 import com.elster.jupiter.metering.config.Formula;
@@ -10,6 +12,7 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.aggregation.UnitConversionSupport;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.Counter;
 import com.elster.jupiter.util.Counters;
 
@@ -25,19 +28,22 @@ import java.util.Optional;
  */
 public class ExpressionNodeParser {
 
-    private Thesaurus thesaurus;
-    private ServerMetrologyConfigurationService metrologyConfigurationService;
-    private MetrologyConfiguration metrologyConfiguration;
-    private Formula.Mode mode;
+    private final Thesaurus thesaurus;
+    private final ServerMetrologyConfigurationService metrologyConfigurationService;
+    private final CustomPropertySetService customPropertySetService;
+    private final MetrologyConfiguration metrologyConfiguration;
+    private final Formula.Mode mode;
 
-    public ExpressionNodeParser(Thesaurus thesaurus, ServerMetrologyConfigurationService metrologyConfigurationService, MetrologyConfiguration metrologyConfiguration, Formula.Mode mode) {
+    public ExpressionNodeParser(Thesaurus thesaurus, ServerMetrologyConfigurationService metrologyConfigurationService, CustomPropertySetService customPropertySetService, MetrologyConfiguration metrologyConfiguration, Formula.Mode mode) {
         this.thesaurus = thesaurus;
         this.metrologyConfigurationService = metrologyConfigurationService;
+        this.customPropertySetService = customPropertySetService;
         this.metrologyConfiguration = metrologyConfiguration;
         this.mode = mode;
     }
 
     private Deque<String> tokens = new ArrayDeque<>();
+    private Deque<String> customPropertySetIds = new ArrayDeque<>();
     private Deque<AggregationLevel> aggregationLevels = new ArrayDeque<>();
 
     private List<ServerExpressionNode> nodes = new ArrayList<>();
@@ -56,10 +62,15 @@ public class ExpressionNodeParser {
                 constructNode(builder.toString());
                 builder = new StringBuilder();
             } else if (value == ',') {
-                Optional<AggregationLevel> aggregationLevel = AggregationLevel.from(builder.toString());
-                if (aggregationLevel.isPresent()) {
-                    this.aggregationLevels.push(aggregationLevel.get());
+                if ("property".equals(this.tokens.peek())) {
+                    this.customPropertySetIds.push(builder.toString());
                     builder = new StringBuilder();
+                } else {
+                    Optional<AggregationLevel> aggregationLevel = AggregationLevel.from(builder.toString());
+                    if (aggregationLevel.isPresent()) {
+                        this.aggregationLevels.push(aggregationLevel.get());
+                        builder = new StringBuilder();
+                    }
                 }
             } else if (value == ' ') {
                 // Ignore whitespace
@@ -75,6 +86,8 @@ public class ExpressionNodeParser {
         String lastToken = tokens.pop();
         if ("constant".equals(lastToken)) {
             handleConstantNode(currentToken);
+        } else if ("property".equals(lastToken)) {
+            handlePropertyNode(currentToken);
         } else if ("D".equals(lastToken)) {
             handleDeliverableNode(currentToken);
         } else if ("R".equals(lastToken)) {
@@ -141,6 +154,23 @@ public class ExpressionNodeParser {
 
     private void handleConstantNode(String value) {
         nodes.add(new ConstantNodeImpl(new BigDecimal(value)));
+    }
+
+    @SuppressWarnings("unchecked")
+    private void handlePropertyNode(String propertyName) {
+        String customPropertySetId = this.customPropertySetIds.pop();
+        Optional<RegisteredCustomPropertySet> activeCustomPropertySet = this.customPropertySetService.findActiveCustomPropertySet(customPropertySetId);
+        if (activeCustomPropertySet.isPresent()) {
+            List<PropertySpec> propertySpecs = activeCustomPropertySet.get().getCustomPropertySet().getPropertySpecs();
+            Optional<PropertySpec> propertySpec = propertySpecs.stream().filter(each -> propertyName.equals(each.getName())).findFirst();
+            if (propertySpec.isPresent()) {
+                nodes.add(new CustomPropertyNodeImpl(propertySpec.get(), activeCustomPropertySet.get()));
+            } else {
+                throw new IllegalArgumentException("No property with name " + propertyName + " found in custom property set found with id " + customPropertySetId);
+            }
+        } else {
+            throw new IllegalArgumentException("No custom property set found with id " + customPropertySetId);
+        }
     }
 
     private void handleNullNode() {
