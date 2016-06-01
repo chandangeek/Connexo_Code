@@ -36,9 +36,10 @@ public abstract class ComServerInfo<B extends ComServer.ComServerBuilder,C exten
     public List<InboundComPortInfo> inboundComPorts;
     public List<OutboundComPortInfo> outboundComPorts;
     public Long onlineComServerId;
-    public String queryAPIPostUri;
-    public String eventRegistrationUri;
-    public String statusUri;
+    public String serverName;
+    public Integer queryAPIPort;
+    public Integer eventRegistrationPort;
+    public Integer statusPort;
     public Integer storeTaskQueueSize;
     public Integer numberOfStoreTaskThreads;
     public Integer storeTaskThreadPriority;
