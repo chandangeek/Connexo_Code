@@ -63,17 +63,14 @@ Ext.define('Idc.view.Detail', {
                                 items: [
                                     {
                                         xtype: 'issue-timeline',
-                                        itemId: 'data-collection-issue-timeline',
-
+                                        itemId: 'data-collection-issue-timeline'
                                     }
-                                ],
-
+                                ]
                             },
-
                             {
                                 ui: 'medium',
                                 title: Uni.I18n.translate('issue.workspace.datacollection.comments', 'IDC', 'Comments'),
-                                itemId: 'tab-panel-issue-coments',
+                                itemId: 'tab-panel-issue-comments',
                                 items: [
                                     {
                                         xtype: 'issue-comments',
@@ -92,7 +89,7 @@ Ext.define('Idc.view.Detail', {
                                         itemId: 'data-collection-issue-process'
                                     }
                                 ]
-                            },
+                            }
                         ]
                     }
                 ]
