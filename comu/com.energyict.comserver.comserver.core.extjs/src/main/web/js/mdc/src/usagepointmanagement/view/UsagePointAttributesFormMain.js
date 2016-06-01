@@ -2,6 +2,8 @@ Ext.define('Mdc.usagepointmanagement.view.UsagePointAttributesFormMain', {
     extend: 'Ext.form.Panel',
     alias: 'widget.usagePointAttributesFormMain',
     itemId: 'usagePointAttributesFormMain',
+    title: Uni.I18n.translate('general.general.usagePointSummary', 'MDC', 'Usage point summary'),
+    ui: 'tile',
     requires: [
         'Uni.form.field.Duration'
     ],
@@ -15,13 +17,12 @@ Ext.define('Mdc.usagepointmanagement.view.UsagePointAttributesFormMain', {
         me.items = [
             {
                 xtype: 'fieldcontainer',
-                fieldLabel: Uni.I18n.translate('general.generalAttributes', 'MDC', 'General attributes'),
                 itemId: "usagePointGeneralAttributes",
                 labelAlign: 'top',
                 layout: 'vbox',
                 defaults: {
                     xtype: 'displayfield',
-                    labelWidth: 150
+                    labelWidth: 115
                 },
                 items: [
                     {

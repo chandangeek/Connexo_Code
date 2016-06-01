@@ -47,76 +47,17 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePoint', {
                 me.getApplication().fireEvent('usagePointLoaded', record);
                 var widget = Ext.widget('usage-point-management-setup', {router: router, mRID: record.get('mRID')});
                 widget.down('usagePointAttributesFormMain').loadRecord(record);
+                widget.down('metrology-configuration').loadRecord(record);
                 serviceCategories.load({
                     callback: function () {
                         me.getApplication().fireEvent('changecontentevent', widget);
-                        me.loadMeterActivations(id);
                     }
                 });
             },
-            failure: function () {
-                pageMainContent.setLoading(false);
-            }
-        });
-    },
-
-    loadMeterActivations: function (id) {
-        var me = this,
-            router = me.getController('Uni.controller.history.Router'),
-            pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
-            store = me.getStore('Mdc.usagepointmanagement.store.MeterActivations'),
-            metrologyConfiguration = me.getMetrologyConfiguration();
-        store.getProxy().setExtraParam('usagePointId', id);
-        Ext.suspendLayouts();
-        store.load({
             callback: function () {
-                store.each(function (item) {
-                    if (!item.get('end')) {
-                        metrologyConfiguration.down('#metrologyLinkedDevice').removeAll();
-                        metrologyConfiguration.down('#metrologyLinkedDevice').add(
-                            {
-                                xtype: 'component',
-                                cls: 'x-form-display-field',
-                                autoEl: {
-                                    tag: 'a',
-                                    href: router.getRoute('devices/device').buildUrl({mRID: item.get('meter').mRID}),
-                                    html: item.get('meter').mRID,
-                                    itemId: 'up-device-link'
-                                }
-                            },
-                            {
-                                xtype: 'displayfield',
-                                value: Ext.String.format(Uni.I18n.translate('usagePointManagement.fromDate', 'MDC', "from '{0}'")
-                                    , Uni.DateTime.formatDateTimeShort(new Date(item.get('start'))))
-                            }
-                        );
-                    } else {
-                        metrologyConfiguration.down('#metrologyHistory').show();
-                        metrologyConfiguration.down('#metrologySeparator').show();
-                        metrologyConfiguration.down('#metrologyHistory').add(0,
-
-                            {
-                                xtype: 'component',
-                                cls: 'x-form-display-field',
-                                autoEl: {
-                                    tag: 'a',
-                                    href: router.getRoute('devices/device').buildUrl({mRID: item.get('meter').mRID}),
-                                    html: item.get('meter').mRID
-                                }
-                            },
-                            {
-                                xtype: 'displayfield',
-                                value: Ext.String.format(Uni.I18n.translate('usagePointManagement.fromToDate', 'MDC', "from {0} to {1}")
-                                    , Uni.DateTime.formatDateTimeShort(new Date(item.get('start')))
-                                    , Uni.DateTime.formatDateTimeShort(new Date(item.get('end'))))
-                            }
-                        );
-                    }
-                });
                 pageMainContent.setLoading(false);
             }
         });
-        Ext.resumeLayouts(true);
     },
 
     showAddUsagePoint: function () {
