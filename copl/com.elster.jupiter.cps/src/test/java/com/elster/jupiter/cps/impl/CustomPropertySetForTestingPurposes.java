@@ -59,7 +59,7 @@ public class CustomPropertySetForTestingPurposes implements CustomPropertySet<Te
 
     @Override
     public PersistenceSupport<TestDomain, DomainExtensionForTestingPurposes> getPersistenceSupport() {
-        return new MyPeristenceSupport();
+        return new MyPersistenceSupport();
     }
 
     @Override
@@ -99,7 +99,7 @@ public class CustomPropertySetForTestingPurposes implements CustomPropertySet<Te
         return Arrays.asList(billingCyclePropertySpec, contractNumberPropertySpec);
     }
 
-    private static class MyPeristenceSupport implements PersistenceSupport<TestDomain, DomainExtensionForTestingPurposes> {
+    private static class MyPersistenceSupport implements PersistenceSupport<TestDomain, DomainExtensionForTestingPurposes> {
         @Override
         public String componentName() {
             return "T06";
@@ -150,5 +150,18 @@ public class CustomPropertySetForTestingPurposes implements CustomPropertySet<Te
                 .map(DomainExtensionForTestingPurposes.FieldNames.CONTRACT_NUMBER.javaName())
                 .add();
         }
+
+        @Override
+        public String columnNameFor(PropertySpec propertySpec) {
+            return EnumSet
+                    .complementOf(EnumSet.of(DomainExtensionForTestingPurposes.FieldNames.DOMAIN))
+                    .stream()
+                    .filter(each -> each.javaName().equals(propertySpec.getName()))
+                    .findFirst()
+                    .map(DomainExtensionForTestingPurposes.FieldNames::databaseName)
+                    .orElseThrow(() -> new IllegalArgumentException("Unknown property spec: " + propertySpec.getName()));
+        }
+
     }
+
 }

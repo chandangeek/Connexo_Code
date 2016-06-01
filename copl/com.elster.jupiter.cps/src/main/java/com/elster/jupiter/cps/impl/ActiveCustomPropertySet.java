@@ -3,6 +3,7 @@ package com.elster.jupiter.cps.impl;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.HardCodedFieldNames;
+import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Save;
@@ -14,6 +15,7 @@ import com.elster.jupiter.orm.ForeignKeyConstraint;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.sql.SqlFragment;
 import com.elster.jupiter.util.time.Interval;
 
 import com.google.common.collect.Iterators;
@@ -207,6 +209,23 @@ class ActiveCustomPropertySet {
                                 .and(where(HardCodedFieldNames.CUSTOM_PROPERTY_SET.javaName()).isEqualTo(this.registeredCustomPropertySet)),
                         additionalPrimaryKeyColumnValues);
         return this.getMapper().select(condition, Order.ascending(HardCodedFieldNames.INTERVAL.javaName() + ".start"));
+    }
+
+    @SuppressWarnings("unchecked")
+    <T extends PersistentDomainExtension<D>, D> SqlFragment getRawValuesSql(List<String> propertyColumnNames, D businessObject, Object... additionalPrimaryKeyColumnValues) {
+        this.validateAdditionalPrimaryKeyValues(additionalPrimaryKeyColumnValues);
+        PersistenceSupport persistenceSupport = this.customPropertySet.getPersistenceSupport();
+        Condition condition =
+                this.addAdditionalPrimaryKeyColumnConditionsTo(
+                        where(persistenceSupport.domainFieldName()).isEqualTo(businessObject)
+                            .and(where(HardCodedFieldNames.CUSTOM_PROPERTY_SET.javaName()).isEqualTo(this.registeredCustomPropertySet)),
+                        additionalPrimaryKeyColumnValues);
+        String[] columnNames = propertyColumnNames.toArray(new String[propertyColumnNames.size() + 2]);
+        columnNames[propertyColumnNames.size()] = "starttime";
+        columnNames[propertyColumnNames.size() + 1] = "endtime";
+        return this.customPropertySetDataModel
+                    .query(persistenceSupport.persistenceClass())
+                    .asFragment(condition, columnNames);
     }
 
     <T extends PersistentDomainExtension<D>, D> void setNonVersionedValuesEntityFor(D businessObject, CustomPropertySetValues values, Object... additionalPrimaryKeyColumns) {

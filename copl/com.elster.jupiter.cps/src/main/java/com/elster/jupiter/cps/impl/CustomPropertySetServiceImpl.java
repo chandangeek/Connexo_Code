@@ -35,6 +35,8 @@ import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.util.sql.SqlFragment;
 import com.elster.jupiter.util.streams.Predicates;
 import com.elster.jupiter.util.time.Interval;
 
@@ -165,6 +167,10 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     @Reference
     public void setUserService(UserService userService) {
         this.userService = userService;
+    }
+
+    DataModel getDataModel() {
+        return dataModel;
     }
 
     @Reference(name = "ZZZ", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
@@ -689,6 +695,25 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         ActiveCustomPropertySet activeCustomPropertySet = this.findActiveCustomPropertySetOrThrowException(customPropertySet);
         this.validateCustomPropertySetIsVersioned(customPropertySet, activeCustomPropertySet);
         return new VersionedValuesEntityCustomConditionMatcherImpl<>(activeCustomPropertySet);
+    }
+
+    @Override
+    public <D, T extends PersistentDomainExtension<D>> SqlFragment getRawValuesSql(CustomPropertySet<D, T> customPropertySet, PropertySpec propertySpec, String alias, D businessObject, Object... additionalPrimaryKeyValues) {
+        ActiveCustomPropertySet activeCustomPropertySet = this.findActiveCustomPropertySetOrThrowException(customPropertySet);
+        SqlFragment sqlFragment =
+                activeCustomPropertySet
+                        .getRawValuesSql(
+                                CustomPropertySqlSupport.columnNamesFor(activeCustomPropertySet, propertySpec),
+                                businessObject,
+                                additionalPrimaryKeyValues);
+        SqlBuilder sqlBuilder = new SqlBuilder("SELECT ");
+        sqlBuilder.append(CustomPropertySqlSupport.toValueSelectClauseExpression(activeCustomPropertySet, propertySpec));
+        sqlBuilder.append(" as ");
+        sqlBuilder.append(alias);
+        sqlBuilder.append(", cps.starttime, cps.endtime from (");
+        sqlBuilder.add(sqlFragment);
+        sqlBuilder.append(") cps");
+        return sqlBuilder;
     }
 
     private class NonVersionedValuesEntityCustomConditionMatcherImpl<DD, TT extends PersistentDomainExtension<DD>> implements NonVersionedValuesEntityCustomConditionMatcher<DD, TT> {

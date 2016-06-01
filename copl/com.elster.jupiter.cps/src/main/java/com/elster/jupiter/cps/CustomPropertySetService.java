@@ -2,6 +2,7 @@ package com.elster.jupiter.cps;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.sql.SqlFragment;
 
 import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
@@ -35,6 +36,22 @@ import java.util.Set;
 public interface CustomPropertySetService {
 
     String COMPONENT_NAME = "CPS";
+
+    /**
+     * Returns a SqlFragment that selects the values of the specified
+     * {@link PropertySpec} that are stored against the specified business object.
+     * The column that holds the values of the property is given the specified alias
+     *
+     * @param customPropertySet The CustomPropertySet
+     * @param propertySpec The PropertySpec
+     * @param alias The alias name for the column that holds the values of the property
+     * @param businessObject The businesObject object
+     * @param additionalPrimaryKeyValues The values for the additional primary key columns as defined by the CustomPropertySet
+     * @param <D> The businesObject class
+     * @param <T> The class that holds persistent values for this CustomPropertySet
+     * @return The SqlFragment
+     */
+    <D, T extends PersistentDomainExtension<D>> SqlFragment getRawValuesSql(CustomPropertySet<D, T> customPropertySet, PropertySpec propertySpec, String alias, D businessObject, Object... additionalPrimaryKeyValues);
 
     /**
      * Registers the specified {@link CustomPropertySet} on this service's whiteboard.

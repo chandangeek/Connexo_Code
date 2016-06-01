@@ -59,7 +59,7 @@ public class VersionedCustomPropertySetForTestingPurposes implements CustomPrope
 
     @Override
     public PersistenceSupport<TestDomain, VersionedDomainExtensionForTestingPurposes> getPersistenceSupport() {
-        return new MyPeristenceSupport();
+        return new MyPersistenceSupport();
     }
 
     @Override
@@ -99,7 +99,7 @@ public class VersionedCustomPropertySetForTestingPurposes implements CustomPrope
         return Arrays.asList(billingCyclePropertySpec, contractNumberPropertySpec);
     }
 
-    private static class MyPeristenceSupport implements PersistenceSupport<TestDomain, VersionedDomainExtensionForTestingPurposes> {
+    private static class MyPersistenceSupport implements PersistenceSupport<TestDomain, VersionedDomainExtensionForTestingPurposes> {
         @Override
         public String componentName() {
             return "T04";
@@ -150,6 +150,18 @@ public class VersionedCustomPropertySetForTestingPurposes implements CustomPrope
                 .map(VersionedDomainExtensionForTestingPurposes.FieldNames.CONTRACT_NUMBER.javaName())
                 .add();
         }
+
+        @Override
+        public String columnNameFor(PropertySpec propertySpec) {
+            return EnumSet
+                    .complementOf(EnumSet.of(VersionedDomainExtensionForTestingPurposes.FieldNames.DOMAIN))
+                    .stream()
+                    .filter(each -> each.javaName().equals(propertySpec.getName()))
+                    .findFirst()
+                    .map(VersionedDomainExtensionForTestingPurposes.FieldNames::databaseName)
+                    .orElseThrow(() -> new IllegalArgumentException("Unknown property spec: " + propertySpec.getName()));
+        }
+
     }
 
 }

@@ -2,7 +2,6 @@ package com.elster.jupiter.cps.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.cps.CustomPropertySet;
-import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
@@ -17,6 +16,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
@@ -31,6 +31,8 @@ import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
+import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.util.sql.SqlFragment;
 
 import com.google.common.base.Strings;
 import com.google.inject.AbstractModule;
@@ -42,9 +44,12 @@ import org.osgi.service.event.EventAdmin;
 import java.math.BigDecimal;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -88,7 +93,7 @@ public class CustomPropertySetServiceImplIT {
     private InMemoryBootstrapModule bootstrapModule;
 
     private Injector injector;
-    private CustomPropertySetService testInstance;
+    private CustomPropertySetServiceImpl testInstance;
 
     @Rule
     public ExpectedConstraintViolationRule rule = new ExpectedConstraintViolationRule();
@@ -125,7 +130,7 @@ public class CustomPropertySetServiceImplIT {
 
     private void createTestInstance() {
         try (TransactionContext ctx = transactionService.getContext()) {
-            this.testInstance = injector.getInstance(CustomPropertySetService.class);
+            this.testInstance = injector.getInstance(CustomPropertySetServiceImpl.class);
             ctx.commit();
         }
     }
@@ -193,7 +198,7 @@ public class CustomPropertySetServiceImplIT {
         List<DataModel> dataModelsBeforeAdd = ormService.getDataModels();
 
         // Simulate server restart by recreating the CustomPropertySetService instance
-        this.testInstance = injector.getInstance(CustomPropertySetService.class);
+        this.testInstance = injector.getInstance(CustomPropertySetServiceImpl.class);
 
         // Business method
         this.testInstance.addCustomPropertySet(new CustomPropertySetForTestingPurposes(propertySpecService));
@@ -273,7 +278,7 @@ public class CustomPropertySetServiceImplIT {
         List<DataModel> dataModelsBeforeAdd = ormService.getDataModels();
 
         // Simulate server restart by recreating the CustomPropertySetService instance
-        this.testInstance = injector.getInstance(CustomPropertySetService.class);
+        this.testInstance = injector.getInstance(CustomPropertySetServiceImpl.class);
 
         // Business method
         this.testInstance.addCustomPropertySet(new VersionedCustomPropertySetForTestingPurposes(propertySpecService));
@@ -1115,13 +1120,106 @@ public class CustomPropertySetServiceImplIT {
         }
     }
 
-    private void addAllViewAndEditPrivileges(CustomPropertySet customPropertySet) {
+    @Test
+    public void getRawValuesSql() throws SQLException {
+        PropertySpecService propertySpecService = injector.getInstance(PropertySpecService.class);
+        VersionedCustomPropertySetForTestingPurposes customPropertySet = new VersionedCustomPropertySetForTestingPurposes(propertySpecService);
+        PropertySpec propertySpec =
+                customPropertySet.getPropertySpecs()
+                        .stream()
+                        .filter(each -> each.getName().equals(DomainExtensionForTestingPurposes.FieldNames.CONTRACT_NUMBER.javaName()))
+                        .findFirst()
+                        .get();
+        OrmService ormService = injector.getInstance(OrmService.class);
+        TestDomain testDomain = new TestDomain();
         try (TransactionContext ctx = transactionService.getContext()) {
-            this.testInstance
-                    .findActiveCustomPropertySet(customPropertySet.getId()).get()
-                    .updatePrivileges(
-                            EnumSet.allOf(ViewPrivilege.class),
-                            EnumSet.allOf(EditPrivilege.class));
+            DataModel testDomainDataModel = TestDomain.install(ormService);
+            testDomain.setName("getRawValuesSql");
+            testDomain.setDescription("for testing purposes only");
+            testDomainDataModel.persist(testDomain);
+            ctx.commit();
+        }
+        this.testInstance.addCustomPropertySet(customPropertySet);
+        this.grantAllViewAndEditPrivilegesToPrincipal();
+        try (TransactionContext ctx = transactionService.getContext()) {
+            CustomPropertySetValues values = CustomPropertySetValues.empty();
+            values.setProperty(DomainExtensionForTestingPurposes.FieldNames.SERVICE_CATEGORY.javaName(), ServiceCategoryForTestingPurposes.ELECTRICITY);
+            BigDecimal expectedBillingCycle = BigDecimal.TEN;
+            values.setProperty(DomainExtensionForTestingPurposes.FieldNames.BILLING_CYCLE.javaName(), expectedBillingCycle);
+            values.setProperty(DomainExtensionForTestingPurposes.FieldNames.CONTRACT_NUMBER.javaName(), "createVersionedValues");
+            this.testInstance.setValuesFor(customPropertySet, testDomain, values, Instant.now());
+            ctx.commit();
+        }
+
+        // Business method
+        SqlFragment rawValuesSql = this.testInstance.getRawValuesSql(customPropertySet, propertySpec, "value", testDomain);
+        System.out.println("rawValuesSql = " + rawValuesSql);
+
+        // Asserts: execute the query first
+        try (Connection connection = this.testInstance.getDataModel().getConnection(false)) {
+            SqlBuilder sqlBuilder = new SqlBuilder("SELECT count(*) FROM (");
+            sqlBuilder.add(rawValuesSql);
+            sqlBuilder.append(")");
+            try (PreparedStatement statement = sqlBuilder.prepare(connection)) {
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    resultSet.next();
+                    int count = resultSet.getInt(1);
+
+                    // Asserts
+                    assertThat(count).isEqualTo(1);
+                }
+            }
+        }
+    }
+
+    @Test
+    public void getRawValuesSqlWithAdditionalPrimaryKey() throws SQLException {
+        PropertySpecService propertySpecService = injector.getInstance(PropertySpecService.class);
+        VersionedCustomPropertySetWithAdditionalPrimaryKeyColumnsForTestingPurposes customPropertySet = new VersionedCustomPropertySetWithAdditionalPrimaryKeyColumnsForTestingPurposes(propertySpecService);
+        PropertySpec propertySpec =
+                customPropertySet.getPropertySpecs()
+                    .stream()
+                    .filter(each -> each.getName().equals(DomainExtensionForTestingPurposes.FieldNames.CONTRACT_NUMBER.javaName()))
+                    .findFirst()
+                    .get();
+        OrmService ormService = injector.getInstance(OrmService.class);
+        TestDomain testDomain = new TestDomain();
+        try (TransactionContext ctx = transactionService.getContext()) {
+            DataModel testDomainDataModel = TestDomain.install(ormService);
+            testDomain.setName("getRawValuesSqlWithAdditionalPrimaryKey");
+            testDomain.setDescription("for testing purposes only");
+            testDomainDataModel.persist(testDomain);
+            ctx.commit();
+        }
+        this.testInstance.addCustomPropertySet(customPropertySet);
+        this.grantAllViewAndEditPrivilegesToPrincipal();
+        try (TransactionContext ctx = transactionService.getContext()) {
+            CustomPropertySetValues values = CustomPropertySetValues.empty();
+            values.setProperty(DomainExtensionForTestingPurposes.FieldNames.SERVICE_CATEGORY.javaName(), ServiceCategoryForTestingPurposes.ELECTRICITY);
+            BigDecimal expectedBillingCycle = BigDecimal.TEN;
+            values.setProperty(DomainExtensionForTestingPurposes.FieldNames.BILLING_CYCLE.javaName(), expectedBillingCycle);
+            values.setProperty(DomainExtensionForTestingPurposes.FieldNames.CONTRACT_NUMBER.javaName(), "createVersionedValues");
+            this.testInstance.setValuesFor(customPropertySet, testDomain, values, Instant.now(), ServiceCategoryForTestingPurposes.ELECTRICITY);
+            ctx.commit();
+        }
+
+        // Business method
+        SqlFragment rawValuesSql = this.testInstance.getRawValuesSql(customPropertySet, propertySpec, "value", testDomain, ServiceCategoryForTestingPurposes.ELECTRICITY);
+
+        // Asserts: execute the query first
+        try (Connection connection = this.testInstance.getDataModel().getConnection(false)) {
+            SqlBuilder sqlBuilder = new SqlBuilder("SELECT count(*) FROM (");
+            sqlBuilder.add(rawValuesSql);
+            sqlBuilder.append(")");
+            try (PreparedStatement statement = sqlBuilder.prepare(connection)) {
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    resultSet.next();
+                    int count = resultSet.getInt(1);
+
+                    // Asserts
+                    assertThat(count).isEqualTo(1);
+                }
+            }
         }
     }
 
@@ -1134,7 +1232,6 @@ public class CustomPropertySetServiceImplIT {
         when(viewPrivilege.getName()).thenReturn(ViewPrivilege.LEVEL_1.getPrivilege());
         privileges.add(viewPrivilege);
         when(this.principal.getPrivileges()).thenReturn(privileges);
-
     }
 
     private abstract class LatchDrivenRunnable implements Runnable {

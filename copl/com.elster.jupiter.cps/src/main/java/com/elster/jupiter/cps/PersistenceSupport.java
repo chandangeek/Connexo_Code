@@ -3,6 +3,7 @@ package com.elster.jupiter.cps;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.properties.PropertySpec;
 
 import aQute.bnd.annotation.ConsumerType;
 import com.google.inject.Module;
@@ -122,5 +123,18 @@ public interface PersistenceSupport<D, T extends PersistentDomainExtension<D>> {
      * @see Table#index(String)
      */
     void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns);
+
+    /**
+     * Gets the name of the column that holds the values of the specified {@link PropertySpec}.
+     * Implementation classes are allowed to throw an IllegalArgumentException if the
+     * PropertySpec is not one that was returned by {@link CustomPropertySet#getPropertySpecs()}
+     * of the related CustomPropertySet.
+     *
+     * @param propertySpec The PropertySpec
+     * @return The name of the column
+     */
+    default String columnNameFor(PropertySpec propertySpec) {
+        return propertySpec.getName();
+    }
 
 }
