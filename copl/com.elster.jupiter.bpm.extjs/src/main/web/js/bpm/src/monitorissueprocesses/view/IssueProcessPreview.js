@@ -26,10 +26,10 @@ Ext.define('Bpm.monitorissueprocesses.view.IssueProcessPreview', {
                                     template += '<tpl><span class="icon-checkmark"></span>';
                                     break;
                                 case 'ACTIVE':
-                                    template += '<tpl><span class="icon-inprogress"></span>';
+                                    template += '<tpl><span class="icon-flickr2"></span>';
                                     break;
                                 case 'ABORTED':
-                                    template += '<tpl><span class="icon-close"></span>';
+                                    template += '<tpl><span class="icon-cross"></span>';
                                     break;
                             }
                             return template;
