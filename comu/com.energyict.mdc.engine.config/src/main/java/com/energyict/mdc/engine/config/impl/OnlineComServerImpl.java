@@ -31,21 +31,20 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-03-28 (15:36)
  */
+@UniqueUri(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.MDC_DUPLICATE_COM_SERVER_URI + "}")
+@ValidComServerUri(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY + "}")
 public final class OnlineComServerImpl extends ComServerImpl implements OnlineComServer {
 
     private final EngineConfigurationService engineConfigurationService;
     @URI(message = "{"+ MessageSeeds.Keys.MDC_INVALID_URL+"}", groups = {Save.Update.class, Save.Create.class})
     @Size(max = 512)
     private String queryAPIPostUri;
-    private boolean usesDefaultQueryAPIPostUri = true;
     @URI(message = "{"+ MessageSeeds.Keys.MDC_INVALID_URL+"}", groups = {Save.Update.class, Save.Create.class})
     @Size(max = 512)
     private String eventRegistrationUri;
-    private boolean usesDefaultEventRegistrationUri = true;
     @URI(message = "{" + MessageSeeds.Keys.MDC_INVALID_URL + "}", groups = {Save.Update.class, Save.Create.class})
     @Size(max = 512)
     private String statusUri;
-    private boolean usesDefaultStatusUri = true;
     @Range(min=MINIMUM_STORE_TASK_QUEUE_SIZE, max=MAXIMUM_STORE_TASK_QUEUE_SIZE, message = "{"+ MessageSeeds.Keys.MDC_VALUE_NOT_IN_RANGE+"}", groups = {Save.Update.class, Save.Create.class})
     private int storeTaskQueueSize;
     @Range(min=MINIMUM_NUMBER_OF_STORE_TASK_THREADS, max=MAXIMUM_NUMBER_OF_STORE_TASK_THREADS, message = "{"+ MessageSeeds.Keys.MDC_VALUE_NOT_IN_RANGE+"}", groups = {Save.Update.class, Save.Create.class})
@@ -104,20 +103,7 @@ public final class OnlineComServerImpl extends ComServerImpl implements OnlineCo
     @Override
     @XmlElement
     public String getQueryApiPostUri () {
-        if (this.usesDefaultQueryAPIPostUri) {
-            return this.defaultQueryApiPostUri();
-        }
         return queryAPIPostUri;
-    }
-
-    @Override
-    public boolean usesDefaultQueryApiPostUri () {
-        return this.usesDefaultQueryAPIPostUri;
-    }
-
-    @Override
-    public void setUsesDefaultQueryAPIPostUri(boolean usesDefaultQueryAPIPostUri) {
-        this.usesDefaultQueryAPIPostUri = usesDefaultQueryAPIPostUri;
     }
 
     @Override
@@ -133,20 +119,7 @@ public final class OnlineComServerImpl extends ComServerImpl implements OnlineCo
     @Override
     @XmlElement
     public String getEventRegistrationUri () {
-        if (this.usesDefaultEventRegistrationUri) {
-            return this.defaultEventRegistrationUri();
-        }
         return eventRegistrationUri;
-    }
-
-    @Override
-    public boolean usesDefaultEventRegistrationUri () {
-        return this.usesDefaultEventRegistrationUri;
-    }
-
-    @Override
-    public void setUsesDefaultEventRegistrationUri(boolean usesDefaultEventRegistrationUri) {
-        this.usesDefaultEventRegistrationUri = usesDefaultEventRegistrationUri;
     }
 
     @Override
@@ -161,27 +134,13 @@ public final class OnlineComServerImpl extends ComServerImpl implements OnlineCo
 
     @Override
     public void setStatusUri(String statusUri) {
-        this.usesDefaultStatusUri=Checks.is(statusUri).emptyOrOnlyWhiteSpace();
         this.statusUri = statusUri;
     }
 
     @Override
     @XmlElement
     public String getStatusUri () {
-        if (this.usesDefaultStatusUri) {
-            return this.defaultStatusUri();
-        }
         return statusUri;
-    }
-
-    @Override
-    public boolean usesDefaultStatusUri () {
-        return this.usesDefaultStatusUri;
-    }
-
-    @Override
-    public void setUsesDefaultStatusUri(boolean usesDefaultStatusUri) {
-        this.usesDefaultStatusUri = usesDefaultStatusUri;
     }
 
     @Override
@@ -204,13 +163,11 @@ public final class OnlineComServerImpl extends ComServerImpl implements OnlineCo
 
     @Override
     public void setQueryAPIPostUri(String queryAPIPostUri) {
-        this.usesDefaultQueryAPIPostUri = Checks.is(queryAPIPostUri).emptyOrOnlyWhiteSpace();
         this.queryAPIPostUri = queryAPIPostUri;
     }
 
     @Override
     public void setEventRegistrationUri(String eventRegistrationUri) {
-        this.usesDefaultEventRegistrationUri=Checks.is(eventRegistrationUri).emptyOrOnlyWhiteSpace();
         this.eventRegistrationUri = eventRegistrationUri;
     }
 
@@ -269,24 +226,6 @@ public final class OnlineComServerImpl extends ComServerImpl implements OnlineCo
         @Override
         public OnlineComServerBuilderImpl statusUri(String statusUri) {
             getComServerInstance().setStatusUri(statusUri);
-            return this;
-        }
-
-        @Override
-        public OnlineComServerBuilderImpl usesDefaultEventRegistrationUri(boolean usesDefaultEventRegistrationUri) {
-            getComServerInstance().setUsesDefaultEventRegistrationUri(usesDefaultEventRegistrationUri);
-            return this;
-        }
-
-        @Override
-        public OnlineComServerBuilderImpl usesDefaultQueryApiPostUri(boolean usesDefaultQueryApiPostUri) {
-            getComServerInstance().setUsesDefaultQueryAPIPostUri(usesDefaultQueryApiPostUri);
-            return this;
-        }
-
-        @Override
-        public OnlineComServerBuilderImpl usesDefaultStatusUri(boolean usesDefaultStatusUri) {
-            getComServerInstance().setUsesDefaultStatusUri(usesDefaultStatusUri);
             return this;
         }
     }

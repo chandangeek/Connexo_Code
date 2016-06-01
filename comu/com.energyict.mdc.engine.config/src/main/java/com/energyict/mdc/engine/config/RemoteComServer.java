@@ -21,28 +21,12 @@ public interface RemoteComServer extends ComServer, InboundCapableComServer, Out
     public void setEventRegistrationUri(String eventRegistrationUri);
 
     /**
-     * Tests if the URI for the event registration mechanism is the default one or not.
-     *
-     * @return <code>true</code> iff the URI for the event registration mechanism is the default one
-     */
-    public boolean usesDefaultEventRegistrationUri ();
-    public void setUsesDefaultEventRegistrationUri(boolean usesDefaultEventRegistrationUri);
-
-    /**
      * Gets the URI that returns the status information of this ComServer.
      *
      * @return The URI
      */
     public String getStatusUri ();
     public void setStatusUri(String statusUri);
-
-    /**
-     * Tests if the URI to obtain status information is the default one or not.
-     *
-     * @return <code>true</code> iff the URI to obtain the status information is the default
-     */
-    public boolean usesDefaultStatusUri ();
-    public void setUsesDefaultStatusUri(boolean usesDefaultStatusUri);
 
     /**
      * Gets the {@link OnlineComServer} that this remote ComServer
@@ -58,8 +42,6 @@ public interface RemoteComServer extends ComServer, InboundCapableComServer, Out
         RemoteComServerBuilder onlineComServer(OnlineComServer onlineComServer);
         RemoteComServerBuilder eventRegistrationUri(String eventRegistrationUri);
         RemoteComServerBuilder statusUri(String statusUri);
-        RemoteComServerBuilder usesDefaultEventRegistrationUri(boolean usesDefaultEventRegistrationUri);
-        RemoteComServerBuilder usesDefaultStatusUri(boolean usesDefaultStatusUri);
     }
 
 }

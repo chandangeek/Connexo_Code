@@ -18,16 +18,6 @@ public interface OnlineComServer extends ComServer, InboundCapableComServer, Out
     public void setEventRegistrationUri(String eventRegistrationUri);
 
     /**
-     * Tests if the URI for the event registration mechanism
-     * is the default one or not.
-     *
-     * @return <code>true</code> iff the URI for the event registration mechanism is the default one
-     */
-    public boolean usesDefaultEventRegistrationUri ();
-
-    public void setUsesDefaultEventRegistrationUri(boolean usesDefaultEventRegistrationUri);
-
-    /**
      * Gets the URI that returns the status information of this ComServer.
      *
      * @return The URI
@@ -36,28 +26,9 @@ public interface OnlineComServer extends ComServer, InboundCapableComServer, Out
 
     public void setStatusUri(String statusUri);
 
-    /**
-     * Tests if the URI to obtain status information is the default one or not.
-     *
-     * @return <code>true</code> iff the URI to obtain the status information is the default
-     */
-    public boolean usesDefaultStatusUri ();
-
-    public void setUsesDefaultStatusUri(boolean usesDefaultStatusUri);
-
     public String getQueryApiPostUri ();
 
     public void setQueryAPIPostUri(String queryAPIPostUri);
-
-    /**
-     * Tests if the URI for the query API post mechanism
-     * is the default one or not.
-     *
-     * @return <code>true</code> iff the URI for the query API post mechanism is the default one
-     */
-    public boolean usesDefaultQueryApiPostUri ();
-
-    public void setUsesDefaultQueryAPIPostUri(boolean usesDefaultQueryAPIPostUri);
 
     /**
      * Gets the maximum number of store tasks that can be exeucted
@@ -110,9 +81,6 @@ public interface OnlineComServer extends ComServer, InboundCapableComServer, Out
         OnlineComServerBuilder eventRegistrationUri(String eventRegistrationUri);
         OnlineComServerBuilder queryApiPostUri(String queryApiPostUri);
         OnlineComServerBuilder statusUri(String statusUri);
-        OnlineComServerBuilder usesDefaultEventRegistrationUri(boolean usesDefaultEventRegistrationUri);
-        OnlineComServerBuilder usesDefaultQueryApiPostUri(boolean usesDefaultQueryApiPostUri);
-        OnlineComServerBuilder usesDefaultStatusUri(boolean usesDefaultStatusUri);
     }
 
 }
