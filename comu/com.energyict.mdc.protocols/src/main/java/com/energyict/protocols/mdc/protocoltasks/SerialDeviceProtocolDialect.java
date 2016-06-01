@@ -6,6 +6,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
+
 import com.energyict.protocolimplv2.DeviceProtocolDialectName;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 
@@ -23,7 +24,7 @@ public class SerialDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
     public static final BigDecimal DEFAULT_RETRIES = new BigDecimal(3);
     public static final BigDecimal DEFAULT_INFORMATION_FIELD_SIZE = BigDecimal.valueOf(128L);
     public static final BigDecimal DEFAULT_ADDRESSING_MODE = BigDecimal.valueOf(2L);
-    public static final BigDecimal DEFAULT_ROUND_TRIP_CORRECTION = new BigDecimal(0);
+    public static final BigDecimal DEFAULT_ROUND_TRIP_CORRECTION = BigDecimal.ZERO;
     public static final TimeDuration DEFAULT_TIMEOUT = new TimeDuration(10, TimeDuration.TimeUnit.SECONDS);
     public static final TimeDuration DEFAULT_FORCED_DELAY = new TimeDuration(100, TimeDuration.TimeUnit.MILLISECONDS);
     public static final TimeDuration DEFAULT_DELAY_AFTER_ERROR = new TimeDuration(100, TimeDuration.TimeUnit.MILLISECONDS);

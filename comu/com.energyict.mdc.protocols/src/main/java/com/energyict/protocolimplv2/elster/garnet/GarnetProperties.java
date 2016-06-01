@@ -32,7 +32,7 @@ import static com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties.TIME
 public class GarnetProperties implements HasDynamicProperties {
 
     public static final String DEVICE_ID = "DeviceId";
-    public static final BigDecimal DEFAULT_DEVICE_ID = new BigDecimal(0);
+    public static final BigDecimal DEFAULT_DEVICE_ID = BigDecimal.ZERO;
     public static final TimeDuration DEFAULT_TIMEOUT = new TimeDuration(10, TimeDuration.TimeUnit.SECONDS);
     public static final TimeDuration DEFAULT_FORCED_DELAY = new TimeDuration(0, TimeDuration.TimeUnit.MILLISECONDS);
     public static final TimeDuration DEFAULT_DELAY_AFTER_ERROR = new TimeDuration(100, TimeDuration.TimeUnit.MILLISECONDS);

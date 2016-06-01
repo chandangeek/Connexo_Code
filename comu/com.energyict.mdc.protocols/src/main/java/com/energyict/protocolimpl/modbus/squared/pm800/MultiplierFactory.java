@@ -39,7 +39,7 @@ public class MultiplierFactory {
 
 
     public BigDecimal getMultiplier(int scale) throws IOException {
-        BigDecimal scalefactor= new BigDecimal(0);
+        BigDecimal scalefactor;
         if (scale == (char)'A') {
            scalefactor = getA();
         }
@@ -55,39 +55,46 @@ public class MultiplierFactory {
         else if (scale == (char)'F') {
            scalefactor = getF();
         }
-        else throw new IOException("PM800, invalid scale "+(char)scale);
+        else {
+            throw new IOException("PM800, invalid scale " + (char) scale);
+        }
 
         //return new BigDecimal(""+Math.pow(10, scalefactor.longValue()));
-        return (new BigDecimal("1")).movePointRight((int)scalefactor.longValue());
+        return BigDecimal.ONE.movePointRight((int)scalefactor.longValue());
     }
 
     private BigDecimal getA() throws IOException {
-        if (a==null)
-            a= pm800.getRegisterFactory().findRegister("scale A").quantityValue().getAmount();
+        if (a==null) {
+            a = pm800.getRegisterFactory().findRegister("scale A").quantityValue().getAmount();
+        }
         return a;
     }
 
     private BigDecimal getB() throws IOException {
-        if (b==null)
-            b= pm800.getRegisterFactory().findRegister("scale B").quantityValue().getAmount();
+        if (b==null) {
+            b = pm800.getRegisterFactory().findRegister("scale B").quantityValue().getAmount();
+        }
         return b;
     }
 
     private BigDecimal getD() throws IOException {
-        if (d==null)
-            d= pm800.getRegisterFactory().findRegister("scale D").quantityValue().getAmount();
+        if (d==null) {
+            d = pm800.getRegisterFactory().findRegister("scale D").quantityValue().getAmount();
+        }
         return d;
     }
 
     private BigDecimal getE() throws IOException {
-        if (e==null)
-            e= pm800.getRegisterFactory().findRegister("scale E").quantityValue().getAmount();
+        if (e==null) {
+            e = pm800.getRegisterFactory().findRegister("scale E").quantityValue().getAmount();
+        }
         return e;
     }
 
     private BigDecimal getF() throws IOException {
-        if (f==null)
-            f= pm800.getRegisterFactory().findRegister("scale F").quantityValue().getAmount();
+        if (f==null) {
+            f = pm800.getRegisterFactory().findRegister("scale F").quantityValue().getAmount();
+        }
         return f;
     }
 }

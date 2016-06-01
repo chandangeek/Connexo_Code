@@ -4,9 +4,10 @@ import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.EMCO.frame.RegisterRequestFrame;
 import com.energyict.protocolimpl.EMCO.frame.RegisterResponseFrame;
 import com.energyict.protocolimpl.EMCO.frame.ResponseFrame;
@@ -20,6 +21,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.logging.Level;
 
@@ -35,14 +37,14 @@ import java.util.logging.Level;
  */
 public class ObisCodeMapper {
 
-    private List<RegisterMapping> registerMapping = new ArrayList<RegisterMapping>();
+    private List<RegisterMapping> registerMapping = new ArrayList<>();
 
     // Map containing the mapping of unit string to EIServer units.
-    private HashMap<String, Unit> unitTextHashMap = new HashMap<String, Unit>();
+    private Map<String, Unit> unitTextHashMap = new HashMap<>();
 
     // Mapping of Register Unit Number to its EIServer Unit -- used to prevent the same unit register is read out multiple times in one comm session.
-    private HashMap<String, Unit> unitHashMap = new HashMap<String, Unit>();
-    private HashMap<BigDecimal, String> totalizerAssignmentMap = new HashMap<BigDecimal, String>(5);
+    private Map<String, Unit> unitHashMap = new HashMap<>();
+    private Map<BigDecimal, String> totalizerAssignmentMap = new HashMap<>(5);
     private FP93 meterProtocol;
 
     public ObisCodeMapper(FP93 meterProtocol) {
@@ -209,8 +211,8 @@ public class ObisCodeMapper {
     }
 
     private void initTotalizerAssignment() {
-        totalizerAssignmentMap.put(new BigDecimal(0), "None");
-        totalizerAssignmentMap.put(new BigDecimal(1), "Volume flow");
+        totalizerAssignmentMap.put(BigDecimal.ZERO, "None");
+        totalizerAssignmentMap.put(BigDecimal.ONE, "Volume flow");
         totalizerAssignmentMap.put(new BigDecimal(2), "Compensated volume flow");
         totalizerAssignmentMap.put(new BigDecimal(3), "Mass flow");
         totalizerAssignmentMap.put(new BigDecimal(4), "Energy flow");

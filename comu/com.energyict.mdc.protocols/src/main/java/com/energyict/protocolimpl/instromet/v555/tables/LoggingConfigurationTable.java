@@ -3,6 +3,7 @@ package com.energyict.protocolimpl.instromet.v555.tables;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.instromet.connection.Response;
 import com.energyict.protocolimpl.instromet.v555.CommandFactory;
 
@@ -62,7 +63,7 @@ public class LoggingConfigurationTable extends AbstractTable {
                 //info.setId(id);
                     /*if (wrapValues.size() >= (id + 1)) {
                         BigDecimal wrapValue = (BigDecimal) wrapValues.get(id);
-                    if (!new BigDecimal(0).equals(wrapValue))
+                    if (!BigDecimal.ZERO.equals(wrapValue))
                         info.setCumulativeWrapValue(wrapValue);
                     else
                         info.setCumulativeWrapValue(null);
@@ -99,14 +100,16 @@ public class LoggingConfigurationTable extends AbstractTable {
 	}
 
 	protected void parse(int value, int id) throws IOException  {
-		if (value == 0)
+		if (value == 0) {
 			return;
+		}
 		ChannelInfo info =
 			new ChannelInfo(id, "Instromet_" + (id + 1) + "_" + value, getUnit(value));
 		if (wrapValues.size() >= (id + 1)) {
 			BigDecimal wrapValue = (BigDecimal) wrapValues.get(id);
-			if (!new BigDecimal(0).equals(wrapValue))
+			if (!BigDecimal.ZERO.equals(wrapValue)) {
 				info.setCumulativeWrapValue(wrapValue);
+			}
 			//System.out.println("wrap value: " + wrapValue);
 		}
 		channelInfos.add(info);

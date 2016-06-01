@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.cm10;
 
-import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.common.interval.IntervalStateBits;
+import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.protocols.util.ProtocolUtils;
 
@@ -48,7 +48,7 @@ public class MeterDemandsTable {
 				if (value.equals(new BigDecimal(16383))) {
 					intervalData.addEiStatus(IntervalStateBits.MISSING);
 					intervalData.addProtocolStatus(IntervalStateBits.MISSING);
-					intervalData.addValue(new BigDecimal(0));
+					intervalData.addValue(BigDecimal.ZERO);
 					//cm10Protocol.getLogger().info(endOfInterval + ", MISSING");
 				}
 				else {
@@ -75,10 +75,11 @@ public class MeterDemandsTable {
 		int size = intervalDatas.size();
 		for (int i = (size - 1); i >= 0; i--) {
 			IntervalData intervalData = (IntervalData) intervalDatas.get(i);
-			if ((intervalData.getProtocolStatus() & IntervalStateBits.MISSING) > 0)
+			if ((intervalData.getProtocolStatus() & IntervalStateBits.MISSING) > 0) {
 				count++;
-			else
+			} else {
 				return count;
+			}
 		}
 		return count;
 	}

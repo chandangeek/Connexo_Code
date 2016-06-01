@@ -37,7 +37,7 @@ public class MultiplierFactory {
 
 
     public BigDecimal getMultiplier(int scale) throws IOException {
-        BigDecimal scalefactor= new BigDecimal(0);
+        BigDecimal scalefactor;
         if (scale == (char)'I') {
            scalefactor = getI();
         }
@@ -50,33 +50,39 @@ public class MultiplierFactory {
         else if (scale == (char)'E') {
            scalefactor = getE();
         }
-        else throw new IOException("PM750, invalid scale "+(char)scale);
+        else {
+            throw new IOException("PM750, invalid scale " + (char) scale);
+        }
 
         //return new BigDecimal(""+Math.pow(10, scalefactor.longValue()));
-        return (new BigDecimal("1")).movePointRight((int)scalefactor.longValue());
+        return BigDecimal.ONE.movePointRight((int)scalefactor.longValue());
     }
 
     private BigDecimal getI() throws IOException {
-        if (i==null)
-            i= pm750.getRegisterFactory().findRegister("scale I").quantityValue().getAmount();
+        if (i==null) {
+            i = pm750.getRegisterFactory().findRegister("scale I").quantityValue().getAmount();
+        }
         return i;
     }
 
     private BigDecimal getV() throws IOException {
-        if (v==null)
-            v= pm750.getRegisterFactory().findRegister("scale V").quantityValue().getAmount();
+        if (v==null) {
+            v = pm750.getRegisterFactory().findRegister("scale V").quantityValue().getAmount();
+        }
         return v;
     }
 
     private BigDecimal getW() throws IOException {
-        if (w==null)
-            w= pm750.getRegisterFactory().findRegister("scale W").quantityValue().getAmount();
+        if (w==null) {
+            w = pm750.getRegisterFactory().findRegister("scale W").quantityValue().getAmount();
+        }
         return w;
     }
 
     private BigDecimal getE() throws IOException {
-        if (e==null)
-            e= pm750.getRegisterFactory().findRegister("scale E").quantityValue().getAmount();
+        if (e==null) {
+            e = pm750.getRegisterFactory().findRegister("scale E").quantityValue().getAmount();
+        }
         return e;
     }
 

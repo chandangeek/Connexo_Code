@@ -1,6 +1,5 @@
 package com.energyict.protocolimpl.coronis.waveflow100mwencoder.severntrent;
 
-import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.IntervalValue;
@@ -36,7 +35,7 @@ public class ProfileDataReader {
         this.waveFlow100mW = waveFlow100mW;
     }
 
-    final ProfileData getProfileData(Date lastReading, int portId, boolean includeEvents) throws UnsupportedException, IOException {
+    final ProfileData getProfileData(Date lastReading, int portId, boolean includeEvents) throws IOException {
 
         ProfileData profileData = new ProfileData();
 
@@ -58,7 +57,7 @@ public class ProfileDataReader {
         EncoderDataloggingTable encoderDataloggingTable;
 
         // create channelinfos
-        List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
+        List<ChannelInfo> channelInfos = new ArrayList<>();
         if ((portId == 0) || (portId == 1)) {
             // only 1 channel
             encoderDataloggingTable = waveFlow100mW.getRadioCommandFactory().readEncoderDataloggingTable(portId == 0 ? true : false, portId == 1 ? true : false, nrOfIntervals, 0);
@@ -106,9 +105,9 @@ public class ProfileDataReader {
                     bd = new BigDecimal(readings[index]);
                     bd = bd.movePointLeft(8 - encoderDataloggingTable.getEncoderGenericHeader().getEncoderUnitInfos()[portId].getNrOfDigitsBeforeDecimalPoint());
                 } else {
-                    bd = new BigDecimal(0);
+                    bd = BigDecimal.ZERO;
                 }
-                List<IntervalValue> intervalValues = new ArrayList<IntervalValue>();
+                List<IntervalValue> intervalValues = new ArrayList<>();
                 intervalValues.add(new IntervalValue(bd, 0, 0));
                 intervalDatas.add(new IntervalData(calendar.getTime(), 0, 0, 0, intervalValues));
                 calendar.add(Calendar.SECOND, -1 * waveFlow100mW.getProfileInterval());
@@ -122,16 +121,16 @@ public class ProfileDataReader {
                     bdA = new BigDecimal(encoderDataloggingTable.getEncoderReadingsPortA()[index]);
                     bdA = bdA.movePointLeft(8 - encoderDataloggingTable.getEncoderGenericHeader().getEncoderUnitInfos()[0].getNrOfDigitsBeforeDecimalPoint());
                 } else {
-                    bdA = new BigDecimal(0);
+                    bdA = BigDecimal.ZERO;
                 }
                 BigDecimal bdB = null;
                 if (encoderDataloggingTable.getEncoderGenericHeader().getEncoderUnitInfos()[1].getEncoderUnitType() != EncoderUnitType.Unknown) {
                     bdB = new BigDecimal(encoderDataloggingTable.getEncoderReadingsPortB()[index]);
                     bdB = bdB.movePointLeft(8 - encoderDataloggingTable.getEncoderGenericHeader().getEncoderUnitInfos()[1].getNrOfDigitsBeforeDecimalPoint());
                 } else {
-                    bdB = new BigDecimal(0);
+                    bdB = BigDecimal.ZERO;
                 }
-                List<IntervalValue> intervalValues = new ArrayList<IntervalValue>();
+                List<IntervalValue> intervalValues = new ArrayList<>();
                 intervalValues.add(new IntervalValue(bdA, 0, 0));
                 intervalValues.add(new IntervalValue(bdB, 0, 0));
                 intervalDatas.add(new IntervalData(calendar.getTime(), 0, 0, 0, intervalValues));
@@ -168,7 +167,7 @@ public class ProfileDataReader {
     }
 
     private List<MeterEvent> buildStatusEvents() throws IOException {
-        List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
+        List<MeterEvent> meterEvents = new ArrayList<>();
 
         if (waveFlow100mW.getCachedGenericHeader() != null) {
 
@@ -186,7 +185,7 @@ public class ProfileDataReader {
                 meterEvents.add(new MeterEvent(new Date(), MeterEvent.OTHER, EventStatusAndDescription.EVENTCODE_LEAKAGE_EXTREME_START_B, "Leakage detection status: High threshold (extreme leak) Port B"));
             }
 
-            int applicationStatus = ((EncoderGenericHeader) waveFlow100mW.getCachedGenericHeader()).getApplicationStatus();
+            int applicationStatus = waveFlow100mW.getCachedGenericHeader().getApplicationStatus();
             if ((applicationStatus & 0x01) == 0x01) {
                 Date timestamp = waveFlow100mW.getParameterFactory().readBatteryLifeDateEnd();
                 meterEvents.add(new MeterEvent(timestamp, MeterEvent.OTHER, getDeviceCode(8), "Low battery warning"));
@@ -230,7 +229,7 @@ public class ProfileDataReader {
     }
 
     private List<MeterEvent> buildMeterSpecificEvents() throws IOException {
-        List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
+        List<MeterEvent> meterEvents = new ArrayList<>();
         for (InternalData internalData : waveFlow100mW.readInternalDatas()) {
             if (internalData != null) {
                 EncoderInternalData encoderInternalData = (EncoderInternalData) internalData;

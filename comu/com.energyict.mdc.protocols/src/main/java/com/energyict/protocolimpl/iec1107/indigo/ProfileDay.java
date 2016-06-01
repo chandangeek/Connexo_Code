@@ -107,10 +107,11 @@ if (DEBUG>=1) System.out.println("0x"+Integer.toHexString(val)+" = "+getDate());
             if (isStatusChannel()) {
                 for (intervalCount=0;intervalCount<getIntervalsPerDay();intervalCount++) {
                    // Meter Bugfix 18/05/2005 Meter does not respond with status flag data...
-                   if (data.length > (3+intervalCount))
-                      values.add(new Quantity(new BigDecimal(ProtocolUtils.getInt(data,3+intervalCount,1)),Unit.get("")));
-                   else
-                      values.add(new Quantity(new BigDecimal(0),Unit.get("")));
+                   if (data.length > (3+intervalCount)) {
+                       values.add(new Quantity(new BigDecimal(ProtocolUtils.getInt(data, 3 + intervalCount, 1)), Unit.get("")));
+                   } else {
+                       values.add(new Quantity(BigDecimal.ZERO, Unit.get("")));
+                   }
                 }
             } // if (isStatusChannel())
             else {
