@@ -23,6 +23,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.PrimaryKeyConstraint;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -143,6 +144,8 @@ public class CustomPropertySetServiceImplTest {
     private RegisteredCustomPropertySet registeredCustomPropertySet;
     @Mock
     private ThreadPrincipalService threadPrincipalService;
+    @Mock
+    private SearchService searchService;
     @Mock
     private UpgradeService upgradeService;
 
@@ -296,6 +299,7 @@ public class CustomPropertySetServiceImplTest {
         testInstance.setOrmService(this.ormService, false);
         testInstance.setNlsService(this.nlsService);
         testInstance.setTransactionService(this.transactionService);
+        testInstance.setSearchService(this.searchService);
         testInstance.addCustomPropertySet(this.customPropertySet);
         testInstance.setUpgradeService(upgradeService);
         when(this.serviceDataModel.isInstalled()).thenReturn(true);
@@ -370,6 +374,7 @@ public class CustomPropertySetServiceImplTest {
         CustomPropertySetServiceImpl testInstance = new CustomPropertySetServiceImpl();
         testInstance.setOrmService(this.ormService, false);
         testInstance.setNlsService(this.nlsService);
+        testInstance.setSearchService(this.searchService);
         testInstance.setTransactionService(this.transactionService);
         testInstance.addCustomPropertySet(this.versionedCustomPropertySet);
         testInstance.setUpgradeService(upgradeService);
@@ -425,6 +430,7 @@ public class CustomPropertySetServiceImplTest {
         testInstance.setNlsService(this.nlsService);
         testInstance.setTransactionService(this.transactionService);
         testInstance.setUpgradeService(upgradeService);
+        testInstance.setSearchService(searchService);
         when(this.customPropertySet.getId()).thenReturn("addCustomPropertySetsWhileActivating-nonversioned");
         when(this.versionedCustomPropertySet.getId()).thenReturn("addCustomPropertySetsWhileActivating-versioned");
         when(this.serviceDataModel.getInstance(RegisteredCustomPropertySetImpl.class)).thenReturn(new RegisteredCustomPropertySetImpl(this.serviceDataModel, this.threadPrincipalService, testInstance));
@@ -1017,6 +1023,7 @@ public class CustomPropertySetServiceImplTest {
         testInstance.setNlsService(this.nlsService);
         testInstance.setUserService(this.userService);
         testInstance.setTransactionService(this.transactionService);
+        testInstance.setSearchService(searchService);
         testInstance.setUpgradeService(upgradeService);
         testInstance.activate();
         return testInstance;
