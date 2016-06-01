@@ -82,9 +82,8 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                         itemId: 'mdc-lpcfg-detailForm-overflow-value-field',
                         allowBlank: false,
                         width: 450,
-                        maxValue: 2147483647,
                         hideTrigger: true,
-                        maxLength: 22,
+                        maxLength: 15, // don't increase this value. Javascript can't handle precise values larger than 9007199254740992
                         enforceMaxLength: true,
                         required: true,
                         minValue: 1
