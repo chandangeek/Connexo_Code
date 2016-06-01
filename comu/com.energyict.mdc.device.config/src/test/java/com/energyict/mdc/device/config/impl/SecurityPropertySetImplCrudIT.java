@@ -68,7 +68,6 @@ import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
@@ -193,6 +192,7 @@ public class SecurityPropertySetImplCrudIT {
                     new MasterDataModule(),
                     new BasicPropertiesModule(),
                     new MdcDynamicModule(),
+                    new PluggableModule(),
                     new ProtocolApiModule(),
                     new TasksModule(),
                     new ValidationModule(),
@@ -221,21 +221,23 @@ public class SecurityPropertySetImplCrudIT {
             eventService = new SpyEventService(injector.getInstance(EventService.class));
             FiniteStateMachineService finiteStateMachineService = injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(MeteringService.class);
-            injector.getInstance(PluggableService.class);
             injector.getInstance(MasterDataService.class);
             injector.getInstance(CustomPropertySetService.class);
             injector.getInstance(TaskService.class);
             injector.getInstance(ValidationService.class);
             injector.getInstance(DeviceLifeCycleConfigurationService.class);
+            injector.getInstance(PluggableService.class);
             deviceConfigurationService = new DeviceConfigurationServiceImpl(
                     injector.getInstance(OrmService.class),
                     injector.getInstance(Clock.class),
                     injector.getInstance(ThreadPrincipalService.class),
                     eventService,
                     injector.getInstance(NlsService.class),
+                    injector.getInstance(com.elster.jupiter.properties.PropertySpecService.class),
                     injector.getInstance(MeteringService.class),
                     injector.getInstance(MdcReadingTypeUtilService.class),
                     injector.getInstance(UserService.class),
+                    injector.getInstance(PluggableService.class),
                     protocolPluggableService,
                     injector.getInstance(EngineConfigurationService.class),
                     injector.getInstance(SchedulingService.class),
@@ -245,7 +247,6 @@ public class SecurityPropertySetImplCrudIT {
                     finiteStateMachineService,
                     injector.getInstance(DeviceLifeCycleConfigurationService.class),
                     injector.getInstance(CalendarService.class),
-                    injector.getInstance(DeviceMessageSpecificationService.class),
                     UpgradeModule.FakeUpgradeService.getInstance());
             ctx.commit();
         }
