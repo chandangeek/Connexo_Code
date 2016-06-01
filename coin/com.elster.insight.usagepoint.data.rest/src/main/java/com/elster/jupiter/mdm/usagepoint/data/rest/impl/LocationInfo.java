@@ -39,7 +39,7 @@ public class LocationInfo {
                 .flatMap(l -> l.stream())
                 .map(loc -> loc == null ? "" : loc)
                 .collect(Collectors.toList());
-        unformattedLocationValue  = lst.stream().collect(Collectors.joining(", "));
+        unformattedLocationValue = lst.stream().collect(Collectors.joining(", "));
 
         List<List<String>> formattedLocationMembers = meteringService.getFormattedLocationMembers(locationId);
         formattedLocationMembers.stream().skip(1).forEach(list ->

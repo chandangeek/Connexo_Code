@@ -21,7 +21,9 @@ import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
+import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
+import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.MeterRole;
@@ -33,7 +35,6 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirementNode;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.metering.impl.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -66,8 +67,6 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
 
     static long firmwareComTaskId = 445632136865L;
     @Mock
-    static SecurityContext securityContext;
-    @Mock
     Clock clock;
     @Mock
     MeteringService meteringService;
@@ -83,6 +82,10 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
     EstimationService estimationService;
     @Mock
     ValidationService validationService;
+    @Mock
+    DataAggregationService dataAggregationService;
+    @Mock
+    static SecurityContext securityContext;
     @Mock
     UsagePointDataService usagePointDataService;
     @Mock
@@ -120,6 +123,7 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         application.setMeteringGroupService(meteringGroupsService);
         application.setUsagePointConfigurationService(usagePointConfigurationService);
         application.setEstimationService(estimationService);
+        application.setDataAggregationService(dataAggregationService);
         application.setValidationService(validationService);
         application.setUsagePointDataService(usagePointDataService);
         application.setCustomPropertySetService(customPropertySetService);
@@ -193,10 +197,6 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         when(contract.getMetrologyConfiguration()).thenReturn(mock);
         when(contract.getDeliverables()).thenReturn(Collections.singletonList(deliverable));
         when(contract.isMandatory()).thenReturn(true);
-        MetrologyContract.Status status = mock(MetrologyContract.Status.class);
-        when(contract.getStatus()).thenReturn(status);
-        when(contract.getStatus().getKey()).thenReturn("INCOMPLETE");
-        when(contract.getStatus().getName()).thenReturn("Incomplete");
         when(mock.getContracts()).thenReturn(Collections.singletonList(contract));
         return mock;
     }
