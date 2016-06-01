@@ -33,6 +33,14 @@ public class MetrologyConfigurationInfoFactory {
         return info;
     }
 
+    public MetrologyConfigurationInfo asShortInfo(UsagePointMetrologyConfiguration metrologyConfiguration) {
+        MetrologyConfigurationInfo info = new MetrologyConfigurationInfo();
+        info.id = metrologyConfiguration.getId();
+        info.name = metrologyConfiguration.getName();
+        info.version = metrologyConfiguration.getVersion();
+        return info;
+    }
+
     private IdWithNameInfo asInfo(MetrologyConfigurationStatus status) {
         IdWithNameInfo info = new IdWithNameInfo();
         info.id = status.getId();
