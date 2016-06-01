@@ -77,6 +77,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.assertj.core.api.Assertions;
@@ -136,7 +137,7 @@ public class ReadingEstimateTest {
                             })
                             .filter(block -> block.estimatables().size() <= 3)
                             .flatMap(block -> block.estimatables().stream())
-                            .forEach(estimatable -> estimatable.setEstimation(BigDecimal.valueOf(value.getAndAdd(4))));
+                            .forEach(estimable -> estimable.setEstimation(BigDecimal.valueOf(value.getAndAdd(4))));
                     return builder.build();
                 }
 
@@ -163,6 +164,11 @@ public class ReadingEstimateTest {
                 @Override
                 public List<String> getRequiredProperties() {
                     return Collections.emptyList();
+                }
+
+                @Override
+                public Set<String> getSupportedApplications() {
+                    return Collections.emptySet();
                 }
             };
         }
@@ -278,7 +284,7 @@ public class ReadingEstimateTest {
         EstimationRuleSet ruleSet = null;
         EstimationRule rule = null;
         try (TransactionContext ctx = transactionService.getContext()) {
-            ruleSet = estimationService.createEstimationRuleSet("testRuleSet");
+            ruleSet = estimationService.createEstimationRuleSet("testRuleSet", "MDC");
             rule = ruleSet.addRule(IMPLEMENTATION, "testRule")
                     .withReadingType(readingType)
                     .active(true)

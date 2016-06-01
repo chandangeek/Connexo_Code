@@ -11,13 +11,20 @@ import com.elster.jupiter.estimation.EstimationReport;
 import com.elster.jupiter.estimation.EstimationResolver;
 import com.elster.jupiter.estimation.EstimationResult;
 import com.elster.jupiter.estimation.Estimator;
+import com.elster.jupiter.estimation.EstimatorFactory;
 import com.elster.jupiter.estimation.Priority;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.events.EventTypeBuilder;
+import com.elster.jupiter.events.ValueType;
+import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.messaging.QueueTableSpec;
+import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
@@ -26,7 +33,11 @@ import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.tasks.TaskService;
+import com.elster.jupiter.time.RelativePeriod;
+import com.elster.jupiter.time.RelativePeriodCategory;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.users.Group;
+import com.elster.jupiter.users.User;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 
@@ -54,8 +65,10 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EstimationServiceImplTest {
@@ -78,13 +91,21 @@ public class EstimationServiceImplTest {
     @Mock
     private EventService eventService;
     @Mock
+    private EventTypeBuilder eventTypeBuilder;
+    @Mock
     private TaskService taskService;
     @Mock
     private MeteringGroupsService meteringGroupService;
     @Mock
+    private QueueTableSpec queueTableSpec;
+    @Mock
+    private DestinationSpec destinationSpec;
+    @Mock
+    private SubscriberSpec subscriberSpec;
+    @Mock
     private MessageService messageService;
     @Mock
-    private com.elster.jupiter.metering.MeterActivation meterActivation;
+    private MeterActivation meterActivation;
     @Mock
     private ReadingType readingType1, readingType2;
     @Mock
@@ -95,14 +116,26 @@ public class EstimationServiceImplTest {
     private IEstimationRule rule1, rule2;
     @Mock
     private Channel channel;
+    @Mock(name = "Estimator1")
+    private Estimator estimator1;
+    @Mock(name = "Estimator2")
+    private Estimator estimator2;
     @Mock
-    private Estimator estimator1, estimator2;
+    private EstimatorFactory factory;
     @Mock
     private UserService userService;
+    @Mock
+    private User user;
+    @Mock
+    private Group group;
     @Mock
     private CimChannel cimChannel1, cimChannel2;
     @Mock
     private Meter meter;
+    @Mock
+    private RelativePeriodCategory relativePeriodCategory;
+    @Mock
+    private RelativePeriod relativePeriod;
     @Mock
     private UpgradeService upgradeService;
 
@@ -110,9 +143,35 @@ public class EstimationServiceImplTest {
 
     @Before
     public void setUp() {
+        when(messageService.getQueueTableSpec(any(String.class))).thenReturn(Optional.of(queueTableSpec));
+        when(queueTableSpec.createDestinationSpec(any(String.class), any(Integer.class))).thenReturn(destinationSpec);
+        doNothing().when(destinationSpec).save();
+        doNothing().when(destinationSpec).activate();
+        when(destinationSpec.subscribe(any(String.class))).thenReturn(subscriberSpec);
+
+        when(timeService.findRelativePeriodCategoryByName(any(String.class))).thenReturn(Optional.of(relativePeriodCategory));
+        when(timeService.findRelativePeriodByName(any(String.class))).thenReturn(Optional.of(relativePeriod));
+
+        when(eventService.buildEventTypeWithTopic(any(String.class))).thenReturn(eventTypeBuilder);
+        when(eventTypeBuilder.name(any(String.class))).thenReturn(eventTypeBuilder);
+        when(eventTypeBuilder.component(any(String.class))).thenReturn(eventTypeBuilder);
+        when(eventTypeBuilder.category(any(String.class))).thenReturn(eventTypeBuilder);
+        when(eventTypeBuilder.scope(any(String.class))).thenReturn(eventTypeBuilder);
+        when(eventTypeBuilder.withProperty(any(String.class), any(ValueType.class), any(String.class))).thenReturn(eventTypeBuilder);
+
+        when(userService.findGroup(any(String.class))).thenReturn(Optional.of(group));
+        when(userService.createUser(any(String.class), any(String.class))).thenReturn(user);
+
         this.estimationService = new EstimationServiceImpl(meteringService, ormService, queryService, nlsService, eventService, taskService, meteringGroupService, messageService, timeService, userService, upgradeService);
 
         estimationService.addEstimationResolver(resolver);
+        estimationService.addEstimatorFactory(factory);
+
+        String estimator1Name = estimator1.toString();
+        String estimator2Name = estimator2.toString();
+        when(factory.available()).thenReturn(Arrays.asList(estimator1Name, estimator2Name));
+        when(factory.createTemplate(estimator1Name)).thenReturn(estimator1);
+        when(factory.createTemplate(estimator2Name)).thenReturn(estimator2);
 
         doReturn(Arrays.asList(readingType1, readingType2)).when(meterActivation).getReadingTypes();
         doReturn(Arrays.asList(ruleSet)).when(resolver).resolve(meterActivation);
@@ -217,5 +276,35 @@ public class EstimationServiceImplTest {
         assertThat(estimationResult.estimated()).hasSize(0);
         assertThat(estimationResult.remainingToBeEstimated()).hasSize(3);
         assertThat(logRecorder).hasRecordWithMessage(message -> message.endsWith(" could not be estimated."));
+    }
+
+    @Test
+    public void testGetAvailableEstimators() {
+        when(estimator1.getSupportedApplications()).thenReturn(ImmutableSet.of("APP", "APP1"));
+        when(estimator2.getSupportedApplications()).thenReturn(ImmutableSet.of("APP"));
+        assertThat(estimationService.getAvailableEstimators("APP"))
+                .as("Both estimators must be supported for APP")
+                .containsExactly(estimator1, estimator2);
+        assertThat(estimationService.getAvailableEstimators("APP1"))
+                .as("Only estimator1 must be supported for APP1")
+                .containsExactly(estimator1);
+        assertThat(estimationService.getAvailableEstimators("NoAPP"))
+                .as("No estimator must be supported for NoAPP")
+                .isEmpty();
+    }
+
+    @Test
+    public void testGetAvailableEstimatorImplementations() {
+        when(estimator1.getSupportedApplications()).thenReturn(ImmutableSet.of("APP"));
+        when(estimator2.getSupportedApplications()).thenReturn(ImmutableSet.of("APP", "APP1"));
+        assertThat(estimationService.getAvailableEstimatorImplementations("APP"))
+                .as("Both estimators must be supported for APP")
+                .containsExactly("Estimator1", "Estimator2");
+        assertThat(estimationService.getAvailableEstimatorImplementations("APP1"))
+                .as("Only estimator2 must be supported for APP1")
+                .containsExactly("Estimator2");
+        assertThat(estimationService.getAvailableEstimatorImplementations("NoAPP"))
+                .as("No estimator must be supported for NoAPP")
+                .isEmpty();
     }
 }
