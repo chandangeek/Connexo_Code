@@ -2,6 +2,7 @@ package com.elster.jupiter.autotests.rest.impl;
 
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.orm.OrmService;
 
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -24,6 +25,7 @@ public class TestUsagePointResourceApplication extends Application {
 
     private volatile MeteringService meteringService;
     private volatile MetrologyConfigurationService metrologyConfigurationService;
+    private volatile OrmService ormService;
 
     @Reference
     public void setMeteringService(MeteringService meteringService) {
@@ -33,6 +35,11 @@ public class TestUsagePointResourceApplication extends Application {
     @Reference
     public void setMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService){
         this.metrologyConfigurationService = metrologyConfigurationService;
+    }
+
+    @Reference
+    public void setOrmService(OrmService ormService) {
+        this.ormService = ormService;
     }
 
     @Activate
@@ -59,6 +66,7 @@ public class TestUsagePointResourceApplication extends Application {
         public void configure() {
             bind(meteringService).to(MeteringService.class);
             bind(metrologyConfigurationService).to(MetrologyConfigurationService.class);
+            bind(ormService).to(OrmService.class);
         }
     }
 }
