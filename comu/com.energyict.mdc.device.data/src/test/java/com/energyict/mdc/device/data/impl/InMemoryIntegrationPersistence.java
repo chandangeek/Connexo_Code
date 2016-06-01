@@ -1,6 +1,8 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.calendar.Calendar;
+import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.EditPrivilege;
@@ -35,6 +37,7 @@ import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -177,6 +180,7 @@ public class InMemoryIntegrationPersistence {
     private DeviceSearchDomain deviceSearchDomain;
     private DataCollectionKpiService dataCollectionKpiService;
     private FiniteStateMachineService finiteStateMachineService;
+    private CalendarService calendarService;
     private Injector injector;
 
     public InMemoryIntegrationPersistence() {
@@ -221,6 +225,7 @@ public class InMemoryIntegrationPersistence {
                 new FiniteStateMachineModule(),
                 new MeteringModule(
                         "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0",
+                        "0.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0",
                         "0.0.0.1.1.2.12.0.0.0.0.0.0.0.0.3.72.0",
                         "0.0.0.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0",
                         "0.0.0.1.19.2.12.0.0.0.0.0.0.0.0.3.72.0",
@@ -301,6 +306,7 @@ public class InMemoryIntegrationPersistence {
             this.meteringGroupsService.addEndDeviceQueryProvider(injector.getInstance(DeviceEndDeviceQueryProvider.class));
             this.dataCollectionKpiService = injector.getInstance(DataCollectionKpiService.class);
             this.finiteStateMachineService = injector.getInstance(FiniteStateMachineService.class);
+            this.calendarService = injector.getInstance(CalendarService.class);
             injector.getInstance(CustomPropertySetService.class);
             initializePrivileges();
             ctx.commit();
@@ -401,6 +407,10 @@ public class InMemoryIntegrationPersistence {
         return this.deviceDataModelService.communicationTaskReportService();
     }
 
+    public CalendarService getCalendarService() {
+        return this.calendarService;
+    }
+
     public DeviceDataModelService getDeviceDataModelService() {
         return deviceDataModelService;
     }
@@ -473,6 +483,10 @@ public class InMemoryIntegrationPersistence {
         return estimationService;
     }
 
+    public CalendarService calendarService() {
+        return calendarService;
+    }
+
     public int update(SqlBuilder sqlBuilder) throws SQLException {
         try (Connection connection = this.dataModel.getConnection(true);
              PreparedStatement statement = sqlBuilder.getStatement(connection)) {
@@ -543,7 +557,7 @@ public class InMemoryIntegrationPersistence {
         return injector.getInstance(DeviceConfigConflictMappingHandler.class);
     }
 
-    public DeviceSearchDomain getDeviceSearchDomain() {
+    public SearchDomain getDeviceSearchDomain() {
         return deviceSearchDomain;
     }
 

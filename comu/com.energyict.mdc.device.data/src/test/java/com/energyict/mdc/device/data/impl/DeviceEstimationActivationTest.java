@@ -1,13 +1,5 @@
 package com.energyict.mdc.device.data.impl;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.time.Instant;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.junit.Test;
-
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.metering.Meter;
@@ -15,6 +7,14 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceEstimation;
 import com.energyict.mdc.device.data.DeviceEstimationRuleSetActivation;
+
+import java.time.Instant;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class DeviceEstimationActivationTest extends PersistenceIntegrationTest {
     
@@ -149,7 +149,7 @@ public class DeviceEstimationActivationTest extends PersistenceIntegrationTest {
     }
     
     private EstimationRuleSet createEstimationRuleSet(String name) {
-        EstimationRuleSet estimationRuleSet = inMemoryPersistence.getEstimationService().createEstimationRuleSet(name);
+        EstimationRuleSet estimationRuleSet = inMemoryPersistence.getEstimationService().createEstimationRuleSet(name, "MDC");
         estimationRuleSet.save();
         return estimationRuleSet;
     }

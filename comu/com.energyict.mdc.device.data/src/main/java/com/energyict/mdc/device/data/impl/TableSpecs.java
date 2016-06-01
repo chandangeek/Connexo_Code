@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.kpi.Kpi;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
@@ -9,6 +10,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.tasks.RecurrentTask;
+import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
@@ -16,6 +18,7 @@ import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.ActivatedBreakerStatus;
+import com.energyict.mdc.device.data.ActiveEffectiveCalendar;
 import com.energyict.mdc.device.data.Batch;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceEstimation;
@@ -24,6 +27,7 @@ import com.energyict.mdc.device.data.DeviceFields;
 import com.energyict.mdc.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
+import com.energyict.mdc.device.data.PassiveEffectiveCalendar;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeInAction;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeInActionImpl;
@@ -58,6 +62,9 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
+
+import java.util.Calendar;
+import java.util.List;
 
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
 import static com.elster.jupiter.orm.ColumnConversion.CLOB2STRING;
@@ -760,6 +767,94 @@ public enum TableSpecs {
                     .references(DDC_DEVICE.name())
                     .onDelete(DeleteRule.CASCADE)
                     .add();
+        }
+    },
+
+    DDC_PASSIVE_CALENDAR {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<PassiveEffectiveCalendar> table = dataModel.addTable(name(), PassiveEffectiveCalendar.class);
+            table.map(PassiveEffectiveCalendarImpl.class);
+
+            Column idColumn = table.addAutoIdColumn();
+            Column calendarColumn = table.column("ALLOWED_CALENDAR").number().notNull().add();
+            Column deviceColumn = table.column("DEVICE").number().conversion(NUMBER2LONG).notNull().add();
+            table.column("ACTIVATION_DATE").type("number").conversion(NUMBER2INSTANT).map(PassiveEffectiveCalendarImpl.Fields.ACTIVATIONDATE.fieldName()).add();
+            Column comTaskExecColumn = table.column("COM_TASK_EXEC").number().conversion(NUMBER2LONG).add();
+
+            table.primaryKey("DDC_PK_PASSIVE_CAL").on(idColumn).add();
+            table.foreignKey("DDC_PASS_TO_ALLOWED")
+                    .references(AllowedCalendar.class)
+                    .on(calendarColumn)
+                    .onDelete(CASCADE)
+                    .map(PassiveEffectiveCalendarImpl.Fields.CALENDAR.fieldName())
+                    .add();
+            table.foreignKey("DDC_PASS_TO_DEVICE")
+                    .on(deviceColumn)
+                    .references(DDC_DEVICE.name())
+                    .map(PassiveEffectiveCalendarImpl.Fields.DEVICE.fieldName())
+                    .reverseMap("passiveCalendars")
+                    .onDelete(CASCADE)
+                    .add();
+            table.foreignKey("DDC_PASS_TO_COMTASK")
+                    .on(comTaskExecColumn)
+                    .references(DDC_COMTASKEXEC.name())
+                    .map(PassiveEffectiveCalendarImpl.Fields.COMTASKEXECUTION.fieldName())
+                    .add();
+        }
+    },
+
+    DDC_ACTIVE_CALENDAR {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<ActiveEffectiveCalendar> table = dataModel.addTable(name(), ActiveEffectiveCalendar.class);
+            table.map(ActiveEffectiveCalendarImpl.class);
+
+            Column device = table.column("DEVICE").number().conversion(NUMBER2LONG).notNull().add();
+            List<Column> intervalColumns = table.addIntervalColumns(ActiveEffectiveCalendarImpl.Fields.INTERVAL.fieldName());
+            Column calendarColumn = table.column("ALLOWED_CALENDAR").number().notNull().add();
+            table.column("LAST_VERIFIED_DATE").type("number").conversion(NUMBER2INSTANT).map(ActiveEffectiveCalendarImpl.Fields.LASTVERIFIEDDATE.fieldName()).add();
+
+            table.primaryKey("DDC_PK_ACTIVE_CAL").on(device, intervalColumns.get(0)).add();
+            table.foreignKey("DDC_ACTI_TO_ALLOWED")
+                    .references(AllowedCalendar.class)
+                    .on(calendarColumn)
+                    .onDelete(CASCADE)
+                    .map(ActiveEffectiveCalendarImpl.Fields.CALENDAR.fieldName())
+                    .add();
+            table.foreignKey("DDC_ACTI_TO_DEVICE")
+                    .on(device)
+                    .references(DDC_DEVICE.name())
+                    .map(ActiveEffectiveCalendarImpl.Fields.DEVICE.fieldName())
+                    .reverseMap("activeCalendar")
+                    .onDelete(CASCADE)
+                    .add();
+        }
+    },
+
+    DDC_OVERRULEDOBISCODE {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<ReadingTypeObisCodeUsageImpl> table = dataModel.addTable(name(), ReadingTypeObisCodeUsageImpl.class);
+            table.map(ReadingTypeObisCodeUsageImpl.class);
+            Column readingType = table.column("READINGTYPEMRID").varChar(NAME_LENGTH).notNull().add();
+            Column device = table.column("DEVICEID").number().notNull().add();
+            table.column("OBISCODE").varChar(NAME_LENGTH).notNull().map("obisCodeString").add();
+            table.addAuditColumns();
+            table.primaryKey("PK_DDC_OVERRULEDOBISCODE").on(readingType, device).add();
+            table.foreignKey("FK_DDC_OVEROBIS_DEVICE").
+                    on(device).
+                    references(DDC_DEVICE.name())
+                    .map("device").
+                    reverseMap("readingTypeObisCodeUsages").
+                    composition().
+                    onDelete(CASCADE).
+                    add();
+            table.foreignKey("FK_DDC_OVEROBIS_RDNGTYPE").
+                    on(readingType).
+                    references(ReadingType.class).
+                    map("readingType").
+                    add();
         }
     };
 

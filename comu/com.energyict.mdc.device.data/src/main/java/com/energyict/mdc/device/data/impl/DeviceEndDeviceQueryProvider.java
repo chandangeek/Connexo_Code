@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.EndDeviceQueryProvider;
+import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.search.SearchablePropertyCondition;
 import com.elster.jupiter.util.conditions.Condition;
@@ -13,7 +14,7 @@ import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataServices;
-import com.energyict.mdc.device.data.impl.search.DeviceSearchDomain;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -65,8 +66,8 @@ public class DeviceEndDeviceQueryProvider implements EndDeviceQueryProvider {
 
     @Override
     public List<EndDevice> findEndDevices(Instant instant, List<SearchablePropertyCondition> conditions, int start, int limit) {
-        DeviceSearchDomain deviceSearchDomain = (DeviceSearchDomain) searchService.findDomain(Device.class.getName()).get();
-    	Subquery subQuery = () -> deviceSearchDomain.finderFor(conditions).asFragment("id");
+        SearchDomain deviceSearchDomain = searchService.findDomain(Device.class.getName()).get();
+        Subquery subQuery = () -> deviceSearchDomain.finderFor(conditions).asFragment("id");
     	Condition amrCondition = where("amrSystemId").isEqualTo(KnownAmrSystem.MDC.getId()).and(ListOperator.IN.contains(subQuery, "amrId"));
         Order order = Order.ascending("mRID");
         if (start > -1) {
