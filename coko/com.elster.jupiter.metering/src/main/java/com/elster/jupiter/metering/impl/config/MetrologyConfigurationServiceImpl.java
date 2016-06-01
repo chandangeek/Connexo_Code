@@ -5,6 +5,7 @@ import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.CustomUsagePointMeterActivationValidationException;
 import com.elster.jupiter.metering.CustomUsagePointMeterActivationValidator;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceCategory;

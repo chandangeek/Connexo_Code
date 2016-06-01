@@ -1,6 +1,5 @@
-package com.elster.jupiter.metering.impl.config;
+package com.elster.jupiter.metering.config;
 
-import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.orm.associations.Effectivity;
 
 import java.time.Instant;
@@ -19,4 +18,8 @@ public interface EffectiveMetrologyConfigurationOnUsagePoint extends Effectivity
     boolean isActive();
 
     void activate();
+
+    Instant getStart();
+
+    Instant getEnd();
 }

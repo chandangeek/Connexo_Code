@@ -41,7 +41,7 @@ import com.elster.jupiter.metering.config.UsagePointRequirement;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.impl.config.AbstractNode;
-import com.elster.jupiter.metering.impl.config.EffectiveMetrologyConfigurationOnUsagePoint;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.impl.config.EffectiveMetrologyConfigurationOnUsagePointImpl;
 import com.elster.jupiter.metering.impl.config.FormulaImpl;
 import com.elster.jupiter.metering.impl.config.MeterRoleImpl;
