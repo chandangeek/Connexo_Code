@@ -21,7 +21,8 @@ public enum MessageSeeds implements MessageSeed {
     NOT_FOUND_CAMPAIGN_FOR_COMTASK_EXECUTION(9 , CampaignForComTaskExecutionExceptions.NO_CAMPAIGN_FOUND_FOR_COMTASKEXECUTION, "No campaign found for comtask {0}", Level.SEVERE),
     NO_CAMPAIGN_UNAMBIGUOUSLY_DETERMINED_FOR_COMTASK_EXECUTION(10 , CampaignForComTaskExecutionExceptions.CAMPAIGN_NOT_UNAMBIGOUSLY_DETERMINED_FOR_COMTASKEXECUTION, "Campaign could not be determined unambiguously for comtask {0}", Level.SEVERE),
     FIRMWARE_CAMPAIGN_STATUS_INVALID(11, RetryDeviceInFirmwareCampaignExceptions.CAMPAIGN_IS_NOT_ONGOING, "Cannot change status as campaign is not ongoing", Level.SEVERE),
-    DEVICE_IN_FIRMWARE_CAMPAIGN_STATE_INVALID(12, RetryDeviceInFirmwareCampaignExceptions.DEVICE_IN_FIRMWARE_CAMPAIGN_STATE_CHANGE_TO_PENDING_NOT_ALLOWED, "Cannot change status to {0} from current status {1}.", Level.SEVERE),;
+    DEVICE_IN_FIRMWARE_CAMPAIGN_STATE_INVALID(12, RetryDeviceInFirmwareCampaignExceptions.DEVICE_IN_FIRMWARE_CAMPAIGN_STATE_CHANGE_TO_PENDING_NOT_ALLOWED, "Cannot change status to {0} from current status {1}.", Level.SEVERE),
+    FIRMWARE_FILE_IO(13, Keys.FIRMWARE_FILE_IO, "Exception while doing IO on firmware file: {0}", Level.SEVERE),
     ;
     private final int number;
     private final String key;
@@ -55,17 +56,17 @@ public enum MessageSeeds implements MessageSeed {
         return format;
     }
 
+    @Override
+    public Level getLevel() {
+        return level;
+    }
+
     public String format(Thesaurus thesaurus, Object... args){
         if (thesaurus == null){
             throw new IllegalArgumentException("Thesaurus can't be null");
         }
         String translated = thesaurus.getString(this.getKey(), this.getDefaultFormat());
         return MessageFormat.format(translated, args);
-    }
-
-    @Override
-    public Level getLevel() {
-        return level;
     }
 
     public static class Keys {
@@ -76,5 +77,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String FILE_IS_EMPTY = "FileIsEmpty";
         public static final String STATE_TRANSFER_NOT_ALLOWED = "StateTransferNotAllowed";
         public static final String DEVICE_TYPE_SHOULD_SUPPORT_FIRMWARE_UPGRADE = "DeviceTypeShouldSupportFirmwareUpgrade";
+        public static final String FIRMWARE_FILE_IO = "FileIO";
     }
 }
