@@ -97,11 +97,11 @@ Ext.define('Isu.controller.Main', {
             });
         }
 
-        if (issuesPortalItem !== null) {
+        if (issuesPortalItem) {
             Uni.store.PortalItems.add(issuesPortalItem);
         }
 
-        if (issuemanagement !== null) {
+        if (issuemanagement) {
             Uni.store.PortalItems.add(issuemanagement);
         }
 

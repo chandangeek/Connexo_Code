@@ -3,7 +3,8 @@ Ext.define('Isu.controller.IssueDetail', {
     requires: [
         'Isu.privileges.Issue',
         'Isu.store.TimelineEntries',
-        'Bpm.monitorissueprocesses.store.IssueProcesses'
+        'Bpm.monitorissueprocesses.store.IssueProcesses',
+        'Uni.util.FormEmptyMessage'
     ],
 
     stores: [
@@ -102,7 +103,7 @@ Ext.define('Isu.controller.IssueDetail', {
                     user: rec.data.author.name,
                     actionText: Uni.I18n.translate('issue.workspace.datacollection.added.comment','ISU','added a comment'),
                     creationDate: rec.data.creationDate,
-                    contentText: rec.data.splittedComments,
+                    contentText: rec.data.splittedComments
                 });
             }
         );
@@ -115,14 +116,14 @@ Ext.define('Isu.controller.IssueDetail', {
                         contentText: rec.data.name,
                         forProcess: true,
                         processId: rec.data.processId,
-                        status: ' (' + rec.data.statusDisplay + ')',
+                        status: ' (' + rec.data.statusDisplay + ')'
                     });
                 }
             );
         }
         Ext.Array.each(data, function (item) {
             timelineStore.add(item);
-        })
+        });
 
         timelineStore.sort('creationDate', 'DESC');
         timelineView.bindStore(timelineStore);
@@ -346,11 +347,8 @@ Ext.define('Isu.controller.IssueDetail', {
                         issue: rec
                     });
                 } else {
-                    validationBlocksWidget = Ext.widget('no-items-found-panel', {
-                        title: Uni.I18n.translate('issues.validationBlocks.empty.title', 'ISU', 'No validation blocks are available'),
-                        reasons: [
-                            Uni.I18n.translate('issues.validationBlocks.empty.reason1', 'ISU', 'No open validation issues.')
-                        ]
+                    validationBlocksWidget = Ext.widget('uni-form-empty-message', {
+                        text: Uni.I18n.translate('issues.validationBlocks.empty.reason1', 'ISU', 'No open validation issues.')
                     });
                 }
 
