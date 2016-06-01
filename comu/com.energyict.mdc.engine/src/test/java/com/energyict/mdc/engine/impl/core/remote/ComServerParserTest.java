@@ -16,9 +16,9 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
-import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
@@ -172,6 +172,8 @@ public class ComServerParserTest {
         onlineComServer.storeTaskQueueSize(50);
         onlineComServer.storeTaskThreadPriority(Thread.NORM_PRIORITY);
         onlineComServer.numberOfStoreTaskThreads(1);
+        onlineComServer.eventRegistrationUri("ws://online.comserver.energyict.com:" + ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER + "/events/registration");
+        onlineComServer.queryApiPostUri("ws://online.comserver.energyict.com:" + ComServer.DEFAULT_QUERY_API_PORT_NUMBER + "/remote/queries");
         return onlineComServer.create();
     }
 
@@ -186,6 +188,7 @@ public class ComServerParserTest {
         remoteComServer.changesInterPollDelay(TimeDuration.seconds(1800));
         remoteComServer.schedulingInterPollDelay(TimeDuration.seconds(600));
         remoteComServer.onlineComServer(onlineComServer);
+        remoteComServer.eventRegistrationUri("ws://remote.comserver.energyict.com:" + ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER + "/events/registration");
         return remoteComServer.create();
     }
 
