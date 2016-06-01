@@ -34,8 +34,8 @@ public class WhiteBoardConfigurationProvider implements BundleWaiter.Startable {
     @Activate
     public void activate(BundleContext context, Map<String,Object> properties) {  
     	this.configuration = WhiteBoardConfiguration.of(properties);
-    	BundleWaiter.wait(this,context,"org.apache.cxf.cxf-rt-core");
-    }
+		BundleWaiter.wait(this, context, "org.apache.cxf.cxf-core");
+	}
     
     @Deactivate
     public void deactivate() {
