@@ -62,7 +62,7 @@ class FromClauseForExpressionNode implements ServerExpressionNode.Visitor<Void> 
 
     @Override
     public Void visitVirtualDeliverable(VirtualDeliverableNode deliverable) {
-        // Requirements have precedence
+        // First one wins (for backwards compatibility)
         if (this.timeSeriesTableName == null) {
             this.timeSeriesTableName = deliverable.sqlName();
         }
@@ -71,7 +71,10 @@ class FromClauseForExpressionNode implements ServerExpressionNode.Visitor<Void> 
 
     @Override
     public Void visitVirtualRequirement(VirtualRequirementNode requirement) {
-        this.timeSeriesTableName = requirement.sqlName();
+        // First one wins (for backwards compatibility)
+        if (this.timeSeriesTableName == null) {
+            this.timeSeriesTableName = requirement.sqlName();
+        }
         return null;
     }
 

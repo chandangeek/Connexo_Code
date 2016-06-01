@@ -9,8 +9,7 @@ import java.util.Objects;
 /**
  * Provides an implementation for the {@link ServerExpressionNode.Visitor} interface
  * and returns a SQL construct (as String) that provides the UTC timestamp for the visited
- * {@link ExpressionNode}
- * or <code>0</code> if the ExpressionNode cannot provide a UTC timestamp.
+ * {@link ExpressionNode} or <code>0</code> if the ExpressionNode cannot provide a UTC timestamp.
  * A {@link NumericalConstantNode} is a good example of that.
  *
  * @author Rudi Vankeirsbilck (rudi)

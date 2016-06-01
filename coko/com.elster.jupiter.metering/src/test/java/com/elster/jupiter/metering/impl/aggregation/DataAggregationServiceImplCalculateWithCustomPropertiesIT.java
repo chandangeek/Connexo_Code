@@ -64,6 +64,7 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.util.time.Interval;
 
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
@@ -374,9 +375,9 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
             assertThat(netConsumptionSql).matches(".*rid_cps_" + this.customPropertySetId + "_" + AntennaFields.COUNT.javaName() + "\\.value \\* rid_cps_" + this.customPropertySetId + "_" + AntennaFields.POWER.javaName() + "\\.value.*");
             // Assert that the with clauses for both properties are joined on the utc timestamp
             assertThat(netConsumptionSql)
-                    .matches("SELECT.*JOIN rid_cps_" + this.customPropertySetId + "_" + AntennaFields.COUNT.javaName() + " ON rid_cps_" + this.customPropertySetId + "_" + AntennaFields.COUNT.javaName() + "\\.timestamp < dual.timestamp.*");
+                    .matches("SELECT.*FROM\\s*rid_cps_" + this.customPropertySetId + "_" + AntennaFields.POWER.javaName() + "\\s*JOIN.*");
             assertThat(netConsumptionSql)
-                    .matches("SELECT.*JOIN rid_cps_" + this.customPropertySetId + "_" + AntennaFields.POWER.javaName() + " ON rid_cps_" + this.customPropertySetId + "_" + AntennaFields.POWER.javaName() + "\\.timestamp < dual.timestamp.*");
+                    .matches("SELECT.*JOIN\\s*rid_cps_" + this.customPropertySetId + "_" + AntennaFields.COUNT.javaName() + "\\s*ON\\s*rid_cps_" + this.customPropertySetId + "_" + AntennaFields.COUNT.javaName() + "\\.timestamp < rid_cps_" + this.customPropertySetId + "_" + AntennaFields.POWER.javaName() + ".timestamp.*");
             verify(clauseAwareSqlBuilder).select();
             // Assert that the overall select statement selects the target reading type
             String overallSelectWithoutNewlines = this.selectClauseBuilder.getText().replace("\n", " ");
@@ -462,6 +463,7 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
     }
 
     private static class AntennaDetails implements PersistentDomainExtension<UsagePoint> {
+        private Interval interval;
         @SuppressWarnings("unused")
         @IsPresent
         private Reference<UsagePoint> usagePoint = ValueReference.absent();
@@ -542,7 +544,7 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
 
         @Override
         public boolean isVersioned() {
-            return false;
+            return true;
         }
 
         @Override

@@ -88,6 +88,9 @@ public class ReadingTypeDeliverableBuilderImpl implements ReadingTypeDeliverable
         if (!registeredCustomPropertySet.isPresent()) {
             throw InvalidNodeException.customPropertySetNoLongerActive(this.formulaBuilder.getThesaurus(), customPropertySet);
         }
+        if (!registeredCustomPropertySet.get().getCustomPropertySet().isVersioned()) {
+            throw InvalidNodeException.customPropertySetNotVersioned(this.formulaBuilder.getThesaurus(), customPropertySet);
+        }
         return new FormulaAndExpressionNodeBuilder(this.formulaBuilder.property(registeredCustomPropertySet.get(), propertySpec));
     }
 

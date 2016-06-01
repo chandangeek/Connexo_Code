@@ -478,7 +478,7 @@ public class DataAggregationServiceImplCalculateIT {
     }
 
     /**
-     * Simular to the monthly case above but the two requirements
+     * Similar to the monthly case above but the two requirements
      * produce different but compatible intervals so that one
      * of them needs to be aggregated first and then aggregated
      * again on the deliverable level:

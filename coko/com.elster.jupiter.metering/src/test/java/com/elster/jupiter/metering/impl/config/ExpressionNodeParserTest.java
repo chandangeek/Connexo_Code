@@ -258,6 +258,7 @@ public class ExpressionNodeParserTest {
         when(antennaCount.getName()).thenReturn("antennaCount");
         CustomPropertySet customPropertySet = mock(CustomPropertySet.class);
         when(customPropertySet.getPropertySpecs()).thenReturn(Arrays.asList(antennaPower, antennaCount));
+        when(customPropertySet.isVersioned()).thenReturn(true);
         RegisteredCustomPropertySet registeredCustomPropertySet = mock(RegisteredCustomPropertySet.class);
         when(registeredCustomPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
         when(this.customPropertySetService.findActiveCustomPropertySet("c.e.j.metering.cps.ExampleCPS")).thenReturn(Optional.of(registeredCustomPropertySet));
@@ -280,6 +281,46 @@ public class ExpressionNodeParserTest {
         CustomPropertyNode antennaCountNode = (CustomPropertyNode) rightOperand;
         assertThat(antennaCountNode.getPropertySpec().getName()).isEqualTo(antennaCount.getName());
         assertThat(antennaCountNode.getCustomPropertySet()).isEqualTo(customPropertySet);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void propertyOfNonRegisteredSet() {
+        PropertySpec antennaPower = mock(PropertySpec.class);
+        when(antennaPower.getName()).thenReturn("antennaPower");
+        PropertySpec antennaCount = mock(PropertySpec.class);
+        when(antennaCount.getName()).thenReturn("antennaCount");
+        CustomPropertySet customPropertySet = mock(CustomPropertySet.class);
+        when(customPropertySet.getPropertySpecs()).thenReturn(Arrays.asList(antennaPower, antennaCount));
+        when(customPropertySet.isVersioned()).thenReturn(true);
+        RegisteredCustomPropertySet registeredCustomPropertySet = mock(RegisteredCustomPropertySet.class);
+        when(registeredCustomPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
+        when(this.customPropertySetService.findActiveCustomPropertySet("c.e.j.metering.cps.ExampleCPS")).thenReturn(Optional.empty());
+        String formulaString = "multiply(property(c.e.j.metering.cps.ExampleCPS, antennaPower), property(c.e.j.metering.cps.ExampleCPS, antennaCount))";
+
+        // Business method
+        new ExpressionNodeParser(this.thesaurus, this.metrologyConfigurationService, customPropertySetService, config, Formula.Mode.EXPERT).parse(formulaString);
+
+        // Asserts: see expected exception rule
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void nonVersionedProperty() {
+        PropertySpec antennaPower = mock(PropertySpec.class);
+        when(antennaPower.getName()).thenReturn("antennaPower");
+        PropertySpec antennaCount = mock(PropertySpec.class);
+        when(antennaCount.getName()).thenReturn("antennaCount");
+        CustomPropertySet customPropertySet = mock(CustomPropertySet.class);
+        when(customPropertySet.getPropertySpecs()).thenReturn(Arrays.asList(antennaPower, antennaCount));
+        when(customPropertySet.isVersioned()).thenReturn(false);
+        RegisteredCustomPropertySet registeredCustomPropertySet = mock(RegisteredCustomPropertySet.class);
+        when(registeredCustomPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
+        when(this.customPropertySetService.findActiveCustomPropertySet("c.e.j.metering.cps.ExampleCPS")).thenReturn(Optional.of(registeredCustomPropertySet));
+        String formulaString = "multiply(property(c.e.j.metering.cps.ExampleCPS, antennaPower), property(c.e.j.metering.cps.ExampleCPS, antennaCount))";
+
+        // Business method
+        new ExpressionNodeParser(this.thesaurus, this.metrologyConfigurationService, customPropertySetService, config, Formula.Mode.EXPERT).parse(formulaString);
+
+        // Asserts: see expected exception rule
     }
 
 }

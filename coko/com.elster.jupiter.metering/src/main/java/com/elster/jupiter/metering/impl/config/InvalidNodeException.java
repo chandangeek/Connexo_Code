@@ -48,6 +48,13 @@ class InvalidNodeException extends LocalizedException {
                 customPropertySet.getName());
     }
 
+    static InvalidNodeException customPropertySetNotVersioned(Thesaurus thesaurus, CustomPropertySet customPropertySet) {
+        throw new InvalidNodeException(
+                thesaurus,
+                MessageSeeds.CUSTOM_PROPERTY_SET_NOT_VERSIONED,
+                customPropertySet.getName());
+    }
+
     static InvalidNodeException customPropertySetNoLongerActive(Thesaurus thesaurus, CustomPropertySet customPropertySet) {
         throw new InvalidNodeException(
                 thesaurus,

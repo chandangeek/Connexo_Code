@@ -161,12 +161,16 @@ public class ExpressionNodeParser {
         String customPropertySetId = this.customPropertySetIds.pop();
         Optional<RegisteredCustomPropertySet> activeCustomPropertySet = this.customPropertySetService.findActiveCustomPropertySet(customPropertySetId);
         if (activeCustomPropertySet.isPresent()) {
-            List<PropertySpec> propertySpecs = activeCustomPropertySet.get().getCustomPropertySet().getPropertySpecs();
-            Optional<PropertySpec> propertySpec = propertySpecs.stream().filter(each -> propertyName.equals(each.getName())).findFirst();
-            if (propertySpec.isPresent()) {
-                nodes.add(new CustomPropertyNodeImpl(propertySpec.get(), activeCustomPropertySet.get()));
+            if (activeCustomPropertySet.get().getCustomPropertySet().isVersioned()) {
+                List<PropertySpec> propertySpecs = activeCustomPropertySet.get().getCustomPropertySet().getPropertySpecs();
+                Optional<PropertySpec> propertySpec = propertySpecs.stream().filter(each -> propertyName.equals(each.getName())).findFirst();
+                if (propertySpec.isPresent()) {
+                    nodes.add(new CustomPropertyNodeImpl(propertySpec.get(), activeCustomPropertySet.get()));
+                } else {
+                    throw new IllegalArgumentException("No property with name " + propertyName + " found in custom property set found with id " + customPropertySetId);
+                }
             } else {
-                throw new IllegalArgumentException("No property with name " + propertyName + " found in custom property set found with id " + customPropertySetId);
+                throw new IllegalArgumentException("Only versioned custom property sets are supported but " + activeCustomPropertySet.get().getCustomPropertySet().getName() + " is not versioned");
             }
         } else {
             throw new IllegalArgumentException("No custom property set found with id " + customPropertySetId);
