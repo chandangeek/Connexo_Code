@@ -1,12 +1,12 @@
 package com.energyict.mdc.engine.config;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 
-import com.elster.jupiter.time.TimeDuration;
+import aQute.bnd.annotation.ProviderType;
 import org.json.JSONObject;
 
 import java.util.List;
@@ -71,6 +71,22 @@ public interface EngineConfigurationService {
      * @return a List of OfflineComServer
      */
     List<OfflineComServer> findAllOfflineComServers();
+
+    /**
+     * Finds the {@link ComServer} with the specified event registration uri
+     *
+     * @param eventRegistrationUri
+     * @return the ComServer or <code>null</code> if no such ComServer exists
+     */
+    Optional<ComServer> findComServerByEventRegistrationUri(String eventRegistrationUri);
+
+    /**
+     * Finds the {@link ComServer} with the specified status uri
+     *
+     * @param statusUri
+     * @return the ComServer or <code>null</code> if no such ComServer exists
+     */
+    Optional<ComServer> findComServerByStatusUri(String statusUri);
 
     OnlineComServer.OnlineComServerBuilder<? extends OnlineComServer> newOnlineComServerBuilder();
 

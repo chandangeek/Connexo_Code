@@ -1,14 +1,13 @@
 package com.energyict.mdc.engine.config;
 
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.engine.config.impl.MessageSeeds;
 import com.energyict.mdc.protocol.api.ComPortType;
 
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.time.TimeDuration;
-
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -76,11 +75,9 @@ public class ComServerCrudTest extends PersistenceTest {
         onlineComServerBuilder.changesInterPollDelay(TWO_MINUTES);
         onlineComServerBuilder.schedulingInterPollDelay(FIVE_MINUTES);
         onlineComServerBuilder.active(false);
-        onlineComServerBuilder.usesDefaultQueryApiPostUri(true);
         onlineComServerBuilder.storeTaskQueueSize(10);
         onlineComServerBuilder.storeTaskThreadPriority(3);
         onlineComServerBuilder.numberOfStoreTaskThreads(6);
-        onlineComServerBuilder.usesDefaultEventRegistrationUri(true);
         final OnlineComServer onlineComserver = onlineComServerBuilder.create();
 
         RemoteComServer.RemoteComServerBuilder<? extends RemoteComServer> remoteComServer = getEngineModelService().newRemoteComServerBuilder();
@@ -115,11 +112,9 @@ public class ComServerCrudTest extends PersistenceTest {
         onlineComServerBuilder.changesInterPollDelay(TWO_MINUTES);
         onlineComServerBuilder.schedulingInterPollDelay(FIVE_MINUTES);
         onlineComServerBuilder.active(false);
-        onlineComServerBuilder.usesDefaultQueryApiPostUri(true);
         onlineComServerBuilder.storeTaskQueueSize(10);
         onlineComServerBuilder.storeTaskThreadPriority(3);
         onlineComServerBuilder.numberOfStoreTaskThreads(6);
-        onlineComServerBuilder.usesDefaultEventRegistrationUri(true);
         final OnlineComServer onlineComServer = onlineComServerBuilder.create();
 
         RemoteComServer.RemoteComServerBuilder<? extends RemoteComServer> remoteComServer = getEngineModelService().newRemoteComServerBuilder();
@@ -140,42 +135,7 @@ public class ComServerCrudTest extends PersistenceTest {
 
     @Test
     @Transactional
-    public void testCreateLoadOnlineComServerWithDefaultUris() throws Exception {
-        OnlineComServer.OnlineComServerBuilder<? extends OnlineComServer> onlineComServer = getEngineModelService().newOnlineComServerBuilder();
-        onlineComServer.name("Onliner");
-        onlineComServer.serverLogLevel(ComServer.LogLevel.DEBUG);
-        onlineComServer.communicationLogLevel(ComServer.LogLevel.INFO);
-        onlineComServer.changesInterPollDelay(TWO_MINUTES);
-        onlineComServer.schedulingInterPollDelay(FIVE_MINUTES);
-        onlineComServer.active(false);
-        onlineComServer.usesDefaultQueryApiPostUri(true);
-        onlineComServer.storeTaskQueueSize(10);
-        onlineComServer.storeTaskThreadPriority(3);
-        onlineComServer.numberOfStoreTaskThreads(6);
-        onlineComServer.usesDefaultEventRegistrationUri(true);
-
-        onlineComServer.create();
-
-        ComServer comServer = getEngineModelService().findComServer("Onliner").get();
-        assertThat(comServer).isInstanceOf(OnlineComServer.class);
-        OnlineComServer foundAfterCreate = (OnlineComServer) comServer;
-        assertThat(foundAfterCreate.getChangesInterPollDelay()).isEqualTo(TWO_MINUTES);
-        assertThat(foundAfterCreate.getSchedulingInterPollDelay()).isEqualTo(FIVE_MINUTES);
-        assertThat(foundAfterCreate.getServerLogLevel()).isEqualTo(ComServer.LogLevel.DEBUG);
-        assertThat(foundAfterCreate.getCommunicationLogLevel()).isEqualTo(ComServer.LogLevel.INFO);
-        assertThat(foundAfterCreate.usesDefaultQueryApiPostUri()).isEqualTo(true);
-        assertThat(foundAfterCreate.getQueryApiPostUri()).isEqualTo("ws://Onliner:8889/remote/queries");
-        assertThat(foundAfterCreate.usesDefaultEventRegistrationUri()).isEqualTo(true);
-        assertThat(foundAfterCreate.getEventRegistrationUri()).isEqualTo("ws://Onliner:8888/events/registration");
-        assertThat(foundAfterCreate.getNumberOfStoreTaskThreads()).isEqualTo(6);
-        assertThat(foundAfterCreate.getStoreTaskThreadPriority()).isEqualTo(3);
-        assertThat(foundAfterCreate.getStoreTaskQueueSize()).isEqualTo(10);
-        assertThat(foundAfterCreate.isActive()).isEqualTo(false);
-    }
-
-    @Test
-    @Transactional
-    public void testCreateLoadOnlineComServerWithCustomUris() throws Exception {
+    public void testCreateLoadOnlineComServerWithUris() throws Exception {
         OnlineComServer.OnlineComServerBuilder<? extends OnlineComServer> onlineComServer = getEngineModelService().newOnlineComServerBuilder();
         onlineComServer.name("Onliner-2");
         onlineComServer.serverLogLevel(ComServer.LogLevel.DEBUG);
@@ -197,9 +157,7 @@ public class ComServerCrudTest extends PersistenceTest {
         assertThat(reloaded.getSchedulingInterPollDelay()).isEqualTo(FIVE_MINUTES);
         assertThat(reloaded.getServerLogLevel()).isEqualTo(ComServer.LogLevel.DEBUG);
         assertThat(reloaded.getCommunicationLogLevel()).isEqualTo(ComServer.LogLevel.INFO);
-        assertThat(((OnlineComServer) reloaded).usesDefaultQueryApiPostUri()).isEqualTo(false);
         assertThat(((OnlineComServer) reloaded).getQueryApiPostUri()).isEqualTo(CUSTOM_QUERY_API_URI);
-        assertThat(((OnlineComServer) reloaded).usesDefaultEventRegistrationUri()).isEqualTo(false);
         assertThat(((OnlineComServer) reloaded).getEventRegistrationUri()).isEqualTo(CUSTOM_EVENT_REGISTRATION_URI);
         assertThat(((OnlineComServer) reloaded).getNumberOfStoreTaskThreads()).isEqualTo(6);
         assertThat(((OnlineComServer) reloaded).getStoreTaskThreadPriority()).isEqualTo(3);
@@ -217,11 +175,9 @@ public class ComServerCrudTest extends PersistenceTest {
         onlineComServerBuilder.changesInterPollDelay(TWO_MINUTES);
         onlineComServerBuilder.schedulingInterPollDelay(FIVE_MINUTES);
         onlineComServerBuilder.active(false);
-        onlineComServerBuilder.usesDefaultQueryApiPostUri(true);
         onlineComServerBuilder.storeTaskQueueSize(10);
         onlineComServerBuilder.storeTaskThreadPriority(3);
         onlineComServerBuilder.numberOfStoreTaskThreads(6);
-        onlineComServerBuilder.usesDefaultEventRegistrationUri(true);
         final OnlineComServer onlineComServer = onlineComServerBuilder.create();
         onlineComServer.newOutboundComPort("some comport", 4).comPortType(ComPortType.TCP).add();
 
@@ -241,11 +197,9 @@ public class ComServerCrudTest extends PersistenceTest {
         onlineComServer.changesInterPollDelay(TWO_MINUTES);
         onlineComServer.schedulingInterPollDelay(FIVE_MINUTES);
         onlineComServer.active(false);
-        onlineComServer.usesDefaultQueryApiPostUri(true);
         onlineComServer.storeTaskQueueSize(10);
         onlineComServer.storeTaskThreadPriority(3);
         onlineComServer.numberOfStoreTaskThreads(6);
-        onlineComServer.usesDefaultEventRegistrationUri(true);
         onlineComServer.create();
     }
 
@@ -260,11 +214,9 @@ public class ComServerCrudTest extends PersistenceTest {
         onlineComServer.changesInterPollDelay(TWO_MINUTES);
         onlineComServer.schedulingInterPollDelay(FIVE_MINUTES);
         onlineComServer.active(false);
-        onlineComServer.usesDefaultQueryApiPostUri(true);
         onlineComServer.storeTaskQueueSize(10);
         onlineComServer.storeTaskThreadPriority(3);
         onlineComServer.numberOfStoreTaskThreads(6);
-        onlineComServer.usesDefaultEventRegistrationUri(true);
         onlineComServer.create();
     }
 }

@@ -13,8 +13,6 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.upgrade.InstallIdentifier;
-import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
@@ -23,6 +21,8 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.proxy.LazyLoader;
 import com.elster.jupiter.util.streams.DecoratedStream;
 import com.elster.jupiter.util.streams.Predicates;
+import com.elster.jupiter.upgrade.InstallIdentifier;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComPortPool;
@@ -241,6 +241,18 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     public List<OfflineComServer> findAllOfflineComServers() {
         Condition condition = where("class").isEqualTo(OFFLINE_COMSERVER_DISCRIMINATOR).and(where("obsoleteDate").isNull());
         return convertComServerListToOfflineComServers(getComServerDataMapper().select(condition));
+    }
+
+    @Override
+    public Optional<ComServer> findComServerByEventRegistrationUri(String eventRegistrationUri) {
+        Condition condition = where("eventRegistrationUri").isEqualToIgnoreCase(eventRegistrationUri).and(where("obsoleteDate").isNull());
+        return unique(dataModel.mapper(ComServer.class).select(condition));
+    }
+
+    @Override
+    public Optional<ComServer> findComServerByStatusUri(String statusUri) {
+        Condition condition = where("statusUri").isEqualToIgnoreCase(statusUri).and(where("obsoleteDate").isNull());
+        return unique(dataModel.mapper(ComServer.class).select(condition));
     }
 
     @Override
