@@ -281,6 +281,10 @@ public class TableImpl<T> implements Table<T> {
         return columns.stream().filter(ColumnImpl::hasInsertValue).collect(Collectors.toList());
     }
 
+    List<ColumnImpl> getColumnsThatMandateRefreshAfterInsert() {
+        return columns.stream().filter(ColumnImpl::mandatesRefreshAfterInsert).collect(Collectors.toList());
+    }
+
     List<ColumnImpl> getUpdateValueColumns() {
         List<ColumnImpl> result = new ArrayList<>();
         for (ColumnImpl column : columns) {
