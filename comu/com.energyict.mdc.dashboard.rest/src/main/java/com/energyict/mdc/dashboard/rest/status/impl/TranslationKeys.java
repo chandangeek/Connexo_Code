@@ -1,8 +1,7 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
-import com.energyict.mdc.protocol.api.ConnectionType;
-
 import com.elster.jupiter.nls.TranslationKey;
+import com.energyict.mdc.protocol.api.ConnectionType;
 
 /**
  * Insert your comments here.
@@ -13,7 +12,7 @@ import com.elster.jupiter.nls.TranslationKey;
 public enum TranslationKeys implements TranslationKey {
 
     DEFAULT("default", "default"),
-    SUCCESS("Success", "Success"),
+    SUCCESS("Successful", "Success"),
     ALL_TASKS_SUCCESSFUL("AllTasksSuccessful", "Success, all tasks successful"),
     SUCCESS_WITH_FAILED_TASKS("SomeTasksFailed", "Success, with failed tasks"),
     PER_CURRENT_STATE("PerCurrentState", "Per current state"),
