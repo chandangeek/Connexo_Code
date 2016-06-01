@@ -1,5 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.common;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
@@ -24,18 +25,25 @@ import java.time.Clock;
  */
 public abstract class AbstractSmartDSMR40NtaProtocol extends AbstractSmartNtaProtocol {
 
+    private final CalendarService calendarService;
+
     /**
      * The used {@link com.energyict.smartmeterprotocolimpl.nta.dsmr40.eventhandling.DSMR40EventProfile}
      */
     protected DSMR40EventProfile eventProfile;
 
-    public AbstractSmartDSMR40NtaProtocol(PropertySpecService propertySpecService, Clock clock, TopologyService topologyService, OrmClient ormClient, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory) {
+    public AbstractSmartDSMR40NtaProtocol(PropertySpecService propertySpecService, Clock clock, TopologyService topologyService, CalendarService calendarService, OrmClient ormClient, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory) {
         super(propertySpecService, clock, topologyService, readingTypeUtilService, loadProfileFactory, ormClient);
+        this.calendarService = calendarService;
+    }
+
+    protected CalendarService getCalendarService() {
+        return calendarService;
     }
 
     @Override
     public MessageProtocol getMessageProtocol() {
-        return new Dsmr40Messaging(new Dsmr40MessageExecutor(this, this.getClock(), this.getTopologyService()));
+        return new Dsmr40Messaging(new Dsmr40MessageExecutor(this, this.getClock(), this.getTopologyService(), this.calendarService));
     }
 
     /**

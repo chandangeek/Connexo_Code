@@ -1,5 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.common;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -37,8 +38,8 @@ public class MBusDevice extends com.energyict.smartmeterprotocolimpl.nta.dsmr40.
     private final Clock clock;
 
     @Inject
-    public MBusDevice(PropertySpecService propertySpecService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory, OrmClient ormClient, Clock clock) {
-        super(propertySpecService, clock, topologyService, readingTypeUtilService, loadProfileFactory, ormClient);
+    public MBusDevice(PropertySpecService propertySpecService, TopologyService topologyService, CalendarService calendarService, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory, OrmClient ormClient, Clock clock) {
+        super(propertySpecService, clock, topologyService, calendarService, readingTypeUtilService, loadProfileFactory, ormClient);
         this.clock = clock;
     }
 

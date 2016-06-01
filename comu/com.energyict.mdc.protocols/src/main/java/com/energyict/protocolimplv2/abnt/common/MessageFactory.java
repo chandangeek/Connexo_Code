@@ -1,9 +1,9 @@
 package com.energyict.protocolimplv2.abnt.common;
 
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.ProtocolException;
-import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
@@ -15,8 +15,8 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessageAttribu
 import com.energyict.mdc.protocol.api.exceptions.GeneralParseException;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.abnt.common.exception.AbntException;
@@ -33,7 +33,6 @@ import com.energyict.protocolimplv2.abnt.common.structure.field.DstEnablementSta
 import com.energyict.protocolimplv2.abnt.common.structure.field.EventField;
 import com.energyict.protocolimplv2.abnt.common.structure.field.HistoryLogRecord;
 import com.energyict.protocolimplv2.abnt.common.structure.field.HolidayRecord;
-import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.text.SimpleDateFormat;
@@ -167,7 +166,7 @@ public class MessageFactory implements DeviceMessageSupport {
 
     private void configureHolidayList(OfflineDeviceMessage pendingMessage) throws AbntException {
         AbntActivityCalendarXmlParser activityCalendarXmlParser = new AbntActivityCalendarXmlParser();
-        activityCalendarXmlParser.parseContent(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.specialDaysCodeTableAttributeName));
+        activityCalendarXmlParser.parseContent(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.specialDaysAttributeName));
 
         HolidayRecords holidayRecords = new HolidayRecords();
         for (String holiday : activityCalendarXmlParser.getSpecialDays()) {
@@ -270,16 +269,16 @@ public class MessageFactory implements DeviceMessageSupport {
             } else {
                 return dateFormatter.format(gmtCal.getTime());
             }
-        } else if (messageAttribute instanceof Code) {
-            return convertCodeTableToXML((Code) messageAttribute);
+        } else if (messageAttribute instanceof com.elster.jupiter.calendar.Calendar) {
+            return convertCodeTableToXML((com.elster.jupiter.calendar.Calendar) messageAttribute);
         } else {
             return messageAttribute.toString();
         }
     }
 
-    private String convertCodeTableToXML(Code messageAttribute) {
+    private String convertCodeTableToXML(com.elster.jupiter.calendar.Calendar calendar) {
         try {
-            return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(messageAttribute, 0, "0");
+            return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(calendar, 0L, "0");
         } catch (ParserConfigurationException e) {
             throw new GeneralParseException(MessageSeeds.GENERAL_PARSE_ERROR, e);
         }
@@ -288,4 +287,5 @@ public class MessageFactory implements DeviceMessageSupport {
     public AbstractAbntProtocol getMeterProtocol() {
         return meterProtocol;
     }
+
 }

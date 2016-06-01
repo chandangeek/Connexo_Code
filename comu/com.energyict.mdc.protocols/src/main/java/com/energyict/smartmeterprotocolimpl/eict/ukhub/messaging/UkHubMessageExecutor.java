@@ -3,11 +3,12 @@ package com.energyict.smartmeterprotocolimpl.eict.ukhub.messaging;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.UserFile;
-import com.energyict.mdc.protocol.api.UserFileFactory;
-import com.energyict.mdc.protocol.api.UserFileShadow;
+import com.energyict.mdc.protocol.api.DeviceMessageFile;
+import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
+import com.energyict.protocols.mdc.StoresConfigurationInformationInSystemGlobalFile;
+import com.energyict.protocols.messaging.DeviceMessageFileByteContentConsumer;
 
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.DlmsSession;
@@ -67,6 +68,7 @@ import static com.energyict.protocolimpl.utils.ProtocolTools.getBytesFromHexStri
  * Date: 20-jul-2011
  * Time: 17:15:18
  */
+@StoresConfigurationInformationInSystemGlobalFile
 public class UkHubMessageExecutor extends MessageParser {
 
     public static ObisCode KEYS_LOCK_DOWN_SWITCH_OBIS = ObisCode.fromString("0.128.0.0.1.255");
@@ -74,13 +76,13 @@ public class UkHubMessageExecutor extends MessageParser {
     private static final String RESUME = "resume";
 
     private final AbstractSmartDlmsProtocol protocol;
-    private final UserFileFactory userFileFactory;
+    private final DeviceMessageFileService deviceMessageFileService;
 
     private boolean success;
 
-    public UkHubMessageExecutor(AbstractSmartDlmsProtocol protocol, UserFileFactory userFileFactory) {
+    public UkHubMessageExecutor(AbstractSmartDlmsProtocol protocol, DeviceMessageFileService deviceMessageFileService) {
         this.protocol = protocol;
-        this.userFileFactory = userFileFactory;
+        this.deviceMessageFileService = deviceMessageFileService;
     }
 
     private CosemObjectFactory getCosemObjectFactory() {
@@ -312,8 +314,8 @@ public class UkHubMessageExecutor extends MessageParser {
         }
     }
 
-    private UserFile findUserFile(int userFileID) {
-        return this.userFileFactory.findUserFile(userFileID);
+    private DeviceMessageFile findDeviceMessageFile(long userFileID) {
+        return this.deviceMessageFileService.findDeviceMessageFile(userFileID).orElse(null);
     }
 
     private void zigbeeNCPFirmwareUpdate(MessageHandler messageHandler, String content) throws IOException {
@@ -407,37 +409,25 @@ public class UkHubMessageExecutor extends MessageParser {
 
     }
 
-    private void readZigBeeStatus() throws IOException, SQLException {
+    private void readZigBeeStatus() {
         ZigBeeStatus zigBeeStatus = new ZigBeeStatus(getCosemObjectFactory());
-        String status = zigBeeStatus.readStatus();
-        String fileName = "ZigBeeStatus_" + protocol.getDlmsSession().getProperties().getSerialNumber() + "_" + ProtocolTools.getFormattedDate("yyyy-MM-dd_HH.mm.ss");
-        System.out.println("\n");
-        System.out.println(status);
-        System.out.println("\n");
-
-        UserFileShadow ufs = ProtocolTools.createUserFileShadow(fileName, status.getBytes("UTF-8"), "txt");
-        this.createUserFile(ufs);
-
-        log(Level.INFO, "Stored ZigBee status parameters in userFile: " + fileName);
-    }
-
-    private UserFile createUserFile(UserFileShadow shadow) throws SQLException {
-        return this.userFileFactory.createUserFile(shadow);
+        log(Level.SEVERE, "Storing of ZigBee status parameters in userFile is no longer supported");
+        throw new UnsupportedOperationException("Creating global Userfiles is not supported in Connexo, file management is now done in the context of device types");
     }
 
     private void restoreZigBeeHanParameters(final MessageHandler messageHandler) throws IOException {
         log(Level.INFO, "Sending message : Restore ZigBee Han Keys");
-        int userFileId = messageHandler.getRestoreHanParametersUserFileId();
+        long userFileId = messageHandler.getRestoreHanParametersUserFileId();
         if (userFileId == -1) {
             throw new IOException("Invalid UserFileId value : " + userFileId);
         }
 
-        UserFile uf = this.findUserFile(userFileId);
-        if (uf == null) {
+        DeviceMessageFile deviceMessageFile = this.findDeviceMessageFile(userFileId);
+        if (deviceMessageFile == null) {
             throw new IOException("No UserFile found with ID : " + userFileId);
         }
 
-        HanBackupRestoreData hanBackUpData = new HanBackupRestoreData(uf.loadFileInByteArray(), 0, 0);
+        HanBackupRestoreData hanBackUpData = new HanBackupRestoreData(DeviceMessageFileByteContentConsumer.readFrom(deviceMessageFile), 0, 0);
         ZigbeeHanManagement hanManagement = getCosemObjectFactory().getZigbeeHanManagement();
         log(Level.FINE, "Writing : RestoreData Structure");
         hanManagement.restore(hanBackUpData.getRestoreData());
@@ -445,14 +435,10 @@ public class UkHubMessageExecutor extends MessageParser {
         log(Level.INFO, "Create HAN Network");
         hanManagement.createHan();
 
-//        getLogger().info("Enable joining");
-//        ZigBeeSETCControl zigBeeSETCControl = getCosemObjectFactory().getZigBeeSETCControl();
-//        zigBeeSETCControl.writeEnableDisableJoining(true);
-
         log(Level.INFO, "Restore ZigBee Han Keys successful");
     }
 
-    private void backupZigBeeHanParameters() throws IOException, SQLException {
+    private void backupZigBeeHanParameters() throws IOException {
         log(Level.INFO, "Sending message : Backup ZigBee Han Keys");
         ZigbeeHanManagement hanManagement = getCosemObjectFactory().getZigbeeHanManagement();
         hanManagement.backup();
@@ -487,9 +473,8 @@ public class UkHubMessageExecutor extends MessageParser {
         hanBackupData.setLinkKey(linkKey);
         hanBackupData.setNetworkKey(networkKey);
 
-        UserFileShadow ufs = ProtocolTools.createUserFileShadow("ZigBeeBackUp_" + protocol.getDlmsSession().getProperties().getSerialNumber(), hanBackupData.getBEREncodedByteArray(), "bin");
-        this.createUserFile(ufs);
-        log(Level.INFO, "Backed-up ZigBee parameters in userFile : ZigBeeBackUp_" + protocol.getDlmsSession().getProperties().getSerialNumber());
+        log(Level.SEVERE, "Backing-up of ZigBee parameters in userFile is no longer supported");
+        throw new UnsupportedOperationException("Creating global Userfiles is not supported in Connexo, file management is now done in the context of device types");
     }
 
     private void joinZigBeeSlave(MessageHandler messageHandler) throws IOException {
@@ -587,22 +572,8 @@ public class UkHubMessageExecutor extends MessageParser {
             builder.append("\r\n");
         }
 
-        StringBuilder fileName = new StringBuilder("DebugLogbook");
-        fileName.append("_");
-        fileName.append(protocol.getDlmsSession().getProperties().getSerialNumber());
-        fileName.append("_");
-        fileName.append("[");
-        fileName.append(ProtocolTools.getFormattedDate("yyyy-MM-dd_HH.mm.ss", from.getTime()));
-        fileName.append("-");
-        fileName.append(ProtocolTools.getFormattedDate("yyyy-MM-dd_HH.mm.ss", to.getTime()));
-        fileName.append("]");
-        fileName.append("_");
-        fileName.append(ProtocolTools.getFormattedDate("yyyy-MM-dd_HH.mm.ss"));
-
-        UserFileShadow ufs = ProtocolTools.createUserFileShadow(fileName.toString(), builder.toString().trim().getBytes("UTF-8"), "txt");
-        this.createUserFile(ufs);
-
-        log(Level.INFO, "Stored readout of debug logbook in userFile: " + fileName);
+        log(Level.SEVERE, "Storing of readout of debug logbook in userFile is no longer supported");
+        throw new UnsupportedOperationException("Creating global Userfiles is not supported in Connexo, file management is now done in the context of device types");
     }
 
     private void readElsterLogbook(final MessageHandler messageHandler) throws IOException, SQLException {
@@ -647,22 +618,8 @@ public class UkHubMessageExecutor extends MessageParser {
             builder.append("\r\n");
         }
 
-        StringBuilder fileName = new StringBuilder("ElsterLogbook");
-        fileName.append("_");
-        fileName.append(protocol.getDlmsSession().getProperties().getSerialNumber());
-        fileName.append("_");
-        fileName.append("[");
-        fileName.append(ProtocolTools.getFormattedDate("yyyy-MM-dd_HH.mm.ss", from.getTime()));
-        fileName.append("-");
-        fileName.append(ProtocolTools.getFormattedDate("yyyy-MM-dd_HH.mm.ss", to.getTime()));
-        fileName.append("]");
-        fileName.append("_");
-        fileName.append(ProtocolTools.getFormattedDate("yyyy-MM-dd_HH.mm.ss"));
-
-        UserFileShadow ufs = ProtocolTools.createUserFileShadow(fileName.toString(), builder.toString().trim().getBytes("UTF-8"), "txt");
-        this.createUserFile(ufs);
-
-        log(Level.INFO, "Stored readout of Elster logbook in userFile: " + fileName);
+        log(Level.SEVERE, "Storing of readout of Elster logbook in userFile is no longer supported");
+        throw new UnsupportedOperationException("Creating global Userfiles is not supported in Connexo, file management is now done in the context of device types");
     }
 
     private Calendar extractDate(String timeString) throws IOException {
@@ -745,10 +702,10 @@ public class UkHubMessageExecutor extends MessageParser {
         String userFileId = messageHandler.getTestUserFileId();
         Date currentTime;
         if (!"".equalsIgnoreCase(userFileId)) {
-            if (ParseUtils.isInteger(userFileId)) {
-                UserFile uf = getUserFile();
-                if (uf != null) {
-                    byte[] data = uf.loadFileInByteArray();
+            if (ParseUtils.isLong(userFileId)) {
+                DeviceMessageFile deviceMessageFile = getUserFile(Long.parseLong(userFileId));
+                if (deviceMessageFile != null) {
+                    byte[] data = DeviceMessageFileByteContentConsumer.readFrom(deviceMessageFile);
                     CSVParser csvParser = new CSVParser();
                     csvParser.parse(data);
                     boolean hasWritten;
@@ -874,8 +831,8 @@ public class UkHubMessageExecutor extends MessageParser {
         throw new UnsupportedOperationException("Creating new userfiles is not supported");
     }
 
-    private UserFile getUserFile() {
-        throw new UnsupportedOperationException("Userfiles are not supported");
+    private DeviceMessageFile getUserFile(long id) {
+        return this.deviceMessageFileService.findDeviceMessageFile(id).orElse(null);
     }
 
     private void waitCyclus(int delay) throws IOException {
@@ -894,4 +851,5 @@ public class UkHubMessageExecutor extends MessageParser {
             throw new IOException("Could not keep connection alive." + e.getMessage());
         }
     }
+
 }

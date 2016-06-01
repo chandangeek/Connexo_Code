@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.dlms.idis;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -80,10 +81,16 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Cache
     private IDISStoredValues storedValues = null;
     private ObisCodeMapper obisCodeMapper = null;
     private int limitMaxNrOfDays = 0;
+    private final CalendarService calendarService;
 
     @Inject
-    public IDIS(PropertySpecService propertySpecService, OrmClient ormClient) {
+    public IDIS(PropertySpecService propertySpecService, CalendarService calendarService, OrmClient ormClient) {
         super(propertySpecService, ormClient);
+        this.calendarService = calendarService;
+    }
+
+    protected CalendarService getCalendarService() {
+        return calendarService;
     }
 
     private ProfileDataReader getProfileDataReader() {
@@ -99,7 +106,7 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Cache
 
     protected IDISMessageHandler getMessageHandler() {
         if (messageHandler == null) {
-            messageHandler = new IDISMessageHandler(this);
+            messageHandler = new IDISMessageHandler(this, this.calendarService);
         }
         return messageHandler;
     }

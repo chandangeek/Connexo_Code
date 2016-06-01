@@ -1,8 +1,5 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.tariff;
 
-import com.energyict.mdc.protocol.api.UnsupportedException;
-import com.energyict.mdc.protocol.api.codetables.Code;
-
 import com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.objects.CodeCalendarObject;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.objects.CodeDayTypeDefObject;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.objects.CodeDayTypeObject;
@@ -11,7 +8,6 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.objects.SeasonObjec
 import com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.objects.SeasonSetObject;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.objects.SeasonTransitionObject;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -33,21 +29,6 @@ public class CodeObjectValidator {
     public static final int MAX_TARIFF_ID = 255;
     public static final int MIN_START_YEAR = 2000;
     public static final int MAX_START_YEAR = 2099;
-
-    public static void validateCodeTable(int codeTableId) throws IOException {
-        Code code = getCode(codeTableId);
-        validateCodeTable(code);
-    }
-
-    private static Code getCode(int codeTableId) throws UnsupportedException {
-        throw new UnsupportedException("CodeTables are not supported yet in Connexo");
-    }
-
-    private static void validateCodeTable(Code code) throws IOException {
-        byte[] base64 = CodeTableBase64Builder.getBase64FromCodeTable(code);
-        CodeObject codeObject = CodeTableBase64Parser.getCodeTableFromBase64(base64);
-        validateCodeObject(codeObject);
-    }
 
     public static void validateCodeObject(CodeObject codeObject) {
         if (codeObject == null) {
@@ -187,7 +168,7 @@ public class CodeObjectValidator {
     private static void validateTimeBands(CodeDayTypeObject dayType) {
         List<CodeDayTypeDefObject> dayTypeDefs = dayType.getDayTypeDefs();
         for (CodeDayTypeDefObject dayTypeDef : dayTypeDefs) {
-            int codeValue = dayTypeDef.getCodeValue();
+            long codeValue = dayTypeDef.getCodeValue();
             if ((codeValue < 1) || (codeValue > 3)) {
                 throw new IllegalArgumentException("Time bands can only have a code value from 1 to 3, but was [" + codeValue + "] in day type [" + dayType.getName() + "]");
             }
@@ -228,7 +209,7 @@ public class CodeObjectValidator {
 
         for (int i = 1; i <= 3; i++) {
             if (name.endsWith("" + i)) {
-                int codeValue = dayType.getDayTypeDefs().get(0).getCodeValue();
+                long codeValue = dayType.getDayTypeDefs().get(0).getCodeValue();
                 if (codeValue != i) {
                     throw new IllegalArgumentException("Forced day type [" + name + "] should only have one time band with codeValue [" + i + "], but was [" + codeValue + "]");
                 }

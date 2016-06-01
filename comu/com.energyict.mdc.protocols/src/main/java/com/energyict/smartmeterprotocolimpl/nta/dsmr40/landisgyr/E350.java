@@ -1,5 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
@@ -42,14 +43,14 @@ public class E350 extends AbstractSmartDSMR40NtaProtocol implements HHUEnabler {
     protected MessageProtocol messageProtocol;
 
     @Inject
-    public E350(PropertySpecService propertySpecService, Clock clock, TopologyService topologyService, OrmClient ormClient, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory) {
-        super(propertySpecService, clock, topologyService, ormClient, readingTypeUtilService, loadProfileFactory);
+    public E350(PropertySpecService propertySpecService, Clock clock, TopologyService topologyService, CalendarService calendarService, OrmClient ormClient, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory) {
+        super(propertySpecService, clock, topologyService, calendarService, ormClient, readingTypeUtilService, loadProfileFactory);
     }
 
     @Override
     public MessageProtocol getMessageProtocol() {
         if (messageProtocol == null) {
-            messageProtocol = new Dsmr40Messaging(new Dsmr40MessageExecutor(this, this.getClock(), this.getTopologyService()));
+            messageProtocol = new Dsmr40Messaging(new Dsmr40MessageExecutor(this, this.getClock(), this.getTopologyService(), this.getCalendarService()));
         }
         return messageProtocol;
     }
