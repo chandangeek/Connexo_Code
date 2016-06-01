@@ -20,8 +20,8 @@ import com.google.inject.Provider;
 
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -107,7 +107,6 @@ public class EventRegistrationRequestInitiatorImplTest {
     @Test(expected = UnsupportedOperationException.class)
     public void testOnlineComServerWithoutEventRegistrationUri() {
         OnlineComServer comServer = createOnlineComServer(null);
-        comServer.setUsesDefaultEventRegistrationUri(false);
 
         // Business method
         new EventRegistrationRequestInitiatorImpl(this.engineConfigurationService).getRegistrationURL(comServer);
@@ -148,7 +147,6 @@ public class EventRegistrationRequestInitiatorImplTest {
     @Test(expected = UnsupportedOperationException.class)
     public void testRemoteComServerWithoutEventRegistrationUri() {
         RemoteComServer comServer = createRemoteComServerWithRegistrationUri(null);
-        comServer.setUsesDefaultEventRegistrationUri(false);
 
         // Business method
         new EventRegistrationRequestInitiatorImpl(this.engineConfigurationService).getRegistrationURL(comServer);

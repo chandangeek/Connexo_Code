@@ -51,7 +51,6 @@ import com.energyict.mdc.engine.impl.core.MultiThreadedComJobFactory;
 import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
 import com.energyict.mdc.engine.impl.core.SingleThreadedComJobFactory;
 import com.energyict.mdc.firmware.FirmwareService;
-import com.energyict.mdc.protocol.api.UserFile;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
@@ -366,38 +365,6 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     private void doStoreConfigurationFile(BaseDevice device, DateTimeFormatter timeStampFormat, String fileExtension, byte[] contents) {
         throw new RuntimeException("Storing of UserFiles is currently not supported ...");
-//        try {
-//            String fileName = this.getUniqueUserFileName(timeStampFormat);
-//            UserFileShadow userFileShadow = new UserFileShadow();
-//            userFileShadow.setExtension(fileExtension);
-//            userFileShadow.setName(fileName);
-//            ByteArrayInputStream byteStream = new ByteArrayInputStream(contents);
-//            new UserFileFactoryImpl()
-//            UserFile userFile = MeteringWarehouse.getCurrent().getUserFileFactory().create(userFileShadow);
-//            userFile.updateContents(byteStream);
-//        } finally {
-//            this.closeConnection();
-//        }
-    }
-
-    private String getUniqueUserFileName(DateTimeFormatter timeStampFormat) {
-        String fileName = "Config_" + timeStampFormat.format(getClock().instant());
-        int version = this.getVersion(fileName);
-        if (version > 1) {
-            fileName += "_(" + version + ")";
-        }
-        return fileName;
-    }
-
-    /**
-     * Returns the first available number that can be used to create
-     * a {@link UserFile} with a unique name.
-     *
-     * @param fileName The base name for the UserFile
-     * @return A number that will make the file name unique
-     */
-    private int getVersion(String fileName) {
-        return 1;
     }
 
     @Override
