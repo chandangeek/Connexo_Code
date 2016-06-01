@@ -872,7 +872,9 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
     }
 
     private void setPrincipal() {
-        this.threadPrincipalService.set(getPrincipal());
+        if (threadPrincipalService.getPrincipal() == null) {
+            this.threadPrincipalService.set(getPrincipal());
+        }
         this.threadPrincipalService.set(COMPONENTNAME, "PluggableClassRegistration");
     }
 
