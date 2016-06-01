@@ -17,7 +17,6 @@ Ext.define('Scs.view.PreviewForm', {
         var me = this;
         me.items = [
             {
-                xtype: 'container',
                 columnWidth: 0.5,
                 itemId: 'serviceCallPreviewColumnOne',
                 defaults: {
@@ -142,10 +141,10 @@ Ext.define('Scs.view.PreviewForm', {
                         xtype: 'container',
                         itemId: 'serviceCallPreviewCASColumnOne'
                     }
-                ],
+                ]
             },
             {
-                xtype: 'container',
+                xtype: 'form',
                 columnWidth: 0.5,
                 itemId: 'serviceCallPreviewColumnTwo'
             }
@@ -232,7 +231,11 @@ Ext.define('Scs.view.PreviewForm', {
             container = i%2 === 0 ? me.down('#serviceCallPreviewColumnTwo') : me.down('#serviceCallPreviewCASColumnOne');
             casContainer = Ext.create('Ext.form.FieldContainer', {
                 labelAlign: 'top',
-                fieldLabel: record.customPropertySets().getAt(i).get('name')
+                fieldLabel: record.customPropertySets().getAt(i).get('name'),
+                style: {
+                    overflow: 'visible'
+                },
+                labelWidth: 250
             });
             propertyForm = Ext.create('Uni.property.form.Property', {
                 isEdit: false,
