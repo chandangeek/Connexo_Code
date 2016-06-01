@@ -1,7 +1,10 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.impl.CalendarModule;
+import com.elster.jupiter.calendar.rest.CalendarInfoFactory;
+import com.elster.jupiter.calendar.rest.impl.CalendarRestModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.ViewPrivilege;
@@ -167,6 +170,9 @@ public class InMemoryIntegrationPersistence {
     private ValidationService validationService;
     private EstimationService estimationService;
     private ServiceCallInfoFactory serviceCallInfoFactory;
+    private CalendarInfoFactory calendarInfoFactory;
+    private CalendarService calendarService;
+    private TimeOfUseInfoFactory timeOfUseInfoFactory;
     private DeviceMessageSpecificationService deviceMessageSpecificationService;
     private UserService userService;
     private ThreadPrincipalService threadPrincipalService;
@@ -258,7 +264,9 @@ public class InMemoryIntegrationPersistence {
                 new RestWhiteboardModule(),
                 new ServiceCallModule(),
                 new ServiceCallRestModule(),
-                new CalendarModule());
+                new CalendarModule(),
+                new CalendarRestModule()
+        );
         this.transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             this.jsonService = injector.getInstance(JsonService.class);
@@ -277,6 +285,9 @@ public class InMemoryIntegrationPersistence {
             this.estimationService = injector.getInstance(EstimationService.class);
             this.serviceCallService = injector.getInstance(ServiceCallService.class);
             this.serviceCallInfoFactory = injector.getInstance(ServiceCallInfoFactory.class);
+            this.calendarInfoFactory = injector.getInstance(CalendarInfoFactory.class);
+            this.calendarService = injector.getInstance(CalendarService.class);
+            this.timeOfUseInfoFactory = injector.getInstance(TimeOfUseInfoFactory.class);
             this.deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
             this.engineConfigurationService = injector.getInstance(EngineConfigurationService.class);
             this.customPropertySetService = injector.getInstance(CustomPropertySetService.class);
@@ -473,6 +484,18 @@ public class InMemoryIntegrationPersistence {
 
     public ServiceCallInfoFactory getServiceCallInfoFactory() {
         return serviceCallInfoFactory;
+    }
+
+    public CalendarInfoFactory getCalendarInfoFactory() {
+        return calendarInfoFactory;
+    }
+
+    public CalendarService getCalendarService() {
+        return calendarService;
+    }
+
+    public TimeOfUseInfoFactory getTimeOfUseInfoFactory() {
+        return timeOfUseInfoFactory;
     }
 
     public int update(SqlBuilder sqlBuilder) throws SQLException {

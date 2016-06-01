@@ -4,11 +4,17 @@ import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.GatewayType;
+import com.energyict.mdc.device.config.TimeOfUseOptions;
 import com.energyict.mdc.device.configuration.rest.GatewayTypeAdapter;
 import com.energyict.mdc.device.data.Batch;
 import com.energyict.mdc.device.data.BatchService;
@@ -18,12 +24,17 @@ import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.issue.datavalidation.DataValidationIssueFilter;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
+import com.energyict.mdc.protocol.api.calendars.ProtocolSupportedCalendarOptions;
+
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @XmlRootElement
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -109,9 +120,11 @@ public class DeviceInfo extends DeviceVersionInfo {
         if(location!=null){
             deviceInfo.location = location;
         }
-
         return deviceInfo;
     }
+
+
+
 
     static Optional<? extends IssueDataValidation> getOpenDataValidationIssue(Device device, MeteringService meteringService, IssueService issueService, IssueDataValidationService issueDataValidationService) {
         Optional<AmrSystem> amrSystem = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId());
