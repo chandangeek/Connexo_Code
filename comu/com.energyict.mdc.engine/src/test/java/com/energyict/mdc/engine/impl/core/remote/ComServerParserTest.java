@@ -51,8 +51,8 @@ import static org.mockito.Mockito.verify;
  */
 public class ComServerParserTest {
 
-    private static final String ONLINE_COMSERVER_AS_QUERY_RESULT = "{\"query-id\":\"testGetThisComServer\",\"single-value\":{\"name\":\"online.comserver.energyict.com\",\"type\":\"OnlineComServerImpl\",\"active\":true,\"serverLogLevel\":\"ERROR\",\"communicationLogLevel\":\"DEBUG\",\"changesInterPollDelay\":{\"seconds\":18000},\"schedulingInterPollDelay\":{\"seconds\":60},\"eventRegistrationUri\":\"ws://online.comserver.energyict.com/events/registration\",\"storeTaskQueueSize\":50,\"numberOfStoreTaskThreads\":1,\"storeTaskThreadPriority\":5}}";
-    private static final String REMOTE_COMSERVER_AS_QUERY_RESULT = "{\"query-id\":\"testGetThisComServer\",\"single-value\":{\"name\":\"remote.comserver.energyict.com\",\"active\":true,\"serverLogLevel\":\"DEBUG\",\"communicationLogLevel\":\"ERROR\",\"changesInterPollDelay\":{\"seconds\":1800},\"schedulingInterPollDelay\":{\"seconds\":600},\"eventRegistrationUri\":\"ws://remote.comserver.energyict.com/events/registration\",\"type\":\"RemoteComServerImpl\"}}";
+    private static final String ONLINE_COMSERVER_AS_QUERY_RESULT = "{\"query-id\":\"testGetThisComServer\",\"single-value\":{\"name\":\"online.comserver.energyict.com\",\"type\":\"OnlineComServerImpl\",\"active\":true,\"serverLogLevel\":\"ERROR\",\"communicationLogLevel\":\"DEBUG\",\"changesInterPollDelay\":{\"seconds\":18000},\"schedulingInterPollDelay\":{\"seconds\":60},\"eventRegistrationPort\":8888,\"storeTaskQueueSize\":50,\"numberOfStoreTaskThreads\":1,\"storeTaskThreadPriority\":5}}";
+    private static final String REMOTE_COMSERVER_AS_QUERY_RESULT = "{\"query-id\":\"testGetThisComServer\",\"single-value\":{\"name\":\"remote.comserver.energyict.com\",\"active\":true,\"serverLogLevel\":\"DEBUG\",\"communicationLogLevel\":\"ERROR\",\"changesInterPollDelay\":{\"seconds\":1800},\"schedulingInterPollDelay\":{\"seconds\":600},\"eventRegistrationPort\":8888,\"type\":\"RemoteComServerImpl\"}}";
 
     @Rule
     public TestRule transactionalRule = new TransactionalRule(getTransactionService());
@@ -129,8 +129,8 @@ public class ComServerParserTest {
         assertThat(onlineComServer.getCommunicationLogLevel()).isEqualTo(ComServer.LogLevel.DEBUG);
         assertThat(onlineComServer.getChangesInterPollDelay()).isEqualTo(TimeDuration.seconds(18000));
         assertThat(onlineComServer.getSchedulingInterPollDelay()).isEqualTo(TimeDuration.seconds(60));
+        assertThat(onlineComServer.getEventRegistrationPort()).isEqualTo(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
         assertThat(onlineComServer.getEventRegistrationUri()).isEqualTo("ws://online.comserver.energyict.com:" + ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER + "/events/registration");
-        assertThat(onlineComServer.getQueryApiPostUri()).isEqualTo("ws://online.comserver.energyict.com:" + ComServer.DEFAULT_QUERY_API_PORT_NUMBER + "/remote/queries");
         assertThat(onlineComServer.getStoreTaskQueueSize()).isEqualTo(50);
         assertThat(onlineComServer.getNumberOfStoreTaskThreads()).isEqualTo(1);
         assertThat(onlineComServer.getStoreTaskThreadPriority()).isEqualTo(5);
@@ -155,6 +155,7 @@ public class ComServerParserTest {
         assertThat(remoteComServer.getCommunicationLogLevel()).isEqualTo(ComServer.LogLevel.ERROR);
         assertThat(remoteComServer.getChangesInterPollDelay()).isEqualTo(TimeDuration.seconds(1800));
         assertThat(remoteComServer.getSchedulingInterPollDelay()).isEqualTo(TimeDuration.seconds(600));
+        assertThat(remoteComServer.getEventRegistrationPort()).isEqualTo(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
         assertThat(remoteComServer.getEventRegistrationUri()).isEqualTo("ws://remote.comserver.energyict.com:" + ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER + "/events/registration");
     }
 
@@ -170,8 +171,9 @@ public class ComServerParserTest {
         onlineComServer.storeTaskQueueSize(50);
         onlineComServer.storeTaskThreadPriority(Thread.NORM_PRIORITY);
         onlineComServer.numberOfStoreTaskThreads(1);
-        onlineComServer.eventRegistrationUri("ws://online.comserver.energyict.com:" + ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER + "/events/registration");
-        onlineComServer.queryApiPostUri("ws://online.comserver.energyict.com:" + ComServer.DEFAULT_QUERY_API_PORT_NUMBER + "/remote/queries");
+        onlineComServer.serverName(name);
+        onlineComServer.statusPort(ComServer.DEFAULT_QUERY_API_PORT_NUMBER);
+        onlineComServer.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
         return onlineComServer.create();
     }
 
@@ -186,7 +188,9 @@ public class ComServerParserTest {
         remoteComServer.changesInterPollDelay(TimeDuration.seconds(1800));
         remoteComServer.schedulingInterPollDelay(TimeDuration.seconds(600));
         remoteComServer.onlineComServer(onlineComServer);
-        remoteComServer.eventRegistrationUri("ws://remote.comserver.energyict.com:" + ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER + "/events/registration");
+        remoteComServer.serverName(name);
+        remoteComServer.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
+        remoteComServer.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
         return remoteComServer.create();
     }
 
