@@ -23,6 +23,7 @@ public class EffectiveMetrologyConfigurationOnUsagePointImpl implements Effectiv
     private Interval interval;
     private Reference<UsagePoint> usagePoint = ValueReference.absent();
     private Reference<MetrologyConfiguration> metrologyConfiguration = ValueReference.absent();
+    private boolean active;
 
     @Inject
     public EffectiveMetrologyConfigurationOnUsagePointImpl(DataModel dataModel) {
@@ -53,6 +54,17 @@ public class EffectiveMetrologyConfigurationOnUsagePointImpl implements Effectiv
             throw new IllegalArgumentException();
         }
         this.interval = this.interval.withEnd(closingDate);
+        this.dataModel.update(this);
+    }
+
+    @Override
+    public boolean isActive() {
+        return this.active;
+    }
+
+    @Override
+    public void activate() {
+        this.active = true;
         this.dataModel.update(this);
     }
 

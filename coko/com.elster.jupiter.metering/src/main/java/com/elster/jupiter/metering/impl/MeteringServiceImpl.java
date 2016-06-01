@@ -47,6 +47,7 @@ import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.impl.aggregation.CalculatedReadingRecordFactory;
 import com.elster.jupiter.metering.impl.aggregation.CalculatedReadingRecordFactoryImpl;
+import com.elster.jupiter.metering.impl.config.MeterActivationValidatorsWhiteboard;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.metering.impl.search.PropertyTranslationKeys;
@@ -149,6 +150,7 @@ public class MeteringServiceImpl implements ServerMeteringService, PrivilegesPro
     private volatile PropertySpecService propertySpecService;
     private volatile UsagePointRequirementsSearchDomain usagePointRequirementsSearchDomain;
     private volatile LicenseService licenseService;
+    private volatile MeterActivationValidatorsWhiteboard meterActivationValidatorsWhiteboard;
     private volatile UpgradeService upgradeService;
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
 
@@ -166,8 +168,8 @@ public class MeteringServiceImpl implements ServerMeteringService, PrivilegesPro
     @Inject
     public MeteringServiceImpl(
             Clock clock, OrmService ormService, IdsService idsService, EventService eventService, PartyService partyService, QueryService queryService, UserService userService, NlsService nlsService, MessageService messageService, JsonService jsonService,
-            FiniteStateMachineService finiteStateMachineService, @Named("createReadingTypes") boolean createAllReadingTypes, @Named("requiredReadingTypes") String requiredReadingTypes, CustomPropertySetService customPropertySetService, UpgradeService upgradeService,
-            PropertySpecService propertySpecService, SearchService searchService, LicenseService licenseService) {
+            FiniteStateMachineService finiteStateMachineService, @Named("createReadingTypes") boolean createAllReadingTypes, @Named("requiredReadingTypes") String requiredReadingTypes, CustomPropertySetService customPropertySetService,
+            PropertySpecService propertySpecService, SearchService searchService, LicenseService licenseService, MeterActivationValidatorsWhiteboard meterActivationValidatorsWhiteboard, UpgradeService upgradeService) {
         this.clock = clock;
         this.createAllReadingTypes = createAllReadingTypes;
         this.requiredReadingTypes = requiredReadingTypes.split(";");
@@ -185,6 +187,7 @@ public class MeteringServiceImpl implements ServerMeteringService, PrivilegesPro
         setPropertySpecService(propertySpecService);
         setSearchService(searchService);
         setLicenseService(licenseService);
+        setMeterActivationValidatorsWhiteboard(meterActivationValidatorsWhiteboard);
         setUpgradeService(upgradeService);
         activate(null);
     }
@@ -429,6 +432,11 @@ public class MeteringServiceImpl implements ServerMeteringService, PrivilegesPro
         this.licenseService = licenseService;
     }
 
+    @Reference
+    public void setMeterActivationValidatorsWhiteboard(MeterActivationValidatorsWhiteboard meterActivationValidatorsWhiteboard) {
+        this.meterActivationValidatorsWhiteboard = meterActivationValidatorsWhiteboard;
+    }
+
     @Activate
     public final void activate(BundleContext bundleContext) {
         if (dataModel != null && bundleContext != null) {
@@ -441,7 +449,7 @@ public class MeteringServiceImpl implements ServerMeteringService, PrivilegesPro
             spec.addTo(dataModel);
         }
 
-        this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this, this.userService);
+        this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this, this.userService, this.meterActivationValidatorsWhiteboard);
         this.usagePointRequirementsSearchDomain = new UsagePointRequirementsSearchDomain(this.propertySpecService, this, this.metrologyConfigurationService, this.clock, this.licenseService);
         this.searchService.register(this.usagePointRequirementsSearchDomain);
         registerMetrologyConfigurationService(bundleContext);

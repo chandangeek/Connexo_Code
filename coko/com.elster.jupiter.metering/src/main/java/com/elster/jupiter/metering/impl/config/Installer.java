@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
+import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.upgrade.FullInstaller;

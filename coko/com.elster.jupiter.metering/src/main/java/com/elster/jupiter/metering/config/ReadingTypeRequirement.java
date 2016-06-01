@@ -67,6 +67,28 @@ public interface ReadingTypeRequirement extends HasId, HasName {
     List<Channel> getMatchingChannelsFor(MeterActivation meterActivation);
 
     /**
+     * <p>
+     * For {@link FullySpecifiedReadingTypeRequirement} checks that candidate is the same reading type as
+     * {@link FullySpecifiedReadingTypeRequirement#getReadingType()}
+     * </p>
+     * <p>
+     * For {@link PartiallySpecifiedReadingTypeRequirement} checks that each candidate's attribute:
+     * <ul>
+     * <li>is equal to overridden attribute value (if it was overridden,
+     * see {@link PartiallySpecifiedReadingTypeRequirement#overrideAttribute(ReadingTypeTemplateAttributeName, int)})</li>
+     * <li>or is equal to template attribute value (if attribute has code or possible values,
+     * see {@link ReadingTypeTemplateAttribute#matches(ReadingType)})</li>
+     * <li>or has one of system allowed values, see
+     * {@link ReadingTypeTemplateAttributeName.ReadingTypeAttribute#getPossibleValues()}</li>
+     * </ul>
+     * </p>
+     *
+     * @param readingType reading type for check
+     * @return <code>true</code> if all attributes are within limits
+     */
+    boolean matches(ReadingType readingType);
+
+    /**
      * Returns the {@link Dimension} that is represented by this ReadingTypeRequirement.
      *
      * @return The Dimension
@@ -76,5 +98,7 @@ public interface ReadingTypeRequirement extends HasId, HasName {
     boolean isRegular();
 
     ReadingTypeUnit getUnit();
+
+    String getDescription();
 
 }
