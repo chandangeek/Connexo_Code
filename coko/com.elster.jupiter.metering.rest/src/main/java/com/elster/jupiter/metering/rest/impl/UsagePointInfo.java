@@ -23,6 +23,8 @@ public class UsagePointInfo {
     public long createTime;
     public long modTime;
     public String location;
+    public MeterActivationInfo meterActivation;
+    public EffectiveMetrologyConfigurationOnUsagePointInfo metrologyConfiguration;
 
     public UsagePointInfo() {
     }
@@ -38,6 +40,10 @@ public class UsagePointInfo {
         modTime = usagePoint.getModificationDate().toEpochMilli();
         location = usagePoint.getLocation().map(Location::toString).orElse(usagePoint.getGeoCoordinates()
                 .map(coordinates -> coordinates.getCoordinates().toString()).orElse(""));
+        meterActivation = new MeterActivationInfo(usagePoint.getCurrentMeterActivation().orElse(null));
+        metrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration().isPresent()
+                ? new EffectiveMetrologyConfigurationOnUsagePointInfo(usagePoint.getCurrentEffectiveMetrologyConfiguration().get())
+                : null;
     }
 
     public void writeTo(UsagePoint usagePoint) {
