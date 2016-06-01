@@ -112,6 +112,18 @@ public interface CustomPropertySet<D, T extends PersistentDomainExtension<D>> {
     boolean isVersioned();
 
     /**
+     * Tests if this CustomPropertySet is searchable by default
+     * without any {@link CustomPropertySetSearchEnabler} to have
+     * to decide or vote for it to be enabled.
+     *
+     * @return A flag that indicates if enabling this CustomPropertySet
+     *         for search needs consent from a CustomPropertySetSearchEnabler or not.
+     */
+    default boolean isSearchableByDefault() {
+        return false;
+    }
+
+    /**
      * The default set of {@link ViewPrivilege}s.
      *
      * @return The default view privileges
