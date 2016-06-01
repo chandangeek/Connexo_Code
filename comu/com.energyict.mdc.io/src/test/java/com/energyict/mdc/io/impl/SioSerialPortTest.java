@@ -1,6 +1,5 @@
 package com.energyict.mdc.io.impl;
 
-import Serialio.SerialConfig;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.io.BaudrateValue;
 import com.energyict.mdc.io.FlowControl;
@@ -10,11 +9,13 @@ import com.energyict.mdc.io.Parities;
 import com.energyict.mdc.io.SerialPortConfiguration;
 import com.energyict.mdc.io.SerialPortException;
 
-import org.junit.*;
+import Serialio.SerialConfig;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Fail.fail;
@@ -59,7 +60,7 @@ public class SioSerialPortTest {
         SerialPortConfiguration configuration = mock(SerialPortConfiguration.class);
         SioSerialPort serialPort = new SioSerialPort(configuration);
 
-        assertThat(serialPort.getSioStopBits(new BigDecimal(1))).isEqualTo(SerialConfig.ST_1BITS);
+        assertThat(serialPort.getSioStopBits(BigDecimal.ONE)).isEqualTo(SerialConfig.ST_1BITS);
         assertThat(serialPort.getSioStopBits(new BigDecimal("2"))).isEqualTo(SerialConfig.ST_2BITS);
     }
 
@@ -266,7 +267,7 @@ public class SioSerialPortTest {
                 "COM8",
                 BaudrateValue.BAUDRATE_300,
                 NrOfDataBits.valueFor(new BigDecimal(7)),
-                NrOfStopBits.valueFor(new BigDecimal(1)),
+                NrOfStopBits.valueFor(BigDecimal.ONE),
                 Parities.EVEN,
                 FlowControl.NONE);
 
