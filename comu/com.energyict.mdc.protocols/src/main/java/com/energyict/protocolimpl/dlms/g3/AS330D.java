@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.dlms.g3;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.NotFoundException;
@@ -49,6 +50,7 @@ public class AS330D extends AbstractDlmsSessionProtocol {
     private static final String TIMEOUT = "timeout";
 
     private final OrmClient ormClient;
+    private final CalendarService calendarService;
     protected G3Properties properties;
 
     private G3Clock clock;
@@ -60,9 +62,14 @@ public class AS330D extends AbstractDlmsSessionProtocol {
     private G3Cache cache = new G3Cache();
 
     @Inject
-    public AS330D(PropertySpecService propertySpecService, OrmClient ormClient) {
+    public AS330D(PropertySpecService propertySpecService, CalendarService calendarService, OrmClient ormClient) {
         super(propertySpecService);
+        this.calendarService = calendarService;
         this.ormClient = ormClient;
+    }
+
+    protected CalendarService getCalendarService() {
+        return calendarService;
     }
 
     @Override
@@ -143,7 +150,7 @@ public class AS330D extends AbstractDlmsSessionProtocol {
     }
 
     protected void initMessaging() {
-        setMessaging(new G3Messaging(getSession(), getProperties()));
+        setMessaging(new G3Messaging(getSession(), getProperties(), this.calendarService));
     }
 
     @Override
@@ -195,7 +202,7 @@ public class AS330D extends AbstractDlmsSessionProtocol {
 
     public G3Messaging getMessaging() {
         if (this.messaging == null) {
-            this.messaging = new G3Messaging(getSession(), getProperties());
+            this.initMessaging();
         }
         return messaging;
     }

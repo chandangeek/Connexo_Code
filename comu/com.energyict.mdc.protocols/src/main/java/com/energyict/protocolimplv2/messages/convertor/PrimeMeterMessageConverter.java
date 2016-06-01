@@ -3,8 +3,10 @@ package com.energyict.protocolimplv2.messages.convertor;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.HexString;
 import com.energyict.mdc.firmware.FirmwareVersion;
-import com.energyict.mdc.protocol.api.UserFile;
+import com.energyict.mdc.protocol.api.DeviceMessageFile;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.protocols.messaging.DeviceMessageFileStringContentConsumer;
+
 import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.AdvancedTagMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleAttributeMessageEntry;
@@ -12,11 +14,17 @@ import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.gene
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleValueMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special.FirmwareUdateWithUserFileMessageEntry;
 
+import java.nio.charset.Charset;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.*;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.MulticastAddress1AttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.MulticastAddress2AttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.MulticastAddress3AttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activationDatedAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.contractsXmlUserFileAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
 
 /**
  * Represents a MessageConverter for the Prime meter protocols
@@ -62,7 +70,7 @@ public class PrimeMeterMessageConverter extends AbstractMessageConverter {
     @Override
     public String format(PropertySpec propertySpec, Object messageAttribute) {
         if (propertySpec.getName().equals(contractsXmlUserFileAttributeName)) {
-            return new String(((UserFile) messageAttribute).loadFileInByteArray());   //String = XML content in the userfile
+            return DeviceMessageFileStringContentConsumer.readFrom((DeviceMessageFile) messageAttribute, Charset.defaultCharset());   //String = XML content in the userfile
         } else if (propertySpec.getName().equals(activationDatedAttributeName)) {
             return String.valueOf(((Date) messageAttribute).getTime());
         } else if (propertySpec.getName().equals(MulticastAddress1AttributeName)

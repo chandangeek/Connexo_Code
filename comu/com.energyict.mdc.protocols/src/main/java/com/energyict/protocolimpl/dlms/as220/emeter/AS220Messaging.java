@@ -1,7 +1,6 @@
 package com.energyict.protocolimpl.dlms.as220.emeter;
 
-import com.energyict.dlms.cosem.MBusClient;
-import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
+import com.elster.jupiter.calendar.CalendarService;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.messaging.MessageAttribute;
@@ -11,6 +10,9 @@ import com.energyict.mdc.protocol.api.messaging.MessageSpec;
 import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageTagSpec;
 import com.energyict.mdc.protocol.api.messaging.MessageValueSpec;
+
+import com.energyict.dlms.cosem.MBusClient;
+import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.protocolimpl.base.AbstractSubMessageProtocol;
 import com.energyict.protocolimpl.dlms.as220.AS220;
 import com.energyict.protocolimpl.messages.RtuMessageKeyIdConstants;
@@ -67,9 +69,11 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
     //private static final String	ARM_EMETER_DISPLAY				= "Arm E-Meter";
 
     private final AS220 as220;
+    private final CalendarService calendarService;
 
-    public AS220Messaging(AS220 as220) {
+    public AS220Messaging(AS220 as220, CalendarService calendarService) {
         this.as220 = as220;
+        this.calendarService = calendarService;
         addSupportedMessageTag(CONNECT_EMETER);
         addSupportedMessageTag(DISCONNECT_EMETER);
         addSupportedMessageTag(ARM_EMETER);
@@ -243,23 +247,25 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
             StringBuilder builder = new StringBuilder();
             addOpeningTag(builder, msgTag.getName());
             long activationDate = 0;
-            int codeTableId = -1;
+            long calendarId = -1;
             for (Object maObject : msgTag.getAttributes()) {
                 MessageAttribute ma = (MessageAttribute) maObject;
                 if (ma.getSpec().getName().equals(ACTIVITY_CALENDAR_ACTIVATION_TIME)) {
-                    if (ma.getValue() != null && ma.getValue().length() != 0) {
+                    if (ma.getValue() != null && !ma.getValue().isEmpty()) {
                         activationDate = Long.valueOf(ma.getValue());
                     }
                 } else if (ma.getSpec().getName().equals(ACTIVITY_CALENDAR)) {
-                    if (ma.getValue() != null && ma.getValue().length() != 0) {
-                        codeTableId = Integer.valueOf(ma.getValue());
+                    if (ma.getValue() != null && !ma.getValue().isEmpty()) {
+                        calendarId = Long.valueOf(ma.getValue());
                     }
                 }
             }
 
             try {
-                String xmlContent = CodeTableXml.parseActivityCalendarAndSpecialDayTable(codeTableId, activationDate);
-                builder.append(xmlContent);
+                if (calendarId != -1) {
+                    String xmlContent = CodeTableXml.parseActivityCalendarAndSpecialDayTable(this.findCalendar(calendarId), activationDate);
+                    builder.append(xmlContent);
+                }
             } catch (ParserConfigurationException e) {
                 return null;
             }
@@ -268,6 +274,10 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
         } else {
             return super.writeTag(msgTag);
         }
+    }
+
+    private com.elster.jupiter.calendar.Calendar findCalendar(long id) {
+        return this.calendarService.findCalendar(id).orElse(null);
     }
 
     private void addOpeningTag(StringBuilder builder, String tagName) {

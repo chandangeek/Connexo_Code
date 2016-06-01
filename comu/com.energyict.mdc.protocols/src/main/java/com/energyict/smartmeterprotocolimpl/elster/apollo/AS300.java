@@ -1,12 +1,12 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.MessageProtocol;
-import com.energyict.mdc.protocol.api.UserFileFactory;
 import com.energyict.mdc.protocol.api.WakeUpProtocolSupport;
-import com.energyict.mdc.protocol.api.codetables.CodeFactory;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
@@ -56,14 +56,14 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
     private RegisterReader registerReader;
     protected AS300LoadProfileBuilder loadProfileBuilder;
     protected AS300Messaging messageProtocol;
-    protected final CodeFactory codeFactory;
-    protected final UserFileFactory userFileFactory;
+    protected final CalendarService calendarService;
+    protected final DeviceMessageFileService deviceMessageFileService;
 
     @Inject
-    public AS300(PropertySpecService propertySpecService, CodeFactory codeFactory, UserFileFactory userFileFactory, OrmClient ormClient) {
+    public AS300(PropertySpecService propertySpecService, CalendarService calendarService, DeviceMessageFileService deviceMessageFileService, OrmClient ormClient) {
         super(propertySpecService, ormClient);
-        this.codeFactory = codeFactory;
-        this.userFileFactory = userFileFactory;
+        this.calendarService = calendarService;
+        this.deviceMessageFileService = deviceMessageFileService;
     }
 
     @Override
@@ -95,12 +95,12 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
         return loadProfileBuilder;
     }
 
-    protected CodeFactory getCodeFactory() {
-        return codeFactory;
+    protected CalendarService getCalendarService() {
+        return calendarService;
     }
 
-    protected UserFileFactory getUserFileFactory() {
-        return userFileFactory;
+    protected DeviceMessageFileService getDeviceMessageFileService() {
+        return deviceMessageFileService;
     }
 
     @Override
@@ -209,7 +209,7 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
 
     public AS300Messaging getMessageProtocol() {
         if (this.messageProtocol == null) {
-            this.messageProtocol = new AS300Messaging(new AS300MessageExecutor(this, codeFactory, userFileFactory));
+            this.messageProtocol = new AS300Messaging(new AS300MessageExecutor(this, this.calendarService, this.deviceMessageFileService));
         }
         return messageProtocol;
     }

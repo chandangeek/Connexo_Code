@@ -1,7 +1,9 @@
 package com.energyict.protocolimpl.dlms.as220;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.device.data.BreakerStatus;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
@@ -54,13 +56,12 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
     private static final int PROFILETYPE_PLC_ONLY = 2;
     private static final int PROFILETYPE_PQ_ONLY = 4;
 
-    private static final int SEC_PER_MIN = 60;
-
     private static final ObisCode FW_VERSION_ACTIVE_OBISCODE = ObisCode.fromString("1.0.0.2.0.255");
     private static final ObisCode FW_VERSION_PASSIVE_OBISCODE = ObisCode.fromString("1.1.0.2.0.255");
 
     private int iNROfIntervals = -1;
-
+    private final CalendarService calendarService;
+    private final DeviceMessageFileService deviceMessageFileService;
     private final EMeter eMeter = new EMeter(this);
     private final PLC plc = new PLC(this);
     private final PowerQuality powerQuality = new PowerQuality(this);
@@ -73,36 +74,23 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
     private FirmwareVersions passiveFirmwareVersion;
 
     @Inject
-    public AS220(PropertySpecService propertySpecService, OrmClient ormClient) {
+    public AS220(PropertySpecService propertySpecService, CalendarService calendarService, DeviceMessageFileService deviceMessageFileService, OrmClient ormClient) {
         super(propertySpecService, ormClient);
+        this.calendarService = calendarService;
+        this.deviceMessageFileService = deviceMessageFileService;
         messagingList = new ArrayList<>();
-        messagingList.add(new AS220Messaging(this));
+        messagingList.add(new AS220Messaging(this, this.calendarService));
         messagingList.add(new PLCMessaging(this));
     }
 
-    /**
-     * Getter for the E-meter
-     *
-     * @return
-     */
+    public DeviceMessageFileService getDeviceMessageFileService() {
+        return deviceMessageFileService;
+    }
+
     public EMeter geteMeter() {
         return eMeter;
     }
 
-    /**
-     * Getter for the G-Meter
-     *
-     * @return
-     */
-    public GMeter getgMeter() {
-        return gMeter;
-    }
-
-    /**
-     * Setter for the gMeter;
-     *
-     * @param gMeter
-     */
     public void setGMeter(GMeter gMeter) {
         this.gMeter = gMeter;
     }

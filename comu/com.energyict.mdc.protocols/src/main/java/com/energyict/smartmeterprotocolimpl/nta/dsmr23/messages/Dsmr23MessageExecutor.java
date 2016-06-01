@@ -1,13 +1,17 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages;
 
+import com.elster.jupiter.calendar.Calendar;
+import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.calendar.ExceptionalOccurrence;
+import com.elster.jupiter.calendar.FixedExceptionalOccurrence;
+import com.elster.jupiter.calendar.RecurrentExceptionalOccurrence;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
-import com.energyict.mdc.protocol.api.codetables.Code;
-import com.energyict.mdc.protocol.api.codetables.CodeCalendar;
+import com.energyict.mdc.protocol.api.ProtocolException;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
@@ -61,6 +65,7 @@ import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.SpecialDaysTable;
 import com.energyict.protocolimpl.generic.MessageParser;
 import com.energyict.protocolimpl.generic.messages.ActivityCalendarMessage;
+import com.energyict.protocolimpl.generic.messages.ArrayIndexGenerator;
 import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 import com.energyict.protocolimpl.generic.messages.MessageHandler;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
@@ -73,9 +78,9 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.time.Clock;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.TimeZone;
 import java.util.logging.Level;
 
@@ -92,12 +97,14 @@ public class Dsmr23MessageExecutor extends MessageParser {
     protected final AbstractSmartNtaProtocol protocol;
     private final Clock clock;
     private final TopologyService topologyService;
+    private final CalendarService calendarService;
 
-    public Dsmr23MessageExecutor(AbstractSmartNtaProtocol protocol, Clock clock, TopologyService topologyService) {
+    public Dsmr23MessageExecutor(AbstractSmartNtaProtocol protocol, Clock clock, TopologyService topologyService, CalendarService calendarService) {
         this.protocol = protocol;
         this.clock = clock;
         this.dlmsSession = this.protocol.getDlmsSession();
         this.topologyService = topologyService;
+        this.calendarService = calendarService;
     }
 
     protected Clock getClock() {
@@ -631,7 +638,7 @@ public class Dsmr23MessageExecutor extends MessageParser {
         }
 
         if (messageHandler.getMESyncAtEnd()) {
-            Date currentTime = Calendar.getInstance(getTimeZone()).getTime();
+            Date currentTime = java.util.Calendar.getInstance(getTimeZone()).getTime();
             log(Level.INFO, "Synced clock to: " + currentTime);
             this.protocol.setTime(currentTime);
         }
@@ -654,46 +661,104 @@ public class Dsmr23MessageExecutor extends MessageParser {
     }
 
     protected void upgradeSpecialDays(MessageHandler messageHandler) throws IOException {
-        log(Level.INFO, "Handling message Set Special Days table");
-
-        String codeTable = messageHandler.getSpecialDaysCodeTable();
-
-        if (codeTable == null) {
-            throw new IOException("CodeTable-ID can not be empty.");
-        } else {
-            Code ct = this.findCode();
-            List calendars = ct.getCalendars();
-            Array sdArray = new Array();
-
-            SpecialDaysTable sdt = getCosemObjectFactory().getSpecialDaysTable(getMeterConfig().getSpecialDaysTable().getObisCode());
-            for (int i = 0; i < calendars.size(); i++) {
-                CodeCalendar cc = (CodeCalendar) calendars.get(i);
-                if (cc.getSeason() == 0) {
-                    OctetString os = OctetString.fromByteArray(new byte[]{(byte) ((cc.getYear() == -1) ? 0xff : ((cc.getYear() >> 8) & 0xFF)), (byte) ((cc.getYear() == -1) ? 0xff : (cc.getYear()) & 0xFF),
-                            (byte) ((cc.getMonth() == -1) ? 0xFF : cc.getMonth()), (byte) ((cc.getDay() == -1) ? 0xFF : cc.getDay()),
-                            (byte) ((cc.getDayOfWeek() == -1) ? 0xFF : cc.getDayOfWeek())});
-                    Unsigned8 dayType = new Unsigned8(cc.getDayType().getId());
-                    Structure struct = new Structure();
-                    AXDRDateTime dt = new AXDRDateTime(new byte[]{(byte) 0x09, (byte) 0x0C, (byte) ((cc.getYear() == -1) ? 0x07 : ((cc.getYear() >> 8) & 0xFF)), (byte) ((cc.getYear() == -1) ? 0xB2 : (cc.getYear()) & 0xFF),
-                            (byte) ((cc.getMonth() == -1) ? 0xFF : cc.getMonth()), (byte) ((cc.getDay() == -1) ? 0xFF : cc.getDay()),
-                            (byte) ((cc.getDayOfWeek() == -1) ? 0xFF : cc.getDayOfWeek()), 0, 0, 0, 0, 0, 0, 0});
-                    long days = dt.getValue().getTimeInMillis() / 1000 / 60 / 60 / 24;
-                    struct.addDataType(new Unsigned16((int) days));
-                    struct.addDataType(os);
-                    struct.addDataType(dayType);
-                    sdArray.addDataType(struct);
+        try {
+            log(Level.INFO, "Handling message Set Special Days table");
+            String calendarId = messageHandler.getSpecialDaysCalendar();
+            if (calendarId == null) {
+                throw new IOException("CodeTable-ID can not be empty.");
+            } else {
+                Calendar calendar = this.findCalendarOrThrowIOException(calendarId);
+                final Array specialDays = new Array();
+                ArrayIndexGenerator dayIndex = ArrayIndexGenerator.zeroBased();
+                calendar
+                    .getExceptionalOccurrences()
+                    .forEach(exceptionalOccurrence ->
+                            this.addAsSpecialDay(specialDays, dayIndex, exceptionalOccurrence));
+                SpecialDaysTable specialDaysTable = getCosemObjectFactory().getSpecialDaysTable(getMeterConfig().getSpecialDaysTable().getObisCode());
+                if (specialDays.nrOfDataTypes() != 0) {
+                    specialDaysTable.writeSpecialDays(specialDays);
                 }
             }
-
-            if (sdArray.nrOfDataTypes() != 0) {
-                sdt.writeSpecialDays(sdArray);
-            }
+        } catch (UnderlyingProtocolException e) {
+            throw e.getCause();
         }
     }
 
-    private Code findCode() {
-        // Todo: port Code to jupiter, return null as the previous code would have returned null too.
-        throw new UnsupportedOperationException("Code is not longer supported by Jupiter");
+    private void addAsSpecialDay(Array specialDays, ArrayIndexGenerator dayIndex, ExceptionalOccurrence exceptionalOccurrence) {
+        try {
+            if (exceptionalOccurrence instanceof RecurrentExceptionalOccurrence) {
+                this.addAsSpecialDay(specialDays, dayIndex, (RecurrentExceptionalOccurrence) exceptionalOccurrence);
+            } else {
+                this.addAsSpecialDay(specialDays, dayIndex, (FixedExceptionalOccurrence) exceptionalOccurrence);
+            }
+        } catch (ProtocolException e) {
+            throw new UnderlyingProtocolException(e);
+        }
+    }
+
+    private void addAsSpecialDay(Array specialDays, ArrayIndexGenerator dayIndex, RecurrentExceptionalOccurrence exceptionalOccurrence) throws ProtocolException {
+        OctetString timeStamp =
+                OctetString.fromByteArray(
+                        new byte[]{
+                                (byte) (0xff),
+                                (byte) (0xff),
+                                (byte) ((exceptionalOccurrence.getOccurrence().getMonth().getValue())),
+                                (byte) ((exceptionalOccurrence.getOccurrence().getDayOfMonth())),
+                                (byte) (0xFF)});
+        AXDRDateTime dt =
+                new AXDRDateTime(
+                        new byte[]{
+                                (byte) 0x09,
+                                (byte) 0x0C,
+                                (byte) (0x07),
+                                (byte) (0xB2),
+                                (byte) ((exceptionalOccurrence.getOccurrence().getMonth().getValue())),
+                                (byte) ((exceptionalOccurrence.getOccurrence().getDayOfMonth())),
+                                (byte) (0xFF),
+                                0, 0, 0, 0, 0, 0, 0});
+        this.addAsSpecialDay(specialDays, dayIndex, exceptionalOccurrence.getDayType().getId(), timeStamp, dt);
+    }
+
+    private void addAsSpecialDay(Array specialDays, ArrayIndexGenerator dayIndex, FixedExceptionalOccurrence exceptionalOccurrence) throws ProtocolException {
+        OctetString timeStamp =
+                OctetString.fromByteArray(
+                        new byte[]{
+                                (byte) ((exceptionalOccurrence.getOccurrence().getYear() >> 8) & 0xFF),
+                                (byte) ((exceptionalOccurrence.getOccurrence().getYear()) & 0xFF),
+                                (byte) ((exceptionalOccurrence.getOccurrence().getMonth().getValue())),
+                                (byte) (0xFF),
+                                (byte)  (exceptionalOccurrence.getOccurrence().getDayOfWeek().getValue())});
+        AXDRDateTime dt =
+                new AXDRDateTime(
+                        new byte[]{
+                                (byte) 0x09,
+                                (byte) 0x0C,
+                                (byte) ((exceptionalOccurrence.getOccurrence().getYear() >> 8) & 0xFF),
+                                (byte) ((exceptionalOccurrence.getOccurrence().getYear()) & 0xFF),
+                                (byte) ((exceptionalOccurrence.getOccurrence().getMonth().getValue())),
+                                (byte) (0xFF),
+                                (byte) (exceptionalOccurrence.getOccurrence().getDayOfWeek().getValue()),
+                                0, 0, 0, 0, 0, 0, 0});
+        this.addAsSpecialDay(specialDays, dayIndex, exceptionalOccurrence.getDayType().getId(), timeStamp, dt);
+    }
+
+    private void addAsSpecialDay(Array sdArray, ArrayIndexGenerator dayIndex, long dayTypeId, OctetString timeStamp, AXDRDateTime dt) {
+        Unsigned8 dayType = new Unsigned8((int) dayTypeId);
+        Structure struct = new Structure();
+        long days = dt.getValue().getTimeInMillis() / 8600000;   // Actually: / 1000 / 60 / 60 / 24;
+        struct.addDataType(new Unsigned16((int) days));
+        struct.addDataType(timeStamp);
+        struct.addDataType(dayType);
+        sdArray.addDataType(struct);
+    }
+
+    protected Calendar findCalendarOrThrowIOException(String id) throws IOException {
+        Optional<Calendar> calendar = this.calendarService.findCalendar(Long.parseLong(id));
+        if (calendar.isPresent()) {
+            return calendar.get();
+        } else {
+            throw new IOException("No CodeTable defined with id '" + id + "'");
+        }
     }
 
     protected void upgradeCalendar(MessageHandler messageHandler) throws IOException {
@@ -701,18 +766,18 @@ public class Dsmr23MessageExecutor extends MessageParser {
 
         String name = messageHandler.getTOUCalendarName();
         String activateDate = messageHandler.getTOUActivationDate();
-        String codeTable = messageHandler.getTOUCodeTable();
+        String calendarId = messageHandler.getTOUCalendar();
         String userFile = messageHandler.getTOUUserFile();
 
-        if ((codeTable == null) && (userFile == null)) {
+        if ((calendarId == null) && (userFile == null)) {
             throw new IOException("CodeTable-ID AND UserFile-ID can not be both empty.");
-        } else if ((codeTable != null) && (userFile != null)) {
+        } else if ((calendarId != null) && (userFile != null)) {
             throw new IOException("CodeTable-ID AND UserFile-ID can not be both filled in.");
         }
 
-        if (codeTable != null) {
-            Code ct = this.findCode();
-            ActivityCalendarMessage acm = new ActivityCalendarMessage(ct, getMeterConfig());
+        if (calendarId != null) {
+            Calendar calendar = this.findCalendarOrThrowIOException(calendarId);
+            ActivityCalendarMessage acm = new ActivityCalendarMessage(calendar, getMeterConfig());
             acm.parse();
 
             ActivityCalendar ac = getCosemObjectFactory().getActivityCalendar(getMeterConfig().getActivityCalendar().getObisCode());
@@ -1104,34 +1169,34 @@ public class Dsmr23MessageExecutor extends MessageParser {
     }
 
     private Date getFirstDate(Date startTime, String type, TimeZone timeZone) throws IOException {
-        Calendar cal1 = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        java.util.Calendar cal1 = java.util.Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         cal1.setTime(startTime);
         cal1.getTime();
         if ("15".equalsIgnoreCase(type)) {
-            if (cal1.get(Calendar.MINUTE) < 15) {
-                cal1.set(Calendar.MINUTE, 14);
-                cal1.set(Calendar.SECOND, 40);
-            } else if (cal1.get(Calendar.MINUTE) < 30) {
-                cal1.set(Calendar.MINUTE, 29);
-                cal1.set(Calendar.SECOND, 40);
-            } else if (cal1.get(Calendar.MINUTE) < 45) {
-                cal1.set(Calendar.MINUTE, 44);
-                cal1.set(Calendar.SECOND, 40);
+            if (cal1.get(java.util.Calendar.MINUTE) < 15) {
+                cal1.set(java.util.Calendar.MINUTE, 14);
+                cal1.set(java.util.Calendar.SECOND, 40);
+            } else if (cal1.get(java.util.Calendar.MINUTE) < 30) {
+                cal1.set(java.util.Calendar.MINUTE, 29);
+                cal1.set(java.util.Calendar.SECOND, 40);
+            } else if (cal1.get(java.util.Calendar.MINUTE) < 45) {
+                cal1.set(java.util.Calendar.MINUTE, 44);
+                cal1.set(java.util.Calendar.SECOND, 40);
             } else {
-                cal1.set(Calendar.MINUTE, 59);
-                cal1.set(Calendar.SECOND, 40);
+                cal1.set(java.util.Calendar.MINUTE, 59);
+                cal1.set(java.util.Calendar.SECOND, 40);
             }
             return cal1.getTime();
         } else if ("day".equalsIgnoreCase(type)) {
-            cal1.set(Calendar.HOUR_OF_DAY, (23 - (timeZone.getOffset(startTime.getTime()) / 3600000)));
-            cal1.set(Calendar.MINUTE, 59);
-            cal1.set(Calendar.SECOND, 40);
+            cal1.set(java.util.Calendar.HOUR_OF_DAY, (23 - (timeZone.getOffset(startTime.getTime()) / 3600000)));
+            cal1.set(java.util.Calendar.MINUTE, 59);
+            cal1.set(java.util.Calendar.SECOND, 40);
             return cal1.getTime();
         } else if ("month".equalsIgnoreCase(type)) {
-            cal1.set(Calendar.DATE, cal1.getActualMaximum(Calendar.DAY_OF_MONTH));
-            cal1.set(Calendar.HOUR_OF_DAY, (23 - (timeZone.getOffset(startTime.getTime()) / 3600000)));
-            cal1.set(Calendar.MINUTE, 59);
-            cal1.set(Calendar.SECOND, 40);
+            cal1.set(java.util.Calendar.DATE, cal1.getActualMaximum(java.util.Calendar.DAY_OF_MONTH));
+            cal1.set(java.util.Calendar.HOUR_OF_DAY, (23 - (timeZone.getOffset(startTime.getTime()) / 3600000)));
+            cal1.set(java.util.Calendar.MINUTE, 59);
+            cal1.set(java.util.Calendar.SECOND, 40);
             return cal1.getTime();
         }
 
@@ -1155,24 +1220,24 @@ public class Dsmr23MessageExecutor extends MessageParser {
     }
 
     private Date setBeforeNextInterval(Date startTime, String type, TimeZone timeZone) throws IOException {
-        Calendar cal1 = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        java.util.Calendar cal1 = java.util.Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         cal1.setTime(startTime);
         int zoneOffset;
         if ("15".equalsIgnoreCase(type)) {
-            cal1.add(Calendar.MINUTE, 15);
+            cal1.add(java.util.Calendar.MINUTE, 15);
             return cal1.getTime();
         } else if ("day".equalsIgnoreCase(type)) {
             zoneOffset = timeZone.getOffset(cal1.getTimeInMillis()) / 3600000;
-            cal1.add(Calendar.DAY_OF_MONTH, 1);
+            cal1.add(java.util.Calendar.DAY_OF_MONTH, 1);
             zoneOffset = zoneOffset - (timeZone.getOffset(cal1.getTimeInMillis()) / 3600000);
-            cal1.add(Calendar.HOUR_OF_DAY, zoneOffset);
+            cal1.add(java.util.Calendar.HOUR_OF_DAY, zoneOffset);
             return cal1.getTime();
         } else if ("month".equalsIgnoreCase(type)) {
             zoneOffset = timeZone.getOffset(cal1.getTimeInMillis()) / 3600000;
-            cal1.add(Calendar.MONTH, 1);
-            cal1.set(Calendar.DATE, cal1.getActualMaximum(Calendar.DAY_OF_MONTH));
+            cal1.add(java.util.Calendar.MONTH, 1);
+            cal1.set(java.util.Calendar.DATE, cal1.getActualMaximum(java.util.Calendar.DAY_OF_MONTH));
             zoneOffset = zoneOffset - (timeZone.getOffset(cal1.getTimeInMillis()) / 3600000);
-            cal1.add(Calendar.HOUR_OF_DAY, zoneOffset);
+            cal1.add(java.util.Calendar.HOUR_OF_DAY, zoneOffset);
             return cal1.getTime();
         }
 
@@ -1189,6 +1254,19 @@ public class Dsmr23MessageExecutor extends MessageParser {
 
     public AbstractSmartNtaProtocol getProtocol() {
         return protocol;
+    }
+
+    private static class UnderlyingProtocolException extends RuntimeException {
+        private final ProtocolException cause;
+
+        private UnderlyingProtocolException(ProtocolException cause) {
+            this.cause = cause;
+        }
+
+        @Override
+        public ProtocolException getCause() {
+            return cause;
+        }
     }
 
 }

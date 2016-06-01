@@ -1,14 +1,23 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.messages;
 
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.cosem.SpecialDaysTable;
-
+import com.elster.jupiter.calendar.Calendar;
+import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.calendar.DayType;
+import com.elster.jupiter.calendar.ExceptionalOccurrence;
+import com.elster.jupiter.calendar.FixedExceptionalOccurrence;
+import com.elster.jupiter.calendar.RecurrentExceptionalOccurrence;
 import com.energyict.mdc.device.topology.TopologyService;
-import com.energyict.mdc.protocol.api.codetables.Code;
-import com.energyict.mdc.protocol.api.codetables.CodeCalendar;
-import com.energyict.mdc.protocol.api.codetables.CodeDayType;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
+
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.cosem.SpecialDaysTable;
 import com.energyict.protocolimpl.generic.messages.ActivityCalendarMessage;
+import com.energyict.protocolimpl.generic.messages.ArrayIndexGenerator;
 import com.energyict.protocolimpl.generic.messages.MessageHandler;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
@@ -16,10 +25,9 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages.Dsmr40MessageExe
 
 import java.io.IOException;
 import java.time.Clock;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 /**
  * Mostly reuses the DSMR4.0 functionality, but changes a few things.
@@ -35,8 +43,8 @@ public class Dsmr50MessageExecutor extends Dsmr40MessageExecutor {
 
     private static final String RESUME = "resume";
 
-    public Dsmr50MessageExecutor(AbstractSmartNtaProtocol protocol, Clock clock, TopologyService topologyService) {
-        super(protocol, clock, topologyService);
+    public Dsmr50MessageExecutor(AbstractSmartNtaProtocol protocol, Clock clock, TopologyService topologyService, CalendarService calendarService) {
+        super(protocol, clock, topologyService, calendarService);
     }
 
     @Override
@@ -44,64 +52,82 @@ public class Dsmr50MessageExecutor extends Dsmr40MessageExecutor {
         return (messageEntry.getTrackingId() != null) && (messageEntry.getTrackingId().toLowerCase().contains(RESUME));
     }
 
-    protected ActivityCalendarMessage getActivityCalendarParser(Code ct) {
-        return new Dsmr50ActivityCalendarParser(ct, getMeterConfig());
+    protected ActivityCalendarMessage getActivityCalendarParser(Calendar calendar) {
+        return new Dsmr50ActivityCalendarParser(calendar, getMeterConfig());
     }
 
     @Override
     protected void upgradeSpecialDays(MessageHandler messageHandler) throws IOException {
         log(Level.INFO, "Handling message Set Special Days table");
-
-        String codeTable = messageHandler.getSpecialDaysCodeTable();
-
-        if (codeTable == null) {
+        String calendarId = messageHandler.getSpecialDaysCalendar();
+        if (calendarId == null) {
             throw new IOException("CodeTable-ID can not be empty.");
         } else {
-
-            Code ct = findCode(codeTable);
-            if (ct == null) {
-                throw new IOException("No CodeTable defined with id '" + codeTable + "'");
-            } else {
-
-                List calendars = ct.getCalendars();
-                Array sdArray = new Array();
-
-                SpecialDaysTable specialDaysTable = getCosemObjectFactory().getSpecialDaysTable(getMeterConfig().getSpecialDaysTable().getObisCode());
-
-                //Create day type IDs (incremental 0-based)
-                Map<Integer, Integer> dayTypeIds = new HashMap<>();  //Map the DB id's of the day types to a proper 0-based index that can be used in the AXDR array
-                List<CodeDayType> dayTypes = ct.getDayTypes();
-                for (int dayTypeIndex = 0; dayTypeIndex < dayTypes.size(); dayTypeIndex++) {
-                    CodeDayType dayType = dayTypes.get(dayTypeIndex);
-                    if (!dayTypeIds.containsKey(dayType.getId())) {
-                        dayTypeIds.put(dayType.getId(), dayTypeIndex);
-                    }
-                }
-
-                int dayIndex = 0;
-                for (Object calendar : calendars) {
-                    CodeCalendar codeCalendar = (CodeCalendar) calendar;
-                    if (codeCalendar.getSeason() == 0) {
-                        OctetString timeStamp = OctetString.fromByteArray(new byte[]{(byte) ((codeCalendar.getYear() == -1) ? 0xff : ((codeCalendar.getYear() >> 8) & 0xFF)), (byte) ((codeCalendar.getYear() == -1) ? 0xff : (codeCalendar.getYear()) & 0xFF),
-                                (byte) ((codeCalendar.getMonth() == -1) ? 0xFF : codeCalendar.getMonth()), (byte) ((codeCalendar.getDay() == -1) ? 0xFF : codeCalendar.getDay()),
-                                (byte) ((codeCalendar.getDayOfWeek() == -1) ? 0xFF : codeCalendar.getDayOfWeek())});
-                        Unsigned8 dayType = new Unsigned8(dayTypeIds.get(codeCalendar.getDayType().getId()));
-                        Structure specialDayStructure = new Structure();
-                        specialDayStructure.addDataType(new Unsigned16(dayIndex));
-                        specialDayStructure.addDataType(timeStamp);
-                        specialDayStructure.addDataType(dayType);
-                        sdArray.addDataType(specialDayStructure);
-                        dayIndex++;
-                    }
-                }
-
-                sdArray = sort(sdArray);
-
-                if (sdArray.nrOfDataTypes() != 0) {
-                    specialDaysTable.writeSpecialDays(sdArray);
-                }
+            Calendar calendar = findCalendarOrThrowIOException(calendarId);
+            final Map<Long, Integer> dayTypeIds = this.initializeDayTypeIds(calendar);
+            final Array specialDays = new Array();
+            ArrayIndexGenerator dayIndex = ArrayIndexGenerator.zeroBased();
+            calendar
+                .getExceptionalOccurrences()
+                .forEach(exceptionalOccurrence ->
+                        this.addAsSpecialDay(specialDays, dayIndex, dayTypeIds, exceptionalOccurrence));
+            Array sortedSpecialDaysArray = sort(specialDays);
+            SpecialDaysTable specialDaysTable = getCosemObjectFactory().getSpecialDaysTable(getMeterConfig().getSpecialDaysTable().getObisCode());
+            if (sortedSpecialDaysArray.nrOfDataTypes() != 0) {
+                specialDaysTable.writeSpecialDays(sortedSpecialDaysArray);
             }
         }
+    }
+
+    private void addAsSpecialDay(Array specialDays, ArrayIndexGenerator dayIndex, Map<Long, Integer> dayTypeIds, ExceptionalOccurrence exceptionalOccurrence) {
+        if (exceptionalOccurrence instanceof RecurrentExceptionalOccurrence) {
+            this.addAsSpecialDay(specialDays, dayIndex, dayTypeIds, (RecurrentExceptionalOccurrence) exceptionalOccurrence);
+        } else {
+            this.addAsSpecialDay(specialDays, dayIndex, dayTypeIds, (FixedExceptionalOccurrence) exceptionalOccurrence);
+        }
+    }
+
+    private void addAsSpecialDay(Array specialDays, ArrayIndexGenerator dayIndex, Map<Long, Integer> dayTypeIds, RecurrentExceptionalOccurrence exceptionalOccurrence) {
+        OctetString timeStamp =
+                OctetString.fromByteArray(
+                        new byte[]{
+                                (byte) (0xff),
+                                (byte) (0xff),
+                                (byte) ((exceptionalOccurrence.getOccurrence().getMonth().getValue())),
+                                (byte) ((exceptionalOccurrence.getOccurrence().getDayOfMonth())),
+                                (byte) (0xFF)});
+        this.addAsSpecialDay(specialDays, dayIndex, dayTypeIds.get(exceptionalOccurrence.getDayType().getId()), timeStamp);
+    }
+
+    private void addAsSpecialDay(Array specialDays, ArrayIndexGenerator dayIndex, Map<Long, Integer> dayTypeIds, FixedExceptionalOccurrence exceptionalOccurrence) {
+        OctetString timeStamp =
+                OctetString.fromByteArray(
+                        new byte[]{
+                                (byte) ((exceptionalOccurrence.getOccurrence().getYear() >> 8) & 0xFF),
+                                (byte) ((exceptionalOccurrence.getOccurrence().getYear()) & 0xFF),
+                                (byte) ((exceptionalOccurrence.getOccurrence().getMonth().getValue())),
+                                (byte) (0xFF),
+                                (byte)  (exceptionalOccurrence.getOccurrence().getDayOfWeek().getValue())});
+        this.addAsSpecialDay(specialDays, dayIndex, dayTypeIds.get(exceptionalOccurrence.getDayType().getId()), timeStamp);
+    }
+
+    private void addAsSpecialDay(Array sdArray, ArrayIndexGenerator dayIndex, int dayTypeId, OctetString timeStamp) {
+        Unsigned8 dayType = new Unsigned8(dayTypeId);
+        Structure specialDayStructure = new Structure();
+        specialDayStructure.addDataType(new Unsigned16(dayIndex.next()));
+        specialDayStructure.addDataType(timeStamp);
+        specialDayStructure.addDataType(dayType);
+        sdArray.addDataType(specialDayStructure);
+    }
+
+    private Map<Long, Integer> initializeDayTypeIds(Calendar calendar) {
+        ArrayIndexGenerator dayTypeIndex = ArrayIndexGenerator.zeroBased();
+        return calendar
+                    .getDayTypes()
+                    .stream()
+                    .collect(Collectors.toMap(
+                            DayType::getId,
+                            dayType1 -> dayTypeIndex.next()));
     }
 
     protected Array sort(Array specialDaysArray) {

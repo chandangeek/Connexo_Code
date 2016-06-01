@@ -1,25 +1,30 @@
 package com.energyict.protocolimplv2.ace4000.objects;
 
+import com.elster.jupiter.metering.MeteringService;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.codetables.Code;
-import com.energyict.mdc.protocol.api.device.data.*;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
+import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
+import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
+import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.exceptions.InboundFrameException;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceLoadProfileSupport;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
-import com.elster.jupiter.metering.MeteringService;
 import com.energyict.protocolimplv2.ace4000.ACE4000;
 import com.energyict.protocolimplv2.ace4000.requests.tracking.RequestState;
 import com.energyict.protocolimplv2.ace4000.requests.tracking.RequestType;
 import com.energyict.protocolimplv2.ace4000.requests.tracking.Tracker;
 import com.energyict.protocolimplv2.ace4000.xml.XMLTags;
 import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
-import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -542,11 +547,11 @@ public class ObjectFactory {
         addRequestToOverview(RequestType.Config);
     }
 
-    public void sendTariffConfiguration(int number, int numberOfRates, Code codeTable) {
+    public void sendTariffConfiguration(int number, int numberOfRates, com.elster.jupiter.calendar.Calendar calendar) {
         log(Level.INFO, "Sending request to configure tariff settings" + getRetryDescription());
         getTariffConfiguration().setTariffNumber(number);
         getTariffConfiguration().setNumberOfRates(numberOfRates);
-        getTariffConfiguration().setCodeTable(codeTable);
+        getTariffConfiguration().setCalendar(calendar);
         getTariffConfiguration().request();
         addRequestToOverview(RequestType.Config);
     }

@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.dlms.g3;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.protocols.mdc.services.impl.OrmClient;
 
@@ -23,13 +24,13 @@ public class SagemCom extends AS330D {
     }
 
     @Inject
-    public SagemCom(PropertySpecService propertySpecService, OrmClient ormClient) {
-        super(propertySpecService, ormClient);
+    public SagemCom(PropertySpecService propertySpecService, CalendarService calendarService, OrmClient ormClient) {
+        super(propertySpecService, calendarService, ormClient);
     }
 
     @Override
     protected void initMessaging() {
-        setMessaging(new G3MessagingSagemCom(getSession(), getProperties()));
+        setMessaging(new G3MessagingSagemCom(getSession(), getProperties(), this.getCalendarService()));
     }
 
     protected G3Properties getProperties() {

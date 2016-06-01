@@ -1,6 +1,8 @@
 package com.energyict.protocolimpl.messages.codetableparsing;
 
-import com.energyict.mdc.protocol.api.codetables.CodeCalendar;
+import com.elster.jupiter.calendar.ExceptionalOccurrence;
+import com.elster.jupiter.calendar.FixedExceptionalOccurrence;
+import com.elster.jupiter.calendar.RecurrentExceptionalOccurrence;
 
 /**
  * Describes 1 SpecialDay.
@@ -12,19 +14,20 @@ class SpecialDayDefinition {
     final int month;
     final int day;
     final int dayTypeId;
-    private CodeTableParser codeTableParser;
 
-    /**
-     * Constructor
-     *
-     * @param codeCalendar a CodeCalendar with a '0' season-code
-     */
-    public SpecialDayDefinition(CodeTableParser codeTableParser, CodeCalendar codeCalendar) {
-        this.codeTableParser = codeTableParser;
-        this.dayTypeId = codeTableParser.getDayIDValue(codeCalendar.getDayType().getId());
-        this.year = codeCalendar.getYear();
-        this.month = codeCalendar.getMonth();
-        this.day = codeCalendar.getDay();
+    SpecialDayDefinition(CodeTableParser codeTableParser, ExceptionalOccurrence exceptionalOccurrence) {
+        this.dayTypeId = codeTableParser.getDayIDValue(exceptionalOccurrence.getDayType().getId());
+        if (exceptionalOccurrence instanceof RecurrentExceptionalOccurrence) {
+            RecurrentExceptionalOccurrence occurrence = (RecurrentExceptionalOccurrence) exceptionalOccurrence;
+            this.year = -1;
+            this.month = occurrence.getOccurrence().getMonthValue();
+            this.day = occurrence.getOccurrence().getDayOfMonth();
+        } else {
+            FixedExceptionalOccurrence occurrence = (FixedExceptionalOccurrence) exceptionalOccurrence;
+            this.year = occurrence.getOccurrence().getYear();
+            this.month = occurrence.getOccurrence().getMonthValue();
+            this.day = occurrence.getOccurrence().getDayOfMonth();
+        }
     }
 
     /**
@@ -62,4 +65,5 @@ class SpecialDayDefinition {
     public int getDayTypeId() {
         return dayTypeId;
     }
+
 }

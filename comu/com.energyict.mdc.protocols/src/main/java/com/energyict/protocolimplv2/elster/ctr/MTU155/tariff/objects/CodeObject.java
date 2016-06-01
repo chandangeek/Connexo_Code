@@ -1,13 +1,12 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.objects;
 
-import com.energyict.mdc.protocol.api.codetables.Code;
-import com.energyict.mdc.protocol.api.codetables.CodeCalendar;
-import com.energyict.mdc.protocol.api.codetables.CodeDayType;
+import com.elster.jupiter.calendar.Calendar;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.stream.Collectors;
 
 /**
  * Copyrights EnergyICT
@@ -16,7 +15,7 @@ import java.util.TimeZone;
  */
 public class CodeObject implements Serializable {
 
-    private int id;
+    private long id;
     private String name;
     private String externalName;
     private int yearFrom;
@@ -34,32 +33,21 @@ public class CodeObject implements Serializable {
     public CodeObject() {
     }
 
-    public static CodeObject fromCode(Code code) {
+    public static CodeObject from(Calendar calendar) {
         CodeObject co = new CodeObject();
-        co.setId(code.getId());
-        co.setName(code.getName());
-        co.setExternalName(code.getExternalName());
-        co.setYearFrom(code.getYearFrom());
-        co.setYearTo(code.getYearTo());
-        co.setInterval(code.getIntervalInSeconds());
-        co.setVerified(code.getVerified());
-        co.setRebuilt(code.getRebuilt());
-        co.setDestinationTimeZone(code.getDestinationTimeZone());
-        co.setDefinitionTimeZone(code.getDefinitionTimeZone());
-        co.setSeasonSet(SeasonSetObject.fromSeasonSet(code.getSeasonSet()));
-
-        co.setDayTypes(new ArrayList<CodeDayTypeObject>());
-        List<CodeDayType> dt = code.getDayTypes();
-        for (CodeDayType codeDayType : dt) {
-            co.getDayTypes().add(CodeDayTypeObject.fromCodeDayType(codeDayType));
-        }
-
-        co.setCalendars(new ArrayList<CodeCalendarObject>());
-        List<CodeCalendar> cal = code.getCalendars();
-        for (CodeCalendar codeCalendar : cal) {
-            co.getCalendars().add(CodeCalendarObject.fromCodeCalendar(codeCalendar));
-        }
-
+        co.setId(calendar.getId());
+        co.setName(calendar.getName());
+        co.setExternalName(null);
+        co.setYearFrom(calendar.getStartYear().getValue());
+        co.setYearTo(calendar.getEndYear().getValue());
+        co.setInterval(900);
+        co.setVerified(true);
+        co.setRebuilt(true);
+        co.setDestinationTimeZone(calendar.getTimeZone());
+        co.setDefinitionTimeZone(calendar.getTimeZone());
+        co.setSeasonSet(SeasonSetObject.from(calendar));
+        co.setDayTypes(calendar.getDayTypes().stream().map(CodeDayTypeObject::from).collect(Collectors.toList()));
+        co.setCalendars(CodeCalendarObject.allFrom(calendar));
         return co;
     }
 
@@ -160,11 +148,11 @@ public class CodeObject implements Serializable {
         this.externalName = externalName;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 
@@ -240,26 +228,24 @@ public class CodeObject implements Serializable {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder();
-        sb.append("CodeObject");
-        sb.append("{calendars=").append(calendars);
-        sb.append(", id=").append(id);
-        sb.append(", name='").append(name).append('\'');
-        sb.append(", externalName='").append(externalName).append('\'');
-        sb.append(", yearFrom=").append(yearFrom);
-        sb.append(", yearTo=").append(yearTo);
-        sb.append(", interval=").append(interval);
-        sb.append(", verified=").append(verified);
-        sb.append(", rebuilt=").append(rebuilt);
-        sb.append(", destinationTimeZone=").append(destinationTimeZone);
-        sb.append(", definitionTimeZone=").append(definitionTimeZone);
-        sb.append(", seasonSet=").append(seasonSet);
-        sb.append(", dayTypes=").append(dayTypes);
-        sb.append('}');
-        return sb.toString();
+        return "CodeObject" +
+               "{calendars=" + calendars +
+               ", id=" + id +
+               ", name='" + name + '\'' +
+               ", externalName='" + externalName + '\'' +
+               ", yearFrom=" + yearFrom +
+               ", yearTo=" + yearTo +
+               ", interval=" + interval +
+               ", verified=" + verified +
+               ", rebuilt=" + rebuilt +
+               ", destinationTimeZone=" + destinationTimeZone +
+               ", definitionTimeZone=" + definitionTimeZone +
+               ", seasonSet=" + seasonSet +
+               ", dayTypes=" + dayTypes +
+               '}';
     }
 
-    public int getDefaultBand() throws IllegalStateException {
+    public long getDefaultBand() throws IllegalStateException {
         CodeDayTypeObject defaultDay = getDefaultDayType();
         List<CodeDayTypeDefObject> dayTypeDefs = defaultDay.getDayTypeDefs();
         if (!dayTypeDefs.isEmpty()) {

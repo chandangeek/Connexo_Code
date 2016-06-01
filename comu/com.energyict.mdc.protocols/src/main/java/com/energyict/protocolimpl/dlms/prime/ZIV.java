@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.dlms.prime;
 
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 
 import javax.inject.Inject;
 
@@ -20,8 +21,8 @@ public class ZIV extends AbstractPrimeMeter {
     }
 
     @Inject
-    public ZIV(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public ZIV(PropertySpecService propertySpecService, DeviceMessageFileService deviceMessageFileService) {
+        super(propertySpecService, deviceMessageFileService);
     }
 
     @Override

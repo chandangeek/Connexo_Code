@@ -1,6 +1,7 @@
 package com.energyict.protocols.impl.channels;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
@@ -12,6 +13,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.SerialComponentService;
@@ -20,8 +22,7 @@ import com.energyict.mdc.io.impl.MdcIOModule;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.UserFileFactory;
-import com.energyict.mdc.protocol.api.codetables.CodeFactory;
+import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
@@ -59,8 +60,10 @@ import java.sql.SQLException;
 import java.time.Clock;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -110,15 +113,17 @@ public class AllConnectionTypesTest {
     @Mock
     private MdcReadingTypeUtilService mdcReadingTypeUtilService;
     @Mock
-    private UserFileFactory userFileFactory;
+    private DeviceConfigurationService deviceConfigurationService;
     @Mock
-    private CodeFactory codeFactory;
+    private CalendarService calendarService;
     @Mock
     private CollectedDataFactory collectedDataFactory;
     @Mock
     private IdentificationService identificationService;
     @Mock
     private ProtocolPluggableService protocolPluggableService;
+    @Mock
+    private DeviceMessageFileService deviceMessageFileService;
 
     private InMemoryBootstrapModule bootstrapModule;
     private ConnectionTypeService connectionTypeService;
@@ -280,12 +285,13 @@ public class AllConnectionTypesTest {
             bind(TopologyService.class).toInstance(topologyService);
             bind(IssueService.class).toInstance(issueService);
             bind(MdcReadingTypeUtilService.class).toInstance(mdcReadingTypeUtilService);
-            bind(UserFileFactory.class).toInstance(userFileFactory);
-            bind(CodeFactory.class).toInstance(codeFactory);
+            bind(DeviceConfigurationService.class).toInstance(deviceConfigurationService);
+            bind(CalendarService.class).toInstance(calendarService);
             bind(CollectedDataFactory.class).toInstance(collectedDataFactory);
             bind(IdentificationService.class).toInstance(identificationService);
             bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
             bind(SerialComponentService.class).toInstance(serialComponentService);
+            bind(DeviceMessageFileService.class).toInstance(deviceMessageFileService);
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }

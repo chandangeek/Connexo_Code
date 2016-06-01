@@ -1,10 +1,11 @@
 package com.energyict.protocolimplv2.nta.abstractnta.messages;
 
-import com.energyict.mdc.protocol.api.codetables.Code;
+import com.elster.jupiter.calendar.Calendar;
 import com.energyict.mdc.protocol.api.exceptions.GeneralParseException;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
+
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
-import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -26,11 +27,12 @@ public class AbstractDlmsMessaging {
         return protocol;
     }
 
-    protected String convertCodeTableToXML(Code messageAttribute) {
+    protected String convertCodeTableToXML(Calendar messageAttribute) {
         try {
             return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(messageAttribute, 0, "0");
         } catch (ParserConfigurationException e) {
             throw new GeneralParseException(MessageSeeds.GENERAL_PARSE_ERROR, e);
         }
     }
+
 }

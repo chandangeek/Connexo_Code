@@ -1,9 +1,9 @@
 package com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD.messaging;
 
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.energyict.mdc.common.NestedIOException;
-import com.energyict.mdc.protocol.api.UserFileFactory;
-import com.energyict.mdc.protocol.api.codetables.CodeFactory;
+import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
@@ -12,6 +12,7 @@ import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
 import com.energyict.mdc.protocol.api.messaging.MessageSpec;
 import com.energyict.mdc.protocol.api.messaging.MessageTagSpec;
 import com.energyict.mdc.protocol.api.messaging.MessageValueSpec;
+import com.energyict.protocols.messaging.TimeOfUseMessageBuilder;
 
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.axrdencoding.OctetString;
@@ -21,7 +22,6 @@ import com.energyict.protocolimpl.messages.ProtocolMessageCategories;
 import com.energyict.protocolimpl.messages.ProtocolMessages;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocols.messaging.TimeOfUseMessageBuilder;
 import com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD.ZMD;
 import org.xml.sax.SAXException;
 
@@ -42,13 +42,13 @@ public class ZMDMessages extends ProtocolMessages {
     public static String END_OF_DST = "EndOfDST";
 
     private final ZMD protocol;
-    private final CodeFactory codeFactory;
-    private final UserFileFactory userFileFactory;
+    private final CalendarService calendarService;
+    private final DeviceMessageFileService deviceMessageFileService;
 
-    public ZMDMessages(final ZMD protocol, CodeFactory codeFactory, UserFileFactory userFileFactory) {
+    public ZMDMessages(final ZMD protocol, CalendarService calendarService, DeviceMessageFileService deviceMessageFileService) {
         this.protocol = protocol;
-        this.codeFactory = codeFactory;
-        this.userFileFactory = userFileFactory;
+        this.calendarService = calendarService;
+        this.deviceMessageFileService = deviceMessageFileService;
     }
 
     /**
@@ -171,10 +171,10 @@ public class ZMDMessages extends ProtocolMessages {
     }
 
     private void updateTimeOfUse(MessageEntry messageEntry) throws IOException, SAXException {
-        final ZMDTimeOfUseMessageBuilder builder = new ZMDTimeOfUseMessageBuilder(this.codeFactory, this.userFileFactory);
+        final ZMDTimeOfUseMessageBuilder builder = new ZMDTimeOfUseMessageBuilder(this.calendarService, this.deviceMessageFileService);
         ActivityCalendarController activityCalendarController = new ZMDActivityCalendarController(this.protocol);
         builder.initFromXml(messageEntry.getContent());
-        if (builder.getCodeId() > 0) { // codeTable implementation
+        if (builder.getCalendarId() > 0) { // codeTable implementation
             infoLog("Parsing the content of the CodeTable.");
             activityCalendarController.parseContent(messageEntry.getContent());
             infoLog("Setting the new Passive Calendar Name.");

@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
+import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.Password;
 import com.energyict.mdc.device.data.LoadProfile;
@@ -7,7 +8,6 @@ import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.MessageSeeds;
-import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
@@ -17,6 +17,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
+
 import com.energyict.protocolimplv2.elster.ctr.MTU155.MTU155;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.CodeTableBase64Builder;
 import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageUtils;
@@ -128,8 +129,8 @@ public class Messaging implements DeviceMessageSupport {
                 return Long.toString(((Date) messageAttribute).getTime());
             case DeviceMessageConstants.passwordAttributeName:
                 return ((Password) messageAttribute).getValue();
-            case DeviceMessageConstants.activityCalendarCodeTableAttributeName:
-                return CodeTableBase64Builder.getXmlStringFromCodeTable((Code) messageAttribute);
+            case DeviceMessageConstants.activityCalendarAttributeName:
+                return CodeTableBase64Builder.getXmlStringFromCodeTable((Calendar) messageAttribute);
             case DeviceMessageConstants.loadProfileAttributeName:
                 return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute, this.topologyService);
             case DeviceMessageConstants.firmwareUpdateFileAttributeName:
