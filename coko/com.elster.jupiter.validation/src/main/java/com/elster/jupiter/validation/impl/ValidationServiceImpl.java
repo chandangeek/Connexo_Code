@@ -211,13 +211,13 @@ public class ValidationServiceImpl implements ValidationService, PrivilegesProvi
     }
 
     @Override
-    public ValidationRuleSet createValidationRuleSet(String name) {
-        return createValidationRuleSet(name, null);
+    public ValidationRuleSet createValidationRuleSet(String name, String applicationName) {
+        return createValidationRuleSet(name, applicationName, null);
     }
 
     @Override
-    public ValidationRuleSet createValidationRuleSet(String name, String description) {
-        ValidationRuleSet set = dataModel.getInstance(ValidationRuleSetImpl.class).init(name, description);
+    public ValidationRuleSet createValidationRuleSet(String name, String applicationName, String description) {
+        ValidationRuleSet set = dataModel.getInstance(ValidationRuleSetImpl.class).init(name, applicationName, description);
         set.save();
         return set;
     }
@@ -413,7 +413,7 @@ public class ValidationServiceImpl implements ValidationService, PrivilegesProvi
         returnList.stream().forEach(m-> m.getChannels().stream().filter(c -> !m.getRuleSet()
                 .getRules(c.getReadingTypes()).isEmpty())
                 .filter(c -> !m.getChannelValidation(c).isPresent())
-                .forEach(c -> m.addChannelValidation(c)));
+                .forEach(m::addChannelValidation));
         existingMeterActivationValidations.stream()
                 .filter(m -> !ruleSets.contains(m.getRuleSet()))
                 .forEach(IMeterActivationValidation::makeObsolete);
@@ -476,6 +476,16 @@ public class ValidationServiceImpl implements ValidationService, PrivilegesProvi
         return validatorFactories.stream()
                 .flatMap(f -> f.available().stream())
                 .map(validatorCreator::getTemplateValidator)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Validator> getAvailableValidators(String application) {
+        ValidatorCreator validatorCreator = new DefaultValidatorCreator();
+        return validatorFactories.stream()
+                .flatMap(f -> f.available().stream())
+                .map(validatorCreator::getTemplateValidator)
+                .filter(validator -> validator.getSupportedApplications().contains(application))
                 .collect(Collectors.toList());
     }
 

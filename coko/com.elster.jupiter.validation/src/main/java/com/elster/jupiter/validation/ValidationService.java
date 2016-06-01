@@ -26,9 +26,9 @@ public interface ValidationService {
      * Management of ruleSets and rules *
      */
 
-    ValidationRuleSet createValidationRuleSet(String name);
+    ValidationRuleSet createValidationRuleSet(String name, String applicationName);
 
-    ValidationRuleSet createValidationRuleSet(String name, String description);
+    ValidationRuleSet createValidationRuleSet(String name, String applicationName, String description);
 
     List<ValidationRuleSet> getValidationRuleSets();
 
@@ -48,6 +48,13 @@ public interface ValidationService {
 
     List<Validator> getAvailableValidators();
 
+    /**
+     * Filters validators and returns ones supporting a given <code>targetApplication</code>.
+     * @param targetApplication a string representation of target application.
+     * @return the list of validators supporting a given <code>targetApplication</code>.
+     */
+    List<Validator> getAvailableValidators(String targetApplication);
+
     Validator getValidator(String implementation);
 
     /**
@@ -59,7 +66,6 @@ public interface ValidationService {
 
     void enableValidationOnStorage(Meter meter);
     void disableValidationOnStorage(Meter meter);
-
 
     void activate(MeterActivation meterActivation, ValidationRuleSet ruleSet);
     void deactivate(MeterActivation meterActivation, ValidationRuleSet ruleSet);
@@ -79,9 +85,9 @@ public interface ValidationService {
     void updateLastChecked(Channel channel, Instant date);
 
     void validate(MeterActivation meterActivation);
-    
+
     void validate(MeterActivation meterActivation, ReadingType readingType);
-    
+
     ValidationEvaluator getEvaluator();
 
     ValidationEvaluator getEvaluator(Meter meter, Range<Instant> interval);
@@ -89,9 +95,9 @@ public interface ValidationService {
     /*
      * Following methods for adding resources in a non OSGI environment
      */
-    
-	void addValidatorFactory(ValidatorFactory validatorfactory);
-	void addValidationRuleSetResolver(ValidationRuleSetResolver resolver);
+
+    void addValidatorFactory(ValidatorFactory validatorfactory);
+    void addValidationRuleSetResolver(ValidationRuleSetResolver resolver);
 
     DataValidationTaskBuilder newTaskBuilder();
 
@@ -121,5 +127,5 @@ public interface ValidationService {
 
     Optional<? extends ValidationRule> findAndLockValidationRuleByIdAndVersion(long id, long version);
 
-    List<DataValidationTask> findByDeviceGroup (EndDeviceGroup endDevice, int skip, int limit);
+    List<DataValidationTask> findByDeviceGroup(EndDeviceGroup endDevice, int skip, int limit);
 }

@@ -152,7 +152,10 @@ public abstract class AbstractValidationEvaluator implements ValidationEvaluator
     }
 
     protected ListMultimap<Instant, ReadingQualityRecord> getActualReadingQualities(CimChannel channel, Range<Instant> interval) {
-        List<ReadingQualityRecord> readingQualities = channel.findActualReadingQuality(interval);
+        List<ReadingQualityRecord> readingQualities = channel.findActualReadingQuality(interval)
+                .stream()
+                .filter(readingQualityRecord -> readingQualityRecord.getType().system().orElse(null).equals(QualityCodeSystem.MDC))
+                .collect(Collectors.toList());
         return Multimaps.index(readingQualities, ReadingQualityRecord::getReadingTimestamp);
     }
 

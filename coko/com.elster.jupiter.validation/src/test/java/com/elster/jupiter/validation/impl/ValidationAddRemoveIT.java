@@ -194,7 +194,7 @@ public class ValidationAddRemoveIT {
             ValidationServiceImpl validationService = (ValidationServiceImpl) injector.getInstance(ValidationService.class);
             validationService.addResource(validatorFactory);
 
-            final ValidationRuleSet validationRuleSet = validationService.createValidationRuleSet(MY_RULE_SET);
+            final ValidationRuleSet validationRuleSet = validationService.createValidationRuleSet(MY_RULE_SET, "MDC");
             ValidationRuleSetVersion validationRuleSetVersion = validationRuleSet.addRuleSetVersion("description", Instant.EPOCH);
             ValidationRule minMaxRule = validationRuleSetVersion.addRule(ValidationAction.WARN_ONLY, MIN_MAX, "minmax")
                     .withReadingType(readingType1)
