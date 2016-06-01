@@ -10,7 +10,8 @@ Ext.define('Dxp.view.tasks.AddReadingTypesToTaskFilter', {
             dataIndex: 'fullAliasName',
             emptyText: Uni.I18n.translate('dataExportTasks.readingTypeName', 'DES', 'Reading type name'),
             displayField: 'name',
-            valueField: 'id'
+            valueField: 'id',
+            itemId: 'txt-reading-type'
         },
         {
             type: 'combobox',
@@ -18,6 +19,7 @@ Ext.define('Dxp.view.tasks.AddReadingTypesToTaskFilter', {
             emptyText: Uni.I18n.translate('dataExportTasks.unitOfMeasure', 'DES', 'Unit of measure'),
             displayField: 'name',
             valueField: 'name',
+            itemId: 'cbo-unit-of-measure',
             store: 'Dxp.store.UnitsOfMeasure',
             applyParamValue: function (params, includeUndefined, flattenObjects) {
                 var me = this,
@@ -34,6 +36,7 @@ Ext.define('Dxp.view.tasks.AddReadingTypesToTaskFilter', {
             dataIndex: 'timeOfUse',
             emptyText: Uni.I18n.translate('dataExportTasks.timeOfUse', 'DES', 'Time of use'),
             displayField: 'name',
+            itemId: 'cbo-time-of-use',
             valueField: 'tou',
             store: 'Dxp.store.TimeOfUse'
         },
@@ -43,6 +46,7 @@ Ext.define('Dxp.view.tasks.AddReadingTypesToTaskFilter', {
             emptyText: Uni.I18n.translate('dataExportTasks.interval', 'DES', 'Interval'),
             displayField: 'name',
             valueField: 'name',
+            itemId: 'cbo-interval',
             store: 'Dxp.store.Intervals',
             applyParamValue: function (params, includeUndefined, flattenObjects) {
                 var me = this,
