@@ -16,6 +16,9 @@ import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.DefaultMeterRole;
+import com.elster.jupiter.metering.config.MeterRole;
+import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -24,7 +27,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
-import com.google.common.collect.ImmutableList;
+
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
@@ -39,7 +42,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-final class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter {
+class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter {
 
     @SuppressWarnings("unused")
     private Reference<AmrSystem> amrSystem = ValueReference.absent();
@@ -50,20 +53,24 @@ final class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter 
     private final Thesaurus thesaurus;
     private final Provider<MeterActivationImpl> meterActivationFactory;
     private final Provider<EndDeviceEventRecordImpl> deviceEventFactory;
+    private final ServerMetrologyConfigurationService metrologyConfigurationService;
 
     @Inject
     MeterImpl(Clock clock, DataModel dataModel, EventService eventService, Provider<EndDeviceEventRecordImpl> deviceEventFactory,
-              MeteringService meteringService, Thesaurus thesaurus, Provider<MeterActivationImpl> meterActivationFactory) {
+              MeteringService meteringService, Thesaurus thesaurus, Provider<MeterActivationImpl> meterActivationFactory, ServerMetrologyConfigurationService metrologyConfigurationService) {
         super(clock, dataModel, eventService, deviceEventFactory, MeterImpl.class);
         this.meteringService = meteringService;
         this.thesaurus = thesaurus;
         this.meterActivationFactory = meterActivationFactory;
         this.deviceEventFactory = deviceEventFactory;
+        this.metrologyConfigurationService = metrologyConfigurationService;
     }
 
     @Override
     public List<? extends MeterActivation> getMeterActivations() {
-        return ImmutableList.copyOf(meterActivations);
+        return this.meterActivations.stream()
+                .filter(ma -> !ma.getStart().equals(ma.getEnd()))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -72,16 +79,12 @@ final class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter 
     }
 
     @Override
-    public MeterActivationImpl activate(Instant start) {
-        checkOverlaps(start);
-        MeterActivationImpl result = meterActivationFactory.get().init(this, start);
-        getDataModel().persist(result);
-        meterActivations.add(result);
-        return result;
+    public MeterActivation activate(Instant from) {
+        return this.activate(Range.atLeast(from));
     }
 
     @Override
-    public MeterActivationImpl activate(Range<Instant> range) {
+    public MeterActivation activate(Range<Instant> range) {
         checkOverlaps(range);
         MeterActivationImpl result = meterActivationFactory.get().init(this, range);
         getDataModel().persist(result);
@@ -102,9 +105,14 @@ final class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter 
     }
 
     @Override
-    public MeterActivationImpl activate(UsagePoint usagePoint, Instant start) {
-        checkOverlaps(start);
-        MeterActivationImpl result = meterActivationFactory.get().init(this, usagePoint, start);
+    public MeterActivation activate(UsagePoint usagePoint, Instant from) {
+        return this.activate(usagePoint, this.metrologyConfigurationService.findDefaultMeterRole(DefaultMeterRole.DEFAULT), from);
+    }
+
+    @Override
+    public MeterActivation activate(UsagePoint usagePoint, MeterRole meterRole, Instant from) {
+        checkOverlaps(from);
+        MeterActivationImpl result = meterActivationFactory.get().init(this, meterRole, usagePoint, from);
         getDataModel().persist(result);
         meterActivations.add(result);
         return result;

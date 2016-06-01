@@ -46,7 +46,7 @@ public final class MeterRoleImpl implements MeterRole {
 
     @Override
     public String getKey() {
-        return this.key;
+        return this.key.substring(MetrologyConfigurationServiceImpl.METER_ROLE_KEY_PREFIX.length());
     }
 
     @Override

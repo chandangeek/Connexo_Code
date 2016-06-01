@@ -64,7 +64,7 @@ import static org.mockito.Mockito.mock;
 @RunWith(MockitoJUnitRunner.class)
 public class ReadingTypeCacheIssueTest {
 
-	private Injector injector;
+    private Injector injector;
 
     @Mock
     private BundleContext bundleContext;
@@ -127,30 +127,30 @@ public class ReadingTypeCacheIssueTest {
         MeteringService meteringService = injector.getInstance(MeteringService.class);
         Meter meter;
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-        	AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
-        	meter = amrSystem.newMeter("myMeter").create();
-        	ctx.commit();
+            AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
+            meter = amrSystem.newMeter("myMeter").create();
+            ctx.commit();
         }
-    	ReadingTypeCodeBuilder builder = ReadingTypeCodeBuilder.of(Commodity.AIR)
-    			.period(TimeAttribute.NOTAPPLICABLE)
-    			.accumulate(Accumulation.BULKQUANTITY)
-    			.flow(FlowDirection.FORWARD)
-    			.measure(MeasurementKind.ENERGY)
-    			.in(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR);
-    	String readingTypeCode = builder.code();
+        ReadingTypeCodeBuilder builder = ReadingTypeCodeBuilder.of(Commodity.AIR)
+                .period(TimeAttribute.NOTAPPLICABLE)
+                .accumulate(Accumulation.BULKQUANTITY)
+                .flow(FlowDirection.FORWARD)
+                .measure(MeasurementKind.ENERGY)
+                .in(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR);
+        String readingTypeCode = builder.code();
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-        	Instant instant = LocalDate.of(2014,1,1).atStartOfDay(ZoneId.systemDefault()).toInstant();
-        	Reading reading = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(1000), instant);
-        	meter.store(MeterReadingImpl.of(reading));
-        	//rollback
+            Instant instant = LocalDate.of(2014, 1, 1).atStartOfDay(ZoneId.systemDefault()).toInstant();
+            Reading reading = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(1000), instant);
+            meter.store(MeterReadingImpl.of(reading));
+            //rollback
         }
         assertThat(meteringService.getReadingType(readingTypeCode).isPresent()).isFalse();
         meter = meteringService.findMeter(meter.getId()).get(); // get fresh copy from DB
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-        	Instant instant = ZonedDateTime.of(2014,1,1,0,0,0,0,ZoneId.systemDefault()).toInstant();
-        	Reading reading = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(1000), instant);
-        	meter.store(MeterReadingImpl.of(reading));
-        	ctx.commit();
+            Instant instant = ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
+            Reading reading = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(1000), instant);
+            meter.store(MeterReadingImpl.of(reading));
+            ctx.commit();
         }
         assertThat(meteringService.getReadingType(readingTypeCode).isPresent()).isTrue();
     }

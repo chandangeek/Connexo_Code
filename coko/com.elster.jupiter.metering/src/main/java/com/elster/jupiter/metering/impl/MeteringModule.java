@@ -44,7 +44,7 @@ public class MeteringModule extends AbstractModule {
     @Deprecated
     public static MeteringModule withAllReadingTypes_AVOID_AVOID() {
         MeteringModule meteringModule = new MeteringModule();
-        meteringModule.createReadingTypes=true;
+        meteringModule.createReadingTypes = true;
         return meteringModule;
     }
 

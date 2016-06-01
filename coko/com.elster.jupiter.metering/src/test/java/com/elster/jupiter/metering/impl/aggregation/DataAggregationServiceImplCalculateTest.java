@@ -21,6 +21,7 @@ import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.ChannelContract;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.impl.config.EffectiveMetrologyConfigurationOnUsagePoint;
+import com.elster.jupiter.metering.impl.config.MeterActivationValidatorsWhiteboard;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
 import com.elster.jupiter.metering.impl.config.ServerFormula;
 import com.elster.jupiter.metering.impl.config.ServerFormulaBuilder;
@@ -111,6 +112,8 @@ public class DataAggregationServiceImplCalculateTest {
     @Mock
     private MetrologyConfiguration metrologyConfiguration;
     @Mock
+    private MeterActivationValidatorsWhiteboard meterActivationValidatorsWhiteboard;
+    @Mock
     private NlsService nlsService;
 
     private ServerMetrologyConfigurationService metrologyConfigurationService;
@@ -135,7 +138,7 @@ public class DataAggregationServiceImplCalculateTest {
         when(this.connection.prepareStatement(anyString())).thenReturn(this.preparedStatement);
         when(this.preparedStatement.executeQuery()).thenReturn(this.resultSet);
         when(this.dataModel.getInstance(CalculatedReadingRecordFactory.class)).thenReturn(new CalculatedReadingRecordFactoryImpl(this.dataModel, meteringService));
-        this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this.meteringService, this.userService);
+        this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this.meteringService, this.userService, this.meterActivationValidatorsWhiteboard);
         when(this.metrologyConfiguration.getContracts()).thenReturn(Collections.singletonList(this.contract));
         when(this.dataModel.query(eq(EffectiveMetrologyConfigurationOnUsagePoint.class), anyVararg())).thenReturn(this.queryExecutor);
         when(queryExecutor.select(any(Condition.class))).thenReturn(Collections.singletonList(this.effectiveMetrologyConfiguration));
