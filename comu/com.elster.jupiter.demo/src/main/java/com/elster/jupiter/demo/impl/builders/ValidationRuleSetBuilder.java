@@ -1,6 +1,10 @@
 package com.elster.jupiter.demo.impl.builders;
 
-import com.elster.jupiter.validation.*;
+import com.elster.jupiter.validation.ValidationAction;
+import com.elster.jupiter.validation.ValidationRule;
+import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.validation.ValidationRuleSetVersion;
+import com.elster.jupiter.validation.ValidationService;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
@@ -45,7 +49,7 @@ public class ValidationRuleSetBuilder extends NamedBuilder<ValidationRuleSet, Va
         rule = ruleSetVersion.addRule(ValidationAction.FAIL, "com.elster.jupiter.validators.impl.ThresholdValidator", "Detect threshold violation")
                 .withReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0")
                 .withReadingType("0.0.2.4.19.1.12.0.0.0.0.0.0.0.0.0.72.0")
-                .havingProperty("minimum").withValue(new BigDecimal(0))
+                .havingProperty("minimum").withValue(BigDecimal.ZERO)
                 .havingProperty("maximum").withValue(new BigDecimal(1000))
                 .active(true)
                 .create();
