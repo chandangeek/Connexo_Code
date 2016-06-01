@@ -14,7 +14,6 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 
 import com.google.inject.Module;
-import org.osgi.service.component.annotations.Activate;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -23,7 +22,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-//@Component(name = "c.e.j.mtr.cps.impl.UsagePointTechnicalWGTCustomPropertySet", service = CustomPropertySet.class, immediate = true)
 public class UsagePointTechnicalWGTCustomPropertySet implements CustomPropertySet<UsagePoint, UsagePointTechnicalWGTDomExt> {
 
     public PropertySpecService propertySpecService;
@@ -43,11 +41,6 @@ public class UsagePointTechnicalWGTCustomPropertySet implements CustomPropertySe
         return this.thesaurus;
     }
 
-    @Activate
-    public void activate() {
-        System.out.println(UsagePointTechnicalSeeds.TABLE_NAME.get());
-    }
-
     @Override
     public String getName() {
         return this.getThesaurus().getFormat(TranslationKeys.CPS_TECHNICAL_GWT_SIMPLE_NAME).format();
@@ -60,7 +53,7 @@ public class UsagePointTechnicalWGTCustomPropertySet implements CustomPropertySe
 
     @Override
     public PersistenceSupport<UsagePoint, UsagePointTechnicalWGTDomExt> getPersistenceSupport() {
-        return new UsagePointTechnicalWGTPersistenceSupport(this.getThesaurus());
+        return new UsagePointTechnicalWGTPersistenceSupport();
     }
 
     @Override
@@ -114,12 +107,6 @@ public class UsagePointTechnicalWGTCustomPropertySet implements CustomPropertySe
     }
 
     private class UsagePointTechnicalWGTPersistenceSupport implements PersistenceSupport<UsagePoint, UsagePointTechnicalWGTDomExt> {
-        private Thesaurus thesaurus;
-
-        public UsagePointTechnicalWGTPersistenceSupport(Thesaurus thesaurus) {
-            this.thesaurus = thesaurus;
-        }
-
         @Override
         public String componentName() {
             return UsagePointTechnicalSeeds.COMPONENT_NAME.get();
@@ -158,17 +145,30 @@ public class UsagePointTechnicalWGTCustomPropertySet implements CustomPropertySe
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
             table.column(UsagePointTechnicalWGTDomExt.Fields.PIPE_SIZE.databaseName())
-                    .varChar(255)
+                    .varChar()
                     .map(UsagePointTechnicalWGTDomExt.Fields.PIPE_SIZE.javaName())
                     .add();
             table.column(UsagePointTechnicalWGTDomExt.Fields.PIPE_TYPE.databaseName())
-                    .varChar(255)
+                    .varChar()
                     .map(UsagePointTechnicalWGTDomExt.Fields.PIPE_TYPE.javaName())
                     .add();
             table.column(UsagePointTechnicalWGTDomExt.Fields.PRESSURE_LEVEL.databaseName())
-                    .varChar(255)
+                    .varChar()
                     .map(UsagePointTechnicalWGTDomExt.Fields.PRESSURE_LEVEL.javaName())
                     .add();
         }
+
+        @Override
+        public String columnNameFor(PropertySpec propertySpec) {
+            return EnumSet
+                    .complementOf(EnumSet.of(UsagePointTechnicalWGTDomExt.Fields.DOMAIN))
+                    .stream()
+                    .filter(each -> each.javaName().equals(propertySpec.getName()))
+                    .findFirst()
+                    .map(UsagePointTechnicalWGTDomExt.Fields::databaseName)
+                    .orElseThrow(() -> new IllegalArgumentException("Unknown property spec: " + propertySpec.getName()));
+        }
+
     }
+
 }

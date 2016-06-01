@@ -14,7 +14,6 @@ import com.elster.jupiter.properties.PropertySpecService;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
-import org.osgi.service.component.annotations.Activate;
 
 import javax.validation.MessageInterpolator;
 import java.util.Arrays;
@@ -29,9 +28,9 @@ public class UsagePointSettlementCustomPropertySet implements CustomPropertySet<
     public PropertySpecService propertySpecService;
     public Thesaurus thesaurus;
 
-    public static final String TABLE_NAME = "RVK_CPS_MTR_USAGEPOINT_SETTL";
-    public static final String FK_CPS_DEVICE_SETTLEMENT = "RVK_CPS_MTR_USAGEPOINT_SETTL";
-    public static final String COMPONENT_NAME = "STL";
+    public static final String TABLE_NAME = "MTC_CPS_MTR_USAGEPOINT_SETTL";
+    public static final String FK_CPS_DEVICE_SETTLEMENT = "MTC_CPS_MTR_USAGEPOINT_SETTL";
+    public static final String COMPONENT_NAME = "MTC";
 
     public UsagePointSettlementCustomPropertySet() {
         super();
@@ -45,10 +44,6 @@ public class UsagePointSettlementCustomPropertySet implements CustomPropertySet<
 
     public Thesaurus getThesaurus() {
         return this.thesaurus;
-    }
-
-    @Activate
-    public void activate() {
     }
 
     @Override
@@ -126,7 +121,7 @@ public class UsagePointSettlementCustomPropertySet implements CustomPropertySet<
     private static class UsagePointSettlPersistSupp implements PersistenceSupport<UsagePoint, UsagePointSettlementDomExt> {
         private Thesaurus thesaurus;
 
-        public UsagePointSettlPersistSupp(Thesaurus thesaurus) {
+        private UsagePointSettlPersistSupp(Thesaurus thesaurus) {
             this.thesaurus = thesaurus;
         }
 
@@ -173,25 +168,36 @@ public class UsagePointSettlementCustomPropertySet implements CustomPropertySet<
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
             table.column(UsagePointSettlementDomExt.Fields.SETTLEMENT_AREA.databaseName())
-                    .varChar(255)
+                    .varChar()
                     .map(UsagePointSettlementDomExt.Fields.SETTLEMENT_AREA.javaName())
                     .notNull()
                     .add();
             table.column(UsagePointSettlementDomExt.Fields.SETTLEMENT_METHOD.databaseName())
-                    .varChar(255)
+                    .varChar()
                     .map(UsagePointSettlementDomExt.Fields.SETTLEMENT_METHOD.javaName())
                     .notNull()
                     .add();
             table.column(UsagePointSettlementDomExt.Fields.GRIDFEE_TIMEFRAME.databaseName())
-                    .varChar(255)
+                    .varChar()
                     .map(UsagePointSettlementDomExt.Fields.GRIDFEE_TIMEFRAME.javaName())
                     .notNull()
                     .add();
             table.column(UsagePointSettlementDomExt.Fields.GRIDFEE_TARIFFCODE.databaseName())
-                    .varChar(255)
+                    .varChar()
                     .map(UsagePointSettlementDomExt.Fields.GRIDFEE_TARIFFCODE.javaName())
                     .notNull()
                     .add();
+        }
+
+        @Override
+        public String columnNameFor(PropertySpec propertySpec) {
+            return EnumSet
+                    .complementOf(EnumSet.of(UsagePointSettlementDomExt.Fields.DOMAIN))
+                    .stream()
+                    .filter(each -> each.javaName().equals(propertySpec.getName()))
+                    .findFirst()
+                    .map(UsagePointSettlementDomExt.Fields::databaseName)
+                    .orElseThrow(() -> new IllegalArgumentException("Unknown property spec: " + propertySpec.getName()));
         }
     }
 

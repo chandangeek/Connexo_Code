@@ -14,25 +14,22 @@ import com.elster.jupiter.properties.PropertySpecService;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
-import org.osgi.service.component.annotations.Activate;
 
 import javax.validation.MessageInterpolator;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-//@Component(name = "c.e.j.m.cps.impl.mtr.UsagePointContCustomPropertySet", service = CustomPropertySet.class, immediate = true)
 public class UsagePointContCustomPropertySet implements CustomPropertySet<UsagePoint, UsagePointContDomainExtension> {
 
     public PropertySpecService propertySpecService;
     public Thesaurus thesaurus;
 
-    public static final String TABLE_NAME = "RVK_CPS_MTR_USAGEPOINT_CON";
+    public static final String TABLE_NAME = "MTC_CPS_MTR_USAGEPOINT_CON";
     public static final String FK_CPS_DEVICE_CONTRACTUAL = "FK_CPS_MTR_USAGEPOINT_CON";
-    public static final String COMPONENT_NAME = "CON";
+    public static final String COMPONENT_NAME = "MTC";
 
     public UsagePointContCustomPropertySet() {
         super();
@@ -46,10 +43,6 @@ public class UsagePointContCustomPropertySet implements CustomPropertySet<UsageP
 
     public Thesaurus getThesaurus() {
         return this.thesaurus;
-    }
-
-    @Activate
-    public void activate() {
     }
 
     @Override
@@ -97,15 +90,14 @@ public class UsagePointContCustomPropertySet implements CustomPropertySet<UsageP
                 .markRequired()
                 .markExhaustive(PropertySelectionMode.COMBOBOX)
                 .finish();
-
-        return Arrays.asList(billingCycleSpec);
+        return Collections.singletonList(billingCycleSpec);
     }
 
     private static class UsagePointConPersistenceSupport implements PersistenceSupport<UsagePoint, UsagePointContDomainExtension> {
 
         private Thesaurus thesaurus;
 
-        public UsagePointConPersistenceSupport(Thesaurus thesaurus) {
+        private UsagePointConPersistenceSupport(Thesaurus thesaurus) {
             this.thesaurus = thesaurus;
         }
 
@@ -152,10 +144,22 @@ public class UsagePointContCustomPropertySet implements CustomPropertySet<UsageP
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
             table.column(UsagePointContDomainExtension.Fields.BILLING_CYCLE.databaseName())
-                    .varChar(255)
+                    .varChar()
                     .map(UsagePointContDomainExtension.Fields.BILLING_CYCLE.javaName())
                     .notNull()
                     .add();
         }
+
+        @Override
+        public String columnNameFor(PropertySpec propertySpec) {
+            return EnumSet
+                    .complementOf(EnumSet.of(UsagePointContDomainExtension.Fields.DOMAIN))
+                    .stream()
+                    .filter(each -> each.javaName().equals(propertySpec.getName()))
+                    .findFirst()
+                    .map(UsagePointContDomainExtension.Fields::databaseName)
+                    .orElseThrow(() -> new IllegalArgumentException("Unknown property spec: " + propertySpec.getName()));
+        }
     }
+
 }

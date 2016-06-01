@@ -5,7 +5,7 @@ public enum UsagePointTechnicalSeeds {
     TABLE_NAME {
         @Override
         public String get() {
-            return "RVK_CPS_UP_TECHNICAL";
+            return "MTC_CPS_UP_TECHNICAL";
         }
     },
     FK_CPS_DEVICE_TECHNICAL {
@@ -17,10 +17,11 @@ public enum UsagePointTechnicalSeeds {
     COMPONENT_NAME {
         @Override
         public String get() {
-            return "TECH";
+            return "MTC";
         }
     };
 
 
     public abstract String get();
+
 }

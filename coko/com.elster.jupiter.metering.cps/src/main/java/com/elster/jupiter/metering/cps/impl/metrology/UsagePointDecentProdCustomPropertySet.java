@@ -18,7 +18,6 @@ import com.elster.jupiter.util.units.Quantity;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
-import org.osgi.service.component.annotations.Activate;
 
 import javax.validation.MessageInterpolator;
 import java.math.BigDecimal;
@@ -34,9 +33,9 @@ public class UsagePointDecentProdCustomPropertySet implements CustomPropertySet<
     public PropertySpecService propertySpecService;
     public Thesaurus thesaurus;
 
-    public static final String TABLE_NAME = "RVK_CPS_MTR_USAGEPOINT_DEC";
+    public static final String TABLE_NAME = "MTC_CPS_MTR_USAGEPOINT_DEC";
     public static final String FK_CPS_DEVICE_DECENTRALIZED_PRODUCTION = "FK_CPS_MTR_USAGEPOINT_DEC";
-    public static final String COMPONENT_NAME = "DEC_PROD";
+    public static final String COMPONENT_NAME = "MTC";
 
     public UsagePointDecentProdCustomPropertySet() {
         super();
@@ -50,10 +49,6 @@ public class UsagePointDecentProdCustomPropertySet implements CustomPropertySet<
 
     public Thesaurus getThesaurus() {
         return this.thesaurus;
-    }
-
-    @Activate
-    public void activate() {
     }
 
     @Override
@@ -99,11 +94,12 @@ public class UsagePointDecentProdCustomPropertySet implements CustomPropertySet<
                 .fromThesaurus(this.getThesaurus())
                 .markEditable()
                 .markRequired()
-                .addValues(Quantity.create(new BigDecimal(0), 0, "W"),
-                        Quantity.create(new BigDecimal(0), 3, "W"),
-                        Quantity.create(new BigDecimal(0), 6, "W"),
-                        Quantity.create(new BigDecimal(0), 9, "W"),
-                        Quantity.create(new BigDecimal(0), 12, "W"))
+                .addValues(
+                        Quantity.create(BigDecimal.ZERO, 0, "W"),
+                        Quantity.create(BigDecimal.ZERO, 3, "W"),
+                        Quantity.create(BigDecimal.ZERO, 6, "W"),
+                        Quantity.create(BigDecimal.ZERO, 9, "W"),
+                        Quantity.create(BigDecimal.ZERO, 12, "W"))
                 .finish();
         PropertySpec convertorPowerSpec = propertySpecService
                 .specForValuesOf(new QuantityValueFactory())
@@ -111,11 +107,12 @@ public class UsagePointDecentProdCustomPropertySet implements CustomPropertySet<
                 .fromThesaurus(this.getThesaurus())
                 .markEditable()
                 .markRequired()
-                .addValues(Quantity.create(new BigDecimal(0), 0, "W"),
-                        Quantity.create(new BigDecimal(0), 3, "W"),
-                        Quantity.create(new BigDecimal(0), 6, "W"),
-                        Quantity.create(new BigDecimal(0), 9, "W"),
-                        Quantity.create(new BigDecimal(0), 12, "W"))
+                .addValues(
+                        Quantity.create(BigDecimal.ZERO, 0, "W"),
+                        Quantity.create(BigDecimal.ZERO, 3, "W"),
+                        Quantity.create(BigDecimal.ZERO, 6, "W"),
+                        Quantity.create(BigDecimal.ZERO, 9, "W"),
+                        Quantity.create(BigDecimal.ZERO, 12, "W"))
                 .finish();
         PropertySpec typeOfDecentralizedProductionSpec = propertySpecService
                 .stringSpec()
@@ -142,7 +139,7 @@ public class UsagePointDecentProdCustomPropertySet implements CustomPropertySet<
     private static class UsagePointDecentrProdPS implements PersistenceSupport<UsagePoint, UsagePointDecentProdDomExt> {
         private Thesaurus thesaurus;
 
-        public UsagePointDecentrProdPS(Thesaurus thesaurus) {
+        private UsagePointDecentrProdPS(Thesaurus thesaurus) {
             this.thesaurus = thesaurus;
         }
 
@@ -193,7 +190,7 @@ public class UsagePointDecentProdCustomPropertySet implements CustomPropertySet<
             table.addQuantityColumns(UsagePointDecentProdDomExt.Fields.CONVERTOR_POWER.databaseName(), true,
                     UsagePointDecentProdDomExt.Fields.CONVERTOR_POWER.javaName());
             table.column(UsagePointDecentProdDomExt.Fields.DEC_PROD.databaseName())
-                    .varChar(255)
+                    .varChar()
                     .map(UsagePointDecentProdDomExt.Fields.DEC_PROD.javaName())
                     .notNull()
                     .add();
@@ -203,6 +200,17 @@ public class UsagePointDecentProdCustomPropertySet implements CustomPropertySet<
                     .map(UsagePointDecentProdDomExt.Fields.COMMISSIONING_DATE.javaName())
                     .notNull()
                     .add();
+        }
+
+        @Override
+        public String columnNameFor(PropertySpec propertySpec) {
+            return EnumSet
+                    .complementOf(EnumSet.of(UsagePointDecentProdDomExt.Fields.DOMAIN))
+                    .stream()
+                    .filter(each -> each.javaName().equals(propertySpec.getName()))
+                    .findFirst()
+                    .map(UsagePointDecentProdDomExt.Fields::databaseName)
+                    .orElseThrow(() -> new IllegalArgumentException("Unknown property spec: " + propertySpec.getName()));
         }
     }
 }

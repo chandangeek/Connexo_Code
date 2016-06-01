@@ -13,25 +13,22 @@ import com.elster.jupiter.properties.PropertySpecService;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
-import org.osgi.service.component.annotations.Activate;
 
 import javax.validation.MessageInterpolator;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-//@Component(name = "c.e.j.mtr.cps.impl.mtr.UsagePointTechInstAllCustomPropertySet", service = CustomPropertySet.class, immediate = true)
 public class UsagePointTechInstAllCustomPropertySet implements CustomPropertySet<UsagePoint, UsagePointTechInstAllDomExt> {
 
     public PropertySpecService propertySpecService;
     public Thesaurus thesaurus;
 
-    public static final String TABLE_NAME = "RVK_CPS_MTR_USAGEPOINT_TECH";
+    public static final String TABLE_NAME = "MTC_CPS_MTR_USAGEPOINT_TECH";
     public static final String FK_CPS_DEVICE_TECHNICAL_INSTALLATION = "FK_CPS_MTR_USAGEPOINT_TECH";
-    public static final String COMPONENT_NAME = "MTR_INST";
+    public static final String COMPONENT_NAME = "MTC";
 
     public UsagePointTechInstAllCustomPropertySet() {
         super();
@@ -45,10 +42,6 @@ public class UsagePointTechInstAllCustomPropertySet implements CustomPropertySet
 
     public Thesaurus getThesaurus() {
         return this.thesaurus;
-    }
-
-    @Activate
-    public void activate() {
     }
 
     @Override
@@ -86,7 +79,6 @@ public class UsagePointTechInstAllCustomPropertySet implements CustomPropertySet
         return EnumSet.allOf(EditPrivilege.class);
     }
 
-
     @Override
     public List<PropertySpec> getPropertySpecs() {
         PropertySpec substationSpec = propertySpecService
@@ -94,14 +86,14 @@ public class UsagePointTechInstAllCustomPropertySet implements CustomPropertySet
                 .named(UsagePointTechInstAllDomExt.Fields.SUBSTATION.javaName(), TranslationKeys.CPS_TECHNICAL_INSTALLATION_SUBSTATION)
                 .fromThesaurus(this.getThesaurus())
                 .finish();
-        return Arrays.asList(substationSpec);
+        return Collections.singletonList(substationSpec);
     }
 
     private static class UsagePointTechInstAllPersSupp implements PersistenceSupport<UsagePoint, UsagePointTechInstAllDomExt> {
 
         private Thesaurus thesaurus;
 
-        public UsagePointTechInstAllPersSupp(Thesaurus thesaurus) {
+        private UsagePointTechInstAllPersSupp(Thesaurus thesaurus) {
             this.thesaurus = thesaurus;
         }
 
@@ -148,9 +140,20 @@ public class UsagePointTechInstAllCustomPropertySet implements CustomPropertySet
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
             table.column(UsagePointTechInstAllDomExt.Fields.SUBSTATION.databaseName())
-                    .varChar(255)
+                    .varChar()
                     .map(UsagePointTechInstAllDomExt.Fields.SUBSTATION.javaName())
                     .add();
+        }
+
+        @Override
+        public String columnNameFor(PropertySpec propertySpec) {
+            return EnumSet
+                    .complementOf(EnumSet.of(UsagePointTechInstAllDomExt.Fields.DOMAIN))
+                    .stream()
+                    .filter(each -> each.javaName().equals(propertySpec.getName()))
+                    .findFirst()
+                    .map(UsagePointTechInstAllDomExt.Fields::databaseName)
+                    .orElseThrow(() -> new IllegalArgumentException("Unknown property spec: " + propertySpec.getName()));
         }
     }
 

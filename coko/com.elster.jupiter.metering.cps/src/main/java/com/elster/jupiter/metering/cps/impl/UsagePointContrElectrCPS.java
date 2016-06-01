@@ -19,7 +19,6 @@ import com.google.inject.Module;
 
 import javax.validation.MessageInterpolator;
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -30,7 +29,7 @@ public class UsagePointContrElectrCPS implements CustomPropertySet<UsagePoint, U
     public PropertySpecService propertySpecService;
     public Thesaurus thesaurus;
 
-    public static final String TABLE_NAME = "RVK_CPS_USAGEPOINT_EL_CON";
+    public static final String TABLE_NAME = "MTC_CPS_USAGEPOINT_EL_CON";
     public static final String FK_CPS_DEVICE_CONTR_ELECTRICITY = "FK_CPS_USAGEPOINT_EL_CON";
     public static final String COMPONENT_NAME = "EL_CON";
 
@@ -89,19 +88,20 @@ public class UsagePointContrElectrCPS implements CustomPropertySet<UsagePoint, U
                 .specForValuesOf(new QuantityValueFactory())
                 .named(UsagePointContrElectrDomExt.Fields.CONTRACTED_POWER.javaName(), TranslationKeys.CPS_CUSTOM_CONTRACTUAL_CONTRACTED_POWER)
                 .fromThesaurus(this.getThesaurus())
-                .addValues(Quantity.create(new BigDecimal(0), 0, "W"),
-                        Quantity.create(new BigDecimal(0), 3, "W"),
-                        Quantity.create(new BigDecimal(0), 6, "W"),
-                        Quantity.create(new BigDecimal(0), 9, "W"),
-                        Quantity.create(new BigDecimal(0), 12, "W"))
+                .addValues(
+                        Quantity.create(BigDecimal.ZERO, 0, "W"),
+                        Quantity.create(BigDecimal.ZERO, 3, "W"),
+                        Quantity.create(BigDecimal.ZERO, 6, "W"),
+                        Quantity.create(BigDecimal.ZERO, 9, "W"),
+                        Quantity.create(BigDecimal.ZERO, 12, "W"))
                 .finish();
-        return Arrays.asList(contractedPowerSpec);
+        return Collections.singletonList(contractedPowerSpec);
     }
 
     private class UsagePointContractualPerSupp implements PersistenceSupport<UsagePoint, UsagePointContrElectrDomExt> {
         private Thesaurus thesaurus;
 
-        public UsagePointContractualPerSupp(Thesaurus thesaurus) {
+        private UsagePointContractualPerSupp(Thesaurus thesaurus) {
             this.thesaurus = thesaurus;
         }
 
@@ -140,7 +140,6 @@ public class UsagePointContrElectrCPS implements CustomPropertySet<UsagePoint, U
             });
         }
 
-
         @Override
         public List<Column> addCustomPropertyPrimaryKeyColumnsTo(Table table) {
             return Collections.emptyList();
@@ -148,9 +147,23 @@ public class UsagePointContrElectrCPS implements CustomPropertySet<UsagePoint, U
 
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
-            table.addQuantityColumns(UsagePointContrElectrDomExt.Fields.CONTRACTED_POWER.databaseName(), false, UsagePointContrElectrDomExt.Fields.CONTRACTED_POWER
-                    .javaName());
+            table.addQuantityColumns(
+                    UsagePointContrElectrDomExt.Fields.CONTRACTED_POWER.databaseName(),
+                    false,
+                    UsagePointContrElectrDomExt.Fields.CONTRACTED_POWER.javaName());
         }
-    }
-}
 
+        @Override
+        public String columnNameFor(PropertySpec propertySpec) {
+            return EnumSet
+                    .complementOf(EnumSet.of(UsagePointContrElectrDomExt.Fields.DOMAIN))
+                    .stream()
+                    .filter(each -> each.javaName().equals(propertySpec.getName()))
+                    .findFirst()
+                    .map(UsagePointContrElectrDomExt.Fields::databaseName)
+                    .orElseThrow(() -> new IllegalArgumentException("Unknown property spec: " + propertySpec.getName()));
+        }
+
+    }
+
+}

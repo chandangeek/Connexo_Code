@@ -15,7 +15,6 @@ import com.elster.jupiter.util.units.Quantity;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
-import org.osgi.service.component.annotations.Activate;
 
 import javax.validation.MessageInterpolator;
 import java.math.BigDecimal;
@@ -31,9 +30,9 @@ public class UsagePointMeterTechInfGTWCustomPropertySet implements CustomPropert
     public PropertySpecService propertySpecService;
     public Thesaurus thesaurus;
 
-    public static final String TABLE_NAME = "RVK_CPS_MTR_USAGEPOINT_T_INFO";
+    public static final String TABLE_NAME = "MTC_CPS_MTR_USAGEPOINT_T_INFO";
     public static final String FK_CPS_DEVICE_METER_TECH_INFORM = "FK_CPS_MTR_USAGEPOINT_T_INFO";
-    public static final String COMPONENT_NAME = "T_INFO";
+    public static final String COMPONENT_NAME = "MTC";
 
     public UsagePointMeterTechInfGTWCustomPropertySet() {
         super();
@@ -47,10 +46,6 @@ public class UsagePointMeterTechInfGTWCustomPropertySet implements CustomPropert
 
     public Thesaurus getThesaurus() {
         return this.thesaurus;
-    }
-
-    @Activate
-    public void activate() {
     }
 
     @Override
@@ -114,7 +109,7 @@ public class UsagePointMeterTechInfGTWCustomPropertySet implements CustomPropert
                 .named(UsagePointMeterTechInfGTWDomExt.Fields.PRESSURE_MAX.javaName(), TranslationKeys.CPS_METER_TECH_PRESSURE_MAXIMAL)
                 .describedAs(TranslationKeys.CPS_METER_TECH_PRESSURE_MAXIMAL_DESCRIPTION)
                 .fromThesaurus(this.getThesaurus())
-                .addValues(Quantity.create(new BigDecimal(0), 1, "bar"))
+                .addValues(Quantity.create(BigDecimal.ZERO, 1, "bar"))
                 .finish();
         return Arrays.asList(recessedLengthSpec,
                 connectionTypeSpec,
@@ -126,7 +121,7 @@ public class UsagePointMeterTechInfGTWCustomPropertySet implements CustomPropert
 
         private Thesaurus thesaurus;
 
-        public UsagePointMeterTechInfGTWPersSupp(Thesaurus thesaurus) {
+        private UsagePointMeterTechInfGTWPersSupp(Thesaurus thesaurus) {
             this.thesaurus = thesaurus;
         }
 
@@ -173,19 +168,31 @@ public class UsagePointMeterTechInfGTWCustomPropertySet implements CustomPropert
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
             table.column(UsagePointMeterTechInfGTWDomExt.Fields.RECESSED_LENGTH.databaseName())
-                    .varChar(255)
+                    .varChar()
                     .map(UsagePointMeterTechInfGTWDomExt.Fields.RECESSED_LENGTH.javaName())
                     .add();
             table.column(UsagePointMeterTechInfGTWDomExt.Fields.CONNECTION_TYPE.databaseName())
-                    .varChar(255)
+                    .varChar()
                     .map(UsagePointMeterTechInfGTWDomExt.Fields.CONNECTION_TYPE.javaName())
                     .add();
             table.column(UsagePointMeterTechInfGTWDomExt.Fields.CONVERSION_METROLOGY.databaseName())
-                    .varChar(255)
+                    .varChar()
                     .map(UsagePointMeterTechInfGTWDomExt.Fields.CONVERSION_METROLOGY.javaName())
                     .add();
             table.addQuantityColumns(UsagePointMeterTechInfGTWDomExt.Fields.PRESSURE_MAX.databaseName(), false,
                     UsagePointMeterTechInfGTWDomExt.Fields.PRESSURE_MAX.javaName());
         }
+
+        @Override
+        public String columnNameFor(PropertySpec propertySpec) {
+            return EnumSet
+                    .complementOf(EnumSet.of(UsagePointMeterTechInfGTWDomExt.Fields.DOMAIN))
+                    .stream()
+                    .filter(each -> each.javaName().equals(propertySpec.getName()))
+                    .findFirst()
+                    .map(UsagePointMeterTechInfGTWDomExt.Fields::databaseName)
+                    .orElseThrow(() -> new IllegalArgumentException("Unknown property spec: " + propertySpec.getName()));
+        }
     }
+
 }

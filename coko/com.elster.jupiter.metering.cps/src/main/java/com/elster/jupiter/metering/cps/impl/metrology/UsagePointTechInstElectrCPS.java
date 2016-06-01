@@ -15,7 +15,6 @@ import com.elster.jupiter.util.units.Quantity;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
-import org.osgi.service.component.annotations.Activate;
 
 import javax.validation.MessageInterpolator;
 import java.math.BigDecimal;
@@ -28,11 +27,10 @@ import java.util.Set;
 
 public class UsagePointTechInstElectrCPS implements CustomPropertySet<UsagePoint, UsagePointTechInstElectrDE> {
 
-
     public PropertySpecService propertySpecService;
     public Thesaurus thesaurus;
 
-    public static final String TABLE_NAME = "RVK_CPS_MTR_USAGEPOINT_T_INS";
+    public static final String TABLE_NAME = "MTC_CPS_MTR_USAGEPOINT_T_INS";
     public static final String FK_CPS_DEVICE_LICENSE = "FK_CPS_MTR_USAGEPOINT_T_INS";
     public static final String COMPONENT_NAME = "MTR_T_INS";
 
@@ -48,10 +46,6 @@ public class UsagePointTechInstElectrCPS implements CustomPropertySet<UsagePoint
 
     public Thesaurus getThesaurus() {
         return this.thesaurus;
-    }
-
-    @Activate
-    public void activate() {
     }
 
     @Override
@@ -99,8 +93,9 @@ public class UsagePointTechInstElectrCPS implements CustomPropertySet<UsagePoint
                 .describedAs(TranslationKeys.CPS_TECHNICAL_INSTALLATION_DISTANCE_FROM_THE_SUBSTATION_DESCRIPTION)
                 .fromThesaurus(this.getThesaurus())
                 .markRequired()
-                .addValues(Quantity.create(new BigDecimal(0), 0, "m"),
-                        Quantity.create(new BigDecimal(0), 3, "m"))
+                .addValues(
+                        Quantity.create(BigDecimal.ZERO, 0, "m"),
+                        Quantity.create(BigDecimal.ZERO, 3, "m"))
                 .finish();
         PropertySpec feederSpec = propertySpecService
                 .stringSpec()
@@ -122,7 +117,7 @@ public class UsagePointTechInstElectrCPS implements CustomPropertySet<UsagePoint
 
         private Thesaurus thesaurus;
 
-        public UsagePointTechInstElectyPerSupp(Thesaurus thesaurus) {
+        private UsagePointTechInstElectyPerSupp(Thesaurus thesaurus) {
             this.thesaurus = thesaurus;
         }
 
@@ -171,13 +166,26 @@ public class UsagePointTechInstElectrCPS implements CustomPropertySet<UsagePoint
             table.addQuantityColumns(UsagePointTechInstElectrDE.Fields.SUBSTATION_DISTANCE.databaseName(), true, UsagePointTechInstElectrDE.Fields.SUBSTATION_DISTANCE
                     .javaName());
             table.column(UsagePointTechInstElectrDE.Fields.FEEDER.databaseName())
-                    .varChar(255)
+                    .varChar()
                     .map(UsagePointTechInstElectrDE.Fields.FEEDER.javaName())
                     .add();
             table.column(UsagePointTechInstElectrDE.Fields.UTILIZATION_CATEGORY.databaseName())
-                    .varChar(255)
+                    .varChar()
                     .map(UsagePointTechInstElectrDE.Fields.UTILIZATION_CATEGORY.javaName())
                     .add();
         }
+
+        @Override
+        public String columnNameFor(PropertySpec propertySpec) {
+            return EnumSet
+                    .complementOf(EnumSet.of(UsagePointTechInstElectrDE.Fields.DOMAIN))
+                    .stream()
+                    .filter(each -> each.javaName().equals(propertySpec.getName()))
+                    .findFirst()
+                    .map(UsagePointTechInstElectrDE.Fields::databaseName)
+                    .orElseThrow(() -> new IllegalArgumentException("Unknown property spec: " + propertySpec.getName()));
+        }
+
     }
+
 }

@@ -14,7 +14,6 @@ import com.elster.jupiter.properties.PropertySpecService;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
-import org.osgi.service.component.annotations.Activate;
 
 import javax.validation.MessageInterpolator;
 import java.util.Arrays;
@@ -24,13 +23,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-//@Component(name = "com.e.j.m.cps.impl.metrology.UsagePointMetrologyGeneralCPS", service = CustomPropertySet.class, immediate = true)
 public class UsagePointMetrologyGeneralCPS implements CustomPropertySet<UsagePoint, UsagePointMetrologyGeneralDomExt> {
 
     public PropertySpecService propertySpecService;
     public Thesaurus thesaurus;
 
-    public static final String TABLE_NAME = "RVK_CPS_MTR_USAGEPOINT_GENERAL";
+    public static final String TABLE_NAME = "MTC_CPS_MTR_USAGEPOINT_GENERAL";
     public static final String FK_CPS_DEVICE_GENERAL = "FK_CPS_MTR_USAGEPOINT_GENERAL";
     public static final String COMPONENT_NAME = "MTR_GNR";
 
@@ -46,10 +44,6 @@ public class UsagePointMetrologyGeneralCPS implements CustomPropertySet<UsagePoi
 
     public Thesaurus getThesaurus() {
         return this.thesaurus;
-    }
-
-    @Activate
-    public void activate() {
     }
 
     @Override
@@ -112,7 +106,7 @@ public class UsagePointMetrologyGeneralCPS implements CustomPropertySet<UsagePoi
 
         private Thesaurus thesaurus;
 
-        public UsagePointMetrologyGeneralPersSupp(Thesaurus thesaurus) {
+        private UsagePointMetrologyGeneralPersSupp(Thesaurus thesaurus) {
             this.thesaurus = thesaurus;
         }
 
@@ -159,15 +153,28 @@ public class UsagePointMetrologyGeneralCPS implements CustomPropertySet<UsagePoi
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
             table.column(UsagePointMetrologyGeneralDomExt.Fields.READ_CYCLE.databaseName())
-                    .varChar(255)
+                    .varChar()
                     .map(UsagePointMetrologyGeneralDomExt.Fields.READ_CYCLE.javaName())
                     .notNull()
                     .add();
             table.column(UsagePointMetrologyGeneralDomExt.Fields.INFORMATION_FREQUENCY.databaseName())
-                    .varChar(255)
+                    .varChar()
                     .map(UsagePointMetrologyGeneralDomExt.Fields.INFORMATION_FREQUENCY.javaName())
                     .notNull()
                     .add();
         }
+
+        @Override
+        public String columnNameFor(PropertySpec propertySpec) {
+            return EnumSet
+                    .complementOf(EnumSet.of(UsagePointMetrologyGeneralDomExt.Fields.DOMAIN))
+                    .stream()
+                    .filter(each -> each.javaName().equals(propertySpec.getName()))
+                    .findFirst()
+                    .map(UsagePointMetrologyGeneralDomExt.Fields::databaseName)
+                    .orElseThrow(() -> new IllegalArgumentException("Unknown property spec: " + propertySpec.getName()));
+        }
+
     }
+
 }

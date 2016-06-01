@@ -14,7 +14,6 @@ import com.elster.jupiter.properties.PropertySpecService;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
-import org.osgi.service.component.annotations.Activate;
 
 import javax.validation.MessageInterpolator;
 import java.util.Arrays;
@@ -29,9 +28,9 @@ public class UsagePointMeterGnrCustomPropertySet implements CustomPropertySet<Us
     public PropertySpecService propertySpecService;
     public Thesaurus thesaurus;
 
-    public static final String TABLE_NAME = "RVK_CPS_MTR_USAGEPOINT_MET_GEN";
+    public static final String TABLE_NAME = "MTC_CPS_MTR_USAGEPOINT_MET_GEN";
     public static final String FK_CPS_DEVICE_MTR_GEN = "FK_CPS_MTR_USAGEPOINT_MET_GEN";
-    public static final String COMPONENT_NAME = "MET_GEN";
+    public static final String COMPONENT_NAME = "MTC";
 
     public UsagePointMeterGnrCustomPropertySet() {
         super();
@@ -45,10 +44,6 @@ public class UsagePointMeterGnrCustomPropertySet implements CustomPropertySet<Us
 
     public Thesaurus getThesaurus() {
         return this.thesaurus;
-    }
-
-    @Activate
-    public void activate() {
     }
 
     public String getName() {
@@ -116,7 +111,7 @@ public class UsagePointMeterGnrCustomPropertySet implements CustomPropertySet<Us
         private Thesaurus thesaurus;
 
 
-        public UsagePointMtrGeneralPersistSupp(Thesaurus thesaurus) {
+        UsagePointMtrGeneralPersistSupp(Thesaurus thesaurus) {
             this.thesaurus = thesaurus;
         }
 
@@ -162,17 +157,28 @@ public class UsagePointMeterGnrCustomPropertySet implements CustomPropertySet<Us
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
             table.column(UsagePointMeterGnrDomainExtension.Fields.MANUFACTURER.databaseName())
-                    .varChar(255)
+                    .varChar()
                     .map(UsagePointMeterGnrDomainExtension.Fields.MANUFACTURER.javaName())
                     .add();
             table.column(UsagePointMeterGnrDomainExtension.Fields.MODEL.databaseName())
-                    .varChar(255)
+                    .varChar()
                     .map(UsagePointMeterGnrDomainExtension.Fields.MODEL.javaName())
                     .add();
             table.column(UsagePointMeterGnrDomainExtension.Fields.CLAZZ.databaseName())
-                    .varChar(255)
+                    .varChar()
                     .map(UsagePointMeterGnrDomainExtension.Fields.CLAZZ.javaName())
                     .add();
+        }
+
+        @Override
+        public String columnNameFor(PropertySpec propertySpec) {
+            return EnumSet
+                    .complementOf(EnumSet.of(UsagePointMeterGnrDomainExtension.Fields.DOMAIN))
+                    .stream()
+                    .filter(each -> each.javaName().equals(propertySpec.getName()))
+                    .findFirst()
+                    .map(UsagePointMeterGnrDomainExtension.Fields::databaseName)
+                    .orElseThrow(() -> new IllegalArgumentException("Unknown property spec: " + propertySpec.getName()));
         }
     }
 }

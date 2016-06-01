@@ -29,7 +29,7 @@ public class UsagePointMeterTechInfAllCPS implements CustomPropertySet<UsagePoin
     public PropertySpecService propertySpecService;
     public Thesaurus thesaurus;
 
-    public static final String TABLE_NAME = "RVK_CPS_MTR_USAGEPOINT_T_IN";
+    public static final String TABLE_NAME = "MTC_CPS_MTR_USAGEPOINT_T_IN";
     public static final String FK_CPS_DEVICE_METER_TECH_INFORM = "FK_CPS_MTR_USAGEPOINT_T_IN";
     public static final String COMPONENT_NAME = "TECH_INF";
 
@@ -160,13 +160,24 @@ public class UsagePointMeterTechInfAllCPS implements CustomPropertySet<UsagePoin
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
             table.column(UsagePointMeterTechInfAllDomExt.Fields.METER_MECHANISM.databaseName())
-                    .varChar(255)
+                    .varChar()
                     .map(UsagePointMeterTechInfAllDomExt.Fields.METER_MECHANISM.javaName())
                     .add();
             table.column(UsagePointMeterTechInfAllDomExt.Fields.METER_TYPE.databaseName())
-                    .varChar(255)
+                    .varChar()
                     .map(UsagePointMeterTechInfAllDomExt.Fields.METER_TYPE.javaName())
                     .add();
+        }
+
+        @Override
+        public String columnNameFor(PropertySpec propertySpec) {
+            return EnumSet
+                    .complementOf(EnumSet.of(UsagePointMeterTechInfAllDomExt.Fields.DOMAIN))
+                    .stream()
+                    .filter(each -> each.javaName().equals(propertySpec.getName()))
+                    .findFirst()
+                    .map(UsagePointMeterTechInfAllDomExt.Fields::databaseName)
+                    .orElseThrow(() -> new IllegalArgumentException("Unknown property spec: " + propertySpec.getName()));
         }
     }
 }

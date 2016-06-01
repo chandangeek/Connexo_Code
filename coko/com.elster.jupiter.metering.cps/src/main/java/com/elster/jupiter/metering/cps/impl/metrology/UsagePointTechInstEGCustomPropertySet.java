@@ -15,11 +15,9 @@ import com.elster.jupiter.util.units.Quantity;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
-import org.osgi.service.component.annotations.Activate;
 
 import javax.validation.MessageInterpolator;
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -31,9 +29,9 @@ public class UsagePointTechInstEGCustomPropertySet implements CustomPropertySet<
     public PropertySpecService propertySpecService;
     public Thesaurus thesaurus;
 
-    public static final String TABLE_NAME = "RVK_CPS_MTR_USAGEPOINT_INST_EG";
+    public static final String TABLE_NAME = "MTC_CPS_MTR_USAGEPOINT_INST_EG";
     public static final String FK_CPS_DEVICE_TECHNICAL_INSTALLATION = "FK_CPS_MTR_USAGEPOINT_INST_EG";
-    public static final String COMPONENT_NAME = "INST_EG";
+    public static final String COMPONENT_NAME = "MTC";
 
     public UsagePointTechInstEGCustomPropertySet() {
         super();
@@ -47,10 +45,6 @@ public class UsagePointTechInstEGCustomPropertySet implements CustomPropertySet<
 
     public Thesaurus getThesaurus() {
         return this.thesaurus;
-    }
-
-    @Activate
-    public void activate() {
     }
 
     @Override
@@ -97,16 +91,16 @@ public class UsagePointTechInstEGCustomPropertySet implements CustomPropertySet<
                 .named(UsagePointTechInstEGDomExt.Fields.LOSS_FACTOR.javaName(), TranslationKeys.CPS_TECHNICAL_INSTALLATION_LOSS_FACTOR)
                 .describedAs(TranslationKeys.CPS_TECHNICAL_INSTALLATION_LOSS_FACTOR_DESCRIPTION)
                 .fromThesaurus(this.getThesaurus())
-                .addValues(Quantity.create(new BigDecimal(0), 0, "%"))
+                .addValues(Quantity.create(BigDecimal.ZERO, 0, "%"))
                 .finish();
 
-        return Arrays.asList(lossFactorSpec);
+        return Collections.singletonList(lossFactorSpec);
     }
 
     private static class UsagePointTechInstEGPerSupp implements PersistenceSupport<UsagePoint, UsagePointTechInstEGDomExt> {
         private Thesaurus thesaurus;
 
-        public UsagePointTechInstEGPerSupp(Thesaurus thesaurus) {
+        private UsagePointTechInstEGPerSupp(Thesaurus thesaurus) {
             this.thesaurus = thesaurus;
         }
 
@@ -155,5 +149,17 @@ public class UsagePointTechInstEGCustomPropertySet implements CustomPropertySet<
             table.addQuantityColumns(UsagePointTechInstEGDomExt.Fields.LOSS_FACTOR.databaseName(), false, UsagePointTechInstEGDomExt.Fields.LOSS_FACTOR
                     .javaName());
         }
+
+        @Override
+        public String columnNameFor(PropertySpec propertySpec) {
+            return EnumSet
+                    .complementOf(EnumSet.of(UsagePointTechInstEGDomExt.Fields.DOMAIN))
+                    .stream()
+                    .filter(each -> each.javaName().equals(propertySpec.getName()))
+                    .findFirst()
+                    .map(UsagePointTechInstEGDomExt.Fields::databaseName)
+                    .orElseThrow(() -> new IllegalArgumentException("Unknown property spec: " + propertySpec.getName()));
+        }
     }
+
 }

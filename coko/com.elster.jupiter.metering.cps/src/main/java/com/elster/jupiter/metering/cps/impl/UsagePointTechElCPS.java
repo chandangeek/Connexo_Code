@@ -17,7 +17,6 @@ import com.elster.jupiter.util.units.Quantity;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
-import org.osgi.service.component.annotations.Activate;
 
 import javax.validation.MessageInterpolator;
 import java.math.BigDecimal;
@@ -30,7 +29,7 @@ import java.util.Set;
 
 public class UsagePointTechElCPS implements CustomPropertySet<UsagePoint, UsagePointTechElDomExt> {
 
-    public static final String TABLE_NAME = "RVK_CPS_TECH_EL";
+    public static final String TABLE_NAME = "MTC_CPS_TECH_EL";
     public static final String FK_CPS_DEVICE_ONE = "FK_CPS_TECH_EL";
 
     public PropertySpecService propertySpecService;
@@ -48,11 +47,6 @@ public class UsagePointTechElCPS implements CustomPropertySet<UsagePoint, UsageP
 
     public Thesaurus getThesaurus() {
         return this.thesaurus;
-    }
-
-    @Activate
-    public void activate() {
-        System.out.println(TABLE_NAME);
     }
 
     @Override
@@ -114,8 +108,9 @@ public class UsagePointTechElCPS implements CustomPropertySet<UsagePoint, UsageP
                 .named(UsagePointTechElDomExt.FieldNames.CABLE_LOCATION.javaName(), TranslationKeys.CPS_TECHNICAL_PROPERTIES_CABLE_LOCATION)
                 .describedAs(TranslationKeys.CPS_TECHNICAL_PROPERTIES_CABLE_LOCATION_DESCRIPTION)
                 .fromThesaurus(this.getThesaurus())
-                .addValues(Quantity.create(new BigDecimal(0), 0, "m"),
-                        Quantity.create(new BigDecimal(0), 3, "m"))
+                .addValues(
+                        Quantity.create(BigDecimal.ZERO, 0, "m"),
+                        Quantity.create(BigDecimal.ZERO, 3, "m"))
                 .finish();
 
         return Arrays.asList(
@@ -127,10 +122,9 @@ public class UsagePointTechElCPS implements CustomPropertySet<UsagePoint, UsageP
     private static class UsagePointTechnicalElectricityPersistenceSupport implements PersistenceSupport<UsagePoint, UsagePointTechElDomExt> {
         private Thesaurus thesaurus;
 
-        public UsagePointTechnicalElectricityPersistenceSupport(Thesaurus thesaurus) {
+        private UsagePointTechnicalElectricityPersistenceSupport(Thesaurus thesaurus) {
             this.thesaurus = thesaurus;
         }
-
 
         @Override
         public String componentName() {
@@ -167,7 +161,6 @@ public class UsagePointTechElCPS implements CustomPropertySet<UsagePoint, UsageP
             });
         }
 
-
         @Override
         public List<Column> addCustomPropertyPrimaryKeyColumnsTo(Table table) {
             return Collections.emptyList();
@@ -176,16 +169,29 @@ public class UsagePointTechElCPS implements CustomPropertySet<UsagePoint, UsageP
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
             table.column(UsagePointTechElDomExt.FieldNames.CROSS_SECTIONAL_AREA.databaseName())
-                    .varChar(255)
+                    .varChar()
                     .map(UsagePointTechElDomExt.FieldNames.CROSS_SECTIONAL_AREA.javaName())
                     .add();
             table.column(UsagePointTechElDomExt.FieldNames.VOLTAGE_LEVEL.databaseName())
-                    .varChar(255)
+                    .varChar()
                     .map(UsagePointTechElDomExt.FieldNames.VOLTAGE_LEVEL.javaName())
                     .add();
             table.addQuantityColumns(UsagePointTechElDomExt.FieldNames.CABLE_LOCATION.databaseName(), false, UsagePointTechElDomExt.FieldNames.CABLE_LOCATION
                     .javaName());
 
         }
+
+        @Override
+        public String columnNameFor(PropertySpec propertySpec) {
+            return EnumSet
+                    .complementOf(EnumSet.of(UsagePointTechElDomExt.FieldNames.DOMAIN))
+                    .stream()
+                    .filter(each -> each.javaName().equals(propertySpec.getName()))
+                    .findFirst()
+                    .map(UsagePointTechElDomExt.FieldNames::databaseName)
+                    .orElseThrow(() -> new IllegalArgumentException("Unknown property spec: " + propertySpec.getName()));
+        }
+
     }
+
 }

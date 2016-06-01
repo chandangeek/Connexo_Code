@@ -14,7 +14,6 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 
 import com.google.inject.Module;
-import org.osgi.service.component.annotations.Activate;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -28,9 +27,9 @@ public class UsagePointGeneralCustomPropertySet implements CustomPropertySet<Usa
     public PropertySpecService propertySpecService;
     public Thesaurus thesaurus;
 
-    public static final String TABLE_NAME = "RVK_CPS_USAGEPOINT_GENER";
+    public static final String TABLE_NAME = "MTC_CPS_USAGEPOINT_GENER";
     public static final String FK_CPS_DEVICE_GENERAL = "FK_CPS_USAGEPOINT_GENER";
-    public static final String COMPONENT_NAME = "GENER";
+    public static final String COMPONENT_NAME = "MTC";
 
     public UsagePointGeneralCustomPropertySet() {
         super();
@@ -46,10 +45,6 @@ public class UsagePointGeneralCustomPropertySet implements CustomPropertySet<Usa
         return this.thesaurus;
     }
 
-    @Activate
-    public void activate() {
-    }
-
     @Override
     public String getName() {
         return getThesaurus().getFormat(TranslationKeys.CPS_GENERAL_SIMPLE_NAME).format();
@@ -62,7 +57,7 @@ public class UsagePointGeneralCustomPropertySet implements CustomPropertySet<Usa
 
     @Override
     public PersistenceSupport<UsagePoint, UsagePointGeneralDomainExtension> getPersistenceSupport() {
-        return new UsagePointGeneralPersistenceSupport(getThesaurus());
+        return new UsagePointGeneralPersistenceSupport();
     }
 
     @Override
@@ -119,12 +114,6 @@ public class UsagePointGeneralCustomPropertySet implements CustomPropertySet<Usa
     }
 
     private class UsagePointGeneralPersistenceSupport implements PersistenceSupport<UsagePoint, UsagePointGeneralDomainExtension> {
-        private Thesaurus thesaurus;
-
-        public UsagePointGeneralPersistenceSupport(Thesaurus thesaurus) {
-            this.thesaurus = thesaurus;
-        }
-
         @Override
         public String componentName() {
             return COMPONENT_NAME;
@@ -168,15 +157,28 @@ public class UsagePointGeneralCustomPropertySet implements CustomPropertySet<Usa
                     .notNull()
                     .add();
             table.column(UsagePointGeneralDomainExtension.Fields.MARKET_CODE_SECTOR.databaseName())
-                    .varChar(255)
+                    .varChar()
                     .map(UsagePointGeneralDomainExtension.Fields.MARKET_CODE_SECTOR.javaName())
                     .notNull()
                     .add();
             table.column(UsagePointGeneralDomainExtension.Fields.METERING_POINT_TYPE.databaseName())
-                    .varChar(255)
+                    .varChar()
                     .map(UsagePointGeneralDomainExtension.Fields.METERING_POINT_TYPE.javaName())
                     .notNull()
                     .add();
         }
+
+        @Override
+        public String columnNameFor(PropertySpec propertySpec) {
+            return EnumSet
+                    .complementOf(EnumSet.of(UsagePointGeneralDomainExtension.Fields.DOMAIN))
+                    .stream()
+                    .filter(each -> each.javaName().equals(propertySpec.getName()))
+                    .findFirst()
+                    .map(UsagePointGeneralDomainExtension.Fields::databaseName)
+                    .orElseThrow(() -> new IllegalArgumentException("Unknown property spec: " + propertySpec.getName()));
+        }
+
     }
+
 }
