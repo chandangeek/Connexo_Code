@@ -47,7 +47,7 @@ class MdcAppPrivileges {
                 com.energyict.mdc.engine.config.security.Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION_INTERNAL,
 
                 //mdc.device.data
-                com.energyict.mdc.device.data.security.Privileges.Constants.ADD_DEVICE,
+                com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTRATE_DEVICE,
                 com.energyict.mdc.device.data.security.Privileges.Constants.REMOVE_DEVICE,
                 com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DEVICE,
                 com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTER_DEVICE_TIME_SLICED_CPS,
@@ -166,6 +166,10 @@ class MdcAppPrivileges {
                 //com.elster.jupiter.servicecall
                 com.elster.jupiter.servicecall.security.Privileges.Constants.VIEW_SERVICE_CALLS,
                 com.elster.jupiter.servicecall.security.Privileges.Constants.CHANGE_SERVICE_CALL_STATE,
+
+                //metrology configuration
+                com.elster.jupiter.metering.security.Privileges.Constants.ADMINISTER_METROLOGY_CONFIGURATION,
+                com.elster.jupiter.metering.security.Privileges.Constants.VIEW_METROLOGY_CONFIGURATION,
 
                 //service category
                 com.elster.jupiter.metering.security.Privileges.Constants.VIEW_SERVICECATEGORY);
