@@ -32,27 +32,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(MockitoJUnitRunner.class)
 public class OnlineComServerImplTest extends PersistenceTest {
 
-    private static final String QUERY_API_POST_URI = "ws://comserver.energyict.com/queryAPI";
-    private static final String INVALID_URL = "http://Anything but a valid URL";
-    private static final String EVENT_REGISTRATION_URI = "ws://comserver.energyict.com/custom/events/registration";
-
     private static final ComServer.LogLevel SERVER_LOG_LEVEL = ComServer.LogLevel.ERROR;
     private static final ComServer.LogLevel COMMUNICATION_LOG_LEVEL = ComServer.LogLevel.TRACE;
     private static final TimeDuration CHANGES_INTER_POLL_DELAY = new TimeDuration(5, TimeDuration.TimeUnit.HOURS);
     private static final TimeDuration SCHEDULING_INTER_POLL_DELAY = new TimeDuration(2, TimeDuration.TimeUnit.MINUTES);
     private static final String NO_VIOLATIONS_NAME = "Online-No-Violations";
 
-    private static final String URI = "URI";
-    private static final String URI_1 = "URI_1";
-    private static final String URI_2 = "URI_2";
     private static final String SERVER_NAME_PROPERTY = "serverName";
     private static final String EVENT_REGISTRATION_PORT_PROPERTY = "eventRegistrationPort";
-    private static final String MONITOR_PORT_PROPERTY = "monitorPort";
-
-    private static final String INVALID_SERVERNAME_URI_PATTERN = "servername_missing";
-    private static final String INVALID_PORT_URI_PATTERN = ":0/";
-    private static final String EVENT_REGISTRATIION_URI_PATTERN = "ws://{0}:{1}/events/registration";
-    private static final String STATUS_URI_PATTERN = "http://{0}:{1}/api/dsr/comserverstatus";
+    private static final String MONITOR_PORT_PROPERTY = "statusPort";
 
     @Mock
     DataModel dataModel;
@@ -85,10 +73,12 @@ public class OnlineComServerImplTest extends PersistenceTest {
         onlineComServer.communicationLogLevel(COMMUNICATION_LOG_LEVEL);
         onlineComServer.changesInterPollDelay(CHANGES_INTER_POLL_DELAY);
         onlineComServer.schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
-        onlineComServer.queryApiPostUri(QUERY_API_POST_URI);
         onlineComServer.numberOfStoreTaskThreads(1);
         onlineComServer.storeTaskThreadPriority(1);
         onlineComServer.storeTaskQueueSize(1);
+        onlineComServer.serverName("serverName");
+        onlineComServer.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
+        onlineComServer.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
 
         // Business method
         onlineComServer.create();
@@ -108,16 +98,19 @@ public class OnlineComServerImplTest extends PersistenceTest {
     public void testTooSmallChangesInterPollDelay() throws SQLException {
         OnlineComServer.OnlineComServerBuilder<? extends OnlineComServer> onlineComServer = getEngineModelService().newOnlineComServerBuilder();
 
-        onlineComServer.name("testTooSmallChangesInterPollDelay");
+        String name = "testTooSmallChangesInterPollDelay";
+        onlineComServer.name(name);
         onlineComServer.active(true);
         onlineComServer.serverLogLevel(SERVER_LOG_LEVEL);
         onlineComServer.communicationLogLevel(COMMUNICATION_LOG_LEVEL);
         onlineComServer.changesInterPollDelay(new TimeDuration(1, TimeDuration.TimeUnit.SECONDS));
         onlineComServer.schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
-        onlineComServer.queryApiPostUri(QUERY_API_POST_URI);
         onlineComServer.numberOfStoreTaskThreads(1);
         onlineComServer.storeTaskThreadPriority(1);
         onlineComServer.storeTaskQueueSize(1);
+        onlineComServer.serverName(name);
+        onlineComServer.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
+        onlineComServer.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
 
         onlineComServer.create();
     }
@@ -128,16 +121,19 @@ public class OnlineComServerImplTest extends PersistenceTest {
     public void testTooSmallSchedulingInterPollDelay() throws SQLException {
         OnlineComServer.OnlineComServerBuilder<? extends OnlineComServer> onlineComServer = getEngineModelService().newOnlineComServerBuilder();
 
-        onlineComServer.name("testTooSmallSchedulingInterPollDelay");
+        String name = "testTooSmallSchedulingInterPollDelay";
+        onlineComServer.name(name);
         onlineComServer.active(true);
         onlineComServer.serverLogLevel(SERVER_LOG_LEVEL);
         onlineComServer.communicationLogLevel(COMMUNICATION_LOG_LEVEL);
         onlineComServer.changesInterPollDelay(CHANGES_INTER_POLL_DELAY);
         onlineComServer.schedulingInterPollDelay(new TimeDuration(1, TimeDuration.TimeUnit.SECONDS));
-        onlineComServer.queryApiPostUri(QUERY_API_POST_URI);
         onlineComServer.numberOfStoreTaskThreads(1);
         onlineComServer.storeTaskThreadPriority(1);
         onlineComServer.storeTaskQueueSize(1);
+        onlineComServer.serverName(name);
+        onlineComServer.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
+        onlineComServer.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
 
         onlineComServer.create();
     }
@@ -157,31 +153,7 @@ public class OnlineComServerImplTest extends PersistenceTest {
         assertThat(COMMUNICATION_LOG_LEVEL).isEqualTo(loadedOnlineServer.getCommunicationLogLevel());
         assertThat(CHANGES_INTER_POLL_DELAY).isEqualTo(loadedOnlineServer.getChangesInterPollDelay());
         assertThat(SCHEDULING_INTER_POLL_DELAY).isEqualTo(loadedOnlineServer.getSchedulingInterPollDelay());
-        assertThat(QUERY_API_POST_URI).isEqualTo(loadedOnlineServer.getQueryApiPostUri());
-    }
-
-    @Test
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.MDC_INVALID_URL + "}", property = "queryAPIPostUri")
-    @Transactional
-    public void testCreateWithInvalidQueryAPIURL() throws SQLException {
-        OnlineComServer.OnlineComServerBuilder<? extends OnlineComServer> onlineComServer = getEngineModelService().newOnlineComServerBuilder();
-
-        String name = "WithComPort";
-        onlineComServer.name(name);
-        onlineComServer.active(true);
-        onlineComServer.serverLogLevel(SERVER_LOG_LEVEL);
-        onlineComServer.communicationLogLevel(COMMUNICATION_LOG_LEVEL);
-        onlineComServer.changesInterPollDelay(CHANGES_INTER_POLL_DELAY);
-        onlineComServer.schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
-        onlineComServer.queryApiPostUri(INVALID_URL);
-        onlineComServer.numberOfStoreTaskThreads(1);
-        onlineComServer.storeTaskThreadPriority(1);
-        onlineComServer.storeTaskQueueSize(1);
-
-        // Business method
-        onlineComServer.create();
-
-        // See expected constraint violation rule
+        assertThat(ComServer.DEFAULT_QUERY_API_PORT_NUMBER).isEqualTo(loadedOnlineServer.getQueryApiPort());
     }
 
     @Test
@@ -196,40 +168,19 @@ public class OnlineComServerImplTest extends PersistenceTest {
         onlineComServerBuilder.communicationLogLevel(COMMUNICATION_LOG_LEVEL);
         onlineComServerBuilder.changesInterPollDelay(CHANGES_INTER_POLL_DELAY);
         onlineComServerBuilder.schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
-        onlineComServerBuilder.eventRegistrationUri(EVENT_REGISTRATION_URI);
         onlineComServerBuilder.numberOfStoreTaskThreads(1);
         onlineComServerBuilder.storeTaskThreadPriority(1);
         onlineComServerBuilder.storeTaskQueueSize(1);
+        onlineComServerBuilder.serverName(name);
+        onlineComServerBuilder.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
+        onlineComServerBuilder.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
 
         // Business method
         final OnlineComServer onlineComServer = onlineComServerBuilder.create();
 
         // Asserts
-        assertThat(EVENT_REGISTRATION_URI).isEqualTo(onlineComServer.getEventRegistrationUri());
-    }
-
-    @Test
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.MDC_INVALID_URL + "}", property = "eventRegistrationUri")
-    @Transactional
-    public void testCreateWithInvalidEventRegistrationURI() throws SQLException {
-        OnlineComServer.OnlineComServerBuilder<? extends OnlineComServer> onlineComServer = getEngineModelService().newOnlineComServerBuilder();
-
-        String name = "Invalid-event-registration-URL";
-        onlineComServer.name(name);
-        onlineComServer.active(true);
-        onlineComServer.serverLogLevel(SERVER_LOG_LEVEL);
-        onlineComServer.communicationLogLevel(COMMUNICATION_LOG_LEVEL);
-        onlineComServer.changesInterPollDelay(CHANGES_INTER_POLL_DELAY);
-        onlineComServer.schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
-        onlineComServer.eventRegistrationUri(INVALID_URL);
-        onlineComServer.numberOfStoreTaskThreads(1);
-        onlineComServer.storeTaskThreadPriority(1);
-        onlineComServer.storeTaskQueueSize(1);
-
-        // Business method
-        onlineComServer.create();
-
-        // See expected constraint violation rule
+        assertThat(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER).isEqualTo(onlineComServer.getEventRegistrationPort());
+        assertThat(MessageFormat.format(ComServer.EVENT_REGISTRATION_URI_PATTERN, name, Integer.toString(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER))).isEqualTo(onlineComServer.getEventRegistrationUri());
     }
 
     @Test
@@ -245,10 +196,12 @@ public class OnlineComServerImplTest extends PersistenceTest {
         onlineComServer.communicationLogLevel(COMMUNICATION_LOG_LEVEL);
         onlineComServer.changesInterPollDelay(CHANGES_INTER_POLL_DELAY);
         onlineComServer.schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
-        onlineComServer.queryApiPostUri(QUERY_API_POST_URI);
         onlineComServer.storeTaskQueueSize(OnlineComServer.MINIMUM_STORE_TASK_QUEUE_SIZE - 1);
         onlineComServer.numberOfStoreTaskThreads(1);
         onlineComServer.storeTaskThreadPriority(1);
+        onlineComServer.serverName(name);
+        onlineComServer.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
+        onlineComServer.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
 
         // Business method
         onlineComServer.create();
@@ -269,10 +222,12 @@ public class OnlineComServerImplTest extends PersistenceTest {
         onlineComServer.communicationLogLevel(COMMUNICATION_LOG_LEVEL);
         onlineComServer.changesInterPollDelay(CHANGES_INTER_POLL_DELAY);
         onlineComServer.schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
-        onlineComServer.queryApiPostUri(QUERY_API_POST_URI);
         onlineComServer.storeTaskQueueSize(OnlineComServer.MAXIMUM_STORE_TASK_QUEUE_SIZE + 1);
         onlineComServer.numberOfStoreTaskThreads(1);
         onlineComServer.storeTaskThreadPriority(1);
+        onlineComServer.serverName(name);
+        onlineComServer.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
+        onlineComServer.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
 
         // Business method
         onlineComServer.create();
@@ -293,10 +248,12 @@ public class OnlineComServerImplTest extends PersistenceTest {
         onlineComServer.communicationLogLevel(COMMUNICATION_LOG_LEVEL);
         onlineComServer.changesInterPollDelay(CHANGES_INTER_POLL_DELAY);
         onlineComServer.schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
-        onlineComServer.queryApiPostUri(QUERY_API_POST_URI);
         onlineComServer.numberOfStoreTaskThreads(OnlineComServer.MINIMUM_NUMBER_OF_STORE_TASK_THREADS - 1);
         onlineComServer.storeTaskThreadPriority(1);
         onlineComServer.storeTaskQueueSize(1);
+        onlineComServer.serverName(name);
+        onlineComServer.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
+        onlineComServer.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
 
         // Business method
         onlineComServer.create();
@@ -317,10 +274,12 @@ public class OnlineComServerImplTest extends PersistenceTest {
         onlineComServer.communicationLogLevel(COMMUNICATION_LOG_LEVEL);
         onlineComServer.changesInterPollDelay(CHANGES_INTER_POLL_DELAY);
         onlineComServer.schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
-        onlineComServer.queryApiPostUri(QUERY_API_POST_URI);
         onlineComServer.numberOfStoreTaskThreads(OnlineComServer.MAXIMUM_NUMBER_OF_STORE_TASK_THREADS + 1);
         onlineComServer.storeTaskThreadPriority(1);
         onlineComServer.storeTaskQueueSize(1);
+        onlineComServer.serverName(name);
+        onlineComServer.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
+        onlineComServer.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
 
         // Business method
         onlineComServer.create();
@@ -341,10 +300,12 @@ public class OnlineComServerImplTest extends PersistenceTest {
         onlineComServer.communicationLogLevel(COMMUNICATION_LOG_LEVEL);
         onlineComServer.changesInterPollDelay(CHANGES_INTER_POLL_DELAY);
         onlineComServer.schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
-        onlineComServer.queryApiPostUri(QUERY_API_POST_URI);
         onlineComServer.storeTaskThreadPriority(OnlineComServer.MINIMUM_STORE_TASK_THREAD_PRIORITY - 1);
         onlineComServer.numberOfStoreTaskThreads(1);
         onlineComServer.storeTaskQueueSize(1);
+        onlineComServer.serverName(name);
+        onlineComServer.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
+        onlineComServer.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
 
         // Business method
         onlineComServer.create();
@@ -365,10 +326,12 @@ public class OnlineComServerImplTest extends PersistenceTest {
         onlineComServer.communicationLogLevel(COMMUNICATION_LOG_LEVEL);
         onlineComServer.changesInterPollDelay(CHANGES_INTER_POLL_DELAY);
         onlineComServer.schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
-        onlineComServer.queryApiPostUri(QUERY_API_POST_URI);
         onlineComServer.storeTaskThreadPriority(OnlineComServer.MAXIMUM_STORE_TASK_THREAD_PRIORITY + 1);
         onlineComServer.numberOfStoreTaskThreads(1);
         onlineComServer.storeTaskQueueSize(1);
+        onlineComServer.serverName(name);
+        onlineComServer.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
+        onlineComServer.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
 
         // Business method
         onlineComServer.create();
@@ -390,6 +353,9 @@ public class OnlineComServerImplTest extends PersistenceTest {
         onlineComServer.numberOfStoreTaskThreads(1);
         onlineComServer.storeTaskThreadPriority(1);
         onlineComServer.storeTaskQueueSize(1);
+        onlineComServer.serverName("serverName");
+        onlineComServer.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
+        onlineComServer.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
 
         // Business method
         onlineComServer.create();
@@ -413,6 +379,9 @@ public class OnlineComServerImplTest extends PersistenceTest {
         onlineComServer.numberOfStoreTaskThreads(1);
         onlineComServer.storeTaskThreadPriority(1);
         onlineComServer.storeTaskQueueSize(1);
+        onlineComServer.serverName(name);
+        onlineComServer.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
+        onlineComServer.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
 
         // Business method
         onlineComServer.create();
@@ -436,6 +405,9 @@ public class OnlineComServerImplTest extends PersistenceTest {
         onlineComServer.numberOfStoreTaskThreads(1);
         onlineComServer.storeTaskThreadPriority(1);
         onlineComServer.storeTaskQueueSize(1);
+        onlineComServer.serverName(name);
+        onlineComServer.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
+        onlineComServer.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
 
         // Business method
         onlineComServer.create();
@@ -459,6 +431,9 @@ public class OnlineComServerImplTest extends PersistenceTest {
         onlineComServer.numberOfStoreTaskThreads(1);
         onlineComServer.storeTaskThreadPriority(1);
         onlineComServer.storeTaskQueueSize(1);
+        onlineComServer.serverName(name);
+        onlineComServer.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
+        onlineComServer.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
 
         // Business method
         onlineComServer.create();
@@ -482,6 +457,9 @@ public class OnlineComServerImplTest extends PersistenceTest {
         onlineComServer.numberOfStoreTaskThreads(1);
         onlineComServer.storeTaskThreadPriority(1);
         onlineComServer.storeTaskQueueSize(1);
+        onlineComServer.serverName(name);
+        onlineComServer.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
+        onlineComServer.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
 
         // Business method
         onlineComServer.create();
@@ -507,6 +485,9 @@ public class OnlineComServerImplTest extends PersistenceTest {
         onlineComServer.numberOfStoreTaskThreads(1);
         onlineComServer.storeTaskThreadPriority(1);
         onlineComServer.storeTaskQueueSize(1);
+        onlineComServer.serverName("serverName");
+        onlineComServer.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
+        onlineComServer.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
 
         // Business method
         onlineComServer.create();
@@ -526,11 +507,12 @@ public class OnlineComServerImplTest extends PersistenceTest {
         onlineComServerBuilder.communicationLogLevel(COMMUNICATION_LOG_LEVEL);
         onlineComServerBuilder.changesInterPollDelay(CHANGES_INTER_POLL_DELAY);
         onlineComServerBuilder.schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
-        onlineComServerBuilder.queryApiPostUri(QUERY_API_POST_URI);
-        onlineComServerBuilder.eventRegistrationUri(EVENT_REGISTRATION_URI);
         onlineComServerBuilder.numberOfStoreTaskThreads(1);
         onlineComServerBuilder.storeTaskThreadPriority(1);
         onlineComServerBuilder.storeTaskQueueSize(1);
+        onlineComServerBuilder.serverName(name);
+        onlineComServerBuilder.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
+        onlineComServerBuilder.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
         final OnlineComServer onlineComServer = onlineComServerBuilder.create();
 
         String changedName = "Name-Updated";
@@ -544,8 +526,11 @@ public class OnlineComServerImplTest extends PersistenceTest {
         onlineComServer.setCommunicationLogLevel(changedComLogLevel);
         onlineComServer.setChangesInterPollDelay(changedChangesInterPollDelay);
         onlineComServer.setSchedulingInterPollDelay(changedSchedulingInterPollDelay);
-        String changedQueryAPIPostUrl = QUERY_API_POST_URI + "?test=true";
-        onlineComServer.setQueryAPIPostUri(changedQueryAPIPostUrl);
+        onlineComServer.setServerName(changedName);
+        int changedStatusPort = 9090;
+        int changedEventRegistrationPort = 9999;
+        onlineComServer.setStatusPort(changedStatusPort);
+        onlineComServer.setEventRegistrationPort(changedEventRegistrationPort);
 
         // Business method
         onlineComServer.update();
@@ -557,6 +542,9 @@ public class OnlineComServerImplTest extends PersistenceTest {
         assertThat(changedComLogLevel).isEqualTo(onlineComServer.getCommunicationLogLevel());
         assertThat(changedChangesInterPollDelay).isEqualTo(onlineComServer.getChangesInterPollDelay());
         assertThat(changedSchedulingInterPollDelay).isEqualTo(onlineComServer.getSchedulingInterPollDelay());
+        assertThat(changedName).isEqualTo(onlineComServer.getServerName());
+        assertThat(changedStatusPort).isEqualTo(onlineComServer.getStatusPort());
+        assertThat(changedEventRegistrationPort).isEqualTo(onlineComServer.getEventRegistrationPort());
     }
 
     @Test
@@ -575,18 +563,23 @@ public class OnlineComServerImplTest extends PersistenceTest {
         onlineComServerBuilder.numberOfStoreTaskThreads(5);
         onlineComServerBuilder.storeTaskThreadPriority(3);
         onlineComServerBuilder.schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
-        onlineComServerBuilder.queryApiPostUri(QUERY_API_POST_URI);
+        onlineComServerBuilder.serverName(name);
+        onlineComServerBuilder.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
+        onlineComServerBuilder.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
         final OnlineComServer onlineComServer = onlineComServerBuilder.create();
 
         RemoteComServer.RemoteComServerBuilder<? extends RemoteComServer> remoteComServerBuilder = getEngineModelService().newRemoteComServerBuilder();
-        remoteComServerBuilder.name("testDeleteWhileStillUsedByRemoteComServer-Remote");
+        String remoteName = "testDeleteWhileStillUsedByRemoteComServer-Remote";
+        remoteComServerBuilder.name(remoteName);
         remoteComServerBuilder.active(true);
         remoteComServerBuilder.serverLogLevel(SERVER_LOG_LEVEL);
         remoteComServerBuilder.communicationLogLevel(COMMUNICATION_LOG_LEVEL);
         remoteComServerBuilder.changesInterPollDelay(CHANGES_INTER_POLL_DELAY);
         remoteComServerBuilder.schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
         remoteComServerBuilder.onlineComServer(onlineComServer);
-
+        remoteComServerBuilder.serverName(remoteName);
+        remoteComServerBuilder.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
+        remoteComServerBuilder.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
         final RemoteComServer remoteComServer = remoteComServerBuilder.create();
 
         // Business methods
@@ -611,17 +604,23 @@ public class OnlineComServerImplTest extends PersistenceTest {
         onlineComServerBuilder.numberOfStoreTaskThreads(5);
         onlineComServerBuilder.storeTaskThreadPriority(3);
         onlineComServerBuilder.schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
-        onlineComServerBuilder.queryApiPostUri(QUERY_API_POST_URI);
+        onlineComServerBuilder.serverName(name);
+        onlineComServerBuilder.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
+        onlineComServerBuilder.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
         final OnlineComServer onlineComServer = onlineComServerBuilder.create();
 
         RemoteComServer.RemoteComServerBuilder<? extends RemoteComServer> remoteComServerBuilder = getEngineModelService().newRemoteComServerBuilder();
-        remoteComServerBuilder.name("testMakeObsoleteWhileStillUsedByRemoteComServer-Remote");
+        String remoteName = "testMakeObsoleteWhileStillUsedByRemoteComServer-Remote";
+        remoteComServerBuilder.name(remoteName);
         remoteComServerBuilder.active(true);
         remoteComServerBuilder.serverLogLevel(SERVER_LOG_LEVEL);
         remoteComServerBuilder.communicationLogLevel(COMMUNICATION_LOG_LEVEL);
         remoteComServerBuilder.changesInterPollDelay(CHANGES_INTER_POLL_DELAY);
         remoteComServerBuilder.schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
         remoteComServerBuilder.onlineComServer(onlineComServer);
+        remoteComServerBuilder.serverName(remoteName);
+        remoteComServerBuilder.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
+        remoteComServerBuilder.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
 
         remoteComServerBuilder.create();
 
@@ -635,55 +634,52 @@ public class OnlineComServerImplTest extends PersistenceTest {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.MDC_DUPLICATE_COM_SERVER_URI + "}", property = EVENT_REGISTRATION_PORT_PROPERTY)
     @Transactional
     public void testUniqueEventRegistrationUriViolation() throws SQLException {
-        createWithoutComPortsWithoutViolations("fist", URI, URI_1);
+        createWithoutComPortsWithoutViolations("fist", "serverName", 8888, 8080);
 
         // Business method
-        createWithoutComPortsWithoutViolations("2th", URI, URI_2);
+        createWithoutComPortsWithoutViolations("2th", "serverName", 8888, 8081);
     }
 
     @Test
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.MDC_DUPLICATE_COM_SERVER_URI + "}", property = MONITOR_PORT_PROPERTY)
     @Transactional
     public void testUniqueStatusUriViolation() throws SQLException {
-        createWithoutComPortsWithoutViolations("fist", URI_1, URI);
+        createWithoutComPortsWithoutViolations("fist", "serverName", 8888, 8080);
 
         // Business method
-        createWithoutComPortsWithoutViolations("2th", URI_2, URI);
+        createWithoutComPortsWithoutViolations("2th", "serverName", 9999, 8080);
     }
 
     @Test
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY + "}", property = SERVER_NAME_PROPERTY)
     @Transactional
-    public void testInvalidStatusUriViolationEventRegistrationServerNameMissing() throws SQLException {
-        createWithoutComPortsWithoutViolations("fist", MessageFormat.format(EVENT_REGISTRATIION_URI_PATTERN, INVALID_SERVERNAME_URI_PATTERN, 8080), URI);
+    public void testInvalidUriViolationServerNameMissing() throws SQLException {
+        createWithoutComPortsWithoutViolations("fist", null, 8888, 8080);
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY + "}", property = SERVER_NAME_PROPERTY)
-    @Transactional
-    public void testInvalidStatusUriViolationStatusServerNameMissing() throws SQLException {
-        createWithoutComPortsWithoutViolations("fist", URI, MessageFormat.format(EVENT_REGISTRATIION_URI_PATTERN, INVALID_SERVERNAME_URI_PATTERN, 8080));
-    }
-
-    @Test
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY + "}", property = EVENT_REGISTRATION_PORT_PROPERTY)
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.MDC_VALUE_NOT_IN_RANGE + "}", property = EVENT_REGISTRATION_PORT_PROPERTY)
     @Transactional
     public void testInvalidStatusUriViolationEventRegistrationPortMissing() throws SQLException {
-        createWithoutComPortsWithoutViolations("fist", MessageFormat.format(EVENT_REGISTRATIION_URI_PATTERN, "servername", 0), URI);
+        createWithoutComPortsWithoutViolations("fist", 0, ComServer.DEFAULT_STATUS_PORT_NUMBER);
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY + "}", property = MONITOR_PORT_PROPERTY)
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.MDC_VALUE_NOT_IN_RANGE + "}", property = MONITOR_PORT_PROPERTY)
     @Transactional
     public void testInvalidStatusUriViolationStatusPortMissing() throws SQLException {
-        createWithoutComPortsWithoutViolations("fist", URI, MessageFormat.format(EVENT_REGISTRATIION_URI_PATTERN, "servername", 0));
+        createWithoutComPortsWithoutViolations("fist", ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER, 0);
     }
 
     private OnlineComServer createWithoutComPortsWithoutViolations(String name) {
-        return createWithoutComPortsWithoutViolations(name, null, null);
+        return createWithoutComPortsWithoutViolations(name, ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER, ComServer.DEFAULT_STATUS_PORT_NUMBER);
     }
 
-    private OnlineComServer createWithoutComPortsWithoutViolations(String name, String eventRegistrationUri, String statusUri) {
+    private OnlineComServer createWithoutComPortsWithoutViolations(String name, int eventRegistrationPort, int statusPort) {
+        return createWithoutComPortsWithoutViolations(name, name, eventRegistrationPort, statusPort);
+    }
+
+    private OnlineComServer createWithoutComPortsWithoutViolations(String name, String serverName, int eventRegistrationPort, int statusPort) {
         OnlineComServer.OnlineComServerBuilder<? extends OnlineComServer> onlineComServerBuilder = getEngineModelService().newOnlineComServerBuilder();
 
         onlineComServerBuilder.name(name);
@@ -692,9 +688,10 @@ public class OnlineComServerImplTest extends PersistenceTest {
         onlineComServerBuilder.communicationLogLevel(COMMUNICATION_LOG_LEVEL);
         onlineComServerBuilder.changesInterPollDelay(CHANGES_INTER_POLL_DELAY);
         onlineComServerBuilder.schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
-        onlineComServerBuilder.queryApiPostUri(QUERY_API_POST_URI);
-        onlineComServerBuilder.eventRegistrationUri(eventRegistrationUri);
-        onlineComServerBuilder.statusUri(statusUri);
+        onlineComServerBuilder.serverName(serverName);
+        onlineComServerBuilder.queryApiPort(ComServer.DEFAULT_QUERY_API_PORT_NUMBER);
+        onlineComServerBuilder.statusPort(statusPort);
+        onlineComServerBuilder.eventRegistrationPort(eventRegistrationPort);
         onlineComServerBuilder.numberOfStoreTaskThreads(1);
         onlineComServerBuilder.storeTaskThreadPriority(1);
         onlineComServerBuilder.storeTaskQueueSize(1);

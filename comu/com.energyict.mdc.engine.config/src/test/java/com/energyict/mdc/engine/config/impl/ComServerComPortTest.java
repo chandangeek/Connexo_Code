@@ -452,12 +452,14 @@ public class ComServerComPortTest extends PersistenceTest {
 
     private OnlineComServer createOnlineComServer() {
         final OnlineComServer.OnlineComServerBuilder<? extends OnlineComServer> onlineComServerBuilder = getEngineModelService().newOnlineComServerBuilder();
-        String name = "Online-" + onlineNameNumber;                                                                         // Use onlineNameNumber in URLs to ensure uniqueness
+        String name = "Online-" + onlineNameNumber;
         onlineComServerBuilder.storeTaskQueueSize(1)
                 .storeTaskThreadPriority(1)
                 .numberOfStoreTaskThreads(1)
-                .queryApiPostUri(QUERY_API_POST_URL + onlineNameNumber)
-                .eventRegistrationUri(EVENT_REGISTRATION_URL + onlineNameNumber)
+                .queryApiPort(onlineNameNumber)
+                .statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER)
+                .eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER)
+                .serverName(name)
                 .name(name)
                 .active(true)
                 .serverLogLevel(SERVER_LOG_LEVEL)

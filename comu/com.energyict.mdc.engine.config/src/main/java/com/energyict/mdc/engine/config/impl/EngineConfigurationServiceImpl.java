@@ -244,14 +244,18 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     }
 
     @Override
-    public Optional<ComServer> findComServerByEventRegistrationUri(String eventRegistrationUri) {
-        Condition condition = where("eventRegistrationUri").isEqualToIgnoreCase(eventRegistrationUri).and(where("obsoleteDate").isNull());
+    public Optional<ComServer> findComServerByServerNameAndEventRegistrationPort(String serverName, int eventRegistrationPort) {
+        Condition condition = where("serverName").isEqualToIgnoreCase(serverName)
+                .and(where("eventRegistrationPort").isEqualTo(eventRegistrationPort))
+                .and(where("obsoleteDate").isNull());
         return unique(dataModel.mapper(ComServer.class).select(condition));
     }
 
     @Override
-    public Optional<ComServer> findComServerByStatusUri(String statusUri) {
-        Condition condition = where("statusUri").isEqualToIgnoreCase(statusUri).and(where("obsoleteDate").isNull());
+    public Optional<ComServer> findComServerByServerNameAndStatusPort(String serverName, int statusPort) {
+        Condition condition = where("serverName").isEqualToIgnoreCase(serverName)
+                .and(where("statusPort").isEqualTo(statusPort))
+                .and(where("obsoleteDate").isNull());
         return unique(dataModel.mapper(ComServer.class).select(condition));
     }
 

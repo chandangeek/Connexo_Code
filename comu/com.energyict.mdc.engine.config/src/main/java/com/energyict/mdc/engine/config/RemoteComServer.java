@@ -12,21 +12,31 @@ package com.energyict.mdc.engine.config;
  */
 public interface RemoteComServer extends ComServer, InboundCapableComServer, OutboundCapableComServer {
 
+    public String getServerName();
+
+    public void setServerName(String serverName);
+
     /**
      * Gets the URI on which the event registration mechanism runs.
      *
      * @return The URI
      */
-    public String getEventRegistrationUri ();
-    public void setEventRegistrationUri(String eventRegistrationUri);
+    public String getEventRegistrationUri();
+
+    public int getEventRegistrationPort();
+
+    public void setEventRegistrationPort(int eventRegistrationPort);
 
     /**
      * Gets the URI that returns the status information of this ComServer.
      *
      * @return The URI
      */
-    public String getStatusUri ();
-    public void setStatusUri(String statusUri);
+    public String getStatusUri();
+
+    public int getStatusPort();
+
+    public void setStatusPort(int statusPort);
 
     /**
      * Gets the {@link OnlineComServer} that this remote ComServer
@@ -36,12 +46,17 @@ public interface RemoteComServer extends ComServer, InboundCapableComServer, Out
      * @return The OnlineComServer
      */
     public OnlineComServer getOnlineComServer();
+
     public void setOnlineComServer(OnlineComServer onlineComServer);
 
     interface RemoteComServerBuilder<CS extends RemoteComServer> extends ComServerBuilder<CS, RemoteComServerBuilder> {
         RemoteComServerBuilder onlineComServer(OnlineComServer onlineComServer);
-        RemoteComServerBuilder eventRegistrationUri(String eventRegistrationUri);
-        RemoteComServerBuilder statusUri(String statusUri);
+
+        RemoteComServerBuilder serverName(String serverName);
+
+        RemoteComServerBuilder eventRegistrationPort(int eventRegistrationPort);
+
+        RemoteComServerBuilder statusPort(int statusPort);
     }
 
 }

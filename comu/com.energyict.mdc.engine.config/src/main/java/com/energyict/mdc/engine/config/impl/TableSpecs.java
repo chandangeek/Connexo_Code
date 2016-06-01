@@ -53,22 +53,21 @@ public enum TableSpecs {
             table.column("SCHEDULINGDELAYVALUE").number().conversion(ColumnConversion.NUMBER2INT).map("schedulingInterPollDelay.count").add();
             table.column("SCHEDULINGDELAYUNIT").number().conversion(ColumnConversion.NUMBER2INT).map("schedulingInterPollDelay.timeUnitCode").add();
 
-            table.column("QUERYAPIPOSTURI").type("varchar2(512)").map("queryAPIPostUri").add();
+            table.column("SERVERNAME").varChar().map("serverName").add();
+            table.column("QUERYAPIPORT").number().conversion(ColumnConversion.NUMBER2INT).map("queryApiPort").add();
             Column obsoleteColumn = table.column("OBSOLETE_DATE").number().conversion(ColumnConversion.NUMBER2INSTANT).map("obsoleteDate").add();
             Column onlineComServer = table.column("ONLINESERVERID").number().conversion(ColumnConversion.NUMBER2INT).add(); // DO NOT MAP
             table.column("QUEUESIZE").number().conversion(ColumnConversion.NUMBER2INT).map("storeTaskQueueSize").add();
             table.column("THREADPRIORITY").number().conversion(ColumnConversion.NUMBER2INT).map("storeTaskThreadPriority").add();
             table.column("NROFTHREADS").number().conversion(ColumnConversion.NUMBER2INT).map("numberOfStoreTaskThreads").add();
-            Column eventRegistrationUriColumn = table.column("EVENTREGISTRATIONURI").type("varchar2(512)").map("eventRegistrationUri").add();
-            Column statusUriColumn = table.column("STATUSURI").type("varchar2(512)").map("statusUri").add();
+            table.column("EVENTREGISTRATIONPORT").number().conversion(ColumnConversion.NUMBER2INT).map("eventRegistrationPort").add();
+            table.column("STATUSPORT").number().conversion(ColumnConversion.NUMBER2INT).map("statusPort").add();
             table.foreignKey("FK_MDC_REMOTE_ONLINE")
                     .on(onlineComServer)
                     .references(MDC_COMSERVER.name())
                     .map("onlineComServer")
                     .add();
             table.unique("MDC_UQ_COMSERVER_NAME").on(nameColumn, obsoleteColumn).add();
-            table.unique("MDC_UQ_COMSERVER_EVENT_URI").on(eventRegistrationUriColumn).add();
-            table.unique("MDC_UQ_COMSERVER_STATUS_URI").on(statusUriColumn).add();
         }
     },
     MDC_COMPORT {

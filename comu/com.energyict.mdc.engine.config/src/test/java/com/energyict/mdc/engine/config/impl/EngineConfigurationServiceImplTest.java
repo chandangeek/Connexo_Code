@@ -1,7 +1,5 @@
 package com.energyict.mdc.engine.config.impl;
 
-import java.util.List;
-
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.time.TimeDuration;
@@ -13,6 +11,8 @@ import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.config.PersistenceTest;
 import com.energyict.mdc.engine.config.RemoteComServer;
 import com.energyict.mdc.protocol.api.ComPortType;
+
+import java.util.List;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,8 +35,8 @@ public class EngineConfigurationServiceImplTest extends PersistenceTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_DUPLICATE_COM_SERVER+"}")
     public void testCanNotCreateComServerWithSameNameAsNonObsoleteComServer() throws Exception {
-        createOnlineComServer("serverOne");
-        createOnlineComServer("serverOne");
+        createOnlineComServer("serverOne", "serverName1");
+        createOnlineComServer("serverOne", "serverName2");
     }
 
     @Test
@@ -108,6 +108,10 @@ public class EngineConfigurationServiceImplTest extends PersistenceTest {
     }
 
     private OnlineComServer createOnlineComServer(String name) {
+        return createOnlineComServer(name, name);
+    }
+
+    private OnlineComServer createOnlineComServer(String name, String serverName) {
         OnlineComServer.OnlineComServerBuilder<? extends OnlineComServer> onlineComServer = getEngineModelService().newOnlineComServerBuilder();
         onlineComServer.serverLogLevel(ComServer.LogLevel.ERROR);
         onlineComServer.communicationLogLevel(ComServer.LogLevel.ERROR);
@@ -117,6 +121,9 @@ public class EngineConfigurationServiceImplTest extends PersistenceTest {
         onlineComServer.storeTaskThreadPriority(3);
         onlineComServer.numberOfStoreTaskThreads(6);
         onlineComServer.name(name);
+        onlineComServer.serverName(serverName);
+        onlineComServer.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
+        onlineComServer.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
         return onlineComServer.create();
     }
 
@@ -140,6 +147,9 @@ public class EngineConfigurationServiceImplTest extends PersistenceTest {
         remoteComServer.schedulingInterPollDelay(new TimeDuration(900));
         remoteComServer.active(false);
         remoteComServer.onlineComServer(onlineComServer);
+        remoteComServer.serverName(name);
+        remoteComServer.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
+        remoteComServer.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
         return remoteComServer.create();
     }
 }

@@ -41,6 +41,15 @@ import java.util.List;
 public interface ComServer extends HasId, HasName {
     String CHANGES_INTER_POLL_DELAY_RESOURCE_KEY = "comserver.changesInterPollDelay";
     String SCHEDULING_INTER_POLL_DELAY_RESOURCE_KEY = "comserver.schedulingInterPollDelay";
+
+    String EVENT_REGISTRATION_URI_PATTERN = "ws://{0}:{1}/events/registration";
+    String QUERY_API_URI_PATTERN = "ws://{0}:{1}/remote/queries";
+    String STATUS_URI_ATTERN = "http://{0}:{1}/api/dsr/comserverstatus";
+
+    int DEFAULT_STATUS_PORT_NUMBER = 8080;
+    int DEFAULT_EVENT_REGISTRATION_PORT_NUMBER = 8888;
+    int DEFAULT_QUERY_API_PORT_NUMBER = 8889;
+
     /**
      * The minimum TimeDuration that can be used for changes and scheduling interpoll delay.
      */
@@ -62,13 +71,13 @@ public interface ComServer extends HasId, HasName {
     /**
      * The maximum value for the storeTaskThreadPriority property.
      */
-
     int MINIMUM_STORE_TASK_QUEUE_SIZE = 1;
 
-
     int MAXIMUM_STORE_TASK_THREAD_PRIORITY = Thread.MAX_PRIORITY;
-    int DEFAULT_EVENT_REGISTRATION_PORT_NUMBER = 8888;
-    int DEFAULT_QUERY_API_PORT_NUMBER = 8889;
+
+    int MIN_NON_REQUIRED_PORT_RANGE = 0;
+    int MIN_REQUIRED_PORT_RANGE = 1;
+    int MAX_PORT_RANGE = 65535;
 
     enum LogLevel {
         /**
