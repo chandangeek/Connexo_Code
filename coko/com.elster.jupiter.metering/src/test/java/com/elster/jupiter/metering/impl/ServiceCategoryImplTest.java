@@ -9,6 +9,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.BigDecimalFactory;
@@ -55,6 +56,8 @@ public class ServiceCategoryImplTest {
     private Provider<UsagePointAccountabilityImpl> accountabilityFactory;
     @Mock
     private CustomPropertySetService customPropertySetService;
+    @Mock
+    private ServerMetrologyConfigurationService metrologyConfigurationService;
     @Mock
     private ValidatorFactory validatorFactory;
     @Mock
@@ -104,7 +107,7 @@ public class ServiceCategoryImplTest {
 
     @Test
     public void testNewUsagePoint() {
-        when(dataModel.getInstance(UsagePointImpl.class)).thenReturn(new UsagePointImpl(clock, dataModel, eventService, thesaurus, () -> null, () -> null, customPropertySetService, meteringService));
+        when(dataModel.getInstance(UsagePointImpl.class)).thenReturn(new UsagePointImpl(clock, dataModel, eventService, thesaurus, () -> null, () -> null, customPropertySetService, meteringService, metrologyConfigurationService));
 
         UsagePoint usagePoint = serviceCategory.newUsagePoint("mrId", Instant.EPOCH).create();
         assertThat(usagePoint).isInstanceOf(UsagePointImpl.class);

@@ -15,6 +15,7 @@ import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
+import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MeterRole;
@@ -24,7 +25,6 @@ import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeTemplate;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
-import com.elster.jupiter.metering.impl.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.impl.config.DefaultReadingTypeTemplate;
 import com.elster.jupiter.metering.impl.config.ExpressionNodeParser;
 import com.elster.jupiter.metering.impl.config.ReadingTypeDeliverableBuilderImpl;
@@ -58,7 +58,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-@Component(name = "com.elster.jupiter.metering.console", service = ConsoleCommands.class, property = {
+@Component(name = "com.elster.jupiter.metering.console", service = MeteringConsoleCommands.class, property = {
         "osgi.command.scope=metering",
         "osgi.command.function=printDdl",
         "osgi.command.function=meters",
@@ -100,7 +100,7 @@ import java.util.stream.Stream;
         "osgi.command.function=addCustomPropertySet"
 }, immediate = true)
 @SuppressWarnings("unused")
-public class ConsoleCommands {
+public class MeteringConsoleCommands {
 
     private volatile ServerMeteringService meteringService;
     private volatile DataModel dataModel;
@@ -179,15 +179,21 @@ public class ConsoleCommands {
         return meterActivation.getRange().toString() + "\n\t" + channels;
     }
 
-    public void createMeter(long amrSystemId, String amrid, String mrId) {
+    public void createMeter() {
+        System.out.println("Usage: createMeter <amrSystemId: usually 2> <amrId: EA_MS Meter ID> <mrId>");
+    }
+
+    public void createMeter(long amrSystemId, String amrId, String mrId) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
             AmrSystem amrSystem = meteringService.findAmrSystem(amrSystemId)
                     .orElseThrow(() -> new IllegalArgumentException("amr System not found"));
-            amrSystem.newMeter(amrid)
+            Meter meter = amrSystem.newMeter(amrId)
+                    .setName(amrId)
                     .setMRID(mrId)
                     .create();
             context.commit();
+            System.out.println("Meter " + amrId + " created with ID: " + meter.getId());
         } finally {
             threadPrincipalService.clear();
         }
@@ -505,7 +511,9 @@ public class ConsoleCommands {
                     long id = upMetrologyConfiguration.newReadingTypeRequirement(name).withMeterRole(meterRole).withReadingType(readingType).getId();
                     System.out.println("Requirment created with id: " + id);
                 } catch (IllegalArgumentException e) {
-                    System.out.println("Unknown default meter role: " + meterRoleName + ". Use one of: " + Stream.of(DefaultMeterRole.values()).map(DefaultMeterRole::name).collect(Collectors.joining(", ")));
+                    System.out.println("Unknown default meter role: " + meterRoleName + ". Use one of: " + Stream.of(DefaultMeterRole.values())
+                            .map(DefaultMeterRole::name)
+                            .collect(Collectors.joining(", ")));
                     throw e;
                 }
             } else {
@@ -537,7 +545,9 @@ public class ConsoleCommands {
                     long id = upMetrologyConfiguration.newReadingTypeRequirement(name).withMeterRole(meterRole).withReadingTypeTemplate(template).getId();
                     System.out.println("Requirment created with id: " + id);
                 } catch (IllegalArgumentException e) {
-                    System.out.println("Unknown default meter role: " + meterRoleName + ". Use one of: " + Stream.of(DefaultMeterRole.values()).map(DefaultMeterRole::name).collect(Collectors.joining(", ")));
+                    System.out.println("Unknown default meter role: " + meterRoleName + ". Use one of: " + Stream.of(DefaultMeterRole.values())
+                            .map(DefaultMeterRole::name)
+                            .collect(Collectors.joining(", ")));
                     throw e;
                 }
             } else {

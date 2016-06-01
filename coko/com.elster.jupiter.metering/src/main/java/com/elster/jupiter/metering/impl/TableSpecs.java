@@ -25,6 +25,7 @@ import com.elster.jupiter.metering.UsagePointAccountability;
 import com.elster.jupiter.metering.UsagePointConfiguration;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointReadingTypeConfiguration;
+import com.elster.jupiter.metering.EndDeviceControlType;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MeterRole;
@@ -318,7 +319,6 @@ public enum TableSpecs {
             table.column("READROUTE").varChar(NAME_LENGTH).map("readRoute").add();
             table.column("SERVICEPRIORITY").varChar(NAME_LENGTH).map("servicePriority").add();
             table.column("SERVICEDELIVERYREMARK").varChar(SHORT_DESCRIPTION_LENGTH).map("serviceDeliveryRemark").add();
-            table.column("CONNECTIONSTATE").type("varchar2(30)").conversion(CHAR2ENUM).map("connectionState").add();
             table.column("INSTALLATIONTIME")
                     .number()
                     .notNull()
@@ -497,6 +497,16 @@ public enum TableSpecs {
                     add();
         }
     },
+    MTR_METERROLE {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<MeterRole> table = dataModel.addTable(name(), MeterRole.class);
+            table.map(MeterRoleImpl.class);
+            Column nameColumn = table.column(MeterRoleImpl.Fields.KEY.name()).varChar(NAME_LENGTH).notNull().map(MeterRoleImpl.Fields.KEY.fieldName()).add();
+
+            table.primaryKey("MTR_PK_METERROLE").on(nameColumn).add();
+        }
+    },
     MTR_METERACTIVATION {
         @Override
         void addTo(DataModel dataModel) {
@@ -507,7 +517,14 @@ public enum TableSpecs {
                     .type("number")
                     .conversion(NUMBER2LONGNULLZERO)
                     .add();
-            Column meterIdColumn = table.column("METERID").type("number").conversion(NUMBER2LONGNULLZERO).add();
+            Column meterIdColumn = table.column("METERID")
+                    .type("number")
+                    .conversion(NUMBER2LONGNULLZERO)
+                    .add();
+            Column meterRoleIdColumn = table.column("METERROLE")
+                    .type(MeterRoleImpl.Fields.KEY.name())
+                    .varChar(NAME_LENGTH)
+                    .add();
             table.addIntervalColumns("interval");
             table.addAuditColumns();
             table.primaryKey("MTR_PK_METERACTIVATION").on(idColumn).add();
@@ -528,6 +545,12 @@ public enum TableSpecs {
                     .reverseMapOrder("interval.start")
                     .reverseMapCurrent("currentMeterActivation")
                     .on(meterIdColumn)
+                    .add();
+            table.foreignKey("MTR_FK_METER_ACT_2_ROLE")
+                    .references(MeterRole.class)
+                    .onDelete(RESTRICT)
+                    .map("meterRole")
+                    .on(meterRoleIdColumn)
                     .add();
         }
     },
@@ -931,6 +954,7 @@ public enum TableSpecs {
             Column usagePoint = table.column("USAGEPOINT").type("number").notNull().add();
             List<Column> intervalColumns = table.addIntervalColumns("interval");
             Column metrologyConfiguration = table.column("METROLOGYCONFIG").number().notNull().add();
+            table.column("ACTIVE").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map("active").add();
             table.primaryKey("MTR_PK_UPMTRCONFIG").on(usagePoint, intervalColumns.get(0)).add();
             table.foreignKey("MTR_FK_UPMTRCONFIG_UP")
                     .on(usagePoint)
@@ -956,7 +980,7 @@ public enum TableSpecs {
             Column name = table.column("NAME").varChar().notNull().map("name").add();
             Column nameIsKey = table.column("NAMEISKEY").bool().notNull().map("nameIsKey").add();
             table.primaryKey("MTR_PK_MULTIPLIERTYPE").on(id).add();
-            table.unique("MTR_UK_MULTTYPE_NAME").on(name,  nameIsKey).add();
+            table.unique("MTR_UK_MULTTYPE_NAME").on(name, nameIsKey).add();
         }
     },
     MTR_MULTIPLIERVALUE {
@@ -1213,18 +1237,6 @@ public enum TableSpecs {
                     .map("expressionNode").add();
         }
     },
-
-    MTR_METERROLE {
-        @Override
-        void addTo(DataModel dataModel) {
-            Table<MeterRole> table = dataModel.addTable(name(), MeterRole.class);
-            table.map(MeterRoleImpl.class);
-            Column nameColumn = table.column(MeterRoleImpl.Fields.KEY.name()).varChar(NAME_LENGTH).notNull().map(MeterRoleImpl.Fields.KEY.fieldName()).add();
-
-            table.primaryKey("MTR_PK_METERROLE").on(nameColumn).add();
-        }
-    },
-
     MTR_SERVICECAT_METERROLE_USAGE {
         @Override
         public void addTo(DataModel dataModel) {
@@ -1641,6 +1653,7 @@ public enum TableSpecs {
                     .on(metrologyContractColumn)
                     .map(MetrologyContractReadingTypeDeliverableUsage.Fields.METROLOGY_CONTRACT.fieldName())
                     .reverseMap(MetrologyContractImpl.Fields.DELIVERABLES.fieldName())
+                    .onDelete(CASCADE)
                     .composition()
                     .add();
             table.foreignKey("FK_CONTR_DELIVER_TO_DELIVER")
@@ -1740,6 +1753,20 @@ public enum TableSpecs {
                     .onDelete(CASCADE)
                     .map("readingTypeRequirement")
                     .add();
+        }
+    },
+
+    MTR_ENDDEVICECONTROLTYPE {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<EndDeviceControlType> table = dataModel.addTable(name(), EndDeviceControlType.class);
+            table.map(EndDeviceControlTypeImpl.class);
+            table.cache();
+            Column mRidColumn = table.column("MRID").varChar(NAME_LENGTH).notNull().map("mRID").add();
+            table.column("ALIASNAME").varChar(SHORT_DESCRIPTION_LENGTH).map("aliasName").add();
+            table.column("DESCRIPTION").varChar(SHORT_DESCRIPTION_LENGTH).map("description").add();
+            table.addAuditColumns();
+            table.primaryKey("MTR_PK_ENDDEVICECONTROLTYPE").on(mRidColumn).add();
         }
     };
 

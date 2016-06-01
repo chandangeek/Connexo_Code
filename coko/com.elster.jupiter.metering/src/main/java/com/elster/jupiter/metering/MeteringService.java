@@ -1,21 +1,22 @@
 package com.elster.jupiter.metering;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.fsm.FiniteStateMachine;
+import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Subquery;
-import com.elster.jupiter.util.geo.SpatialCoordinates;
 
 import aQute.bnd.annotation.ProviderType;
 
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @ProviderType
@@ -121,9 +122,9 @@ public interface MeteringService {
      * Note that the effective timestamp cannot be in the future and if it is
      * this will throw an IllegalArgumentException.
      *
-     * @param effective           The instant in time on which the switch over was effective
-     * @param oldStateMachine     The old FiniteStateMachine
-     * @param newStateMachine     The new FiniteStateMachine
+     * @param effective The instant in time on which the switch over was effective
+     * @param oldStateMachine The old FiniteStateMachine
+     * @param newStateMachine The new FiniteStateMachine
      * @param deviceAmrIdSubquery The query that returns the amrId of each device to which the change should be applied
      */
     void changeStateMachine(Instant effective, FiniteStateMachine oldStateMachine, FiniteStateMachine newStateMachine, Subquery deviceAmrIdSubquery);
@@ -169,21 +170,43 @@ public interface MeteringService {
 
     LocationBuilder newLocationBuilder();
 
-    Optional<Location>findLocation(long id);
+    Optional<Location> findLocation(long id);
+
     Optional<Location> findDeviceLocation(String mRID);
+
     Optional<Location> findDeviceLocation(long id);
+
     Optional<Location> findUsagePointLocation(String mRID);
+
     Optional<Location> findUsagePointLocation(long id);
+
     Query<LocationMember> getLocationMemberQuery();
+
     void createLocationTemplate();
+
     LocationTemplate getLocationTemplate();
+
     List<List<String>> getFormattedLocationMembers(long id);
+
     GeoCoordinates createGeoCoordinates(String coordinates);
+
     Optional<GeoCoordinates> findGeoCoordinates(long id);
+
     Optional<GeoCoordinates> findDeviceGeoCoordinates(String mRID);
+
     Optional<GeoCoordinates> findDeviceGeoCoordinates(long id);
+
     Optional<GeoCoordinates> findUsagePointGeoCoordinates(String mRID);
+
     Optional<GeoCoordinates> findUsagePointGeoCoordinates(long id);
+
     Query<GeoCoordinates> getGeoCoordinatesQuery();
 
+    Optional<EndDeviceControlType> getEndDeviceControlType(String mRID);
+
+    EndDeviceControlType createEndDeviceControlType(String mRID);
+
+    List<HeadEndInterface> getHeadEndInterfaces();
+
+    Optional<HeadEndInterface> getHeadEndInterface(String amrSystem);
 }

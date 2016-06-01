@@ -21,6 +21,7 @@ import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.impl.config.FunctionCallNodeImpl;
+import com.elster.jupiter.metering.impl.config.MeterActivationValidatorsWhiteboard;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
 import com.elster.jupiter.metering.impl.config.ServerFormulaBuilder;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
@@ -87,6 +88,8 @@ public class CopyTest {
     private ReadingType readingType;
     @Mock
     private CustomPropertySetService customPropertySetService;
+    @Mock
+    private MeterActivationValidatorsWhiteboard meterActivationValidatorsWhiteboard;
 
     private ServerMetrologyConfigurationService metrologyConfigurationService;
 
@@ -102,7 +105,7 @@ public class CopyTest {
         when(messageFormat.format(anyVararg())).thenReturn("Translation not supported in unit testing");
         when(this.thesaurus.getFormat(any(TranslationKey.class))).thenReturn(messageFormat);
         when(this.thesaurus.getFormat(any(MessageSeed.class))).thenReturn(messageFormat);
-        this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this.meteringService, this.userService);
+        this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this.meteringService, this.userService, this.meterActivationValidatorsWhiteboard);
         when(this.meterActivation.getRange()).thenReturn(Range.atLeast(Instant.EPOCH));
         when(this.readingType.getMRID()).thenReturn("CopyTest");
     }

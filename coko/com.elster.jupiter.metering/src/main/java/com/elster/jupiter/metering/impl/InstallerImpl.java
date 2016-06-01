@@ -6,6 +6,7 @@ import com.elster.jupiter.cbo.EndDeviceEventTypeCodeBuilder;
 import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.cbo.EndDeviceType;
 import com.elster.jupiter.cbo.MarketRoleKind;
+import com.elster.jupiter.cbo.EndDeviceControlTypeCodeBuilder;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.Vault;
@@ -49,6 +50,8 @@ public class InstallerImpl {
     private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
     private static final int SLOT_COUNT = 8;
     private static final String IMPORT_FILE_NAME = "enddeviceeventtypes.csv";
+    //TODO update the enddevicecontroltypes csv file
+    private static final String IMPORT_CONTROL_TYPES = "enddevicecontroltypes.csv";
     private static final String NOT_APPLICABLE = "n/a";
 
     private final MeteringServiceImpl meteringService;
@@ -85,6 +88,7 @@ public class InstallerImpl {
         createAmrSystems();
         createEndDeviceEventTypes();
         createEventTypes();
+        createEndDeviceControlTypes();
         createQueues();
         createSqlAggregationComponents();
     }
@@ -284,6 +288,43 @@ public class InstallerImpl {
 
     public void addDefaultData(){
         createLocationTemplate();
+    }
+
+
+    private void createEndDeviceControlTypes() {
+        try (InputStream resourceAsStream = getClass().getClassLoader().getResourceAsStream(getClass().getPackage().getName().replace('.', '/') + '/' + IMPORT_CONTROL_TYPES)) {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(resourceAsStream));
+            for (String line : new BufferedReaderIterable(reader)) {
+                String[] fields = line.split(",");
+
+                for (EndDeviceType deviceType : endDeviceTypes(fields[0])) {
+                    for (EndDeviceDomain domain : domains(fields[1])) {
+                        for (EndDeviceSubDomain subDomain : subDomains(fields[2])) {
+                            for (EndDeviceEventOrAction eventOrAction : eventOrActions(fields[3])) {
+                                String code = EndDeviceControlTypeCodeBuilder
+                                        .type(deviceType)
+                                        .domain(domain)
+                                        .subDomain(subDomain)
+                                        .eventOrAction(eventOrAction)
+                                        .toCode();
+                                try {
+                                    if (meteringService.getEndDeviceControlType(code).isPresent()) {
+                                        LOGGER.finer("Skipping code " + code + ": already exists");
+                                    } else {
+                                        LOGGER.finer("adding code " + code);
+                                        meteringService.createEndDeviceControlType(code);
+                                    }
+                                } catch (Exception e) {
+                                    LOGGER.log(Level.SEVERE, "Error creating EndDeviceType \'" + code + "\' : " + e.getMessage(), e);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

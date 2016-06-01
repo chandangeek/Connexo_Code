@@ -43,10 +43,13 @@ import com.elster.jupiter.metering.UsagePointAccountability;
 import com.elster.jupiter.metering.UsagePointConnectedKind;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointFilter;
+import com.elster.jupiter.metering.EndDeviceControlType;
+import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.impl.aggregation.CalculatedReadingRecordFactory;
 import com.elster.jupiter.metering.impl.aggregation.CalculatedReadingRecordFactoryImpl;
+import com.elster.jupiter.metering.impl.config.MeterActivationValidatorsWhiteboard;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.metering.impl.search.PropertyTranslationKeys;
@@ -92,6 +95,9 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -111,6 +117,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -145,6 +153,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     private volatile PropertySpecService propertySpecService;
     private volatile UsagePointRequirementsSearchDomain usagePointRequirementsSearchDomain;
     private volatile LicenseService licenseService;
+    private volatile MeterActivationValidatorsWhiteboard meterActivationValidatorsWhiteboard;
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
 
     private volatile boolean createAllReadingTypes;
@@ -154,6 +163,8 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     private static String LOCATION_TEMPLATE = "com.elster.jupiter.location.template";
     private static String LOCATION_TEMPLATE_MANDATORY_FIELDS = "com.elster.jupiter.location.template.mandatoryfields";
 
+    private List<HeadEndInterface> headEndInterfaces = new CopyOnWriteArrayList<>();
+
     public MeteringServiceImpl() {
         this.createAllReadingTypes = true;
     }
@@ -162,7 +173,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     public MeteringServiceImpl(
             Clock clock, OrmService ormService, IdsService idsService, EventService eventService, PartyService partyService, QueryService queryService, UserService userService, NlsService nlsService, MessageService messageService, JsonService jsonService,
             FiniteStateMachineService finiteStateMachineService, @Named("createReadingTypes") boolean createAllReadingTypes, @Named("requiredReadingTypes") String requiredReadingTypes, CustomPropertySetService customPropertySetService,
-            PropertySpecService propertySpecService, SearchService searchService, LicenseService licenseService) {
+            PropertySpecService propertySpecService, SearchService searchService, LicenseService licenseService, MeterActivationValidatorsWhiteboard meterActivationValidatorsWhiteboard) {
         this.clock = clock;
         this.createAllReadingTypes = createAllReadingTypes;
         this.requiredReadingTypes = requiredReadingTypes.split(";");
@@ -180,6 +191,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         setPropertySpecService(propertySpecService);
         setSearchService(searchService);
         setLicenseService(licenseService);
+        setMeterActivationValidatorsWhiteboard(meterActivationValidatorsWhiteboard);
         activate(null);
         if (!dataModel.isInstalled()) {
             install();
@@ -196,6 +208,28 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     public void setJsonService(JsonService jsonService) {
         this.jsonService = jsonService;
     }
+
+    @Reference(name = "ZHeadEndInterface", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addHeadEndInterface(HeadEndInterface headEndInterface) {
+        headEndInterfaces.add(headEndInterface);
+    }
+
+    @SuppressWarnings("unused")
+    public void removeHeadEndInterface(HeadEndInterface headEndInterface) {
+        headEndInterfaces.remove(headEndInterface);
+    }
+
+    @Override
+    public  List<HeadEndInterface> getHeadEndInterfaces() {
+        return headEndInterfaces;
+    }
+
+    @Override
+    public Optional<HeadEndInterface> getHeadEndInterface(String amrSystem) {
+        return headEndInterfaces.stream()
+                .filter(itf -> itf.getAmrSystem().equalsIgnoreCase(amrSystem)).findFirst();
+    }
+
 
     @Override
     public Optional<ServiceCategory> getServiceCategory(ServiceKind kind) {
@@ -441,6 +475,11 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         this.licenseService = licenseService;
     }
 
+    @Reference
+    public void setMeterActivationValidatorsWhiteboard(MeterActivationValidatorsWhiteboard meterActivationValidatorsWhiteboard) {
+        this.meterActivationValidatorsWhiteboard = meterActivationValidatorsWhiteboard;
+    }
+
     @Activate
     public final void activate(BundleContext bundleContext) {
         if (dataModel != null && bundleContext != null) {
@@ -452,7 +491,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
             spec.addTo(dataModel);
         }
 
-        this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this, this.userService);
+        this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this, this.userService, this.meterActivationValidatorsWhiteboard);
         this.usagePointRequirementsSearchDomain = new UsagePointRequirementsSearchDomain(this.propertySpecService, this, this.metrologyConfigurationService, this.clock, this.licenseService);
         this.searchService.register(this.usagePointRequirementsSearchDomain);
         registerMetrologyConfigurationService(bundleContext);
@@ -1015,6 +1054,18 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         return queryService.wrap((QueryExecutor<GeoCoordinates>) executor);
     }
 
+    @Override
+    public Optional<EndDeviceControlType> getEndDeviceControlType(String mRID) {
+        return dataModel.mapper(EndDeviceControlType.class).getOptional(mRID);
+    }
+
+    @Override
+    public EndDeviceControlTypeImpl createEndDeviceControlType(String mRID) {
+        EndDeviceControlTypeImpl endDeviceControlType = dataModel.getInstance(EndDeviceControlTypeImpl.class).init(mRID);
+        dataModel.persist(endDeviceControlType);
+        return endDeviceControlType;
+    }
+
     private void createNewTemplate(BundleContext context) {
         String locationTemplateFields = context.getProperty(LOCATION_TEMPLATE);
         String locationTemplateMandatoryFields = context.getProperty(LOCATION_TEMPLATE_MANDATORY_FIELDS);
@@ -1023,5 +1074,4 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
                 .parseTemplate(locationTemplateFields, locationTemplateMandatoryFields);
         locationTemplateMembers = ImmutableList.copyOf(locationTemplate.getTemplateMembers());
     }
-
 }

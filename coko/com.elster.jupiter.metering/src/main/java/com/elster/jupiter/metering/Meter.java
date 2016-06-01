@@ -1,7 +1,8 @@
 package com.elster.jupiter.metering;
 
-import com.elster.jupiter.metering.impl.MeterActivationImpl;
+import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.readings.MeterReading;
+
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
@@ -19,9 +20,16 @@ public interface Meter extends EndDevice, ReadingContainer {
 
     MeterActivation activate(Instant start);
 
-    MeterActivationImpl activate(Range<Instant> start);
+    MeterActivation activate(Range<Instant> start);
 
-    MeterActivation activate(UsagePoint usagePoint, Instant start);
+    /**
+     * Use the {@link #activate(UsagePoint, MeterRole, Instant)} instead.
+     * In fact this method will call the mentioned method with {@link com.elster.jupiter.metering.config.DefaultMeterRole#DEFAULT} meter role.
+     */
+    @Deprecated
+    MeterActivation activate(UsagePoint usagePoint, Instant from);
+
+    MeterActivation activate(UsagePoint usagePoint, MeterRole meterRole, Instant from);
 
     Optional<? extends MeterActivation> getCurrentMeterActivation();
 
