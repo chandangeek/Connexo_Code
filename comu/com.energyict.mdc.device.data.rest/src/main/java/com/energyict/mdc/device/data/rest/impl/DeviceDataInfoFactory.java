@@ -103,7 +103,7 @@ public class DeviceDataInfoFactory {
     }
 
     private static BigDecimal getRoundedBigDecimal(BigDecimal value, Channel channel) {
-        return value != null ? value.setScale(channel.getChannelSpec().getNbrOfFractionDigits(), BigDecimal.ROUND_UP) : value;
+        return value != null ? value.setScale(channel.getNrOfFractionDigits(), BigDecimal.ROUND_UP) : value;
     }
 
     public LoadProfileDataInfo createLoadProfileDataInfo(LoadProfileReading loadProfileReading, DeviceValidation deviceValidation, List<Channel> channels, Boolean validationStatus) {
@@ -214,7 +214,7 @@ public class DeviceDataInfoFactory {
         }
 
         Quantity collectedValue = reading.getQuantityFor(register.getReadingType());
-        int numberOfFractionDigits = ((NumericalRegisterSpec) register.getRegisterSpec()).getNumberOfFractionDigits();
+        int numberOfFractionDigits = ((NumericalRegister) register).getNumberOfFractionDigits();
         if(collectedValue != null){
             numericalReadingInfo.value = collectedValue.getValue().setScale(numberOfFractionDigits, BigDecimal.ROUND_UP);
             numericalReadingInfo.unit = register.getRegisterSpec().getRegisterType().getUnit();
@@ -285,9 +285,9 @@ public class DeviceDataInfoFactory {
         registerInfo.id = registerSpec.getId();
         registerInfo.registerType = registerSpec.getRegisterType().getId();
         registerInfo.readingType = new ReadingTypeInfo(register.getReadingType());
-        registerInfo.obisCode = registerSpec.getObisCode();
-        registerInfo.overruledObisCode = registerSpec.getDeviceObisCode();
-        registerInfo.obisCodeDescription = registerSpec.getObisCode().getDescription();
+        registerInfo.obisCode = registerSpec.getDeviceObisCode();
+        registerInfo.overruledObisCode = register.getDeviceObisCode();
+        registerInfo.obisCodeDescription = register.getDeviceObisCode().getDescription();
         registerInfo.isCumulative = register.getReadingType().isCumulative();
         registerInfo.mRID = device.getmRID();
         registerInfo.version = device.getVersion();
@@ -324,7 +324,9 @@ public class DeviceDataInfoFactory {
         addCommonRegisterInfo(numericalRegister, numericalRegisterInfo);
         NumericalRegisterSpec registerSpec = numericalRegister.getRegisterSpec();
         numericalRegisterInfo.numberOfFractionDigits = registerSpec.getNumberOfFractionDigits();
+        numericalRegisterInfo.overruledNumberOfFractionDigits = numericalRegister.getNumberOfFractionDigits();
         registerSpec.getOverflowValue().ifPresent(overflow -> numericalRegisterInfo.overflow = overflow);
+        numericalRegister.getOverflow().ifPresent(overruledOverflowValue -> numericalRegisterInfo.overruledOverflow = overruledOverflowValue);
         Instant timeStamp = numericalRegister.getLastReadingDate().orElse(clock.instant());
         numericalRegister.getCalculatedReadingType(timeStamp).ifPresent(calculatedReadingType -> numericalRegisterInfo.calculatedReadingType = new ReadingTypeInfo(calculatedReadingType));
         numericalRegisterInfo.multiplier = numericalRegister.getMultiplier(timeStamp).orElseGet(() -> null);

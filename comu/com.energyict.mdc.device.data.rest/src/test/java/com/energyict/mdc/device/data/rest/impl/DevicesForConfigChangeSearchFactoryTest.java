@@ -19,13 +19,14 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.assertj.core.api.Condition;
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -50,7 +51,7 @@ public class DevicesForConfigChangeSearchFactoryTest {
         when(deviceConfigProperty.getName()).thenReturn("deviceConfiguration");
         when(deviceConfigProperty.getSelectionMode()).thenReturn(SearchableProperty.SelectionMode.MULTI);
         SearchDomain searchDomain = mock(SearchDomain.class);
-        when(searchDomain.supports(Device.class)).thenReturn(true);
+        doReturn(Device.class).when(searchDomain).getDomainClass();
         when(searchDomain.getId()).thenReturn("Device");
         when(searchDomain.getProperties()).thenReturn(Arrays.asList(deviceTypeProperty,  deviceConfigProperty));
         when(searchDomain.getPropertiesValues(Matchers.any())).thenAnswer(

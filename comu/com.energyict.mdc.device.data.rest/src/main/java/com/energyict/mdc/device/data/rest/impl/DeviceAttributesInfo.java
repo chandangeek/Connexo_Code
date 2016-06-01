@@ -28,8 +28,8 @@ public class DeviceAttributesInfo {
     public DeviceAttributeInfo<Instant> installationDate;
     public DeviceAttributeInfo<Instant> deactivationDate;
     public DeviceAttributeInfo<Instant> decommissioningDate;
-    public DeviceAttributeInfo<String> location;
-    public DeviceAttributeInfo<String> geoCoordinates;
+    public DeviceAttributeInfo<EditLocationInfo> location;
+    public DeviceAttributeInfo<CoordinatesInfo> geoCoordinates;
     public DeviceInfo device;
 
     @JsonIgnore
@@ -157,14 +157,21 @@ public class DeviceAttributesInfo {
         LOCATION {
             @Override
             public List<DefaultState> attributeIsEditableForStates() {
-                return Collections.emptyList();
+                return Arrays.asList(
+                        DefaultState.COMMISSIONING,
+                        DefaultState.ACTIVE,
+                        DefaultState.INACTIVE
+                );
             }
         },
-
         GEOCOORDINATES {
             @Override
             public List<DefaultState> attributeIsEditableForStates() {
-                return Collections.emptyList();
+                return Arrays.asList(
+                        DefaultState.COMMISSIONING,
+                        DefaultState.ACTIVE,
+                        DefaultState.INACTIVE
+                );
             }
         };
 

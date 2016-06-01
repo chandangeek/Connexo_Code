@@ -20,6 +20,7 @@ import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.metering.LocationTemplate;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
@@ -96,6 +97,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.assertj.core.data.MapEntry;
@@ -120,12 +122,12 @@ import static org.mockito.Mockito.when;
 public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     public static final Instant NOW = Instant.ofEpochMilli(1409738114);
-    public ReadingType readingType;
     public static final long startTimeFirst = 1416403197000L;
     public static final long endTimeFirst = 1479561597000L;
     public static final long endTimeSecond = 1489561597000L;
     public static final long startTimeNew = 1469561597000L;
     public static final long endTimeNew = 1499561597000L;
+    public ReadingType readingType;
 
     @Before
     public void setupStubs() {
@@ -1237,6 +1239,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.of(oldGateway));
         when(meteringService.findDeviceLocation(device.getmRID())).thenReturn(Optional.empty());
         when(meteringService.findDeviceGeoCoordinates(device.getmRID())).thenReturn(Optional.empty());
+        when(deviceConfigurationService.findTimeOfUseOptions(any())).thenReturn(Optional.empty());
 
         DeviceInfo info = new DeviceInfo();
         info.id = 1L;
@@ -1281,6 +1284,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(eq(1L), anyLong())).thenReturn(Optional.of(deviceConfiguration));
         when(meteringService.findDeviceLocation(device.getmRID())).thenReturn(Optional.empty());
         when(meteringService.findDeviceGeoCoordinates(device.getmRID())).thenReturn(Optional.empty());
+        when(deviceConfigurationService.findTimeOfUseOptions(any())).thenReturn(Optional.empty());
 
         when(batchService.findBatch(device)).thenReturn(Optional.empty());
         Device oldMaster = mock(Device.class);
@@ -1397,6 +1401,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     private Channel mockChannel(String name, String mrid, long id) {
         Channel mock = mock(Channel.class);
         ChannelSpec channelSpec = mock(ChannelSpec.class);
+        when(channelSpec.getOverflow()).thenReturn(Optional.empty());
         when(mock.getName()).thenReturn(name);
         when(mock.getId()).thenReturn(id);
         when(mock.getChannelSpec()).thenReturn(channelSpec);
@@ -1471,6 +1476,12 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(device.getState()).thenReturn(state);
         when(deviceService.findByUniqueMrid(anyString())).thenReturn(Optional.of(device));
 
+        DeviceConfiguration configuration = mock(DeviceConfiguration.class);
+        when(deviceConfigurationService.getSupportedTimeOfUseOptionsFor(any(), eq(true))).thenReturn(Collections.EMPTY_SET);
+        when(deviceConfigurationService.findTimeOfUseOptions(anyObject())).thenReturn(Optional.empty());
+        when(device.getDeviceConfiguration()).thenReturn(configuration);
+        when(device.getDeviceConfiguration().getDeviceType()).thenReturn(null);
+
         String response = target("/devices/1/privileges").request().get(String.class);
         JsonModel model = JsonModel.create(response);
         assertThat(model.<Number>get("$.total")).isEqualTo(17);
@@ -1504,6 +1515,12 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(device.getState()).thenReturn(state);
         when(deviceService.findByUniqueMrid(anyString())).thenReturn(Optional.of(device));
 
+        DeviceConfiguration configuration = mock(DeviceConfiguration.class);
+        when(deviceConfigurationService.getSupportedTimeOfUseOptionsFor(any(), eq(true))).thenReturn(Collections.EMPTY_SET);
+        when(deviceConfigurationService.findTimeOfUseOptions(anyObject())).thenReturn(Optional.empty());
+        when(device.getDeviceConfiguration()).thenReturn(configuration);
+        when(device.getDeviceConfiguration().getDeviceType()).thenReturn(null);
+
         String response = target("/devices/1/privileges").request().get(String.class);
         JsonModel model = JsonModel.create(response);
         assertThat(model.<Number>get("$.total")).isEqualTo(0);
@@ -1518,6 +1535,11 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         Device device = mock(Device.class);
         when(device.getState()).thenReturn(state);
         when(deviceService.findByUniqueMrid(anyString())).thenReturn(Optional.of(device));
+        DeviceConfiguration configuration = mock(DeviceConfiguration.class);
+        when(deviceConfigurationService.getSupportedTimeOfUseOptionsFor(any(), eq(true))).thenReturn(Collections.EMPTY_SET);
+        when(deviceConfigurationService.findTimeOfUseOptions(anyObject())).thenReturn(Optional.empty());
+        when(device.getDeviceConfiguration()).thenReturn(configuration);
+        when(device.getDeviceConfiguration().getDeviceType()).thenReturn(null);
 
         String response = target("/devices/1/privileges").request().get(String.class);
         JsonModel model = JsonModel.create(response);
@@ -1729,6 +1751,39 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         info.objectTypeId = 1L;
         info.objectTypeVersion = 1L;
         response = target("devices/1/customproperties/1/versions/1416403197000").queryParam("forced", true).request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(200);
+    }
+
+    @Test
+    public void testGetDeviceLocation() throws Exception {
+        LocationTemplate locationTemplate = mock(LocationTemplate.class);
+        List<String> templateElementsNames = new ArrayList<>();
+
+        templateElementsNames.add("zipCode");
+        templateElementsNames.add("countryCode");
+        templateElementsNames.add("countryName");
+
+        when(meteringService.getLocationTemplate()).thenReturn(locationTemplate);
+        when(locationTemplate.getTemplateElementsNames()).thenReturn(templateElementsNames);
+
+        LocationTemplate.TemplateField zipCode = mock(LocationTemplate.TemplateField.class);
+        LocationTemplate.TemplateField countryCode = mock(LocationTemplate.TemplateField.class);
+        LocationTemplate.TemplateField countryName = mock(LocationTemplate.TemplateField.class);
+
+        List<LocationTemplate.TemplateField> templateMembers = new ArrayList<>();
+        templateMembers.add(zipCode);
+        templateMembers.add(countryCode);
+        templateMembers.add(countryName);
+        when(locationTemplate.getTemplateMembers()).thenReturn(templateMembers);
+        when(zipCode.getName()).thenReturn("zipCode");
+        when(countryCode.getName()).thenReturn("countryCode");
+        when(countryName.getName()).thenReturn("countryName");
+
+        when(zipCode.isMandatory()).thenReturn(true);
+        when(countryCode.isMandatory()).thenReturn(false);
+        when(countryName.isMandatory()).thenReturn(false);
+
+        Response response = target("devices/locations/1").request().get();
         assertThat(response.getStatus()).isEqualTo(200);
     }
 

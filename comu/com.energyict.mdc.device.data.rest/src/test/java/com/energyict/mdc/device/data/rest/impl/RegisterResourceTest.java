@@ -22,10 +22,9 @@ import com.energyict.mdc.device.data.NumericalRegister;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
+
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Before;
-import org.junit.Test;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -37,11 +36,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
 import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -311,6 +315,8 @@ public class RegisterResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(numericalRegister.getLastReading()).thenReturn(Optional.empty());
         when(numericalRegister.getDevice()).thenReturn(device);
         when(numericalRegister.getLastReadingDate()).thenReturn(Optional.empty());
+        when(numericalRegister.getDeviceObisCode()).thenReturn(registerSpecObisCode);
+        when(numericalRegister.getOverflow()).thenReturn(Optional.empty());
         multiplier.ifPresent(multiplierValue -> when(device.getMultiplier()).thenReturn(multiplierValue));
         when(device.getRegisters()).thenReturn(Collections.singletonList(numericalRegister));
     }

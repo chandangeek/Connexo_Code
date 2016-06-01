@@ -10,7 +10,9 @@ import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.common.services.ListPager;
+import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.NumericalRegister;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.security.Privileges;
 
@@ -33,6 +35,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -55,7 +58,8 @@ public class RegisterResource {
         this.deviceDataInfoFactory = deviceDataInfoFactory;
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
     public PagedInfoList getRegisters(@PathParam("mRID") String mRID, @BeanParam JsonQueryParameters queryParameters) {
@@ -71,7 +75,8 @@ public class RegisterResource {
         return readingType1.getAliasName().compareToIgnoreCase(readingType2.getAliasName());
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/{registerId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
@@ -80,7 +85,35 @@ public class RegisterResource {
         return deviceDataInfoFactory.createRegisterInfo(register, validationInfoHelper.getRegisterValidationInfo(register));
     }
 
-    @GET @Transactional
+    @PUT
+    @Transactional
+    @Path("/{registerId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE})
+    public Response updateRegister(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, RegisterInfo registerInfo) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+        Register<?, ?> register = doGetRegister(mRID, registerId);
+        Register.RegisterUpdater registerUpdater = device.getRegisterUpdaterFor(register);
+        if (register.getRegisterSpec() instanceof NumericalRegisterSpec) {
+            NumericalRegisterInfo numericalRegisterInfo = ((NumericalRegisterInfo) registerInfo);
+            if (!Objects.equals(numericalRegisterInfo.overruledNumberOfFractionDigits, numericalRegisterInfo.numberOfFractionDigits)) {
+                registerUpdater.setNumberOfFractionDigits(numericalRegisterInfo.overruledNumberOfFractionDigits);
+            }
+            if (numericalRegisterInfo.overruledOverflow == null && ((NumericalRegister) register).getOverflow().isPresent() ||
+                    !Objects.equals(numericalRegisterInfo.overruledOverflow, numericalRegisterInfo.overflow)) {
+                registerUpdater.setOverflowValue(numericalRegisterInfo.overruledOverflow);
+            }
+        }
+        if (!registerInfo.overruledObisCode.equals(registerInfo.obisCode)) {
+            registerUpdater.setObisCode(registerInfo.overruledObisCode);
+        }
+        registerUpdater.update();
+        return Response.ok().build();
+    }
+
+    @GET
+    @Transactional
     @Path("/{registerId}/customproperties")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
@@ -90,7 +123,8 @@ public class RegisterResource {
         return PagedInfoList.fromCompleteList("customproperties", customPropertySetInfo != null ? Collections.singletonList(customPropertySetInfo) : new ArrayList<>(), queryParameters);
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/{registerId}/customproperties/{cpsId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
@@ -103,7 +137,8 @@ public class RegisterResource {
         return customPropertySetInfo;
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/{registerId}/customproperties/{cpsId}/versions/{timeStamp}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
@@ -116,7 +151,8 @@ public class RegisterResource {
         return customPropertySetInfo;
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/{registerId}/customproperties/{cpsId}/versions")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
@@ -125,7 +161,8 @@ public class RegisterResource {
         return PagedInfoList.fromCompleteList("versions", resourceHelper.getVersionedCustomPropertySetHistoryInfos(register, cpsId), queryParameters);
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/{registerId}/customproperties/{cpsId}/currentinterval")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
@@ -136,7 +173,8 @@ public class RegisterResource {
         return IntervalInfo.from(interval.toClosedOpenRange());
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/{registerId}/customproperties/{cpsId}/conflicts")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
@@ -147,7 +185,8 @@ public class RegisterResource {
         return PagedInfoList.fromCompleteList("conflicts", overlapInfos, queryParameters);
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/{registerId}/customproperties/{cpsId}/conflicts/{timeStamp}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
@@ -158,7 +197,8 @@ public class RegisterResource {
         return PagedInfoList.fromCompleteList("conflicts", overlapInfos, queryParameters);
     }
 
-    @PUT @Transactional
+    @PUT
+    @Transactional
     @Path("/{registerId}/customproperties/{cpsId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -171,7 +211,8 @@ public class RegisterResource {
         return Response.ok().build();
     }
 
-    @POST @Transactional
+    @POST
+    @Transactional
     @Path("/{registerId}/customproperties/{cpsId}/versions")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
@@ -198,7 +239,8 @@ public class RegisterResource {
         return Response.ok().build();
     }
 
-    @PUT @Transactional
+    @PUT
+    @Transactional
     @Path("/{registerId}/customproperties/{cpsId}/versions/{timeStamp}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
@@ -225,7 +267,8 @@ public class RegisterResource {
         return Response.ok().build();
     }
 
-    @PUT @Transactional
+    @PUT
+    @Transactional
     @Path("/{registerId}/validate")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -264,7 +307,8 @@ public class RegisterResource {
     }
 
     @Path("{registerId}/validationstatus")
-    @GET @Transactional
+    @GET
+    @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({com.elster.jupiter.validation.security.Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.Constants.VIEW_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
     public Response getValidationFeatureStatus(@PathParam("mRID") String mrid, @PathParam("registerId") long registerId) {
@@ -274,7 +318,8 @@ public class RegisterResource {
     }
 
     @Path("{registerId}/validationpreview")
-    @GET @Transactional
+    @GET
+    @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({com.elster.jupiter.validation.security.Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.Constants.VIEW_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
     public Response getValidationStatusPreview(@PathParam("mRID") String mrid, @PathParam("registerId") long registerId) {
