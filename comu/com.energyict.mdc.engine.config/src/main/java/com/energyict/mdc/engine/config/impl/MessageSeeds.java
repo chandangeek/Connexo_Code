@@ -1,8 +1,7 @@
 package com.energyict.mdc.engine.config.impl;
 
-import com.energyict.mdc.engine.config.EngineConfigurationService;
-
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
 
 import java.util.logging.Level;
 
@@ -33,6 +32,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_PLUGGABLE_CLASS(113, Keys.MDC_COM_PORT_POOL_PLUGGABLE_CLASS_INVALID, "The comportpool references a non-existing pluggable class", Level.SEVERE),
     VETO_DISCOVERYPROTOCOLPLUGGABLECLASS_DELETION(114, Keys.DISCOVERY_PROTOCOL_PLUGGABLE_CLASS_XSTILL_IN_USE_BY_DEVICE_TYPES_Y, "The device protocol pluggable class {0} is still used by the following device types: {1}", Level.SEVERE),
     PORT_NUMBER_MAX_VALUE(115, Keys.PORT_NUMBER_MAX_VALUE, "Maximum acceptable value is {value}", Level.SEVERE),
+    DUPLICATE_COMSERVER_URI(116, Keys.MDC_DUPLICATE_COM_SERVER_URI, "There is already another communication server defined with the same server name and port", Level.SEVERE),
     ;
 
     private final int number;
@@ -84,6 +84,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String MDC_ACTIVE_INBOUND_COMPORT_MUST_HAVE_POOL = "activeInboundPortMustHavePool";
 
         public static final String MDC_DUPLICATE_COM_SERVER = "DuplicateComServer";
+        public static final String MDC_DUPLICATE_COM_SERVER_URI = "DuplicateComServerUri";
         public static final String MDC_COMSERVER_NO_UPDATE_ALLOWED = "comserver.noUpdateAllowed";
         public static final String MDC_ONLINE_COM_SERVER_STILL_REFERENCED = "OnlineComServerXStillReferenced";
         public static final String MDC_COMPORTPOOL_STILL_REFERENCED = "ComPortPoolStillReferenced";

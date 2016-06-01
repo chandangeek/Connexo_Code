@@ -338,33 +338,6 @@ public abstract class ComServerImpl implements ComServer {
         }
     }
 
-    /**
-     * Returns the default event registration URI for this ComServer.
-     *
-     * @return The default event registration URI
-     */
-    protected String defaultEventRegistrationUri () {
-        return "ws://" + this.getName() + ":" + DEFAULT_EVENT_REGISTRATION_PORT_NUMBER + "/events/registration";
-    }
-
-    /**
-     * Returns the default query api URI for this ComServer.
-     *
-     * @return The default query api URI
-     */
-    protected String defaultQueryApiPostUri () {
-        return "ws://" + this.getName() + ":" + DEFAULT_QUERY_API_PORT_NUMBER + "/remote/queries";
-    }
-
-    /**
-     * Returns the default event registration URI for this ComServer.
-     *
-     * @return The default event registration URI
-     */
-    protected String defaultStatusUri () {
-        return "http://" + this.getName() + ":8080/api/dsr/comserverstatus";
-    }
-
     @Override
     public boolean isOnline () {
         return false;

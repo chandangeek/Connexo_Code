@@ -31,14 +31,12 @@ public final class RemoteComServerImpl extends ComServerImpl implements RemoteCo
 
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY + "}")
     private final Reference<OnlineComServer> onlineComServer = ValueReference.absent();
-    private boolean usesDefaultEventRegistrationUri = true;
     @URI(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.MDC_INVALID_URL + "}")
     @Size(max = 512)
     private String eventRegistrationUri;
     @URI(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.MDC_INVALID_URL + "}")
     @Size(max = 512)
     private String statusUri;
-    private boolean usesDefaultStatusUri = true;
 
     public static RemoteComServer from(DataModel dataModel) {
         return dataModel.getInstance(RemoteComServerImpl.class);
@@ -66,27 +64,13 @@ public final class RemoteComServerImpl extends ComServerImpl implements RemoteCo
 
     @Override
     public void setEventRegistrationUri(String eventRegistrationUri) {
-        this.usesDefaultEventRegistrationUri = Checks.is(eventRegistrationUri).emptyOrOnlyWhiteSpace();
         this.eventRegistrationUri = eventRegistrationUri;
     }
 
     @Override
     @XmlElement
     public String getEventRegistrationUri() {
-        if (this.usesDefaultEventRegistrationUri) {
-            return this.defaultEventRegistrationUri();
-        }
         return eventRegistrationUri;
-    }
-
-    @Override
-    public boolean usesDefaultEventRegistrationUri() {
-        return this.usesDefaultEventRegistrationUri;
-    }
-
-    @Override
-    public void setUsesDefaultEventRegistrationUri(boolean usesDefaultEventRegistrationUri) {
-        this.usesDefaultEventRegistrationUri = usesDefaultEventRegistrationUri;
     }
 
     @Override
@@ -100,27 +84,13 @@ public final class RemoteComServerImpl extends ComServerImpl implements RemoteCo
 
     @Override
     public void setStatusUri(String statusUri) {
-        this.usesDefaultStatusUri = Checks.is(statusUri).emptyOrOnlyWhiteSpace();
         this.statusUri = statusUri;
     }
 
     @Override
     @XmlElement
     public String getStatusUri() {
-        if (this.usesDefaultStatusUri) {
-            return this.defaultStatusUri();
-        }
         return statusUri;
-    }
-
-    @Override
-    public boolean usesDefaultStatusUri() {
-        return this.usesDefaultStatusUri;
-    }
-
-    @Override
-    public void setUsesDefaultStatusUri(boolean usesDefaultStatusUri) {
-        this.usesDefaultStatusUri = usesDefaultStatusUri;
     }
 
     static class RemoteComServerBuilderImpl extends AbstractComServerBuilder<RemoteComServerImpl, RemoteComServerBuilder> implements RemoteComServerBuilder<RemoteComServerImpl> {
@@ -145,18 +115,6 @@ public final class RemoteComServerImpl extends ComServerImpl implements RemoteCo
         @Override
         public RemoteComServerBuilder statusUri(String statusUri) {
             getComServerInstance().setStatusUri(statusUri);
-            return this;
-        }
-
-        @Override
-        public RemoteComServerBuilder usesDefaultEventRegistrationUri(boolean usesDefaultEventRegistrationUri) {
-            getComServerInstance().setUsesDefaultEventRegistrationUri(usesDefaultEventRegistrationUri);
-            return this;
-        }
-
-        @Override
-        public RemoteComServerBuilder usesDefaultStatusUri(boolean usesDefaultStatusUri) {
-            getComServerInstance().setUsesDefaultStatusUri(usesDefaultStatusUri);
             return this;
         }
     }

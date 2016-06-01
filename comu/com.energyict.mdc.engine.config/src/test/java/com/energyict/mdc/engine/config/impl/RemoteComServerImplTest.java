@@ -13,10 +13,13 @@ import com.google.inject.Provider;
 
 import java.sql.SQLException;
 
-import org.junit.*;
+import org.junit.Test;
 import org.mockito.Mock;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
 * Tests the {@link RemoteComServerImpl} component.
@@ -68,30 +71,6 @@ public class RemoteComServerImplTest extends PersistenceTest {
         assertEquals(CHANGES_INTER_POLL_DELAY, comServer.getChangesInterPollDelay());
         assertEquals(SCHEDULING_INTER_POLL_DELAY, comServer.getSchedulingInterPollDelay());
         assertEquals(onlineComServer.getId(), comServer.getOnlineComServer().getId());
-    }
-
-    @Test
-    @Transactional
-    public void testThatDefaultURIsAreApplied() throws SQLException {
-        OnlineComServer onlineComServer = this.createOnlineComServer();
-
-        RemoteComServer.RemoteComServerBuilder<? extends RemoteComServer> remoteComServer = getEngineModelService().newRemoteComServerBuilder();
-        String name = NO_VIOLATIONS_NAME;
-        remoteComServer.name(name);
-        remoteComServer.active(true);
-        remoteComServer.serverLogLevel(SERVER_LOG_LEVEL);
-        remoteComServer.communicationLogLevel(COMMUNICATION_LOG_LEVEL);
-        remoteComServer.changesInterPollDelay(CHANGES_INTER_POLL_DELAY);
-        remoteComServer.schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
-        remoteComServer.onlineComServer(onlineComServer);
-
-        // Business method
-        remoteComServer.create();
-        RemoteComServer comServer = (RemoteComServer) getEngineModelService().findComServer(name).get();
-
-        // Asserts
-        assertTrue(comServer.usesDefaultEventRegistrationUri());
-        assertNotNull(comServer.getEventRegistrationUri());
     }
 
     @Test
@@ -387,64 +366,6 @@ public class RemoteComServerImplTest extends PersistenceTest {
         assertEquals(changedComLogLevel, comServer.getCommunicationLogLevel());
         assertEquals(changedChangesInterPollDelay, comServer.getChangesInterPollDelay());
         assertEquals(changedSchedulingInterPollDelay, comServer.getSchedulingInterPollDelay());
-    }
-
-    @Test
-    @Transactional
-    public void testResetEventRegistrationAPIViaBooleanMethod() throws SQLException {
-        OnlineComServer onlineComServer = this.createOnlineComServer();
-
-        RemoteComServer.RemoteComServerBuilder<? extends RemoteComServer> remoteComServer = getEngineModelService().newRemoteComServerBuilder();
-        String name = "withCustomURI";
-        remoteComServer.name(name);
-        remoteComServer.active(true);
-        remoteComServer.serverLogLevel(SERVER_LOG_LEVEL);
-        remoteComServer.communicationLogLevel(COMMUNICATION_LOG_LEVEL);
-        remoteComServer.changesInterPollDelay(CHANGES_INTER_POLL_DELAY);
-        remoteComServer.schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
-        remoteComServer.onlineComServer(onlineComServer);
-        remoteComServer.eventRegistrationUri(EVENT_REGISTRATION_URI);
-        remoteComServer.create();
-
-        RemoteComServer comServer = (RemoteComServer) getEngineModelService().findComServer(name).get();
-        String eventRegistrationUri = comServer.getEventRegistrationUri();
-
-        // Business method
-        comServer.setUsesDefaultEventRegistrationUri(true);
-        comServer.update();
-
-        // Asserts
-        assertTrue(comServer.usesDefaultEventRegistrationUri());
-        assertNotEquals(eventRegistrationUri, comServer.getEventRegistrationUri());
-    }
-
-    @Test
-    @Transactional
-    public void testResetEventRegistrationAPIViaNullURI() throws SQLException {
-        OnlineComServer onlineComServer = this.createOnlineComServer();
-
-        RemoteComServer.RemoteComServerBuilder<? extends RemoteComServer> remoteComServer = getEngineModelService().newRemoteComServerBuilder();
-        String name = "withCustomURI";
-        remoteComServer.name(name);
-        remoteComServer.active(true);
-        remoteComServer.serverLogLevel(SERVER_LOG_LEVEL);
-        remoteComServer.communicationLogLevel(COMMUNICATION_LOG_LEVEL);
-        remoteComServer.changesInterPollDelay(CHANGES_INTER_POLL_DELAY);
-        remoteComServer.schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
-        remoteComServer.onlineComServer(onlineComServer);
-        remoteComServer.eventRegistrationUri(EVENT_REGISTRATION_URI);
-        remoteComServer.create();
-
-        RemoteComServer comServer = (RemoteComServer) getEngineModelService().findComServer(name).get();
-        String eventRegistrationUri = comServer.getEventRegistrationUri();
-
-        // Business method
-        comServer.setEventRegistrationUri(null);
-        comServer.update();
-
-        // Asserts
-        assertTrue(comServer.usesDefaultEventRegistrationUri());
-        assertNotEquals(eventRegistrationUri, comServer.getEventRegistrationUri());
     }
 
     @Test
