@@ -169,7 +169,7 @@ public class ValidationRuleSetImplIT {
             @Override
             protected void doPerform() {
                 readingType = injector.getInstance(MeteringService.class).getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
-                ValidationRuleSet validationRuleSet = injector.getInstance(ValidationService.class).createValidationRuleSet("myRuleSet");
+                ValidationRuleSet validationRuleSet = injector.getInstance(ValidationService.class).createValidationRuleSet("myRuleSet", "MDC");
                 ValidationRuleSetVersion validationRuleSetVersion = validationRuleSet.addRuleSetVersion("description", Instant.EPOCH);
                 ValidationRule zeroesRule = validationRuleSetVersion.addRule(ValidationAction.FAIL, CONSEC_ZEROS_VALIDATOR_CLASS, "consecutiveZeroes")
                         .withReadingType(readingType)
@@ -196,7 +196,7 @@ public class ValidationRuleSetImplIT {
         ValidationRuleSet validationRuleSet;
         try (TransactionContext context = transactionService.getContext()) {
             readingType = injector.getInstance(MeteringService.class).getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
-            validationRuleSet = injector.getInstance(ValidationService.class).createValidationRuleSet("myRuleSet");
+            validationRuleSet = injector.getInstance(ValidationService.class).createValidationRuleSet("myRuleSet", "MDC");
             ValidationRuleSetVersion validationRuleSetVersion = validationRuleSet.addRuleSetVersion("description", Instant.EPOCH);
             ValidationRule zeroesRule = validationRuleSetVersion.addRule(ValidationAction.FAIL, CONSEC_ZEROS_VALIDATOR_CLASS, "consecutiveZeroes")
                     .withReadingType(readingType)
@@ -229,7 +229,7 @@ public class ValidationRuleSetImplIT {
         ValidationRuleSet validationRuleSet;
         try (TransactionContext context = transactionService.getContext()) {
             readingType = injector.getInstance(MeteringService.class).getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
-            validationRuleSet = injector.getInstance(ValidationService.class).createValidationRuleSet("myRuleSet");
+            validationRuleSet = injector.getInstance(ValidationService.class).createValidationRuleSet("myRuleSet", "MDC");
             ValidationRuleSetVersion validationRuleSetVersion = validationRuleSet.addRuleSetVersion("description", Instant.EPOCH);
             ValidationRule zeroesRule = validationRuleSetVersion.addRule(ValidationAction.FAIL, CONSEC_ZEROS_VALIDATOR_CLASS, "consecutiveZeroes")
                     .withReadingType(readingType)
