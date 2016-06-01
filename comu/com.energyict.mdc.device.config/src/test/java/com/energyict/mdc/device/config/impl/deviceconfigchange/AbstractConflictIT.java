@@ -77,7 +77,6 @@ import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
@@ -101,9 +100,12 @@ import java.time.Clock;
 import java.util.Arrays;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.rules.*;
-import org.junit.runner.*;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.verification.VerificationMode;
@@ -232,7 +234,6 @@ public abstract class AbstractConflictIT {
             protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
             protocolPluggableService.addLicensedProtocolService(licensedProtocolService);
             protocolPluggableService.addConnectionTypeService(connectionTypeService);
-            injector.getInstance(PluggableService.class);
             injector.getInstance(MasterDataService.class);
             injector.getInstance(TaskService.class);
             injector.getInstance(ValidationService.class);
@@ -243,9 +244,11 @@ public abstract class AbstractConflictIT {
                     injector.getInstance(ThreadPrincipalService.class),
                     eventService,
                     nlsService,
+                    injector.getInstance(com.elster.jupiter.properties.PropertySpecService.class),
                     injector.getInstance(MeteringService.class),
                     injector.getInstance(MdcReadingTypeUtilService.class),
                     injector.getInstance(UserService.class),
+                    injector.getInstance(PluggableService.class),
                     protocolPluggableService,
                     engineConfigurationService,
                     schedulingService,
@@ -255,7 +258,6 @@ public abstract class AbstractConflictIT {
                     finiteStateMachineService,
                     injector.getInstance(DeviceLifeCycleConfigurationService.class),
                     injector.getInstance(CalendarService.class),
-                    injector.getInstance(DeviceMessageSpecificationService.class),
                     UpgradeModule.FakeUpgradeService.getInstance());
             ctx.commit();
         }

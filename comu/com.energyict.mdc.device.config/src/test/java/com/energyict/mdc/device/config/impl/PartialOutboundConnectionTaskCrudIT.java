@@ -81,7 +81,6 @@ import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
@@ -245,7 +244,6 @@ public class PartialOutboundConnectionTaskCrudIT {
             protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
             protocolPluggableService.addLicensedProtocolService(licensedProtocolService);
             protocolPluggableService.addConnectionTypeService(connectionTypeService);
-            injector.getInstance(PluggableService.class);
             injector.getInstance(MasterDataService.class);
             injector.getInstance(TaskService.class);
             injector.getInstance(ValidationService.class);
@@ -256,9 +254,11 @@ public class PartialOutboundConnectionTaskCrudIT {
                     injector.getInstance(ThreadPrincipalService.class),
                     eventService,
                     nlsService,
+                    injector.getInstance(com.elster.jupiter.properties.PropertySpecService.class),
                     injector.getInstance(MeteringService.class),
                     injector.getInstance(MdcReadingTypeUtilService.class),
                     injector.getInstance(UserService.class),
+                    injector.getInstance(PluggableService.class),
                     protocolPluggableService,
                     engineConfigurationService,
                     schedulingService,
@@ -268,7 +268,6 @@ public class PartialOutboundConnectionTaskCrudIT {
                     finiteStateMachineService,
                     injector.getInstance(DeviceLifeCycleConfigurationService.class),
                     injector.getInstance(CalendarService.class),
-                    injector.getInstance(DeviceMessageSpecificationService.class),
                     UpgradeModule.FakeUpgradeService.getInstance());
             ctx.commit();
         }
