@@ -5,6 +5,7 @@
         <groupId>com.elster.jupiter</groupId>
         <artifactId>platform</artifactId>
         <version>1.2.0${revision}</version>
+        <relativePath>../com.elster.jupiter.platform/pom.xml</relativePath>
     </parent>
     <artifactId>upgrade</artifactId>
     <version>1.0.0${revision}</version>
