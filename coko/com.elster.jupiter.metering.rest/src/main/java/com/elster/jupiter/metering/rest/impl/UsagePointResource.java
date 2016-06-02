@@ -70,6 +70,7 @@ public class UsagePointResource {
     private final ExceptionFactory exceptionFactory;
     private final MetrologyConfigurationService metrologyConfigurationService;
     private final MetrologyConfigurationInfoFactory metrologyConfigurationInfoFactory;
+    private final ResourceHelper resourceHelper;
 
     @Inject
     public UsagePointResource(MeteringService meteringService,
@@ -81,7 +82,8 @@ public class UsagePointResource {
                               ExceptionFactory exceptionFactory,
                               Thesaurus thesaurus,
                               MetrologyConfigurationService metrologyConfigurationService,
-                              MetrologyConfigurationInfoFactory metrologyConfigurationInfoFactory) {
+                              MetrologyConfigurationInfoFactory metrologyConfigurationInfoFactory,
+                              ResourceHelper resourceHelper) {
         this.meteringService = meteringService;
         this.transactionService = transactionService;
         this.clock = clock;
@@ -92,6 +94,7 @@ public class UsagePointResource {
         this.exceptionFactory = exceptionFactory;
         this.metrologyConfigurationService = metrologyConfigurationService;
         this.metrologyConfigurationInfoFactory = metrologyConfigurationInfoFactory;
+        this.resourceHelper = resourceHelper;
     }
 
     @GET
@@ -263,7 +266,7 @@ public class UsagePointResource {
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
     @Path("/{mRID}/servicecategories")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public PagedInfoList getMetrologyConfigurations(@PathParam("mRID") String mRID, @Context SecurityContext securityContext, @BeanParam JsonQueryParameters queryParameters) {
+    public PagedInfoList getMetrologyConfigurations(@PathParam("mRID") String mRID, @BeanParam JsonQueryParameters queryParameters) {
         ServiceCategory serviceCategory = fetchUsagePoint(mRID).getServiceCategory();
         List<UsagePointMetrologyConfiguration> allMetrologyConfigurations =
                 metrologyConfigurationService
@@ -280,6 +283,24 @@ public class UsagePointResource {
                 .map(metrologyConfigurationInfoFactory::asShortInfo)
                 .collect(Collectors.toList());
         return PagedInfoList.fromPagedList("metrologyConfigurations", metrologyConfigurationsInfos, queryParameters);
+    }
+
+    @PUT
+    @Path("/{mRID}/metrologyconfigurations")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
+    @Transactional
+    public Response addMetrologyConfigurationVersion(@PathParam("mRID") String mRID, MetrologyConfigurationVersionInfo info) {
+        UsagePoint usagePoint = fetchUsagePoint(mRID);
+        UsagePointMetrologyConfiguration metrologyConfiguration = resourceHelper.findMetrologyConfiguration(info.id);
+
+        usagePoint.apply(metrologyConfiguration, info.startTime);
+        if (info.endTime != null) {
+            usagePoint.removeMetrologyConfiguration(info.endTime);
+        }
+
+        return Response.status(Response.Status.CREATED).entity(info).build();
     }
 
     private ReadingInfos doGetReadingTypeReadings(String mRID, String rtMrid, Range<Instant> range) {
