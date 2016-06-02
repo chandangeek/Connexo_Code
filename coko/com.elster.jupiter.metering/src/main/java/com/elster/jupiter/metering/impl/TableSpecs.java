@@ -522,7 +522,7 @@ public enum TableSpecs {
                     .conversion(NUMBER2LONGNULLZERO)
                     .add();
             Column meterRoleIdColumn = table.column("METERROLE")
-                    .number()
+                    .varChar(Table.NAME_LENGTH)
                     .add();
             table.addIntervalColumns("interval");
             table.addAuditColumns();
