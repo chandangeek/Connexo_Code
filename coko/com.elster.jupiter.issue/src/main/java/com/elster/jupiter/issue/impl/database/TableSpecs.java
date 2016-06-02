@@ -16,10 +16,10 @@ import com.elster.jupiter.issue.impl.records.OpenIssueImpl;
 import com.elster.jupiter.issue.share.entity.AssignmentRule;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.CreationRuleAction;
+import com.elster.jupiter.issue.share.entity.CreationRuleActionProperty;
 import com.elster.jupiter.issue.share.entity.CreationRuleProperty;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
 import com.elster.jupiter.issue.share.entity.Issue;
-import com.elster.jupiter.issue.share.entity.CreationRuleActionProperty;
 import com.elster.jupiter.issue.share.entity.IssueActionType;
 import com.elster.jupiter.issue.share.entity.IssueComment;
 import com.elster.jupiter.issue.share.entity.IssueReason;
@@ -37,7 +37,98 @@ import com.elster.jupiter.users.UserService;
 import java.util.Arrays;
 import java.util.ListIterator;
 
-import static com.elster.jupiter.issue.impl.database.DatabaseConst.*;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ASSIGNEE_RULE_JOURNAL_TABLE_NAME;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ASSIGNMENT_RULES_DESCRIPTION;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ASSIGNMENT_RULES_ENABLED;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ASSIGNMENT_RULES_PK;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ASSIGNMENT_RULES_PRIORITY;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ASSIGNMENT_RULES_RULE_DATA;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ASSIGNMENT_RULES_TITLE;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.CREATION_RULE_COMMENT;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.CREATION_RULE_CONTENT;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.CREATION_RULE_DUE_IN_TYPE;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.CREATION_RULE_DUE_IN_VALUE;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.CREATION_RULE_FK_TO_REASON;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.CREATION_RULE_JOURNAL_TABLE_NAME;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.CREATION_RULE_NAME;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.CREATION_RULE_OBSOLETE_TIME;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.CREATION_RULE_PK_NAME;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.CREATION_RULE_PROPS_FK_TO_RULE;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.CREATION_RULE_PROPS_NAME;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.CREATION_RULE_PROPS_PK_NAME;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.CREATION_RULE_PROPS_RULE;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.CREATION_RULE_PROPS_VALUE;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.CREATION_RULE_REASON_ID;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.CREATION_RULE_TEMPLATE_NAME;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.CREATION_RULE_UQ_NAME;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COLUMN_ASSIGNEE_TYPE;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COLUMN_DEVICE_ID;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COLUMN_DUE_DATE;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COLUMN_OVERDUE;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COLUMN_REASON_ID;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COLUMN_RULE_ID;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COLUMN_STATUS_ID;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COLUMN_USER_ID;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COMMENT_COMMENT;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COMMENT_FK_TO_USER;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COMMENT_ISSUE_ID;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COMMENT_JOURNAL_TABLE_NAME;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COMMENT_PK_NAME;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COMMENT_USER_ID;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_FK_TO_DEVICE;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_FK_TO_REASON;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_FK_TO_RULE;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_FK_TO_STATUS;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_FK_TO_USER;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_HIST_COLUMN_ID;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_HIST_FK_TO_DEVICE;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_HIST_FK_TO_REASON;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_HIST_FK_TO_RULE;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_HIST_FK_TO_STATUS;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_HIST_FK_TO_USER;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_HIST_PK_NAME;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_PK_NAME;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_REASON_COLUMN_DESCRIPTION;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_REASON_COLUMN_KEY;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_REASON_COLUMN_TRANSLATION;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_REASON_COLUMN_TYPE;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_REASON_FK_TO_ISSUE_TYPE;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_REASON_PK_NAME;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_STATUS_COLUMN_IS_HISTORICAL;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_STATUS_COLUMN_KEY;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_STATUS_COLUMN_TRANSLATION;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_STATUS_PK_NAME;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_TYPE_COLUMN_KEY;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_TYPE_COLUMN_TRANSLATION;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_TYPE_PK_NAME;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.METERING_DEVICE_TABLE;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.OPEN_ISSUE_FK_TO_DEVICE;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.OPEN_ISSUE_FK_TO_REASON;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.OPEN_ISSUE_FK_TO_RULE;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.OPEN_ISSUE_FK_TO_STATUS;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.OPEN_ISSUE_FK_TO_USER;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.OPEN_ISSUE_JOURNAL_TABLE_NAME;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.OPEN_ISSUE_PK_NAME;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.RULE_ACTION_FK_TO_ACTION_TYPE;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.RULE_ACTION_FK_TO_RULE;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.RULE_ACTION_PHASE;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.RULE_ACTION_PK_NAME;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.RULE_ACTION_PROPS_FK_TO_ACTION_RULE;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.RULE_ACTION_PROPS_NAME;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.RULE_ACTION_PROPS_PK_NAME;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.RULE_ACTION_PROPS_RULEACTION;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.RULE_ACTION_PROPS_VALUE;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.RULE_ACTION_RULE;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.RULE_ACTION_TYPE;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.RULE_ACTION_TYPE_CLASS_NAME;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.RULE_ACTION_TYPE_FACTORY_ID;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.RULE_ACTION_TYPE_FK_TO_ISSUE_TYPE;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.RULE_ACTION_TYPE_FK_TO_REASON;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.RULE_ACTION_TYPE_ISSUE_TYPE;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.RULE_ACTION_TYPE_PHASE;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.RULE_ACTION_TYPE_PK_NAME;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.RULE_ACTION_TYPE_REASON;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.USER_TABLE;
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
 import static com.elster.jupiter.orm.ColumnConversion.CLOB2STRING;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2BOOLEAN;
@@ -106,15 +197,15 @@ public enum TableSpecs {
             Column idColumn = table.addAutoIdColumn();
 
             table.column(ISSUE_COMMENT_COMMENT).type("CLOB").map("comment").conversion(ColumnConversion.CLOB2STRING).add();
-            table.column(ISSUE_COMMENT_ISSUE_ID).map("issueId").type("number").conversion(NUMBER2LONG).notNull().add();
-            Column userRefIdColumn = table.column(ISSUE_COMMENT_USER_ID).type("number").conversion(NUMBER2LONG).notNull().add();
+            table.column(ISSUE_COMMENT_ISSUE_ID).map("issueId").number().conversion(NUMBER2LONG).notNull().add();
+            Column userRefIdColumn = table.column(ISSUE_COMMENT_USER_ID).number().conversion(NUMBER2LONG).notNull().add();
             table.primaryKey(ISSUE_COMMENT_PK_NAME).on(idColumn).add();
             table.addAuditColumns();
 
             table.foreignKey(ISSUE_COMMENT_FK_TO_USER).map("user").on(userRefIdColumn).references(UserService.COMPONENTNAME, USER_TABLE).add();
         }
     },
-    
+
     ISU_CREATIONRULE {
         @Override
         public void addTo(DataModel dataModel) {
@@ -127,10 +218,10 @@ public enum TableSpecs {
             table.column(CREATION_RULE_COMMENT).map("comment").type("clob").conversion(CLOB2STRING).add();
             table.column(CREATION_RULE_CONTENT).map("content").type("clob").conversion(CLOB2STRING).notNull().add();
             Column reasonRefIdColumn = table.column(CREATION_RULE_REASON_ID).varChar(NAME_LENGTH).notNull().add();
-            table.column(CREATION_RULE_DUE_IN_VALUE).map("dueInValue").type("number").conversion(NUMBER2LONG).add();
-            table.column(CREATION_RULE_DUE_IN_TYPE).map("dueInType").type("number").conversion(NUMBER2ENUM).add();
+            table.column(CREATION_RULE_DUE_IN_VALUE).map("dueInValue").number().conversion(NUMBER2LONG).add();
+            table.column(CREATION_RULE_DUE_IN_TYPE).map("dueInType").number().conversion(NUMBER2ENUM).add();
             table.column(CREATION_RULE_TEMPLATE_NAME).map("template").varChar(1024).notNull().add();
-            Column obsoleteColumn = table.column(CREATION_RULE_OBSOLETE_TIME).map("obsoleteTime").type("number").conversion(NUMBER2INSTANT).add();
+            Column obsoleteColumn = table.column(CREATION_RULE_OBSOLETE_TIME).map("obsoleteTime").number().conversion(NUMBER2INSTANT).add();
             table.addAuditColumns();
 
             table.primaryKey(CREATION_RULE_PK_NAME).on(idColumn).add();
@@ -138,7 +229,7 @@ public enum TableSpecs {
             table.unique(CREATION_RULE_UQ_NAME).on(nameColumn, obsoleteColumn).add();
         }
     },
-    
+
     ISU_CREATIONRULEPROPS {
         @Override
         public void addTo(DataModel dataModel) {
@@ -146,7 +237,7 @@ public enum TableSpecs {
             table.map(CreationRulePropertyImpl.class);
 
             Column nameColumn = table.column(CREATION_RULE_PROPS_NAME).map("name").varChar(NAME_LENGTH).notNull().add();
-            Column ruleColumn = table.column(CREATION_RULE_PROPS_RULE).type("number").conversion(NUMBER2LONG).notNull().add();
+            Column ruleColumn = table.column(CREATION_RULE_PROPS_RULE).number().conversion(NUMBER2LONG).notNull().add();
             table.column(CREATION_RULE_PROPS_VALUE).map("value").varChar(SHORT_DESCRIPTION_LENGTH).notNull().add();
             table.addAuditColumns();
 
@@ -155,13 +246,13 @@ public enum TableSpecs {
                     .map("rule").reverseMap("properties").composition().onDelete(DeleteRule.CASCADE).add();
         }
     },
-    
+
     ISU_ISSUE_HISTORY {
         @Override
         public void addTo(DataModel dataModel) {
             Table<HistoricalIssue> table = dataModel.addTable(name(), HistoricalIssue.class);
             table.map(HistoricalIssueImpl.class);
-            Column idColumn = table.column(ISSUE_HIST_COLUMN_ID).map("id").type("number").conversion(NUMBER2LONG).notNull().add();
+            Column idColumn = table.column(ISSUE_HIST_COLUMN_ID).map("id").number().conversion(NUMBER2LONG).notNull().add();
 
             TableBuilder.buildIssueTable(table, idColumn, ISSUE_HIST_PK_NAME,
                     // Foreign keys
@@ -173,7 +264,7 @@ public enum TableSpecs {
             table.addAuditColumns();
         }
     },
-    
+
     ISU_ISSUE_OPEN {
         @Override
         public void addTo(DataModel dataModel) {
@@ -192,7 +283,7 @@ public enum TableSpecs {
             table.addAuditColumns();
         }
     },
-    
+
     ISU_ISSUE_ALL {
         @Override
         public void addTo(DataModel dataModel) {
@@ -210,7 +301,7 @@ public enum TableSpecs {
             table.addAuditColumns();
         }
     },
-    
+
     ISU_ASSIGMENTRULE {
         @Override
         public void addTo(DataModel dataModel) {
@@ -219,17 +310,17 @@ public enum TableSpecs {
             table.setJournalTableName(ASSIGNEE_RULE_JOURNAL_TABLE_NAME);
 
             Column idColumn = table.addAutoIdColumn();
-            table.column(ASSIGNMENT_RULES_PRIORITY).map("priority").type("number").conversion(NUMBER2INT).add();
+            table.column(ASSIGNMENT_RULES_PRIORITY).map("priority").number().conversion(NUMBER2INT).add();
             table.column(ASSIGNMENT_RULES_DESCRIPTION).map("description").varChar(400).add();
             table.column(ASSIGNMENT_RULES_TITLE).map("title").varChar(400).notNull().add();
-            table.column(ASSIGNMENT_RULES_ENABLED).map("enabled").type("number").conversion(NUMBER2BOOLEAN).add();
+            table.column(ASSIGNMENT_RULES_ENABLED).map("enabled").number().conversion(NUMBER2BOOLEAN).add();
             table.column(ASSIGNMENT_RULES_RULE_DATA).map("ruleData").type("clob").conversion(CLOB2STRING).notNull().add();
             table.addAuditColumns();
 
             table.primaryKey(ASSIGNMENT_RULES_PK).on(idColumn).add();
         }
     },
-    
+
     ISU_ACTIONTYPE {
         @Override
         public void addTo(DataModel dataModel) {
@@ -249,7 +340,7 @@ public enum TableSpecs {
             table.foreignKey(RULE_ACTION_TYPE_FK_TO_REASON).map("issueReason").on(reasonRefIdColumn).references(ISU_REASON.name()).add();
         }
     },
-    
+
     ISU_CREATIONRULEACTION {
         @Override
         public void addTo(DataModel dataModel) {
@@ -257,9 +348,9 @@ public enum TableSpecs {
             table.map(CreationRuleActionImpl.class);
 
             Column idColumn = table.addAutoIdColumn();
-            table.column(RULE_ACTION_PHASE).map("phase").type("number").conversion(NUMBER2ENUM).notNull().add();
-            Column ruleRefIdColumn = table.column(RULE_ACTION_RULE).type("number").conversion(NUMBER2LONG).notNull().add();
-            Column typeRefIdColumn = table.column(RULE_ACTION_TYPE).type("number").conversion(NUMBER2LONG).notNull().add();
+            table.column(RULE_ACTION_PHASE).map("phase").number().conversion(NUMBER2ENUM).notNull().add();
+            Column ruleRefIdColumn = table.column(RULE_ACTION_RULE).number().conversion(NUMBER2LONG).notNull().add();
+            Column typeRefIdColumn = table.column(RULE_ACTION_TYPE).number().conversion(NUMBER2LONG).notNull().add();
             table.addAuditColumns();
 
             table.primaryKey(RULE_ACTION_PK_NAME).on(idColumn).add();
@@ -268,7 +359,7 @@ public enum TableSpecs {
                     .map("rule").reverseMap("persistentActions").composition().onDelete(DeleteRule.CASCADE).add();
         }
     },
-    
+
     ISU_CREATIONRULEACTIONPROPS {
         @Override
         public void addTo(DataModel dataModel) {
@@ -276,7 +367,7 @@ public enum TableSpecs {
             table.map(CreationRuleActionPropertyImpl.class);
 
             Column nameColumn = table.column(RULE_ACTION_PROPS_NAME).map("name").varChar(NAME_LENGTH).notNull().add();
-            Column actionColumn = table.column(RULE_ACTION_PROPS_RULEACTION).type("number").conversion(NUMBER2LONG).notNull().add();
+            Column actionColumn = table.column(RULE_ACTION_PROPS_RULEACTION).number().conversion(NUMBER2LONG).notNull().add();
             table.column(RULE_ACTION_PROPS_VALUE).map("value").varChar(SHORT_DESCRIPTION_LENGTH).notNull().add();
             table.addAuditColumns();
 
@@ -293,14 +384,14 @@ public enum TableSpecs {
         private static final int EXPECTED_FK_KEYS_LENGTH = 5;
 
         static void buildIssueTable(Table<?> table, Column idColumn, String pkKey, String... fkKeys) {
-            table.column(ISSUE_COLUMN_DUE_DATE).map("dueDate").type("number").conversion(NUMBER2INSTANT).add();
+            table.column(ISSUE_COLUMN_DUE_DATE).map("dueDate").number().conversion(NUMBER2INSTANT).add();
             Column reasonRefIdColumn = table.column(ISSUE_COLUMN_REASON_ID).varChar(NAME_LENGTH).notNull().add();
             Column statusRefIdColumn = table.column(ISSUE_COLUMN_STATUS_ID).varChar(NAME_LENGTH).notNull().add();
-            Column deviceRefIdColumn = table.column(ISSUE_COLUMN_DEVICE_ID).type("number").conversion(NUMBER2LONG).add();
-            table.column(ISSUE_COLUMN_ASSIGNEE_TYPE).map("assigneeType").type("number").conversion(NUMBER2ENUM).add();
-            Column userRefIdColumn = table.column(ISSUE_COLUMN_USER_ID).type("number").conversion(NUMBER2LONG).add();
-            table.column(ISSUE_COLUMN_OVERDUE).map("overdue").type("number").conversion(NUMBER2BOOLEAN).notNull().add();
-            Column ruleRefIdColumn = table.column(ISSUE_COLUMN_RULE_ID).type("number").conversion(NUMBER2LONG).notNull().add();
+            Column deviceRefIdColumn = table.column(ISSUE_COLUMN_DEVICE_ID).number().conversion(NUMBER2LONG).add();
+            table.column(ISSUE_COLUMN_ASSIGNEE_TYPE).map("assigneeType").number().conversion(NUMBER2ENUM).add();
+            Column userRefIdColumn = table.column(ISSUE_COLUMN_USER_ID).number().conversion(NUMBER2LONG).add();
+            table.column(ISSUE_COLUMN_OVERDUE).map("overdue").number().conversion(NUMBER2BOOLEAN).notNull().add();
+            Column ruleRefIdColumn = table.column(ISSUE_COLUMN_RULE_ID).number().conversion(NUMBER2LONG).notNull().add();
 
             table.primaryKey(pkKey).on(idColumn).add();
             if (fkKeys == null || fkKeys.length != EXPECTED_FK_KEYS_LENGTH){
