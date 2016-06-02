@@ -1,13 +1,8 @@
 package com.elster.jupiter.kore.api.impl;
 
 import com.elster.jupiter.cbo.PhaseCode;
-import com.elster.jupiter.metering.ServiceKind;
-import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.UsagePointDetailBuilder;
 import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.units.Quantity;
-
-import java.time.Instant;
 
 /**
  * Created by bvn on 4/11/16.
@@ -23,22 +18,4 @@ public class ElectricityDetailInfo extends DefaultDetailInfo {
     public Quantity loadLimit;
     public YesNoAnswer interruptible;
 
-    public UsagePointDetailBuilder createDetail(UsagePoint usagePoint, Instant instant) {
-        return usagePoint.newElectricityDetailBuilder(instant)
-                .withCollar(collar)
-                .withGrounded(grounded)
-                .withNominalServiceVoltage(nominalServiceVoltage)
-                .withPhaseCode(phaseCode)
-                .withRatedCurrent(ratedCurrent)
-                .withRatedPower(ratedPower)
-                .withEstimatedLoad(estimatedLoad)
-                .withLimiter(limiter)
-                .withLoadLimiterType(loadLimiterType)
-                .withLoadLimit(loadLimit)
-                .withInterruptible(interruptible);
-    }
-
-    ServiceKind getServiceKind() {
-        return ServiceKind.ELECTRICITY;
-    }
 }

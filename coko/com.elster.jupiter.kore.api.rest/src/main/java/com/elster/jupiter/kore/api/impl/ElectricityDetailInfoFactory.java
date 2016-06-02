@@ -1,7 +1,9 @@
 package com.elster.jupiter.kore.api.impl;
 
 import com.elster.jupiter.metering.ElectricityDetail;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointDetail;
+import com.elster.jupiter.metering.UsagePointDetailBuilder;
 import com.elster.jupiter.rest.util.hypermedia.LinkInfo;
 import com.elster.jupiter.rest.util.hypermedia.PropertyCopier;
 import com.elster.jupiter.rest.util.hypermedia.Relation;
@@ -13,6 +15,7 @@ import com.google.common.collect.Range;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -104,4 +107,20 @@ public class ElectricityDetailInfoFactory extends SelectableFieldFactory<Electri
                 .isCollarInstalled());
         return map;
     }
+
+    public UsagePointDetailBuilder createDetail(UsagePoint usagePoint, Instant instant, ElectricityDetailInfo info) {
+        return usagePoint.newElectricityDetailBuilder(instant)
+                .withCollar(info.collar)
+                .withGrounded(info.grounded)
+                .withNominalServiceVoltage(info.nominalServiceVoltage)
+                .withPhaseCode(info.phaseCode)
+                .withRatedCurrent(info.ratedCurrent)
+                .withRatedPower(info.ratedPower)
+                .withEstimatedLoad(info.estimatedLoad)
+                .withLimiter(info.limiter)
+                .withLoadLimiterType(info.loadLimiterType)
+                .withLoadLimit(info.loadLimit)
+                .withInterruptible(info.interruptible);
+    }
+
 }
