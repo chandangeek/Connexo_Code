@@ -4,10 +4,10 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>platform</artifactId>
-        <version>1.2.0-SNAPSHOT</version>
+        <version>1.2.0${revision}</version>
     </parent>
     <artifactId>upgrade</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0${revision}</version>
     <packaging>bundle</packaging>
     <name>[Jupiter] com.elster.jupiter.upgrade</name>
 
