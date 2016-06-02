@@ -20,7 +20,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.elster.jupiter.orm.ColumnConversion.*;
+import static com.elster.jupiter.orm.ColumnConversion.CHAR2JSON;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
@@ -48,8 +51,8 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
 			Table<EnumeratedUsagePointGroup.Entry> table = dataModel.addTable(name(),EnumeratedUsagePointGroup.Entry.class);
             table.map(EnumeratedUsagePointGroupImpl.EntryImpl.class);
-            Column groupColumn = table.column("GROUP_ID").type("number").notNull().conversion(NUMBER2LONG).map("groupId").add();
-            Column usagePointColumn = table.column("USAGEPOINT_ID").type("number").notNull().conversion(NUMBER2LONG).map("usagePointId").add();
+            Column groupColumn = table.column("GROUP_ID").number().notNull().conversion(NUMBER2LONG).map("groupId").add();
+            Column usagePointColumn = table.column("USAGEPOINT_ID").number().notNull().conversion(NUMBER2LONG).map("usagePointId").add();
             List<Column> intervalColumns = table.addIntervalColumns("interval");
             table.primaryKey("MTG_PK_ENUM_UP_GROUP_ENTRY").on(groupColumn, usagePointColumn, intervalColumns.get(0)).add();
             table.foreignKey("MTG_FK_UPGE_UPG").references(MTG_UP_GROUP.name()).onDelete(CASCADE).map("usagePointGroup").on(groupColumn).add();
@@ -61,8 +64,8 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
 			Table<UsagePointQueryBuilderOperation> table = dataModel.addTable(name(), UsagePointQueryBuilderOperation.class);
             table.map(initUsagePointQueryBuilderOperations());
-            Column groupColumn = table.column("GROUP_ID").type("number").notNull().conversion(NUMBER2LONG).map("groupId").add();
-            Column positionColumn = table.column("POSITION").type("number").notNull().conversion(NUMBER2INT).map("position").add();
+            Column groupColumn = table.column("GROUP_ID").number().notNull().conversion(NUMBER2LONG).map("groupId").add();
+            Column positionColumn = table.column("POSITION").number().notNull().conversion(NUMBER2INT).map("position").add();
             table.addDiscriminatorColumn("OPERATORTYPE", "char(3)");
             table.column("OPERATOR").number().conversion(NUMBER2ENUM).map("operator").add();
             table.column("FIELDNAME").varChar(NAME_LENGTH).map("fieldName").add();
@@ -97,8 +100,8 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<EnumeratedEndDeviceGroup.Entry> table = dataModel.addTable(name(), EnumeratedEndDeviceGroup.Entry.class);
             table.map(EnumeratedEndDeviceGroupImpl.EntryImpl.class);
-            Column groupColumn = table.column("GROUP_ID").type("number").notNull().conversion(NUMBER2LONG).add();
-            Column endDeviceColumn = table.column("ENDDEVICE_ID").type("number").notNull().conversion(NUMBER2LONG).add();
+            Column groupColumn = table.column("GROUP_ID").number().notNull().conversion(NUMBER2LONG).add();
+            Column endDeviceColumn = table.column("ENDDEVICE_ID").number().notNull().conversion(NUMBER2LONG).add();
             List<Column> intervalColumns = table.addIntervalColumns("interval");
             table.primaryKey("MTG_PK_ENUM_ED_GROUP_ENTRY").on(groupColumn, endDeviceColumn, intervalColumns.get(0)).add();
             table.foreignKey("MTG_FK_EDGE_EDG").references(MTG_ED_GROUP.name()).onDelete(CASCADE).map("endDeviceGroup").on(groupColumn).add();
@@ -146,7 +149,7 @@ public enum TableSpecs {
         }
     }
     ;
-   
+
     abstract void addTo(DataModel component);
 
     private static Map<String, Class<? extends UsagePointQueryBuilderOperation>> initUsagePointQueryBuilderOperations() {
