@@ -359,7 +359,8 @@ public class UsagePointImpl implements UsagePoint {
 
     private void removeMetrologyConfigurationCustomPropertySetValues() {
         this.removeCustomPropertySetValues(
-                getMetrologyConfiguration()
+                getCurrentEffectiveMetrologyConfiguration()
+                        .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration)
                         .map(MetrologyConfiguration::getCustomPropertySets)
                         .orElse(Collections.emptyList()));
     }

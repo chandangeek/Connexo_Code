@@ -81,7 +81,7 @@ public class ApplyMetrologyConfigurationToUsagePointTest {
             ServiceCategory serviceCategory = mtrService.getServiceCategory(ServiceKind.ELECTRICITY).get();
             up = serviceCategory.newUsagePoint("mrID", Instant.EPOCH).create();
             upId = up.getId();
-            MetrologyConfiguration mc = service.newMetrologyConfiguration("Residential", serviceCategory).create();
+            MetrologyConfiguration mc = service.newUsagePointMetrologyConfiguration("Residential", serviceCategory).create();
             mcId = mc.getId();
             context.commit();
         }

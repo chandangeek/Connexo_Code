@@ -73,9 +73,9 @@ public class UsagePointCustomPropertySetExtensionImplTestIT {
         inMemoryBootstrapModule.getThreadPrincipalService().set(() -> "Test");
     }
 
-    private MetrologyConfiguration createMetrologyConfiguration() {
+    private UsagePointMetrologyConfiguration createMetrologyConfiguration() {
         return inMemoryBootstrapModule.getMetrologyConfigurationService()
-                .newMetrologyConfiguration(METROLOGY_CONFIGURATION_MRID, getServiceCategory()).create();
+                .newUsagePointMetrologyConfiguration(METROLOGY_CONFIGURATION_MRID, getServiceCategory()).create();
     }
 
     private UsagePointMetrologyConfiguration getMetrologyConfiguration() {
