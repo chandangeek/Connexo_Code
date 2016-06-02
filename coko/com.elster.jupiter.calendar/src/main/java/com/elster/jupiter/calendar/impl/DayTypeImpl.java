@@ -46,7 +46,7 @@ public class DayTypeImpl implements DayType {
 
     private long id;
     @NotEmpty(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
-    @Size(max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
+    @Size(max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Constants.DAYTYPE_NAME_FIELD_TOO_LONG + "}")
     private String name;
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private Reference<Calendar> calendar = ValueReference.absent();
@@ -109,6 +109,13 @@ public class DayTypeImpl implements DayType {
     @Override
     public String getUserName() {
         return userName;
+    }
+
+    public void delete() {
+        if (id == 0) {
+            return;
+        }
+        calendarService.getDataModel().remove(this);
     }
 
     EventOccurrence addEventOccurrence(EventOccurrence eventOccurrence) {

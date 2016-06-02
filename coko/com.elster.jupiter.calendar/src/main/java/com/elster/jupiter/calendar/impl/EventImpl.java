@@ -38,7 +38,7 @@ public class EventImpl implements Event {
 
     private long id;
     @NotEmpty(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
-    @Size(max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
+    @Size(max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Constants.EVENT_NAME_FIELD_TOO_LONG + "}")
     private String name;
     private long code;
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
@@ -49,10 +49,10 @@ public class EventImpl implements Event {
     private Instant modTime;
     private String userName;
 
-    private final CalendarService calendarService;
+    private final ServerCalendarService calendarService;
 
     @Inject
-    EventImpl(CalendarService calendarService) {
+    EventImpl(ServerCalendarService calendarService) {
         this.calendarService = calendarService;
     }
 
@@ -101,5 +101,12 @@ public class EventImpl implements Event {
     @Override
     public String getUserName() {
         return userName;
+    }
+
+    public void delete() {
+        if (id == 0) {
+            return;
+        }
+        calendarService.getDataModel().remove(this);
     }
 }

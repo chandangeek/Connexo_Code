@@ -1,6 +1,7 @@
 package com.elster.jupiter.calendar.impl;
 
 import com.elster.jupiter.calendar.Calendar;
+import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.Category;
 import com.elster.jupiter.calendar.DayType;
 import com.elster.jupiter.calendar.Event;
@@ -15,7 +16,6 @@ import com.elster.jupiter.calendar.RecurrentExceptionalOccurrence;
 import com.elster.jupiter.calendar.RecurrentPeriodTransitionSpec;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -38,6 +38,9 @@ import java.util.stream.Collectors;
 /**
  * Created by igh on 18/04/2016.
  */
+@UniqueMRID(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_CALENDAR_MRID + "}")
+@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_CALENDAR_NAME + "}")
+@ValidTransitions(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.VALID_TRANSITIONS + "}")
 public class CalendarImpl implements Calendar {
 
     public enum Fields {
@@ -67,14 +70,15 @@ public class CalendarImpl implements Calendar {
         }
     }
 
-
     private long id;
     @NotEmpty(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
-    @Size(max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
+    @Size(max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Constants.CAL_NAME_FIELD_TOO_LONG + "}")
     private String name;
-    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
+    @Size(max = Table.DESCRIPTION_LENGTH, message = "{" + MessageSeeds.Constants.DESCRIPTION_FIELD_TOO_LONG + "}")
     private String description;
+    @Size(max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Constants.CAL_MRID_FIELD_TOO_LONG + "}")
     private String mRID;
+    @Size(max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Constants.CAL_TIMEZONE_FIELD_TOO_LONG + "}")
     private String timeZoneName;
     private boolean abstractCalendar = false;
     @NotNull(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
@@ -140,6 +144,11 @@ public class CalendarImpl implements Calendar {
     }
 
     @Override
+    public String getMRID() {
+        return mRID;
+    }
+
+    @Override
     public String getDescription() {
         return description;
     }
@@ -172,14 +181,51 @@ public class CalendarImpl implements Calendar {
     @Override
     public void save() {
         if (this.getId() > 0) {
-            Save.UPDATE.save(calendarService.getDataModel(), this, Save.Update.class);
+            doUpdate();
         } else {
-            Save.CREATE.save(calendarService.getDataModel(), this, Save.Create.class);
-            saveDayTypes();
-            savePeriods();
-            savePeriodTransitionSpecs();
-            saveExceptionalOccurrences();
+            doSave();
         }
+    }
+
+    private void doSave() {
+        Save.CREATE.save(calendarService.getDataModel(), this, Save.Create.class);
+        saveDayTypes();
+        savePeriods();
+        savePeriodTransitionSpecs();
+        saveExceptionalOccurrences();
+    }
+
+    private void doUpdate() {
+        Save.UPDATE.save(calendarService.getDataModel(), this, Save.Update.class);
+        saveDayTypes();
+        savePeriods();
+        savePeriodTransitionSpecs();
+        saveExceptionalOccurrences();
+    }
+
+    @Override
+    public CalendarService.CalendarBuilder redefine(){
+        for (ExceptionalOccurrence occurrence : this.getExceptionalOccurrences()) {
+            ((ExceptionalOccurrenceImpl) occurrence).delete();
+        }
+
+        for (PeriodTransitionSpec periodTransitionSpec : this.getPeriodTransitionSpecs()) {
+            ((PeriodTransitionSpecImpl) periodTransitionSpec).delete();
+        }
+
+        for (Period period : this.getPeriods()) {
+            ((PeriodImpl) period).delete();
+        }
+
+        for (DayType dayType : this.getDayTypes()) {
+            ((DayTypeImpl) dayType).delete();
+        }
+        exceptionalOccurrences.clear();
+        periodTransitionSpecs.clear();
+        periods.clear();
+        dayTypes.clear();
+        events.clear();
+        return new CalendarBuilderImpl(calendarService.getDataModel(), this);
     }
 
     private void saveDayTypes() {
@@ -273,7 +319,8 @@ public class CalendarImpl implements Calendar {
     private List<PeriodTransition> getRecurrentPeriodTransitions() {
         List<PeriodTransition> result = new ArrayList<>();
         int year = startYear;
-        while (year <= endYear) {
+        int toYear = (endYear == 0) ? Year.now().getValue() : endYear;
+        while (year <= toYear) {
             int finalYear = year;
             result.addAll(this.periodTransitionSpecs.stream()
                     .map(spec ->
@@ -285,7 +332,6 @@ public class CalendarImpl implements Calendar {
         }
         return result;
     }
-
 
     DayType addDayType(DayType dayType) {
         Save.CREATE.validate(calendarService.getDataModel(), dayType);
@@ -341,7 +387,6 @@ public class CalendarImpl implements Calendar {
         return abstractCalendar;
     }
 
-
     void setmRID(String mRID) {
         this.mRID = mRID;
     }
@@ -362,4 +407,5 @@ public class CalendarImpl implements Calendar {
             this.timeZoneName = timeZone.getID();
         }
     }
+
 }

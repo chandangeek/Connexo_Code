@@ -18,7 +18,7 @@ public class CalendarModule  extends AbstractModule {
         requireBinding(OrmService.class);
         requireBinding(NlsService.class);
 
-        bind(CalendarService.class).to(CalendarServiceImpl.class).in(Scopes.SINGLETON);
+        bind(CalendarService.class).to(ServerCalendarService.class);
         bind(ServerCalendarService.class).to(CalendarServiceImpl.class).in(Scopes.SINGLETON);
     }
 }
