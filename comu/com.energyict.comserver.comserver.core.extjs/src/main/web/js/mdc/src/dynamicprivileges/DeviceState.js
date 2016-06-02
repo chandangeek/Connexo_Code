@@ -39,6 +39,10 @@ Ext.define('Mdc.dynamicprivileges.DeviceState', {
 
     canEditData: function () {
         return Uni.DynamicPrivileges.checkDynamicPrivileges(Mdc.dynamicprivileges.DeviceState.deviceDataEditActions);
+    },
+
+    canVerify: function () {
+        return Uni.DynamicPrivileges.checkDynamicPrivileges(Mdc.dynamicprivileges.DeviceState.verifyCalendar);
     }
 
 });

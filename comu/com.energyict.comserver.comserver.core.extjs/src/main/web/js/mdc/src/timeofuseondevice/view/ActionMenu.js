@@ -28,13 +28,13 @@ Ext.define('Mdc.timeofuseondevice.view.ActionMenu', {
         //    action: 'sendcalendar',
         //    dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.sendCalendar
         //},
-        //{
-        //    itemId: 'verify-calendars-tou',
-        //    text: Uni.I18n.translate('timeofuse.verifyCalendars', 'MDC', 'Verify calendars'),
-        //    privileges: Mdc.privileges.DeviceCommands.executeCommands,
-        //    action: 'verifycalendars',
-        //    dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.verifyCalendar
-        //},
+        {
+            itemId: 'verify-calendars-tou',
+            text: Uni.I18n.translate('timeofuse.verifyCalendars', 'MDC', 'Verify calendars'),
+            privileges: Mdc.privileges.DeviceCommands.executeCommands,
+            action: 'verifycalendars',
+            dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.verifyCalendar
+        },
         {
             itemId: 'view-preview-tou',
             text: Uni.I18n.translate('timeofuse.viewPreview', 'MDC', 'View preview'),
