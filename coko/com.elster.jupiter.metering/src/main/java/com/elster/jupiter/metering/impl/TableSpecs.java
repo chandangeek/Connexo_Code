@@ -878,7 +878,7 @@ public enum TableSpecs {
                     .add();
         }
     },
-    MTR_USAGEPOINTCONNECTIONSTATE {
+    MTR_USAGEPOINTSTATE {
         @Override
         void addTo(DataModel dataModel) {
             Table<UsagePointConnectionState> table = dataModel.addTable(name(), UsagePointConnectionState.class);
@@ -887,8 +887,8 @@ public enum TableSpecs {
             List<Column> intervalColumns = table.addIntervalColumns("interval");
             table.addAuditColumns();
             table.column("CONNECTIONSTATE").type("varchar2(30)").conversion(CHAR2ENUM).map("connectionState").add();
-            table.primaryKey("PK_MTR_USAGEPOINTCONNECTIONSTATE").on(usagePoint, intervalColumns.get(0)).add();
-            table.foreignKey("FK_MTR_CONNECTIONSTATE_USAGEPOINT").
+            table.primaryKey("PK_MTR_USAGEPOINTSTATE").on(usagePoint, intervalColumns.get(0)).add();
+            table.foreignKey("FK_MTR_USAGEPOINTSTATE").
                     on(usagePoint).
                     references(UsagePoint.class).
                     onDelete(CASCADE).

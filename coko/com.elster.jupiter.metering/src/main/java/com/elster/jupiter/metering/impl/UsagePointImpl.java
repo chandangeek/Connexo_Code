@@ -482,14 +482,14 @@ public class UsagePointImpl implements UsagePoint {
     @Override
     public void setConnectionState(ConnectionState connectionState) {
         Instant effective = this.clock.instant();
-        this.closeCurrentConnectionState(effective);
-        this.createNewState(effective,connectionState);
-        this.touch();
+        this.setConnectionState(connectionState, effective);
     }
 
     @Override
     public void setConnectionState(ConnectionState connectionState, Instant effective) {
-        this.closeCurrentConnectionState(effective);
+        if(!this.connectionState.effective(Range.all()).isEmpty()) {
+            this.closeCurrentConnectionState(effective);
+        }
         this.createNewState(effective,connectionState);
         this.touch();
     }
