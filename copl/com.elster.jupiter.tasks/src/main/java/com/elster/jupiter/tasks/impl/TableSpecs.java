@@ -28,7 +28,7 @@ enum TableSpecs {
             Column applicationColumn = table.column("APPLICATION").varChar(NAME_LENGTH).notNull().map("application").add();
             Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
             table.column("CRONSTRING").varChar(NAME_LENGTH).notNull().map("cronString").add();
-            table.column("NEXTEXECUTION").type("number").conversion(NUMBER2INSTANT).map("nextExecution").notAudited().add();
+            table.column("NEXTEXECUTION").number().conversion(NUMBER2INSTANT).map("nextExecution").notAudited().add();
             table.column("PAYLOAD").varChar(NAME_LENGTH).notNull().map("payload").add();
             table.column("DESTINATION").type("varchar2(30)").notNull().map("destination").add();
             table.column("LASTRUN").number().conversion(NUMBER2INSTANT).map("lastRun").notAudited().add();
@@ -43,8 +43,8 @@ enum TableSpecs {
             Table<TaskOccurrence> table = dataModel.addTable(name(), TaskOccurrence.class);
             table.map(TaskOccurrenceImpl.class);
             Column idColumn = table.addAutoIdColumn();
-            Column recurrentIdColumn = table.column("RECURRENTTASKID").type("number").notNull().conversion(NUMBER2LONG).map("recurrentTaskId").add();
-            Column trigger = table.column("TRIGGERTIME").type("number").conversion(NUMBER2INSTANT).map("triggerTime").add();
+            Column recurrentIdColumn = table.column("RECURRENTTASKID").number().notNull().conversion(NUMBER2LONG).map("recurrentTaskId").add();
+            Column trigger = table.column("TRIGGERTIME").number().conversion(NUMBER2INSTANT).map("triggerTime").add();
             table.column("SCHEDULED").bool().map("scheduled").add();
             table.column("STARTDATE").number().conversion(ColumnConversion.NUMBER2INSTANT).map("startDate").add();
             table.column("ENDDATE").number().conversion(ColumnConversion.NUMBER2INSTANT).map("endDate").add();
