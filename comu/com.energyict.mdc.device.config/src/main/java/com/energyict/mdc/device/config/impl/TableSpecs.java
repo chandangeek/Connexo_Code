@@ -807,14 +807,14 @@ public enum TableSpecs {
             table.setJournalTableName("DTC_DEVCFGVALRULESETUSAGEJRNL");
             Column validationRuleSetIdColumn =
                     table.column("VALIDATIONRULESETID")
-                            .type("number")
+                            .number()
                             .notNull()
                             .conversion(NUMBER2LONG)
                             .map("validationRuleSetId")
                             .add();
             Column deviceConfigurationIdColumn =
                     table.column("DEVICECONFIGID")
-                            .type("number")
+                            .number()
                             .notNull()
                             .conversion(NUMBER2LONG)
                             .map("deviceConfigurationId")
@@ -845,12 +845,12 @@ public enum TableSpecs {
             table.map(DeviceConfigurationEstimationRuleSetUsageImpl.class);
             table.setJournalTableName(name() + "JRNL");
             Column estimationRuleSetColumn = table.column("ESTIMATIONRULESET")
-                    .type("number")
+                    .number()
                     .notNull()
                     .conversion(NUMBER2LONG)
                     .add();
             Column deviceConfigurationColumn = table.column("DEVICECONFIG")
-                    .type("number")
+                    .number()
                     .notNull()
                     .conversion(NUMBER2LONG)
                     .add();
