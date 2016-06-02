@@ -26,6 +26,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.common.services.ListPager;
+import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.GatewayType;
@@ -33,13 +34,17 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.DevicesForConfigChangeSearch;
 import com.energyict.mdc.device.data.exceptions.CannotChangeDeviceConfigStillUnresolvedConflicts;
+import com.energyict.mdc.device.data.exceptions.NoStatusInformationTaskException;
 import com.energyict.mdc.device.data.rest.DeviceInfoFactory;
 import com.energyict.mdc.device.data.rest.DevicePrivileges;
 import com.energyict.mdc.device.data.security.Privileges;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.TopologyTimeline;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+import com.energyict.mdc.tasks.ProtocolTask;
+import com.energyict.mdc.tasks.StatusInformationTask;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -570,12 +575,12 @@ public class DeviceResource {
                 .forEach(category -> {
                     List<DeviceMessageSpecInfo> deviceMessageSpecs =
                             device
-                                .getDeviceConfiguration()
-                                .getEnabledAndAuthorizedDeviceMessageSpecsIn(category)
-                                .stream()
-                                .sorted(Comparator.comparing(DeviceMessageSpec::getName))
-                                .map(dms -> deviceMessageSpecInfoFactory.asInfoWithMessagePropertySpecs(dms, device))
-                                .collect(Collectors.toList());
+                                    .getDeviceConfiguration()
+                                    .getEnabledAndAuthorizedDeviceMessageSpecsIn(category)
+                                    .stream()
+                                    .sorted(Comparator.comparing(DeviceMessageSpec::getName))
+                                    .map(dms -> deviceMessageSpecInfoFactory.asInfoWithMessagePropertySpecs(dms, device))
+                                    .collect(Collectors.toList());
                     if (!deviceMessageSpecs.isEmpty()) {
                         DeviceMessageCategoryInfo info = deviceMessageCategoryInfoFactory.asInfo(category);
                         info.deviceMessageSpecs = deviceMessageSpecs;
@@ -583,7 +588,7 @@ public class DeviceResource {
                     }
                 });
         return PagedInfoList
-                    .fromPagedList(
+                .fromPagedList(
                         "categories",
                         ListPager.of(infos).from(queryParameters).find(),
                         queryParameters);
@@ -792,9 +797,9 @@ public class DeviceResource {
     @Path("/{mRID}/timeofuse/{calendarId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.VIEW_DEVICE)
-    public Response getCalendar(@PathParam("id") long id, @PathParam("calendarId") long calendarId, @QueryParam("weekOf") long milliseconds) {
-        if(milliseconds <= 0) {
-            return  Response.ok(calendarService.findCalendar(calendarId)
+    public Response getCalendar(@PathParam("mRID") String mRID, @PathParam("calendarId") long calendarId, @QueryParam("weekOf") long milliseconds) {
+        if (milliseconds <= 0) {
+            return Response.ok(calendarService.findCalendar(calendarId)
                     .map(calendarInfoFactory::detailedFromCalendar)
                     .orElseThrow(IllegalArgumentException::new)).build();
         } else {
@@ -805,6 +810,20 @@ public class DeviceResource {
 
             return Response.ok(transformToWeekCalendar(calendar, localDate)).build();
         }
+    }
+
+    @PUT
+    @Path("/{mRID}/timeofuse/verify")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+//    @RolesAllowed(Privileges.Constants.)
+    public Response verifyCalendar(@PathParam("mRID") String mRID) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+        try {
+            device.runStatusInformationTask(ComTaskExecution::runNow);
+        } catch (NoStatusInformationTaskException e) {
+            throw exceptionFactory.newException(MessageSeeds.VERIFY_CALENDAR_TASK_IS_NOT_ACTIVE);
+        }
+        return Response.status(Response.Status.ACCEPTED).build();
     }
 
     private CalendarInfo transformToWeekCalendar(Calendar calendar, LocalDate localDate) {
