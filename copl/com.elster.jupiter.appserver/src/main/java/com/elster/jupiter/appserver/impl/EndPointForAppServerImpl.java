@@ -4,7 +4,7 @@ import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.soap.whiteboard.EndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 
 import javax.inject.Inject;
 

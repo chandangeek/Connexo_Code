@@ -6,7 +6,7 @@ import com.elster.jupiter.appserver.Command;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.soap.whiteboard.EventType;
+import com.elster.jupiter.soap.whiteboard.cxf.EventType;
 import com.elster.jupiter.util.json.JsonService;
 
 import org.osgi.service.component.annotations.Component;

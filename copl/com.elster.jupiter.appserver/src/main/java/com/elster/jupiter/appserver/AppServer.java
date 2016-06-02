@@ -2,7 +2,7 @@ package com.elster.jupiter.appserver;
 
 import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.messaging.SubscriberSpec;
-import com.elster.jupiter.soap.whiteboard.EndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.util.cron.CronExpression;
 
 import aQute.bnd.annotation.ProviderType;
