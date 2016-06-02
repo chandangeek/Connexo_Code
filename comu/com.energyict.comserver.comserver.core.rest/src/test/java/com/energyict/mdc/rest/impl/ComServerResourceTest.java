@@ -107,13 +107,15 @@ public class ComServerResourceTest extends ComserverCoreApplicationJerseyTest {
                 .contains(MapEntry.entry("serverLogLevel", "Information"));
 
         Map<String, Object> changesInterPollDelay = (Map<String, Object>) comServer1.get("changesInterPollDelay");
-        assertThat(changesInterPollDelay).hasSize(2)
+        assertThat(changesInterPollDelay).hasSize(3)
                 .contains(MapEntry.entry("count", 6))
-                .contains(MapEntry.entry("timeUnit", "seconds"));
+                .contains(MapEntry.entry("timeUnit", "seconds"))
+                .contains(MapEntry.entry("asSeconds", 6));
         Map<String, Object> schedulingInterPollDelay = (Map<String, Object>) comServer1.get("schedulingInterPollDelay");
-        assertThat(schedulingInterPollDelay).hasSize(2)
+        assertThat(schedulingInterPollDelay).hasSize(3)
                 .contains(MapEntry.entry("count", 7))
-                .contains(MapEntry.entry("timeUnit", "minutes"));
+                .contains(MapEntry.entry("timeUnit", "minutes"))
+                .contains(MapEntry.entry("asSeconds", 420));
     }
 
     @Test
