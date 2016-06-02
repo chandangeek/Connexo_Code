@@ -10,7 +10,6 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.orm.impl.OrmServiceImpl;
 import com.elster.jupiter.orm.schema.SchemaInfoProvider;
-import com.elster.jupiter.orm.schema.h2.H2SchemaInfo;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.TransactionService;
@@ -100,7 +99,7 @@ public class UpgradeServiceImplIT {
             bind(BundleContext.class).toInstance(bundleContext);
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(MessageInterpolator.class).toInstance(messageInterpolator);
-            bind(SchemaInfoProvider.class).to(H2SchemaInfo.class);
+//            bind(SchemaInfoProvider.class).to(H2SchemaInfo.class);
 //            bind(ServiceCallTypeOneCustomPropertySet.class).to(ServiceCallTypeOneCustomPropertySet.class);
         }
     }
