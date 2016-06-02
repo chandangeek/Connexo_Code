@@ -104,6 +104,7 @@ import com.energyict.mdc.device.data.exceptions.DeviceConfigurationChangeExcepti
 import com.energyict.mdc.device.data.exceptions.DeviceProtocolPropertyException;
 import com.energyict.mdc.device.data.exceptions.MultiplierConfigurationException;
 import com.energyict.mdc.device.data.exceptions.NoMeterActivationAt;
+import com.energyict.mdc.device.data.exceptions.NoStatusInformationTaskException;
 import com.energyict.mdc.device.data.exceptions.ProtocolDialectConfigurationPropertiesIsRequiredException;
 import com.energyict.mdc.device.data.impl.configchange.ServerDeviceForConfigChange;
 import com.energyict.mdc.device.data.impl.configchange.ServerSecurityPropertyServiceForConfigChange;
@@ -145,7 +146,17 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.energyict.mdc.tasks.BasicCheckTask;
+import com.energyict.mdc.tasks.ClockTask;
 import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.tasks.FirmwareManagementTask;
+import com.energyict.mdc.tasks.LoadProfilesTask;
+import com.energyict.mdc.tasks.LogBooksTask;
+import com.energyict.mdc.tasks.MessagesTask;
+import com.energyict.mdc.tasks.ProtocolTask;
+import com.energyict.mdc.tasks.RegistersTask;
+import com.energyict.mdc.tasks.StatusInformationTask;
+import com.energyict.mdc.tasks.TopologyTask;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
@@ -167,6 +178,7 @@ import java.time.temporal.TemporalAmount;
 import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Deque;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -178,6 +190,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeMap;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -274,6 +287,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private transient MultiplierType multiplierType;
     private transient BigDecimal multiplier;
     private Location location;
+    private static Map<Predicate<Class<? extends ProtocolTask>>, Integer> scorePerProtocolTask;
 
 
     @Inject
@@ -341,7 +355,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                     this.getDeviceConfiguration()
                             .getLoadProfileSpecs()
                             .stream()
-                            .map(loadProfileSpec -> this.dataModel.getInstance(LoadProfileImpl.class).initialize(loadProfileSpec, this))
+                            .map(loadProfileSpec -> this.dataModel.getInstance(LoadProfileImpl.class)
+                                    .initialize(loadProfileSpec, this))
                             .collect(Collectors.toList()));
         }
     }
@@ -352,7 +367,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                     this.getDeviceConfiguration()
                             .getLogBookSpecs()
                             .stream()
-                            .map(logBookSpec -> this.dataModel.getInstance(LogBookImpl.class).initialize(logBookSpec, this))
+                            .map(logBookSpec -> this.dataModel.getInstance(LogBookImpl.class)
+                                    .initialize(logBookSpec, this))
                             .collect(Collectors.toList()));
         }
     }
@@ -384,8 +400,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         if (alreadyPersistent) {
             Save.UPDATE.save(dataModel, this);
             Optional<Meter> meter = findKoreMeter(getMdcAmrSystem());
-            meter.ifPresent( foundMeter -> {
-                if (foundMeter.getMRID()!=null &&
+            meter.ifPresent(foundMeter -> {
+                if (foundMeter.getMRID() != null &&
                         !foundMeter.getMRID().equals(this.getmRID())) {
                     foundMeter.setMRID(getmRID());
                 }
@@ -425,7 +441,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     private void createMeterConfiguration(Meter meter, Instant timeStamp, boolean validMultiplierSet) {
         meter.getConfiguration(timeStamp).ifPresent(meterConfiguration -> meterConfiguration.endAt(timeStamp));
-        if (getDeviceConfiguration().getChannelSpecs().size() > 0 || getDeviceConfiguration().getRegisterSpecs().size() > 0) {
+        if (getDeviceConfiguration().getChannelSpecs().size() > 0 || getDeviceConfiguration().getRegisterSpecs()
+                .size() > 0) {
             MultiplierType defaultMultiplierType = getDefaultMultiplierType();
             Meter.MeterConfigurationBuilder meterConfigurationBuilder = meter.startingConfigurationOn(timeStamp);
             createMeterConfigurationsForChannelSpecs(defaultMultiplierType, meterConfigurationBuilder, validMultiplierSet);
@@ -476,7 +493,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     private void createComTaskExecutionsForEnablementsMarkedAsAlwaysExecuteForInbound() {
         List<ComTaskEnablement> comTaskEnablements = getDeviceConfiguration().getComTaskEnablements();
-        comTaskEnablements.stream().filter(ComTaskEnablement::isIgnoreNextExecutionSpecsForInbound).forEach(cte -> newManuallyScheduledComTaskExecution(cte, null).add());
+        comTaskEnablements.stream()
+                .filter(ComTaskEnablement::isIgnoreNextExecutionSpecsForInbound)
+                .forEach(cte -> newManuallyScheduledComTaskExecution(cte, null).add());
     }
 
     private void saveNewAndDirtyDialectProperties() {
@@ -557,14 +576,20 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         this.getDeviceType().getCustomPropertySets().forEach(this::removeCustomPropertiesFor);
         this.getRegisters().stream()
                 .forEach(register ->
-                        this.getDeviceType().getRegisterTypeTypeCustomPropertySet(register.getRegisterSpec().getRegisterType())
-                                .ifPresent(set -> this.customPropertySetService.removeValuesFor(set.getCustomPropertySet(), register.getRegisterSpec(), this.getId()))
+                        this.getDeviceType()
+                                .getRegisterTypeTypeCustomPropertySet(register.getRegisterSpec().getRegisterType())
+                                .ifPresent(set -> this.customPropertySetService.removeValuesFor(set.getCustomPropertySet(), register
+                                        .getRegisterSpec(), this.getId()))
                 );
 
         this.getLoadProfiles().stream().flatMap(lp -> lp.getChannels().stream())
                 .forEach(channel ->
-                        this.getDeviceType().getLoadProfileTypeCustomPropertySet(channel.getChannelSpec().getLoadProfileSpec().getLoadProfileType())
-                                .ifPresent(set -> this.customPropertySetService.removeValuesFor(set.getCustomPropertySet(), channel.getChannelSpec(), this.getId()))
+                        this.getDeviceType()
+                                .getLoadProfileTypeCustomPropertySet(channel.getChannelSpec()
+                                        .getLoadProfileSpec()
+                                        .getLoadProfileType())
+                                .ifPresent(set -> this.customPropertySetService.removeValuesFor(set.getCustomPropertySet(), channel
+                                        .getChannelSpec(), this.getId()))
                 );
     }
 
@@ -740,7 +765,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         if (this.multiplier == null) {
             Optional<MeterActivation> optionalCurrentMeterActivation = getCurrentMeterActivation();
             if (optionalCurrentMeterActivation.isPresent()) {
-                this.multiplier = optionalCurrentMeterActivation.get().getMultiplier(getDefaultMultiplierType()).orElse(MULTIPLIER_ONE);
+                this.multiplier = optionalCurrentMeterActivation.get()
+                        .getMultiplier(getDefaultMultiplierType())
+                        .orElse(MULTIPLIER_ONE);
             } else {
                 this.multiplier = MULTIPLIER_ONE;
             }
@@ -751,7 +778,11 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     @Override
     public Optional<BigDecimal> getMultiplierAt(Instant multiplierEffectiveTimeStamp) {
         List<MeterActivation> meterActivationsMostRecentFirst = getMeterActivationsMostRecentFirst();
-        Optional<MeterActivation> meterActivationForEffectiveTimeStamp = meterActivationsMostRecentFirst.stream().filter(meterActivation -> meterActivation.getInterval().toOpenClosedRange().contains(multiplierEffectiveTimeStamp)).findAny();
+        Optional<MeterActivation> meterActivationForEffectiveTimeStamp = meterActivationsMostRecentFirst.stream()
+                .filter(meterActivation -> meterActivation.getInterval()
+                        .toOpenClosedRange()
+                        .contains(multiplierEffectiveTimeStamp))
+                .findAny();
         if (meterActivationForEffectiveTimeStamp.isPresent()) {
             return meterActivationForEffectiveTimeStamp.get().getMultiplier(getDefaultMultiplierType());
         } else {
@@ -895,7 +926,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public List<DeviceMessage<Device>> getMessagesByState(DeviceMessageStatus status) {
-        return this.deviceMessages.stream().filter(deviceMessage -> deviceMessage.getStatus().equals(status)).collect(toList());
+        return this.deviceMessages.stream()
+                .filter(deviceMessage -> deviceMessage.getStatus().equals(status))
+                .collect(toList());
     }
 
     @Override
@@ -927,8 +960,10 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     private void checkIfAllConflictsAreSolved(DeviceConfiguration originDeviceConfiguration, DeviceConfiguration destinationDeviceConfiguration) {
         originDeviceConfiguration.getDeviceType().getDeviceConfigConflictMappings().stream()
-                .filter(deviceConfigConflictMapping -> deviceConfigConflictMapping.getOriginDeviceConfiguration().getId() == originDeviceConfiguration.getId()
-                        && deviceConfigConflictMapping.getDestinationDeviceConfiguration().getId() == destinationDeviceConfiguration.getId())
+                .filter(deviceConfigConflictMapping -> deviceConfigConflictMapping.getOriginDeviceConfiguration()
+                        .getId() == originDeviceConfiguration.getId()
+                        && deviceConfigConflictMapping.getDestinationDeviceConfiguration()
+                        .getId() == destinationDeviceConfiguration.getId())
                 .filter(Predicates.not(DeviceConfigConflictMapping::isSolved)).findFirst()
                 .ifPresent(deviceConfigConflictMapping1 -> {
                     throw new CannotChangeDeviceConfigStillUnresolvedConflicts(thesaurus, this, destinationDeviceConfiguration);
@@ -959,7 +994,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     public void addLoadProfiles(List<LoadProfileSpec> loadProfileSpecs) {
         this.loadProfiles.addAll(
                 loadProfileSpecs.stream()
-                        .map(loadProfileSpec -> this.dataModel.getInstance(LoadProfileImpl.class).initialize(loadProfileSpec, this))
+                        .map(loadProfileSpec -> this.dataModel.getInstance(LoadProfileImpl.class)
+                                .initialize(loadProfileSpec, this))
                         .collect(Collectors.toList()));
     }
 
@@ -989,7 +1025,12 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     public Optional<ReadingType> getCalculatedReadingTypeFromMeterConfiguration(ReadingType readingType, Instant timeStamp) {
         Optional<MeterConfiguration> configuration = findKoreMeter(getMdcAmrSystem()).get().getConfiguration(timeStamp);
         if (configuration.isPresent()) {
-            Optional<MeterReadingTypeConfiguration> mrtConfiguration = configuration.get().getReadingTypeConfigs().stream().filter(meterReadingTypeConfiguration -> meterReadingTypeConfiguration.getMeasured().equals(readingType)).findAny();
+            Optional<MeterReadingTypeConfiguration> mrtConfiguration = configuration.get()
+                    .getReadingTypeConfigs()
+                    .stream()
+                    .filter(meterReadingTypeConfiguration -> meterReadingTypeConfiguration.getMeasured()
+                            .equals(readingType))
+                    .findAny();
             if (mrtConfiguration.isPresent()) {
                 return mrtConfiguration.get().getCalculated();
             } else {
@@ -1030,7 +1071,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public List<ProtocolDialectProperties> getProtocolDialectPropertiesList() {
-        List<ProtocolDialectProperties> all = new ArrayList<>(this.dialectPropertiesList.size() + this.newDialectProperties.size());
+        List<ProtocolDialectProperties> all = new ArrayList<>(this.dialectPropertiesList.size() + this.newDialectProperties
+                .size());
         all.addAll(this.dialectPropertiesList);
         all.addAll(this.newDialectProperties);
         return all;
@@ -1071,7 +1113,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         ProtocolDialectPropertiesImpl dialectProperties;
         ProtocolDialectConfigurationProperties configurationProperties = this.getProtocolDialectConfigurationProperties(dialectName);
         if (configurationProperties != null) {
-            dialectProperties = this.dataModel.getInstance(ProtocolDialectPropertiesImpl.class).initialize(this, configurationProperties);
+            dialectProperties = this.dataModel.getInstance(ProtocolDialectPropertiesImpl.class)
+                    .initialize(this, configurationProperties);
             this.newDialectProperties.add(dialectProperties);
         } else {
             throw new ProtocolDialectConfigurationPropertiesIsRequiredException(MessageSeeds.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_REQUIRED);
@@ -1117,7 +1160,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 dataModel.touch(this);
             }
         } else {
-            throw DeviceProtocolPropertyException.propertyDoesNotExistForDeviceProtocol(name, this.getDeviceProtocolPluggableClass().getDeviceProtocol(), this, thesaurus, MessageSeeds.DEVICE_PROPERTY_NOT_ON_DEVICE_PROTOCOL);
+            throw DeviceProtocolPropertyException.propertyDoesNotExistForDeviceProtocol(name, this.getDeviceProtocolPluggableClass()
+                    .getDeviceProtocol(), this, thesaurus, MessageSeeds.DEVICE_PROPERTY_NOT_ON_DEVICE_PROTOCOL);
         }
     }
 
@@ -1130,7 +1174,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     private void addDeviceProperty(Optional<PropertySpec> propertySpec, String propertyValue) {
         if (propertyValue != null) {
-            DeviceProtocolPropertyImpl deviceProtocolProperty = this.dataModel.getInstance(DeviceProtocolPropertyImpl.class).initialize(this, propertySpec, propertyValue);
+            DeviceProtocolPropertyImpl deviceProtocolProperty = this.dataModel.getInstance(DeviceProtocolPropertyImpl.class)
+                    .initialize(this, propertySpec, propertyValue);
             Save.CREATE.validate(dataModel, deviceProtocolProperty);
             this.deviceProperties.add(deviceProtocolProperty);
         }
@@ -1160,21 +1205,31 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public TypedProperties getDeviceProtocolProperties() {
-        TypedProperties properties = TypedProperties.inheritingFrom(this.getDeviceConfiguration().getDeviceProtocolProperties().getTypedProperties());
-        this.addLocalProperties(properties, this.getDeviceProtocolPluggableClass().getDeviceProtocol().getPropertySpecs());
+        TypedProperties properties = TypedProperties.inheritingFrom(this.getDeviceConfiguration()
+                .getDeviceProtocolProperties()
+                .getTypedProperties());
+        this.addLocalProperties(properties, this.getDeviceProtocolPluggableClass()
+                .getDeviceProtocol()
+                .getPropertySpecs());
         return properties;
     }
 
 
     private Optional<PropertySpec> getPropertySpecForProperty(String name) {
-        return this.getDeviceProtocolPluggableClass().getDeviceProtocol().getPropertySpecs().stream().filter(spec -> spec.getName().equals(name)).findFirst();
+        return this.getDeviceProtocolPluggableClass()
+                .getDeviceProtocol()
+                .getPropertySpecs()
+                .stream()
+                .filter(spec -> spec.getName().equals(name))
+                .findFirst();
     }
 
     private void addLocalProperties(TypedProperties properties, List<PropertySpec> propertySpecs) {
         for (PropertySpec propertySpec : propertySpecs) {
             DeviceProtocolProperty deviceProtocolProperty = findDevicePropertyFor(propertySpec);
             if (deviceProtocolProperty != null) {
-                properties.setProperty(deviceProtocolProperty.getName(), propertySpec.getValueFactory().fromStringValue(deviceProtocolProperty.getPropertyValue()));
+                properties.setProperty(deviceProtocolProperty.getName(), propertySpec.getValueFactory()
+                        .fromStringValue(deviceProtocolProperty.getPropertyValue()));
             }
         }
     }
@@ -1286,7 +1341,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     private List<ReadingRecord> getReadingsFor(Register<?, ?> register, Range<Instant> interval, Meter meter) {
-        List<? extends BaseReadingRecord> readings = meter.getReadings(interval, register.getRegisterSpec().getRegisterType().getReadingType());
+        List<? extends BaseReadingRecord> readings = meter.getReadings(interval, register.getRegisterSpec()
+                .getRegisterType()
+                .getReadingType());
         return readings
                 .stream()
                 .map(ReadingRecord.class::cast)
@@ -1341,17 +1398,20 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     /**
      * Adds meter readings for a single channel to the timeslot-map.
      *
-     * @param interval                    The interval over which meter readings are requested
-     * @param meter                       The meter for which readings are requested
-     * @param mdcChannel                  The meter's channel for which readings are requested
+     * @param interval The interval over which meter readings are requested
+     * @param meter The meter for which readings are requested
+     * @param mdcChannel The meter's channel for which readings are requested
      * @param sortedLoadProfileReadingMap The map to add the readings too in the correct timeslot
      * @return true if any readings were added to the map, false otherwise
      */
     private boolean addChannelDataToMap(Range<Instant> interval, Meter meter, Channel mdcChannel, Map<Instant, LoadProfileReadingImpl> sortedLoadProfileReadingMap) {
         boolean meterHasData = false;
-        List<MeterActivation> meterActivations = this.getSortedMeterActivations(meter, Ranges.closed(interval.lowerEndpoint(), interval.upperEndpoint()));
+        List<MeterActivation> meterActivations = this.getSortedMeterActivations(meter, Ranges.closed(interval.lowerEndpoint(), interval
+                .upperEndpoint()));
         for (MeterActivation meterActivation : meterActivations) {
-            Range<Instant> meterActivationInterval = meterActivation.getInterval().toOpenClosedRange().intersection(interval);
+            Range<Instant> meterActivationInterval = meterActivation.getInterval()
+                    .toOpenClosedRange()
+                    .intersection(interval);
             meterHasData |= meterActivationInterval.lowerEndpoint() != meterActivationInterval.upperEndpoint();
             ReadingType readingType = mdcChannel.getChannelSpec().getReadingType();
             List<IntervalReadingRecord> meterReadings = (List<IntervalReadingRecord>) meter.getReadings(meterActivationInterval, readingType);
@@ -1374,7 +1434,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                                 //code below is the processing of removed readings
                                 Optional<? extends ReadingQuality> readingQuality = s.getReadingQualities()
                                         .stream()
-                                        .filter(rq -> rq.getType().equals(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.REJECTED)))
+                                        .filter(rq -> rq.getType()
+                                                .equals(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.REJECTED)))
                                         .findAny();
                                 if (readingQuality.isPresent()) {
                                     loadProfileReading.setReadingTime(((ReadingQualityRecord) readingQuality.get()).getTimestamp());
@@ -1401,9 +1462,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
      * just a list of placeholders for each reading interval within the requestedInterval for all timestamps
      * that occur with the bounds of a meter activation and load profile's last reading.
      *
-     * @param loadProfile       The LoadProfile
+     * @param loadProfile The LoadProfile
      * @param requestedInterval interval over which user wants to see readings
-     * @param meter             The Meter
+     * @param meter The Meter
      * @return The map
      */
     private Map<Instant, LoadProfileReadingImpl> getPreFilledLoadProfileReadingMap(LoadProfile loadProfile, Range<Instant> requestedInterval, Meter meter) {
@@ -1415,7 +1476,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 .stream()
                 .filter(ma -> ma.overlaps(requestedInterval))
                 .forEach(affectedMeterActivation -> {
-                    Range<Instant> requestedIntervalClippedToMeterActivation = requestedInterval.intersection(affectedMeterActivation.getRange());
+                    Range<Instant> requestedIntervalClippedToMeterActivation = requestedInterval.intersection(affectedMeterActivation
+                            .getRange());
                     ZonedDateTime requestStart = this.prefilledIntervalStart(loadProfile, affectedMeterActivation.getZoneId(), requestedIntervalClippedToMeterActivation);
                     ZonedDateTime requestEnd =
                             ZonedDateTime.ofInstant(
@@ -1471,7 +1533,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             case MILLISECONDS:  //Intentional fall-through
             case SECONDS:   //Intentional fall-through
             default: {
-                throw new IllegalArgumentException("Unsupported load profile interval length unit " + loadProfile.getInterval().getTimeUnit());
+                throw new IllegalArgumentException("Unsupported load profile interval length unit " + loadProfile.getInterval()
+                        .getTimeUnit());
             }
         }
     }
@@ -1492,7 +1555,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                         .truncatedTo(this.truncationUnit(loadProfile));    // round start time to interval boundary
         ZonedDateTime latestAttemptBefore = nextAttempt;
 
-        while (nextAttempt.toInstant().isBefore(requestedIntervalClippedToMeterActivation.lowerEndpoint()) || nextAttempt.toInstant().equals(requestedIntervalClippedToMeterActivation.lowerEndpoint())) {
+        while (nextAttempt.toInstant()
+                .isBefore(requestedIntervalClippedToMeterActivation.lowerEndpoint()) || nextAttempt.toInstant()
+                .equals(requestedIntervalClippedToMeterActivation.lowerEndpoint())) {
             latestAttemptBefore = nextAttempt;
             nextAttempt = nextAttempt.plus(this.intervalLength(loadProfile));
         }
@@ -1514,7 +1579,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                                 zoneId)
                         .with(ChronoField.DAY_OF_MONTH, 1).toLocalDate().atStartOfDay(zoneId);
 
-        while (nextAttempt.toInstant().isAfter(requestedIntervalClippedToMeterActivation.lowerEndpoint()) || nextAttempt.toInstant().equals(requestedIntervalClippedToMeterActivation.lowerEndpoint())) {
+        while (nextAttempt.toInstant().isAfter(requestedIntervalClippedToMeterActivation.lowerEndpoint()) || nextAttempt
+                .toInstant()
+                .equals(requestedIntervalClippedToMeterActivation.lowerEndpoint())) {
             nextAttempt = nextAttempt.minus(this.intervalLength(loadProfile));
         }
         return nextAttempt;
@@ -1543,7 +1610,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             case MILLISECONDS:  //Intentional fall-through
             case SECONDS:   //Intentional fall-through
             default: {
-                throw new IllegalArgumentException("Unsupported load profile interval length unit " + loadProfile.getInterval().getTimeUnit());
+                throw new IllegalArgumentException("Unsupported load profile interval length unit " + loadProfile.getInterval()
+                        .getTimeUnit());
             }
         }
     }
@@ -1575,7 +1643,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 return Period.ofYears(loadProfile.getInterval().getCount());
             }
             default: {
-                throw new IllegalArgumentException("Unsupported load profile interval length unit " + loadProfile.getInterval().getTimeUnit());
+                throw new IllegalArgumentException("Unsupported load profile interval length unit " + loadProfile.getInterval()
+                        .getTimeUnit());
             }
         }
     }
@@ -1610,7 +1679,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             if (channel.isPresent()) {
                 Instant lastReadingDate = channel.get().getLastDateTime();
                 if (lastReadingDate != null) {
-                    return this.getLast(channel.get().getRegisterReadings(Interval.of(lastReadingDate, lastReadingDate).toClosedRange()));
+                    return this.getLast(channel.get()
+                            .getRegisterReadings(Interval.of(lastReadingDate, lastReadingDate).toClosedRange()));
                 }
             }
         }
@@ -1653,7 +1723,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
      * Activate the meter. Either end the current MeterActivation and create a new one, or just create a new one.
      * Depending on 'copyMultiplier' also copy the multiplierValue
      *
-     * @param start          start of the meterActivation
+     * @param start start of the meterActivation
      * @param copyMultiplier indication to copy the multiplier
      * @return the new meterActivation
      */
@@ -1662,7 +1732,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         AmrSystem amrSystem = getMdcAmrSystem();
         Meter meter = this.findOrCreateKoreMeter(amrSystem);
         if (currentMeterActivation.isPresent()) {
-            this.currentMeterActivation = Optional.of(endMeterActivationAndCreateNewWithCurrentAsTemplate(start, meter, currentMeterActivation.get(), copyMultiplier));
+            this.currentMeterActivation = Optional.of(endMeterActivationAndCreateNewWithCurrentAsTemplate(start, meter, currentMeterActivation
+                    .get(), copyMultiplier));
         } else {
             this.currentMeterActivation = Optional.of(meter.activate(start));
         }
@@ -1679,7 +1750,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             newMeterActivation = meter.activate(start);
         }
         if (copyMultiplier) {
-            meterActivation.getMultiplier(getDefaultMultiplierType()).ifPresent(multiplier -> newMeterActivation.setMultiplier(getDefaultMultiplierType(), multiplier));
+            meterActivation.getMultiplier(getDefaultMultiplierType())
+                    .ifPresent(multiplier -> newMeterActivation.setMultiplier(getDefaultMultiplierType(), multiplier));
         }
         return newMeterActivation;
     }
@@ -1702,7 +1774,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     @Override
     public Optional<MeterActivation> getCurrentMeterActivation() {
         if (!this.currentMeterActivation.isPresent()) {
-            this.currentMeterActivation = this.getOptionalMeterAspect(m -> m.getCurrentMeterActivation().map(Function.<MeterActivation>identity()));
+            this.currentMeterActivation = this.getOptionalMeterAspect(m -> m.getCurrentMeterActivation()
+                    .map(Function.<MeterActivation>identity()));
         }
         return this.currentMeterActivation;
     }
@@ -1823,14 +1896,17 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     private Optional<com.elster.jupiter.metering.Channel> getChannel(MeterActivation meterActivation, ReadingType readingType) {
-        return meterActivation.getChannels().stream().filter(channel -> channel.getReadingTypes().contains(readingType)).findFirst();
+        return meterActivation.getChannels()
+                .stream()
+                .filter(channel -> channel.getReadingTypes().contains(readingType))
+                .findFirst();
     }
 
     /**
      * Sorts the {@link MeterActivation}s of the specified {@link Meter}
      * that overlap with the {@link Interval}, where the most recent activations are returned first.
      *
-     * @param meter    The Meter
+     * @param meter The Meter
      * @param interval The Interval
      * @return The List of MeterActivation
      */
@@ -1941,7 +2017,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public List<ComTaskExecution> getComTaskExecutions() {
-        return comTaskExecutions.stream().filter(((Predicate<ComTaskExecution>) ComTaskExecution::isObsolete).negate()).collect(Collectors.toList());
+        return comTaskExecutions.stream()
+                .filter(((Predicate<ComTaskExecution>) ComTaskExecution::isObsolete).negate())
+                .collect(Collectors.toList());
     }
 
     private ComTaskExecution add(ComTaskExecutionImpl comTaskExecution) {
@@ -2005,8 +2083,10 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public void removeComSchedule(ComSchedule comSchedule) {
-        ComTaskExecution toRemove = getComTaskExecutionImpls().filter(x -> x.executesComSchedule(comSchedule)).findFirst().
-                orElseThrow(() -> new CannotDeleteComScheduleFromDevice(comSchedule, this, this.thesaurus, MessageSeeds.COM_SCHEDULE_CANNOT_DELETE_IF_NOT_FROM_DEVICE));
+        ComTaskExecution toRemove = getComTaskExecutionImpls().filter(x -> x.executesComSchedule(comSchedule))
+                .findFirst()
+                .
+                        orElseThrow(() -> new CannotDeleteComScheduleFromDevice(comSchedule, this, this.thesaurus, MessageSeeds.COM_SCHEDULE_CANNOT_DELETE_IF_NOT_FROM_DEVICE));
         removeComTaskExecution(toRemove);
     }
 
@@ -2165,8 +2245,109 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         Interval effectivityInterval = Interval.of(Range.atLeast(effective));
         this.activeCalendar.add(
                 this.dataModel.getInstance(ActiveEffectiveCalendarImpl.class)
-                    .initialize(effectivityInterval, this, allowedCalendar, lastVerified)
+                        .initialize(effectivityInterval, this, allowedCalendar, lastVerified)
         );
+    }
+
+    @Override
+    public void runStatusInformationTask(Consumer<ComTaskExecution> requestedAction) {
+        Optional<ComTaskExecution> comTaskExecution = Optional.empty();
+        Optional<ComTaskExecution> bestComTaskExecution = getComTaskExecutions().stream()
+                .filter(cte -> containsStatusInformationProtocolTask(cte.getProtocolTasks()))
+                .sorted((cte1, cte2) -> compareProtocolTasks(cte1.getProtocolTasks(), cte2.getProtocolTasks()))
+                .findFirst();
+
+        Optional<ComTaskEnablement> bestComTaskEnablement = getDeviceConfiguration().getComTaskEnablements().stream()
+                .filter(comTaskEnablement -> containsStatusInformationProtocolTask(comTaskEnablement.getComTask().getProtocolTasks()))
+                .sorted((cte1, cte2) -> compareProtocolTasks(cte1.getComTask().getProtocolTasks(), cte2.getComTask().getProtocolTasks()))
+                .findFirst();
+
+        if(bestComTaskExecution.isPresent() && bestComTaskEnablement.isPresent()) {
+            if(bestComTaskExecution.get().getComTasks().contains(bestComTaskEnablement.get().getComTask())) {
+                comTaskExecution = bestComTaskExecution;
+            } else {
+                comTaskExecution = createAdHocComTaskExecutionToRunNow(bestComTaskEnablement.get());
+            }
+        } else if(bestComTaskExecution.isPresent()) {
+            comTaskExecution = bestComTaskExecution;
+        } else if(bestComTaskEnablement.isPresent()) {
+            comTaskExecution = createAdHocComTaskExecutionToRunNow(bestComTaskEnablement.get());
+        }
+
+        if(!comTaskExecution.isPresent()) {
+            throw new NoStatusInformationTaskException();
+        }
+
+        requestedAction.accept(comTaskExecution.get());
+    }
+
+    private Optional<ComTaskExecution> createAdHocComTaskExecutionToRunNow(ComTaskEnablement enablement) {
+        ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = newAdHocComTaskExecution(enablement);
+        if (enablement.hasPartialConnectionTask()) {
+            getConnectionTasks().stream()
+                    .filter(connectionTask -> connectionTask.getPartialConnectionTask().getId() == enablement.getPartialConnectionTask().get().getId())
+                    .forEach(comTaskExecutionBuilder::connectionTask);
+        }
+        ManuallyScheduledComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
+        save();
+        return Optional.of(comTaskExecution);
+    }
+
+
+    private boolean containsStatusInformationProtocolTask(List<ProtocolTask> protocolTasks) {
+        return protocolTasks
+                .stream()
+                .anyMatch(protocolTask -> protocolTask instanceof StatusInformationTask);
+    }
+
+    private int compareProtocolTasks(List<ProtocolTask> protocolTasks1, List<ProtocolTask> protocolTasks2) {
+        return compareScores(determineScore(protocolTasks1), determineScore(protocolTasks2));
+    }
+
+    private int compareScores(Integer[] scores1, Integer[] scores2) {
+        for(int i = 0; i < Math.min(scores1.length, scores2.length); i++){
+            if (scores1[i] < scores2[i])
+                return -1;
+            else if(scores1[i] > scores1[i]) {
+                return -1;
+            }
+        }
+        return 0;
+    }
+
+    private Integer[] determineScore(List<ProtocolTask> protocolTasks) {
+        return protocolTasks.stream()
+                .map(protocolTask -> score(protocolTask.getClass()))
+                .sorted(Integer::compareTo)
+                .sorted(Comparator.reverseOrder())
+                .toArray(size -> new Integer[size]);
+    }
+
+    private int score(Class<? extends ProtocolTask> protocolTaskClass) {
+        return getProtocolTasksScores()
+                .entrySet()
+                .stream()
+                .filter(entry -> entry.getKey().test(protocolTaskClass))
+                .map(Map.Entry::getValue)
+                .max(Comparator.naturalOrder())
+                .orElse(0);
+    }
+
+    private Map<Predicate<Class<? extends ProtocolTask>>, Integer> getProtocolTasksScores() {
+        if (scorePerProtocolTask == null) {
+            scorePerProtocolTask = new HashMap<>();
+            scorePerProtocolTask.put(StatusInformationTask.class::isAssignableFrom, 1);
+            scorePerProtocolTask.put(BasicCheckTask.class::isAssignableFrom, 2);
+            scorePerProtocolTask.put(ClockTask.class::isAssignableFrom, 2);
+            scorePerProtocolTask.put(TopologyTask.class::isAssignableFrom, 3);
+            scorePerProtocolTask.put(RegistersTask.class::isAssignableFrom, 4);
+            scorePerProtocolTask.put(LogBooksTask.class::isAssignableFrom, 4);
+            scorePerProtocolTask.put(LoadProfilesTask.class::isAssignableFrom, 4);
+            scorePerProtocolTask.put(MessagesTask.class::isAssignableFrom, 5);
+            scorePerProtocolTask.put(FirmwareManagementTask.class::isAssignableFrom, 6);
+        }
+
+        return scorePerProtocolTask;
     }
 
     @Override
@@ -2240,435 +2421,445 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return Objects.hash(id);
     }
 
-    private class InternalDeviceMessageBuilder implements DeviceMessageBuilder {
+private class InternalDeviceMessageBuilder implements DeviceMessageBuilder {
 
-        private final DeviceMessageImpl deviceMessage;
+    private final DeviceMessageImpl deviceMessage;
 
-        private InternalDeviceMessageBuilder(DeviceMessageId deviceMessageId, TrackingCategory trackingCategory) {
-            deviceMessage = DeviceImpl.this.dataModel.getInstance(DeviceMessageImpl.class).initialize(DeviceImpl.this, deviceMessageId);
-            deviceMessage.setTrackingCategory(trackingCategory);
-        }
-
-        @Override
-        public DeviceMessageBuilder addProperty(String key, Object value) {
-            this.deviceMessage.addProperty(key, value);
-            return this;
-        }
-
-        @Override
-        public DeviceMessageBuilder setReleaseDate(Instant releaseDate) {
-            this.deviceMessage.setReleaseDate(releaseDate);
-            return this;
-        }
-
-        @Override
-        public DeviceMessageBuilder setTrackingId(String trackingId) {
-            this.deviceMessage.setTrackingId(trackingId);
-            return this;
-        }
-
-        @Override
-        public DeviceMessage<Device> add() {
-            this.deviceMessage.save();
-            DeviceImpl.this.deviceMessages.add(this.deviceMessage);
-            return this.deviceMessage;
-        }
+    private InternalDeviceMessageBuilder(DeviceMessageId deviceMessageId, TrackingCategory trackingCategory) {
+        deviceMessage = DeviceImpl.this.dataModel.getInstance(DeviceMessageImpl.class).initialize(DeviceImpl.this, deviceMessageId);
+        deviceMessage.setTrackingCategory(trackingCategory);
     }
 
-    private class ConnectionInitiationTaskBuilderForDevice extends ConnectionInitiationTaskImpl.AbstractConnectionInitiationTaskBuilder {
-
-        private ConnectionInitiationTaskBuilderForDevice(Device device, PartialConnectionInitiationTask partialConnectionInitiationTask) {
-            super(connectionInitiationTaskProvider.get());
-            this.getConnectionInitiationTask().initialize(device, partialConnectionInitiationTask, partialConnectionInitiationTask.getComPortPool());
-        }
-
-        @Override
-        public ConnectionInitiationTaskBuilder setComPortPool(OutboundComPortPool comPortPool) {
-            this.getConnectionInitiationTask().setComPortPool(comPortPool);
-            return this;
-        }
-
-        @Override
-        public ConnectionInitiationTaskBuilder setProperty(String propertyName, Object value) {
-            this.getConnectionInitiationTask().setProperty(propertyName, value);
-            return this;
-        }
-
-        @Override
-        public ConnectionInitiationTask add() {
-            return (ConnectionInitiationTask) DeviceImpl.this.add(this.getConnectionInitiationTask());
-        }
+    @Override
+    public DeviceMessageBuilder addProperty(String key, Object value) {
+        this.deviceMessage.addProperty(key, value);
+        return this;
     }
 
-    private class InboundConnectionTaskBuilderForDevice extends InboundConnectionTaskImpl.AbstractInboundConnectionTaskBuilder {
-
-        private InboundConnectionTaskBuilderForDevice(Device device, PartialInboundConnectionTask partialInboundConnectionTask) {
-            super(inboundConnectionTaskProvider.get());
-            this.getInboundConnectionTask().initialize(device, partialInboundConnectionTask, partialInboundConnectionTask.getComPortPool());
-        }
-
-        @Override
-        public InboundConnectionTaskBuilder setComPortPool(InboundComPortPool comPortPool) {
-            this.getInboundConnectionTask().setComPortPool(comPortPool);
-            return this;
-        }
-
-        @Override
-        public InboundConnectionTaskBuilder setProperty(String propertyName, Object value) {
-            this.getInboundConnectionTask().setProperty(propertyName, value);
-            return this;
-        }
-
-        @Override
-        public InboundConnectionTask add() {
-            return (InboundConnectionTask) DeviceImpl.this.add(this.getInboundConnectionTask());
-        }
+    @Override
+    public DeviceMessageBuilder setReleaseDate(Instant releaseDate) {
+        this.deviceMessage.setReleaseDate(releaseDate);
+        return this;
     }
 
-    private class ScheduledConnectionTaskBuilderForDevice extends ScheduledConnectionTaskImpl.AbstractScheduledConnectionTaskBuilder {
-
-        private ScheduledConnectionTaskBuilderForDevice(Device device, PartialOutboundConnectionTask partialOutboundConnectionTask) {
-            super(scheduledConnectionTaskProvider.get());
-            this.getScheduledConnectionTask().initialize(device, (PartialScheduledConnectionTask) partialOutboundConnectionTask, partialOutboundConnectionTask.getComPortPool());
-            if (partialOutboundConnectionTask.getNextExecutionSpecs() != null) {
-                this.getScheduledConnectionTask().setNextExecutionSpecsFrom(partialOutboundConnectionTask.getNextExecutionSpecs().getTemporalExpression());
-            }
-            this.getScheduledConnectionTask().setConnectionStrategy(((PartialScheduledConnectionTask) partialOutboundConnectionTask).getConnectionStrategy());
-            this.setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE);
-        }
-
-        @Override
-        public ScheduledConnectionTaskBuilder setCommunicationWindow(ComWindow communicationWindow) {
-            this.getScheduledConnectionTask().setCommunicationWindow(communicationWindow);
-            return this;
-        }
-
-        @Override
-        public ScheduledConnectionTaskBuilder setComPortPool(OutboundComPortPool comPortPool) {
-            this.getScheduledConnectionTask().setComPortPool(comPortPool);
-            return this;
-        }
-
-        @Override
-        public ScheduledConnectionTaskBuilder setConnectionStrategy(ConnectionStrategy connectionStrategy) {
-            this.getScheduledConnectionTask().setConnectionStrategy(connectionStrategy);
-            return this;
-        }
-
-        @Override
-        public ScheduledConnectionTaskBuilder setInitiatorTask(ConnectionInitiationTask connectionInitiationTask) {
-            this.getScheduledConnectionTask().setInitiatorTask(connectionInitiationTask);
-            return this;
-        }
-
-        @Override
-        public ScheduledConnectionTaskBuilder setNextExecutionSpecsFrom(TemporalExpression temporalExpression) {
-            this.getScheduledConnectionTask().setNextExecutionSpecsFrom(temporalExpression);
-            return this;
-        }
-
-        @Override
-        public ScheduledConnectionTaskBuilder setProperty(String propertyName, Object value) {
-            this.getScheduledConnectionTask().setProperty(propertyName, value);
-            return this;
-        }
-
-        @Override
-        public ScheduledConnectionTaskBuilder setSimultaneousConnectionsAllowed(boolean allowSimultaneousConnections) {
-            this.getScheduledConnectionTask().setSimultaneousConnectionsAllowed(allowSimultaneousConnections);
-            return this;
-        }
-
-        @Override
-        public ScheduledConnectionTask add() {
-            return (ScheduledConnectionTaskImpl) DeviceImpl.this.add(this.getScheduledConnectionTask());
-        }
+    @Override
+    public DeviceMessageBuilder setTrackingId(String trackingId) {
+        this.deviceMessage.setTrackingId(trackingId);
+        return this;
     }
 
-    public class ScheduledComTaskExecutionBuilderForDevice
-            extends ScheduledComTaskExecutionImpl.ScheduledComTaskExecutionBuilderImpl {
+    @Override
+    public DeviceMessage<Device> add() {
+        this.deviceMessage.save();
+        DeviceImpl.this.deviceMessages.add(this.deviceMessage);
+        return this.deviceMessage;
+    }
+}
 
-        private Set<ComTaskExecution> executionsToDelete;
+private class ConnectionInitiationTaskBuilderForDevice extends ConnectionInitiationTaskImpl.AbstractConnectionInitiationTaskBuilder {
 
-        private ScheduledComTaskExecutionBuilderForDevice(Provider<ScheduledComTaskExecutionImpl> comTaskExecutionProvider, ComSchedule comSchedule) {
-            super(comTaskExecutionProvider.get());
-            this.initExecutionsToDelete(comSchedule);
-            this.getComTaskExecution().initialize(DeviceImpl.this, comSchedule);
-        }
-
-        private void initExecutionsToDelete(ComSchedule comSchedule) {
-            Set<Long> comScheduleComTasks = comSchedule.getComTasks().stream().map(ComTask::getId).collect(Collectors.toSet());
-            this.executionsToDelete = DeviceImpl.this.getComTaskExecutionImpls()
-                    .filter(Predicates.not(ComTaskExecution::usesSharedSchedule))
-                    .filter(cte -> comScheduleComTasks.contains(cte.getComTasks().get(0).getId()))
-                    .collect(Collectors.toSet());
-        }
-
-        @Override
-        public ScheduledComTaskExecution add() {
-            executionsToDelete.forEach(DeviceImpl.this::removeComTaskExecution);
-            ScheduledComTaskExecution comTaskExecution = super.add();
-            return (ScheduledComTaskExecution) DeviceImpl.this.add((ComTaskExecutionImpl) comTaskExecution);
-        }
+    private ConnectionInitiationTaskBuilderForDevice(Device device, PartialConnectionInitiationTask partialConnectionInitiationTask) {
+        super(connectionInitiationTaskProvider.get());
+        this.getConnectionInitiationTask()
+                .initialize(device, partialConnectionInitiationTask, partialConnectionInitiationTask.getComPortPool());
     }
 
-    public class AdHocComTaskExecutionBuilderForDevice
-            extends ManuallyScheduledComTaskExecutionImpl.ManuallyScheduledComTaskExecutionBuilderImpl {
-
-        private AdHocComTaskExecutionBuilderForDevice(Provider<ManuallyScheduledComTaskExecutionImpl> comTaskExecutionProvider, ComTaskEnablement comTaskEnablement) {
-            super(comTaskExecutionProvider.get());
-            this.getComTaskExecution().initializeAdhoc(DeviceImpl.this, comTaskEnablement);
-        }
-
-
-        @Override
-        public ManuallyScheduledComTaskExecution add() {
-            ManuallyScheduledComTaskExecution comTaskExecution = super.add();
-            return (ManuallyScheduledComTaskExecution) DeviceImpl.this.add((ComTaskExecutionImpl) comTaskExecution);
-        }
+    @Override
+    public ConnectionInitiationTaskBuilder setComPortPool(OutboundComPortPool comPortPool) {
+        this.getConnectionInitiationTask().setComPortPool(comPortPool);
+        return this;
     }
 
-    public class FirmwareComTaskExecutionBuilderForDevice extends FirmwareComTaskExecutionImpl.FirmwareComTaskExecutionBuilderImpl {
-
-        private FirmwareComTaskExecutionBuilderForDevice(Provider<FirmwareComTaskExecutionImpl> comTaskExecutionProvider, ComTaskEnablement comTaskEnablement) {
-            super(comTaskExecutionProvider.get());
-            this.getComTaskExecution().initializeFirmwareTask(DeviceImpl.this, comTaskEnablement);
-        }
-
-        @Override
-        public FirmwareComTaskExecution add() {
-            FirmwareComTaskExecution firmwareComTaskExecution = super.add();
-            return (FirmwareComTaskExecution) DeviceImpl.this.add((ComTaskExecutionImpl) firmwareComTaskExecution);
-        }
+    @Override
+    public ConnectionInitiationTaskBuilder setProperty(String propertyName, Object value) {
+        this.getConnectionInitiationTask().setProperty(propertyName, value);
+        return this;
     }
 
-    public class ManuallyScheduledComTaskExecutionBuilderForDevice
-            extends ManuallyScheduledComTaskExecutionImpl.ManuallyScheduledComTaskExecutionBuilderImpl {
+    @Override
+    public ConnectionInitiationTask add() {
+        return (ConnectionInitiationTask) DeviceImpl.this.add(this.getConnectionInitiationTask());
+    }
+}
 
-        private ManuallyScheduledComTaskExecutionBuilderForDevice(Provider<ManuallyScheduledComTaskExecutionImpl> comTaskExecutionProvider, ComTaskEnablement comTaskEnablement, TemporalExpression temporalExpression) {
-            super(comTaskExecutionProvider.get());
-            this.getComTaskExecution().initialize(DeviceImpl.this, comTaskEnablement, temporalExpression);
-        }
+private class InboundConnectionTaskBuilderForDevice extends InboundConnectionTaskImpl.AbstractInboundConnectionTaskBuilder {
 
-        @Override
-        public ManuallyScheduledComTaskExecution add() {
-            ManuallyScheduledComTaskExecution comTaskExecution = super.add();
-            return (ManuallyScheduledComTaskExecution) DeviceImpl.this.add((ComTaskExecutionImpl) comTaskExecution);
-        }
+    private InboundConnectionTaskBuilderForDevice(Device device, PartialInboundConnectionTask partialInboundConnectionTask) {
+        super(inboundConnectionTaskProvider.get());
+        this.getInboundConnectionTask()
+                .initialize(device, partialInboundConnectionTask, partialInboundConnectionTask.getComPortPool());
     }
 
-    private enum RegisterFactory {
-        Text {
-            @Override
-            boolean appliesTo(RegisterSpec registerSpec) {
-                return registerSpec.isTextual();
-            }
-
-            @Override
-            RegisterImpl newRegister(DeviceImpl device, RegisterSpec registerSpec) {
-                return new TextRegisterImpl(device, (TextualRegisterSpec) registerSpec);
-            }
-        },
-
-        Billing {
-            @Override
-            boolean appliesTo(RegisterSpec registerSpec) {
-                Set<Aggregate> eventAggregates = EnumSet.of(Aggregate.AVERAGE, Aggregate.SUM, Aggregate.MAXIMUM, Aggregate.SECONDMAXIMUM, Aggregate.THIRDMAXIMUM, Aggregate.FOURTHMAXIMUM, Aggregate.FIFTHMAXIMIMUM, Aggregate.MINIMUM, Aggregate.SECONDMINIMUM);
-                return eventAggregates.contains(this.getReadingType(registerSpec).getAggregate());
-            }
-
-            @Override
-            RegisterImpl newRegister(DeviceImpl device, RegisterSpec registerSpec) {
-                return new BillingRegisterImpl(device, (NumericalRegisterSpec) registerSpec);
-            }
-        },
-
-        Flags {
-            @Override
-            boolean appliesTo(RegisterSpec registerSpec) {
-                return this.getReadingType(registerSpec).getUnit().equals(ReadingTypeUnit.BOOLEANARRAY);
-            }
-
-            @Override
-            RegisterImpl newRegister(DeviceImpl device, RegisterSpec registerSpec) {
-                return new FlagsRegisterImpl(device, (NumericalRegisterSpec) registerSpec);
-            }
-        },
-
-        Numerical {
-            @Override
-            boolean appliesTo(RegisterSpec registerSpec) {
-                // When all others fail, use numerical
-                return true;
-            }
-
-            @Override
-            RegisterImpl newRegister(DeviceImpl device, RegisterSpec registerSpec) {
-                return new NumericalRegisterImpl(device, (NumericalRegisterSpec) registerSpec);
-            }
-        };
-
-        ReadingType getReadingType(RegisterSpec registerSpec) {
-            return registerSpec.getRegisterType().getReadingType();
-        }
-
-        abstract boolean appliesTo(RegisterSpec registerSpec);
-
-        abstract RegisterImpl newRegister(DeviceImpl device, RegisterSpec registerSpec);
+    @Override
+    public InboundConnectionTaskBuilder setComPortPool(InboundComPortPool comPortPool) {
+        this.getInboundConnectionTask().setComPortPool(comPortPool);
+        return this;
     }
 
-    private class CIMLifecycleDatesImpl implements CIMLifecycleDates {
-        private final EndDevice koreDevice;
-        private final LifecycleDates koreLifecycleDates;
-
-        private CIMLifecycleDatesImpl(EndDevice koreDevice, LifecycleDates koreLifecycleDates) {
-            super();
-            this.koreDevice = koreDevice;
-            this.koreLifecycleDates = koreLifecycleDates;
-        }
-
-        @Override
-        public Optional<Instant> getManufacturedDate() {
-            return koreLifecycleDates.getManufacturedDate();
-        }
-
-        @Override
-        public CIMLifecycleDates setManufacturedDate(Instant manufacturedDate) {
-            koreLifecycleDates.setManufacturedDate(manufacturedDate);
-            return this;
-        }
-
-        @Override
-        public Optional<Instant> getPurchasedDate() {
-            return koreLifecycleDates.getPurchasedDate();
-        }
-
-        @Override
-        public CIMLifecycleDates setPurchasedDate(Instant purchasedDate) {
-            koreLifecycleDates.setPurchasedDate(purchasedDate);
-            return this;
-        }
-
-        @Override
-        public Optional<Instant> getReceivedDate() {
-            return koreLifecycleDates.getReceivedDate();
-        }
-
-        @Override
-        public CIMLifecycleDates setReceivedDate(Instant receivedDate) {
-            koreLifecycleDates.setReceivedDate(receivedDate);
-            return this;
-        }
-
-        @Override
-        public Optional<Instant> getInstalledDate() {
-            return koreLifecycleDates.getInstalledDate();
-        }
-
-        @Override
-        public CIMLifecycleDates setInstalledDate(Instant installedDate) {
-            koreLifecycleDates.setInstalledDate(installedDate);
-            return this;
-        }
-
-        @Override
-        public Optional<Instant> getRemovedDate() {
-            return koreLifecycleDates.getRemovedDate();
-        }
-
-        @Override
-        public CIMLifecycleDates setRemovedDate(Instant removedDate) {
-            koreLifecycleDates.setRemovedDate(removedDate);
-            return this;
-        }
-
-        @Override
-        public Optional<Instant> getRetiredDate() {
-            return koreLifecycleDates.getRetiredDate();
-        }
-
-        @Override
-        public CIMLifecycleDates setRetiredDate(Instant retiredDate) {
-            koreLifecycleDates.setRetiredDate(retiredDate);
-            return this;
-        }
-
-        @Override
-        public void save() {
-            this.koreDevice.update();
-        }
+    @Override
+    public InboundConnectionTaskBuilder setProperty(String propertyName, Object value) {
+        this.getInboundConnectionTask().setProperty(propertyName, value);
+        return this;
     }
 
-    private class NoCimLifecycleDates implements CIMLifecycleDates {
-        @Override
-        public Optional<Instant> getManufacturedDate() {
-            return Optional.empty();
-        }
-
-        @Override
-        public CIMLifecycleDates setManufacturedDate(Instant manufacturedDate) {
-            // Ignore blissfully
-            return this;
-        }
-
-        @Override
-        public Optional<Instant> getPurchasedDate() {
-            return Optional.empty();
-        }
-
-        @Override
-        public CIMLifecycleDates setPurchasedDate(Instant purchasedDate) {
-            // Ignore blissfully
-            return this;
-        }
-
-        @Override
-        public Optional<Instant> getReceivedDate() {
-            return Optional.empty();
-        }
-
-        @Override
-        public CIMLifecycleDates setReceivedDate(Instant receivedDate) {
-            // Ignore blissfully
-            return this;
-        }
-
-        @Override
-        public Optional<Instant> getInstalledDate() {
-            return Optional.empty();
-        }
-
-        @Override
-        public CIMLifecycleDates setInstalledDate(Instant installedDate) {
-            // Ignore blissfully
-            return this;
-        }
-
-        @Override
-        public Optional<Instant> getRemovedDate() {
-            return Optional.empty();
-        }
-
-        @Override
-        public CIMLifecycleDates setRemovedDate(Instant removedDate) {
-            // Ignore blissfully
-            return this;
-        }
-
-        @Override
-        public Optional<Instant> getRetiredDate() {
-            return Optional.empty();
-        }
-
-        @Override
-        public CIMLifecycleDates setRetiredDate(Instant retiredDate) {
-            // Ignore blissfully
-            return this;
-        }
-
-        @Override
-        public void save() {
-            // Since there were no dates to start with, there is nothing to save
-        }
+    @Override
+    public InboundConnectionTask add() {
+        return (InboundConnectionTask) DeviceImpl.this.add(this.getInboundConnectionTask());
     }
+}
+
+private class ScheduledConnectionTaskBuilderForDevice extends ScheduledConnectionTaskImpl.AbstractScheduledConnectionTaskBuilder {
+
+    private ScheduledConnectionTaskBuilderForDevice(Device device, PartialOutboundConnectionTask partialOutboundConnectionTask) {
+        super(scheduledConnectionTaskProvider.get());
+        this.getScheduledConnectionTask()
+                .initialize(device, (PartialScheduledConnectionTask) partialOutboundConnectionTask, partialOutboundConnectionTask
+                        .getComPortPool());
+        if (partialOutboundConnectionTask.getNextExecutionSpecs() != null) {
+            this.getScheduledConnectionTask()
+                    .setNextExecutionSpecsFrom(partialOutboundConnectionTask.getNextExecutionSpecs()
+                            .getTemporalExpression());
+        }
+        this.getScheduledConnectionTask()
+                .setConnectionStrategy(((PartialScheduledConnectionTask) partialOutboundConnectionTask).getConnectionStrategy());
+        this.setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE);
+    }
+
+    @Override
+    public ScheduledConnectionTaskBuilder setCommunicationWindow(ComWindow communicationWindow) {
+        this.getScheduledConnectionTask().setCommunicationWindow(communicationWindow);
+        return this;
+    }
+
+    @Override
+    public ScheduledConnectionTaskBuilder setComPortPool(OutboundComPortPool comPortPool) {
+        this.getScheduledConnectionTask().setComPortPool(comPortPool);
+        return this;
+    }
+
+    @Override
+    public ScheduledConnectionTaskBuilder setConnectionStrategy(ConnectionStrategy connectionStrategy) {
+        this.getScheduledConnectionTask().setConnectionStrategy(connectionStrategy);
+        return this;
+    }
+
+    @Override
+    public ScheduledConnectionTaskBuilder setInitiatorTask(ConnectionInitiationTask connectionInitiationTask) {
+        this.getScheduledConnectionTask().setInitiatorTask(connectionInitiationTask);
+        return this;
+    }
+
+    @Override
+    public ScheduledConnectionTaskBuilder setNextExecutionSpecsFrom(TemporalExpression temporalExpression) {
+        this.getScheduledConnectionTask().setNextExecutionSpecsFrom(temporalExpression);
+        return this;
+    }
+
+    @Override
+    public ScheduledConnectionTaskBuilder setProperty(String propertyName, Object value) {
+        this.getScheduledConnectionTask().setProperty(propertyName, value);
+        return this;
+    }
+
+    @Override
+    public ScheduledConnectionTaskBuilder setSimultaneousConnectionsAllowed(boolean allowSimultaneousConnections) {
+        this.getScheduledConnectionTask().setSimultaneousConnectionsAllowed(allowSimultaneousConnections);
+        return this;
+    }
+
+    @Override
+    public ScheduledConnectionTask add() {
+        return (ScheduledConnectionTaskImpl) DeviceImpl.this.add(this.getScheduledConnectionTask());
+    }
+}
+
+public class ScheduledComTaskExecutionBuilderForDevice
+        extends ScheduledComTaskExecutionImpl.ScheduledComTaskExecutionBuilderImpl {
+
+    private Set<ComTaskExecution> executionsToDelete;
+
+    private ScheduledComTaskExecutionBuilderForDevice(Provider<ScheduledComTaskExecutionImpl> comTaskExecutionProvider, ComSchedule comSchedule) {
+        super(comTaskExecutionProvider.get());
+        this.initExecutionsToDelete(comSchedule);
+        this.getComTaskExecution().initialize(DeviceImpl.this, comSchedule);
+    }
+
+    private void initExecutionsToDelete(ComSchedule comSchedule) {
+        Set<Long> comScheduleComTasks = comSchedule.getComTasks()
+                .stream()
+                .map(ComTask::getId)
+                .collect(Collectors.toSet());
+        this.executionsToDelete = DeviceImpl.this.getComTaskExecutionImpls()
+                .filter(Predicates.not(ComTaskExecution::usesSharedSchedule))
+                .filter(cte -> comScheduleComTasks.contains(cte.getComTasks().get(0).getId()))
+                .collect(Collectors.toSet());
+    }
+
+    @Override
+    public ScheduledComTaskExecution add() {
+        executionsToDelete.forEach(DeviceImpl.this::removeComTaskExecution);
+        ScheduledComTaskExecution comTaskExecution = super.add();
+        return (ScheduledComTaskExecution) DeviceImpl.this.add((ComTaskExecutionImpl) comTaskExecution);
+    }
+}
+
+public class AdHocComTaskExecutionBuilderForDevice
+        extends ManuallyScheduledComTaskExecutionImpl.ManuallyScheduledComTaskExecutionBuilderImpl {
+
+    private AdHocComTaskExecutionBuilderForDevice(Provider<ManuallyScheduledComTaskExecutionImpl> comTaskExecutionProvider, ComTaskEnablement comTaskEnablement) {
+        super(comTaskExecutionProvider.get());
+        this.getComTaskExecution().initializeAdhoc(DeviceImpl.this, comTaskEnablement);
+    }
+
+
+    @Override
+    public ManuallyScheduledComTaskExecution add() {
+        ManuallyScheduledComTaskExecution comTaskExecution = super.add();
+        return (ManuallyScheduledComTaskExecution) DeviceImpl.this.add((ComTaskExecutionImpl) comTaskExecution);
+    }
+}
+
+public class FirmwareComTaskExecutionBuilderForDevice extends FirmwareComTaskExecutionImpl.FirmwareComTaskExecutionBuilderImpl {
+
+    private FirmwareComTaskExecutionBuilderForDevice(Provider<FirmwareComTaskExecutionImpl> comTaskExecutionProvider, ComTaskEnablement comTaskEnablement) {
+        super(comTaskExecutionProvider.get());
+        this.getComTaskExecution().initializeFirmwareTask(DeviceImpl.this, comTaskEnablement);
+    }
+
+    @Override
+    public FirmwareComTaskExecution add() {
+        FirmwareComTaskExecution firmwareComTaskExecution = super.add();
+        return (FirmwareComTaskExecution) DeviceImpl.this.add((ComTaskExecutionImpl) firmwareComTaskExecution);
+    }
+}
+
+public class ManuallyScheduledComTaskExecutionBuilderForDevice
+        extends ManuallyScheduledComTaskExecutionImpl.ManuallyScheduledComTaskExecutionBuilderImpl {
+
+    private ManuallyScheduledComTaskExecutionBuilderForDevice(Provider<ManuallyScheduledComTaskExecutionImpl> comTaskExecutionProvider, ComTaskEnablement comTaskEnablement, TemporalExpression temporalExpression) {
+        super(comTaskExecutionProvider.get());
+        this.getComTaskExecution().initialize(DeviceImpl.this, comTaskEnablement, temporalExpression);
+    }
+
+    @Override
+    public ManuallyScheduledComTaskExecution add() {
+        ManuallyScheduledComTaskExecution comTaskExecution = super.add();
+        return (ManuallyScheduledComTaskExecution) DeviceImpl.this.add((ComTaskExecutionImpl) comTaskExecution);
+    }
+}
+
+private enum RegisterFactory {
+    Text {
+        @Override
+        boolean appliesTo(RegisterSpec registerSpec) {
+            return registerSpec.isTextual();
+        }
+
+        @Override
+        RegisterImpl newRegister(DeviceImpl device, RegisterSpec registerSpec) {
+            return new TextRegisterImpl(device, (TextualRegisterSpec) registerSpec);
+        }
+    },
+
+    Billing {
+        @Override
+        boolean appliesTo(RegisterSpec registerSpec) {
+            Set<Aggregate> eventAggregates = EnumSet.of(Aggregate.AVERAGE, Aggregate.SUM, Aggregate.MAXIMUM, Aggregate.SECONDMAXIMUM, Aggregate.THIRDMAXIMUM, Aggregate.FOURTHMAXIMUM, Aggregate.FIFTHMAXIMIMUM, Aggregate.MINIMUM, Aggregate.SECONDMINIMUM);
+            return eventAggregates.contains(this.getReadingType(registerSpec).getAggregate());
+        }
+
+        @Override
+        RegisterImpl newRegister(DeviceImpl device, RegisterSpec registerSpec) {
+            return new BillingRegisterImpl(device, (NumericalRegisterSpec) registerSpec);
+        }
+    },
+
+    Flags {
+        @Override
+        boolean appliesTo(RegisterSpec registerSpec) {
+            return this.getReadingType(registerSpec).getUnit().equals(ReadingTypeUnit.BOOLEANARRAY);
+        }
+
+        @Override
+        RegisterImpl newRegister(DeviceImpl device, RegisterSpec registerSpec) {
+            return new FlagsRegisterImpl(device, (NumericalRegisterSpec) registerSpec);
+        }
+    },
+
+    Numerical {
+        @Override
+        boolean appliesTo(RegisterSpec registerSpec) {
+            // When all others fail, use numerical
+            return true;
+        }
+
+        @Override
+        RegisterImpl newRegister(DeviceImpl device, RegisterSpec registerSpec) {
+            return new NumericalRegisterImpl(device, (NumericalRegisterSpec) registerSpec);
+        }
+    };
+
+    ReadingType getReadingType(RegisterSpec registerSpec) {
+        return registerSpec.getRegisterType().getReadingType();
+    }
+
+    abstract boolean appliesTo(RegisterSpec registerSpec);
+
+    abstract RegisterImpl newRegister(DeviceImpl device, RegisterSpec registerSpec);
+}
+
+private class CIMLifecycleDatesImpl implements CIMLifecycleDates {
+    private final EndDevice koreDevice;
+    private final LifecycleDates koreLifecycleDates;
+
+    private CIMLifecycleDatesImpl(EndDevice koreDevice, LifecycleDates koreLifecycleDates) {
+        super();
+        this.koreDevice = koreDevice;
+        this.koreLifecycleDates = koreLifecycleDates;
+    }
+
+    @Override
+    public Optional<Instant> getManufacturedDate() {
+        return koreLifecycleDates.getManufacturedDate();
+    }
+
+    @Override
+    public CIMLifecycleDates setManufacturedDate(Instant manufacturedDate) {
+        koreLifecycleDates.setManufacturedDate(manufacturedDate);
+        return this;
+    }
+
+    @Override
+    public Optional<Instant> getPurchasedDate() {
+        return koreLifecycleDates.getPurchasedDate();
+    }
+
+    @Override
+    public CIMLifecycleDates setPurchasedDate(Instant purchasedDate) {
+        koreLifecycleDates.setPurchasedDate(purchasedDate);
+        return this;
+    }
+
+    @Override
+    public Optional<Instant> getReceivedDate() {
+        return koreLifecycleDates.getReceivedDate();
+    }
+
+    @Override
+    public CIMLifecycleDates setReceivedDate(Instant receivedDate) {
+        koreLifecycleDates.setReceivedDate(receivedDate);
+        return this;
+    }
+
+    @Override
+    public Optional<Instant> getInstalledDate() {
+        return koreLifecycleDates.getInstalledDate();
+    }
+
+    @Override
+    public CIMLifecycleDates setInstalledDate(Instant installedDate) {
+        koreLifecycleDates.setInstalledDate(installedDate);
+        return this;
+    }
+
+    @Override
+    public Optional<Instant> getRemovedDate() {
+        return koreLifecycleDates.getRemovedDate();
+    }
+
+    @Override
+    public CIMLifecycleDates setRemovedDate(Instant removedDate) {
+        koreLifecycleDates.setRemovedDate(removedDate);
+        return this;
+    }
+
+    @Override
+    public Optional<Instant> getRetiredDate() {
+        return koreLifecycleDates.getRetiredDate();
+    }
+
+    @Override
+    public CIMLifecycleDates setRetiredDate(Instant retiredDate) {
+        koreLifecycleDates.setRetiredDate(retiredDate);
+        return this;
+    }
+
+    @Override
+    public void save() {
+        this.koreDevice.update();
+    }
+}
+
+private class NoCimLifecycleDates implements CIMLifecycleDates {
+    @Override
+    public Optional<Instant> getManufacturedDate() {
+        return Optional.empty();
+    }
+
+    @Override
+    public CIMLifecycleDates setManufacturedDate(Instant manufacturedDate) {
+        // Ignore blissfully
+        return this;
+    }
+
+    @Override
+    public Optional<Instant> getPurchasedDate() {
+        return Optional.empty();
+    }
+
+    @Override
+    public CIMLifecycleDates setPurchasedDate(Instant purchasedDate) {
+        // Ignore blissfully
+        return this;
+    }
+
+    @Override
+    public Optional<Instant> getReceivedDate() {
+        return Optional.empty();
+    }
+
+    @Override
+    public CIMLifecycleDates setReceivedDate(Instant receivedDate) {
+        // Ignore blissfully
+        return this;
+    }
+
+    @Override
+    public Optional<Instant> getInstalledDate() {
+        return Optional.empty();
+    }
+
+    @Override
+    public CIMLifecycleDates setInstalledDate(Instant installedDate) {
+        // Ignore blissfully
+        return this;
+    }
+
+    @Override
+    public Optional<Instant> getRemovedDate() {
+        return Optional.empty();
+    }
+
+    @Override
+    public CIMLifecycleDates setRemovedDate(Instant removedDate) {
+        // Ignore blissfully
+        return this;
+    }
+
+    @Override
+    public Optional<Instant> getRetiredDate() {
+        return Optional.empty();
+    }
+
+    @Override
+    public CIMLifecycleDates setRetiredDate(Instant retiredDate) {
+        // Ignore blissfully
+        return this;
+    }
+
+    @Override
+    public void save() {
+        // Since there were no dates to start with, there is nothing to save
+    }
+}
 }
