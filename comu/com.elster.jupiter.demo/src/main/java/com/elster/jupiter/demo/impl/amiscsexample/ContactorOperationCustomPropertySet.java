@@ -208,67 +208,62 @@ public class ContactorOperationCustomPropertySet implements CustomPropertySet<Se
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
             table
-                    .column(ContactorOperationDomainExtension.FieldNames.MRID_DEVICE.databaseName())
-                    .varChar()
-                    .map(ContactorOperationDomainExtension.FieldNames.MRID_DEVICE.javaName())
-                    .notNull()
-                    .add();
+                .column(ContactorOperationDomainExtension.FieldNames.MRID_DEVICE.databaseName())
+                .varChar()
+                .map(ContactorOperationDomainExtension.FieldNames.MRID_DEVICE.javaName())
+                .notNull()
+                .add();
             table
-                    .column(ContactorOperationDomainExtension.FieldNames.ACTIVATION_DATE.databaseName())
-                    .number()
-                    .conversion(ColumnConversion.NUMBER2INSTANT)
-                    .map(ContactorOperationDomainExtension.FieldNames.ACTIVATION_DATE.javaName())
-                    .notNull()
-                    .add();
+                .column(ContactorOperationDomainExtension.FieldNames.ACTIVATION_DATE.databaseName())
+                .number()
+                .conversion(ColumnConversion.NUMBER2INSTANT)
+                .map(ContactorOperationDomainExtension.FieldNames.ACTIVATION_DATE.javaName())
+                .notNull()
+                .add();
             table
-                    .column(ContactorOperationDomainExtension.FieldNames.BREAKER_STATUS.databaseName())
-                    .number()
-                    .conversion(ColumnConversion.NUMBER2ENUM)
-                    .map(ContactorOperationDomainExtension.FieldNames.BREAKER_STATUS.javaName())
-                    .notNull()
-                    .add();
+                .column(ContactorOperationDomainExtension.FieldNames.BREAKER_STATUS.databaseName())
+                .number()
+                .conversion(ColumnConversion.NUMBER2ENUM)
+                .map(ContactorOperationDomainExtension.FieldNames.BREAKER_STATUS.javaName())
+                .notNull()
+                .add();
             table
-                    .column(ContactorOperationDomainExtension.FieldNames.NR_OF_UNCONFIRMED_DEVICE_COMMANDS.databaseName())
-                    .number()
-                    .conversion(ColumnConversion.NUMBER2INT)
-                    .map(ContactorOperationDomainExtension.FieldNames.NR_OF_UNCONFIRMED_DEVICE_COMMANDS.javaName())
-                  //  .notNull()
-                    .add();
+                .column(ContactorOperationDomainExtension.FieldNames.NR_OF_UNCONFIRMED_DEVICE_COMMANDS.databaseName())
+                .number()
+                .conversion(ColumnConversion.NUMBER2INT)
+                .map(ContactorOperationDomainExtension.FieldNames.NR_OF_UNCONFIRMED_DEVICE_COMMANDS.javaName())
+                .add();
             table
-                    .column(ContactorOperationDomainExtension.FieldNames.STATUS_INFORMATION_TASK_TRY_COUNT.databaseName())
-                    .number()
-                    .conversion(ColumnConversion.NUMBER2INT)
-                    .map(ContactorOperationDomainExtension.FieldNames.STATUS_INFORMATION_TASK_TRY_COUNT.javaName())
-                   // .notNull()
-                    .add();
+                .column(ContactorOperationDomainExtension.FieldNames.STATUS_INFORMATION_TASK_TRY_COUNT.databaseName())
+                .number()
+                .conversion(ColumnConversion.NUMBER2INT)
+                .map(ContactorOperationDomainExtension.FieldNames.STATUS_INFORMATION_TASK_TRY_COUNT.javaName())
+                .add();
             table
-                    .column(ContactorOperationDomainExtension.FieldNames.CALLBACK.databaseName())
-                    .varChar()
-                    .map(ContactorOperationDomainExtension.FieldNames.CALLBACK.javaName())
-                  //  .notNull()
-                    .add();
+                .column(ContactorOperationDomainExtension.FieldNames.CALLBACK.databaseName())
+                .varChar()
+                .map(ContactorOperationDomainExtension.FieldNames.CALLBACK.javaName())
+                .add();
             table
-                    .column(ContactorOperationDomainExtension.FieldNames.LOAD_LIMIT_ENABLED.databaseName())
-                    .varChar()
-                    .map(ContactorOperationDomainExtension.FieldNames.LOAD_LIMIT_ENABLED.javaName())
-                   // .notNull()
-                    .add();
+                .column(ContactorOperationDomainExtension.FieldNames.LOAD_LIMIT_ENABLED.databaseName())
+                .varChar()
+                .map(ContactorOperationDomainExtension.FieldNames.LOAD_LIMIT_ENABLED.javaName())
+                .add();
             table
-                    .column(ContactorOperationDomainExtension.FieldNames.LOAD_LIMIT.databaseName())
-                    .varChar()
-                    .map(ContactorOperationDomainExtension.FieldNames.LOAD_LIMIT.javaName())
-                   // .notNull()
-                    .add();
+                .column(ContactorOperationDomainExtension.FieldNames.LOAD_LIMIT.databaseName())
+                .varChar()
+                .map(ContactorOperationDomainExtension.FieldNames.LOAD_LIMIT.javaName())
+                .add();
             table
-                    .column(ContactorOperationDomainExtension.FieldNames.DESTINATION_SPEC_NAME.databaseName())
-                    .varChar()
-                    .map(ContactorOperationDomainExtension.FieldNames.DESTINATION_SPEC_NAME.javaName())
-                    .add();
+                .column(ContactorOperationDomainExtension.FieldNames.DESTINATION_SPEC_NAME.databaseName())
+                .varChar()
+                .map(ContactorOperationDomainExtension.FieldNames.DESTINATION_SPEC_NAME.javaName())
+                .add();
             table
-                    .column(ContactorOperationDomainExtension.FieldNames.COMPLETION_MESSAGE.databaseName())
-                    .varChar()
-                    .map(ContactorOperationDomainExtension.FieldNames.COMPLETION_MESSAGE.javaName())
-                    .add();
+                .column(ContactorOperationDomainExtension.FieldNames.COMPLETION_MESSAGE.databaseName())
+                .varChar()
+                .map(ContactorOperationDomainExtension.FieldNames.COMPLETION_MESSAGE.javaName())
+                .add();
         }
     }
 }
