@@ -12,7 +12,7 @@ import java.time.Instant;
 /**
  * Created by bvn on 4/11/16.
  */
-public class ElectricityUsagePointInfo extends UsagePointInfo {
+public class ElectricityDetailInfo extends DefaultDetailInfo {
     public Quantity nominalServiceVoltage;
     public PhaseCode phaseCode;
     public Quantity ratedCurrent;
@@ -23,7 +23,6 @@ public class ElectricityUsagePointInfo extends UsagePointInfo {
     public Quantity loadLimit;
     public YesNoAnswer interruptible;
 
-    @Override
     public UsagePointDetailBuilder createDetail(UsagePoint usagePoint, Instant instant) {
         return usagePoint.newElectricityDetailBuilder(instant)
                 .withCollar(collar)
@@ -39,7 +38,6 @@ public class ElectricityUsagePointInfo extends UsagePointInfo {
                 .withInterruptible(interruptible);
     }
 
-    @Override
     ServiceKind getServiceKind() {
         return ServiceKind.ELECTRICITY;
     }

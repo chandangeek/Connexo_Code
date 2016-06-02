@@ -38,6 +38,8 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
 import com.elster.jupiter.properties.StringFactory;
 
+import com.google.common.collect.Range;
+
 import javax.ws.rs.core.Application;
 import java.math.BigDecimal;
 import java.time.Clock;
@@ -131,6 +133,7 @@ public class PlatformPublicApiJerseyTest extends FelixRestApplicationJerseyTest 
                 detail = null;
                 break;
         }
+        when(detail.getRange()).thenReturn(Range.atLeast(Instant.now()));
         return mockUsagePoint(id, name, version, extension, serviceKind, detail);
     }
 
@@ -168,6 +171,7 @@ public class PlatformPublicApiJerseyTest extends FelixRestApplicationJerseyTest 
         when(meteringService.findAndLockUsagePointByIdAndVersion(eq(id), longThat(Matcher.matches(v -> v != version)))).thenReturn(Optional
                 .empty());
         when(meteringService.findAndLockUsagePointByIdAndVersion(id, version)).thenReturn(Optional.of(usagePoint));
+        when(detail.getUsagePoint()).thenReturn(usagePoint);
         return usagePoint;
     }
 

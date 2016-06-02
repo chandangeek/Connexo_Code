@@ -1,5 +1,6 @@
 package com.elster.jupiter.kore.api.impl;
 
+import com.elster.jupiter.kore.api.impl.security.Privileges;
 import com.elster.jupiter.kore.api.impl.utils.MessageSeeds;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
@@ -11,7 +12,9 @@ import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.rest.util.hypermedia.FieldSelection;
 import com.elster.jupiter.rest.util.hypermedia.PagedInfoList;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
+import javax.inject.Provider;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -37,12 +40,15 @@ public class UsagePointResource {
     private final UsagePointInfoFactory usagePointInfoFactory;
     private final MeteringService meteringService;
     private final ExceptionFactory exceptionFactory;
+    private final Provider<ElectricityDetailResource> electricityDetailResourceProvider;
 
     @Inject
-    public UsagePointResource(MeteringService meteringService, UsagePointInfoFactory usagePointInfoFactory, ExceptionFactory exceptionFactory) {
+    public UsagePointResource(MeteringService meteringService, UsagePointInfoFactory usagePointInfoFactory, ExceptionFactory exceptionFactory,
+                              Provider<ElectricityDetailResource> electricityDetailResourceProvider) {
         this.meteringService = meteringService;
         this.usagePointInfoFactory = usagePointInfoFactory;
         this.exceptionFactory = exceptionFactory;
+        this.electricityDetailResourceProvider = electricityDetailResourceProvider;
     }
 
     /**
@@ -199,11 +205,26 @@ public class UsagePointResource {
      */
     @PROPFIND
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-//    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API, Privileges.Constants.PUBLIC_REST_API})
     public List<String> getFields() {
         List<String> fields = usagePointInfoFactory.getAvailableFields().stream().sorted().collect(toList());
         fields.add("serviceKind"); // Jackson type property
         return fields;
+    }
+
+
+    @Path("/{usagePointId}/details")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    public ElectricityDetailResource getDetailsResource(@PathParam("usagePointId") long usagePointId, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
+        UsagePoint usagePoint = meteringService.findUsagePoint(usagePointId)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_USAGE_POINT));
+        switch (usagePoint.getServiceCategory().getKind()) {
+            case ELECTRICITY:
+                return electricityDetailResourceProvider.get().init(usagePoint);
+            default:
+                throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.UNSUPPORTED_SERVICE_KIND);
+        }
     }
 
 

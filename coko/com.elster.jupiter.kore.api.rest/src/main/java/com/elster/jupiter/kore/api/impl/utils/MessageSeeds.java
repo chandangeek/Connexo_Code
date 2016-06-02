@@ -68,7 +68,9 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_METER_ACTIVATION(59, "NoSuchMeterActivation", "No such meter activation on the usage point"),
     EMPTY_REQUEST(60, "NoData", "No data found in your request"),
     NO_SUCH_METER(61, "NoSuchMeter", "No such meter"),
-    INVALID_START_TIME(62, "InvalidStartTime", "The start time is invalid, can not precede latest activation");
+    INVALID_START_TIME(62, "InvalidStartTime", "The start time is invalid, can not precede latest activation"),
+    NO_SUCH_DETAIL(63, "NoSuchDetail", "No details could be found at that time"),
+    UNSUPPORTED_SERVICE_KIND(64, "UnsupportedServiceKind", "Usage point of this service category don't support details");
 
     private final int number;
     private final String key;
