@@ -26,7 +26,6 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.common.services.ListPager;
-import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.GatewayType;
@@ -43,8 +42,6 @@ import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.TopologyTimeline;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.tasks.ProtocolTask;
-import com.energyict.mdc.tasks.StatusInformationTask;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -815,6 +812,7 @@ public class DeviceResource {
     @PUT
     @Path("/{mRID}/timeofuse/verify")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Transactional
 //    @RolesAllowed(Privileges.Constants.)
     public Response verifyCalendar(@PathParam("mRID") String mRID) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
