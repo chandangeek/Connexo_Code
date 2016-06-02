@@ -15,7 +15,7 @@ import java.util.List;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "serviceKind", visible = false)
 @JsonSubTypes({
         @JsonSubTypes.Type(value = ElectricityDetailInfo.class, name = "Electricity"),
-        @JsonSubTypes.Type(value = HeatUsagePointInfo.class, name = "Heat"),
+        @JsonSubTypes.Type(value = HeatDetailInfo.class, name = "Heat"),
         @JsonSubTypes.Type(value = WaterUsagePointInfo.class, name = "Water"),
         @JsonSubTypes.Type(value = GasDetailInfo.class, name = "Gas")})
 abstract public class UsagePointInfo extends LinkInfo<Long> {

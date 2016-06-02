@@ -174,6 +174,8 @@ public class PublicRestApplication extends Application implements TranslationKey
             bind(ElectricityDetailResource.class).to(ElectricityDetailResource.class);
             bind(GasDetailInfoFactory.class).to(GasDetailInfoFactory.class);
             bind(GasDetailResource.class).to(GasDetailResource.class);
+            bind(HeatDetailInfoFactory.class).to(HeatDetailInfoFactory.class);
+            bind(HeatDetailsResource.class).to(HeatDetailsResource.class);
         }
     }
 

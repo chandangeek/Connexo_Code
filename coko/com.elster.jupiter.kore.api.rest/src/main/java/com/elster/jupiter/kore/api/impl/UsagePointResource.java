@@ -42,16 +42,20 @@ public class UsagePointResource {
     private final ExceptionFactory exceptionFactory;
     private final Provider<ElectricityDetailResource> electricityDetailResourceProvider;
     private final Provider<GasDetailResource> gasDetailResourceProvider;
+    private final Provider<HeatDetailsResource> heatDetailResourceProvider;
 
     @Inject
-    public UsagePointResource(MeteringService meteringService, UsagePointInfoFactory usagePointInfoFactory, ExceptionFactory exceptionFactory,
+    public UsagePointResource(MeteringService meteringService, UsagePointInfoFactory usagePointInfoFactory,
+                              ExceptionFactory exceptionFactory,
                               Provider<ElectricityDetailResource> electricityDetailResourceProvider,
-                              Provider<GasDetailResource> gasDetailResourceProvider) {
+                              Provider<GasDetailResource> gasDetailResourceProvider,
+                              Provider<HeatDetailsResource> heatDetailResourceProvider) {
         this.meteringService = meteringService;
         this.usagePointInfoFactory = usagePointInfoFactory;
         this.exceptionFactory = exceptionFactory;
         this.electricityDetailResourceProvider = electricityDetailResourceProvider;
         this.gasDetailResourceProvider = gasDetailResourceProvider;
+        this.heatDetailResourceProvider = heatDetailResourceProvider;
     }
 
     /**
@@ -227,6 +231,8 @@ public class UsagePointResource {
                 return electricityDetailResourceProvider.get().init(usagePoint);
             case GAS:
                 return gasDetailResourceProvider.get().init(usagePoint);
+            case HEAT:
+                return heatDetailResourceProvider.get().init(usagePoint);
             default:
                 throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.UNSUPPORTED_SERVICE_KIND);
         }

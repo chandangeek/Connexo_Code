@@ -3,7 +3,6 @@ package com.elster.jupiter.kore.api.impl;
 import com.elster.jupiter.kore.api.impl.utils.MessageSeeds;
 import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.GasDetail;
-import com.elster.jupiter.metering.HeatDetail;
 import com.elster.jupiter.metering.LocationMember;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
@@ -89,8 +88,6 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
 
     protected UsagePointInfo getUsagePointInfo(UsagePoint usagePoint) {
         switch (usagePoint.getServiceCategory().getKind()) {
-            case HEAT:
-                return new HeatUsagePointInfo();
             case WATER:
                 return new WaterUsagePointInfo();
             default:
@@ -143,8 +140,6 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
             if (detail.isPresent()) {
                 if (WaterDetail.class.isAssignableFrom(detail.get().getClass())) {
                     ((WaterUsagePointInfo) usagePointInfo).pressure = ((WaterDetail) detail.get()).getPressure();
-                } else if (HeatDetail.class.isAssignableFrom(detail.get().getClass())) {
-                    ((HeatUsagePointInfo) usagePointInfo).pressure = ((HeatDetail) detail.get()).getPressure();
                 }
             }
         });
@@ -153,8 +148,6 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
             if (detail.isPresent()) {
                 if (WaterDetail.class.isAssignableFrom(detail.get().getClass())) {
                     ((WaterUsagePointInfo) usagePointInfo).physicalCapacity = ((WaterDetail) detail.get()).getPhysicalCapacity();
-                } else if (HeatDetail.class.isAssignableFrom(detail.get().getClass())) {
-                    ((HeatUsagePointInfo) usagePointInfo).physicalCapacity = ((HeatDetail) detail.get()).getPhysicalCapacity();
                 }
             }
         });
@@ -187,8 +180,6 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
             if (detail.isPresent()) {
                 if (WaterDetail.class.isAssignableFrom(detail.get().getClass())) {
                     ((WaterUsagePointInfo) usagePointInfo).bypass = ((WaterDetail) detail.get()).isBypassInstalled();
-                } else if (HeatDetail.class.isAssignableFrom(detail.get().getClass())) {
-                    ((HeatUsagePointInfo) usagePointInfo).bypass = ((HeatDetail) detail.get()).isBypassInstalled();
                 }
             }
         });
@@ -197,8 +188,6 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
             if (detail.isPresent()) {
                 if (WaterDetail.class.isAssignableFrom(detail.get().getClass())) {
                     ((WaterUsagePointInfo) usagePointInfo).bypassStatus = ((WaterDetail) detail.get()).getBypassStatus();
-                } else if (HeatDetail.class.isAssignableFrom(detail.get().getClass())) {
-                    ((HeatUsagePointInfo) usagePointInfo).bypassStatus = ((HeatDetail) detail.get()).getBypassStatus();
                 }
             }
         });
@@ -207,8 +196,6 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
             if (detail.isPresent()) {
                 if (WaterDetail.class.isAssignableFrom(detail.get().getClass())) {
                     ((WaterUsagePointInfo) usagePointInfo).valve = ((WaterDetail) detail.get()).isValveInstalled();
-                } else if (HeatDetail.class.isAssignableFrom(detail.get().getClass())) {
-                    ((HeatUsagePointInfo) usagePointInfo).valve = ((HeatDetail) detail.get()).isValveInstalled();
                 }
             }
         });

@@ -50,16 +50,16 @@ public class GasDetailResourceTest extends PlatformPublicApiJerseyTest {
         GasDetail gasDetail3 = mock(GasDetail.class);
         when(gasDetail3.getUsagePoint()).thenReturn(usagePoint);
         when(gasDetail3.getRange()).thenReturn(Range.closedOpen(Instant.ofEpochMilli(300), Instant.ofEpochMilli(400)));
-        doReturn(Arrays.asList(gasDetail1, gasDetail2, gasDetail3)).when(usagePoint).getDetail(any(Range.class));
+        doReturn(Arrays.asList(gasDetail3, gasDetail2, gasDetail1)).when(usagePoint).getDetail(any(Range.class));
         doReturn(Optional.of(gasDetail2)).when(usagePoint).getDetail(any(Instant.class));
         Response response = target("/usagepoints/31/details/1").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
-        assertThat(model.<String>get("$.link[0].href")).isEqualTo("http://localhost:9998/usagepoints/31/details/300");
+        assertThat(model.<String>get("$.link[0].href")).isEqualTo("http://localhost:9998/usagepoints/31/details/100");
         assertThat(model.<String>get("$.link[0].params.rel")).isEqualTo(Relation.REF_PREVIOUS.rel());
         assertThat(model.<String>get("$.link[1].href")).isEqualTo("http://localhost:9998/usagepoints/31/details/200");
         assertThat(model.<String>get("$.link[1].params.rel")).isEqualTo(Relation.REF_SELF.rel());
-        assertThat(model.<String>get("$.link[2].href")).isEqualTo("http://localhost:9998/usagepoints/31/details/100");
+        assertThat(model.<String>get("$.link[2].href")).isEqualTo("http://localhost:9998/usagepoints/31/details/300");
         assertThat(model.<String>get("$.link[2].params.rel")).isEqualTo(Relation.REF_NEXT.rel());
 
     }

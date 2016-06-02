@@ -89,6 +89,10 @@ public class GasDetailInfoFactory extends SelectableFieldFactory<GasDetailInfo, 
         map.put("capped", (gasDetailInfo, gasDetail, uriInfo) -> gasDetailInfo.capped = gasDetail.isCapped());
         map.put("clamped", (gasDetailInfo, gasDetail, uriInfo) -> gasDetailInfo.clamped = gasDetail.isClamped());
         map.put("interruptible", (gasDetailInfo, gasDetail, uriInfo) -> gasDetailInfo.interruptible = gasDetail.isInterruptible());
+        map.put("grounded", (gasDetailInfo, gasDetail, uriInfo) -> gasDetailInfo.grounded = gasDetail
+                .isGrounded());
+        map.put("collar", (gasDetailInfo, gasDetail, uriInfo) -> gasDetailInfo.collar = gasDetail
+                .isCollarInstalled());
         return map;
     }
 
