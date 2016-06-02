@@ -5,6 +5,7 @@ import com.elster.jupiter.cbo.MarketRoleKind;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.users.User;
@@ -128,9 +129,9 @@ public interface UsagePoint extends HasId, IdentifiedObject {
      * from this point in time onward.
      *
      * @param metrologyConfiguration The MetrologyConfiguration
-     * @see #apply(MetrologyConfiguration, Instant)
+     * @see #apply(UsagePointMetrologyConfiguration, Instant)
      */
-    void apply(MetrologyConfiguration metrologyConfiguration);
+    void apply(UsagePointMetrologyConfiguration metrologyConfiguration);
 
     /**
      * Applies the specified {@link MetrologyConfiguration} to this UsagePoint
@@ -142,7 +143,7 @@ public interface UsagePoint extends HasId, IdentifiedObject {
      * @param metrologyConfiguration The MetrologyConfiguration
      * @param when The instant in time
      */
-    void apply(MetrologyConfiguration metrologyConfiguration, Instant when);
+    void apply(UsagePointMetrologyConfiguration metrologyConfiguration, Instant when);
 
     /**
      * Gets the current {@link MetrologyConfiguration}
@@ -171,6 +172,8 @@ public interface UsagePoint extends HasId, IdentifiedObject {
     List<MetrologyConfiguration> getMetrologyConfigurations(Range<Instant> period);
 
     Optional<EffectiveMetrologyConfigurationOnUsagePoint> getCurrentEffectiveMetrologyConfiguration();
+
+    Optional<EffectiveMetrologyConfigurationOnUsagePoint> getEffectiveMetrologyConfiguration(Instant when);
 
     void removeMetrologyConfiguration(Instant when);
 

@@ -1,8 +1,8 @@
 package com.elster.jupiter.metering.impl.config;
 
-import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -25,7 +25,7 @@ public class EffectiveMetrologyConfigurationOnUsagePointImpl implements Effectiv
     @SuppressWarnings("unused")//Managed by ORM
     private Interval interval;
     private Reference<UsagePoint> usagePoint = ValueReference.absent();
-    private Reference<MetrologyConfiguration> metrologyConfiguration = ValueReference.absent();
+    private Reference<UsagePointMetrologyConfiguration> metrologyConfiguration = ValueReference.absent();
     private boolean active;
 
     @Inject
@@ -34,7 +34,7 @@ public class EffectiveMetrologyConfigurationOnUsagePointImpl implements Effectiv
         this.dataModel = dataModel;
     }
 
-    public EffectiveMetrologyConfigurationOnUsagePointImpl initAndSave(UsagePoint usagePoint, MetrologyConfiguration metrologyConfiguration, Instant start) {
+    public EffectiveMetrologyConfigurationOnUsagePointImpl initAndSave(UsagePoint usagePoint, UsagePointMetrologyConfiguration metrologyConfiguration, Instant start) {
         this.usagePoint.set(usagePoint);
         this.metrologyConfiguration.set(metrologyConfiguration);
         this.interval = Interval.startAt(start);
@@ -42,7 +42,7 @@ public class EffectiveMetrologyConfigurationOnUsagePointImpl implements Effectiv
     }
 
     @Override
-    public MetrologyConfiguration getMetrologyConfiguration() {
+    public UsagePointMetrologyConfiguration getMetrologyConfiguration() {
         return metrologyConfiguration.get();
     }
 
