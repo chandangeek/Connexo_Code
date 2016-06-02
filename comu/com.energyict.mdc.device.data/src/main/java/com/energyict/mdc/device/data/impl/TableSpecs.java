@@ -63,7 +63,6 @@ import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 
-import java.util.Calendar;
 import java.util.List;
 
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
@@ -777,7 +776,7 @@ public enum TableSpecs {
             Column idColumn = table.addAutoIdColumn();
             Column calendarColumn = table.column("ALLOWED_CALENDAR").number().notNull().add();
             Column deviceColumn = table.column("DEVICE").number().conversion(NUMBER2LONG).notNull().add();
-            table.column("ACTIVATION_DATE").type("number").conversion(NUMBER2INSTANT).map(PassiveEffectiveCalendarImpl.Fields.ACTIVATIONDATE.fieldName()).add();
+            table.column("ACTIVATION_DATE").number().conversion(NUMBER2INSTANT).map(PassiveEffectiveCalendarImpl.Fields.ACTIVATIONDATE.fieldName()).add();
             Column comTaskExecColumn = table.column("COM_TASK_EXEC").number().conversion(NUMBER2LONG).add();
 
             table.primaryKey("DDC_PK_PASSIVE_CAL").on(idColumn).add();
@@ -811,7 +810,7 @@ public enum TableSpecs {
             Column device = table.column("DEVICE").number().conversion(NUMBER2LONG).notNull().add();
             List<Column> intervalColumns = table.addIntervalColumns(ActiveEffectiveCalendarImpl.Fields.INTERVAL.fieldName());
             Column calendarColumn = table.column("ALLOWED_CALENDAR").number().notNull().add();
-            table.column("LAST_VERIFIED_DATE").type("number").conversion(NUMBER2INSTANT).map(ActiveEffectiveCalendarImpl.Fields.LASTVERIFIEDDATE.fieldName()).add();
+            table.column("LAST_VERIFIED_DATE").number().conversion(NUMBER2INSTANT).map(ActiveEffectiveCalendarImpl.Fields.LASTVERIFIEDDATE.fieldName()).add();
 
             table.primaryKey("DDC_PK_ACTIVE_CAL").on(device, intervalColumns.get(0)).add();
             table.foreignKey("DDC_ACTI_TO_ALLOWED")
