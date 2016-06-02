@@ -18,7 +18,32 @@ import java.util.ListIterator;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
-import static com.energyict.mdc.issue.datacollection.impl.database.DatabaseConst.*;
+import static com.energyict.mdc.issue.datacollection.impl.database.DatabaseConst.IDC_BASE_ISSUE;
+import static com.energyict.mdc.issue.datacollection.impl.database.DatabaseConst.IDC_COMMUNICATION_TASK;
+import static com.energyict.mdc.issue.datacollection.impl.database.DatabaseConst.IDC_COM_SESSION;
+import static com.energyict.mdc.issue.datacollection.impl.database.DatabaseConst.IDC_CONNECTION_TASK;
+import static com.energyict.mdc.issue.datacollection.impl.database.DatabaseConst.IDC_DEVICE_MRID;
+import static com.energyict.mdc.issue.datacollection.impl.database.DatabaseConst.IDC_FIRST_TRY;
+import static com.energyict.mdc.issue.datacollection.impl.database.DatabaseConst.IDC_ID;
+import static com.energyict.mdc.issue.datacollection.impl.database.DatabaseConst.IDC_ISSUE_FK_TO_COM_SESSION;
+import static com.energyict.mdc.issue.datacollection.impl.database.DatabaseConst.IDC_ISSUE_FK_TO_COM_TASK;
+import static com.energyict.mdc.issue.datacollection.impl.database.DatabaseConst.IDC_ISSUE_FK_TO_CONNECTION_TASK;
+import static com.energyict.mdc.issue.datacollection.impl.database.DatabaseConst.IDC_ISSUE_FK_TO_ISSUE;
+import static com.energyict.mdc.issue.datacollection.impl.database.DatabaseConst.IDC_ISSUE_HISTORY_FK_TO_COM_SESSION;
+import static com.energyict.mdc.issue.datacollection.impl.database.DatabaseConst.IDC_ISSUE_HISTORY_FK_TO_COM_TASK;
+import static com.energyict.mdc.issue.datacollection.impl.database.DatabaseConst.IDC_ISSUE_HISTORY_FK_TO_CONNECTION_TASK;
+import static com.energyict.mdc.issue.datacollection.impl.database.DatabaseConst.IDC_ISSUE_HISTORY_FK_TO_ISSUE;
+import static com.energyict.mdc.issue.datacollection.impl.database.DatabaseConst.IDC_ISSUE_HISTORY_JRNL_TABLE_NAME;
+import static com.energyict.mdc.issue.datacollection.impl.database.DatabaseConst.IDC_ISSUE_HISTORY_PK;
+import static com.energyict.mdc.issue.datacollection.impl.database.DatabaseConst.IDC_ISSUE_OPEN_FK_TO_COM_SESSION;
+import static com.energyict.mdc.issue.datacollection.impl.database.DatabaseConst.IDC_ISSUE_OPEN_FK_TO_COM_TASK;
+import static com.energyict.mdc.issue.datacollection.impl.database.DatabaseConst.IDC_ISSUE_OPEN_FK_TO_CONNECTION_TASK;
+import static com.energyict.mdc.issue.datacollection.impl.database.DatabaseConst.IDC_ISSUE_OPEN_FK_TO_ISSUE;
+import static com.energyict.mdc.issue.datacollection.impl.database.DatabaseConst.IDC_ISSUE_OPEN_JRNL_TABLE_NAME;
+import static com.energyict.mdc.issue.datacollection.impl.database.DatabaseConst.IDC_ISSUE_OPEN_PK;
+import static com.energyict.mdc.issue.datacollection.impl.database.DatabaseConst.IDC_ISSUE_PK;
+import static com.energyict.mdc.issue.datacollection.impl.database.DatabaseConst.IDC_LAST_TRY;
+import static com.energyict.mdc.issue.datacollection.impl.database.DatabaseConst.IDC_NUMBER_TRIES;
 
 public enum TableSpecs {
     IDC_ISSUE_HISTORY {
@@ -83,7 +108,7 @@ public enum TableSpecs {
             Column issueColRef = table.column(IDC_BASE_ISSUE).number().conversion(NUMBER2LONG).notNull().add();
             Column connectionTaskColRef = table.column(IDC_CONNECTION_TASK).number().conversion(NUMBER2LONG).add();
             Column comTaskColRef = table.column(IDC_COMMUNICATION_TASK).number().conversion(NUMBER2LONG).add();
-            Column comSessionColRef = table.column(IDC_COM_SESSION).type("number").conversion(NUMBER2LONG).add();
+            Column comSessionColRef = table.column(IDC_COM_SESSION).number().conversion(NUMBER2LONG).add();
             table.column(IDC_DEVICE_MRID).varChar(NAME_LENGTH).map("deviceMRID").add();
             table.column(IDC_FIRST_TRY).number().conversion(NUMBER2INSTANT).map("firstConnectionAttemptTimestamp").add();
             table.column(IDC_LAST_TRY).number().conversion(NUMBER2INSTANT).map("lastConnectionAttemptTimestamp").add();
