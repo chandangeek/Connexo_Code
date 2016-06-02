@@ -20,13 +20,13 @@ public enum TableSpecs {
             table.setJournalTableName("UPC_MCVALRULESETUSAGEJRNL");
             Column validationRule = table
                     .column("VALIDATIONRULESETID")
-                    .type("number")
+                    .number()
                     .notNull()
                     .conversion(NUMBER2LONG)
                     .add();
             Column metrologyConfiguration = table
                     .column("METROLOGYCONFIGID")
-                    .type("number")
+                    .number()
                     .notNull()
                     .conversion(NUMBER2LONG)
                     .add();
