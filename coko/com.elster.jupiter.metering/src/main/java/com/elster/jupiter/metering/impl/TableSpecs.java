@@ -7,6 +7,7 @@ import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.EndDeviceControlType;
 import com.elster.jupiter.metering.GeoCoordinates;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.LocationMember;
@@ -25,7 +26,6 @@ import com.elster.jupiter.metering.UsagePointAccountability;
 import com.elster.jupiter.metering.UsagePointConfiguration;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointReadingTypeConfiguration;
-import com.elster.jupiter.metering.EndDeviceControlType;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MeterRole;
@@ -127,7 +127,7 @@ public enum TableSpecs {
             table.column("EAWEB").varChar(NAME_LENGTH).map("electronicAddress.web").add();
             table.column("GEOINFOREFERENCE").varChar(NAME_LENGTH).map("geoInfoReference").add();
             table.column("MASTATUSDATETIME")
-                    .type("number")
+                    .number()
                     .conversion(NUMBER2INSTANT)
                     .map("mainAddress.status.dateTime")
                     .add();
@@ -170,7 +170,7 @@ public enum TableSpecs {
             table.column("PHONE2EXTENSION").varChar(NAME_LENGTH).map("phone2.extension").add();
             table.column("PHONE2LOCALNUMBER").varChar(NAME_LENGTH).map("phone2.localNumber").add();
             table.column("SASTATUSDATETIME")
-                    .type("number")
+                    .number()
                     .conversion(NUMBER2INSTANT)
                     .map("secondaryAddress.status.dateTime")
                     .add();
@@ -205,7 +205,7 @@ public enum TableSpecs {
             table.column("SATOWNNAME").varChar(NAME_LENGTH).map("secondaryAddress.townDetail.name").add();
             table.column("SATOWNSECTION").varChar(NAME_LENGTH).map("secondaryAddress.townDetail.section").add();
             table.column("SATOWNSTATE").varChar(NAME_LENGTH).map("secondaryAddress.townDetail.stateOrProvince").add();
-            table.column("STATUSDATETIME").type("number").conversion(NUMBER2INSTANT).map("status.dateTime").add();
+            table.column("STATUSDATETIME").number().conversion(NUMBER2INSTANT).map("status.dateTime").add();
             table.column("STATUSREASON").varChar(NAME_LENGTH).map("status.reason").add();
             table.column("STATUSREMARK").varChar(NAME_LENGTH).map("status.remark").add();
             table.column("STATUSVALUE").varChar(NAME_LENGTH).map("status.value").add();
@@ -392,7 +392,7 @@ public enum TableSpecs {
             table.addDiscriminatorColumn("ENDDEVICETYPE", "char(1)");
             Column mRIDColumn = table.column("MRID").varChar(NAME_LENGTH).map("mRID").add();
             Column amrSystemIdColumn = table.column("AMRSYSTEMID")
-                    .type("number")
+                    .number()
                     .notNull()
                     .conversion(NUMBER2INT)
                     .map("amrSystemId")
@@ -514,16 +514,15 @@ public enum TableSpecs {
             table.map(MeterActivationImpl.class);
             Column idColumn = table.addAutoIdColumn();
             Column usagePointIdColumn = table.column("USAGEPOINTID")
-                    .type("number")
+                    .number()
                     .conversion(NUMBER2LONGNULLZERO)
                     .add();
             Column meterIdColumn = table.column("METERID")
-                    .type("number")
+                    .number()
                     .conversion(NUMBER2LONGNULLZERO)
                     .add();
             Column meterRoleIdColumn = table.column("METERROLE")
-                    .type(MeterRoleImpl.Fields.KEY.name())
-                    .varChar(NAME_LENGTH)
+                    .number()
                     .add();
             table.addIntervalColumns("interval");
             table.addAuditColumns();
@@ -561,12 +560,12 @@ public enum TableSpecs {
             table.map(ChannelImpl.class);
             Column idColumn = table.addAutoIdColumn();
             Column meterActivationIdColumn = table.column("METERACTIVATIONID")
-                    .type("number")
+                    .number()
                     .notNull()
                     .conversion(NUMBER2LONG)
                     .add();
             Column timeSeriesIdColumn = table.column("TIMESERIESID")
-                    .type("number")
+                    .number()
                     .notNull()
                     .conversion(NUMBER2LONG)
                     .add();
@@ -622,9 +621,9 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<ReadingTypeInChannel> table = dataModel.addTable(name(), ReadingTypeInChannel.class);
             table.map(ReadingTypeInChannel.class);
-            Column channelIdColumn = table.column("CHANNNELID").type("number").notNull().conversion(NUMBER2LONG).add();
+            Column channelIdColumn = table.column("CHANNNELID").number().notNull().conversion(NUMBER2LONG).add();
             Column positionColumn = table.column("POSITION")
-                    .type("number")
+                    .number()
                     .notNull()
                     .conversion(NUMBER2INT)
                     .map("position")
@@ -661,11 +660,11 @@ public enum TableSpecs {
             table.map(UsagePointAccountabilityImpl.class);
             table.setJournalTableName("MTR_UPACCOUNTABILITYJRNL");
             Column usagePointIdColumn = table.column("USAGEPOINTID")
-                    .type("number")
+                    .number()
                     .notNull()
                     .conversion(NUMBER2LONG)
                     .add();
-            Column partyIdColumn = table.column("PARTYID").type("number").notNull().conversion(NUMBER2LONG).add();
+            Column partyIdColumn = table.column("PARTYID").number().notNull().conversion(NUMBER2LONG).add();
             Column roleMRIDColumn = table.column("ROLEMRID").varChar(NAME_LENGTH).notNull().add();
             List<Column> intervalColumns = table.addIntervalColumns("interval");
             table.addAuditColumns();
@@ -700,9 +699,9 @@ public enum TableSpecs {
             table.map(ReadingQualityRecordImpl.class);
             table.setJournalTableName("MTR_READINGQUALITYJRNL");
             Column idColumn = table.addAutoIdColumn();
-            Column channelColumn = table.column("CHANNELID").type("number").notNull().conversion(NUMBER2LONG).add();
+            Column channelColumn = table.column("CHANNELID").number().notNull().conversion(NUMBER2LONG).add();
             Column timestampColumn = table.column("READINGTIMESTAMP")
-                    .type("number")
+                    .number()
                     .notNull()
                     .conversion(NUMBER2INSTANT)
                     .map("readingTimestamp")
@@ -752,10 +751,10 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<EndDeviceEventRecord> table = dataModel.addTable(name(), EndDeviceEventRecord.class);
             table.map(EndDeviceEventRecordImpl.class);
-            Column endDeviceColumn = table.column("ENDDEVICEID").type("number").notNull().conversion(NUMBER2LONG).add();
+            Column endDeviceColumn = table.column("ENDDEVICEID").number().notNull().conversion(NUMBER2LONG).add();
             Column eventTypeColumn = table.column("EVENTTYPE").varChar(NAME_LENGTH).notNull().add();
             Column createdDateTimeColumn = table.column("CREATEDDATETIME")
-                    .type("number")
+                    .number()
                     .notNull()
                     .conversion(NUMBER2INSTANT)
                     .map("createdDateTime")
@@ -768,13 +767,13 @@ public enum TableSpecs {
             table.column("SEVERITY").varChar(NAME_LENGTH).map("severity").add();
             table.column("ISSUERID").varChar(NAME_LENGTH).map("issuerID").add();
             table.column("ISSUERTRACKINGID").varChar(NAME_LENGTH).map("issuerTrackingID").add();
-            table.column("STATUSDATETIME").type("number").conversion(NUMBER2INSTANT).map("status.dateTime").add();
+            table.column("STATUSDATETIME").number().conversion(NUMBER2INSTANT).map("status.dateTime").add();
             table.column("STATUSREASON").varChar(NAME_LENGTH).map("status.reason").add();
             table.column("STATUSREMARK").varChar(NAME_LENGTH).map("status.remark").add();
             table.column("STATUSVALUE").varChar(NAME_LENGTH).map("status.value").add();
-            table.column("PROCESSINGFLAGS").type("number").map("processingFlags").conversion(NUMBER2LONG).add();
-            table.column("LOGBOOKID").type("number").map("logBookId").conversion(NUMBER2LONG).add();
-            table.column("LOGBOOKPOSITION").type("number").map("logBookPosition").conversion(NUMBER2INT).add();
+            table.column("PROCESSINGFLAGS").number().map("processingFlags").conversion(NUMBER2LONG).add();
+            table.column("LOGBOOKID").number().map("logBookId").conversion(NUMBER2LONG).add();
+            table.column("LOGBOOKPOSITION").number().map("logBookPosition").conversion(NUMBER2INT).add();
             table.column("DEVICEEVENTTYPE").varChar(80).map("deviceEventType").add();
             table.addAuditColumns();
             table.primaryKey("MTR_PK_ENDDEVICEEVENTRECORD")
@@ -801,7 +800,7 @@ public enum TableSpecs {
             Table<EndDeviceEventRecordImpl.EndDeviceEventDetailRecord> table = dataModel.addTable(name(), EndDeviceEventRecordImpl.EndDeviceEventDetailRecord.class);
             table.map(EndDeviceEventRecordImpl.EndDeviceEventDetailRecord.class);
             Column endDeviceColumn = table.column("ENDDEVICEID")
-                    .type("number")
+                    .number()
                     .notNull()
                     .map("endDeviceId")
                     .conversion(NUMBER2LONG)
@@ -812,7 +811,7 @@ public enum TableSpecs {
                     .map("eventTypeCode")
                     .add();
             Column createdDateTimeColumn = table.column("CREATEDDATETIME")
-                    .type("number")
+                    .number()
                     .notNull()
                     .conversion(NUMBER2INSTANT)
                     .map("createdDateTime")
@@ -839,7 +838,7 @@ public enum TableSpecs {
             table.map(UsagePointDetailImpl.IMPLEMENTERS);
             table.setJournalTableName("MTR_USAGEPOINTDETAILJRNL");
             Column usagePointIdColumn = table.column("USAGEPOINTID")
-                    .type("number")
+                    .number()
                     .notNull()
                     .conversion(NUMBER2LONGNULLZERO)
                     .add();
@@ -951,7 +950,7 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<EffectiveMetrologyConfigurationOnUsagePoint> table = dataModel.addTable(name(), EffectiveMetrologyConfigurationOnUsagePoint.class);
             table.map(EffectiveMetrologyConfigurationOnUsagePointImpl.class);
-            Column usagePoint = table.column("USAGEPOINT").type("number").notNull().add();
+            Column usagePoint = table.column("USAGEPOINT").number().notNull().add();
             List<Column> intervalColumns = table.addIntervalColumns("interval");
             Column metrologyConfiguration = table.column("METROLOGYCONFIG").number().notNull().add();
             table.column("ACTIVE").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map("active").add();
@@ -1016,7 +1015,7 @@ public enum TableSpecs {
 
             table.setJournalTableName(name() + Constants.JOURNAL_TABLE_SUFFIX);
             Column idColumn = table.addAutoIdColumn();
-            Column meterIdColumn = table.column("METERID").type("number").conversion(NUMBER2LONG).add();
+            Column meterIdColumn = table.column("METERID").number().conversion(NUMBER2LONG).add();
             table.addIntervalColumns("interval");
             table.addAuditColumns();
 
@@ -1084,7 +1083,7 @@ public enum TableSpecs {
 
             table.setJournalTableName(name() + Constants.JOURNAL_TABLE_SUFFIX);
             Column idColumn = table.addAutoIdColumn();
-            Column usagePointIdColumn = table.column("USAGEPOINTID").type("number").conversion(NUMBER2LONG).add();
+            Column usagePointIdColumn = table.column("USAGEPOINTID").number().conversion(NUMBER2LONG).add();
             table.addIntervalColumns("interval");
             table.addAuditColumns();
 

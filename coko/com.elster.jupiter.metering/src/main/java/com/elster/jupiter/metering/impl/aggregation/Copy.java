@@ -56,7 +56,7 @@ class Copy implements ExpressionNode.Visitor<ServerExpressionNode> {
 
     @Override
     public ServerExpressionNode visitProperty(com.elster.jupiter.metering.config.CustomPropertyNode property) {
-        return new CustomPropertyNode(this.customPropertySetService, property.getPropertySpec(), property.getRegisteredCustomPropertySet(), this.usagePoint);
+        return new CustomPropertyNode(this.customPropertySetService, property.getPropertySpec(), property.getRegisteredCustomPropertySet(), this.usagePoint, this.meterActivation);
     }
 
     @Override

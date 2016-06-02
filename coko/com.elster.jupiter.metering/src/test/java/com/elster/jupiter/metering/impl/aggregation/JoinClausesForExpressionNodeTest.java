@@ -267,8 +267,10 @@ public class JoinClausesForExpressionNodeTest {
         when(propertySpec.getName()).thenReturn("example");
         RegisteredCustomPropertySet customPropertySet = mock(RegisteredCustomPropertySet.class);
         when(customPropertySet.getId()).thenReturn(97L);
-        ServerExpressionNode node = new CustomPropertyNode(mock(CustomPropertySetService.class), propertySpec, customPropertySet, mock(UsagePoint.class));
-        String expectedJoinTableName = "rid_cps_97_example";
+        MeterActivation meterActivation = mock(MeterActivation.class);
+        when(meterActivation.getId()).thenReturn(101L);
+        ServerExpressionNode node = new CustomPropertyNode(mock(CustomPropertySetService.class), propertySpec, customPropertySet, mock(UsagePoint.class), meterActivation);
+        String expectedJoinTableName = "cps97_example_101";
 
         // Business method
         node.accept(testInstance);

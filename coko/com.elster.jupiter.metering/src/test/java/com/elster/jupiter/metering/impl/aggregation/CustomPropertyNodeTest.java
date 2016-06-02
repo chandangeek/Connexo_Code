@@ -3,11 +3,15 @@ package com.elster.jupiter.metering.impl.aggregation;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 
+import com.google.common.collect.Range;
+
+import java.time.Instant;
 import java.util.Optional;
 
 import org.junit.Before;
@@ -34,6 +38,7 @@ import static org.mockito.Mockito.when;
 public class CustomPropertyNodeTest {
 
     private static final long REGISTERED_CPS_ID = 97L;
+    private static final long METER_ACTIVATION_ID = 101L;
     private static final String PROPERTY_NAME = "example";
 
     @Mock
@@ -46,13 +51,19 @@ public class CustomPropertyNodeTest {
     private RegisteredCustomPropertySet registeredCustomPropertySet;
     @Mock
     private UsagePoint usagePoint;
+    @Mock
+    private MeterActivation meterActivation;
+    private Range<Instant> meterActivationRange = Range.all();
 
     @Before
     public void initializeMocks() {
         when(this.propertySpec.getName()).thenReturn(PROPERTY_NAME);
         when(this.customPropertySet.getId()).thenReturn("CustomPropertyNodeTest");
+        when(this.customPropertySet.isVersioned()).thenReturn(true);
         when(this.registeredCustomPropertySet.getCustomPropertySet()).thenReturn(this.customPropertySet);
         when(this.registeredCustomPropertySet.getId()).thenReturn(REGISTERED_CPS_ID);
+        when(this.meterActivation.getId()).thenReturn(METER_ACTIVATION_ID);
+        when(this.meterActivation.getRange()).thenReturn(this.meterActivationRange);
     }
 
     @Test
@@ -70,7 +81,6 @@ public class CustomPropertyNodeTest {
     @Test
     public void intermediateDimension() {
         CustomPropertyNode testInstance = getTestInstance();
-        ServerExpressionNode.Visitor visitor = mock(ServerExpressionNode.Visitor.class);
 
         // Business method
         IntermediateDimension intermediateDimension = testInstance.getIntermediateDimension();
@@ -82,13 +92,13 @@ public class CustomPropertyNodeTest {
     @Test
     public void sqlName() {
         CustomPropertyNode testInstance = getTestInstance();
-        ServerExpressionNode.Visitor visitor = mock(ServerExpressionNode.Visitor.class);
 
         // Business method
         String sqlName = testInstance.sqlName();
 
         // Asserts
         assertThat(sqlName).contains(String.valueOf(REGISTERED_CPS_ID));
+        assertThat(sqlName).contains(String.valueOf(METER_ACTIVATION_ID));
         verify(this.propertySpec).getName();
         assertThat(sqlName).contains(PROPERTY_NAME);
     }
@@ -101,21 +111,21 @@ public class CustomPropertyNodeTest {
         when(clauseAwareSqlBuilder.with(anyString(), any(Optional.class), anyVararg())).thenReturn(sqlBuilder);
         SqlFragment sqlFragment = mock(SqlFragment.class);
         when(sqlFragment.getText()).thenReturn("select * from dual");
-        when(this.customPropertySetService.getRawValuesSql(this.customPropertySet, this.propertySpec, "value", this.usagePoint)).thenReturn(sqlFragment);
+        when(this.customPropertySetService.getRawValuesSql(this.customPropertySet, this.propertySpec, "value", this.usagePoint, this.meterActivationRange)).thenReturn(sqlFragment);
 
         // Business method
         testInstance.appendDefinitionTo(clauseAwareSqlBuilder);
 
         // Asserts
         verify(clauseAwareSqlBuilder).with(anyString(), any(Optional.class), anyVararg());
-        verify(this.customPropertySetService).getRawValuesSql(this.customPropertySet, this.propertySpec, "value", this.usagePoint);
+        verify(this.customPropertySetService).getRawValuesSql(this.customPropertySet, this.propertySpec, "value", this.usagePoint, this.meterActivationRange);
         assertThat(sqlBuilder.getText()).isNotEmpty();
         assertThat(sqlBuilder.getText().toLowerCase()).startsWith("select");
         assertThat(sqlBuilder.getText().toLowerCase()).contains("from (" + sqlFragment.getText() + ")");
     }
 
     private CustomPropertyNode getTestInstance() {
-        return new CustomPropertyNode(this.customPropertySetService, this.propertySpec, this.registeredCustomPropertySet, this.usagePoint);
+        return new CustomPropertyNode(this.customPropertySetService, this.propertySpec, this.registeredCustomPropertySet, this.usagePoint, this.meterActivation);
     }
 
 }
