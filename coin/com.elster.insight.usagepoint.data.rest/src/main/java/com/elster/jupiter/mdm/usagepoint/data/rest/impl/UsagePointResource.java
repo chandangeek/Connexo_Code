@@ -19,6 +19,7 @@ import com.elster.jupiter.metering.UsagePointPropertySet;
 import com.elster.jupiter.metering.aggregation.CalculatedMetrologyContractData;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.aggregation.MetrologyContractDoesNotApplyToUsagePointException;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
@@ -78,6 +79,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -279,7 +281,9 @@ public class UsagePointResource {
                                                 MetrologyConfigurationInfo info) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mrid);
 
-        if (usagePoint.getMetrologyConfiguration().isPresent()) {
+        Optional<UsagePointMetrologyConfiguration> usagePointMetrologyConfigurationRef = usagePoint.getCurrentEffectiveMetrologyConfiguration()
+                .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration);
+        if (usagePointMetrologyConfigurationRef.isPresent()) {
             throw resourceHelper.throwUsagePointLinkedException(mrid);
         }
 
@@ -327,7 +331,9 @@ public class UsagePointResource {
     @Path("/{mrid}/metrologyconfiguration")
     public Response linkMetrologyConfigurations(@PathParam("mrid") String mrid) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mrid);
-        if (usagePoint.getMetrologyConfiguration().isPresent()) {
+        Optional<UsagePointMetrologyConfiguration> usagePointMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration()
+                .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration);
+        if (usagePointMetrologyConfiguration.isPresent()) {
             return Response.ok().entity(new MetrologyConfigurationInfo((UsagePointMetrologyConfiguration) usagePoint.getMetrologyConfiguration().get())).build();
         } else {
             return Response.status(Response.Status.BAD_REQUEST).entity(new MetrologyConfigurationInfo()).build();
@@ -571,8 +577,10 @@ public class UsagePointResource {
     public PagedInfoList getUsagePointPurposes(@PathParam("mrid") String mRid, @Context SecurityContext securityContext, @BeanParam JsonQueryParameters queryParameters) {
         List<PurposeInfo> purposeInfoList;
         UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mRid);
-        if (usagePoint.getMetrologyConfiguration().isPresent()) {
-            List<MetrologyContract> metrologyContractList = usagePoint.getMetrologyConfiguration().get().getContracts();
+        Optional<UsagePointMetrologyConfiguration> usagePointMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration()
+                .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration);
+        if (usagePointMetrologyConfiguration.isPresent()) {
+            List<MetrologyContract> metrologyContractList = usagePointMetrologyConfiguration.get().getContracts();
             purposeInfoList = metrologyContractList
                     .stream()
                     .map(metrologyContract -> PurposeInfo.asInfo(metrologyContract, usagePoint))
@@ -590,7 +598,8 @@ public class UsagePointResource {
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
     public PagedInfoList getOutputsOfUsagePointPurpose(@PathParam("mrid") String mRid, @PathParam("id") long id, @Context SecurityContext securityContext, @BeanParam JsonQueryParameters queryParameters) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mRid);
-        MetrologyContract metrologyContract = usagePoint.getMetrologyConfiguration().get().getContracts()
+        MetrologyContract metrologyContract = usagePoint.getCurrentEffectiveMetrologyConfiguration()
+                .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration).get().getContracts()
                 .stream()
                 .filter(mc -> mc.getMetrologyPurpose().getId() == id)
                 .findFirst()
@@ -609,7 +618,8 @@ public class UsagePointResource {
     public OutputInfo getChannelOfPurpose(@PathParam("mrid") String mRid, @PathParam("purposeId") long purposeId, @PathParam("outputId") long outputId,
                                           @BeanParam JsonQueryFilter filter, @Context SecurityContext securityContext, @BeanParam JsonQueryParameters queryParameters) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mRid);
-        MetrologyContract metrologyContract = usagePoint.getMetrologyConfiguration().get().getContracts()
+        MetrologyContract metrologyContract = usagePoint.getCurrentEffectiveMetrologyConfiguration()
+                .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration).get().getContracts()
                 .stream()
                 .filter(mc -> mc.getMetrologyPurpose().getId() == purposeId)
                 .findFirst()
@@ -631,7 +641,8 @@ public class UsagePointResource {
                                                  @BeanParam JsonQueryFilter filter, @Context SecurityContext securityContext, @BeanParam JsonQueryParameters queryParameters) {
         List<OutputChannelDataInfo> outputChannelDataInfoList = new ArrayList<>();
         UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mRid);
-        MetrologyContract metrologyContract = usagePoint.getMetrologyConfiguration().get().getContracts()
+        MetrologyContract metrologyContract = usagePoint.getCurrentEffectiveMetrologyConfiguration()
+                .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration).get().getContracts()
                 .stream()
                 .filter(mc -> mc.getMetrologyPurpose().getId() == purposeId)
                 .findFirst()

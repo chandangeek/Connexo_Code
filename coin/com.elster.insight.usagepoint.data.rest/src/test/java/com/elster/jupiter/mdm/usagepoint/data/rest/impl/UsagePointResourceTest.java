@@ -25,8 +25,8 @@ import com.elster.jupiter.metering.UsagePointPropertySet;
 import com.elster.jupiter.metering.aggregation.CalculatedMetrologyContractData;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
-import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
@@ -147,7 +147,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(usagePoint.getServiceLocation()).thenReturn(Optional.empty());
         when(usagePoint.getMRID()).thenReturn("MRID");
         when(usagePoint.getInstallationTime()).thenReturn(Instant.EPOCH);
-        when(usagePoint.getMetrologyConfiguration()).thenReturn(Optional.empty());
+        when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.empty());
         when(usagePoint.getServiceLocationString()).thenReturn("serviceLocation");
         when(usagePoint.getConnectionState()).thenReturn(ConnectionState.UNDER_CONSTRUCTION);
         when(usagePoint.getServiceCategory()).thenReturn(serviceCategory);
@@ -404,7 +404,9 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(metrologyConfiguration.getId()).thenReturn(100L);
         when(metrologyConfiguration.getName()).thenReturn("conf");
         when(metrologyConfiguration.getMeterRoles()).thenReturn(Arrays.asList(meterRole1, meterRole2));
-        when(usagePoint.getMetrologyConfiguration()).thenReturn(Optional.of(metrologyConfiguration));
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
+        when(effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
+        when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfigurationOnUsagePoint));
 
         Meter meter = mock(Meter.class);
         when(meter.getId()).thenReturn(1L);
@@ -438,9 +440,10 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
 
     @Test
     public void testUsagePointMetrologyConfigurationDetails() {
-        Optional<MetrologyConfiguration> usagePointMetrologyConfiguration = Optional.of(this.mockMetrologyConfiguration(1, "MetrologyConfiguration"));
-        when(usagePoint.getMetrologyConfiguration()).thenReturn(usagePointMetrologyConfiguration);
-        MetrologyContract metrologyContract = usagePointMetrologyConfiguration.get().getContracts().stream().findFirst().get();
+        UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = this.mockMetrologyConfiguration(1, "MetrologyConfiguration");
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
+        when(effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()).thenReturn(usagePointMetrologyConfiguration);
+        MetrologyContract metrologyContract = usagePointMetrologyConfiguration.getContracts().stream().findFirst().get();
         MetrologyContract.Status status = mock(MetrologyContract.Status.class);
         when(metrologyContract.getStatus(usagePoint)).thenReturn(status);
         when(metrologyContract.getStatus(usagePoint).getKey()).thenReturn("INCOMPLETE");
@@ -495,9 +498,10 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
 
     @Test
     public void testUsagePointPurposes() {
-        Optional<MetrologyConfiguration> usagePointMetrologyConfiguration = Optional.of(this.mockMetrologyConfiguration(1, "1test"));
-        when(usagePoint.getMetrologyConfiguration()).thenReturn(usagePointMetrologyConfiguration);
-        MetrologyContract metrologyContract = usagePointMetrologyConfiguration.get().getContracts().stream().findFirst().get();
+        UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = this.mockMetrologyConfiguration(1, "1test");
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
+        when(effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()).thenReturn(usagePointMetrologyConfiguration);
+        MetrologyContract metrologyContract = usagePointMetrologyConfiguration.getContracts().stream().findFirst().get();
         MetrologyContract.Status status = mock(MetrologyContract.Status.class);
         when(metrologyContract.getStatus(usagePoint)).thenReturn(status);
         when(metrologyContract.getStatus(usagePoint).getKey()).thenReturn("INCOMPLETE");
@@ -514,8 +518,9 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
 
     @Test
     public void testOutputsOfUsagePointPurpose() {
-        Optional<MetrologyConfiguration> usagePointMetrologyConfiguration = Optional.of(this.mockMetrologyConfiguration(1, "1test"));
-        when(usagePoint.getMetrologyConfiguration()).thenReturn(usagePointMetrologyConfiguration);
+        UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = this.mockMetrologyConfiguration(1, "1test");
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
+        when(effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()).thenReturn(usagePointMetrologyConfiguration);
         String json = target("/usagepoints/MRID/purposes/1/outputs").request().get(String.class);
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<Number>get("$.total")).isEqualTo(1);
@@ -529,9 +534,11 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
 
     @Test
     public void testChannelReadingsOfOutput() {
-        Optional<MetrologyConfiguration> usagePointMetrologyConfiguration = Optional.of(this.mockMetrologyConfiguration(2, "2test"));
-        when(usagePoint.getMetrologyConfiguration()).thenReturn(usagePointMetrologyConfiguration);
-        MetrologyContract metrologyContract = usagePointMetrologyConfiguration.get().getContracts().get(0);
+        UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = this.mockMetrologyConfiguration(2, "2test");
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
+        when(effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()).thenReturn(usagePointMetrologyConfiguration);
+        when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfigurationOnUsagePoint));
+        MetrologyContract metrologyContract = usagePointMetrologyConfiguration.getContracts().get(0);
         ReadingTypeDeliverable readingTypeDeliverable = metrologyContract.getDeliverables().get(0);
         CalculatedMetrologyContractData calculatedMetrologyContractData = mock(CalculatedMetrologyContractData.class);
         when(dataAggregationService.calculate(any(UsagePoint.class), any(MetrologyContract.class), any(Range.class))).thenReturn(calculatedMetrologyContractData);

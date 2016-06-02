@@ -23,8 +23,8 @@ import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.WaterDetail;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
-import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -159,9 +159,8 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         info.displayServiceCategory = usagePoint.getServiceCategory().getDisplayName();
         info.displayType = this.getUsagePointDisplayType(usagePoint);
 
-        usagePoint.getMetrologyConfiguration()
-                .filter(config -> config instanceof UsagePointMetrologyConfiguration)
-                .map(UsagePointMetrologyConfiguration.class::cast)
+        usagePoint.getCurrentEffectiveMetrologyConfiguration()
+                .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration)
                 .ifPresent(mc -> {
                     info.metrologyConfiguration = new MetrologyConfigurationInfo(mc, usagePoint, this.thesaurus);
                     info.displayMetrologyConfiguration = mc.getName();
@@ -331,9 +330,8 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
 
     public List<MeterActivationInfo> getMetersOnUsagePointInfo(UsagePoint usagePoint, String auth) {
         Map<MeterRole, MeterRoleInfo> mandatoryMeterRoles = new LinkedHashMap<>();
-        usagePoint.getMetrologyConfiguration()
-                .filter(metrologyConfiguration -> metrologyConfiguration instanceof UsagePointMetrologyConfiguration)
-                .map(UsagePointMetrologyConfiguration.class::cast)
+        usagePoint.getCurrentEffectiveMetrologyConfiguration()
+                .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration)
                 .ifPresent(metrologyConfiguration -> {
                     metrologyConfiguration.getMeterRoles()
                             .stream()

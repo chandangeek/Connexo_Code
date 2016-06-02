@@ -16,11 +16,9 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.elster.jupiter.util.time.Interval;
+
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -32,6 +30,10 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -70,7 +72,7 @@ public class UsagePointCustomPropertySetResourceTest extends UsagePointDataRestA
         when(usagePoint.getCreateDate()).thenReturn(Instant.EPOCH);
         when(usagePoint.getModificationDate()).thenReturn(Instant.EPOCH);
         when(usagePoint.getDetail(any(Instant.class))).thenReturn(Optional.empty());
-        when(usagePoint.getMetrologyConfiguration()).thenReturn(Optional.empty());
+        when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.empty());
         when(usagePointExtension.getVersionedPropertySet(RCPS_ID)).thenReturn(usagePointPropertySet);
         when(usagePointExtension.getPropertySet(RCPS_ID)).thenReturn(usagePointPropertySet);
         PropertySpec propertySpec = mock(PropertySpec.class);
