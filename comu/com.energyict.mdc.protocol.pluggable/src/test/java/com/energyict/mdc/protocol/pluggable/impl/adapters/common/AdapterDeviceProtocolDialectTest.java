@@ -22,6 +22,7 @@ import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -86,6 +87,8 @@ public class AdapterDeviceProtocolDialectTest {
     private EventAdmin eventAdmin;
     @Mock
     private LicenseService licenseService;
+    @Mock
+    private SearchService searchService;
     @Mock
     private Thesaurus thesaurus;
 
@@ -197,6 +200,7 @@ public class AdapterDeviceProtocolDialectTest {
             bind(BundleContext.class).toInstance(bundleContext);
             bind(LicenseService.class).toInstance(licenseService);
             bind(DataModel.class).toProvider(() -> dataModel);
+            bind(SearchService.class).toProvider(() -> searchService);
         }
     }
 
