@@ -26,6 +26,7 @@ import com.elster.jupiter.metering.UsagePointConfiguration;
 import com.elster.jupiter.metering.UsagePointConnectionState;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointReadingTypeConfiguration;
+import com.elster.jupiter.metering.EndDeviceControlType;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MeterRole;
@@ -1757,6 +1758,20 @@ public enum TableSpecs {
                     .onDelete(CASCADE)
                     .map("readingTypeRequirement")
                     .add();
+        }
+    },
+
+    MTR_ENDDEVICECONTROLTYPE {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<EndDeviceControlType> table = dataModel.addTable(name(), EndDeviceControlType.class);
+            table.map(EndDeviceControlTypeImpl.class);
+            table.cache();
+            Column mRidColumn = table.column("MRID").varChar(NAME_LENGTH).notNull().map("mRID").add();
+            table.column("ALIASNAME").varChar(SHORT_DESCRIPTION_LENGTH).map("aliasName").add();
+            table.column("DESCRIPTION").varChar(SHORT_DESCRIPTION_LENGTH).map("description").add();
+            table.addAuditColumns();
+            table.primaryKey("MTR_PK_ENDDEVICECONTROLTYPE").on(mRidColumn).add();
         }
     };
 
