@@ -227,10 +227,6 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>soap.whiteboard</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
             <artifactId>soap.whiteboard.cxf</artifactId>
         </dependency>
         <dependency>
