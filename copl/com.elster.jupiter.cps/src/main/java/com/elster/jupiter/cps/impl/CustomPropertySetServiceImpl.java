@@ -700,11 +700,33 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     @Override
     public <D, T extends PersistentDomainExtension<D>> SqlFragment getRawValuesSql(CustomPropertySet<D, T> customPropertySet, PropertySpec propertySpec, String alias, D businessObject, Object... additionalPrimaryKeyValues) {
         ActiveCustomPropertySet activeCustomPropertySet = this.findActiveCustomPropertySetOrThrowException(customPropertySet);
+        this.validateCustomPropertySetIsNotVersioned(customPropertySet, activeCustomPropertySet);
         SqlFragment sqlFragment =
                 activeCustomPropertySet
                         .getRawValuesSql(
                                 CustomPropertySqlSupport.columnNamesFor(activeCustomPropertySet, propertySpec),
                                 businessObject,
+                                additionalPrimaryKeyValues);
+        SqlBuilder sqlBuilder = new SqlBuilder("SELECT ");
+        sqlBuilder.append(CustomPropertySqlSupport.toValueSelectClauseExpression(activeCustomPropertySet, propertySpec));
+        sqlBuilder.append(" as ");
+        sqlBuilder.append(alias);
+        sqlBuilder.append(" from (");
+        sqlBuilder.add(sqlFragment);
+        sqlBuilder.append(") cps");
+        return sqlBuilder;
+    }
+
+    @Override
+    public <D, T extends PersistentDomainExtension<D>> SqlFragment getRawValuesSql(CustomPropertySet<D, T> customPropertySet, PropertySpec propertySpec, String alias, D businessObject, Range<Instant> effectiveInterval, Object... additionalPrimaryKeyValues) {
+        ActiveCustomPropertySet activeCustomPropertySet = this.findActiveCustomPropertySetOrThrowException(customPropertySet);
+        this.validateCustomPropertySetIsVersioned(customPropertySet, activeCustomPropertySet);
+        SqlFragment sqlFragment =
+                activeCustomPropertySet
+                        .getRawValuesSql(
+                                CustomPropertySqlSupport.columnNamesFor(activeCustomPropertySet, propertySpec),
+                                businessObject,
+                                effectiveInterval,
                                 additionalPrimaryKeyValues);
         SqlBuilder sqlBuilder = new SqlBuilder("SELECT ");
         sqlBuilder.append(CustomPropertySqlSupport.toValueSelectClauseExpression(activeCustomPropertySet, propertySpec));

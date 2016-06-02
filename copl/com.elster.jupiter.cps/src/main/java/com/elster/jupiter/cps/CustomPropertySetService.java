@@ -40,7 +40,11 @@ public interface CustomPropertySetService {
     /**
      * Returns a SqlFragment that selects the values of the specified
      * {@link PropertySpec} that are stored against the specified business object.
-     * The column that holds the values of the property is given the specified alias
+     * The column that holds the values of the property is given the specified alias.
+     * <p>
+     * Note that this will throw an UnsupportedOperationException
+     * when the CustomPropertySet <strong>IS</strong> versioned because in that case
+     * you need to specify a Range of time when the values are effective.
      *
      * @param customPropertySet The CustomPropertySet
      * @param propertySpec The PropertySpec
@@ -52,6 +56,27 @@ public interface CustomPropertySetService {
      * @return The SqlFragment
      */
     <D, T extends PersistentDomainExtension<D>> SqlFragment getRawValuesSql(CustomPropertySet<D, T> customPropertySet, PropertySpec propertySpec, String alias, D businessObject, Object... additionalPrimaryKeyValues);
+
+    /**
+     * Returns a SqlFragment that selects the values of the specified
+     * {@link PropertySpec} that are stored against the specified business object.
+     * The column that holds the values of the property is given the specified alias.
+     * <p>
+     * Note that this will throw an UnsupportedOperationException
+     * when the CustomPropertySet is <strong>NOT</strong> versioned because in that case
+     * you do not need to specify a Range of time when the values are effective.
+     *
+     * @param customPropertySet The CustomPropertySet
+     * @param propertySpec The PropertySpec
+     * @param alias The alias name for the column that holds the values of the property
+     * @param businessObject The businesObject object
+     * @param effectiveInterval The Range of time during which the value of the property should be effective
+     * @param additionalPrimaryKeyValues The values for the additional primary key columns as defined by the CustomPropertySet
+     * @param <D> The businesObject class
+     * @param <T> The class that holds persistent values for this CustomPropertySet
+     * @return The SqlFragment
+     */
+    <D, T extends PersistentDomainExtension<D>> SqlFragment getRawValuesSql(CustomPropertySet<D, T> customPropertySet, PropertySpec propertySpec, String alias, D businessObject, Range<Instant> effectiveInterval, Object... additionalPrimaryKeyValues);
 
     /**
      * Registers the specified {@link CustomPropertySet} on this service's whiteboard.

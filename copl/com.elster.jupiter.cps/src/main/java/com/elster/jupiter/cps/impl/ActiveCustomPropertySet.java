@@ -110,8 +110,8 @@ class ActiveCustomPropertySet {
                 this.getAdditionalPrimaryKeyColumns()
                         .map(pkColumn -> where(this.fieldNameFor(pkColumn)).isEqualTo(pkValueIterator.next()))
                         .reduce(
-                                Condition.TRUE,
-                                Condition::and));
+                            Condition.TRUE,
+                            Condition::and));
     }
 
     private String fieldNameFor(Column pkColumn) {
@@ -219,6 +219,22 @@ class ActiveCustomPropertySet {
                 this.addAdditionalPrimaryKeyColumnConditionsTo(
                         where(persistenceSupport.domainFieldName()).isEqualTo(businessObject)
                             .and(where(HardCodedFieldNames.CUSTOM_PROPERTY_SET.javaName()).isEqualTo(this.registeredCustomPropertySet)),
+                        additionalPrimaryKeyColumnValues);
+        String[] columnNames = propertyColumnNames.toArray(new String[propertyColumnNames.size()]);
+        return this.customPropertySetDataModel
+                    .query(persistenceSupport.persistenceClass())
+                    .asFragment(condition, columnNames);
+    }
+
+    @SuppressWarnings("unchecked")
+    <T extends PersistentDomainExtension<D>, D> SqlFragment getRawValuesSql(List<String> propertyColumnNames, D businessObject, Range<Instant> effectiveInterval, Object... additionalPrimaryKeyColumnValues) {
+        this.validateAdditionalPrimaryKeyValues(additionalPrimaryKeyColumnValues);
+        PersistenceSupport persistenceSupport = this.customPropertySet.getPersistenceSupport();
+        Condition condition =
+                this.addAdditionalPrimaryKeyColumnConditionsTo(
+                        where(persistenceSupport.domainFieldName()).isEqualTo(businessObject)
+                            .and(where(HardCodedFieldNames.CUSTOM_PROPERTY_SET.javaName()).isEqualTo(this.registeredCustomPropertySet))
+                            .and(where(HardCodedFieldNames.INTERVAL.javaName()).isEffective(effectiveInterval)),
                         additionalPrimaryKeyColumnValues);
         String[] columnNames = propertyColumnNames.toArray(new String[propertyColumnNames.size() + 2]);
         columnNames[propertyColumnNames.size()] = "starttime";
