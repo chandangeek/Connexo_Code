@@ -42,6 +42,9 @@ public class UpgradeServiceImpl implements UpgradeService {
         activate(bundleContext);
     }
 
+    public UpgradeServiceImpl() {
+    }
+
     @Activate
     public void activate(BundleContext bundleContext) {
         String upgradeProperty = bundleContext.getProperty("upgrade");
@@ -94,6 +97,7 @@ public class UpgradeServiceImpl implements UpgradeService {
         this.transactionService = transactionService;
     }
 
+    @Reference
     public void setOrmService(OrmService ormService) {
         this.dataModelUpgrader = ormService.getDataModelUpgrader();
     }
