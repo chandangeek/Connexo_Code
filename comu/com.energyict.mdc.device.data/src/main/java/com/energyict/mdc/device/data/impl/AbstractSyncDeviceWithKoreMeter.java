@@ -18,7 +18,7 @@ import java.time.Instant;
 import java.util.Optional;
 
 /**
- * All base methods that can be used to sync the (Kore) Meter with the configuration of this (MDC) Device
+ * Base methods that can be used to sync the (Kore) Meter with the configuration of this (MDC) Device
  * Copyrights EnergyICT
  * Date: 21/04/2016
  * Time: 13:14
@@ -56,7 +56,7 @@ public abstract class AbstractSyncDeviceWithKoreMeter implements SyncDeviceWithK
     }
 
     protected void endCurrentMeterActivationIfPresent() {
-        device.getMeter().get().getCurrentMeterActivation().ifPresent(meterConfiguration -> meterConfiguration.endAt(start));
+        device.getMeter().get().getCurrentMeterActivation().ifPresent(meterActivation -> meterActivation.endAt(start));
     }
 
     protected void obsoleteKoreDevice() {

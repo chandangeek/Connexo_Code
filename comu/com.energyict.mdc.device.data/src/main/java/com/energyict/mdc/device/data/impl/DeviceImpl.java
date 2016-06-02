@@ -278,8 +278,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     private Optional<Location> location = Optional.empty();
     private Optional<GeoCoordinates> geoCoordinates = Optional.empty();
-    private boolean dirtyMeter = false;
-
 
     @Inject
     public DeviceImpl(
@@ -413,42 +411,82 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public Optional<Location> getLocation() {
-       // Optional<Meter> meter = findKoreMeter(getMdcAmrSystem());
+        Optional<Location> updatedValue = getUpdatedLocation();
+        if (updatedValue.isPresent()) {
+           return updatedValue;
+        }
         if (meter.isPresent()) {
             return meter.get().getLocation();
         }
-        return this.location;
+        return Optional.empty();
     }
 
     @Override
     public void setLocation(Location location) {
-        // Optional<Meter> meter = findKoreMeter(getMdcAmrSystem());
-        if (meter.isPresent()) {
-            meter.get().setLocation(location);
-            this.dirtyMeter = true;
-        } else {
-            this.location = Optional.ofNullable(location);
+        Optional<SyncDeviceWithKoreForSimpleUpdate> currentKoreUpdater = getKoreMeterUpdater();
+        SyncDeviceWithKoreForSimpleUpdate koreUpdater = new SyncDeviceWithKoreForSimpleUpdate();
+        if (!currentKoreUpdater.isPresent()){
+            syncsWithKore.add(koreUpdater);
+        }else {
+            koreUpdater = currentKoreUpdater.get();
         }
+        koreUpdater.setLocation(location);
     }
 
     @Override
     public Optional<GeoCoordinates> getGeoCoordinates() {
-        // Optional<Meter> meter = findKoreMeter(getMdcAmrSystem());
+        Optional<GeoCoordinates> updatedValue = getUpdatedCoordinates();
+        if (updatedValue.isPresent()) {
+           return updatedValue;
+        }
         if (meter.isPresent()) {
             return meter.get().getGeoCoordinates();
         }
-        return this.geoCoordinates;
+        return Optional.empty();
+    }
+
+    private Optional<Location> getUpdatedLocation(){
+        Optional<SyncDeviceWithKoreForSimpleUpdate> currentKoreUpdater = getKoreMeterUpdater();
+        if (currentKoreUpdater.isPresent()){
+            SyncDeviceWithKoreForSimpleUpdate simpleKoreUpdater = currentKoreUpdater.get();
+            if (simpleKoreUpdater.location.isPresent()){
+                return simpleKoreUpdater.location;
+            }
+        }
+        return Optional.empty();
+    }
+
+    private Optional<GeoCoordinates> getUpdatedCoordinates(){
+        Optional<SyncDeviceWithKoreForSimpleUpdate> currentKoreUpdater = getKoreMeterUpdater();
+        if (currentKoreUpdater.isPresent()){
+            SyncDeviceWithKoreForSimpleUpdate simpleKoreUpdater = currentKoreUpdater.get();
+            if (simpleKoreUpdater.geoCoordinates.isPresent()){
+                return simpleKoreUpdater.geoCoordinates;
+            }
+        }
+        return Optional.empty();
+    }
+
+    private Optional<SyncDeviceWithKoreForSimpleUpdate> getKoreMeterUpdater(){
+        Optional<SyncDeviceWithKoreMeter> currentKoreUpdater = syncsWithKore.stream()
+                .filter((x) -> getClass().isAssignableFrom(SyncDeviceWithKoreForSimpleUpdate.class))
+                .findFirst();
+        if (currentKoreUpdater.isPresent()){
+            return  Optional.of((SyncDeviceWithKoreForSimpleUpdate) currentKoreUpdater.get());
+        }
+        return Optional.empty();
     }
 
     @Override
     public void setGeoCoordinates(GeoCoordinates geoCoordinates) {
-        // Optional<Meter> meter = findKoreMeter(getMdcAmrSystem());
-        if (meter.isPresent()) {
-            meter.get().setGeoCoordinates(geoCoordinates);
-            this.dirtyMeter = true;
-        } else {
-            this.geoCoordinates = Optional.ofNullable(geoCoordinates);
+        Optional<SyncDeviceWithKoreForSimpleUpdate> currentKoreUpdater = getKoreMeterUpdater();
+        SyncDeviceWithKoreForSimpleUpdate koreUpdater = new SyncDeviceWithKoreForSimpleUpdate();
+        if (!currentKoreUpdater.isPresent()){
+            syncsWithKore.add(koreUpdater);
+        }else {
+            koreUpdater = currentKoreUpdater.get();
         }
+        koreUpdater.setGeoCoordinates(geoCoordinates);
     }
 
     private void saveDirtyConnectionProperties() {
@@ -3117,6 +3155,48 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             int a = o1.canUpdateCurrentMeterActivation() ? 1 : 0;
             int b = o2.canUpdateCurrentMeterActivation() ? 1 : 0;
             return new Integer(a).compareTo(b);
+        }
+    }
+
+    /**
+     * Just update the (mdc) device's counterpart (pulse) enddevice
+     */
+    private class SyncDeviceWithKoreForSimpleUpdate extends AbstractSyncDeviceWithKoreMeter{
+
+        private Optional<Location> location = Optional.empty();
+        private Optional<GeoCoordinates> geoCoordinates = Optional.empty();
+
+        public SyncDeviceWithKoreForSimpleUpdate(){
+            super(DeviceImpl.this.meteringService, DeviceImpl.this.readingTypeUtilService, DeviceImpl.this.clock.instant());
+        }
+
+        public void setLocation(Location location) {
+            this.location = Optional.ofNullable(location);
+        }
+
+        public void setGeoCoordinates(GeoCoordinates geoCoordinates) {
+            this.geoCoordinates = Optional.ofNullable(geoCoordinates);
+        }
+
+        @Override
+        public void syncWithKore(DeviceImpl device) {
+            if (this.location.isPresent()) {
+                device.getMeter().get().setLocation(location.get());
+            }
+            if (this.geoCoordinates.isPresent()) {
+                device.getMeter().get().setGeoCoordinates(geoCoordinates.get());
+            }
+            ((EndDevice) device.getMeter()).update();
+        }
+
+        @Override
+        protected MeterActivation activateMeter(Instant start) {
+             throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean canUpdateCurrentMeterActivation() {
+            return false;
         }
     }
 

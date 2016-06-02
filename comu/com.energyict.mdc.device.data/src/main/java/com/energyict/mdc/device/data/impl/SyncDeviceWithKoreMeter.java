@@ -1,12 +1,9 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.metering.MultiplierType;
-
 import java.math.BigDecimal;
-import java.util.Optional;
 
 /**
- * Interface holding expected 'Behaviour' when syncing a (MDC) {@Link Device} with a (Kore) {}@link Meter}
+ * Interface holding expected 'Behaviour' when syncing a (MDC) {@link Device} with a (Kore) {}@link Meter}
  * Copyrights EnergyICT
  * Date: 21/04/2016
  * Time: 9:07
