@@ -47,7 +47,7 @@ public class PagedInfoList<T> {
             boolean hasPreviousPage = start > 0;
             list.link = new ArrayList<>();
             list.link.add(Link.fromUriBuilder(uriBuilder.clone().queryParam("start", start).queryParam("limit", limit))
-                    .rel("current")
+                    .rel(Relation.REF_CURRENT.rel())
                     .title("current page")
                     .build());
 
@@ -56,13 +56,13 @@ public class PagedInfoList<T> {
                 int newStart = limit + start;
                 list.link.add(Link.fromUriBuilder(uriBuilder.clone()
                         .queryParam("start", newStart)
-                        .queryParam("limit", limit)).rel("next").title("next page").build());
+                        .queryParam("limit", limit)).rel(Relation.REF_NEXT.rel()).title("next page").build());
             }
             if (hasPreviousPage) {
                 int newStart = Math.max(start - limit, 0);
                 list.link.add(Link.fromUriBuilder(uriBuilder.clone()
                         .queryParam("start", newStart)
-                        .queryParam("limit", limit)).rel("previous").title("previous page").build());
+                        .queryParam("limit", limit)).rel(Relation.REF_PREVIOUS.rel()).title("previous page").build());
             }
 
         }
