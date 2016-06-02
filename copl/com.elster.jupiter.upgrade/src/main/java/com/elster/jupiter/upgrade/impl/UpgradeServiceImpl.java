@@ -39,9 +39,6 @@ public class UpgradeServiceImpl implements UpgradeService {
     private Map<InstallIdentifier, UpgradeClasses> registered = new HashMap<>();
     private final Logger logger = Logger.getLogger("com.elster.jupiter.upgrade");
 
-    public UpgradeServiceImpl() {
-    }
-
     @Inject
     public UpgradeServiceImpl(BootstrapService bootstrapService, TransactionService transactionService, OrmService ormService, BundleContext bundleContext) {
         setBootstrapService(bootstrapService);
