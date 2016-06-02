@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
@@ -77,5 +78,24 @@ public class ResourceHelper {
 
     public List<ReadingType> findReadingTypes(List<ReadingTypeInfo> readingTypesInfo) {
         return meteringService.findReadingTypes(readingTypesInfo.stream().map(readingTypeInfo -> readingTypeInfo.mRID).collect(Collectors.toList()));
+    }
+
+    public Optional<UsagePoint> getLockedUsagePoint(long id, long version) {
+        return meteringService
+                .findAndLockUsagePointByIdAndVersion(id, version)
+                .map(UsagePoint.class::cast);
+    }
+
+    public UsagePoint findAndLockUsagePoint(UsagePointInfo info) {
+        return getLockedUsagePoint(info.id, info.version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(info.mRID)
+                        .withActualVersion(() -> getCurrentUsagePointVersion(info.mRID))
+                        .supplier());
+    }
+
+    public Long getCurrentUsagePointVersion(String mRID) {
+        return meteringService.findUsagePoint(mRID)
+                .map(UsagePoint::getVersion)
+                .orElse(null);
     }
 }

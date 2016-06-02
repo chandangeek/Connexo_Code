@@ -127,10 +127,7 @@ public class UsagePointResource {
     @RolesAllowed({Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Transactional
     public UsagePointInfo updateUsagePoint(@PathParam("mRID") String mRID, UsagePointInfo info) {
-        UsagePoint usagePoint = meteringService.findAndLockUsagePointByIdAndVersion(info.id, info.version)
-                .orElseThrow(conflictFactory.contextDependentConflictOn(info.mRID)
-                        .withActualVersion(() -> meteringService.findUsagePoint(mRID).map(UsagePoint::getVersion).orElse(null))
-                        .supplier());
+        UsagePoint usagePoint = resourceHelper.findAndLockUsagePoint(info);
         info.writeTo(usagePoint);
         return usagePointInfoFactory.from(usagePoint);
     }
@@ -291,16 +288,21 @@ public class UsagePointResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Transactional
-    public Response addMetrologyConfigurationVersion(@PathParam("mRID") String mRID, MetrologyConfigurationVersionInfo info) {
-        UsagePoint usagePoint = fetchUsagePoint(mRID);
-        UsagePointMetrologyConfiguration metrologyConfiguration = resourceHelper.findMetrologyConfiguration(info.id);
+    public Response addMetrologyConfigurationVersion(UsagePointInfo info) {
+        UsagePoint usagePoint = resourceHelper.findAndLockUsagePoint(info);
+        UsagePointMetrologyConfiguration metrologyConfiguration = resourceHelper.findMetrologyConfiguration(info.metrologyConfiguration.id);
+        Instant start = Instant.ofEpochMilli(info.metrologyConfiguration.start);
 
-        usagePoint.apply(metrologyConfiguration, info.startTime);
-        if (info.endTime != null) {
-            usagePoint.removeMetrologyConfiguration(info.endTime);
+        usagePoint.apply(metrologyConfiguration, start);
+        if (info.metrologyConfiguration.end != null) {
+            usagePoint.removeMetrologyConfiguration(Instant.ofEpochMilli(info.metrologyConfiguration.end));
         }
 
-        return Response.status(Response.Status.CREATED).entity(info).build();
+        UsagePointInfo updatedInfo = usagePointInfoFactory.from(usagePoint);
+        updatedInfo.metrologyConfiguration = usagePoint.getEffectiveMetrologyConfiguration(start)
+                .map(EffectiveMetrologyConfigurationOnUsagePointInfo::new).orElse(null);
+
+        return Response.status(Response.Status.OK).entity(updatedInfo).build();
     }
 
     private ReadingInfos doGetReadingTypeReadings(String mRID, String rtMrid, Range<Instant> range) {
