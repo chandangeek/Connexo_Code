@@ -62,7 +62,6 @@ public class PublicRestApplication extends Application implements TranslationKey
                 UsagePointCustomPropertySetResource.class,
                 MeterActivationResource.class,
                 MetrologyConfigurationResource.class,
-//                ElectricityDetailResource.class,
 
                 RestExceptionMapper.class
         );
@@ -164,6 +163,7 @@ public class PublicRestApplication extends Application implements TranslationKey
 
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
+            bind(EffectivityHelper.class).to(EffectivityHelper.class);
 
             bind(CustomPropertySetInfoFactory.class).to(CustomPropertySetInfoFactory.class);
             bind(UsagePointInfoFactory.class).to(UsagePointInfoFactory.class);
@@ -172,6 +172,8 @@ public class PublicRestApplication extends Application implements TranslationKey
             bind(MetrologyConfigurationInfoFactory.class).to(MetrologyConfigurationInfoFactory.class);
             bind(ElectricityDetailInfoFactory.class).to(ElectricityDetailInfoFactory.class);
             bind(ElectricityDetailResource.class).to(ElectricityDetailResource.class);
+            bind(GasDetailInfoFactory.class).to(GasDetailInfoFactory.class);
+            bind(GasDetailResource.class).to(GasDetailResource.class);
         }
     }
 

@@ -89,8 +89,6 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
 
     protected UsagePointInfo getUsagePointInfo(UsagePoint usagePoint) {
         switch (usagePoint.getServiceCategory().getKind()) {
-            case GAS:
-                return new GasUsagePointInfo();
             case HEAT:
                 return new HeatUsagePointInfo();
             case WATER:
@@ -143,9 +141,7 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
         map.put("pressure", (usagePointInfo, usagePoint, uriInfo) -> {
             Optional<? extends UsagePointDetail> detail = usagePoint.getDetail(clock.instant());
             if (detail.isPresent()) {
-                if (GasDetail.class.isAssignableFrom(detail.get().getClass())) {
-                    ((GasUsagePointInfo) usagePointInfo).pressure = ((GasDetail) detail.get()).getPressure();
-                } else if (WaterDetail.class.isAssignableFrom(detail.get().getClass())) {
+                if (WaterDetail.class.isAssignableFrom(detail.get().getClass())) {
                     ((WaterUsagePointInfo) usagePointInfo).pressure = ((WaterDetail) detail.get()).getPressure();
                 } else if (HeatDetail.class.isAssignableFrom(detail.get().getClass())) {
                     ((HeatUsagePointInfo) usagePointInfo).pressure = ((HeatDetail) detail.get()).getPressure();
@@ -155,9 +151,7 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
         map.put("physicalCapacity", (usagePointInfo, usagePoint, uriInfo) -> {
             Optional<? extends UsagePointDetail> detail = usagePoint.getDetail(clock.instant());
             if (detail.isPresent()) {
-                if (GasDetail.class.isAssignableFrom(detail.get().getClass())) {
-                    ((GasUsagePointInfo) usagePointInfo).physicalCapacity = ((GasDetail) detail.get()).getPhysicalCapacity();
-                } else if (WaterDetail.class.isAssignableFrom(detail.get().getClass())) {
+                if (WaterDetail.class.isAssignableFrom(detail.get().getClass())) {
                     ((WaterUsagePointInfo) usagePointInfo).physicalCapacity = ((WaterDetail) detail.get()).getPhysicalCapacity();
                 } else if (HeatDetail.class.isAssignableFrom(detail.get().getClass())) {
                     ((HeatUsagePointInfo) usagePointInfo).physicalCapacity = ((HeatDetail) detail.get()).getPhysicalCapacity();
@@ -167,9 +161,7 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
         map.put("limiter", (usagePointInfo, usagePoint, uriInfo) -> {
             Optional<? extends UsagePointDetail> detail = usagePoint.getDetail(clock.instant());
             if (detail.isPresent()) {
-                if (GasDetail.class.isAssignableFrom(detail.get().getClass())) {
-                    ((GasUsagePointInfo) usagePointInfo).limiter = ((GasDetail) detail.get()).isLimiter();
-                } else if (WaterDetail.class.isAssignableFrom(detail.get().getClass())) {
+                if (WaterDetail.class.isAssignableFrom(detail.get().getClass())) {
                     ((WaterUsagePointInfo) usagePointInfo).limiter = ((WaterDetail) detail.get()).isLimiter();
                 }
             }
@@ -177,9 +169,7 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
         map.put("loadLimiterType", (usagePointInfo, usagePoint, uriInfo) -> {
             Optional<? extends UsagePointDetail> detail = usagePoint.getDetail(clock.instant());
             if (detail.isPresent()) {
-                if (GasDetail.class.isAssignableFrom(detail.get().getClass())) {
-                    ((GasUsagePointInfo) usagePointInfo).loadLimiterType = ((GasDetail) detail.get()).getLoadLimiterType();
-                } else if (WaterDetail.class.isAssignableFrom(detail.get().getClass())) {
+                if (WaterDetail.class.isAssignableFrom(detail.get().getClass())) {
                     ((WaterUsagePointInfo) usagePointInfo).loadLimiterType = ((WaterDetail) detail.get()).getLoadLimiterType();
                 }
             }
@@ -187,9 +177,7 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
         map.put("loadLimit", (usagePointInfo, usagePoint, uriInfo) -> {
             Optional<? extends UsagePointDetail> detail = usagePoint.getDetail(clock.instant());
             if (detail.isPresent()) {
-                if (GasDetail.class.isAssignableFrom(detail.get().getClass())) {
-                    ((GasUsagePointInfo) usagePointInfo).loadLimit = ((GasDetail) detail.get()).getLoadLimit();
-                } else if (WaterDetail.class.isAssignableFrom(detail.get().getClass())) {
+                if (WaterDetail.class.isAssignableFrom(detail.get().getClass())) {
                     ((WaterUsagePointInfo) usagePointInfo).loadLimit = ((WaterDetail) detail.get()).getLoadLimit();
                 }
             }
@@ -197,9 +185,7 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
         map.put("bypass", (usagePointInfo, usagePoint, uriInfo) -> {
             Optional<? extends UsagePointDetail> detail = usagePoint.getDetail(clock.instant());
             if (detail.isPresent()) {
-                if (GasDetail.class.isAssignableFrom(detail.get().getClass())) {
-                    ((GasUsagePointInfo) usagePointInfo).bypass = ((GasDetail) detail.get()).isBypassInstalled();
-                } else if (WaterDetail.class.isAssignableFrom(detail.get().getClass())) {
+                if (WaterDetail.class.isAssignableFrom(detail.get().getClass())) {
                     ((WaterUsagePointInfo) usagePointInfo).bypass = ((WaterDetail) detail.get()).isBypassInstalled();
                 } else if (HeatDetail.class.isAssignableFrom(detail.get().getClass())) {
                     ((HeatUsagePointInfo) usagePointInfo).bypass = ((HeatDetail) detail.get()).isBypassInstalled();
@@ -209,9 +195,7 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
         map.put("bypassStatus", (usagePointInfo, usagePoint, uriInfo) -> {
             Optional<? extends UsagePointDetail> detail = usagePoint.getDetail(clock.instant());
             if (detail.isPresent()) {
-                if (GasDetail.class.isAssignableFrom(detail.get().getClass())) {
-                    ((GasUsagePointInfo) usagePointInfo).bypassStatus = ((GasDetail) detail.get()).getBypassStatus();
-                } else if (WaterDetail.class.isAssignableFrom(detail.get().getClass())) {
+                if (WaterDetail.class.isAssignableFrom(detail.get().getClass())) {
                     ((WaterUsagePointInfo) usagePointInfo).bypassStatus = ((WaterDetail) detail.get()).getBypassStatus();
                 } else if (HeatDetail.class.isAssignableFrom(detail.get().getClass())) {
                     ((HeatUsagePointInfo) usagePointInfo).bypassStatus = ((HeatDetail) detail.get()).getBypassStatus();
@@ -221,9 +205,7 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
         map.put("valve", (usagePointInfo, usagePoint, uriInfo) -> {
             Optional<? extends UsagePointDetail> detail = usagePoint.getDetail(clock.instant());
             if (detail.isPresent()) {
-                if (GasDetail.class.isAssignableFrom(detail.get().getClass())) {
-                    ((GasUsagePointInfo) usagePointInfo).valve = ((GasDetail) detail.get()).isValveInstalled();
-                } else if (WaterDetail.class.isAssignableFrom(detail.get().getClass())) {
+                if (WaterDetail.class.isAssignableFrom(detail.get().getClass())) {
                     ((WaterUsagePointInfo) usagePointInfo).valve = ((WaterDetail) detail.get()).isValveInstalled();
                 } else if (HeatDetail.class.isAssignableFrom(detail.get().getClass())) {
                     ((HeatUsagePointInfo) usagePointInfo).valve = ((HeatDetail) detail.get()).isValveInstalled();
@@ -233,9 +215,7 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
         map.put("capped", (usagePointInfo, usagePoint, uriInfo) -> {
             Optional<? extends UsagePointDetail> detail = usagePoint.getDetail(clock.instant());
             if (detail.isPresent()) {
-                if (GasDetail.class.isAssignableFrom(detail.get().getClass())) {
-                    ((GasUsagePointInfo) usagePointInfo).capped = ((GasDetail) detail.get()).isCapped();
-                } else if (WaterDetail.class.isAssignableFrom(detail.get().getClass())) {
+                if (WaterDetail.class.isAssignableFrom(detail.get().getClass())) {
                     ((WaterUsagePointInfo) usagePointInfo).capped = ((WaterDetail) detail.get()).isCapped();
                 }
             }
@@ -243,18 +223,8 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
         map.put("clamped", (usagePointInfo, usagePoint, uriInfo) -> {
             Optional<? extends UsagePointDetail> detail = usagePoint.getDetail(clock.instant());
             if (detail.isPresent()) {
-                if (GasDetail.class.isAssignableFrom(detail.get().getClass())) {
-                    ((GasUsagePointInfo) usagePointInfo).clamped = ((GasDetail) detail.get()).isClamped();
-                } else if (WaterDetail.class.isAssignableFrom(detail.get().getClass())) {
+                if (WaterDetail.class.isAssignableFrom(detail.get().getClass())) {
                     ((WaterUsagePointInfo) usagePointInfo).clamped = ((WaterDetail) detail.get()).isClamped();
-                }
-            }
-        });
-        map.put("interruptible", (usagePointInfo, usagePoint, uriInfo) -> {
-            Optional<? extends UsagePointDetail> detail = usagePoint.getDetail(clock.instant());
-            if (detail.isPresent()) {
-                if (GasDetail.class.isAssignableFrom(detail.get().getClass())) {
-                    ((GasUsagePointInfo) usagePointInfo).interruptible = ((GasDetail) detail.get()).isInterruptible();
                 }
             }
         });

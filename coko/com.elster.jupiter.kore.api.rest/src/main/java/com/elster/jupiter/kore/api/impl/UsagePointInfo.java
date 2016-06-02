@@ -17,7 +17,7 @@ import java.util.List;
         @JsonSubTypes.Type(value = ElectricityDetailInfo.class, name = "Electricity"),
         @JsonSubTypes.Type(value = HeatUsagePointInfo.class, name = "Heat"),
         @JsonSubTypes.Type(value = WaterUsagePointInfo.class, name = "Water"),
-        @JsonSubTypes.Type(value = GasUsagePointInfo.class, name = "Gas")})
+        @JsonSubTypes.Type(value = GasDetailInfo.class, name = "Gas")})
 abstract public class UsagePointInfo extends LinkInfo<Long> {
 
     public String name;

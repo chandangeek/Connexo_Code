@@ -41,14 +41,17 @@ public class UsagePointResource {
     private final MeteringService meteringService;
     private final ExceptionFactory exceptionFactory;
     private final Provider<ElectricityDetailResource> electricityDetailResourceProvider;
+    private final Provider<GasDetailResource> gasDetailResourceProvider;
 
     @Inject
     public UsagePointResource(MeteringService meteringService, UsagePointInfoFactory usagePointInfoFactory, ExceptionFactory exceptionFactory,
-                              Provider<ElectricityDetailResource> electricityDetailResourceProvider) {
+                              Provider<ElectricityDetailResource> electricityDetailResourceProvider,
+                              Provider<GasDetailResource> gasDetailResourceProvider) {
         this.meteringService = meteringService;
         this.usagePointInfoFactory = usagePointInfoFactory;
         this.exceptionFactory = exceptionFactory;
         this.electricityDetailResourceProvider = electricityDetailResourceProvider;
+        this.gasDetailResourceProvider = gasDetailResourceProvider;
     }
 
     /**
@@ -216,12 +219,14 @@ public class UsagePointResource {
     @Path("/{usagePointId}/details")
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    public ElectricityDetailResource getDetailsResource(@PathParam("usagePointId") long usagePointId, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
+    public Object getDetailsResource(@PathParam("usagePointId") long usagePointId, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
         UsagePoint usagePoint = meteringService.findUsagePoint(usagePointId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_USAGE_POINT));
         switch (usagePoint.getServiceCategory().getKind()) {
             case ELECTRICITY:
                 return electricityDetailResourceProvider.get().init(usagePoint);
+            case GAS:
+                return gasDetailResourceProvider.get().init(usagePoint);
             default:
                 throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.UNSUPPORTED_SERVICE_KIND);
         }

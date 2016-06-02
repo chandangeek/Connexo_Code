@@ -2,16 +2,13 @@ package com.elster.jupiter.kore.api.impl;
 
 import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointDetailBuilder;
 import com.elster.jupiter.rest.util.hypermedia.LinkInfo;
 import com.elster.jupiter.rest.util.hypermedia.PropertyCopier;
 import com.elster.jupiter.rest.util.hypermedia.Relation;
 import com.elster.jupiter.rest.util.hypermedia.SelectableFieldFactory;
 
-import com.google.common.collect.BoundType;
-import com.google.common.collect.Range;
-
+import javax.inject.Inject;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
@@ -26,6 +23,13 @@ import java.util.Map;
 import static java.util.stream.Collectors.toList;
 
 public class ElectricityDetailInfoFactory extends SelectableFieldFactory<ElectricityDetailInfo, ElectricityDetail> {
+
+    private final EffectivityHelper effectivityHelper;
+
+    @Inject
+    public ElectricityDetailInfoFactory(EffectivityHelper effectivityHelper) {
+        this.effectivityHelper = effectivityHelper;
+    }
 
     public LinkInfo asLink(ElectricityDetail electricityDetail, Relation relation, UriInfo uriInfo) {
         ElectricityDetailInfo info = new ElectricityDetailInfo();
@@ -51,7 +55,8 @@ public class ElectricityDetailInfoFactory extends SelectableFieldFactory<Electri
     private UriBuilder getUriBuilder(UriInfo uriInfo) {
         return uriInfo.getBaseUriBuilder()
                 .path(UsagePointResource.class)
-                .path(UsagePointResource.class, "getDetailsResource");
+                .path(UsagePointResource.class, "getDetailsResource")
+                .path(ElectricityDetailResource.class, "getElectricityDetails");
     }
 
     public ElectricityDetailInfo from(ElectricityDetail electricityDetail, UriInfo uriInfo, Collection<String> fields) {
@@ -71,17 +76,11 @@ public class ElectricityDetailInfoFactory extends SelectableFieldFactory<Electri
                 .getVersion());
         map.put("link", ((electricityDetailInfo, electricityDetail, uriInfo) -> {
             electricityDetailInfo.link = new ArrayList<Link>();
-            List<? extends UsagePointDetail> detail = electricityDetail.getUsagePoint()
-                    .getDetail(Range.upTo(electricityDetail.getRange().lowerEndpoint(), BoundType.OPEN));
-            if (!detail.isEmpty()) {
-                electricityDetailInfo.link.add(link((ElectricityDetail) detail.get(detail.size() - 1), Relation.REF_PREVIOUS, uriInfo));
-            }
+            effectivityHelper.previousDetails(electricityDetail)
+                    .ifPresent(prev -> electricityDetailInfo.link.add(link((ElectricityDetail) prev, Relation.REF_PREVIOUS, uriInfo)));
             electricityDetailInfo.link.add(link(electricityDetail, Relation.REF_SELF, uriInfo));
-            detail = electricityDetail.getUsagePoint()
-                    .getDetail(Range.upTo(electricityDetail.getRange().lowerEndpoint(), BoundType.OPEN));
-            if (!detail.isEmpty()) {
-                electricityDetailInfo.link.add(link((ElectricityDetail) detail.get(0), Relation.REF_NEXT, uriInfo));
-            }
+            effectivityHelper.nextDetails(electricityDetail)
+                    .ifPresent(next -> electricityDetailInfo.link.add(link((ElectricityDetail) next, Relation.REF_NEXT, uriInfo)));
         }));
         map.put("nominalServiceVoltage", (electricityDetailInfo, electricityDetail, uriInfo) -> electricityDetailInfo.nominalServiceVoltage = electricityDetail
                 .getNominalServiceVoltage());

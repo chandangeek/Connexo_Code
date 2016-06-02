@@ -1,0 +1,71 @@
+package com.elster.jupiter.kore.api.impl;
+
+import com.elster.jupiter.kore.api.impl.utils.MessageSeeds;
+import com.elster.jupiter.metering.GasDetail;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointDetail;
+import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.PROPFIND;
+import com.elster.jupiter.rest.util.hypermedia.FieldSelection;
+
+import javax.inject.Inject;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.UriInfo;
+import java.time.Clock;
+import java.time.Instant;
+import java.util.List;
+
+import static java.util.stream.Collectors.toList;
+
+public class GasDetailResource {
+
+    private final GasDetailInfoFactory gasDetailInfoFactory;
+    private final ExceptionFactory exceptionFactory;
+    private final Clock clock;
+    private UsagePoint usagePoint;
+
+    @Inject
+    public GasDetailResource(GasDetailInfoFactory gasDetailInfoFactory, ExceptionFactory exceptionFactory, Clock clock) {
+        this.gasDetailInfoFactory = gasDetailInfoFactory;
+        this.exceptionFactory = exceptionFactory;
+        this.clock = clock;
+    }
+
+    GasDetailResource init(UsagePoint usagePoint) {
+        this.usagePoint = usagePoint;
+        return this;
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+//    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
+    public GasDetailInfo getCurrentGasDetails(@BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
+        return getGasDetails(Instant.now(clock).toEpochMilli(), fieldSelection, uriInfo);
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @Path("/{lowerEnd}")
+//    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
+    public GasDetailInfo getGasDetails(@PathParam("lowerEnd") long lowerEnd, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
+        UsagePointDetail usagePointDetail = usagePoint.getDetail(Instant.ofEpochMilli(lowerEnd))
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DETAIL));
+
+        return gasDetailInfoFactory.from((GasDetail) usagePointDetail, uriInfo, fieldSelection.getFields());
+    }
+
+    @PROPFIND
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+//    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
+    public List<String> getFields() {
+        return gasDetailInfoFactory.getAvailableFields().stream().sorted().collect(toList());
+    }
+
+
+}

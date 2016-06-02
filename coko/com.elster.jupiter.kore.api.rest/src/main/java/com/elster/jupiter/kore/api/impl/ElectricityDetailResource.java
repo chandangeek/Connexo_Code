@@ -51,7 +51,7 @@ public class ElectricityDetailResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Path("/{lowerRange}")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    public ElectricityDetailInfo getElectricityDetail(@PathParam("lowerRange") long lowerRange, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
+    public ElectricityDetailInfo getCurrentElectricityDetails(@PathParam("lowerRange") long lowerRange, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
         UsagePointDetail usagePointDetail = usagePoint.getDetail(Instant.ofEpochMilli(lowerRange))
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DETAIL));
         return electricityDetailInfoFactory.from((ElectricityDetail) usagePointDetail, uriInfo, fieldSelection.getFields());
@@ -61,7 +61,7 @@ public class ElectricityDetailResource {
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    public ElectricityDetailInfo getElectricityDetail(@BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
+    public ElectricityDetailInfo getElectricityDetails(@BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
         UsagePointDetail usagePointDetail = usagePoint.getDetail(Instant.now(clock))
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DETAIL));
         return electricityDetailInfoFactory.from((ElectricityDetail) usagePointDetail, uriInfo, fieldSelection.getFields());
