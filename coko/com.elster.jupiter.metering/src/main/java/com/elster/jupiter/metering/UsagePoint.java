@@ -2,6 +2,7 @@ package com.elster.jupiter.metering;
 
 import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.cbo.MarketRoleKind;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.parties.Party;
@@ -168,6 +169,8 @@ public interface UsagePoint extends HasId, IdentifiedObject {
      * @return The List of MetrologyConfiguration
      */
     List<MetrologyConfiguration> getMetrologyConfigurations(Range<Instant> period);
+
+    Optional<EffectiveMetrologyConfigurationOnUsagePoint> getCurrentEffectiveMetrologyConfiguration();
 
     void removeMetrologyConfiguration(Instant when);
 

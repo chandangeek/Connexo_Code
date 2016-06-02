@@ -1,11 +1,14 @@
 package com.elster.jupiter.metering.impl.config;
 
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Interval;
+
+import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import java.time.Instant;
@@ -74,6 +77,17 @@ public class EffectiveMetrologyConfigurationOnUsagePointImpl implements Effectiv
                 .add("usagePoint", this.usagePoint)
                 .add("metrologyConfiguration", this.metrologyConfiguration)
                 .toString();
+    }
+
+    @Override
+    public Instant getStart() {
+        return getRange().lowerEndpoint();
+    }
+
+    @Override
+    public Instant getEnd() {
+        Range<Instant> range = getRange();
+        return range.hasUpperBound() ? range.upperEndpoint() : null;
     }
 
 }

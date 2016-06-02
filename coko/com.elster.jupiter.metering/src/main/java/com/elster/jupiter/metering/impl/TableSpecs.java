@@ -25,6 +25,7 @@ import com.elster.jupiter.metering.UsagePointAccountability;
 import com.elster.jupiter.metering.UsagePointConfiguration;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointReadingTypeConfiguration;
+import com.elster.jupiter.metering.EndDeviceControlType;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MeterRole;
@@ -40,7 +41,7 @@ import com.elster.jupiter.metering.config.UsagePointRequirement;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.impl.config.AbstractNode;
-import com.elster.jupiter.metering.impl.config.EffectiveMetrologyConfigurationOnUsagePoint;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.impl.config.EffectiveMetrologyConfigurationOnUsagePointImpl;
 import com.elster.jupiter.metering.impl.config.FormulaImpl;
 import com.elster.jupiter.metering.impl.config.MeterRoleImpl;
@@ -318,7 +319,6 @@ public enum TableSpecs {
             table.column("READROUTE").varChar(NAME_LENGTH).map("readRoute").add();
             table.column("SERVICEPRIORITY").varChar(NAME_LENGTH).map("servicePriority").add();
             table.column("SERVICEDELIVERYREMARK").varChar(SHORT_DESCRIPTION_LENGTH).map("serviceDeliveryRemark").add();
-            table.column("CONNECTIONSTATE").type("varchar2(30)").conversion(CHAR2ENUM).map("connectionState").add();
             table.column("INSTALLATIONTIME")
                     .number()
                     .notNull()
@@ -1737,6 +1737,20 @@ public enum TableSpecs {
                     .onDelete(CASCADE)
                     .map("readingTypeRequirement")
                     .add();
+        }
+    },
+
+    MTR_ENDDEVICECONTROLTYPE {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<EndDeviceControlType> table = dataModel.addTable(name(), EndDeviceControlType.class);
+            table.map(EndDeviceControlTypeImpl.class);
+            table.cache();
+            Column mRidColumn = table.column("MRID").varChar(NAME_LENGTH).notNull().map("mRID").add();
+            table.column("ALIASNAME").varChar(SHORT_DESCRIPTION_LENGTH).map("aliasName").add();
+            table.column("DESCRIPTION").varChar(SHORT_DESCRIPTION_LENGTH).map("description").add();
+            table.addAuditColumns();
+            table.primaryKey("MTR_PK_ENDDEVICECONTROLTYPE").on(mRidColumn).add();
         }
     };
 
