@@ -211,7 +211,7 @@ enum TableSpecs {
             table.column("SERVER").varChar(Table.DESCRIPTION_LENGTH).map("server").add();
             table.column("USERID").varChar(Table.DESCRIPTION_LENGTH).map("user").add();
             table.column("PASSWORD").varChar(Table.DESCRIPTION_LENGTH).map("password").add();
-            table.column("PORT").type("NUMBER").conversion(NUMBER2INT).map("port").add();
+            table.column("PORT").number().conversion(NUMBER2INT).map("port").add();
 
             table.addAuditColumns();
 
