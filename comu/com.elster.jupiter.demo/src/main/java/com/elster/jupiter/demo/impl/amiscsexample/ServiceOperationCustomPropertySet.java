@@ -244,7 +244,7 @@ public class ServiceOperationCustomPropertySet implements CustomPropertySet<Serv
                 .add();
             table
                 .column(ContactorOperationDomainExtension.FieldNames.LOAD_LIMIT_ENABLED.databaseName())
-                .varChar()
+                .bool()
                 .map(ContactorOperationDomainExtension.FieldNames.LOAD_LIMIT_ENABLED.javaName())
                 .add();
             table

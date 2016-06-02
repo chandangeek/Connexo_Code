@@ -246,7 +246,7 @@ public class ContactorOperationCustomPropertySet implements CustomPropertySet<Se
                 .add();
             table
                 .column(ContactorOperationDomainExtension.FieldNames.LOAD_LIMIT_ENABLED.databaseName())
-                .varChar()
+                .bool()
                 .map(ContactorOperationDomainExtension.FieldNames.LOAD_LIMIT_ENABLED.javaName())
                 .add();
             table
