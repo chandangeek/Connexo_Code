@@ -1,13 +1,24 @@
 package com.elster.jupiter.fileimport.impl;
 
-import com.elster.jupiter.fileimport.ImportLogEntry;
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.FileImporterProperty;
+import com.elster.jupiter.fileimport.ImportLogEntry;
 import com.elster.jupiter.fileimport.ImportSchedule;
-import com.elster.jupiter.orm.*;
+import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.ColumnConversion;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DeleteRule;
+import com.elster.jupiter.orm.Table;
 
-import static com.elster.jupiter.orm.ColumnConversion.*;
-import static com.elster.jupiter.orm.Table.*;
+import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
+import static com.elster.jupiter.orm.ColumnConversion.CHAR2PATH;
+import static com.elster.jupiter.orm.ColumnConversion.CLOB2STRING;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
+import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
+import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 
 enum TableSpecs {
 
@@ -40,10 +51,10 @@ enum TableSpecs {
         void describeTable(Table table) {
             table.map(FileImportOccurrenceImpl.class);
             Column idColumn = table.addAutoIdColumn();
-            Column importScheduleColumn = table.column("IMPORTSCHEDULE").type("number").notNull().conversion(NUMBER2LONG).map("importScheduleId").add();
-            Column trigger = table.column("TRIGGERTIME").type("number").conversion(NUMBER2INSTANT).map("triggerTime").add();
+            Column importScheduleColumn = table.column("IMPORTSCHEDULE").number().notNull().conversion(NUMBER2LONG).map("importScheduleId").add();
+            Column trigger = table.column("TRIGGERTIME").number().conversion(NUMBER2INSTANT).map("triggerTime").add();
             table.column("FILENAME").varChar(DESCRIPTION_LENGTH).notNull().conversion(CHAR2PATH).map("path").add();
-            table.column("STATUS").type("number").notNull().conversion(NUMBER2ENUM).map("status").add();
+            table.column("STATUS").number().notNull().conversion(NUMBER2ENUM).map("status").add();
             table.column("STARTDATE").number().conversion(ColumnConversion.NUMBER2INSTANT).map("startDate").add();
             table.column("ENDDATE").number().conversion(ColumnConversion.NUMBER2INSTANT).map("endDate").add();
             table.column("MESSAGE").varChar(Table.DESCRIPTION_LENGTH).map("message").add();
