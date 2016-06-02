@@ -1,8 +1,8 @@
 package com.elster.jupiter.soap.whiteboard.cxf.impl;
 
-import com.elster.jupiter.soap.whiteboard.EndPointConfiguration;
-import com.elster.jupiter.soap.whiteboard.InboundEndPointProvider;
-import com.elster.jupiter.soap.whiteboard.SoapProviderSupportFactory;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.SoapProviderSupportFactory;
 import com.elster.jupiter.util.osgi.ContextClassLoaderResource;
 
 import org.apache.cxf.annotations.SchemaValidation;

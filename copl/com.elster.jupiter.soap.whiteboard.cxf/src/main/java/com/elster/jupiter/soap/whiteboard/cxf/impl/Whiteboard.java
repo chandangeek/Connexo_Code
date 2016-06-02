@@ -1,9 +1,9 @@
 package com.elster.jupiter.soap.whiteboard.cxf.impl;
 
-import com.elster.jupiter.soap.whiteboard.EndPointProvider;
-import com.elster.jupiter.soap.whiteboard.InboundEndPointProvider;
-import com.elster.jupiter.soap.whiteboard.OutboundEndPointProvider;
-import com.elster.jupiter.soap.whiteboard.WebServicesService;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 
 import org.apache.cxf.transport.servlet.CXFNonSpringServlet;
 import org.osgi.service.component.annotations.Component;

@@ -1,7 +1,7 @@
 package com.elster.jupiter.soap.whiteboard.cxf.impl;
 
-import com.elster.jupiter.soap.whiteboard.EndPointConfiguration;
-import com.elster.jupiter.soap.whiteboard.OutboundEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointProvider;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;

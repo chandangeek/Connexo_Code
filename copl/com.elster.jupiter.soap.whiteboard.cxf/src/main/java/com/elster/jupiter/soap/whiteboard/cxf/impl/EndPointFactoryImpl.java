@@ -1,6 +1,6 @@
 package com.elster.jupiter.soap.whiteboard.cxf.impl;
 
-import com.elster.jupiter.soap.whiteboard.EndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointProvider;
 
 /**
  * Created by bvn on 5/11/16.

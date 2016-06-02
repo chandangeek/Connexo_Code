@@ -2,11 +2,11 @@ package com.elster.jupiter.soap.whiteboard.cxf.impl;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.soap.whiteboard.EndPointConfiguration;
-import com.elster.jupiter.soap.whiteboard.InboundEndPointProvider;
-import com.elster.jupiter.soap.whiteboard.OutboundEndPointProvider;
-import com.elster.jupiter.soap.whiteboard.SoapProviderSupportFactory;
-import com.elster.jupiter.soap.whiteboard.WebServicesService;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.SoapProviderSupportFactory;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;

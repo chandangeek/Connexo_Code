@@ -1,0 +1,58 @@
+package com.elster.jupiter.soap.whiteboard.cxf.impl;
+
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
+import com.elster.jupiter.util.exception.MessageSeed;
+
+import java.util.logging.Level;
+
+/**
+ * Created by bvn on 5/3/16.
+ */
+public enum MessageSeeds implements MessageSeed {
+
+    FIELD_REQUIRED(1, Keys.FIELD_REQUIRED, "This field is required", Level.SEVERE),
+    FIELD_TOOL_LONG(2, Keys.FIELD_TOO_LONG, "This field is too long", Level.SEVERE);
+
+    private final int number;
+    private final String key;
+    private final String defaultFormat;
+    private final Level level;
+
+    MessageSeeds(int number, String key, String defaultFormat, Level level) {
+        this.number = number;
+        this.key = key;
+        this.defaultFormat = defaultFormat;
+        this.level = level;
+    }
+
+    @Override
+    public String getModule() {
+        return WebServicesService.COMPONENT_NAME;
+    }
+
+    @Override
+    public int getNumber() {
+        return this.number;
+    }
+
+    @Override
+    public String getKey() {
+        return this.key;
+    }
+
+    @Override
+    public String getDefaultFormat() {
+        return this.defaultFormat;
+    }
+
+    @Override
+    public Level getLevel() {
+        return this.level;
+    }
+
+    public static interface Keys {
+        String FIELD_REQUIRED = "field.required";
+        String FIELD_TOO_LONG = "ThisFieldIsTooLong";
+    }
+
+}

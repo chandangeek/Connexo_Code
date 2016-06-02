@@ -1,11 +1,12 @@
 package com.elster.jupiter.soap.whiteboard.cxf.impl.gogo;
 
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.soap.whiteboard.EndPointConfigurationService;
-import com.elster.jupiter.soap.whiteboard.LogLevel;
-import com.elster.jupiter.soap.whiteboard.WebServicesService;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.gogo.MysqlPrint;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;

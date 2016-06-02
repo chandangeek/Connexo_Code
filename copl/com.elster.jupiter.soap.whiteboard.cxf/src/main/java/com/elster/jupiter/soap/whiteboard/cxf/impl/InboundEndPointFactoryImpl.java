@@ -1,7 +1,7 @@
 package com.elster.jupiter.soap.whiteboard.cxf.impl;
 
-import com.elster.jupiter.soap.whiteboard.EndPointConfiguration;
-import com.elster.jupiter.soap.whiteboard.InboundEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointProvider;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
