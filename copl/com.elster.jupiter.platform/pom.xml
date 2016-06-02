@@ -189,12 +189,6 @@
                 <scope>provided</scope>
             </dependency>
             <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>install</artifactId>
-                <version>1.2.0${revision}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
                 <groupId>com.elster.partners</groupId>
                 <artifactId>jbpm.extension</artifactId>
                 <version>1.1.0${revision}</version>
@@ -447,12 +441,6 @@
                 <version>1.2.0${revision}</version>
                 <scope>provided</scope>
             </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>yellowfin.installer</artifactId>
-                <version>1.2.0${revision}</version>
-                <scope>provided</scope>
-            </dependency>
 
             <!-- Module dependencies only for test -->
             <dependency>
@@ -676,7 +664,6 @@
                 <module>../com.elster.jupiter.fsm.rest</module>
                 <module>../com.elster.jupiter.ftpclient</module>
                 <module>../com.elster.jupiter.http.whiteboard</module>
-                <module>../com.elster.jupiter.install</module>
                 <module>../com.elster.jupiter.launcher</module>
                 <module>../com.elster.jupiter.loaderjs</module>
                 <module>../com.elster.jupiter.login.app</module>
