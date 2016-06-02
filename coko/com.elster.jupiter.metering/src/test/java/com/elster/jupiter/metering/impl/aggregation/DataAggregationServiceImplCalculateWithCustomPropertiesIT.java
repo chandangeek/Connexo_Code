@@ -22,8 +22,10 @@ import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.license.impl.LicenseServiceImpl;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
@@ -36,6 +38,7 @@ import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableBuilder;
+import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
@@ -114,9 +117,13 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
 
+    public static final String FIFTEEN_MINS_PRIMARY_METERED_POWER_MRID = "0.0.2.1.1.2.12.0.0.0.0.0.0.0.0.3.38.0";
+    public static final String FIFTEEN_MINS_NET_CONSUMPTION_MRID = "0.0.2.1.4.2.12.0.0.0.0.0.0.0.0.3.72.0";
     public static final String MONTHLY_NET_CONSUMPTION_MRID = "13.0.0.1.4.2.12.0.0.0.0.0.0.0.0.3.72.0";
     private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private static Injector injector;
+    private static ReadingType fifteenMinuteskWForward;
+    private static ReadingType fifteenMinutesNetConsumption;
     private static ReadingType monthlyNetConsumption;
     private static ServiceCategory ELECTRICITY;
     private static MetrologyPurpose METROLOGY_PURPOSE;
@@ -129,11 +136,15 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
 
     private MetrologyContract contract;
     private UsagePoint usagePoint;
+    private MeterActivation meterActivation;
+    private Channel power15MinChannel;
     private MetrologyConfiguration configuration;
     private long customPropertySetId;
+    private long localPowerRequirementId;
     private long netConsumptionDeliverableId;
     private SqlBuilder antennaCountPropertyWithClauseBuilder;
     private SqlBuilder antennaPowerPropertyWithClauseBuilder;
+    private SqlBuilder localPowerWithClauseBuilder;
     private SqlBuilder netConsumptionWithClauseBuilder;
     private SqlBuilder selectClauseBuilder;
     private SqlBuilder completeSqlBuilder;
@@ -172,7 +183,9 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
                     new TimeModule(),
                     new IdsModule(),
                     new MeteringModule(
-                            MONTHLY_NET_CONSUMPTION_MRID                // macro period: monthly, measuring period: none, primary metered, net (kWh)
+                            FIFTEEN_MINS_PRIMARY_METERED_POWER_MRID,
+                            FIFTEEN_MINS_NET_CONSUMPTION_MRID,
+                            MONTHLY_NET_CONSUMPTION_MRID
                     ),
                     new UserModule(),
                     new PartyModule(),
@@ -231,6 +244,8 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
 
     private static void setupReadingTypes() {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+            fifteenMinuteskWForward = getMeteringService().getReadingType("0.0.2.1.1.2.12.0.0.0.0.0.0.0.0.3.38.0").get();
+            fifteenMinutesNetConsumption = getMeteringService().getReadingType(FIFTEEN_MINS_NET_CONSUMPTION_MRID).get();
             monthlyNetConsumption = getMeteringService().getReadingType(MONTHLY_NET_CONSUMPTION_MRID).get();
             ctx.commit();
         }
@@ -269,6 +284,7 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
     public void initializeMocks() {
         this.antennaCountPropertyWithClauseBuilder = new SqlBuilder();
         this.antennaPowerPropertyWithClauseBuilder = new SqlBuilder();
+        this.localPowerWithClauseBuilder = new SqlBuilder();
         this.netConsumptionWithClauseBuilder = new SqlBuilder();
         this.selectClauseBuilder = new SqlBuilder();
         this.completeSqlBuilder = new SqlBuilder();
@@ -278,6 +294,7 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
         when(sqlBuilderFactory.newClauseAwareSqlBuilder()).thenReturn(clauseAwareSqlBuilder);
         when(clauseAwareSqlBuilder.with(eq("rid_cps_" + this.customPropertySetId + "_" + AntennaFields.POWER.javaName()), any(Optional.class), anyVararg())).thenReturn(this.antennaPowerPropertyWithClauseBuilder);
         when(clauseAwareSqlBuilder.with(eq("rid_cps_" + this.customPropertySetId + "_" + AntennaFields.COUNT.javaName()), any(Optional.class), anyVararg())).thenReturn(this.antennaCountPropertyWithClauseBuilder);
+        when(clauseAwareSqlBuilder.with(matches("rid" + this.localPowerRequirementId + ".*1"), any(Optional.class), anyVararg())).thenReturn(this.localPowerWithClauseBuilder);
         when(clauseAwareSqlBuilder.with(matches("rod" + this.netConsumptionDeliverableId + ".*1"), any(Optional.class), anyVararg())).thenReturn(this.netConsumptionWithClauseBuilder);
         when(clauseAwareSqlBuilder.select()).thenReturn(this.selectClauseBuilder);
         when(clauseAwareSqlBuilder.finish()).thenReturn(this.completeSqlBuilder);
@@ -290,7 +307,7 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
     }
 
     /**
-     * Tests a very simple case:
+     * Tests the case that uses only custom property values:
      * Metrology configuration
      *    custom properties:
      *       number of antenna's (antennaCount)
@@ -308,7 +325,7 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
      */
     @Test
     @Transactional
-    public void monthlyNetConsumption() {
+    public void monthlyNetConsumptionFromCustomProperties() {
         DataAggregationService service = this.testInstance();
         this.setupMeter("monthlyNetConsumption");
         this.setupUsagePoint("monthlyNetConsumption");
@@ -385,6 +402,99 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
         }
     }
 
+    /**
+     * Tests the case that combines custom property values with 15min values:
+     * Metrology configuration
+     *    custom properties:
+     *       number of antenna's (antennaCount) - not used in this case
+     *       antenna power (antennaPower)
+     *    requirements:
+     *       localPower ::= any W  with flow = forward
+     *    deliverables:
+     *       netConsumption (15min kWh) ::= antennaPower + localPower
+     * Device:
+     *    meter activations:
+     *       Jan 1st 2016 -> forever: no specific data needed
+     *    custom properties:
+     *       Jan 1st 2016 -> forever
+     *           antennaCount -> 2
+     *           antennaPower -> 30
+     */
+    @Test
+    @Transactional
+    public void fifteenMinsNetConsumptionFromCustomPropertiesAndOther15MinValue() {
+        DataAggregationService service = this.testInstance();
+        this.setupMeter("15minNetConsumption");
+        this.setupUsagePoint("15minNetConsumption");
+        this.activateMeterWith15MinPower();
+
+        // Setup MetrologyConfiguration
+        this.configuration = getMetrologyConfigurationService().newMetrologyConfiguration("15minNetConsumption", ELECTRICITY).create();
+
+        // Add the CustomPropertySet
+        RegisteredCustomPropertySet registeredCustomPropertySet = getCustomPropertySetService().findActiveCustomPropertySet(AntennaDetailsCustomPropertySet.ID).get();
+        this.customPropertySetId = registeredCustomPropertySet.getId();
+        System.out.println("15minNetConsumption::CUSTOM_PROPERTY_SET_ID = " + this.customPropertySetId);
+        this.configuration.addCustomPropertySet(registeredCustomPropertySet);
+        PropertySpec antennaPowerPropertySpec = this.getAntennaPowerPropertySpec(registeredCustomPropertySet);
+
+        // Setup configuration requirements
+        ReadingTypeRequirement localPower = this.configuration.newReadingTypeRequirement("localPower").withReadingType(fifteenMinuteskWForward);
+        this.localPowerRequirementId = localPower.getId();
+        System.out.println("15minNetConsumption::LOCALPOWER_REQUIREMENT_ID = " + this.localPowerRequirementId);
+
+        // Setup configuration deliverables
+        ReadingTypeDeliverableBuilder builder = this.configuration.newReadingTypeDeliverable("consumption", fifteenMinutesNetConsumption, Formula.Mode.AUTO);
+        ReadingTypeDeliverable netConsumption =
+                builder.build(
+                    builder.plus(
+                        builder.requirement(localPower),
+                        builder.property(registeredCustomPropertySet.getCustomPropertySet(), antennaPowerPropertySpec)));
+
+        this.netConsumptionDeliverableId = netConsumption.getId();
+        System.out.println("15minNetConsumption::NET_CONSUMPTION_DELIVERABLE_ID = " + this.netConsumptionDeliverableId);
+
+        // Now that all custom properties have been configured and all deliverables have been created, we can mock the SqlBuilders
+        this.initializeSqlBuilders();
+
+        // Apply MetrologyConfiguration to UsagePoint
+        this.usagePoint.apply(this.configuration, jan1st2016);
+
+        this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
+        this.contract.addDeliverable(netConsumption);
+
+        // Business method
+        try {
+            service.calculate(this.usagePoint, this.contract, year2016());
+        } catch (UnderlyingSQLFailedException e) {
+            // Expected because the statement contains WITH clauses
+            // Asserts:
+            verify(clauseAwareSqlBuilder)
+                    .with(
+                        eq("rid_cps_" + this.customPropertySetId + "_" + AntennaFields.POWER.javaName()),
+                        any(Optional.class),
+                        anyVararg());
+            String propertySql = this.antennaPowerPropertyWithClauseBuilder.getText().replace("\n", " ").toLowerCase();
+            assertThat(propertySql).matches(".*\\(select cps." + AntennaFields.POWER.databaseName().toLowerCase() + " as value, cps.starttime, cps.endtime from \\(select " + AntennaFields.POWER.databaseName().toLowerCase() + ", starttime, endtime from mtr_tst_antenna.*cps\\)");
+            verify(clauseAwareSqlBuilder)
+                    .with(
+                        matches("rod" + this.netConsumptionDeliverableId + ".*1"),
+                        any(Optional.class),
+                        anyVararg());
+            String netConsumptionSql = this.netConsumptionWithClauseBuilder.getText().replace("\n", " ");
+            assertThat(netConsumptionSql).matches(".*rid" + this.localPowerRequirementId + "_" + this.netConsumptionDeliverableId + "_1\\.value \\+ rid_cps_" + this.customPropertySetId + "_" + AntennaFields.POWER.javaName() + "\\.value.*");
+            // Assert that the with clauses for both properties are joined on the utc timestamp
+            assertThat(netConsumptionSql)
+                    .matches("SELECT.*FROM\\s*rid" + this.localPowerRequirementId + "_" + this.netConsumptionDeliverableId + "_1\\s*JOIN.*");
+            assertThat(netConsumptionSql)
+                    .matches("SELECT.*JOIN\\s*rid_cps_" + this.customPropertySetId + "_" + AntennaFields.POWER.javaName() + "\\s*ON\\s*rid_cps_" + this.customPropertySetId + "_" + AntennaFields.POWER.javaName() + "\\.timestamp < rid" + this.localPowerRequirementId + "_" + this.netConsumptionDeliverableId + "_1.timestamp.*");
+            verify(clauseAwareSqlBuilder).select();
+            // Assert that the overall select statement selects the target reading type
+            String overallSelectWithoutNewlines = this.selectClauseBuilder.getText().replace("\n", " ");
+            assertThat(overallSelectWithoutNewlines).matches(".*'" + this.mRID2GrepPattern(FIFTEEN_MINS_NET_CONSUMPTION_MRID) + "'.*");
+        }
+    }
+
     private Range<Instant> year2016() {
         return Range.atLeast(jan1st2016);
     }
@@ -418,7 +528,12 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
     }
 
     private void activateMeter() {
-        this.usagePoint.activate(this.meter, jan1st2016);
+        this.meterActivation = this.usagePoint.activate(this.meter, jan1st2016);
+    }
+
+    private void activateMeterWith15MinPower() {
+        this.activateMeter();
+        this.power15MinChannel = this.meterActivation.createChannel(fifteenMinuteskWForward);
     }
 
     private String mRID2GrepPattern(String mRID) {

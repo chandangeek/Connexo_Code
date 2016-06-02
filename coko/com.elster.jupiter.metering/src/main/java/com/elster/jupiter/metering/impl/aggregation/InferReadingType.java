@@ -117,7 +117,7 @@ public class InferReadingType implements ServerExpressionNode.Visitor<VirtualRea
             return this.enforceReadingType(children, this.requestedReadingType);
         } else {
             if (preferredReadingTypes.stream().anyMatch(VirtualReadingType::isUnsupported)) {
-                throw unsupportedOperationExceptionSupplier.get();
+                throw new UnsupportedOperationException("At least one of the expression nodes represents an unsupported reading type");
             }
             if (preferredReadingTypes.size() == 1) {
                 // All child nodes are fine with the same reading type, simply enforce that one
