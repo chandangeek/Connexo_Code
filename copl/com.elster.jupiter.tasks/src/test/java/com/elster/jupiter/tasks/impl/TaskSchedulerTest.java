@@ -1,42 +1,39 @@
 package com.elster.jupiter.tasks.impl;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
-
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.LongAdder;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.mockito.MockitoAnnotations;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
 
-@RunWith(MockitoJUnitRunner.class)
 public class TaskSchedulerTest {
 
     private TaskScheduler taskScheduler;
 
-    @Mock
     private TaskOccurrenceLauncher launcher;
 
-    @Mock
     private CountDownLatch latch;
+
+    private LongAdder invocationCounter;
+
 
     @Before
     public void setUp() {
         latch = new CountDownLatch(3);
-        doAnswer(new Answer<Void>() {
-            @Override
-            public Void answer(InvocationOnMock invocationOnMock) throws Throwable {
-                latch.countDown();
-                return null;
-            }
-        }).when(launcher).run();
+        invocationCounter = new LongAdder();
 
+        launcher = () -> {
+            synchronized (this) {
+                invocationCounter.increment();
+                latch.countDown();
+            }
+        };
         taskScheduler = new TaskScheduler(launcher, 10, TimeUnit.MILLISECONDS);
     }
 
@@ -45,20 +42,40 @@ public class TaskSchedulerTest {
 
     }
 
-    @Test(timeout = 1000)
-    public void test() throws InterruptedException {
+    @Test(timeout = 10000)
+    public void testScheduling() throws InterruptedException {
 
-        Thread testThread = new Thread(taskScheduler);
+        CountDownLatch threadStartedLatch = new CountDownLatch(1);
+        Thread testThread = new Thread(() -> {
+            threadStartedLatch.countDown();
+            taskScheduler.run();
+        });
         testThread.start();
+        threadStartedLatch.await();
 
-        boolean onTime = latch.await(50, TimeUnit.MILLISECONDS);
+        boolean onTime = latch.await(5000, TimeUnit.MILLISECONDS);
 
-        verify(launcher, atLeast(3)).run();
+        synchronized (launcher) {
+            assertThat(invocationCounter.intValue()).isGreaterThanOrEqualTo(3);
+        }
         assertThat(onTime).isTrue();
 
         testThread.interrupt();
 
         assertThat(testThread.getState() == Thread.State.TERMINATED);
+    }
+
+    @Ignore // use to evalute stability of test()
+    @Test
+    public void testLoop() throws InterruptedException {
+        for (int i = 0; i < 1000; i++) {
+            if (i % 20 == 0) {
+                System.out.println(i);
+            }
+            testScheduling();
+            MockitoAnnotations.initMocks(this);
+            setUp();
+        }
     }
 
 }
