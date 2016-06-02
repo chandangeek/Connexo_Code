@@ -11,6 +11,7 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
@@ -109,8 +110,10 @@ public class UsagePointConsoleCommands {
                         UsagePoint up = meteringService
                                 .findUsagePoint(usagePointMRID)
                                 .orElseThrow(() -> new IllegalArgumentException("Usage Point " + usagePointMRID + " not found."));
-                        MetrologyConfiguration mc = metrologyConfigurationService
+                        UsagePointMetrologyConfiguration mc = metrologyConfigurationService
                                 .findMetrologyConfiguration(metrologyConfigName)
+                                .filter(config -> config instanceof UsagePointMetrologyConfiguration)
+                                .map(UsagePointMetrologyConfiguration.class::cast)
                                 .orElseThrow(() -> new IllegalArgumentException("Metrology configuration " + metrologyConfigName + " not found."));
                         usagePointConfigurationService.link(up, mc);
                     });

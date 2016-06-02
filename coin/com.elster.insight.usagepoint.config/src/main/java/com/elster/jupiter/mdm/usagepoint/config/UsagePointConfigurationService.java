@@ -2,6 +2,7 @@ package com.elster.jupiter.mdm.usagepoint.config;
 
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.validation.ValidationRuleSet;
 
 import aQute.bnd.annotation.ProviderType;
@@ -14,9 +15,9 @@ public interface UsagePointConfigurationService {
 
     String COMPONENTNAME = "UPC";
 
-    void link(UsagePoint up, MetrologyConfiguration mc);
+    void link(UsagePoint up, UsagePointMetrologyConfiguration mc);
 
-    Boolean unlink(UsagePoint up, MetrologyConfiguration mc);
+    Boolean unlink(UsagePoint up, UsagePointMetrologyConfiguration mc);
 
     Optional<MetrologyConfiguration> findMetrologyConfigurationForUsagePoint(UsagePoint up);
 
