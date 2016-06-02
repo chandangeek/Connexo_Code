@@ -41,6 +41,8 @@ public final class UserImpl implements User {
     private boolean status;
     private Instant createTime;
     private Instant modTime;
+    private Instant lastSuccessfulLogin;
+    private Instant lastUnSuccessfulLogin;
     private String languageTag;
     private Reference<UserDirectory> userDirectory = ValueReference.absent();
 
@@ -344,5 +346,21 @@ public final class UserImpl implements User {
     @Override
     public Instant getModifiedDate() {
         return modTime;
+    }
+
+    public Instant getLastSuccessfulLogin() {
+        return lastSuccessfulLogin;
+    }
+
+    public void setLastSuccessfulLogin(Instant lastSuccessfulLogin) {
+        this.lastSuccessfulLogin = lastSuccessfulLogin;
+    }
+
+    public Instant getLastUnSuccessfulLogin() {
+        return lastUnSuccessfulLogin;
+    }
+
+    public void setLastUnSuccessfulLogin(Instant lastUnSuccessfulLogin) {
+        this.lastUnSuccessfulLogin = lastUnSuccessfulLogin;
     }
 }
