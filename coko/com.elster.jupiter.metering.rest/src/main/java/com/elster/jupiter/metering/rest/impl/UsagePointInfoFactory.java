@@ -4,6 +4,7 @@ import com.elster.jupiter.license.License;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointBuilder;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -71,7 +72,8 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
     public UsagePointTranslatedInfo from(UsagePoint usagePoint) {
         UsagePointTranslatedInfo info = new UsagePointTranslatedInfo(usagePoint, clock);
         info.displayServiceCategory = usagePoint.getServiceCategory().getKind().getDisplayName(thesaurus);
-        usagePoint.getMetrologyConfiguration()
+        usagePoint.getCurrentEffectiveMetrologyConfiguration()
+                .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration)
                 .ifPresent(metrologyConfiguration -> info.displayMetrologyConfiguration = metrologyConfiguration.getName());
         return info;
     }

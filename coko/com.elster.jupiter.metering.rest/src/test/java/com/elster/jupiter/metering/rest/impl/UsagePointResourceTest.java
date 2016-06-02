@@ -61,7 +61,7 @@ public class UsagePointResourceTest extends MeteringApplicationJerseyTest {
         when(usagePoint.getModificationDate()).thenReturn(Instant.EPOCH);
         when(usagePoint.getLocation()).thenReturn(Optional.empty());
         when(usagePoint.getGeoCoordinates()).thenReturn(Optional.empty());
-        when(usagePoint.getMetrologyConfiguration()).thenReturn(Optional.empty());
+        when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.empty());
     }
 
     @Test
