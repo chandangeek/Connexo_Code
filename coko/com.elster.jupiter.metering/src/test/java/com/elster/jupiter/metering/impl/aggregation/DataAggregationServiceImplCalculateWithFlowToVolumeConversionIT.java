@@ -41,10 +41,11 @@ import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
-import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
@@ -138,7 +139,6 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
             bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
             bind(DataVaultService.class).toInstance(mock(DataVaultService.class));
             bind(SearchService.class).toInstance(mock(SearchService.class));
-            bind(PropertySpecService.class).toInstance(mock(PropertySpecService.class));
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }
@@ -166,6 +166,8 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
                             FIFTEEN_MINS_NET_CONSUMPTION_MRID,          // no macro period, measuring period =  15 min, primary metered, net (kWh)
                             MONTHLY_NET_CONSUMPTION_MRID                // macro period: monthly, measuring period: none, primary metered, net (kWh)
                     ),
+                    new BasicPropertiesModule(),
+                    new TimeModule(),
                     new UserModule(),
                     new PartyModule(),
                     new EventsModule(),
