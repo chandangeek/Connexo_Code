@@ -9,10 +9,10 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
 
-import static com.elster.jupiter.orm.DeleteRule.CASCADE;
-import static com.elster.jupiter.orm.Table.NAME_LENGTH;
-import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
+import static com.elster.jupiter.orm.DeleteRule.CASCADE;
+import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
+import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 
 public enum TableSpecs {
 
@@ -34,7 +34,7 @@ public enum TableSpecs {
             table.map(BpmProcessPropertyImpl.class);
 
             Column nameColumn = table.column("NAME").map("name").varChar(NAME_LENGTH).notNull().add();
-            Column processColumn = table.column("PROCESSID").type("number").conversion(NUMBER2LONG).notNull().add();
+            Column processColumn = table.column("PROCESSID").number().conversion(NUMBER2LONG).notNull().add();
             table.column("VALUE").map("value").varChar(DESCRIPTION_LENGTH).notNull().add();
             table.addAuditColumns();
 
