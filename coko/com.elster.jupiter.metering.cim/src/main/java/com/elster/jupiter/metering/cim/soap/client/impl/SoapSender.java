@@ -10,7 +10,7 @@ import com.elster.jupiter.metering.cim.CimMessageHandlerFactory;
 import com.elster.jupiter.metering.cim.Sender;
 import com.elster.jupiter.metering.cim.UnderlyingXmlException;
 import com.elster.jupiter.metering.cim.impl.Marshaller;
-import com.elster.jupiter.soap.whiteboard.SoapProviderSupportFactory;
+import com.elster.jupiter.soap.whiteboard.cxf.SoapProviderSupportFactory;
 import com.elster.jupiter.util.osgi.ContextClassLoaderResource;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;

@@ -2,7 +2,7 @@ package com.elster.jupiter.metering.cim.soap.impl;
 
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.soap.whiteboard.InboundEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointProvider;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
