@@ -30,6 +30,7 @@ Ext.define('Mdc.filemanagement.controller.FileManagement', {
         }
     ],
 
+    fromEditForm: false,
     deviceTypeId: null,
     init: function () {
         var me = this;
@@ -47,6 +48,9 @@ Ext.define('Mdc.filemanagement.controller.FileManagement', {
             'files-grid actioncolumn': {
                 removeEvent: me.removeFile
             },
+            '#enable-file-management-btn': {
+                click: me.goToEditPage
+            }
             //'#file-management-radio': {
             //    change
             //}
@@ -62,8 +66,10 @@ Ext.define('Mdc.filemanagement.controller.FileManagement', {
             success: function (deviceType) {
                 view = Ext.widget('device-type-files-setup', {
                     deviceTypeId: deviceTypeId,
-                    fileManagementEnabled: deviceType.get('fileManagementEnabled')
+                    fileManagementEnabled: deviceType.get('fileManagementEnabled'),
+                    fromEditForm: me.fromEditForm
                 });
+                me.fromEditForm = false;
                 view.down('files-devicetype-specifications-form').loadRecord(deviceType);
                 store.load({
                     callback: function (records, operation, success) {
@@ -95,6 +101,7 @@ Ext.define('Mdc.filemanagement.controller.FileManagement', {
                     fileManagementEnabled: deviceType.get('fileManagementEnabled')
                 });
                 me.getEditForm().loadRecord(deviceType);
+                me.fromEditForm = true;
                 me.deviceTypeId = deviceTypeId;
                 view.setLoading(true);
                 view.suspendLayouts();
@@ -168,7 +175,7 @@ Ext.define('Mdc.filemanagement.controller.FileManagement', {
                             record.save({
                                 success: function () {
                                     me.getController('Uni.controller.history.Router').getRoute('administration/devicetypes/view/filemanagement', {deviceTypeId: me.deviceTypeId}).forward();
-                                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('filemanagement.disabled', 'MDC', 'File management disabled'))
+                                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('filemanagement.specificationsSaved', 'MDC', 'File management specifications saved'))
                                 },
                                 failure: function (record, operation) {
                                     formErrorsPanel.show();
@@ -188,7 +195,7 @@ Ext.define('Mdc.filemanagement.controller.FileManagement', {
             record.save({
                 success: function () {
                     me.getController('Uni.controller.history.Router').getRoute('administration/devicetypes/view/filemanagement', {deviceTypeId: me.deviceTypeId}).forward();
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('filemanagement.enabled', 'MDC', 'File management enabled'));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('filemanagement.specificationsSaved', 'MDC', 'File management specifications saved'));
                 },
                 failure: function (record, operation) {
                     formErrorsPanel.show();

@@ -11,6 +11,7 @@ Ext.define('Mdc.filemanagement.view.Setup', {
 
     deviceTypeId: null,
     fileManagementEnabled: false,
+    fromEditForm: false,
 
     initComponent: function () {
         var me = this;
@@ -29,68 +30,52 @@ Ext.define('Mdc.filemanagement.view.Setup', {
             }
         ];
 
-        if (me.fileManagementEnabled) {
+        me.content = {
+            ui: 'large',
+            title: Uni.I18n.translate('general.fileManagement', 'MDC', 'File management'),
+            items: [
+                {
+                    xtype: 'tabpanel',
+                    ui: 'large',
+                    activeTab: me.fileManagementEnabled && !me.fromEditForm ? 1 : 0,
+                    items: [
+                        {
+                            title: Uni.I18n.translate('general.specifications', 'MDC', 'Specifications'),
+                            itemId: 'files-specifications-tab',
+                            items: [
+                                {
+                                    xtype: 'files-specifications-preview-panel'
+                                }
+                            ]
+                        },
+                        {
+                            title: Uni.I18n.translate('general.files', 'MDC', 'Files'),
+                            itemId: 'grid-tab',
+                            //disabled: true,
+                            items: [
+                                {
 
-            me.content = {
-                ui: 'large',
-                title: Uni.I18n.translate('general.fileManagement', 'MDC', 'File management'),
-                items: [
-                    {
-                        xtype: 'tabpanel',
-                        ui: 'large',
-                        activeTab: me.fileManagementEnabled ? 1 : 0,
-                        items: [
-                            {
-                                title: Uni.I18n.translate('general.specifications', 'MDC', 'Specifications'),
-                                itemId: 'files-specifications-tab',
-                                items: [
-                                    {
-                                        xtype: 'files-specifications-preview-panel'
-                                    }
-                                ]
-                            },
-                            {
-                                title: Uni.I18n.translate('general.files', 'MDC', 'Files'),
-                                itemId: 'grid-tab',
-                                //disabled: true,
-                                items: [
-                                    {
-                                        xtype: 'form',
-                                        items: [
-                                            {
-                                                xtype: 'uni-form-empty-message',
-                                                itemId: 'maxFileSizeMessage',
-                                                margin: '5 0 5 0',
-                                                text: Uni.I18n.translate('filemanagement.maxAllowedFileSize2MB', 'MDC', 'The maximum allowed file size is 2MB')
-                                            }
-                                        ]
-                                    },
+                                            xtype: 'uni-form-empty-message',
+                                            itemId: 'maxFileSizeMessage',
+                                            margin: '5 0 5 0',
+                                            text: Uni.I18n.translate('filemanagement.maxAllowedFileSize2MB', 'MDC', 'The maximum allowed file size is 2MB')
 
-                                    {
-                                        xtype: 'files-devicetype-preview-container',
-                                        itemId: 'files-devicetype-preview-container',
-                                        deviceTypeId: me.deviceTypeId
-                                    }
 
-                                ]
-                            }
+                                },
+                                {
+                                    xtype: 'files-devicetype-preview-container',
+                                    itemId: 'files-devicetype-preview-container',
+                                    fileManagementEnabled: me.fileManagementEnabled,
+                                    deviceTypeId: me.deviceTypeId
+                                }
 
-                        ]
-                    }
-                ]
-            };
-        } else {
-            me.content = {
-                ui: 'large',
-                items: [
-                    {
-                        xtype: 'files-specifications-preview-panel',
-                        showTitle: true
-                    }
-                ],
-                margin: '-17 0 0 0'
-            }
-        }
+                            ]
+                        }
+
+                    ]
+                }
+            ]
+        };
 
         me.callParent(arguments);
     }

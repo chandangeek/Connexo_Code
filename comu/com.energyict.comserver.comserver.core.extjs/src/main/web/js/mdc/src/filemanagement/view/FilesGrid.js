@@ -8,6 +8,7 @@ Ext.define('Mdc.filemanagement.view.FilesGrid', {
         'Uni.view.toolbar.PagingTop'
     ],
     forceFit: true,
+    fileManagementEnabled: false,
 
     initComponent: function () {
         var me = this;
@@ -22,7 +23,7 @@ Ext.define('Mdc.filemanagement.view.FilesGrid', {
                 dataIndex: 'creationDate',
                 flex: 3,
                 renderer: function (value) {
-                    return value && value !== 0 ? Uni.DateTime.formatDateTime(new Date(value), Uni.DateTime.LONG, Uni.DateTime.LONG) : '-';
+                    return value && value !== 0 ? Uni.DateTime.formatDateTime(new Date(value), Uni.DateTime.SHORT, Uni.DateTime.SHORT) : '-';
                 }
             },
             {
@@ -74,7 +75,8 @@ Ext.define('Mdc.filemanagement.view.FilesGrid', {
                             },
                             buttonOnly: true,
                             itemId: 'add-file-btn',
-                            vtype: 'fileUpload'
+                            vtype: 'fileUpload',
+                            disabled: !me.fileManagementEnabled
                         }]
                     }
                 ],
