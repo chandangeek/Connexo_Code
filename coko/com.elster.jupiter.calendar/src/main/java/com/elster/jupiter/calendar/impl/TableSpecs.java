@@ -39,8 +39,8 @@ public enum TableSpecs {
             table.column("NAME").varChar().notNull().map(CalendarImpl.Fields.NAME.fieldName()).add();
             Column mRIDColumn = table.column("MRID").varChar().map(CalendarImpl.Fields.MRID.fieldName()).add();
             table.column("DESCRIPTION").varChar().map(CalendarImpl.Fields.DESCRIPTION.fieldName()).add();
-            table.column("STARTYEAR").type("number").notNull().conversion(ColumnConversion.NUMBER2INT).map(CalendarImpl.Fields.STARTYEAR.fieldName()).add();
-            table.column("ENDYEAR").type("number").conversion(ColumnConversion.NUMBER2INT).map(CalendarImpl.Fields.ENDYEAR.fieldName()).add();
+            table.column("STARTYEAR").number().notNull().conversion(ColumnConversion.NUMBER2INT).map(CalendarImpl.Fields.STARTYEAR.fieldName()).add();
+            table.column("ENDYEAR").number().conversion(ColumnConversion.NUMBER2INT).map(CalendarImpl.Fields.ENDYEAR.fieldName()).add();
             table.column("ABSTRACT_CALENDAR").bool().notNull().map(CalendarImpl.Fields.ABSTRACT_CALENDAR.fieldName()).add();
             table.column("TIMEZONENAME").varChar().map(CalendarImpl.Fields.TIMEZONENAME.fieldName()).add();
             Column categoryColumn = table.column(CalendarImpl.Fields.CATEGORY.fieldName()).number().notNull().add();
@@ -61,7 +61,7 @@ public enum TableSpecs {
             table.map(EventImpl.class);
             Column idColumn = table.addAutoIdColumn();
             table.column("NAME").varChar().notNull().map(EventImpl.Fields.NAME.fieldName()).add();
-            table.column("CODE").type("number").notNull().conversion(ColumnConversion.NUMBER2LONG).map(EventImpl.Fields.CODE.fieldName()).add();
+            table.column("CODE").number().notNull().conversion(ColumnConversion.NUMBER2LONG).map(EventImpl.Fields.CODE.fieldName()).add();
             Column calendarColumn = table.column("calendar").number().notNull().add();
             table.addAuditColumns();
             table.primaryKey("CAL_PK_EVENT").on(idColumn).add();
@@ -82,9 +82,9 @@ public enum TableSpecs {
             table.map(EventOccurrenceImpl.class);
             Column idColumn = table.addAutoIdColumn();
 
-            table.column("HOURS").type("number").notNull().conversion(ColumnConversion.NUMBER2INT).map(EventOccurrenceImpl.Fields.HOURS.fieldName()).add();
-            table.column("MINUTES").type("number").notNull().conversion(ColumnConversion.NUMBER2INT).map(EventOccurrenceImpl.Fields.MINUTES.fieldName()).add();
-            table.column("SECONDS").type("number").notNull().conversion(ColumnConversion.NUMBER2INT).map(EventOccurrenceImpl.Fields.SECONDS.fieldName()).add();
+            table.column("HOURS").number().notNull().conversion(ColumnConversion.NUMBER2INT).map(EventOccurrenceImpl.Fields.HOURS.fieldName()).add();
+            table.column("MINUTES").number().notNull().conversion(ColumnConversion.NUMBER2INT).map(EventOccurrenceImpl.Fields.MINUTES.fieldName()).add();
+            table.column("SECONDS").number().notNull().conversion(ColumnConversion.NUMBER2INT).map(EventOccurrenceImpl.Fields.SECONDS.fieldName()).add();
 
             Column eventColumn = table.column(EventOccurrenceImpl.Fields.EVENT.fieldName()).number().notNull().add();
             //Column dayTypeColumn = table.column(EventOccurrenceImpl.Fields.DAYTYPE.fieldName()).number().notNull().add();
@@ -223,9 +223,9 @@ public enum TableSpecs {
 
             Column calendarColumn = table.column("calendar").number().notNull().add();
 
-            table.column("DAY").type("number").notNull().conversion(NUMBER2INTNULLZERO).map(ExceptionalOccurrenceImpl.Fields.DAY.fieldName()).add();
-            table.column("MONTH").type("number").notNull().conversion(NUMBER2INTNULLZERO).map(ExceptionalOccurrenceImpl.Fields.MONTH.fieldName()).add();
-            table.column("YEAR").type("number").conversion(NUMBER2INTNULLZERO).map(ExceptionalOccurrenceImpl.Fields.YEAR.fieldName()).add();
+            table.column("DAY").number().notNull().conversion(NUMBER2INTNULLZERO).map(ExceptionalOccurrenceImpl.Fields.DAY.fieldName()).add();
+            table.column("MONTH").number().notNull().conversion(NUMBER2INTNULLZERO).map(ExceptionalOccurrenceImpl.Fields.MONTH.fieldName()).add();
+            table.column("YEAR").number().conversion(NUMBER2INTNULLZERO).map(ExceptionalOccurrenceImpl.Fields.YEAR.fieldName()).add();
 
             Column dayTypeColumn = table.column(ExceptionalOccurrenceImpl.Fields.DAYTYPE.fieldName()).number().notNull().add();
 
@@ -256,9 +256,9 @@ public enum TableSpecs {
 
             Column calendarColumn = table.column("calendar").number().notNull().add();
 
-            table.column("DAY").type("number").notNull().conversion(NUMBER2INTNULLZERO).map(PeriodTransitionSpecImpl.Fields.DAY.fieldName()).add();
-            table.column("MONTH").type("number").notNull().conversion(NUMBER2INTNULLZERO).map(PeriodTransitionSpecImpl.Fields.MONTH.fieldName()).add();
-            table.column("YEAR").type("number").conversion(NUMBER2INTNULLZERO).map(PeriodTransitionSpecImpl.Fields.YEAR.fieldName()).add();
+            table.column("DAY").number().notNull().conversion(NUMBER2INTNULLZERO).map(PeriodTransitionSpecImpl.Fields.DAY.fieldName()).add();
+            table.column("MONTH").number().notNull().conversion(NUMBER2INTNULLZERO).map(PeriodTransitionSpecImpl.Fields.MONTH.fieldName()).add();
+            table.column("YEAR").number().conversion(NUMBER2INTNULLZERO).map(PeriodTransitionSpecImpl.Fields.YEAR.fieldName()).add();
 
             Column periodColumn = table.column(PeriodTransitionSpecImpl.Fields.PERIOD.fieldName()).number().notNull().add();
 
