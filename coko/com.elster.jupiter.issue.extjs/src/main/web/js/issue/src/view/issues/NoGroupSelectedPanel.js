@@ -3,7 +3,7 @@ Ext.define('Isu.view.issues.NoGroupSelectedPanel', {
     alias: 'widget.no-issues-group-selected-panel',
     title: Uni.I18n.translate('issues.group.empty.title', 'ISU', 'No group selected'),
     reasons: [
-        Uni.I18n.translate('issues.group.empty.list.item1', 'ISU', 'No group have been selected yet.')
+        Uni.I18n.translate('issues.group.empty.list.item1', 'ISU', 'No group has been selected yet.')
     ],
     stepItems: [
         {
