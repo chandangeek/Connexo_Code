@@ -38,7 +38,7 @@ public class TimeOfUseCalendarImporter implements FileImporter {
             boolean isUpdate = context.getCalendarService().findCalendarByMRID(result.getMRID()).isPresent();
             com.elster.jupiter.calendar.Calendar calendar = factory.getCalendar(result);
             logCreationOrUpdate(fileImportOccurrence, isUpdate);
-            markSuccess(fileImportOccurrence, calendar);
+            markSuccess(fileImportOccurrence);
         } catch (JAXBException e) {
             logValidationFailed(fileImportOccurrence, e);
             markFailure(fileImportOccurrence);
@@ -87,7 +87,7 @@ public class TimeOfUseCalendarImporter implements FileImporter {
         fileImportOccurrence.markFailure(context.getThesaurus().getFormat(TranslationKeys.CALENDAR_IMPORT_FAILED).format());
     }
 
-    private void markSuccess(FileImportOccurrence fileImportOccurrence, com.elster.jupiter.calendar.Calendar calendar) {
+    private void markSuccess(FileImportOccurrence fileImportOccurrence) {
         fileImportOccurrence.markSuccess(
                 context.getThesaurus().getFormat(TranslationKeys.CALENDAR_IMPORTED_SUCCESSFULLY).format());
     }
