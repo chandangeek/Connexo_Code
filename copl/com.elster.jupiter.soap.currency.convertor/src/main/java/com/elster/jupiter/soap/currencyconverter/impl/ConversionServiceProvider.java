@@ -1,8 +1,8 @@
 package com.elster.jupiter.soap.currencyconverter.impl;
 
 import com.elster.jupiter.soap.currencyconverter.CurrencyConvertorSoap;
-import com.elster.jupiter.soap.whiteboard.OutboundEndPointProvider;
-import com.elster.jupiter.soap.whiteboard.SoapProviderSupportFactory;
+import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.SoapProviderSupportFactory;
 import com.elster.jupiter.util.osgi.ContextClassLoaderResource;
 
 import org.osgi.service.component.annotations.Component;
