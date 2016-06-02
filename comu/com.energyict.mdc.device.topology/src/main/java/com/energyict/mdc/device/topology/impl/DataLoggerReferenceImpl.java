@@ -73,7 +73,7 @@ public class DataLoggerReferenceImpl extends AbstractPhysicalGatewayReferenceImp
         if (dataloggerChannel.hasData()) {
             if (dataloggerChannel.isRegular()) {
                 List<IntervalReading> readings = new ArrayList<>();
-                readings.addAll(dataloggerChannel.getIntervalReadings(getInterval().toOpenRange()));
+                readings.addAll(dataloggerChannel.getIntervalReadings(getInterval().toOpenClosedRange()));
                 if (readings.isEmpty()) {
                     return;
                 }

@@ -537,16 +537,15 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    @Ignore // Todo pushed but need to be revised  as a error occurs
     public void testUnLinkSlaveWithProfileData(){
         setUpForDataLoggerEnabledDevice();
         setUpForSlaveHavingLoadProfiles();
 
         Instant start = LocalDateTime.of(2016, 4, 1, 0, 0).toInstant(ZoneOffset.UTC);
-        Instant startLink =  LocalDateTime.of(2016, 5, 1, 0, 0).toInstant(ZoneOffset.UTC);
-        Instant endLink =  LocalDateTime.of(2016, 5, 15, 0, 0).toInstant(ZoneOffset.UTC);
-        Instant endOfData =   LocalDateTime.of(2016, 6, 1, 0, 0).toInstant(ZoneOffset.UTC);
-        Instant firstOfJuli =  LocalDateTime.of(2016, 7, 1, 0, 0).toInstant(ZoneOffset.UTC);
+        Instant startLink = LocalDateTime.of(2016, 5, 1, 0, 0).toInstant(ZoneOffset.UTC);
+        Instant endLink = LocalDateTime.of(2016, 5, 15, 0, 0).toInstant(ZoneOffset.UTC);
+        Instant endOfData = LocalDateTime.of(2016, 6, 1, 0, 0).toInstant(ZoneOffset.UTC);
+        Instant firstOfJuli = LocalDateTime.of(2016, 7, 1, 0, 0).toInstant(ZoneOffset.UTC);
 
         Device slave = createSlaveWithProfiles("slave1", start);
         Device dataLogger = createDataLoggerDevice("dataLogger", start);
@@ -554,7 +553,7 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
         // Make sure the data on the data logger is present
         assertThat(dataLogger.getChannels().get(0).hasData()).isTrue();
         assertThat(dataLogger.getChannels().get(0).getLastDateTime().get()).isEqualTo(endOfData);
-        assertThat(dataLogger.getChannels().get(0).getChannelData(Range.closedOpen(start,firstOfJuli))).hasSize(5856); //mont april: 30*24*4 + month may: 31*24*4
+        assertThat(dataLogger.getChannels().get(0).getChannelData(Range.openClosed(start,firstOfJuli))).hasSize(5856); //month april: 30*24*4 + month may: 31*24*4
 
         HashMap<Channel, Channel> channelMapping = new HashMap<>();
 
