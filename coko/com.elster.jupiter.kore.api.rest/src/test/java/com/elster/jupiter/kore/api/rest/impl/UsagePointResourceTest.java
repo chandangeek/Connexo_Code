@@ -128,6 +128,19 @@ public class UsagePointResourceTest extends PlatformPublicApiJerseyTest {
     }
 
     @Test
+    public void testUpdateUsagePoint() throws Exception {
+        Instant now = Instant.now(clock);
+        UsagePointInfo info = new UsagePointInfo();
+        info.serviceKind = ServiceKind.ELECTRICITY;
+        info.aliasName = "alias";
+        info.version = 2L;
+        info.description = "description";
+
+        UsagePoint usagePoint = mockUsagePoint(11L, "usage point", 2L, ServiceKind.ELECTRICITY);
+        Response response = target("/usagepoints/11").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    }
+    @Test
     public void testNoUpdateMetrologyWithIdenticalIds() throws Exception {
         UsagePointInfo info = new UsagePointInfo();
         info.id = 999L;

@@ -1,6 +1,8 @@
 package com.elster.jupiter.kore.api.impl;
 
+import com.elster.jupiter.kore.api.impl.utils.MessageSeeds;
 import com.elster.jupiter.metering.HeatDetail;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointDetailBuilder;
@@ -33,13 +35,15 @@ public class HeatDetailsResource {
     private final HeatDetailInfoFactory heatDetailInfoFactory;
     private final ExceptionFactory exceptionFactory;
     private final Clock clock;
+    private final MeteringService meteringService;
     private UsagePoint usagePoint;
 
     @Inject
-    public HeatDetailsResource(HeatDetailInfoFactory heatDetailInfoFactory, ExceptionFactory exceptionFactory, Clock clock) {
+    public HeatDetailsResource(HeatDetailInfoFactory heatDetailInfoFactory, ExceptionFactory exceptionFactory, Clock clock, MeteringService meteringService) {
         this.heatDetailInfoFactory = heatDetailInfoFactory;
         this.exceptionFactory = exceptionFactory;
         this.clock = clock;
+        this.meteringService = meteringService;
     }
 
     HeatDetailsResource init(UsagePoint usagePoint) {
@@ -70,6 +74,11 @@ public class HeatDetailsResource {
     @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
 //    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public Response createHeatDetail(HeatDetailInfo heatDetailInfo, @Context UriInfo uriInfo) {
+        if (heatDetailInfo.version == null) {
+            exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.VERSION_MISSING, "version");
+        }
+        meteringService.findAndLockUsagePointByIdAndVersion(usagePoint.getId(), heatDetailInfo.version)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_USAGE_POINT));
         UsagePointDetailBuilder builder = heatDetailInfoFactory.createDetail(usagePoint, heatDetailInfo);
         builder.validate();
         UsagePointDetail detail = builder.create();

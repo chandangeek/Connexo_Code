@@ -2,6 +2,7 @@ package com.elster.jupiter.kore.api.impl;
 
 import com.elster.jupiter.kore.api.impl.utils.MessageSeeds;
 import com.elster.jupiter.metering.ElectricityDetail;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointDetailBuilder;
@@ -36,12 +37,14 @@ public class ElectricityDetailResource {
     private final ExceptionFactory exceptionFactory;
     private final Clock clock;
     private UsagePoint usagePoint;
+    private final MeteringService meteringService;
 
     @Inject
-    public ElectricityDetailResource(ElectricityDetailInfoFactory electricityDetailInfoFactory, ExceptionFactory exceptionFactory, Clock clock) {
+    public ElectricityDetailResource(ElectricityDetailInfoFactory electricityDetailInfoFactory, ExceptionFactory exceptionFactory, Clock clock, MeteringService meteringService) {
         this.electricityDetailInfoFactory = electricityDetailInfoFactory;
         this.exceptionFactory = exceptionFactory;
         this.clock = clock;
+        this.meteringService = meteringService;
     }
 
     ElectricityDetailResource init(UsagePoint usagePoint) {
@@ -74,6 +77,11 @@ public class ElectricityDetailResource {
     @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
 //    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public Response createElectricityDetail(ElectricityDetailInfo electricityDetailInfo, @Context UriInfo uriInfo) {
+        if (electricityDetailInfo.version == null) {
+            exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.VERSION_MISSING, "version");
+        }
+        meteringService.findAndLockUsagePointByIdAndVersion(usagePoint.getId(), electricityDetailInfo.version)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_USAGE_POINT));
         if (electricityDetailInfo == null || electricityDetailInfo.effectivity == null || electricityDetailInfo.effectivity.lowerEnd == null) {
             throw new LocalizedFieldValidationException(MessageSeeds.FIELD_MISSING, "effectivity.lowerEnd");
         }

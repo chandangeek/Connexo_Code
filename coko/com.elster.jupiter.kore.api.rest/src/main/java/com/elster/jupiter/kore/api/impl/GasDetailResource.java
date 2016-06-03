@@ -2,6 +2,7 @@ package com.elster.jupiter.kore.api.impl;
 
 import com.elster.jupiter.kore.api.impl.utils.MessageSeeds;
 import com.elster.jupiter.metering.GasDetail;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointDetailBuilder;
@@ -34,13 +35,15 @@ public class GasDetailResource {
     private final GasDetailInfoFactory gasDetailInfoFactory;
     private final ExceptionFactory exceptionFactory;
     private final Clock clock;
+    private final MeteringService meteringService;
     private UsagePoint usagePoint;
 
     @Inject
-    public GasDetailResource(GasDetailInfoFactory gasDetailInfoFactory, ExceptionFactory exceptionFactory, Clock clock) {
+    public GasDetailResource(GasDetailInfoFactory gasDetailInfoFactory, ExceptionFactory exceptionFactory, Clock clock, MeteringService meteringService) {
         this.gasDetailInfoFactory = gasDetailInfoFactory;
         this.exceptionFactory = exceptionFactory;
         this.clock = clock;
+        this.meteringService = meteringService;
     }
 
     GasDetailResource init(UsagePoint usagePoint) {
@@ -72,6 +75,11 @@ public class GasDetailResource {
     @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
 //    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public Response createGasDetail(GasDetailInfo gasDetailInfo, @Context UriInfo uriInfo) {
+        if (gasDetailInfo.version == null) {
+            exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.VERSION_MISSING, "version");
+        }
+        meteringService.findAndLockUsagePointByIdAndVersion(usagePoint.getId(), gasDetailInfo.version)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_USAGE_POINT));
         UsagePointDetailBuilder builder = gasDetailInfoFactory.createDetail(usagePoint, gasDetailInfo);
         builder.validate();
         UsagePointDetail detail = builder.create();
