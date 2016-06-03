@@ -28,7 +28,7 @@ import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -104,7 +104,6 @@ public class EstimationTaskImplIT {
             bind(BundleContext.class).toInstance(bundleContext);
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(LogService.class).toInstance(logService);
-            bind(PropertySpecService.class).toInstance(mock(PropertySpecService.class));
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
@@ -182,6 +181,8 @@ public class EstimationTaskImplIT {
                             "0.0.5.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0",
                             "0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0"
                     ),
+                    new BasicPropertiesModule(),
+                    new TimeModule(),
                     new PartyModule(),
                     new EventsModule(),
                     new DomainUtilModule(),
@@ -192,7 +193,6 @@ public class EstimationTaskImplIT {
                     new TransactionModule(),
                     new NlsModule(),
                     new EstimationModule(),
-                    new TimeModule(),
                     new TaskModule(),
                     new MeteringGroupsModule(),
                     new SearchModule(),
