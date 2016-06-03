@@ -15,6 +15,7 @@ import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.discover.DiscoverResult;
 import com.energyict.protocol.discover.DiscoverTools;
+import com.energyict.protocolimpl.base.ProfileLimiter;
 import com.energyict.protocolimpl.modbus.core.AbstractRegister;
 import com.energyict.protocolimpl.modbus.core.HoldingRegister;
 import com.energyict.protocolimpl.modbus.core.Modbus;
@@ -49,6 +50,7 @@ public class RecDigitPower extends Modbus {
     
     final static Unit kWh = Unit.get(BaseUnit.WATT);
     final static Unit kVAr = Unit.get(BaseUnit.VOLTAMPEREREACTIVE);
+    private static final String PR_LIMIT_MAX_NR_OF_DAYS = "LimitMaxNrOfDays";
     
     private final int ACTIVE        = 0;
     private final int REACTIVE      = 1;
@@ -63,6 +65,7 @@ public class RecDigitPower extends Modbus {
     private int tempPointer = 0;
 	private int addState = 0;
 	private int tempPermission = 0;
+    private int limitMaxNrOfDays;
 	
     private Calendar currentTime = null;
     private Calendar calendar = null;
@@ -88,6 +91,7 @@ public class RecDigitPower extends Modbus {
     	
     	setInfoTypePhysicalLayer(Integer.parseInt(properties.getProperty("PhysicalLayer","1").trim()));    	
     	setInfoTypeInterframeTimeout(Integer.parseInt(properties.getProperty("InterframeTimeout","100").trim()));
+        this.limitMaxNrOfDays = Integer.parseInt(properties.getProperty(PR_LIMIT_MAX_NR_OF_DAYS, "0"));
     	
     }
     
@@ -96,19 +100,26 @@ public class RecDigitPower extends Modbus {
     }
     
     protected List doTheGetOptionalKeys() {
-        return new ArrayList();
+        List result = new ArrayList();
+        result.add(PR_LIMIT_MAX_NR_OF_DAYS);
+        return result;
     }
 
     public String getProtocolVersion() {
-        return "$Date: 2015-09-08 10:39:36 +0200 (Tue, 08 Sep 2015) $";
+        return "$Date: 2016-06-03 12:47:33 +0300 (Fri, 03 Jun 2016)$";
     }
     
     protected void initRegisterFactory() {
         setRegisterFactory(new RegisterFactory(this));
     }
-    
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) 
-        throws IOException, UnsupportedException {
+
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+        return getProfileWithLimiter(new ProfileLimiter(from, to, getLimitMaxNrOfDays()), includeEvents);
+    }
+
+    private ProfileData getProfileWithLimiter(ProfileLimiter limiter, boolean includeEvents) throws IOException {
+        Date from = limiter.getFromDate();
+        Date to = limiter.getToDate();
     	
     	this.interval   = this.getProfileInterval();
     	this.rFactory   = this.getRecFactory();
@@ -475,9 +486,12 @@ public class RecDigitPower extends Modbus {
         return getRecFactory().toBigDecimal(type, values);
         
     }
-      
+
     public DiscoverResult discover(DiscoverTools discoverTools) {
         return null;
-    }    
-    
+    }
+
+    private int getLimitMaxNrOfDays() {
+        return limitMaxNrOfDays;
+    }
 }
