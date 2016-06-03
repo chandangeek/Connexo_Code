@@ -334,7 +334,7 @@ public class UsagePointResource {
         Optional<UsagePointMetrologyConfiguration> usagePointMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration()
                 .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration);
         if (usagePointMetrologyConfiguration.isPresent()) {
-            return Response.ok().entity(new MetrologyConfigurationInfo((UsagePointMetrologyConfiguration) usagePoint.getMetrologyConfiguration().get())).build();
+            return Response.ok().entity(new MetrologyConfigurationInfo((UsagePointMetrologyConfiguration) usagePointMetrologyConfiguration.get())).build();
         } else {
             return Response.status(Response.Status.BAD_REQUEST).entity(new MetrologyConfigurationInfo()).build();
         }
