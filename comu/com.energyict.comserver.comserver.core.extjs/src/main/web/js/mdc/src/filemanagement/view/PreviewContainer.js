@@ -43,8 +43,11 @@ Ext.define('Mdc.filemanagement.view.PreviewContainer', {
                             privileges: Mdc.privileges.DeviceType.admin,
                             buttonConfig: {
                                 ui: 'default',
+                                style: {
+                                    cursor: me.fileManagementEnabled ? 'pointer' :'default'
+                                }
                             },
-                            disabledCls: 'x-item-disabled x-disabled x-btn-disabled',
+                            disabledCls: 'x-btn-disabled',
                             buttonOnly: true,
                             itemId: 'add-file-btn2',
                             vtype: 'fileUpload',
