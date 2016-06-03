@@ -433,6 +433,11 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
+    public List<EffectiveMetrologyConfigurationOnUsagePoint> getEffectiveMetrologyConfigurations() {
+        return this.metrologyConfiguration.all();
+    }
+
+    @Override
     public List<MetrologyConfiguration> getMetrologyConfigurations(Range<Instant> period) {
         return this.metrologyConfiguration
                 .effective(period)
