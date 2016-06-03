@@ -1,7 +1,9 @@
 Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
     extend: 'Ext.app.Controller',
 
-    stores: [],
+    stores: [
+        'Mdc.timeofuseondevice.store.AllowedCalendars'
+    ],
 
     views: [
         'Mdc.timeofuseondevice.view.Setup',
@@ -154,8 +156,10 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
     showSendCalendarView: function(mRID) {
         var me = this,
             deviceModel = me.getModel('Mdc.model.Device'),
-            view;
+            view,
+            store = me.getStore('Mdc.timeofuseondevice.store.AllowedCalendars');
 
+        store.getProxy().setUrl(mRID);
         deviceModel.load(mRID, {
             success: function (record) {
                 me.getApplication().fireEvent('loadDevice', record);

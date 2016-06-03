@@ -24,7 +24,7 @@ Ext.define('Mdc.timeofuseondevice.view.TimeOfUsePreviewForm', {
                 },
                 {
                     xtype: 'displayfield',
-                    fieldLabel: Uni.I18n.translate('general.lastVerifief', 'MDC', 'Last verified'),
+                    fieldLabel: Uni.I18n.translate('general.lastVerified', 'MDC', 'Last verified'),
                     itemId: 'lastVerifiedDisplayField',
                     value: '-'
                 },

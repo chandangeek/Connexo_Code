@@ -6,7 +6,7 @@ Ext.define('Mdc.timeofuseondevice.view.SendCalendarSetup', {
     device: null,
     requires: [
         'Mdc.view.setup.device.DeviceMenu',
-        //'Mdc.timeofuse.view.EditSpecificationsForm'
+        'Mdc.timeofuseondevice.view.SendCalendarForm'
     ],
 
     initComponent: function () {
@@ -22,10 +22,10 @@ Ext.define('Mdc.timeofuseondevice.view.SendCalendarSetup', {
                     align: 'stretch'
                 },
                 items: [
-                    //{
-                    //    xtype: 'tou-device-send-cal-form',
-                    //    mRID: me.mRID
-                    //}
+                    {
+                        xtype: 'tou-device-send-cal-form',
+                        mRID: me.mRID
+                    }
                 ]
             }
         ];
