@@ -1,16 +1,9 @@
 package com.elster.jupiter.metering.cim.impl;
 
-import ch.iec.tc57._2011.meterreadings.EndDeviceEvent;
-import ch.iec.tc57._2011.meterreadings.Meter;
-import ch.iec.tc57._2011.meterreadings.MeterReading;
-import ch.iec.tc57._2011.meterreadings.MeterReadings;
-import ch.iec.tc57._2011.meterreadings.ObjectFactory;
-import ch.iec.tc57._2011.meterreadings.Reading;
-import ch.iec.tc57._2011.meterreadings.ReadingQuality;
-import ch.iec.tc57._2011.meterreadings.UsagePoint;
 import com.elster.jupiter.cbo.Status;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingQualityRecord;
@@ -20,6 +13,15 @@ import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.util.collections.BinarySearch;
+
+import ch.iec.tc57._2011.meterreadings.EndDeviceEvent;
+import ch.iec.tc57._2011.meterreadings.Meter;
+import ch.iec.tc57._2011.meterreadings.MeterReading;
+import ch.iec.tc57._2011.meterreadings.MeterReadings;
+import ch.iec.tc57._2011.meterreadings.ObjectFactory;
+import ch.iec.tc57._2011.meterreadings.Reading;
+import ch.iec.tc57._2011.meterreadings.ReadingQuality;
+import ch.iec.tc57._2011.meterreadings.UsagePoint;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Range;
 
@@ -55,12 +57,12 @@ public class MeterReadingsGenerator {
         return meterReadings;
     }
 
-    public void addMeterReadings(MeterReadings meterReadings, MeterActivation meterActivation, Range<Instant> range) {
-        MeterReading meterReading = createMeterReading(meterReadings, createMeter(meterActivation.getMeter().orElse(null)), createUsagePoint(meterActivation.getUsagePoint().orElse(null)));
-        if (meterActivation.getMeter().isPresent()) {
-            addEndDeviceEvents(meterReading, meterActivation.getMeter().get(), range);
+    public void addMeterReadings(MeterReadings meterReadings, ChannelsContainer channelsContainer, Range<Instant> range) {
+        MeterReading meterReading = createMeterReading(meterReadings, createMeter(channelsContainer.getMeter().orElse(null)), createUsagePoint(channelsContainer.getUsagePoint().orElse(null)));
+        if (channelsContainer.getMeter().isPresent()) {
+            addEndDeviceEvents(meterReading, channelsContainer.getMeter().get(), range);
         }
-        for (Channel channel : meterActivation.getChannels()) {
+        for (Channel channel : channelsContainer.getChannels()) {
             addBaseReadings(meterReading, getReadings(channel, range), getValidationQualities(channel, range));
         }
     }
