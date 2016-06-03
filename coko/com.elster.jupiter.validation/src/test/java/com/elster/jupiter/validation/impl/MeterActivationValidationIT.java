@@ -64,6 +64,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Optional;
 
 import org.junit.After;
 import org.junit.Before;
@@ -75,6 +76,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -126,6 +128,7 @@ public class MeterActivationValidationIT {
         when(validatorFactory.createTemplate("autoPass")).thenReturn(validator);
         when(validator.validate(any(IntervalReadingRecord.class))).thenReturn(ValidationResult.VALID);
         when(validator.getPropertySpecs()).thenReturn(Collections.emptyList());
+        when(userService.findGroup(anyString())).thenReturn(Optional.empty());
 
         injector = Guice.createInjector(
                 new MockModule(),
