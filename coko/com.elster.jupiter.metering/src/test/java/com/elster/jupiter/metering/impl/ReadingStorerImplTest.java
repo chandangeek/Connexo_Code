@@ -10,13 +10,8 @@ import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.ProcessStatus;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.beans.ReadingImpl;
+
 import com.google.common.collect.Range;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -24,9 +19,20 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.entry;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 
@@ -61,7 +67,7 @@ public class ReadingStorerImplTest {
         doReturn(recordSpec).when(timeSeries).getRecordSpec();
         doReturn(Arrays.asList(fieldSpec, fieldSpec, fieldSpec)).when(recordSpec).getFieldSpecs();
         when(channel.getBulkQuantityReadingType()).thenReturn(Optional.empty());
-        when(channel.getMeterActivation()).thenReturn(meterActivation);
+        when(channel.getChannelsContainer()).thenReturn(meterActivation);
         when(meterActivation.getMeter()).thenReturn(Optional.empty());
         when(idsService.createOverrulingStorer()).thenReturn(storer);
         when(idsService.createUpdatingStorer()).thenReturn(updatingStorer);

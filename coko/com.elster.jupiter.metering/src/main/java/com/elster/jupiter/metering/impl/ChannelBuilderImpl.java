@@ -2,7 +2,7 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
-import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MeterConfiguration;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePointConfiguration;
@@ -27,7 +27,7 @@ import static java.util.Collections.singletonList;
 
 public class ChannelBuilderImpl implements ChannelBuilder {
 
-    private MeterActivation meterActivation;
+    private ChannelsContainer channelsContainer;
     private List<IReadingType> readingTypes = new ArrayList<>();
     private final DataModel dataModel;
     private final Provider<ChannelImpl> channelFactory;
@@ -39,8 +39,8 @@ public class ChannelBuilderImpl implements ChannelBuilder {
     }
 
     @Override
-    public ChannelBuilder meterActivation(MeterActivation meterActivation) {
-        this.meterActivation = meterActivation;
+    public ChannelBuilder channelsContainer(ChannelsContainer channelsContainer) {
+        this.channelsContainer = channelsContainer;
         return this;
     }
 
@@ -56,25 +56,25 @@ public class ChannelBuilderImpl implements ChannelBuilder {
     @Override
     public ChannelImpl build() {
         if (readingTypes.size() > 1) {
-            return channelFactory.get().init(meterActivation, readingTypes, (rt1, rt2) -> DerivationRule.MEASURED);
+            return channelFactory.get().init(channelsContainer, readingTypes, (rt1, rt2) -> DerivationRule.MEASURED);
         }
-        return channelFactory.get().init(meterActivation, buildReadingTypes());
+        return channelFactory.get().init(channelsContainer, buildReadingTypes());
     }
 
     private List<IReadingType> buildReadingTypes() {
         // check multipliers
         // then check if bulk -> delta is possible
 
-        Stream<Pair<ReadingType, ReadingType>> meterMultipliers = meterActivation.getMeter()
-                .flatMap(meter -> meter.getConfiguration(meterActivation.getStart()))
+        Stream<Pair<ReadingType, ReadingType>> meterMultipliers = channelsContainer.getMeter()
+                .flatMap(meter -> meter.getConfiguration(channelsContainer.getStart()))
                 .map(MeterConfiguration::getReadingTypeConfigs)
                 .orElseGet(Collections::emptyList)
                 .stream()
                 .filter(multiplier -> multiplier.getCalculated().isPresent())
                 .filter(multiplier -> readingTypes.contains(multiplier.getMeasured()))
                 .map(multiplier -> Pair.of(multiplier.getMeasured(), multiplier.getCalculated().get()));
-        Stream<Pair<ReadingType, ReadingType>> usagePointMultipliers = meterActivation.getUsagePoint()
-                .flatMap(usagePoint -> usagePoint.getConfiguration(meterActivation.getStart()))
+        Stream<Pair<ReadingType, ReadingType>> usagePointMultipliers = channelsContainer.getUsagePoint()
+                .flatMap(usagePoint -> usagePoint.getConfiguration(channelsContainer.getStart()))
                 .map(UsagePointConfiguration::getReadingTypeConfigs)
                 .orElseGet(Collections::emptyList)
                 .stream()

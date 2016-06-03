@@ -188,7 +188,7 @@ public class MeterActivationImplTest extends EqualsContractTest {
 
         Channel channel = meterActivation.createChannel(readingType1, readingType3);
 
-        assertThat(channel.getMeterActivation()).isEqualTo(meterActivation);
+        assertThat(channel.getChannelsContainer()).isEqualTo(meterActivation);
         assertThat(channel.getReadingTypes()).isEqualTo(Arrays.asList(readingType1, readingType3));
     }
 

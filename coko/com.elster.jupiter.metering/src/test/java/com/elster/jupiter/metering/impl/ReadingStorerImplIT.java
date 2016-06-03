@@ -31,11 +31,12 @@ import com.elster.jupiter.metering.readings.beans.ReadingImpl;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
-import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.Subscriber;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
@@ -80,8 +81,8 @@ public class ReadingStorerImplIT {
             bind(BundleContext.class).toInstance(bundleContext);
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(SearchService.class).toInstance(mock(SearchService.class));
-            bind(PropertySpecService.class).toInstance(mock(PropertySpecService.class));
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
+            bind(TimeService.class).toInstance(mock(TimeService.class));
         }
     }
     public static final String SECONDARY_DELTA = "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
@@ -133,7 +134,8 @@ public class ReadingStorerImplIT {
                     new BpmModule(),
                     new FiniteStateMachineModule(),
                     new NlsModule(),
-                    new CustomPropertySetsModule()
+                    new CustomPropertySetsModule(),
+                    new BasicPropertiesModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -175,7 +177,7 @@ public class ReadingStorerImplIT {
 
             meterReading.addIntervalBlock(intervalBlock);
 
-            channel.getMeterActivation().getMeter().get().store(meterReading);
+            channel.getChannelsContainer().getMeter().get().store(meterReading);
         });
 
         List<BaseReadingRecord> readings = channel.getReadings(Range.atLeast(BASE.toInstant()));
@@ -201,7 +203,7 @@ public class ReadingStorerImplIT {
 
             meterReading.addIntervalBlock(intervalBlock);
 
-            channel.getMeterActivation().getMeter().get().store(meterReading);
+            channel.getChannelsContainer().getMeter().get().store(meterReading);
         });
 
         readings = channel.getReadings(Range.atLeast(BASE.plusMinutes(15 * 9).toInstant()));
@@ -238,7 +240,7 @@ public class ReadingStorerImplIT {
 
             meterReading.addIntervalBlock(intervalBlock);
 
-            channel.getMeterActivation().getMeter().get().store(meterReading);
+            channel.getChannelsContainer().getMeter().get().store(meterReading);
         });
 
         List<BaseReadingRecord> readings = channel.getReadings(Range.atLeast(BASE.toInstant()));
@@ -264,7 +266,7 @@ public class ReadingStorerImplIT {
 
             meterReading.addIntervalBlock(intervalBlock);
 
-            channel.getMeterActivation().getMeter().get().store(meterReading);
+            channel.getChannelsContainer().getMeter().get().store(meterReading);
         });
 
         readings = channel.getReadings(Range.atLeast(BASE.plusMinutes(15 * 9).toInstant()));
@@ -300,7 +302,7 @@ public class ReadingStorerImplIT {
 
             meterReading.addIntervalBlock(intervalBlock);
 
-            channel.getMeterActivation().getMeter().get().store(meterReading);
+            channel.getChannelsContainer().getMeter().get().store(meterReading);
         });
 
         List<BaseReadingRecord> readings = channel.getReadings(Range.atLeast(BASE.toInstant()));
@@ -333,7 +335,7 @@ public class ReadingStorerImplIT {
 
             meterReading.addReading(reading);
 
-            channel.getMeterActivation().getMeter().get().store(meterReading);
+            channel.getChannelsContainer().getMeter().get().store(meterReading);
         });
 
         List<BaseReadingRecord> readings = channel.getReadings(Range.atLeast(BASE.toInstant()));
@@ -373,7 +375,7 @@ public class ReadingStorerImplIT {
 
             meterReading.addIntervalBlock(intervalBlock);
 
-            channel.getMeterActivation().getMeter().get().store(meterReading);
+            channel.getChannelsContainer().getMeter().get().store(meterReading);
         });
 
         List<BaseReadingRecord> readings = channel.getReadings(Range.atLeast(BASE.toInstant()));
@@ -401,7 +403,7 @@ public class ReadingStorerImplIT {
 
             meterReading.addIntervalBlock(intervalBlock);
 
-            channel.getMeterActivation().getMeter().get().store(meterReading);
+            channel.getChannelsContainer().getMeter().get().store(meterReading);
         });
 
         readings = channel.getReadings(Range.atLeast(BASE.toInstant()));
@@ -445,7 +447,7 @@ public class ReadingStorerImplIT {
 
             meterReading.addIntervalBlock(intervalBlock);
 
-            channel.getMeterActivation().getMeter().get().store(meterReading);
+            channel.getChannelsContainer().getMeter().get().store(meterReading);
         });
 
         List<BaseReadingRecord> readings = channel.getReadings(Range.atLeast(BASE.toInstant()));
@@ -473,7 +475,7 @@ public class ReadingStorerImplIT {
 
             meterReading.addIntervalBlock(intervalBlock);
 
-            channel.getMeterActivation().getMeter().get().store(meterReading);
+            channel.getChannelsContainer().getMeter().get().store(meterReading);
         });
 
         readings = channel.getReadings(Range.atLeast(BASE.toInstant()));
@@ -500,7 +502,7 @@ public class ReadingStorerImplIT {
         Channel channel = createMeterAndChannelWithDelta(bulkReadingType);
 
         transactionService.run(() -> {
-            Meter meter = channel.getMeterActivation().getMeter().get();
+            Meter meter = channel.getChannelsContainer().getMeter().get();
             MeterConfiguration meterConfiguration = meter.startingConfigurationOn(Instant.EPOCH)
                     .configureReadingType(bulkReadingType)
                     .withOverflowValue(BigDecimal.valueOf(999999))
@@ -516,7 +518,7 @@ public class ReadingStorerImplIT {
 
             meterReading.addIntervalBlock(intervalBlock);
 
-            channel.getMeterActivation().getMeter().get().store(meterReading);
+            channel.getChannelsContainer().getMeter().get().store(meterReading);
         });
 
         List<BaseReadingRecord> readings = channel.getReadings(Range.atLeast(BASE.toInstant()));
@@ -546,7 +548,7 @@ public class ReadingStorerImplIT {
         Channel channel = createMeterAndChannelWithDelta(bulkReadingType);
 
         transactionService.run(() -> {
-            Meter meter = channel.getMeterActivation().getMeter().get();
+            Meter meter = channel.getChannelsContainer().getMeter().get();
             MeterConfiguration meterConfiguration = meter.startingConfigurationOn(Instant.EPOCH)
                     .configureReadingType(bulkReadingType)
                     .withOverflowValue(BigDecimal.valueOf(999999))
@@ -562,7 +564,7 @@ public class ReadingStorerImplIT {
 
             meterReading.addIntervalBlock(intervalBlock);
 
-            channel.getMeterActivation().getMeter().get().store(meterReading);
+            channel.getChannelsContainer().getMeter().get().store(meterReading);
         });
 
         List<BaseReadingRecord> readings = channel.getReadings(Range.atLeast(BASE.toInstant()));

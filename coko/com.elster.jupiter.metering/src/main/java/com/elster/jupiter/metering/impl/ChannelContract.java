@@ -6,6 +6,7 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ProcessStatus;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
+
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -14,20 +15,20 @@ import java.util.Optional;
 
 public interface ChannelContract extends Channel {
 
-	IMeterActivation getMeterActivation();
+    Object[] toArray(BaseReading reading, ReadingType readingType, ProcessStatus status);
 
-	Object[] toArray(BaseReading reading, ReadingType readingType, ProcessStatus status);
+    Object[] toArray(BaseReadingRecord readingRecord);
 
-	Object[] toArray(BaseReadingRecord readingRecord);
+    void validateValues(BaseReading reading, Object[] values);
 
-	void validateValues(BaseReading reading, Object[] values);
-	TimeSeries getTimeSeries();
-	DerivationRule getDerivationRule(IReadingType readingType);
+    TimeSeries getTimeSeries();
 
-	Optional<Range<Instant>> getTimePeriod(BaseReading reading, Object[] values);
+    DerivationRule getDerivationRule(IReadingType readingType);
 
-	RecordSpecs getRecordSpecDefinition();
+    Optional<Range<Instant>> getTimePeriod(BaseReading reading, Object[] values);
 
-	@Override
-	List<IReadingType> getReadingTypes();
+    RecordSpecs getRecordSpecDefinition();
+
+    @Override
+    List<IReadingType> getReadingTypes();
 }

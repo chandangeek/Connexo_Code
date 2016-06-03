@@ -6,22 +6,17 @@ import com.elster.jupiter.util.HasId;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public interface MeterActivation extends HasId, Effectivity, ReadingContainer {
+public interface MeterActivation extends HasId, Effectivity, ChannelsContainer {
 
     Optional<UsagePoint> getUsagePoint();
 
     Optional<Meter> getMeter();
 
     Optional<MeterRole> getMeterRole();
-
-    Channel createChannel(ReadingType main, ReadingType... readingTypes);
-
-    List<Channel> getChannels();
 
     List<ReadingType> getReadingTypes();
 
@@ -35,8 +30,6 @@ public interface MeterActivation extends HasId, Effectivity, ReadingContainer {
 
     Instant getEnd();
 
-    ZoneId getZoneId();
-
     /**
      * @param startTime new start time for this MeterActivation, which must be earlier than the current start time.
      */
@@ -44,8 +37,6 @@ public interface MeterActivation extends HasId, Effectivity, ReadingContainer {
 
     // multipliers
     void setMultiplier(MultiplierType type, BigDecimal value);
-
-    Optional<BigDecimal> getMultiplier(MultiplierType type);
 
     void removeMultiplier(MultiplierType type);
 

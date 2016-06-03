@@ -5,6 +5,7 @@ import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.CannotDeleteMeter;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
@@ -239,6 +240,11 @@ class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter {
         return meterActivations.stream()
                 .flatMap(meterActivation -> meterActivation.getReadingQualities(readingQualityType, readingType, interval).stream())
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ChannelsContainer> getChannelContainers() {
+        return getMeterActivations().stream().map(ChannelsContainer.class::cast).collect(Collectors.toList());
     }
 
     void addConfiguration(MeterConfigurationImpl meterConfiguration) {

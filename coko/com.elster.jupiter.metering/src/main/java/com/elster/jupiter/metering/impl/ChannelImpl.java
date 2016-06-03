@@ -12,6 +12,7 @@ import com.elster.jupiter.ids.TimeSeriesEntry;
 import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.IntervalReadingRecord;
@@ -89,7 +90,7 @@ public final class ChannelImpl implements ChannelContract {
 
 
     // associations
-    private Reference<MeterActivation> meterActivation = ValueReference.absent();
+    private Reference<MeterActivation> meterActivation = ValueReference.absent(); // TODO replace by ChannelsContainer
     private Reference<TimeSeries> timeSeries = ValueReference.absent();
     private Reference<IReadingType> mainReadingType = ValueReference.absent();
     private DerivationRule mainDerivationRule;
@@ -113,12 +114,12 @@ public final class ChannelImpl implements ChannelContract {
         this.eventService = eventService;
     }
 
-    ChannelImpl init(MeterActivation meterActivation, List<IReadingType> readingTypes) {
-        return init(meterActivation, readingTypes, this::determineRule);
+    ChannelImpl init(ChannelsContainer channelsContainer, List<IReadingType> readingTypes) {
+        return init(channelsContainer, readingTypes, this::determineRule);
     }
 
-    ChannelImpl init(MeterActivation meterActivation, List<IReadingType> readingTypes, BiFunction<IReadingType, IReadingType, DerivationRule> ruleDetermination) {
-        this.meterActivation.set(meterActivation);
+    ChannelImpl init(ChannelsContainer channelsContainer, List<IReadingType> readingTypes, BiFunction<IReadingType, IReadingType, DerivationRule> ruleDetermination) {
+        this.meterActivation.set((MeterActivation) channelsContainer);
         this.mainReadingType.set(readingTypes.get(0));
         for (int index = 0; index < readingTypes.size(); index++) {
             DerivationRule rule = DerivationRule.MEASURED;
@@ -136,7 +137,7 @@ public final class ChannelImpl implements ChannelContract {
                 this.readingTypeInChannels.add(readingTypeInChannel);
             }
         }
-        this.timeSeries.set(createTimeSeries(meterActivation.getZoneId()));
+        this.timeSeries.set(createTimeSeries(channelsContainer.getZoneId()));
         return this;
     }
 
@@ -176,7 +177,7 @@ public final class ChannelImpl implements ChannelContract {
     }
 
     private List<? extends MultiplierUsage> getMeterMultipliers(Instant instant) {
-        return getMeterActivation()
+        return getChannelsContainer()
                 .getMeter()
                 .flatMap(use(Meter::getConfiguration).with(instant))
                 .map(MeterConfiguration::getReadingTypeConfigs)
@@ -184,7 +185,7 @@ public final class ChannelImpl implements ChannelContract {
     }
 
     private List<? extends MultiplierUsage> getUsagePointMultipliers(Instant instant) {
-        return getMeterActivation()
+        return getChannelsContainer()
                 .getUsagePoint()
                 .flatMap(use(UsagePoint::getConfiguration).with(instant))
                 .map(UsagePointConfiguration::getReadingTypeConfigs)
@@ -203,8 +204,8 @@ public final class ChannelImpl implements ChannelContract {
     }
 
     @Override
-    public IMeterActivation getMeterActivation() {
-        return (IMeterActivation) meterActivation.get();
+    public ChannelsContainer getChannelsContainer() {
+        return meterActivation.get();
     }
 
     public TimeSeries getTimeSeries() {
@@ -367,8 +368,8 @@ public final class ChannelImpl implements ChannelContract {
     }
 
     private boolean usagePointHasMultiplier(Predicate<MultiplierUsage> matchesReadingTypes) {
-        return getMeterActivation().getUsagePoint()
-                    .flatMap(use(UsagePoint::getConfiguration).with(getMeterActivation().getStart()))
+        return getChannelsContainer().getUsagePoint()
+                .flatMap(use(UsagePoint::getConfiguration).with(getChannelsContainer().getStart()))
                     .map(UsagePointConfiguration::getReadingTypeConfigs)
                     .orElseGet(Collections::emptyList)
                     .stream()
@@ -377,8 +378,8 @@ public final class ChannelImpl implements ChannelContract {
     }
 
     private boolean meterHasMultiplier(Predicate<MultiplierUsage> matchesReadingTypes) {
-        return getMeterActivation().getMeter()
-                    .flatMap(use(Meter::getConfiguration).with(getMeterActivation().getStart()))
+        return getChannelsContainer().getMeter()
+                .flatMap(use(Meter::getConfiguration).with(getChannelsContainer().getStart()))
                     .map(MeterConfiguration::getReadingTypeConfigs)
                     .orElseGet(Collections::emptyList)
                     .stream()

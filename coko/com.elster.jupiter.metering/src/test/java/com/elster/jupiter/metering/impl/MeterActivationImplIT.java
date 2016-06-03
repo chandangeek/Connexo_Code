@@ -9,6 +9,7 @@ import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
@@ -276,8 +277,8 @@ public class MeterActivationImplIT {
         }
 
         assertThat(meter.getMeterActivations()).hasSize(2);
-        MeterActivation first = meter.getMeterActivations().get(0);
-        MeterActivation second = meter.getMeterActivations().get(1);
+        ChannelsContainer first = meter.getChannelContainers().get(0);
+        ChannelsContainer second = meter.getChannelContainers().get(1);
         assertThat(first.getRange()).isEqualTo(Range.closedOpen(startTime.toInstant(), newCutOff.toInstant()));
         assertThat(second.getRange()).isEqualTo(Range.atLeast(newCutOff.toInstant()));
 

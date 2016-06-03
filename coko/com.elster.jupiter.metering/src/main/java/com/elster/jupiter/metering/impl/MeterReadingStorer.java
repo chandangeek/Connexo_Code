@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.MessageSeeds;
@@ -25,6 +26,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+
 import com.google.common.collect.Range;
 
 import javax.inject.Provider;
@@ -203,15 +205,15 @@ public class MeterReadingStorer {
     }
 
     private void store(Reading reading) {
-        for (MeterActivation meterActivation : meter.getMeterActivations()) {
-            if (meterActivation.getInterval().toClosedRange().contains(reading.getTimeStamp())) {
-                store(reading, meterActivation);
+        for (ChannelsContainer channelsContainer : meter.getChannelContainers()) {
+            if (channelsContainer.getInterval().toClosedRange().contains(reading.getTimeStamp())) {
+                store(reading, channelsContainer);
             }
         }
     }
 
-    private void store(Reading reading, MeterActivation meterActivation) {
-        Channel channel = findOrCreateChannel(reading, meterActivation);
+    private void store(Reading reading, ChannelsContainer channelsContainer) {
+        Channel channel = findOrCreateChannel(reading, channelsContainer);
         if (channel != null) {
             ReadingType readingType = channel.getReadingTypes().stream()
                     .filter(type -> type.getMRID().equals(reading.getReadingTypeCode()))
@@ -267,22 +269,22 @@ public class MeterReadingStorer {
         }
     }
 
-    private Channel findOrCreateChannel(Reading reading, MeterActivation meterActivation) {
+    private Channel findOrCreateChannel(Reading reading, ChannelsContainer channelsContainer) {
         ReadingType readingType = Objects.requireNonNull(readingTypes.get(reading.getReadingTypeCode()));
-        for (Channel each : meterActivation.getChannels()) {
+        for (Channel each : channelsContainer.getChannels()) {
             if (each.getReadingTypes().contains(readingType)) {
                 return each;
             }
         }
-        return meterActivation.createChannel(readingType);
+        return channelsContainer.createChannel(readingType);
     }
 
     private Channel findOrCreateChannel(IntervalReading reading, ReadingType readingType) {        
         Channel channel = getChannel(reading, readingType);
         if (channel == null) {
-            for (MeterActivation meterActivation : meter.getMeterActivations()) {
-                if (meterActivation.getInterval().toOpenClosedRange().contains(reading.getTimeStamp())) {
-                    return meterActivation.createChannel(readingType);
+            for (ChannelsContainer channelsContainer : meter.getChannelContainers()) {
+                if (channelsContainer.getInterval().toOpenClosedRange().contains(reading.getTimeStamp())) {
+                    return channelsContainer.createChannel(readingType);
                 }
             }
             MessageSeeds.NOMETERACTIVATION.log(logger, thesaurus, meter.getMRID(), reading.getTimeStamp());
@@ -293,9 +295,9 @@ public class MeterReadingStorer {
     }
 
     private Channel getChannel(IntervalReading reading, ReadingType readingType) {
-        for (MeterActivation meterActivation : meter.getMeterActivations()) {
-            if (meterActivation.getInterval().toOpenClosedRange().contains(reading.getTimeStamp())) {
-                for (Channel channel : meterActivation.getChannels()) {
+        for (ChannelsContainer channelsContainer : meter.getChannelContainers()) {
+            if (channelsContainer.getInterval().toOpenClosedRange().contains(reading.getTimeStamp())) {
+                for (Channel channel : channelsContainer.getChannels()) {
                     if (channel.getReadingTypes().contains(readingType)) {
                         return channel;
                     }

@@ -24,14 +24,9 @@ import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.metering.readings.beans.ReadingImpl;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.time.Clock;
@@ -42,6 +37,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -89,21 +91,21 @@ public class MeterReadingStorerTest {
         reading.addQuality("1.1.1", "Whatever");
         meterReading.addReading(reading);
         meter.store(meterReading);
-        assertThat(meter.getMeterActivations().get(0).getZoneId()).isEqualTo(clock.getZone());
-        List<? extends BaseReadingRecord> readings = meter.getMeterActivations().get(0).getReadings(
+        assertThat(meter.getChannelContainers().get(0).getZoneId()).isEqualTo(clock.getZone());
+        List<? extends BaseReadingRecord> readings = meter.getChannelContainers().get(0).getReadings(
                 Range.openClosed(instant.minusSeconds(15 * 60L), instant.plusSeconds(15 * 60L)),
                 meteringService.getReadingType(builder.period(TimeAttribute.MINUTE15).accumulate(Accumulation.DELTADELTA).code()).get());
         assertThat(readings).hasSize(2);
         assertThat(readings.get(0).getQuantity(0)).isNull();
         assertThat(readings.get(1).getQuantity(0).getValue()).isEqualTo(BigDecimal.valueOf(100));
-        readings = meter.getMeterActivations().get(0).getReadings(
+        readings = meter.getChannelContainers().get(0).getReadings(
                 Range.openClosed(instant.minusSeconds(15 * 60L), instant.plusSeconds(15 * 60L)),
                 meteringService.getReadingType(registerReadingTypeCode).get());
         assertThat(readings).hasSize(1);
         assertThat(readings.get(0).getValue()).isEqualTo(BigDecimal.valueOf(1200));
         assertThat(meter.getReadingsBefore(instant, meteringService.getReadingType(intervalReadingTypeCode).get(), 10)).isEmpty();
         assertThat(meter.getReadingsOnOrBefore(instant, meteringService.getReadingType(intervalReadingTypeCode).get(), 10)).hasSize(1);
-        List<Channel> channels = meter.getMeterActivations().get(0).getChannels();
+        List<Channel> channels = meter.getChannelContainers().get(0).getChannels();
         Optional<Channel> channel = Optional.empty();
         for (Channel candidate : channels) {
             if (candidate.getMainReadingType().getMRID().equals(registerReadingTypeCode)) {
@@ -139,7 +141,7 @@ public class MeterReadingStorerTest {
         reading.addQuality("3.6.2");
         block.addIntervalReading(reading);
         meter.store(meterReading);
-        Channel channel = meter.getMeterActivations().stream().flatMap(ma -> ma.getChannels().stream()).findFirst().get();
+        Channel channel = meter.getChannelContainers().stream().flatMap(ma -> ma.getChannels().stream()).findFirst().get();
         List<BaseReadingRecord> readings = channel.getReadings(Range.openClosed(instant.minusSeconds(15 * 60L), instant.plusSeconds(15 * 60L)));
         assertThat(readings).hasSize(2);
         assertThat(readings.get(0).getQuantity(0).getValue()).isEqualTo(BigDecimal.valueOf(1000));
@@ -185,13 +187,13 @@ public class MeterReadingStorerTest {
         meter.store(meterReading);
         meter.store(meterReading);
 
-        List<? extends BaseReadingRecord> readings = meter.getMeterActivations().get(0).getReadings(
+        List<? extends BaseReadingRecord> readings = meter.getChannelContainers().get(0).getReadings(
                 Range.openClosed(instant.minusSeconds(15 * 60L), instant.plusSeconds(15 * 60L)),
                 meteringService.getReadingType(builder.period(TimeAttribute.MINUTE15).accumulate(Accumulation.DELTADELTA).code()).get());
         assertThat(readings).hasSize(2);
         assertThat(readings.get(0).getQuantity(0)).isNull();
         assertThat(readings.get(1).getQuantity(0).getValue()).isEqualTo(BigDecimal.valueOf(100));
-        readings = meter.getMeterActivations().get(0).getReadings(
+        readings = meter.getChannelContainers().get(0).getReadings(
                 Range.openClosed(instant.minusSeconds(15 * 60L), instant.plusSeconds(15 * 60L)),
                 meteringService.getReadingType(registerReadingTypeCode).get());
         assertThat(readings).hasSize(1);
@@ -238,7 +240,7 @@ public class MeterReadingStorerTest {
         meter.store(meterReading);
         List<? extends BaseReadingRecord> readings = meter.getReadings(Range.all(), meteringService.getReadingType(intervalReadingTypeCode).get());
         assertThat(readings).isNotEmpty();
-        Channel channel = meter.getMeterActivations().get(0).getChannels().get(0);
+        Channel channel = meter.getChannelContainers().get(0).getChannels().get(0);
         List<Reading> changes = new ArrayList<>();
         changes.add(ReadingImpl.of(intervalReadingTypeCode, BigDecimal.valueOf(1300), instant));
         changes.add(ReadingImpl.of(intervalReadingTypeCode, BigDecimal.valueOf(1400), instant.plusSeconds(3600)));
@@ -277,7 +279,7 @@ public class MeterReadingStorerTest {
         Instant instant = ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
         Reading reading = ReadingImpl.of(readingTypeCode, "Sample text", instant);
         meter.store(MeterReadingImpl.of(reading));
-        List<? extends BaseReadingRecord> readings = meter.getMeterActivations().get(0).getReadings(
+        List<? extends BaseReadingRecord> readings = meter.getChannelContainers().get(0).getReadings(
                 Range.openClosed(instant.minusSeconds(15 * 60L), instant.plusSeconds(15 * 60L)),
                 meteringService.getReadingType(readingTypeCode).get());
         assertThat(((ReadingRecord) readings.get(0)).getText()).isEqualTo("Sample text");
@@ -308,7 +310,7 @@ public class MeterReadingStorerTest {
         String registerReadingTypeCode = builder.period(TimeAttribute.NOTAPPLICABLE).code();
         meter.store(meterReading);
 
-        Channel channel = meter.getMeterActivations().get(0).getChannels().get(0);
+        Channel channel = meter.getChannelContainers().get(0).getChannels().get(0);
         IntervalReading reading = IntervalReadingImpl.of(instant.plusSeconds(15 * 60L), BigDecimal.valueOf(50));
         channel.editReadings(ImmutableList.of(reading));
 

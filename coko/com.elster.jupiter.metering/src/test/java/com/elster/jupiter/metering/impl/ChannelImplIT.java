@@ -16,6 +16,7 @@ import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
@@ -27,10 +28,11 @@ import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
-import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
@@ -107,7 +109,7 @@ public class ChannelImplIT {
             bind(BundleContext.class).toInstance(bundleContext);
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(SearchService.class).toInstance(mock(SearchService.class));
-            bind(PropertySpecService.class).toInstance(mock(PropertySpecService.class));
+            bind(TimeService.class).toInstance(mock(TimeService.class));
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
         }
     }
@@ -132,7 +134,8 @@ public class ChannelImplIT {
                     new BpmModule(),
                     new FiniteStateMachineModule(),
                     new NlsModule(),
-                    new CustomPropertySetsModule()
+                    new CustomPropertySetsModule(),
+                    new BasicPropertiesModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -187,14 +190,14 @@ public class ChannelImplIT {
         Instant since = clock.instant();
 
         try (TransactionContext context = transactionService.getContext()) {
-            MeterActivation meterActivation = meter.getMeterActivations().get(0);
-            Channel channel = meterActivation.getChannels().get(0);
+            ChannelsContainer channelsContainer = meter.getChannelContainers().get(0);
+            Channel channel = channelsContainer.getChannels().get(0);
             channel.getCimChannel(deltaReadingType).get().editReadings(Collections.singletonList(IntervalReadingImpl.of(ACTIVATION.plusDays(3).toInstant(), BigDecimal.valueOf(5))));
 
             context.commit();
         }
 
-        Channel channel = meter.getMeterActivations().get(0).getChannels().get(0);
+        Channel channel = meter.getChannelContainers().get(0).getChannels().get(0);
 
         List<BaseReadingRecord> bulkReadingsUpdatedSince = channel.getReadingsUpdatedSince(bulkReadingType, Range.<Instant>all(), since);
         assertThat(bulkReadingsUpdatedSince).isEmpty();

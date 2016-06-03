@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingContainer;
@@ -8,6 +9,7 @@ import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
+
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -145,7 +147,7 @@ public class MeterActivationsImpl implements ReadingContainer {
 	}
 
     @Override
-    public List<? extends MeterActivation> getMeterActivations() {
-        return Collections.unmodifiableList(meterActivations);
+	public List<ChannelsContainer> getChannelContainers() {
+		return Collections.unmodifiableList(meterActivations);
     }
 }

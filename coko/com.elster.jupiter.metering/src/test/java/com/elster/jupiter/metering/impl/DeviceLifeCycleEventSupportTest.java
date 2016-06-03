@@ -14,8 +14,9 @@ import com.elster.jupiter.metering.MeteringService;
 import java.util.Arrays;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -356,7 +357,7 @@ public class DeviceLifeCycleEventSupportTest {
         when(meterActivation.getMeter()).thenReturn(Optional.of(this.meter));
         Channel.ReadingsDeletedEvent eventSource = mock(Channel.ReadingsDeletedEvent.class);
         Channel channel = mock(Channel.class);
-        when(channel.getMeterActivation()).thenReturn(meterActivation);
+        when(channel.getChannelsContainer()).thenReturn(meterActivation);
         when(eventSource.getChannel()).thenReturn(channel);
         when(localEvent.getSource()).thenReturn(eventSource);
 
@@ -381,7 +382,7 @@ public class DeviceLifeCycleEventSupportTest {
         when(meterActivation.getMeter()).thenReturn(Optional.of(this.meter));
         Channel.ReadingsDeletedEvent eventSource = mock(Channel.ReadingsDeletedEvent.class);
         Channel channel = mock(Channel.class);
-        when(channel.getMeterActivation()).thenReturn(meterActivation);
+        when(channel.getChannelsContainer()).thenReturn(meterActivation);
         when(eventSource.getChannel()).thenReturn(channel);
         when(localEvent.getSource()).thenReturn(eventSource);
 
@@ -403,7 +404,7 @@ public class DeviceLifeCycleEventSupportTest {
         when(meterActivation.getMeter()).thenReturn(Optional.of(this.meter));
         Channel.ReadingsDeletedEvent eventSource = mock(Channel.ReadingsDeletedEvent.class);
         Channel channel = mock(Channel.class);
-        when(channel.getMeterActivation()).thenReturn(meterActivation);
+        when(channel.getChannelsContainer()).thenReturn(meterActivation);
         when(eventSource.getChannel()).thenReturn(channel);
         when(localEvent.getSource()).thenReturn(eventSource);
 
@@ -424,7 +425,7 @@ public class DeviceLifeCycleEventSupportTest {
         when(meterActivation.getMeter()).thenReturn(Optional.empty());
         Channel.ReadingsDeletedEvent eventSource = mock(Channel.ReadingsDeletedEvent.class);
         Channel channel = mock(Channel.class);
-        when(channel.getMeterActivation()).thenReturn(meterActivation);
+        when(channel.getChannelsContainer()).thenReturn(meterActivation);
         when(eventSource.getChannel()).thenReturn(channel);
         when(localEvent.getSource()).thenReturn(eventSource);
 
