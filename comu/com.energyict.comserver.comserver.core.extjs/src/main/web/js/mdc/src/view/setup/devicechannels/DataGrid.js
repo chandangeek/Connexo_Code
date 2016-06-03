@@ -58,15 +58,22 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                         icon = '';
 
                     if (readingQualitiesPresent) {
-                        Ext.Array.forEach(record.get('readingQualities'), function(readingQuality) {
-                            tooltipContent += (readingQuality + '<br>');
+                        Ext.Array.forEach(record.get('readingQualities'), function(readingQualityName) {
+                            // Strange behaviour detected:
+                            // When scrolling the grid completely down a reading quality *object* is added to the first grid item
+                            // Therefor we add this extra condition:
+                            if (typeof(readingQualityName) === 'string') {
+                                tooltipContent += (readingQualityName + '<br>');
+                            }
                         });
-                        tooltipContent += '<br>';
-                        tooltipContent += Uni.I18n.translate('general.deviceQuality.tooltip.moreMessage', 'MDC', 'View data quality details for more information.');
+                        if (tooltipContent.length > 0) {
+                            tooltipContent += '<br>';
+                            tooltipContent += Uni.I18n.translate('general.deviceQuality.tooltip.moreMessage', 'MDC', 'View data quality details for more information.');
 
-                        icon = '<span class="icon-radio" style="margin-left:10px; position:absolute;" data-qtitle="'
-                            + Uni.I18n.translate('general.deviceQuality', 'MDC', 'Device quality') + '" data-qtip="'
-                            + tooltipContent +'"></span>';
+                            icon = '<span class="icon-price-tags" style="margin-left:10px; position:absolute;" data-qtitle="'
+                                + Uni.I18n.translate('general.deviceQuality', 'MDC', 'Device quality') + '" data-qtip="'
+                                + tooltipContent + '"></span>';
+                        }
                     }
                     return text + icon;
                 },

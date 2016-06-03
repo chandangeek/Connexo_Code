@@ -301,7 +301,9 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
         });
 
         if (dataStore.getTotalCount() > 0) {
+            var showDeviceQualityIcon = false;
             dataStore.each(function (record) {
+                showDeviceQualityIcon |= !Ext.isEmpty(record.get('readingQualities'));
                 if (record.get('channelData')) {
                     Ext.iterate(record.get('channelData'), function (key, value) {
                         if (channelDataArrays[key]) {
@@ -316,7 +318,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             });
             container.down('#graphContainer').show();
             container.down('#emptyGraphMessage').hide();
-            container.drawGraph(title, yAxis, series, channels, seriesToYAxisMap, intervalLengthInMs, zoomLevels);
+            container.drawGraph(title, yAxis, series, channels, seriesToYAxisMap, intervalLengthInMs, zoomLevels, showDeviceQualityIcon);
         } else {
             container.down('#graphContainer').hide();
             container.down('#emptyGraphMessage').show();
