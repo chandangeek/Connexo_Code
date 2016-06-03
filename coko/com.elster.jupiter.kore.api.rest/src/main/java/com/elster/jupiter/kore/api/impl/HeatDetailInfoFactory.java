@@ -12,7 +12,6 @@ import javax.inject.Inject;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -86,11 +85,12 @@ public class HeatDetailInfoFactory extends SelectableFieldFactory<HeatDetailInfo
         map.put("bypassStatus", (heatDetailInfo, heatDetail, uriInfo) -> heatDetailInfo.bypassStatus = heatDetail.getBypassStatus());
         map.put("valve", (heatDetailInfo, heatDetail, uriInfo) -> heatDetailInfo.valve = heatDetail.isValveInstalled());
         map.put("collar", (heatDetailInfo, heatDetail, uriInfo) -> heatDetailInfo.collar = heatDetail.isCollarInstalled());
+        map.put("effectivity", (heatDetailInfo, heatDetail, uriInfo) -> heatDetailInfo.effectivity = effectivityHelper.getEffectiveRange(heatDetail));
         return map;
     }
 
-    public UsagePointDetailBuilder createDetail(UsagePoint usagePoint, Instant instant, HeatDetailInfo info) {
-        return usagePoint.newHeatDetailBuilder(instant)
+    public UsagePointDetailBuilder createDetail(UsagePoint usagePoint, HeatDetailInfo info) {
+        return usagePoint.newHeatDetailBuilder(info.effectivity.lowerEnd)
                 .withCollar(info.collar)
                 .withPressure(info.pressure)
                 .withPhysicalCapacity(info.physicalCapacity)

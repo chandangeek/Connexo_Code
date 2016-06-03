@@ -16,9 +16,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.time.Clock;
 import java.time.Instant;
-import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
@@ -43,7 +41,6 @@ public class MeterActivationResourceTest extends PlatformPublicApiJerseyTest {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        clock = Clock.fixed(Instant.ofEpochSecond(1448841600), ZoneId.systemDefault());
         usagePoint = mockUsagePoint(16, "up1", 1, ServiceKind.ELECTRICITY);
         MeterActivation meterActivation = mockMeterActivation(11L, 1L, 111L, usagePoint);
         MeterActivation meterActivation2 = mockMeterActivation(12L, 1L, 112L, usagePoint);
@@ -117,8 +114,8 @@ public class MeterActivationResourceTest extends PlatformPublicApiJerseyTest {
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
         Assertions.assertThat(model.<Integer>get("$.id")).isEqualTo(11);
         Assertions.assertThat(model.<Integer>get("$.version")).isEqualTo(1);
-        Assertions.assertThat(model.<Long>get("$.interval.start")).isEqualTo(1448841600000L);
-        Assertions.assertThat(model.<Long>get("$.interval.end")).isEqualTo(1448841600000L + 300000L);
+        Assertions.assertThat(model.<Long>get("$.interval.start")).isEqualTo(clock.millis());
+        Assertions.assertThat(model.<Long>get("$.interval.end")).isEqualTo(clock.millis() + 300000L);
         Assertions.assertThat(model.<String>get("$.link.params.rel")).isEqualTo(Relation.REF_SELF.rel());
         Assertions.assertThat(model.<String>get("$.usagePoint.link.params.rel")).isEqualTo(Relation.REF_PARENT.rel());
         Assertions.assertThat(model.<String>get("$.usagePoint.link.href"))

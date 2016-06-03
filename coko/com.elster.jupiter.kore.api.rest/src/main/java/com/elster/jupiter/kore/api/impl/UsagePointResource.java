@@ -43,19 +43,22 @@ public class UsagePointResource {
     private final Provider<ElectricityDetailResource> electricityDetailResourceProvider;
     private final Provider<GasDetailResource> gasDetailResourceProvider;
     private final Provider<HeatDetailsResource> heatDetailResourceProvider;
+    private final Provider<WaterDetailResource> waterDetailResourceProvider;
 
     @Inject
     public UsagePointResource(MeteringService meteringService, UsagePointInfoFactory usagePointInfoFactory,
                               ExceptionFactory exceptionFactory,
                               Provider<ElectricityDetailResource> electricityDetailResourceProvider,
                               Provider<GasDetailResource> gasDetailResourceProvider,
-                              Provider<HeatDetailsResource> heatDetailResourceProvider) {
+                              Provider<HeatDetailsResource> heatDetailResourceProvider,
+                              Provider<WaterDetailResource> waterDetailResourceProvider) {
         this.meteringService = meteringService;
         this.usagePointInfoFactory = usagePointInfoFactory;
         this.exceptionFactory = exceptionFactory;
         this.electricityDetailResourceProvider = electricityDetailResourceProvider;
         this.gasDetailResourceProvider = gasDetailResourceProvider;
         this.heatDetailResourceProvider = heatDetailResourceProvider;
+        this.waterDetailResourceProvider = waterDetailResourceProvider;
     }
 
     /**
@@ -180,9 +183,9 @@ public class UsagePointResource {
 //    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     @Transactional
     public Response createUsagePoint(UsagePointInfo usagePointInfo, @Context UriInfo uriInfo) {
-//        if (usagePointInfo.serviceKind == null) {
-//            exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.FIELD_MISSING, "serviceKind");
-//        }
+        if (usagePointInfo.serviceKind == null) {
+            throw exceptionFactory.newException(Response.Status.NOT_FOUND, MessageSeeds.FIELD_MISSING, "serviceKind");
+        }
         UsagePoint usagePoint = usagePointInfoFactory.createUsagePoint(usagePointInfo);
 
         URI uri = uriInfo.getBaseUriBuilder().
@@ -233,6 +236,8 @@ public class UsagePointResource {
                 return gasDetailResourceProvider.get().init(usagePoint);
             case HEAT:
                 return heatDetailResourceProvider.get().init(usagePoint);
+            case WATER:
+                return waterDetailResourceProvider.get().init(usagePoint);
             default:
                 throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.UNSUPPORTED_SERVICE_KIND);
         }

@@ -13,7 +13,6 @@ import javax.inject.Inject;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -93,11 +92,13 @@ public class GasDetailInfoFactory extends SelectableFieldFactory<GasDetailInfo, 
                 .isGrounded());
         map.put("collar", (gasDetailInfo, gasDetail, uriInfo) -> gasDetailInfo.collar = gasDetail
                 .isCollarInstalled());
+        map.put("effectivity", (gasDetailInfo, gasDetail, uriInfo) -> gasDetailInfo.effectivity = effectivityHelper.getEffectiveRange(gasDetail));
+
         return map;
     }
 
-    public UsagePointDetailBuilder createDetail(UsagePoint usagePoint, Instant instant, GasDetailInfo info) {
-        return usagePoint.newGasDetailBuilder(instant)
+    public UsagePointDetailBuilder createDetail(UsagePoint usagePoint, GasDetailInfo info) {
+        return usagePoint.newGasDetailBuilder(info.effectivity.lowerEnd)
                 .withCollar(info.collar)
                 .withGrounded(info.grounded)
                 .withPressure(info.pressure)

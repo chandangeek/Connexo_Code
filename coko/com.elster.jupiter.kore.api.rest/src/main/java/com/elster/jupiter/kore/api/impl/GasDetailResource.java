@@ -4,19 +4,25 @@ import com.elster.jupiter.kore.api.impl.utils.MessageSeeds;
 import com.elster.jupiter.metering.GasDetail;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointDetail;
+import com.elster.jupiter.metering.UsagePointDetailBuilder;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.PROPFIND;
+import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.rest.util.hypermedia.FieldSelection;
 
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.net.URI;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
@@ -58,6 +64,25 @@ public class GasDetailResource {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DETAIL));
 
         return gasDetailInfoFactory.from((GasDetail) usagePointDetail, uriInfo, fieldSelection.getFields());
+    }
+
+    @POST
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+//    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
+    public Response createGasDetail(GasDetailInfo gasDetailInfo, @Context UriInfo uriInfo) {
+        UsagePointDetailBuilder builder = gasDetailInfoFactory.createDetail(usagePoint, gasDetailInfo);
+        builder.validate();
+        UsagePointDetail detail = builder.create();
+
+        URI uri = uriInfo.getBaseUriBuilder().
+                path(UsagePointResource.class).
+                path(UsagePointResource.class, "getDetailsResource").
+                path(GasDetailResource.class, "getGasDetails").
+                build(usagePoint.getId(), detail.getRange().lowerEndpoint());
+
+        return Response.created(uri).build();
     }
 
     @PROPFIND

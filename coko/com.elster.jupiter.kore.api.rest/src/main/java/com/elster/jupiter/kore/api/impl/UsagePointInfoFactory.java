@@ -1,14 +1,9 @@
 package com.elster.jupiter.kore.api.impl;
 
 import com.elster.jupiter.kore.api.impl.utils.MessageSeeds;
-import com.elster.jupiter.metering.ElectricityDetail;
-import com.elster.jupiter.metering.GasDetail;
 import com.elster.jupiter.metering.LocationMember;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.UsagePointDetail;
-import com.elster.jupiter.metering.UsagePointDetailBuilder;
-import com.elster.jupiter.metering.WaterDetail;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -57,7 +52,7 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
     }
 
     public LinkInfo asLink(UsagePoint usagePoint, Relation relation, UriInfo uriInfo) {
-        UsagePointInfo info = new DefaultUsagePointInfo();
+        UsagePointInfo info = new UsagePointInfo();
         copySelectedFields(info, usagePoint, uriInfo, Arrays.asList("id", "version"));
         info.link = link(usagePoint, relation, uriInfo);
         return info;
@@ -81,18 +76,9 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
     }
 
     public UsagePointInfo from(UsagePoint usagePoint, UriInfo uriInfo, Collection<String> fields) {
-        UsagePointInfo info = getUsagePointInfo(usagePoint);
+        UsagePointInfo info = new UsagePointInfo();
         copySelectedFields(info, usagePoint, uriInfo, fields);
         return info;
-    }
-
-    protected UsagePointInfo getUsagePointInfo(UsagePoint usagePoint) {
-        switch (usagePoint.getServiceCategory().getKind()) {
-            case WATER:
-                return new WaterUsagePointInfo();
-            default:
-                throw exceptionFactory.newException(MessageSeeds.UNSUPPORTED_TYPE);
-        }
     }
 
     @Override
@@ -117,104 +103,6 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
         map.put("serviceDeliveryRemark", (usagePointInfo, usagePoint, uriInfo) -> usagePointInfo.serviceDeliveryRemark = usagePoint
                 .getServiceDeliveryRemark());
 
-        map.put("grounded", (usagePointInfo, usagePoint, uriInfo) -> {
-            Optional<? extends UsagePointDetail> detail = usagePoint.getDetail(clock.instant());
-            if (detail.isPresent()) {
-                if (GasDetail.class.isAssignableFrom(detail.get().getClass())) {
-                    usagePointInfo.grounded = ((GasDetail) detail.get()).isGrounded();
-                } else if (WaterDetail.class.isAssignableFrom(detail.get().getClass())) {
-                    usagePointInfo.grounded = ((WaterDetail) detail.get()).isGrounded();
-                } else if (ElectricityDetail.class.isAssignableFrom(detail.get().getClass())) {
-                    usagePointInfo.grounded = ((ElectricityDetail) detail.get()).isGrounded();
-                }
-            }
-        });
-        map.put("collar", (usagePointInfo, usagePoint, uriInfo) -> {
-            Optional<? extends UsagePointDetail> detail = usagePoint.getDetail(clock.instant());
-            if (detail.isPresent()) {
-                usagePointInfo.collar = detail.get().isCollarInstalled();
-            }
-        });
-        map.put("pressure", (usagePointInfo, usagePoint, uriInfo) -> {
-            Optional<? extends UsagePointDetail> detail = usagePoint.getDetail(clock.instant());
-            if (detail.isPresent()) {
-                if (WaterDetail.class.isAssignableFrom(detail.get().getClass())) {
-                    ((WaterUsagePointInfo) usagePointInfo).pressure = ((WaterDetail) detail.get()).getPressure();
-                }
-            }
-        });
-        map.put("physicalCapacity", (usagePointInfo, usagePoint, uriInfo) -> {
-            Optional<? extends UsagePointDetail> detail = usagePoint.getDetail(clock.instant());
-            if (detail.isPresent()) {
-                if (WaterDetail.class.isAssignableFrom(detail.get().getClass())) {
-                    ((WaterUsagePointInfo) usagePointInfo).physicalCapacity = ((WaterDetail) detail.get()).getPhysicalCapacity();
-                }
-            }
-        });
-        map.put("limiter", (usagePointInfo, usagePoint, uriInfo) -> {
-            Optional<? extends UsagePointDetail> detail = usagePoint.getDetail(clock.instant());
-            if (detail.isPresent()) {
-                if (WaterDetail.class.isAssignableFrom(detail.get().getClass())) {
-                    ((WaterUsagePointInfo) usagePointInfo).limiter = ((WaterDetail) detail.get()).isLimiter();
-                }
-            }
-        });
-        map.put("loadLimiterType", (usagePointInfo, usagePoint, uriInfo) -> {
-            Optional<? extends UsagePointDetail> detail = usagePoint.getDetail(clock.instant());
-            if (detail.isPresent()) {
-                if (WaterDetail.class.isAssignableFrom(detail.get().getClass())) {
-                    ((WaterUsagePointInfo) usagePointInfo).loadLimiterType = ((WaterDetail) detail.get()).getLoadLimiterType();
-                }
-            }
-        });
-        map.put("loadLimit", (usagePointInfo, usagePoint, uriInfo) -> {
-            Optional<? extends UsagePointDetail> detail = usagePoint.getDetail(clock.instant());
-            if (detail.isPresent()) {
-                if (WaterDetail.class.isAssignableFrom(detail.get().getClass())) {
-                    ((WaterUsagePointInfo) usagePointInfo).loadLimit = ((WaterDetail) detail.get()).getLoadLimit();
-                }
-            }
-        });
-        map.put("bypass", (usagePointInfo, usagePoint, uriInfo) -> {
-            Optional<? extends UsagePointDetail> detail = usagePoint.getDetail(clock.instant());
-            if (detail.isPresent()) {
-                if (WaterDetail.class.isAssignableFrom(detail.get().getClass())) {
-                    ((WaterUsagePointInfo) usagePointInfo).bypass = ((WaterDetail) detail.get()).isBypassInstalled();
-                }
-            }
-        });
-        map.put("bypassStatus", (usagePointInfo, usagePoint, uriInfo) -> {
-            Optional<? extends UsagePointDetail> detail = usagePoint.getDetail(clock.instant());
-            if (detail.isPresent()) {
-                if (WaterDetail.class.isAssignableFrom(detail.get().getClass())) {
-                    ((WaterUsagePointInfo) usagePointInfo).bypassStatus = ((WaterDetail) detail.get()).getBypassStatus();
-                }
-            }
-        });
-        map.put("valve", (usagePointInfo, usagePoint, uriInfo) -> {
-            Optional<? extends UsagePointDetail> detail = usagePoint.getDetail(clock.instant());
-            if (detail.isPresent()) {
-                if (WaterDetail.class.isAssignableFrom(detail.get().getClass())) {
-                    ((WaterUsagePointInfo) usagePointInfo).valve = ((WaterDetail) detail.get()).isValveInstalled();
-                }
-            }
-        });
-        map.put("capped", (usagePointInfo, usagePoint, uriInfo) -> {
-            Optional<? extends UsagePointDetail> detail = usagePoint.getDetail(clock.instant());
-            if (detail.isPresent()) {
-                if (WaterDetail.class.isAssignableFrom(detail.get().getClass())) {
-                    ((WaterUsagePointInfo) usagePointInfo).capped = ((WaterDetail) detail.get()).isCapped();
-                }
-            }
-        });
-        map.put("clamped", (usagePointInfo, usagePoint, uriInfo) -> {
-            Optional<? extends UsagePointDetail> detail = usagePoint.getDetail(clock.instant());
-            if (detail.isPresent()) {
-                if (WaterDetail.class.isAssignableFrom(detail.get().getClass())) {
-                    ((WaterUsagePointInfo) usagePointInfo).clamped = ((WaterDetail) detail.get()).isClamped();
-                }
-            }
-        });
         map.put("metrologyConfiguration", (usagePointInfo, usagePoint, uriInfo) -> {
             Optional<MetrologyConfiguration> metrologyConfiguration = usagePoint.getMetrologyConfiguration();
             metrologyConfiguration.ifPresent(mc -> usagePointInfo.metrologyConfiguration = metrologyConfigurationInfoFactory
@@ -222,8 +110,6 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
                     .asLink(mc, Relation.REF_RELATION, uriInfo));
         });
 
-//        map.put("serviceCategory", ((usagePointInfo, usagePoint, uriInfo) -> usagePointInfo.serviceCategory = serviceCategoryInfoFactory.asLink(usagePoint.getServiceCategory(), Relation.REF_RELATION, uriInfo)));
-//
         map.put("meterActivations", (usagePointInfo, usagePoint, uriInfo) -> usagePointInfo.meterActivations = meterActivationInfoFactory
                 .get()
                 .asLink(usagePoint.getMeterActivations(), Relation.REF_RELATION, uriInfo));
@@ -234,8 +120,6 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
                             .map(this::newLocationInfo)
                             .collect(toList()));
         });
-//        map.put("accountabilities", (usagePointInfo, usagePoint, uriInfo) -> usagePointInfo.accountabilities = accountabilitieInfoFactory.asLink(usagePoint.getAccountabilities(), Relation.REL_RELATION, uriInfo));
-//        map.put("usagePointConfigurations", (usagePointInfo, usagePoint, uriInfo) -> usagePointInfo.usagePointConfigurations = usagePointConfigurationInfoFactory.asLink(usagePoint.getUsagePointConfigurations(), Relation.REL_RELATION, uriInfo));
         return map;
     }
 
@@ -261,7 +145,7 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
     }
 
     public UsagePoint createUsagePoint(UsagePointInfo usagePointInfo) {
-        UsagePoint usagePoint = meteringService.getServiceCategory(usagePointInfo.getServiceKind())
+        UsagePoint usagePoint = meteringService.getServiceCategory(usagePointInfo.serviceKind)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_SERVICE_CATEGORY))
                 .newUsagePoint(usagePointInfo.mrid, usagePointInfo.installationTime)
                 .withAliasName(usagePointInfo.aliasName)
@@ -281,9 +165,6 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
             }
             usagePoint.apply(metrologyConfiguration.get(), now);
         }
-        UsagePointDetailBuilder builder = usagePointInfo.createDetail(usagePoint, now);
-        builder.validate();
-        builder.create();
         return usagePoint;
     }
 
@@ -299,13 +180,6 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
         usagePoint.setServicePriority(usagePointInfo.servicePriority);
         usagePoint.update();
         Instant now = clock.instant();
-        Optional<? extends UsagePointDetail> detail = usagePoint.getDetail(now);
-        if (detail.isPresent()) {
-            usagePoint.terminateDetail(detail.get(), now);
-            UsagePointDetailBuilder newDetail = usagePointInfo.createDetail(usagePoint, now);
-            newDetail.validate();
-            newDetail.create();
-        }
         if (usagePointInfo.metrologyConfiguration != null && usagePointInfo.metrologyConfiguration.id != null) {
             Optional<MetrologyConfiguration> metrologyConfiguration = metrologyConfigurationService.findMetrologyConfiguration(usagePointInfo.metrologyConfiguration.id);
             if (!metrologyConfiguration.isPresent()) {

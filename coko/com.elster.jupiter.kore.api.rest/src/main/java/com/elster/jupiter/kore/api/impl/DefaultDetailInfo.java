@@ -1,5 +1,6 @@
 package com.elster.jupiter.kore.api.impl;
 
+import com.elster.jupiter.kore.api.impl.utils.RangeInfo;
 import com.elster.jupiter.rest.util.hypermedia.LinkInfo;
 import com.elster.jupiter.util.YesNoAnswer;
 
@@ -16,5 +17,5 @@ public class DefaultDetailInfo extends LinkInfo<Instant> {
     public List<Link> link;
     public YesNoAnswer grounded;
     public YesNoAnswer collar;
-
+    public RangeInfo effectivity;
 }

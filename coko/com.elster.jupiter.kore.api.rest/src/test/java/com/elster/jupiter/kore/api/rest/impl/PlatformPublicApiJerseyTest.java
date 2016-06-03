@@ -45,6 +45,7 @@ import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.Collections;
 import java.util.Currency;
@@ -66,8 +67,8 @@ import static org.mockito.Mockito.when;
  * Created by bvn on 9/19/14.
  */
 public class PlatformPublicApiJerseyTest extends FelixRestApplicationJerseyTest {
-    @Mock
-    Clock clock;
+    public static final Clock clock = Clock.fixed(LocalDateTime.of(2016, 5, 1, 12, 0)
+            .toInstant(ZoneOffset.UTC), ZoneId.systemDefault());
     @Mock
     MeteringService meteringService;
     @Mock

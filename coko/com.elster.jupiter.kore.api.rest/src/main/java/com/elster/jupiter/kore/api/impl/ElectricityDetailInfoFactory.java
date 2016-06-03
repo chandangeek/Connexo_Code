@@ -12,7 +12,6 @@ import javax.inject.Inject;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -104,11 +103,13 @@ public class ElectricityDetailInfoFactory extends SelectableFieldFactory<Electri
                 .isGrounded());
         map.put("collar", (electricityDetailInfo, electricityDetail, uriInfo) -> electricityDetailInfo.collar = electricityDetail
                 .isCollarInstalled());
+        map.put("effectivity", (electricityDetailInfo, electricityDetail, uriInfo) -> electricityDetailInfo.effectivity = effectivityHelper
+                .getEffectiveRange(electricityDetail));
         return map;
     }
 
-    public UsagePointDetailBuilder createDetail(UsagePoint usagePoint, Instant instant, ElectricityDetailInfo info) {
-        return usagePoint.newElectricityDetailBuilder(instant)
+    public UsagePointDetailBuilder createDetail(UsagePoint usagePoint, ElectricityDetailInfo info) {
+        return usagePoint.newElectricityDetailBuilder(info.effectivity.lowerEnd)
                 .withCollar(info.collar)
                 .withGrounded(info.grounded)
                 .withNominalServiceVoltage(info.nominalServiceVoltage)

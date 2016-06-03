@@ -1,6 +1,8 @@
 package com.elster.jupiter.kore.api.impl;
 
+import com.elster.jupiter.kore.api.impl.utils.RangeInfo;
 import com.elster.jupiter.metering.UsagePointDetail;
+import com.elster.jupiter.orm.associations.Effectivity;
 
 import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
@@ -33,5 +35,16 @@ public class EffectivityHelper {
             }
         }
         return Optional.empty();
+    }
+
+    RangeInfo getEffectiveRange(Effectivity effectivity) {
+        RangeInfo info = new RangeInfo();
+        if (effectivity.getRange().hasLowerBound()) {
+            info.lowerEnd = effectivity.getRange().lowerEndpoint();
+        }
+        if (effectivity.getRange().hasUpperBound()) {
+            info.upperEnd = effectivity.getRange().upperEndpoint();
+        }
+        return info;
     }
 }
