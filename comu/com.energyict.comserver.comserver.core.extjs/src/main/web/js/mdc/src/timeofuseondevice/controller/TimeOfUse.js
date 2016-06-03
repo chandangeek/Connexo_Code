@@ -5,7 +5,8 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
 
     views: [
         'Mdc.timeofuseondevice.view.Setup',
-        'Mdc.timeofuseondevice.view.ViewCalendarSetup'
+        'Mdc.timeofuseondevice.view.ViewCalendarSetup',
+        'Mdc.timeofuseondevice.view.SendCalendarSetup'
     ],
 
     models: [
@@ -101,7 +102,7 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
             case 'cleartariff':
                 break;
             case 'sendcalendar':
-                break;
+                me.goToSendCalendarForm(menu.device.get('mRID'));
             case 'verifycalendars':
                 break;
             case 'viewpreview':
@@ -136,6 +137,31 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
                     me.getApplication().fireEvent('timeofusecalendarloaded', newRecord.get('name'));
                     return true;
                 }, {single: true});
+                me.getApplication().fireEvent('changecontentevent', view);
+            }
+        });
+    },
+
+    goToSendCalendarForm: function (mRID) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            route;
+
+        route = router.getRoute('devices/device/timeofuse/send', {mRID: mRID});
+        route.forward();
+    },
+
+    showSendCalendarView: function(mRID) {
+        var me = this,
+            deviceModel = me.getModel('Mdc.model.Device'),
+            view;
+
+        deviceModel.load(mRID, {
+            success: function (record) {
+                me.getApplication().fireEvent('loadDevice', record);
+                view = Ext.widget('tou-device-send-cal-setup', {
+                    device: record
+                });
                 me.getApplication().fireEvent('changecontentevent', view);
             }
         });

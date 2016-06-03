@@ -1351,7 +1351,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                 }
                             }
                         },
-                        servicecalls:  {
+                        servicecalls: {
                             title: Uni.I18n.translate('devicemenu.serviceCalls', 'MDC', 'Service calls'),
                             route: 'servicecalls',
                             controller: 'Mdc.controller.setup.ServiceCalls',
@@ -1682,6 +1682,15 @@ Ext.define('Mdc.controller.history.Setup', {
                                         }, {single: true});
                                         return this;
                                     }
+                                },
+                                send: {
+                                    title: Uni.I18n.translate('tou.sendTimeOfUseCalendar', 'MDC', 'Send time of use calendar'),
+                                    route: 'send',
+                                    controller: 'Mdc.timeofuseondevice.controller.TimeOfUse',
+                                    privileges:  Mdc.privileges.DeviceCommands.executeCommands,
+                                    dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.supportsSend,
+                                    dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
+                                    action: 'showSendCalendarView'
                                 }
                             }
                         },
@@ -2044,7 +2053,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             controller: 'Mdc.controller.setup.MonitorProcesses',
                             privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
                             action: 'showDeviceProcesses',
-                            items:{
+                            items: {
                                 'processstart': {
                                     title: Uni.I18n.translate('processes.startProcess', 'MDC', 'Start process'),
                                     route: 'start',
@@ -2179,11 +2188,13 @@ Ext.define('Mdc.controller.history.Setup', {
                 }
             }
         });
-    },
+    }
+    ,
 
     tokenizePreviousTokens: function () {
         return this.tokenizePath(this.getApplication().getController('Uni.controller.history.EventBus').previousPath);
-    },
+    }
+    ,
 
     tokenizeBrowse: function (item, id) {
         if (id === undefined) {
@@ -2191,17 +2202,21 @@ Ext.define('Mdc.controller.history.Setup', {
         } else {
             return this.tokenize([this.rootToken, item, id]);
         }
-    },
+    }
+    ,
 
     tokenizeAddComserver: function () {
         return this.tokenize([this.rootToken, 'comservers', 'add']);
-    },
+    }
+    ,
 
     tokenizeAddDeviceCommunicationProtocol: function () {
         return this.tokenize([this.rootToken, 'devicecommunicationprotocols', 'add']);
-    },
+    }
+    ,
 
     tokenizeAddComPortPool: function () {
         return this.tokenize([this.rootToken, 'comportpools', 'add']);
     }
-});
+})
+;

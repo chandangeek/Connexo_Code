@@ -29,16 +29,51 @@ Ext.define('Mdc.dynamicprivileges.DeviceState', {
     deviceCommandWithPrivileges: 'privilege.command.has.privileges',
     timeOfUseAllowed: 'devices.pages.timeofuseallowed',
     sendCalendar: 'devices.actions.timeofuse.send',
+    sendWithDateType: 'devices.actions.timeofuse.sendDateType',
+    sendWithDate: 'devices.actions.timeofuse.sendDate',
+    sendWithDateContract: 'devices.actions.timeofuse.sendDateContract',
+    sendWithDateTime: 'devices.actions.timeofuse.sendDateTime',
+    sendSpecialDays: 'devices.actions.timeofuse.sendSpecial',
+    sendSpecialDaysWithType: 'devices.actions.timeofuse.sendSpecialType',
+    sendSpecialDaysWithContractAndDate: 'devices.actions.timeofuse.sendSpecialContractDate',
     verifyCalendar: 'devices.actions.timeofuse.verify',
     clearAndDisable: 'devices.actions.timeofuse.clearanddisable',
     activatePassive: 'devices.actions.timeofuse.activatepassive',
     supportsPassive: 'devices.timeofuse.supportspassive',
+    supportsSend: 'devices.timeofuse.supportssend',
 
     allDeviceCommandPrivileges: [ 'privilege.command.has.privileges', 'devices.actions.device.commands' ],
 
 
     canEditData: function () {
         return Uni.DynamicPrivileges.checkDynamicPrivileges(Mdc.dynamicprivileges.DeviceState.deviceDataEditActions);
-    }
+    },
+
+    canVerify: function () {
+        return Uni.DynamicPrivileges.checkDynamicPrivileges(Mdc.dynamicprivileges.DeviceState.verifyCalendar);
+    },
+
+    canSendCalendar: function () {
+        return Uni.DynamicPrivileges.checkDynamicPrivileges(Mdc.dynamicprivileges.DeviceState.sendCalendar)
+            || Uni.DynamicPrivileges.checkDynamicPrivileges(Mdc.dynamicprivileges.DeviceState.sendWithDateType)
+            || Uni.DynamicPrivileges.checkDynamicPrivileges(Mdc.dynamicprivileges.DeviceState.sendWithDate)
+            || Uni.DynamicPrivileges.checkDynamicPrivileges(Mdc.dynamicprivileges.DeviceState.sendWithDateContract)
+            || Uni.DynamicPrivileges.checkDynamicPrivileges(Mdc.dynamicprivileges.DeviceState.sendWithDateTime)
+            || Uni.DynamicPrivileges.checkDynamicPrivileges(Mdc.dynamicprivileges.DeviceState.sendSpecialDays)
+            || Uni.DynamicPrivileges.checkDynamicPrivileges(Mdc.dynamicprivileges.DeviceState.sendSpecialDaysWithType)
+            || Uni.DynamicPrivileges.checkDynamicPrivileges(Mdc.dynamicprivileges.DeviceState.sendSpecialDaysWithContractAndDate)
+    },
+
+    allSend: function() {
+        return Ext.Array.merge(Mdc.dynamicprivileges.DeviceState.sendCalendar,
+            Mdc.dynamicprivileges.DeviceState.sendWithDateType,
+            Mdc.dynamicprivileges.DeviceState.sendWithDate,
+            Mdc.dynamicprivileges.DeviceState.sendWithDateContract,
+            Mdc.dynamicprivileges.DeviceState.sendWithDateTime,
+            Mdc.dynamicprivileges.DeviceState.sendSpecialDays,
+            Mdc.dynamicprivileges.DeviceState.sendSpecialDaysWithType,
+            Mdc.dynamicprivileges.DeviceState.sendSpecialDaysWithContractAndDate
+        );
+    },
 
 });

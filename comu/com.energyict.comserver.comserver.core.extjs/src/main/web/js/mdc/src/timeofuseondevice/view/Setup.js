@@ -48,7 +48,8 @@ Ext.define('Mdc.timeofuseondevice.view.Setup', {
                     itemId: 'tou-device-actions-button',
                     margin: '0 20 0 0',
                     menu: {
-                        xtype: 'tou-device-action-menu'
+                        xtype: 'tou-device-action-menu',
+                        device: me.device
                     }
                 }
             ],
@@ -82,7 +83,9 @@ Ext.define('Mdc.timeofuseondevice.view.Setup', {
     showEmptyComponent: function() {
         var me = this;
         if(me.down('#tou-device-actions-button')) {
-            me.down('#tou-device-actions-button').hide();
+            if(!Mdc.dynamicprivileges.DeviceState.canVerify() && !Mdc.dynamicprivileges.DeviceState.canSendCalendar()) {
+                me.down('#tou-device-actions-button').hide();
+            }
             me.down('device-tou-preview-form').hide();
             me.down('device-tou-planned-on-form').hide();
             me.down('no-items-found-panel').show();
