@@ -15,6 +15,7 @@ import com.elster.jupiter.rest.util.RestValidationBuilder;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.util.streams.Predicates;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.AllowedCalendar;
@@ -42,7 +43,6 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Provider;
-import javax.swing.text.html.Option;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -59,7 +59,6 @@ import javax.ws.rs.core.Response;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.Year;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -527,8 +526,19 @@ public class DeviceTypeResource {
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public Response removeCalendar(@PathParam("id") long id, @PathParam("calendarId") long calendarId, AllowedCalendarInfo allowedCalendarInfo) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
-        deviceType.removeCalendar(allowedCalendarInfo.id);
-        return Response.ok().build();
+        Optional<AllowedCalendar> allowedCalendar =
+                deviceType
+                        .getAllowedCalendars()
+                        .stream()
+                        .filter(Predicates.not(AllowedCalendar::isGhost))
+                        .filter(each -> each.getId() == allowedCalendarInfo.id)
+                        .findFirst();
+        if (allowedCalendar.isPresent()) {
+            deviceType.removeCalendar(allowedCalendar.get());
+            return Response.ok().build();
+        } else {
+            throw new WebApplicationException("Calendar with id " + allowedCalendarInfo.id + " not found on device type with id " + id, Response.Status.NOT_FOUND);
+        }
     }
 
 
