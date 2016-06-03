@@ -51,6 +51,10 @@ public abstract class AbstractSyncDeviceWithKoreMeter implements SyncDeviceWithK
         return start;
     }
 
+    protected void setStart(Instant start) {
+        this.start = start;
+    }
+
     protected void endCurrentMeterConfigurationIfPresent() {
         device.getMeter().get().getConfiguration(start).ifPresent(meterConfiguration -> meterConfiguration.endAt(start));
     }
@@ -64,13 +68,16 @@ public abstract class AbstractSyncDeviceWithKoreMeter implements SyncDeviceWithK
             this.device.getMeter().get().makeObsolete();
         }
     }
+    protected Meter.MeterConfigurationBuilder meterconfigurationBuilder(boolean withCalculatedReadingType){
+        Meter.MeterConfigurationBuilder meterConfigurationBuilder = device.getMeter().get().startingConfigurationOn(start);
+        createMeterConfigurationsForChannelSpecs(meterConfigurationBuilder, withCalculatedReadingType);
+        createMeterConfigurationsForRegisterSpecs(meterConfigurationBuilder, withCalculatedReadingType);
+        return meterConfigurationBuilder;
+    }
 
     protected Optional<MeterConfiguration> createKoreMeterConfiguration(boolean addCalculatedReadingType) {
         if (device.getDeviceConfiguration().getChannelSpecs().size() > 0 || device.getDeviceConfiguration().getRegisterSpecs().size() > 0) {
-            Meter.MeterConfigurationBuilder meterConfigurationBuilder = device.getMeter().get().startingConfigurationOn(start);
-            createMeterConfigurationsForChannelSpecs(meterConfigurationBuilder, addCalculatedReadingType);
-            createMeterConfigurationsForRegisterSpecs(meterConfigurationBuilder, addCalculatedReadingType);
-            return Optional.of(meterConfigurationBuilder.create());
+            return Optional.of(meterconfigurationBuilder(addCalculatedReadingType).create());
         }
         return Optional.empty();
     }
@@ -96,33 +103,42 @@ public abstract class AbstractSyncDeviceWithKoreMeter implements SyncDeviceWithK
         }
     }
 
-    private void createMeterConfigurationsForChannelSpecs(Meter.MeterConfigurationBuilder meterConfigurationBuilder, boolean addCalculatedReadingType) {
-        device.getDeviceConfiguration().getChannelSpecs().forEach(channelSpec -> {
-            Meter.MeterReadingTypeConfigurationBuilder meterReadingTypeConfigurationBuilder = meterConfigurationBuilder
-                    .configureReadingType(channelSpec.getReadingType())
-                    .withNumberOfFractionDigits(channelSpec.getNbrOfFractionDigits());
-            channelSpec.getOverflow().ifPresent(meterReadingTypeConfigurationBuilder::withOverflowValue);
-            if (addCalculatedReadingType && channelSpec.isUseMultiplier()) {
-                meterReadingTypeConfigurationBuilder
-                        .withMultiplierOfType(multiplierType)
-                        .calculating(getMultipliedReadingTypeForChannelSpec(channelSpec));
-            }
-        });
+    protected void createMeterConfigurationsForChannelSpecs(Meter.MeterConfigurationBuilder meterConfigurationBuilder, boolean addCalculatedReadingType) {
+        device.getDeviceConfiguration().getChannelSpecs()
+                .forEach(channelSpec ->
+                    configureReadingType(
+                        meterConfigurationBuilder,
+                        channelSpec.getReadingType(),
+                        channelSpec.getNbrOfFractionDigits(),
+                        channelSpec.getOverflow(),
+                        (addCalculatedReadingType && channelSpec.isUseMultiplier() ?  getMultipliedReadingTypeForChannelSpec(channelSpec) : null))
+                );
     }
 
-    private void createMeterConfigurationsForRegisterSpecs(Meter.MeterConfigurationBuilder meterConfigurationBuilder, boolean addCalculatedReadingType) {
+    protected void createMeterConfigurationsForRegisterSpecs(Meter.MeterConfigurationBuilder meterConfigurationBuilder, boolean addCalculatedReadingType) {
         device.getDeviceConfiguration().getRegisterSpecs().stream().filter(registerSpec -> !registerSpec.isTextual())
-                .map(registerSpec1 -> ((NumericalRegisterSpec) registerSpec1)).forEach(registerSpec -> {
-            Meter.MeterReadingTypeConfigurationBuilder meterReadingTypeConfigurationBuilder = meterConfigurationBuilder
-                    .configureReadingType(registerSpec.getReadingType())
-                    .withNumberOfFractionDigits(registerSpec.getNumberOfFractionDigits());
-            registerSpec.getOverflowValue().ifPresent(meterReadingTypeConfigurationBuilder::withOverflowValue);
-            if (addCalculatedReadingType && registerSpec.isUseMultiplier()) {
-                meterReadingTypeConfigurationBuilder
-                        .withMultiplierOfType(multiplierType)
-                        .calculating(registerSpec.getCalculatedReadingType().get());
-            }
-        });
+                .map(registerSpec1 -> ((NumericalRegisterSpec) registerSpec1))
+                .forEach(registerSpec ->
+                    configureReadingType(
+                        meterConfigurationBuilder,
+                        registerSpec.getReadingType(),
+                        registerSpec.getNumberOfFractionDigits(),
+                        registerSpec.getOverflowValue(),
+                        (addCalculatedReadingType && registerSpec.isUseMultiplier() ?  registerSpec.getCalculatedReadingType().get() : null ))
+                );
+    }
+
+    protected  Meter.MeterReadingTypeConfigurationBuilder configureReadingType(Meter.MeterConfigurationBuilder meterConfigurationBuilder, ReadingType readingType, int numberOfFractionDigits, Optional<BigDecimal> overflowValue, ReadingType calculatedReadingType){
+        Meter.MeterReadingTypeConfigurationBuilder meterReadingTypeConfigurationBuilder = meterConfigurationBuilder
+                .configureReadingType(readingType)
+                .withNumberOfFractionDigits(numberOfFractionDigits);
+        overflowValue.ifPresent(meterReadingTypeConfigurationBuilder::withOverflowValue);
+        if (calculatedReadingType != null) {
+            meterReadingTypeConfigurationBuilder
+                    .withMultiplierOfType(multiplierType)
+                    .calculating(calculatedReadingType);
+        }
+        return meterReadingTypeConfigurationBuilder;
     }
 
     ReadingType getMultipliedReadingTypeForChannelSpec(ChannelSpec channelSpec) {
