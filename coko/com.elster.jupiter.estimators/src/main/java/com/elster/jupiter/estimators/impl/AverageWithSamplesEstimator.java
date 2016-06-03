@@ -453,7 +453,7 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
     }
 
     private Optional<CimChannel> getCimChannel(EstimationBlock block, ReadingType readingType) {
-        for (Channel channel : block.getChannel().getMeterActivation().getChannels()) {
+        for (Channel channel : block.getChannel().getChannelsContainer().getChannels()) {
             if (channel.getReadingTypes().contains(readingType)) {
                 return channel.getCimChannel(readingType);
             }
@@ -473,9 +473,9 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
         ReadingType registerReadingType =
                 ((ReadingTypeAdvanceReadingsSettings) advanceReadingsSettings).getReadingType();
         List<? extends BaseReadingRecord> readingsBefore =
-                estimationBlock.getChannel().getMeterActivation().getReadingsBefore(startInterval, registerReadingType, 1);
+                estimationBlock.getChannel().getChannelsContainer().getReadingsBefore(startInterval, registerReadingType, 1);
         List<? extends BaseReadingRecord> readingsAfter =
-                estimationBlock.getChannel().getMeterActivation().getReadings(Range.atLeast(endInterval), registerReadingType);
+                estimationBlock.getChannel().getChannelsContainer().getReadings(Range.atLeast(endInterval), registerReadingType);
 
         if (readingsBefore.isEmpty()) {
             String message = "Failed estimation with {rule}: Block {block} since the prior advance reading has no value";
@@ -663,7 +663,7 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
         if (relativePeriod != null && timeService.getAllRelativePeriod().getId() != relativePeriod.getId()) {
             return relativePeriod.getOpenClosedInterval(ZonedDateTime.ofInstant(referenceTime, channel.getZoneId()));
         } else {
-            Instant start = channel.getMeterActivation().getStart();
+            Instant start = channel.getChannelsContainer().getStart();
             Optional<Instant> lastChecked = validationService.getLastChecked(channel);
             return lastChecked.map(end -> Range.openClosed(start, end)).orElseGet(() -> Range.greaterThan(start));
         }

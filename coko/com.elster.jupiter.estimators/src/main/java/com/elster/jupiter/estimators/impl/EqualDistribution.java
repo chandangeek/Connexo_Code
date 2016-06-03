@@ -183,7 +183,7 @@ public class EqualDistribution extends AbstractEstimator implements Estimator {
     }
 
     private Optional<CimChannel> getAdvanceCimChannel(EstimationBlock block, ReadingType readingType) {
-        return block.getChannel().getMeterActivation().getChannels().stream()
+        return block.getChannel().getChannelsContainer().getChannels().stream()
                 .filter(channel -> channel.getReadingTypes().contains(readingType))
                 .map(channel -> channel.getCimChannel(readingType))
                 .flatMap(Functions.asStream())

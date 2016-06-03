@@ -82,7 +82,7 @@ public class PowerGapFillTest {
 
     @Before
     public void setUp() {
-        doReturn(meterActivation).when(channel).getMeterActivation();
+        doReturn(meterActivation).when(channel).getChannelsContainer();
         doReturn(Optional.empty()).when(meterActivation).getMeter();
         doReturn("deltaReadingType").when(deltaReadingType).getMRID();
         doReturn("bulkReadingType").when(bulkReadingType).getMRID();

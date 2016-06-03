@@ -80,7 +80,7 @@ public class LinearInterpolationTest {
 
     @Before
     public void setUp() {
-        doReturn(meterActivation).when(channel).getMeterActivation();
+        doReturn(meterActivation).when(channel).getChannelsContainer();
         doReturn(Optional.empty()).when(meterActivation).getMeter();
         doReturn("readingType").when(readingType).getMRID();
         doReturn(Arrays.asList(estimatable1, estimatable2)).when(estimationBlock).estimatables();

@@ -121,7 +121,7 @@ public class AverageWithSamplesEstimatorTest {
         doReturn(asList(estimable)).when(block).estimatables();
         doReturn(readingType).when(block).getReadingType();
         doReturn(channel).when(block).getChannel();
-        doReturn(meterActivation).when(channel).getMeterActivation();
+        doReturn(meterActivation).when(channel).getChannelsContainer();
 
         doReturn(Optional.of(meter)).when(meterActivation).getMeter();
         doReturn(asList(channel, otherChannel)).when(meterActivation).getChannels();

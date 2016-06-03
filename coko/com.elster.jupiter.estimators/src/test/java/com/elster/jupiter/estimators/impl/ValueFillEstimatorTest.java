@@ -69,7 +69,7 @@ public class ValueFillEstimatorTest {
         logRecorder = new LogRecorder(Level.ALL);
         LOGGER.addHandler(logRecorder);
         doReturn("readingType").when(readingType).getMRID();
-        doReturn(meterActivation).when(channel).getMeterActivation();
+        doReturn(meterActivation).when(channel).getChannelsContainer();
         doReturn(Optional.of(meter)).when(meterActivation).getMeter();
 
         LoggingContext.get().with("rule", "rule");
@@ -119,7 +119,7 @@ public class ValueFillEstimatorTest {
         doReturn(Arrays.asList(estimatable1, estimatable2)).when(estimationBlock).estimatables();
         doReturn(readingType).when(estimationBlock).getReadingType();
         doReturn(channel).when(estimationBlock).getChannel();
-        doReturn(meterActivation).when(channel).getMeterActivation();
+        doReturn(meterActivation).when(channel).getChannelsContainer();
         doReturn(Optional.of(meter)).when(meterActivation).getMeter();
 
         Map<String, Object> properties = new HashMap<>();

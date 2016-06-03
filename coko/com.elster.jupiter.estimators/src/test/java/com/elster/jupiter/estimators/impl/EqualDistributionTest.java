@@ -114,7 +114,7 @@ public class EqualDistributionTest {
     public void setUp() {
         doReturn(asList(estimatable1, estimatable2, estimatable3)).when(estimationBlock).estimatables();
         doReturn(channel).when(estimationBlock).getChannel();
-        doReturn(meterActivation).when(channel).getMeterActivation();
+        doReturn(meterActivation).when(channel).getChannelsContainer();
         doReturn(Optional.empty()).when(meterActivation).getMeter();
         doReturn(asList(channel, otherChannel)).when(meterActivation).getChannels();
         doReturn(asList(deltaReadingType, bulkReadingType)).when(channel).getReadingTypes();
