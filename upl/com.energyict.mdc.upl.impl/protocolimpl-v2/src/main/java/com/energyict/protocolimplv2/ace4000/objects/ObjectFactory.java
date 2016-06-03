@@ -931,10 +931,6 @@ public class ObjectFactory {
         return deviceRegister;
     }
 
-    public List<CollectedLoadProfile> createCollectedLoadProfiles() {
-        return createCollectedLoadProfiles(DeviceLoadProfileSupport.GENERIC_LOAD_PROFILE_OBISCODE);
-    }
-
     public List<CollectedLoadProfile> createCollectedLoadProfiles(ObisCode obisCode) {
         List<CollectedLoadProfile> collectedLoadProfiles = new ArrayList<>();
         CollectedLoadProfile collectedLoadProfile = MdcManager.getCollectedDataFactory().createCollectedLoadProfile(new LoadProfileIdentifierByObisCodeAndDevice(obisCode, getAce4000().getDeviceIdentifier()));

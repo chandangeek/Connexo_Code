@@ -5,6 +5,7 @@ import com.energyict.mdc.meterdata.CollectedLogBook;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.inbound.BinaryInboundDeviceProtocol;
 import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
+import com.energyict.mdc.protocol.tasks.support.DeviceLoadProfileSupport;
 import com.energyict.mdw.core.LogBookTypeFactory;
 import com.energyict.protocolimplv2.ace4000.objects.ObjectFactory;
 import com.energyict.protocolimplv2.identifiers.LogBookIdentifierByObisCodeAndDevice;
@@ -66,10 +67,14 @@ public class ACE4000Inbound extends ACE4000 implements BinaryInboundDeviceProtoc
     public List<CollectedData> getCollectedData() {
         List<CollectedData> collectedDatas = new ArrayList<CollectedData>();
         collectedDatas.addAll(getCollectedRegisters());
-        collectedDatas.addAll(getObjectFactory().createCollectedLoadProfiles());
+        if (!getObjectFactory().getLoadProfile().getProfileData().getIntervalDatas().isEmpty()) {
+            collectedDatas.addAll(getObjectFactory().createCollectedLoadProfiles(DeviceLoadProfileSupport.GENERIC_LOAD_PROFILE_OBISCODE));
+        }
 
+        if (!getObjectFactory().getAllMeterEvents().isEmpty()) {
         CollectedLogBook deviceLogBook = getObjectFactory().getDeviceLogBook(new LogBookIdentifierByObisCodeAndDevice(getDeviceIdentifier(), LogBookTypeFactory.GENERIC_LOGBOOK_TYPE_OBISCODE));
         collectedDatas.add(deviceLogBook);
+        }
 
         return collectedDatas;
     }
@@ -80,7 +85,7 @@ public class ACE4000Inbound extends ACE4000 implements BinaryInboundDeviceProtoc
     }
 
     public String getVersion() {
-        return "$Date: 2016-05-31 16:24:54 +0300 (Tue, 31 May 2016)$";
+        return "$Date: 2016-06-02 17:27:06 +0200 (Thu, 02 Jun 2016)$";
     }
 
     /**
