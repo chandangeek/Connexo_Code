@@ -21,6 +21,7 @@ import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
 import com.elster.jupiter.metering.GeoCoordinates;
@@ -1383,21 +1384,19 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         // TODO: what if there are gaps in the meter activations
         Map<Instant, LoadProfileReadingImpl> loadProfileReadingMap = new TreeMap<>();
         TemporalAmount intervalLength = this.intervalLength(loadProfile);
-        List<MeterActivation> allMeterActivations = new ArrayList<>(meter.getMeterActivations());
-        allMeterActivations
+        meter.getChannelContainers()
                 .stream()
-                .filter(ma -> ma.overlaps(requestedInterval))
-                .forEach(affectedMeterActivation -> {
-                    Range<Instant> requestedIntervalClippedToMeterActivation = requestedInterval.intersection(affectedMeterActivation
-                            .getRange());
-                    ZonedDateTime requestStart = this.prefilledIntervalStart(loadProfile, affectedMeterActivation.getZoneId(), requestedIntervalClippedToMeterActivation);
+                .filter(channelContainer -> channelContainer.overlaps(requestedInterval))
+                .forEach(affectedChannelContainer -> {
+                    Range<Instant> requestedIntervalClippedToMeterActivation = requestedInterval.intersection(affectedChannelContainer.getRange());
+                    ZonedDateTime requestStart = this.prefilledIntervalStart(loadProfile, affectedChannelContainer.getZoneId(), requestedIntervalClippedToMeterActivation);
                     ZonedDateTime requestEnd =
                             ZonedDateTime.ofInstant(
                                     this.lastReadingClipped(loadProfile, requestedInterval),
-                                    affectedMeterActivation.getZoneId());
+                                    affectedChannelContainer.getZoneId());
                     if (!requestEnd.isBefore(requestStart)) {
-                        Range<Instant> meterActivationInterval = Range.closedOpen(requestStart.toInstant(), requestEnd.toInstant());
-                        while (meterActivationInterval.contains(requestStart.toInstant())) {
+                        Range<Instant> channelContainerInterval = Range.closedOpen(requestStart.toInstant(), requestEnd.toInstant());
+                        while (channelContainerInterval.contains(requestStart.toInstant())) {
                             ZonedDateTime readingTimestamp = requestStart.plus(intervalLength);
                             LoadProfileReadingImpl value = new LoadProfileReadingImpl();
                             value.setRange(Ranges.openClosed(requestStart.toInstant(), readingTimestamp.toInstant()));
@@ -1832,14 +1831,15 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     private List<com.elster.jupiter.metering.Channel> findKoreChannels(Supplier<ReadingType> readingTypeSupplier, Meter meter) {
-        return meter.getMeterActivations().stream()
-                .map(m -> getChannel(m, readingTypeSupplier.get()))
+        return meter.getChannelContainers()
+                .stream()
+                .map(channelContainer -> getChannel(channelContainer, readingTypeSupplier.get()))
                 .flatMap(asStream())
                 .collect(Collectors.toList());
     }
 
-    private Optional<com.elster.jupiter.metering.Channel> getChannel(MeterActivation meterActivation, ReadingType readingType) {
-        return meterActivation.getChannels()
+    private Optional<com.elster.jupiter.metering.Channel> getChannel(ChannelsContainer channelsContainer, ReadingType readingType) {
+        return channelsContainer.getChannels()
                 .stream()
                 .filter(channel -> channel.getReadingTypes().contains(readingType))
                 .findFirst();
