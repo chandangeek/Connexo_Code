@@ -110,7 +110,7 @@ public class MissingValuesValidatorTest {
             startPlus50 = base.plus(50, ChronoUnit.MINUTES);
             end = base.plus(60, ChronoUnit.MINUTES);
 
-            when(channel.getMeterActivation()).thenReturn(meterActivation);
+            when(channel.getChannelsContainer()).thenReturn(meterActivation);
             when(meterActivation.getStart()).thenReturn(start);
             when(intervalReading.getQuantity(readingType)).thenReturn(Quantity.create(BigDecimal.ONE, "Wh"));
             when(intervalReading.getValue()).thenReturn(BigDecimal.ONE);
