@@ -111,6 +111,7 @@ import static com.elster.jupiter.time.RelativeField.MINUTES;
 import static com.elster.jupiter.time.RelativeField.MONTH;
 import static com.elster.jupiter.time.RelativeField.YEAR;
 import static org.assertj.core.data.MapEntry.entry;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -230,6 +231,7 @@ public class ExportTaskImplIT {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+        when(userService.findGroup(anyString())).thenReturn(Optional.empty());
         transactionService = injector.getInstance(TransactionService.class);
         transactionService.execute(() -> {
             injector.getInstance(FiniteStateMachineService.class);
