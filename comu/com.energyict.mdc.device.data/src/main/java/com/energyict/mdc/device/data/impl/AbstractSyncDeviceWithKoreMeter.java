@@ -19,6 +19,9 @@ import java.util.Optional;
 
 /**
  * Base methods that can be used to sync the (Kore) Meter with the configuration of this (MDC) Device
+ *
+ * Additional behaviour related to 'Kore' objects
+ *
  * Copyrights EnergyICT
  * Date: 21/04/2016
  * Time: 13:14
