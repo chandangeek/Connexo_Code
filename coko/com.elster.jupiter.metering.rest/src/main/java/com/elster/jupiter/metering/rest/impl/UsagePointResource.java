@@ -261,7 +261,7 @@ public class UsagePointResource {
 
     @GET
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
-    @Path("/{mRID}/servicecategories")
+    @Path("/{mRID}/availablemetrologyconfigurations")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getMetrologyConfigurations(@PathParam("mRID") String mRID, @BeanParam JsonQueryParameters queryParameters) {
         ServiceCategory serviceCategory = fetchUsagePoint(mRID).getServiceCategory();
