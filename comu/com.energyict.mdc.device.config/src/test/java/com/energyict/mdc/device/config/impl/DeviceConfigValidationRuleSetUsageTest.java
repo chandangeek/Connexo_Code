@@ -87,6 +87,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -142,6 +143,7 @@ public class DeviceConfigValidationRuleSetUsageTest {
     public void setup() {
         when(principal.getName()).thenReturn("Ernie");
         when(userService.getPrivileges()).thenReturn(Arrays.asList());
+        when(userService.findGroup(anyString())).thenReturn(Optional.empty());
         this.bootstrapModule = new InMemoryBootstrapModule();
         injector = Guice.createInjector(
                 new MockModule(),
