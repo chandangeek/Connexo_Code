@@ -986,8 +986,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     public Optional<MeterReadingTypeConfiguration> getMeterReadingTypeConfigurationFor(ReadingType readingType) {
-        Optional<MeterConfiguration> configuration = Optional.empty();
         if (this.meter.isPresent()) {
+            Optional<MeterConfiguration> configuration = this.meter.get().getConfiguration(clock.instant());
             if (configuration.isPresent()) {
                 return configuration.get().getReadingTypeConfiguration(readingType);
             }

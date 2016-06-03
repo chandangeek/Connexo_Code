@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeterConfiguration;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
@@ -11,6 +12,7 @@ import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.function.Function;
 
 /**
  * Syncing Kore Meter Configuration with register updater values
@@ -22,8 +24,9 @@ public class KoreMeterConfigurationUpdater extends AbstractSyncDeviceWithKoreMet
 
     private final Clock clock;
     private ReadingType readingType;
-    private int overruledNbrOfFractionDigits;
+    private Integer overruledNbrOfFractionDigits;
     private BigDecimal overruledOverflowValue;
+    private Function<Void, Meter.MeterConfigurationBuilder> meterConfigurationBuilderProvider;
 
     @Inject
     KoreMeterConfigurationUpdater(MeteringService meteringService, MdcReadingTypeUtilService readingTypeUtilService, Clock clock) {
@@ -35,6 +38,7 @@ public class KoreMeterConfigurationUpdater extends AbstractSyncDeviceWithKoreMet
         this.readingType = registerUpdater.getReadingType();
         this.overruledNbrOfFractionDigits = registerUpdater.getOverruledNbrOfFractionDigits();
         this.overruledOverflowValue = registerUpdater.getOverruledOverflowValue();
+        this.meterConfigurationBuilderProvider = (x) -> meterconfigurationBuilderForRegisters();
         return this ;
     }
 
@@ -42,6 +46,7 @@ public class KoreMeterConfigurationUpdater extends AbstractSyncDeviceWithKoreMet
         this.readingType = channelUpdater.getReadingType();
         this.overruledNbrOfFractionDigits = channelUpdater.getOverruledNbrOfFractionDigits();
         this.overruledOverflowValue = channelUpdater.getOverruledOverflowValue();
+        this.meterConfigurationBuilderProvider = (x) -> meterconfigurationBuilderForChannels();
         return this ;
     }
 
@@ -53,8 +58,25 @@ public class KoreMeterConfigurationUpdater extends AbstractSyncDeviceWithKoreMet
 
         endCurrentMeterConfigurationIfPresent();
 
-        Meter.MeterConfigurationBuilder meterConfigurationBuilder = meterconfigurationBuilder(true);
-        device.getDeviceConfiguration().getRegisterSpecs().stream()
+        Meter.MeterConfigurationBuilder meterConfigurationBuilder = meterConfigurationBuilderProvider.apply(null);
+        if (overruledNbrOfFractionDigits!= null && overruledOverflowValue!=null){
+            meterConfigurationBuilder.configureReadingType(this.readingType)
+                    .withOverflowValue(overruledOverflowValue)
+                    .withNumberOfFractionDigits(overruledNbrOfFractionDigits).create();
+        }else if(overruledNbrOfFractionDigits == null) {
+            meterConfigurationBuilder.configureReadingType(this.readingType)
+                    .withOverflowValue(overruledOverflowValue).create();
+        }else {
+            meterConfigurationBuilder.configureReadingType(this.readingType)
+                    .withNumberOfFractionDigits(overruledNbrOfFractionDigits).create();
+        }
+
+    }
+
+    private Meter.MeterConfigurationBuilder meterconfigurationBuilderForRegisters(){
+        Meter.MeterConfigurationBuilder meterConfigurationBuilder = getDevice().getMeter().get().startingConfigurationOn(getStart());
+        createMeterConfigurationsForChannelSpecs(meterConfigurationBuilder, true);
+        getDevice().getDeviceConfiguration().getRegisterSpecs().stream()
                 .filter(registerSpec -> registerSpec.getReadingType() != this.readingType)
                 .map(registerSpec1 -> ((NumericalRegisterSpec) registerSpec1))
                 .forEach(registerSpec ->
@@ -65,10 +87,23 @@ public class KoreMeterConfigurationUpdater extends AbstractSyncDeviceWithKoreMet
                         registerSpec.getOverflowValue(),
                         ( registerSpec.isUseMultiplier() ?  registerSpec.getCalculatedReadingType().get() : null ))
                 );
+        return meterConfigurationBuilder;
+    }
 
-        meterConfigurationBuilder.configureReadingType(this.readingType)
-                .withOverflowValue(overruledOverflowValue)
-                .withNumberOfFractionDigits(overruledNbrOfFractionDigits);
+    private Meter.MeterConfigurationBuilder meterconfigurationBuilderForChannels(){
+        Meter.MeterConfigurationBuilder meterConfigurationBuilder = getDevice().getMeter().get().startingConfigurationOn(getStart());
+        getDevice().getDeviceConfiguration().getChannelSpecs().stream()
+                .filter(channelSpec -> channelSpec.getReadingType() != this.readingType)
+                .forEach(channelSpec ->
+                    configureReadingType(
+                        meterConfigurationBuilder,
+                        channelSpec.getReadingType(),
+                        channelSpec.getNbrOfFractionDigits(),
+                        channelSpec.getOverflow(),
+                        ( channelSpec.isUseMultiplier() ?  channelSpec.getCalculatedReadingType().get() : null ))
+                );
+        createMeterConfigurationsForRegisterSpecs(meterConfigurationBuilder, true);
+        return meterConfigurationBuilder;
     }
 
 
