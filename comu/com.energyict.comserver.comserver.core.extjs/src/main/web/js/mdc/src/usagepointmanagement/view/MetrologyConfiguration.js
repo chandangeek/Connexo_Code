@@ -28,7 +28,7 @@ Ext.define('Mdc.usagepointmanagement.view.MetrologyConfiguration', {
                                 startTime,
                                 endTime,
                                 versionsLink = '<a href="'
-                                    + me.router.getRoute('usagepoints/usagepoint/history/metrologyconfiguration').buildUrl({usagePointId: record.get('mRID')})
+                                    + me.router.getRoute('usagepoints/usagepoint/history').buildUrl({usagePointId: record.get('mRID')},{historyTab: 'metrologyConfiguration'})
                                     + '">Versions</a>';
 
                             if (value) {
@@ -37,9 +37,9 @@ Ext.define('Mdc.usagepointmanagement.view.MetrologyConfiguration', {
                                 result += value.name;
                                 if (startTime) {
                                     result += '<br><span style="font-size: 90%">'
-                                        + Uni.I18n.translate('general.fromDate.from', 'IMT', 'From {0}', [Uni.DateTime.formatDateTimeShort(new Date(startTime))], false);
+                                        + Uni.I18n.translate('general.fromDate.from', 'MDC', 'From {0}', [Uni.DateTime.formatDateTimeShort(new Date(startTime))], false);
                                     if (endTime) {
-                                        result += '&nbsp' + Uni.I18n.translate('general.fromDate.untill', 'IMT', 'untill {0}', [Uni.DateTime.formatDateTimeShort(new Date(endTime))], false);
+                                        result += '&nbsp' + Uni.I18n.translate('general.fromDate.untill', 'MDC', 'untill {0}', [Uni.DateTime.formatDateTimeShort(new Date(endTime))], false);
                                     }
                                     result += '&nbsp' + versionsLink + '</span>';
                                 }
@@ -59,7 +59,7 @@ Ext.define('Mdc.usagepointmanagement.view.MetrologyConfiguration', {
                                 startTime,
                                 endTime,
                                 versionsLink = '<a href="'
-                                    + me.router.getRoute('usagepoints/usagepoint/history/meteractivation').buildUrl({usagePointId: record.get('mRID')})
+                                    + me.router.getRoute('usagepoints/usagepoint/history').buildUrl({usagePointId: record.get('mRID')},{historyTab: 'meterActivation'})
                                     + '">Versions</a>';
 
                             if (value) {
@@ -77,9 +77,9 @@ Ext.define('Mdc.usagepointmanagement.view.MetrologyConfiguration', {
                                 }
                                 if (startTime) {
                                     result += '<br><span style="font-size: 90%">'
-                                        + Uni.I18n.translate('general.fromDate.from', 'IMT', 'From {0}', [Uni.DateTime.formatDateTimeShort(new Date(startTime))], false);
+                                        + Uni.I18n.translate('general.fromDate.from', 'MDC', 'From {0}', [Uni.DateTime.formatDateTimeShort(new Date(startTime))], false);
                                     if (endTime) {
-                                        result += '&nbsp' + Uni.I18n.translate('general.untillDate.untill', 'IMT', 'untill {0}', [Uni.DateTime.formatDateTimeShort(new Date(endTime))], false);
+                                        result += '&nbsp' + Uni.I18n.translate('general.untillDate.untill', 'MDC', 'untill {0}', [Uni.DateTime.formatDateTimeShort(new Date(endTime))], false);
                                     }
                                     result += '&nbsp' + versionsLink + '</span>';
                                 }

@@ -51,10 +51,11 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePoint', {
                 serviceCategories.load({
                     callback: function () {
                         me.getApplication().fireEvent('changecontentevent', widget);
+                        pageMainContent.setLoading(false);
                     }
                 });
             },
-            callback: function () {
+            failure: function () {
                 pageMainContent.setLoading(false);
             }
         });

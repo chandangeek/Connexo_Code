@@ -2171,6 +2171,13 @@ Ext.define('Mdc.controller.history.Setup', {
                                     return this;
                                 }
                             },
+                            history: {
+                                title: Uni.I18n.translate('general.history', 'MDC', 'History'),
+                                route: 'history',
+                                controller: 'Mdc.usagepointmanagement.controller.History',
+                                action: 'showMetrologyConfigurationHistory',
+                                privileges: Mdc.privileges.UsagePoint.canView()
+                            },
                             'processes': {
                                 title: Uni.I18n.translate('processes.title', 'MDC', 'Processes'),
                                 route: 'processes',
