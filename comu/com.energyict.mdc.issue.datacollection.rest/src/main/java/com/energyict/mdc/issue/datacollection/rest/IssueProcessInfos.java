@@ -1,7 +1,6 @@
 package com.energyict.mdc.issue.datacollection.rest;
 
 
-import com.elster.jupiter.issue.rest.response.IssueCommentInfo;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

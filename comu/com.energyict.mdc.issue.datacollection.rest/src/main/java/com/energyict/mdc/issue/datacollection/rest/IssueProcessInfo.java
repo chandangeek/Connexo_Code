@@ -1,7 +1,6 @@
 package com.energyict.mdc.issue.datacollection.rest;
 
 
-import com.elster.jupiter.issue.rest.response.IssueCommentInfo;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -22,8 +21,7 @@ public class IssueProcessInfo {
 
     }
 
-    public IssueProcessInfo(JSONObject jsonObject) {
-        try {
+    public IssueProcessInfo(JSONObject jsonObject) throws JSONException {
             this.name = jsonObject.isNull("processName") ? "" : jsonObject.getString("processName") ;
             this.startDate = jsonObject.isNull("startDate") ? "" : jsonObject.getString("startDate") ;
             this.version = jsonObject.isNull("processVersion") ? "" : jsonObject.getString("processVersion") ;
@@ -32,7 +30,5 @@ public class IssueProcessInfo {
             this.status = jsonObject.getString("status").equals("-1") ? "" : jsonObject.getString("status");
             TaskInfos taskInfos = new TaskInfos(jsonObject.getJSONArray("tasks"));
             this.openTasks = taskInfos.tasks;
-        } catch (JSONException e) {
-        }
     }
 }
