@@ -4,7 +4,7 @@ Ext.define('Bpm.startprocess.model.ProcessContent', {
         'Uni.property.model.Property'
     ],
     fields: [
-        'status', 'deploymentId', 'businessObject'
+        'status', 'deploymentId', 'businessObject', 'versionDB', 'processVersion', 'processName'
     ],
     associations: [
         {
