@@ -354,6 +354,8 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
             newDetail.validate();
             newDetail.create();
         }
+        Optional<UsagePointMetrologyConfiguration> usagePointMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration()
+                .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration);
         if (usagePointInfo.metrologyConfiguration != null && usagePointInfo.metrologyConfiguration.id != null) {
             Optional<UsagePointMetrologyConfiguration> metrologyConfiguration = metrologyConfigurationService.findMetrologyConfiguration(usagePointInfo.metrologyConfiguration.id)
                     .filter(mc -> mc instanceof UsagePointMetrologyConfiguration)
@@ -361,18 +363,16 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
             if (!metrologyConfiguration.isPresent()) {
                 throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.NO_SUCH_METROLOGY_CONFIGURATION);
             }
-            Optional<UsagePointMetrologyConfiguration> usagePointMetrologyConfigurationRef = usagePoint.getCurrentEffectiveMetrologyConfiguration()
-                    .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration);
-            if (usagePointMetrologyConfigurationRef.isPresent() && usagePointMetrologyConfigurationRef.get().getId() != usagePointInfo.metrologyConfiguration.id) {
+            if (usagePointMetrologyConfiguration.isPresent() && usagePointMetrologyConfiguration.get().getId() != usagePointInfo.metrologyConfiguration.id) {
                 usagePoint.removeMetrologyConfiguration(now);
                 usagePoint.apply(metrologyConfiguration.get(), now);
             } else {
-                if (!usagePointMetrologyConfigurationRef.isPresent()) {
+                if (!usagePointMetrologyConfiguration.isPresent()) {
                     usagePoint.apply(metrologyConfiguration.get(), now);
                 }
             }
         } else {
-            if (usagePoint.getMetrologyConfiguration().isPresent()) {
+            if (usagePointMetrologyConfiguration.isPresent()) {
                 usagePoint.removeMetrologyConfiguration(now);
             }
         }
