@@ -40,7 +40,9 @@ public class UsagePointInfo {
         modTime = usagePoint.getModificationDate().toEpochMilli();
         location = usagePoint.getLocation().map(Location::toString).orElse(usagePoint.getGeoCoordinates()
                 .map(coordinates -> coordinates.getCoordinates().toString()).orElse(""));
-        meterActivation = new MeterActivationInfo(usagePoint.getCurrentMeterActivation().orElse(null));
+        meterActivation = usagePoint.getCurrentMeterActivation().isPresent()
+                ? new MeterActivationInfo(usagePoint.getCurrentMeterActivation().get())
+                : null;
         metrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration().isPresent()
                 ? new EffectiveMetrologyConfigurationOnUsagePointInfo(usagePoint.getCurrentEffectiveMetrologyConfiguration().get())
                 : null;

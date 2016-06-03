@@ -8,6 +8,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointFilter;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.Thesaurus;
@@ -47,6 +48,8 @@ import javax.ws.rs.core.UriInfo;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -247,6 +250,23 @@ public class UsagePointResource {
             return Response.accepted().build();
         }
         throw new WebApplicationException(Response.Status.BAD_REQUEST);
+    }
+
+    @GET
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
+    @Path("/{mRID}/history/metrologyconfiguration")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    public PagedInfoList getUsagePointMetrologyConfigurationHistory(@PathParam("mRID") String mRID,
+                                                                    @Context SecurityContext securityContext,
+                                                                    @BeanParam JsonQueryParameters queryParameters) {
+        UsagePoint usagePoint = fetchUsagePoint(mRID);
+        List<EffectiveMetrologyConfigurationOnUsagePointInfo> infos = usagePoint
+                .getEffectiveMetrologyConfigurations()
+                .stream()
+                .sorted((o1, o2) -> o2.getStart().compareTo(o1.getStart()))
+                .map(EffectiveMetrologyConfigurationOnUsagePointInfo::new)
+                .collect(Collectors.toList());
+        return PagedInfoList.fromCompleteList("metrologyConfigurationVersions", infos, queryParameters);
     }
 
     private ReadingInfos doGetReadingTypeReadings(String mRID, String rtMrid, Range<Instant> range) {
