@@ -7,6 +7,7 @@ import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
 import com.elster.jupiter.metering.GeoCoordinates;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
@@ -449,6 +450,12 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     Optional<ActiveEffectiveCalendar> getActiveCalendar();
 
     void setActiveCalendar(AllowedCalendar allowedCalendar, Instant effective, Instant lastVerified);
+
+    Optional<ReadingTypeObisCodeUsage> getReadingTypeObisCodeUsage(ReadingType readingType);
+
+    Channel.ChannelUpdater getChannelUpdaterFor(Channel channel);
+
+    Register.RegisterUpdater getRegisterUpdaterFor(Register register);
 
     /**
      * Builder that support basic value setters for a ScheduledConnectionTask.
