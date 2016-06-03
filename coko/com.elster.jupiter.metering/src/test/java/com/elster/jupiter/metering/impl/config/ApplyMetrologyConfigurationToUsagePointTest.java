@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
@@ -33,8 +34,8 @@ import static org.mockito.Mockito.when;
  * <li>{@link UsagePoint#apply(UsagePointMetrologyConfiguration)}</li>
  * <li>{@link UsagePoint#apply(UsagePointMetrologyConfiguration, Instant)}</li>
  * <li>{@link UsagePoint#removeMetrologyConfiguration(Instant)}</li>
- * <li>{@link UsagePoint#getMetrologyConfiguration()}</li>
- * <li>{@link UsagePoint#getMetrologyConfiguration(Instant)}</li>
+ * <li>{@link UsagePoint#getCurrentEffectiveMetrologyConfiguration()}</li>
+ * <li>{@link UsagePoint#getEffectiveMetrologyConfiguration(Instant)}</li>
  * </ul>
  *
  */
@@ -97,13 +98,16 @@ public class ApplyMetrologyConfigurationToUsagePointTest {
         }
         MeteringService mtrService = getMeteringService();
         UsagePoint usagePoint = mtrService.findUsagePoint(upId).get();
-        Optional<MetrologyConfiguration> metrologyConfiguration = usagePoint.getMetrologyConfiguration();
+        Optional<MetrologyConfiguration> metrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration()
+                .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration);
         assertThat(metrologyConfiguration).isPresent();
         assertThat(metrologyConfiguration.get().getId()).isEqualTo(mcId);
-        Optional<MetrologyConfiguration> expectedSameMC = usagePoint.getMetrologyConfiguration(jan1st2016.plusSeconds(86400L));
+        Optional<MetrologyConfiguration> expectedSameMC = usagePoint.getEffectiveMetrologyConfiguration(jan1st2016.plusSeconds(86400L))
+                .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration);
         assertThat(expectedSameMC).isPresent();
         assertThat(expectedSameMC.get().getId()).isEqualTo(mcId);
-        Optional<MetrologyConfiguration> expectedEmpty = usagePoint.getMetrologyConfiguration(jan1st2016.minusSeconds(3600L));
+        Optional<MetrologyConfiguration> expectedEmpty = usagePoint.getEffectiveMetrologyConfiguration(jan1st2016.minusSeconds(3600L))
+                .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration);
         assertThat(expectedEmpty).isEmpty();
     }
 
@@ -134,10 +138,12 @@ public class ApplyMetrologyConfigurationToUsagePointTest {
             up.apply(mc2, feb1st2016);
             context.commit();
         }
-        Optional<MetrologyConfiguration> janConfiguration = up.getMetrologyConfiguration(feb1st2016.minusSeconds(3600L));
+        Optional<MetrologyConfiguration> janConfiguration = up.getEffectiveMetrologyConfiguration(feb1st2016.minusSeconds(3600L))
+                .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration);
         assertThat(janConfiguration).isPresent();
         assertThat(janConfiguration.get().getId()).isEqualTo(mc1Id);
-        Optional<MetrologyConfiguration> febConfiguration = up.getMetrologyConfiguration(feb1st2016.plusSeconds(3600L));
+        Optional<MetrologyConfiguration> febConfiguration = up.getEffectiveMetrologyConfiguration(feb1st2016.plusSeconds(3600L))
+                .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration);
         assertThat(febConfiguration).isPresent();
         assertThat(febConfiguration.get().getId()).isEqualTo(mc2Id);
     }

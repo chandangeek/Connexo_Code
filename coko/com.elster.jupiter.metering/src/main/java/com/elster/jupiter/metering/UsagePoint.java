@@ -146,23 +146,6 @@ public interface UsagePoint extends HasId, IdentifiedObject {
     void apply(UsagePointMetrologyConfiguration metrologyConfiguration, Instant when);
 
     /**
-     * Gets the current {@link MetrologyConfiguration}
-     * that has been applied to this UsagePoint.
-     *
-     * @return The current MetrologyConfiguration
-     */
-    Optional<MetrologyConfiguration> getMetrologyConfiguration();
-
-    /**
-     * Gets the {@link MetrologyConfiguration} that was
-     * applied to this UsagePoint at the specified time.
-     *
-     * @param when The instant in time
-     * @return The MetrologyConfiguration
-     */
-    Optional<MetrologyConfiguration> getMetrologyConfiguration(Instant when);
-
-    /**
      * Gets the {@link MetrologyConfiguration}s that were
      * applied to this UsagePoint during the specified period in time.
      *

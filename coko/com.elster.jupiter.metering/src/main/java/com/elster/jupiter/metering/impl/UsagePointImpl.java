@@ -415,17 +415,6 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
-    public Optional<MetrologyConfiguration> getMetrologyConfiguration() {
-        return this.getMetrologyConfiguration(this.clock.instant());
-    }
-
-    @Override
-    public Optional<MetrologyConfiguration> getMetrologyConfiguration(Instant when) {
-        return this.metrologyConfiguration.effective(when)
-                .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration);
-    }
-
-    @Override
     public Optional<EffectiveMetrologyConfigurationOnUsagePoint> getEffectiveMetrologyConfiguration(Instant when) {
         return this.metrologyConfiguration.effective(when);
     }
