@@ -490,6 +490,11 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
+    public List<UsagePointDetailImpl> getDetails() {
+        return detail.all();
+    }
+
+    @Override
     public void addDetail(UsagePointDetail newDetail) {
         Optional<UsagePointDetailImpl> optional = this.getDetail(newDetail.getRange().lowerEndpoint());
         if (optional.isPresent()) {
