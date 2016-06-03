@@ -8,8 +8,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataServices;
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.exceptions.VetoUpdateObisCodeOnConfiguration;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -26,7 +24,7 @@ import java.util.List;
 public class ChannelSpecUpdateEventHandler implements TopicHandler {
 
     private static final String TOPIC = "com/energyict/mdc/device/config/channelspec/UPDATED";
-    private volatile DeviceService deviceService;
+    private volatile ServerDeviceService deviceService;
     private volatile Thesaurus thesaurus;
 
     public ChannelSpecUpdateEventHandler() {
@@ -34,17 +32,17 @@ public class ChannelSpecUpdateEventHandler implements TopicHandler {
 
     // for testing purposes
     @Inject
-    public ChannelSpecUpdateEventHandler(DeviceService deviceService, Thesaurus thesaurus) {
-        this.deviceService = deviceService;
+    public ChannelSpecUpdateEventHandler(DeviceDataModelService deviceDataModelService, Thesaurus thesaurus) {
+        this.deviceService = deviceDataModelService.deviceService();
         this.thesaurus = thesaurus;
     }
 
     @Override
     public void handle(LocalEvent localEvent) {
         ChannelSpec channelSpec = (ChannelSpec) localEvent.getSource();
-        List<Device> deviceWithOverruledObisCodeForOtherReadingType = ((ServerDeviceService) deviceService)
+        List<Device> deviceWithOverruledObisCodeForOtherReadingType = deviceService
                 .findDeviceWithOverruledObisCodeForOtherThanChannelSpec(channelSpec);
-        if (deviceWithOverruledObisCodeForOtherReadingType.size() != 0) {
+        if (!deviceWithOverruledObisCodeForOtherReadingType.isEmpty()) {
             throw new VetoUpdateObisCodeOnConfiguration(thesaurus, deviceWithOverruledObisCodeForOtherReadingType);
         }
     }
@@ -55,8 +53,8 @@ public class ChannelSpecUpdateEventHandler implements TopicHandler {
     }
 
     @Reference
-    public void setDeviceService(DeviceService deviceService) {
-        this.deviceService = deviceService;
+    public void setDeviceDataModelService(DeviceDataModelService deviceDataModelService) {
+        this.deviceService = deviceDataModelService.deviceService();
     }
 
     @Reference

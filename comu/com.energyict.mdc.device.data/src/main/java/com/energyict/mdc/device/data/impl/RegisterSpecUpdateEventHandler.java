@@ -8,8 +8,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataServices;
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.exceptions.VetoUpdateObisCodeOnConfiguration;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -24,7 +22,7 @@ import java.util.List;
 public class RegisterSpecUpdateEventHandler implements TopicHandler {
 
     private static final String TOPIC = "com/energyict/mdc/device/config/registerspec/UPDATED";
-    private volatile DeviceService deviceService;
+    private volatile ServerDeviceService deviceService;
     private volatile Thesaurus thesaurus;
 
     public RegisterSpecUpdateEventHandler() {
@@ -32,17 +30,17 @@ public class RegisterSpecUpdateEventHandler implements TopicHandler {
 
     // for testing purposes
     @Inject
-    public RegisterSpecUpdateEventHandler(DeviceService deviceService, Thesaurus thesaurus) {
-        this.deviceService = deviceService;
+    public RegisterSpecUpdateEventHandler(DeviceDataModelService deviceDataModelService, Thesaurus thesaurus) {
+        this.deviceService = deviceDataModelService.deviceService();
         this.thesaurus = thesaurus;
     }
 
     @Override
     public void handle(LocalEvent localEvent) {
         RegisterSpec registerSpec = (RegisterSpec) localEvent.getSource();
-        List<Device> deviceWithOverruledObisCodeForOtherReadingType = ((ServerDeviceService) deviceService)
+        List<Device> deviceWithOverruledObisCodeForOtherReadingType = deviceService
                 .findDeviceWithOverruledObisCodeForOtherThanRegisterSpec(registerSpec);
-        if (deviceWithOverruledObisCodeForOtherReadingType.size() != 0) {
+        if (!deviceWithOverruledObisCodeForOtherReadingType.isEmpty()) {
             throw new VetoUpdateObisCodeOnConfiguration(thesaurus, deviceWithOverruledObisCodeForOtherReadingType);
         }
     }
@@ -54,8 +52,8 @@ public class RegisterSpecUpdateEventHandler implements TopicHandler {
 
 
     @Reference
-    public void setDeviceService(DeviceService deviceService) {
-        this.deviceService = deviceService;
+    public void setDeviceDataModelService(DeviceDataModelService deviceDataModelService) {
+        this.deviceService = deviceDataModelService.deviceService();
     }
 
     @Reference

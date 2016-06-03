@@ -37,6 +37,7 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.DevicesForConfigChangeSearch;
 import com.energyict.mdc.device.data.ItemizeConfigChangeQueueMessage;
 import com.energyict.mdc.device.data.ReadingTypeObisCodeUsage;
+import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.exceptions.DeviceConfigurationChangeException;
 import com.energyict.mdc.device.data.exceptions.NoDestinationSpecFound;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeExecutor;
@@ -54,7 +55,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.device.BaseRegister;
 import com.energyict.mdc.protocol.api.device.data.BreakerStatus;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.model.ComSchedule;
@@ -72,6 +72,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -356,9 +357,16 @@ public class DeviceServiceImpl implements ServerDeviceService {
                 .and(where(DeviceFields.DEVICECONFIGURATION.fieldName()).isEqualTo(registerSpec.getDeviceConfiguration()));
         return this.deviceDataModelService.dataModel().stream(Device.class).join(ReadingTypeObisCodeUsage.class)
                 .filter(condition)
-                .filter(device -> !device.getChannels().stream().map(Channel::getObisCode).filter(obisCode -> obisCode.equals(registerSpec.getDeviceObisCode())).findAny().isPresent())
+                .filter(onlyMatchRegisters(registerSpec))
                 .collect(Collectors.toList());
 
+    }
+
+    private Predicate<Device> onlyMatchRegisters(RegisterSpec registerSpec) {
+        return device -> device.getRegisters().stream()
+                .filter(register -> !register.getReadingType().getMRID().equals(registerSpec.getReadingType().getMRID()))
+                .map(Register::getDeviceObisCode)
+                .anyMatch(obisCode -> obisCode.equals(registerSpec.getDeviceObisCode()));
     }
 
     @Override
@@ -370,20 +378,20 @@ public class DeviceServiceImpl implements ServerDeviceService {
                 .and(where(DeviceFields.DEVICECONFIGURATION.fieldName()).isEqualTo(channelSpec.getDeviceConfiguration()));
         return this.deviceDataModelService.dataModel().stream(Device.class).join(ReadingTypeObisCodeUsage.class)
                 .filter(condition)
-                .filter(device -> !device.getRegisters().stream().map(BaseRegister::getDeviceObisCode).filter(obisCode -> obisCode.equals(channelSpec.getDeviceObisCode())).findAny().isPresent())
-                .filter(device1 -> device1.getLoadProfiles()
-                        .stream()
-                        .filter(loadProfile -> loadProfile.getLoadProfileSpec().getId() == channelSpec.getLoadProfileSpec().getId())
-                        .filter(loadProfile1 ->
-                                loadProfile1.getChannels()
-                                        .stream()
-                                        .filter(channel -> channel.getObisCode().equals(channelSpec.getDeviceObisCode()) && !channel.getReadingType()
-                                                .getMRID()
-                                                .equals(channelSpec.getReadingType().getMRID()))
-                                        .findAny()
-                                        .isPresent())
-                        .findAny()
-                        .isPresent())
+                .filter(onlyMatchLoadProfileOfChannelSpec(channelSpec))
                 .collect(Collectors.toList());
     }
+
+    private Predicate<Device> onlyMatchLoadProfileOfChannelSpec(ChannelSpec channelSpec) {
+        return device1 -> device1.getLoadProfiles()
+                .stream()
+                .filter(loadProfile -> loadProfile.getLoadProfileSpec().getId() == channelSpec.getLoadProfileSpec().getId())
+                .anyMatch(loadProfile1 -> loadProfile1.getChannels().stream().anyMatch(otherChannelsThenChannelFromSpec(channelSpec)));
+    }
+
+    private Predicate<Channel> otherChannelsThenChannelFromSpec(ChannelSpec channelSpec) {
+        return channel -> channel.getObisCode().equals(channelSpec.getDeviceObisCode()) && !channel.getReadingType()
+                .getMRID().equals(channelSpec.getReadingType().getMRID());
+    }
+
 }

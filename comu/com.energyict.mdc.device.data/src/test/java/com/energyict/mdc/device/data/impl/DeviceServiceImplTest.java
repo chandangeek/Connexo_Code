@@ -28,13 +28,13 @@ import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Register;
-import com.energyict.mdc.device.data.exceptions.VetoUpdateObisCodeOnConfiguration;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.RegisterType;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.TimeZone;
 
@@ -527,11 +527,11 @@ public class DeviceServiceImplTest extends PersistenceIntegrationTest {
         RegisterType registerType1 = this.createRegisterTypeIfMissing(forwardEnergyObisCode, forwardBulkSecondaryEnergyReadingType);
         RegisterType registerType2 = createRegisterTypeIfMissing(reverseEnergyObisCode, reverseBulkSecondaryEnergyReadingType);
         LoadProfileType loadProfileType1 = inMemoryPersistence.getMasterDataService()
-                .newLoadProfileType("LoadProfileType", loadProfileObisCode, TimeDuration.months(1), Arrays.asList(registerType1));
+                .newLoadProfileType("LoadProfileType", loadProfileObisCode, TimeDuration.months(1), Collections.singletonList(registerType1));
         loadProfileType1.save();
         ObisCode otherLoadProfileObisCode = ObisCode.fromString("9.9.9.9.9.9");
         LoadProfileType loadProfileType2 = inMemoryPersistence.getMasterDataService()
-                .newLoadProfileType("OtherLoadProfileType", otherLoadProfileObisCode, TimeDuration.months(1), Arrays.asList(registerType2));
+                .newLoadProfileType("OtherLoadProfileType", otherLoadProfileObisCode, TimeDuration.months(1), Collections.singletonList(registerType2));
         loadProfileType2.save();
         deviceType.addRegisterType(registerType1);
         deviceType.addRegisterType(registerType2);
