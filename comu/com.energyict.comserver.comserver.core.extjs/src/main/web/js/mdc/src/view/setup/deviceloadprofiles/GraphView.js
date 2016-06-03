@@ -1,10 +1,10 @@
 Ext.define('Mdc.view.setup.deviceloadprofiles.GraphView', {
-    extend: 'Mdc.view.setup.highstock.GraphView',
+    extend: 'Uni.view.highstock.GraphView',
     alias: 'widget.deviceLoadProfilesGraphView',
     itemId: 'deviceLoadProfilesGraphView',
 
     requires: [
-        'Mdc.view.setup.highstock.GraphView',
+        'Uni.view.highstock.GraphView',
         'Uni.util.FormEmptyMessage'
     ],
 

@@ -105,7 +105,7 @@ Ext.define('Mdc.controller.setup.LogbookTypes', {
         if (btn === 'confirm') {
             var logbookTypeToDelete = opt.config.logbookTypeToDelete;
             var me = opt.config.me;
-            var message = Uni.I18n.translate('logbookType.acknowlegment.removed', 'MDC', 'Logbook type removed');
+            var message = Uni.I18n.translate('logbookType.acknowledgment.removed', 'MDC', 'Logbook type removed');
             logbookTypeToDelete.destroy({
                 success: function () {
                     me.fireEvent('acknowledge',message );
@@ -169,7 +169,7 @@ Ext.define('Mdc.controller.setup.LogbookTypes', {
             record.set(values);
             record.save({
                 success: function (record) {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('logbooktype.acknowlegment.added', 'MDC', 'Logbook type added') );
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('logbooktype.acknowledgment.added', 'MDC', 'Logbook type added') );
                     location.href = '#/administration/logbooktypes/';
                 },
                 failure: function (record, operation) {
@@ -199,7 +199,7 @@ Ext.define('Mdc.controller.setup.LogbookTypes', {
             record.save({
                 backUrl: backUrl,
                 success: function (record) {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('logbookType.acknowlegment.saved', 'MDC', 'Logbook type saved') );
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('logbookType.acknowledgment.saved', 'MDC', 'Logbook type saved') );
                     location.href = backUrl;
                 },
                 failure: function (record, operation) {

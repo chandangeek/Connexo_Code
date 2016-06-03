@@ -31,7 +31,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Grid', {
                         var status = record.data.validationResult ? record.data.validationResult.split('.')[1] : 'unknown',
                             icon = '';
                         if (record.get('isConfirmed')) {
-                            icon = '<span class="icon-checkmark3" style="margin-left:10px; position:absolute;"></span>'
+                            icon = '<span class="icon-checkmark" style="margin-left:10px; position:absolute;"></span>'
                         } else if (status === 'suspect') {
                             icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:red;"></span>';
                         } else if (status === 'notValidated') {
@@ -59,7 +59,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Grid', {
                         var status = record.data.validationResult ? record.data.validationResult.split('.')[1] : 'unknown',
                             icon = '';
                         if (record.get('isConfirmed')) {
-                            icon = '<span class="icon-checkmark3" style="margin-left:10px; position:absolute"></span>'
+                            icon = '<span class="icon-checkmark" style="margin-left:10px; position:absolute"></span>'
                         } else if (status === 'suspect') {
                             icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:red;"></span>';
                         } else if (status === 'notValidated') {

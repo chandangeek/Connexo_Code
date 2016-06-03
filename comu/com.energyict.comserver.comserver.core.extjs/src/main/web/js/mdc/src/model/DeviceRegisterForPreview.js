@@ -1,40 +1,52 @@
-Ext.define('Mdc.model.Register', {
-    extend: 'Mdc.model.RegisterConfiguration',
+Ext.define('Mdc.model.DeviceRegisterForPreview', {
+    extend: 'Uni.model.ParentVersion',
+    requires: [
+        'Mdc.model.ReadingType'
+    ],
     fields: [
-        {name: 'lastReading', type: 'auto', useNull: true},
+        {name: 'id', type: 'number', useNull: true},
+        {name: 'readingType', persist:false},
+        {name: 'registerType', type:'number', useNull: true},
+        {name: 'obisCode', type: 'string', useNull: true},
+        {name: 'overruledObisCode', type: 'string', useNull: true},
         {name: 'type', type: 'string', useNull: true},
+        {name: 'isCumulative', type: 'boolean'},
+        {name: 'numberOfFractionDigits', type: 'number', useNull: true},
+        {name: 'overruledNumberOfFractionDigits', type: 'number', useNull: true},
+        {name: 'overflow', type: 'number', useNull: true},
+        {name: 'overruledOverflow', type: 'number', useNull: true},
+        {name: 'calculatedReadingType', persist:false},
+        {name: 'lastReading', type: 'auto', useNull: true},
+        {name: 'multiplier', type: 'auto'},
+        {name: 'useMultiplier', type:'boolean'},
+        {name: 'timeStamp', mapping: 'lastReading.timeStamp', useNull: true},
+        {name: 'interval', mapping: 'lastReading.interval', useNull: true},
+        {name: 'detailedValidationInfo', type: 'auto'},
         {
             name: 'value',
             useNull: true,
             convert: function (v, record) {
                 if (!Ext.isEmpty(record.data.lastReading)) {
-                    if (record.get('type') == 'billing') {
+                    if (record.get('type') === 'billing') {
                         return record.get('lastReading').value + ' ' + record.get('lastReading').unitOfMeasure;
                     }
-                    if (record.get('type') == 'numerical') {
+                    if (record.get('type') === 'numerical') {
                         if(!Ext.isEmpty(record.get('lastReading').value)) {
                             return Uni.Number.formatNumber(record.get('lastReading').value, -1) + ' ' + record.get('readingType').names.unitOfMeasure;
                         }
                         return '-'
 
                     }
-                    if (record.data.type == 'text') {
+                    if (record.data.type === 'text') {
                         return record.data.lastReading.value;
                     }
-                    if (record.data.type == 'flags') {
+                    if (record.data.type === 'flags') {
                         return record.data.lastReading.value;
                     }
                 }
-
                 return '-';
             }
         },
-        {name: 'isCumulative', type: 'boolean'},
-        {name: 'timeStamp', mapping: 'lastReading.timeStamp', useNull: true},
-        {name: 'reportedDateTime', mapping: 'lastReading.reportedDateTime', useNull: true},
-        {name: 'interval', mapping: 'lastReading.interval', useNull: true},
-        {name: 'detailedValidationInfo', type: 'auto'},
-        {name: 'multiplier', type: 'auto'},
         {
             name: 'validationInfo_validationActive',
             persist: false,
@@ -59,18 +71,36 @@ Ext.define('Mdc.model.Register', {
                 return (data.detailedValidationInfo && data.detailedValidationInfo.lastChecked) ?
                     Uni.DateTime.formatDateTimeLong(new Date(data.detailedValidationInfo.lastChecked)) : '';
             }
+        }
+
+    ],
+    associations: [
+        {
+            name: 'readingType',
+            type: 'hasOne',
+            model: 'Mdc.model.ReadingType',
+            associationKey: 'readingType',
+            getterName: 'getReadingType',
+            setterName: 'setReadingType',
+            foreignKey: 'readingType'
         },
-        {name: 'mRID', type: 'string'}
+        {
+            name: 'calculatedReadingType',
+            type: 'hasOne',
+            model: 'Mdc.model.ReadingType',
+            associationKey: 'calculatedReadingType',
+            getterName: 'getCalculatedReadingType',
+            setterName: 'setCalculatedReadingType',
+            foreignKey: 'calculatedReadingType'
+        }
     ],
     proxy: {
         type: 'rest',
         timeout: 120000,
-        url: '/api/ddr/devices/{mRID}/registers',
-        urlTpl: '/api/ddr/devices/{0}/registers',
+        urlTpl: '/api/ddr/devices/{0}/registers/',
         reader: {
             type: 'json'
         },
-
         setUrl: function (mRID) {
             this.url = Ext.String.format(this.urlTpl, encodeURIComponent(mRID));
         }
