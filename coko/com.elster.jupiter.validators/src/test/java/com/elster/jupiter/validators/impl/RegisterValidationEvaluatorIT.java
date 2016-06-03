@@ -38,6 +38,8 @@ import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.DataValidationStatus;
@@ -111,6 +113,7 @@ public class RegisterValidationEvaluatorIT {
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(TimeService.class).toInstance(mock(TimeService.class));
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
+            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }
 
