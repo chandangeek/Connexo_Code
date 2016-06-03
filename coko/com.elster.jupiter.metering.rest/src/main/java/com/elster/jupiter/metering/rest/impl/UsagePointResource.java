@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.rest.impl;
 
+import com.elster.jupiter.domain.util.FormValidationException;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MessageSeeds;
@@ -10,6 +11,10 @@ import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointFilter;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.config.UnsatisfiedMerologyConfigurationEndDate;
+import com.elster.jupiter.metering.config.UnsatisfiedMerologyConfigurationStartDateRelativelyLatestEnd;
+import com.elster.jupiter.metering.config.UnsatisfiedMerologyConfigurationStartDateRelativelyLatestStart;
+import com.elster.jupiter.metering.config.UnsatisfiedReadingTypeRequirements;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.metering.security.Privileges;
@@ -293,9 +298,17 @@ public class UsagePointResource {
         UsagePointMetrologyConfiguration metrologyConfiguration = resourceHelper.findMetrologyConfiguration(info.metrologyConfiguration.id);
         Instant start = Instant.ofEpochMilli(info.metrologyConfiguration.start);
 
-        usagePoint.apply(metrologyConfiguration, start);
-        if (info.metrologyConfiguration.end != null) {
-            usagePoint.removeMetrologyConfiguration(Instant.ofEpochMilli(info.metrologyConfiguration.end));
+        try {
+            usagePoint.apply(metrologyConfiguration, start);
+            if (info.metrologyConfiguration.end != null) {
+                usagePoint.removeMetrologyConfiguration(Instant.ofEpochMilli(info.metrologyConfiguration.end));
+            }
+        } catch (UnsatisfiedReadingTypeRequirements ex) {
+            throw new FormValidationException().addException("metrologyConfiguration", ex);
+        } catch (UnsatisfiedMerologyConfigurationEndDate ex) {
+            throw new FormValidationException().addException("end", ex);
+        } catch (UnsatisfiedMerologyConfigurationStartDateRelativelyLatestStart | UnsatisfiedMerologyConfigurationStartDateRelativelyLatestEnd ex) {
+            throw new FormValidationException().addException("start", ex);
         }
 
         UsagePointInfo updatedInfo = usagePointInfoFactory.from(usagePoint);
