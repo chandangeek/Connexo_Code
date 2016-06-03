@@ -89,7 +89,8 @@ public enum MessageSeeds implements MessageSeed {
     VALUE_MAY_NOT_EXCEED_OVERFLOW_VALUE(272, "ValueMayNotExceedOverflowValue", "The value {0} may not exceed the configured overflow value {1}"),
     INVALID_TRACKING_ID(273, "InvalidTrackingId", "The tracking id is invalid for this tracking category"),
     BAD_REQUEST(274, "badRequest", "Bad request"),
-    INVALID_COORDINATES(275, "invalidCoordinates", "All coordinates fields must contain valid values");
+    INVALID_COORDINATES(275, "invalidCoordinates", "All coordinates fields must contain valid values"),
+    VERIFY_CALENDAR_TASK_IS_NOT_ACTIVE(276, "VerifyCalendarTaskNotActive", "It is impossible to verify the active calendar because the communication task is not available on the device configuration");
     private final int number;
     private final String key;
     private final String format;
