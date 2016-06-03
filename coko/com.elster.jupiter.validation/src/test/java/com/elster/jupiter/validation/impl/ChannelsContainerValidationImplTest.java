@@ -1,9 +1,18 @@
 package com.elster.jupiter.validation.impl;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.when;
+import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.validation.ValidationResult;
+import com.elster.jupiter.validation.Validator;
+
+import com.google.common.collect.Range;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -25,21 +34,13 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
-import com.elster.jupiter.cbo.TimeAttribute;
-import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.QueryExecutor;
-import com.elster.jupiter.validation.ValidationResult;
-import com.elster.jupiter.validation.Validator;
-import com.google.common.collect.Range;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class MeterActivationValidationImplTest {
+public class ChannelsContainerValidationImplTest {
 
     private static final Instant DATE1 = ZonedDateTime.of(2012, 11, 19, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
     private static final Instant DATE3 = ZonedDateTime.of(2012, 12, 24, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
@@ -47,7 +48,7 @@ public class MeterActivationValidationImplTest {
     private static final long FIRST_CHANNEL_ID = 1001L;
     private static final long SECOND_CHANNEL_ID = 1002L;
 
-    MeterActivationValidationImpl meterActivationValidation;
+    ChannelsContainerValidationImpl meterActivationValidation;
 
     @Mock
     private MeterActivation meterActivation;
@@ -64,9 +65,9 @@ public class MeterActivationValidationImplTest {
     @Mock
     private MeteringService meteringService;
     @Mock
-    private DataMapper<IChannelValidation> channelValidationFactory;
+    private DataMapper<ChannelValidation> channelValidationFactory;
     @Mock
-    private QueryExecutor<IChannelValidation> channelValidationQuery;
+    private QueryExecutor<ChannelValidation> channelValidationQuery;
     @Mock
     private ReadingType readingType1, readingType2;
     @Mock
@@ -79,8 +80,8 @@ public class MeterActivationValidationImplTest {
 
     @Before
     public void setUp() {
-        when(dataModel.mapper(IChannelValidation.class)).thenReturn(channelValidationFactory);
-        when(dataModel.query(IChannelValidation.class, IMeterActivationValidation.class)).thenReturn(channelValidationQuery);
+        when(dataModel.mapper(ChannelValidation.class)).thenReturn(channelValidationFactory);
+        when(dataModel.query(ChannelValidation.class, ChannelsContainerValidation.class)).thenReturn(channelValidationQuery);
         when((Object) dataModel.getInstance(ChannelValidationImpl.class)).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
@@ -96,8 +97,8 @@ public class MeterActivationValidationImplTest {
         doReturn(Arrays.asList(readingType1)).when(channel1).getReadingTypes();
         when(channel2.getId()).thenReturn(SECOND_CHANNEL_ID);
         doReturn(Arrays.asList(readingType2)).when(channel2).getReadingTypes();
-        when(channel1.getMeterActivation()).thenReturn(meterActivation);
-        when(channel2.getMeterActivation()).thenReturn(meterActivation);
+        when(channel1.getChannelsContainer()).thenReturn(meterActivation);
+        when(channel2.getChannelsContainer()).thenReturn(meterActivation);
         when(validationRuleSet.getRules()).thenReturn(Arrays.asList(rule1, rule2));
         when(validationRuleSet.getRuleSetVersions()).thenReturn(Arrays.asList(ruleSetVersion1, ruleSetVersion2));
         when(ruleSetVersion1.getNotNullStartDate()).thenReturn(Instant.EPOCH);
@@ -117,7 +118,7 @@ public class MeterActivationValidationImplTest {
         when(meterActivation.getRange()).thenReturn(Range.atLeast(DATE1));
         when(meterActivation.getStart()).thenReturn(DATE1);
 
-        meterActivationValidation = new MeterActivationValidationImpl(dataModel, clock).init(meterActivation);
+        meterActivationValidation = new ChannelsContainerValidationImpl(dataModel, clock).init(meterActivation);
         meterActivationValidation.setRuleSet(validationRuleSet);
         meterActivationValidation.save();
     }
@@ -155,7 +156,7 @@ public class MeterActivationValidationImplTest {
         meterActivationValidation.validate();
 
         assertThat(meterActivationValidation.getChannelValidations()).hasSize(1);
-        IChannelValidation channelValidation = meterActivationValidation.getChannelValidations().iterator().next();
+        ChannelValidation channelValidation = meterActivationValidation.getChannelValidations().iterator().next();
         assertThat(channelValidation.getChannel()).isEqualTo(channel1);
         assertThat(channelValidation.getLastChecked()).isEqualTo(DATE4);
 
@@ -171,8 +172,8 @@ public class MeterActivationValidationImplTest {
         meterActivationValidation.validate();
 
         assertThat(meterActivationValidation.getChannelValidations()).hasSize(2);
-        Iterator<IChannelValidation> iterator = meterActivationValidation.getChannelValidations().iterator();
-        IChannelValidation channelValidation = iterator.next();
+        Iterator<ChannelValidation> iterator = meterActivationValidation.getChannelValidations().iterator();
+        ChannelValidation channelValidation = iterator.next();
         assertThat(channelValidation.getLastChecked()).isEqualTo(DATE4);
         channelValidation = iterator.next();
         assertThat(channelValidation.getLastChecked()).isEqualTo(DATE4);

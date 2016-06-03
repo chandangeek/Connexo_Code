@@ -9,33 +9,33 @@ import java.util.stream.Stream;
 
 public class ChannelValidationContainer {
 
-	private final List<? extends IChannelValidation> channelValidations;
-	
-	private ChannelValidationContainer(List<? extends IChannelValidation> channelValidations) {
+	private final List<? extends ChannelValidation> channelValidations;
+
+	private ChannelValidationContainer(List<? extends ChannelValidation> channelValidations) {
 		this.channelValidations = channelValidations;
 	}
-	
-	static ChannelValidationContainer of(List<? extends IChannelValidation> channelValidations) {
+
+	static ChannelValidationContainer of(List<? extends ChannelValidation> channelValidations) {
 		return new ChannelValidationContainer(channelValidations);
 	}
 	
 	void updateLastChecked(Instant date) {
 		 channelValidations.stream()
-         	.filter(IChannelValidation::hasActiveRules)
-         	.forEach(cv -> {
-         		cv.updateLastChecked(date);
-         		cv.getMeterActivationValidation().save();
-         	});
+				 .filter(ChannelValidation::hasActiveRules)
+				 .forEach(channelValidation -> {
+					 channelValidation.updateLastChecked(date);
+					 channelValidation.getChannelsContainerValidation().save();
+				 });
 	}
 	
 	boolean isValidationActive() {
-    	return channelValidations.stream().anyMatch(IChannelValidation::hasActiveRules);
-    }
+		return channelValidations.stream().anyMatch(ChannelValidation::hasActiveRules);
+	}
 	
 	Optional<Instant> getLastChecked() {
 		// if any is null, then we should return Optional.empty()
 		return channelValidations.stream()
-			.map(IChannelValidation::getLastChecked)
+				.map(ChannelValidation::getLastChecked)
 			.map(instant -> instant == null ? Instant.MIN : instant)
 			.min(Comparator.<Instant>naturalOrder())
 			.flatMap(instant -> Instant.MIN.equals(instant) ? Optional.empty() : Optional.of(instant));
@@ -45,7 +45,7 @@ public class ChannelValidationContainer {
 		return channelValidations.isEmpty();
 	}
 
-	public Stream<IChannelValidation> stream() {
-		return channelValidations.stream().map(Function.<IChannelValidation>identity());
+	public Stream<ChannelValidation> stream() {
+		return channelValidations.stream().map(Function.<ChannelValidation>identity());
 	}
 }

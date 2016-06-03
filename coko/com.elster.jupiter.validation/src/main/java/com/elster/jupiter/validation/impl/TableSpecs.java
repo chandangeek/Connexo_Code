@@ -107,8 +107,8 @@ public enum TableSpecs {
     VAL_MA_VALIDATION {
         @Override
         void addTo(DataModel dataModel) {
-            Table<IMeterActivationValidation> table = dataModel.addTable(name(), IMeterActivationValidation.class);
-            table.map(MeterActivationValidationImpl.class);
+            Table<ChannelsContainerValidation> table = dataModel.addTable(name(), ChannelsContainerValidation.class);
+            table.map(ChannelsContainerValidationImpl.class);
             Column idColumn = table.addAutoIdColumn();
             Column ruleSetColumn = table.column("RULESETID").number().conversion(NUMBER2LONG).add();
             Column meterActivationColumn = table.column("METERACTIVATIONID").number().conversion(NUMBER2LONG).add();
@@ -125,7 +125,7 @@ public enum TableSpecs {
     VAL_CH_VALIDATION {
         @Override
         void addTo(DataModel dataModel) {
-            Table<IChannelValidation> table = dataModel.addTable(name(), IChannelValidation.class);
+            Table<ChannelValidation> table = dataModel.addTable(name(), ChannelValidation.class);
             table.map(ChannelValidationImpl.class);
             Column idColumn = table.addAutoIdColumn();
             Column channelRef = table.column("CHANNELID").number().notNull().conversion(NUMBER2LONG).map("channelId").add();

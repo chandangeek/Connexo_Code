@@ -219,11 +219,11 @@ public class MeterActivationValidationIT {
             assertThat(first.getRange()).isEqualTo(Range.closedOpen(startTime.toInstant(), newCutOff.toInstant()));
             assertThat(second.getRange()).isEqualTo(Range.atLeast(newCutOff.toInstant()));
 
-            Instant lastCheckedOfPrior = validationService.getIMeterActivationValidations(meterActivation).get(0)
+            Instant lastCheckedOfPrior = validationService.getStoredChannelsContainerValidations(meterActivation).get(0)
                     .getChannelValidation(meterActivation.getChannels().get(0)).get()
                     .getLastChecked();
             assertThat(lastCheckedOfPrior).isEqualTo(newCutOff.toInstant());
-            Instant lastCheckedOfCurrent = validationService.getIMeterActivationValidations(currentActivation).get(0)
+            Instant lastCheckedOfCurrent = validationService.getStoredChannelsContainerValidations(currentActivation).get(0)
                     .getChannelValidation(currentActivation.getChannels().get(0)).get()
                     .getLastChecked();
             assertThat(lastCheckedOfCurrent).isEqualTo(newCutOff.toInstant());

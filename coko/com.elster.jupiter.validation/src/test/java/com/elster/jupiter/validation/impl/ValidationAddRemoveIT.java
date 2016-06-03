@@ -21,6 +21,7 @@ import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
@@ -202,7 +203,7 @@ public class ValidationAddRemoveIT {
 
             validationService.addValidationRuleSetResolver(new ValidationRuleSetResolver() {
                 @Override
-                public List<ValidationRuleSet> resolve(MeterActivation meterActivation) {
+                public List<ValidationRuleSet> resolve(ChannelsContainer channelsContainer) {
                     return Arrays.asList(validationRuleSet);
                 }
 
@@ -235,13 +236,13 @@ public class ValidationAddRemoveIT {
                 meterReading.addReading(ReadingImpl.of(readingType, BigDecimal.valueOf(12L), date1.plusSeconds(900 * 3)));
                 meter.store(meterReading);
                 DataModel valDataModel = injector.getInstance(OrmService.class).getDataModel(ValidationService.COMPONENTNAME).get();
-                List<IMeterActivationValidation> meterActivationValidations = valDataModel.mapper(IMeterActivationValidation.class).find("meterActivation", meterActivation);
-                IChannelValidation channelValidation = meterActivationValidations.get(0).getChannelValidations().iterator().next();
+                List<ChannelsContainerValidation> meterActivationValidations = valDataModel.mapper(ChannelsContainerValidation.class).find("meterActivation", meterActivation);
+                ChannelValidation channelValidation = meterActivationValidations.get(0).getChannelValidations().iterator().next();
                 assertThat(channelValidation.getLastChecked()).isEqualTo(date1.plusSeconds(900 * 3));
                 Channel channel = meter.getMeterActivations().get(0).getChannels().get(0);
                 List<BaseReadingRecord> readings = channel.getReadings(Range.all());
                 channel.removeReadings(readings.subList(1, readings.size()));
-                meterActivationValidations = valDataModel.mapper(IMeterActivationValidation.class).find("meterActivation", meterActivation);
+                meterActivationValidations = valDataModel.mapper(ChannelsContainerValidation.class).find("meterActivation", meterActivation);
                 channelValidation = meterActivationValidations.get(0).getChannelValidations().iterator().next();
                 assertThat(channelValidation.getLastChecked()).isEqualTo(date1.plusSeconds(900 * 1));
             }

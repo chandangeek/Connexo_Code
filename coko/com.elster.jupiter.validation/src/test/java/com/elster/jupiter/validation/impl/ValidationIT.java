@@ -11,6 +11,7 @@ import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
@@ -202,7 +203,7 @@ public class ValidationIT {
 
                 validationService.addValidationRuleSetResolver(new ValidationRuleSetResolver() {
                     @Override
-                    public List<ValidationRuleSet> resolve(MeterActivation meterActivation) {
+                    public List<ValidationRuleSet> resolve(ChannelsContainer channelsContainer) {
                         return Arrays.asList(validationRuleSet);
                     }
 
@@ -234,7 +235,7 @@ public class ValidationIT {
                 service.validate(meterActivation);
 
                 DataModel valDataModel = injector.getInstance(OrmService.class).getDataModel(ValidationService.COMPONENTNAME).get();
-                List<IMeterActivationValidation> meterActivationValidations = valDataModel.mapper(IMeterActivationValidation.class).find("meterActivation", meterActivation);
+                List<ChannelsContainerValidation> meterActivationValidations = valDataModel.mapper(ChannelsContainerValidation.class).find("meterActivation", meterActivation);
                 assertThat(meterActivationValidations).hasSize(1);
                 assertThat(meterActivationValidations.get(0).getRuleSet().getName()).isEqualTo(MY_RULE_SET);
                 assertThat(meterActivationValidations.get(0).isObsolete()).isFalse();

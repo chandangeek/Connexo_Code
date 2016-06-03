@@ -4,8 +4,8 @@ import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.CimChannel;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
@@ -40,12 +40,14 @@ public abstract class AbstractValidationEvaluator implements ValidationEvaluator
 
     public static final ReadingQualityType VALIDATED_AND_OK = ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.VALIDATED);
 
-    public boolean isAllDataValid(MeterActivation meterActivation){
+    public boolean isAllDataValid(ChannelsContainer channelsContainer) {
         ReadingQualityType suspect = ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT);
-        return meterActivation.getChannels().stream()
-                .flatMap(channel -> channel.findActualReadingQuality(suspect, meterActivation.getRange()).stream())
+        return channelsContainer.getChannels()
+                .stream()
+                .flatMap(channel -> channel.findActualReadingQuality(suspect, channelsContainer.getRange()).stream())
                 .count() == 0;
     }
+
     @Override
     public List<DataValidationStatus> getValidationStatus(CimChannel channel, List<? extends BaseReading> readings) {
         return getValidationStatus(channel, readings, getInterval(readings));

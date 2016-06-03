@@ -2,11 +2,12 @@ package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.conditions.Where;
+
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 
@@ -30,9 +31,9 @@ class ValidationEvaluatorImpl extends AbstractValidationEvaluator {
     }
 
     @Override
-    public boolean isAllDataValidated(MeterActivation meterActivation) {
-        return validationService.getIMeterActivationValidations(meterActivation).stream()
-                .allMatch(IMeterActivationValidation::isAllDataValidated);
+    public boolean isAllDataValidated(ChannelsContainer channelsContainer) {
+        return validationService.getStoredChannelsContainerValidations(channelsContainer).stream()
+                .allMatch(ChannelsContainerValidation::isAllDataValidated);
     }
 
     @Override
@@ -47,16 +48,16 @@ class ValidationEvaluatorImpl extends AbstractValidationEvaluator {
 
     @Override
     public boolean isValidationEnabled(Channel channel) {
-        return validationService.getMeterActivationValidations(channel.getMeterActivation()).stream()
+        return validationService.getChannelsContainerValidations(channel.getChannelsContainer()).stream()
                 .map(m -> m.getChannelValidation(channel))
                 .flatMap(asStream())
-                .anyMatch(IChannelValidation::hasActiveRules);
+                .anyMatch(ChannelValidation::hasActiveRules);
 
     }
 
     @Override
     public boolean isValidationEnabled(ReadingContainer meter, ReadingType readingType) {
-        return (meter.getMeterActivations().stream()
+        return (meter.getChannelContainers().stream()
                 .flatMap(m -> m.getChannels().stream())
                 .filter(k -> k.getReadingTypes().contains(readingType))
                 .filter(validationService::isValidationActive)).count() > 0;
@@ -64,7 +65,7 @@ class ValidationEvaluatorImpl extends AbstractValidationEvaluator {
 
     @Override
     public Optional<Instant> getLastChecked(ReadingContainer meter, ReadingType readingType) {
-        return meter.getMeterActivations().stream()
+        return meter.getChannelContainers().stream()
                 .flatMap(m -> m.getChannels().stream())
                 .filter(k -> k.getReadingTypes().contains(readingType))
                 .filter(validationService::isValidationActive)
@@ -82,8 +83,8 @@ class ValidationEvaluatorImpl extends AbstractValidationEvaluator {
     Multimap<String, IValidationRule> getMapQualityToRule(ChannelValidationContainer channelValidations) {
         Query<IValidationRule> ruleQuery = validationService.getAllValidationRuleQuery();
         Set<IValidationRule> rules = channelValidations.stream()
-                .map(IChannelValidation::getMeterActivationValidation)
-                .map(IMeterActivationValidation::getRuleSet)
+                .map(ChannelValidation::getChannelsContainerValidation)
+                .map(ChannelsContainerValidation::getRuleSet)
                 .flatMap(ruleSet -> ruleQuery.select(Where.where("ruleSetVersion.ruleSet").isEqualTo(ruleSet)).stream())
                 .collect(Collectors.toSet());
         return Multimaps.index(rules, i -> i.getReadingQualityType().getCode());

@@ -1,8 +1,8 @@
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.nls.Thesaurus;
@@ -100,16 +100,16 @@ public class DataValidationTaskExecutor implements TaskExecutor {
     private void doExecute(DataValidationOccurrence occurrence, Logger logger) {
         DataValidationTask task = occurrence.getTask();
 
-        switch(task.getApplication()){
-            case MULTISENSE_KEY :
+        switch (task.getApplication()) {
+            case MULTISENSE_KEY:
                 List<EndDevice> devices = task.getEndDeviceGroup().get().getMembers(Instant.now());
                 for (EndDevice device : devices) {
                     Optional<Meter> found = device.getAmrSystem().findMeter(device.getAmrId());
                     if (found.isPresent()) {
-                        List<? extends MeterActivation> activations = found.get().getMeterActivations();
-                        for (MeterActivation activation : activations) {
+                        List<ChannelsContainer> channelsContainers = found.get().getChannelContainers();
+                        for (ChannelsContainer channelsContainer : channelsContainers) {
                             try (TransactionContext transactionContext = transactionService.getContext()) {
-                                validationService.validate(activation);
+                                validationService.validate(channelsContainer);
                                 transactionContext.commit();
                             }
                             transactionService.execute(VoidTransaction.of(() -> MessageSeeds.TASK_VALIDATED_SUCCESFULLY.log(logger, thesaurus, device.getMRID(), occurrence.getStartDate().get())));
@@ -118,7 +118,7 @@ public class DataValidationTaskExecutor implements TaskExecutor {
                     }
                 }
                 break;
-            case INSIGHT_KEY :
+            case INSIGHT_KEY:
                 MetrologyContract metrologyContract = task.getMetrologyContract().get();
                 // Validation should be added in scope of "Usage point validation".
                 break;

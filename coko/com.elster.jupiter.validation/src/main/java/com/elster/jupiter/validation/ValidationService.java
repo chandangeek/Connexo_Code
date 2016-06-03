@@ -2,8 +2,8 @@ package com.elster.jupiter.validation;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.nls.Thesaurus;
@@ -67,10 +67,11 @@ public interface ValidationService {
     void enableValidationOnStorage(Meter meter);
     void disableValidationOnStorage(Meter meter);
 
-    void activate(MeterActivation meterActivation, ValidationRuleSet ruleSet);
-    void deactivate(MeterActivation meterActivation, ValidationRuleSet ruleSet);
+    void activate(ChannelsContainer channelsContainer, ValidationRuleSet ruleSet);
 
-    List<ValidationRuleSet> activeRuleSets(MeterActivation meterActivation);
+    void deactivate(ChannelsContainer channelsContainer, ValidationRuleSet ruleSet);
+
+    List<ValidationRuleSet> activeRuleSets(ChannelsContainer channelsContainer);
 
     boolean validationEnabled(Meter meter);
 
@@ -78,15 +79,15 @@ public interface ValidationService {
 
     /* last checked */
 
-    Optional<Instant> getLastChecked(MeterActivation meterActivation);
+    Optional<Instant> getLastChecked(ChannelsContainer channelsContainer);
 
-    void updateLastChecked(MeterActivation meterActivation, Instant date);
+    void updateLastChecked(ChannelsContainer channelsContainer, Instant date);
 
     void updateLastChecked(Channel channel, Instant date);
 
-    void validate(MeterActivation meterActivation);
+    void validate(ChannelsContainer channelsContainer);
 
-    void validate(MeterActivation meterActivation, ReadingType readingType);
+    void validate(ChannelsContainer channelsContainer, ReadingType readingType);
 
     ValidationEvaluator getEvaluator();
 

@@ -129,7 +129,7 @@ public class ValidationServiceImplTest {
     @Mock
     private DataMapper<DataValidationTask> dataValidationTaskFactory2;
     @Mock
-    private MeterActivation meterActivation;
+    private MeterActivation channelsContainer;
     @Mock
     private TaskService taskService;
     @Mock
@@ -141,7 +141,7 @@ public class ValidationServiceImplTest {
     @Mock
     private CimChannel cimChannel1, cimChannel2;
     @Mock
-    private DataMapper<IChannelValidation> channelValidationFactory;
+    private DataMapper<ChannelValidation> channelValidationFactory;
     @Mock
     private MeterValidationImpl meterValidation;
     @Mock
@@ -172,19 +172,19 @@ public class ValidationServiceImplTest {
     @Mock
     private ValidationRuleSetResolver validationRuleSetResolver;
     @Mock
-    private QueryExecutor<IMeterActivationValidation> queryExecutor;
+    private QueryExecutor<ChannelsContainerValidation> queryExecutor;
     @Mock
     private QueryService queryService;
     @Mock
     private Query<IValidationRule> allValidationRuleQuery;
     @Mock
-    private IMeterActivationValidation meterActivationValidation;
+    private ChannelsContainerValidation channelsContainerValidation;
     @Mock
-    private IChannelValidation channelValidation1, channelValidation2;
+    private ChannelValidation channelValidation1, channelValidation2;
     @Mock
     private ReadingQualityRecord readingQuality1, readingQuality2, readingQuality3;
     @Mock
-    private QueryExecutor<IChannelValidation> channelValidationQuery;
+    private QueryExecutor<ChannelValidation> channelValidationQuery;
     @Mock
     private ValidatorCreator validatorCreator;
     @Mock
@@ -213,10 +213,10 @@ public class ValidationServiceImplTest {
         when(dataModel.mapper(IValidationRuleSet.class)).thenReturn(validationRuleSetFactory);
         when(dataModel.mapper(IValidationRuleSetVersion.class)).thenReturn(validationRuleSetVersionFactory);
         when(dataModel.mapper(IValidationRule.class)).thenReturn(validationRuleFactory);
-        when(dataModel.mapper(IChannelValidation.class)).thenReturn(channelValidationFactory);
+        when(dataModel.mapper(ChannelValidation.class)).thenReturn(channelValidationFactory);
         when(dataModel.mapper(MeterValidationImpl.class)).thenReturn(meterValidationFactory);
         when(dataModel.mapper(DataValidationTaskImpl.class)).thenReturn(dataValidationTaskFactory);
-        when(dataModel.query(IChannelValidation.class, IMeterActivationValidation.class)).thenReturn(channelValidationQuery);
+        when(dataModel.query(ChannelValidation.class, ChannelsContainerValidation.class)).thenReturn(channelValidationQuery);
         when(channelValidationQuery.select(any())).thenReturn(Collections.emptyList());
         when(nlsService.getThesaurus(anyString(), any(Layer.class))).thenReturn(thesaurus);
         when(dataModel.query(IValidationRule.class, IValidationRuleSet.class, ValidationRuleProperties.class)).thenReturn(validationRuleQueryExecutor);
@@ -252,7 +252,7 @@ public class ValidationServiceImplTest {
         when(dataModel.getInstance(ValidationRuleSetImpl.class)).thenAnswer(invocationOnMock -> new ValidationRuleSetImpl(dataModel, eventService, versionProvider));
         when(dataModel.getInstance(ValidationRuleSetVersionImpl.class)).thenAnswer(invocationOnMock -> new ValidationRuleSetVersionImpl(dataModel, eventService, ruleProvider));
         when(dataModel.getInstance(DataValidationTaskImpl.class)).thenAnswer(invocationOnMock -> newDataValidationTask);
-        when(dataModel.query(IMeterActivationValidation.class, IChannelValidation.class)).thenReturn(queryExecutor);
+        when(dataModel.query(ChannelsContainerValidation.class, ChannelValidation.class)).thenReturn(queryExecutor);
         when(queryExecutor.select(any())).thenReturn(Collections.emptyList());
         when(thesaurus.getFormat(any(MessageSeeds.class))).thenReturn(nlsMessageFormat);
         when(thesaurus.getFormat(any(TranslationKey.class))).thenReturn(nlsMessageFormat);
@@ -260,9 +260,9 @@ public class ValidationServiceImplTest {
         when(dataModel.getValidatorFactory().getValidator()).thenReturn(javaxValidator);
     }
 
-    private void setupValidationRuleSet(IChannelValidation channelValidation, Channel channel, boolean activeRules, ReadingQualityType... qualities) {
-        IMeterActivationValidation meterActivationValidation = mock(IMeterActivationValidation.class);
-        when(channelValidation.getMeterActivationValidation()).thenReturn(meterActivationValidation);
+    private void setupValidationRuleSet(ChannelValidation channelValidation, Channel channel, boolean activeRules, ReadingQualityType... qualities) {
+        ChannelsContainerValidation meterActivationValidation = mock(ChannelsContainerValidation.class);
+        when(channelValidation.getChannelsContainerValidation()).thenReturn(meterActivationValidation);
         ValidationRuleSet validationRuleSet = mock(ValidationRuleSet.class);
         when(meterActivationValidation.getRuleSet()).thenReturn(validationRuleSet);
         when(channelValidation.getChannel()).thenReturn(channel);
@@ -332,16 +332,16 @@ public class ValidationServiceImplTest {
 
     @Test
     public void testApplyRuleSetWithChannels() {
-        when(meterActivation.getId()).thenReturn(ID);
-        when(meterActivation.getMeter()).thenReturn(Optional.of(meter));
+        when(channelsContainer.getId()).thenReturn(ID);
+        when(channelsContainer.getMeter()).thenReturn(Optional.of(meter));
         when(meter.getId()).thenReturn(ID);
-        when(meterActivation.getChannels()).thenReturn(Arrays.asList(channel1, channel2));
+        when(channelsContainer.getChannels()).thenReturn(Arrays.asList(channel1, channel2));
         when(channel1.getId()).thenReturn(1001L);
         ReadingType readingType = mock(ReadingType.class);
         doReturn(Arrays.asList(readingType)).when(channel1).getReadingTypes();
         when(channel2.getId()).thenReturn(1002L);
-        when(channel1.getMeterActivation()).thenReturn(meterActivation);
-        when(channel2.getMeterActivation()).thenReturn(meterActivation);
+        when(channel1.getChannelsContainer()).thenReturn(channelsContainer);
+        when(channel2.getChannelsContainer()).thenReturn(channelsContainer);
         when(meterValidationFactory.getOptional(ID)).thenReturn(Optional.of(meterValidation));
         when(meterValidation.getActivationStatus()).thenReturn(true);
         doAnswer((invocation) -> {
@@ -350,30 +350,30 @@ public class ValidationServiceImplTest {
             field.setAccessible(true);
             field.set(meterActivationValidation, 1L);
             return null;
-        }).when(dataModel).persist(any(IMeterActivationValidation.class));
+        }).when(dataModel).persist(any(ChannelsContainerValidation.class));
 
         ValidationRuleSet validationRuleSet = mock(IValidationRuleSet.class);
         ValidationRule validationRule = mock(IValidationRule.class);
         doReturn(Collections.singleton(readingType)).when(validationRule).getReadingTypes();
         doReturn(Arrays.asList(validationRule)).when(validationRuleSet).getRules(anyList());
-        when(validationRuleSetResolver.resolve(eq(meterActivation))).thenReturn(Arrays.asList(validationRuleSet));
-        validationService.validate(meterActivation);
+        when(validationRuleSetResolver.resolve(eq(channelsContainer))).thenReturn(Arrays.asList(validationRuleSet));
+        validationService.validate(channelsContainer);
 
-        ArgumentCaptor<IMeterActivationValidation> meterActivationValidationCapture = ArgumentCaptor.forClass(IMeterActivationValidation.class);
+        ArgumentCaptor<ChannelsContainerValidation> meterActivationValidationCapture = ArgumentCaptor.forClass(ChannelsContainerValidation.class);
         verify(dataModel).persist(meterActivationValidationCapture.capture());
 
-        final IMeterActivationValidation meterActivationValidationCaptureValue = meterActivationValidationCapture.getValue();
-        final Set<IChannelValidation> channelValidations = meterActivationValidationCaptureValue.getChannelValidations();
-        assertThat(FluentIterable.from(channelValidations).allMatch(new Predicate<IChannelValidation>() {
+        final ChannelsContainerValidation meterActivationValidationCaptureValue = meterActivationValidationCapture.getValue();
+        final Set<ChannelValidation> channelValidations = meterActivationValidationCaptureValue.getChannelValidations();
+        assertThat(FluentIterable.from(channelValidations).allMatch(new Predicate<ChannelValidation>() {
             @Override
-            public boolean apply(IChannelValidation input) {
-                return input.getMeterActivationValidation().equals(meterActivationValidationCaptureValue);
+            public boolean apply(ChannelValidation input) {
+                return input.getChannelsContainerValidation().equals(meterActivationValidationCaptureValue);
             }
         })).isTrue();
-        assertThat(FluentIterable.from(channelValidations).transform(new Function<IChannelValidation, Channel>() {
+        assertThat(FluentIterable.from(channelValidations).transform(new Function<ChannelValidation, Channel>() {
 
             @Override
-            public Channel apply(IChannelValidation input) {
+            public Channel apply(ChannelValidation input) {
                 return input.getChannel();
             }
         }).toSet()).contains(channel1);
@@ -381,22 +381,25 @@ public class ValidationServiceImplTest {
 
     @Test
     public void testApplyRuleSetWithChannelsAndOverwrite() {
-        when(meterActivation.getId()).thenReturn(ID);
-        when(meterActivation.getMeter()).thenReturn(Optional.of(meter));
+        when(channelsContainer.getId()).thenReturn(ID);
+        when(channelsContainer.getMeter()).thenReturn(Optional.of(meter));
         when(meter.getId()).thenReturn(ID);
-        when(meterActivation.getChannels()).thenReturn(Arrays.asList(channel1, channel2));
+        when(channelsContainer.getChannels()).thenReturn(Arrays.asList(channel1, channel2));
         when(channel1.getId()).thenReturn(1001L);
         ReadingType readingType = mock(ReadingType.class);
         doReturn(Arrays.asList(readingType)).when(channel1).getReadingTypes();
         doReturn(readingType).when(channel1).getMainReadingType();
         when(channel2.getId()).thenReturn(1002L);
-        when(channel1.getMeterActivation()).thenReturn(meterActivation);
-        when(channel2.getMeterActivation()).thenReturn(meterActivation);
+        when(channel1.getChannelsContainer()).thenReturn(channelsContainer);
+        when(channel2.getChannelsContainer()).thenReturn(channelsContainer);
         when(meterValidationFactory.getOptional(ID)).thenReturn(Optional.of(meterValidation));
         when(meterValidation.getActivationStatus()).thenReturn(false);
-        when(queryExecutor.select(any(Condition.class))).thenReturn(Arrays.asList(meterActivationValidation));
-        when(meterActivationValidation.getMaxLastChecked()).thenReturn(Instant.ofEpochMilli(5000L));
-        when(meterActivationValidation.getChannelValidations()).thenReturn(ImmutableSet.of(channelValidation1, channelValidation2));
+        when(queryExecutor.select(any(Condition.class))).thenReturn(Arrays.asList(channelsContainerValidation));
+        when(channelsContainerValidation.getMaxLastChecked()).thenReturn(Instant.ofEpochMilli(5000L));
+        when(channelsContainerValidation.getChannelValidations()).thenReturn(ImmutableSet.of(channelValidation1, channelValidation2));
+        when(channelsContainerValidation.getChannelsContainer()).thenReturn(channelsContainer);
+        when(channelsContainerValidation.getChannelValidation(channel1)).thenReturn(Optional.of(channelValidation1));
+        when(channelsContainerValidation.getChannelValidation(channel2)).thenReturn(Optional.of(channelValidation2));
         when(channelValidation1.getLastChecked()).thenReturn(Instant.ofEpochMilli(-5000));
         when(channelValidation2.getLastChecked()).thenReturn(Instant.ofEpochMilli(5000L));
         when(channelValidation1.getChannel()).thenReturn(channel1);
@@ -412,58 +415,58 @@ public class ValidationServiceImplTest {
 
         ValidationRuleSet validationRuleSet = mock(IValidationRuleSet.class);
 
-        when(meterActivationValidation.getRuleSet()).thenReturn(validationRuleSet);
+        when(channelsContainerValidation.getRuleSet()).thenReturn(validationRuleSet);
 
         ValidationRule validationRule = mock(IValidationRule.class);
         doReturn(Collections.singleton(readingType)).when(validationRule).getReadingTypes();
         doReturn(Arrays.asList(validationRule)).when(validationRuleSet).getRules(anyList());
-        when(validationRuleSetResolver.resolve(eq(meterActivation))).thenReturn(Arrays.asList(validationRuleSet));
+        when(validationRuleSetResolver.resolve(eq(channelsContainer))).thenReturn(Arrays.asList(validationRuleSet));
         Map<Channel, Range<Instant>> changeScope = ImmutableMap.of(channel1, Range.atLeast(Instant.EPOCH));
-        validationService.validate(meterActivation, changeScope);
-        verify(meterActivationValidation).moveLastCheckedBefore(changeScope);
+        validationService.validate(channelsContainer, changeScope);
+        verify(channelsContainerValidation).moveLastCheckedBefore(changeScope);
     }
 
     @Test
     public void testManageValidationActivations() {
-        when(meterActivation.getId()).thenReturn(ID);
-        when(meterActivation.getMeter()).thenReturn(Optional.of(meter));
+        when(channelsContainer.getId()).thenReturn(ID);
+        when(channelsContainer.getMeter()).thenReturn(Optional.of(meter));
         when(meter.getId()).thenReturn(ID);
-        when(meterActivation.getChannels()).thenReturn(Arrays.asList(channel1, channel2));
+        when(channelsContainer.getChannels()).thenReturn(Arrays.asList(channel1, channel2));
         when(channel1.getId()).thenReturn(1001L);
         when(channel2.getId()).thenReturn(1002L);
-        when(channel1.getMeterActivation()).thenReturn(meterActivation);
-        when(channel2.getMeterActivation()).thenReturn(meterActivation);
+        when(channel1.getChannelsContainer()).thenReturn(channelsContainer);
+        when(channel2.getChannelsContainer()).thenReturn(channelsContainer);
         when(meterValidationFactory.getOptional(ID)).thenReturn(Optional.of(meterValidation));
         when(meterValidation.getActivationStatus()).thenReturn(true);
 
         ValidationRuleSet validationRuleSet = validationService.createValidationRuleSet(NAME, APPLICATION);
         validationRuleSet.save();
 
-        when(validationRuleSetResolver.resolve(eq(meterActivation))).thenReturn(Arrays.asList(validationRuleSet));
-        validationService.validate(meterActivation);
+        when(validationRuleSetResolver.resolve(eq(channelsContainer))).thenReturn(Arrays.asList(validationRuleSet));
+        validationService.validate(channelsContainer);
 
-        List<IMeterActivationValidation> meterActivationValidations = validationService.getUpdatedMeterActivationValidations(meterActivation);
+        List<ChannelsContainerValidation> meterActivationValidations = validationService.getUpdatedChannelsContainerValidations(channelsContainer);
         assertThat(meterActivationValidations).hasSize(1);
-        assertThat(meterActivationValidations.get(0).getMeterActivation()).isEqualTo(meterActivation);
+        assertThat(meterActivationValidations.get(0).getChannelsContainer()).isEqualTo(channelsContainer);
         assertThat(meterActivationValidations.get(0).getRuleSet()).isEqualTo(validationRuleSet);
-        IMeterActivationValidation activationRuleSet1 = meterActivationValidations.get(0);
+        ChannelsContainerValidation activationRuleSet1 = meterActivationValidations.get(0);
 
         ValidationRuleSet validationRuleSet2 = validationService.createValidationRuleSet(NAME, APPLICATION);
         validationRuleSet2.save();
 
-        when(validationRuleSetResolver.resolve(eq(meterActivation))).thenReturn(Arrays.asList(validationRuleSet, validationRuleSet2));
-        validationService.validate(meterActivation);
-        meterActivationValidations = validationService.getUpdatedMeterActivationValidations(meterActivation);
+        when(validationRuleSetResolver.resolve(eq(channelsContainer))).thenReturn(Arrays.asList(validationRuleSet, validationRuleSet2));
+        validationService.validate(channelsContainer);
+        meterActivationValidations = validationService.getUpdatedChannelsContainerValidations(channelsContainer);
         assertThat(meterActivationValidations).hasSize(2);
-        assertThat(meterActivationValidations.get(0).getMeterActivation()).isEqualTo(meterActivation);
-        assertThat(meterActivationValidations.get(1).getMeterActivation()).isEqualTo(meterActivation);
-        assertThat(FluentIterable.from(meterActivationValidations).transform(IMeterActivationValidation::getRuleSet).toSet()).contains(validationRuleSet, validationRuleSet2);
+        assertThat(meterActivationValidations.get(0).getChannelsContainer()).isEqualTo(channelsContainer);
+        assertThat(meterActivationValidations.get(1).getChannelsContainer()).isEqualTo(channelsContainer);
+        assertThat(FluentIterable.from(meterActivationValidations).transform(ChannelsContainerValidation::getRuleSet).toSet()).contains(validationRuleSet, validationRuleSet2);
 
-        when(validationRuleSetResolver.resolve(eq(meterActivation))).thenReturn(Arrays.asList(validationRuleSet2));
-        validationService.validate(meterActivation);
-        meterActivationValidations = validationService.getUpdatedMeterActivationValidations(meterActivation);
+        when(validationRuleSetResolver.resolve(eq(channelsContainer))).thenReturn(Arrays.asList(validationRuleSet2));
+        validationService.validate(channelsContainer);
+        meterActivationValidations = validationService.getUpdatedChannelsContainerValidations(channelsContainer);
         assertThat(meterActivationValidations).hasSize(1);
-        assertThat(meterActivationValidations.get(0).getMeterActivation()).isEqualTo(meterActivation);
+        assertThat(meterActivationValidations.get(0).getChannelsContainer()).isEqualTo(channelsContainer);
         assertThat(meterActivationValidations.get(0).getRuleSet()).isEqualTo(validationRuleSet2);
         assertThat(activationRuleSet1.isObsolete());
     }
@@ -500,7 +503,7 @@ public class ValidationServiceImplTest {
         assertThat(validationStatus.get(0).completelyValidated()).isFalse();
         assertThat(validationStatus.get(0).getReadingQualities()).hasSize(0);
 
-        IChannelValidation channelValidation = mock(IChannelValidation.class);
+        ChannelValidation channelValidation = mock(ChannelValidation.class);
         when(channelValidationFactory.find(eq("channel"), eq(channel1))).thenReturn(Arrays.asList(channelValidation));
         when(channelValidation.getLastChecked()).thenReturn(Instant.ofEpochMilli(0));
         setupValidationRuleSet(channelValidation, channel1, true);
@@ -522,7 +525,7 @@ public class ValidationServiceImplTest {
         when(reading2.getTimeStamp()).thenReturn(readingDate2);
 
 
-        IChannelValidation channelValidation = mock(IChannelValidation.class);
+        ChannelValidation channelValidation = mock(ChannelValidation.class);
         when(channelValidationFactory.find(eq("channel"), eq(channel1))).thenReturn(Arrays.asList(channelValidation));
         when(channelValidation.getLastChecked()).thenReturn(readingDate1);
         when(cimChannel1.findReadingQuality(eq(Range.closed(readingDate1, readingDate2)))).thenReturn(Collections.<ReadingQualityRecord>emptyList());
@@ -556,9 +559,9 @@ public class ValidationServiceImplTest {
         when(reading2.getTimeStamp()).thenReturn(readingDate2);
         when(channel1.getBulkQuantityReadingType()).thenReturn(Optional.empty());
 
-        IChannelValidation channelValidation1 = mock(IChannelValidation.class);
+        ChannelValidation channelValidation1 = mock(ChannelValidation.class);
         when(channelValidation1.getLastChecked()).thenReturn(readingDate1);
-        IChannelValidation channelValidation2 = mock(IChannelValidation.class);
+        ChannelValidation channelValidation2 = mock(ChannelValidation.class);
         when(channelValidation2.getLastChecked()).thenReturn(readingDate2);
         when(channelValidationFactory.find(eq("channel"), eq(channel1))).thenReturn(Arrays.asList(channelValidation1, channelValidation2));
         when(channel1.findReadingQuality(eq(Range.closed(readingDate1, readingDate2)))).thenReturn(Collections.<ReadingQualityRecord>emptyList());
@@ -595,9 +598,9 @@ public class ValidationServiceImplTest {
         when(reading2.getTimeStamp()).thenReturn(readingDate2);
         when(channel1.getBulkQuantityReadingType()).thenReturn(Optional.empty());
 
-        IChannelValidation channelValidation1 = mock(IChannelValidation.class);
+        ChannelValidation channelValidation1 = mock(ChannelValidation.class);
         when(channelValidation1.getLastChecked()).thenReturn(readingDate1);
-        IChannelValidation channelValidation2 = mock(IChannelValidation.class);
+        ChannelValidation channelValidation2 = mock(ChannelValidation.class);
         when(channelValidation2.getLastChecked()).thenReturn(null);
         when(channelValidationFactory.find(eq("channel"), eq(channel1))).thenReturn(Arrays.asList(channelValidation1, channelValidation2));
         ReadingQualityRecord readingQuality = mock(ReadingQualityRecord.class);
@@ -634,7 +637,7 @@ public class ValidationServiceImplTest {
         when(reading2.getTimeStamp()).thenReturn(readingDate2);
 
 
-        IChannelValidation channelValidation1 = mock(IChannelValidation.class);
+        ChannelValidation channelValidation1 = mock(ChannelValidation.class);
         when(channelValidation1.getLastChecked()).thenReturn(readingDate2);
         when(channelValidationFactory.find(eq("channel"), eq(channel1))).thenReturn(Arrays.asList(channelValidation1));
         ReadingQualityRecord readingQuality1 = mock(ReadingQualityRecord.class);
@@ -675,9 +678,9 @@ public class ValidationServiceImplTest {
     public void testMeterValidationActivation() {
         Meter meter = mock(Meter.class);
         when(meter.getId()).thenReturn(ID);
-        doReturn(Optional.of(meterActivation)).when(meter).getCurrentMeterActivation();
+        doReturn(Optional.of(channelsContainer)).when(meter).getCurrentMeterActivation();
         when(meterValidationFactory.getOptional(ID)).thenReturn(Optional.<MeterValidationImpl>empty());
-        when(validationRuleSetResolver.resolve(eq(meterActivation))).thenReturn(Collections.<ValidationRuleSet>emptyList());
+        when(validationRuleSetResolver.resolve(eq(channelsContainer))).thenReturn(Collections.<ValidationRuleSet>emptyList());
 
 
         validationService.activateValidation(meter);
@@ -688,7 +691,7 @@ public class ValidationServiceImplTest {
 
         // verify that the MeterActivationValidations are managed for the current MeterActivation
         verify(meter).getCurrentMeterActivation();
-        verify(validationRuleSetResolver).resolve(meterActivation);
+        verify(validationRuleSetResolver).resolve(channelsContainer);
     }
 
     @Test
@@ -812,7 +815,7 @@ public class ValidationServiceImplTest {
         Instant end = ZonedDateTime.of(2015, 9, 5, 0, 0, 0, 0, ZoneOffset.UTC).toInstant();
         Range<Instant> range = Range.openClosed(start, end);
 
-        IChannelValidation channelValidation = mock(IChannelValidation.class);
+        ChannelValidation channelValidation = mock(ChannelValidation.class);
         when(channelValidationFactory.find(eq("channel"), eq(channel))).thenReturn(Arrays.asList(channelValidation));
         when(channelValidation.getLastChecked()).thenReturn(end);
         Answer<ReadingQualityRecord> answer = invocationOnMock -> {

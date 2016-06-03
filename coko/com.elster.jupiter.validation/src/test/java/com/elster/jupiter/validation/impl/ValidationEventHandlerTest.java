@@ -9,14 +9,9 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingStorer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.StorerProcess;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -25,7 +20,17 @@ import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.mockito.Mockito.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ValidationEventHandlerTest {
@@ -69,9 +74,9 @@ public class ValidationEventHandlerTest {
         map.put(cimChannel1, interval(date1, date2));
         map.put(cimChannel2, interval(date3, date5));
         map.put(cimChannel3, interval(date4, date5));
-        when(channel1.getMeterActivation()).thenReturn(meterActivation1);
-        when(channel2.getMeterActivation()).thenReturn(meterActivation1);
-        when(channel3.getMeterActivation()).thenReturn(meterActivation2);
+        when(channel1.getChannelsContainer()).thenReturn(meterActivation1);
+        when(channel2.getChannelsContainer()).thenReturn(meterActivation1);
+        when(channel3.getChannelsContainer()).thenReturn(meterActivation2);
         when(channel1.getMainReadingType()).thenReturn(readingType);
         when(channel2.getMainReadingType()).thenReturn(readingType);
         when(channel3.getMainReadingType()).thenReturn(readingType);

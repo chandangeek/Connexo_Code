@@ -1,15 +1,5 @@
 package com.elster.jupiter.validation.impl;
 
-import java.time.Instant;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import javax.inject.Inject;
-
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ReadingQualityRecord;
@@ -17,13 +7,22 @@ import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
+
 import com.google.common.collect.Range;
 
-final class ChannelValidationImpl implements IChannelValidation {
+import javax.inject.Inject;
+import java.time.Instant;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+final class ChannelValidationImpl implements ChannelValidation {
 
     private long id;
     private long channelId;
-    private Reference<IMeterActivationValidation> meterActivationValidation = ValueReference.absent();
+    private Reference<ChannelsContainerValidation> meterActivationValidation = ValueReference.absent(); // TODO rename
     private Instant lastChecked;
     @SuppressWarnings("unused")
 	private boolean activeRules;
@@ -33,8 +32,8 @@ final class ChannelValidationImpl implements IChannelValidation {
     ChannelValidationImpl() {
     }
 
-    ChannelValidationImpl init(IMeterActivationValidation meterActivationValidation, Channel channel) {
-        if (!channel.getMeterActivation().equals(meterActivationValidation.getMeterActivation())) {
+    ChannelValidationImpl init(ChannelsContainerValidation meterActivationValidation, Channel channel) {
+        if (!channel.getChannelsContainer().equals(meterActivationValidation.getChannelsContainer())) {
             throw new IllegalArgumentException();
         }
         this.meterActivationValidation.set(meterActivationValidation);
@@ -51,7 +50,7 @@ final class ChannelValidationImpl implements IChannelValidation {
     }
 
     @Override
-    public IMeterActivationValidation getMeterActivationValidation() {
+    public ChannelsContainerValidation getChannelsContainerValidation() {
         return meterActivationValidation.get();
     }
 
@@ -62,8 +61,8 @@ final class ChannelValidationImpl implements IChannelValidation {
 
     public Channel getChannel() {
     	if (channel == null) {
-    		channel = meterActivationValidation.get().getChannels().stream()
-        		.filter(channel -> channel.getId() == channelId)
+            channel = meterActivationValidation.get().getChannelsContainer().getChannels().stream()
+                    .filter(channel -> channel.getId() == channelId)
         		.findFirst()
         		.get();
     	}
@@ -76,8 +75,8 @@ final class ChannelValidationImpl implements IChannelValidation {
     }
 
     private List<IValidationRule> activeRules() {
-    	return getMeterActivationValidation().getRuleSet().getRules().stream()
-    			.map(IValidationRule.class::cast)
+        return getChannelsContainerValidation().getRuleSet().getRules().stream()
+                .map(IValidationRule.class::cast)
     			.filter(rule -> rule.appliesTo(getChannel()))    			
                 .collect(Collectors.toList());
     }
@@ -111,7 +110,7 @@ final class ChannelValidationImpl implements IChannelValidation {
     }
     
     private final Instant minLastChecked() {
-    	return meterActivationValidation.get().getMeterActivation().getStart();
+        return meterActivationValidation.get().getChannelsContainer().getStart();
     }
     
     @Override
@@ -149,7 +148,7 @@ final class ChannelValidationImpl implements IChannelValidation {
     		return;
     	}
     	Range<Instant> dataRange = Range.openClosed(lastChecked, end);
-        List<? extends ValidationRuleSetVersion>  versions = getMeterActivationValidation().getRuleSet().getRuleSetVersions();
+        List<? extends ValidationRuleSetVersion> versions = getChannelsContainerValidation().getRuleSet().getRuleSetVersions();
 
         Instant newLastChecked = versions.stream()
                 .map(IValidationRuleSetVersion.class::cast)

@@ -1,14 +1,15 @@
 package com.elster.jupiter.validation;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.ReadingQuality;
+
+import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -30,8 +31,9 @@ public interface ValidationEvaluator {
 		return ValidationResult.getValidationResult(qualities);
 	}
 
-    boolean isAllDataValidated(MeterActivation meterActivation);
-    boolean isAllDataValid(MeterActivation meterActivation);
+    boolean isAllDataValidated(ChannelsContainer channelsContainer);
+
+    boolean isAllDataValid(ChannelsContainer channelsContainer);
 
     default List<DataValidationStatus> getValidationStatus(Channel channel, List<? extends BaseReading> readings) {
         List<DataValidationStatus> dataValidationStatuses;

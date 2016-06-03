@@ -6,8 +6,16 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.orm.DataModel;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
+
+import java.time.Instant;
+import java.time.Month;
+import java.time.Year;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Arrays;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,16 +24,10 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
-import java.time.Instant;
-import java.time.Month;
-import java.time.Year;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.Arrays;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.verify;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ChannelValidationImplTest extends EqualsContractTest {
@@ -37,7 +39,7 @@ public class ChannelValidationImplTest extends EqualsContractTest {
     @Mock
     private Channel channel, channel1;
     @Mock
-    private IMeterActivationValidation meterActivationValidation, meterActivationValidation1;
+    private ChannelsContainerValidation meterActivationValidation, meterActivationValidation1;
     @Mock
     private DataModel dataModel;
     @Mock
@@ -63,12 +65,12 @@ public class ChannelValidationImplTest extends EqualsContractTest {
                 return new ChannelValidationImpl();
             }
         });
-        when(channel.getMeterActivation()).thenReturn(meterActivation);
-        when(channel1.getMeterActivation()).thenReturn(meterActivation);
+        when(channel.getChannelsContainer()).thenReturn(meterActivation);
+        when(channel1.getChannelsContainer()).thenReturn(meterActivation);
         when(channel.getId()).thenReturn(1L);
         when(channel1.getId()).thenReturn(2L);
-        when(meterActivationValidation.getMeterActivation()).thenReturn(meterActivation);
-        when(meterActivationValidation1.getMeterActivation()).thenReturn(meterActivation);
+        when(meterActivationValidation.getChannelsContainer()).thenReturn(meterActivation);
+        when(meterActivationValidation1.getChannelsContainer()).thenReturn(meterActivation);
         when(meterActivation.getStart()).thenReturn(Year.of(2013).atMonth(Month.JANUARY).atDay(1).atTime(14,0).atZone(ZoneId.systemDefault()).toInstant());
     }
 
