@@ -61,10 +61,10 @@ public class GasDetailResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @Path("/{lowerEnd}")
+    @Path("/{time}")
 //    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    public GasDetailInfo getGasDetails(@PathParam("lowerEnd") long lowerEnd, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
-        UsagePointDetail usagePointDetail = usagePoint.getDetail(Instant.ofEpochMilli(lowerEnd))
+    public GasDetailInfo getGasDetails(@PathParam("time") long time, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
+        UsagePointDetail usagePointDetail = usagePoint.getDetail(Instant.ofEpochMilli(time))
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DETAIL));
 
         return gasDetailInfoFactory.from((GasDetail) usagePointDetail, uriInfo, fieldSelection.getFields());

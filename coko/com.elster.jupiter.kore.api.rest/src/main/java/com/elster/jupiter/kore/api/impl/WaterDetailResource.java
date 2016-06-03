@@ -61,10 +61,10 @@ public class WaterDetailResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @Path("/{lowerEnd}")
+    @Path("/{time}")
 //    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    public WaterDetailInfo getWaterDetail(@PathParam("lowerEnd") long lowerEnd, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
-        WaterDetail detail = (WaterDetail) usagePoint.getDetail(Instant.ofEpochMilli(lowerEnd))
+    public WaterDetailInfo getWaterDetail(@PathParam("time") long time, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
+        WaterDetail detail = (WaterDetail) usagePoint.getDetail(Instant.ofEpochMilli(time))
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DETAIL));
         return waterDetailInfoFactory.from(detail, uriInfo, fieldSelection.getFields());
     }

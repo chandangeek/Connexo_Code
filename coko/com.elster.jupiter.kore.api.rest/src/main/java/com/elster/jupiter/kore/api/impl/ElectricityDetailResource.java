@@ -31,6 +31,8 @@ import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 
+@Path("/usagepoints/{id}/details")
+// This tag exists for Miredot only. Is not required for production as this resource is obtained through sub-resource location
 public class ElectricityDetailResource {
 
     private final ElectricityDetailInfoFactory electricityDetailInfoFactory;
@@ -52,17 +54,44 @@ public class ElectricityDetailResource {
         return this;
     }
 
+    /**
+     * Usage points have detailed information. These details have time-based values: each time values change, a new set
+     * of details is created, bound to a validity period called 'effectivity'.
+     * The detail properties of a usage point vary according to the usage points Service category. This means an
+     * electricity usage point and a gas usage point will have different detail properties.
+     * The Id of the details is the time in milliseconds when the details became active. Each detail will have a link
+     * to the temporal predecessor and successor, if one exists.
+     *
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
+     * @param time Instant for which one wants to obtain the effective details (milliseconds since Epoch)
+     * @return Details that were effective at the lowerEnd
+     * @summary Fetch details that are effective at a certain moment
+     */
     @GET
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @Path("/{lowerRange}")
+    @Path("/{time}")
 //    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    public ElectricityDetailInfo getElectricityDetails(@PathParam("lowerRange") long lowerRange, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
-        UsagePointDetail usagePointDetail = usagePoint.getDetail(Instant.ofEpochMilli(lowerRange))
+    public ElectricityDetailInfo getElectricityDetails(@PathParam("time") long time, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
+        UsagePointDetail usagePointDetail = usagePoint.getDetail(Instant.ofEpochMilli(time))
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DETAIL));
         return electricityDetailInfoFactory.from((ElectricityDetail) usagePointDetail, uriInfo, fieldSelection.getFields());
     }
 
+    /**
+     * Usage points have detailed information. These details have time-based values: each time values change, a new set
+     * of details is created, bound to a validity period called 'effectivity'.
+     * The detail properties of a usage point vary according to the usage points Service category. This means an
+     * electricity usage point and a gas usage point will have different detail properties.
+     * The Id of the details is the time in milliseconds when the details became active. Each detail will have a link
+     * to the temporal predecessor and successor, if one exists.
+     *
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
+     * @return Details that are currently effective.
+     * @summary Fetch details that are currently effective
+     */
     @GET
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
@@ -71,21 +100,34 @@ public class ElectricityDetailResource {
         return getElectricityDetails(Instant.now(clock).toEpochMilli(), fieldSelection, uriInfo);
     }
 
+    /**
+     * Usage points have detailed information. These details have time-based values: each time values change, a new set
+     * of details is created, bound to a validity period called 'effectivity'.
+     * The detail properties of a usage point vary according to the usage points Service category. This means an
+     * electricity usage point and a gas usage point will have different detail properties.
+     * The Id of the details is the time in milliseconds when the details became active. Each detail will have a link
+     * to the temporal predecessor and successor, if one exists.
+     *
+     * @param detailInfo JSON description of new usage point detail values
+     * @param uriInfo uriInfo
+     * @return The updated details
+     * @summary Create a new version of the usage point details
+     */
     @POST
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
 //    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    public Response createElectricityDetail(ElectricityDetailInfo electricityDetailInfo, @Context UriInfo uriInfo) {
-        if (electricityDetailInfo == null || electricityDetailInfo.version == null) {
+    public Response createElectricityDetail(ElectricityDetailInfo detailInfo, @Context UriInfo uriInfo) {
+        if (detailInfo == null || detailInfo.version == null) {
             throw new LocalizedFieldValidationException(MessageSeeds.VERSION_MISSING, "version");
         }
-        meteringService.findAndLockUsagePointByIdAndVersion(usagePoint.getId(), electricityDetailInfo.version)
+        meteringService.findAndLockUsagePointByIdAndVersion(usagePoint.getId(), detailInfo.version)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_USAGE_POINT));
-        if (electricityDetailInfo.effectivity == null || electricityDetailInfo.effectivity.lowerEnd == null) {
+        if (detailInfo.effectivity == null || detailInfo.effectivity.lowerEnd == null) {
             throw new LocalizedFieldValidationException(MessageSeeds.FIELD_MISSING, "effectivity.lowerEnd");
         }
-        UsagePointDetailBuilder builder = electricityDetailInfoFactory.createDetail(usagePoint, electricityDetailInfo);
+        UsagePointDetailBuilder builder = electricityDetailInfoFactory.createDetail(usagePoint, detailInfo);
         builder.validate();
         UsagePointDetail detail = builder.create();
 
@@ -98,6 +140,24 @@ public class ElectricityDetailResource {
         return Response.created(uri).build();
     }
 
+    /**
+     * List the fields available on this type of entity. In the case of usage points details, these fields will
+     * depend on the service category of the usage point being queried.
+     * <br>E.g.
+     * <br>[
+     * <br> "id",
+     * <br> "name",
+     * <br> "actions",
+     * <br> "batch"
+     * <br>]
+     * <br>Fields in the list can be used as parameter on a GET request to the same resource, e.g.
+     * <br> <i></i>GET ..../resource?fields=id,name,batch</i>
+     * <br> The call above will return only the requested fields of the entity. In the absence of a field list, all fields
+     * will be returned. If IDs are required in the URL for parent entities, then will be ignored when using the PROPFIND method.
+     *
+     * @return A list of field names that can be requested as parameter in the GET method on this entity type
+     * @summary List the fields available on this type of entity
+     */
     @PROPFIND
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
 //    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})

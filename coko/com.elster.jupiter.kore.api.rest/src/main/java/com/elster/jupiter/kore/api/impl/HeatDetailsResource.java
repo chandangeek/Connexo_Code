@@ -61,10 +61,10 @@ public class HeatDetailsResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @Path("/{lowerEnd}")
+    @Path("/{time}")
 //    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    public HeatDetailInfo getHeatDetails(@PathParam("lowerEnd") long lowerEnd, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
-        HeatDetail detail = (HeatDetail) usagePoint.getDetail(Instant.ofEpochMilli(lowerEnd))
+    public HeatDetailInfo getHeatDetails(@PathParam("time") long time, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
+        HeatDetail detail = (HeatDetail) usagePoint.getDetail(Instant.ofEpochMilli(time))
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, com.elster.jupiter.kore.api.impl.utils.MessageSeeds.NO_SUCH_DETAIL));
         return heatDetailInfoFactory.from(detail, uriInfo, fieldSelection.getFields());
     }
