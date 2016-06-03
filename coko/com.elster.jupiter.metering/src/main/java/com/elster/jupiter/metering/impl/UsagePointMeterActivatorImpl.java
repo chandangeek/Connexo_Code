@@ -7,22 +7,19 @@ import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeterAlreadyActive;
-import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePointMeterActivator;
-import com.elster.jupiter.metering.config.MeterRole;
-import com.elster.jupiter.metering.config.MetrologyContract;
-import com.elster.jupiter.metering.config.ReadingTypeRequirement;
-import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
-import com.elster.jupiter.metering.impl.config.ReadingTypeRequirementChecker;
+import com.elster.jupiter.metering.config.MeterRole;
+import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.metering.config.UnsatisfiedReadingTypeRequirements;
 import com.elster.jupiter.metering.impl.config.SelfObjectValidator;
 import com.elster.jupiter.metering.impl.config.SelfValid;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
+import com.elster.jupiter.util.Pair;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintValidatorContext;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -151,21 +148,20 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         boolean result = true;
         Optional<EffectiveMetrologyConfigurationOnUsagePoint> effectiveMetrologyConfiguration = this.usagePoint.getEffectiveMetrologyConfiguration(this.activationTime);
         if (effectiveMetrologyConfiguration.isPresent()) {
-            UsagePointMetrologyConfiguration metrologyConfiguration = (UsagePointMetrologyConfiguration) effectiveMetrologyConfiguration.get().getMetrologyConfiguration();
-            List<ReadingTypeRequirement> mandatoryReadingTypeRequirements = getMandatoryReadingTypeRequirements(metrologyConfiguration);
-            for (Map.Entry<MeterRole, Meter> mappingEntry : this.meterRoleMapping.entrySet()) {
-                if (mappingEntry.getValue() == null) {
-                    continue;
-                }
-                List<ReadingTypeRequirement> unmatchedRequirements = getUnmatchedMeterReadingTypeRequirements(metrologyConfiguration, mandatoryReadingTypeRequirements, mappingEntry);
-                if (!unmatchedRequirements.isEmpty()) {
-                    result = true; // TODO change to false when meter will provide correct capabilities!
+            try {
+                effectiveMetrologyConfiguration.get().getMetrologyConfiguration().validateMeterCapabilities(meterRoleMapping.entrySet().stream()
+                        .map(meterRoleMeterEntry -> Pair.of(meterRoleMeterEntry.getKey(), meterRoleMeterEntry.getValue()))
+                        .collect(Collectors.toList()));
+            } catch (UnsatisfiedReadingTypeRequirements ex) {
+                result = false;
+
+                ex.getFailedRequirements().entrySet().stream().forEach(meterRoleListEntry -> {
                     String errorMessage = this.metrologyConfigurationService.getThesaurus().getFormat(MessageSeeds.UNSATISFIED_METROLOGY_REQUIREMENT)
-                            .format(unmatchedRequirements.stream().map(ReadingTypeRequirement::getName).collect(Collectors.joining(", ")));
+                            .format(meterRoleListEntry.getValue().stream().map(ReadingTypeRequirement::getName).collect(Collectors.joining(", ")));
                     context.buildConstraintViolationWithTemplate(errorMessage)
-                            .addPropertyNode(mappingEntry.getKey().getKey())
+                            .addPropertyNode(meterRoleListEntry.getKey().getKey())
                             .addConstraintViolation();
-                }
+                });
             }
         }
         return result;
@@ -189,27 +185,6 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         return result;
     }
 
-    private List<ReadingTypeRequirement> getMandatoryReadingTypeRequirements(UsagePointMetrologyConfiguration metrologyConfiguration) {
-        ReadingTypeRequirementChecker requirementChecker = new ReadingTypeRequirementChecker();
-        metrologyConfiguration.getContracts()
-                .stream()
-                .filter(MetrologyContract::isMandatory)
-                .flatMap(contract -> contract.getDeliverables().stream())
-                .forEach(deliverable -> deliverable.getFormula().getExpressionNode().accept(requirementChecker));
-        return requirementChecker.getReadingTypeRequirements();
-    }
-
-    private List<ReadingTypeRequirement> getUnmatchedMeterReadingTypeRequirements(UsagePointMetrologyConfiguration metrologyConfiguration, List<ReadingTypeRequirement> mandatoryReadingTypeRequirements, Map.Entry<MeterRole, Meter> mappingEntry) {
-        List<ReadingType> readingTypesOnMeter = new ArrayList<>();
-        mappingEntry.getValue().getHeadEndInterface()
-                .map(headEndInterface -> headEndInterface.getCapabilities(mappingEntry.getValue()))
-                .ifPresent(endDeviceCapabilities -> readingTypesOnMeter.addAll(endDeviceCapabilities.getConfiguredReadingTypes()));
-        return metrologyConfiguration.getRequirements(mappingEntry.getKey())
-                .stream()
-                .filter(mandatoryReadingTypeRequirements::contains)
-                .filter(requirement -> !readingTypesOnMeter.stream().anyMatch(requirement::matches))
-                .collect(Collectors.toList());
-    }
 
     private void manageActivations() {
         // Close all meter activations for that role which are active at activation time
