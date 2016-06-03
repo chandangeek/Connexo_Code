@@ -23,9 +23,7 @@ import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -54,7 +52,13 @@ public class DeviceDataInfoFactory {
         channelIntervalInfo.readingTime = loadProfileReading.getReadingTime();
         channelIntervalInfo.validationActive = isValidationActive;
 
-        channelIntervalInfo.readingQualities = loadProfileReading.getReadingQualities()
+        Map<Channel, List<? extends ReadingQualityRecord>> readingQualities = loadProfileReading.getReadingQualities();
+        List<? extends ReadingQualityRecord> readingQualityRecords = readingQualities.get(channel);
+        if (readingQualityRecords == null) {
+            readingQualityRecords = new ArrayList<>();
+        }
+
+        channelIntervalInfo.readingQualities = readingQualityRecords
                 .stream()
                 .filter(ReadingQualityRecord::isActual)
                 .distinct()
@@ -121,16 +125,27 @@ public class DeviceDataInfoFactory {
         channelIntervalInfo.interval = IntervalInfo.from(loadProfileReading.getRange());
         channelIntervalInfo.readingTime = loadProfileReading.getReadingTime();
 
-        channelIntervalInfo.readingQualities = loadProfileReading.getReadingQualities()
-                .stream()
-                .filter(ReadingQualityRecord::isActual)
-                .distinct()
-                .filter(record -> record.getType().system().isPresent())
-                .filter(record -> record.getType().category().isPresent())
-                .filter(record -> record.getType().qualityIndex().isPresent())
-                .filter(record -> (record.getType().getSystemCode() == QualityCodeSystem.ENDDEVICE.ordinal()))
-                .map(rq -> getSimpleName(rq.getType()))
-                .collect(Collectors.toList());
+        Map<Long, List<String>> readingQualitiesDescriptionPerChannel = new HashMap<>();
+        for (Channel channel : loadProfileReading.getReadingQualities().keySet()) {
+            List<? extends ReadingQualityRecord> readingQualityRecords = loadProfileReading.getReadingQualities().get(channel);
+            if (readingQualityRecords == null) {
+                readingQualityRecords = new ArrayList<>();
+            }
+
+            List<String> readingQualitiesDescription = readingQualityRecords
+                    .stream()
+                    .filter(ReadingQualityRecord::isActual)
+                    .distinct()
+                    .filter(record -> record.getType().system().isPresent())
+                    .filter(record -> record.getType().category().isPresent())
+                    .filter(record -> record.getType().qualityIndex().isPresent())
+                    .filter(record -> (record.getType().getSystemCode() == QualityCodeSystem.ENDDEVICE.ordinal()))
+                    .map(rq -> getSimpleName(rq.getType()))
+                    .collect(Collectors.toList());
+
+            readingQualitiesDescriptionPerChannel.put(channel.getId(), readingQualitiesDescription);
+        }
+        channelIntervalInfo.readingQualities = readingQualitiesDescriptionPerChannel;
 
         if (loadProfileReading.getChannelValues().isEmpty()) {
             for (Channel channel : channels) {

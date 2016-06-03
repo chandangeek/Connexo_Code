@@ -11,13 +11,7 @@ import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageBuilder;
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
-import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.KnownAmrSystem;
-import com.elster.jupiter.metering.LocationTemplate;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.readings.ProtocolReadingQualities;
@@ -74,7 +68,6 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -649,7 +642,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         final long startTime = 1388534400000L;
         long start = startTime;
         for (int i = 0; i < 2880; i++) {
-            loadProfileReadings.add(mockLoadProfileReading(loadProfile3, Ranges.openClosed(Instant.ofEpochMilli(start), Instant.ofEpochMilli(start + 900))));
+            loadProfileReadings.add(mockLoadProfileReading(loadProfile3, Ranges.openClosed(Instant.ofEpochMilli(start), Instant.ofEpochMilli(start + 900)), channel1, channel2));
             start += 900;
         }
         when(loadProfile3.getChannelData(any(Range.class))).thenReturn(loadProfileReadings);
@@ -668,7 +661,16 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
                 .containsKey("channelData")
                 .containsKey("readingTime")
                 .containsKey("readingQualities");
-        assertThat(((List<String>) ((Map) data.get(0)).get("readingQualities")).get(0)).isEqualTo("RAM Checksum Error");
+
+        Map<String, List<String>> readingQualitiesPerChannel = (Map<String, List<String>>) ((Map) data.get(0)).get("readingQualities");
+
+        List<String> readingQualitiesChannel1 = readingQualitiesPerChannel.get(String.valueOf(channel1.getId()));
+        assertThat(readingQualitiesChannel1).hasSize(1);
+        assertThat(readingQualitiesChannel1.get(0)).isEqualTo("RAM Checksum Error");
+
+        List<String> readingQualitiesChannel2 = readingQualitiesPerChannel.get(String.valueOf(channel2.getId()));
+        assertThat(readingQualitiesChannel2).hasSize(1);
+        assertThat(readingQualitiesChannel2.get(0)).isEqualTo("RAM Checksum Error");
 
         Map<String, Long> interval = (Map<String, Long>) ((Map) data.get(0)).get("interval");
         assertThat(interval.get("start")).isEqualTo(startTime);
@@ -700,7 +702,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         final long startTime = 1388534400000L;
         long start = startTime;
         for (int i = 0; i < 2880; i++) {
-            loadProfileReadings.add(mockLoadProfileReading(loadProfile3, Ranges.openClosed(Instant.ofEpochMilli(start), Instant.ofEpochMilli(start + 900))));
+            loadProfileReadings.add(mockLoadProfileReading(loadProfile3, Ranges.openClosed(Instant.ofEpochMilli(start), Instant.ofEpochMilli(start + 900)), channel1));
             start += 900;
         }
         when(channel1.getChannelData(any(Range.class))).thenReturn(loadProfileReadings);
@@ -1352,12 +1354,18 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         return device;
     }
 
-    private LoadProfileReading mockLoadProfileReading(final LoadProfile loadProfile, Range<Instant> interval) {
+    private LoadProfileReading mockLoadProfileReading(final LoadProfile loadProfile, Range<Instant> interval, Channel... channels) {
         LoadProfileReading loadProfileReading = mock(LoadProfileReading.class);
         IntervalReadingRecord intervalReadingRecord = mock(IntervalReadingRecord.class);
         when(intervalReadingRecord.getValue()).thenReturn(BigDecimal.TEN);
         ReadingQualityRecord readingQualityCorrupted = mockReadingQuality(ProtocolReadingQualities.CORRUPTED.getCimCode());
-        doReturn(Arrays.asList(readingQualityCorrupted)).when(loadProfileReading).getReadingQualities();
+
+        Map<Channel, List<ReadingQualityRecord>> readingQualitiesPerChannel = new HashMap<>();
+        for (Channel channel : channels) {
+            readingQualitiesPerChannel.put(channel, Arrays.asList(readingQualityCorrupted));
+        }
+
+        doReturn(readingQualitiesPerChannel).when(loadProfileReading).getReadingQualities();
 
         when(loadProfileReading.getReadingTime()).thenReturn(Instant.now());
         when(loadProfileReading.getRange()).thenReturn(interval);

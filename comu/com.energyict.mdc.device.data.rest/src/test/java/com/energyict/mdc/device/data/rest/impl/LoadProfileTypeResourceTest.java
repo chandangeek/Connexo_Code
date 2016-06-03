@@ -111,9 +111,14 @@ public class LoadProfileTypeResourceTest extends DeviceDataRestApplicationJersey
 
         ReadingQualityRecord readingQualityBatteryLow = mockReadingQuality(ProtocolReadingQualities.BATTERY_LOW.getCimCode());
         ReadingQualityRecord readingQualityBadTime = mockReadingQuality(ProtocolReadingQualities.BADTIME.getCimCode());
-        doReturn(Arrays.asList(readingQualityBatteryLow, readingQualityBadTime)).when(loadProfileReading).getReadingQualities();
-        doReturn(Arrays.asList(readingQualityBatteryLow, readingQualityBadTime)).when(readingRecord1).getReadingQualities();
-        doReturn(Arrays.asList(readingQualityBatteryLow, readingQualityBadTime)).when(readingRecord2).getReadingQualities();
+        List<ReadingQualityRecord> readingQualities = Arrays.asList(readingQualityBatteryLow, readingQualityBadTime);
+        Map<Channel, List<ReadingQualityRecord>> readingQualitiesPerChannel = new HashMap<>();
+        readingQualitiesPerChannel.put(channel1, readingQualities);
+        readingQualitiesPerChannel.put(channel2, readingQualities);
+
+        doReturn(readingQualitiesPerChannel).when(loadProfileReading).getReadingQualities();
+        doReturn(readingQualities).when(readingRecord1).getReadingQualities();
+        doReturn(readingQualities).when(readingRecord2).getReadingQualities();
 
         doReturn(BATTERY_LOW).when(thesaurus).getString(BATTERY_LOW, BATTERY_LOW);
 
@@ -241,9 +246,18 @@ public class LoadProfileTypeResourceTest extends DeviceDataRestApplicationJersey
         assertThat(jsonModel.<List<?>>get("$.data")).hasSize(1);
         assertThat(jsonModel.<Long>get("$.data[0].interval.start")).isEqualTo(1410774630000L);
         assertThat(jsonModel.<Long>get("$.data[0].interval.end")).isEqualTo(1410828630000L);
-        assertThat(jsonModel.<List<?>>get("$.data[0].readingQualities")).hasSize(2);
-        assertThat(jsonModel.<String>get("$.data[0].readingQualities[0]")).isEqualTo(BATTERY_LOW);
-        assertThat(jsonModel.<String>get("$.data[0].readingQualities[1]")).isEqualTo(BAD_TIME);
+        Map<String, List<String>> map = jsonModel.<Map<String, List<String>>>get("$.data[0].readingQualities");
+
+        List<String> readingQualitiesChannel1 = map.get(String.valueOf(CHANNEL_ID1));
+        assertThat(readingQualitiesChannel1).hasSize(2);
+        assertThat(readingQualitiesChannel1.get(0)).isEqualTo(BATTERY_LOW);
+        assertThat(readingQualitiesChannel1.get(1)).isEqualTo(BAD_TIME);
+
+        List<String> readingQualitiesChannel2 = map.get(String.valueOf(CHANNEL_ID2));
+        assertThat(readingQualitiesChannel2).hasSize(2);
+        assertThat(readingQualitiesChannel2.get(0)).isEqualTo(BATTERY_LOW);
+        assertThat(readingQualitiesChannel2.get(1)).isEqualTo(BAD_TIME);
+
         Map collectedValues = jsonModel.<Map>get("$.data[0].channelData");
         assertThat(collectedValues).contains(entry(String.valueOf(CHANNEL_ID1), "200.000"));
         assertThat(collectedValues).contains(entry(String.valueOf(CHANNEL_ID2), "250.000"));

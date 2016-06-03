@@ -62,15 +62,13 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
     public static final Date LAST_CHECKED = new Date(1409570229000L);
     public static final Instant LAST_READING = Instant.ofEpochMilli(1410786196000L);
     public static final long CHANNEL_ID1 = 151521354L;
-    private static long intervalStart = 1410774630000L;
-    private static long intervalEnd = 1410828630000L;
-
     public static final long startTimeFirst = 1416403197000L;
     public static final long endTimeFirst = 1479561597000L;
     public static final long endTimeSecond = 1489561597000L;
     public static final long startTimeNew = 1469561597000L;
     public static final long endTimeNew = 1499561597000L;
-
+    private static long intervalStart = 1410774630000L;
+    private static long intervalEnd = 1410828630000L;
     @Mock
     private Device device;
     @Mock
@@ -143,7 +141,11 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         ReadingQualityRecord readingQualityWrongSystem = mockReadingQuality("112.0.0");//should be filtered out
         ReadingQualityRecord readingQualityDataValid = mockReadingQuality("3.0.0");//should be filtered out
         doReturn(Arrays.asList(readingQualityPowerFail, readingQualityWrongSystem, readingQualityDataValid)).when(readingRecord).getReadingQualities();
-        doReturn(Arrays.asList(readingQualityBatteryLow)).when(loadProfileReading).getReadingQualities();
+
+        List<ReadingQualityRecord> readingQualities = Arrays.asList(readingQualityBatteryLow);
+        Map<Channel, List<ReadingQualityRecord>> readingQualitiesPerChannel = new HashMap<>();
+        readingQualitiesPerChannel.put(channel, readingQualities);
+        doReturn(readingQualitiesPerChannel).when(loadProfileReading).getReadingQualities();
 
         when(addedloadProfileReading.getRange()).thenReturn(interval);
         when(addedloadProfileReading.getChannelValues()).thenReturn(ImmutableMap.of(channel, addedReadingRecord));
