@@ -661,6 +661,13 @@ public class BpmResource {
                                 .anyMatch(x -> x.getProcessName().equals(s.name) && x.getVersion()
                                         .equals(s.version)))
                         .collect(Collectors.toList());
+                for(ProcessDefinitionInfo bpmDefinition : bpmProcesses){
+                    for(BpmProcessDefinition connexoDefinition : filtredConnexoProcesses){
+                        if(connexoDefinition.getProcessName().equals(bpmDefinition.name) && connexoDefinition.getVersion().equals(bpmDefinition.version)){
+                            bpmDefinition.versionDB = connexoDefinition.getVersionDB();
+                        }
+                    }
+                }
                 return PagedInfoList.fromCompleteList("processes", bpmProcesses, queryParameters);
             }
         }
@@ -997,6 +1004,15 @@ public class BpmResource {
     @RolesAllowed({Privileges.Constants.VIEW_BPM, Privileges.Constants.ADMINISTRATE_BPM})
     public Response startProcessContent(TaskContentInfos taskContentInfos, @PathParam("id") String id,
                                         @PathParam("deploymentId") String deploymentId, @HeaderParam("Authorization") String auth) {
+        bpmService.getActiveBpmProcessDefinitions().stream()
+                .filter(p -> p.getVersion().equals(taskContentInfos.processVersion) && p.getProcessName().equals(taskContentInfos.processName) && p.getVersionDB() == Long.valueOf(taskContentInfos.versionDB))
+                .findAny()
+                .orElseThrow(conflictFactory.conflict()
+                        .withActualVersion(() -> Long.valueOf(taskContentInfos.versionDB))
+                        .withMessageTitle(MessageSeeds.START_PROCESS_CONCURRENT_TITLE, taskContentInfos.processName)
+                        .withMessageBody(MessageSeeds.START_PROCESS_CONCURRENT_BODY, taskContentInfos.processName)
+                        .supplier());
+
         Map<String, Object> expectedParams = getOutputContent(taskContentInfos, -1, id, auth);
         List<Errors> err = new ArrayList<>();
         TaskContentInfos taskContents = getProcessContent(id,deploymentId, auth);

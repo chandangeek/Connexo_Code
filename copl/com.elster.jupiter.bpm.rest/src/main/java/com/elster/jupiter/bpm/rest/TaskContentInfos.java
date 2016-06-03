@@ -20,6 +20,9 @@ public class TaskContentInfos {
     public String deploymentId;
     public List<TaskContentInfo> properties = new ArrayList<>();
     public Map<String, Object> outputContent = new HashMap<>();
+    public String versionDB;
+    public String processName;
+    public String processVersion;
 
     public TaskContentInfos() {
     }
