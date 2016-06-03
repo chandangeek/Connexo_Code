@@ -1305,7 +1305,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             for (IntervalReadingRecord meterReading : meterReadings) {
                 LoadProfileReadingImpl loadProfileReading = sortedLoadProfileReadingMap.get(meterReading.getTimeStamp());
                 loadProfileReading.setChannelData(mdcChannel, meterReading);
-                loadProfileReading.setReadingQualities(meterReading.getReadingQualities());
+                loadProfileReading.setReadingQualities(mdcChannel, meterReading.getReadingQualities());
                 loadProfileReading.setReadingTime(meterReading.getReportedDateTime());
             }
 

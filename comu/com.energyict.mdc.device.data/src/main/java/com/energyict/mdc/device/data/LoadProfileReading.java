@@ -24,8 +24,8 @@ public interface LoadProfileReading {
 
     Instant getReadingTime();
 
-    void setReadingQualities(List<? extends ReadingQualityRecord> readingQualities);
+    void setReadingQualities(Channel channel, List<? extends ReadingQualityRecord> readingQualities);
 
-    List<? extends ReadingQualityRecord> getReadingQualities();
+    Map<Channel, List<? extends ReadingQualityRecord>> getReadingQualities();
 
 }
