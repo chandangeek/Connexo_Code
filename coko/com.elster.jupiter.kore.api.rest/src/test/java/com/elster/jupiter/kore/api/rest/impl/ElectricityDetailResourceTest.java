@@ -127,6 +127,7 @@ public class ElectricityDetailResourceTest extends PlatformPublicApiJerseyTest {
         when(electricityDetail.isLimiter()).thenReturn(YesNoAnswer.YES);
         when(electricityDetail.isInterruptible()).thenReturn(YesNoAnswer.YES);
         when(electricityDetail.isGrounded()).thenReturn(YesNoAnswer.YES);
+        when(electricityDetail.isCurrent()).thenReturn(Boolean.TRUE);
         when(electricityDetail.getLoadLimit()).thenReturn(Quantity.create(value1, "W"));
         when(electricityDetail.getLoadLimiterType()).thenReturn("LLT");
         when(electricityDetail.getNominalServiceVoltage()).thenReturn(Quantity.create(value2, "m"));
@@ -141,6 +142,7 @@ public class ElectricityDetailResourceTest extends PlatformPublicApiJerseyTest {
         Assertions.assertThat(model.<Integer>get("$.version")).isEqualTo(2);
         Assertions.assertThat(model.<String>get("$.collar")).isEqualTo("YES");
         Assertions.assertThat(model.<String>get("$.limiter")).isEqualTo("YES");
+        Assertions.assertThat(model.<Boolean>get("$.current")).isTrue();
         Assertions.assertThat(model.<String>get("$.interruptible")).isEqualTo("YES");
         Assertions.assertThat(model.<String>get("$.grounded")).isEqualTo("YES");
         Assertions.assertThat(model.<Integer>get("$.loadLimit.value")).isEqualTo(201);
@@ -165,7 +167,7 @@ public class ElectricityDetailResourceTest extends PlatformPublicApiJerseyTest {
         Response response = target("/usagepoints/1/details").request("application/json")
                 .method("PROPFIND", Response.class);
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
-        Assertions.assertThat(model.<List>get("$")).hasSize(15);
+        Assertions.assertThat(model.<List>get("$")).hasSize(16);
         Assertions.assertThat(model.<List<String>>get("$")).containsOnly(
                 "collar",
                 "effectivity",
@@ -181,7 +183,8 @@ public class ElectricityDetailResourceTest extends PlatformPublicApiJerseyTest {
                 "phaseCode",
                 "ratedCurrent",
                 "ratedPower",
-                "version"
+                "version",
+                "current"
         );
     }
 

@@ -78,6 +78,7 @@ public class GasDetailInfoFactory extends SelectableFieldFactory<GasDetailInfo, 
                     .ifPresent(next -> gasDetailInfo.link.add(link((GasDetail) next, Relation.REF_NEXT, uriInfo)));
         }));
         map.put("pressure", (gasDetailInfo, gasDetail, uriInfo) -> gasDetailInfo.pressure = gasDetail.getPressure());
+        map.put("current", (gasDetailInfo, gasDetail, uriInfo) -> gasDetailInfo.current = gasDetail.isCurrent());
         map.put("physicalCapacity", (gasDetailInfo, gasDetail, uriInfo) -> gasDetailInfo.physicalCapacity = gasDetail.getPhysicalCapacity());
         map.put("limiter", (gasDetailInfo, gasDetail, uriInfo) -> gasDetailInfo.limiter = gasDetail.isLimiter());
         map.put("loadLimiterType", (gasDetailInfo, gasDetail, uriInfo) -> gasDetailInfo.loadLimiterType = gasDetail.getLoadLimiterType());

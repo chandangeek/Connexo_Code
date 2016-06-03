@@ -18,4 +18,5 @@ public class DefaultDetailInfo extends LinkInfo<Instant> {
     public YesNoAnswer grounded;
     public YesNoAnswer collar;
     public RangeInfo effectivity;
+    public Boolean current;
 }

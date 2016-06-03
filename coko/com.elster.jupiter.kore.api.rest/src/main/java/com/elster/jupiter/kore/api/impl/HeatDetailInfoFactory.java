@@ -79,6 +79,7 @@ public class HeatDetailInfoFactory extends SelectableFieldFactory<HeatDetailInfo
 
         }));
         map.put("pressure", (heatDetailInfo, heatDetail, uriInfo) -> heatDetailInfo.pressure = heatDetail.getPressure());
+        map.put("current", (heatDetailInfo, heatDetail, uriInfo) -> heatDetailInfo.current = heatDetail.isCurrent());
         map.put("physicalCapacity", (heatDetailInfo, heatDetail, uriInfo) -> heatDetailInfo.physicalCapacity = heatDetail
                 .getPhysicalCapacity());
         map.put("bypass", (heatDetailInfo, heatDetail, uriInfo) -> heatDetailInfo.bypass = heatDetail.isBypassInstalled());

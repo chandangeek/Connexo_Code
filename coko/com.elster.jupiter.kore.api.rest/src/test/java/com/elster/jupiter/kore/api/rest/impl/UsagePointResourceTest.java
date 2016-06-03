@@ -68,6 +68,22 @@ public class UsagePointResourceTest extends PlatformPublicApiJerseyTest {
     }
 
     @Test
+    public void testGetSingleUsagePointDetails() throws Exception {
+        UsagePoint usagePoint = mockUsagePoint(31L, "usage point", 2L, ServiceKind.ELECTRICITY);
+        Response response = target("/usagepoints/31").queryParam("fields", "detail").request().get();
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        JsonModel model = JsonModel.model((InputStream) response.getEntity());
+        Assertions.assertThat(model.<Integer>get("$.id")).isNull();
+        Assertions.assertThat(model.<Integer>get("$.version")).isNull();
+        Assertions.assertThat(model.<String>get("$.name")).isNull();
+        Assertions.assertThat(model.<String>get("$.link")).isNull();
+        Assertions.assertThat(model.<String>get("$.readRoute")).isNull();
+        Assertions.assertThat(model.<String>get("$.detail.link.href"))
+                .isEqualTo("http://localhost:9998/usagepoints/31/details/" + clock.millis());
+    }
+
+    @Test
     public void testGetSingleUsagePointWithLocation() throws Exception {
         UsagePoint usagePoint = mockUsagePoint(31L, "usage point", 2L, ServiceKind.ELECTRICITY);
         LocationMember locationMember = mock(LocationMember.class);
@@ -201,7 +217,7 @@ public class UsagePointResourceTest extends PlatformPublicApiJerseyTest {
     }
 
     @Test
-    public void testCreateUsagePointWithDetails() throws Exception {
+    public void testCreateUsagePointWithoutDetails() throws Exception {
         Instant now = Instant.now(clock);
         UsagePointInfo info = new UsagePointInfo();
         info.aliasName = "alias";
@@ -238,46 +254,10 @@ public class UsagePointResourceTest extends PlatformPublicApiJerseyTest {
     }
 
     @Test
-    public void testCreateUsagePointWithoutDetails() throws Exception {
-        Instant now = Instant.now(clock);
-        UsagePointInfo info = new UsagePointInfo();
-        info.aliasName = "alias";
-        info.description = "desc";
-        info.installationTime = now;
-        info.serviceLocation = "here";
-        info.mrid = "mmmmm";
-        info.name = "naam";
-        info.outageRegion = "outage";
-        info.serviceDeliveryRemark = "remark";
-        info.servicePriority = "prio1";
-        info.readRoute = "route";
-        info.serviceKind = ServiceKind.GAS;
-
-        UsagePoint usagePoint = mock(UsagePoint.class);
-        when(usagePoint.getId()).thenReturn(6L);
-        ServiceCategory serviceCategory = mock(ServiceCategory.class);
-        UsagePointBuilder usagePointBuilder = FakeBuilder.initBuilderStub(usagePoint, UsagePointBuilder.class);
-        when(serviceCategory.newUsagePoint(any(), any())).thenReturn(usagePointBuilder);
-        when(meteringService.getServiceCategory(ServiceKind.GAS)).thenReturn(Optional.of(serviceCategory));
-
-        Response response = target("/usagepoints").request().post(Entity.json(info));
-        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
-        assertThat(response.getLocation()).isEqualTo(new URI("http://localhost:9998/usagepoints/6"));
-        verify(usagePointBuilder).withName("naam");
-        verify(usagePointBuilder).withAliasName("alias");
-        verify(usagePointBuilder).withDescription("desc");
-        verify(usagePointBuilder).withOutageRegion("outage");
-        verify(usagePointBuilder).withServiceDeliveryRemark("remark");
-        verify(usagePointBuilder).withServicePriority("prio1");
-        verify(usagePointBuilder).withServiceLocationString("here");
-        verify(usagePointBuilder).withReadRoute("route");
-    }
-
-    @Test
     public void testUsagePointFields() throws Exception {
         Response response = target("/usagepoints").request("application/json").method("PROPFIND", Response.class);
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
-        Assertions.assertThat(model.<List>get("$")).hasSize(17);
+        Assertions.assertThat(model.<List>get("$")).hasSize(19);
         Assertions.assertThat(model.<List<String>>get("$")).containsOnly(
                 "aliasName",
                 "description",
@@ -295,7 +275,8 @@ public class UsagePointResourceTest extends PlatformPublicApiJerseyTest {
                 "serviceLocation",
                 "servicePriority",
                 "version",
-                "serviceKind"
+                "serviceKind",
+                "detail"
         );
     }
 }

@@ -56,6 +56,7 @@ public class HeatDetailsResourceTest extends PlatformPublicApiJerseyTest {
         when(heatDetail.getPhysicalCapacity()).thenReturn(Quantity.create(value2, "m"));
         when(heatDetail.isBypassInstalled()).thenReturn(YesNoAnswer.YES);
         when(heatDetail.isCollarInstalled()).thenReturn(YesNoAnswer.YES);
+        when(heatDetail.isCurrent()).thenReturn(Boolean.TRUE);
         when(heatDetail.isValveInstalled()).thenReturn(YesNoAnswer.YES);
         when(heatDetail.getRange()).thenReturn(Range.downTo(clock.instant(), BoundType.CLOSED));
         UsagePoint usagePoint = mockUsagePoint(31L, "usage point", 2L, ServiceKind.HEAT, heatDetail);
@@ -67,6 +68,7 @@ public class HeatDetailsResourceTest extends PlatformPublicApiJerseyTest {
         Assertions.assertThat(model.<Integer>get("$.version")).isEqualTo(2);
         Assertions.assertThat(model.<String>get("$.valve")).isEqualTo("YES");
         Assertions.assertThat(model.<String>get("$.collar")).isEqualTo("YES");
+        Assertions.assertThat(model.<Boolean>get("$.current")).isTrue();
         Assertions.assertThat(model.<String>get("$.bypass")).isEqualTo("YES");
         Assertions.assertThat(model.<String>get("$.bypassStatus")).isEqualTo("CLOSED");
         Assertions.assertThat(model.<Integer>get("$.physicalCapacity.value")).isEqualTo(302);
@@ -89,7 +91,7 @@ public class HeatDetailsResourceTest extends PlatformPublicApiJerseyTest {
         Response response = target("/usagepoints/1/details").request("application/json")
                 .method("PROPFIND", Response.class);
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
-        Assertions.assertThat(model.<List>get("$")).hasSize(10);
+        Assertions.assertThat(model.<List>get("$")).hasSize(11);
         Assertions.assertThat(model.<List<String>>get("$")).containsOnly(
                 "bypass",
                 "bypassStatus",
@@ -100,7 +102,8 @@ public class HeatDetailsResourceTest extends PlatformPublicApiJerseyTest {
                 "pressure",
                 "valve",
                 "version",
-                "effectivity"
+                "effectivity",
+                "current"
         );
     }
 

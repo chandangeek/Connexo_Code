@@ -21,6 +21,7 @@ public class UsagePointInfo extends LinkInfo<Long> {
     public String serviceDeliveryRemark;
     public LinkInfo<Long> metrologyConfiguration;
     public List<LocationInfo> locations;
+    public LinkInfo<Long> detail;
 
     public List<LinkInfo> meterActivations;
     public List<LinkInfo> accountabilities;

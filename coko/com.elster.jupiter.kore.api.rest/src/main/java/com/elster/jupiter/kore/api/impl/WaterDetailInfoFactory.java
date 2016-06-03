@@ -78,6 +78,7 @@ public class WaterDetailInfoFactory extends SelectableFieldFactory<WaterDetailIn
                     .ifPresent(next -> waterDetailInfo.link.add(link((WaterDetail) next, Relation.REF_NEXT, uriInfo)));
         }));
         map.put("pressure", (waterDetailInfo, waterDetail, uriInfo) -> waterDetailInfo.pressure = waterDetail.getPressure());
+        map.put("current", (heatDetailInfo, heatDetail, uriInfo) -> heatDetailInfo.current = heatDetail.isCurrent());
         map.put("physicalCapacity", (waterDetailInfo, waterDetail, uriInfo) -> waterDetailInfo.physicalCapacity = waterDetail
                 .getPhysicalCapacity());
         map.put("limiter", (waterDetailInfo, waterDetail, uriInfo) -> waterDetailInfo.limiter = waterDetail.isLimiter());

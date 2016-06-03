@@ -58,6 +58,7 @@ public class WaterDetailResourceTest extends PlatformPublicApiJerseyTest {
         when(waterDetail.getPressure()).thenReturn(Quantity.create(value3, "kg"));
         when(waterDetail.isBypassInstalled()).thenReturn(YesNoAnswer.YES);
         when(waterDetail.isCapped()).thenReturn(YesNoAnswer.YES);
+        when(waterDetail.isCurrent()).thenReturn(Boolean.TRUE);
         when(waterDetail.isClamped()).thenReturn(YesNoAnswer.YES);
         when(waterDetail.isGrounded()).thenReturn(YesNoAnswer.YES);
         when(waterDetail.isLimiter()).thenReturn(YesNoAnswer.YES);
@@ -77,6 +78,7 @@ public class WaterDetailResourceTest extends PlatformPublicApiJerseyTest {
         Assertions.assertThat(model.<String>get("$.collar")).isEqualTo("YES");
         Assertions.assertThat(model.<String>get("$.capped")).isEqualTo("YES");
         Assertions.assertThat(model.<String>get("$.clamped")).isEqualTo("YES");
+        Assertions.assertThat(model.<Boolean>get("$.current")).isTrue();
         Assertions.assertThat(model.<String>get("$.grounded")).isEqualTo("YES");
         Assertions.assertThat(model.<String>get("$.limiter")).isEqualTo("YES");
         Assertions.assertThat(model.<String>get("$.valve")).isEqualTo("YES");
@@ -104,7 +106,7 @@ public class WaterDetailResourceTest extends PlatformPublicApiJerseyTest {
         Response response = target("/usagepoints/1/details").request("application/json")
                 .method("PROPFIND", Response.class);
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
-        Assertions.assertThat(model.<List>get("$")).hasSize(16);
+        Assertions.assertThat(model.<List>get("$")).hasSize(17);
         Assertions.assertThat(model.<List<String>>get("$")).containsOnly(
                 "bypass",
                 "bypassStatus",
@@ -121,7 +123,8 @@ public class WaterDetailResourceTest extends PlatformPublicApiJerseyTest {
                 "pressure",
                 "valve",
                 "version",
-                "effectivity"
+                "effectivity",
+                "current"
         );
     }
 

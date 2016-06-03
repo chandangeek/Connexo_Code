@@ -4,6 +4,7 @@ import com.elster.jupiter.kore.api.impl.utils.MessageSeeds;
 import com.elster.jupiter.metering.LocationMember;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -69,6 +70,20 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
                 .build(usagePoint.getId());
     }
 
+    private Link detailsLink(UsagePointDetail usagePointDetail, Relation relation, UriInfo uriInfo) {
+        UriBuilder uriBuilder = uriInfo.getBaseUriBuilder()
+                .path(UsagePointResource.class)
+                .path(UsagePointResource.class, "getDetailsResource")
+                .path("/{lowerEnd}"); // I don't want to figure out what the actual resource is, they all have the same URI anyway
+
+        return Link.fromUriBuilder(uriBuilder)
+                .rel(relation.rel())
+                .title("Usage point")
+                .build(usagePointDetail.getUsagePoint().getId(), usagePointDetail.getRange()
+                        .lowerEndpoint()
+                        .toEpochMilli());
+    }
+
     private UriBuilder getUriBuilder(UriInfo uriInfo) {
         return uriInfo.getBaseUriBuilder()
                 .path(UsagePointResource.class)
@@ -96,8 +111,8 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
         map.put("outageRegion", (usagePointInfo, usagePoint, uriInfo) -> usagePointInfo.outageRegion = usagePoint.getOutageRegion());
         map.put("readRoute", (usagePointInfo, usagePoint, uriInfo) -> usagePointInfo.readRoute = usagePoint.getReadRoute());
         map.put("servicePriority", (usagePointInfo, usagePoint, uriInfo) -> usagePointInfo.servicePriority = usagePoint.getServicePriority());
-//        map.put("serviceKind", (usagePointInfo, usagePoint, uriInfo) -> usagePointInfo.serviceKind = usagePoint.getServiceCategory()
-//                .getKind().getDisplayName());
+        map.put("serviceKind", (usagePointInfo, usagePoint, uriInfo) -> usagePointInfo.serviceKind = usagePoint.getServiceCategory()
+                .getKind());
         map.put("installationTime", (usagePointInfo, usagePoint, uriInfo) -> usagePointInfo.installationTime = usagePoint
                 .getInstallationTime());
         map.put("serviceDeliveryRemark", (usagePointInfo, usagePoint, uriInfo) -> usagePointInfo.serviceDeliveryRemark = usagePoint
@@ -109,7 +124,14 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
                     .get()
                     .asLink(mc, Relation.REF_RELATION, uriInfo));
         });
-
+        map.put("detail", (usagePointInfo, usagePoint, uriInfo) -> {
+            List<? extends UsagePointDetail> details = usagePoint.getDetails();
+            if (!details.isEmpty()) {
+                usagePointInfo.detail = new LinkInfo<>();
+                usagePointInfo.detail.link = detailsLink(details.get(details.size() - 1), Relation.REF_RELATION, uriInfo);
+                usagePointInfo.detail.id = details.get(details.size() - 1).getRange().lowerEndpoint().toEpochMilli();
+            }
+        });
         map.put("meterActivations", (usagePointInfo, usagePoint, uriInfo) -> usagePointInfo.meterActivations = meterActivationInfoFactory
                 .get()
                 .asLink(usagePoint.getMeterActivations(), Relation.REF_RELATION, uriInfo));

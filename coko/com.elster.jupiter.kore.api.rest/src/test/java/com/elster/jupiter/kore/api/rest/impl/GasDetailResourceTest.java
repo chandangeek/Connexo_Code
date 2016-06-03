@@ -82,6 +82,7 @@ public class GasDetailResourceTest extends PlatformPublicApiJerseyTest {
         when(gasDetail.isBypassInstalled()).thenReturn(YesNoAnswer.YES);
         when(gasDetail.isCapped()).thenReturn(YesNoAnswer.YES);
         when(gasDetail.isClamped()).thenReturn(YesNoAnswer.YES);
+        when(gasDetail.isCurrent()).thenReturn(Boolean.TRUE);
         when(gasDetail.isGrounded()).thenReturn(YesNoAnswer.YES);
         when(gasDetail.isLimiter()).thenReturn(YesNoAnswer.YES);
         when(gasDetail.isValveInstalled()).thenReturn(YesNoAnswer.YES);
@@ -102,6 +103,7 @@ public class GasDetailResourceTest extends PlatformPublicApiJerseyTest {
         Assertions.assertThat(model.<String>get("$.bypass")).isEqualTo("YES");
         Assertions.assertThat(model.<String>get("$.capped")).isEqualTo("YES");
         Assertions.assertThat(model.<String>get("$.collar")).isEqualTo("YES");
+        Assertions.assertThat(model.<Boolean>get("$.current")).isTrue();
         Assertions.assertThat(model.<String>get("$.interruptible")).isEqualTo("YES");
         Assertions.assertThat(model.<String>get("$.clamped")).isEqualTo("YES");
         Assertions.assertThat(model.<String>get("$.grounded")).isEqualTo("YES");
@@ -131,7 +133,7 @@ public class GasDetailResourceTest extends PlatformPublicApiJerseyTest {
         Response response = target("/usagepoints/1/details").request("application/json")
                 .method("PROPFIND", Response.class);
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
-        Assertions.assertThat(model.<List>get("$")).hasSize(17);
+        Assertions.assertThat(model.<List>get("$")).hasSize(18);
         Assertions.assertThat(model.<List<String>>get("$")).containsOnly(
                 "bypass",
                 "bypassStatus",
@@ -149,7 +151,8 @@ public class GasDetailResourceTest extends PlatformPublicApiJerseyTest {
                 "pressure",
                 "valve",
                 "version",
-                "effectivity"
+                "effectivity",
+                "current"
         );
     }
 

@@ -81,6 +81,8 @@ public class ElectricityDetailInfoFactory extends SelectableFieldFactory<Electri
             effectivityHelper.nextDetails(electricityDetail)
                     .ifPresent(next -> electricityDetailInfo.link.add(link((ElectricityDetail) next, Relation.REF_NEXT, uriInfo)));
         }));
+        map.put("current", (electricityDetailInfo, electricityDetail, uriInfo) -> electricityDetailInfo.current = electricityDetail
+                .isCurrent());
         map.put("nominalServiceVoltage", (electricityDetailInfo, electricityDetail, uriInfo) -> electricityDetailInfo.nominalServiceVoltage = electricityDetail
                 .getNominalServiceVoltage());
         map.put("phaseCode", (electricityDetailInfo, electricityDetail, uriInfo) -> electricityDetailInfo.phaseCode = electricityDetail

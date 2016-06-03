@@ -134,7 +134,7 @@ public class PlatformPublicApiJerseyTest extends FelixRestApplicationJerseyTest 
                 detail = null;
                 break;
         }
-        when(detail.getRange()).thenReturn(Range.atLeast(Instant.now()));
+        when(detail.getRange()).thenReturn(Range.atLeast(clock.instant()));
         return mockUsagePoint(id, name, version, extension, serviceKind, detail);
     }
 
@@ -159,6 +159,7 @@ public class PlatformPublicApiJerseyTest extends FelixRestApplicationJerseyTest 
         when(serviceCategory.getKind()).thenReturn(serviceKind);
         when(usagePoint.getServiceCategory()).thenReturn(serviceCategory);
         doReturn(Optional.ofNullable(detail)).when(usagePoint).getDetail(any(Instant.class));
+        doReturn(Collections.singletonList(detail)).when(usagePoint).getDetails();
         when(usagePoint.getMRID()).thenReturn("MRID");
         when(usagePoint.getInstallationTime()).thenReturn(LocalDateTime.of(2016, 3, 20, 11, 0)
                 .toInstant(ZoneOffset.UTC));
