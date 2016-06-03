@@ -118,6 +118,21 @@ public class ElectricityDetailResourceTest extends PlatformPublicApiJerseyTest {
     }
 
     @Test
+    public void testUpdateElectricityUsagePointMissingVersion() throws Exception {
+        Instant now = Instant.now(clock);
+        ElectricityDetailInfo info = new ElectricityDetailInfo();
+        info.id = now;
+        info.version = null;
+
+        UsagePoint usagePoint = mockUsagePoint(11L, "usage point", 2L, ServiceKind.ELECTRICITY);
+
+        Response response = target("/usagepoints/11/details").request().post(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        JsonModel jsonModel = JsonModel.create((InputStream) response.getEntity());
+        assertThat(jsonModel.<String>get("$.errors[0].id")).isEqualTo("version");
+    }
+
+    @Test
     public void testGetSingleElectricityUsagePointAllFields() throws Exception {
         ElectricityDetail electricityDetail = mock(ElectricityDetail.class);
         BigDecimal value1 = BigDecimal.valueOf(201);

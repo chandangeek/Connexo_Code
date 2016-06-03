@@ -1,6 +1,7 @@
 package com.elster.jupiter.kore.api.rest.impl;
 
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.kore.api.impl.HeatDetailInfo;
 import com.elster.jupiter.metering.BypassStatus;
 import com.elster.jupiter.metering.HeatDetail;
 import com.elster.jupiter.metering.ServiceKind;
@@ -13,9 +14,11 @@ import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
 
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 
@@ -43,7 +46,38 @@ public class HeatDetailsResourceTest extends PlatformPublicApiJerseyTest {
         UsagePoint usagePoint = mockUsagePoint(31L, "usage point", 2L, ServiceKind.HEAT);
         Response response = target("/usagepoints/31/details/1").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    }
 
+    @Test
+    public void testUpdateHeatUsagePointMissingEffectivity() throws Exception {
+        Instant now = Instant.now(clock);
+        HeatDetailInfo info = new HeatDetailInfo();
+        info.id = now;
+        info.version = 2L;
+
+        info.effectivity = null;
+
+        UsagePoint usagePoint = mockUsagePoint(11L, "usage point", 2L, ServiceKind.HEAT);
+
+        Response response = target("/usagepoints/11/details").request().post(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        JsonModel jsonModel = JsonModel.create((InputStream) response.getEntity());
+        assertThat(jsonModel.<String>get("$.errors[0].id")).isEqualTo("effectivity.lowerEnd");
+    }
+
+    @Test
+    public void testUpdateHeatUsagePointMissingVersion() throws Exception {
+        Instant now = Instant.now(clock);
+        HeatDetailInfo info = new HeatDetailInfo();
+        info.id = now;
+        info.version = null;
+
+        UsagePoint usagePoint = mockUsagePoint(11L, "usage point", 2L, ServiceKind.HEAT);
+
+        Response response = target("/usagepoints/11/details").request().post(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        JsonModel jsonModel = JsonModel.create((InputStream) response.getEntity());
+        assertThat(jsonModel.<String>get("$.errors[0].id")).isEqualTo("version");
     }
 
     @Test

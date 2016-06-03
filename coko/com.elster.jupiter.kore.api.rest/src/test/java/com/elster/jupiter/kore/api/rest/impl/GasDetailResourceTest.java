@@ -1,6 +1,7 @@
 package com.elster.jupiter.kore.api.rest.impl;
 
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.kore.api.impl.GasDetailInfo;
 import com.elster.jupiter.metering.BypassStatus;
 import com.elster.jupiter.metering.GasDetail;
 import com.elster.jupiter.metering.ServiceKind;
@@ -14,6 +15,7 @@ import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
 
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
 import java.math.BigDecimal;
@@ -42,6 +44,39 @@ public class GasDetailResourceTest extends PlatformPublicApiJerseyTest {
         Finder<UsagePoint> finder = mockFinder(Collections.emptyList());
         when(meteringService.getUsagePoints(any())).thenReturn(finder);
     }
+
+    @Test
+    public void testUpdateGasUsagePointMissingEffectivity() throws Exception {
+        Instant now = Instant.now(clock);
+        GasDetailInfo info = new GasDetailInfo();
+        info.id = now;
+        info.version = 2L;
+
+        info.effectivity = null;
+
+        UsagePoint usagePoint = mockUsagePoint(11L, "usage point", 2L, ServiceKind.GAS);
+
+        Response response = target("/usagepoints/11/details").request().post(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        JsonModel jsonModel = JsonModel.create((InputStream) response.getEntity());
+        assertThat(jsonModel.<String>get("$.errors[0].id")).isEqualTo("effectivity.lowerEnd");
+    }
+
+    @Test
+    public void testUpdateGasUsagePointMissingVersion() throws Exception {
+        Instant now = Instant.now(clock);
+        GasDetailInfo info = new GasDetailInfo();
+        info.id = now;
+        info.version = null;
+
+        UsagePoint usagePoint = mockUsagePoint(11L, "usage point", 2L, ServiceKind.GAS);
+
+        Response response = target("/usagepoints/11/details").request().post(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        JsonModel jsonModel = JsonModel.create((InputStream) response.getEntity());
+        assertThat(jsonModel.<String>get("$.errors[0].id")).isEqualTo("version");
+    }
+
 
     @Test
     public void testGetDetailsWithTemporalLinks() throws Exception {

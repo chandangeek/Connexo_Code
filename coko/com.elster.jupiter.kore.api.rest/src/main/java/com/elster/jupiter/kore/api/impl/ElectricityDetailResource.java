@@ -77,12 +77,12 @@ public class ElectricityDetailResource {
     @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
 //    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public Response createElectricityDetail(ElectricityDetailInfo electricityDetailInfo, @Context UriInfo uriInfo) {
-        if (electricityDetailInfo.version == null) {
-            exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.VERSION_MISSING, "version");
+        if (electricityDetailInfo == null || electricityDetailInfo.version == null) {
+            throw new LocalizedFieldValidationException(MessageSeeds.VERSION_MISSING, "version");
         }
         meteringService.findAndLockUsagePointByIdAndVersion(usagePoint.getId(), electricityDetailInfo.version)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_USAGE_POINT));
-        if (electricityDetailInfo == null || electricityDetailInfo.effectivity == null || electricityDetailInfo.effectivity.lowerEnd == null) {
+        if (electricityDetailInfo.effectivity == null || electricityDetailInfo.effectivity.lowerEnd == null) {
             throw new LocalizedFieldValidationException(MessageSeeds.FIELD_MISSING, "effectivity.lowerEnd");
         }
         UsagePointDetailBuilder builder = electricityDetailInfoFactory.createDetail(usagePoint, electricityDetailInfo);
