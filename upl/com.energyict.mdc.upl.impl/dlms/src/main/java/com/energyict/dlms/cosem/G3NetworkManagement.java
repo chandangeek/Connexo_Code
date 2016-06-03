@@ -2,7 +2,16 @@ package com.energyict.dlms.cosem;
 
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.AXDRDecoder;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.BooleanObject;
+import com.energyict.dlms.axrdencoding.Integer32;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.attributes.G3NetworkManagementAttributes;
 import com.energyict.dlms.cosem.methods.G3NetworkManagementMethods;
 import com.energyict.obis.ObisCode;
@@ -323,7 +332,7 @@ public class G3NetworkManagement extends AbstractCosemObject {
      */
     public final String requestPath(final String macAddress, boolean extraInfo) throws IOException {
         final Structure response = this.methodInvoke(G3NetworkManagementMethods.PATH_REQUEST, extractEUI64(macAddress), Structure.class);
-        if (response.nrOfDataTypes() != 2) {
+        if (response.nrOfDataTypes() != 4) {
             throw new IOException("Expected the response to the path request method to be a structure with 2 array elements");
         }
         Array forwardPath = response.getDataType(0).getArray();
@@ -335,21 +344,26 @@ public class G3NetworkManagement extends AbstractCosemObject {
                 sb.append(new Date().getTime()).append(":").append(macAddress).append(":");
             }
             for (final AbstractDataType element : forwardPath) {
-                if (sb.length() > 0) {
-                    sb.append((sb.charAt(sb.length() - 1) == ':') ? "" : ";");
-                }
-                sb.append((DLMSUtils.getHexStringFromBytes(((OctetString) element).getOctetStr(), "")));
+                addElementToStringBuilder(sb, element);
             }
             sb.append(':');
             for (final AbstractDataType element : reversePath) {
-                if (sb.length() > 0) {
-                    sb.append((sb.charAt(sb.length() - 1) == ':') ? "" : ";");
-                }
-                sb.append((DLMSUtils.getHexStringFromBytes(((OctetString) element).getOctetStr(), "")));
+                addElementToStringBuilder(sb, element);
             }
             return sb.toString();
         } else {
             throw new IOException("Expected the response to the path request method to be a structure with 2 array elements");
+        }
+    }
+
+    private void addElementToStringBuilder(StringBuilder sb, AbstractDataType element) {
+        if (sb.length() > 0) {
+            sb.append((sb.charAt(sb.length() - 1) == ':') ? "" : ";");
+        }
+        if (element instanceof Structure) {
+            sb.append((DLMSUtils.getHexStringFromBytes(((OctetString) ((Structure) element).getDataType(0)).getOctetStr(), "")));
+        } else if (element instanceof OctetString) {
+            sb.append((DLMSUtils.getHexStringFromBytes(((OctetString) element).getOctetStr(), "")));
         }
     }
 
