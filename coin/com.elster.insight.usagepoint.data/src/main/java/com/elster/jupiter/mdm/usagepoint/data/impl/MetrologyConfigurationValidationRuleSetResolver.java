@@ -1,9 +1,10 @@
 package com.elster.jupiter.mdm.usagepoint.data.impl;
 
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
-import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetResolver;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -26,10 +27,10 @@ public class MetrologyConfigurationValidationRuleSetResolver implements Validati
     }
 
     @Override
-    public List<ValidationRuleSet> resolve(MeterActivation meterActivation) {
-        if (meterActivation.getUsagePoint().isPresent()) {
+    public List<ValidationRuleSet> resolve(ChannelsContainer channelsContainer) {
+        if (channelsContainer.getUsagePoint().isPresent()) {
             return usagePointConfigurationService
-                    .findMetrologyConfigurationForUsagePoint(meterActivation.getUsagePoint().get())
+                    .findMetrologyConfigurationForUsagePoint(channelsContainer.getUsagePoint().get())
                     .map(metrologyConfiguration -> this.usagePointConfigurationService.getValidationRuleSets(metrologyConfiguration))
                     .orElse(Collections.emptyList());
         }
