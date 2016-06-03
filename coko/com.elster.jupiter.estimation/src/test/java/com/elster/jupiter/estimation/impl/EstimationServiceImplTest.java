@@ -189,7 +189,7 @@ public class EstimationServiceImplTest {
         doReturn(estimator2).when(rule2).createNewEstimator();
         doReturn(true).when(rule1).isActive();
         doReturn(true).when(rule2).isActive();
-        doReturn(meterActivation).when(channel).getMeterActivation();
+        doReturn(meterActivation).when(channel).getChannelsContainer();
         doReturn(Optional.of(meter)).when(meterActivation).getMeter();
         doAnswer(invocation -> {
             List<EstimationBlock> estimationBlocks = (List<EstimationBlock>) invocation.getArguments()[0];
