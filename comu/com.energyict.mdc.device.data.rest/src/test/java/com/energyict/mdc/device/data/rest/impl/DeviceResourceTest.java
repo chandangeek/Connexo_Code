@@ -29,8 +29,10 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageBuilder;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
+import com.elster.jupiter.metering.GeoCoordinates;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.LocationTemplate;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingType;
@@ -1564,6 +1566,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         ChannelSpec channelSpec = mock(ChannelSpec.class);
         when(channelSpec.getNbrOfFractionDigits()).thenReturn(2);
         when(channelSpec.isUseMultiplier()).thenReturn(false);
+        when(channelSpec.getOverflow()).thenReturn(Optional.of(new BigDecimal(999999)));
 
         when(mockedChannel.getReadingType()).thenReturn(readingType);
         when(mockedChannel.getInterval()).thenReturn(TimeDuration.minutes(15));
@@ -1575,6 +1578,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(mockedChannel.getChannelSpec()).thenReturn(channelSpec);
         when(mockedChannel.getMultiplier(any(Instant.class))).thenReturn(Optional.empty());
         when(mockedChannel.getLoadProfile()).thenReturn(loadProfile);
+        when(mockedChannel.getOverflow()).thenReturn(Optional.empty());
         return mockedChannel;
     }
 
@@ -1873,6 +1877,9 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     public void testLinkFirstSlaveThroughChannelsAndRegistersToDataLogger() {
         Device dataLogger = mockDeviceForTopologyTest("dataLogger");
 
+        when(meteringService.findDeviceLocation(dataLogger.getmRID())).thenReturn(Optional.empty());
+        when(meteringService.findDeviceGeoCoordinates(dataLogger.getmRID())).thenReturn(Optional.empty());
+
         Channel dataLoggerChannel = prepareMockedChannel(mock(Channel.class));
         when(dataLoggerChannel.getDevice()).thenReturn(dataLogger);
         when(dataLoggerChannel.getId()).thenReturn(2L);
@@ -1885,7 +1892,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(dataLoggerRegisterSpec.getId()).thenReturn(2L);
         when(dataLoggerRegisterSpec.getRegisterType()).thenReturn(registerType);
         when(dataLoggerRegisterSpec.getObisCode()).thenReturn(new ObisCode(1, 2, 3, 4, 5, 6));
-        when(dataLoggerRegisterSpec.getDeviceObisCode()).thenReturn(null);
+        when(dataLoggerRegisterSpec.getDeviceObisCode()).thenReturn(new ObisCode(1, 2, 3, 4, 5, 6));
         when(dataLoggerRegisterSpec.getOverflowValue()).thenReturn(Optional.empty());
         when(dataLoggerRegisterSpec.isUseMultiplier()).thenReturn(false);
 
@@ -1897,17 +1904,20 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(dataLogger.getRegisters()).thenReturn(Collections.singletonList(dataLoggerRegister));
 
         Device slave1 = mockDeviceForTopologyTest("slave1");
+        when(meteringService.findDeviceLocation(slave1.getmRID())).thenReturn(Optional.empty());
+        when(meteringService.findDeviceGeoCoordinates(slave1.getmRID())).thenReturn(Optional.empty());
         when(slave1.getmRID()).thenReturn("firstSlave");
 
         Channel slaveChannel1 = prepareMockedChannel(mock(Channel.class));
         when(slaveChannel1.getDevice()).thenReturn(slave1);
         when(slaveChannel1.getId()).thenReturn(1L);
+
         when(slave1.getChannels()).thenReturn(Collections.singletonList(slaveChannel1));
 
         NumericalRegisterSpec slave1RegisterSpec = mock(NumericalRegisterSpec.class);
         when(slave1RegisterSpec.getRegisterType()).thenReturn(registerType);
         when(slave1RegisterSpec.getObisCode()).thenReturn(new ObisCode(1, 2, 3, 4, 5, 6));
-        when(slave1RegisterSpec.getDeviceObisCode()).thenReturn(null);
+        when(slave1RegisterSpec.getDeviceObisCode()).thenReturn(new ObisCode(1, 2, 3, 4, 5, 6));
         when(slave1RegisterSpec.getOverflowValue()).thenReturn(Optional.empty());
         when(slave1RegisterSpec.isUseMultiplier()).thenReturn(false);
 
@@ -1915,6 +1925,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(slaveRegister1.getDevice()).thenReturn(slave1);
         when(slaveRegister1.getRegisterSpec()).thenReturn(slave1RegisterSpec);
         when(slaveRegister1.getRegisterSpecId()).thenReturn(1L);
+        when(slaveRegister1.getDeviceObisCode()).thenReturn(new ObisCode(1, 2, 3, 4, 5, 6));
         when(slaveRegister1.getLastReading()).thenReturn(Optional.empty());
         when(slave1.getRegisters()).thenReturn(Collections.singletonList(slaveRegister1));
 
@@ -1977,6 +1988,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(dataLoggerRegisterSpec.getId()).thenReturn(2L);
         when(dataLoggerRegisterSpec.getRegisterType()).thenReturn(registerType);
         when(dataLoggerRegisterSpec.getObisCode()).thenReturn(new ObisCode(1, 2, 3, 4, 5, 6));
+        when(dataLoggerRegisterSpec.getDeviceObisCode()).thenReturn(new ObisCode(1, 2, 3, 4, 5, 6));
         when(dataLoggerRegisterSpec.getDeviceObisCode()).thenReturn(null);
         when(dataLoggerRegisterSpec.getOverflowValue()).thenReturn(Optional.empty());
         when(dataLoggerRegisterSpec.isUseMultiplier()).thenReturn(false);
@@ -1986,6 +1998,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(dataLoggerRegister.getRegisterSpec()).thenReturn(dataLoggerRegisterSpec);
         when(dataLoggerRegister.getRegisterSpecId()).thenReturn(2L);
         when(dataLoggerRegister.getLastReading()).thenReturn(Optional.empty());
+        when(dataLoggerRegister.getDeviceObisCode()).thenReturn(new ObisCode(1, 2, 3, 4, 5, 6));
         when(dataLogger.getRegisters()).thenReturn(Collections.singletonList(dataLoggerRegister));
 
         Device slave1 = mockDeviceForTopologyTest("slave1");
@@ -1993,6 +2006,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         NumericalRegisterSpec slave1RegisterSpec = mock(NumericalRegisterSpec.class);
         when(slave1RegisterSpec.getRegisterType()).thenReturn(registerType);
         when(slave1RegisterSpec.getObisCode()).thenReturn(new ObisCode(1, 2, 3, 4, 5, 6));
+        when(slave1RegisterSpec.getDeviceObisCode()).thenReturn(new ObisCode(1, 2, 3, 4, 5, 6));
         when(slave1RegisterSpec.getDeviceObisCode()).thenReturn(null);
         when(slave1RegisterSpec.getOverflowValue()).thenReturn(Optional.empty());
         when(slave1RegisterSpec.isUseMultiplier()).thenReturn(false);
@@ -2002,6 +2016,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(slaveRegister1.getRegisterSpec()).thenReturn(slave1RegisterSpec);
         when(slaveRegister1.getRegisterSpecId()).thenReturn(1L);
         when(slaveRegister1.getLastReading()).thenReturn(Optional.empty());
+        when(slaveRegister1.getDeviceObisCode()).thenReturn(new ObisCode(1, 2, 3, 4, 5, 6));
         when(slave1.getRegisters()).thenReturn(Collections.singletonList(slaveRegister1));
 
         DeviceConfiguration deviceConfig = dataLogger.getDeviceConfiguration();
@@ -2113,6 +2128,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(mockedRegister.getDevice()).thenReturn(device);
         when(mockedRegister.getLastReadingDate()).thenReturn(Optional.empty());
         when(mockedRegister.getMultiplier(any(Instant.class))).thenReturn(Optional.empty());
+        when(mockedRegister.getDeviceObisCode()).thenReturn(new ObisCode(1,2,3,4,5,6));
+        when(mockedRegister.getOverflow()).thenReturn(Optional.empty());
 
         ReadingType readingType = prepareMockedReadingType(mock(ReadingType.class));
         when(mockedRegister.getReadingType()).thenReturn(readingType);
@@ -2207,6 +2224,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         when(deviceService.findByUniqueMrid(name)).thenReturn(Optional.of(device));
         when(deviceService.findAndLockDeviceBymRIDAndVersion(eq(name), anyLong())).thenReturn(Optional.of(device));
+        when(meteringService.findDeviceLocation(name)).thenReturn(Optional.empty());
+        when(meteringService.findDeviceGeoCoordinates(name)).thenReturn(Optional.empty());
         return device;
     }
 

@@ -101,6 +101,10 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
     @Mock
     private LoadProfile loadProfile;
     @Mock
+    private LoadProfileType loadProfileType;
+    @Mock
+    private LoadProfileSpec loadProfileSpec;
+    @Mock
     private LoadProfileReading loadProfileReading, addedloadProfileReading, editedProfileReading, removedProfileReading, confirmedProfileReading, missingReadingRecord;
     @Mock
     private ChannelSpec channelSpec;
@@ -148,9 +152,12 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         LoadProfile.LoadProfileUpdater loadProfileUpdater = mock(LoadProfile.LoadProfileUpdater.class);
         when(device.getLoadProfileUpdaterFor(loadProfile)).thenReturn(loadProfileUpdater);
         when(device.getMultiplier()).thenReturn(BigDecimal.ONE);
+        when(device.getChannels()).thenReturn(Arrays.asList(channel));
         when(loadProfile.getId()).thenReturn(1L);
         when(loadProfile.getChannels()).thenReturn(Arrays.asList(channel));
-
+        when(loadProfile.getLoadProfileSpec()).thenReturn(loadProfileSpec);
+        when(loadProfileSpec.getLoadProfileType()).thenReturn(loadProfileType);
+        when(loadProfileType.getName()).thenReturn("LoadProfileTypeName");
         Range<Instant> interval = Ranges.openClosed(Instant.ofEpochMilli(intervalStart), Instant.ofEpochMilli(intervalEnd));
         when(channel.getChannelData(interval)).thenReturn(Arrays.asList(
                 loadProfileReading, addedloadProfileReading, editedProfileReading, removedProfileReading, confirmedProfileReading, missingReadingRecord));
@@ -513,6 +520,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(channelWithBulkAndCalculatedDelta.getUnit()).thenReturn(collectedUnit);
         when(loadProfile.getChannels()).thenReturn(Arrays.asList(channelWithBulkAndCalculatedDelta));
         when(deviceValidation.getLastChecked(channelWithBulkAndCalculatedDelta)).thenReturn(Optional.of(NOW));
+        when(device.getChannels()).thenReturn(Arrays.asList(channelWithBulkAndCalculatedDelta));
     }
 
     public Unit getUnit(ReadingType rt) {
@@ -578,6 +586,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(channel.getChannelSpec()).thenReturn(channelSpec);
         when(channel.getId()).thenReturn(1L);
         when(channel.getDevice()).thenReturn(device);
+        when(device.getChannels()).thenReturn(Arrays.asList(channel));
         when(channelSpec.getId()).thenReturn(1L);
         when(channelSpec.getVersion()).thenReturn(1L);
         when(channelSpec.getLoadProfileSpec()).thenReturn(loadProfileSpec);

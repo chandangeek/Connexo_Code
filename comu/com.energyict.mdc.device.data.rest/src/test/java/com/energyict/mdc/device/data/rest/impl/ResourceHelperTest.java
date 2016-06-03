@@ -60,29 +60,14 @@ public class ResourceHelperTest extends DeviceDataRestApplicationJerseyTest {
         initDataLoggerTopology();
     }
 
-    public void getDataLoggerSlavesTest(){
-//        public void findPhysicalConnectedDevicesOnDataLoggerTest() {
-//
-//
-//            // Business method
-//            topologyService.setDataLogger(slave1, dataLogger, );
-//            topologyService.setDataLogger(slave2, dataLogger, Collections.emptyMap());
-//
-//            // Business method
-//            List<Device> downstreamDevices = this.getTopologyService().findPhysicalConnectedDevices(dataLogger);
-//
-//            // Asserts
-//            assertThat(downstreamDevices).hasSize(0);
-//        }
-    }
-
     private void initDataLoggerTopology(){
         dataLoggerDeviceType = mock(DeviceType.class);
         when(dataLoggerDeviceType.getConfigurations()).thenReturn(Collections.singletonList(dataLoggerDeviceConfiguration));
         when(dataLoggerDeviceType.getName()).thenReturn(DATA_LOGGER_DEVICE_TYPE_NAME);
         when(dataLoggerDeviceType.isDataloggerSlave()).thenReturn(false);
 
-        when(dataLoggerDeviceType.getLoadProfileTypes()).thenReturn(dataLoggerLoadProfileTypes());
+        List<LoadProfileType> dataLoggerLPTypes = dataLoggerLoadProfileTypes();
+        when(dataLoggerDeviceType.getLoadProfileTypes()).thenReturn(dataLoggerLPTypes);
         when(dataLoggerDeviceType.getRegisterTypes()).thenReturn(Collections.emptyList());
 
         dataLoggerDeviceConfiguration = mock(DeviceConfiguration.class);
@@ -100,7 +85,8 @@ public class ResourceHelperTest extends DeviceDataRestApplicationJerseyTest {
         when(slaveDeviceConfiguration1.isDataloggerEnabled()).thenReturn(false);
         when(slaveDeviceConfiguration1.getName()).thenReturn(SLAVE_DEVICE_CONFIGURATION_NAME+".1");
 
-        when(slaveDeviceType1.getLoadProfileTypes()).thenReturn(dataLoggerSlave1ProfileTypes());
+        List<LoadProfileType> slave1LPTypes = dataLoggerSlave1ProfileTypes();
+        when(slaveDeviceType1.getLoadProfileTypes()).thenReturn(slave1LPTypes);
         when(slaveDeviceType1.getRegisterTypes()).thenReturn(Collections.emptyList());
 
         slaveDeviceType2 = mock(DeviceType.class);
@@ -113,31 +99,42 @@ public class ResourceHelperTest extends DeviceDataRestApplicationJerseyTest {
         when(slaveDeviceConfiguration2.isDataloggerEnabled()).thenReturn(false);
         when(slaveDeviceConfiguration2.getName()).thenReturn(SLAVE_DEVICE_CONFIGURATION_NAME+".2");
 
-        when(slaveDeviceType2.getLoadProfileTypes()).thenReturn(dataLoggerSlave2ProfileTypes());
+        List<LoadProfileType> slave2LPTypes = dataLoggerSlave2ProfileTypes();
+        when(slaveDeviceType2.getLoadProfileTypes()).thenReturn(slave2LPTypes);
         when(slaveDeviceType2.getRegisterTypes()).thenReturn(Collections.emptyList());
+
+        Channel dataloggerC1 = mockChannel("1.0.1.8.0.255",READING_TYPE_1);
+        Channel dataloggerC2 = mockChannel("1.0.2.8.0.255", READING_TYPE_2);
+        Channel dataloggerC3 = mockChannel("1.0.1.8.1.255",READING_TYPE_3);
+        Channel dataloggerC4 =mockChannel("1.0.1.8.2.255", READING_TYPE_4);
+        Channel dataloggerC5 = mockChannel("1.0.2.8.1.255", READING_TYPE_5);
+        Channel dataloggerC6 =  mockChannel("1.0.2.8.2.255", READING_TYPE_6);
 
         dataLogger = mock(Device.class);
         when(dataLogger.getDeviceConfiguration()).thenReturn(dataLoggerDeviceConfiguration);
         when(dataLogger.getName()).thenReturn("dataLogger.MRID");
         when(dataLogger.getDeviceType()).thenReturn(dataLoggerDeviceType);
-        when(dataLogger.getChannels()).thenReturn(Arrays.asList(mockChannel("1.0.1.8.0.255",READING_TYPE_1),
-                mockChannel("1.0.2.8.0.255", READING_TYPE_2),mockChannel("1.0.1.8.1.255",READING_TYPE_3),
-                        mockChannel("1.0.1.8.2.255", READING_TYPE_4),mockChannel("1.0.2.8.1.255", READING_TYPE_5),
-                        mockChannel("1.0.2.8.2.255", READING_TYPE_6)));
+        when(dataLogger.getChannels()).thenReturn(Arrays.asList(dataloggerC1,dataloggerC2, dataloggerC3, dataloggerC4, dataloggerC5, dataloggerC6));
+
+        Channel slave1C1 = mockChannel("1.0.1.8.0.255",READING_TYPE_1);
+        Channel slave1C2 = mockChannel("1.0.1.8.1.255", READING_TYPE_3);
+        Channel slave1C3 = mockChannel("1.0.1.8.2.255", READING_TYPE_4);
 
         slave1 = mock(Device.class);
         when(slave1.getDeviceConfiguration()).thenReturn(slaveDeviceConfiguration1);
         when(slave1.getName()).thenReturn("slave.MRID1");
         when(slave1.getDeviceType()).thenReturn(slaveDeviceType1);
-        when(slave1.getChannels()).thenReturn(Arrays.asList(mockChannel("1.0.1.8.0.255",READING_TYPE_1),
-                mockChannel("1.0.1.8.1.255", READING_TYPE_3), mockChannel("1.0.1.8.2.255", READING_TYPE_4)));
+        when(slave1.getChannels()).thenReturn(Arrays.asList(slave1C1, slave1C2, slave1C3));
+
+        Channel slave2C1 = mockChannel("1.0.2.8.0.255",READING_TYPE_4);
+        Channel slave2C2 = mockChannel("1.0.1.8.1.255", READING_TYPE_5);
+        Channel slave2C3 = mockChannel("1.0.1.8.2.255", READING_TYPE_6);
 
         slave2 = mock(Device.class);
         when(slave2.getDeviceConfiguration()).thenReturn(slaveDeviceConfiguration2);
         when(slave2.getName()).thenReturn("slave.MRID2");
         when(slave2.getDeviceType()).thenReturn(slaveDeviceType2);
-        when(slave1.getChannels()).thenReturn(Arrays.asList(mockChannel("1.0.2.8.0.255",READING_TYPE_4),
-                mockChannel("1.0.1.8.1.255", READING_TYPE_5), mockChannel("1.0.1.8.2.255", READING_TYPE_6)));
+        when(slave1.getChannels()).thenReturn(Arrays.asList( slave2C1, slave2C2, slave2C3));
 
     }
 
@@ -145,24 +142,31 @@ public class ResourceHelperTest extends DeviceDataRestApplicationJerseyTest {
         LoadProfileType lp1 = mock(LoadProfileType.class);
         when(lp1.getName()).thenReturn(DATA_LOGGER_LOAD_PROFILE_TYPE_NAME+".1");
         when(lp1.getObisCode()).thenReturn(ObisCode.fromString("1.0.99.1.0.255"));
-        when(lp1.getChannelTypes()).thenReturn(Arrays.asList(mockChannelType("1.0.1.8.0.255",READING_TYPE_1),
-                mockChannelType("1.0.2.8.0.255", READING_TYPE_2)));
+        ChannelType ct1 = mockChannelType("1.0.1.8.0.255",READING_TYPE_1);
+        ChannelType ct2 = mockChannelType("1.0.2.8.0.255", READING_TYPE_2);
+        when(lp1.getChannelTypes()).thenReturn(Arrays.asList(ct1, ct2));
 
+        ChannelType ct3= mockChannelType("1.0.1.8.1.255",READING_TYPE_3);
+        ChannelType ct4 =  mockChannelType("1.0.1.8.2.255", READING_TYPE_4);
+        ChannelType ct5 = mockChannelType("1.0.2.8.1.255", READING_TYPE_5);
+        ChannelType ct6 = mockChannelType("1.0.2.8.2.255", READING_TYPE_6);
         LoadProfileType lp2 = mock(LoadProfileType.class);
         when(lp2.getName()).thenReturn(DATA_LOGGER_LOAD_PROFILE_TYPE_NAME+".2");
         when(lp2.getObisCode()).thenReturn(ObisCode.fromString("1.0.99.2.0.255"));
-        when(lp2.getChannelTypes()).thenReturn(Arrays.asList(mockChannelType("1.0.1.8.1.255",READING_TYPE_3),
-                        mockChannelType("1.0.1.8.2.255", READING_TYPE_4),mockChannelType("1.0.2.8.1.255", READING_TYPE_5),
-                        mockChannelType("1.0.2.8.2.255", READING_TYPE_6)));
+        when(lp2.getChannelTypes()).thenReturn(Arrays.asList(ct3, ct4,ct5,ct6));
         return Arrays.asList(lp1,lp2);
     }
 
     private List<LoadProfileType> dataLoggerSlave1ProfileTypes(){
+        ChannelType ct1 = mockChannelType("1.0.1.8.0.255",READING_TYPE_1);
+        ChannelType ct2 =mockChannelType("1.0.1.8.1.255", READING_TYPE_3);
+        ChannelType ct3 = mockChannelType("1.0.1.8.2.255", READING_TYPE_4);
+
         LoadProfileType lp = mock(LoadProfileType.class);
+
         when(lp.getName()).thenReturn(SLAVE_DEVICE_LOAD_PROFILE_TYPE_NAME+".1");
         when(lp.getObisCode()).thenReturn(ObisCode.fromString("1.0.90.1.0.255"));
-        when(lp.getChannelTypes()).thenReturn(Arrays.asList(mockChannelType("1.0.1.8.0.255",READING_TYPE_1),
-                mockChannelType("1.0.1.8.1.255", READING_TYPE_3), mockChannelType("1.0.1.8.2.255", READING_TYPE_4)));
+        when(lp.getChannelTypes()).thenReturn(Arrays.asList(ct1, ct2, ct3));
         return Collections.singletonList(lp);
     }
 
@@ -170,8 +174,10 @@ public class ResourceHelperTest extends DeviceDataRestApplicationJerseyTest {
         LoadProfileType lp = mock(LoadProfileType.class);
         when(lp.getName()).thenReturn(SLAVE_DEVICE_LOAD_PROFILE_TYPE_NAME+".2");
         when(lp.getObisCode()).thenReturn(ObisCode.fromString("1.0.90.2.0.255"));
-        when(lp.getChannelTypes()).thenReturn(Arrays.asList(mockChannelType("1.0.2.8.0.255",READING_TYPE_2),
-                mockChannelType("1.0.2.8.1.255", READING_TYPE_5), mockChannelType("1.0.2.8.2.255", READING_TYPE_6)));
+        ChannelType ct1 = mockChannelType("1.0.2.8.0.255",READING_TYPE_2);
+        ChannelType ct2 = mockChannelType("1.0.2.8.1.255", READING_TYPE_5);
+        ChannelType ct3 = mockChannelType("1.0.2.8.2.255", READING_TYPE_6);
+        when(lp.getChannelTypes()).thenReturn(Arrays.asList(ct1, ct2, ct3));
         return Collections.singletonList(lp);
     }
 
@@ -179,7 +185,8 @@ public class ResourceHelperTest extends DeviceDataRestApplicationJerseyTest {
         ChannelType channelType = mock(ChannelType.class);
         when(channelType.getInterval()).thenReturn(TimeDuration.minutes(15));
         when(channelType.getObisCode()).thenReturn(ObisCode.fromString(obisCode));
-        when(channelType.getReadingType()).thenReturn(mockReadingType(readingType));
+        ReadingType rt = mockReadingType(readingType);
+        when(channelType.getReadingType()).thenReturn(rt);
         return channelType;
     }
 
@@ -187,7 +194,8 @@ public class ResourceHelperTest extends DeviceDataRestApplicationJerseyTest {
         Channel channel = mock(Channel.class);
         when(channel.getInterval()).thenReturn(TimeDuration.minutes(15));
         when(channel.getObisCode()).thenReturn(ObisCode.fromString(obisCode));
-        when(channel.getReadingType()).thenReturn(mockReadingType(readingType));
+        ReadingType rt = mockReadingType(readingType);
+        when(channel.getReadingType()).thenReturn(rt);
         return channel;
     }
 

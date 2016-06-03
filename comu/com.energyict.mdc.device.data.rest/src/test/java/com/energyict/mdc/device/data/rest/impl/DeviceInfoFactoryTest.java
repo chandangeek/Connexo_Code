@@ -16,7 +16,9 @@ import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.GeoCoordinates;
 import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
@@ -29,6 +31,7 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
@@ -47,6 +50,7 @@ import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 
+import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
@@ -141,6 +145,8 @@ public class DeviceInfoFactoryTest {
     private BatchService batchService;
     @Mock
     private Batch batch;
+    @Mock
+    private DeviceConfigurationService deviceConfigurationService;
 
     @Mock
     private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
@@ -226,8 +232,12 @@ public class DeviceInfoFactoryTest {
         when(topologyService.getSlaveChannel(eq(dataLoggerChn5), any(Instant.class))).thenReturn(Optional.empty());
         when(topologyService.getSlaveChannel(eq(dataLoggerChn6), any(Instant.class))).thenReturn(Optional.empty());
 
+        when(meteringService.findDeviceLocation(any(String.class))).thenReturn(Optional.empty());
+        when(meteringService.findDeviceGeoCoordinates(any(String.class))).thenReturn(Optional.empty());
+
         when(channelSpec.getNbrOfFractionDigits()).thenReturn(2);
         when(channelSpec.isUseMultiplier()).thenReturn(false);
+        when(channelSpec.getOverflow()).thenReturn(Optional.of(new BigDecimal(999999)));
 
         when(slave1.getDeviceType()).thenReturn(slaveDeviceType1);
         when(slaveDeviceType1.getName()).thenReturn(SLAVE_DEVICE_TYPE_NAME_1);
@@ -404,12 +414,15 @@ public class DeviceInfoFactoryTest {
         when(mockedChannel.getUnit()).thenReturn(kiloWattHours);
         when(mockedChannel.getChannelSpec()).thenReturn(channelSpec);
         when(mockedChannel.getMultiplier(any(Instant.class))).thenReturn(Optional.empty());
+        when(mockedChannel.getOverflow()).thenReturn(Optional.empty());
+
     }
 
     @Test
     public void fromDataLoggerTest(){
         DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory = new DataLoggerSlaveDeviceInfoFactory(Clock.systemUTC(), topologyService);
-        DeviceInfoFactory deviceInfoFactory = new DeviceInfoFactory(thesaurus, batchService, topologyService, issueService, issueDataValidationService, meteringService, dataLoggerSlaveDeviceInfoFactory);
+
+        DeviceInfoFactory deviceInfoFactory = new DeviceInfoFactory(thesaurus, batchService, topologyService, issueService, issueDataValidationService, meteringService, dataLoggerSlaveDeviceInfoFactory, deviceConfigurationService);
         DeviceInfo info  = deviceInfoFactory.deviceInfo(dataLogger);
 
         assertThat(info.id).isEqualTo(DATALOGGER_ID);
