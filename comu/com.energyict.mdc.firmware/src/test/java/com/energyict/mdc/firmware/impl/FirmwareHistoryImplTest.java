@@ -64,8 +64,8 @@ public class FirmwareHistoryImplTest extends PersistenceTest {
         deviceType = inMemoryPersistence.getInjector().getInstance(DeviceConfigurationService.class).newDeviceType("MyDeviceType", deviceProtocolPluggableClass);
         deviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").add();
         deviceConfiguration.activate();
-        device = inMemoryPersistence.getInjector().getInstance(DeviceService.class).newDevice(deviceConfiguration ,"MyDevice", "mridOfMyDevice");
-        device.save();
+        device = inMemoryPersistence.getInjector().getInstance(DeviceService.class).newDevice(deviceConfiguration ,"MyDevice", "mridOfMyDevice", Instant.now() );
+
         firmwareService = inMemoryPersistence.getFirmwareService();
         firmwareVersion1 = firmwareService.newFirmwareVersion(deviceType, "firmwareVersion1", FirmwareStatus.FINAL, FirmwareType.METER).initFirmwareFile(FIRMWARE_FILE).create();
         firmwareVersion2 = firmwareService.newFirmwareVersion(deviceType, "firmwareVersion2", FirmwareStatus.FINAL, FirmwareType.COMMUNICATION).initFirmwareFile(FIRMWARE_FILE).create();
