@@ -26,6 +26,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.common.services.ListPager;
+import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.GatewayType;
@@ -46,6 +47,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecification
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Provider;
+import javax.print.attribute.standard.Media;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -810,6 +812,19 @@ public class DeviceResource {
 
             return Response.ok(transformToWeekCalendar(calendar, localDate)).build();
         }
+    }
+
+    @GET
+    @Path("/{mRID}/timeofuse/availablecalendars")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public Response getAvailableCalendars(@PathParam("mRID") String mRID) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+        List<IdWithNameInfo> calendars = device.getDeviceConfiguration().getDeviceType().getAllowedCalendars().stream()
+                .filter(allowedCalendar -> !allowedCalendar.isGhost())
+                .map(allowedCalendar -> new IdWithNameInfo(allowedCalendar.getId(), allowedCalendar.getName()))
+                .collect(Collectors.toList());
+
+        return Response.ok(calendars).build();
     }
 
     @PUT
