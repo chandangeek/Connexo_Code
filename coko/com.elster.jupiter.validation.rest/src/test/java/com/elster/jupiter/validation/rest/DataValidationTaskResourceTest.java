@@ -6,17 +6,26 @@ import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import com.elster.jupiter.devtools.ExtjsFilter;
+import com.elster.jupiter.devtools.tests.FakeBuilder;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
+import com.elster.jupiter.util.time.Never;
+import com.elster.jupiter.validation.DataValidationOccurrence;
+import com.elster.jupiter.validation.DataValidationOccurrenceFinder;
+import com.elster.jupiter.validation.DataValidationTask;
+import com.elster.jupiter.validation.DataValidationTaskBuilder;
 
+import com.jayway.jsonpath.JsonModel;
+
+import javax.ws.rs.HttpMethod;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
 import java.io.InputStream;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Optional;
 
-import javax.ws.rs.HttpMethod;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
-
-import com.elster.jupiter.devtools.tests.FakeBuilder;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -32,6 +41,12 @@ import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.DataValidationTaskBuilder;
 
 import com.jayway.jsonpath.JsonModel;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class DataValidationTaskResourceTest extends BaseValidationRestTest {
 
