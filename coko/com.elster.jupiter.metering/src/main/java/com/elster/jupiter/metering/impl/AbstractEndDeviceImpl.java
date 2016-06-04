@@ -13,6 +13,8 @@ import com.elster.jupiter.metering.GeoCoordinates;
 import com.elster.jupiter.metering.LifecycleDates;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventRecordBuilder;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
@@ -191,12 +193,18 @@ abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> impleme
         this.geoCoordinates.set(geoCoordinates);
     }
 
+
     @Override
     public AmrSystem getAmrSystem() {
         if (amrSystem == null) {
             amrSystem = dataModel.mapper(AmrSystem.class).getExisting(amrSystemId);
         }
         return amrSystem;
+    }
+
+    @Override
+    public Optional<HeadEndInterface> getHeadEndInterface(){
+        return dataModel.getInstance(MeteringService.class).getHeadEndInterface(this.amrSystem.getName());
     }
 
     @Override

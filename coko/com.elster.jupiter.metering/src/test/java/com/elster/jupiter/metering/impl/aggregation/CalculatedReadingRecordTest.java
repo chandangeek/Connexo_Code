@@ -22,6 +22,8 @@ import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Optional;
 
 import org.junit.Before;
@@ -94,7 +96,7 @@ public class CalculatedReadingRecordTest {
         MeterActivation meterActivation = mock(MeterActivation.class);
         when(meterActivation.getZoneId()).thenReturn(ZoneId.of("Europe/Brussels"));
         UsagePoint usagePoint = mock(UsagePoint.class);
-        when(usagePoint.getMeterActivation(any(Instant.class))).thenReturn(Optional.of(meterActivation));
+        when(usagePoint.getMeterActivations(any(Instant.class))).thenReturn(Collections.singletonList(meterActivation));
 
         //Business method
         testInstance.init(this.resultSet);

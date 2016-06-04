@@ -18,9 +18,6 @@ import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingContainer;
-import com.elster.jupiter.metering.ReadingQualityRecord;
-import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceLocation;
@@ -30,10 +27,14 @@ import com.elster.jupiter.metering.UsagePointConfiguration;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointDetailBuilder;
+import com.elster.jupiter.metering.UsagePointMeterActivator;
 import com.elster.jupiter.metering.WaterDetailBuilder;
+import com.elster.jupiter.metering.config.DefaultMeterRole;
+import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.impl.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.impl.config.EffectiveMetrologyConfigurationOnUsagePointImpl;
+import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
@@ -63,12 +64,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 @UniqueMRID(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_USAGEPOINT + "}")
 public class UsagePointImpl implements UsagePoint {
     // persistent fields
+    @SuppressWarnings("unused")
     private long id;
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String aliasName;
@@ -96,6 +99,7 @@ public class UsagePointImpl implements UsagePoint {
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String serviceDeliveryRemark;
     private ConnectionState connectionState = ConnectionState.UNDER_CONSTRUCTION;
+    @SuppressWarnings("unused")
     private long version;
     @SuppressWarnings("unused")
     private Instant createTime;
@@ -125,6 +129,7 @@ public class UsagePointImpl implements UsagePoint {
     private final Provider<MeterActivationImpl> meterActivationFactory;
     private final Provider<UsagePointAccountabilityImpl> accountabilityFactory;
     private final CustomPropertySetService customPropertySetService;
+    private final ServerMetrologyConfigurationService metrologyConfigurationService;
     private transient UsagePointCustomPropertySetExtensionImpl customPropertySetExtension;
 
     @Inject
@@ -132,7 +137,7 @@ public class UsagePointImpl implements UsagePoint {
             Clock clock, DataModel dataModel, EventService eventService,
             Thesaurus thesaurus, Provider<MeterActivationImpl> meterActivationFactory,
             Provider<UsagePointAccountabilityImpl> accountabilityFactory,
-            CustomPropertySetService customPropertySetService, MeteringService meteringService) {
+            CustomPropertySetService customPropertySetService, MeteringService meteringService, ServerMetrologyConfigurationService metrologyConfigurationService) {
         this.clock = clock;
         this.dataModel = dataModel;
         this.eventService = eventService;
@@ -141,6 +146,7 @@ public class UsagePointImpl implements UsagePoint {
         this.accountabilityFactory = accountabilityFactory;
         this.customPropertySetService = customPropertySetService;
         this.meteringService = meteringService;
+        this.metrologyConfigurationService = metrologyConfigurationService;
     }
 
     UsagePointImpl init(String mRID, ServiceCategory serviceCategory) {
@@ -369,19 +375,6 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
-    public List<MeterActivationImpl> getMeterActivations() {
-        return ImmutableList.copyOf(meterActivations);
-    }
-
-    @Override
-    public Optional<MeterActivation> getCurrentMeterActivation() {
-        return meterActivations.stream()
-                .filter(MeterActivation::isCurrent)
-                .map(MeterActivation.class::cast)
-                .findAny();
-    }
-
-    @Override
     public Instant getCreateDate() {
         return createTime;
     }
@@ -398,54 +391,6 @@ public class UsagePointImpl implements UsagePoint {
     @Override
     public List<UsagePointAccountability> getAccountabilities() {
         return ImmutableList.copyOf(accountabilities);
-    }
-
-    @Override
-    public MeterActivation activate(Instant start) {
-        MeterActivationImpl result = meterActivationFactory.get().init(this, start);
-        dataModel.persist(result);
-        adopt(result);
-        return result;
-    }
-
-    @Override
-    public MeterActivation activate(Meter meter, Instant start) {
-        MeterActivationImpl result = meterActivationFactory.get().init(meter, this, start);
-        dataModel.persist(result);
-        adopt(result);
-        return result;
-    }
-
-    @Override
-    public List<Instant> toList(ReadingType readingType, Range<Instant> exportInterval) {
-        return getCurrentMeterActivation()
-                .map(meterActivation -> meterActivation.toList(readingType, exportInterval))
-                .orElseGet(Collections::emptyList);
-    }
-
-    public void adopt(MeterActivationImpl meterActivation) {
-        meterActivations.stream()
-                .filter(activation -> activation.getId() != meterActivation.getId())
-                .reduce((m1, m2) -> m2)
-                .ifPresent(last -> {
-                    if (last.getRange().lowerEndpoint().isAfter(meterActivation.getRange().lowerEndpoint())) {
-                        throw new IllegalArgumentException("Invalid start date");
-                    } else {
-                        if (!last.getRange().hasUpperBound() || last.getRange()
-                                .upperEndpoint()
-                                .isAfter(meterActivation.getRange().lowerEndpoint())) {
-                            last.endAt(meterActivation.getRange().lowerEndpoint());
-                        }
-                    }
-                });
-        Optional<Meter> meter = meterActivation.getMeter();
-        if (meter.isPresent()) {
-            // if meter happens to be the same meter of the last meteractivation that we just closed a few lines above,
-            // best is to refresh the meter so the updated meteractivations are refetched from db. see COPL-854
-            Meter existing = dataModel.mapper(Meter.class).getExisting(meter.get().getId());
-            ((MeterImpl) existing).adopt(meterActivation);
-        }
-        meterActivations.add(meterActivation);
     }
 
     @Override
@@ -476,6 +421,10 @@ public class UsagePointImpl implements UsagePoint {
     public Optional<MetrologyConfiguration> getMetrologyConfiguration(Instant when) {
         return this.metrologyConfiguration.effective(when)
                 .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration);
+    }
+
+    Optional<EffectiveMetrologyConfigurationOnUsagePoint> getEffectiveMetrologyConfiguration(Instant when) {
+        return this.metrologyConfiguration.effective(when);
     }
 
     @Override
@@ -583,11 +532,6 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
-    public List<? extends BaseReadingRecord> getReadings(Range<Instant> range, ReadingType readingType) {
-        return MeterActivationsImpl.from(meterActivations, range).getReadings(range, readingType);
-    }
-
-    @Override
     public List<? extends BaseReadingRecord> getReadingsWithFill(Range<Instant> range, ReadingType readingType) {
         List<? extends BaseReadingRecord> notFilled = MeterActivationsImpl.from(meterActivations, range)
                 .getReadings(range, readingType);
@@ -618,31 +562,6 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
-    public List<? extends BaseReadingRecord> getReadingsUpdatedSince(Range<Instant> range, ReadingType readingType, Instant since) {
-        return MeterActivationsImpl.from(meterActivations, range).getReadingsUpdatedSince(range, readingType, since);
-    }
-
-    @Override
-    public Set<ReadingType> getReadingTypes(Range<Instant> range) {
-        return MeterActivationsImpl.from(meterActivations, range).getReadingTypes(range);
-    }
-
-    @Override
-    public List<? extends BaseReadingRecord> getReadingsBefore(Instant when, ReadingType readingType, int count) {
-        return MeterActivationsImpl.from(meterActivations).getReadingsBefore(when, readingType, count);
-    }
-
-    @Override
-    public List<? extends BaseReadingRecord> getReadingsOnOrBefore(Instant when, ReadingType readingType, int count) {
-        return MeterActivationsImpl.from(meterActivations).getReadingsOnOrBefore(when, readingType, count);
-    }
-
-    @Override
-    public boolean hasData() {
-        return MeterActivationsImpl.from(meterActivations).hasData();
-    }
-
-    @Override
     public Optional<Party> getCustomer(Instant when) {
         return getResponsibleParty(when, MarketRoleKind.ENERGYSERVICECONSUMER);
     }
@@ -658,41 +577,8 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
-    public boolean is(ReadingContainer other) {
-        return other instanceof UsagePoint && ((UsagePoint) other).getId() == getId();
-    }
-
-    @Override
-    public Optional<Meter> getMeter(Instant instant) {
-        return getMeterActivation(instant).flatMap(MeterActivation::getMeter);
-    }
-
-    @Override
-    public Optional<MeterActivation> getMeterActivation(Instant when) {
-        return meterActivations.stream()
-                .filter(meterActivation -> meterActivation.isEffectiveAt(when))
-                .map(MeterActivation.class::cast)
-                .findFirst();
-    }
-
-    @Override
-    public Optional<UsagePoint> getUsagePoint(Instant instant) {
-        return Optional.of(this);
-    }
-
-    @Override
     public ZoneId getZoneId() {
-        return getCurrentMeterActivation()
-                .map(MeterActivation::getZoneId)
-                .orElse(ZoneId.systemDefault());
-    }
-
-    @Override
-    public List<ReadingQualityRecord> getReadingQualities(ReadingQualityType readingQualityType, ReadingType readingType, Range<Instant> interval) {
-        return meterActivations.stream()
-                .flatMap(meterActivation -> meterActivation.getReadingQualities(readingQualityType, readingType, interval)
-                        .stream())
-                .collect(Collectors.toList());
+        return ZoneId.systemDefault();
     }
 
     void addConfiguration(UsagePointConfigurationImpl usagePointConfiguration) {
@@ -714,8 +600,6 @@ public class UsagePointImpl implements UsagePoint {
 
     @Override
     public long getLocationId() {
-//        Optional<Location> location = getLocation();
-//        return location.isPresent() ? location.get().getId() : 0L;
         return location;
     }
 
@@ -725,7 +609,7 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
-    public void setLocation(long locationId){
+    public void setLocation(long locationId) {
         this.location = locationId;
     }
 
@@ -741,8 +625,99 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
-    public void setGeoCoordinates(GeoCoordinates geoCoordinates){
+    public void setGeoCoordinates(GeoCoordinates geoCoordinates) {
         this.geoCoordinates.set(geoCoordinates);
+    }
+
+    @Override
+    public Optional<MeterActivation> getMeterActivation(Instant when) {
+        return getMeterActivations(when).stream()
+                .filter(ma -> ma.getMeterRole().isPresent() && ma.getMeterRole().get().getKey().equals(DefaultMeterRole.DEFAULT.getKey()))
+                .findFirst();
+    }
+
+    @Override
+    public List<MeterActivation> getMeterActivations(Instant when) {
+        return this.meterActivations.stream()
+                .filter(meterActivation -> meterActivation.isEffectiveAt(when))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<MeterActivation> getMeterActivations() {
+        return meterActivations.stream()
+                .filter(ma -> !ma.getStart().equals(ma.getEnd()))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Optional<MeterActivation> getCurrentMeterActivation() {
+        return getCurrentMeterActivations().stream()
+                .filter(ma -> ma.getMeterRole().isPresent() && ma.getMeterRole().get().getKey().equals(DefaultMeterRole.DEFAULT.getKey()))
+                .findFirst();
+    }
+
+    @Override
+    public List<MeterActivation> getCurrentMeterActivations() {
+        return this.meterActivations.stream()
+                .filter(MeterActivation::isCurrent)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<MeterActivation> getMeterActivations(MeterRole role) {
+        return this.meterActivations.stream()
+                .filter(ma -> !ma.getStart().equals(ma.getEnd()))
+                .filter(ma -> ma.getMeterRole().isPresent() && ma.getMeterRole().get().equals(role))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public MeterActivation activate(Meter meter, Instant start) {
+        return this.activate(meter, metrologyConfigurationService.findDefaultMeterRole(DefaultMeterRole.DEFAULT), start);
+    }
+
+    @Override
+    public MeterActivation activate(Meter meter, MeterRole meterRole, Instant from) {
+        MeterActivationImpl result = meterActivationFactory.get().init(meter, meterRole, this, from);
+        dataModel.persist(result);
+        adopt(result);
+        return result;
+    }
+
+    @Override
+    public UsagePointMeterActivator linkMeters() {
+        return this.dataModel.getInstance(UsagePointMeterActivatorImpl.class).init(this);
+    }
+
+    public void adopt(MeterActivationImpl meterActivation) {
+        meterActivations.stream()
+                .filter(activation -> activation.getId() != meterActivation.getId())
+                .reduce((m1, m2) -> m2)
+                .ifPresent(last -> {
+                    if (last.getRange().lowerEndpoint().isAfter(meterActivation.getRange().lowerEndpoint())) {
+                        throw new IllegalArgumentException("Invalid start date");
+                    } else {
+                        if (!last.getRange().hasUpperBound() || last.getRange()
+                                .upperEndpoint()
+                                .isAfter(meterActivation.getRange().lowerEndpoint())) {
+                            last.endAt(meterActivation.getRange().lowerEndpoint());
+                        }
+                    }
+                });
+        Optional<Meter> meter = meterActivation.getMeter();
+        if (meter.isPresent()) {
+            // if meter happens to be the same meter of the last meteractivation that we just closed a few lines above,
+            // best is to refresh the meter so the updated meteractivations are refetched from db. see COPL-854
+            Meter existing = dataModel.mapper(Meter.class).getExisting(meter.get().getId());
+            ((MeterImpl) existing).adopt(meterActivation);
+        }
+        meterActivations.add(meterActivation);
+    }
+
+    public void refreshMeterActivations() {
+        this.meterActivations.clear();
+        this.meterActivations.addAll(this.dataModel.query(MeterActivationImpl.class).select(where("usagePoint").isEqualTo(this)));
     }
 
     @Override
@@ -764,19 +739,19 @@ public class UsagePointImpl implements UsagePoint {
 
     private void updateDeviceDefaultLocation() {
         this.getMeterActivations().stream()
-                .forEach(meterActivation -> meterActivation.getMeter().ifPresent(meter ->{
-                    if(upLocation.isPresent()){
-                        if(location != upLocation.get().getId()){
-                            if(!meter.getLocation().isPresent() || meter.getLocationId() == upLocation.get().getId()){
+                .forEach(meterActivation -> meterActivation.getMeter().ifPresent(meter -> {
+                    if (upLocation.isPresent()) {
+                        if (location != upLocation.get().getId()) {
+                            if (!meter.getLocation().isPresent() || meter.getLocationId() == upLocation.get().getId()) {
                                 meteringService.findLocation(location).ifPresent(meter::setLocation);
                             }
                         }
-                    } else if(location != 0){
-                        if(!meter.getLocation().isPresent()){
+                    } else if (location != 0) {
+                        if (!meter.getLocation().isPresent()) {
                             meteringService.findLocation(location).ifPresent(meter::setLocation);
                         }
                     }
-                    if(geoCoordinates.getOptional().isPresent()){
+                    if (geoCoordinates.getOptional().isPresent()) {
                         GeoCoordinates geo = geoCoordinates.getOptional().get();
                         dataModel.mapper(UsagePoint.class).getOptional(this.getId()).ifPresent(up -> {
                             if (up.getGeoCoordinates().isPresent()) {
@@ -791,7 +766,7 @@ public class UsagePointImpl implements UsagePoint {
                                 }
                             }
                         });
-                    }else{
+                    } else {
                         meter.setGeoCoordinates(null);
                     }
                     meter.update();

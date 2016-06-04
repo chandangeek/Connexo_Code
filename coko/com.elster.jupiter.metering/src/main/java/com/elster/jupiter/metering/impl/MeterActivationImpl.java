@@ -16,12 +16,14 @@ import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointConfiguration;
+import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Interval;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
@@ -46,7 +48,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.Ranges.does;
-import static com.elster.jupiter.util.streams.Currying.*;
+import static com.elster.jupiter.util.streams.Currying.test;
 import static com.elster.jupiter.util.streams.Predicates.not;
 
 public final class MeterActivationImpl implements IMeterActivation {
@@ -64,6 +66,7 @@ public final class MeterActivationImpl implements IMeterActivation {
     // associations
     private Reference<UsagePoint> usagePoint = ValueReference.absent();
     private Reference<Meter> meter = ValueReference.absent();
+    private Reference<MeterRole> meterRole = ValueReference.absent();
     private List<Channel> channels = new ArrayList<>();
     private List<MultiplierValue> multipliers = new ArrayList<>();
 
@@ -81,34 +84,39 @@ public final class MeterActivationImpl implements IMeterActivation {
         this.channelBuilder = channelBuilder;
         this.thesaurus = thesaurus;
     }
-	
-	MeterActivationImpl init(Meter meter , UsagePoint usagePoint , Instant start ) {
-        return init(meter, usagePoint, Range.atLeast(start));
-	}
 
-    MeterActivationImpl init(Meter meter , UsagePoint usagePoint , Range<Instant> range ) {
+    MeterActivationImpl init(Meter meter, Instant from) {
+        return init(meter, null, null, from);
+    }
+
+    MeterActivationImpl init(Meter meter, Range<Instant> range) {
+        return init(meter, null, null, range);
+    }
+
+    MeterActivationImpl init(UsagePoint usagePoint, Instant from) {
+        return init(null, null, usagePoint, from);
+    }
+
+    MeterActivationImpl init(Meter meter, MeterRole role, UsagePoint usagePoint, Instant from) {
+        return init(meter, role, usagePoint, Range.atLeast(from));
+    }
+
+    MeterActivationImpl init(Meter meter, MeterRole meterRole, UsagePoint usagePoint, Range<Instant> range) {
+        if (usagePoint != null && meter != meterRole && (meter == null || meterRole == null)) {
+            throw new IllegalArgumentException("You are trying to activate meter on usage point, but you didn't specified a meter role" +
+                    " or you specified a meter role, but forgot about meter.");
+        }
         this.meter.set(meter);
+        this.meterRole.set(meterRole);
         this.usagePoint.set(usagePoint);
         this.interval = Interval.of(range);
         return this;
     }
 
-    MeterActivationImpl init(Meter meter , Instant start ) {
-        return init(meter, null, start);
-	}
-
-    MeterActivationImpl init(Meter meter , Range<Instant> range ) {
-        return init(meter, null, range);
+    @Override
+    public long getId() {
+        return id;
     }
-
-    MeterActivationImpl init(UsagePoint usagePoint, Instant start ) {
-		return init(null,usagePoint,start);
-	}
-	
-	@Override
-	public long getId() {	
-		return id;
-	}
 
     @Override
     public Interval getInterval() {
@@ -123,6 +131,11 @@ public final class MeterActivationImpl implements IMeterActivation {
     @Override
     public Optional<Meter> getMeter() {
         return meter.getOptional();
+    }
+
+    @Override
+    public Optional<MeterRole> getMeterRole() {
+        return this.meterRole.getOptional();
     }
 
     @Override
@@ -235,9 +248,9 @@ public final class MeterActivationImpl implements IMeterActivation {
 
     private boolean isInvalidEndDate(Instant end) {
         return getChannels().stream()
-                    .map(Channel::getLastDateTime)
-                    .filter(Objects::nonNull)
-                    .anyMatch(test(Instant::isAfter).with(end));
+                .map(Channel::getLastDateTime)
+                .filter(Objects::nonNull)
+                .anyMatch(test(Instant::isAfter).with(end));
     }
 
     @Override
@@ -259,35 +272,35 @@ public final class MeterActivationImpl implements IMeterActivation {
     }
 
     private Channel getChannel(ReadingType readingType) {
-		for (Channel channel : getChannels()) {
-			if (channel.getReadingTypes().contains(readingType)) {
-				return channel;
-			}
-		}
-		return null;
-	}
-	
-	@Override 
-	public Instant getStart() {
-		return getRange().lowerEndpoint();
-	}
-	
-	@Override
-	public Instant getEnd() {
-		Range<Instant> range = getRange();
-		return range.hasUpperBound() ? range.upperEndpoint() : null;		
-	}
-	
-	@Override
-	public ZoneId getZoneId() {
-		Set<ZoneId> candidates = getChannels().stream()
-			.map(Channel::getZoneId)
-			.collect(Collectors.toSet());
-		if (candidates.size() > 1) {
-			throw new RuntimeException("More than one zone id for this meter activation");
-		}
-		return candidates.stream().findFirst().orElse(clock.getZone());
-	}
+        for (Channel channel : getChannels()) {
+            if (channel.getReadingTypes().contains(readingType)) {
+                return channel;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Instant getStart() {
+        return getRange().lowerEndpoint();
+    }
+
+    @Override
+    public Instant getEnd() {
+        Range<Instant> range = getRange();
+        return range.hasUpperBound() ? range.upperEndpoint() : null;
+    }
+
+    @Override
+    public ZoneId getZoneId() {
+        Set<ZoneId> candidates = getChannels().stream()
+                .map(Channel::getZoneId)
+                .collect(Collectors.toSet());
+        if (candidates.size() > 1) {
+            throw new RuntimeException("More than one zone id for this meter activation");
+        }
+        return candidates.stream().findFirst().orElse(clock.getZone());
+    }
 
     @Override
     public boolean is(ReadingContainer other) {
@@ -451,8 +464,12 @@ public final class MeterActivationImpl implements IMeterActivation {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         MeterActivationImpl that = (MeterActivationImpl) o;
         return Objects.equals(id, that.id);
     }

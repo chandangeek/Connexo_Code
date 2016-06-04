@@ -16,6 +16,7 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeterAlreadyLinkedToUsagePoint;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -32,9 +33,12 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.TimeZone;
 
-import org.junit.*;
-import org.junit.rules.*;
-import org.junit.runner.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
@@ -77,6 +81,8 @@ public class MeterActivationImplTest extends EqualsContractTest {
     private UsagePoint usagePoint, otherUsagePoint;
     @Mock
     private Meter meter, otherMeter;
+    @Mock
+    private MeterRole meterRole;
     private ChannelImpl channel1, channel2;
     private ReadingTypeImpl readingType1, readingType2, readingType3;
     @Mock
@@ -113,17 +119,17 @@ public class MeterActivationImplTest extends EqualsContractTest {
         readingType3 = new ReadingTypeImpl(dataModel, thesaurus).init(MRID3, "readingType3");
 
         final Provider<ChannelImpl> channelFactory = new Provider<ChannelImpl>() {
-			@Override
-			public ChannelImpl get() {
-				return new ChannelImpl(dataModel, idsService, meteringService, clock, eventService);
-			}
-		};
+            @Override
+            public ChannelImpl get() {
+                return new ChannelImpl(dataModel, idsService, meteringService, clock, eventService);
+            }
+        };
 
         channelBuilder = new Provider<ChannelBuilder>() {
-			@Override
-			public ChannelBuilder get() {
-				return new ChannelBuilderImpl(dataModel,channelFactory);
-			}
+            @Override
+            public ChannelBuilder get() {
+                return new ChannelBuilderImpl(dataModel, channelFactory);
+            }
         };
         when(usagePoint.getId()).thenReturn(USAGEPOINT_ID);
         when(meter.getId()).thenReturn(METER_ID);
@@ -134,7 +140,15 @@ public class MeterActivationImplTest extends EqualsContractTest {
         when(usagePoint.getConfiguration(any())).thenReturn(Optional.empty());
         when(dataModel.getInstance(ReadingTypeInChannel.class)).thenAnswer(invocation -> new ReadingTypeInChannel(dataModel, meteringService));
 
-        meterActivation = new MeterActivationImpl(dataModel,eventService,clock,channelBuilder, thesaurus).init(meter, usagePoint, ACTIVATION_TIME);
+        meterActivation = getTestInstanceAndInitWithActivationTime();
+    }
+
+    private MeterActivationImpl getTestInstanceAndInitWithActivationTime() {
+        return getTestInstance().init(meter, meterRole, usagePoint, ACTIVATION_TIME);
+    }
+
+    private MeterActivationImpl getTestInstance() {
+        return new MeterActivationImpl(dataModel, eventService, clock, channelBuilder, thesaurus);
     }
 
     @After
@@ -180,7 +194,7 @@ public class MeterActivationImplTest extends EqualsContractTest {
 
     @Test
     public void testSetUsagePoint() {
-        meterActivation = new MeterActivationImpl(dataModel,eventService,clock,channelBuilder, thesaurus).init(meter, ACTIVATION_TIME);
+        meterActivation = getTestInstance().init(meter, ACTIVATION_TIME);
 
         assertThat(meterActivation.getUsagePoint()).isEmpty();
 
@@ -191,28 +205,28 @@ public class MeterActivationImplTest extends EqualsContractTest {
 
     @Test(expected = MeterAlreadyLinkedToUsagePoint.class)
     public void testSetUsagePointWhenAlreadySet() {
-        meterActivation = new MeterActivationImpl(dataModel,eventService,clock,channelBuilder, thesaurus).init(meter, usagePoint, ACTIVATION_TIME);
+        meterActivation = getTestInstanceAndInitWithActivationTime();
 
         meterActivation.setUsagePoint(usagePoint);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testAdvanceStartDateMustNotBeLater() {
-        meterActivation = new MeterActivationImpl(dataModel,eventService,clock,channelBuilder, thesaurus).init(meter, usagePoint, ACTIVATION_TIME);
+        meterActivation = getTestInstanceAndInitWithActivationTime();
 
         meterActivation.advanceStartDate(ACTIVATION_TIME_BASE.plusSeconds(1).toInstant());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testAdvanceStartDateMustBeEarlier() {
-        meterActivation = new MeterActivationImpl(dataModel,eventService,clock,channelBuilder, thesaurus).init(meter, usagePoint, ACTIVATION_TIME);
+        meterActivation = getTestInstanceAndInitWithActivationTime();
 
         meterActivation.advanceStartDate(ACTIVATION_TIME);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testAdvanceStartDateMustNotOverlapWithMeterActivationOfMeter() {
-        meterActivation = new MeterActivationImpl(dataModel,eventService,clock,channelBuilder, thesaurus).init(meter, usagePoint, ACTIVATION_TIME);
+        meterActivation = getTestInstanceAndInitWithActivationTime();
 
         IMeterActivation earlier = mock(IMeterActivation.class);
 
@@ -227,7 +241,7 @@ public class MeterActivationImplTest extends EqualsContractTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testAdvanceStartDateMustNotOverlapWithMeterActivationOfUsagePoint() {
-        meterActivation = new MeterActivationImpl(dataModel,eventService,clock,channelBuilder, thesaurus).init(meter, usagePoint, ACTIVATION_TIME);
+        meterActivation = getTestInstanceAndInitWithActivationTime();
 
         IMeterActivation earlier = mock(IMeterActivation.class);
 
@@ -242,7 +256,7 @@ public class MeterActivationImplTest extends EqualsContractTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testAdvanceStartDateMustNotOverlapWithIncompatibleMeterActivations() {
-        meterActivation = new MeterActivationImpl(dataModel,eventService,clock,channelBuilder, thesaurus).init(meter, usagePoint, ACTIVATION_TIME);
+        meterActivation = getTestInstanceAndInitWithActivationTime();
 
         IMeterActivation earlier = mock(IMeterActivation.class);
 
@@ -263,7 +277,7 @@ public class MeterActivationImplTest extends EqualsContractTest {
     }
 
     public void testAdvanceStartDateSuccess() {
-        meterActivation = new MeterActivationImpl(dataModel,eventService,clock,channelBuilder, thesaurus).init(meter, usagePoint, ACTIVATION_TIME);
+        meterActivation = getTestInstanceAndInitWithActivationTime();
         field("id").ofType(Long.TYPE).in(meterActivation).set(987987L);
 
         MeterActivation earlier = mock(MeterActivation.class);
@@ -285,7 +299,7 @@ public class MeterActivationImplTest extends EqualsContractTest {
     }
 
     public void testAdvanceStartDateSuccessOnClosedPeriod() {
-        meterActivation = new MeterActivationImpl(dataModel,eventService,clock,channelBuilder, thesaurus).init(meter, usagePoint, ACTIVATION_TIME);
+        meterActivation = getTestInstanceAndInitWithActivationTime();
         field("id").ofType(Long.TYPE).in(meterActivation).set(987987L);
         meterActivation.endAt(ACTIVATION_TIME_BASE.plusYears(1).toInstant());
 
@@ -308,7 +322,7 @@ public class MeterActivationImplTest extends EqualsContractTest {
     @Override
     protected Object getInstanceA() {
         if (instanceA == null) {
-            instanceA = new MeterActivationImpl(dataModel, eventService, clock, channelBuilder, thesaurus);
+            instanceA = getTestInstance();
             field("id").ofType(Long.TYPE).in(instanceA).set(45L);
         }
         return instanceA;
@@ -316,16 +330,16 @@ public class MeterActivationImplTest extends EqualsContractTest {
 
     @Override
     protected Object getInstanceEqualToA() {
-        MeterActivationImpl meterActivation = new MeterActivationImpl(dataModel, eventService, clock, channelBuilder, thesaurus);
+        MeterActivationImpl meterActivation = getTestInstance();
         field("id").ofType(Long.TYPE).in(meterActivation).set(45L);
         return meterActivation;
     }
 
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
-        MeterActivationImpl meterActivation1 = new MeterActivationImpl(dataModel, eventService, clock, channelBuilder, thesaurus);
+        MeterActivationImpl meterActivation1 = getTestInstance();
         field("id").ofType(Long.TYPE).in(meterActivation1).set(43L);
-        MeterActivationImpl meterActivation2 = new MeterActivationImpl(dataModel, eventService, clock, channelBuilder, thesaurus);
+        MeterActivationImpl meterActivation2 = getTestInstance();
         return ImmutableList.of(meterActivation1, meterActivation2);
     }
 
