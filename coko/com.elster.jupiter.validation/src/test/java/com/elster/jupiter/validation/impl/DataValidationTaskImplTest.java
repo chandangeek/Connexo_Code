@@ -16,12 +16,8 @@ import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.validation.DataValidationOccurrence;
 import com.elster.jupiter.validation.ValidationService;
+
 import com.google.common.collect.ImmutableList;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
@@ -30,10 +26,19 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Optional;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.fest.reflect.core.Reflection.field;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyList;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DataValidationTaskImplTest extends EqualsContractTest {

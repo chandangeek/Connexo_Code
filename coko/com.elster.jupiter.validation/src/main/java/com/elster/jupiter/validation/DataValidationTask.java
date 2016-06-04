@@ -1,12 +1,14 @@
 package com.elster.jupiter.validation;
 
-import aQute.bnd.annotation.ProviderType;
+import com.elster.jupiter.metering.config.MetrologyContract;
 
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.orm.HasAuditInfo;
 import com.elster.jupiter.orm.History;
 import com.elster.jupiter.util.time.ScheduleExpression;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.time.Instant;
 import java.util.List;

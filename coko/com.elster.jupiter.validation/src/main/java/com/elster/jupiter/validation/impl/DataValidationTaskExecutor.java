@@ -4,7 +4,6 @@ import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
