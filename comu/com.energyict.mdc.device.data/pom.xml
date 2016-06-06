@@ -147,6 +147,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>pubsub</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>upgrade</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>com.energyict</groupId>
