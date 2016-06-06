@@ -246,6 +246,7 @@ public class ValidationInfoFactory {
                 .filter(ReadingQualityRecord::isActual)
                 .map(ReadingQuality::getType)
                 .distinct()
+                // TODO: the place for refactoring of CXO-1437/CXO-1438
                 .filter(type -> type.system().isPresent())
                 .filter(type -> type.qualityIndex().isPresent())
                 .filter(type -> QUALITY_CODE_CATEGORIES.contains(type.category().get()))
