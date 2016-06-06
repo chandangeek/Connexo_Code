@@ -489,7 +489,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                         );
                     }
                     previewForm.addAttribute(
-                        Uni.I18n.translate('comtask.meter.events.from.status.flag','MDC','Meter events from status flag'),
+                        Uni.I18n.translate('comtask.meter.events.from.reading.qualities', 'MDC', 'Meter events from reading qualities'),
                         createMeterEvents ? Uni.I18n.translate('general.yes', 'MDC', 'Yes') : Uni.I18n.translate('general.no', 'MDC', 'No')
                     );
                     previewForm.addAttribute(

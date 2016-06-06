@@ -80,12 +80,12 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataGrid', {
                 renderer: function (data, metaData, record) {
                     var icon = '<span class="icon-flag5" style="margin-left:10px; display:inline-block; color:rgba(0,0,0,0.0);"></span>', // invisible,
                         validationData = record.get('channelValidationData'),
-                        readingQualitiesPresent = !Ext.isEmpty(record.get('readingQualities')),
+                        readingQualities = record.get('readingQualities'),
                         deviceQualityTooltipContent = '',
                         deviceQualityIcon = '<span class="icon-price-tags" style="margin-left:3px; display:inline-block; color:rgba(0,0,0,0.0);"></span>'; // invisible
 
-                    if (readingQualitiesPresent) {
-                        Ext.Array.forEach(record.get('readingQualities'), function (readingQualityName) {
+                    if (readingQualities && !Ext.isEmpty(readingQualities[channel.id])) {
+                        Ext.Array.forEach(readingQualities[channel.id], function (readingQualityName) {
                             deviceQualityTooltipContent += (readingQualityName + '<br>');
                         });
                         deviceQualityTooltipContent += '<br>';

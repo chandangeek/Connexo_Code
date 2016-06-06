@@ -102,7 +102,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.GraphView', {
                     } else {
                         s += '<b> - ' + Highcharts.dateFormat('%A, %e %B %Y', this.x + intervalLength) + '</b>';
                     }
-                    if (showDeviceQualityIcon) {
+                    if (showDeviceQualityIcon[this.x]) {
                         s += '<span class="icon-price-tags" style="margin-left:4px; display:inline-block; vertical-align:top;"></span>';
                     }
                     s += '<br>';

@@ -71,7 +71,7 @@ Ext.define('Mdc.view.setup.comtasks.parameters.Profiles', {
         {
             xtype: 'radiogroup',
             itemId: 'radioEvents',
-            fieldLabel: Uni.I18n.translate('comtask.meter.events.from.status.flag','MDC','Meter events from status flag'),
+            fieldLabel: Uni.I18n.translate('comtask.meter.events.from.reading.qualities', 'MDC', 'Meter events from reading qualities'),
             afterLabelTextTpl: '<img src="../sky/build/resources/images/shared/icon-info-small.png" style="padding-left: 7px">',
             labelWidth: 300,
             width: 500,
