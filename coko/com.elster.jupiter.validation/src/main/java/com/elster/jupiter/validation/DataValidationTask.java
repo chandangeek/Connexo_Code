@@ -1,8 +1,6 @@
 package com.elster.jupiter.validation;
 
 import com.elster.jupiter.metering.config.MetrologyContract;
-
-import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.orm.HasAuditInfo;
 import com.elster.jupiter.orm.History;

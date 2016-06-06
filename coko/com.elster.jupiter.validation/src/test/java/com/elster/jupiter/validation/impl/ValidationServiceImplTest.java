@@ -1,5 +1,6 @@
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
@@ -46,9 +47,8 @@ import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.ValidatorFactory;
 import com.elster.jupiter.validation.ValidatorNotFoundException;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
@@ -78,7 +78,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
@@ -101,6 +100,7 @@ public class ValidationServiceImplTest {
 
     private static final String NAME = "name";
     private static final String APPLICATION = "MDC";
+    private static final QualityCodeSystem SYSTEM = QualityCodeSystem.MDC;
     private static final long ID = 561651L;
     private ValidationServiceImpl validationService;
 
@@ -264,6 +264,7 @@ public class ValidationServiceImplTest {
         IMeterActivationValidation meterActivationValidation = mock(IMeterActivationValidation.class);
         when(channelValidation.getMeterActivationValidation()).thenReturn(meterActivationValidation);
         ValidationRuleSet validationRuleSet = mock(ValidationRuleSet.class);
+        when(validationRuleSet.getQualityCodeSystem()).thenReturn(SYSTEM);
         when(meterActivationValidation.getRuleSet()).thenReturn(validationRuleSet);
         when(channelValidation.getChannel()).thenReturn(channel);
 
@@ -328,6 +329,7 @@ public class ValidationServiceImplTest {
         ValidationRuleSet validationRuleSet = validationService.createValidationRuleSet(NAME, APPLICATION);
         assertThat(validationRuleSet.getName()).isEqualTo(NAME);
         assertThat(validationRuleSet.getApplicationName()).isEqualTo(APPLICATION);
+        assertThat(validationRuleSet.getQualityCodeSystem()).isEqualTo(SYSTEM);
     }
 
     @Test
@@ -364,19 +366,8 @@ public class ValidationServiceImplTest {
 
         final IMeterActivationValidation meterActivationValidationCaptureValue = meterActivationValidationCapture.getValue();
         final Set<IChannelValidation> channelValidations = meterActivationValidationCaptureValue.getChannelValidations();
-        assertThat(FluentIterable.from(channelValidations).allMatch(new Predicate<IChannelValidation>() {
-            @Override
-            public boolean apply(IChannelValidation input) {
-                return input.getMeterActivationValidation().equals(meterActivationValidationCaptureValue);
-            }
-        })).isTrue();
-        assertThat(FluentIterable.from(channelValidations).transform(new Function<IChannelValidation, Channel>() {
-
-            @Override
-            public Channel apply(IChannelValidation input) {
-                return input.getChannel();
-            }
-        }).toSet()).contains(channel1);
+        assertThat(channelValidations.stream().allMatch(input -> input.getMeterActivationValidation().equals(meterActivationValidationCaptureValue))).isTrue();
+        assertThat(channelValidations.stream().map(IChannelValidation::getChannel).collect(Collectors.toSet())).contains(channel1);
     }
 
     @Test
@@ -387,28 +378,31 @@ public class ValidationServiceImplTest {
         when(meterActivation.getChannels()).thenReturn(Arrays.asList(channel1, channel2));
         when(channel1.getId()).thenReturn(1001L);
         ReadingType readingType = mock(ReadingType.class);
-        doReturn(Arrays.asList(readingType)).when(channel1).getReadingTypes();
+        doReturn(Collections.singletonList(readingType)).when(channel1).getReadingTypes();
         doReturn(readingType).when(channel1).getMainReadingType();
         when(channel2.getId()).thenReturn(1002L);
         when(channel1.getMeterActivation()).thenReturn(meterActivation);
         when(channel2.getMeterActivation()).thenReturn(meterActivation);
         when(meterValidationFactory.getOptional(ID)).thenReturn(Optional.of(meterValidation));
         when(meterValidation.getActivationStatus()).thenReturn(false);
-        when(queryExecutor.select(any(Condition.class))).thenReturn(Arrays.asList(meterActivationValidation));
+        when(queryExecutor.select(any(Condition.class))).thenReturn(Collections.singletonList(meterActivationValidation));
         when(meterActivationValidation.getMaxLastChecked()).thenReturn(Instant.ofEpochMilli(5000L));
-        when(meterActivationValidation.getChannelValidations()).thenReturn(ImmutableSet.of(channelValidation1, channelValidation2));
-        when(channelValidation1.getLastChecked()).thenReturn(Instant.ofEpochMilli(-5000));
-        when(channelValidation2.getLastChecked()).thenReturn(Instant.ofEpochMilli(5000L));
-        when(channelValidation1.getChannel()).thenReturn(channel1);
-        when(channelValidation2.getChannel()).thenReturn(channel2);
-        when(channel1.findReadingQuality(Range.atLeast(Instant.EPOCH))).thenReturn(Arrays.asList(readingQuality1));
-        when(channel2.findReadingQuality(Range.atLeast(Instant.EPOCH))).thenReturn(Arrays.asList(readingQuality2, readingQuality3));
-        when(readingQuality1.getTypeCode()).thenReturn("2.6.1");
-        when(readingQuality2.getTypeCode()).thenReturn("1.0.0");
-        when(readingQuality3.getTypeCode()).thenReturn("2.6.2");
-        when(readingQuality1.getType()).thenReturn(new ReadingQualityType("2.6.1"));
-        when(readingQuality2.getType()).thenReturn(new ReadingQualityType("1.0.0"));
-        when(readingQuality3.getType()).thenReturn(new ReadingQualityType("2.6.2"));
+        doReturn(Arrays.asList(channel1, channel2)).when(meterActivationValidation).getChannels();
+        when(meterActivationValidation.getChannelValidation(channel1)).thenReturn(Optional.of(channelValidation1));
+        when(meterActivationValidation.getChannelValidation(channel2)).thenReturn(Optional.of(channelValidation2));
+        // TODO: what is the purpose of these stabbings? the test never uses them
+//        when(channelValidation1.getLastChecked()).thenReturn(Instant.ofEpochMilli(-5000));
+//        when(channelValidation2.getLastChecked()).thenReturn(Instant.ofEpochMilli(5000L));
+//        when(channel1.findReadingQualities(anySet(), any(QualityCodeIndex.class), eq(Range.atLeast(Instant.EPOCH)), anyBoolean(), anyBoolean()))
+//                .thenReturn(Arrays.asList(readingQuality1));
+//        when(channel2.findReadingQualities(anySet(), any(QualityCodeIndex.class), eq(Range.atLeast(Instant.EPOCH)), anyBoolean(), anyBoolean()))
+//                .thenReturn(Arrays.asList(readingQuality2, readingQuality3));
+//        when(readingQuality1.getTypeCode()).thenReturn("2.6.1");
+//        when(readingQuality2.getTypeCode()).thenReturn("1.0.0");
+//        when(readingQuality3.getTypeCode()).thenReturn("2.6.2");
+//        when(readingQuality1.getType()).thenReturn(new ReadingQualityType("2.6.1"));
+//        when(readingQuality2.getType()).thenReturn(new ReadingQualityType("1.0.0"));
+//        when(readingQuality3.getType()).thenReturn(new ReadingQualityType("2.6.2"));
 
         ValidationRuleSet validationRuleSet = mock(IValidationRuleSet.class);
 
@@ -416,8 +410,8 @@ public class ValidationServiceImplTest {
 
         ValidationRule validationRule = mock(IValidationRule.class);
         doReturn(Collections.singleton(readingType)).when(validationRule).getReadingTypes();
-        doReturn(Arrays.asList(validationRule)).when(validationRuleSet).getRules(anyList());
-        when(validationRuleSetResolver.resolve(eq(meterActivation))).thenReturn(Arrays.asList(validationRuleSet));
+        doReturn(Collections.singletonList(validationRule)).when(validationRuleSet).getRules(anyList());
+        when(validationRuleSetResolver.resolve(eq(meterActivation))).thenReturn(Collections.singletonList(validationRuleSet));
         Map<Channel, Range<Instant>> changeScope = ImmutableMap.of(channel1, Range.atLeast(Instant.EPOCH));
         validationService.validate(meterActivation, changeScope);
         verify(meterActivationValidation).moveLastCheckedBefore(changeScope);
@@ -471,7 +465,7 @@ public class ValidationServiceImplTest {
     @Test
     public void testGetValidationStatusOnEmptyList() {
         when(channel1.getBulkQuantityReadingType()).thenReturn(Optional.empty());
-        assertThat(validationService.getEvaluator().getValidationStatus(channel1, Collections.<BaseReading>emptyList())).isEmpty();
+        assertThat(validationService.getEvaluator().getValidationStatus(Collections.singleton(SYSTEM), channel1, Collections.<BaseReading>emptyList())).isEmpty();
     }
 
     @Test
@@ -480,21 +474,18 @@ public class ValidationServiceImplTest {
         BaseReading reading = mock(BaseReading.class);
         when(reading.getTimeStamp()).thenReturn(readingDate);
 
-        when(channel1.createReadingQuality(any(ReadingQualityType.class), any(), any(Instant.class))).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                ReadingQualityRecord record = mock(ReadingQualityRecord.class);
-                ReadingQualityType readingQualityType = (ReadingQualityType) invocationOnMock.getArguments()[0];
-                when(record.getType()).thenReturn(readingQualityType);
-                when(record.getTypeCode()).thenReturn(readingQualityType.getCode());
-                return record;
-            }
+        when(channel1.createReadingQuality(any(ReadingQualityType.class), any(ReadingType.class), any(Instant.class))).thenAnswer(invocationOnMock -> {
+            ReadingQualityRecord record = mock(ReadingQualityRecord.class);
+            ReadingQualityType readingQualityType = (ReadingQualityType) invocationOnMock.getArguments()[0];
+            when(record.getType()).thenReturn(readingQualityType);
+            when(record.getTypeCode()).thenReturn(readingQualityType.getCode());
+            return record;
         });
 
         when(channelValidationFactory.find(eq("channel"), eq(channel1))).thenReturn(Collections.emptyList());
         when(channel1.getBulkQuantityReadingType()).thenReturn(Optional.empty());
 
-        List<DataValidationStatus> validationStatus = validationService.getEvaluator().getValidationStatus(channel1, Arrays.asList(reading));
+        List<DataValidationStatus> validationStatus = validationService.getEvaluator().getValidationStatus(Collections.singleton(SYSTEM), channel1, Arrays.asList(reading));
         assertThat(validationStatus).hasSize(1);
         assertThat(validationStatus.get(0).getReadingTimestamp()).isEqualTo(readingDate);
         assertThat(validationStatus.get(0).completelyValidated()).isFalse();
@@ -505,7 +496,7 @@ public class ValidationServiceImplTest {
         when(channelValidation.getLastChecked()).thenReturn(Instant.ofEpochMilli(0));
         setupValidationRuleSet(channelValidation, channel1, true);
 
-        validationStatus = validationService.getEvaluator().getValidationStatus(channel1, Arrays.asList(reading));
+        validationStatus = validationService.getEvaluator().getValidationStatus(Collections.singleton(SYSTEM), channel1, Arrays.asList(reading));
         assertThat(validationStatus).hasSize(1);
         assertThat(validationStatus.get(0).getReadingTimestamp()).isEqualTo(readingDate);
         assertThat(validationStatus.get(0).completelyValidated()).isFalse();
@@ -525,14 +516,16 @@ public class ValidationServiceImplTest {
         IChannelValidation channelValidation = mock(IChannelValidation.class);
         when(channelValidationFactory.find(eq("channel"), eq(channel1))).thenReturn(Arrays.asList(channelValidation));
         when(channelValidation.getLastChecked()).thenReturn(readingDate1);
-        when(cimChannel1.findReadingQuality(eq(Range.closed(readingDate1, readingDate2)))).thenReturn(Collections.<ReadingQualityRecord>emptyList());
+        when(cimChannel1.findReadingQualities(Collections.singleton(SYSTEM), null, Range.closed(readingDate1, readingDate2), false))
+                .thenReturn(Collections.<ReadingQualityRecord>emptyList());
         ReadingQualityRecord readingQualityRecord = mock(ReadingQualityRecord.class);
         when(cimChannel1.createReadingQuality(any(ReadingQualityType.class), eq(readingDate1))).thenReturn(readingQualityRecord);
 
         setupValidationRuleSet(channelValidation, channel1, true);
         when(channel1.getBulkQuantityReadingType()).thenReturn(Optional.empty());
 // !! remark that the order of the reading is by purpose not chronological !!
-        List<DataValidationStatus> validationStatus = validationService.getEvaluator().getValidationStatus(channel1, Arrays.asList(reading2, reading1));
+        List<DataValidationStatus> validationStatus = validationService.getEvaluator().getValidationStatus(Collections.singleton(SYSTEM),
+                channel1, Arrays.asList(reading2, reading1));
         assertThat(validationStatus).hasSize(2);
         // reading2 has not be validated yet
         assertThat(validationStatus.get(0).getReadingTimestamp()).isEqualTo(readingDate2);
@@ -561,7 +554,6 @@ public class ValidationServiceImplTest {
         IChannelValidation channelValidation2 = mock(IChannelValidation.class);
         when(channelValidation2.getLastChecked()).thenReturn(readingDate2);
         when(channelValidationFactory.find(eq("channel"), eq(channel1))).thenReturn(Arrays.asList(channelValidation1, channelValidation2));
-        when(channel1.findReadingQuality(eq(Range.closed(readingDate1, readingDate2)))).thenReturn(Collections.<ReadingQualityRecord>emptyList());
         ReadingQualityRecord readingQualityRecord = mock(ReadingQualityRecord.class);
         when(cimChannel1.createReadingQuality(any(ReadingQualityType.class), eq(readingDate1))).thenReturn(readingQualityRecord);
         ReadingType readingType = mock(ReadingType.class);
@@ -571,7 +563,7 @@ public class ValidationServiceImplTest {
         setupValidationRuleSet(channelValidation2, channel1, true);
 
 // !! remark that the order of the reading is by purpose not chronological !!
-        List<DataValidationStatus> validationStatus = validationService.getEvaluator().getValidationStatus(channel1, Arrays.asList(reading2, reading1));
+        List<DataValidationStatus> validationStatus = validationService.getEvaluator().getValidationStatus(Collections.singleton(SYSTEM), channel1, Arrays.asList(reading2, reading1));
         assertThat(validationStatus).hasSize(2);
         // reading2 has not be validated yet
         assertThat(validationStatus.get(0).getReadingTimestamp()).isEqualTo(readingDate2);
@@ -605,13 +597,14 @@ public class ValidationServiceImplTest {
         ReadingQualityType readingQualityType = new ReadingQualityType("2.6.32131");
         when(readingQuality.getType()).thenReturn(readingQualityType);
         when(readingQuality.getTypeCode()).thenReturn("2.6.32131");
-        when(cimChannel1.findActualReadingQuality(eq(Range.closed(readingDate1, readingDate2)))).thenReturn(Arrays.asList(readingQuality));
+        when(cimChannel1.findReadingQualities(Collections.singleton(SYSTEM), null, Range.closed(readingDate1, readingDate2), true))
+                .thenReturn(Collections.singletonList(readingQuality));
         when(cimChannel1.createReadingQuality(any(ReadingQualityType.class), eq(readingDate1))).thenReturn(mock(ReadingQualityRecord.class));
         setupValidationRuleSet(channelValidation1, channel1, true, readingQualityType);
         setupValidationRuleSet(channelValidation2, channel1, true);
 
 // !! remark that the order of the reading is by purpose not chronological !!
-        List<DataValidationStatus> validationStatus = validationService.getEvaluator().getValidationStatus(channel1, Arrays.asList(reading2, reading1));
+        List<DataValidationStatus> validationStatus = validationService.getEvaluator().getValidationStatus(Collections.singleton(SYSTEM), channel1, Arrays.asList(reading2, reading1));
         assertThat(validationStatus).hasSize(2);
         // reading2 has not be validated yet
         assertThat(validationStatus.get(0).getReadingTimestamp()).isEqualTo(readingDate2);
@@ -633,7 +626,6 @@ public class ValidationServiceImplTest {
         BaseReading reading2 = mock(BaseReading.class);
         when(reading2.getTimeStamp()).thenReturn(readingDate2);
 
-
         IChannelValidation channelValidation1 = mock(IChannelValidation.class);
         when(channelValidation1.getLastChecked()).thenReturn(readingDate2);
         when(channelValidationFactory.find(eq("channel"), eq(channel1))).thenReturn(Arrays.asList(channelValidation1));
@@ -648,7 +640,8 @@ public class ValidationServiceImplTest {
         when(readingQuality2.getType()).thenReturn(readingQualityType2);
         when(readingQuality2.getTypeCode()).thenReturn("2.6.9856");
         when(readingQuality2.isSuspect()).thenReturn(true);
-        when(cimChannel1.findActualReadingQuality(eq(Range.closed(readingDate1, readingDate2)))).thenReturn(Arrays.asList(readingQuality1, readingQuality2));
+        when(cimChannel1.findReadingQualities(Collections.singleton(SYSTEM), null, Range.closed(readingDate1, readingDate2), true))
+                .thenReturn(Arrays.asList(readingQuality1, readingQuality2));
         ReadingQualityRecord readingDate2ReadingQuality = mock(ReadingQualityRecord.class);
         when(cimChannel1.createReadingQuality(any(ReadingQualityType.class), any(Instant.class))).thenReturn(readingDate2ReadingQuality);
         when(channel1.getMainReadingType()).thenReturn(mock(ReadingType.class));
@@ -656,7 +649,8 @@ public class ValidationServiceImplTest {
         setupValidationRuleSet(channelValidation1, channel1, true, readingQualityType1, readingQualityType2);
 
 // !! remark that the order of the reading is by purpose not chronological !!
-        List<DataValidationStatus> validationStatus = validationService.getEvaluator().getValidationStatus(channel1, Arrays.asList(reading2, reading1));
+        List<DataValidationStatus> validationStatus = validationService.getEvaluator()
+                .getValidationStatus(Collections.singleton(SYSTEM), channel1, Arrays.asList(reading2, reading1));
         assertThat(validationStatus).hasSize(2);
         // reading2 is OK
         assertThat(validationStatus.get(0).getReadingTimestamp()).isEqualTo(readingDate2);
@@ -828,11 +822,12 @@ public class ValidationServiceImplTest {
         List<ReadingQualityRecord> bulkRQs = Arrays.asList(
                 mockReadingQualityRecord("2.5.258", start.plus(2, ChronoUnit.DAYS)), mockReadingQualityRecord("2.5.259", start.plus(2, ChronoUnit.DAYS)),//missing
                 mockReadingQualityRecord("2.5.258", start.plus(3, ChronoUnit.DAYS)), mockReadingQualityRecord("2.5.259", start.plus(3, ChronoUnit.DAYS)));//missing
-        when(bulkChannel.findActualReadingQuality(range)).thenReturn(bulkRQs);
+        when(bulkChannel.findReadingQualities(Collections.singleton(SYSTEM), null, range, true)).thenReturn(bulkRQs);
         List<ReadingQualityRecord> mainRQs = Arrays.asList(
                 mockReadingQualityRecord("2.5.258", start.plus(4, ChronoUnit.DAYS)), mockReadingQualityRecord("2.6.1003", start.plus(4, ChronoUnit.DAYS)));//rule violation
-        when(mainChannel.findActualReadingQuality(range)).thenReturn(mainRQs);
-        List<DataValidationStatus> validationStatus = validationService.getEvaluator().getValidationStatus(mainChannel, bulkChannel, Collections.emptyList(), range);
+        when(mainChannel.findReadingQualities(Collections.singleton(SYSTEM), null, range, true)).thenReturn(mainRQs);
+        List<DataValidationStatus> validationStatus = validationService.getEvaluator().getValidationStatus(
+                Collections.singleton(SYSTEM), ImmutableList.of(mainChannel, bulkChannel), Collections.emptyList(), range);
         assertThat(validationStatus).hasSize(3);
         Map<Instant, DataValidationStatus> map = validationStatus.stream()
                 .collect(Collectors.toMap(DataValidationStatus::getReadingTimestamp, java.util.function.Function.<DataValidationStatus>identity()));

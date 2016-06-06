@@ -5,7 +5,6 @@ import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingQualityRecord;
-import com.elster.jupiter.metering.ReadingQualityType;
 
 import com.google.common.collect.Range;
 
@@ -13,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -33,7 +33,8 @@ public class ValidationEvaluatorTest {
     @Mock
     Channel channel1, channel2, channel3;
 
-    private final static ReadingQualityType suspect = ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT);
+    private final static Set<QualityCodeSystem> SYSTEM = Collections.singleton(QualityCodeSystem.OTHER);
+
 
     @Before
     public void setUp() {
@@ -43,11 +44,11 @@ public class ValidationEvaluatorTest {
     @Test
     public void isAllDataValidTestWithNoSuspects(){
         //No suspects
-        when(channel1.findActualReadingQuality(suspect, meterActivation.getRange())).thenReturn(Collections.emptyList());
-        when(channel2.findActualReadingQuality(suspect, meterActivation.getRange())).thenReturn(Collections.emptyList());
-        when(channel3.findActualReadingQuality(suspect, meterActivation.getRange())).thenReturn(Collections.emptyList());
+        when(channel1.findReadingQualities(SYSTEM, QualityCodeIndex.SUSPECT, meterActivation.getRange(), true, false)).thenReturn(Collections.emptyList());
+        when(channel2.findReadingQualities(SYSTEM, QualityCodeIndex.SUSPECT, meterActivation.getRange(), true, false)).thenReturn(Collections.emptyList());
+        when(channel3.findReadingQualities(SYSTEM, QualityCodeIndex.SUSPECT, meterActivation.getRange(), true, false)).thenReturn(Collections.emptyList());
 
-        assertThat(new ValidationEvaluatorImpl(validationService).isAllDataValid(meterActivation)).isTrue();
+        assertThat(new ValidationEvaluatorImpl(validationService).areSuspectsPresent(SYSTEM, meterActivation)).isFalse();
     }
 
     @Test
@@ -56,11 +57,11 @@ public class ValidationEvaluatorTest {
         List<ReadingQualityRecord> records1 = initRecordsChannel(1);
         List<ReadingQualityRecord> records2 = initRecordsChannel(2);
         List<ReadingQualityRecord> records3 = initRecordsChannel(3);
-        when(channel1.findActualReadingQuality(suspect, meterActivation.getRange())).thenReturn(records1);
-        when(channel2.findActualReadingQuality(suspect, meterActivation.getRange())).thenReturn(records2);
-        when(channel3.findActualReadingQuality(suspect, meterActivation.getRange())).thenReturn(records3);
+        when(channel1.findReadingQualities(SYSTEM, QualityCodeIndex.SUSPECT, meterActivation.getRange(), true, false)).thenReturn(records1);
+        when(channel2.findReadingQualities(SYSTEM, QualityCodeIndex.SUSPECT, meterActivation.getRange(), true, false)).thenReturn(records2);
+        when(channel3.findReadingQualities(SYSTEM, QualityCodeIndex.SUSPECT, meterActivation.getRange(), true, false)).thenReturn(records3);
 
-        assertThat(new ValidationEvaluatorImpl(validationService).isAllDataValid(meterActivation)).isFalse();
+        assertThat(new ValidationEvaluatorImpl(validationService).areSuspectsPresent(SYSTEM, meterActivation)).isTrue();
     }
 
     @Test
@@ -68,11 +69,11 @@ public class ValidationEvaluatorTest {
         //No suspects
         List<ReadingQualityRecord> records1 = initRecordsChannel(123);
 
-        when(channel1.findActualReadingQuality(suspect, meterActivation.getRange())).thenReturn(records1);
-        when(channel2.findActualReadingQuality(suspect, meterActivation.getRange())).thenReturn(Collections.emptyList());
-        when(channel3.findActualReadingQuality(suspect, meterActivation.getRange())).thenReturn(Collections.emptyList());
+        when(channel1.findReadingQualities(SYSTEM, QualityCodeIndex.SUSPECT, meterActivation.getRange(), true, false)).thenReturn(records1);
+        when(channel2.findReadingQualities(SYSTEM, QualityCodeIndex.SUSPECT, meterActivation.getRange(), true, false)).thenReturn(Collections.emptyList());
+        when(channel3.findReadingQualities(SYSTEM, QualityCodeIndex.SUSPECT, meterActivation.getRange(), true, false)).thenReturn(Collections.emptyList());
 
-        assertThat(new ValidationEvaluatorImpl(validationService).isAllDataValid(meterActivation)).isFalse();
+        assertThat(new ValidationEvaluatorImpl(validationService).areSuspectsPresent(SYSTEM, meterActivation)).isTrue();
     }
 
     @Test
@@ -80,11 +81,11 @@ public class ValidationEvaluatorTest {
         //No suspects
         List<ReadingQualityRecord> records2 = initRecordsChannel(985);
 
-        when(channel1.findActualReadingQuality(suspect, meterActivation.getRange())).thenReturn(Collections.emptyList());
-        when(channel2.findActualReadingQuality(suspect, meterActivation.getRange())).thenReturn(records2);
-        when(channel3.findActualReadingQuality(suspect, meterActivation.getRange())).thenReturn(Collections.emptyList());
+        when(channel1.findReadingQualities(SYSTEM, QualityCodeIndex.SUSPECT, meterActivation.getRange(), true, false)).thenReturn(Collections.emptyList());
+        when(channel2.findReadingQualities(SYSTEM, QualityCodeIndex.SUSPECT, meterActivation.getRange(), true, false)).thenReturn(records2);
+        when(channel3.findReadingQualities(SYSTEM, QualityCodeIndex.SUSPECT, meterActivation.getRange(), true, false)).thenReturn(Collections.emptyList());
 
-        assertThat(new ValidationEvaluatorImpl(validationService).isAllDataValid(meterActivation)).isFalse();
+        assertThat(new ValidationEvaluatorImpl(validationService).areSuspectsPresent(SYSTEM, meterActivation)).isTrue();
     }
 
     @Test
@@ -92,23 +93,18 @@ public class ValidationEvaluatorTest {
         //No suspects
         List<ReadingQualityRecord> records3 = initRecordsChannel(365);
 
-        when(channel1.findActualReadingQuality(suspect, meterActivation.getRange())).thenReturn(Collections.emptyList());
-        when(channel2.findActualReadingQuality(suspect, meterActivation.getRange())).thenReturn(Collections.emptyList());
-        when(channel3.findActualReadingQuality(suspect, meterActivation.getRange())).thenReturn(records3);
+        when(channel1.findReadingQualities(SYSTEM, QualityCodeIndex.SUSPECT, meterActivation.getRange(), true, false)).thenReturn(Collections.emptyList());
+        when(channel2.findReadingQualities(SYSTEM, QualityCodeIndex.SUSPECT, meterActivation.getRange(), true, false)).thenReturn(Collections.emptyList());
+        when(channel3.findReadingQualities(SYSTEM, QualityCodeIndex.SUSPECT, meterActivation.getRange(), true, false)).thenReturn(records3);
 
-        assertThat(new ValidationEvaluatorImpl(validationService).isAllDataValid(meterActivation)).isFalse();
+        assertThat(new ValidationEvaluatorImpl(validationService).areSuspectsPresent(SYSTEM, meterActivation)).isTrue();
     }
 
-
-    private List<ReadingQualityRecord> initRecordsChannel(int numberOfSusptects){
-        List<ReadingQualityRecord> records= new ArrayList<>();
-        for (int i=0; i < numberOfSusptects; i++){
-            ReadingQualityRecord mocked = mock(ReadingQualityRecord.class);
-            when(mocked.getTypeCode()).thenReturn(QualityCodeSystem.MDC.name());
-            when(mocked.getType()).thenReturn(suspect);
-            records.add(mocked);
+    private List<ReadingQualityRecord> initRecordsChannel(int numberOfSuspects) {
+        List<ReadingQualityRecord> records = new ArrayList<>(numberOfSuspects);
+        for (int i = 0; i < numberOfSuspects; i++) {
+            records.add(mock(ReadingQualityRecord.class));
         }
         return records;
     }
-
 }

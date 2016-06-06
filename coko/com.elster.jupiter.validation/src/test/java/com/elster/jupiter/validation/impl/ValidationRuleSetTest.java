@@ -1,5 +1,6 @@
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeteringService;
@@ -128,8 +129,13 @@ public class ValidationRuleSetTest extends EqualsContractTest {
     }
 
     @Test
-    public void testGetApplicationNameAfterCreation() {
+    public void testGetApplicationNameGetQualityCodeSystem() {
         assertThat(validationRuleSet.getApplicationName()).isEqualTo(APPLICATION);
+        assertThat(validationRuleSet.getQualityCodeSystem()).isEqualTo(QualityCodeSystem.MDC);
+        assertThat(validationRuleSet.init(NAME, "INS", null).getQualityCodeSystem())
+                .isEqualTo(QualityCodeSystem.MDM);
+        assertThat(validationRuleSet.init(NAME, "BOOTLEG", null).getQualityCodeSystem())
+                .isEqualTo(QualityCodeSystem.NOTAPPLICABLE);
     }
 
     @Test

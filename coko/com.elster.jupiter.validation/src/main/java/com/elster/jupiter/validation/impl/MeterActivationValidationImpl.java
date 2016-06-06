@@ -9,6 +9,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.validation.ValidationRuleSet;
+
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
@@ -78,10 +79,10 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
         ChannelValidationImpl channelValidation = new ChannelValidationImpl().init(this, channel);
         Condition condition = Where.where("channel").isEqualTo(channel).and(Where.where("meterActivationValidation.obsoleteTime").isNull());
         dataModel.query(IChannelValidation.class,  IMeterActivationValidation.class).select(condition).stream()
-        	.map(IChannelValidation::getLastChecked)
-        	.min(Comparator.naturalOrder())
-        	.filter(lastChecked -> lastChecked.isAfter(channelValidation.getLastChecked()))
-        	.ifPresent(channelValidation::updateLastChecked);
+            .map(IChannelValidation::getLastChecked)
+            .min(Comparator.naturalOrder())
+            .filter(lastChecked -> lastChecked.isAfter(channelValidation.getLastChecked()))
+            .ifPresent(channelValidation::updateLastChecked);
         channelValidations.add(channelValidation);
         return channelValidation;
     }
@@ -95,7 +96,7 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
 
     @Override
     public void save() {
-    	if (id == 0) {
+        if (id == 0) {
             dataModel.persist(this);
         } else {
             dataModel.update(this);
@@ -121,27 +122,25 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
     
     @Override
     public void validate() {
-    	if (!isActive()) {
-    		return;
-    	}
-    	getMeterActivation().getChannels().forEach(this::validateChannel);
-        lastRun = Instant.now(clock);
-        save();
+        if (isActive()) {
+            getMeterActivation().getChannels().forEach(this::validateChannel);
+            lastRun = Instant.now(clock);
+            save();
+        }
     }
 
     @Override
     public void validate(ReadingType readingType) {
-        if (!isActive()) {
-            return;
+        if (isActive()) {
+            getMeterActivation().getChannels().stream()
+                    .filter(channel -> channel.hasReadingType(readingType))
+                    .forEach(this::validateChannel);
+            save();
         }
-        getMeterActivation().getChannels().stream()
-                .filter(channel -> channel.hasReadingType(readingType))
-                .forEach(channel -> validateChannel(channel));
-        save();
     }
 
     private void validateChannel(Channel channel) {
-    	List<IValidationRule> activeRules = getActiveRules();
+        List<IValidationRule> activeRules = getActiveRules();
         if (hasApplicableRules(channel, activeRules)) {
             ChannelValidationImpl channelValidation = findOrAddValidationFor(channel);
             channelValidation.validate();
@@ -151,7 +150,7 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
             if (channelValidation != null) {
                 channelValidation.setActiveRules(false);
             }
-        }    	
+        }
     }
     
     private boolean hasApplicableRules(Channel channel, List<IValidationRule> activeRules) {
@@ -191,11 +190,10 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
     @Override
     public void updateLastChecked(Instant lastChecked) {
         long updateCount = channelValidations.stream()
-            .map(IChannelValidation.class::cast)
-            .filter(channelValidation -> channelValidation.updateLastChecked(lastChecked))            
+            .filter(channelValidation -> channelValidation.updateLastChecked(lastChecked))
             .count();
         if (updateCount > 0) {
-        	save();
+            save();
         }
     }
 
@@ -277,6 +275,6 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
 
     @Override
     public List<? extends Channel> getChannels() {
-    	return meterActivation.get().getChannels();
+        return meterActivation.get().getChannels();
     }
 }

@@ -1,8 +1,6 @@
 package com.elster.jupiter.validation;
 
 import com.elster.jupiter.metering.config.MetrologyContract;
-
-import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.util.time.ScheduleExpression;
 

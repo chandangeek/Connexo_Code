@@ -50,14 +50,10 @@ import static com.elster.jupiter.util.streams.Currying.test;
 @GroupSequence({ValidationRuleImpl.class, ValidationRuleImpl.FirstValidationGroup.class, ValidationRuleImpl.SecondValidationGroup.class})
 public final class ValidationRuleImpl implements IValidationRule {
     public interface FirstValidationGroup {
-    }
-
-    ;
+    };
 
     public interface SecondValidationGroup {
-    }
-
-    ;
+    };
     private long id;
 
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
@@ -301,11 +297,6 @@ public final class ValidationRuleImpl implements IValidationRule {
     }
 
     @Override
-    public QualityCodeSystem getSystem(){
-        return QualityCodeSystem.MDC;
-    }
-
-    @Override
     public List<PropertySpec> getPropertySpecs() {
         return getValidator().getPropertySpecs();
     }
@@ -331,7 +322,7 @@ public final class ValidationRuleImpl implements IValidationRule {
     }
 
     public void rename(String name) {
-        this.name = name != null ? name.trim() : name;
+        this.name = name == null ? null : name.trim();
     }
 
     public void setAction(ValidationAction action) {
@@ -366,10 +357,6 @@ public final class ValidationRuleImpl implements IValidationRule {
 
     @Override
     public Instant getObsoleteDate() {
-        return getObsoleteTime() != null ? getObsoleteTime() : null;
-    }
-
-    private Instant getObsoleteTime() {
         return this.obsoleteTime;
     }
 
@@ -430,13 +417,14 @@ public final class ValidationRuleImpl implements IValidationRule {
 
     @Override
     public ReadingQualityType getReadingQualityType() {
-        return getValidator().getReadingQualityCodeIndex().map(index -> ReadingQualityType.of(getSystem(), index))
-                .orElse(ReadingQualityType.defaultCodeForRuleId(getSystem(), getId()));
+        QualityCodeSystem qualityCodeSystem = getRuleSet().getQualityCodeSystem();
+        return getValidator().getReadingQualityCodeIndex()
+                .map(index -> ReadingQualityType.of(qualityCodeSystem, index))
+                .orElse(ReadingQualityType.defaultCodeForRuleId(qualityCodeSystem, getId()));
     }
 
     @Override
     public boolean appliesTo(Channel channel) {
         return isActive() && getReadingTypes().stream().anyMatch(channel::hasReadingType);
     }
-
 }
