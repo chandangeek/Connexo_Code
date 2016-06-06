@@ -776,7 +776,7 @@ public enum TableSpecs {
             Column idColumn = table.addAutoIdColumn();
             Column calendarColumn = table.column("ALLOWED_CALENDAR").number().notNull().add();
             Column deviceColumn = table.column("DEVICE").number().conversion(NUMBER2LONG).notNull().add();
-            table.column("ACTIVATION_DATE").type("number").conversion(NUMBER2INSTANT).map(PassiveEffectiveCalendarImpl.Fields.ACTIVATIONDATE.fieldName()).add();
+            table.column("ACTIVATION_DATE").number().conversion(NUMBER2INSTANT).map(PassiveEffectiveCalendarImpl.Fields.ACTIVATIONDATE.fieldName()).add();
             Column comTaskExecColumn = table.column("COM_TASK_EXEC").number().conversion(NUMBER2LONG).add();
 
             table.primaryKey("DDC_PK_PASSIVE_CAL").on(idColumn).add();
