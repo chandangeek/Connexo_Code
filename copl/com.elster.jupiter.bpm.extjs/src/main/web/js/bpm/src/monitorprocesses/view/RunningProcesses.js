@@ -27,8 +27,7 @@ Ext.define('Bpm.monitorprocesses.view.RunningProcesses', {
                         title: Uni.I18n.translate('bpm.process.empty.title', 'BPM', 'No processes found'),
                         reasons: [
                             Uni.I18n.translate('bpm.process.empty.runnninglist.item1', 'BPM', 'No processes have been defined yet.'),
-                            Uni.I18n.translate('bpm.process.empty.runnninglist.item2', 'BPM', 'Processes exist, but you do not have permission to view them.'),
-                            Uni.I18n.translate('bpm.process.empty.runnninglist.item3', 'BPM', 'No running proccesses have been found.')
+                            Uni.I18n.translate('bpm.process.empty.runnninglist.item2', 'BPM', 'Processes exist, but you do not have permission to view them.')
                         ]
                     },
                     previewComponent: {
