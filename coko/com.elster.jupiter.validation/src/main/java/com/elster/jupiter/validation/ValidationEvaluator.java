@@ -27,23 +27,22 @@ import java.util.Set;
 public interface ValidationEvaluator {
 
     /**
-     * @deprecated
-     * use {@link DataValidationStatus#getValidationResult()}
+     * @deprecated use {@link DataValidationStatus#getValidationResult()}
      */
     @Deprecated
     default ValidationResult getValidationResult(Collection<? extends ReadingQuality> qualities) {
         return ValidationResult.getValidationResult(qualities);
     }
 
- boolean isAllDataValidated(ChannelsContainer channelsContainer);
+    boolean isAllDataValidated(ChannelsContainer channelsContainer);
 
     /**
-     * checks if there's at least one suspect put to {@link MeterActivation} by one of the {@param qualityCodeSystems}
+     * checks if there's at least one suspect put to {@link ChannelsContainer} by one of the {@param qualityCodeSystems}
      * @param qualityCodeSystems systems to take into account when checking for suspects
-     * @param meterActivation {@link MeterActivation} to check
+     * @param channelsContainer {@link ChannelsContainer} to check
      * @return <code>true</code> if there's at least a suspect, <code>false</code> otherwise
      */
-    boolean areSuspectsPresent(Set<QualityCodeSystem> qualityCodeSystems, MeterActivation meterActivation);
+    boolean areSuspectsPresent(Set<QualityCodeSystem> qualityCodeSystems, ChannelsContainer channelsContainer);
 
     default List<DataValidationStatus> getValidationStatus(Set<QualityCodeSystem> qualityCodeSystems, Channel channel,
                                                            List<? extends BaseReading> readings) {

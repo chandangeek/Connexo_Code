@@ -365,9 +365,9 @@ public class ValidationServiceImplTest {
         verify(dataModel).persist(meterActivationValidationCapture.capture());
 
         final ChannelsContainerValidation meterActivationValidationCaptureValue = meterActivationValidationCapture.getValue();
-        final Set<IChannelValidation> channelValidations = meterActivationValidationCaptureValue.getChannelValidations();
-        assertThat(channelValidations.stream().allMatch(input -> input.getMeterActivationValidation().equals(meterActivationValidationCaptureValue))).isTrue();
-        assertThat(channelValidations.stream().map(IChannelValidation::getChannel).collect(Collectors.toSet())).contains(channel1);
+        final Set<ChannelValidation> channelValidations = meterActivationValidationCaptureValue.getChannelValidations();
+        assertThat(channelValidations.stream().allMatch(input -> input.getChannelsContainerValidation().equals(meterActivationValidationCaptureValue))).isTrue();
+        assertThat(channelValidations.stream().map(ChannelValidation::getChannel).collect(Collectors.toSet())).contains(channel1);
     }
 
     @Test

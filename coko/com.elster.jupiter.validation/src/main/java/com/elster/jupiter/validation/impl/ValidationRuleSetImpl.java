@@ -112,7 +112,7 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
 
     @Override
     public QualityCodeSystem getQualityCodeSystem() {
-        switch(applicationName) {
+        switch (applicationName) {
             case "MDC":
                 return QualityCodeSystem.MDC;
             case "INS":

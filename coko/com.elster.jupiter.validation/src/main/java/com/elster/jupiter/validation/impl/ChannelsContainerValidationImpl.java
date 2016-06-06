@@ -191,8 +191,8 @@ class ChannelsContainerValidationImpl implements ChannelsContainerValidation {
     @Override
     public void updateLastChecked(Instant lastChecked) {
         long updateCount = channelValidations.stream()
-            .filter(channelValidation -> channelValidation.updateLastChecked(lastChecked))
-            .count();
+                .filter(channelValidation -> channelValidation.updateLastChecked(lastChecked))
+                .count();
         if (updateCount > 0) {
             save();
         }

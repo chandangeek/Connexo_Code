@@ -39,9 +39,9 @@ import java.util.stream.Collectors;
 public abstract class AbstractValidationEvaluator implements ValidationEvaluator {
 
     @Override
-    public boolean areSuspectsPresent(Set<QualityCodeSystem> qualityCodeSystems, MeterActivation meterActivation) {
-        return !meterActivation.getChannels().stream()
-                .allMatch(channel -> channel.findReadingQualities(qualityCodeSystems, QualityCodeIndex.SUSPECT, meterActivation.getRange(), true, false).isEmpty());
+    public boolean areSuspectsPresent(Set<QualityCodeSystem> qualityCodeSystems, ChannelsContainer channelsContainer) {
+        return !channelsContainer.getChannels().stream()
+                .allMatch(channel -> channel.findReadingQualities(qualityCodeSystems, QualityCodeIndex.SUSPECT, channelsContainer.getRange(), true, false).isEmpty());
     }
 
     /**
@@ -60,7 +60,7 @@ public abstract class AbstractValidationEvaluator implements ValidationEvaluator
         ChannelValidationContainer mainChannelValidations = channelValidations.get(0);
         boolean configured = !mainChannelValidations.isEmpty();
         int requestedQCSNumber = qualityCodeSystems == null ? 0 : qualityCodeSystems.size();
-        Multimap<QualityCodeSystem, IChannelValidation> mainChannelValidationsPerSystemMultimap
+        Multimap<QualityCodeSystem, ChannelValidation> mainChannelValidationsPerSystemMultimap
                 = indexValidationsBySystem(mainChannelValidations, requestedQCSNumber, qualityCodeSystems);
 
         List<Multimap<String, IValidationRule>> validationRuleMaps = channelValidations.stream()
@@ -89,7 +89,6 @@ public abstract class AbstractValidationEvaluator implements ValidationEvaluator
     }
 
     /**
-     *
      * @param timeStamp
      * @param channels must be of the same length as validationRuleMaps and readingQualityMaps, all of 1 or 2 elements, 1st is main channel, 2nd is bulk.
      * @param validationConfigured
@@ -103,7 +102,7 @@ public abstract class AbstractValidationEvaluator implements ValidationEvaluator
                                                                         boolean validationConfigured,
                                                                         List<ListMultimap<Instant, ReadingQualityRecord>> readingQualityMaps,
                                                                         List<Multimap<String, IValidationRule>> validationRuleMaps,
-                                                                        Multimap<QualityCodeSystem, IChannelValidation> mainChannelValidationsPerSystemMultimap) {
+                                                                        Multimap<QualityCodeSystem, ChannelValidation> mainChannelValidationsPerSystemMultimap) {
         List<List<ReadingQualityRecord>> qualities = readingQualityMaps.stream()
                 .map(readingQualityMap -> readingQualityMap.get(timeStamp))
                 .map(ArrayList::new)
@@ -121,13 +120,13 @@ public abstract class AbstractValidationEvaluator implements ValidationEvaluator
         return createDataValidationStatusListFor(timeStamp, fullyValidated, qualities.iterator(), validationRuleMaps.iterator());
     }
 
-    private static Multimap<QualityCodeSystem, IChannelValidation> indexValidationsBySystem(ChannelValidationContainer channelValidations,
-                                                                                            int requestedQCSNumber, Set<QualityCodeSystem> qualityCodeSystems) {
-        Multimap<QualityCodeSystem, IChannelValidation> validationsPerSystemMultimap
+    private static Multimap<QualityCodeSystem, ChannelValidation> indexValidationsBySystem(ChannelValidationContainer channelValidations,
+                                                                                           int requestedQCSNumber, Set<QualityCodeSystem> qualityCodeSystems) {
+        Multimap<QualityCodeSystem, ChannelValidation> validationsPerSystemMultimap
                 = ArrayListMultimap.create(requestedQCSNumber == 0 ? QualityCodeSystem.values().length : requestedQCSNumber, 3); // default number of values is 3
         channelValidations.stream().forEach(validation -> {
-            QualityCodeSystem validationQualityCodeSystem = validation.getMeterActivationValidation().getRuleSet().getQualityCodeSystem();
-            if(requestedQCSNumber == 0 || qualityCodeSystems.contains(validationQualityCodeSystem)) {
+            QualityCodeSystem validationQualityCodeSystem = validation.getChannelsContainerValidation().getRuleSet().getQualityCodeSystem();
+            if (requestedQCSNumber == 0 || qualityCodeSystems.contains(validationQualityCodeSystem)) {
                 validationsPerSystemMultimap.put(validationQualityCodeSystem, validation);
             }
         });
