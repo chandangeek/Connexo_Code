@@ -133,10 +133,6 @@
             <artifactId>http.whiteboard</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>install</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.elster.partners</groupId>
             <artifactId>jbpm.extension</artifactId>
         </dependency>
@@ -273,6 +269,10 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>unifyingjs</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>upgrade</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
