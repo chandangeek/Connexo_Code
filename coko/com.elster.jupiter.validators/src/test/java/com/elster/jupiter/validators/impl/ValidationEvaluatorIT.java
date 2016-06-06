@@ -7,6 +7,7 @@ import com.elster.jupiter.cbo.FlowDirection;
 import com.elster.jupiter.cbo.MeasurementKind;
 import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.QualityCodeIndex;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
@@ -46,7 +47,6 @@ import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationResult;
-import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetResolver;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
@@ -54,6 +54,7 @@ import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -66,6 +67,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
@@ -94,6 +96,7 @@ public class ValidationEvaluatorIT {
     private static final String MIN_MAX = DefaultValidatorFactory.THRESHOLD_VALIDATOR;
     private static final String MISSING = DefaultValidatorFactory.MISSING_VALUES_VALIDATOR;
     private static final String MY_RULE_SET = "MyRuleSet";
+    private static final String MDM_RULE_SET = "MdmRuleSet";
     private static final String MIN = "minimum";
     private static final String MAX = "maximum";
     private static final Instant date1 = ZonedDateTime.of(1983, 5, 31, 14, 0, 0, 0, ZoneId.systemDefault()).toInstant();
@@ -177,26 +180,34 @@ public class ValidationEvaluatorIT {
             //meterActivation.createChannel(readingType1);
             ValidationService validationService = injector.getInstance(ValidationService.class);
             validationService.addValidatorFactory(injector.getInstance(DefaultValidatorFactory.class));
-            final ValidationRuleSet validationRuleSet = validationService.createValidationRuleSet(MY_RULE_SET, "APP");
-            ValidationRuleSetVersion validationRuleSetVersion = validationRuleSet.addRuleSetVersion("description", Instant.EPOCH);
-            ValidationRule minMaxRule = validationRuleSetVersion.addRule(ValidationAction.FAIL, MIN_MAX, "minmax")
+            final ValidationRuleSet mdcValidationRuleSet = validationService.createValidationRuleSet(MY_RULE_SET, "MDC");
+            final ValidationRuleSet mdmValidationRuleSet = validationService.createValidationRuleSet(MDM_RULE_SET, "INS");
+            ValidationRuleSetVersion mdcValidationRuleSetVersion = mdcValidationRuleSet.addRuleSetVersion("description", Instant.EPOCH);
+            ValidationRuleSetVersion mdmValidationRuleSetVersion = mdmValidationRuleSet.addRuleSetVersion("description", Instant.EPOCH);
+            mdcValidationRuleSetVersion.addRule(ValidationAction.FAIL, MIN_MAX, "maxValue")
                     .withReadingType(readingType1)
-                    .havingProperty(MIN).withValue(BigDecimal.valueOf(1))
+                    .havingProperty(MIN).withValue(BigDecimal.valueOf(0))
                     .havingProperty(MAX).withValue(BigDecimal.valueOf(100))
                     .active(true)
                     .create();
-            ValidationRule missingRule = validationRuleSetVersion.addRule(ValidationAction.FAIL, MISSING, "missing")
+            mdcValidationRuleSetVersion.addRule(ValidationAction.FAIL, MISSING, "missing")
                     .withReadingType(readingType1)
+                    .active(true)
+                    .create();
+            mdmValidationRuleSetVersion.addRule(ValidationAction.FAIL, MIN_MAX, "minMaxValue")
+                    .withReadingType(readingType1)
+                    .havingProperty(MIN).withValue(BigDecimal.valueOf(50))
+                    .havingProperty(MAX).withValue(BigDecimal.valueOf(150))
                     .active(true)
                     .create();
             validationService.addValidationRuleSetResolver(new ValidationRuleSetResolver() {
                 @Override
                 public List<ValidationRuleSet> resolve(MeterActivation meterActivation) {
-                    return Arrays.asList(validationRuleSet);
+                    return Arrays.asList(mdcValidationRuleSet, mdmValidationRuleSet);
                 }
 
                 @Override
-                public boolean isValidationRuleSetInUse(ValidationRuleSet ruleset) {
+                public boolean isValidationRuleSetInUse(ValidationRuleSet ruleSet) {
                     return false;
                 }
             });
@@ -206,10 +217,87 @@ public class ValidationEvaluatorIT {
         });
     }
 
-
     @After
     public void tearDown() {
         inMemoryBootstrapModule.deactivate();
+    }
+
+    @Test
+    public void testValidationFromDifferentApplications() {
+        ValidationService validationService = injector.getInstance(ValidationService.class);
+        injector.getInstance(TransactionService.class).execute(() -> {
+            MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+            meterReading.addReading(ReadingImpl.of(bulkReadingType, BigDecimal.valueOf(102L), date1));
+            meterReading.addReading(ReadingImpl.of(bulkReadingType, BigDecimal.valueOf(205L), date1.plusSeconds(900)));
+            meterReading.addReading(ReadingImpl.of(bulkReadingType, BigDecimal.valueOf(205L), date1.plusSeconds(900 * 2)));
+            meterReading.addReading(ReadingImpl.of(bulkReadingType, BigDecimal.valueOf(311L), date1.plusSeconds(900 * 3)));
+            meter.store(meterReading);
+            return null;
+        });
+        ValidationEvaluator evaluator = validationService.getEvaluator();
+        Channel channel = meter.getMeterActivations().get(0).getChannels().get(0);
+        assertThat(validationService.getLastChecked(channel).get()).isEqualTo(date1.plusSeconds(900 * 3));
+        List<DataValidationStatus> validationStates = evaluator.getValidationStatus(Collections.singleton(QualityCodeSystem.MDC),
+                channel, channel.getReadings(Range.all()));
+        assertThat(validationStates).hasSize(4);
+        List<ValidationResult> validationResults = validationStates.stream()
+                .map(DataValidationStatus::getValidationResult)
+                .collect(Collectors.toList());
+        assertThat(validationResults).isEqualTo(ImmutableList.of(VALID, SUSPECT, VALID, SUSPECT));
+        assertThat(evaluator.getValidationStatus(ImmutableSet.of(QualityCodeSystem.MDC, QualityCodeSystem.OTHER),
+                channel, channel.getReadings(Range.all())).stream()
+                .map(DataValidationStatus::getValidationResult)
+                .collect(Collectors.toList())).isEqualTo(validationResults);
+        validationStates = evaluator.getValidationStatus(Collections.singleton(QualityCodeSystem.MDM),
+                channel, channel.getReadings(Range.all()));
+        assertThat(validationStates).hasSize(4);
+        validationResults = validationStates.stream()
+                .map(DataValidationStatus::getValidationResult)
+                .collect(Collectors.toList());
+        assertThat(validationResults).isEqualTo(ImmutableList.of(VALID, VALID, SUSPECT, VALID));
+        validationStates = evaluator.getValidationStatus(null,
+                channel, channel.getReadings(Range.all()));
+        assertThat(validationStates).hasSize(4);
+        validationResults = validationStates.stream()
+                .map(DataValidationStatus::getValidationResult)
+                .collect(Collectors.toList());
+        assertThat(validationResults).isEqualTo(ImmutableList.of(VALID, SUSPECT, SUSPECT, SUSPECT));
+        assertThat(evaluator.getValidationStatus(Collections.emptySet(),
+                channel, channel.getReadings(Range.all())).stream()
+                .map(DataValidationStatus::getValidationResult)
+                .collect(Collectors.toList())).isEqualTo(validationResults);
+        assertThat(evaluator.getValidationStatus(ImmutableSet.of(QualityCodeSystem.MDC, QualityCodeSystem.MDM),
+                channel, channel.getReadings(Range.all())).stream()
+                .map(DataValidationStatus::getValidationResult)
+                .collect(Collectors.toList())).isEqualTo(validationResults);
+        injector.getInstance(TransactionService.class).execute(() -> {
+            channel.removeReadings(ImmutableList.of(channel.getReadings(Range.all()).get(2)));
+            return null;
+        });
+        validationStates = evaluator.getValidationStatus(Collections.singleton(QualityCodeSystem.MDC),
+                channel, channel.getReadings(Range.all()));
+        assertThat(validationStates).hasSize(4);
+        validationStates.sort(Comparator.comparing(DataValidationStatus::getReadingTimestamp));
+        validationResults = validationStates.stream()
+                .map(DataValidationStatus::getValidationResult)
+                .collect(Collectors.toList());
+        assertThat(validationResults).isEqualTo(ImmutableList.of(VALID, SUSPECT, SUSPECT, SUSPECT));
+        validationStates = evaluator.getValidationStatus(Collections.singleton(QualityCodeSystem.MDM),
+                channel, channel.getReadings(Range.all()));
+        assertThat(validationStates).hasSize(3);
+        validationStates.sort(Comparator.comparing(DataValidationStatus::getReadingTimestamp));
+        validationResults = validationStates.stream()
+                .map(DataValidationStatus::getValidationResult)
+                .collect(Collectors.toList());
+        assertThat(validationResults).isEqualTo(ImmutableList.of(VALID, VALID, VALID));
+        validationStates = evaluator.getValidationStatus(null,
+                channel, channel.getReadings(Range.all()));
+        assertThat(validationStates).hasSize(4);
+        validationStates.sort(Comparator.comparing(DataValidationStatus::getReadingTimestamp));
+        validationResults = validationStates.stream()
+                .map(DataValidationStatus::getValidationResult)
+                .collect(Collectors.toList());
+        assertThat(validationResults).isEqualTo(ImmutableList.of(VALID, SUSPECT, SUSPECT, SUSPECT));
     }
 
     @Test
@@ -218,7 +306,7 @@ public class ValidationEvaluatorIT {
         injector.getInstance(TransactionService.class).execute(() -> {
             MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
             meterReading.addReading(ReadingImpl.of(bulkReadingType, BigDecimal.valueOf(102L), date1));
-            meterReading.addReading(ReadingImpl.of(bulkReadingType, BigDecimal.valueOf(152L), date1.plusSeconds(900 * 1)));
+            meterReading.addReading(ReadingImpl.of(bulkReadingType, BigDecimal.valueOf(152L), date1.plusSeconds(900)));
             meterReading.addReading(ReadingImpl.of(bulkReadingType, BigDecimal.valueOf(255L), date1.plusSeconds(900 * 2)));
             meter.store(meterReading);
             validationService.deactivateValidation(meter);
@@ -228,7 +316,8 @@ public class ValidationEvaluatorIT {
         ValidationEvaluator evaluator = validationService.getEvaluator();
         Channel channel = meter.getMeterActivations().get(0).getChannels().get(0);
         assertThat(validationService.getLastChecked(channel).get()).isEqualTo(date1.plusSeconds(900 * 2));
-        List<DataValidationStatus> validationStates = evaluator.getValidationStatus(channel, channel.getReadings(Range.all()), Range.all());
+        List<DataValidationStatus> validationStates = evaluator.getValidationStatus(Collections.singleton(QualityCodeSystem.MDC),
+                channel, channel.getReadings(Range.all()), Range.all());
         assertThat(validationStates).hasSize(4);
         List<ValidationResult> validationResults = validationStates.stream()
                 .map(DataValidationStatus::getValidationResult)
@@ -238,7 +327,8 @@ public class ValidationEvaluatorIT {
             channel.removeReadings(ImmutableList.of(channel.getReadings(Range.all()).get(1)));
             return null;
         });
-        validationStates = evaluator.getValidationStatus(channel, channel.getReadings(Range.all()), Range.all());
+        validationStates = evaluator.getValidationStatus(Collections.singleton(QualityCodeSystem.MDC),
+                channel, channel.getReadings(Range.all()), Range.all());
         assertThat(validationStates).hasSize(4);
         validationResults = validationStates.stream()
                 .map(DataValidationStatus::getValidationResult)
@@ -260,7 +350,8 @@ public class ValidationEvaluatorIT {
         ValidationEvaluator evaluator = validationService.getEvaluator();
         Channel channel = meter.getMeterActivations().get(0).getChannels().get(0);
         assertThat(validationService.getLastChecked(channel).get()).isEqualTo(date1.plusSeconds(900 * 2));
-        List<DataValidationStatus> validationStates = evaluator.getValidationStatus(channel, channel.getReadings(Range.all()), Range.all());
+        List<DataValidationStatus> validationStates = evaluator.getValidationStatus(Collections.singleton(QualityCodeSystem.MDC),
+                channel, channel.getReadings(Range.all()), Range.all());
         assertThat(validationStates).hasSize(3);
         List<ValidationResult> validationResults = validationStates.stream()
                 .map(DataValidationStatus::getValidationResult)
@@ -270,7 +361,8 @@ public class ValidationEvaluatorIT {
             channel.removeReadings(ImmutableList.of(channel.getReadings(Range.all()).get(1)));
             return null;
         });
-        validationStates = evaluator.getValidationStatus(channel, channel.getReadings(Range.all()), Range.all());
+        validationStates = evaluator.getValidationStatus(Collections.singleton(QualityCodeSystem.MDC),
+                channel, channel.getReadings(Range.all()), Range.all());
         validationStates.sort(Comparator.comparing(DataValidationStatus::getReadingTimestamp));
         assertThat(validationStates).hasSize(3);
         validationResults = validationStates.stream()
@@ -299,7 +391,8 @@ public class ValidationEvaluatorIT {
         ValidationEvaluator evaluator = validationService.getEvaluator();
         Channel channel = meter.getMeterActivations().get(0).getChannels().get(0);
         assertThat(validationService.getLastChecked(channel).get()).isEqualTo(date1.plusSeconds(900 * 2));
-        List<DataValidationStatus> validationStates = evaluator.getValidationStatus(channel, channel.getReadings(Range.all()), Range.all());
+        List<DataValidationStatus> validationStates = evaluator.getValidationStatus(Collections.singleton(QualityCodeSystem.MDC),
+                channel, channel.getReadings(Range.all()), Range.all());
         assertThat(validationStates).hasSize(4);
         List<ValidationResult> validationResults = validationStates.stream()
                 .map(DataValidationStatus::getValidationResult)
@@ -310,7 +403,8 @@ public class ValidationEvaluatorIT {
             return null;
         });
         assertThat(validationService.getLastChecked(channel).get()).isEqualTo(date1);
-        validationStates = evaluator.getValidationStatus(channel, channel.getReadings(Range.all()), Range.all());
+        validationStates = evaluator.getValidationStatus(Collections.singleton(QualityCodeSystem.MDC),
+                channel, channel.getReadings(Range.all()), Range.all());
         assertThat(validationStates).hasSize(4);
         validationResults = validationStates.stream()
                 .map(DataValidationStatus::getValidationResult)
@@ -332,7 +426,8 @@ public class ValidationEvaluatorIT {
         ValidationEvaluator evaluator = validationService.getEvaluator(meter, Range.openClosed(date1, date1.plusSeconds(900 * 2)));
         Channel channel = meter.getMeterActivations().get(0).getChannels().get(0);
         assertThat(validationService.getLastChecked(channel).get()).isEqualTo(date1.plusSeconds(900 * 2));
-        List<DataValidationStatus> validationStates = evaluator.getValidationStatus(channel, channel.getReadings(Range.all()), Range.all());
+        List<DataValidationStatus> validationStates = evaluator.getValidationStatus(Collections.singleton(QualityCodeSystem.MDC),
+                channel, channel.getReadings(Range.all()), Range.all());
         assertThat(validationStates).hasSize(3);
         List<ValidationResult> validationResults = validationStates.stream()
                 .map(DataValidationStatus::getValidationResult)
@@ -343,7 +438,8 @@ public class ValidationEvaluatorIT {
             return null;
         });
         assertThat(validationService.getLastChecked(channel).get()).isEqualTo(date1.plusSeconds(900 * 2));
-        validationStates = evaluator.getValidationStatus(channel, channel.getReadings(Range.all()), Range.all());
+        validationStates = evaluator.getValidationStatus(Collections.singleton(QualityCodeSystem.MDC),
+                channel, channel.getReadings(Range.all()), Range.all());
         assertThat(validationStates).hasSize(3);
         validationResults = validationStates.stream()
                 .map(DataValidationStatus::getValidationResult)
@@ -365,7 +461,8 @@ public class ValidationEvaluatorIT {
         ValidationEvaluator evaluator = validationService.getEvaluator();
         Channel channel = meter.getMeterActivations().get(0).getChannels().get(0);
         assertThat(validationService.getLastChecked(channel).get()).isEqualTo(date1.plusSeconds(900 * 2));
-        List<DataValidationStatus> validationStates = evaluator.getValidationStatus(channel, channel.getReadings(Range.all()), Range.all());
+        List<DataValidationStatus> validationStates = evaluator.getValidationStatus(Collections.singleton(QualityCodeSystem.MDC),
+                channel, channel.getReadings(Range.all()), Range.all());
         assertThat(validationStates).hasSize(3);
         List<ValidationResult> validationResults = validationStates.stream()
                 .map(DataValidationStatus::getValidationResult)
@@ -379,7 +476,8 @@ public class ValidationEvaluatorIT {
             return null;
         });
         assertThat(validationService.getLastChecked(channel).get()).isEqualTo(date1.plusSeconds(900 * 2));
-        validationStates = evaluator.getValidationStatus(channel, channel.getReadings(Range.all()), Range.all());
+        validationStates = evaluator.getValidationStatus(Collections.singleton(QualityCodeSystem.MDC),
+                channel, channel.getReadings(Range.all()), Range.all());
         assertThat(validationStates).hasSize(3);
         validationResults = validationStates.stream()
                 .map(DataValidationStatus::getValidationResult)
