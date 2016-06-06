@@ -24,9 +24,11 @@ import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 
@@ -79,7 +81,7 @@ public class NtaReadingTypeTest {
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(SearchService.class).toInstance(mock(SearchService.class));
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
-            bind(TimeService.class).toInstance(mock(TimeService.class));
+            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }
 
@@ -96,6 +98,8 @@ public class NtaReadingTypeTest {
                         "11.0.0.4.1.1.12.0.0.0.0.1.0.0.0.3.72.0",
                         "13.0.0.9.1.1.12.0.0.0.0.1.0.0.0.3.72.0",
                         "13.0.0.4.1.1.12.0.0.0.0.1.0.0.0.3.72.0"),
+                new BasicPropertiesModule(),
+                new TimeModule(),
                 new PartyModule(),
                 new EventsModule(),
                 new DomainUtilModule(),

@@ -45,10 +45,12 @@ import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.sql.SqlBuilder;
@@ -142,7 +144,7 @@ public class DataAggregationServiceImplExpertModeIT {
             bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
             bind(DataVaultService.class).toInstance(mock(DataVaultService.class));
             bind(SearchService.class).toInstance(mock(SearchService.class));
-            bind(TimeService.class).toInstance(mock(TimeService.class));
+            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }
 
@@ -169,6 +171,8 @@ public class DataAggregationServiceImplExpertModeIT {
                             CELCIUS_15_MIN_MRID,
                             CUBIC_METER_15_MIN_MRID
                     ),
+                    new BasicPropertiesModule(),
+                    new TimeModule(),
                     new UserModule(),
                     new PartyModule(),
                     new EventsModule(),

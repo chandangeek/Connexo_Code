@@ -33,10 +33,12 @@ import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 
@@ -104,7 +106,7 @@ public class UsagePointConfigurationIT {
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(SearchService.class).toInstance(mock(SearchService.class));
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
-            bind(TimeService.class).toInstance(mock(TimeService.class));
+            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }
 
@@ -120,6 +122,8 @@ public class UsagePointConfigurationIT {
                             "0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0",  // no macro period, measuring period =  15 min, secondary metered
                             "0.0.2.1.1.2.12.0.0.0.0.0.0.0.0.0.72.0"  // no macro period, measuring period =  15 min, primary metered
                     ),
+                    new BasicPropertiesModule(),
+                    new TimeModule(),
                     new PartyModule(),
                     new EventsModule(),
                     new DomainUtilModule(),

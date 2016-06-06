@@ -25,10 +25,12 @@ import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 
@@ -83,7 +85,7 @@ public class MeterImplIT {
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(SearchService.class).toInstance(mock(SearchService.class));
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
-            bind(TimeService.class).toInstance(mock(TimeService.class));
+            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }
 
@@ -97,6 +99,8 @@ public class MeterImplIT {
                     new IdsModule(),
                     new MeteringModule(),
                     new PartyModule(),
+                    new BasicPropertiesModule(),
+                    new TimeModule(),
                     new EventsModule(),
                     new DomainUtilModule(),
                     new OrmModule(),
@@ -272,7 +276,7 @@ public class MeterImplIT {
     }
 
     private FiniteStateMachine createTinyFiniteStateMachine() {
-        FiniteStateMachineServiceImpl finiteStateMachineService = this.injector.getInstance(FiniteStateMachineServiceImpl.class);
+        FiniteStateMachineServiceImpl finiteStateMachineService = (FiniteStateMachineServiceImpl) this.injector.getInstance(FiniteStateMachineService.class);
         FiniteStateMachineBuilder builder = finiteStateMachineService.newFiniteStateMachine("Tiny");
         FiniteStateMachine stateMachine = builder.complete(builder.newCustomState("TheOneAndOnly").complete());
         return stateMachine;
