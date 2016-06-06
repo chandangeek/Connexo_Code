@@ -13,7 +13,6 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryExecutor;
-import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.RecurrentTaskBuilder;
@@ -28,6 +27,8 @@ import com.elster.jupiter.tasks.security.Privileges;
 import com.elster.jupiter.time.PeriodicalScheduleExpressionParser;
 import com.elster.jupiter.time.TemporalExpressionParser;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.upgrade.InstallIdentifier;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
@@ -38,6 +39,7 @@ import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.CompositeScheduleExpressionParser;
 import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.time.ScheduleExpressionParser;
+
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
@@ -51,6 +53,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -61,9 +64,9 @@ import java.util.stream.Stream;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name = "com.elster.jupiter.tasks",
-           service = { TaskService.class, InstallService.class, TranslationKeyProvider.class, MessageSeedProvider.class, PrivilegesProvider.class },
+           service = { TaskService.class, TranslationKeyProvider.class, MessageSeedProvider.class, PrivilegesProvider.class },
            property = "name=" + TaskService.COMPONENTNAME, immediate = true)
-public class TaskServiceImpl implements TaskService, InstallService, TranslationKeyProvider, MessageSeedProvider, PrivilegesProvider {
+public class TaskServiceImpl implements TaskService, TranslationKeyProvider, MessageSeedProvider, PrivilegesProvider {
 
     private DueTaskFetcher dueTaskFetcher;
     private volatile Clock clock;
@@ -74,6 +77,7 @@ public class TaskServiceImpl implements TaskService, InstallService, Translation
     private volatile JsonService jsonService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile UserService userService;
+    private volatile UpgradeService upgradeService;
 
     private Thread schedulerThread;
     private volatile DataModel dataModel;
@@ -86,7 +90,7 @@ public class TaskServiceImpl implements TaskService, InstallService, Translation
 
     // For unit test purposes only
     @Inject
-    public TaskServiceImpl(OrmService ormService, Clock clock, MessageService messageService, QueryService queryService, TransactionService transactionService, CronExpressionParser cronExpressionParser, JsonService jsonService, NlsService nlsService, ThreadPrincipalService threadPrincipalService, UserService userService) {
+    public TaskServiceImpl(OrmService ormService, Clock clock, MessageService messageService, QueryService queryService, TransactionService transactionService, CronExpressionParser cronExpressionParser, JsonService jsonService, NlsService nlsService, ThreadPrincipalService threadPrincipalService, UserService userService, UpgradeService upgradeService) {
         this();
         this.setOrmService(ormService);
         this.setClock(clock);
@@ -98,8 +102,8 @@ public class TaskServiceImpl implements TaskService, InstallService, Translation
         this.setNlsService(nlsService);
         this.setThreadPrincipalService(threadPrincipalService);
         this.setUserService(userService);
+        this.setUpgradeService(upgradeService);
         this.activate();
-        this.install();
     }
 
     @Activate
@@ -119,6 +123,7 @@ public class TaskServiceImpl implements TaskService, InstallService, Translation
                 bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
             }
         });
+        upgradeService.register(InstallIdentifier.identifier(COMPONENTNAME), dataModel, InstallerImpl.class, Collections.emptyMap());
     }
 
     @Override
@@ -185,16 +190,6 @@ public class TaskServiceImpl implements TaskService, InstallService, Translation
     @Override
     public QueryExecutor<TaskOccurrence> getTaskOccurrenceQueryExecutor() {
         return dataModel.query(TaskOccurrence.class);
-    }
-
-    @Override
-    public void install() {
-        new InstallerImpl(dataModel).install();
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "NLS");
     }
 
     @Override
@@ -281,6 +276,11 @@ public class TaskServiceImpl implements TaskService, InstallService, Translation
     @Reference
     public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
         this.threadPrincipalService = threadPrincipalService;
+    }
+
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
     }
 
     void setDueTaskFetcher(DueTaskFetcher dueTaskFetcher) {
