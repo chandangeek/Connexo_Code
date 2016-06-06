@@ -6,15 +6,20 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.exception.ExceptionCatcher;
+import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.upgrade.FullInstaller;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.issue.datavalidation.impl.event.DataValidationEventDescription;
 import com.energyict.mdc.issue.datavalidation.impl.event.DataValidationEventHandlerFactory;
+
 import com.google.inject.Inject;
+
+import java.util.logging.Logger;
 
 import static com.elster.jupiter.messaging.DestinationSpec.whereCorrelationId;
 
-public class Installer {
+class Installer implements FullInstaller {
 
     private final IssueService issueService;
     private final DataModel dataModel;
@@ -22,26 +27,36 @@ public class Installer {
     private final MessageService messageService;
 
     @Inject
-    public Installer(DataModel dataModel, IssueService issueService, EventService eventService, MessageService messageService) {
+    Installer(DataModel dataModel, IssueService issueService, EventService eventService, MessageService messageService) {
         this.dataModel = dataModel;
         this.issueService = issueService;
         this.eventService = eventService;
         this.messageService = messageService;
     }
 
-    public void install() {
-        ExceptionCatcher.executing(
-                this::installDataModel,
+    @Override
+    public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
+        dataModelUpgrader.upgrade(dataModel, Version.latest());
+        doTry(
+                "Create issue view operation",
+                () -> new CreateIssueViewOperation(dataModel).execute(),
+                logger
+        );
+        doTry(
+                "Create issue type and reasons",
                 this::createIssueTypeAndReasons,
+                logger
+        );
+        doTry(
+                "Create event subscriber",
                 this::setAQSubscriber,
-                this::publishEvents)
-                .andHandleExceptionsWith(Throwable::printStackTrace)
-                .execute();
-    }
-
-    private void installDataModel() {
-        dataModel.install(true, true);
-        new CreateIssueViewOperation(dataModel).execute();
+                logger
+        );
+        doTry(
+                "Publish events",
+                this::publishEvents,
+                logger
+        );
     }
 
     private void createIssueTypeAndReasons() {
