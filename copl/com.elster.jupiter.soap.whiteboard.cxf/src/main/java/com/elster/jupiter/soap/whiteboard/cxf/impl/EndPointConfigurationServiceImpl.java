@@ -126,6 +126,7 @@ public class EndPointConfigurationServiceImpl implements EndPointConfigurationSe
     public void activate(EndPointConfiguration endPointConfiguration) {
         endPointConfiguration.setActive(true);
         endPointConfiguration.save();
+        endPointConfiguration.log(LogLevel.INFO, "Endpoint was activated");
         eventService.postEvent(EventType.WEB_SERVICE_CHANGED.topic(), endPointConfiguration);
     }
 
@@ -134,6 +135,7 @@ public class EndPointConfigurationServiceImpl implements EndPointConfigurationSe
     public void deactivate(EndPointConfiguration endPointConfiguration) {
         endPointConfiguration.setActive(false);
         endPointConfiguration.save();
+        endPointConfiguration.log(LogLevel.INFO, "Endpoint was de-activated");
         eventService.postEvent(EventType.WEB_SERVICE_CHANGED.topic(), endPointConfiguration);
     }
 
