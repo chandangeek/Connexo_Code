@@ -41,8 +41,10 @@ import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.TopologyTimeline;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -790,8 +792,7 @@ public class DeviceResource {
     @RolesAllowed(Privileges.Constants.VIEW_DEVICE)
     public Response getCalendarInfo(@PathParam("mRID") String id) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
-        TimeOfUseInfo info = timeOfUseInfoFactory.from(device.getActiveCalendar(), device.getPassiveCalendars(), device, calendarInfoFactory);
-
+        TimeOfUseInfo info = timeOfUseInfoFactory.from(device.getActiveCalendar(), device.getPassiveCalendars());
         return Response.ok(info).build();
     }
 

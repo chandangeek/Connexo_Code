@@ -64,6 +64,7 @@ import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageSpecificationServiceImpl;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
@@ -249,6 +250,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST);
+        this.thesaurus = thesaurus.join(nlsService.getThesaurus(DeviceMessageSpecificationService.COMPONENT_NAME, Layer.DOMAIN));
     }
 
     @Reference

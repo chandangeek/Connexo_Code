@@ -20,14 +20,14 @@ public class TimeOfUseInfoFactory {
     private Clock clock;
 
     @Inject
-    public TimeOfUseInfoFactory(Thesaurus thesaurus, Clock clock) {
+    public TimeOfUseInfoFactory(Thesaurus thesaurus, Clock clock, CalendarInfoFactory calendarInfoFactory) {
         this.thesaurus = thesaurus;
         this.clock = clock;
+        this.calendarInfoFactory = calendarInfoFactory;
     }
 
-    public TimeOfUseInfo from(Optional<ActiveEffectiveCalendar> activeCalendar, List<PassiveEffectiveCalendar> passiveCalendars, Device device, CalendarInfoFactory calendarInfoFactory) {
+    public TimeOfUseInfo from(Optional<ActiveEffectiveCalendar> activeCalendar, List<PassiveEffectiveCalendar> passiveCalendars) {
         TimeOfUseInfo info = new TimeOfUseInfo();
-        this.calendarInfoFactory = calendarInfoFactory;
         if(activeCalendar.isPresent()) {
             if(activeCalendar.get().getAllowedCalendar().getCalendar().isPresent()) {
                 info.activeCalendar = this.calendarInfoFactory.detailedFromCalendar(activeCalendar.get().getAllowedCalendar().getCalendar().get());
