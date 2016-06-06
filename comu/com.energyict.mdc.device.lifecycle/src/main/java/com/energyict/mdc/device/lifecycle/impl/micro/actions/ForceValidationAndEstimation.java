@@ -4,7 +4,6 @@ import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -61,18 +60,17 @@ public class ForceValidationAndEstimation extends TranslatableServerMicroAction 
         }
     }
 
-    private void setLastReading(LoadProfile loadProfile, Instant newlastReading) {
-        device.getLoadProfileUpdaterFor(loadProfile).setLastReadingIfLater(newlastReading).update();
+    private void setLastReading(LoadProfile loadProfile, Instant newLastReading) {
+        device.getLoadProfileUpdaterFor(loadProfile).setLastReadingIfLater(newLastReading).update();
     }
 
     private void validateAndEstimate(MeterActivation meterActivation) {
         validationService.validate(meterActivation);
         estimationService.estimate(meterActivation, meterActivation.getRange());
-        long nrOfSuspects = meterActivation.getChannels().stream()
-                .flatMap(channel ->
-                        channel.findActualReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), Range.<Instant>all()).stream())
-                .count();
-        if (nrOfSuspects > 0) {
+        boolean hasSuspects = !meterActivation.getChannels().stream()
+                .allMatch(channel ->
+                        channel.findReadingQualities(Collections.singleton(QualityCodeSystem.MDC), QualityCodeIndex.SUSPECT, Range.all(), true, false).isEmpty());
+        if (hasSuspects) {
             throw new ForceValidationAndEstimationException(MessageSeeds.NOT_ALL_DATA_VALID_FOR_DEVICE);
         }
     }

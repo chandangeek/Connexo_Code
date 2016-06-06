@@ -17,6 +17,7 @@ import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.impl.ServerMicroAction;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -67,7 +68,7 @@ public class CreateMeterActivation extends TranslatableServerMicroAction {
         return MicroAction.CREATE_METER_ACTIVATION;
     }
 
-    private Optional<Instant> maxEffectiveTimestampAfterLastData(Instant effectiveTimestamp, Device device) {
+    private static Optional<Instant> maxEffectiveTimestampAfterLastData(Instant effectiveTimestamp, Device device) {
         Stream<Instant> loadProfileTimes = device.getLoadProfiles()
                 .stream()
                 .map(LoadProfile::getLastReading)
@@ -83,7 +84,7 @@ public class CreateMeterActivation extends TranslatableServerMicroAction {
                 .max(Instant::compareTo);
     }
 
-    private List<Channel> createNewChannelsForNewMeterActivation(MeterActivation newMeterActivation, List<Channel> channels) {
+    private static List<Channel> createNewChannelsForNewMeterActivation(MeterActivation newMeterActivation, List<Channel> channels) {
         return channels.stream().map(channel -> {
             ReadingType mainReadingType = channel.getMainReadingType();
             ReadingType[] extraReadingTypes = channel.getReadingTypes().stream().filter(rt -> !rt.equals(mainReadingType)).toArray(ReadingType[]::new);
@@ -91,13 +92,17 @@ public class CreateMeterActivation extends TranslatableServerMicroAction {
         }).collect(Collectors.toList());
     }
 
-    private void removeReadingQualities(List<Channel> channels) {
-        channels.stream().flatMap(channel -> channel.findActualReadingQuality(Range.all()).stream())
-                .filter(this::isValidationQuality).forEach(ReadingQualityRecord::delete);
+    private static void removeReadingQualities(List<Channel> channels) {
+        channels.stream()
+                // data have been copied from old to new channels, but we should erase validation related qualities: see COMU-3231
+                // TODO: think of what systems should be taken into account when removing validation related qualities
+                .flatMap(channel ->
+                        channel.findReadingQualities(ImmutableSet.of(QualityCodeSystem.MDC, QualityCodeSystem.MDM), null, Range.all(), true, false).stream())
+                .filter(CreateMeterActivation::isValidationRelatedQuality).forEach(ReadingQualityRecord::delete);
     }
 
-    private boolean isValidationQuality(ReadingQualityRecord readingQualityRecord) {
+    private static boolean isValidationRelatedQuality(ReadingQualityRecord readingQualityRecord) {
         ReadingQualityType type = readingQualityRecord.getType();
-        return type.system().filter(QualityCodeSystem.MDC::equals).isPresent() && (type.hasReasonabilityCategory() || type.hasValidationCategory());
+        return type.hasReasonabilityCategory() || type.hasValidationCategory();
     }
 }

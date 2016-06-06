@@ -26,8 +26,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -177,7 +178,7 @@ public class ForceValidationAndEstimationTest {
         Channel channel = mock(Channel.class);
         when(meterActivation.getChannels()).thenReturn(Collections.singletonList(channel));
         ReadingQualityRecord suspect = mock(ReadingQualityRecord.class);
-        when(channel.findActualReadingQuality(any(), any())).thenReturn(Collections.singletonList(suspect));
+        when(channel.findReadingQualities(any(), any(), any(), any(), any())).thenReturn(Collections.singletonList(suspect));
         when(this.device.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile1, loadProfile2));
         when(this.device.forValidation()).thenReturn(deviceValidation);
         when(this.device.forEstimation()).thenReturn(deviceEstimation);
