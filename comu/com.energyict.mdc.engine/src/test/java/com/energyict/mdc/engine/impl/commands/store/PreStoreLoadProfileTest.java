@@ -548,14 +548,4 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
         return collectedLoadProfile;
     }
 
-    List<Channel> getChannels(long deviceId) {
-        Optional<AmrSystem> amrSystem = getMeteringService().findAmrSystem(1);
-        for (MeterActivation meterActivation : amrSystem.get().findMeter(String.valueOf(deviceId)).get().getMeterActivations()) {
-            if (meterActivation.isCurrent()) {
-                return meterActivation.getChannels();
-            }
-        }
-        return Collections.emptyList();
-    }
-
 }

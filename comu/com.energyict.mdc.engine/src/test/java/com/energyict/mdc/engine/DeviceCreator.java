@@ -98,6 +98,11 @@ public final class DeviceCreator implements DeviceBuilderForTesting {
     }
 
     @Override
+    public DeviceBuilderForTesting creationDate(Instant creationDate) {
+        return state.creationDate(creationDate);
+    }
+
+    @Override
     public Device create() {
         this.device = state.create();
         this.state = COMPLETE;
@@ -110,6 +115,7 @@ public final class DeviceCreator implements DeviceBuilderForTesting {
         private String mRDI;
         private List<LoadProfileType> loadProfileTypes = new ArrayList<>();
         private List<LogBookType> logBookTypes = new ArrayList<>();
+        private Instant creationDate;
         private DeviceType deviceType;
         private DeviceConfiguration deviceConfiguration;
 
@@ -138,11 +144,15 @@ public final class DeviceCreator implements DeviceBuilderForTesting {
         }
 
         @Override
+        public DeviceBuilderForTesting creationDate(Instant creationDate) {
+            this.creationDate = creationDate;
+            return DeviceCreator.this;
+        }
+
+        @Override
         public Device create() {
             DeviceConfiguration deviceConfiguration = getDeviceConfiguration();
-            Device device = deviceService.newDevice(deviceConfiguration, name, mRDI, Instant.now());
-            device.save();
-            return device;
+            return deviceService.newDevice(deviceConfiguration, name, mRDI, creationDate);
         }
 
         private DeviceConfiguration getDeviceConfiguration() {

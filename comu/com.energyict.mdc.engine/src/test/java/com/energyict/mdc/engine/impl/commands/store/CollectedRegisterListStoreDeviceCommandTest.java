@@ -77,7 +77,7 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
     @Test
     @Transactional
     public void successfulStoreOfSingleRegisterTest() {
-        Device device = this.deviceCreator.name("successfulStoreOfSingleRegisterTest").mRDI("successfulStoreOfSingleRegisterTest").create();
+        Device device = this.deviceCreator.name("successfulStoreOfSingleRegisterTest").mRDI("successfulStoreOfSingleRegisterTest").creationDate(Instant.ofEpochMilli(justBeforeRegisterReadEventTime1.getTime())).create();
         long deviceId = device.getId();
 
         DeviceIdentifier deviceIdentifier = new DeviceIdentifierById(deviceId, getInjector().getInstance(DeviceService.class));
