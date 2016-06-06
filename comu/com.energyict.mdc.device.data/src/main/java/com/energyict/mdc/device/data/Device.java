@@ -7,6 +7,7 @@ import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
 import com.elster.jupiter.metering.GeoCoordinates;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
@@ -73,13 +74,13 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
     void delete();
 
-    Location getLocation();
+    Optional<Location> getLocation();
 
     void setLocation(Location location);
 
     Optional<GeoCoordinates> getGeoCoordinates();
 
-    void setGeoCoordintes(GeoCoordinates geoCoordinates);
+    void setGeoCoordinates(GeoCoordinates geoCoordinates);
 
     /**
      * Gets the name of the Device.
@@ -133,23 +134,19 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     @Deprecated
     TimeZone getTimeZone();
 
-    ZoneId getZone();
-
     void setTimeZone(TimeZone timeZone);
+
+    ZoneId getZone();
 
     void setZone(ZoneId zone);
 
     void setSerialNumber(String serialNumber);
 
-    void setYearOfCertification(Integer yearOfCertification);
-
-    void setMultiplier(BigDecimal multiplier);
-
     void setMultiplier(BigDecimal multiplier, Instant from);
 
-    void setmRID(String mrid);
-
     BigDecimal getMultiplier();
+
+    void setMultiplier(BigDecimal multiplier);
 
     Optional<BigDecimal> getMultiplierAt(Instant multiplierEffectiveTimeStamp);
 
@@ -161,6 +158,8 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      * @return a certification year
      */
     Integer getYearOfCertification();
+
+    void setYearOfCertification(Integer yearOfCertification);
 
     /**
      * Gets the receiver's last modification date.
@@ -270,6 +269,8 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      * Gets the Unique mRID of the device.
      */
     String getmRID();
+
+    void setmRID(String mrid);
 
     /**
      * Provides a builder that allows the creation of a ScheduledConnectionTask for the Device.
@@ -450,6 +451,12 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     Optional<ActiveEffectiveCalendar> getActiveCalendar();
 
     void setActiveCalendar(AllowedCalendar allowedCalendar, Instant effective, Instant lastVerified);
+
+    Optional<ReadingTypeObisCodeUsage> getReadingTypeObisCodeUsage(ReadingType readingType);
+
+    Channel.ChannelUpdater getChannelUpdaterFor(Channel channel);
+
+    Register.RegisterUpdater getRegisterUpdaterFor(Register register);
 
     void runStatusInformationTask(Consumer<ComTaskExecution> requestedAction);
 

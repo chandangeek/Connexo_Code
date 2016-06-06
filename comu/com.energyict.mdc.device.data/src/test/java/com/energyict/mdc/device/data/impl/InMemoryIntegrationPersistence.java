@@ -37,6 +37,7 @@ import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -222,6 +223,7 @@ public class InMemoryIntegrationPersistence {
                 new FiniteStateMachineModule(),
                 new MeteringModule(
                         "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0",
+                        "0.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0",
                         "0.0.0.1.1.2.12.0.0.0.0.0.0.0.0.3.72.0",
                         "0.0.0.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0",
                         "0.0.0.1.19.2.12.0.0.0.0.0.0.0.0.3.72.0",
@@ -552,7 +554,7 @@ public class InMemoryIntegrationPersistence {
         return injector.getInstance(DeviceConfigConflictMappingHandler.class);
     }
 
-    public DeviceSearchDomain getDeviceSearchDomain() {
+    public SearchDomain getDeviceSearchDomain() {
         return deviceSearchDomain;
     }
 
