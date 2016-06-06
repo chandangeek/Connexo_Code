@@ -1,13 +1,5 @@
 package com.elster.jupiter.metering.cim.impl;
 
-import ch.iec.tc57._2011.meterreadings.EndDeviceEvent;
-import ch.iec.tc57._2011.meterreadings.Meter;
-import ch.iec.tc57._2011.meterreadings.MeterReading;
-import ch.iec.tc57._2011.meterreadings.MeterReadings;
-import ch.iec.tc57._2011.meterreadings.ObjectFactory;
-import ch.iec.tc57._2011.meterreadings.Reading;
-import ch.iec.tc57._2011.meterreadings.ReadingQuality;
-import ch.iec.tc57._2011.meterreadings.UsagePoint;
 import com.elster.jupiter.cbo.Status;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
@@ -20,6 +12,15 @@ import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.util.collections.BinarySearch;
+
+import ch.iec.tc57._2011.meterreadings.EndDeviceEvent;
+import ch.iec.tc57._2011.meterreadings.Meter;
+import ch.iec.tc57._2011.meterreadings.MeterReading;
+import ch.iec.tc57._2011.meterreadings.MeterReadings;
+import ch.iec.tc57._2011.meterreadings.ObjectFactory;
+import ch.iec.tc57._2011.meterreadings.Reading;
+import ch.iec.tc57._2011.meterreadings.ReadingQuality;
+import ch.iec.tc57._2011.meterreadings.UsagePoint;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Range;
 
@@ -66,13 +67,8 @@ public class MeterReadingsGenerator {
     }
 
     private List<ReadingQualityRecord> getValidationQualities(Channel channel, Range<Instant> range) {
-        List<com.elster.jupiter.metering.ReadingQualityRecord> qualities = channel.findReadingQuality(range);
-        Collections.sort(qualities, new Comparator<com.elster.jupiter.metering.ReadingQualityRecord>() {
-            @Override
-            public int compare(com.elster.jupiter.metering.ReadingQualityRecord first, com.elster.jupiter.metering.ReadingQualityRecord second) {
-                return first.getTimestamp().compareTo(second.getTimestamp());
-            }
-        });
+        List<com.elster.jupiter.metering.ReadingQualityRecord> qualities = channel.findReadingQualities(null, null, range, false, false);
+        Collections.sort(qualities, Comparator.comparing(ReadingQualityRecord::getTimestamp));
         return qualities;
     }
 
