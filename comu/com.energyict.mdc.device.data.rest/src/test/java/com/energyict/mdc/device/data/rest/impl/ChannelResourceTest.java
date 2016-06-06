@@ -236,7 +236,6 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(removedProfileReading.getChannelValidationStates()).thenReturn(ImmutableMap.of(channel, statusForValueRemoved));
 
         when(validationService.getEvaluator()).thenReturn(evaluator);
-        when(evaluator.getValidationResult(any())).thenReturn(ValidationResult.SUSPECT);
         when(validationRule.getImplementation()).thenReturn("isPrime");
         when(validationRule.getDisplayName()).thenReturn("Primes only");
         when(channelSpec.getNbrOfFractionDigits()).thenReturn(3);
@@ -371,7 +370,6 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     @Test
     public void testChannelDataFiltered() throws UnsupportedEncodingException {
-        when(evaluator.getValidationResult(any())).thenReturn(ValidationResult.VALID);
         when(deviceValidation.getValidationResult(any())).thenReturn(ValidationResult.VALID);
 
         String filter = ExtjsFilter.filter()
