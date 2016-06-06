@@ -11,13 +11,16 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskService;
+import com.elster.jupiter.upgrade.FullInstaller;
 
+import javax.inject.Inject;
 import java.util.logging.Logger;
 
-public class Installer {
-    private static final Logger LOG = Logger.getLogger("IssueInstaller");
+public class Installer implements FullInstaller {
 
     private static final String ISSUE_OVERDUE_TASK_NAME = "IssueOverdueTask";
     private static final String ISSUE_OVERDUE_TASK_SCHEDULE = "0 0/1 * 1/1 * ? *";
@@ -29,6 +32,7 @@ public class Installer {
     private final MessageService messageService;
     private final TaskService taskService;
 
+    @Inject
     public Installer(DataModel dataModel, IssueService issueService, MessageService messageService, TaskService taskService) {
         this.dataModel = dataModel;
         this.issueService = issueService;
@@ -37,12 +41,29 @@ public class Installer {
         this.taskService = taskService;
     }
 
-    public void install(boolean executeDDL) {
-        run(() -> dataModel.install(executeDDL, true), "database schema. Execute command 'ddl " + IssueService.COMPONENT_NAME + "' and apply the sql script manually");
-        run(this::createViews, "view for all issues");
-        run(this::createStatuses, "default statuses");
-        run(this::createIssueOverdueTask, "overdue task");
-        run(this::createActionTypes, "action types");
+    @Override
+    public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
+        dataModelUpgrader.upgrade(dataModel, Version.latest());
+        doTry(
+                "view for all issues",
+                this::createViews,
+                logger
+        );
+        doTry(
+                "default statuses",
+                this::createStatuses,
+                logger
+        );
+        doTry(
+                "overdue task",
+                this::createIssueOverdueTask,
+                logger
+        );
+        doTry(
+                "action types",
+                this::createActionTypes,
+                logger
+        );
     }
 
     private void createViews(){
@@ -75,14 +96,6 @@ public class Installer {
     private void createActionTypes() {
         IssueType type = null;
         issueActionService.createActionType(IssueDefaultActionsFactory.ID, AssignIssueAction.class.getName(), type);
-    }
-
-    public static void run(Runnable runnable, String explanation){
-        try {
-            runnable.run();
-        } catch (Exception stEx){
-            LOG.warning("[" + IssueService.COMPONENT_NAME + "] Unable to install " + explanation);
-        }
     }
 
 }

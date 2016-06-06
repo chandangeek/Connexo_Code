@@ -49,10 +49,11 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryExecutor;
-import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.upgrade.InstallIdentifier;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.User;
@@ -76,6 +77,7 @@ import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -88,13 +90,13 @@ import java.util.stream.Stream;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name = "com.elster.jupiter.issue",
-        service = {IssueService.class, InstallService.class, TranslationKeyProvider.class, MessageSeedProvider.class, PrivilegesProvider.class},
-        property = {"name=" + IssueService.COMPONENT_NAME,
+    service = {IssueService.class, TranslationKeyProvider.class, MessageSeedProvider.class, PrivilegesProvider.class},
+    property = {"name=" + IssueService.COMPONENT_NAME,
                 "osgi.command.scope=issue",
                 "osgi.command.function=rebuildAssignmentRules",
                 "osgi.command.function=loadAssignmentRuleFromFile"},
-        immediate = true)
-public class IssueServiceImpl implements IssueService, InstallService, TranslationKeyProvider, MessageSeedProvider, PrivilegesProvider {
+    immediate = true)
+public class IssueServiceImpl implements IssueService, TranslationKeyProvider, MessageSeedProvider, PrivilegesProvider {
 
     private volatile DataModel dataModel;
     private volatile QueryService queryService;
@@ -114,10 +116,12 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
     private volatile IssueAssignmentService issueAssignmentService;
     private volatile IssueCreationService issueCreationService;
 
-    private volatile Map<String, IssueActionFactory> issueActionFactories = new ConcurrentHashMap<>();
-    private volatile Map<String, CreationRuleTemplate> creationRuleTemplates = new ConcurrentHashMap<>();
-    private volatile List<IssueProvider> issueProviders = new ArrayList<>();
-    private volatile List<IssueCreationValidator> issueCreationValidators = new CopyOnWriteArrayList<>();
+    private volatile UpgradeService upgradeService;
+
+    private final Map<String, IssueActionFactory> issueActionFactories = new ConcurrentHashMap<>();
+    private final Map<String, CreationRuleTemplate> creationRuleTemplates = new ConcurrentHashMap<>();
+    private final List<IssueProvider> issueProviders = new ArrayList<>();
+    private final List<IssueCreationValidator> issueCreationValidators = new CopyOnWriteArrayList<>();
 
 
     public IssueServiceImpl() {
@@ -135,7 +139,8 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
                             KnowledgeBaseFactoryService knowledgeBaseFactoryService,
                             KieResources resourceFactoryService,
                             TransactionService transactionService,
-                            ThreadPrincipalService threadPrincipalService) {
+                            ThreadPrincipalService threadPrincipalService,
+                            UpgradeService upgradeService) {
         setOrmService(ormService);
         setQueryService(queryService);
         setUserService(userService);
@@ -148,11 +153,9 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
         setResourceFactoryService(resourceFactoryService);
         setTransactionService(transactionService);
         setThreadPrincipalService(threadPrincipalService);
+        setUpgradeService(upgradeService);
 
         activate();
-        if (!dataModel.isInstalled()) {
-            install();
-        }
     }
 
     @Activate
@@ -184,6 +187,7 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
         issueCreationService = dataModel.getInstance(IssueCreationService.class);
         issueActionService = dataModel.getInstance(IssueActionService.class);
         issueAssignmentService = dataModel.getInstance(IssueAssignmentService.class);
+        upgradeService.register(InstallIdentifier.identifier(COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
     }
 
     @Reference
@@ -246,14 +250,9 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
         this.threadPrincipalService = threadPrincipalService;
     }
 
-    @Override
-    public void install() {
-        new Installer(dataModel, this, messageService, taskService).install(true);
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList("USR", "TSK", "MSG", "ORM", "NLS", "MTR");
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
     }
 
     @Override
@@ -509,8 +508,7 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
         } else {
             eagerClasses.addAll(Arrays.asList(eagers));
         }
-        return DefaultFinder.of((Class<Issue>) eagerClasses.remove(0), condition, dataModel, eagerClasses.toArray(new Class<?>[eagerClasses
-                .size()]));
+        return DefaultFinder.of((Class<Issue>) eagerClasses.remove(0), condition, dataModel, eagerClasses.toArray(new Class<?>[eagerClasses.size()]));
     }
 
     @Override
