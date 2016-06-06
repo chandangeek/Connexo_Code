@@ -38,6 +38,8 @@ import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
@@ -247,6 +249,7 @@ public class InMemoryPersistence {
             bind(SerialComponentService.class).toInstance(mock(SerialComponentService.class));
 
             bind(Thesaurus.class).toInstance(NlsModule.FakeThesaurus.INSTANCE);
+            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
 
     }
