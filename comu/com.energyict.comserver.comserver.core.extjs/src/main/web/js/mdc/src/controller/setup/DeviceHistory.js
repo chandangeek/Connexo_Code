@@ -107,7 +107,7 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
         attributeSetModel.getProxy().setUrl(mRID);
         if (queryParams.customAttributeSetId) {
             versionsStore.getProxy().setUrl(mRID, queryParams.customAttributeSetId);
-            component = tabpanel.down('#custom-attribute-set-' + queryParams.customAttributeSetId);
+            component = me.getTabPanel().down('#custom-attribute-set-' + queryParams.customAttributeSetId);
             component.add({
                 xtype: 'device-history-custom-attribute-sets-versions'
             });
