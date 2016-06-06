@@ -8,7 +8,6 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingQualityRecord;
-import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.beans.ReadingImpl;
@@ -46,7 +45,8 @@ class EstimationEngine {
 
     private List<ReadingQualityRecord> findSuspects(Channel channel, Range<Instant> period, ReadingType readingType) {
         return channel.getCimChannel(readingType)
-                .map(cimChannel -> cimChannel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), period))
+                // TODO: estimation refactoring: decide here which system should be used (CXO-1443)
+                .map(cimChannel -> cimChannel.findReadingQualities(Collections.singleton(QualityCodeSystem.MDC), QualityCodeIndex.SUSPECT, period, false))
                 .orElse(Collections.emptyList());
     }
 

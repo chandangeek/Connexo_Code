@@ -48,8 +48,10 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -63,6 +65,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
@@ -73,6 +77,7 @@ import static org.mockito.Mockito.when;
 public class EstimationServiceImplTest {
     private static final Logger LOGGER = Logger.getLogger(EstimationServiceImplTest.class.getName());
 
+    private static final Set<QualityCodeSystem> MDC = Collections.singleton(QualityCodeSystem.MDC);
     private final ReadingQualityType readingQualityType1 = ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.ESTIMATED, 1);
     private final ReadingQualityType readingQualityType2 = ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.ESTIMATED, 2);
     private EstimationServiceImpl estimationService;
@@ -179,11 +184,11 @@ public class EstimationServiceImplTest {
         doReturn(Arrays.asList(readingType1, readingType2)).when(channel).getReadingTypes();
         doReturn(true).when(channel).isRegular();
         List<ReadingQualityRecord> readingQualityRecords = readingQualities();
-        doReturn(readingQualityRecords).when(channel).findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), Range.<Instant>all());
+        doReturn(readingQualityRecords).when(channel).findReadingQualities(eq(MDC), eq(QualityCodeIndex.SUSPECT), eq(Range.<Instant>all()),anyBoolean(), anyBoolean());
         doReturn(Optional.of(cimChannel1)).when(channel).getCimChannel(readingType1);
         doReturn(Optional.of(cimChannel2)).when(channel).getCimChannel(readingType2);
-        doReturn(readingQualityRecords).when(cimChannel1).findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), Range.<Instant>all());
-        doReturn(readingQualityRecords).when(cimChannel2).findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), Range.<Instant>all());
+        doReturn(readingQualityRecords).when(cimChannel1).findReadingQualities(eq(MDC), eq(QualityCodeIndex.SUSPECT), eq(Range.<Instant>all()), anyBoolean());
+        doReturn(readingQualityRecords).when(cimChannel2).findReadingQualities(eq(MDC), eq(QualityCodeIndex.SUSPECT), eq(Range.<Instant>all()), anyBoolean());
         doAnswer(invocation -> ((Instant) invocation.getArguments()[0]).plus(Duration.ofMinutes(15))).when(channel).getNextDateTime(any());
         doReturn(estimator1).when(rule1).createNewEstimator();
         doReturn(estimator2).when(rule2).createNewEstimator();

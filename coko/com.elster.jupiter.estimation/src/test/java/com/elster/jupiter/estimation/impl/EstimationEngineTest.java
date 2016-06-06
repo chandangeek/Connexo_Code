@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.junit.After;
 import org.junit.Before;
@@ -40,6 +41,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -51,7 +54,7 @@ public class EstimationEngineTest {
     @Rule
     public TestRule mcMurdo = Using.timeZoneOfMcMurdo();
 
-    public static final ReadingQualityType SUSPECT = ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT);
+    public static final Set<QualityCodeSystem> MDC = Collections.singleton(QualityCodeSystem.MDC);
     @Mock
     private MeterActivation meterActivation;
     @Mock
@@ -67,12 +70,10 @@ public class EstimationEngineTest {
 
     @Before
     public void setUp() {
-        when(meterActivation.getChannels()).thenReturn(Arrays.asList(channel1));
-        doReturn(Arrays.asList(readingType)).when(channel1).getReadingTypes();
+        when(meterActivation.getChannels()).thenReturn(Collections.singletonList(channel1));
+        doReturn(Collections.singletonList(readingType)).when(channel1).getReadingTypes();
         when(channel1.isRegular()).thenReturn(true);
         when(channel1.getIntervalLength()).thenReturn(Optional.of(Duration.ofHours(1)));
-        when(channel1.findReadingQuality(SUSPECT, Range.<Instant>all())).thenReturn(Collections.emptyList());
-        when(cimChannel1.findReadingQuality(SUSPECT, Range.<Instant>all())).thenReturn(Collections.emptyList());
         ZonedDateTime first = ZonedDateTime.of(2010, 8, 14, 9, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
         when(readingQualityRecord1.getReadingTimestamp()).thenReturn(first.toInstant());
         when(readingQualityRecord2.getReadingTimestamp()).thenReturn(first.plusHours(1).toInstant());
@@ -95,7 +96,6 @@ public class EstimationEngineTest {
 
     @After
     public void tearDown() {
-
     }
 
     @Test
@@ -107,8 +107,10 @@ public class EstimationEngineTest {
 
     @Test
     public void testFindBlocksWhenThereIsOneSuspectForMissing() {
-        when(channel1.findReadingQuality(SUSPECT, Range.<Instant>all())).thenReturn(Arrays.asList(readingQualityRecord2));
-        when(cimChannel1.findReadingQuality(SUSPECT, Range.<Instant>all())).thenReturn(Arrays.asList(readingQualityRecord2));
+        when(channel1.findReadingQualities(eq(MDC), eq(QualityCodeIndex.SUSPECT), eq(Range.<Instant>all()), anyBoolean(), anyBoolean()))
+                .thenReturn(Collections.singletonList(readingQualityRecord2));
+        when(cimChannel1.findReadingQualities(eq(MDC), eq(QualityCodeIndex.SUSPECT), eq(Range.<Instant>all()), anyBoolean()))
+                .thenReturn(Collections.singletonList(readingQualityRecord2));
         when(readingQualityRecord2.getBaseReadingRecord()).thenReturn(Optional.<BaseReadingRecord>empty());
 
         List<EstimationBlock> blocksToEstimate = new EstimationEngine().findBlocksToEstimate(meterActivation, Range.<Instant>all(), readingType);
@@ -127,8 +129,10 @@ public class EstimationEngineTest {
 
     @Test
     public void testFindBlocksWhenThereIsOneSuspectForReading() {
-        when(channel1.findReadingQuality(SUSPECT, Range.<Instant>all())).thenReturn(Arrays.asList(readingQualityRecord2));
-        when(cimChannel1.findReadingQuality(SUSPECT, Range.<Instant>all())).thenReturn(Arrays.asList(readingQualityRecord2));
+        when(channel1.findReadingQualities(eq(MDC), eq(QualityCodeIndex.SUSPECT), eq(Range.<Instant>all()), anyBoolean(), anyBoolean()))
+                .thenReturn(Collections.singletonList(readingQualityRecord2));
+        when(cimChannel1.findReadingQualities(eq(MDC), eq(QualityCodeIndex.SUSPECT), eq(Range.<Instant>all()), anyBoolean()))
+                .thenReturn(Collections.singletonList(readingQualityRecord2));
 
         List<EstimationBlock> blocksToEstimate = new EstimationEngine().findBlocksToEstimate(meterActivation, Range.<Instant>all(), readingType);
 
@@ -146,8 +150,10 @@ public class EstimationEngineTest {
 
     @Test
     public void testFindBlocksWhenThereIsOneBlockOfSuspectForReading() {
-        when(channel1.findReadingQuality(SUSPECT, Range.<Instant>all())).thenReturn(Arrays.asList(readingQualityRecord2, readingQualityRecord3, readingQualityRecord4));
-        when(cimChannel1.findReadingQuality(SUSPECT, Range.<Instant>all())).thenReturn(Arrays.asList(readingQualityRecord2, readingQualityRecord3, readingQualityRecord4));
+        when(channel1.findReadingQualities(eq(MDC), eq(QualityCodeIndex.SUSPECT), eq(Range.<Instant>all()), anyBoolean(), anyBoolean()))
+                .thenReturn(Arrays.asList(readingQualityRecord2, readingQualityRecord3, readingQualityRecord4));
+        when(cimChannel1.findReadingQualities(eq(MDC), eq(QualityCodeIndex.SUSPECT), eq(Range.<Instant>all()), anyBoolean()))
+                .thenReturn(Arrays.asList(readingQualityRecord2, readingQualityRecord3, readingQualityRecord4));
 
         List<EstimationBlock> blocksToEstimate = new EstimationEngine().findBlocksToEstimate(meterActivation, Range.<Instant>all(), readingType);
 
