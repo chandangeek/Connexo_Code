@@ -25,7 +25,7 @@ final class ChannelValidationImpl implements ChannelValidation {
     private Reference<ChannelsContainerValidation> meterActivationValidation = ValueReference.absent(); // TODO rename
     private Instant lastChecked;
     @SuppressWarnings("unused")
-	private boolean activeRules;
+    private boolean activeRules;
     private Channel channel;
 
     @Inject
@@ -115,56 +115,54 @@ final class ChannelValidationImpl implements ChannelValidation {
     
     @Override
     public boolean updateLastChecked(Instant instant) {
-    	if (lastChecked.equals(Objects.requireNonNull(instant))) {
-    		return false;
-    	}
-    	Instant newValue = Objects.requireNonNull(instant).isBefore(minLastChecked()) ? minLastChecked() : instant;
-    	if (lastChecked.isAfter(newValue)) {
-    		getChannel().findReadingQuality(Range.greaterThan(newValue)).stream()
-    			.filter(this::isRelevant)
-    			.forEach(ReadingQualityRecord::delete);
-    	}
-    	this.lastChecked = newValue;
-    	return true;
+        if (lastChecked.equals(Objects.requireNonNull(instant))) {
+            return false;
+        }
+        Instant newValue = instant.isBefore(minLastChecked()) ? minLastChecked() : instant;
+        if (lastChecked.isAfter(newValue)) {
+            getChannel().findReadingQualities(Collections.singleton(meterActivationValidation.get().getRuleSet().getQualityCodeSystem()),
+                    null, Range.greaterThan(newValue), false, false).stream()
+                    .filter(ChannelValidationImpl::isValidationRelatedQuality)
+                    .forEach(ReadingQualityRecord::delete);
+        }
+        this.lastChecked = newValue;
+        return true;
     }
     
     @Override
     public boolean moveLastCheckedBefore(Instant instant) {
-    	if (instant.isAfter(lastChecked)) {
-    		return false;
-    	}
-    	Optional<BaseReadingRecord> reading = getChannel().getReadingsBefore(instant, 1).stream().findFirst();
-    	return updateLastChecked(reading.map(BaseReading::getTimeStamp).orElseGet(this::minLastChecked));    	
+        if (instant.isAfter(lastChecked)) {
+            return false;
+        }
+        Optional<BaseReadingRecord> reading = getChannel().getReadingsBefore(instant, 1).stream().findFirst();
+        return updateLastChecked(reading.map(BaseReading::getTimeStamp).orElseGet(this::minLastChecked));
     }
     
-    private boolean isRelevant(ReadingQualityRecord readingQuality) {
-    	return readingQuality.hasReasonabilityCategory() || readingQuality.hasValidationCategory(); 
+    private static boolean isValidationRelatedQuality(ReadingQualityRecord readingQuality) {
+        return readingQuality.hasReasonabilityCategory() || readingQuality.hasValidationCategory();
     }
     
     @Override
     public void validate() {
         Instant end = getChannel().getLastDateTime();
-    	if (end == null || !lastChecked.isBefore(end)) {
-    		return;
-    	}
-    	Range<Instant> dataRange = Range.openClosed(lastChecked, end);
-        List<? extends ValidationRuleSetVersion> versions = getChannelsContainerValidation().getRuleSet().getRuleSetVersions();
+        if (end != null && lastChecked.isBefore(end)) {
+            Range<Instant> dataRange = Range.openClosed(lastChecked, end);
+            List<? extends ValidationRuleSetVersion> versions = getMeterActivationValidation().getRuleSet().getRuleSetVersions();
 
-        Instant newLastChecked = versions.stream()
-                .map(IValidationRuleSetVersion.class::cast)
-                .filter(cv -> dataRange.isConnected(Range.openClosed(cv.getNotNullStartDate(), cv.getNotNullEndDate())))
-                .flatMap(currentVersion ->
-                {
-                    Range<Instant> versionRange = dataRange.intersection(Range.openClosed(currentVersion.getNotNullStartDate(), currentVersion.getNotNullEndDate()));
-                    Range<Instant> rangeToValidate = dataRange.intersection(versionRange);
-                    ChannelValidator validator = new ChannelValidator(getChannel(), rangeToValidate);
-                    return activeRulesOfVersion(currentVersion).stream()
-                            .map(validator::validateRule);
-                })
-                .min(Comparator.naturalOrder()).orElse(end);
+            Instant newLastChecked = versions.stream()
+                    .map(IValidationRuleSetVersion.class::cast)
+                    .filter(cv -> dataRange.isConnected(Range.openClosed(cv.getNotNullStartDate(), cv.getNotNullEndDate())))
+                    .flatMap(currentVersion ->
+                    {
+                        Range<Instant> versionRange = dataRange.intersection(Range.openClosed(currentVersion.getNotNullStartDate(), currentVersion.getNotNullEndDate()));
+                        Range<Instant> rangeToValidate = dataRange.intersection(versionRange);
+                        ChannelValidator validator = new ChannelValidator(getChannel(), rangeToValidate);
+                        return activeRulesOfVersion(currentVersion).stream()
+                                .map(validator::validateRule);
+                    })
+                    .min(Comparator.naturalOrder()).orElse(end);
 
-        updateLastChecked(newLastChecked);
-
+            updateLastChecked(newLastChecked);
+        }
     }
-
 }

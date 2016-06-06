@@ -49,7 +49,7 @@ public class DataValidationTaskExecutor implements TaskExecutor {
 
     @Override
     public void execute(TaskOccurrence taskOccurrence) {
-        DataValidationOccurrence dataValidationOccurence = createOccurence(taskOccurrence);
+        createOccurrence(taskOccurrence);
     }
 
     @Override
@@ -87,10 +87,10 @@ public class DataValidationTaskExecutor implements TaskExecutor {
         return logger;
     }
 
-    public DataValidationOccurrence createOccurence(TaskOccurrence taskOccurrence) {
-        DataValidationOccurrence dataValidationOccurence = validationService.createValidationOccurrence(taskOccurrence);
-        dataValidationOccurence.persist();
-        return dataValidationOccurence;
+    public DataValidationOccurrence createOccurrence(TaskOccurrence taskOccurrence) {
+        DataValidationOccurrence dataValidationOccurrence = validationService.createValidationOccurrence(taskOccurrence);
+        dataValidationOccurrence.persist();
+        return dataValidationOccurrence;
     }
 
     private DataValidationOccurrence findOccurrence(TaskOccurrence occurrence) {

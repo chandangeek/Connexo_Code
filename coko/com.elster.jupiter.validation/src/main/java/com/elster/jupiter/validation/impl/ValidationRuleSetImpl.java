@@ -1,5 +1,6 @@
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
@@ -107,6 +108,18 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
     @Override
     public String getApplicationName() {
         return applicationName;
+    }
+
+    @Override
+    public QualityCodeSystem getQualityCodeSystem() {
+        switch(applicationName) {
+            case "MDC":
+                return QualityCodeSystem.MDC;
+            case "INS":
+                return QualityCodeSystem.MDM;
+            default:
+                return QualityCodeSystem.NOTAPPLICABLE;
+        }
     }
 
     @Override

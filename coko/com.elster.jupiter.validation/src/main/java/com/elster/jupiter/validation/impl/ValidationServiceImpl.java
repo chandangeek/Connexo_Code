@@ -97,7 +97,6 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
     private volatile QueryService queryService;
     private volatile UserService userService;
 
-
     private final List<ValidatorFactory> validatorFactories = new CopyOnWriteArrayList<>();
     private final List<ValidationRuleSetResolver> ruleSetResolvers = new CopyOnWriteArrayList<>();
     private Optional<DestinationSpec> destinationSpec = Optional.empty();
@@ -274,7 +273,6 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
                 });
     }
 
-
     @Override
     public void disableValidationOnStorage(Meter meter) {
         getMeterValidation(meter)
@@ -284,7 +282,6 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
                     meterValidation.save();
                 });
     }
-
 
     @Override
     public boolean validationEnabled(Meter meter) {
@@ -317,7 +314,6 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
         activeChannelsContainerValidationsFor(Objects.requireNonNull(channel).getChannelsContainer())
                 .updateLastChecked(channel, Objects.requireNonNull(date));
     }
-
 
     @Override
     public boolean isValidationActive(Channel channel) {
@@ -746,7 +742,6 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
                 .limit(limit)
                 .collect(Collectors.toList());
     }
-
 
     private Optional<DataValidationTask> getDataValidationTaskForRecurrentTask(RecurrentTask recurrentTask) {
         return dataModel.mapper(DataValidationTask.class).getUnique("recurrentTask", recurrentTask);

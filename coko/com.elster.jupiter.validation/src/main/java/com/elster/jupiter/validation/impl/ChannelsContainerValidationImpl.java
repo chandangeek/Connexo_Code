@@ -123,23 +123,21 @@ class ChannelsContainerValidationImpl implements ChannelsContainerValidation {
 
     @Override
     public void validate() {
-        if (!isActive()) {
-            return;
+        if (isActive()) {
+            getChannelsContainer().getChannels().forEach(this::validateChannel);
+            lastRun = Instant.now(clock);
+            save();
         }
-        getChannelsContainer().getChannels().forEach(this::validateChannel);
-        lastRun = Instant.now(clock);
-        save();
     }
 
     @Override
     public void validate(ReadingType readingType) {
-        if (!isActive()) {
-            return;
+        if (isActive()) {
+            getChannelsContainer().getChannels().stream()
+                    .filter(channel -> channel.hasReadingType(readingType))
+                    .forEach(this::validateChannel);
+            save();
         }
-        getChannelsContainer().getChannels().stream()
-                .filter(channel -> channel.hasReadingType(readingType))
-                .forEach(channel -> validateChannel(channel));
-        save();
     }
 
     private void validateChannel(Channel channel) {
@@ -193,9 +191,8 @@ class ChannelsContainerValidationImpl implements ChannelsContainerValidation {
     @Override
     public void updateLastChecked(Instant lastChecked) {
         long updateCount = channelValidations.stream()
-                .map(ChannelValidation.class::cast)
-                .filter(channelValidation -> channelValidation.updateLastChecked(lastChecked))
-                .count();
+            .filter(channelValidation -> channelValidation.updateLastChecked(lastChecked))
+            .count();
         if (updateCount > 0) {
             save();
         }
