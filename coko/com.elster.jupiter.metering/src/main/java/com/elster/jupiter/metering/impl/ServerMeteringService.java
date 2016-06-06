@@ -20,5 +20,7 @@ public interface ServerMeteringService extends MeteringService {
 
     EndDeviceEventTypeImpl createEndDeviceEventType(String mRID);
 
+    EndDeviceControlTypeImpl createEndDeviceControlType(String mRID);
+
     void copyKeyIfMissing(NlsKey name, String localKey);
 }
