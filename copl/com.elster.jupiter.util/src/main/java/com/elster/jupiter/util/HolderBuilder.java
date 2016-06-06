@@ -1,5 +1,7 @@
 package com.elster.jupiter.util;
 
+import java.util.function.Supplier;
+
 public enum HolderBuilder {
     ;
 
@@ -9,6 +11,15 @@ public enum HolderBuilder {
 
     public static <M> Holder<M> holding(M element) {
         return new SimpleHolder<M>(element);
+    }
+
+    /**
+     * @param actualInitialization a Supplier that will execute the actual initialization.
+     * @param <M> the type of the held object
+     * @return a Holder that will initialize the held instance only upon first request. Even if the Holder is shared across threads, initialization is guaranteed to occur only once.
+     */
+    public static <M> Holder<M> lazyInitialize(Supplier<M> actualInitialization) {
+        return new LazyInitializer<>(actualInitialization);
     }
 
     public static class AndThenBuilder<M> {
@@ -59,4 +70,36 @@ public enum HolderBuilder {
         }
     }
 
+    private static class LazyInitializer<T> implements Holder<T> {
+        private final Supplier<T> heavySupplier;
+        private final Object initLock = new Object();
+
+        private Supplier<T> heavy = this::createAndCacheHeavy;
+
+        public LazyInitializer(Supplier<T> heavySupplier) {
+            this.heavySupplier = heavySupplier;
+        }
+
+        public T get() {
+            return heavy.get();
+        }
+
+        private T createAndCacheHeavy() {
+            synchronized (initLock) {
+                class HeavyFactory implements Supplier<T> {
+                    private final T heavyInstance = heavySupplier.get();
+
+                    public T get() {
+                        return heavyInstance;
+                    }
+                }
+
+                if (!HeavyFactory.class.isInstance(heavy)) {
+                    heavy = new HeavyFactory();
+                }
+
+                return heavy.get();
+            }
+        }
+    }
 }
