@@ -31,29 +31,30 @@ class EstimationEngine {
         return meterActivation.getChannels().stream()
                 .filter(Channel::isRegular)
                 .filter(channel -> channel.getReadingTypes().contains(readingType))
-                .flatMap(channel -> this.findBlocksToEstimate(channel, period, readingType))
+                .flatMap(channel -> findBlocksToEstimate(channel, period, readingType))
                 .collect(Collectors.toList());
     }
 
-    private Stream<EstimationBlock> findBlocksToEstimate(Channel channel, Range<Instant> period, ReadingType readingType) {
+    private static Stream<EstimationBlock> findBlocksToEstimate(Channel channel, Range<Instant> period, ReadingType readingType) {
         return decorate(findSuspects(channel, period, readingType).stream())
                 .sorted(Comparator.comparing(ReadingQualityRecord::getReadingTimestamp))
-                .map(this::toEstimatable)
+                .map(EstimationEngine::toEstimatable)
                 .partitionWhen((est1, est2) -> !channel.getNextDateTime(est1.getTimestamp()).equals(est2.getTimestamp()))
-                .map(list -> SimpleEstimationBlock.of(channel, readingType, list));
+                .map(estimableList -> SimpleEstimationBlock.of(channel, readingType, estimableList));
     }
 
-    private List<ReadingQualityRecord> findSuspects(Channel channel, Range<Instant> period, ReadingType readingType) {
+    private static List<ReadingQualityRecord> findSuspects(Channel channel, Range<Instant> period, ReadingType readingType) {
         return channel.getCimChannel(readingType)
                 // TODO: estimation refactoring: decide here which system should be used (CXO-1443)
                 .map(cimChannel -> cimChannel.findReadingQualities(Collections.singleton(QualityCodeSystem.MDC), QualityCodeIndex.SUSPECT, period, false))
                 .orElse(Collections.emptyList());
     }
 
-    private Estimatable toEstimatable(ReadingQualityRecord readingQualityRecord) {
+    private static Estimatable toEstimatable(ReadingQualityRecord readingQualityRecord) {
         return readingQualityRecord.getBaseReadingRecord()
-                .map((baseReadingRecord) -> (Estimatable) new BaseReadingRecordEstimatable(baseReadingRecord))
-                .orElseGet(() -> new MissingReadingRecordEstimatable(readingQualityRecord.getReadingTimestamp()));
+                .map(BaseReadingRecordEstimatable::new)
+                .map(Estimatable.class::cast)
+                .orElse(new MissingReadingRecordEstimatable(readingQualityRecord.getReadingTimestamp()));
     }
 
     void applyEstimations(EstimationReportImpl report) {
