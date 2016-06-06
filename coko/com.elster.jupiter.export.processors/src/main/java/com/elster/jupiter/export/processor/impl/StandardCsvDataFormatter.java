@@ -112,8 +112,8 @@ class StandardCsvDataFormatter implements ReadingDataFormatter, StandardFormatte
 
     @Override
     public FormattedData processData(Stream<ExportData> exportData) {
-        // TODO: update this when export is allowed from MDM
-        return exportData.map(data -> processData(Collections.singleton(QualityCodeSystem.MDC), data))
+        // TODO: update this when export is allowed from MDM; null means qualities from all systems taken into account
+        return exportData.map(data -> processData(null, data))
                 .map(pair -> SimpleFormattedData.of(pair.getLast(), pair.getFirst()))
                 .reduce(SimpleFormattedData::merged)
                 .orElseGet(() -> SimpleFormattedData.of(Collections.emptyList()));
@@ -221,8 +221,7 @@ class StandardCsvDataFormatter implements ReadingDataFormatter, StandardFormatte
             writer.append(reading.getValue().toString());
             writer.append(fieldSeparator);
             if (status != null) {
-                ValidationResult validationResult = status.getValidationResult();
-                switch (validationResult) {
+                switch (status.getValidationResult()) {
                     case VALID:
                         writer.append(VALID_STRING);
                         break;
