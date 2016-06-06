@@ -1,6 +1,7 @@
 package com.elster.jupiter.estimators.impl;
 
 import com.elster.jupiter.cbo.QualityCodeIndex;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.estimation.AdvanceReadingsSettings;
 import com.elster.jupiter.estimation.AdvanceReadingsSettingsWithoutNoneFactory;
 import com.elster.jupiter.estimation.BulkAdvanceReadingsSettings;
@@ -256,7 +257,7 @@ public class EqualDistribution extends AbstractEstimator implements Estimator {
     }
 
     private boolean isValidReading(CimChannel advanceCimChannel, BaseReadingRecord readingToEvaluate) {
-        return advanceCimChannel.findReadingQuality(readingToEvaluate.getTimeStamp()).stream()
+        return advanceCimChannel.findReadingQualities(readingToEvaluate.getTimeStamp()).stream()
                 .filter(ReadingQualityRecord::isActual)
                 .noneMatch(
                         either(ReadingQualityRecord::isSuspect)
@@ -273,7 +274,8 @@ public class EqualDistribution extends AbstractEstimator implements Estimator {
             instants.add(cimChannel.getNextDateTime(lastOf(instants)));
         }
         Map<Instant, List<ReadingQualityRecord>> invalidsByTimestamp =
-                cimChannel.findActualReadingQuality(Range.closed(instants.get(0), lastOf(instants))).stream()
+                // TODO: estimation refactoring: decide here which system should be used (CXO-1443)
+                cimChannel.findReadingQualities(Collections.singleton(QualityCodeSystem.MDC), null, Range.closed(instants.get(0), lastOf(instants)), true).stream()
                         .filter(either(ReadingQualityRecord::isSuspect).or(ReadingQualityRecord::hasEstimatedCategory))
                         .collect(Collectors.groupingBy(ReadingQualityRecord::getReadingTimestamp));
 
@@ -387,7 +389,7 @@ public class EqualDistribution extends AbstractEstimator implements Estimator {
         return bulkCimChannel.getReading(last.getTimestamp())
                 .map(IntervalReadingRecord.class::cast)
                 .filter(intervalReadingRecord -> !intervalReadingRecord.getProfileStatus().get(ProfileStatus.Flag.OVERFLOW))
-                .filter(intervalReadingRecord -> bulkCimChannel.findReadingQuality(last.getTimestamp()).stream()
+                .filter(intervalReadingRecord -> bulkCimChannel.findReadingQualities(last.getTimestamp()).stream()
                         .filter(ReadingQualityRecord::isActual)
                         .noneMatch(readingQualityRecord -> readingQualityRecord.getType().qualityIndex().filter(QualityCodeIndex.OVERFLOWCONDITIONDETECTED::equals).isPresent()))
                 .flatMap(baseReadingRecord -> Optional.ofNullable(baseReadingRecord.getValue()));
@@ -398,7 +400,7 @@ public class EqualDistribution extends AbstractEstimator implements Estimator {
         return bulkCimChannel.getReading(timestampBefore)
                 .map(IntervalReadingRecord.class::cast)
                 .filter(intervalReadingRecord -> !intervalReadingRecord.getProfileStatus().get(ProfileStatus.Flag.OVERFLOW))
-                .filter(intervalReadingRecord -> bulkCimChannel.findReadingQuality(first.getTimestamp()).stream()
+                .filter(intervalReadingRecord -> bulkCimChannel.findReadingQualities(first.getTimestamp()).stream()
                         .filter(ReadingQualityRecord::isActual)
                         .noneMatch(readingQualityRecord -> readingQualityRecord.getType().qualityIndex().filter(QualityCodeIndex.OVERFLOWCONDITIONDETECTED::equals).isPresent()))
                 .flatMap(baseReadingRecord -> Optional.ofNullable(baseReadingRecord.getValue()));

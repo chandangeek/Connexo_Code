@@ -41,6 +41,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -64,6 +65,7 @@ import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EqualDistributionTest {
+    private static final Set<QualityCodeSystem> SYSTEM = Collections.singleton(QualityCodeSystem.MDC);
     private static final Logger LOGGER = Logger.getLogger(EqualDistributionTest.class.getName());
     private static final ZonedDateTime BEFORE = ZonedDateTime.of(2015, 3, 11, 20, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
     private static final ZonedDateTime ESTIMATABLE1 = BEFORE.plusHours(1);
@@ -82,7 +84,6 @@ public class EqualDistributionTest {
     @Rule
     public TestRule mcMurdo = Using.timeZoneOfMcMurdo();
 
-    public static final ReadingQualityType SUSPECT = ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT);
     @Mock
     private Thesaurus thesaurus;
     @Mock
@@ -179,9 +180,10 @@ public class EqualDistributionTest {
         doReturn(ADVANCE_BEFORE.toInstant()).when(advanceReadingRecord1).getTimeStamp();
         doReturn(ADVANCE_AFTER.toInstant()).when(advanceReadingRecord2).getTimeStamp();
         doReturn(BigDecimal.valueOf(18957, 3)).when(advanceReadingRecord2).getValue();
-        doReturn(asList(suspect1, suspect2, suspect3)).when(deltaCimChannel).findActualReadingQuality(Range.closed(BEFORE_MINUS_3.toInstant(), AFTER_PLUS_3.toInstant()));
-        doReturn(Collections.emptyList()).when(advanceCimChannel).findReadingQuality(ADVANCE_BEFORE.toInstant());
-        doReturn(Collections.emptyList()).when(advanceCimChannel).findReadingQuality(ADVANCE_AFTER.toInstant());
+        doReturn(asList(suspect1, suspect2, suspect3))
+                .when(deltaCimChannel).findReadingQualities(SYSTEM, null, Range.closed(BEFORE_MINUS_3.toInstant(), AFTER_PLUS_3.toInstant()), true);
+        doReturn(Collections.emptyList()).when(advanceCimChannel).findReadingQualities(ADVANCE_BEFORE.toInstant());
+        doReturn(Collections.emptyList()).when(advanceCimChannel).findReadingQualities(ADVANCE_AFTER.toInstant());
         doReturn(true).when(suspect1).isSuspect();
         doReturn(true).when(suspect2).isSuspect();
         doReturn(true).when(suspect3).isSuspect();
@@ -273,7 +275,8 @@ public class EqualDistributionTest {
 
     @Test
     public void testEqualDistributionDoesNotEstimateWhenASecondGapOccursBetweenAdvanceReadings() {
-        doReturn(asList(suspect1, suspect2, suspect3, suspect4)).when(deltaCimChannel).findActualReadingQuality(Range.closed(BEFORE_MINUS_3.toInstant(), AFTER_PLUS_3.toInstant()));
+        doReturn(asList(suspect1, suspect2, suspect3, suspect4))
+                .when(deltaCimChannel).findReadingQualities(SYSTEM, null, Range.closed(BEFORE_MINUS_3.toInstant(), AFTER_PLUS_3.toInstant()), true);
         doReturn(true).when(suspect4).isSuspect();
         doReturn(AFTER_PLUS_2.toInstant()).when(suspect4).getReadingTimestamp();
 
@@ -293,7 +296,7 @@ public class EqualDistributionTest {
 
     @Test
     public void testEqualDistributionDoesNotEstimateWhenAdvanceReadingIsSuspect() {
-        doReturn(asList(suspect4)).when(advanceCimChannel).findReadingQuality(ADVANCE_AFTER.toInstant());
+        doReturn(asList(suspect4)).when(advanceCimChannel).findReadingQualities(ADVANCE_AFTER.toInstant());
         doReturn(true).when(suspect4).isSuspect();
         doReturn(ADVANCE_AFTER.toInstant()).when(suspect4).getReadingTimestamp();
         doReturn(true).when(suspect4).isActual();
@@ -315,7 +318,7 @@ public class EqualDistributionTest {
     @Test
     public void testEqualDistributionDoesNotEstimateWhenPriorAdvanceReadingHasOverflowFlag() {
         readingQualityType = ReadingQualityType.of(QualityCodeSystem.ENDDEVICE, QualityCodeIndex.OVERFLOWCONDITIONDETECTED);
-        doReturn(asList(suspect4)).when(advanceCimChannel).findReadingQuality(ADVANCE_BEFORE.toInstant());
+        doReturn(asList(suspect4)).when(advanceCimChannel).findReadingQualities(ADVANCE_BEFORE.toInstant());
         doReturn(readingQualityType).when(suspect4).getType();
         doReturn(true).when(suspect4).isActual();
 
@@ -336,7 +339,7 @@ public class EqualDistributionTest {
     @Test
     public void testEqualDistributionDoesNotEstimateWhenLaterAdvanceReadingHasOverflowFlag() {
         readingQualityType = ReadingQualityType.of(QualityCodeSystem.ENDDEVICE, QualityCodeIndex.OVERFLOWCONDITIONDETECTED);
-        doReturn(asList(suspect4)).when(advanceCimChannel).findReadingQuality(ADVANCE_AFTER.toInstant());
+        doReturn(asList(suspect4)).when(advanceCimChannel).findReadingQualities(ADVANCE_AFTER.toInstant());
         doReturn(readingQualityType).when(suspect4).getType();
         doReturn(true).when(suspect4).isActual();
 
@@ -356,7 +359,7 @@ public class EqualDistributionTest {
     @Test
     public void testEqualDistributionDoesEstimateWhenLaterAdvanceReadingHasNonActualOverflowFlag() {
         readingQualityType = ReadingQualityType.of(QualityCodeSystem.ENDDEVICE, QualityCodeIndex.OVERFLOWCONDITIONDETECTED);
-        doReturn(asList(suspect4)).when(advanceCimChannel).findReadingQuality(ADVANCE_AFTER.toInstant());
+        doReturn(asList(suspect4)).when(advanceCimChannel).findReadingQualities(ADVANCE_AFTER.toInstant());
         doReturn(false).when(suspect4).isActual();
         doReturn(readingQualityType).when(suspect4).getType();
 
@@ -375,7 +378,7 @@ public class EqualDistributionTest {
 
     @Test
     public void testEqualDistributionDoesNotEstimateWhenAdvanceReadingIsEstimation() {
-        doReturn(asList(suspect4)).when(advanceCimChannel).findReadingQuality(ADVANCE_BEFORE.toInstant());
+        doReturn(asList(suspect4)).when(advanceCimChannel).findReadingQualities(ADVANCE_BEFORE.toInstant());
         doReturn(true).when(suspect4).hasEstimatedCategory();
         doReturn(ADVANCE_BEFORE.toInstant()).when(suspect4).getReadingTimestamp();
         doReturn(true).when(suspect4).isActual();
@@ -396,7 +399,8 @@ public class EqualDistributionTest {
 
     @Test
     public void testEqualDistributionDoesNotEstimateWhenConsumptionReadingIsEstimation() {
-        doReturn(asList(suspect1, suspect2, suspect3, suspect4)).when(deltaCimChannel).findActualReadingQuality(Range.closed(BEFORE_MINUS_3.toInstant(), AFTER_PLUS_3.toInstant()));
+        doReturn(asList(suspect1, suspect2, suspect3, suspect4))
+                .when(deltaCimChannel).findReadingQualities(SYSTEM, null, Range.closed(BEFORE_MINUS_3.toInstant(), AFTER_PLUS_3.toInstant()), true);
         doReturn(true).when(suspect4).hasEstimatedCategory();
         doReturn(AFTER_PLUS_2.toInstant()).when(suspect4).getReadingTimestamp();
 
@@ -471,7 +475,7 @@ public class EqualDistributionTest {
     @Test
     public void testEqualDistributionDoesNotEstimateWhenBeforeBulkReadingHasOverflowReadingQuality() {
         readingQualityType = ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.OVERFLOWCONDITIONDETECTED);
-        doReturn(asList(suspect1)).when(bulkCimChannel).findReadingQuality(ESTIMATABLE1.toInstant());
+        doReturn(asList(suspect1)).when(bulkCimChannel).findReadingQualities(ESTIMATABLE1.toInstant());
         doReturn(true).when(suspect1).isActual();
         doReturn(readingQualityType).when(suspect1).getType();
 
@@ -492,7 +496,7 @@ public class EqualDistributionTest {
     @Test
     public void testEqualDistributionDoesNotEstimateWhenAfterBulkReadingHasOverflowReadingQuality() {
         readingQualityType = ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.OVERFLOWCONDITIONDETECTED);
-        doReturn(asList(suspect1)).when(bulkCimChannel).findReadingQuality(ESTIMATABLE3.toInstant());
+        doReturn(asList(suspect1)).when(bulkCimChannel).findReadingQualities(ESTIMATABLE3.toInstant());
         doReturn(true).when(suspect1).isActual();
         doReturn(readingQualityType).when(suspect1).getType();
 
@@ -730,6 +734,4 @@ public class EqualDistributionTest {
             }
         };
     }
-
-
 }
