@@ -182,7 +182,7 @@ public class DeviceValidationImpl implements DeviceValidation {
                 .filter(k -> does(k.getChannelsContainer().getRange()).overlap(interval))
                 // TODO: the place for refactoring of CXO-1437/CXO-1438
                 .flatMap(k -> getEvaluator().getValidationStatus(Collections.singleton(QualityCodeSystem.MDC), k, readings,
-                        k.getMeterActivation().getRange().intersection(interval)).stream())
+                        k.getChannelsContainer().getRange().intersection(interval)).stream())
                 .collect(Collectors.toList());
     }
 
@@ -190,7 +190,9 @@ public class DeviceValidationImpl implements DeviceValidation {
     public List<DataValidationStatus> getValidationStatus(Register<?, ?> register, List<? extends BaseReading> readings, Range<Instant> interval) {
         return ((DeviceImpl) register.getDevice()).findKoreChannels(register).stream()
                 .filter(k -> does(k.getChannelsContainer().getRange()).overlap(interval))
-                .flatMap(k -> getEvaluator().getValidationStatus(k, readings, k.getMeterActivation().getRange().intersection(interval)).stream())
+                // TODO: the place for refactoring of CXO-1437/CXO-1438
+                .flatMap(k -> getEvaluator().getValidationStatus(Collections.singleton(QualityCodeSystem.MDC), k, readings,
+                        k.getChannelsContainer().getRange().intersection(interval)).stream())
                 .collect(Collectors.toList());
     }
 
