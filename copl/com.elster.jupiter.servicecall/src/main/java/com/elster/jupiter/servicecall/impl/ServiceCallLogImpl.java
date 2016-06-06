@@ -18,8 +18,6 @@ import java.time.Instant;
  */
 public class ServiceCallLogImpl implements ServiceCallLog, HasId {
 
-    static int count = 0;
-
     enum Fields {
         timestamp("timestamp"),
         logLevel("logLevel"),
@@ -111,6 +109,5 @@ public class ServiceCallLogImpl implements ServiceCallLog, HasId {
     @Override
     public void delete() {
         this.dataModel.remove(this);
-        System.out.println(count++);
     }
 }
