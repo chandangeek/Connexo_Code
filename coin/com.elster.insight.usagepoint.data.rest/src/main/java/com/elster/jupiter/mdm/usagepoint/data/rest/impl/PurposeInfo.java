@@ -1,5 +1,7 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 
 import java.util.List;
@@ -14,5 +16,18 @@ public class PurposeInfo {
     public List<MeterRoleInfo> meterRoles;
 
     public PurposeInfo() {
+    }
+
+    public static PurposeInfo asInfo(MetrologyContract metrologyContract, UsagePoint usagePoint) {
+        PurposeInfo purposeInfo = new PurposeInfo();
+        purposeInfo.id = metrologyContract.getMetrologyPurpose().getId();
+        purposeInfo.name = metrologyContract.getMetrologyPurpose().getName();
+        purposeInfo.required = metrologyContract.isMandatory();
+        purposeInfo.active = purposeInfo.required;
+        IdWithNameInfo status = new IdWithNameInfo();
+        status.id = metrologyContract.getStatus(usagePoint).getKey().equals("COMPLETE") ? "complete" : "incomplete";
+        status.name = metrologyContract.getStatus(usagePoint).getName();
+        purposeInfo.status = status;
+        return purposeInfo;
     }
 }

@@ -155,7 +155,7 @@ public class GoingOnResource {
             return goingOnInfo;
         }
 
-        private Severity severity(Instant dueDate){
+        private Severity severity(Instant dueDate) {
             if (dueDate == null) {
                 return null;
             }

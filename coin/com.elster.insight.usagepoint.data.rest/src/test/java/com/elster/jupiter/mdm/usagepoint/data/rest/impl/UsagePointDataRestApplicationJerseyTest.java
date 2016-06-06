@@ -21,7 +21,9 @@ import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
+import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
+import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.MeterRole;
@@ -33,9 +35,9 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirementNode;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.metering.impl.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
 import com.elster.jupiter.validation.ValidationService;
@@ -64,7 +66,6 @@ import static org.mockito.Mockito.when;
 public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicationJerseyTest {
 
     static long firmwareComTaskId = 445632136865L;
-
     @Mock
     Clock clock;
     @Mock
@@ -82,6 +83,8 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
     @Mock
     ValidationService validationService;
     @Mock
+    DataAggregationService dataAggregationService;
+    @Mock
     static SecurityContext securityContext;
     @Mock
     UsagePointDataService usagePointDataService;
@@ -98,15 +101,8 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
     IssueService issueService;
     @Mock
     BpmService bpmService;
-
-    @Provider
-    @Priority(Priorities.AUTHORIZATION)
-    private static class SecurityRequestFilter implements ContainerRequestFilter {
-        @Override
-        public void filter(ContainerRequestContext requestContext) throws IOException {
-            requestContext.setSecurityContext(securityContext);
-        }
-    }
+    @Mock
+    ThreadPrincipalService threadPrincipalService;
 
     @Override
     protected Application getApplication() {
@@ -127,6 +123,7 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         application.setMeteringGroupService(meteringGroupsService);
         application.setUsagePointConfigurationService(usagePointConfigurationService);
         application.setEstimationService(estimationService);
+        application.setDataAggregationService(dataAggregationService);
         application.setValidationService(validationService);
         application.setUsagePointDataService(usagePointDataService);
         application.setCustomPropertySetService(customPropertySetService);
@@ -135,6 +132,7 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         application.setServiceCallService(serviceCallService);
         application.setServiceCallInfoFactory(serviceCallInfoFactory);
         application.setMetrologyConfigurationService(metrologyConfigurationService);
+        application.setThreadPrincipalService(threadPrincipalService);
         return application;
     }
 
@@ -199,11 +197,16 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         when(contract.getMetrologyConfiguration()).thenReturn(mock);
         when(contract.getDeliverables()).thenReturn(Collections.singletonList(deliverable));
         when(contract.isMandatory()).thenReturn(true);
-        MetrologyContract.Status status = mock(MetrologyContract.Status.class);
-        when(contract.getStatus()).thenReturn(status);
-        when(contract.getStatus().getKey()).thenReturn("INCOMPLETE");
-        when(contract.getStatus().getName()).thenReturn("Incomplete");
         when(mock.getContracts()).thenReturn(Collections.singletonList(contract));
         return mock;
+    }
+
+    @Provider
+    @Priority(Priorities.AUTHORIZATION)
+    private static class SecurityRequestFilter implements ContainerRequestFilter {
+        @Override
+        public void filter(ContainerRequestContext requestContext) throws IOException {
+            requestContext.setSecurityContext(securityContext);
+        }
     }
 }
