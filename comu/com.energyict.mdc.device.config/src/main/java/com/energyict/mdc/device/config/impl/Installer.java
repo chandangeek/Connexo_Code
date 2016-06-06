@@ -1,12 +1,14 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.device.config.events.EventType;
-
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.users.UserService;
+import com.energyict.mdc.device.config.events.EventType;
 
-import java.util.logging.Level;
+import javax.inject.Inject;
 import java.util.logging.Logger;
 
 /**
@@ -15,37 +17,29 @@ import java.util.logging.Logger;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-30 (15:42)
  */
-public class Installer {
-
-    private final Logger logger = Logger.getLogger(Installer.class.getName());
+class Installer implements FullInstaller {
 
     private final DataModel dataModel;
     private final EventService eventService;
     private final UserService userService;
 
-    public Installer(DataModel dataModel, EventService eventService, UserService userService) {
+    @Inject
+    Installer(DataModel dataModel, EventService eventService, UserService userService) {
         super();
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.userService = userService;
     }
 
-    public void install(boolean executeDdl) {
-        try {
-            this.dataModel.install(executeDdl, true);
-        } catch (Exception e) {
-            this.logger.log(Level.SEVERE, e.getMessage(), e);
-        }
+    @Override
+    public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
+        dataModelUpgrader.upgrade(dataModel, Version.latest());
         createEventTypes();
     }
 
     private void createEventTypes() {
         for (EventType eventType : EventType.values()) {
-            try {
-                eventType.install(this.eventService);
-            } catch (Exception e) {
-                this.logger.log(Level.SEVERE, e.getMessage(), e);
-            }
+            eventType.install(this.eventService);
         }
     }
 

@@ -20,9 +20,11 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.upgrade.InstallIdentifier;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.Resource;
@@ -80,6 +82,7 @@ import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 
 import com.google.common.collect.HashMultiset;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multiset;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -117,9 +120,9 @@ import static java.util.stream.Collectors.toList;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-30 (15:38)
  */
-@Component(name = "com.energyict.mdc.device.config", service = {DeviceConfigurationService.class, ServerDeviceConfigurationService.class, InstallService.class, TranslationKeyProvider.class, MessageSeedProvider.class, PrivilegesProvider.class}, property = "name=" + DeviceConfigurationService.COMPONENTNAME, immediate = true)
+@Component(name = "com.energyict.mdc.device.config", service = {DeviceConfigurationService.class, ServerDeviceConfigurationService.class, TranslationKeyProvider.class, MessageSeedProvider.class, PrivilegesProvider.class}, property = "name=" + DeviceConfigurationService.COMPONENTNAME, immediate = true)
 @LiteralSql
-public class DeviceConfigurationServiceImpl implements ServerDeviceConfigurationService, InstallService, TranslationKeyProvider, MessageSeedProvider, PrivilegesProvider {
+public class DeviceConfigurationServiceImpl implements ServerDeviceConfigurationService, TranslationKeyProvider, MessageSeedProvider, PrivilegesProvider {
 
     private volatile ProtocolPluggableService protocolPluggableService;
 
@@ -142,6 +145,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     private volatile ValidationService validationService;
     private volatile EstimationService estimationService;
     private volatile QueryService queryService;
+    private volatile UpgradeService upgradeService;
     private volatile CalendarService calendarService;
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
 
@@ -152,7 +156,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Inject
-    public DeviceConfigurationServiceImpl(OrmService ormService, Clock clock, ThreadPrincipalService threadPrincipalService, EventService eventService, NlsService nlsService, PropertySpecService propertySpecService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, PluggableService pluggableService, ProtocolPluggableService protocolPluggableService, EngineConfigurationService engineConfigurationService, SchedulingService schedulingService, ValidationService validationService, EstimationService estimationService, MasterDataService masterDataService, FiniteStateMachineService finiteStateMachineService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, CalendarService calendarService) {
+    public DeviceConfigurationServiceImpl(OrmService ormService, Clock clock, ThreadPrincipalService threadPrincipalService, EventService eventService, NlsService nlsService, PropertySpecService propertySpecService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, PluggableService pluggableService, ProtocolPluggableService protocolPluggableService, EngineConfigurationService engineConfigurationService, SchedulingService schedulingService, ValidationService validationService, EstimationService estimationService, MasterDataService masterDataService, FiniteStateMachineService finiteStateMachineService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, CalendarService calendarService, UpgradeService upgradeService) {
         this();
         this.setOrmService(ormService);
         this.setClock(clock);
@@ -174,8 +178,8 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         this.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
         this.setCalendarService(calendarService);
         this.setDeviceMessageSpecificationService(deviceMessageSpecificationService);
+        setUpgradeService(upgradeService);
         this.activate();
-        this.install();
     }
 
     @Override
@@ -569,6 +573,11 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         this.schedulingService = schedulingService;
     }
 
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
+    }
+
     private Module getModule() {
         return new AbstractModule() {
             @Override
@@ -596,6 +605,9 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Activate
     public void activate() {
         this.dataModel.register(this.getModule());
+        upgradeService.register(InstallIdentifier.identifier(DeviceConfigurationService.COMPONENTNAME), dataModel, Installer.class, ImmutableMap.of(
+                Version.version(10, 2), UpgraderV10_2.class
+        ));
         initPrivileges();
     }
 
@@ -621,17 +633,6 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Override
     public List<MessageSeed> getSeeds() {
         return Arrays.asList(MessageSeeds.values());
-    }
-
-    @Override
-    public void install() {
-        new Installer(this.dataModel, this.eventService, userService).install(true);
-        initPrivileges();
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "EVT", "NLS", "USR", "MDS", "CPC", "MDC", "SCH", "CTS", "VAL", "EST", "DLD", "DLC", "CPS", "CAL");
     }
 
     @Reference
