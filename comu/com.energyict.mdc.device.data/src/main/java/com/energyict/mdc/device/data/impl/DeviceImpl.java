@@ -2,7 +2,6 @@ package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.cbo.Aggregate;
 import com.elster.jupiter.cbo.QualityCodeIndex;
-import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
@@ -35,7 +34,6 @@ import com.elster.jupiter.metering.MeterReadingTypeConfiguration;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.ReadingQualityRecord;
-import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
@@ -44,7 +42,6 @@ import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.metering.readings.ProfileStatus;
-import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
@@ -1289,7 +1286,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
      * @param interval The interval over which meter readings are requested
      * @param meter The meter for which readings are requested
      * @param mdcChannel The meter's channel for which readings are requested
-     * @param sortedLoadProfileReadingMap The map to add the readings too in the correct timeslot
+     * @param sortedLoadProfileReadingMap The map to add the readings to in the correct timeslot
      * @return true if any readings were added to the map, false otherwise
      */
     private boolean addChannelDataToMap(Range<Instant> interval, Meter meter, Channel mdcChannel, Map<Instant, LoadProfileReadingImpl> sortedLoadProfileReadingMap) {
@@ -1320,14 +1317,12 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                             if (loadProfileReading != null) {
                                 loadProfileReading.setDataValidationStatus(mdcChannel, s);
                                 //code below is the processing of removed readings
-                                Optional<? extends ReadingQuality> readingQuality = s.getReadingQualities()
+                                s.getReadingQualities()
                                         .stream()
-                                        .filter(rq -> rq.getType()
-                                                .equals(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.REJECTED)))
-                                        .findAny();
-                                if (readingQuality.isPresent()) {
-                                    loadProfileReading.setReadingTime(((ReadingQualityRecord) readingQuality.get()).getTimestamp());
-                                }
+                                        .filter(rq -> rq.getType().qualityIndex().orElse(null) == QualityCodeIndex.REJECTED)
+                                        .findAny()
+                                        .map(ReadingQualityRecord.class::cast)
+                                        .ifPresent(readingQuality -> loadProfileReading.setReadingTime(readingQuality.getTimestamp()));
                             }
                         });
             }
@@ -2796,7 +2791,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         }
     }
 
-
     @Override
     public String getmRID() {
         return mRID;
@@ -2822,8 +2816,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return this.getConnectionTaskImpls().collect(Collectors.toList());
     }
 
-
-
     @Override
     public List<ScheduledConnectionTask> getScheduledConnectionTasks() {
         return this.getConnectionTaskImpls()
@@ -2848,8 +2840,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 .collect(Collectors.toList());
     }
 
-
-
     @Override
     public void removeConnectionTask(ConnectionTask<?, ?> connectionTask) {
         this.connectionTasks
@@ -2860,14 +2850,10 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 .ifPresent(ServerConnectionTask::makeObsolete);
     }
 
-
-
     @Override
     public List<ComTaskExecution> getComTaskExecutions() {
         return comTaskExecutions.stream().filter(((Predicate<ComTaskExecution>) ComTaskExecution::isObsolete).negate()).collect(Collectors.toList());
     }
-
-
 
     @Override
     public void removeComTaskExecution(ComTaskExecution comTaskExecution) {
@@ -2934,14 +2920,10 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return this.getDeviceConfiguration().getProtocolDialectConfigurationPropertiesList();
     }
 
-
-
     @Override
     public boolean hasSecurityProperties(SecurityPropertySet securityPropertySet) {
         return this.hasSecurityProperties(clock.instant(), securityPropertySet);
     }
-
-
 
     @Override
     public boolean securityPropertiesAreValid() {
@@ -3004,10 +2986,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return getListMeterAspect(this::getOpenIssuesForMeter);
     }
 
-
-
-
-
     @Override
     public State getState() {
         return this.getState(this.clock.instant()).get();
@@ -3058,10 +3036,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return changeEvents;
     }
 
-
-
-
-
     @Override
     public long getVersion() {
         return version;
@@ -3071,30 +3045,5 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     public Instant getCreateTime() {
         return createTime;
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 }
