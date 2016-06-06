@@ -352,6 +352,7 @@ class EstimationRuleImpl implements IEstimationRule {
     }
 
     private ReadingQualityType getReadingQualityType() {
+        // TODO: estimation refactoring: decide here which system should be used (CXO-1443)
         return ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.ESTIMATED, (int) getId());
     }
 
