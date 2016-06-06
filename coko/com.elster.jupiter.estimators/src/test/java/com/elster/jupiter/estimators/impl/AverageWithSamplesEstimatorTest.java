@@ -164,10 +164,10 @@ public class AverageWithSamplesEstimatorTest {
                 .mapToObj(i -> mockReading(ESTIMABLE_TIME.plusDays(7 * i).toInstant(), values[i + 4]))
                 .collect(Collectors.toCollection(ArrayList::new));
         readingRecords.add(1, mockReading(ESTIMABLE_TIME.minusDays(25).toInstant(), 1000L));
-        doReturn(Collections.emptyList()).when(channel).findReadingQuality(any(Instant.class));
-        doReturn(singletonList(confirmedReadingQuality())).when(channel).findReadingQuality(ESTIMABLE_TIME.minusDays(21).toInstant());
-        doReturn(singletonList(estimatedReadingQuality())).when(channel).findReadingQuality(ESTIMABLE_TIME.minusDays(14).toInstant());
-        doReturn(singletonList(editReadingQuality())).when(channel).findReadingQuality(ESTIMABLE_TIME.plusDays(21).toInstant());
+        doReturn(Collections.emptyList()).when(channel).findReadingQualities(any(Instant.class));
+        doReturn(singletonList(confirmedReadingQuality())).when(channel).findReadingQualities(ESTIMABLE_TIME.minusDays(21).toInstant());
+        doReturn(singletonList(estimatedReadingQuality())).when(channel).findReadingQualities(ESTIMABLE_TIME.minusDays(14).toInstant());
+        doReturn(singletonList(editReadingQuality())).when(channel).findReadingQualities(ESTIMABLE_TIME.plusDays(21).toInstant());
         return readingRecords;
     }
 
@@ -177,13 +177,13 @@ public class AverageWithSamplesEstimatorTest {
                 .mapToObj(i -> ImmutableList.of(mockReading(ESTIMABLE_TIME.plusDays(7 * i).toInstant(), values[i + 4]), mockReading(ESTIMABLE_TIME.plusDays(7 * i).plusMinutes(15).toInstant(), values[i + 4])))
                 .flatMap(List::stream)
                 .collect(Collectors.toCollection(ArrayList::new));
-        doReturn(Collections.emptyList()).when(channel).findReadingQuality(any(Instant.class));
-        doReturn(singletonList(confirmedReadingQuality())).when(channel).findReadingQuality(ESTIMABLE_TIME.minusDays(21).toInstant());
-        doReturn(singletonList(estimatedReadingQuality())).when(channel).findReadingQuality(ESTIMABLE_TIME.minusDays(14).toInstant());
-        doReturn(singletonList(editReadingQuality())).when(channel).findReadingQuality(ESTIMABLE_TIME.plusDays(21).toInstant());
-        doReturn(singletonList(confirmedReadingQuality())).when(channel).findReadingQuality(ESTIMABLE_TIME.minusDays(21).plusMinutes(15).toInstant());
-        doReturn(singletonList(estimatedReadingQuality())).when(channel).findReadingQuality(ESTIMABLE_TIME.minusDays(14).plusMinutes(15).toInstant());
-        doReturn(singletonList(editReadingQuality())).when(channel).findReadingQuality(ESTIMABLE_TIME.plusDays(21).plusMinutes(15).toInstant());
+        doReturn(Collections.emptyList()).when(channel).findReadingQualities(any(Instant.class));
+        doReturn(singletonList(confirmedReadingQuality())).when(channel).findReadingQualities(ESTIMABLE_TIME.minusDays(21).toInstant());
+        doReturn(singletonList(estimatedReadingQuality())).when(channel).findReadingQualities(ESTIMABLE_TIME.minusDays(14).toInstant());
+        doReturn(singletonList(editReadingQuality())).when(channel).findReadingQualities(ESTIMABLE_TIME.plusDays(21).toInstant());
+        doReturn(singletonList(confirmedReadingQuality())).when(channel).findReadingQualities(ESTIMABLE_TIME.minusDays(21).plusMinutes(15).toInstant());
+        doReturn(singletonList(estimatedReadingQuality())).when(channel).findReadingQualities(ESTIMABLE_TIME.minusDays(14).plusMinutes(15).toInstant());
+        doReturn(singletonList(editReadingQuality())).when(channel).findReadingQualities(ESTIMABLE_TIME.plusDays(21).plusMinutes(15).toInstant());
         return readingRecords;
     }
 
@@ -284,7 +284,7 @@ public class AverageWithSamplesEstimatorTest {
         List<BaseReadingRecord> readingRecords = buildReadings();
         doReturn(Unit.WATT_HOUR.amount(BigDecimal.valueOf(100))).when(readingRecords.get(6)).getQuantity(readingType);
         doReturn(readingRecords).when(channel).getReadings(Range.openClosed(START.toInstant(), LAST_CHECKED.toInstant()));
-        doReturn(singletonList(suspectReadingQuality())).when(channel).findReadingQuality(ESTIMABLE_TIME.plusDays(7).toInstant());
+        doReturn(singletonList(suspectReadingQuality())).when(channel).findReadingQualities(ESTIMABLE_TIME.plusDays(7).toInstant());
 
         Map<String, Object> props = ImmutableMap.<String, Object>builder()
                 .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L)
@@ -439,7 +439,7 @@ public class AverageWithSamplesEstimatorTest {
 
     @Test
     public void testEstimateFailsWhenPriorAdvanceReadingIsSuspect() {
-        doReturn(asList(suspect4)).when(advanceCimChannel).findReadingQuality(ESTIMABLE_TIME.minusMinutes(35).toInstant());
+        doReturn(asList(suspect4)).when(advanceCimChannel).findReadingQualities(ESTIMABLE_TIME.minusMinutes(35).toInstant());
         doReturn(true).when(suspect4).isSuspect();
         doReturn(ESTIMABLE_TIME.minusMinutes(35).toInstant()).when(suspect4).getReadingTimestamp();
         doReturn(true).when(suspect4).isActual();
@@ -476,7 +476,7 @@ public class AverageWithSamplesEstimatorTest {
 
     @Test
     public void testEstimateFailsWhenLaterAdvanceReadingIsSuspect() {
-        doReturn(asList(suspect4)).when(advanceCimChannel).findReadingQuality(ESTIMABLE_TIME.plusMinutes(35).toInstant());
+        doReturn(asList(suspect4)).when(advanceCimChannel).findReadingQualities(ESTIMABLE_TIME.plusMinutes(35).toInstant());
         doReturn(true).when(suspect4).isSuspect();
         doReturn(ESTIMABLE_TIME.plusMinutes(35).toInstant()).when(suspect4).getReadingTimestamp();
         doReturn(true).when(suspect4).isActual();

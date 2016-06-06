@@ -16,7 +16,6 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
-import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
@@ -43,6 +42,7 @@ import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -176,8 +176,7 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
                 if (!isEstimatable(block)) {
                     remain.add(block);
                 } else {
-                    boolean succes = estimate(block);
-                    if (succes) {
+                    if (estimate(block)) {
                         estimated.add(block);
                     } else {
                         remain.add(block);
@@ -557,7 +556,8 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
     }
 
     private boolean hasSuspects(CimChannel cimChannel, Range<Instant> preInterval) {
-        return !cimChannel.findActualReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), preInterval).isEmpty();
+        // TODO: estimation refactoring: decide here which system should be used (CXO-1443)
+        return !cimChannel.findReadingQualities(Collections.singleton(QualityCodeSystem.MDC), QualityCodeIndex.SUSPECT, preInterval, true).isEmpty();
     }
 
     private Instant lastOf(List<Instant> instants) {
@@ -585,8 +585,7 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
 
     private boolean estimateWithoutAdvances(EstimationBlock estimationBlock) {
         for (Estimatable estimatable : estimationBlock.estimatables()) {
-            boolean failure = !estimateWithoutAdvances(estimationBlock, estimatable);
-            if (failure) {
+            if (!estimateWithoutAdvances(estimationBlock, estimatable)) {
                 return false;
             }
         }
@@ -646,7 +645,8 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
     }
 
     private boolean ofRequiredQuality(EstimationBlock estimationBlock, Instant timeStamp) {
-        return estimationBlock.getChannel().findReadingQuality(timeStamp).stream()
+        // TODO: estimation refactoring: decide here which system should be used (CXO-1443)
+        return estimationBlock.getChannel().findReadingQualities(timeStamp).stream()
                 .filter(ReadingQualityRecord::isActual)
                 .filter(readingQualityRecord -> readingQualityRecord.getReadingType().equals(estimationBlock.getReadingType()))
                 .noneMatch(either(ReadingQualityRecord::isSuspect)
@@ -670,7 +670,7 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
     }
 
     private boolean isValidReading(CimChannel advanceCimChannel, BaseReadingRecord readingToEvaluate) {
-        return advanceCimChannel.findReadingQuality(readingToEvaluate.getTimeStamp()).stream()
+        return advanceCimChannel.findReadingQualities(readingToEvaluate.getTimeStamp()).stream()
                 .filter(ReadingQualityRecord::isActual)
                 .noneMatch(
                         either(ReadingQualityRecord::isSuspect)
