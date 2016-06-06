@@ -31,6 +31,7 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointConfiguration;
 import com.elster.jupiter.metering.UsagePointReadingTypeConfiguration;
 import com.elster.jupiter.metering.readings.BaseReading;
+import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DoesNotExistException;
 import com.elster.jupiter.orm.associations.Reference;
@@ -41,6 +42,7 @@ import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.streams.ExtraCollectors;
 import com.elster.jupiter.util.streams.Functions;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
@@ -77,6 +79,7 @@ public final class ChannelImpl implements ChannelContract {
     static final int INTERVALVAULTID = 1;
     static final int IRREGULARVAULTID = 2;
     static final int DAILYVAULTID = 3;
+    private static final Order ORDER_CHRONOLOGICAL = Order.ascending("readingTimestamp");
 
     // persistent fields
     private long id;
@@ -300,7 +303,7 @@ public final class ChannelImpl implements ChannelContract {
 
         return readingRecord.getReadingTypes()
                 .stream()
-                .map(readingType -> recordSpecDefinition.toArray(readingRecord.filter(readingType), readingTypes.indexOf(readingType), readingRecord.getProcesStatus()))
+                .map(readingType -> recordSpecDefinition.toArray(readingRecord.filter(readingType), readingTypes.indexOf(readingType), readingRecord.getProcessStatus()))
                 .reduce(null, this::merge);
     }
 
@@ -424,7 +427,6 @@ public final class ChannelImpl implements ChannelContract {
         )
                 .flatMap(Function.identity())
                 .collect(ExtraCollectors.toImmutableList());
-
     }
 
     @Override
@@ -450,14 +452,8 @@ public final class ChannelImpl implements ChannelContract {
                 .collect(ExtraCollectors.toImmutableList());
     }
 
-
     public Optional<BaseReadingRecord> getReading(Instant when) {
-        java.util.Optional<TimeSeriesEntry> entryHolder = getTimeSeries().getEntry(when);
-        if (entryHolder.isPresent()) {
-            return Optional.of(createReading(entryHolder.get(), isRegular()));
-        } else {
-            return Optional.empty();
-        }
+        return getTimeSeries().getEntry(when).map(entryHolder -> createReading(entryHolder, isRegular()));
     }
 
     @Override
@@ -581,13 +577,13 @@ public final class ChannelImpl implements ChannelContract {
     @Override
     public List<ReadingQualityRecord> findReadingQuality(Range<Instant> range) {
         Condition condition = inRange(range).and(ofThisChannel());
-        return dataModel.mapper(ReadingQualityRecord.class).select(condition, Order.ascending("readingTimestamp"));
+        return dataModel.mapper(ReadingQualityRecord.class).select(condition, ORDER_CHRONOLOGICAL);
     }
 
     @Override
     public List<ReadingQualityRecord> findActualReadingQuality(Range<Instant> range) {
         Condition condition = inRange(range).and(ofThisChannel()).and(isActual());
-        return dataModel.mapper(ReadingQualityRecord.class).select(condition, Order.ascending("readingTimestamp"));
+        return dataModel.mapper(ReadingQualityRecord.class).select(condition, ORDER_CHRONOLOGICAL);
     }
 
     private Condition isActual() {
@@ -606,6 +602,20 @@ public final class ChannelImpl implements ChannelContract {
         return where("typeCode").isEqualTo(type.getCode());
     }
 
+    private Condition ofOneOfTypes(Stream<ReadingQualityType> types) {
+        return where("typeCode").in(types.map(ReadingQualityType::getCode).collect(Collectors.toList()));
+    }
+
+    private Condition ofIndex(QualityCodeIndex index) {
+        return where("typeCode").like(Joiner.on('.').join('*', index.category().ordinal(), index.index()));
+    }
+
+    private Condition ofOneOfSystems(Stream<QualityCodeSystem> systems) {
+        return where("typeCode").matches("^(" + systems
+                .map(system -> Integer.toString(system.ordinal()))
+                .collect(Collectors.joining("|")) + ")\\.\\d+\\.\\d+$", "");
+    }
+
     @Override
     public Optional<ReadingQualityRecord> findReadingQuality(ReadingQualityType type, Instant timestamp) {
         Condition condition = ofThisChannel().and(withTimestamp(timestamp)).and(ofType(type));
@@ -619,19 +629,38 @@ public final class ChannelImpl implements ChannelContract {
     @Override
     public List<ReadingQualityRecord> findReadingQuality(ReadingQualityType type, Range<Instant> range) {
         Condition ofTypeAndInInterval = ofThisChannel().and(inRange(range)).and(ofType(type));
-        return dataModel.mapper(ReadingQualityRecord.class).select(ofTypeAndInInterval, Order.ascending("readingTimestamp"));
+        return dataModel.mapper(ReadingQualityRecord.class).select(ofTypeAndInInterval, ORDER_CHRONOLOGICAL);
     }
 
     @Override
     public List<ReadingQualityRecord> findActualReadingQuality(ReadingQualityType type, Range<Instant> interval) {
         Condition ofTypeAndInInterval = ofThisChannel().and(inRange(interval)).and(ofType(type)).and(isActual());
-        return dataModel.mapper(ReadingQualityRecord.class).select(ofTypeAndInInterval, Order.ascending("readingTimestamp"));
+        return dataModel.mapper(ReadingQualityRecord.class).select(ofTypeAndInInterval, ORDER_CHRONOLOGICAL);
     }
 
     @Override
-    public List<ReadingQualityRecord> findReadingQuality(Instant timestamp) {
+    public List<ReadingQualityRecord> findReadingQualities(Set<QualityCodeSystem> qualityCodeSystems, QualityCodeIndex index,
+                                                           Range<Instant> interval, boolean checkIfActual, boolean sort) {
+        Condition selectionCondition = ofThisChannel().and(inRange(interval));
+        boolean ignoreQualityCodeSystem = qualityCodeSystems == null || qualityCodeSystems.isEmpty();
+        if (!ignoreQualityCodeSystem || index != null) {
+            selectionCondition = selectionCondition.and(ignoreQualityCodeSystem ?
+                    ofIndex(index) :
+                    index == null ?
+                            ofOneOfSystems(qualityCodeSystems.stream()) :
+                            ofOneOfTypes(qualityCodeSystems.stream().map(system -> ReadingQualityType.of(system, index))));
+        }
+        if (checkIfActual) {
+            selectionCondition = selectionCondition.and(isActual());
+        }
+        DataMapper<ReadingQualityRecord> mapper = dataModel.mapper(ReadingQualityRecord.class);
+        return sort ? mapper.select(selectionCondition, ORDER_CHRONOLOGICAL) : mapper.select(selectionCondition);
+    }
+
+    @Override
+    public List<ReadingQualityRecord> findReadingQualities(Instant timestamp) {
         Condition atTimestamp = ofThisChannel().and(withTimestamp(timestamp));
-        return dataModel.mapper(ReadingQualityRecord.class).select(atTimestamp, Order.ascending("readingTimestamp"));
+        return dataModel.mapper(ReadingQualityRecord.class).select(atTimestamp, ORDER_CHRONOLOGICAL);
     }
 
     @Override
@@ -695,36 +724,33 @@ public final class ChannelImpl implements ChannelContract {
         if (getBulkQuantityReadingType().isPresent() && getCimChannel(getBulkQuantityReadingType().get()).isPresent()) {
             getCimChannel(getBulkQuantityReadingType().get()).get().confirmReadings(readings);
         }
-        Set<Instant> readingTimes = readings.stream().map(reading -> reading.getTimeStamp()).collect(Collectors.toSet());
     }
 
     @Override
     public void removeReadings(List<? extends BaseReadingRecord> readings) { // TODO make this for a specific readingType
-        if (readings.isEmpty()) {
-            return;
+        if (!readings.isEmpty()) {
+            Set<Instant> readingTimes = readings.stream().map(BaseReading::getTimeStamp).collect(Collectors.toSet());
+            readingTimes.forEach(instant -> timeSeries.get().removeEntry(instant));
+            findReadingQualities(null, null, Range.encloseAll(readingTimes), false, false).stream()
+                    .filter(quality -> readingTimes.contains(quality.getReadingTimestamp()))
+                    .forEach(ReadingQualityRecord::delete);
+            // TODO: refactor with custom QualityCodeSystem(s) in scope of data editing refactoring (CXO-1449)
+            ReadingQualityType rejected = ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.REJECTED);
+            readingTimes.forEach(readingTime -> {
+                createReadingQuality(rejected, mainReadingType.get(), readingTime);
+                getBulkQuantityReadingType().ifPresent(bulkReadingType -> createReadingQuality(rejected, bulkReadingType, readingTime));
+            });
+            eventService.postEvent(EventType.READINGS_DELETED.topic(), new ReadingsDeletedEventImpl(this, readingTimes));
         }
-        Set<Instant> readingTimes = readings.stream().map(BaseReading::getTimeStamp).collect(Collectors.toSet());
-        List<ReadingQualityRecord> qualityRecords = findReadingQuality(Range.encloseAll(readingTimes));
-        readingTimes.forEach(instant -> timeSeries.get().removeEntry(instant));
-        qualityRecords.stream()
-                .filter(quality -> readingTimes.contains(quality.getReadingTimestamp()))
-                .forEach(qualityRecord -> qualityRecord.delete());
-        ReadingQualityType rejected = ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.REJECTED);
-        readingTimes.forEach(readingTime -> {
-            createReadingQuality(rejected, mainReadingType.get(), readingTime);
-            getBulkQuantityReadingType().ifPresent(bulkReadingType -> createReadingQuality(rejected, bulkReadingType, readingTime));
-        });
-        eventService.postEvent(EventType.READINGS_DELETED.topic(), new ReadingsDeletedEventImpl(this, readingTimes));
     }
 
     void deleteReadings(List<? extends BaseReadingRecord> readings) {
-        if (readings.isEmpty()) {
-            return;
+        if (!readings.isEmpty()) {
+            Set<Instant> readingTimes = readings.stream()
+                    .map(BaseReading::getTimeStamp)
+                    .collect(Collectors.toSet());
+            readingTimes.forEach(instant -> timeSeries.get().removeEntry(instant));
         }
-        Set<Instant> readingTimes = readings.stream()
-                .map(BaseReading::getTimeStamp)
-                .collect(Collectors.toSet());
-        readingTimes.forEach(instant -> timeSeries.get().removeEntry(instant));
     }
 
     @Override
@@ -733,19 +759,16 @@ public final class ChannelImpl implements ChannelContract {
     }
 
     void copyReadings(List<BaseReadingRecord> readings) {
-        if (readings.isEmpty()) {
-            return;
+        if (!readings.isEmpty()) {
+            TimeSeriesDataStorer storer = idsService.createOverrulingStorer();
+
+            readings.stream()
+                    .map(BaseReadingRecordImpl.class::cast)
+                    .map(baseReadingRecord -> Pair.of(baseReadingRecord.getTimeStamp(), baseReadingRecord.getEntry().getValues()))
+                    .forEach(pair -> storer.add(getTimeSeries(), pair.getFirst(), pair.getLast()));
+
+            storer.execute();
         }
-
-        TimeSeriesDataStorer storer = idsService.createOverrulingStorer();
-
-        readings.stream()
-                .map(BaseReadingRecordImpl.class::cast)
-                .map(baseReadingRecord -> Pair.of(baseReadingRecord.getTimeStamp(), baseReadingRecord.getEntry().getValues()))
-                .forEach(pair -> storer.add(getTimeSeries(), pair.getFirst(), pair.getLast()));
-
-        storer.execute();
-
     }
 
     public static class ReadingsDeletedEventImpl implements Channel.ReadingsDeletedEvent {
@@ -778,8 +801,5 @@ public final class ChannelImpl implements ChannelContract {
         public long getEndMillis() {
             return readingTimes.stream().max(Comparator.naturalOrder()).get().toEpochMilli();
         }
-
     }
-
-
 }

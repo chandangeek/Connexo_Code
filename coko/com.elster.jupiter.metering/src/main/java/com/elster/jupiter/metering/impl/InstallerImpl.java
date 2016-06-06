@@ -1,12 +1,12 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.cbo.EndDeviceControlTypeCodeBuilder;
 import com.elster.jupiter.cbo.EndDeviceDomain;
 import com.elster.jupiter.cbo.EndDeviceEventOrAction;
 import com.elster.jupiter.cbo.EndDeviceEventTypeCodeBuilder;
 import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.cbo.EndDeviceType;
 import com.elster.jupiter.cbo.MarketRoleKind;
-import com.elster.jupiter.cbo.EndDeviceControlTypeCodeBuilder;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.Vault;

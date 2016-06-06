@@ -148,11 +148,12 @@ public class MeterReadingStorerTest {
         assertThat(readings.get(1).getQuantity(0).getValue()).isEqualTo(BigDecimal.valueOf(1100));
         assertThat(((IntervalReadingRecord) readings.get(1)).getProfileStatus()).isEqualTo(status);
         Range<Instant> range = Range.closed(instant.minusSeconds(15 * 60L), instant.plusSeconds(30 * 60L));
-        assertThat(channel.findReadingQuality(range)).hasSize(2);
+        assertThat(channel.findReadingQualities(null, null, range, false, false)).hasSize(2);
         channel.removeReadings(readings);
         assertThat(channel.getReadings(range)).hasSize(1);
-        assertThat(channel.findReadingQuality(range)).hasSize(3);
-        assertThat(channel.findReadingQuality(range).get(1).getType().qualityIndex().get()).isEqualTo(QualityCodeIndex.REJECTED);
+        List<ReadingQualityRecord> qualities = channel.findReadingQualities(null, null, range, false, true);
+        assertThat(qualities).hasSize(3);
+        assertThat(qualities.get(1).getType().qualityIndex().get()).isSameAs(QualityCodeIndex.REJECTED);
     }
 
     @Test
@@ -320,6 +321,6 @@ public class MeterReadingStorerTest {
         assertThat(readings.get(0).getQuantity(0)).isNull();
         assertThat(readings.get(1).getQuantity(0).getValue()).isEqualTo(BigDecimal.valueOf(50));
         assertThat(readings.get(1).getQuantity(1).getValue()).isEqualTo(BigDecimal.valueOf(1100));
-        assertThat(readings.get(1).getProcesStatus().get(ProcessStatus.Flag.EDITED)).isTrue();
+        assertThat(readings.get(1).getProcessStatus().get(ProcessStatus.Flag.EDITED)).isTrue();
     }
 }

@@ -1,5 +1,7 @@
 package com.elster.jupiter.metering;
 
+import com.elster.jupiter.cbo.QualityCodeIndex;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.readings.BaseReading;
 
 import aQute.bnd.annotation.ProviderType;
@@ -49,16 +51,73 @@ public interface Channel {
 
     ReadingQualityRecord createReadingQuality(ReadingQualityType type, ReadingType readingType, Instant timestamp);
 
+
+    /**
+     * @deprecated unused in production and likely unneeded due to {@link #findReadingQualities(Instant)}
+     * @param type
+     * @param timestamp
+     * @return
+     */
+    @Deprecated
     Optional<ReadingQualityRecord> findReadingQuality(ReadingQualityType type, Instant timestamp);
 
+
+    /**
+     * @deprecated marked for deletion
+     * use {@link #findReadingQualities(Set, QualityCodeIndex, Range, boolean, boolean)} with checkIfActual = false, sort = true
+     * @param type
+     * @param interval
+     * @return
+     */
+    @Deprecated
     List<ReadingQualityRecord> findReadingQuality(ReadingQualityType type, Range<Instant> interval);
 
+
+    /**
+     * @deprecated marked for deletion
+     * use {@link #findReadingQualities(Set, QualityCodeIndex, Range, boolean, boolean)} with checkIfActual = true, sort = true
+     * @param type
+     * @param interval
+     * @return
+     */
+    @Deprecated
     List<ReadingQualityRecord> findActualReadingQuality(ReadingQualityType type, Range<Instant> interval);
 
     List<ReadingQualityRecord> findReadingQuality(Instant timestamp);
 
+
+    /**
+     * Looks for reading qualities of any of given {@param qualityCodeSystems} and of a given {@param index} present in a given {@param interval}
+     * @param qualityCodeSystems only systems to take into account when looking for qualities; <code>null</code> or empty set mean all systems
+     * @param index quality index to find; <code>null</code> means any index
+     * @param interval interval to check for qualities
+     * @param checkIfActual whether or not to look for actual qualities only
+     * @param sort whether or not to sort the result; the sorting is performed by reading timestamp in chronological manner
+     * @return the list of found qualities
+     */
+    List<ReadingQualityRecord> findReadingQualities(Set<QualityCodeSystem> qualityCodeSystems, QualityCodeIndex index,
+                                                    Range<Instant> interval,
+                                                    boolean checkIfActual, boolean sort);
+
+    List<ReadingQualityRecord> findReadingQualities(Instant timestamp);
+
+    /**
+     * @deprecated marked for deletion
+     * use {@link #findReadingQualities(Set, QualityCodeIndex, Range, boolean, boolean)} with systems = null, index = null, checkIfActual = false, sort = true
+     * @param interval
+     * @return
+     */
+    @Deprecated
     List<ReadingQualityRecord> findReadingQuality(Range<Instant> interval);
 
+
+    /**
+     * @deprecated marked for deletion
+     * use {@link #findReadingQualities(Set, QualityCodeIndex, Range, boolean, boolean)} with systems = null, index = null, checkIfActual = true, sort = true
+     * @param interval
+     * @return
+     */
+    @Deprecated
     List<ReadingQualityRecord> findActualReadingQuality(Range<Instant> interval);
 
     boolean isRegular();

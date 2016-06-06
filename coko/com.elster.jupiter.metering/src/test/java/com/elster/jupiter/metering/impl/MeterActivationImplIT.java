@@ -312,11 +312,11 @@ public class MeterActivationImplIT {
         assertThat(secondChannelReadings.get(2).getValue()).isEqualTo(BigDecimal.valueOf(4825, 2));
         assertThat(secondChannelReadings.get(2).getTimeStamp()).isEqualTo(originalCutOff.plusMinutes(15).toInstant());
 
-        List<ReadingQualityRecord> firstQualities = first.getChannels().get(0).findReadingQuality(Range.<Instant>all());
+        List<ReadingQualityRecord> firstQualities = first.getChannels().get(0).findReadingQualities(null, null, Range.<Instant>all(), false, true);
         assertThat(firstQualities).hasSize(2);
         assertThat(firstQualities.get(0).getReadingTimestamp()).isEqualTo(newCutOff.minusMinutes(15).toInstant());
         assertThat(firstQualities.get(1).getReadingTimestamp()).isEqualTo(newCutOff.toInstant());
-        List<ReadingQualityRecord> secondQualities = second.getChannels().get(0).findReadingQuality(Range.<Instant>all());
+        List<ReadingQualityRecord> secondQualities = second.getChannels().get(0).findReadingQualities(null, null, Range.<Instant>all(), false, true);
         assertThat(secondQualities).hasSize(3);
         assertThat(secondQualities.get(0).getReadingTimestamp()).isEqualTo(newCutOff.plusMinutes(15).toInstant());
         assertThat(secondQualities.get(0).isActual()).isFalse();

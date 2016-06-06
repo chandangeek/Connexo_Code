@@ -83,8 +83,8 @@ public abstract class AbstractBaseReadingImplTest {
         when(thesaurus.getFormat(any(TranslationKey.class))).thenReturn(messageFormat);
         when(dataModel.getInstance(ReadingTypeInChannel.class)).then(invocation -> new ReadingTypeInChannel(dataModel, meteringService));
         when(meter.getConfiguration(any())).thenReturn(Optional.empty());
-    	when(idsService.getVault(anyString(), anyInt())).thenReturn(Optional.of(vault));
-    	when(idsService.getRecordSpec(anyString(), anyInt())).thenReturn(Optional.of(recordSpec));
+        when(idsService.getVault(anyString(), anyInt())).thenReturn(Optional.of(vault));
+        when(idsService.getRecordSpec(anyString(), anyInt())).thenReturn(Optional.of(recordSpec));
         when(entry.getTimeStamp()).thenReturn(DATE);
         when(entry.getRecordDateTime()).thenReturn(RECORD_DATE);
         when(entry.getBigDecimal(anyInt())).thenAnswer(new Answer<Object>() {
@@ -94,22 +94,22 @@ public abstract class AbstractBaseReadingImplTest {
             }
         });
         final Provider<ChannelImpl> channelFactory = new Provider<ChannelImpl>() {
-			@Override
-			public ChannelImpl get() {
-				return new ChannelImpl(dataModel,idsService, meteringService, clock, eventService);
-			}
+            @Override
+            public ChannelImpl get() {
+                return new ChannelImpl(dataModel,idsService, meteringService, clock, eventService);
+            }
         };
         final Provider<ChannelBuilder> channelBuilder = new Provider<ChannelBuilder>() {
-			@Override
-			public ChannelBuilder get() {
-				return new ChannelBuilderImpl(dataModel, channelFactory);
-			}
+            @Override
+            public ChannelBuilder get() {
+                return new ChannelBuilderImpl(dataModel, channelFactory);
+            }
         };
         meterActivation = new MeterActivationImpl(dataModel, eventService, clock, channelBuilder, thesaurus).init(meter, null, null, Instant.EPOCH);
         ReadingTypeCodeBuilder builder = ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_PRIMARY_METERED)
-        		.measure(MeasurementKind.ENERGY)
-        		.in(MetricMultiplier.KILO,ReadingTypeUnit.WATTHOUR)
-        		.flow(FlowDirection.FORWARD);
+                .measure(MeasurementKind.ENERGY)
+                .in(MetricMultiplier.KILO,ReadingTypeUnit.WATTHOUR)
+                .flow(FlowDirection.FORWARD);
         readingType = new ReadingTypeImpl(dataModel,thesaurus).init(builder.code(),"");
         builder.flow(FlowDirection.REVERSE);
         readingType1 = new ReadingTypeImpl(dataModel,thesaurus).init(builder.code(),"");
@@ -189,11 +189,11 @@ public abstract class AbstractBaseReadingImplTest {
 
     @Test
     public void testGetProcessingFlags() {
-        assertThat(baseReading.getProcesStatus()).isEqualTo(ProcessStatus.of(ProcessStatus.Flag.SUSPECT));
+        assertThat(baseReading.getProcessStatus()).isEqualTo(ProcessStatus.of(ProcessStatus.Flag.SUSPECT));
     }
 
     ChannelImpl getChannel() {
-    	return channel;
+        return channel;
     }
 
 }

@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.ami;
 
 import com.elster.jupiter.metering.EndDeviceControlType;
 import com.elster.jupiter.metering.ReadingType;
+
 import java.util.Collections;
 import java.util.List;
 
