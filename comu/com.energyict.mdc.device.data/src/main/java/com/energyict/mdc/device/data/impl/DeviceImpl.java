@@ -269,7 +269,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private List<ProtocolDialectPropertiesImpl> newDialectProperties = new ArrayList<>();
     private List<ProtocolDialectPropertiesImpl> dirtyDialectProperties = new ArrayList<>();
     private List<PassiveEffectiveCalendar> passiveCalendars = new ArrayList<>();
-    private TemporalReference<ActiveEffectiveCalendar> activeCalendar = Temporals.absent();
+    private TemporalReference<ServerActiveEffectiveCalendar> activeCalendar = Temporals.absent();
 
     private Map<SecurityPropertySet, TypedProperties> dirtySecurityProperties = new HashMap<>();
     private transient DeviceValidationImpl deviceValidation;
@@ -278,11 +278,10 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private transient Optional<MeterActivation> currentMeterActivation = Optional.empty();
     private transient MultiplierType multiplierType;
     private transient BigDecimal multiplier;
-    private Location location;
+    private Optional<Location> location = Optional.empty();
     private Optional<GeoCoordinates> geoCoordinates = Optional.empty();
     private boolean dirtyMeter = false;
     private static Map<Predicate<Class<? extends ProtocolTask>>, Integer> scorePerProtocolTask;
-
 
     @Inject
     public DeviceImpl(
@@ -379,12 +378,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                             !foundMeter.getMRID().equals(this.getmRID())) {
                         foundMeter.setMRID(getmRID());
                     }
-                    if (this.location != null) {
-                        foundMeter.setLocation(location);
-                    }
-                    if (this.geoCoordinates.isPresent()) {
-                        foundMeter.setGeoCoordintes(geoCoordinates.get());
-                    }
+                    this.location.ifPresent(foundMeter::setLocation);
+                    this.geoCoordinates.ifPresent(foundMeter::setGeoCoordinates);
                     foundMeter.update();
                 });
             }
@@ -396,12 +391,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         } else {
             Save.CREATE.save(dataModel, this);
             Meter meter = this.createKoreMeter();
-            if (this.location.isPresent()) {
-                meter.setLocation(location.get());
-            }
-            if (this.geoCoordinates.isPresent()) {
-                meter.setGeoCoordinates(geoCoordinates.get());
-            }
+            this.location.ifPresent(meter::setLocation);
+            this.geoCoordinates.ifPresent(meter::setGeoCoordinates);
             this.createMeterConfiguration(meter, this.clock.instant(), false);
             this.saveNewDialectProperties();
             this.createComTaskExecutionsForEnablementsMarkedAsAlwaysExecuteForInbound();
@@ -538,8 +529,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     private void createMeterConfiguration(Meter meter, Instant timeStamp, boolean validMultiplierSet) {
         meter.getConfiguration(timeStamp).ifPresent(meterConfiguration -> meterConfiguration.endAt(timeStamp));
-        if (getDeviceConfiguration().getChannelSpecs().size() > 0 || getDeviceConfiguration().getRegisterSpecs()
-                .size() > 0) {
+        if (!getDeviceConfiguration().getChannelSpecs().isEmpty() || !getDeviceConfiguration().getRegisterSpecs().isEmpty()) {
             MultiplierType defaultMultiplierType = getDefaultMultiplierType();
             Meter.MeterConfigurationBuilder meterConfigurationBuilder = meter.startingConfigurationOn(timeStamp);
             createMeterConfigurationsForChannelSpecs(defaultMultiplierType, meterConfigurationBuilder, validMultiplierSet);
@@ -964,38 +954,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     public Instant getModificationDate() {
         return this.modTime;
-    }
-
-    @Override
-    public boolean isLogicalSlave() {
-        return getDeviceType().isLogicalSlave();
-    }
-
-    @Override
-    public List<DeviceMessage<Device>> getMessages() {
-        return Collections.unmodifiableList(this.deviceMessages);
-    }
-
-    @Override
-    public List<DeviceMessage<Device>> getMessagesByState(DeviceMessageStatus status) {
-        return this.deviceMessages.stream()
-                .filter(deviceMessage -> deviceMessage.getStatus().equals(status))
-                .collect(toList());
-    }
-
-    @Override
-    public DeviceProtocolPluggableClass getDeviceProtocolPluggableClass() {
-        return getDeviceType().getDeviceProtocolPluggableClass();
-    }
-
-    @Override
-    public List<LogBook> getLogBooks() {
-        return Collections.unmodifiableList(this.logBooks);
-    }
-
-    @Override
-    public LogBook.LogBookUpdater getLogBookUpdaterFor(LogBook logBook) {
-        return new LogBookUpdaterForDevice((LogBookImpl) logBook);
     }
 
     @Override
@@ -2037,15 +1995,30 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public Optional<ActiveEffectiveCalendar> getActiveCalendar() {
-        return activeCalendar.effective(this.clock.instant());
+        return activeCalendar
+                .effective(this.clock.instant())
+                .map(ActiveEffectiveCalendar.class::cast);
     }
 
+    @Override
     public void setActiveCalendar(AllowedCalendar allowedCalendar, Instant effective, Instant lastVerified) {
         Interval effectivityInterval = Interval.of(Range.atLeast(effective));
-        this.activeCalendar.add(
+        this.closeCurrentActiveCalendar(effective);
+        this.createNewActiveCalendar(allowedCalendar, lastVerified, effectivityInterval);
+        if (this.id != 0) {
+            this.dataModel.touch(this);
+        }
+    }
+
+    private void closeCurrentActiveCalendar(Instant now) {
+        this.activeCalendar.effective(now).ifPresent(active -> active.close(now));
+    }
+
+    private void createNewActiveCalendar(AllowedCalendar allowedCalendar, Instant lastVerified, Interval effectivityInterval) {
+        ServerActiveEffectiveCalendar newCalendar =
                 this.dataModel.getInstance(ActiveEffectiveCalendarImpl.class)
-                        .initialize(effectivityInterval, this, allowedCalendar, lastVerified)
-        );
+                    .initialize(effectivityInterval, this, allowedCalendar, lastVerified);
+        this.activeCalendar.add(newCalendar);
     }
 
     @Override
@@ -2104,10 +2077,10 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     private int compareScores(Integer[] scores1, Integer[] scores2) {
-        for(int i = 0; i < Math.min(scores1.length, scores2.length); i++){
-            if (scores1[i] < scores2[i])
+        for (int i = 0; i < Math.min(scores1.length, scores2.length); i++) {
+            if (scores1[i] < scores2[i]) {
                 return -1;
-            else if(scores1[i] > scores1[i]) {
+            } else if (scores1[i] > scores1[i]) {
                 return -1;
             }
         }
@@ -2119,7 +2092,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 .map(protocolTask -> score(protocolTask.getClass()))
                 .sorted(Integer::compareTo)
                 .sorted(Comparator.reverseOrder())
-                .toArray(size -> new Integer[size]);
+                .toArray(Integer[]::new);
     }
 
     private int score(Class<? extends ProtocolTask> protocolTaskClass) {
@@ -2579,7 +2552,7 @@ public class ManuallyScheduledComTaskExecutionBuilderForDevice
         private BigDecimal overruledOverflowValue;
         private ObisCode overruledObisCode;
 
-        public RegisterUpdaterImpl(Register register) {
+        RegisterUpdaterImpl(Register register) {
             this.register = register;
         }
 
@@ -2696,7 +2669,7 @@ public class ManuallyScheduledComTaskExecutionBuilderForDevice
         private BigDecimal overruledOverflowValue;
         private ObisCode overruledObisCode;
 
-        public ChannelUpdaterImpl(Channel channel) {
+        ChannelUpdaterImpl(Channel channel) {
             this.channel = channel;
         }
 
@@ -2915,79 +2888,6 @@ private class CIMLifecycleDatesImpl implements CIMLifecycleDates {
     @Override
     public void save() {
         this.koreDevice.update();
-    }
-}
-
-private class NoCimLifecycleDates implements CIMLifecycleDates {
-    @Override
-    public Optional<Instant> getManufacturedDate() {
-        return Optional.empty();
-    }
-
-    @Override
-    public CIMLifecycleDates setManufacturedDate(Instant manufacturedDate) {
-        // Ignore blissfully
-        return this;
-    }
-
-    @Override
-    public Optional<Instant> getPurchasedDate() {
-        return Optional.empty();
-    }
-
-    @Override
-    public CIMLifecycleDates setPurchasedDate(Instant purchasedDate) {
-        // Ignore blissfully
-        return this;
-    }
-
-    @Override
-    public Optional<Instant> getReceivedDate() {
-        return Optional.empty();
-    }
-
-    @Override
-    public CIMLifecycleDates setReceivedDate(Instant receivedDate) {
-        // Ignore blissfully
-        return this;
-    }
-
-    @Override
-    public Optional<Instant> getInstalledDate() {
-        return Optional.empty();
-    }
-
-    @Override
-    public CIMLifecycleDates setInstalledDate(Instant installedDate) {
-        // Ignore blissfully
-        return this;
-    }
-
-    @Override
-    public Optional<Instant> getRemovedDate() {
-        return Optional.empty();
-    }
-
-    @Override
-    public CIMLifecycleDates setRemovedDate(Instant removedDate) {
-        // Ignore blissfully
-        return this;
-    }
-
-    @Override
-    public Optional<Instant> getRetiredDate() {
-        return Optional.empty();
-    }
-
-    @Override
-    public CIMLifecycleDates setRetiredDate(Instant retiredDate) {
-        // Ignore blissfully
-        return this;
-    }
-
-    @Override
-    public void save() {
-        // Since there were no dates to start with, there is nothing to save
     }
 }
 
@@ -3222,21 +3122,6 @@ private class NoCimLifecycleDates implements CIMLifecycleDates {
     }
 
     @Override
-    public List<DeviceLifeCycleChangeEvent> getDeviceLifeCycleChangeEvents() {
-        // Merge the StateTimeline with the list of change events from my DeviceType.
-        Deque<StateTimeSlice> stateTimeSlices = new LinkedList<>(this.getStateTimeline().getSlices());
-        Deque<com.energyict.mdc.device.config.DeviceLifeCycleChangeEvent> deviceTypeChangeEvents = new LinkedList<>(this.getDeviceTypeLifeCycleChangeEvents());
-        List<DeviceLifeCycleChangeEvent> changeEvents = new ArrayList<>();
-        boolean notReady;
-        do {
-            DeviceLifeCycleChangeEvent newEvent = this.newEventForMostRecent(stateTimeSlices, deviceTypeChangeEvents);
-            changeEvents.add(newEvent);
-            notReady = !stateTimeSlices.isEmpty() || !deviceTypeChangeEvents.isEmpty();
-        } while (notReady);
-        return changeEvents;
-    }
-
-    @Override
     public long getVersion() {
         return version;
     }
@@ -3244,6 +3129,79 @@ private class NoCimLifecycleDates implements CIMLifecycleDates {
     @Override
     public Instant getCreateTime() {
         return createTime;
+    }
+
+    private class NoCimLifecycleDates implements CIMLifecycleDates {
+        @Override
+        public Optional<Instant> getManufacturedDate() {
+            return Optional.empty();
+        }
+
+        @Override
+        public CIMLifecycleDates setManufacturedDate(Instant manufacturedDate) {
+            // Ignore blissfully
+            return this;
+        }
+
+        @Override
+        public Optional<Instant> getPurchasedDate() {
+            return Optional.empty();
+        }
+
+        @Override
+        public CIMLifecycleDates setPurchasedDate(Instant purchasedDate) {
+            // Ignore blissfully
+            return this;
+        }
+
+        @Override
+        public Optional<Instant> getReceivedDate() {
+            return Optional.empty();
+        }
+
+        @Override
+        public CIMLifecycleDates setReceivedDate(Instant receivedDate) {
+            // Ignore blissfully
+            return this;
+        }
+
+        @Override
+        public Optional<Instant> getInstalledDate() {
+            return Optional.empty();
+        }
+
+        @Override
+        public CIMLifecycleDates setInstalledDate(Instant installedDate) {
+            // Ignore blissfully
+            return this;
+        }
+
+        @Override
+        public Optional<Instant> getRemovedDate() {
+            return Optional.empty();
+        }
+
+        @Override
+        public CIMLifecycleDates setRemovedDate(Instant removedDate) {
+            // Ignore blissfully
+            return this;
+        }
+
+        @Override
+        public Optional<Instant> getRetiredDate() {
+            return Optional.empty();
+        }
+
+        @Override
+        public CIMLifecycleDates setRetiredDate(Instant retiredDate) {
+            // Ignore blissfully
+            return this;
+        }
+
+        @Override
+        public void save() {
+            // Since there were no dates to start with, there is nothing to save
+        }
     }
 
 }
