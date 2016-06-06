@@ -13,7 +13,6 @@ import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingQualityRecord;
-import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
@@ -41,6 +40,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -175,7 +175,9 @@ class DefaultItemDataSelector implements ItemDataSelector {
     }
 
     private Stream<Instant> getSuspects(IReadingTypeDataExportItem item, Range<Instant> interval) {
-        return item.getReadingContainer().getReadingQualities(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), item.getReadingType(), interval).stream()
+        return item.getReadingContainer()
+                // TODO: update this when export is allowed from MDM
+                .getReadingQualities(Collections.singleton(QualityCodeSystem.MDC), QualityCodeIndex.SUSPECT, item.getReadingType(), interval).stream()
                 .map(ReadingQualityRecord::getReadingTimestamp);
     }
 
