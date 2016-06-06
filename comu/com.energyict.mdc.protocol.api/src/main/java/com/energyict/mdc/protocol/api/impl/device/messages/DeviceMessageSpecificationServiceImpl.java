@@ -209,6 +209,7 @@ public class DeviceMessageSpecificationServiceImpl implements DeviceMessageSpeci
         Stream.of(MBusSetupDeviceMessageAttributes.values()).forEach(keys::add);
         Stream.of(ZigBeeConfigurationDeviceMessageAttributes.values()).forEach(keys::add);
         Stream.of(TrackingCategory.values()).forEach(keys::add);
+        Stream.of(ActivityCalendarType.values()).forEach(keys::add);
         return keys;
     }
 
