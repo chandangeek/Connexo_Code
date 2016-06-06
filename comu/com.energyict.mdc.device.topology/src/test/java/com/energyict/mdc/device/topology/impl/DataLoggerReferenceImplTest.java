@@ -496,6 +496,7 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
+    @Ignore
     public void testUnLinkSlaveWithoutData(){
         setUpForDataLoggerEnabledDevice();
         setUpForSlaveHavingLoadProfiles();
@@ -537,7 +538,6 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    @Ignore //Todo to revise
     public void testUnLinkSlaveWithProfileData(){
         setUpForDataLoggerEnabledDevice();
         setUpForSlaveHavingLoadProfiles();
