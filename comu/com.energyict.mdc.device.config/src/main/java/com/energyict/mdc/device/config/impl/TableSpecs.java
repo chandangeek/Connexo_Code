@@ -1037,7 +1037,7 @@ public enum TableSpecs {
                             .notNull()
                             .map(DeviceMessageFileImpl.Fields.NAME.fieldName())
                             .add();
-            Column devicdeType = table
+            Column deviceType = table
                             .column("DEVICETYPE")
                             .number()
                             .notNull()
@@ -1049,8 +1049,8 @@ public enum TableSpecs {
                 .add();
             table.primaryKey("PK_DTC_DEVICEMESSAGEFILE").on(id).add();
             table
-                .foreignKey("PK_DTC_DEVMSGFILE_DEVTYPE")
-                .on(devicdeType)
+                .foreignKey("FK_DTC_DEVMSGFILE_DEVTYPE")
+                .on(deviceType)
                 .references(DTC_DEVICETYPE.name())
                 .map(DeviceMessageFileImpl.Fields.DEVICE_TYPE.fieldName())
                 .reverseMap(DeviceTypeImpl.Fields.DEVICE_MESSAGE_FILES.fieldName())

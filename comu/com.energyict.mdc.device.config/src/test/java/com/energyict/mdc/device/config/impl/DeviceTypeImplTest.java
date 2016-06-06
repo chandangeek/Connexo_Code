@@ -27,7 +27,15 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
+
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.math.BigDecimal;
+import java.nio.file.FileSystem;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,6 +43,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 
+import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -911,15 +920,34 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
     public void testCanRemoveDeviceConfigurationWithLinkedValidationAndEstimationRuleSets() {
         DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("first").description("this is it!").add();
 
-        ValidationRuleSet validationRuleSet = inMemoryPersistence.getValidationService().createValidationRuleSet("ValidationRuleSet");
+        ValidationRuleSet validationRuleSet = inMemoryPersistence.getValidationService().createValidationRuleSet("ValidationRuleSet", "MDC");
         validationRuleSet.save();
         deviceConfiguration.addValidationRuleSet(validationRuleSet);
 
-        EstimationRuleSet estimationRuleSet = inMemoryPersistence.getEstimationService().createEstimationRuleSet("EstimationRuleSet");
+        EstimationRuleSet estimationRuleSet = inMemoryPersistence.getEstimationService().createEstimationRuleSet("EstimationRuleSet", "MDC");
         estimationRuleSet.save();
         deviceConfiguration.addEstimationRuleSet(estimationRuleSet);
 
         deviceType.removeConfiguration(deviceConfiguration);
+    }
+
+    @Test
+    @Transactional
+    public void deleteDeviceTypeWithMessageFiles() throws IOException {
+        this.deviceType.enableFileManagement();
+        FileSystem jimfs = Jimfs.newFileSystem(Configuration.unix());
+        Path path = jimfs.getPath("/temp.txt");
+        try (OutputStreamWriter writer = new OutputStreamWriter(Files.newOutputStream(path))) {
+            writer.write("deleteDeviceTypeWithMessageFiles");
+        }
+        this.deviceType.addDeviceMessageFile(path);
+        long deviceTypeId = this.deviceType.getId();
+
+        // Business method
+        this.deviceType.delete();
+
+        // Asserts
+        AssertionsForClassTypes.assertThat(inMemoryPersistence.getDeviceConfigurationService().findDeviceType(deviceTypeId)).isEmpty();
     }
 
     private void setupLogBookTypesInExistingTransaction(String logBookTypeBaseName) {

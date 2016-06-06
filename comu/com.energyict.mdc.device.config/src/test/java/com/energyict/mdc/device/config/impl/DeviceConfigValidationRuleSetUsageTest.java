@@ -277,7 +277,7 @@ public class DeviceConfigValidationRuleSetUsageTest {
     }
 
     private ValidationRuleSet createValidationRuleSet(String name) {
-        ValidationRuleSet ruleSet = injector.getInstance(ValidationService.class).createValidationRuleSet(name);
+        ValidationRuleSet ruleSet = injector.getInstance(ValidationService.class).createValidationRuleSet(name, "MDC");
         ruleSet.save();
         return ruleSet;
     }

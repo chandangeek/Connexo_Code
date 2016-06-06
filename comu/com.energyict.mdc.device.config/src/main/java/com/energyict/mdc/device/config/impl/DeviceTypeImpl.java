@@ -177,6 +177,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         this.registerTypeUsages.clear();
         this.loadProfileTypeUsages.clear();
         this.logBookTypeUsages.clear();
+        this.deviceMessageFiles.clear();
         Iterator<DeviceConfiguration> iterator = this.deviceConfigurations.iterator();
         // do not replace with foreach!! the deviceConfiguration will be removed from the iterator
         while (iterator.hasNext()) {
