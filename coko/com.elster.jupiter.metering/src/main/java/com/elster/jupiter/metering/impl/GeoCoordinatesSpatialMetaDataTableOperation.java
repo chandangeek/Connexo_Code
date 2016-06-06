@@ -9,13 +9,9 @@ import javax.inject.Inject;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 @LiteralSql
 public final class GeoCoordinatesSpatialMetaDataTableOperation {
-
-    private static final Logger LOG = Logger.getLogger(CreateLocationMemberTableOperation.class.getName());
 
     private final DataModel dataModel;
 
@@ -31,7 +27,7 @@ public final class GeoCoordinatesSpatialMetaDataTableOperation {
             dropOldMetaData.execute();
             setMetData.execute();
         } catch (SQLException sqlEx) {
-            LOG.log(Level.SEVERE, "Unable to populate MDSYS.USER_SDO_GEOM_METADATA", sqlEx);
+            throw new UnderlyingSQLFailedException(sqlEx);
         }
     }
 
