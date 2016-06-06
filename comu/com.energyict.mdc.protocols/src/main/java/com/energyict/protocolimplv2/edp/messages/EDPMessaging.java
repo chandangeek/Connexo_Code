@@ -1,6 +1,11 @@
 package com.energyict.protocolimplv2.edp.messages;
 
+import com.elster.jupiter.calendar.Calendar;
+import com.elster.jupiter.calendar.ExceptionalOccurrence;
+import com.elster.jupiter.calendar.FixedExceptionalOccurrence;
+import com.elster.jupiter.calendar.RecurrentExceptionalOccurrence;
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.codetables.CodeCalendar;
@@ -9,10 +14,17 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.exceptions.GeneralParseException;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
+
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractDlmsMessaging;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
-import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.io.IOException;
 import java.util.Date;
@@ -20,7 +32,11 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.*;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activityCalendarAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.configUserFileAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.specialDaysAttributeName;
 
 /**
  * Class that:
@@ -70,9 +86,9 @@ public class EDPMessaging extends AbstractDlmsMessaging implements DeviceMessage
     @Override
     public String format(PropertySpec propertySpec, Object messageAttribute) {
         switch (propertySpec.getName()) {
-            case activityCalendarCodeTableAttributeName:
-                Code code = (Code) messageAttribute;
-                EDPActivityCalendarParser parser = new EDPActivityCalendarParser(code);
+            case activityCalendarAttributeName:
+                Calendar calendar = (Calendar) messageAttribute;
+                EDPActivityCalendarParser parser = new EDPActivityCalendarParser(calendar);
                 try {
                     parser.parse();
                 } catch (IOException e) {
@@ -82,8 +98,8 @@ public class EDPMessaging extends AbstractDlmsMessaging implements DeviceMessage
                 String weekProfile = ProtocolTools.getHexStringFromBytes(parser.getWeekProfile().getBEREncodedByteArray(), "");
                 String seasonProfile = ProtocolTools.getHexStringFromBytes(parser.getSeasonProfile().getBEREncodedByteArray(), "");
                 return dayProfile + "|" + weekProfile + "|" + seasonProfile;
-            case specialDaysCodeTableAttributeName:
-                return parseSpecialDays((Code) messageAttribute);
+            case specialDaysAttributeName:
+                return parseSpecialDays((Calendar) messageAttribute);
             case configUserFileAttributeName:
                 return "";  //TODO file management
             case firmwareUpdateFileAttributeName:
@@ -98,26 +114,47 @@ public class EDPMessaging extends AbstractDlmsMessaging implements DeviceMessage
     /**
      * Parse the special days of the given code table into the proper AXDR array.
      */
-    private String parseSpecialDays(Code codeTable) {
-        List<CodeCalendar> calendars = codeTable.getCalendars();
+    private String parseSpecialDays(Calendar calendar) {
+        List<ExceptionalOccurrence> exceptionalOccurrences = calendar.getExceptionalOccurrences();
         Array result = new Array();
         int dayIndex = 1;
-        for (CodeCalendar codeCalendar : calendars) {
-            if (codeCalendar.getSeason() == 0) {
-                byte[] timeStampBytes = {(byte) ((codeCalendar.getYear() == -1) ? 0xff : ((codeCalendar.getYear() >> 8) & 0xFF)), (byte) ((codeCalendar.getYear() == -1) ? 0xff : (codeCalendar.getYear()) & 0xFF),
-                        (byte) ((codeCalendar.getMonth() == -1) ? 0xFF : codeCalendar.getMonth()), (byte) ((codeCalendar.getDay() == -1) ? 0xFF : codeCalendar.getDay()),
-                        (byte) ((codeCalendar.getDayOfWeek() == -1) ? 0xFF : codeCalendar.getDayOfWeek())};
-                OctetString timeStamp = OctetString.fromByteArray(timeStampBytes, timeStampBytes.length);
-                Unsigned8 dayType = new Unsigned8(Integer.parseInt(codeCalendar.getDayType().getName()));
-                Structure specialDayStructure = new Structure();
-                specialDayStructure.addDataType(new Unsigned16(dayIndex));
-                specialDayStructure.addDataType(timeStamp);
-                specialDayStructure.addDataType(dayType);
-                result.addDataType(specialDayStructure);
-                dayIndex++;
+        for (ExceptionalOccurrence exceptionalOccurrence : exceptionalOccurrences) {
+            byte[] timeStampBytes;
+            if (exceptionalOccurrence instanceof FixedExceptionalOccurrence) {
+                timeStampBytes = this.getTimestampBytes((FixedExceptionalOccurrence) exceptionalOccurrence);
+            } else {
+                timeStampBytes = this.getTimestampBytes((RecurrentExceptionalOccurrence) exceptionalOccurrence);
             }
+            OctetString timeStamp = OctetString.fromByteArray(timeStampBytes, timeStampBytes.length);
+            Unsigned8 dayType = new Unsigned8(Integer.parseInt(exceptionalOccurrence.getDayType().getName()));
+            Structure specialDayStructure = new Structure();
+            specialDayStructure.addDataType(new Unsigned16(dayIndex));
+            specialDayStructure.addDataType(timeStamp);
+            specialDayStructure.addDataType(dayType);
+            result.addDataType(specialDayStructure);
+            dayIndex++;
         }
         return ProtocolTools.getHexStringFromBytes(result.getBEREncodedByteArray(), "");
+    }
+
+    private byte[] getTimestampBytes(FixedExceptionalOccurrence exceptionalOccurrence) {
+        byte[] bytes = new byte[5];
+        bytes[0] = (byte) ((exceptionalOccurrence.getOccurrence().getYear() >> 8) & 0xFF);
+        bytes[1] = (byte) (exceptionalOccurrence.getOccurrence().getYear() & 0xFF);
+        bytes[2] = (byte) exceptionalOccurrence.getOccurrence().getMonthValue();
+        bytes[3] = (byte) exceptionalOccurrence.getOccurrence().getDayOfMonth();
+        bytes[4] = (byte) exceptionalOccurrence.getOccurrence().getDayOfWeek().getValue();
+        return bytes;
+    }
+
+    private byte[] getTimestampBytes(RecurrentExceptionalOccurrence exceptionalOccurrence) {
+        byte[] bytes = new byte[5];
+        bytes[0] = (byte) 0xff;
+        bytes[1] = (byte) 0xff;
+        bytes[2] = (byte) (exceptionalOccurrence.getOccurrence().getMonthValue());
+        bytes[3] = (byte) (exceptionalOccurrence.getOccurrence().getDayOfMonth());
+        bytes[4] = (byte) 0xFF;
+        return bytes;
     }
 
     @Override

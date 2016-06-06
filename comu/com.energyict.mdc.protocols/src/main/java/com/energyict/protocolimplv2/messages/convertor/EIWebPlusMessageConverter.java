@@ -3,9 +3,14 @@ package com.energyict.protocolimplv2.messages.convertor;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.Password;
 import com.energyict.mdc.protocol.api.UserFile;
+import com.energyict.mdc.firmware.FirmwareVersion;
+import com.energyict.mdc.protocol.api.DeviceMessageFile;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.protocols.util.TempFileLoader;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.protocols.messaging.DeviceMessageFileStringContentConsumer;
+
+import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -129,11 +134,7 @@ public class EIWebPlusMessageConverter extends AbstractMessageConverter {
         if (propertySpec.getName().equals(DeviceMessageConstants.sslCertificateUserFile)
                 || propertySpec.getName().equals(DeviceMessageConstants.PricingInformationUserFileAttributeName)
                 || propertySpec.getName().equals(DeviceMessageConstants.nodeListUserFile)) {
-            try {
-                return new String(((UserFile) messageAttribute).loadFileInByteArray(), "US-ASCII");
-            } catch (UnsupportedEncodingException e) {
-                return new String(((UserFile) messageAttribute).loadFileInByteArray());
-            }
+            return DeviceMessageFileStringContentConsumer.readFrom(((DeviceMessageFile) messageAttribute), "US-ASCII");
         } else if (propertySpec.getName().equals(DeviceMessageConstants.waveCardFirmware) || propertySpec.getName().equals(DeviceMessageConstants.firmwareUpdateFileAttributeName)) {
             //Return the actual content of the file, it will be sent to the RTU+Server using the EIWebPlus servlet.
             String path = messageAttribute.toString();      //This is the path of the temp file representing the FirmwareVersion

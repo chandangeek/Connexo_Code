@@ -1,13 +1,7 @@
 package com.energyict.protocolimpl.messages.codetableparsing;
 
-/**
- * Copyrights EnergyICT
- * User: sva
- * Date: 21/12/11
- * Time: 10:30
- */
+import com.elster.jupiter.calendar.Calendar;
 
-import com.energyict.mdc.protocol.api.codetables.Code;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -19,26 +13,27 @@ import javax.xml.parsers.ParserConfigurationException;
  * Parser object to convert the structure of a CodeTable to an XML format
  * <p/>
  * Copyrights EnergyICT
+ * User: sva
+ * Date: 21/12/11
+ * Time: 10:30
  */
 public class CodeTableXml extends CodeTableXmlParsing {
 
     /**
-     * Parse the given CodeTable to a proper xml format for the ActivityCalendar AND SpecialDayTable.
+     * Parse the given {@link Calendar} to a proper xml format for the ActivityCalendar AND SpecialDayTable.
      *
-     * @param id             the id of the {@link Code}
+     * @param calendar The Calendar
      * @param activationTime the time to activate the new calendar(epoch time) Possible values:
-     *                       <ul>
-     *                       <li> <code>0</code> : calendar isn't activated
-     *                       <li> <code>1</code> : passive calendar will be switched to active calendar immediately
-     *                       <li> correct epoch time : time is written
-     *                       </ul>
+     *        <ul>
+     *        <li> <code>0</code> : calendar isn't activated
+     *        <li> <code>1</code> : passive calendar will be switched to active calendar immediately
+     *        <li> correct epoch time : time is written
+     *        </ul>
      * @return the complete xml for the RTUMessage
      * @throws javax.xml.parsers.ParserConfigurationException if a DocumentBuilder cannot be created which satisfies the configuration requested.
      */
-    public static String parseActivityCalendarAndSpecialDayTable(int id, long activationTime) throws ParserConfigurationException {
-        Code codeTable = getCode(id);
-
-        CodeTableParser ctp = new CodeTableParser(codeTable);
+    public static String parseActivityCalendarAndSpecialDayTable(Calendar calendar, long activationTime) throws ParserConfigurationException {
+        CodeTableParser ctp = new CodeTableParser(calendar);
         try {
             ctp.parse();
 
@@ -52,13 +47,19 @@ public class CodeTableXml extends CodeTableXmlParsing {
              We use the name of the codeTable as activityCalendarName
              This way we can track the calendars in the devices
               */
-            root.appendChild(createSingleElement(document, rootActCalendarName, codeTable.getName()));
-            root.appendChild(createSingleElement(document, codeTableDefinitionTimeZone, codeTable.getDefinitionTimeZone().getDisplayName()));
-            root.appendChild(createSingleElement(document, codeTableDestinationTimeZone, codeTable.getDestinationTimeZone().getDisplayName()));
-            root.appendChild(createSingleElement(document, codeTableInterval, Integer.toString(codeTable.getIntervalInSeconds())));
-            root.appendChild(createSingleElement(document, codeTableFromYear, Integer.toString(codeTable.getYearFrom())));
-            root.appendChild(createSingleElement(document, codeTableToYear, Integer.toString(codeTable.getYearTo())));
-            root.appendChild(createSingleElement(document, codeTableSeasonSetId, Integer.toString(codeTable.getSeasonSetId())));
+            root.appendChild(createSingleElement(document, rootActCalendarName, calendar.getName()));
+            root.appendChild(createSingleElement(document, codeTableDefinitionTimeZone, calendar.getTimeZone().getDisplayName()));
+            root.appendChild(createSingleElement(document, codeTableDestinationTimeZone, calendar.getTimeZone().getDisplayName()));
+            /* Todo: Extract the hard code 15 min to a parameter for this method.
+                     Calling context, i.e. the protocol or a protocol adapater
+                     may need to access the available reading types,
+                     sort them as:
+                     favour Electricity, favour Wh over W, favour smaller intervals over larger intervals
+                     Use the interval of the best match. */
+            root.appendChild(createSingleElement(document, codeTableInterval, Integer.toString(900)));
+            root.appendChild(createSingleElement(document, codeTableFromYear, Integer.toString(calendar.getStartYear().getValue())));
+            root.appendChild(createSingleElement(document, codeTableToYear, Integer.toString(calendar.getEndYear().getValue())));
+            root.appendChild(createSingleElement(document, codeTableSeasonSetId, "0"));
             root.appendChild(createSingleElement(document, rootPassiveCalendarActivationTime, String.valueOf(activationTime)));
 
             Element rootActCalendar = document.createElement(rootActCodeTable);

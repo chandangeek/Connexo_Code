@@ -3,13 +3,16 @@
  */
 package com.energyict.protocolimpl.dlms.as220.emeter;
 
+import com.energyict.mdc.protocol.api.DeviceMessageFile;
+import com.energyict.mdc.protocol.api.device.data.MessageEntry;
+import com.energyict.protocols.messaging.DeviceMessageFileByteContentConsumer;
+import com.energyict.protocols.messaging.FirmwareUpdateMessageBuilder;
+
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.ImageTransfer;
-import com.energyict.mdc.protocol.api.device.data.MessageEntry;
-import com.energyict.protocols.messaging.FirmwareUpdateMessageBuilder;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimpl.dlms.as220.AS220;
 import org.xml.sax.SAXException;
@@ -25,6 +28,9 @@ import java.util.logging.Level;
  */
 public class AS220ImageTransfer {
 
+	private static final int MAX_BLOCK_RETRY_COUNT = 3;
+	private static final int MAX_TOTAL_RETRY_COUNT = 500;
+
 	private final AS220Messaging messaging;
 	private final MessageEntry messageEntry;
 
@@ -34,58 +40,43 @@ public class AS220ImageTransfer {
 	private byte[]  data = null; // the complete image in byte
 	private int blockCount = -1; // the amount of block numbers
 
-	private final int maxBlockRetryCount = 3;
-	private final int maxTotalRetryCount = 500;
-
-	/**
-	 * @param messaging
-	 * @param messageEntry
-	 * @throws IOException
-	 */
 	public AS220ImageTransfer(AS220Messaging messaging, MessageEntry messageEntry) throws IOException {
 		this.messaging = messaging;
 		this.messageEntry = messageEntry;
-//		this.imageTransfer = getAs220().getCosemObjectFactory().getImageTransferSN();
         this.imageTransfer = getAs220().getCosemObjectFactory().getImageTransferSN();
 	}
 
-
-	/**
-	 * @throws IOException
-	 *
-	 */
 	public void initiate() throws IOException {
 		getAs220().getLogger().info("Received a firmware upgrade message, using firmware message builder...");
-		String errorMessage = "";
-		final FirmwareUpdateMessageBuilder builder = new FirmwareUpdateMessageBuilder();
+		final FirmwareUpdateMessageBuilder builder = new FirmwareUpdateMessageBuilder(this.messaging.getAs220().getDeviceMessageFileService());
 
 		try {
 		    builder.initFromXml(messageEntry.getContent());
 		} catch (final IOException e) {
-		    errorMessage = "Got an IO error when loading firmware message content [" + e.getMessage() + "]";
+            String errorMessage = "Got an IO error when loading firmware message content [" + e.getMessage() + "]";
 			if (getAs220().getLogger().isLoggable(Level.SEVERE)) {
 			    getAs220().getLogger().log(Level.SEVERE, errorMessage, e);
 			}
 			 throw new IOException(errorMessage + e.getMessage());
 		} catch (SAXException e) {
-		    errorMessage = "Cannot process firmware upgrade message due to an XML parsing error [" + e.getMessage() + "]";
+            String errorMessage = "Cannot process firmware upgrade message due to an XML parsing error [" + e.getMessage() + "]";
 		    getAs220().getLogger().log(Level.SEVERE, errorMessage, e);
 		    throw new IOException(errorMessage + e.getMessage());
 		}
 
 		// We requested an inlined file...
+		if (builder.getUserFile() != null) {
 		if (builder.getPath() != null) {
 			getAs220().getLogger().info("Pulling out user file and dispatching to the device...");
 
 			this.data = builder.getFirmwareBytes();
 
 			if (this.data.length == 0) {
-			    errorMessage = "Length of the upgrade file is not valid [" + this.data.length + " bytes], failing message.";
+                String errorMessage = "Length of the upgrade file is not valid [" + this.data.length + " bytes], failing message.";
 				if (getAs220().getLogger().isLoggable(Level.WARNING)) {
 				    getAs220().getLogger().log(Level.WARNING, errorMessage);
 				}
 				throw new IOException(errorMessage);
-
 			}
 		} else {
 		    errorMessage = "The message did not contain a path to use for the upgrade, message fails...";
@@ -93,18 +84,11 @@ public class AS220ImageTransfer {
 
 		    throw new IOException(errorMessage);
 		}
-
 		getAs220().getLogger().info("Converting received image to binary using a Base64 decoder...");
 		final Base64EncoderDecoder decoder = new Base64EncoderDecoder();
 		this.data = decoder.decode(new String(this.data));
-
 	}
 
-	/**
-	 * @throws IOException
-	 * @throws InterruptedException
-	 *
-	 */
 	public void upgrade() throws IOException {
 			this.size = new Unsigned32(data.length);
 
@@ -151,7 +135,7 @@ public class AS220ImageTransfer {
 		}
 	}
 
-	protected void transferImageBlocks() throws IOException{
+	protected void transferImageBlocks() throws IOException {
 
 		byte[] octetStringData = null;
 		OctetString os = null;
@@ -193,7 +177,7 @@ public class AS220ImageTransfer {
 	 * Check if there are missing blocks, if so, resent them
 	 * @throws IOException
 	 */
-	public void checkAndSendMissingBlocks() throws IOException{
+	public void checkAndSendMissingBlocks() throws IOException {
 		Structure imageBlockTransfer;
 		byte[] octetStringData = null;
 		OctetString os = null;
@@ -203,9 +187,9 @@ public class AS220ImageTransfer {
 		while(this.imageTransfer.readFirstNotTransferedBlockNumber().getValue() < this.blockCount){
 
 			if(previousMissingBlock == this.imageTransfer.getImageFirstNotTransferedBlockNumber().getValue()){
-				if(retryBlock++ == this.maxBlockRetryCount){
+				if(retryBlock++ == MAX_BLOCK_RETRY_COUNT){
 					throw new IOException("Exceeding the maximum retry for block " + this.imageTransfer.getImageFirstNotTransferedBlockNumber().getValue() + ", Image transfer is canceled.");
-				} else if(totalRetry++ == this.maxTotalRetryCount){
+				} else if(totalRetry++ == MAX_TOTAL_RETRY_COUNT){
 					throw new IOException("Exceeding the total maximum retry count, Image transfer is canceled.");
 				}
 			} else {
@@ -245,7 +229,6 @@ public class AS220ImageTransfer {
 		return this.messaging.getAs220();
 	}
 
-
 	/**
 	 * Active the passive image
 	 * @throws IOException
@@ -256,5 +239,8 @@ public class AS220ImageTransfer {
         getAs220().getLogger().log(Level.INFO, "Activation of the image was succesfull at : " + new Date());
 	}
 
-}
+	private void loadFileInByteArray(DeviceMessageFile deviceMessageFile) {
+        this.data = DeviceMessageFileByteContentConsumer.readFrom(deviceMessageFile);
+    }
 
+}

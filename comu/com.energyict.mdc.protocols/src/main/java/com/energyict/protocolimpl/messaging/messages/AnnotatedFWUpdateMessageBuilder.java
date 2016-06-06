@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.messaging.messages;
 
 import com.energyict.mdc.common.NestedIOException;
+import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.protocols.messaging.FirmwareUpdateMessageBuilder;
 import com.energyict.protocols.messaging.MessageBuilder;
 import org.w3c.dom.Document;
@@ -24,6 +25,10 @@ public class AnnotatedFWUpdateMessageBuilder extends FirmwareUpdateMessageBuilde
     public static final String ATTR_USER_FILE_ID = "userFileID";
     public static final String ATTR_USER_FILE_CONTENT = "userFileContent";
     public static final String ATTR_URL = "url";
+
+    public AnnotatedFWUpdateMessageBuilder(DeviceMessageFileService deviceMessageFileService) {
+        super(deviceMessageFileService);
+    }
 
     @Override
     public String getDescription() {
@@ -62,10 +67,7 @@ public class AnnotatedFWUpdateMessageBuilder extends FirmwareUpdateMessageBuilde
         } catch (ParserConfigurationException e) {
             throw new NestedIOException(e);
         }
-
-
     }
-
 
     @Override
     public AdvancedMessageHandler getMessageHandler(MessageBuilder builder) {

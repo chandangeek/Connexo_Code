@@ -1,5 +1,15 @@
 package com.energyict.protocolimpl.dlms.idis;
 
+import com.elster.jupiter.calendar.CalendarService;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.device.data.MessageEntry;
+import com.energyict.mdc.protocol.api.device.data.MessageResult;
+import com.energyict.mdc.protocol.api.messaging.MessageAttributeSpec;
+import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
+import com.energyict.mdc.protocol.api.messaging.MessageSpec;
+import com.energyict.mdc.protocol.api.messaging.MessageTagSpec;
+import com.energyict.mdc.protocol.api.messaging.MessageValueSpec;
+
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.Integer8;
 import com.energyict.dlms.axrdencoding.OctetString;
@@ -11,14 +21,6 @@ import com.energyict.dlms.cosem.MBusClient;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.device.data.MessageEntry;
-import com.energyict.mdc.protocol.api.device.data.MessageResult;
-import com.energyict.mdc.protocol.api.messaging.MessageAttributeSpec;
-import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
-import com.energyict.mdc.protocol.api.messaging.MessageSpec;
-import com.energyict.mdc.protocol.api.messaging.MessageTagSpec;
-import com.energyict.mdc.protocol.api.messaging.MessageValueSpec;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
@@ -41,8 +43,8 @@ public class IDISMBusMessageHandler extends IDISMessageHandler {
     protected static final ObisCode DISCONNECTOR_SCRIPT_MBUS_OBISCODE = ObisCode.fromString("0.1.10.0.106.255");
     protected static final ObisCode DISCONNECTOR_CONTROL_MBUS_OBISCODE = ObisCode.fromString("0.0.24.4.0.255");
 
-    public IDISMBusMessageHandler(IDISMBus idis) {
-        super(idis);
+    public IDISMBusMessageHandler(IDISMBus idis, CalendarService calendarService) {
+        super(idis, calendarService);
     }
 
     public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {

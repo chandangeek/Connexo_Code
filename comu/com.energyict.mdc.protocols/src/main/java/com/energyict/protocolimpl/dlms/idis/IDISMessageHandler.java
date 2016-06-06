@@ -1,6 +1,32 @@
 package com.energyict.protocolimpl.dlms.idis;
 
 import com.energyict.dlms.axrdencoding.*;
+import com.elster.jupiter.calendar.CalendarService;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.io.CommunicationException;
+import com.energyict.mdc.protocol.api.MessageProtocol;
+import com.energyict.mdc.protocol.api.device.data.MessageEntry;
+import com.energyict.mdc.protocol.api.device.data.MessageResult;
+import com.energyict.mdc.protocol.api.messaging.MessageAttribute;
+import com.energyict.mdc.protocol.api.messaging.MessageAttributeSpec;
+import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
+import com.energyict.mdc.protocol.api.messaging.MessageElement;
+import com.energyict.mdc.protocol.api.messaging.MessageSpec;
+import com.energyict.mdc.protocol.api.messaging.MessageTag;
+import com.energyict.mdc.protocol.api.messaging.MessageTagSpec;
+import com.energyict.mdc.protocol.api.messaging.MessageValue;
+import com.energyict.mdc.protocol.api.messaging.MessageValueSpec;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
+
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.Integer8;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
@@ -19,7 +45,6 @@ import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
@@ -52,9 +77,11 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
     private static final String CONFIGURATION_DOWNLOAD = "Configuration download";
     private static final String CONFIGURATION_USER_FILE = "Configuration user file";
     protected IDIS idis;
+    private final CalendarService calendarService;
 
-    public IDISMessageHandler(IDIS idis) {
+    public IDISMessageHandler(IDIS idis, CalendarService calendarService) {
         this.idis = idis;
+        this.calendarService = calendarService;
     }
 
     public void applyMessages(List messageEntries) throws IOException {
@@ -756,7 +783,7 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
 
             String name = "";
             String activationDate = "1";
-            int codeId = 0;
+            long calendarId = 0;
 
             // b. Attributes
             for (Object o1 : msgTag.getAttributes()) {
@@ -771,15 +798,15 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
                     }
                 } else if (RtuMessageConstant.TOU_ACTIVITY_CODE_TABLE.equalsIgnoreCase(att.getSpec().getName())) {
                     if (att.getValue() != null) {
-                        codeId = Integer.valueOf(att.getValue());
+                        calendarId = Long.valueOf(att.getValue());
                     }
                 }
             }
 
             Date actDate = new Date(Long.valueOf(activationDate));
-            if (codeId > 0) {
+            if (calendarId > 0L) {
                 try {
-                    String xmlContent = CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(codeId, Calendar.getInstance(TimeZone.getTimeZone("GMT")).getTime().before(actDate) ? actDate.getTime() : 1, name);
+                    String xmlContent = CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(this.findCalendar(calendarId), Calendar.getInstance(TimeZone.getTimeZone("GMT")).getTime().before(actDate) ? actDate.getTime() : 1, name);
                     addChildTag(builder, RAW_CONTENT, ProtocolTools.compress(xmlContent));
                 } catch (ParserConfigurationException e) {
                     idis.getLogger().severe(e.getMessage());
@@ -860,6 +887,10 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
 
             return buf.toString();
         }
+    }
+
+    private com.elster.jupiter.calendar.Calendar findCalendar(long id) {
+        return this.calendarService.findCalendar(id).orElse(null);
     }
 
     /**

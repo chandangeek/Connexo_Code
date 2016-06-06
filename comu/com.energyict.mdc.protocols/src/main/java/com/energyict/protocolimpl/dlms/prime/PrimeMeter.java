@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.dlms.prime;
 
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 
 import javax.inject.Inject;
 
@@ -18,8 +19,8 @@ public class PrimeMeter extends AbstractPrimeMeter {
     }
 
     @Inject
-    public PrimeMeter(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public PrimeMeter(PropertySpecService propertySpecService, DeviceMessageFileService deviceMessageFileService) {
+        super(propertySpecService, deviceMessageFileService);
     }
 
     @Override

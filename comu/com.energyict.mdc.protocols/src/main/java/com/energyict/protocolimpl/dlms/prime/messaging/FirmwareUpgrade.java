@@ -1,11 +1,14 @@
 package com.energyict.protocolimpl.dlms.prime.messaging;
 
-import com.energyict.dlms.DlmsSession;
-import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
+import com.energyict.protocols.messaging.DeviceMessageFileByteContentConsumer;
 import com.energyict.protocols.messaging.FirmwareUpdateMessageBuilder;
+
+import com.energyict.dlms.DlmsSession;
+import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimpl.dlms.prime.PrimeProperties;
 import org.xml.sax.SAXException;
@@ -22,8 +25,11 @@ public class FirmwareUpgrade extends PrimeMessageExecutor {
     private static final ObisCode IMAGE_TRANSFER_OBIS = ObisCode.fromString("0.0.44.0.0.255");
     private static final String FIRMWARE_UPDATE = "FirmwareUpdate";
 
-    protected FirmwareUpgrade(DlmsSession session, PrimeProperties properties) {
+    private final DeviceMessageFileService deviceMessageFileService;
+
+    protected FirmwareUpgrade(DlmsSession session, PrimeProperties properties, DeviceMessageFileService deviceMessageFileService) {
         super(session, properties);
+        this.deviceMessageFileService = deviceMessageFileService;
     }
 
     @Override

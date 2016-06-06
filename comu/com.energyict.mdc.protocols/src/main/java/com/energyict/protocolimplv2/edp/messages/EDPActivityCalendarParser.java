@@ -1,9 +1,10 @@
 package com.energyict.protocolimplv2.edp.messages;
 
+import com.elster.jupiter.calendar.Calendar;
+import com.elster.jupiter.calendar.DayType;
+
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.attributeobjects.SeasonProfiles;
-import com.energyict.mdc.protocol.api.codetables.Code;
-import com.energyict.mdc.protocol.api.codetables.CodeDayType;
 import com.energyict.protocolimpl.generic.messages.ActivityCalendarMessage;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
@@ -20,16 +21,16 @@ import java.util.Map;
  */
 public class EDPActivityCalendarParser extends ActivityCalendarMessage {
 
-    public EDPActivityCalendarParser(Code ct) {
-        super(ct, null);
+    public EDPActivityCalendarParser(Calendar calendar) {
+        super(calendar, null);
     }
 
     @Override
-    protected int getDayTypeName(CodeDayType cdt) {
+    protected int getDayTypeName(DayType dayType) {
         try {
-            return Integer.parseInt(cdt.getName());  //Day type name should be "1", "2", etc.
+            return Integer.parseInt(dayType.getName());  //Day type name should be "1", "2", etc.
         } catch (NumberFormatException e) {
-            return super.getDayTypeName(cdt);
+            return super.getDayTypeName(dayType);
         }
     }
 
@@ -38,14 +39,14 @@ public class EDPActivityCalendarParser extends ActivityCalendarMessage {
      * This index number is used to create the AXDR arrays representing season profiles
      */
     @Override
-    protected Integer getSeasonProfileName(Map.Entry entry) {
-        Integer value = (Integer) entry.getValue();
-        Map<Integer, Integer> seasonIds = super.seasonIds;
-        return (Integer) seasonIds.get(value);
+    protected Long getSeasonProfileName(Map.Entry entry) {
+        Long value = (Long) entry.getValue();
+        Map<Long, Integer> seasonIds = super.periodIds;
+        return Long.valueOf(seasonIds.get(value));
     }
 
     @Override
-    protected OctetString getOctetStringFromInt(int weekProfileName) {
+    protected OctetString getOctetStringFromLong(long weekProfileName) {
         byte[] bytes = {(byte) weekProfileName};
         return OctetString.fromByteArray(bytes, bytes.length);
     }

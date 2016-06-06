@@ -26,7 +26,7 @@ public class RawTariffScheme extends AbstractField<RawTariffScheme> {
     private int year;
     private int tariffId;
     private Date activationDate;
-    private int defaultBand;
+    private long defaultBand;
     private RawBandsDescriptor bandDescriptor;
     private boolean[] holidays;
     private RawSpecialDays specialDays;
@@ -143,7 +143,7 @@ public class RawTariffScheme extends AbstractField<RawTariffScheme> {
         return cal;
     }
 
-    public int getDefaultBand() {
+    public long getDefaultBand() {
         return defaultBand;
     }
 

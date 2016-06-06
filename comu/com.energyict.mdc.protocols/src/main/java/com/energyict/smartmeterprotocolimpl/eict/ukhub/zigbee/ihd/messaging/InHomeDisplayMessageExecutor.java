@@ -5,7 +5,6 @@ import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.UserFileFactory;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
@@ -36,11 +35,9 @@ public class InHomeDisplayMessageExecutor extends MessageParser {
     public static ObisCode IMAGE_ACTIVATION_SCHEDULER = ObisCode.fromString("0.0.15.0.2.255");
 
     private final AbstractSmartDlmsProtocol protocol;
-    private final UserFileFactory userFileFactory;
 
-    public InHomeDisplayMessageExecutor(AbstractSmartDlmsProtocol protocol, UserFileFactory userFileFactory) {
+    public InHomeDisplayMessageExecutor(AbstractSmartDlmsProtocol protocol) {
         this.protocol = protocol;
-        this.userFileFactory = userFileFactory;
     }
 
     /**

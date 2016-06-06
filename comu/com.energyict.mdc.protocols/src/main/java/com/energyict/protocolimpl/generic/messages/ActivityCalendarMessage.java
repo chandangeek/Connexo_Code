@@ -1,5 +1,11 @@
 package com.energyict.protocolimpl.generic.messages;
 
+import com.elster.jupiter.calendar.Calendar;
+import com.elster.jupiter.calendar.DayType;
+import com.elster.jupiter.calendar.EventOccurrence;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.ProtocolException;
+
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
@@ -9,226 +15,180 @@ import com.energyict.dlms.cosem.attributeobjects.DayProfileActions;
 import com.energyict.dlms.cosem.attributeobjects.DayProfiles;
 import com.energyict.dlms.cosem.attributeobjects.SeasonProfiles;
 import com.energyict.dlms.cosem.attributeobjects.WeekProfiles;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.codetables.Code;
-import com.energyict.mdc.protocol.api.codetables.CodeCalendar;
-import com.energyict.mdc.protocol.api.codetables.CodeDayType;
-import com.energyict.mdc.protocol.api.codetables.CodeDayTypeDef;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
+import java.time.DayOfWeek;
+import java.time.LocalTime;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class ActivityCalendarMessage {
 
-    private Code ct;
+    private Calendar calendar;
     private Array dayArray;
     private Array seasonArray;
     private Array weekArray;
     private DLMSMeterConfig meterConfig;
-    public Map<Integer, Integer> seasonIds = new HashMap<>();  //Map the DB id's of the seasons to a proper 0-based index that can be used in the AXDR array
-    protected Map<Integer, Integer> dayTypeIds = new HashMap<Integer, Integer>();  //Map the DB id's of the day types to a proper 0-based index that can be used in the AXDR array
+    public Map<Long, Integer> periodIds = new HashMap<>();  //Map the DB id's of the periods to a proper 0-based index that can be used in the AXDR array
+    protected Map<Long, Integer> dayTypeIds = new HashMap<>();  //Map the DB id's of the day types to a proper 0-based index that can be used in the AXDR array
 
-    public ActivityCalendarMessage(Code ct, DLMSMeterConfig meterConfig) {
-        this.ct = ct;
+    public ActivityCalendarMessage(Calendar calendar, DLMSMeterConfig meterConfig) {
+        this.calendar = calendar;
         this.meterConfig = meterConfig;
         this.dayArray = new Array();
         this.seasonArray = new Array();
         this.weekArray = new Array();
-        this.seasonIds = new HashMap<Integer, Integer>();
-        this.dayTypeIds = new HashMap<Integer, Integer>();
+        this.periodIds = new HashMap<>();
+        this.dayTypeIds = new HashMap<>();
     }
 
     /**
      * Parsing of the codeTable to season-, week- and dayProfiles
      *
-     * @throws java.io.IOException when CodeTable is not correctly configured
+     * @throws java.io.IOException when Calendar is not correctly configured
      */
     public void parse() throws IOException {
-        List calendars = ct.getCalendars();
-        HashMap<OctetString, Integer> seasonsProfile = new HashMap<OctetString, Integer>();
+        this.initializeDayTypeIds();
+        this.initializeSeasonAndWeekArray();
+        try {
+            this.calendar.getDayTypes().stream().forEach(this::addActionsForDayType);
+        } catch (UnderlyingProtocolException e) {
+            throw e.getCause();
+        }
+        checkForSingleSeasonStartDate();
+    }
 
-        Iterator itr = calendars.iterator();
-        int index = 0;
-        while (itr.hasNext()) {
-            CodeCalendar cc = (CodeCalendar) itr.next();
-            int seasonId = cc.getSeason();
-            if (seasonId != 0) {
-                OctetString os = OctetString.fromByteArray(new byte[]{(byte) ((cc.getYear() == -1) ? 0xff : ((cc.getYear() >> 8) & 0xFF)), (byte) ((cc.getYear() == -1) ? 0xff : (cc.getYear()) & 0xFF),
-                        (byte) ((cc.getMonth() == -1) ? 0xFF : cc.getMonth()), (byte) ((cc.getDay() == -1) ? 0xFF : cc.getDay()), (byte) 0xFF, 0, 0, 0, 0, (byte) 0x80, 0, 0});
-                seasonsProfile.put(os, seasonId);
-                if (!seasonIds.containsKey(seasonId)) {
-                    seasonIds.put(seasonId, index);
-                    index++;
+    private void addActionsForDayType(DayType dayType) {
+        try {
+            DayProfiles dayProfile = new DayProfiles();
+            Array daySchedules = new Array();
+            boolean first = true;
+            DayProfileActions fromMidnightToFirst = null;   // We may not need it if the first occurrence starts at midnight
+            EventOccurrence lastEventOccurrence = null;
+            for (EventOccurrence eventOccurrence : dayType.getEventOccurrences()) {
+                if (first && !eventOccurrence.getFrom().equals(LocalTime.MIDNIGHT)) {
+                    /* First entry does not start at midnight,
+                     * add an additional one that will get the same code
+                     * as the last event occurrence. */
+                    first = false;
+                    fromMidnightToFirst = this.newAction(LocalTime.MIDNIGHT);
+                    daySchedules.addDataType(fromMidnightToFirst);
                 }
+                DayProfileActions dayProfileActions = this.newAction(eventOccurrence);
+                daySchedules.addDataType(dayProfileActions);
+                lastEventOccurrence = eventOccurrence;
             }
-        }
-
-        //Create day type IDs (incremental 0-based)
-        for (int dayTypeIndex = 0; dayTypeIndex < ct.getDayTypes().size(); dayTypeIndex++) {
-            CodeDayType dayType = ct.getDayTypes().get(dayTypeIndex);
-            if (!dayTypeIds.containsKey(dayType.getId())) {
-                dayTypeIds.put(dayType.getId(), dayTypeIndex);
+            if (fromMidnightToFirst != null && lastEventOccurrence != null) {
+                /* If a slot was created from midnight to the first event occurrence
+                 * then we use the same code as the last event occurrence for that slot. */
+                fromMidnightToFirst.setScriptSelector(this.selectorFor(lastEventOccurrence));
             }
+            dayProfile.setDayId(new Unsigned8(getDayTypeName(dayType)));
+            dayProfile.setDayProfileActions(daySchedules);
+            this.dayArray.addDataType(dayProfile);
+        } catch (ProtocolException e) {
+            throw new UnderlyingProtocolException(e);
         }
+    }
 
+    private DayProfileActions newAction(LocalTime start) throws ProtocolException {
+        OctetString startTime = OctetString.fromByteArray(new byte[]{(byte) start.getHour(), (byte) start.getMinute(), (byte) start.getSecond(), 0});
+        DayProfileActions dayProfileActions = new DayProfileActions();
+        dayProfileActions.setStartTime(startTime);
+        if (this.meterConfig == null) {
+            byte[] ln = ObisCode.fromString("0.0.10.0.100.255").getLN();
+            dayProfileActions.setScriptLogicalName(OctetString.fromByteArray(ln, ln.length));
+        } else {
+            dayProfileActions.setScriptLogicalName(OctetString.fromByteArray(this.meterConfig.getTariffScriptTable().getLNArray()));
+        }
+        return dayProfileActions;
+    }
+
+    private DayProfileActions newAction(EventOccurrence eventOccurrence) throws ProtocolException {
+        DayProfileActions dayProfileActions = this.newAction(eventOccurrence.getFrom());
+        dayProfileActions.setScriptSelector(this.selectorFor(eventOccurrence));
+        return dayProfileActions;
+    }
+
+    private Unsigned16 selectorFor(EventOccurrence eventOccurrence) {
+        return new Unsigned16((int) eventOccurrence.getEvent().getCode());
+    }
+
+    private void initializeSeasonAndWeekArray() {
+        Map<OctetString, Long> seasonsProfile = this.initializeSeasonsProfile();
         int weekIndex = 0;
-        for (Map.Entry<OctetString, Integer> entry : seasonsProfile.entrySet()) {
-
-            int seasonProfileNameId = getSeasonProfileName(entry);
+        for (Map.Entry<OctetString, Long> entry : seasonsProfile.entrySet()) {
+            long seasonProfileNameId = getSeasonProfileName(entry);
             if (!seasonArrayExists(seasonProfileNameId, seasonArray)) {
-
                 int weekProfileName = weekIndex;
                 weekIndex++;
                 SeasonProfiles seasonProfiles = new SeasonProfiles();
-                seasonProfiles.setSeasonProfileName(getOctetStringFromInt(seasonProfileNameId));    // the seasonProfileName is the DB id of the season
+                seasonProfiles.setSeasonProfileName(getOctetStringFromLong(seasonProfileNameId));    // the seasonProfileName is the DB id of the season
                 seasonProfiles.setSeasonStart(entry.getKey());
-                seasonProfiles.setWeekName(getOctetStringFromInt(weekProfileName));
+                seasonProfiles.setWeekName(getOctetStringFromLong(weekProfileName));
                 seasonArray.addDataType(seasonProfiles);
                 if (!weekArrayExists(weekProfileName, weekArray)) {
+                    DayType dayTypes[] = {null, null, null, null, null, null, null};
+                    this.calendar.getPeriods().forEach(period -> {
+                        if (period.getId() == entry.getValue()) {
+                            dayTypes[0] = period.getDayType(DayOfWeek.MONDAY);
+                            dayTypes[1] = period.getDayType(DayOfWeek.TUESDAY);
+                            dayTypes[2] = period.getDayType(DayOfWeek.WEDNESDAY);
+                            dayTypes[3] = period.getDayType(DayOfWeek.THURSDAY);
+                            dayTypes[4] = period.getDayType(DayOfWeek.FRIDAY);
+                            dayTypes[5] = period.getDayType(DayOfWeek.SATURDAY);
+                            dayTypes[6] = period.getDayType(DayOfWeek.SUNDAY);
+                        }
+                    });
                     WeekProfiles wp = new WeekProfiles();
-                    Iterator sIt = calendars.iterator();
-                    CodeDayType dayTypes[] = {null, null, null, null, null, null, null};
-                    CodeDayType any = null;
-                    while (sIt.hasNext()) {
-                        CodeCalendar codeCal = (CodeCalendar) sIt.next();
-                        if (codeCal.getSeason() == entry.getValue()) {
-                            switch (codeCal.getDayOfWeek()) {
-                                case 1: {
-                                    if (dayTypes[0] != null) {
-                                        if (dayTypes[0] != codeCal.getDayType()) {
-                                            throw new IOException("Season profiles are not correctly configured.");
-                                        }
-                                    } else {
-                                        dayTypes[0] = codeCal.getDayType();
-                                    }
-                                }
-                                break;
-                                case 2: {
-                                    if (dayTypes[1] != null) {
-                                        if (dayTypes[1] != codeCal.getDayType()) {
-                                            throw new IOException("Season profiles are not correctly configured.");
-                                        }
-                                    } else {
-                                        dayTypes[1] = codeCal.getDayType();
-                                    }
-                                }
-                                break;
-                                case 3: {
-                                    if (dayTypes[2] != null) {
-                                        if (dayTypes[2] != codeCal.getDayType()) {
-                                            throw new IOException("Season profiles are not correctly configured.");
-                                        }
-                                    } else {
-                                        dayTypes[2] = codeCal.getDayType();
-                                    }
-                                }
-                                break;
-                                case 4: {
-                                    if (dayTypes[3] != null) {
-                                        if (dayTypes[3] != codeCal.getDayType()) {
-                                            throw new IOException("Season profiles are not correctly configured.");
-                                        }
-                                    } else {
-                                        dayTypes[3] = codeCal.getDayType();
-                                    }
-                                }
-                                break;
-                                case 5: {
-                                    if (dayTypes[4] != null) {
-                                        if (dayTypes[4] != codeCal.getDayType()) {
-                                            throw new IOException("Season profiles are not correctly configured.");
-                                        }
-                                    } else {
-                                        dayTypes[4] = codeCal.getDayType();
-                                    }
-                                }
-                                break;
-                                case 6: {
-                                    if (dayTypes[5] != null) {
-                                        if (dayTypes[5] != codeCal.getDayType()) {
-                                            throw new IOException("Season profiles are not correctly configured.");
-                                        }
-                                    } else {
-                                        dayTypes[5] = codeCal.getDayType();
-                                    }
-                                }
-                                break;
-                                case 7: {
-                                    if (dayTypes[6] != null) {
-                                        if (dayTypes[6] != codeCal.getDayType()) {
-                                            throw new IOException("Season profiles are not correctly configured.");
-                                        }
-                                    } else {
-                                        dayTypes[6] = codeCal.getDayType();
-                                    }
-                                }
-                                break;
-                                case -1: {
-                                    if (any != null) {
-                                        if (any != codeCal.getDayType()) {
-                                            throw new IOException("Season profiles are not correctly configured.");
-                                        }
-                                    } else {
-                                        any = codeCal.getDayType();
-                                    }
-                                }
-                                break;
-                                default:
-                                    throw new IOException("Undefined daytype code received.");
-                            }
-                        }
-                    }
-
-                    wp.setWeekProfileName(getOctetStringFromInt(weekProfileName));
+                    wp.setWeekProfileName(getOctetStringFromLong(weekProfileName));
                     for (int i = 0; i < dayTypes.length; i++) {
-                        if (dayTypes[i] != null) {
-                            wp.addWeekDay(getDayTypeName(dayTypes[i]), i);
-                        } else if (any != null) {
-                            wp.addWeekDay(getDayTypeName(any), i);
-                        } else {
-                            throw new IOException("Not all dayId's are correctly filled in.");
-                        }
+                        wp.addWeekDay(getDayTypeName(dayTypes[i]), i);
                     }
                     weekArray.addDataType(wp);
-
                 }
             }
         }
-
         seasonArray = sort(seasonArray);
+    }
 
-        for (CodeDayType codeDayType : ct.getDayTypesOfCalendar()) {
-            DayProfiles dayProfile = new DayProfiles();
-            List<CodeDayTypeDef> definitions = codeDayType.getDefinitions();
-            Array daySchedules = new Array();
-            for (CodeDayTypeDef definition : definitions) {
-                DayProfileActions dayProfileActions = new DayProfileActions();
-                int tStamp = definition.getTstampFrom();
-                int hour = tStamp / 10000;
-                int min = (tStamp - hour * 10000) / 100;
-                int sec = tStamp - (hour * 10000) - (min * 100);
-                OctetString tstampOs = OctetString.fromByteArray(new byte[]{(byte) hour, (byte) min, (byte) sec, 0});
-                Unsigned16 selector = new Unsigned16(definition.getCodeValue());
-                dayProfileActions.setStartTime(tstampOs);
-                if (this.meterConfig == null) {
-                    byte[] ln = ObisCode.fromString("0.0.10.0.100.255").getLN();
-                    dayProfileActions.setScriptLogicalName(OctetString.fromByteArray(ln, ln.length));
-                } else {
-                    dayProfileActions.setScriptLogicalName(OctetString.fromByteArray(this.meterConfig.getTariffScriptTable().getLNArray()));
-                }
-                dayProfileActions.setScriptSelector(selector);
-                daySchedules.addDataType(dayProfileActions);
-            }
-            dayProfile.setDayId(new Unsigned8(getDayTypeName(codeDayType)));
-            dayProfile.setDayProfileActions(daySchedules);
-            dayArray.addDataType(dayProfile);
-        }
+    private Map<OctetString, Long> initializeSeasonsProfile() {
+        ArrayIndexGenerator periodIndex = ArrayIndexGenerator.zeroBased();
+        Map<OctetString, Long> map = new HashMap<>();
+        this.calendar.getPeriods().forEach(period -> {
+            // All usages of day types in a period have any year, any month and any day
+            OctetString os =
+                    OctetString.fromByteArray(
+                            new byte[]{
+                                    (byte) 0xff,
+                                    (byte) 0xff,
+                                    (byte) 0xFF,
+                                    (byte) 0xFF,
+                                    (byte) 0xFF,
+                                    0,
+                                    0,
+                                    0,
+                                    0,
+                                    (byte) 0x80,
+                                    0,
+                                    0});
+            map.put(os, period.getId());
+            this.periodIds.computeIfAbsent(period.getId(), id -> periodIndex.next());
+        });
+        return map;
+    }
 
-        checkForSingleSeasonStartDate();
+    private void initializeDayTypeIds() {
+        ArrayIndexGenerator dayTypeIndex = ArrayIndexGenerator.zeroBased();
+        this.dayTypeIds =
+            this.calendar
+                .getDayTypes()
+                .stream()
+                .collect(Collectors.toMap(
+                    DayType::getId,
+                    dayType1 -> dayTypeIndex.next()));
     }
 
     protected Array sort(Array seasonArray) {
@@ -236,16 +196,16 @@ public class ActivityCalendarMessage {
         return seasonArray;
     }
 
-    protected OctetString getOctetStringFromInt(int weekProfileName) {
-        return OctetString.fromString(Integer.toString(weekProfileName));
+    protected OctetString getOctetStringFromLong(long weekProfileName) {
+        return OctetString.fromString(Long.toString(weekProfileName));
     }
 
-    protected Integer getSeasonProfileName(Map.Entry<OctetString, Integer> entry) {
+    protected Long getSeasonProfileName(Map.Entry<OctetString, Long> entry) {
         return entry.getValue();
     }
 
-    protected int getDayTypeName(CodeDayType cdt) {
-        return cdt.getId();
+    protected int getDayTypeName(DayType dayType) {
+        return (int) dayType.getId();
     }
 
     /**
@@ -255,7 +215,7 @@ public class ActivityCalendarMessage {
      * @param seasonArray         - the complete seasonProfile list where you need to check in
      * @return true if it exists, false otherwise
      */
-    private boolean seasonArrayExists(int seasonProfileNameId, Array seasonArray) {
+    private boolean seasonArrayExists(long seasonProfileNameId, Array seasonArray) {
         for (int i = 0; i < seasonArray.nrOfDataTypes(); i++) {
             SeasonProfiles sp = (SeasonProfiles) seasonArray.getDataType(i);
             if (getSeasonIdFromSeasonProfile(sp) == seasonProfileNameId) {
@@ -320,4 +280,18 @@ public class ActivityCalendarMessage {
     public Array getDayProfile() {
         return this.dayArray;
     }
+
+    private static class UnderlyingProtocolException extends RuntimeException {
+        private final ProtocolException cause;
+
+        private UnderlyingProtocolException(ProtocolException cause) {
+            this.cause = cause;
+        }
+
+        @Override
+        public ProtocolException getCause() {
+            return cause;
+        }
+    }
+
 }

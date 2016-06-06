@@ -1,5 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.messages;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
@@ -7,6 +8,7 @@ import com.energyict.mdc.protocol.api.messaging.Message;
 import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
 import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
+
 import com.energyict.protocolimpl.dlms.g3.messaging.G3Messaging;
 import com.energyict.protocolimpl.dlms.g3.messaging.messages.PlcOfdmMacSetupMessages;
 import com.energyict.protocolimpl.dlms.g3.messaging.messages.SixLoWPanMessages;
@@ -72,17 +74,19 @@ public class AM540Messaging extends G3Messaging {
     protected final AM540 protocol;
     private final Clock clock;
     private final TopologyService topologyService;
+    private final CalendarService calendarService;
     private Dsmr40Messaging dsmr40Messaging;
 
-    public AM540Messaging(AM540 protocol, TopologyService topologyService, Clock clock) {
-        this(protocol, topologyService, ANNOTATED_MESSAGES, clock);
+    public AM540Messaging(AM540 protocol, TopologyService topologyService, Clock clock, CalendarService calendarService) {
+        this(protocol, topologyService, ANNOTATED_MESSAGES, clock, calendarService);
     }
 
-    public AM540Messaging(AM540 protocol, TopologyService topologyService, Class<? extends AnnotatedMessage>[] messages, Clock clock) {
-        super(protocol.getDlmsSession(), messages);
+    public AM540Messaging(AM540 protocol, TopologyService topologyService, Class<? extends AnnotatedMessage>[] messages, Clock clock, CalendarService calendarService) {
+        super(protocol.getDlmsSession(), calendarService, messages);
         this.protocol = protocol;
         this.topologyService = topologyService;
         this.clock = clock;
+        this.calendarService = calendarService;
     }
 
     protected Clock getClock() {
@@ -91,6 +95,10 @@ public class AM540Messaging extends G3Messaging {
 
     protected TopologyService getTopologyService() {
         return topologyService;
+    }
+
+    protected CalendarService getCalendarService() {
+        return calendarService;
     }
 
     @Override
@@ -163,7 +171,7 @@ public class AM540Messaging extends G3Messaging {
     }
 
     protected Dsmr50MessageExecutor getMessageExecutor() {
-        return new Dsmr50MessageExecutor(protocol, this.clock, this.topologyService);
+        return new Dsmr50MessageExecutor(protocol, this.clock, this.topologyService, this.calendarService);
     }
 
     @Override

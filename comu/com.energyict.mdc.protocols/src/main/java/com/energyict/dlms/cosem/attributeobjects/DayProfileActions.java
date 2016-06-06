@@ -4,7 +4,6 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -33,24 +32,15 @@ public class DayProfileActions extends Structure {
         addDataType(scriptSelector);
 	}
 
-    public DayProfileActions(byte[] berEncodedData, int offset, int level) throws IOException {
-        super(berEncodedData, offset, level);
-        this.startTime = (OctetString) getDataType(indexStartTime);
-        this.scriptLogicalName = (OctetString) getDataType(indexScriptLogicalName);
-        this.scriptSelector = (Unsigned16) getDataType(indexScriptSelector);
-    }
-
-
     /**
 	 * @return the BER encoded structure.
-	 * @throws java.io.IOException when parsing of the structure fails
 	 * @throws IllegalArgumentException when not all necessary dayProfileAction fields are written
 	 */
 	protected byte[] doGetBEREncodedByteArray() {
 		if ((getStartTime() == null) || (getScriptSelector() == null) || (getScriptLogicalName() == null)) {
 			throw new IllegalArgumentException("Some of the dayProfileAction fields are empty.");
 		}
-		this.dataTypes = new ArrayList();
+		this.dataTypes = new ArrayList<>();
 		addDataType(getStartTime());
 		addDataType(getScriptLogicalName());
 		addDataType(getScriptSelector());
@@ -101,6 +91,5 @@ public class DayProfileActions extends Structure {
 		this.scriptSelector = scriptSelector;
         setDataType(indexScriptSelector, scriptSelector);
 	}
-
 
 }

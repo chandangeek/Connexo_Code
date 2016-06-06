@@ -1,10 +1,10 @@
 package com.energyict.protocolimplv2.ace4000;
 
+import com.elster.jupiter.calendar.Calendar;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.MessageProtocol;
-import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
@@ -27,6 +27,7 @@ import com.energyict.mdc.protocol.api.messaging.MessageTagSpec;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
 import com.energyict.mdc.protocol.api.messaging.MessageValueSpec;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceLoadProfileSupport;
+
 import com.energyict.protocolimplv2.ace4000.requests.ContactorCommand;
 import com.energyict.protocolimplv2.ace4000.requests.FirmwareUpgrade;
 import com.energyict.protocolimplv2.ace4000.requests.ReadLoadProfile;
@@ -266,8 +267,8 @@ public class ACE4000MessageExecutor implements MessageProtocol {
         int number = Integer.parseInt(parts[1].substring(1).split("\"")[0]);
         int numberOfRates = Integer.parseInt(parts[2].substring(1).split("\"")[0]);
 
-        //TODO: Code table from message entry ?????
-        Code codeTable = null;
+        //TODO: Calendar from message entry ?????
+        Calendar calendar = null;
 
         if (numberOfRates > 4 || numberOfRates < 0) {
             failMessage("Tariff configuration failed, invalid number of rates");
@@ -275,7 +276,7 @@ public class ACE4000MessageExecutor implements MessageProtocol {
         }
 
         try {
-            ace4000.getObjectFactory().sendTariffConfiguration(number, numberOfRates, codeTable);
+            ace4000.getObjectFactory().sendTariffConfiguration(number, numberOfRates, calendar);
         } catch (ApplicationException e) {  //Thrown while parsing the code table
             failMessage("Tariff configuration failed, invalid code table settings");
         }

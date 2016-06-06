@@ -1,5 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -31,19 +32,22 @@ import java.time.Clock;
 @Deprecated //Please use V2 protcool (com.energyict.protocolimplv2.nta.dsmr23.eict.WebRTUKP)
 public class WebRTUKP extends AbstractSmartNtaProtocol implements HHUEnabler {
 
+    private final CalendarService calendarService;
+
     @Override
     public String getProtocolDescription() {
         return "EnergyICT WebRTU KP DLMS (NTA DSMR2.3)";
     }
 
     @Inject
-    public WebRTUKP(PropertySpecService propertySpecService, Clock clock, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory, OrmClient ormClient) {
+    public WebRTUKP(PropertySpecService propertySpecService, Clock clock, TopologyService topologyService, CalendarService calendarService, MdcReadingTypeUtilService readingTypeUtilService, LoadProfileFactory loadProfileFactory, OrmClient ormClient) {
         super(propertySpecService, clock, topologyService, readingTypeUtilService, loadProfileFactory, ormClient);
+        this.calendarService = calendarService;
     }
 
     @Override
     public MessageProtocol getMessageProtocol() {
-        return new Dsmr23Messaging(new Dsmr23MessageExecutor(this, this.getClock(), this.getTopologyService()));
+        return new Dsmr23Messaging(new Dsmr23MessageExecutor(this, this.getClock(), this.getTopologyService(), this.calendarService));
     }
 
     /**

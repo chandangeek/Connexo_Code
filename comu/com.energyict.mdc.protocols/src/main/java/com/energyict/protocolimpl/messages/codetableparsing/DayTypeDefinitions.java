@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.messages.codetableparsing;
 
-import com.energyict.mdc.protocol.api.codetables.CodeDayTypeDef;
+import com.elster.jupiter.calendar.EventOccurrence;
 
 /**
  * Describes 1 DayType definition.
@@ -13,17 +13,11 @@ class DayTypeDefinitions {
     final int minute;
     final int seconds;
 
-    /**
-     * Constructor with a CodeDayTypeDef as argument
-     *
-     * @param codeDayTypeDef the given CodeDayType definition
-     */
-    DayTypeDefinitions(CodeDayTypeDef codeDayTypeDef) {
-        this.tariffcode = codeDayTypeDef.getCodeValue();
-        int tStamp = codeDayTypeDef.getTstampFrom();
-        this.hour = tStamp / 10000;
-        this.minute = (tStamp - hour * 10000) / 100;
-        this.seconds = tStamp - (hour * 10000) - (minute * 100);
+    DayTypeDefinitions(EventOccurrence eventOccurrence) {
+        this.tariffcode = (int) eventOccurrence.getEvent().getCode();
+        this.hour = eventOccurrence.getFrom().getHour();
+        this.minute = eventOccurrence.getFrom().getMinute();
+        this.seconds = eventOccurrence.getFrom().getSecond();
     }
 
     /**

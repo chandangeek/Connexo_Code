@@ -1,14 +1,16 @@
 package com.energyict.protocolimpl.dlms.prime.messaging;
 
-import com.energyict.dlms.DlmsSession;
+import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
+
+import com.energyict.dlms.DlmsSession;
 import com.energyict.protocolimpl.dlms.prime.PrimeProperties;
 import com.energyict.protocolimpl.dlms.prime.messaging.tariff.TariffControl;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -30,11 +32,11 @@ public class PrimeMessaging {
     private final PasswordSetup passwordSetup;
     private final BasicIntervalSetup basicIntervalSetup;
 
-    public PrimeMessaging(DlmsSession session, PrimeProperties properties) {
+    public PrimeMessaging(DlmsSession session, PrimeProperties properties, DeviceMessageFileService DeviceMessageFileService) {
         this.session = session;
         this.disconnectControl = new DisconnectControl(session);
         this.clockControl = new ClockControl(session);
-        this.firmwareUpgrade = new FirmwareUpgrade(session, properties);
+        this.firmwareUpgrade = new FirmwareUpgrade(session, properties, DeviceMessageFileService);
         this.tariffControl = new TariffControl(session);
         this.powerQuality = new PowerQuality(session);
         this.demandResponse = new DemandResponse(session);
@@ -72,17 +74,15 @@ public class PrimeMessaging {
     }
 
     public static List<MessageCategorySpec> getMessageCategories() {
-        List<MessageCategorySpec> specs = new ArrayList<MessageCategorySpec>();
-
-        specs.add(DisconnectControl.getCategorySpec());
-        specs.add(ClockControl.getCategorySpec());
-        specs.add(TariffControl.getCategorySpec());
-        specs.add(PowerQuality.getCategorySpec());
-        specs.add(DemandResponse.getCategorySpec());
-        specs.add(PowerFailure.getCategorySpec());
-        specs.add(CommunicationSetup.getCategorySpec());
-        specs.add(PasswordSetup.getCategorySpec());
-
-        return specs;
+        return Arrays.asList(
+                    DisconnectControl.getCategorySpec(),
+                    ClockControl.getCategorySpec(),
+                    TariffControl.getCategorySpec(),
+                    PowerQuality.getCategorySpec(),
+                    DemandResponse.getCategorySpec(),
+                    PowerFailure.getCategorySpec(),
+                    CommunicationSetup.getCategorySpec(),
+                    PasswordSetup.getCategorySpec());
     }
+
 }

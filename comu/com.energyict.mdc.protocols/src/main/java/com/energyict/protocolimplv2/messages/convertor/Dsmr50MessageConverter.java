@@ -1,14 +1,17 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
+import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.HexString;
 import com.energyict.mdc.common.Password;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.device.messages.DlmsEncryptionLevelMessageValues;
 import com.energyict.mdc.protocol.api.device.messages.LoadProfileMode;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleAttributeMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagMessageEntry;
@@ -17,7 +20,27 @@ import javax.inject.Inject;
 import java.util.Date;
 import java.util.Map;
 
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.*;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activityCalendarAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.adp_Blacklist_table_entry_TTL;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.adp_unicast_RREQ_gen_enable;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.broadCastLogTableEntryTTLAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.capturePeriodAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.consumerProducerModeAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.disableDefaultRouting;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.encryptionLevelAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.meterTimeAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.newAuthenticationKeyAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.newEncryptionKeyAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.newHexPasswordAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.newWrappedAuthenticationKeyAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.newWrappedEncryptionKeyAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.plcG3TimeoutAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.plcTypeFirmwareUpdateAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.pskAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.resumeFirmwareUpdateAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.specialDaysAttributeName;
 
 /**
  * Represents a MessageConverter for the legacy AM540 & Sagemcom DSMR5.0 protocols
@@ -119,10 +142,10 @@ public class Dsmr50MessageConverter extends Dsmr40MessageConverter {
             return ((HexString) messageAttribute).getContent();
         } else if (propertySpec.getName().equals(activityCalendarActivationDateAttributeName)) {
             return String.valueOf(((Date) messageAttribute).getTime());
-        } else if (propertySpec.getName().equals(activityCalendarCodeTableAttributeName)) {
-            return convertCodeTableToXML((Code) messageAttribute);
-        } else if (propertySpec.getName().equals(specialDaysCodeTableAttributeName)) {
-            return convertSpecialDaysCodeTableToXML((Code) messageAttribute);
+        } else if (propertySpec.getName().equals(activityCalendarAttributeName)) {
+            return convertCodeTableToXML((Calendar) messageAttribute);
+        } else if (propertySpec.getName().equals(specialDaysAttributeName)) {
+            return convertSpecialDaysCodeTableToXML((Calendar) messageAttribute);
         } else if (propertySpec.getName().equals(firmwareUpdateFileAttributeName)) {
             return messageAttribute.toString();     //This is the path of the temp file representing the FirmwareVersion
         } else if (propertySpec.getName().equals(resumeFirmwareUpdateAttributeName)

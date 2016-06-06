@@ -17,6 +17,22 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.protocols.util.TempFileLoader;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.Integer16;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.axrdencoding.util.AXDRDate;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.axrdencoding.util.AXDRTime;
+import com.energyict.dlms.cosem.ActivityCalendar;
+import com.energyict.dlms.cosem.DataAccessResultCode;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.cosem.ImageTransfer;
+import com.energyict.dlms.cosem.ScriptTable;
+import com.energyict.dlms.cosem.SpecialDaysTable;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
@@ -25,7 +41,12 @@ import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExec
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Scanner;
+import java.util.TimeZone;
 
 
 /**
@@ -162,7 +183,7 @@ public class EDPMessageExecutor extends AbstractMessageExecutor {
 
     private void writeSpecialDays(OfflineDeviceMessage pendingMessage) throws IOException {
         int contract = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.contractAttributeName).getDeviceMessageAttributeValue());
-        String specialDaysHex = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.specialDaysCodeTableAttributeName).getDeviceMessageAttributeValue();
+        String specialDaysHex = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.specialDaysAttributeName).getDeviceMessageAttributeValue();
         long activationDate = Long.parseLong(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.activityCalendarActivationDateAttributeName).getDeviceMessageAttributeValue());
 
         ObisCode obisCode;
@@ -196,7 +217,7 @@ public class EDPMessageExecutor extends AbstractMessageExecutor {
     private void writeActivityCalendar(OfflineDeviceMessage pendingMessage) throws IOException {
         int contract = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.contractAttributeName).getDeviceMessageAttributeValue());
         String calendarName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.activityCalendarNameAttributeName).getDeviceMessageAttributeValue();
-        String profiles = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.activityCalendarCodeTableAttributeName).getDeviceMessageAttributeValue();
+        String profiles = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.activityCalendarAttributeName).getDeviceMessageAttributeValue();
         long epoch = Long.parseLong(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.activityCalendarActivationDateAttributeName).getDeviceMessageAttributeValue());
 
         ObisCode obisCode;

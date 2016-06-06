@@ -10,8 +10,10 @@
 
 package com.energyict.dlms.axrdencoding;
 
-import com.energyict.dlms.DLMSUtils;
 import com.energyict.mdc.protocol.api.ProtocolException;
+
+import com.energyict.dlms.DLMSUtils;
+import com.google.common.base.Strings;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -38,7 +40,7 @@ public class Array extends AbstractDataType implements Iterable<AbstractDataType
 	}
 
     public Array(AbstractDataType... dataTypes) {
-        this.dataTypes = new ArrayList<AbstractDataType>();
+        this.dataTypes = new ArrayList<>();
         for (AbstractDataType dataType : dataTypes) {
             addDataType(dataType);
         }
@@ -50,7 +52,7 @@ public class Array extends AbstractDataType implements Iterable<AbstractDataType
      * @param nrOfDataTypes the number of datatypes
      */
     public Array(int nrOfDataTypes) {
-        dataTypes = new ArrayList<AbstractDataType>(nrOfDataTypes);
+        dataTypes = new ArrayList<>(nrOfDataTypes);
         for(int i = 0; i < nrOfDataTypes; i++){
             dataTypes.add(null);
         }
@@ -62,8 +64,8 @@ public class Array extends AbstractDataType implements Iterable<AbstractDataType
 			throw new ProtocolException("Array, invalid identifier " + berEncodedData[offset]);
 		}
 		offset++;
-		dataTypes = new ArrayList<AbstractDataType>();
-		int length = (int) DLMSUtils.getAXDRLength(berEncodedData, offset);
+		dataTypes = new ArrayList<>();
+		int length = DLMSUtils.getAXDRLength(berEncodedData, offset);
 		offset += DLMSUtils.getAXDRLengthOffset(berEncodedData, offset);
 		// setLevel(getLevel()+1);
 		for (int i = 0; i < length; i++) {
@@ -76,16 +78,11 @@ public class Array extends AbstractDataType implements Iterable<AbstractDataType
 	}
 
 	public String toString() {
-		StringBuffer strBuffTab = new StringBuffer();
-		for (int i = 0; i < getLevel(); i++) {
-			strBuffTab.append("  ");
-		}
-		StringBuffer strBuff = new StringBuffer();
-		strBuff.append(strBuffTab.toString() + "Array[" + dataTypes.size() + "]:\n");
-		Iterator<AbstractDataType> it = dataTypes.iterator();
-		while (it.hasNext()) {
-			AbstractDataType adt = it.next();
-			strBuff.append(strBuffTab.toString() + adt);
+		StringBuilder strBuff = new StringBuilder();
+		String indent = Strings.repeat("  ", getLevel());
+		strBuff.append(indent).append("Array[").append(dataTypes.size()).append("]:\n");
+		for (AbstractDataType adt : dataTypes) {
+			strBuff.append(indent).append(adt);
 		}
 		return strBuff.toString();
 	}
@@ -99,9 +96,7 @@ public class Array extends AbstractDataType implements Iterable<AbstractDataType
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			baos.write(AxdrType.ARRAY.getTag());
 			baos.write(DLMSUtils.getAXDRLengthEncoding(dataTypes.size()));
-			Iterator<AbstractDataType> it = dataTypes.iterator();
-			while (it.hasNext()) {
-				AbstractDataType dt = it.next();
+			for (AbstractDataType dt : dataTypes) {
 				baos.write(dt.getBEREncodedByteArray());
 			}
 			return baos.toByteArray();
@@ -170,7 +165,7 @@ public class Array extends AbstractDataType implements Iterable<AbstractDataType
         private final Array arrayObject;
         private int index;
 
-        public ArrayIterator(Array arrayObject) {
+        private ArrayIterator(Array arrayObject) {
             this.arrayObject = arrayObject;
             this.index = 0;
         }

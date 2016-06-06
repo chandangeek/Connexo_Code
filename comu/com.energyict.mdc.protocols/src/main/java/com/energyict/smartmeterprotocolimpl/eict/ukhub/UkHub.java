@@ -1,10 +1,10 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub;
 
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.MessageProtocol;
-import com.energyict.mdc.protocol.api.UserFileFactory;
 import com.energyict.mdc.protocol.api.WakeUpProtocolSupport;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
@@ -76,16 +76,16 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
     private UkHubRegisterFactory registerFactory = null;
     private UkHubEventProfiles ukHubEventProfiles = null;
     private boolean reboot = false;
-    private final UserFileFactory userFileFactory;
+    private final DeviceMessageFileService deviceMessageFileService;
 
     @Inject
-    public UkHub(PropertySpecService propertySpecService, OrmClient ormClient, UserFileFactory userFileFactory) {
+    public UkHub(PropertySpecService propertySpecService, OrmClient ormClient, DeviceMessageFileService deviceMessageFileService) {
         super(propertySpecService, ormClient);
-        this.userFileFactory = userFileFactory;
+        this.deviceMessageFileService = deviceMessageFileService;
     }
 
-    protected UserFileFactory getUserFileFactory() {
-        return userFileFactory;
+    protected DeviceMessageFileService getDeviceMessageFileService() {
+        return deviceMessageFileService;
     }
 
     /**
@@ -95,7 +95,7 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
      */
     public MessageProtocol getMessageProtocol() {
         if (messageProtocol == null) {
-            messageProtocol = new UkHubMessaging(new UkHubMessageExecutor(this, this.userFileFactory));
+            messageProtocol = new UkHubMessaging(new UkHubMessageExecutor(this, this.deviceMessageFileService));
         }
         return messageProtocol;
     }

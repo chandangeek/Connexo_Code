@@ -1,15 +1,30 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages;
 
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.*;
+import com.elster.jupiter.calendar.Calendar;
+import com.elster.jupiter.calendar.CalendarService;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.topology.TopologyService;
-import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.BitString;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.cosem.ActivityCalendar;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.DataAccessResultCode;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.cosem.ImageTransfer;
+import com.energyict.dlms.cosem.Limiter;
+import com.energyict.dlms.cosem.ScriptTable;
+import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.protocolimpl.generic.messages.ActivityCalendarMessage;
 import com.energyict.protocolimpl.generic.messages.MessageHandler;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -35,8 +50,8 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
     private static final ObisCode OBISCODE_PUSH_SCRIPT = ObisCode.fromString("0.0.10.0.108.255");
     private static final ObisCode OBISCODE_GLOBAL_RESET = ObisCode.fromString("0.1.94.31.5.255");
 
-    public Dsmr40MessageExecutor(AbstractSmartNtaProtocol protocol, Clock clock, TopologyService topologyService) {
-        super(protocol, clock, topologyService);
+    public Dsmr40MessageExecutor(AbstractSmartNtaProtocol protocol, Clock clock, TopologyService topologyService, CalendarService calendarService) {
+        super(protocol, clock, topologyService, calendarService);
     }
 
     public MessageResult executeMessageEntry(MessageEntry msgEntry) throws ConnectionException, NestedIOException {
@@ -188,23 +203,22 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
 
         String name = messageHandler.getTOUCalendarName();
         String activateDate = messageHandler.getTOUActivationDate();
-        String codeTable = messageHandler.getTOUCodeTable();
+        String calendarId = messageHandler.getTOUCalendar();
         String userFile = messageHandler.getTOUUserFile();
 
-        if ((codeTable == null) && (userFile == null)) {
+        if ((calendarId == null) && (userFile == null)) {
             throw new IOException("CodeTable-ID AND UserFile-ID can not be both empty.");
-        } else if ((codeTable != null) && (userFile != null)) {
+        } else if ((calendarId != null) && (userFile != null)) {
             throw new IOException("CodeTable-ID AND UserFile-ID can not be both filled in.");
         }
 
-        if (codeTable != null) {
-
-            Code ct = this.findCode(codeTable);
-            if (ct == null) {
-                throw new IOException("No CodeTable defined with id '" + codeTable + "'");
+        if (calendarId != null) {
+            Calendar calendar = this.findCalendarOrThrowIOException(calendarId);
+            if (calendar == null) {
+                throw new IOException("No CodeTable defined with id '" + calendarId + "'");
             } else {
 
-                ActivityCalendarMessage acm = getActivityCalendarParser(ct);
+                ActivityCalendarMessage acm = getActivityCalendarParser(calendar);
                 acm.parse();
 
                 ActivityCalendar ac = getCosemObjectFactory().getActivityCalendar(getMeterConfig().getActivityCalendar().getObisCode());
@@ -232,13 +246,8 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
         }
     }
 
-    protected ActivityCalendarMessage getActivityCalendarParser(Code ct) {
-        return new ActivityCalendarMessage(ct, getMeterConfig());
-    }
-
-    public Code findCode(String codeTable) {
-        // Todo: port Code to jupiter, return null as the previous code would have returned null too.
-        throw new UnsupportedOperationException("Code is not longer supported by Jupiter");
+    protected ActivityCalendarMessage getActivityCalendarParser(Calendar ccalendar) {
+        return new ActivityCalendarMessage(ccalendar, getMeterConfig());
     }
 
     @Override

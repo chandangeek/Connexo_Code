@@ -18,11 +18,11 @@ public class RawDayTypeBand extends AbstractField<RawDayTypeBand> {
 
     private static final int LENGTH = 5;
 
-    private int[] code;
+    private long[] code;
     private int[] time;
 
     public RawDayTypeBand() {
-        code = new int[LENGTH];
+        code = new long[LENGTH];
         time = new int[LENGTH];
     }
 
