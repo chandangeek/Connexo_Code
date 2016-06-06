@@ -45,7 +45,7 @@ import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.impl.DeviceDataModelServiceImpl;
+import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
@@ -154,7 +154,7 @@ public class InMemoryPersistence {
             injector.getInstance(QueryService.class);
             injector.getInstance(DeviceConfigurationService.class);
             injector.getInstance(DeviceMessageSpecificationService.class);
-            injector.getInstance(DeviceDataModelServiceImpl.class);
+            injector.getInstance(DeviceDataModelService.class);
             injector.getInstance(DeviceService.class);
             injector.getInstance(EventService.class);
             injector.getInstance(ProtocolPluggableService.class);

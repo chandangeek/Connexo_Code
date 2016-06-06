@@ -40,6 +40,11 @@ public class Installer implements FullInstaller {
                 this::createJupiterEventsSubscriber,
                 logger
         );
+        doTry(
+                "Create event types for FRM",
+                this::createEventTypesIfNotExist,
+                logger
+        );
     }
 
     private void createJupiterEventsSubscriber() {
