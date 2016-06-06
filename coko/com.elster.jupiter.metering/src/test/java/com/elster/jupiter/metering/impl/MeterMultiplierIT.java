@@ -20,10 +20,11 @@ import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
-import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
@@ -86,7 +87,6 @@ public class MeterMultiplierIT {
             bind(BundleContext.class).toInstance(bundleContext);
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(SearchService.class).toInstance(mock(SearchService.class));
-            bind(PropertySpecService.class).toInstance(mock(PropertySpecService.class));
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
@@ -101,7 +101,8 @@ public class MeterMultiplierIT {
                     new InMemoryMessagingModule(),
                     new IdsModule(),
                     new MeteringModule(),
-                    new PartyModule(),
+                    new BasicPropertiesModule(),
+                    new TimeModule(),
                     new EventsModule(),
                     new DomainUtilModule(),
                     new OrmModule(),
@@ -112,7 +113,8 @@ public class MeterMultiplierIT {
                     new BpmModule(),
                     new FiniteStateMachineModule(),
                     new NlsModule(),
-                    new CustomPropertySetsModule()
+                    new CustomPropertySetsModule(),
+                    new PartyModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);
