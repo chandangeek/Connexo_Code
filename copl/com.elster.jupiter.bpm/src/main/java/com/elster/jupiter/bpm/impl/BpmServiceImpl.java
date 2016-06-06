@@ -25,8 +25,8 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
@@ -35,6 +35,7 @@ import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
@@ -55,12 +56,15 @@ import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
+import static com.elster.jupiter.orm.Version.version;
+import static com.elster.jupiter.upgrade.InstallIdentifier.identifier;
+
 
 @Component(
         name = "com.elster.jupiter.bpm",
-        service = {BpmService.class, InstallService.class, PrivilegesProvider.class, TranslationKeyProvider.class, MessageSeedProvider.class},
+        service = {BpmService.class, PrivilegesProvider.class, TranslationKeyProvider.class, MessageSeedProvider.class},
         property = {"name=" + BpmService.COMPONENTNAME}, immediate = true)
-public class BpmServiceImpl implements BpmService, InstallService, PrivilegesProvider, TranslationKeyProvider, MessageSeedProvider {
+public class BpmServiceImpl implements BpmService, PrivilegesProvider, TranslationKeyProvider, MessageSeedProvider {
 
     private volatile DataModel dataModel;
     private volatile MessageService messageService;
@@ -70,13 +74,14 @@ public class BpmServiceImpl implements BpmService, InstallService, PrivilegesPro
     private volatile BpmServerImpl bpmServer;
     private volatile QueryService queryService;
     private volatile ThreadPrincipalService threadPrincipalService;
+    private volatile UpgradeService upgradeService;
     private List<ProcessAssociationProvider> processAssociationProviders = new CopyOnWriteArrayList<>();
 
     public BpmServiceImpl() {
     }
 
     @Inject
-    public BpmServiceImpl(OrmService ormService, MessageService messageService, JsonService jsonService, NlsService nlsService, UserService userService, QueryService queryService, ThreadPrincipalService threadPrincipalService) {
+    public BpmServiceImpl(OrmService ormService, MessageService messageService, JsonService jsonService, NlsService nlsService, UserService userService, QueryService queryService, ThreadPrincipalService threadPrincipalService, UpgradeService upgradeService) {
         this();
         setOrmService(ormService);
         setMessageService(messageService);
@@ -85,10 +90,8 @@ public class BpmServiceImpl implements BpmService, InstallService, PrivilegesPro
         setNlsService(nlsService);
         setQueryService(queryService);
         setThreadPrincipalService(threadPrincipalService);
+        setUpgradeService(upgradeService);
         activate(null);
-        if (!dataModel.isInstalled()) {
-            install();
-        }
     }
 
     @Activate
@@ -107,21 +110,14 @@ public class BpmServiceImpl implements BpmService, InstallService, PrivilegesPro
             }
         });
         bpmServer = new BpmServerImpl(context, threadPrincipalService);
+        upgradeService.register(identifier(COMPONENTNAME), dataModel, InstallerImpl.class, ImmutableMap.of(
+                version(10, 2), UpgraderV10_2.class
+        ));
     }
 
     @Deactivate
     public void deactivate() {
         bpmServer = null;
-    }
-
-    @Override
-    public void install() {
-        new InstallerImpl(dataModel).install(messageService);
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList("USR", "MSG", "LIC");
     }
 
     @Reference
@@ -165,6 +161,11 @@ public class BpmServiceImpl implements BpmService, InstallService, PrivilegesPro
     @Reference
     public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
         this.threadPrincipalService = threadPrincipalService;
+    }
+
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
     }
 
     @Override
