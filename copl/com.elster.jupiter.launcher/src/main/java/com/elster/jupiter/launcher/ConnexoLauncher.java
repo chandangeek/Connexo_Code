@@ -4,14 +4,12 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
-import org.osgi.framework.ServiceReference;
 import org.osgi.framework.launch.Framework;
 import org.osgi.framework.launch.FrameworkFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -64,6 +62,7 @@ public class ConnexoLauncher {
             interactive = false;
             configMap.put("admin.password", args[args.length - 1]);
             configMap.put("install.dir", installDir.getAbsolutePath());
+            configMap.put("upgrade", "true");
         }
         if (!interactive) {
             configMap.put("gosh.args", "--nointeractive");
@@ -71,14 +70,7 @@ public class ConnexoLauncher {
         System.out.println("Starting Connexo" + (interactive ? " with interactive shell..." : "..."));
         startFramework(configMap, installDir);
         if (install) {
-            try {
-                initAll();
-            } catch (Exception ex) {
-                logger.severe("Caught exception while installing " + ex.getLocalizedMessage());
-                System.exit(4);
-            } finally {
-                stopFramework();
-            }
+            stopFramework();
         }
     }
 
@@ -129,17 +121,6 @@ public class ConnexoLauncher {
         } catch (BundleException e) {
             logger.severe("Could start the OSGi framework ! " + e.getLocalizedMessage());
             System.exit(3);
-        }
-    }
-
-    private static void initAll() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        ServiceReference serviceReference = framework.getBundleContext()
-                .getServiceReference("com.elster.jupiter.install.InstallerService");
-        if (serviceReference != null) {
-            Object installService = framework.getBundleContext().getService(serviceReference);
-            System.out.println("Installing database schema !");
-            installService.getClass().getMethod("initAll").invoke(installService);
-            System.out.println("Database installation finished.");
         }
     }
 
