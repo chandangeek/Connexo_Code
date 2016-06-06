@@ -68,13 +68,8 @@ public class MeterReadingsGenerator {
     }
 
     private List<ReadingQualityRecord> getValidationQualities(Channel channel, Range<Instant> range) {
-        List<com.elster.jupiter.metering.ReadingQualityRecord> qualities = channel.findReadingQuality(range);
-        Collections.sort(qualities, new Comparator<com.elster.jupiter.metering.ReadingQualityRecord>() {
-            @Override
-            public int compare(com.elster.jupiter.metering.ReadingQualityRecord first, com.elster.jupiter.metering.ReadingQualityRecord second) {
-                return first.getTimestamp().compareTo(second.getTimestamp());
-            }
-        });
+        List<com.elster.jupiter.metering.ReadingQualityRecord> qualities = channel.findReadingQualities(null, null, range, false, false);
+        Collections.sort(qualities, Comparator.comparing(ReadingQualityRecord::getTimestamp));
         return qualities;
     }
 
