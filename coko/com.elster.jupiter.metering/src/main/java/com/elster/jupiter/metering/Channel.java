@@ -61,7 +61,6 @@ public interface Channel {
     @Deprecated
     Optional<ReadingQualityRecord> findReadingQuality(ReadingQualityType type, Instant timestamp);
 
-
     /**
      * @param type
      * @param interval
@@ -72,7 +71,6 @@ public interface Channel {
     @Deprecated
     List<ReadingQualityRecord> findReadingQuality(ReadingQualityType type, Range<Instant> interval);
 
-
     /**
      * @param type
      * @param interval
@@ -82,9 +80,6 @@ public interface Channel {
      */
     @Deprecated
     List<ReadingQualityRecord> findActualReadingQuality(ReadingQualityType type, Range<Instant> interval);
-
-    List<ReadingQualityRecord> findReadingQuality(Instant timestamp);
-
 
     /**
      * Looks for reading qualities of any of given {@param qualityCodeSystems} and of a given {@param index} present in a given {@param interval}
