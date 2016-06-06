@@ -58,10 +58,10 @@ public class MeterActivationsImpl implements ReadingContainer {
         if (meterActivations.isEmpty()) {
             return Collections.emptyList();
         }
-        List <BaseReadingRecord> result = new ArrayList<>();
-        result.addAll(last().getReadingsBefore(when, readingType , count));
-        for (int i = meterActivations.size() - 2 ; i >= 0 && result.size() < count ; i--) {
-            result.addAll(meterActivations.get(i).getReadingsBefore(when,readingType, count - result.size()));
+        List<BaseReadingRecord> result = new ArrayList<>();
+        result.addAll(last().getReadingsBefore(when, readingType, count));
+        for (int i = meterActivations.size() - 2; i >= 0 && result.size() < count; i--) {
+            result.addAll(meterActivations.get(i).getReadingsBefore(when, readingType, count - result.size()));
         }
         return result;
     }
@@ -71,9 +71,9 @@ public class MeterActivationsImpl implements ReadingContainer {
         if (meterActivations.isEmpty()) {
             return Collections.emptyList();
         }
-        List <BaseReadingRecord> result = new ArrayList<>();
-        result.addAll(last().getReadingsOnOrBefore(when, readingType , count));
-        for (int i = meterActivations.size() - 2 ; i >= 0 && result.size() < count ; i--) {
+        List<BaseReadingRecord> result = new ArrayList<>();
+        result.addAll(last().getReadingsOnOrBefore(when, readingType, count));
+        for (int i = meterActivations.size() - 2; i >= 0 && result.size() < count; i--) {
             result.addAll(meterActivations.get(i).getReadingsOnOrBefore(when, readingType, count - result.size()));
         }
         return result;
@@ -88,7 +88,7 @@ public class MeterActivationsImpl implements ReadingContainer {
         return meterActivations.get(meterActivations.size() - 1);
     }
 
-    public static MeterActivationsImpl from(List<MeterActivationImpl> candidates , Range<Instant> range) {
+    public static MeterActivationsImpl from(List<MeterActivationImpl> candidates, Range<Instant> range) {
         MeterActivationsImpl meterActivations = new MeterActivationsImpl();
         candidates.stream()
                 .filter(meterActivation -> meterActivation.overlaps(range))

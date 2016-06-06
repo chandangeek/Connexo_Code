@@ -22,9 +22,9 @@ public class EmptyIntervalReadingRecordImpl extends IntervalReadingRecordImpl {
     private ProfileStatus profileStatus;
 
     EmptyIntervalReadingRecordImpl(ReadingType readingType, Instant timeStamp) {
-        super(null,null);
-        this.timeStamp=timeStamp;
-        this.readingType=readingType;
+        super(null, null);
+        this.timeStamp = timeStamp;
+        this.readingType = readingType;
         this.profileStatus = new ProfileStatus(256);
     }
 

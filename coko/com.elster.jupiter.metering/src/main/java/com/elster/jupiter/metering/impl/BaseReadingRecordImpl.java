@@ -136,7 +136,7 @@ public abstract class BaseReadingRecordImpl implements BaseReadingRecord {
     }
 
     public List<? extends ReadingQualityRecord> getReadingQualities() {
-    	return getChannel().findReadingQualities(getTimeStamp());
+        return getChannel().findReadingQualities(getTimeStamp());
     }
 
 }

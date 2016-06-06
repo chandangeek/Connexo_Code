@@ -53,32 +53,32 @@ public interface Channel {
 
 
     /**
-     * @deprecated unused in production and likely unneeded due to {@link #findReadingQualities(Instant)}
      * @param type
      * @param timestamp
      * @return
+     * @deprecated unused in production and likely unneeded due to {@link #findReadingQualities(Instant)}
      */
     @Deprecated
     Optional<ReadingQualityRecord> findReadingQuality(ReadingQualityType type, Instant timestamp);
 
 
     /**
-     * @deprecated marked for deletion
-     * use {@link #findReadingQualities(Set, QualityCodeIndex, Range, boolean, boolean)} with checkIfActual = false, sort = true
      * @param type
      * @param interval
      * @return
+     * @deprecated marked for deletion
+     * use {@link #findReadingQualities(Set, QualityCodeIndex, Range, boolean, boolean)} with checkIfActual = false, sort = true
      */
     @Deprecated
     List<ReadingQualityRecord> findReadingQuality(ReadingQualityType type, Range<Instant> interval);
 
 
     /**
-     * @deprecated marked for deletion
-     * use {@link #findReadingQualities(Set, QualityCodeIndex, Range, boolean, boolean)} with checkIfActual = true, sort = true
      * @param type
      * @param interval
      * @return
+     * @deprecated marked for deletion
+     * use {@link #findReadingQualities(Set, QualityCodeIndex, Range, boolean, boolean)} with checkIfActual = true, sort = true
      */
     @Deprecated
     List<ReadingQualityRecord> findActualReadingQuality(ReadingQualityType type, Range<Instant> interval);
@@ -88,6 +88,7 @@ public interface Channel {
 
     /**
      * Looks for reading qualities of any of given {@param qualityCodeSystems} and of a given {@param index} present in a given {@param interval}
+     *
      * @param qualityCodeSystems only systems to take into account when looking for qualities; <code>null</code> or empty set mean all systems
      * @param index quality index to find; <code>null</code> means any index
      * @param interval interval to check for qualities
@@ -102,20 +103,20 @@ public interface Channel {
     List<ReadingQualityRecord> findReadingQualities(Instant timestamp);
 
     /**
-     * @deprecated marked for deletion
-     * use {@link #findReadingQualities(Set, QualityCodeIndex, Range, boolean, boolean)} with systems = null, index = null, checkIfActual = false, sort = true
      * @param interval
      * @return
+     * @deprecated marked for deletion
+     * use {@link #findReadingQualities(Set, QualityCodeIndex, Range, boolean, boolean)} with systems = null, index = null, checkIfActual = false, sort = true
      */
     @Deprecated
     List<ReadingQualityRecord> findReadingQuality(Range<Instant> interval);
 
 
     /**
-     * @deprecated marked for deletion
-     * use {@link #findReadingQualities(Set, QualityCodeIndex, Range, boolean, boolean)} with systems = null, index = null, checkIfActual = true, sort = true
      * @param interval
      * @return
+     * @deprecated marked for deletion
+     * use {@link #findReadingQualities(Set, QualityCodeIndex, Range, boolean, boolean)} with systems = null, index = null, checkIfActual = true, sort = true
      */
     @Deprecated
     List<ReadingQualityRecord> findActualReadingQuality(Range<Instant> interval);

@@ -118,8 +118,8 @@ public abstract class AbstractCimChannel implements CimChannel {
 
     @Override
     public List<ReadingQualityRecord> findReadingQualities(Set<QualityCodeSystem> qualityCodeSystems, QualityCodeIndex index,
-                                                    Range<Instant> interval,
-                                                    boolean checkIfActual) {
+                                                           Range<Instant> interval,
+                                                           boolean checkIfActual) {
         QueryStream<ReadingQualityRecord> selection = readingQualities().filter(inRange(interval));
         boolean ignoreQualityCodeSystem = qualityCodeSystems == null || qualityCodeSystems.isEmpty();
         if (!ignoreQualityCodeSystem || index != null) {
