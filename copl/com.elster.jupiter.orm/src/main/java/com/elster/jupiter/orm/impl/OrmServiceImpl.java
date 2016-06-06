@@ -296,6 +296,8 @@ public class OrmServiceImpl implements OrmService {
             if (existingTable.isPresent()) {
                 ExistingTable userTable = existingTable.get();
 
+                userTable.addColumnsTo(existingModel, journalTableName);
+
                 for (ExistingConstraint existingConstraint : userTable.getConstraints()) {
                     if (existingConstraint.isForeignKey()) {
                         String referencedTableName = existingConstraint.getReferencedTableName();
@@ -304,7 +306,7 @@ public class OrmServiceImpl implements OrmService {
                         }
                     }
                 }
-                userTable.addTo(existingModel, journalTableName);
+                userTable.addConstraintsTo(existingModel);
             }
         }
     }
