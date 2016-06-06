@@ -8,21 +8,18 @@ import org.osgi.service.event.EventConstants;
 
 import java.util.Map;
 
-
 public enum DataValidationEventDescription {
 
     CANNOT_ESTIMATE_DATA("com/elster/jupiter/estimation/estimationblock/FAILURE", CannotEstimateDataEvent.class),
     READINGQUALITY_DELETED("com/elster/jupiter/metering/readingquality/DELETED", SuspectDeletedEvent.class) {
         @Override
         public boolean matches(Map<?, ?> map) {
-            if (super.matches(map)) {
-                String readingQualityCode = (String) map.get("readingQualityTypeCode");
-                return ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT).getCode().equals(readingQualityCode);
-            }
-            return false;
+            // TODO: refactor to choose proper quality code system when issue management becomes available for MDM
+            return super.matches(map)
+                    && ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT).getCode()
+                            .equals(map.get("readingQualityTypeCode"));
         }
     }
-    
     ;
     
     private String topic;
