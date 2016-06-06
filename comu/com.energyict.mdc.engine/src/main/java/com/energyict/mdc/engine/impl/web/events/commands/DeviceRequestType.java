@@ -1,9 +1,11 @@
 package com.energyict.mdc.engine.impl.web.events.commands;
 
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 
-import java.util.*;
+import java.util.Set;
+import java.util.StringTokenizer;
 
 /**
  * Provides an implementation for the {@link RequestType} interface
@@ -26,10 +28,8 @@ public class DeviceRequestType extends IdBusinessObjectRequestType {
     }
 
     @Override
-    protected Request newRequestAccording(String parameterString) throws BusinessObjectIdParseException{
+    protected Request newRequestAccording(String parameterString) throws BusinessObjectParseException {
         try{
-            return super.newRequestAccording(parameterString);
-        }catch (BusinessObjectIdParseException e){
             //As the parameterString could not be parsed to a List of long,
             // We consider the parameterString being a comma separated list of MRID's
             StringTokenizer tokenizer = new StringTokenizer(parameterString, ", ", false);
@@ -38,9 +38,13 @@ public class DeviceRequestType extends IdBusinessObjectRequestType {
             while (tokenizer.hasMoreTokens()) {
                 mrids[i++] = tokenizer.nextToken();
             }
+            if (mrids.length == 0) {
+                return this.newRequestForAll();
+            }
             return new DeviceRequest(identificationService, mrids);
         }catch (CanNotFindForIdentifier e) {
-            throw new BusinessObjectIdParseException(parameterString, this.getBusinessObjectTypeName(), e);
+            DeviceIdentifier identifier = (DeviceIdentifier) e.getMessageArguments()[0];
+            throw new BusinessObjectParseException(identifier.toString() + " could not be found", e);
         }
     }
 
