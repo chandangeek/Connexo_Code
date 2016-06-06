@@ -38,6 +38,7 @@ import com.elster.jupiter.time.RelativePeriodCategory;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 
 import com.google.common.collect.ImmutableList;
@@ -140,6 +141,9 @@ public class EstimationServiceImplTest {
     private RelativePeriodCategory relativePeriodCategory;
     @Mock
     private RelativePeriod relativePeriod;
+    @Mock
+    private UpgradeService upgradeService;
+
     private LogRecorder logRecorder;
 
     @Before
@@ -163,7 +167,7 @@ public class EstimationServiceImplTest {
         when(userService.findGroup(any(String.class))).thenReturn(Optional.of(group));
         when(userService.createUser(any(String.class), any(String.class))).thenReturn(user);
 
-        this.estimationService = new EstimationServiceImpl(meteringService, ormService, queryService, nlsService, eventService, taskService, meteringGroupService, messageService, timeService, userService);
+        this.estimationService = new EstimationServiceImpl(meteringService, ormService, queryService, nlsService, eventService, taskService, meteringGroupService, messageService, timeService, userService, upgradeService);
 
         estimationService.addEstimationResolver(resolver);
         estimationService.addEstimatorFactory(factory);

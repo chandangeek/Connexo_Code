@@ -33,10 +33,11 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.upgrade.InstallIdentifier;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
@@ -80,8 +81,8 @@ import java.util.stream.Stream;
 import static com.elster.jupiter.util.conditions.Where.where;
 import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 
-@Component(name = "com.elster.jupiter.estimation", service = {InstallService.class, EstimationService.class, TranslationKeyProvider.class, MessageSeedProvider.class, PrivilegesProvider.class}, property = "name=" + EstimationService.COMPONENTNAME, immediate = true)
-public class EstimationServiceImpl implements IEstimationService, InstallService, TranslationKeyProvider, MessageSeedProvider, PrivilegesProvider {
+@Component(name = "com.elster.jupiter.estimation", service = {EstimationService.class, TranslationKeyProvider.class, MessageSeedProvider.class, PrivilegesProvider.class}, property = "name=" + EstimationService.COMPONENTNAME, immediate = true)
+public class EstimationServiceImpl implements IEstimationService, TranslationKeyProvider, MessageSeedProvider, PrivilegesProvider {
 
     static final String ESTIMATION_TASKS_USER = "estimation";
     static final String DESTINATION_NAME = "EstimationTask";
@@ -102,6 +103,7 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile UserService userService;
     private volatile TimeService timeService;
+    private volatile UpgradeService upgradeService;
 
     private Optional<DestinationSpec> destinationSpec = Optional.empty();
 
@@ -109,7 +111,7 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
     }
 
     @Inject
-    EstimationServiceImpl(MeteringService meteringService, OrmService ormService, QueryService queryService, NlsService nlsService, EventService eventService, TaskService taskService, MeteringGroupsService meteringGroupsService, MessageService messageService, TimeService timeService, UserService userService) {
+    EstimationServiceImpl(MeteringService meteringService, OrmService ormService, QueryService queryService, NlsService nlsService, EventService eventService, TaskService taskService, MeteringGroupsService meteringGroupsService, MessageService messageService, TimeService timeService, UserService userService, UpgradeService upgradeService) {
         this();
         setMeteringService(meteringService);
         setOrmService(ormService);
@@ -121,8 +123,8 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
         setMessageService(messageService);
         setTimeService(timeService);
         setUserService(userService);
+        setUpgradeService(upgradeService);
         activate();
-        install();
     }
 
     @Activate
@@ -140,8 +142,12 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
                     bind(TaskService.class).toInstance(taskService);
                     bind(IEstimationService.class).toInstance(EstimationServiceImpl.this);
                     bind(EstimationService.class).toInstance(EstimationServiceImpl.this);
+                    bind(MessageService.class).toInstance(messageService);
+                    bind(TimeService.class).toInstance(timeService);
+                    bind(UserService.class).toInstance(userService);
                 }
             });
+            upgradeService.register(InstallIdentifier.identifier(COMPONENTNAME), dataModel, InstallerImpl.class, Collections.emptyMap());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -400,16 +406,6 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
     }
 
     @Override
-    public void install() {
-        new InstallerImpl(dataModel, messageService, timeService, eventService, userService).install();
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList("MTR", "TSK", "MTG", "TME");
-    }
-
-    @Override
     public DestinationSpec getDestination() {
         if (!destinationSpec.isPresent()) {
             destinationSpec = messageService.getDestinationSpec(DESTINATION_NAME);
@@ -510,6 +506,11 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
     @Reference
     public void setUserService(UserService userService) {
         this.userService = userService;
+    }
+
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
     }
 
     @Override
