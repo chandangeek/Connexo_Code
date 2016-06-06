@@ -33,6 +33,7 @@ import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.validation.DataValidationOccurrence;
@@ -203,6 +204,8 @@ public class ValidationServiceImplTest {
     private QueryExecutor<DataValidationTask> dataValidationTaskQueryExecutor;
     @Mock
     private Query<DataValidationTask> dataValidationTaskQuery;
+    @Mock
+    private UpgradeService upgradeService;
 
     @Before
     public void setUp() {
@@ -232,7 +235,7 @@ public class ValidationServiceImplTest {
         doReturn(channel1).when(cimChannel1).getChannel();
         doReturn(channel2).when(cimChannel2).getChannel();
 
-        validationService = new ValidationServiceImpl(clock, messageService, eventService, taskService, meteringService, meteringGroupsService, ormService, queryService, nlsService, mock(UserService.class), mock(Publisher.class));
+        validationService = new ValidationServiceImpl(clock, messageService , eventService, taskService, meteringService, meteringGroupsService, ormService, queryService, nlsService, mock(UserService.class), mock(Publisher.class), upgradeService);
         validationService.addValidationRuleSetResolver(validationRuleSetResolver);
 
         DataValidationTaskImpl newDataValidationTask = new DataValidationTaskImpl(dataModel, taskService, validationService, thesaurus, () -> destinationSpec);
