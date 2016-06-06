@@ -13,7 +13,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
@@ -61,9 +60,9 @@ public class WebServicesGogoCommands {
     public void webservices() {
         List<List<?>> collect = webServicesService.getWebServices()
                 .stream()
-                .map(Collections::singletonList)
+                .map(ws -> Arrays.asList(ws.getName(), ws.isInbound() ? "Inbound" : "Outbound"))
                 .collect(toList());
-        collect.add(0, Collections.singletonList("Web service"));
+        collect.add(0, Arrays.asList("Web service", "Type"));
         MYSQL_PRINT.printTableWithHeader(collect);
     }
 

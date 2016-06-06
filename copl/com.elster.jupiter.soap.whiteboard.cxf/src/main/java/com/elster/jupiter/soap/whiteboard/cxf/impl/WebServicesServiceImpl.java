@@ -7,6 +7,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.SoapProviderSupportFactory;
+import com.elster.jupiter.soap.whiteboard.cxf.WebService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 
 import com.google.inject.AbstractModule;
@@ -17,7 +18,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -48,8 +48,19 @@ public class WebServicesServiceImpl implements WebServicesService {
     }
 
     @Override
-    public List<String> getWebServices() {
-        return new ArrayList<>(webServices.keySet());
+    public List<WebService> getWebServices() {
+        return webServices.entrySet().stream().map(e -> new WebService() {
+
+            @Override
+            public String getName() {
+                return e.getKey();
+            }
+
+            @Override
+            public boolean isInbound() {
+                return e.getValue().isInbound();
+            }
+        }).collect(Collectors.toList());
     }
 
     @Override

@@ -17,7 +17,7 @@ public interface WebServicesService {
      *
      * @return
      */
-    List<String> getWebServices();
+    List<WebService> getWebServices();
 
     /**
      * The webservice for which the configuration is passed as argument will be created (EndPoint for Inbound, ServiceRegistration for outbound)
