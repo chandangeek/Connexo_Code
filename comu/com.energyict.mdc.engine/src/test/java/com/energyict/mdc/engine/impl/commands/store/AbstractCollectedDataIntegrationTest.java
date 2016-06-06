@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.appserver.impl.AppServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
@@ -10,6 +11,7 @@ import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.estimation.impl.EstimationModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
@@ -36,6 +38,7 @@ import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.impl.ValidationModule;
@@ -133,6 +136,7 @@ public abstract class AbstractCollectedDataIntegrationTest {
                 new TransactionModule(),
                 new DomainUtilModule(),
                 new NlsModule(),
+                new AppServiceModule(),
                 new UserModule(),
                 new FiniteStateMachineModule(),
                 new MeteringModule(
@@ -192,6 +196,8 @@ public abstract class AbstractCollectedDataIntegrationTest {
         transactionService.execute(new VoidTransaction() {
             @Override
             protected void doPerform() {
+                UserService userService = injector.getInstance(UserService.class);
+                userService.findOrCreateGroup(UserService.BATCH_EXECUTOR_ROLE);
                 injector.getInstance(CustomPropertySetService.class);
                 injector.getInstance(FiniteStateMachineService.class);
                 injector.getInstance(MeteringService.class);
@@ -281,6 +287,7 @@ public abstract class AbstractCollectedDataIntegrationTest {
             bind(Thesaurus.class).toInstance(mock(Thesaurus.class));
             bind(com.elster.jupiter.issue.share.service.IssueService.class).toInstance(mock(com.elster.jupiter.issue.share.service.IssueService.class));
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
+            bind(FileImportService.class).toInstance(mock(FileImportService.class));
         }
 
     }
