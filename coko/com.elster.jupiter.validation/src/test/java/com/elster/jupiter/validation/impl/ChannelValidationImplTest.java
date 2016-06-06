@@ -19,6 +19,7 @@ import java.time.Year;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.Collections;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,7 +32,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anySetOf;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -105,14 +105,15 @@ public class ChannelValidationImplTest extends EqualsContractTest {
     protected Object getInstanceOfSubclassEqualToA() {
         return null;
     }
-    
+
     @Test
-    public void lastCheckedTest() {
+    public void testLastChecked() {
         when(channel.findReadingQualities(anySetOf(QualityCodeSystem.class), any(QualityCodeIndex.class), any(Range.class),
                 anyBoolean(), anyBoolean())).thenReturn(ImmutableList.of(readingQuality));
+        ValidationRuleSet ruleSet = mock(ValidationRuleSet.class);
+        when(meterActivationValidation.getRuleSet()).thenReturn(ruleSet);
+        when(ruleSet.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDM);
         when(readingQuality.hasReasonabilityCategory()).thenReturn(true);
-        ValidationRuleSet validationRuleSet = mock(ValidationRuleSet.class);
-        when(meterActivationValidation.getRuleSet()).thenReturn(validationRuleSet);
         ChannelValidationImpl channelValidation = new ChannelValidationImpl().init(meterActivationValidation, channel);
         assertThat(channelValidation.getLastChecked()).isNotNull();
         assertThat(channelValidation.getLastChecked()).isEqualTo(meterActivation.getStart());
@@ -120,7 +121,8 @@ public class ChannelValidationImplTest extends EqualsContractTest {
         channelValidation.updateLastChecked(dateTime.toInstant());
         Instant instant = dateTime.minusMonths(1).toInstant();
         channelValidation.updateLastChecked(instant);
-        verify(channel).findReadingQualities(anySetOf(QualityCodeSystem.class), eq(null), eq(Range.greaterThan(instant)), eq(false), eq(false));
+        verify(channel).findReadingQualities(Collections.singleton(QualityCodeSystem.MDM), null,
+                Range.greaterThan(instant), false, false);
         verify(readingQuality).delete();
     }
 }

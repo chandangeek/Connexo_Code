@@ -37,6 +37,8 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.ValidationAction;
@@ -62,6 +64,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Optional;
 
 import org.junit.After;
 import org.junit.Before;
@@ -73,6 +76,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -112,6 +116,7 @@ public class MeterActivationValidationIT {
             bind(BundleContext.class).toInstance(bundleContext);
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
+            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }
 
@@ -123,6 +128,7 @@ public class MeterActivationValidationIT {
         when(validatorFactory.createTemplate("autoPass")).thenReturn(validator);
         when(validator.validate(any(IntervalReadingRecord.class))).thenReturn(ValidationResult.VALID);
         when(validator.getPropertySpecs()).thenReturn(Collections.emptyList());
+        when(userService.findGroup(anyString())).thenReturn(Optional.empty());
 
         injector = Guice.createInjector(
                 new MockModule(),
@@ -147,6 +153,8 @@ public class MeterActivationValidationIT {
                 new SearchModule(),
                 new TaskModule(),
                 new DataVaultModule(),
+                new TimeModule(),
+                new BasicPropertiesModule(),
                 new CustomPropertySetsModule()
         );
         transactionService = injector.getInstance(TransactionService.class);

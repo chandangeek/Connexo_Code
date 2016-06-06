@@ -38,12 +38,20 @@ public interface ValidationEvaluator {
 
     /**
      * checks if there's at least one suspect put to {@link ChannelsContainer} by one of the {@param qualityCodeSystems}
-     * @param qualityCodeSystems systems to take into account when checking for suspects
-     * @param channelsContainer {@link ChannelsContainer} to check
+     * @param qualityCodeSystems systems to take into account when checking for suspects; <code>null</code> or empty set mean all systems
+     * @param meterActivation {@link ChannelsContainer} to check
      * @return <code>true</code> if there's at least a suspect, <code>false</code> otherwise
      */
     boolean areSuspectsPresent(Set<QualityCodeSystem> qualityCodeSystems, ChannelsContainer channelsContainer);
 
+    /**
+     * gets validation status taking into account qualities of systems among {@param qualityCodeSystems}
+     *
+     * @param qualityCodeSystems only systems to take into account for computation of validation status; <code>null</code> or empty set mean all systems
+     * @param channel the channel to check
+     * @param readings provided list of readings
+     * @return list of {@link DataValidationStatus}
+     */
     default List<DataValidationStatus> getValidationStatus(Set<QualityCodeSystem> qualityCodeSystems, Channel channel,
                                                            List<? extends BaseReading> readings) {
         return getValidationStatus(qualityCodeSystems, channel, readings, readings.stream()
@@ -53,6 +61,14 @@ public interface ValidationEvaluator {
                 .orElse(null));
     }
 
+    /**
+     * gets validation status taking into account qualities of systems among {@param qualityCodeSystems}
+     * @param qualityCodeSystems only systems to take into account for computation of validation status; <code>null</code> or empty set mean all systems
+     * @param channel the channel to check
+     * @param readings provided list of readings
+     * @param interval specific interval to check
+     * @return list of {@link DataValidationStatus}
+     */
     default List<DataValidationStatus> getValidationStatus(Set<QualityCodeSystem> qualityCodeSystems, Channel channel,
                                                            List<? extends BaseReading> readings, Range<Instant> interval) {
         List<CimChannel> channels = new ArrayList<>(2);
@@ -63,10 +79,10 @@ public interface ValidationEvaluator {
 
     /**
      * gets validation status taking into account qualities of systems among {@param qualityCodeSystems}
-     * @param qualityCodeSystems only systems to take into account for computation of validation status
+     * @param qualityCodeSystems only systems to take into account for computation of validation status; <code>null</code> or empty set mean all systems
      * @param channels a list of one or two (1st main + 2nd bulk) channels. other cases are not supported by implementation and may lead to unexpected errors!
      * @param readings provided list of readings
-     * @param interval interval to check
+     * @param interval specific interval to check
      * @return list of {@link DataValidationStatus}
      */
     List<DataValidationStatus> getValidationStatus(Set<QualityCodeSystem> qualityCodeSystems, List<CimChannel> channels,
