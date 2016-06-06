@@ -43,7 +43,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.ValidationPreview', {
                             break;
                         case 'validationStatus.ok':
                             if (field.up('form').getRecord().get('isConfirmed')) {
-                                return Uni.I18n.translate('general.notSuspect', 'MDC', 'Not suspect') + '<span class="icon-checkmark3" style="margin-left:5px; vertical-align:top;"></span>';
+                                return Uni.I18n.translate('general.notSuspect', 'MDC', 'Not suspect') + '<span class="icon-checkmark" style="margin-left:5px; vertical-align:top;"></span>';
                             } else {
                                 return Uni.I18n.translate('general.notSuspect', 'MDC', 'Not suspect');
                             }

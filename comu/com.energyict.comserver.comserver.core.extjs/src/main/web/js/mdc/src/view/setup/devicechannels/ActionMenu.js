@@ -18,6 +18,12 @@ Ext.define('Mdc.view.setup.devicechannels.ActionMenu', {
             privileges:Cfg.privileges.Validation.validateManual,
             dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.validationActions,
             action: 'validateNow'
+        },
+        {
+            itemId: 'editChannel',
+            text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+            privileges: Mdc.privileges.Device.administrateDevice,
+            action: 'edit'
         }
     ]
 });

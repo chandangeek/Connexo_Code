@@ -12,11 +12,8 @@ Ext.define('Mdc.model.ComServer', {
         {name: 'serverLogLevel', type: 'string', useNull: true},
         {name: 'communicationLogLevel', type: 'string', useNull: true},
         {name: 'queryAPIPostUri', type: 'string', useNull: true},
-        {name: 'usesDefaultQueryAPIPostUri', type: 'boolean', useNull: true},
         {name: 'eventRegistrationUri', type: 'string', useNull: true},
-        {name: 'usesDefaultEventRegistrationUri', type: 'boolean', useNull: true},
         {name: 'statusUri', type: 'string', useNull: true},
-        {name: 'usesDefaultStatusUri', type: 'boolean', useNull: true},
         {name: 'storeTaskQueueSize', type: 'int', useNull: true},
         {name: 'numberOfStoreTaskThreads', type: 'int', useNull: true},
         {name: 'storeTaskThreadPriority', type: 'int', useNull: true},
@@ -93,32 +90,35 @@ Ext.define('Mdc.model.ComServer', {
     updateHostNameOfUrisIfNeeded: function (){
         var currentStatusUri =  Ext.create('Mdc.util.UriParser').parse(this.get('statusUri')),
             currentEventRegistrationUri =  Ext.create('Mdc.util.UriParser').parse(this.get('eventRegistrationUri'));
-        if (this.get('serverName') !== currentStatusUri.hostname) {
-            var statusUri = currentStatusUri.withHostName(this.get('serverName')).buildUrl(),
-                eventRegistrationUri = currentEventRegistrationUri.withHostName(this.get('serverName')).buildUrl();
+        var serverName = this.get('serverName');
+        if (serverName !== currentStatusUri.hostname) {
+            if (!serverName) {
+                serverName = 'servername_missing';  // Will be recognized by backend as server name missing
+            }
 
-            this.set('statusUri', statusUri);
-            this.set('usesDefaultStatusUri', false);
-
-            this.set('eventRegistrationUri', eventRegistrationUri);
-            this.set('usesDefaultEventRegistrationUri', false);
+            this.set('statusUri', currentStatusUri.withHostName(serverName).buildUrl());
+            this.set('eventRegistrationUri', currentEventRegistrationUri.withHostName(serverName).buildUrl());
 
         }
     },
     updateMonitorAndStatusPortIfNeeded: function (){
         var currentStatusUri =  Ext.create('Mdc.util.UriParser').parse(this.get('statusUri'));
-        if (this.get('monitorPort') !== currentStatusUri.port) {
-            var statusUri = currentStatusUri.withPort(this.get('monitorPort')).buildUrl();
-            this.set('statusUri', statusUri);
-            this.set('usesDefaultStatusUri', false);
+        var monitorPort = this.get('monitorPort');
+        if (monitorPort !== currentStatusUri.port) {
+            if (!monitorPort) {
+                monitorPort = '0'; // Will be recognized by backend as port missing
+            }
+            this.set('statusUri', currentStatusUri.withPort(monitorPort).buildUrl());
         }
     },
     updateEventRegistrationPortIfNeeded: function (){
         var currentEventRegistrationUri =  Ext.create('Mdc.util.UriParser').parse(this.get('eventRegistrationUri'));
-        if (this.get('eventRegistrationPort') !=  currentEventRegistrationUri.port) {
-            var eventRegistrationUri = currentEventRegistrationUri.withPort(this.get('eventRegistrationPort')).buildUrl();
-            this.set('eventRegistrationUri', eventRegistrationUri);
-            this.set('usesDefaultEventRegistrationUri', false);
+        var eventRegistrationPort = this.get('eventRegistrationPort');
+        if (eventRegistrationPort != currentEventRegistrationUri.port) {
+            if (!eventRegistrationPort) {
+                eventRegistrationPort = '0'; // Will be recognized by backend as port missing
+            }
+            this.set('eventRegistrationUri', currentEventRegistrationUri.withPort(eventRegistrationPort).buildUrl());
         }
     }
 
