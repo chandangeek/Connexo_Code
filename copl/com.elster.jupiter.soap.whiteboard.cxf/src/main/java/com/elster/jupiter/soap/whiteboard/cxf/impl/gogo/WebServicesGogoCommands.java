@@ -1,6 +1,7 @@
 package com.elster.jupiter.soap.whiteboard.cxf.impl.gogo;
 
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
@@ -26,7 +27,8 @@ import static java.util.stream.Collectors.toList;
                 "osgi.command.function=endpoints",
                 "osgi.command.function=endpoint",
                 "osgi.command.function=activate",
-                "osgi.command.function=deactivate"
+                "osgi.command.function=deactivate",
+                "osgi.command.function=log"
         }, immediate = true)
 public class WebServicesGogoCommands {
 
@@ -122,6 +124,20 @@ public class WebServicesGogoCommands {
         try (TransactionContext context = transactionService.getContext()) {
             endPointConfigurationService.getEndPointConfiguration(name)
                     .ifPresent(endPointConfigurationService::deactivate);
+            context.commit();
+        }
+    }
+
+    public void log() {
+        System.out.println("Usage: log <end point name> <log level> <message>");
+        System.out.println("e.g.   log CIM1 FINE That looks good to me");
+    }
+
+    public void log(String endPoint, String level, String... messageParts) {
+        try (TransactionContext context = transactionService.getContext()) {
+            EndPointConfiguration endPointConfiguration = endPointConfigurationService.getEndPointConfiguration(endPoint)
+                    .orElseThrow(() -> new IllegalArgumentException("No such end point"));
+            endPointConfiguration.log(LogLevel.valueOf(level), String.join(" ", messageParts));
             context.commit();
         }
     }

@@ -3,12 +3,13 @@ package com.elster.jupiter.soap.whiteboard.cxf.impl;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointLog;
 
-/**
- * Created by bvn on 5/3/16.
- */
+import static com.elster.jupiter.orm.Table.MAX_STRING_LENGTH;
+
 public enum TableSpecs {
     WS_ENDPOINTCFG {
         @Override
@@ -47,6 +48,40 @@ public enum TableSpecs {
             table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
 
             table.primaryKey("PK_WS_ENDPOINT").on(id).add();
+        }
+    },
+    WS_ENDPOINT_LOG {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<EndPointLog> table = dataModel.addTable(this.name(), EndPointLog.class);
+            table.map(EndPointLogImpl.class);
+            Column idColumn = table.addAutoIdColumn();
+            Column endPoint = table.column("ENDPOINTCFG").number().notNull().add();
+            table.foreignKey("FK_WS_ENDPOINT")
+                    .references(WS_ENDPOINTCFG.name())
+                    .on(endPoint)
+                    .onDelete(DeleteRule.CASCADE)
+                    .map(EndPointLogImpl.Fields.endPointConfiguration.fieldName())
+                    .add();
+            table.column("LOGLEVEL")
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2ENUM)
+                    .notNull()
+                    .map(EndPointLogImpl.Fields.logLevel.fieldName())
+                    .add();
+            table.column("TIMESTAMP")
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2INSTANT)
+                    .notNull()
+                    .map(EndPointLogImpl.Fields.timestamp.fieldName())
+                    .add();
+            table.column("MESSAGE")
+                    .number()
+                    .varChar(MAX_STRING_LENGTH)
+                    .map(EndPointLogImpl.Fields.message.fieldName())
+                    .add();
+            table.primaryKey("SCS_PK_ENDPOINT_LOG").on(idColumn).add();
+
         }
     };
 
