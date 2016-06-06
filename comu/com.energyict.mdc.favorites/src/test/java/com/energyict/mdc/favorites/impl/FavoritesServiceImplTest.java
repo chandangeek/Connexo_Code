@@ -1,6 +1,8 @@
 package com.energyict.mdc.favorites.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
@@ -96,6 +98,8 @@ public class FavoritesServiceImplTest {
 
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
 
+    private CalendarService calendarService;
+
     private UserService userService;
 
     private MeteringGroupsService meteringGroupsService;
@@ -174,6 +178,7 @@ public class FavoritesServiceImplTest {
                 new TasksModule(),
                 new DeviceDataModule(),
                 new SchedulingModule(),
+                new CalendarModule(),
                 new FavoritesModule());
 
         try (TransactionContext ctx = getTransactionService().getContext()) {
@@ -183,7 +188,9 @@ public class FavoritesServiceImplTest {
             meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
             injector.getInstance(MasterDataService.class);
             deviceService = injector.getInstance(DeviceService.class);
+            calendarService = injector.getInstance(CalendarService.class);
             favoritesService = injector.getInstance(FavoritesService.class);
+
 
             labelCategory = favoritesService.createLabelCategory("test.label.category");
 
