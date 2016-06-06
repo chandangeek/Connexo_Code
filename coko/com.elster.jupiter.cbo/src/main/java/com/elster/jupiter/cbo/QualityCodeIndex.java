@@ -5,7 +5,18 @@ import com.elster.jupiter.nls.TranslationKey;
 import java.util.Arrays;
 import java.util.Optional;
 
-import static com.elster.jupiter.cbo.QualityCodeCategory.*;
+import static com.elster.jupiter.cbo.QualityCodeCategory.DATACOLLECTION;
+import static com.elster.jupiter.cbo.QualityCodeCategory.DERIVED;
+import static com.elster.jupiter.cbo.QualityCodeCategory.DIAGNOSTICS;
+import static com.elster.jupiter.cbo.QualityCodeCategory.EDITED;
+import static com.elster.jupiter.cbo.QualityCodeCategory.ESTIMATED;
+import static com.elster.jupiter.cbo.QualityCodeCategory.POWERQUALITY;
+import static com.elster.jupiter.cbo.QualityCodeCategory.PROJECTED;
+import static com.elster.jupiter.cbo.QualityCodeCategory.QUESTIONABLE;
+import static com.elster.jupiter.cbo.QualityCodeCategory.REASONABILITY;
+import static com.elster.jupiter.cbo.QualityCodeCategory.TAMPER;
+import static com.elster.jupiter.cbo.QualityCodeCategory.VALID;
+import static com.elster.jupiter.cbo.QualityCodeCategory.VALIDATION;
 
 public enum QualityCodeIndex {
     DATAVALID(VALID, 0, TranslationKeys.DATAVALID),
@@ -68,7 +79,7 @@ public enum QualityCodeIndex {
     ACCEPTED(QUESTIONABLE, 1, TranslationKeys.ACCEPTED),
     DETERMINISTIC(DERIVED, 0, TranslationKeys.DETERMINISTIC),
     INFERRED(DERIVED, 1, TranslationKeys.INFERRED),
-    PROJECTEDGENERIC(PROJECTED, 0, TranslationKeys.PROJECTEDGENERIC),;
+    PROJECTEDGENERIC(PROJECTED, 0, TranslationKeys.PROJECTEDGENERIC);
 
     private final QualityCodeCategory category;
     private final int index;
