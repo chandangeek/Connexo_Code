@@ -7,6 +7,10 @@ Ext.onReady(function () {
     // Used only during development to point to hosted files.
     var packages = [
         {
+            name: 'Sam',
+            path: '../../apps/sam/src'
+        },
+        {
             name: 'Scs',
             path: '../../apps/scs/src'
         },

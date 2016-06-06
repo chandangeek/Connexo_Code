@@ -2,6 +2,9 @@ Ext.define('MdmApp.Application', {
     extend: 'Ext.app.Application',
 
     requires:[
+        'Sam.privileges.DeploymentInfo',
+        'Sam.privileges.DataPurge',
+        'Sam.privileges.License',
         'Scs.privileges.ServiceCall',
         'Imt.privileges.UsagePoint',
         'Imt.privileges.ServiceCategory',

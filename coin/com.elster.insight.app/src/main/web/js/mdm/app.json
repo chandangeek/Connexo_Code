@@ -4,6 +4,7 @@
     "requires": [
         "com.elster.jupiter.loaderjs",
         "com.elster.jupiter.unifyingjs",
+        "com.elster.jupiter.systemadmin.extjs",
         "com.elster.jupiter.servicecall.extjs",
         "com.elster.jupiter.config.extjs",
         "com.elster.jupiter.mdm.metering.extjs",

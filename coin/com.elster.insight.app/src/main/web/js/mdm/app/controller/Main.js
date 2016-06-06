@@ -5,6 +5,9 @@ Ext.define('MdmApp.controller.Main', {
     extend: 'Uni.controller.AppController',
 
     requires: [
+        'Sam.privileges.DeploymentInfo',
+        'Sam.privileges.DataPurge',
+        'Sam.privileges.License',
         'Cfg.controller.Main',
         'Uni.controller.Navigation',
         'Scs.privileges.ServiceCall',
@@ -24,6 +27,9 @@ Ext.define('MdmApp.controller.Main', {
     onlineHelpEnabled: false,
 
     privileges: Ext.Array.merge(
+        Sam.privileges.DeploymentInfo.all(),
+        Sam.privileges.DataPurge.all(),
+        Sam.privileges.License.all(),
         Scs.privileges.ServiceCall.all(),
         Imt.privileges.ServiceCategory.all(),
         Imt.privileges.UsagePoint.all(),
@@ -32,6 +38,7 @@ Ext.define('MdmApp.controller.Main', {
     ),
 
     controllers: [
+        'Sam.controller.Main',
         'Scs.controller.Main',
         'Cfg.controller.Main',
         'Imt.controller.Main',
