@@ -46,6 +46,7 @@ import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
+import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.data.impl.DeviceDataModelServiceImpl;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
 import com.energyict.mdc.device.data.impl.ServerDeviceService;
@@ -236,7 +237,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
     }
 
     private DataModel createNewDeviceDataService(Injector injector) {
-        deviceDataModelService = injector.getInstance(DeviceDataModelServiceImpl.class);
+        deviceDataModelService = (DeviceDataModelServiceImpl) injector.getInstance(DeviceDataModelService.class);
         return deviceDataModelService.dataModel();
     }
 

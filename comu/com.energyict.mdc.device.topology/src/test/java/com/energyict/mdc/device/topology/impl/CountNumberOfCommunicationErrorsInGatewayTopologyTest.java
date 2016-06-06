@@ -48,6 +48,7 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.data.impl.DeviceDataModelServiceImpl;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
 import com.energyict.mdc.device.data.tasks.history.CommunicationErrorType;
@@ -208,7 +209,7 @@ public class CountNumberOfCommunicationErrorsInGatewayTopologyTest {
             this.protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
             this.protocolPluggableService.addConnectionTypeService(this.connectionTypeService);
             injector.getInstance(MeteringGroupsService.class);
-            DeviceDataModelServiceImpl deviceDataModelService = injector.getInstance(DeviceDataModelServiceImpl.class);
+            DeviceDataModelServiceImpl deviceDataModelService = (DeviceDataModelServiceImpl) injector.getInstance(DeviceDataModelService.class);
             deviceDataModelService.communicationTaskReportService();
             this.deviceService = deviceDataModelService.deviceService();
             this.topologyService = injector.getInstance(TopologyService.class);
