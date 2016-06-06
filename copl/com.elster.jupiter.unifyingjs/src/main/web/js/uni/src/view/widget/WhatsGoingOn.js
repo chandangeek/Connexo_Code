@@ -129,9 +129,9 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
                                 flex: 1
                             },
                             {
-                                html: '<span style="color:#70BB51;font-size:25px;">' +
-                                '<i class="icon-checkmark-circle" style="color:color:#70BB51;margin-right:20px;"></i>' +
-                                    Uni.I18n.translate('whatsGoingOn.everythingfine', 'UNI', 'Everything is going fine') +
+                                html: '<span style="color:#686868;font-size:20px;">' +
+                                '<i class="icon-info" style="color:#686868;margin-right:15px;"></i>' +
+                                    Uni.I18n.translate('whatsGoingOn.nothingToShow', 'UNI', 'No active issues, processes or service calls to show') +
                                     '</span>'
                             },
                             {
