@@ -144,7 +144,7 @@ class CalculatedReadingRecord implements BaseReadingRecord {
     }
 
     @Override
-    public ProcessStatus getProcesStatus() {
+    public ProcessStatus getProcessStatus() {
         return this.processStatus;
     }
 

@@ -105,13 +105,13 @@ public abstract class BaseReadingRecordImpl implements BaseReadingRecord {
     }
 
     @Override
-    public ProcessStatus getProcesStatus() {
+    public ProcessStatus getProcessStatus() {
         return new ProcessStatus(entry.getLong(0));
     }
 
     @Override
     public void setProcessingFlags(ProcessStatus.Flag... flags) {
-        ProcessStatus status = getProcesStatus();
+        ProcessStatus status = getProcessStatus();
         ProcessStatus updatedStatus = status.with(flags);
 
         Object[] values = new Object[entry.size()];
@@ -136,7 +136,7 @@ public abstract class BaseReadingRecordImpl implements BaseReadingRecord {
     }
 
     public List<? extends ReadingQualityRecord> getReadingQualities() {
-    	return getChannel().findReadingQuality(getTimeStamp());
+    	return getChannel().findReadingQualities(getTimeStamp());
     }
 
 }

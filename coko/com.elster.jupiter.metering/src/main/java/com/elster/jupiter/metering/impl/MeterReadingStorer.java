@@ -9,7 +9,6 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
-import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingStorer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
@@ -25,6 +24,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+
 import com.google.common.collect.Range;
 
 import javax.inject.Provider;
@@ -314,7 +314,7 @@ public class MeterReadingStorer {
         dataModel.mapper(ReadingQualityRecord.class).persist(
                 channelReadings.entrySet().stream()
                         .flatMap(entry -> buildReadingQualities(entry.getKey(), entry.getValue().values()))
-                        .collect(Collectors.<ReadingQualityRecord>toList()));
+                        .collect(Collectors.toList()));
     }
 
     private Stream<ReadingQualityRecord> buildReadingQualities(Channel channel, Collection<BaseReading> readings) {
@@ -326,7 +326,7 @@ public class MeterReadingStorer {
     }
 
     private ReadingQualityRecord buildReadingQualityRecord(Channel channel, BaseReading reading, ReadingQuality readingQuality) {
-        CimChannel cimChannel = channel.getCimChannel(channel.getMainReadingType()).get();
+        CimChannel cimChannel = channel.getCimChannel(channel.getMainReadingType()).orElseThrow(IllegalArgumentException::new);
         if (reading instanceof Reading) {
             Optional<ReadingType> found = meteringService.getReadingType(((Reading) reading).getReadingTypeCode());
             if (found.isPresent()) {
@@ -336,7 +336,7 @@ public class MeterReadingStorer {
                 }
             }
         }
-        ReadingQualityRecordImpl newReadingQuality = ReadingQualityRecordImpl.from(dataModel, new ReadingQualityType(readingQuality.getTypeCode()), cimChannel, reading.getTimeStamp());
+        ReadingQualityRecordImpl newReadingQuality = ReadingQualityRecordImpl.from(dataModel, readingQuality.getType(), cimChannel, reading.getTimeStamp());
         newReadingQuality.setComment(readingQuality.getComment());
         return newReadingQuality;
     }

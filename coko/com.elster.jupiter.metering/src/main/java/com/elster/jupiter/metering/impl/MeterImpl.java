@@ -1,5 +1,7 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.cbo.QualityCodeIndex;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
@@ -13,7 +15,6 @@ import com.elster.jupiter.metering.MeterConfiguration;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingQualityRecord;
-import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
@@ -235,9 +236,10 @@ class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter {
     }
 
     @Override
-    public List<ReadingQualityRecord> getReadingQualities(ReadingQualityType readingQualityType, ReadingType readingType, Range<Instant> interval) {
+    public List<ReadingQualityRecord> getReadingQualities(Set<QualityCodeSystem> qualityCodeSystems, QualityCodeIndex qualityCodeIndex,
+                                                          ReadingType readingType, Range<Instant> interval) {
         return meterActivations.stream()
-                .flatMap(meterActivation -> meterActivation.getReadingQualities(readingQualityType, readingType, interval).stream())
+                .flatMap(meterActivation -> meterActivation.getReadingQualities(qualityCodeSystems, qualityCodeIndex, readingType, interval).stream())
                 .collect(Collectors.toList());
     }
 

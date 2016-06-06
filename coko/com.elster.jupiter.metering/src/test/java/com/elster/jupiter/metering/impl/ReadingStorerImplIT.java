@@ -531,7 +531,7 @@ public class ReadingStorerImplIT {
         assertThat(readings.get(1).getQuantity(bulkReadingType)).isEqualTo(Quantity.create(BigDecimal.valueOf(100, 0), 3, "Wh"));
         assertThat(readings.get(1).getTimeStamp()).isEqualTo(BASE.plusMinutes(15).toInstant());
 
-        List<ReadingQualityRecord> qualities = channel.findReadingQuality(BASE.plusMinutes(15).toInstant());
+        List<ReadingQualityRecord> qualities = channel.findReadingQualities(BASE.plusMinutes(15).toInstant());
         assertThat(qualities).hasSize(1);
 
         ReadingQualityRecord readingQualityRecord = qualities.get(0);
@@ -577,7 +577,7 @@ public class ReadingStorerImplIT {
         assertThat(readings.get(1).getQuantity(bulkReadingType)).isEqualTo(Quantity.create(BigDecimal.valueOf(999998, 0), 3, "Wh"));
         assertThat(readings.get(1).getTimeStamp()).isEqualTo(BASE.plusMinutes(15).toInstant());
 
-        List<ReadingQualityRecord> qualities = channel.findReadingQuality(BASE.plusMinutes(15).toInstant());
+        List<ReadingQualityRecord> qualities = channel.findReadingQualities(BASE.plusMinutes(15).toInstant());
         assertThat(qualities).hasSize(1);
 
         ReadingQualityRecord readingQualityRecord = qualities.get(0);

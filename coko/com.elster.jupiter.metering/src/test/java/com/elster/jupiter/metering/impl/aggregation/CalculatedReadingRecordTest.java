@@ -22,7 +22,6 @@ import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -111,7 +110,7 @@ public class CalculatedReadingRecordTest {
         assertThat(testInstance.getQuantities()).hasSize(1);
         assertThat(testInstance.getQuantity(fifteenMinutesNetConsumption)).isEqualTo(expectedQuantity);
         assertThat(testInstance.getTimePeriod()).contains(Range.openClosed(expectedIntervalStart, JAN_1_2016_UTC));
-        assertThat(testInstance.getProcesStatus()).isEqualTo(expectedProcessStatus);
+        assertThat(testInstance.getProcessStatus()).isEqualTo(expectedProcessStatus);
         assertThat(testInstance.getCount()).isEqualTo(1L);
     }
 
@@ -212,7 +211,7 @@ public class CalculatedReadingRecordTest {
         assertThat(merged.getReadingType()).isEqualTo(readingType);
         assertThat(merged.getValue()).isEqualTo(BigDecimal.valueOf(100L));
         assertThat(merged.getTimeStamp()).isEqualTo(moreRecent);
-        assertThat(merged.getProcesStatus()).isEqualTo(expectedProcessStatus);
+        assertThat(merged.getProcessStatus()).isEqualTo(expectedProcessStatus);
         assertThat(merged.getCount()).isEqualTo(200L);
     }
 
@@ -242,7 +241,7 @@ public class CalculatedReadingRecordTest {
         assertThat(merged.getReadingType()).isEqualTo(readingType);
         assertThat(merged.getValue()).isEqualTo(BigDecimal.valueOf(100L));
         assertThat(merged.getTimeStamp()).isEqualTo(recent);
-        assertThat(merged.getProcesStatus()).isEqualTo(expectedProcessStatus);
+        assertThat(merged.getProcessStatus()).isEqualTo(expectedProcessStatus);
         assertThat(merged.getCount()).isEqualTo(200L);
     }
 

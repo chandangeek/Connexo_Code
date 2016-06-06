@@ -22,6 +22,7 @@ import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.collections.ObserverContainer;
 import com.elster.jupiter.util.collections.Subscription;
 import com.elster.jupiter.util.collections.ThreadSafeObserverContainer;
+
 import com.google.common.collect.Maps;
 import com.google.common.collect.Range;
 
@@ -243,23 +244,21 @@ class ReadingStorerImpl implements ReadingStorer {
         ReadingType readingType = meterReadingTypeConfiguration.getMeasured();
         CimChannel cimChannel = channel.getCimChannel(readingType).get();
         int valueIndex = slotOffset + channel.getReadingTypes().indexOf(readingType);
-        if (!(values[valueIndex] instanceof BigDecimal)) {
-            return;
+        if ((values[valueIndex] instanceof BigDecimal)) {
+            BigDecimal value = (BigDecimal) values[valueIndex];
+            BigDecimal overflowValue = meterReadingTypeConfiguration.getOverflowValue().get();
+            Object[] previousValues = getPreviousValues(channel, timestamp);
+            BigDecimal previousValue = previousValues != null && previousValues[valueIndex] instanceof BigDecimal ? (BigDecimal) previousValues[valueIndex] : null;
+            switch (flowDetection(cimChannel, overflowValue, value, previousValue)) {
+                case BACKFLOW:
+                    backflowListeners.notify(listener -> listener.backflowOccurred(cimChannel, timestamp, value, overflowValue));
+                    break;
+                case OVERFLOW:
+                    overflowListeners.notify(listener -> listener.overflowOccurred(cimChannel, timestamp, value, overflowValue));
+                    break;
+                default:
+            }
         }
-        BigDecimal value = (BigDecimal) values[valueIndex];
-        BigDecimal overflowValue = meterReadingTypeConfiguration.getOverflowValue().get();
-        Object[] previousValues = getPreviousValues(channel, timestamp);
-        BigDecimal previousValue = previousValues != null && previousValues[valueIndex] instanceof BigDecimal ? (BigDecimal) previousValues[valueIndex] : null;
-        switch (flowDetection(cimChannel, overflowValue, value, previousValue)) {
-            case BACKFLOW:
-                backflowListeners.notify(listener -> listener.backflowOccurred(cimChannel, timestamp, value, overflowValue));
-                break;
-            case OVERFLOW:
-                overflowListeners.notify(listener -> listener.overflowOccurred(cimChannel, timestamp, value, overflowValue));
-                break;
-            default:
-        }
-
     }
 
     private FlowDetection flowDetection(CimChannel cimChannel, BigDecimal overflowValue, BigDecimal value, BigDecimal previousValue) {

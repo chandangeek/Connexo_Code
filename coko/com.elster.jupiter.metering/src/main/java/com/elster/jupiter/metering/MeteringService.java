@@ -1,7 +1,5 @@
 package com.elster.jupiter.metering;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.fsm.FiniteStateMachine;

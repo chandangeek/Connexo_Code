@@ -24,14 +24,9 @@ import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.metering.readings.beans.ReadingImpl;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.time.Clock;
@@ -42,6 +37,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -146,11 +148,12 @@ public class MeterReadingStorerTest {
         assertThat(readings.get(1).getQuantity(0).getValue()).isEqualTo(BigDecimal.valueOf(1100));
         assertThat(((IntervalReadingRecord) readings.get(1)).getProfileStatus()).isEqualTo(status);
         Range<Instant> range = Range.closed(instant.minusSeconds(15 * 60L), instant.plusSeconds(30 * 60L));
-        assertThat(channel.findReadingQuality(range)).hasSize(2);
+        assertThat(channel.findReadingQualities(null, null, range, false, false)).hasSize(2);
         channel.removeReadings(readings);
         assertThat(channel.getReadings(range)).hasSize(1);
-        assertThat(channel.findReadingQuality(range)).hasSize(3);
-        assertThat(channel.findReadingQuality(range).get(1).getType().qualityIndex().get()).isEqualTo(QualityCodeIndex.REJECTED);
+        List<ReadingQualityRecord> qualities = channel.findReadingQualities(null, null, range, false, true);
+        assertThat(qualities).hasSize(3);
+        assertThat(qualities.get(1).getType().qualityIndex().get()).isSameAs(QualityCodeIndex.REJECTED);
     }
 
     @Test
@@ -318,6 +321,6 @@ public class MeterReadingStorerTest {
         assertThat(readings.get(0).getQuantity(0)).isNull();
         assertThat(readings.get(1).getQuantity(0).getValue()).isEqualTo(BigDecimal.valueOf(50));
         assertThat(readings.get(1).getQuantity(1).getValue()).isEqualTo(BigDecimal.valueOf(1100));
-        assertThat(readings.get(1).getProcesStatus().get(ProcessStatus.Flag.EDITED)).isTrue();
+        assertThat(readings.get(1).getProcessStatus().get(ProcessStatus.Flag.EDITED)).isTrue();
     }
 }

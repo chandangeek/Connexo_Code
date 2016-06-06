@@ -1,5 +1,7 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.cbo.QualityCodeIndex;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
@@ -12,7 +14,6 @@ import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.MultiplierUsage;
 import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingQualityRecord;
-import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointConfiguration;
@@ -150,7 +151,7 @@ public final class MeterActivationImpl implements IMeterActivation {
         for (int i = 0; i < readingTypes.length; i++) {
             extraTypes[i] = (ReadingTypeImpl) readingTypes[i];
         }
-        Channel channel = channelBuilder.get().meterActivation(this).readingTypes((ReadingTypeImpl) main, extraTypes).build();
+        Channel channel = channelBuilder.get().meterActivation(this).readingTypes(main, extraTypes).build();
         channels.add(channel);
         eventService.postEvent(EventType.CHANNEL_CREATED.topic(), channel);
         return channel;
@@ -433,10 +434,8 @@ public final class MeterActivationImpl implements IMeterActivation {
     }
 
     private void moveReadingQualities(Channel sourceChannel, ChannelImpl targetChannel, Range<Instant> range) {
-        List<ReadingQualityRecord> sourceQualities = sourceChannel.findReadingQuality(range);
-        List<ReadingQualityRecord> newReadingQualities = sourceQualities.stream()
-                .map(targetChannel::copyReadingQuality)
-                .collect(Collectors.toList());
+        List<ReadingQualityRecord> sourceQualities = sourceChannel.findReadingQualities(null, null, range, false, false);
+        sourceQualities.forEach(targetChannel::copyReadingQuality);
         dataModel.mapper(ReadingQualityRecord.class).remove(sourceQualities);
     }
 
@@ -480,10 +479,11 @@ public final class MeterActivationImpl implements IMeterActivation {
     }
 
     @Override
-    public List<ReadingQualityRecord> getReadingQualities(ReadingQualityType readingQualityType, ReadingType readingType, Range<Instant> interval) {
+    public List<ReadingQualityRecord> getReadingQualities(Set<QualityCodeSystem> qualityCodeSystems, QualityCodeIndex qualityCodeIndex,
+                                                          ReadingType readingType, Range<Instant> interval) {
         return Optional.ofNullable(getChannel(readingType))
                 .flatMap(channel -> channel.getCimChannel(readingType))
-                .map(cimChannel -> cimChannel.findActualReadingQuality(readingQualityType, interval))
+                .map(cimChannel -> cimChannel.findReadingQualities(qualityCodeSystems, qualityCodeIndex, interval, true))
                 .orElse(Collections.emptyList());
     }
 
