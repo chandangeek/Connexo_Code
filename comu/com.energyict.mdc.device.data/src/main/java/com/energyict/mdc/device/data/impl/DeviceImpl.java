@@ -2923,7 +2923,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             if (this.geoCoordinates.isPresent()) {
                 device.getMeter().get().setGeoCoordinates(geoCoordinates.get());
             }
-            ((EndDevice) device.getMeter()).update();
+            device.getMeter().getOptional().get().update();
         }
 
         @Override
