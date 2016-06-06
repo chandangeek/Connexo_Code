@@ -4,7 +4,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.UserFile;
+import com.energyict.mdc.protocol.api.DeviceMessageFile;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import java.util.ArrayList;
@@ -25,7 +25,7 @@ public enum PricingInformationMessage implements DeviceMessageSpecEnum {
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
             propertySpecs.add(
                     propertySpecService
-                            .referenceSpec(UserFile.class)
+                            .referenceSpec(DeviceMessageFile.class)
                             .named(PricingInformationDeviceMessageAttributes.PricingInformationUserFileAttributeName)
                             .fromThesaurus(thesaurus)
                             .markRequired()
@@ -63,7 +63,7 @@ public enum PricingInformationMessage implements DeviceMessageSpecEnum {
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
             propertySpecs.add(
                     propertySpecService
-                            .referenceSpec(UserFile.class)
+                            .referenceSpec(DeviceMessageFile.class)
                             .named(PricingInformationDeviceMessageAttributes.PricingInformationUserFileAttributeName)
                             .fromThesaurus(thesaurus)
                             .markRequired()
