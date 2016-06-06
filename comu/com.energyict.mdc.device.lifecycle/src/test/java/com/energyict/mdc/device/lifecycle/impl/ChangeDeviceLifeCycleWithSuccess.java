@@ -78,7 +78,7 @@ public class ChangeDeviceLifeCycleWithSuccess extends PersistenceIntegrationTest
         try (TransactionContext context = inMemoryPersistence.getTransactionService().getContext()) {
             clone = inMemoryPersistence.getDeviceLifeCycleConfigurationService()
                     .cloneDeviceLifeCycle(deviceType.getDeviceLifeCycle(), "Cloned");
-            device = this.createSimpleDevice("changeDeviceLifeCycleWithSuccess");
+            device = this.createSimpleDevice("changeDeviceLifeCycleWithSuccess", deviceCreationTime);
             context.commit();
         }
         Optional<State> clonedInStock = clone.getFiniteStateMachine().getState(DefaultState.IN_STOCK.getKey());
@@ -127,8 +127,8 @@ public class ChangeDeviceLifeCycleWithSuccess extends PersistenceIntegrationTest
         return latch;
     }
 
-    private Device createSimpleDevice(String mRID) {
-        return createSimpleDeviceWithName(DEVICE_NAME, mRID);
+    private Device createSimpleDevice(String mRID, Instant deviceCreationTime) {
+        return createSimpleDeviceWithName(DEVICE_NAME, mRID, deviceCreationTime);
     }
 
     private class LatchDrivenSwitchStateMachineEventHandlerFactory implements MessageHandlerFactory {

@@ -93,10 +93,8 @@ public abstract class PersistenceIntegrationTest {
         when(inMemoryPersistence.getIssueService().query(Matchers.<Class<Entity>>any())).thenReturn(query);
     }
 
-    protected Device createSimpleDeviceWithName(String name, String mRID){
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, name, mRID, Instant.now());
-        device.save();
-        return device;
+    protected Device createSimpleDeviceWithName(String name, String mRID, Instant when){
+        return inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, name, mRID, when);
     }
 
     private static class BareMinimumDeviceProtocolService implements DeviceProtocolService {

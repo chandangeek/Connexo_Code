@@ -17,7 +17,6 @@ import com.energyict.mdc.device.lifecycle.config.DefaultCustomStateTransitionEve
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -42,7 +41,7 @@ public class DeviceLifeCycleIT extends PersistenceIntegrationTest {
 
     @Before
     public void restoreDefaultLifeCycle() {
-        this.inMemoryPersistence.getService(OrmService.class).invalidateCache(FiniteStateMachineService.COMPONENT_NAME, TableSpecs.FSM_FINITE_STATE_MACHINE.name());
+        inMemoryPersistence.getService(OrmService.class).invalidateCache(FiniteStateMachineService.COMPONENT_NAME, TableSpecs.FSM_FINITE_STATE_MACHINE.name());
         this.changeInitialState(DefaultState.IN_STOCK);
 
     }
@@ -105,7 +104,7 @@ public class DeviceLifeCycleIT extends PersistenceIntegrationTest {
     public void installInActiveFromInStockDoesNotSetAnyCimDate() {
         Instant creationTime = Instant.ofEpochMilli(10000L);
         when(inMemoryPersistence.getClock().instant()).thenReturn(creationTime);
-        Device device = this.createSimpleDevice("installInActiveFromInStockDoesNotSetAnyCimDate", Instant.now());
+        Device device = this.createSimpleDevice("installInActiveFromInStockDoesNotSetAnyCimDate", creationTime);
 
         Instant activationTime = Instant.ofEpochMilli(20000L);
         when(inMemoryPersistence.getClock().instant()).thenReturn(activationTime);
@@ -395,7 +394,7 @@ public class DeviceLifeCycleIT extends PersistenceIntegrationTest {
     }
 
     private Device createSimpleDevice(String mRID, Instant when) {
-        Device device =  createSimpleDeviceWithName(DEVICE_NAME, mRID);
+        Device device =  createSimpleDeviceWithName(DEVICE_NAME, mRID, when);
         device.forValidation().activateValidation(when);
         device.forEstimation().activateEstimation();
         return device;
