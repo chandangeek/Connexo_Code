@@ -1,14 +1,22 @@
 package com.elster.jupiter.bpm.rest;
 
 
+import com.elster.jupiter.properties.QuantityValueFactory;
+import com.elster.jupiter.util.units.Quantity;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class PropertyTypeInfo {
 
@@ -88,8 +96,62 @@ public class PropertyTypeInfo {
             if(field.getString("type").equals("CheckBox")){
                 simplePropertyType = "BOOLEAN";
             }
+            if (field.getString("type").equals("CustomInput")) {
+                createCustomField(field);
+            }
         } catch (JSONException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private void createCustomField(JSONObject field) {
+        if ("quantity".equalsIgnoreCase(getComboBoxValues(field, "param1"))) {
+            createQuantityField(field);
+        }
+    }
+
+    private void createQuantityField(JSONObject field) {
+        simplePropertyType = "QUANTITY";
+
+        List<Integer> multipliers = Collections.singletonList(0);
+        String param2 = getComboBoxValues(field, "param2");
+
+        if (param2 != null) {
+            multipliers = Arrays.stream(param2.split(","))
+                    .map(Integer::valueOf)
+                    .collect(Collectors.toList());
+        }
+
+        String param3 = getComboBoxValues(field, "param3");
+        List<String> units = Collections.emptyList();
+
+        if (param3 != null) {
+            units = Arrays.stream(param3.split(","))
+                    .collect(Collectors.toList());
+        }
+
+        List<QuantityInfo> quantityInfos = new ArrayList<>();
+        Map<String, Object> comboKeys = new HashMap<>();
+
+        for (Integer multiplier : multipliers) {
+            for (String unit : units) {
+                QuantityInfo quantity = new QuantityInfo(Quantity.create(BigDecimal.ZERO, multiplier, unit));
+                quantityInfos.add(quantity);
+                comboKeys.put(quantity.displayValue, quantity);
+            }
+        }
+
+        predefinedPropertyValuesInfo = new PredefinedPropertyValuesInfo<>(quantityInfos.toArray(), comboKeys);
+        predefinedPropertyValuesInfo.selectionMode = "";
+    }
+
+    static class QuantityInfo {
+        public String id;
+        public String displayValue;
+
+        public QuantityInfo(Quantity quantity) {
+            this.id = new QuantityValueFactory().toStringValue(quantity);
+            this.displayValue = quantity.toString().replace("0 ", "");
         }
     }
 
