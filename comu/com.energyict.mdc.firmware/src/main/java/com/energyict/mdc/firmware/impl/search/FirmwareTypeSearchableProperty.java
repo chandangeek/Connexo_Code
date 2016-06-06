@@ -106,7 +106,9 @@ public class FirmwareTypeSearchableProperty implements SearchableProperty {
                     if (constriction.getConstrainingValues()
                             .stream()
                             .map(DeviceType.class::cast)
-                            .anyMatch(deviceType -> deviceType.getDeviceProtocolPluggableClass().getDeviceProtocol().supportsCommunicationFirmwareVersion())) {
+                            .anyMatch(deviceType -> deviceType.getDeviceProtocolPluggableClass() != null
+                                    && deviceType.getDeviceProtocolPluggableClass().getDeviceProtocol() != null
+                                    && deviceType.getDeviceProtocolPluggableClass().getDeviceProtocol().supportsCommunicationFirmwareVersion())) {
                         this.firmwareTypes = new FirmwareType[]{FirmwareType.METER, FirmwareType.COMMUNICATION};
                     } else {
                         this.firmwareTypes = new FirmwareType[]{FirmwareType.METER};

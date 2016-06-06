@@ -138,6 +138,19 @@ public final class FirmwareVersionImpl implements FirmwareVersion {
     }
 
     @Override
+    public void initFirmwareFile(byte[] firmwareFile) {
+        try {
+            this.hasFirmwareFile = true;
+            this.firmwareFileSize = (long) firmwareFile.length;
+            BufferedOutputStream firmwareBlobWriter = new BufferedOutputStream(this.firmwareFile.setBinaryStream());
+            firmwareBlobWriter.write(firmwareFile);
+            firmwareBlobWriter.close();
+        } catch (IOException e) {
+            throw new FirmwareIOException(thesaurus, e);
+        }
+    }
+
+    @Override
     public void setFirmwareFile(byte[] firmwareFile) {
         try {
             this.hasFirmwareFile = true;
@@ -290,6 +303,12 @@ public final class FirmwareVersionImpl implements FirmwareVersion {
         @Override
         public FirmwareVersionBuilder setExpectedFirmwareSize(Integer fileSize) {
             underConstruction.setExpectedFirmwareSize(fileSize);
+            return this;
+        }
+
+        @Override
+        public FirmwareVersionBuilder initFirmwareFile(byte[] firmwareFile) {
+            underConstruction.initFirmwareFile(firmwareFile);
             return this;
         }
 

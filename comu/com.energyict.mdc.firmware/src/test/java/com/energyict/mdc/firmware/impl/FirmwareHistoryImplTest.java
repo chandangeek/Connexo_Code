@@ -14,7 +14,6 @@ import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareStatus;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
-import com.energyict.mdc.firmware.PassiveFirmwareVersion;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 
@@ -27,7 +26,6 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -69,12 +67,9 @@ public class FirmwareHistoryImplTest extends PersistenceTest {
         device = inMemoryPersistence.getInjector().getInstance(DeviceService.class).newDevice(deviceConfiguration ,"MyDevice", "mridOfMyDevice");
         device.save();
         firmwareService = inMemoryPersistence.getFirmwareService();
-        firmwareVersion1 = firmwareService.newFirmwareVersion(deviceType, "firmwareVersion1", FirmwareStatus.FINAL, FirmwareType.METER).setExpectedFirmwareSize(FIRMWARE_FILE.length).create();
-        firmwareVersion1.setFirmwareFile(FIRMWARE_FILE);
-        firmwareVersion2 = firmwareService.newFirmwareVersion(deviceType, "firmwareVersion2", FirmwareStatus.FINAL, FirmwareType.COMMUNICATION).setExpectedFirmwareSize(FIRMWARE_FILE.length).create();
-        firmwareVersion2.setFirmwareFile(FIRMWARE_FILE);
-        firmwareVersion3 = firmwareService.newFirmwareVersion(deviceType, "firmwareVersion3", FirmwareStatus.FINAL, FirmwareType.METER).setExpectedFirmwareSize(FIRMWARE_FILE.length).create();
-        firmwareVersion3.setFirmwareFile(FIRMWARE_FILE);
+        firmwareVersion1 = firmwareService.newFirmwareVersion(deviceType, "firmwareVersion1", FirmwareStatus.FINAL, FirmwareType.METER).initFirmwareFile(FIRMWARE_FILE).create();
+        firmwareVersion2 = firmwareService.newFirmwareVersion(deviceType, "firmwareVersion2", FirmwareStatus.FINAL, FirmwareType.COMMUNICATION).initFirmwareFile(FIRMWARE_FILE).create();
+        firmwareVersion3 = firmwareService.newFirmwareVersion(deviceType, "firmwareVersion3", FirmwareStatus.FINAL, FirmwareType.METER).initFirmwareFile(FIRMWARE_FILE).create();
 
 
         LocalDateTime now = LocalDateTime.now();
