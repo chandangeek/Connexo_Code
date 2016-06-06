@@ -106,7 +106,7 @@ public class RecDigitPower extends Modbus {
     }
 
     public String getProtocolVersion() {
-        return "$Date: 2016-06-03 12:47:33 +0300 (Fri, 03 Jun 2016)$";
+        return "$Date: 2016-06-06 09:40:43 +0300 (Mon, 06 Jun 2016)$";
     }
     
     protected void initRegisterFactory() {
@@ -120,7 +120,11 @@ public class RecDigitPower extends Modbus {
     private ProfileData getProfileWithLimiter(ProfileLimiter limiter, boolean includeEvents) throws IOException {
         Date from = limiter.getFromDate();
         Date to = limiter.getToDate();
-    	
+
+        if (to.before(from)) {
+            return new ProfileData();
+        }
+
     	this.interval   = this.getProfileInterval();
     	this.rFactory   = this.getRecFactory();
         
