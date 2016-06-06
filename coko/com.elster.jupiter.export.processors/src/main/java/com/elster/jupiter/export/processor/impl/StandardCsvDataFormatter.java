@@ -1,5 +1,6 @@
 package com.elster.jupiter.export.processor.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.export.DataExportException;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportService;
@@ -48,6 +49,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -109,14 +111,15 @@ class StandardCsvDataFormatter implements ReadingDataFormatter, StandardFormatte
     }
 
     @Override
-    public FormattedData processData(Stream<ExportData> exportDatas) {
-        return exportDatas.map(this::processData)
+    public FormattedData processData(Stream<ExportData> exportData) {
+        // TODO: update this when export is allowed from MDM
+        return exportData.map(data -> processData(Collections.singleton(QualityCodeSystem.MDC), data))
                 .map(pair -> SimpleFormattedData.of(pair.getLast(), pair.getFirst()))
                 .reduce(SimpleFormattedData::merged)
                 .orElseGet(() -> SimpleFormattedData.of(Collections.emptyList()));
     }
 
-    private Pair<Instant, List<FormattedExportData>> processData(ExportData exportData) {
+    private Pair<Instant, List<FormattedExportData>> processData(Set<QualityCodeSystem> qualityCodeSystems, ExportData exportData) {
         StructureMarker main = dataExportService.forRoot(tag).withPeriodOf(exportData.getStructureMarker());
         StructureMarker update = dataExportService.forRoot(updateTag).withPeriodOf(exportData.getStructureMarker());
         MeterReading data = ((MeterReadingData) exportData).getMeterReading();
@@ -124,7 +127,7 @@ class StandardCsvDataFormatter implements ReadingDataFormatter, StandardFormatte
         List<IntervalBlock> intervalBlocks = data.getIntervalBlocks();
         Optional<Instant> latestProcessedTimestamp = readings.stream().map(Reading::getTimeStamp).max(Comparator.naturalOrder());
         setMeter(latestProcessedTimestamp);
-        Map<Instant, DataValidationStatus> statuses = getDataValidationStatusMap(latestProcessedTimestamp, readings);
+        Map<Instant, DataValidationStatus> statuses = getDataValidationStatusMap(qualityCodeSystems, latestProcessedTimestamp, readings);
         Stream<FormattedExportData> readingStream = readings.stream()
                 .map(reading -> writeReading(reading, statuses.get(reading.getTimeStamp())))
                 .flatMap(Functions.asStream())
@@ -138,7 +141,7 @@ class StandardCsvDataFormatter implements ReadingDataFormatter, StandardFormatte
             intervalReadings = intervalBlocks.stream()
                     .flatMap(block -> {
                         ReadingType readingType = meteringService.getReadingType(block.getReadingTypeCode()).get();
-                        Map<Instant, DataValidationStatus> intervalStatuses = getDataValidationStatusMap(latest, block.getIntervals());
+                        Map<Instant, DataValidationStatus> intervalStatuses = getDataValidationStatusMap(qualityCodeSystems, latest, block.getIntervals());
                         return block.getIntervals().stream()
                                 .map(reading -> Pair.of(new DecoratedIntervalReading(reading, readingType), intervalStatuses.get(reading.getTimeStamp())));
                     })
@@ -293,11 +296,13 @@ class StandardCsvDataFormatter implements ReadingDataFormatter, StandardFormatte
         }
     }
 
-    private Map<Instant, DataValidationStatus> getDataValidationStatusMap(Optional<Instant> instantRef, List<? extends BaseReading> readings) {
+    private Map<Instant, DataValidationStatus> getDataValidationStatusMap(Set<QualityCodeSystem> qualityCodeSystems,
+                                                                          Optional<Instant> instantRef,
+                                                                          List<? extends BaseReading> readings) {
         Map<Instant, DataValidationStatus> statuses = new HashMap<>();
         if (instantRef.isPresent()) {
             List<DataValidationStatus> dataValidationStatuses = validationService.getEvaluator(meter, Interval.sinceEpoch().toOpenClosedRange())
-                    .getValidationStatus(forValidation(instantRef.get(), meter), readings);
+                    .getValidationStatus(qualityCodeSystems, forValidation(instantRef.get(), meter), readings);
             dataValidationStatuses.stream().forEach(s -> statuses.put(s.getReadingTimestamp(), s));
         }
         return statuses;

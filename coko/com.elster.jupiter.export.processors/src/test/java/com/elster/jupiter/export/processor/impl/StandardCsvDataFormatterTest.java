@@ -2,6 +2,7 @@ package com.elster.jupiter.export.processor.impl;
 
 import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.export.DataExportException;
 import com.elster.jupiter.export.DataExportOccurrence;
@@ -161,7 +162,8 @@ public class StandardCsvDataFormatterTest {
         doReturn(Arrays.asList(readingType, readingType1)).when(channel).getReadingTypes();
         when(readingQuality.isMissing()).thenReturn(true);
         when(readingQuality1.isMissing()).thenReturn(false);
-        when(validationEvaluator.getValidationStatus(channel, listReadings)).thenReturn(Arrays.asList(dataValidationStatus, dataValidationStatus1, dataValidationStatus2, dataValidationStatus3));
+        when(validationEvaluator.getValidationStatus(Collections.singleton(QualityCodeSystem.MDC), channel, listReadings))
+                .thenReturn(Arrays.asList(dataValidationStatus, dataValidationStatus1, dataValidationStatus2, dataValidationStatus3));
         when(dataValidationStatus.getValidationResult()).thenReturn(ValidationResult.SUSPECT);
         when(dataValidationStatus.getReadingTimestamp()).thenReturn(Instant.ofEpochMilli(EPOCH_MILLI));
         when(dataValidationStatus1.getValidationResult()).thenReturn(ValidationResult.SUSPECT);
