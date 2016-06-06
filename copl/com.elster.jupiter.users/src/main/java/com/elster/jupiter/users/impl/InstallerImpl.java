@@ -1,8 +1,5 @@
 package com.elster.jupiter.users.impl;
 
-import com.elster.jupiter.messaging.DestinationSpec;
-import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
@@ -29,22 +26,16 @@ public class InstallerImpl implements FullInstaller {
     private final DataModel dataModel;
     private final UserServiceImpl userService;
     private final BundleContext bundleContext;
-    private final MessageService messageService;
 
     @Inject
-    public InstallerImpl(DataModel dataModel, UserService userService, BundleContext bundleContext, MessageService messageService) {
+    public InstallerImpl(DataModel dataModel, UserService userService, BundleContext bundleContext) {
         this.dataModel = dataModel;
         this.userService = (UserServiceImpl) userService;
         this.bundleContext = bundleContext;
-        this.messageService = messageService;
     }
 
     @Override
     public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
-        doTry(
-                "Create User Queue",
-                () -> createUserQueue(messageService),
-                logger);
         dataModelUpgrader.upgrade(dataModel, Version.latest());
         doTry(
                 "Install User privileges.",
@@ -53,13 +44,6 @@ public class InstallerImpl implements FullInstaller {
         );
         addDefaults(bundleContext != null ? bundleContext.getProperty("admin.password") : null, logger);
 
-    }
-
-    private void createUserQueue(MessageService messageService) {
-        QueueTableSpec defaultQueueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
-        DestinationSpec destinationSpec = defaultQueueTableSpec.createDestinationSpec(UserService.USR_QUEUE_DEST, DEFAULT_RETRY_DELAY_IN_SECONDS);
-        destinationSpec.activate();
-        destinationSpec.subscribe(UserService.USR_QUEUE_SUBSC);
     }
 
     public void addDefaults(String adminPassword, Logger logger) {

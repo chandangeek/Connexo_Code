@@ -5,9 +5,12 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.nls.Thesaurus;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.util.List;
 import java.util.Optional;
 
+@ProviderType
 public interface UserService {
 
     String COMPONENTNAME = "USR";
@@ -16,9 +19,6 @@ public interface UserService {
     String DEFAULT_ADMIN_ROLE_DESCRIPTION = "Administrative privileges";
     String BATCH_EXECUTOR_ROLE = "Batch executors";
     String BATCH_EXECUTOR_ROLE_DESCRIPTION = "Batch executors privileges";
-    String USR_QUEUE_DEST = "UsrQueueDest";
-    String USR_QUEUE_DISPLAYNAME = "Handle user access log";
-    String USR_QUEUE_SUBSC = "UsrQueueSubsc";
 
     User createUser(String name, String description);
 
@@ -61,6 +61,8 @@ public interface UserService {
     Optional<Resource> getResource(String resourceName);
 
     Optional<User> authenticateBase64(String base64String);
+
+    Optional<User> authenticateBase64(String base64String, String ipAddr);
 
     List<Group> getGroups();
 

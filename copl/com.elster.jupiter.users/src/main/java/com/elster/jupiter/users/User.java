@@ -2,6 +2,8 @@ package com.elster.jupiter.users;
 
 import com.elster.jupiter.util.HasName;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.security.Principal;
 import java.time.Instant;
 import java.util.List;
@@ -10,6 +12,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+@ProviderType
 public interface User extends Principal, HasName {
 
     long getId();
@@ -81,4 +84,12 @@ public interface User extends Principal, HasName {
     Instant getCreationDate();
 
     Instant getModifiedDate();
+
+    Instant getLastSuccessfulLogin();
+
+    void setLastSuccessfulLogin(Instant lastLogin);
+
+    Instant getLastUnSuccessfulLogin();
+
+    void setLastUnSuccessfulLogin(Instant lastLoginFail);
 }

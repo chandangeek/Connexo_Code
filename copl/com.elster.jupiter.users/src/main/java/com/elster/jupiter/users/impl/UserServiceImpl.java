@@ -3,12 +3,9 @@ package com.elster.jupiter.users.impl;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
-import com.elster.jupiter.messaging.DestinationSpec;
-import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
@@ -18,6 +15,7 @@ import com.elster.jupiter.orm.DoesNotExistException;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.ApplicationPrivilegesProvider;
@@ -39,7 +37,6 @@ import com.elster.jupiter.users.security.Privileges;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.elster.jupiter.util.json.JsonService;
 
 import com.google.inject.AbstractModule;
 import org.osgi.framework.BundleContext;
@@ -53,6 +50,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import javax.annotation.concurrent.GuardedBy;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
@@ -63,6 +61,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -87,9 +87,8 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
     private List<User> loggedInUsers = new CopyOnWriteArrayList<>();
     private volatile DataVaultService dataVaultService;
     private volatile BundleContext bundleContext;
-    private volatile MessageService messageService;
-    private volatile JsonService jsonService;
     private volatile UpgradeService upgradeService;
+    private volatile Clock clock;
 
 
     private static final String TRUSTSTORE_PATH = "com.elster.jupiter.users.truststore";
@@ -98,6 +97,7 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
     private static final String UNSUCCESSFUL_LOGIN = "Unsuccessful login attempt for user ";
 
     private static final String JUPITER_REALM = "Local";
+    private Logger userLogin = Logger.getLogger("userLog");
 
     private class PrivilegeAssociation{
         public String group;
@@ -121,7 +121,7 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
     private final Object privilegeProviderRegistrationLock = new Object();
 
     @Inject
-    public UserServiceImpl(OrmService ormService, TransactionService transactionService, QueryService queryService, NlsService nlsService, ThreadPrincipalService threadPrincipalService, DataVaultService dataVaultService, MessageService messageService, JsonService jsonService, UpgradeService upgradeService, BundleContext bundleContext) {
+    public UserServiceImpl(OrmService ormService, TransactionService transactionService, QueryService queryService, NlsService nlsService, ThreadPrincipalService threadPrincipalService, DataVaultService dataVaultService, UpgradeService upgradeService, BundleContext bundleContext) {
         this();
         setTransactionService(transactionService);
         setQueryService(queryService);
@@ -129,8 +129,6 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
         setNlsService(nlsService);
         setDataVaultService(dataVaultService);
         setThreadPrincipalService(threadPrincipalService);
-        setMessageService(messageService);
-        setJsonService(jsonService);
         setUpgradeService(upgradeService);
         activate(bundleContext);
     }
@@ -151,8 +149,6 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(DataVaultService.class).toInstance(dataVaultService);
                 bind(UserService.class).toInstance(UserServiceImpl.this);
-                bind(MessageService.class).toInstance(messageService);
-                bind(JsonService.class).toInstance(jsonService);
                 bind(BundleContext.class).toInstance(context);
             }
         });
@@ -164,8 +160,8 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
 
     }
 
-    public Optional<User> authenticate(String domain, String userName, String password) {
-        UserDirectory userDirectory = is(domain).empty() ? findDefaultUserDirectory() : getUserDirectory(domain);
+    public Optional<User> authenticate(String domain, String userName, String password, String ipAddr) {
+        UserDirectory userDirectory = is(domain).empty() ? findDefaultUserDirectory() : getUserDirectory(domain, userName, ipAddr);
         return userDirectory.authenticate(userName, password);
     }
 
@@ -178,9 +174,10 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
         }
     }
 
-    private UserDirectory getUserDirectory(String domain) {
+    private UserDirectory getUserDirectory(String domain, String userName, String ipAddr) {
         List<UserDirectory> found = dataModel.query(UserDirectory.class).select(Operator.EQUALIGNORECASE.compare("name", domain));
         if (found.isEmpty()) {
+            logMessage(UNSUCCESSFUL_LOGIN, userName, domain, ipAddr);
             throw new NoDomainFoundException(thesaurus, domain);
         }
 
@@ -231,6 +228,11 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
 
     @Override
     public Optional<User> authenticateBase64(String base64) {
+        return authenticateBase64(base64, null);
+    }
+
+    @Override
+    public Optional<User> authenticateBase64(String base64, String ipAddr) {
         if (base64 == null || base64.isEmpty()) {
             return Optional.empty();
         }
@@ -239,7 +241,7 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
 
         if (names.length <= 1) {
             if(names.length == 1) {
-                logMessage(UNSUCCESSFUL_LOGIN, "[" + names[0] + "]");
+                logMessage(UNSUCCESSFUL_LOGIN, names[0], null, ipAddr);
             }
             return Optional.empty();
         }
@@ -257,12 +259,12 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
             domain = items[0];
             userName = items[1];
         }
-        Optional<User> user = authenticate(domain, userName, names[1]);
+        Optional<User> user = authenticate(domain, userName, names[1], ipAddr);
         if(user.isPresent() && !user.get().getPrivileges().isEmpty()){
-            logMessage(SUCCESSFUL_LOGIN, "["+userName+"]");
+            logMessage(SUCCESSFUL_LOGIN, userName, domain, ipAddr);
         }else{
             if(!userName.equals("")) {
-                logMessage(UNSUCCESSFUL_LOGIN, "[" + userName + "]");
+                logMessage(UNSUCCESSFUL_LOGIN, userName, domain, ipAddr);
             }
         }
         return user;
@@ -530,12 +532,10 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
 
     @Override
     public List<TranslationKey> getKeys() {
-        List<TranslationKey> keys = Stream.of(
+        return Stream.of(
                 Arrays.stream(Privileges.values()))
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());
-        keys.add(new SimpleTranslationKey(UserService.USR_QUEUE_SUBSC, UserService.USR_QUEUE_DISPLAYNAME));
-        return keys;
     }
 
     @Override
@@ -632,13 +632,8 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
     }
 
     @Reference
-    public final void setMessageService(MessageService messageService){
-        this.messageService = messageService;
-    }
-
-    @Reference
-    public  final void setJsonService(JsonService jsonService){
-        this.jsonService = jsonService;
+    public void setClockService(Clock clock) {
+        this.clock = clock;
     }
 
     @Reference(name = "ModulePrivilegesProvider", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
@@ -828,14 +823,38 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
         this.loggedInUsers.remove(user);
     }
 
-    private void logMessage(String message, String userName){
-        Map<String, String> messageProperties = new HashMap<>();
-        messageProperties.put(message, userName);
-        Optional<DestinationSpec> found = messageService.getDestinationSpec(USR_QUEUE_DEST);
-        if(found.isPresent()){
-            String json = jsonService.serialize(messageProperties);
-            found.get().message(json).send();
+    private void logMessage(String message, String userName, String domain, String ipAddr){
+        ipAddr = ipAddr.equals("0:0:0:0:0:0:0:1") ? "localhost" : ipAddr;
+        if(message.equals(SUCCESSFUL_LOGIN)){
+            String userNameFormatted = domain == null ? userName : domain+ "/" + userName;
+            userLogin.log(Level.INFO, message + "[" + userNameFormatted + "] " , ipAddr);
+            this.findUserIgnoreStatus(userName).ifPresent(user -> {
+                try(TransactionContext context = transactionService.getContext()) {
+                    user.setLastSuccessfulLogin(clock.instant());
+                    user.update();
+                    context.commit();
+                }
+            });
+        } else {
+            String userNameFormatted = domain == null ? userName : domain+ "/" + userName;
+            userLogin.log(Level.WARNING, message + "[" + userNameFormatted + "] " , ipAddr);
+            this.findUserIgnoreStatus(userName).ifPresent(user -> {
+                try(TransactionContext context = transactionService.getContext()) {
+                    user.setLastUnSuccessfulLogin(clock.instant());
+                    user.update();
+                    context.commit();
+                }
+            });
         }
+    }
+
+    private Optional<User> findUserIgnoreStatus(String authenticationName) {
+        Condition condition = Operator.EQUALIGNORECASE.compare("authenticationName", authenticationName);
+        List<User> users = dataModel.query(User.class, UserInGroup.class).select(condition);
+        if (!users.isEmpty()) {
+            return Optional.of(users.get(0));
+        }
+        return Optional.empty();
     }
 
 }
