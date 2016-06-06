@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.lifecycle.impl.micro.actions;
 
+import com.elster.jupiter.cbo.QualityCodeIndex;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
@@ -34,6 +36,8 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.anySetOf;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -178,7 +182,8 @@ public class ForceValidationAndEstimationTest {
         Channel channel = mock(Channel.class);
         when(meterActivation.getChannels()).thenReturn(Collections.singletonList(channel));
         ReadingQualityRecord suspect = mock(ReadingQualityRecord.class);
-        when(channel.findReadingQualities(any(), any(), any(), any(), any())).thenReturn(Collections.singletonList(suspect));
+        when(channel.findReadingQualities(anySetOf(QualityCodeSystem.class), any(QualityCodeIndex.class), any(Range.class), anyBoolean(), anyBoolean()))
+                .thenReturn(Collections.singletonList(suspect));
         when(this.device.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile1, loadProfile2));
         when(this.device.forValidation()).thenReturn(deviceValidation);
         when(this.device.forEstimation()).thenReturn(deviceEstimation);
@@ -186,7 +191,6 @@ public class ForceValidationAndEstimationTest {
 
         // Business method
         forceValidationAndEstimation.execute(this.device, now, Collections.emptyList());
-
     }
 
     public ForceValidationAndEstimation getTestInstance() {
