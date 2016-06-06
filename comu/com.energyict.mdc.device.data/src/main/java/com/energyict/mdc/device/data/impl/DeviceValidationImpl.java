@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
@@ -23,6 +24,7 @@ import com.google.common.collect.Range;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -178,7 +180,9 @@ public class DeviceValidationImpl implements DeviceValidation {
         Stream<com.elster.jupiter.metering.Channel> koreChannels = ((DeviceImpl) channel.getDevice()).findKoreChannels(channel).stream();
         return koreChannels
                 .filter(k -> does(k.getChannelsContainer().getRange()).overlap(interval))
-                .flatMap(k -> getEvaluator().getValidationStatus(k, readings, k.getChannelsContainer().getRange().intersection(interval)).stream())
+                // TODO: the place for refactoring of CXO-1437/CXO-1438
+                .flatMap(k -> getEvaluator().getValidationStatus(Collections.singleton(QualityCodeSystem.MDC), k, readings,
+                        k.getMeterActivation().getRange().intersection(interval)).stream())
                 .collect(Collectors.toList());
     }
 
@@ -186,7 +190,7 @@ public class DeviceValidationImpl implements DeviceValidation {
     public List<DataValidationStatus> getValidationStatus(Register<?, ?> register, List<? extends BaseReading> readings, Range<Instant> interval) {
         return ((DeviceImpl) register.getDevice()).findKoreChannels(register).stream()
                 .filter(k -> does(k.getChannelsContainer().getRange()).overlap(interval))
-                .flatMap(k -> getEvaluator().getValidationStatus(k, readings, k.getChannelsContainer().getRange().intersection(interval)).stream())
+                .flatMap(k -> getEvaluator().getValidationStatus(k, readings, k.getMeterActivation().getRange().intersection(interval)).stream())
                 .collect(Collectors.toList());
     }
 
