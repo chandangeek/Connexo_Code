@@ -4,6 +4,8 @@ import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.appserver.SubscriberExecutionSpec;
 import com.elster.jupiter.bpm.BpmService;
+import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.calendar.rest.CalendarInfoFactory;
 import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.Aggregate;
 import com.elster.jupiter.cbo.Commodity;
@@ -29,6 +31,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.search.SearchService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
 import com.elster.jupiter.util.json.JsonService;
@@ -164,6 +167,12 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     BpmService bpmService;
     @Mock
     ServiceCallInfoFactory serviceCallInfoFactory;
+    @Mock
+    CalendarInfoFactory calendarInfoFactory;
+    @Mock
+    CalendarService calendarService;
+    @Mock
+    private volatile ThreadPrincipalService threadPrincipalService;
 
     @Before
     public void setup() {
@@ -228,6 +237,9 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         application.setServiceCallService(serviceCallService);
         application.setServiceCallInfoFactory(serviceCallInfoFactory);
         application.setBpmService(bpmService);
+        application.setThreadPrincipalService(threadPrincipalService);
+        application.setCalendarInfoFactory(calendarInfoFactory);
+        application.setCalendarService(calendarService);
         return application;
     }
 
