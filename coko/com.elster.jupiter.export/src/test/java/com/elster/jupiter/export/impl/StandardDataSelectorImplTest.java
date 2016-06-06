@@ -1,7 +1,6 @@
 package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.cbo.QualityCodeIndex;
-import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.devtools.persistence.test.TransactionVerifier;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.devtools.tests.rules.Using;
@@ -39,7 +38,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -65,7 +63,6 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class StandardDataSelectorImplTest {
 
-    private static final Set<QualityCodeSystem> MDC = Collections.singleton(QualityCodeSystem.MDC);
     private static final ZonedDateTime UPDATE_START = ZonedDateTime.of(2014, 5, 19, 0, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
     private static final ZonedDateTime START = ZonedDateTime.of(2014, 6, 19, 0, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
     private static final ZonedDateTime END = ZonedDateTime.of(2014, 7, 19, 0, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
@@ -342,7 +339,7 @@ public class StandardDataSelectorImplTest {
         when(meter2.toList(readingType, EXPORTED_INTERVAL)).thenReturn(Arrays.asList(END.toInstant()));
         when(meter1.toList(readingType, UPDATE_WINDOW_INTERVAL)).thenReturn(Arrays.asList(UPDATED_RECORD_TIME.toInstant()));
         when(meter2.toList(readingType, UPDATE_WINDOW_INTERVAL)).thenReturn(Arrays.asList(UPDATED_RECORD_TIME.toInstant(), UPDATED_RECORD_TIME.plusMinutes(5).toInstant()));
-        when(meter1.getReadingQualities(MDC, QualityCodeIndex.SUSPECT, readingType, EXPORTED_INTERVAL)).thenReturn(Arrays.asList(suspectReadingQuality));
+        when(meter1.getReadingQualities(null, QualityCodeIndex.SUSPECT, readingType, EXPORTED_INTERVAL)).thenReturn(Collections.singletonList(suspectReadingQuality));
         when(suspectReadingQuality.getReadingTimestamp()).thenReturn(END.toInstant());
 
         when(validationEvaluator.getLastChecked(any(), any())).thenReturn(Optional.of(END.plusMonths(1).toInstant()));
@@ -399,7 +396,7 @@ public class StandardDataSelectorImplTest {
         when(meter2.toList(readingType, EXPORTED_INTERVAL)).thenReturn(Arrays.asList(END.toInstant()));
         when(meter1.toList(readingType, UPDATE_WINDOW_INTERVAL)).thenReturn(Arrays.asList(UPDATED_RECORD_TIME.toInstant()));
         when(meter2.toList(readingType, UPDATE_WINDOW_INTERVAL)).thenReturn(Arrays.asList(UPDATED_RECORD_TIME.toInstant(), UPDATED_RECORD_TIME.plusMinutes(5).toInstant()));
-        when(meter1.getReadingQualities(MDC, QualityCodeIndex.SUSPECT, readingType, EXPORTED_INTERVAL)).thenReturn(Collections.emptyList());
+        when(meter1.getReadingQualities(null, QualityCodeIndex.SUSPECT, readingType, EXPORTED_INTERVAL)).thenReturn(Collections.emptyList());
 
         when(validationEvaluator.getLastChecked(any(), any())).thenReturn(Optional.of(END.plusMonths(1).toInstant()));
         when(validationEvaluator.getLastChecked(meter1, readingType)).thenReturn(Optional.of(END.minusMinutes(5).toInstant()));
@@ -456,7 +453,7 @@ public class StandardDataSelectorImplTest {
         when(meter2.toList(readingType, EXPORTED_INTERVAL)).thenReturn(Arrays.asList(END.toInstant()));
         when(meter1.toList(readingType, UPDATE_WINDOW_INTERVAL)).thenReturn(Arrays.asList(UPDATED_RECORD_TIME.toInstant()));
         when(meter2.toList(readingType, UPDATE_WINDOW_INTERVAL)).thenReturn(Arrays.asList(UPDATED_RECORD_TIME.toInstant(), UPDATED_RECORD_TIME.plusMinutes(5).toInstant()));
-        when(meter1.getReadingQualities(MDC, QualityCodeIndex.SUSPECT, readingType, EXPORTED_INTERVAL)).thenReturn(Arrays.asList(suspectReadingQuality));
+        when(meter1.getReadingQualities(null, QualityCodeIndex.SUSPECT, readingType, EXPORTED_INTERVAL)).thenReturn(Collections.singletonList(suspectReadingQuality));
         when(suspectReadingQuality.getReadingTimestamp()).thenReturn(END.toInstant());
 
         when(validationEvaluator.getLastChecked(any(), any())).thenReturn(Optional.of(END.plusMonths(1).toInstant()));

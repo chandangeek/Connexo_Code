@@ -1,7 +1,6 @@
 package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.cbo.QualityCodeIndex;
-import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportStrategy;
 import com.elster.jupiter.export.DefaultSelectorOccurrence;
@@ -40,7 +39,6 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -141,7 +139,7 @@ class DefaultItemDataSelector implements ItemDataSelector {
             switch (strategy.getValidatedDataOption()) {
                 case EXCLUDE_INTERVAL:
                     handleExcludeInterval(item, readings, interval, itemDescription);
-                    return;
+                    break;
                 case EXCLUDE_ITEM:
                     handleExcludeItem(item, readings, interval, itemDescription);
                 default:
@@ -176,8 +174,8 @@ class DefaultItemDataSelector implements ItemDataSelector {
 
     private Stream<Instant> getSuspects(IReadingTypeDataExportItem item, Range<Instant> interval) {
         return item.getReadingContainer()
-                // TODO: update this when export is allowed from MDM
-                .getReadingQualities(Collections.singleton(QualityCodeSystem.MDC), QualityCodeIndex.SUSPECT, item.getReadingType(), interval).stream()
+                // TODO: update this when export is allowed from MDM; null means all systems taken into account
+                .getReadingQualities(null, QualityCodeIndex.SUSPECT, item.getReadingType(), interval).stream()
                 .map(ReadingQualityRecord::getReadingTimestamp);
     }
 
