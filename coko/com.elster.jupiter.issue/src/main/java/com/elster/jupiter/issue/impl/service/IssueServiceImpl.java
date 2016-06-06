@@ -550,9 +550,11 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
         //filter by issue id
         if (filter.getIssueId().isPresent()) {
             String[] issueIdPart = filter.getIssueId().get().split("-");
-            if (issueIdPart.length > 1) {
-                condition = condition.and(where("id").isEqualTo(Long.parseLong(issueIdPart[1])))
-                        .and(where("reason.issueType.prefix").isEqualTo(issueIdPart[0]));
+            if (issueIdPart.length == 2) {
+                condition = condition.and(where("id").isEqualTo(getNumericValueOrZero(issueIdPart[1])))
+                        .and(where("reason.issueType.prefix").isEqualTo(issueIdPart[0].toUpperCase()));
+            } else {
+                condition = condition.and(where("id").isEqualTo(0));
             }
         }
         //filter by assignee
@@ -591,5 +593,13 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
             condition = condition.and(dueDateCondition);
         }
         return condition;
+    }
+
+    private long getNumericValueOrZero(String id) {
+        try {
+            return Long.parseLong(id);
+        } catch (NumberFormatException e) {
+            return 0;
+        }
     }
 }
