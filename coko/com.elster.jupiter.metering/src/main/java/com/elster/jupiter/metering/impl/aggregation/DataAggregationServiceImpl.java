@@ -14,7 +14,6 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.impl.config.EffectiveMetrologyConfigurationOnUsagePoint;
-import com.elster.jupiter.metering.impl.config.ServerFormula;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
@@ -96,12 +95,13 @@ public class DataAggregationServiceImpl implements DataAggregationService {
         this.getOverlappingMeterActivations(usagePoint, clippedPeriod)
             .forEach(meterActivation -> this.prepare(usagePoint, meterActivation, contract, clippedPeriod, this.virtualFactory, deliverablesPerMeterActivation));
         if (deliverablesPerMeterActivation.isEmpty()) {
-            return new CalculatedMetrologyContractDataImpl(usagePoint, contract, Collections.emptyMap());
+            return new CalculatedMetrologyContractDataImpl(usagePoint, contract, period, Collections.emptyMap());
         } else {
             try {
                 return this.postProcess(
                         usagePoint,
                         contract,
+                        period,
                         this.execute(
                                 this.generateSql(
                                         this.sqlBuilderFactory.newClauseAwareSqlBuilder(),
@@ -147,7 +147,10 @@ public class DataAggregationServiceImpl implements DataAggregationService {
     private void prepare(UsagePoint usagePoint, MeterActivation meterActivation, MetrologyContract contract, Range<Instant> period, VirtualFactory virtualFactory, Map<MeterActivation, List<ReadingTypeDeliverableForMeterActivation>> deliverablesPerMeterActivation) {
         virtualFactory.nextMeterActivation(meterActivation, period);
         deliverablesPerMeterActivation.put(meterActivation, new ArrayList<>());
-        contract.getDeliverables().stream().forEach(deliverable -> this.prepare(usagePoint, meterActivation, deliverable, period, virtualFactory, deliverablesPerMeterActivation));
+        contract
+            .getDeliverables()
+            .stream()
+            .forEach(deliverable -> this.prepare(usagePoint, meterActivation, deliverable, period, virtualFactory, deliverablesPerMeterActivation));
     }
 
     /**
@@ -201,7 +204,7 @@ public class DataAggregationServiceImpl implements DataAggregationService {
      * @param mode The mode  @return The copied formula with virtual requirements and deliverables
      */
     private ServerExpressionNode copy(ReadingTypeDeliverable deliverable, UsagePoint usagePoint, MeterActivation meterActivation, VirtualFactory virtualFactory, Map<MeterActivation, List<ReadingTypeDeliverableForMeterActivation>> deliverablesPerMeterActivation, Formula.Mode mode) {
-        ServerFormula formula = (ServerFormula) deliverable.getFormula();
+        Formula formula = deliverable.getFormula();
         Copy visitor =
                 new Copy(
                         mode,
@@ -260,8 +263,8 @@ public class DataAggregationServiceImpl implements DataAggregationService {
         }
     }
 
-    private CalculatedMetrologyContractData postProcess(UsagePoint usagePoint, MetrologyContract contract, Map<ReadingType, List<CalculatedReadingRecord>> calculatedReadingRecords) {
-        return new CalculatedMetrologyContractDataImpl(usagePoint, contract, calculatedReadingRecords);
+    private CalculatedMetrologyContractData postProcess(UsagePoint usagePoint, MetrologyContract contract, Range<Instant> period, Map<ReadingType, List<CalculatedReadingRecord>> calculatedReadingRecords) {
+        return new CalculatedMetrologyContractDataImpl(usagePoint, contract, period, calculatedReadingRecords);
     }
 
     private DataModel getDataModel() {
