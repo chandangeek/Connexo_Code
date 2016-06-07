@@ -24,6 +24,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.util.Arrays;
 import java.util.List;
@@ -39,6 +40,18 @@ public class EndPointConfigurationServiceImpl implements EndPointConfigurationSe
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
     private volatile EventService eventService;
+
+
+    @Inject // Test purposes only
+    public EndPointConfigurationServiceImpl(EventService eventService, NlsService nlsService, OrmService ormService) {
+        setEventService(eventService);
+        setNlsService(nlsService);
+        setOrmService(ormService);
+        activate();
+        if (!dataModel.isInstalled()) {
+            install();
+        }
+    }
 
     @Override
     public void install() {
