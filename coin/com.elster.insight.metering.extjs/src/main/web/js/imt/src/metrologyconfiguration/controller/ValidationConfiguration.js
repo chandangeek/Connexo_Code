@@ -45,9 +45,6 @@ Ext.define('Imt.metrologyconfiguration.controller.ValidationConfiguration', {
             'add-validation-rule-sets-to-purpose #purpose-combo': {
                 change: this.showRuleSetsOfPurpose
             },
-            'add-validation-rule-sets-to-purpose add-validation-rule-sets-to-purpose-grid': {
-                selectionchange: this.showAddValidationRuleSetsRules
-            },
             'add-validation-rule-sets-to-purpose purpose-rules-grid': {
                 select: this.showRulePreview
             },
@@ -62,12 +59,13 @@ Ext.define('Imt.metrologyconfiguration.controller.ValidationConfiguration', {
             app = me.getApplication(),
             router = me.getController('Uni.controller.history.Router'),
             pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
+            metrologyConfigurationController = me.getController('Imt.metrologyconfiguration.controller.View'),
             purposesWithLinkedRuleSetsStore = me.getStore('Imt.metrologyconfiguration.store.PurposesWithValidationRuleSets'),
             rulesStore = me.getStore('Imt.store.ValidationRules');
 
         pageMainContent.setLoading();
-        me.getModel('Imt.metrologyconfiguration.model.MetrologyConfiguration').load(id, {
-            success: function (metrologyConfig) {
+        metrologyConfigurationController.loadMetrologyConfiguration(id, {
+            success: function (metrologyConfiguration) {
                 purposesWithLinkedRuleSetsStore.getProxy().extraParams = {
                     metrologyConfigurationId: router.arguments.mcid
                 };
@@ -75,15 +73,15 @@ Ext.define('Imt.metrologyconfiguration.controller.ValidationConfiguration', {
                     var widget = Ext.widget('metrology-configuration-validation-tab-view', {
                         itemId: 'metrology-configuration-validation-tab-view',
                         router: router,
-                        metrologyConfig: metrologyConfig,
+                        metrologyConfig: metrologyConfiguration,
                         purposes: purposes,
                         rulesStore: rulesStore
                     });
-                    app.fireEvent('metrologyConfigurationLoaded', metrologyConfig);
                     app.fireEvent('changecontentevent', widget);
+                    pageMainContent.setLoading(false);
                 });
             },
-            callback: function () {
+            failure: function () {
                 pageMainContent.setLoading(false);
             }
         });
@@ -150,12 +148,13 @@ Ext.define('Imt.metrologyconfiguration.controller.ValidationConfiguration', {
             app = me.getApplication(),
             router = me.getController('Uni.controller.history.Router'),
             pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
+            metrologyConfigurationController = me.getController('Imt.metrologyconfiguration.controller.View'),
             purposesWithLinkedRuleSetsStore = me.getStore('Imt.metrologyconfiguration.store.PurposesWithValidationRuleSets'),
             rulesStore = me.getStore('Imt.store.ValidationRules');
 
         pageMainContent.setLoading();
-        me.getModel('Imt.metrologyconfiguration.model.MetrologyConfiguration').load(id, {
-            success: function (metrologyConfig) {
+        metrologyConfigurationController.loadMetrologyConfiguration(id, {
+            success: function (metrologyConfiguration) {
                 purposesWithLinkedRuleSetsStore.getProxy().extraParams = {
                     metrologyConfigurationId: router.arguments.mcid
                 };
@@ -168,12 +167,11 @@ Ext.define('Imt.metrologyconfiguration.controller.ValidationConfiguration', {
                             var widget = Ext.widget('add-validation-rule-sets-to-purpose', {
                                 itemId: 'add-validation-rule-sets-to-purpose',
                                 router: router,
-                                metrologyConfig: metrologyConfig,
+                                metrologyConfig: metrologyConfiguration,
                                 purposesStore: purposesWithLinkedRuleSetsStore,
                                 purposeWithLinkableRuleSets: purpose,
                                 rulesStore: rulesStore
                             });
-                            app.fireEvent('metrologyConfigurationLoaded', metrologyConfig);
                             app.fireEvent('changecontentevent', widget);
                         },
                         callback: function () {
@@ -181,6 +179,9 @@ Ext.define('Imt.metrologyconfiguration.controller.ValidationConfiguration', {
                         }
                     });
                 });
+            },
+            failure: function () {
+                pageMainContent.setLoading(false);
             }
         });
     },
@@ -214,29 +215,5 @@ Ext.define('Imt.metrologyconfiguration.controller.ValidationConfiguration', {
                 me.getController('Uni.controller.history.Router').getRoute('administration/metrologyconfiguration/view/validation').forward();
             }
         });
-    },
-
-    showAddValidationRuleSetsRules: function (selModel, records) {
-        var me = this,
-            view = me.getAddValidationRuleSetsView(),
-            ruleSet,
-            rulesStore = me.getStore('Imt.store.ValidationRules');
-
-        Ext.suspendLayouts();
-        if (records.length === 1) {
-            ruleSet = records[0];
-            view.down('#purpose-rule-sets-add-rule-button').setHref(me.getController('Uni.controller.history.Router')
-                .getRoute('administration/rulesets/overview/versions/overview/rules/add').buildUrl({ruleSetId: ruleSet.get('id'), versionId: ruleSet.get('currentVersionId')}));
-            rulesStore.getProxy().extraParams = {
-                ruleSetId: ruleSet.get('id'),
-                versionId: ruleSet.get('currentVersionId')
-            };
-            rulesStore.load(function () {
-                view.down('#purpose-rules-grid-paging-top').child('#displayItem')
-                    .setText(Uni.I18n.translate('metrologyConfiguration.validation.rulesCount', 'IMT', '{0} validation rule(s)', rulesStore.getCount()));
-            });
-        }
-        view.down('#add-validation-rule-sets-to-purpose-add-button').setDisabled(records.length === 0);
-        Ext.resumeLayouts(true);
     }
 });
