@@ -1379,7 +1379,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         // TODO: what if there are gaps in the meter activations
         Map<Instant, LoadProfileReadingImpl> loadProfileReadingMap = new TreeMap<>();
         TemporalAmount intervalLength = this.intervalLength(loadProfile);
-        meter.getChannelContainers()
+        meter.getChannelsContainers()
                 .stream()
                 .filter(channelContainer -> channelContainer.overlaps(requestedInterval))
                 .forEach(affectedChannelContainer -> {
@@ -1826,7 +1826,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     private List<com.elster.jupiter.metering.Channel> findKoreChannels(Supplier<ReadingType> readingTypeSupplier, Meter meter) {
-        return meter.getChannelContainers()
+        return meter.getChannelsContainers()
                 .stream()
                 .map(channelContainer -> getChannel(channelContainer, readingTypeSupplier.get()))
                 .flatMap(asStream())

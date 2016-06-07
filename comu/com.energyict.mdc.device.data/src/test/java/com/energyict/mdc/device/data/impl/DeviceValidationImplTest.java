@@ -77,7 +77,7 @@ public class DeviceValidationImplTest {
         when(device.findKoreChannel(channel, NOW.toInstant())).thenReturn(Optional.of(koreChannel));
         when(koreChannel.getChannelsContainer()).thenReturn(channelsContainer);
         doReturn(asList(readingType)).when(koreChannel).getReadingTypes();
-        doReturn(asList(channelsContainer)).when(meter).getChannelContainers();
+        doReturn(asList(channelsContainer)).when(meter).getChannelsContainers();
         when(channelsContainer.getRange()).thenReturn(Range.atLeast(Instant.EPOCH));
         when(channelsContainer.getChannels()).thenReturn(asList(koreChannel));
         when(clock.instant()).thenReturn(NOW.toInstant());

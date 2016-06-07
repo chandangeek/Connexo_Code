@@ -265,7 +265,7 @@ public class DeviceValidationImpl implements DeviceValidation {
     }
 
     private Optional<com.elster.jupiter.metering.Channel> findKoreChannel(ReadingType readingType, Instant when) {
-        return fetchKoreMeter().getChannelContainers()
+        return fetchKoreMeter().getChannelsContainers()
                 .stream()
                 .filter(channelContainer -> channelContainer.getRange().contains(when))
                 .flatMap(channelContainer -> channelContainer.getChannels().stream())
@@ -307,7 +307,7 @@ public class DeviceValidationImpl implements DeviceValidation {
     }
 
     private void validate(ReadingType readingType) {
-        fetchKoreMeter().getChannelContainers().stream()
+        fetchKoreMeter().getChannelsContainers().stream()
                 .forEach(channelContainer -> validationService.validate(channelContainer, readingType));
     }
 
