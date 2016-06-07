@@ -8,12 +8,14 @@ import com.elster.jupiter.validation.ValidationRuleSet;
 
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
+import static com.elster.jupiter.orm.Version.version;
 
 public enum TableSpecs {
     UPC_MC_VALRULESETUSAGE {
         void addTo(DataModel dataModel) {
             Table<MetrologyContractValidationRuleSetUsage> table = dataModel
                     .addTable(name(), MetrologyContractValidationRuleSetUsage.class);
+            table.since(version(10, 2));
             table.map(MetrologyContractValidationRuleSetUsageImpl.class);
             table.setJournalTableName("UPC_MC_VALRULESETUSAGEJRNL");
             Column validationRuleSet = table

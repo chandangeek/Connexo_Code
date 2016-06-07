@@ -1,6 +1,5 @@
 package com.elster.jupiter.mdm.usagepoint.config.impl;
 
-import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.mdm.usagepoint.config.security.Privileges;
@@ -23,7 +22,8 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.upgrade.InstallIdentifier;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
@@ -33,6 +33,7 @@ import com.elster.jupiter.validation.ValidationRuleSetVersion;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.ValidationVersionStatus;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -48,14 +49,15 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(
         name = "UsagePointConfigurationServiceImpl",
-        service = {UsagePointConfigurationService.class, InstallService.class, PrivilegesProvider.class, TranslationKeyProvider.class},
+        service = {UsagePointConfigurationService.class, PrivilegesProvider.class, TranslationKeyProvider.class},
         property = {"name=" + UsagePointConfigurationService.COMPONENTNAME},
         immediate = true)
-public class UsagePointConfigurationServiceImpl implements UsagePointConfigurationService, InstallService, PrivilegesProvider, TranslationKeyProvider {
+public class UsagePointConfigurationServiceImpl implements UsagePointConfigurationService, PrivilegesProvider, TranslationKeyProvider {
 
     private volatile DataModel dataModel;
     private volatile Clock clock;
@@ -64,6 +66,7 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     private volatile ValidationService validationService;
     private volatile UserService userService;
     private volatile Thesaurus thesaurus;
+    private volatile UpgradeService upgradeService;
 
     // For OSGi purpose
     public UsagePointConfigurationServiceImpl() {
@@ -73,7 +76,7 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     // For testing purposes
     @Inject
     public UsagePointConfigurationServiceImpl(Clock clock, OrmService ormService, EventService eventService, UserService userService,
-                                              ValidationService validationService, NlsService nlsService, MetrologyConfigurationService metrologyConfigurationService) {
+                                              ValidationService validationService, NlsService nlsService, MetrologyConfigurationService metrologyConfigurationService, UpgradeService upgradeService) {
         this();
         setClock(clock);
         setOrmService(ormService);
@@ -82,10 +85,8 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
         setUserService(userService);
         setValidationService(validationService);
         setNlsService(nlsService);
+        setUpgradeService(upgradeService);
         activate();
-        if (!dataModel.isInstalled()) {
-            install();
-        }
     }
 
     Module getModule() {
@@ -107,11 +108,59 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     @Activate
     public void activate() {
         dataModel.register(getModule());
+
+        upgradeService.register(InstallIdentifier.identifier(UsagePointConfigurationService.COMPONENTNAME), dataModel, Installer.class, ImmutableMap.of(
+                version(10, 2), UpgraderV10_2.class
+        ));
     }
 
-    @Override
-    public void install() {
-        new Installer(dataModel, eventService).install(true, true);
+
+
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
+    }
+
+    @Reference
+    public void setMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
+        this.metrologyConfigurationService = metrologyConfigurationService;
+    }
+
+    @Reference
+    public void setEventService(EventService eventService) {
+        this.eventService = eventService;
+    }
+
+    @Reference
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
+
+    @Reference
+    public void setOrmService(OrmService ormService) {
+        dataModel = ormService.newDataModel(COMPONENTNAME, "Usage Point Configuration");
+        for (TableSpecs spec : TableSpecs.values()) {
+            spec.addTo(dataModel);
+        }
+    }
+
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
+    }
+
+    @Reference
+    public void setValidationService(ValidationService validationService) {
+        this.validationService = validationService;
+    }
+
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(COMPONENTNAME, Layer.DOMAIN);
+    }
+
+    DataModel getDataModel() {
+        return dataModel;
     }
 
     @Override
@@ -143,53 +192,6 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
         Arrays.stream(DefaultTranslationKey.values()).forEach(translationKeys::add);
         Arrays.stream(Privileges.values()).forEach(translationKeys::add);
         return translationKeys;
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "EVT", "MTR", "VAL", NlsService.COMPONENTNAME, CustomPropertySetService.COMPONENT_NAME);
-    }
-
-    @Reference
-    public void setClock(Clock clock) {
-        this.clock = clock;
-    }
-
-    @Reference
-    public void setMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
-        this.metrologyConfigurationService = metrologyConfigurationService;
-    }
-
-    @Reference
-    public void setEventService(EventService eventService) {
-        this.eventService = eventService;
-    }
-
-    @Reference
-    public void setUserService(UserService userService) {
-        this.userService = userService;
-    }
-
-    @Reference
-    public void setOrmService(OrmService ormService) {
-        dataModel = ormService.newDataModel(COMPONENTNAME, "Usage Point Configuration");
-        for (TableSpecs spec : TableSpecs.values()) {
-            spec.addTo(dataModel);
-        }
-    }
-
-    @Reference
-    public void setValidationService(ValidationService validationService) {
-        this.validationService = validationService;
-    }
-
-    @Reference
-    public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(COMPONENTNAME, Layer.DOMAIN);
-    }
-
-    DataModel getDataModel() {
-        return dataModel;
     }
 
     @Override
