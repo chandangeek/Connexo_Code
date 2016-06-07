@@ -537,7 +537,7 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    @Ignore
+    @Ignore // This test fails: JIRA CXO-1970!!!!!
     public void testUnLinkSlaveWithProfileData(){
         setUpForDataLoggerEnabledDevice();
         setUpForSlaveHavingLoadProfiles();
