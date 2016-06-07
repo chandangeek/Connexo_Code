@@ -209,7 +209,7 @@ public class GetMeterReadingsHandler implements GetMeterReadingsPort {
 
     private Map<Range<Instant>, ChannelsContainer> getMeterActivationsPerInterval(Meter meter, Range<Instant> range) {
         Map<Range<Instant>, ChannelsContainer> map = new HashMap<>();
-        for (ChannelsContainer channelsContainer : meter.getChannelContainers()) {
+        for (ChannelsContainer channelsContainer : meter.getChannelsContainers()) {
             if (channelsContainer.overlaps(range)) {
                 map.put(intersection(channelsContainer, range).get(), channelsContainer);
             }
