@@ -18,6 +18,7 @@ import com.energyict.mdc.device.data.rest.LogLevelAdapter;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageAttributes;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import javax.annotation.security.RolesAllowed;
@@ -109,5 +110,21 @@ public class DeviceFieldResource extends FieldResource {
                 .getAllValues();
 
         return asJsonArrayObjectWithTranslation("calendarTypes", "calendarType", calendarTypes);
+    }
+
+    @GET @Transactional
+    @Path("/contracts")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
+    public Object getContracts() {
+        List contracts = deviceMessageSpecificationService
+                .findMessageSpecById(DeviceMessageId.ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_CONTRACT.dbValue())
+                .get()
+                .getPropertySpec(DeviceMessageConstants.contractAttributeName)
+                .get()
+                .getPossibleValues()
+                .getAllValues();
+
+        return asJsonArrayObjectWithTranslation("contracts", "contracts", contracts);
     }
 }
