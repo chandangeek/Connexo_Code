@@ -290,7 +290,7 @@ public class ValidationResource {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
 
         List<? extends ValidationRule> rules;
-        if (queryParameters.size() == 0) {
+        if (queryParameters.size() == 0 || queryParameters.getStartInt() == 0) {
             rules = ruleSetVersion.getRules();
         } else {
             rules = ruleSetVersion.getRules(queryParameters.getStartInt(), queryParameters.getLimit());

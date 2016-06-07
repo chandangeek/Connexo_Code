@@ -1,12 +1,10 @@
 package com.elster.jupiter.validation.rest;
 
 import com.elster.jupiter.validation.ValidationRuleSet;
-import com.elster.jupiter.validation.ValidationRuleSetVersion;
 import com.elster.jupiter.validation.ValidationVersionStatus;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Optional;
 
 @XmlRootElement
@@ -20,8 +18,6 @@ public class ValidationRuleSetInfo {
     public int numberOfVersions;
     public Boolean hasCurrent;
     public long version;
-    public ValidationRuleSetVersionInfo currentVersion;
-    public List<ValidationRuleInfo> validationRules;
 
 	public ValidationRuleSetInfo(ValidationRuleSet validationRuleSet) {
         id = validationRuleSet.getId();
@@ -38,12 +34,6 @@ public class ValidationRuleSetInfo {
                 });
         numberOfVersions = validationRuleSet.getRuleSetVersions().size();
         version = validationRuleSet.getVersion();
-    }
-
-    public ValidationRuleSetInfo(ValidationRuleSet validationRuleSet, ValidationRuleSetVersion currentVersion, List<ValidationRuleInfo> validationRules) {
-        this(validationRuleSet);
-        this.currentVersion = new ValidationRuleSetVersionInfo(currentVersion);
-        this.validationRules = validationRules;
     }
 
     public ValidationRuleSetInfo() {
