@@ -44,7 +44,9 @@ import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
+import com.energyict.mdc.device.data.kpi.DataValidationKpiService;
 import com.energyict.mdc.device.data.kpi.rest.DataCollectionKpiInfoFactory;
+import com.energyict.mdc.device.data.kpi.rest.DataValidationKpiInfoFactory;
 import com.energyict.mdc.device.data.kpi.rest.KpiResource;
 import com.energyict.mdc.device.data.rest.DeviceInfoFactory;
 import com.energyict.mdc.device.data.rest.DeviceMessageStatusTranslationKeys;
@@ -117,6 +119,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     private volatile CommunicationTaskReportService communicationTaskReportService;
     private volatile FavoritesService favoritesService;
     private volatile DataCollectionKpiService dataCollectionKpiService;
+    private volatile DataValidationKpiService dataValidationKpiService;
     private volatile License license;
     private volatile FirmwareService firmwareService;
     private volatile DeviceLifeCycleService deviceLifeCycleService;
@@ -433,6 +436,11 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     }
 
     @Reference
+    public void setDataValidationKpiService(DataValidationKpiService dataValidationKpiService){
+        this.dataValidationKpiService = dataValidationKpiService;
+    }
+
+    @Reference
     public void setFirmwareService(FirmwareService firmwareService) {
         this.firmwareService = firmwareService;
     }
@@ -497,8 +505,10 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(DeviceConnectionTaskInfoFactory.class).to(DeviceConnectionTaskInfoFactory.class);
             bind(DeviceComTaskExecutionInfoFactory.class).to(DeviceComTaskExecutionInfoFactory.class);
             bind(DataCollectionKpiInfoFactory.class).to(DataCollectionKpiInfoFactory.class);
+            bind(DataValidationKpiInfoFactory.class).to(DataValidationKpiInfoFactory.class);
             bind(DeviceGroupInfoFactory.class).to(DeviceGroupInfoFactory.class);
             bind(dataCollectionKpiService).to(DataCollectionKpiService.class);
+            bind(dataValidationKpiService).to(DataValidationKpiService.class);
             bind(firmwareService).to(FirmwareService.class);
             bind(DeviceLifeCycleStateFactory.class).to(DeviceLifeCycleStateFactory.class);
             bind(DeviceInfoFactory.class).to(DeviceInfoFactory.class);

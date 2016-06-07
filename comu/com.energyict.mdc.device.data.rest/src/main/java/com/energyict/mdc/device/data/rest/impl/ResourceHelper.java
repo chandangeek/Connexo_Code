@@ -28,7 +28,10 @@ import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
+import com.energyict.mdc.device.data.kpi.DataValidationKpi;
+import com.energyict.mdc.device.data.kpi.DataValidationKpiService;
 import com.energyict.mdc.device.data.kpi.rest.DataCollectionKpiInfo;
+import com.energyict.mdc.device.data.kpi.rest.DataValidationKpiInfo;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -40,6 +43,7 @@ import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
@@ -74,6 +78,7 @@ public class ResourceHelper {
     private final DeviceMessageService deviceMessageService;
     private final ProtocolPluggableService protocolPluggableService;
     private final DataCollectionKpiService dataCollectionKpiService;
+    private final DataValidationKpiService dataValidationKpiService;
     private final EstimationService estimationService;
     private final MasterDataService masterDataService;
     private final MdcPropertyUtils mdcPropertyUtils;
@@ -81,7 +86,8 @@ public class ResourceHelper {
     private final Clock clock;
 
     @Inject
-    public ResourceHelper(DeviceService deviceService, ExceptionFactory exceptionFactory, ConcurrentModificationExceptionFactory conflictFactory, DeviceConfigurationService deviceConfigurationService, LoadProfileService loadProfileService, CommunicationTaskService communicationTaskService, MeteringGroupsService meteringGroupsService, ConnectionTaskService connectionTaskService, DeviceMessageService deviceMessageService, ProtocolPluggableService protocolPluggableService, DataCollectionKpiService dataCollectionKpiService, EstimationService estimationService, MdcPropertyUtils mdcPropertyUtils, CustomPropertySetService customPropertySetService, Clock clock, MasterDataService masterDataService) {
+    public ResourceHelper(DeviceService deviceService, ExceptionFactory exceptionFactory, ConcurrentModificationExceptionFactory conflictFactory, DeviceConfigurationService deviceConfigurationService, LoadProfileService loadProfileService, CommunicationTaskService communicationTaskService, MeteringGroupsService meteringGroupsService, ConnectionTaskService connectionTaskService, DeviceMessageService deviceMessageService, ProtocolPluggableService protocolPluggableService, DataCollectionKpiService dataCollectionKpiService, EstimationService estimationService, MdcPropertyUtils mdcPropertyUtils, CustomPropertySetService customPropertySetService, Clock clock,
+                          MasterDataService masterDataService, DataValidationKpiService dataValidationKpiService) {
         super();
         this.deviceService = deviceService;
         this.exceptionFactory = exceptionFactory;
@@ -99,6 +105,7 @@ public class ResourceHelper {
         this.mdcPropertyUtils = mdcPropertyUtils;
         this.customPropertySetService = customPropertySetService;
         this.clock = clock;
+        this.dataValidationKpiService = dataValidationKpiService;
     }
 
     public Long getCurrentDeviceConfigurationVersion(long id) {
@@ -393,8 +400,17 @@ public class ResourceHelper {
                 .orElseThrow(() -> new WebApplicationException("No DeviceProtocolPluggableClass with id " + id, Response.Status.NOT_FOUND));
     }
 
+    public DataValidationKpi findDataValidationKpiByIdOrThrowException(long id) {
+        return dataValidationKpiService.findDataValidationKpi(id)
+                .orElseThrow(() -> new WebApplicationException("No DeviceProtocolPluggableClass with id " + id, Response.Status.NOT_FOUND));
+    }
+
     public Long getCurrentDataCollectionKpiVersion(long id) {
         return dataCollectionKpiService.findDataCollectionKpi(id).map(DataCollectionKpi::getVersion).orElse(null);
+    }
+
+    public Long getCurrentDataValidationKpiVersion(long id) {
+        return dataValidationKpiService.findDataValidationKpi(id).map(DataValidationKpi::getVersion).orElse(null);
     }
 
     public Optional<DataCollectionKpi> getLockedDataCollectionKpi(long id, long version) {
@@ -405,6 +421,17 @@ public class ResourceHelper {
         return getLockedDataCollectionKpi(info.id, info.version)
                 .orElseThrow(conflictFactory.contextDependentConflictOn(info.deviceGroup.name)
                         .withActualVersion(() -> getCurrentDataCollectionKpiVersion(info.id))
+                        .supplier());
+    }
+
+    public Optional<DataValidationKpi> getLockedDataValidationKpi(long id, long version) {
+        return dataValidationKpiService.findAndLockDataValidationKpiByIdAndVersion(id, version);
+    }
+
+    public DataValidationKpi lockDataValidationKpiOrThrowException(DataValidationKpiInfo info) {
+        return getLockedDataValidationKpi(info.id, info.version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(info.deviceGroup.name)
+                        .withActualVersion(() -> getCurrentDataValidationKpiVersion(info.id))
                         .supplier());
     }
 

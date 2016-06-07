@@ -6,11 +6,13 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
+import com.energyict.mdc.device.data.kpi.DataValidationKpi;
+import com.energyict.mdc.device.data.kpi.DataValidationKpiService;
 import com.energyict.mdc.device.data.rest.impl.MessageSeeds;
 import com.energyict.mdc.device.data.rest.impl.ResourceHelper;
 import com.energyict.mdc.device.data.security.Privileges;
@@ -41,18 +43,23 @@ import static java.util.stream.Collectors.toList;
 public class KpiResource {
 
     private final DataCollectionKpiService dataCollectionKpiService;
+    private final DataValidationKpiService dataValidationKpiService;
     private final DataCollectionKpiInfoFactory dataCollectionKpiInfoFactory;
+    private final DataValidationKpiInfoFactory dataValidationKpiInfoFactory;
     private final ExceptionFactory exceptionFactory;
     private final MeteringGroupsService meteringGroupsService;
     private final ResourceHelper resourceHelper;
 
     @Inject
-    public KpiResource(DataCollectionKpiService dataCollectionKpiService, DataCollectionKpiInfoFactory dataCollectionKpiInfoFactory, ExceptionFactory exceptionFactory, MeteringGroupsService meteringGroupsService, Thesaurus thesaurus, ResourceHelper resourceHelper) {
+    public KpiResource(DataCollectionKpiService dataCollectionKpiService, DataCollectionKpiInfoFactory dataCollectionKpiInfoFactory, ExceptionFactory exceptionFactory, MeteringGroupsService meteringGroupsService, Thesaurus thesaurus,
+                       ResourceHelper resourceHelper, DataValidationKpiService dataValidationKpiService, DataValidationKpiInfoFactory dataValidationKpiInfoFactory) {
         this.dataCollectionKpiService = dataCollectionKpiService;
         this.dataCollectionKpiInfoFactory = dataCollectionKpiInfoFactory;
         this.exceptionFactory = exceptionFactory;
         this.meteringGroupsService = meteringGroupsService;
         this.resourceHelper = resourceHelper;
+        this.dataValidationKpiService = dataValidationKpiService;
+        this.dataValidationKpiInfoFactory = dataValidationKpiInfoFactory;
     }
 
     @GET
@@ -138,6 +145,70 @@ public class KpiResource {
 
         DataCollectionKpi dataCollectionKpi = dataCollectionKpiBuilder.save();
         return Response.status(Response.Status.CREATED).entity(dataCollectionKpiInfoFactory.from(dataCollectionKpi)).build();
+    }
+
+    @GET
+    @Transactional
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Path("/datavalidation")
+    //TODO privilege for view data validation kpi
+//    @RolesAllowed({Privileges.Constants.VIEW_DATA_COLLECTION_KPI, Privileges.Constants.ADMINISTER_DATA_COLLECTION_KPI})
+    public PagedInfoList getAllDataValidationKpis(@BeanParam JsonQueryParameters queryParameters) {
+        List<DataValidationKpiInfo> collection = dataValidationKpiService.dataValidationKpiFinder()
+                .from(queryParameters)
+                .stream()
+                .map(dataValidationKpiInfoFactory::from)
+                .collect(toList());
+
+        return PagedInfoList.fromPagedList("kpis", collection, queryParameters);
+    }
+
+    @GET
+    @Transactional
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Path("/datavalidation/{id}")
+    //TODO privilege for view data validation kpi
+//    @RolesAllowed({Privileges.Constants.VIEW_DATA_COLLECTION_KPI, Privileges.Constants.ADMINISTER_DATA_COLLECTION_KPI})
+    public DataValidationKpiInfo getDataValidationKpiById(@PathParam("id") long id) {
+        DataValidationKpi dataValidationKpi = resourceHelper.findDataValidationKpiByIdOrThrowException(id);
+        return dataValidationKpiInfoFactory.from(dataValidationKpi);
+    }
+
+    @DELETE
+    @Transactional
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Path("/datavalidation/{id}")
+    //TODO privilege for administrate data validation kpi
+//    @RolesAllowed({Privileges.Constants.ADMINISTER_DATA_COLLECTION_KPI})
+    public Response deleteDataValidationKpi(@PathParam("id") long id, DataValidationKpiInfo info) {
+        info.id = id;
+        resourceHelper.lockDataValidationKpiOrThrowException(info).delete();
+        return Response.ok().build();
+    }
+
+    @POST
+    @Transactional
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Path("/datavalidation")
+    //TODO privilege for view data validation kpi
+//    @RolesAllowed({Privileges.Constants.ADMINISTER_DATA_COLLECTION_KPI})
+    public Response createDataValidationKpi(DataValidationKpiInfo kpiInfo) {
+
+        EndDeviceGroup endDeviceGroup = null;
+        if (kpiInfo.deviceGroup != null && kpiInfo.deviceGroup.id != null) {
+            endDeviceGroup = meteringGroupsService.findEndDeviceGroup(kpiInfo.deviceGroup.id).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_DEVICE_GROUP, kpiInfo.deviceGroup.id));
+        }
+        DataValidationKpiService.DataValidationKpiBuilder dataValidationKpiBuilder = dataValidationKpiService.newDataValidationKpi(endDeviceGroup);
+        if (kpiInfo.frequency != null && kpiInfo.frequency.every != null && kpiInfo.frequency.every.asTimeDuration() != null) {
+            dataValidationKpiBuilder.frequency(kpiInfo.frequency.every.asTimeDuration().asTemporalAmount());
+        }
+
+        DataValidationKpi dataValidationKpi = dataValidationKpiBuilder.build();
+        return Response.status(Response.Status.CREATED).entity(dataValidationKpiInfoFactory.from(dataValidationKpi)).build();
     }
 
     @PUT
