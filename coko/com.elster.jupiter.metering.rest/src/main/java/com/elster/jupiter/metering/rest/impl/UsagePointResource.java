@@ -257,13 +257,12 @@ public class UsagePointResource {
     @Path("/{mRID}/history/metrologyconfiguration")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public PagedInfoList getUsagePointMetrologyConfigurationHistory(@PathParam("mRID") String mRID,
-                                                                    @Context SecurityContext securityContext,
                                                                     @BeanParam JsonQueryParameters queryParameters) {
         UsagePoint usagePoint = fetchUsagePoint(mRID);
         List<EffectiveMetrologyConfigurationOnUsagePointInfo> infos = usagePoint
                 .getEffectiveMetrologyConfigurations()
                 .stream()
-                .sorted((o1, o2) -> o2.getStart().compareTo(o1.getStart()))
+                .sorted(Comparator.comparing(EffectiveMetrologyConfigurationOnUsagePoint::getStart).reversed())
                 .map(EffectiveMetrologyConfigurationOnUsagePointInfo::new)
                 .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("metrologyConfigurationVersions", infos, queryParameters);

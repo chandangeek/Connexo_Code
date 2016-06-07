@@ -40,12 +40,12 @@ public class UsagePointInfo {
         modTime = usagePoint.getModificationDate().toEpochMilli();
         location = usagePoint.getLocation().map(Location::toString).orElse(usagePoint.getGeoCoordinates()
                 .map(coordinates -> coordinates.getCoordinates().toString()).orElse(""));
-        meterActivation = usagePoint.getCurrentMeterActivation().isPresent()
-                ? new MeterActivationInfo(usagePoint.getCurrentMeterActivation().get())
-                : null;
-        metrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration().isPresent()
-                ? new EffectiveMetrologyConfigurationOnUsagePointInfo(usagePoint.getCurrentEffectiveMetrologyConfiguration().get())
-                : null;
+        meterActivation = usagePoint.getCurrentMeterActivation()
+                .map(MeterActivationInfo::new)
+                .orElse(null);
+        metrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration()
+                .map(EffectiveMetrologyConfigurationOnUsagePointInfo::new)
+                .orElse(null);
     }
 
     public void writeTo(UsagePoint usagePoint) {

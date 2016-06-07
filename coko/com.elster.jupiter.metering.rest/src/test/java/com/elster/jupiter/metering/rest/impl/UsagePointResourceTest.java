@@ -1,17 +1,25 @@
 package com.elster.jupiter.metering.rest.impl;
 
 
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointBuilder;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.users.User;
+
+import com.jayway.jsonpath.JsonModel;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.Before;
@@ -19,6 +27,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.never;
@@ -62,7 +71,30 @@ public class UsagePointResourceTest extends MeteringApplicationJerseyTest {
         when(usagePoint.getLocation()).thenReturn(Optional.empty());
         when(usagePoint.getGeoCoordinates()).thenReturn(Optional.empty());
         when(usagePoint.getMetrologyConfiguration()).thenReturn(Optional.empty());
+        when(usagePoint.getCurrentMeterActivation()).thenReturn(Optional.empty());
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint =  mockEffectiveMetrologyConfiguration();
+        when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfigurationOnUsagePoint));
     }
+
+    private EffectiveMetrologyConfigurationOnUsagePoint mockEffectiveMetrologyConfiguration() {
+        MetrologyConfiguration config = mockMetrologyConfiguration(1L, "MC-1", "13.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
+        EffectiveMetrologyConfigurationOnUsagePoint mock = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
+        when(mock.getMetrologyConfiguration()).thenReturn(config);
+        return mock;
+    }
+
+    private MetrologyConfiguration mockMetrologyConfiguration(long id, String name, String readingTypeMRID) {
+        MetrologyConfiguration mock = mock(MetrologyConfiguration.class);
+        when(mock.getId()).thenReturn(id);
+        when(mock.getName()).thenReturn(name);
+        when(mock.getDescription()).thenReturn("some description");
+        ReadingType readingType = mockReadingType(readingTypeMRID);
+        ReadingTypeDeliverable deliverable = mock(ReadingTypeDeliverable.class);
+        when(deliverable.getReadingType()).thenReturn(readingType);
+        when(mock.getDeliverables()).thenReturn(Collections.singletonList(deliverable));
+        return mock;
+    }
+
 
     @Test
     public void testGetUsagePointInfo() {
@@ -100,6 +132,22 @@ public class UsagePointResourceTest extends MeteringApplicationJerseyTest {
         verify(usagePoint, times(1)).setName("upd");
         verify(usagePoint, times(1)).setInstallationTime(any(Instant.class));
         verify(usagePoint, times(1)).update();
+    }
+
+    @Test
+    public void testGetUsagePointMetrologyConfigurationHistory() {
+        when(meteringService.findUsagePoint(1L)).thenReturn(Optional.of(usagePoint));
+        List<EffectiveMetrologyConfigurationOnUsagePoint> configs = Collections.singletonList(mockEffectiveMetrologyConfiguration());
+
+        when(usagePoint.getEffectiveMetrologyConfigurations()).thenReturn(configs);
+
+        String json = target("usagepoints/1/history/metrologyconfiguration").request().get(String.class);
+
+        //Asserts
+        JsonModel jsonModel = JsonModel.create(json);
+        assertThat(jsonModel.<Number>get("$.total")).isEqualTo(1);
+        assertThat(jsonModel.<Number>get("$.metrologyConfigurationVersions[0].id")).isEqualTo(1);
+        assertThat(jsonModel.<String>get("$.metrologyConfigurationVersions[0].name")).isEqualTo("MC-1");
     }
 
 }
