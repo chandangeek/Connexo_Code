@@ -200,11 +200,6 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
     }
 
     @Override
-    public Optional<MetrologyContract> findMetrologyContract(long id) {
-        return this.getDataModel().mapper(MetrologyContract.class).getOptional(id);
-    }
-
-    @Override
     public ServerFormulaBuilder newFormulaBuilder(Formula.Mode mode) {
         return new FormulaBuilderImpl(mode, getDataModel(), getThesaurus());
     }

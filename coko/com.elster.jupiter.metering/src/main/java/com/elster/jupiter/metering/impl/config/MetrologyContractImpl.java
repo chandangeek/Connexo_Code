@@ -11,6 +11,7 @@ import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.config.ReadingTypeRequirementChecker;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -139,15 +140,10 @@ public class MetrologyContractImpl implements MetrologyContract {
     }
 
     @Override
-    public void save() {
+    public void update() {
         if (this.getId() > 0) {
             this.metrologyConfigurationService.getDataModel().touch(this);
         }
-    }
-
-    @Override
-    public long getId() {
-        return id;
     }
 
     @Override

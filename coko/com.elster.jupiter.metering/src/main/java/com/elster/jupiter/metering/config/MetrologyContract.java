@@ -48,9 +48,7 @@ public interface MetrologyContract extends HasId {
 
     long getVersion();
 
-    void save();
-
-    long getId();
+    void update();
 
     interface Status {
 
