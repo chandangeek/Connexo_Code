@@ -339,9 +339,8 @@ public class EstimationResource {
     public PagedInfoList getEstimationTasks(@Context UriInfo uriInfo,
                                             @HeaderParam(APPLICATION_HEADER_PARAM) String applicationName,
                                             @BeanParam JsonQueryParameters queryParameters) {
-        List<EstimationTaskInfo> infos = estimationService.findEstimationTasks()
+        List<EstimationTaskInfo> infos = estimationService.findEstimationTasks(applicationName)
                 .stream()
-                .filter(task -> task.getApplication().equals(applicationName))
                 .map(et -> new EstimationTaskInfo(et, thesaurus))
                 .collect(Collectors.toList());
 
