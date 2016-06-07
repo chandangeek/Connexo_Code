@@ -57,7 +57,6 @@ public interface EndDevice extends IdentifiedObject {
 
     Optional<HeadEndInterface> getHeadEndInterface();
 
-
     EndDeviceEventRecordBuilder addEventRecord(EndDeviceEventType type, Instant instant);
 
     List<EndDeviceEventRecord> getDeviceEvents(Range<Instant> range);

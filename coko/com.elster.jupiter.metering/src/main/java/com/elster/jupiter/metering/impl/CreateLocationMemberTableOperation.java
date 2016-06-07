@@ -11,13 +11,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 @LiteralSql
 public final class CreateLocationMemberTableOperation {
-
-    private static final Logger LOG = Logger.getLogger(CreateLocationMemberTableOperation.class.getName());
 
     private final DataModel dataModel;
     private final LocationTemplate locationTemplate;
@@ -34,27 +29,20 @@ public final class CreateLocationMemberTableOperation {
             locationTemplate.getTemplateMembers().stream().filter(templateMember -> !templateMember.getName().equalsIgnoreCase("locale"))
                     .forEach(column -> {
                         if (column.getRanking() < locationTemplate.getTemplateMembers().size() / 2) {
-                            PreparedStatement setIndexesStatement = buildStatement(conn, setIndexesSQL(column.getName()));
-                            PreparedStatement setIndexesForVirtualColumnsStatement = buildStatement(conn, setIndexesSQL("upper" + column
+                            try (
+                                    PreparedStatement setIndexesStatement = buildStatement(conn, setIndexesSQL(column.getName()));
+                                    PreparedStatement setIndexesForVirtualColumnsStatement = buildStatement(conn, setIndexesSQL("upper" + column
                                     .getName()));
-                            try {
+                            ) {
                                 setIndexesStatement.execute();
                                 setIndexesForVirtualColumnsStatement.execute();
-                            } catch (SQLException sqlEx) {
-                                LOG.log(Level.SEVERE, "Unable to create indexes for MTR_LOCATIONMEMBER table", sqlEx);
-                            } finally {
-                                try {
-                                    setIndexesStatement.close();
-                                    setIndexesForVirtualColumnsStatement.close();
-                                } catch (SQLException e) {
-                                    throw new UnderlyingSQLFailedException(e);
-                                }
-
+                            } catch (SQLException e) {
+                                throw new UnderlyingSQLFailedException(e);
                             }
                         }
                     });
-        } catch (SQLException sqlEx) {
-            LOG.log(Level.SEVERE, "Unable to set MTR_LOCATIONMEMBER table", sqlEx);
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
         }
     }
 
