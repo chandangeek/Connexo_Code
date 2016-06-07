@@ -41,6 +41,9 @@ public class EndPointConfigurationServiceImpl implements EndPointConfigurationSe
     private volatile Thesaurus thesaurus;
     private volatile EventService eventService;
 
+    // OSGi
+    public EndPointConfigurationServiceImpl() {
+    }
 
     @Inject // Test purposes only
     public EndPointConfigurationServiceImpl(EventService eventService, NlsService nlsService, OrmService ormService) {

@@ -4,7 +4,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointProvider;
-import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.SoapProviderSupportFactory;
 import com.elster.jupiter.soap.whiteboard.cxf.WebService;
@@ -37,6 +36,10 @@ public class WebServicesServiceImpl implements WebServicesService {
     private volatile SoapProviderSupportFactory soapProviderSupportFactory;
     private volatile BundleContext bundleContext;
     private volatile DataModel dataModel;
+
+    // OSGi
+    public WebServicesServiceImpl() {
+    }
 
     @Inject // For test purposes only
     public WebServicesServiceImpl(SoapProviderSupportFactory soapProviderSupportFactory, OrmService ormService) {
@@ -76,7 +79,6 @@ public class WebServicesServiceImpl implements WebServicesService {
             ManagedEndpoint managedEndpoint = webServices.get(endPointConfiguration.getWebServiceName())
                     .createEndpoint(endPointConfiguration);
             managedEndpoint.publish();
-            endPointConfiguration.log(LogLevel.INFO, "Endpoint was published on local appserver");
             endpoints.put(endPointConfiguration, managedEndpoint);
         } else {
             logger.warning("Could not publish " + endPointConfiguration.getName() + ": the required web service '" + endPointConfiguration
@@ -89,7 +91,6 @@ public class WebServicesServiceImpl implements WebServicesService {
         ManagedEndpoint endpoint = endpoints.remove(endPointConfiguration);
         if (endpoint != null) {
             endpoint.stop();
-            endPointConfiguration.log(LogLevel.INFO, "Endpoint was revoked from local appserver");
         }
     }
 
