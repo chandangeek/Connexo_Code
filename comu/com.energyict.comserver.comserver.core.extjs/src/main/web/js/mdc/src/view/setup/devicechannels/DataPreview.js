@@ -628,7 +628,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                 }
             },
             {
-                title: Uni.I18n.translate('devicechannelsdata.dataqualitytab.title', 'MDC', 'Data quality'),
+                title: Uni.I18n.translate('devicechannelsdata.readingqualitytab.title', 'MDC', 'Reading quality'),
                 items: {
                     xtype: 'form',
                     itemId: 'mdc-qualities-panel',

@@ -95,7 +95,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainPreview', {
                 }
             },
             {
-                title: Uni.I18n.translate('registerdata.dataqualitytab.title', 'MDC', 'Data quality'),
+                title: Uni.I18n.translate('registerdata.readingqualitytab.title', 'MDC', 'Reading quality'),
                 items: {
                     xtype: 'form',
                     itemId: 'mdc-register-qualities-form',
