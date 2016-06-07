@@ -14,7 +14,7 @@ Ext.define('Mdc.timeofuseondevice.view.SendCalendarForm', {
     defaults: {
         labelWidth: 250
     },
-    deviceTypeId: null,
+    mRID: null,
     initComponent: function () {
         var me = this;
         me.content = [
@@ -42,6 +42,7 @@ Ext.define('Mdc.timeofuseondevice.view.SendCalendarForm', {
                             displayField: 'name',
                             name: 'calendar',
                             valueField: 'id',
+                            allowBlank: false,
                             store: 'Mdc.timeofuseondevice.store.AllowedCalendars',
                             emptyText: Uni.I18n.translate('timeofuse.selectCalendar', 'MDC', 'Select a time of use calendar...'),
                             width: 500,
@@ -71,6 +72,11 @@ Ext.define('Mdc.timeofuseondevice.view.SendCalendarForm', {
                                         whiteSpace: 'nowrap'
                                     }
                                 },
+                                listeners: {
+                                    change: function (field, newValue, oldValue) {
+                                        me.down('#release-date-values').setDisabled(!newValue.releaseDate)
+                                    }
+                                },
                                 items: [
                                     {
                                         itemId: 'no-release-date',
@@ -83,7 +89,8 @@ Ext.define('Mdc.timeofuseondevice.view.SendCalendarForm', {
                                         boxLabel: Uni.I18n.translate('general.on', 'MDC', 'On'),
                                         inputValue: true
                                     }
-                                ]
+                                ],
+
                             },
                             {
                                 itemId: 'release-date-values',
@@ -91,6 +98,7 @@ Ext.define('Mdc.timeofuseondevice.view.SendCalendarForm', {
                                 name: 'releaseDateValues',
                                 margin: '30 0 10 -40',
                                 layout: 'hbox',
+                                disabled: true,
                                 items: [
                                     {
                                         xtype: 'date-time',
@@ -137,6 +145,11 @@ Ext.define('Mdc.timeofuseondevice.view.SendCalendarForm', {
                                         whiteSpace: 'nowrap'
                                     }
                                 },
+                                listeners: {
+                                    change: function (field, newValue, oldValue) {
+                                        me.down('#activation-date-values').setDisabled(newValue.activateCalendar !== 'on-date-activation')
+                                    }
+                                },
                                 items: [
                                     {
                                         itemId: 'no-activation-date',
@@ -161,6 +174,7 @@ Ext.define('Mdc.timeofuseondevice.view.SendCalendarForm', {
                                 xtype: 'fieldcontainer',
                                 name: 'activationDateValues',
                                 margin: '55 0 10 -40',
+                                disabled: true,
                                 layout: 'hbox',
                                 items: [
                                     {
@@ -194,9 +208,23 @@ Ext.define('Mdc.timeofuseondevice.view.SendCalendarForm', {
                         hidden: !Mdc.dynamicprivileges.DeviceState.typeSupported() ,
                         displayField: 'localizedValue',
                         valueField: 'calendarType',
+                        allowBlank: !Mdc.dynamicprivileges.DeviceState.typeSupported(),
                         name: 'type',
                         store: 'Mdc.timeofuseondevice.store.CalendarTypes',
                         emptyText: Uni.I18n.translate('timeofuse.selectType', 'MDC', 'Select a type...'),
+                        width: 500
+                    },
+                    {
+                        xtype: 'combo',
+                        fieldLabel: Uni.I18n.translate('timeOfUse.contract', 'MDC', 'Contract'),
+                        required: Mdc.dynamicprivileges.DeviceState.contractSupported(),
+                        hidden: !Mdc.dynamicprivileges.DeviceState.contractSupported() ,
+                        displayField: 'localizedValue',
+                        valueField: 'contract',
+                        name: 'contract',
+                        allowBlank: !Mdc.dynamicprivileges.DeviceState.contractSupported(),
+                        store: 'Mdc.timeofuseondevice.store.CalendarContracts',
+                        emptyText: Uni.I18n.translate('timeofuse.selectType', 'MDC', 'Select a contract...'),
                         width: 500
                     },
                     {
@@ -232,6 +260,27 @@ Ext.define('Mdc.timeofuseondevice.view.SendCalendarForm', {
                                 itemId: 'only-activity-calendar',
                                 boxLabel: Uni.I18n.translate('timeofuse.onlyActivityCalendar', 'MDC', 'Only activity calendar'),
                                 inputValue: 'only-activity-calendar'
+                            }
+                        ]
+                    },
+                    {
+                        xtype: 'fieldcontainer',
+                        ui: 'actions',
+                        fieldLabel: '&nbsp',
+                        layout: 'hbox',
+                        items: [
+                            {
+                                xtype: 'button',
+                                itemId: 'tou-save-calendar-command-button',
+                                text: Uni.I18n.translate('general.save', 'MDC', 'Save'),
+                                ui: 'action'
+                            },
+                            {
+                                xtype: 'button',
+                                itemId: 'tou-calendar-command-cancel-link',
+                                text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
+                                ui: 'link',
+                                href: '#/devices/' + me.mRID + '/timeofuse'
                             }
                         ]
                     }

@@ -3,7 +3,8 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
 
     stores: [
         'Mdc.timeofuseondevice.store.AllowedCalendars',
-        'Mdc.timeofuseondevice.store.CalendarTypes'
+        'Mdc.timeofuseondevice.store.CalendarTypes',
+        'Mdc.timeofuseondevice.store.CalendarContracts'
     ],
 
     views: [
@@ -17,7 +18,15 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
         'Uni.model.timeofuse.Calendar',
         'Mdc.timeofuseondevice.model.CalendarOnDevice',
         'Mdc.timeofuseondevice.model.NextPassiveCalendar',
-        'Mdc.timeofuseondevice.model.CalendarType'
+        'Mdc.timeofuseondevice.model.CalendarType',
+        'Mdc.timeofuseondevice.model.CalendarContract'
+    ],
+
+    refs: [
+        {
+            ref: 'sendCalendarForm',
+            selector: 'tou-device-send-cal-form form'
+        }
     ],
 
     init: function () {
@@ -25,6 +34,9 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
         this.control({
             'tou-device-action-menu': {
                 click: me.chooseAction
+            },
+            'tou-device-send-cal-form #tou-save-calendar-command-button': {
+                click: me.saveCommand
             }
         });
     },
@@ -171,6 +183,21 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
                 me.getApplication().fireEvent('changecontentevent', view);
             }
         });
+    },
+    
+    saveCommand: function () {
+        var me = this,
+            form = me.getSendCalendarForm(),
+            formErrorsPanel = form.down('#form-errors'),
+            record,
+            id;
+
+        formErrorsPanel.hide();
+
+        if (!form.isValid()) {
+            formErrorsPanel.show();
+        } else {
+        }
     }
 });
 

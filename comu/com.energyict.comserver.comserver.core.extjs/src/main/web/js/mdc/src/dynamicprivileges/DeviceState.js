@@ -86,6 +86,11 @@ Ext.define('Mdc.dynamicprivileges.DeviceState', {
             && (Uni.DynamicPrivileges.checkDynamicPrivileges(Mdc.dynamicprivileges.DeviceState.sendSpecialDays)
             || Uni.DynamicPrivileges.checkDynamicPrivileges(Mdc.dynamicprivileges.DeviceState.sendSpecialDaysWithType)
             || Uni.DynamicPrivileges.checkDynamicPrivileges(Mdc.dynamicprivileges.DeviceState.sendSpecialDaysWithContractAndDate))
+    },
+
+    contractSupported: function() {
+        return Uni.DynamicPrivileges.checkDynamicPrivileges(Mdc.dynamicprivileges.DeviceState.sendSpecialDaysWithContractAndDate)
+            || Uni.DynamicPrivileges.checkDynamicPrivileges(Mdc.dynamicprivileges.DeviceState.sendWithDateContract)
     }
 
 

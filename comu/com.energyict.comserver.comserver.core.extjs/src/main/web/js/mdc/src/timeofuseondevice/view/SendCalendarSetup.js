@@ -2,7 +2,6 @@ Ext.define('Mdc.timeofuseondevice.view.SendCalendarSetup', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.tou-device-send-cal-setup',
     overflowY: true,
-    mRID: null,
     device: null,
     requires: [
         'Mdc.view.setup.device.DeviceMenu',
@@ -24,7 +23,7 @@ Ext.define('Mdc.timeofuseondevice.view.SendCalendarSetup', {
                 items: [
                     {
                         xtype: 'tou-device-send-cal-form',
-                        mRID: me.mRID
+                        mRID: me.device.get('mRID')
                     }
                 ]
             }
