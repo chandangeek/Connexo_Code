@@ -5,6 +5,8 @@ import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 
+import java.time.Clock;
+
 /**
  * Adds behavior to {@link MeteringService} that is specific
  * to server-side component.
@@ -17,6 +19,8 @@ public interface ServerMeteringService extends MeteringService {
     DataModel getDataModel();
 
     Thesaurus getThesaurus();
+
+    Clock getClock();
 
     EndDeviceEventTypeImpl createEndDeviceEventType(String mRID);
 

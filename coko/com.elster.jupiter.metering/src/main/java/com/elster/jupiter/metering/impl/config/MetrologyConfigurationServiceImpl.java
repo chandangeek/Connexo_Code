@@ -44,6 +44,7 @@ import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.conditions.Where;
 
 import javax.inject.Inject;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -126,6 +127,11 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
     @Override
     public Thesaurus getThesaurus() {
         return this.meteringService.getThesaurus();
+    }
+
+    @Override
+    public Clock getClock() {
+        return this.meteringService.getClock();
     }
 
     @Override

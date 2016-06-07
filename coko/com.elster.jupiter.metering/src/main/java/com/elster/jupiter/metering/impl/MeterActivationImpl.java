@@ -466,7 +466,7 @@ public final class MeterActivationImpl implements IMeterActivation {
     }
 
     @Override
-    public List<ChannelsContainer> getChannelContainers() {
+    public List<ChannelsContainer> getChannelsContainers() {
         return Collections.singletonList(this);
     }
 

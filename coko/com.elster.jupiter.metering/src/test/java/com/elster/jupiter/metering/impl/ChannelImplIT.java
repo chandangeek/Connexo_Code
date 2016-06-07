@@ -194,14 +194,14 @@ public class ChannelImplIT {
         Instant since = clock.instant();
 
         try (TransactionContext context = transactionService.getContext()) {
-            ChannelsContainer channelsContainer = meter.getChannelContainers().get(0);
+            ChannelsContainer channelsContainer = meter.getChannelsContainers().get(0);
             Channel channel = channelsContainer.getChannels().get(0);
             channel.getCimChannel(deltaReadingType).get().editReadings(Collections.singletonList(IntervalReadingImpl.of(ACTIVATION.plusDays(3).toInstant(), BigDecimal.valueOf(5))));
 
             context.commit();
         }
 
-        Channel channel = meter.getChannelContainers().get(0).getChannels().get(0);
+        Channel channel = meter.getChannelsContainers().get(0).getChannels().get(0);
 
         List<BaseReadingRecord> bulkReadingsUpdatedSince = channel.getReadingsUpdatedSince(bulkReadingType, Range.<Instant>all(), since);
         assertThat(bulkReadingsUpdatedSince).isEmpty();

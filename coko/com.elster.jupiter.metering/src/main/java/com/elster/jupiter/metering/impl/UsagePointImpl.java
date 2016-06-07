@@ -32,6 +32,7 @@ import com.elster.jupiter.metering.WaterDetailBuilder;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.impl.config.EffectiveMetrologyConfigurationOnUsagePointImpl;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
@@ -447,7 +448,7 @@ public class UsagePointImpl implements UsagePoint {
         this.metrologyConfiguration.add(
                 this.dataModel
                         .getInstance(EffectiveMetrologyConfigurationOnUsagePointImpl.class)
-                        .initAndSave(this, metrologyConfiguration, when));
+                        .initAndSave(this, (UsagePointMetrologyConfiguration) metrologyConfiguration, when));
     }
 
     @Override

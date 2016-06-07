@@ -149,7 +149,7 @@ public class MeterActivationsImpl implements ReadingContainer {
     }
 
     @Override
-	public List<ChannelsContainer> getChannelContainers() {
-		return Collections.unmodifiableList(meterActivations);
+    public List<ChannelsContainer> getChannelsContainers() {
+        return Collections.unmodifiableList(meterActivations);
     }
 }

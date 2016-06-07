@@ -277,8 +277,8 @@ public class MeterActivationImplIT {
         }
 
         assertThat(meter.getMeterActivations()).hasSize(2);
-        ChannelsContainer first = meter.getChannelContainers().get(0);
-        ChannelsContainer second = meter.getChannelContainers().get(1);
+        ChannelsContainer first = meter.getChannelsContainers().get(0);
+        ChannelsContainer second = meter.getChannelsContainers().get(1);
         assertThat(first.getRange()).isEqualTo(Range.closedOpen(startTime.toInstant(), newCutOff.toInstant()));
         assertThat(second.getRange()).isEqualTo(Range.atLeast(newCutOff.toInstant()));
 

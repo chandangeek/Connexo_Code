@@ -245,7 +245,7 @@ class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter {
     }
 
     @Override
-    public List<ChannelsContainer> getChannelContainers() {
+    public List<ChannelsContainer> getChannelsContainers() {
         return getMeterActivations().stream().map(ChannelsContainer.class::cast).collect(Collectors.toList());
     }
 

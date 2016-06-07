@@ -204,7 +204,7 @@ public class MeterReadingStorer {
     }
 
     private void store(Reading reading) {
-        for (ChannelsContainer channelsContainer : meter.getChannelContainers()) {
+        for (ChannelsContainer channelsContainer : meter.getChannelsContainers()) {
             if (channelsContainer.getInterval().toClosedRange().contains(reading.getTimeStamp())) {
                 store(reading, channelsContainer);
             }
@@ -281,7 +281,7 @@ public class MeterReadingStorer {
     private Channel findOrCreateChannel(IntervalReading reading, ReadingType readingType) {        
         Channel channel = getChannel(reading, readingType);
         if (channel == null) {
-            for (ChannelsContainer channelsContainer : meter.getChannelContainers()) {
+            for (ChannelsContainer channelsContainer : meter.getChannelsContainers()) {
                 if (channelsContainer.getInterval().toOpenClosedRange().contains(reading.getTimeStamp())) {
                     return channelsContainer.createChannel(readingType);
                 }
@@ -294,7 +294,7 @@ public class MeterReadingStorer {
     }
 
     private Channel getChannel(IntervalReading reading, ReadingType readingType) {
-        for (ChannelsContainer channelsContainer : meter.getChannelContainers()) {
+        for (ChannelsContainer channelsContainer : meter.getChannelsContainers()) {
             if (channelsContainer.getInterval().toOpenClosedRange().contains(reading.getTimeStamp())) {
                 for (Channel channel : channelsContainer.getChannels()) {
                     if (channel.getReadingTypes().contains(readingType)) {

@@ -1,6 +1,8 @@
 package com.elster.jupiter.metering.impl.config;
 
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.orm.associations.Effectivity;
 
 import java.time.Instant;
@@ -12,7 +14,9 @@ import java.time.Instant;
  */
 public interface EffectiveMetrologyConfigurationOnUsagePoint extends Effectivity {
 
-    MetrologyConfiguration getMetrologyConfiguration();
+    UsagePointMetrologyConfiguration getMetrologyConfiguration();
+
+    UsagePoint getUsagePoint();
 
     void close(Instant closingDate);
 
