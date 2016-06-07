@@ -1,7 +1,6 @@
 package com.elster.jupiter.mdm.usagepoint.config.rest.impl;
 
 import com.elster.jupiter.metering.config.MetrologyContract;
-import com.elster.jupiter.validation.rest.ValidationRuleSetInfo;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 

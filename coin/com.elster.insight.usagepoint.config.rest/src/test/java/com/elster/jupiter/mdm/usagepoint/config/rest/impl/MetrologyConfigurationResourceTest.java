@@ -30,7 +30,6 @@ import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
 import com.elster.jupiter.validation.ValidationVersionStatus;
-import com.elster.jupiter.validation.rest.ValidationRuleSetInfo;
 
 import com.jayway.jsonpath.JsonModel;
 
@@ -85,15 +84,18 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         metrologyContract = config1.getContracts().stream().findFirst().get();
         metrologyContractInfo = new MetrologyContractInfo(metrologyContract, Collections.singletonList(new ValidationRuleSetInfo(vrs3)));
         when(vrs3.getId()).thenReturn(2L);
+        when(vrs3.getApplicationName()).thenReturn("INS");
         doReturn(Collections.singletonList(validationRuleSetVersion3)).when(vrs3).getRuleSetVersions();
         when(vrs.getName()).thenReturn("ValidationRuleSet");
         when(vrs.getId()).thenReturn(1L);
+        when(vrs.getApplicationName()).thenReturn("INS");
         doReturn(Collections.singletonList(validationRuleSetVersion)).when(vrs).getRuleSetVersions();
         when(metrologyConfigurationService.findAndLockMetrologyContract(metrologyContractInfo.id, metrologyContractInfo.version)).thenReturn(Optional.of(metrologyContract));
         when(metrologyConfigurationService.findMetrologyContract(1L)).thenReturn(Optional.of(metrologyContract));
         when(usagePointConfigurationService.getValidationRuleSets(metrologyContract)).thenReturn(Collections.singletonList(vrs));
         when(vrs2.getName()).thenReturn("LinkableValidationRuleSet");
         when(vrs2.getId()).thenReturn(31L);
+        when(vrs2.getApplicationName()).thenReturn("INS");
         doReturn(Collections.singletonList(validationRuleSetVersion2)).when(vrs2).getRuleSetVersions();
         doReturn(Optional.of(vrs3)).when(validationService).getValidationRuleSet(anyLong());
         when(validationService.getValidationRuleSets()).thenReturn(Arrays.asList(vrs, vrs2));
@@ -220,13 +222,13 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         String json = target("/metrologyconfigurations/1/contracts").request().get(String.class);
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
-        assertThat(jsonModel.<Integer>get("$.purposes[0].validationRuleSets[0].id")).isEqualTo(1);
-        assertThat(jsonModel.<String>get("$.purposes[0].validationRuleSets[0].name")).isEqualTo("ValidationRuleSet");
+        assertThat(jsonModel.<Integer>get("$.contracts[0].validationRuleSets[0].id")).isEqualTo(1);
+        assertThat(jsonModel.<String>get("$.contracts[0].validationRuleSets[0].name")).isEqualTo("ValidationRuleSet");
     }
 
     @Test
     public void testLinkableValidationRuleSetsOfMetrologyContract() {
-        String json = target("/metrologyconfigurations/1/contracts/1/linkablevalidationrulesets").request().get(String.class);
+        String json = target("/metrologyconfigurations/1/contracts/1").request().header("X-CONNEXO-APPLICATION-NAME", "INS").get(String.class);
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<Integer>get("$.validationRuleSets[0].id")).isEqualTo(31);
         assertThat(jsonModel.<String>get("$.validationRuleSets[0].name")).isEqualTo("LinkableValidationRuleSet");
@@ -235,8 +237,8 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
     @Test
     public void testAddValidationRuleSetsToMetrologyContract() {
         Entity<MetrologyContractInfo> json = Entity.json(metrologyContractInfo);
-        Response response = target("/metrologyconfigurations/1/contracts/1/validationrulesets").request().post(json);
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        Response response = target("/metrologyconfigurations/1/contracts/1").request().put(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
         verify(usagePointConfigurationService).addValidationRuleSet(metrologyContract, vrs3);
     }
 
@@ -244,14 +246,14 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
     public void testAddValidationRuleSetsConcurrencyCheck() {
         when(metrologyConfigurationService.findAndLockMetrologyContract(metrologyContractInfo.id, metrologyContractInfo.version)).thenReturn(Optional.empty());
         Entity<MetrologyContractInfo> json = Entity.json(metrologyContractInfo);
-        Response response = target("/metrologyconfigurations/1/contracts/1/validationrulesets").request().post(json);
+        Response response = target("/metrologyconfigurations/1/contracts/1").request().put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
     }
 
     @Test
     public void testRemoveValidationRuleSetFromMetrologyContract() {
         Entity<MetrologyContractInfo> json = Entity.json(metrologyContractInfo);
-        Response response = target("/metrologyconfigurations/1/contracts/1/validationrulesets").request().build(HttpMethod.DELETE, json).invoke();
+        Response response = target("/metrologyconfigurations/1/contracts/1").queryParam("action", "remove").request().put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
         verify(usagePointConfigurationService).removeValidationRuleSet(metrologyContract, vrs3);
     }
@@ -260,7 +262,7 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
     public void testRemoveValidationRuleSetConcurrencyCheck() {
         when(metrologyConfigurationService.findAndLockMetrologyContract(metrologyContractInfo.id, metrologyContractInfo.version)).thenReturn(Optional.empty());
         Entity<MetrologyContractInfo> json = Entity.json(metrologyContractInfo);
-        Response response = target("/metrologyconfigurations/1/contracts/1/validationrulesets").request().build(HttpMethod.DELETE, json).invoke();
+        Response response = target("/metrologyconfigurations/1/contracts/1").queryParam("action", "remove").request().put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
     }
 
