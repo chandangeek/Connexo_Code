@@ -9,7 +9,13 @@ import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.nls.*;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.SimpleTranslationKey;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.OrmService;
@@ -24,11 +30,21 @@ import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.*;
+import com.energyict.mdc.device.data.BatchService;
+import com.energyict.mdc.device.data.DeviceDataServices;
+import com.energyict.mdc.device.data.DeviceMessageService;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.LoadProfileService;
+import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.impl.configchange.ServerDeviceForConfigChange;
-import com.energyict.mdc.device.data.impl.events.*;
+import com.energyict.mdc.device.data.impl.events.ComTaskEnablementChangeMessageHandler;
+import com.energyict.mdc.device.data.impl.events.ComTaskEnablementConnectionMessageHandlerFactory;
+import com.energyict.mdc.device.data.impl.events.ComTaskEnablementPriorityMessageHandlerFactory;
+import com.energyict.mdc.device.data.impl.events.ComTaskEnablementStatusMessageHandlerFactory;
+import com.energyict.mdc.device.data.impl.events.ConnectionTaskValidatorAfterPropertyRemovalMessageHandlerFactory;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiCalculatorHandlerFactory;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiServiceImpl;
+import com.energyict.mdc.device.data.impl.kpi.DataValidationKpiServiceImpl;
 import com.energyict.mdc.device.data.impl.search.PropertyTranslationKeys;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.impl.tasks.CommunicationTaskServiceImpl;
@@ -38,6 +54,7 @@ import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
 import com.energyict.mdc.device.data.impl.tasks.report.CommunicationTaskReportServiceImpl;
 import com.energyict.mdc.device.data.impl.tasks.report.ConnectionTaskReportServiceImpl;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
+import com.energyict.mdc.device.data.kpi.DataValidationKpiService;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
@@ -70,7 +87,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Clock;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Provides an implementation for the {@link DeviceDataModelService} interface.
@@ -120,6 +143,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
     private ServerLoadProfileService loadProfileService;
     private ServerLogBookService logBookService;
     private DataCollectionKpiService dataCollectionKpiService;
+    private DataValidationKpiService dataValidationKpiService;
     private DeviceMessageSpecificationService deviceMessageSpecificationService;
     private BatchService batchService;
     private DeviceMessageService deviceMessageService;
@@ -379,6 +403,11 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
     }
 
     @Override
+    public DataValidationKpiService dataValidationKpiService() {
+        return this.dataValidationKpiService;
+    }
+
+    @Override
     public ServerDeviceService deviceService() {
         return this.deviceService;
     }
@@ -482,6 +511,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
                 bind(LogBookService.class).toInstance(logBookService);
                 bind(DeviceMessageSpecificationService.class).toInstance(deviceMessageSpecificationService);
                 bind(DataCollectionKpiService.class).toInstance(dataCollectionKpiService);
+                bind(DataValidationKpiService.class).toInstance(dataValidationKpiService);
                 bind(MeteringGroupsService.class).toInstance(meteringGroupsService);
                 bind(MdcReadingTypeUtilService.class).toInstance(readingTypeUtilService);
                 bind(BatchService.class).toInstance(batchService);
@@ -511,6 +541,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
         this.loadProfileService = new LoadProfileServiceImpl(this);
         this.logBookService = new LogBookServiceImpl(this);
         this.dataCollectionKpiService = new DataCollectionKpiServiceImpl(this);
+        this.dataValidationKpiService = new DataValidationKpiServiceImpl(this);
         this.batchService = new BatchServiceImpl(this);
         this.deviceMessageService = new DeviceMessageServiceImpl(this);
     }
@@ -524,6 +555,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
         this.registerLoadProfileService(bundleContext);
         this.registerLogBookService(bundleContext);
         this.registerDataCollectionKpiService(bundleContext);
+        this.registerDataValidationKpiService(bundleContext);
         this.registerBatchService(bundleContext);
         this.registerDeviceMessageService(bundleContext);
     }
@@ -561,6 +593,10 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
 
     private void registerDataCollectionKpiService(BundleContext bundleContext) {
         this.serviceRegistrations.add(bundleContext.registerService(DataCollectionKpiService.class, this.dataCollectionKpiService, null));
+    }
+
+    private void registerDataValidationKpiService(BundleContext bundleContext) {
+        this.serviceRegistrations.add(bundleContext.registerService(DataValidationKpiService.class, this.dataValidationKpiService, null));
     }
 
     private void registerBatchService(BundleContext bundleContext) {

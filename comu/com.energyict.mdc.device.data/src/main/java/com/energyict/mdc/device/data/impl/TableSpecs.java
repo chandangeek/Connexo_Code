@@ -34,6 +34,7 @@ import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeInActio
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeRequest;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeRequestImpl;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiImpl;
+import com.energyict.mdc.device.data.impl.kpi.DataValidationKpiImpl;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.history.ComSessionImpl;
@@ -41,6 +42,7 @@ import com.energyict.mdc.device.data.impl.tasks.history.ComSessionJournalEntryIm
 import com.energyict.mdc.device.data.impl.tasks.history.ComTaskExecutionJournalEntryImpl;
 import com.energyict.mdc.device.data.impl.tasks.history.ComTaskExecutionSessionImpl;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
+import com.energyict.mdc.device.data.kpi.DataValidationKpi;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFields;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -63,7 +65,6 @@ import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 
-import java.util.Calendar;
 import java.util.List;
 
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
@@ -570,6 +571,36 @@ public enum TableSpecs {
                     on(communicationKpiTask).
                     references(RecurrentTask.class).
                     map(DataCollectionKpiImpl.Fields.COMMUNICATION_RECURRENT_TASK.fieldName()).
+                    add();
+        }
+    },
+
+    DDC_DATA_VALIDATION_KPI {
+        @Override
+        void addTo(DataModel dataModel){
+            Table<DataValidationKpi> table = dataModel.addTable(name(), DataValidationKpi.class);
+            table.map(DataValidationKpiImpl.class);
+            Column id = table.addAutoIdColumn();
+            table.addAuditColumns();
+            Column endDeviceGroup = table.column("ENDDEVICEGROUP").number().notNull().add();
+            Column dataValidationKpi = table.column("DATAVALIDATIONKPI").number().add();
+            Column dataValidationKpiTask = table.column("DATAVALIDATIONKPI_TASK").number().add();
+
+            table.primaryKey("PK_DDC_DATA_VALIDATION_KPI").on(id).add();
+            table.foreignKey("FK_DDC_VAL_ENDDEVICEGROUP").
+                    on(endDeviceGroup).
+                    references(EndDeviceGroup.class).
+                    map(DataValidationKpiImpl.Fields.END_DEVICE_GROUP.fieldName()).
+                    add();
+            table.foreignKey("FK_DDC_VAL_KPI").
+                    on(dataValidationKpi).
+                    references(Kpi.class).
+                    map(DataValidationKpiImpl.Fields.DATA_VALIDATION_KPI.fieldName()).
+                    add();
+            table.foreignKey("FK_DDC_VAL_KPI_TASK").
+                    on(dataValidationKpiTask).
+                    references(RecurrentTask.class).
+                    map(DataValidationKpiImpl.Fields.DATA_VALIDATION_KPI_TASK.fieldName()).
                     add();
         }
     },
