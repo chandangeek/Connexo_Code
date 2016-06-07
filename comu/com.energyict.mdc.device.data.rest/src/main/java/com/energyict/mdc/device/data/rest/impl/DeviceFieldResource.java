@@ -125,6 +125,6 @@ public class DeviceFieldResource extends FieldResource {
                 .getPossibleValues()
                 .getAllValues();
 
-        return asJsonArrayObjectWithTranslation("contracts", "contracts", contracts);
+        return asJsonArrayObjectWithTranslation("contracts", "contract", contracts);
     }
 }
