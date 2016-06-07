@@ -64,7 +64,7 @@ public interface EstimationService {
 
     EstimationTaskBuilder newBuilder();
 
-    List<? extends EstimationTask> findEstimationTasks();
+    List<? extends EstimationTask> findEstimationTasks(String application);
 
     Optional<? extends EstimationTask> findEstimationTask(long id);
 

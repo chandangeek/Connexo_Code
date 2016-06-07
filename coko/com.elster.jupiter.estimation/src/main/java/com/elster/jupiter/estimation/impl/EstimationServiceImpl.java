@@ -423,8 +423,11 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
     }
 
     @Override
-    public List<? extends EstimationTask> findEstimationTasks() {
-        return getEstimationTaskQuery().select(Condition.TRUE, Order.descending("lastRun").nullsLast());
+    public List<? extends EstimationTask> findEstimationTasks(String application) {
+        return getEstimationTaskQuery().select(Condition.TRUE, Order.descending("lastRun").nullsLast())
+                .stream()
+                .filter(task -> task.getApplication().equals(application))
+                .collect(Collectors.toList());
     }
 
     @Override
