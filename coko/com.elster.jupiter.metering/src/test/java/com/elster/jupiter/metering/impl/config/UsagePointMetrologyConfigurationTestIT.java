@@ -22,6 +22,7 @@ import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
 import com.elster.jupiter.search.SearchablePropertyOperator;
 import com.elster.jupiter.search.SearchablePropertyValue;
 
+import javax.validation.ConstraintViolationException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -205,16 +206,24 @@ public class UsagePointMetrologyConfigurationTestIT {
                 .withReadingTypeTemplate(readingTypeTemplate);
     }
 
-    @Test
+    @Test(expected = ConstraintViolationException.class)
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.CAN_NOT_ADD_REQUIREMENT_WITH_THAT_ROLE + "}", property = "meterRole")
     public void testCanNotCreateReadingTypeRequirementWithUnassignedMeterRole() {
         UsagePointMetrologyConfiguration metrologyConfiguration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("config", getServiceCategory()).create();
         MeterRole meterRole = getMetrologyConfigurationService().findMeterRole(DefaultMeterRole.DEFAULT.getKey()).get();
         ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Zero reading type");
-        metrologyConfiguration.newReadingTypeRequirement("Reading type requirement")
-                .withMeterRole(meterRole)
-                .withReadingType(readingType);
+
+        try {
+            // Business method
+            metrologyConfiguration
+                    .newReadingTypeRequirement("Reading type requirement")
+                    .withMeterRole(meterRole)
+                    .withReadingType(readingType);
+        } catch (ConstraintViolationException e) {
+            // Expected
+            assertThat(e.getConstraintViolations()).hasSize(1);
+            throw e;
+        }
     }
 
     @Test
