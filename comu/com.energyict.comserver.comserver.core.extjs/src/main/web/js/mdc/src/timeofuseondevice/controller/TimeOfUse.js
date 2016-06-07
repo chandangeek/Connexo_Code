@@ -2,7 +2,8 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
     extend: 'Ext.app.Controller',
 
     stores: [
-        'Mdc.timeofuseondevice.store.AllowedCalendars'
+        'Mdc.timeofuseondevice.store.AllowedCalendars',
+        'Mdc.timeofuseondevice.store.CalendarTypes'
     ],
 
     views: [
@@ -15,7 +16,8 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
         'Mdc.model.Device',
         'Uni.model.timeofuse.Calendar',
         'Mdc.timeofuseondevice.model.CalendarOnDevice',
-        'Mdc.timeofuseondevice.model.NextPassiveCalendar'
+        'Mdc.timeofuseondevice.model.NextPassiveCalendar',
+        'Mdc.timeofuseondevice.model.CalendarType'
     ],
 
     init: function () {
