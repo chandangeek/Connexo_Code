@@ -106,7 +106,7 @@ public class DataValidationTaskExecutor implements TaskExecutor {
                 for (EndDevice device : devices) {
                     Optional<Meter> found = device.getAmrSystem().findMeter(device.getAmrId());
                     if (found.isPresent()) {
-                        List<ChannelsContainer> channelsContainers = found.get().getChannelContainers();
+                        List<ChannelsContainer> channelsContainers = found.get().getChannelsContainers();
                         for (ChannelsContainer channelsContainer : channelsContainers) {
                             try (TransactionContext transactionContext = transactionService.getContext()) {
                                 validationService.validate(channelsContainer);

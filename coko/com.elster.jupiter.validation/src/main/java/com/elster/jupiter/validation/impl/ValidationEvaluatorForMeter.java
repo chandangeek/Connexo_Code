@@ -71,7 +71,7 @@ class ValidationEvaluatorForMeter extends AbstractValidationEvaluator {
 
     @Override
     public boolean isValidationEnabled(ReadingContainer meter, ReadingType readingType){
-        return (meter.getChannelContainers()
+        return (meter.getChannelsContainers()
                 .stream()
                 .flatMap(m -> m.getChannels().stream())
                 .filter(k -> k.getReadingTypes().contains(readingType))
@@ -80,7 +80,7 @@ class ValidationEvaluatorForMeter extends AbstractValidationEvaluator {
 
     @Override
     public Optional<Instant> getLastChecked(ReadingContainer readingContainer, ReadingType readingType) {
-        return readingContainer.getChannelContainers()
+        return readingContainer.getChannelsContainers()
                 .stream()
                 .flatMap(m -> m.getChannels().stream())
                 .filter(k -> k.getReadingTypes().contains(readingType))
@@ -106,7 +106,7 @@ class ValidationEvaluatorForMeter extends AbstractValidationEvaluator {
 
     private ImmutableMap<Long, ChannelsContainerValidationList> initChannelContainerMap(ValidationServiceImpl validationService, Meter meter) {
         ImmutableMap.Builder<Long, ChannelsContainerValidationList> validationMapBuilder = ImmutableMap.builder();
-        for (ChannelsContainer channelsContainer : meter.getChannelContainers()) {
+        for (ChannelsContainer channelsContainer : meter.getChannelsContainers()) {
             ChannelsContainerValidationList container = validationService.updatedChannelsContainerValidationsFor(channelsContainer);
             validationMapBuilder.put(channelsContainer.getId(), container);
         }
@@ -115,7 +115,7 @@ class ValidationEvaluatorForMeter extends AbstractValidationEvaluator {
 
     private Map<Long, ChannelValidationContainer> initChannelMap(Meter meter) {
         ImmutableMap.Builder<Long, ChannelValidationContainer> channelValidationMapBuilder = ImmutableMap.builder();
-        meter.getChannelContainers().stream()
+        meter.getChannelsContainers().stream()
                 .flatMap(channelContainer -> channelContainer.getChannels().stream())
                 .forEach(channel -> channelValidationMapBuilder.put(channel.getId(), getMapToValidation().get(channel.getChannelsContainer().getId()).channelValidationsFor(channel)));
         return channelValidationMapBuilder.build();
