@@ -9,11 +9,7 @@ Ext.define('Imt.metrologyconfiguration.controller.View', {
     models: [
              'Imt.metrologyconfiguration.model.MetrologyConfiguration',
              'Imt.metrologyconfiguration.model.ValidationRuleSet'
-    ],
-    stores: [
-        //'Imt.metrologyconfiguration.store.MetrologyConfiguration',
-        'Imt.metrologyconfiguration.store.LinkedValidationRulesSet'
-    ],
+    ],    
     views: [
         'Imt.metrologyconfiguration.view.Setup',
         'Imt.metrologyconfiguration.view.MetrologyConfigurationDetailsForm',
