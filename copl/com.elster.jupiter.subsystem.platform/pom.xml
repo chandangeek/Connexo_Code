@@ -133,10 +133,6 @@
             <artifactId>http.whiteboard</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>install</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.elster.partners</groupId>
             <artifactId>jbpm.extension</artifactId>
         </dependency>
@@ -276,6 +272,10 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
+            <artifactId>upgrade</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
             <artifactId>users</artifactId>
         </dependency>
         <dependency>
@@ -304,11 +304,6 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>yellowfin.app</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>yellowfin.installer</artifactId>
-        </dependency>
-
 
         <dependency>
             <groupId>com.elster.jupiter.subsystem</groupId>
