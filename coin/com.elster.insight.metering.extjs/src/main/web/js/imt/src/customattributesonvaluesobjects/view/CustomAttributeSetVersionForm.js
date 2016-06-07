@@ -114,7 +114,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.CustomAttributeSetVersionFo
                             {
                                 xtype: 'button',
                                 text: Uni.I18n.translate('general.restoretodefaults', 'IMT', 'Restore to defaults'),
-                                iconCls: 'icon-spinner12',
+                                iconCls: 'icon-rotate-ccw3',
                                 itemId: 'custom-attributes-versions-restore-to-default-btn',
                                 handler: function () {
                                     me.restoreDefaultCustomAttributes();

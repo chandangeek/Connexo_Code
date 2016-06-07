@@ -101,7 +101,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.InlineEditableSetPropertyFo
                 {
                     xtype: 'button',
                     text: Uni.I18n.translate('general.restoretodefaults', 'IMT', 'Restore to defaults'),
-                    iconCls: 'icon-spinner12',
+                    iconCls: 'icon-rotate-ccw3',
                     handler: function () {
                         me.down('property-form').restoreAll();
                     }

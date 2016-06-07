@@ -33,7 +33,7 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                         xtype: 'button',
                         itemId: 'usage-point-refresh-data',
                         text: Uni.I18n.translate('general.refresh', 'IMT', 'Refresh'),
-                        iconCls: 'icon-spinner12',
+                        iconCls: 'icon-spinner11',
                         iconAlign: 'left',
                         margin: '0 16 0 10',
                         handler: function () {
