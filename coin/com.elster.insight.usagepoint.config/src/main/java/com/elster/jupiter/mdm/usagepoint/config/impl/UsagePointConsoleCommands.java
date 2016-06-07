@@ -43,6 +43,7 @@ import java.util.Optional;
                 "osgi.command.function=deleteMetrologyConfiguration",
                 "osgi.command.function=metrologyConfigurations",
                 "osgi.command.function=linkUsagePointToMetrologyConfiguration",
+                "osgi.command.function=createValidationRuleSet",
                 "osgi.command.function=addValidationRuleSetToMetrologyContract",
                 "osgi.command.function=createUsagePoint",
                 "osgi.command.function=saveRegister",
@@ -120,12 +121,12 @@ public class UsagePointConsoleCommands {
         }
     }
 
-    public void createValidationRuleSet(String name) {
+    public void createValidationRuleSet(String name, String applicationName) {
         try {
             transactionService.builder()
                     .principal(() -> "console")
                     .run(() -> {
-                        validationService.createValidationRuleSet(name);
+                        validationService.createValidationRuleSet(name, applicationName);
                     });
         } catch (Exception e) {
             e.printStackTrace();

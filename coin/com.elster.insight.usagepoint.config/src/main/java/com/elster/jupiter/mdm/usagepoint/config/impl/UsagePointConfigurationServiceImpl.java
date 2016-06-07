@@ -3,29 +3,29 @@ package com.elster.jupiter.mdm.usagepoint.config.impl;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
+import com.elster.jupiter.mdm.usagepoint.config.security.Privileges;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.config.ConstantNode;
-import com.elster.jupiter.metering.config.ExpressionNode;
+import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
-import com.elster.jupiter.metering.config.FunctionCallNode;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
-import com.elster.jupiter.metering.config.NullNode;
-import com.elster.jupiter.metering.config.OperationNode;
 import com.elster.jupiter.metering.config.PartiallySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
-import com.elster.jupiter.metering.config.ReadingTypeDeliverableNode;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
-import com.elster.jupiter.metering.config.ReadingTypeRequirementNode;
+import com.elster.jupiter.metering.config.ReadingTypeRequirementChecker;
 import com.elster.jupiter.metering.config.ReadingTypeTemplate;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.users.PrivilegesProvider;
+import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.validation.ValidationRuleSet;
@@ -52,10 +52,10 @@ import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(
         name = "UsagePointConfigurationServiceImpl",
-        service = {UsagePointConfigurationService.class, InstallService.class},
+        service = {UsagePointConfigurationService.class, InstallService.class, PrivilegesProvider.class, TranslationKeyProvider.class},
         property = {"name=" + UsagePointConfigurationService.COMPONENTNAME},
         immediate = true)
-public class UsagePointConfigurationServiceImpl implements UsagePointConfigurationService, InstallService {
+public class UsagePointConfigurationServiceImpl implements UsagePointConfigurationService, InstallService, PrivilegesProvider, TranslationKeyProvider {
 
     private volatile DataModel dataModel;
     private volatile Clock clock;
@@ -112,6 +112,37 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     @Override
     public void install() {
         new Installer(dataModel, eventService).install(true, true);
+    }
+
+    @Override
+    public String getModuleName() {
+        return UsagePointConfigurationService.COMPONENTNAME;
+    }
+
+    @Override
+    public List<ResourceDefinition> getModuleResources() {
+        List<ResourceDefinition> resources = new ArrayList<>();
+        resources.add(userService.createModuleResourceWithPrivileges(UsagePointConfigurationService.COMPONENTNAME, DefaultTranslationKey.RESOURCE_VALIDATION_CONFIGURATION
+                        .getKey(), DefaultTranslationKey.RESOURCE_VALIDATION_CONFIGURATION_DESCRIPTION.getKey(),
+                Arrays.asList(Privileges.Constants.VIEW_VALIDATION_ON_METROLOGY_CONFIGURATION, Privileges.Constants.ADMINISTER_VALIDATION_ON_METROLOGY_CONFIGURATION)));
+        return resources;
+    }
+
+    @Override
+    public String getComponentName() {
+        return UsagePointConfigurationService.COMPONENTNAME;
+    }
+
+    public Layer getLayer() {
+        return Layer.DOMAIN;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        List<TranslationKey> translationKeys = new ArrayList<>();
+        Arrays.stream(DefaultTranslationKey.values()).forEach(translationKeys::add);
+        Arrays.stream(Privileges.values()).forEach(translationKeys::add);
+        return translationKeys;
     }
 
     @Override
@@ -181,7 +212,7 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
         this.dataModel
                 .getInstance(MetrologyContractValidationRuleSetUsageImpl.class)
                 .initAndSave(metrologyContract, validationRuleSet);
-        metrologyContract.save();
+        metrologyContract.update();
     }
 
     @Override
@@ -191,7 +222,7 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
                 .getUnique(MetrologyContractValidationRuleSetUsageImpl.Fields.METROLOGY_CONTRACT.fieldName(), metrologyContract,
                         MetrologyContractValidationRuleSetUsageImpl.Fields.VALIDATION_RULE_SET.fieldName(), validationRuleSet)
                 .ifPresent(metrologyContractValidationRuleSetUsage -> dataModel.remove(metrologyContractValidationRuleSetUsage));
-        metrologyContract.save();
+        metrologyContract.update();
     }
 
     @Override
@@ -235,11 +266,13 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
                     if (deliverableReadingTypeMRIDs.stream().anyMatch(ruleSetReadingTypeMRIDs::contains)) {
                         return true;
                     } else {
-                        List<ReadingTypeRequirement> readingTypeRequirements = metrologyContract.getDeliverables()
+                        ReadingTypeRequirementChecker requirementChecker = new ReadingTypeRequirementChecker();
+                        metrologyContract.getDeliverables()
                                 .stream()
-                                .flatMap(deliverable -> getReadingTypeRequirementsOfDeliverable(deliverable).stream())
-                                .collect(Collectors.toList());
-                        for (ReadingTypeRequirement readingTypeRequirement: readingTypeRequirements) {
+                                .map(ReadingTypeDeliverable::getFormula)
+                                .map(Formula::getExpressionNode)
+                                .forEach(expressionNode -> expressionNode.accept(requirementChecker));
+                        for (ReadingTypeRequirement readingTypeRequirement: requirementChecker.getReadingTypeRequirements()) {
                             if (readingTypeRequirement instanceof FullySpecifiedReadingTypeRequirement && ruleSetReadingTypes.contains(((FullySpecifiedReadingTypeRequirement) readingTypeRequirement).getReadingType())) {
                                 return true;
                             } else if (readingTypeRequirement instanceof PartiallySpecifiedReadingTypeRequirement) {
@@ -253,57 +286,4 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
         }
         return false;
     }
-
-    private List<ReadingTypeRequirement> getReadingTypeRequirementsOfDeliverable(ReadingTypeDeliverable readingTypeDeliverable) {
-        ReadingTypeVisitor readingTypeVisitor = new ReadingTypeVisitor();
-        readingTypeDeliverable.getFormula().getExpressionNode().accept(readingTypeVisitor);
-        return readingTypeVisitor.readingTypeRequirementNodes
-                .stream()
-                .map(ReadingTypeRequirementNode::getReadingTypeRequirement)
-                .collect(Collectors.toList());
-    }
-
-    private class ReadingTypeVisitor implements ExpressionNode.Visitor<Void> {
-
-        private List<ReadingTypeRequirementNode> readingTypeRequirementNodes = new ArrayList<>();
-
-
-        @Override
-        public Void visitConstant(ConstantNode constant) {
-            constant.getChildren().forEach(n -> n.accept(this));
-            return null;
-        }
-
-        @Override
-        public Void visitRequirement(ReadingTypeRequirementNode requirement) {
-            readingTypeRequirementNodes.add(requirement);
-            requirement.getChildren().forEach(n -> n.accept(this));
-            return null;
-        }
-
-        @Override
-        public Void visitDeliverable(ReadingTypeDeliverableNode deliverable) {
-            deliverable.getChildren().forEach(n -> n.accept(this));
-            return null;
-        }
-
-        @Override
-        public Void visitOperation(OperationNode operationNode) {
-            operationNode.getChildren().forEach(n -> n.accept(this));
-            return null;
-        }
-
-        @Override
-        public Void visitFunctionCall(FunctionCallNode functionCall) {
-            functionCall.getChildren().forEach(n -> n.accept(this));
-            return null;
-        }
-
-        @Override
-        public Void visitNull(NullNode nullNode) {
-            nullNode.getChildren().forEach(n -> n.accept(this));
-            return null;
-        }
-    }
-
 }

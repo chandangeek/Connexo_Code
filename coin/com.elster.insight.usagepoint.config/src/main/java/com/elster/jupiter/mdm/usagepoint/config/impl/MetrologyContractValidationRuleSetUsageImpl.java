@@ -4,6 +4,7 @@ import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.validation.ValidationRuleSet;
@@ -31,8 +32,10 @@ class MetrologyContractValidationRuleSetUsageImpl implements MetrologyContractVa
     }
 
     @NotEmpty(message = MessageSeeds.Constants.REQUIRED)
+    @IsPresent
     private Reference<ValidationRuleSet> validationRuleSet = ValueReference.absent();
     @NotEmpty(message = MessageSeeds.Constants.REQUIRED)
+    @IsPresent
     private Reference<MetrologyContract> metrologyContract = ValueReference.absent();
 
     private final DataModel dataModel;
