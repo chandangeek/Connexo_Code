@@ -3,6 +3,7 @@ package com.energyict.mdc.protocol.api.impl.device.messages;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.DeviceMessageFile;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import java.math.BigDecimal;
@@ -31,7 +32,13 @@ public enum PublicLightingDeviceMessage implements DeviceMessageSpecEnum {
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
             this.addBigDecimalSpec(propertySpecs, propertySpecService, thesaurus, PublicLightingDeviceMessageAttributes.relayNumberAttributeName, BigDecimal.ONE, BigDecimals.TWO);
-//            propertySpecs.add(propertySpecService.referencePropertySpec(configUserFileAttributeName, true, FactoryIds.USERFILE));
+            propertySpecs.add(
+                    propertySpecService
+                            .referenceSpec(DeviceMessageFile.class)
+                            .named(DeviceMessageAttributes.configUserFileAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
         }
     },
     SET_THRESHOLD_OVER_CONSUMPTION(DeviceMessageId.PUBLIC_LIGHTING_SET_THRESHOLD_OVER_CONSUMPTION, "Public lighting set threshold over consumption"){
