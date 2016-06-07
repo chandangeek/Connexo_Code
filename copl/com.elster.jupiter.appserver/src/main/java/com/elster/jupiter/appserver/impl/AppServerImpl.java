@@ -21,6 +21,7 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.cron.CronExpression;
@@ -275,6 +276,7 @@ public class AppServerImpl implements AppServer {
         link.save();
         if (endPointConfiguration.isActive()) {
             webServicesService.publishEndPoint(endPointConfiguration);
+            endPointConfiguration.log(LogLevel.INFO, String.format("Endpoint was published on appserver %s", this.getName()));
         }
     }
 
@@ -292,6 +294,7 @@ public class AppServerImpl implements AppServer {
         }
         if (webServicesService.isPublished(endPointConfiguration)) {
             webServicesService.removeEndPoint(endPointConfiguration);
+            endPointConfiguration.log(LogLevel.INFO, String.format("Endpoint was revoked on appserver %s", this.getName()));
         }
     }
 
