@@ -25,6 +25,9 @@ import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -35,17 +38,11 @@ import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.streams.Functions;
+
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Answers;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -57,6 +54,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Answers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -77,7 +82,8 @@ public class AppServerIT {
     private EventAdmin eventAdmin;
     @Mock
     private FileImporterFactory fileImporterFactory;
-
+    @Mock
+    private WebServicesService webServicesService;
 
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private TransactionService transactionService;
@@ -85,6 +91,7 @@ public class AppServerIT {
     private MessageService messageService;
     private JsonService jsonService;
     private FileImportService fileImportService;
+    private EndPointConfigurationService endPointConfigurationService;
 
 
     private class MockModule extends AbstractModule {
@@ -118,13 +125,15 @@ public class AppServerIT {
                     new AppServiceModule(),
                     new FileImportModule(),
                     new TaskModule(),
-                    new EventsModule()
+                    new EventsModule(),
+                    new WebServicesModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
         transactionService = injector.getInstance(TransactionService.class);
         transactionService.execute(() -> {
+            endPointConfigurationService = injector.getInstance(EndPointConfigurationService.class);
             appService = injector.getInstance(AppService.class);
             return null;
         });

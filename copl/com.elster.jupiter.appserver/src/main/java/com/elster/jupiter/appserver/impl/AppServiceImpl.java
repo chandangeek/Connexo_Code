@@ -256,7 +256,11 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber, 
     private void launchWebServices() {
         Optional<AppServer> appServer = this.getAppServer();
         if (appServer.isPresent()) {
-            appServer.get().supportedEndPoints().forEach(webServicesService::publishEndPoint);
+            appServer.get()
+                    .supportedEndPoints()
+                    .stream()
+                    .filter(EndPointConfiguration::isActive)
+                    .forEach(webServicesService::publishEndPoint);
         }
     }
 

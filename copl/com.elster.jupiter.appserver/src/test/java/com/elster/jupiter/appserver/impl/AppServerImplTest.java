@@ -17,11 +17,17 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
+
+import javax.inject.Provider;
+import java.util.Arrays;
+import java.util.Optional;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,9 +35,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.Arrays;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -85,6 +88,10 @@ public class AppServerImplTest {
     private ImportSchedule importSchedule;
     @Mock
     private ThreadPrincipalService threadPrincipalService;
+    @Mock
+    private WebServicesService webServicesService;
+    @Mock
+    private Provider<EndPointForAppServerImpl> webServiceForAppServerProvider;
 
     @Before
     public void setUp() {
@@ -92,7 +99,7 @@ public class AppServerImplTest {
         when(dataModel.mapper(SubscriberExecutionSpecImpl.class)).thenReturn(subscriberExecutionSpecFactory);
         when(dataModel.mapper(ImportScheduleOnAppServerImpl.class)).thenReturn(importScheduleOnAppServerFactory);
         when(subscriberSpec.getDestination()).thenReturn(destination);
-        when(dataModel.getInstance(AppServerImpl.class)).thenReturn(new AppServerImpl(dataModel, cronExpressionParser, fileImportService, messageService, jsonService, thesaurus, transactionService, threadPrincipalService));
+        when(dataModel.getInstance(AppServerImpl.class)).thenReturn(new AppServerImpl(dataModel, cronExpressionParser, fileImportService, messageService, jsonService, thesaurus, transactionService, threadPrincipalService, webServiceForAppServerProvider, webServicesService));
 
         when(dataModel.getInstance(SubscriberExecutionSpecImpl.class)).thenReturn(new SubscriberExecutionSpecImpl(dataModel, messageService));
         when(thesaurus.getFormat(any(MessageSeed.class))).thenReturn(format);

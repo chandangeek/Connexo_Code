@@ -25,6 +25,7 @@ import com.elster.jupiter.orm.InvalidateCacheRequest;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
@@ -33,18 +34,7 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.cron.impl.DefaultCronExpressionParser;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
-import org.assertj.core.data.MapEntry;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Answers;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
-import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
+
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
@@ -59,10 +49,27 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 
+import org.assertj.core.data.MapEntry;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Answers;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
+import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AppServiceImplTest {
@@ -135,6 +142,8 @@ public class AppServiceImplTest {
     private QueryService queryService;
     @Mock
     private ThreadPrincipalService threadPrincipalService;
+    @Mock
+    private WebServicesService webServicesService;
 
     @SuppressWarnings("unchecked")
 	@Before
@@ -171,7 +180,7 @@ public class AppServiceImplTest {
         setupBlockingCancellableSubscriberSpec();
         setupFakeTransactionService();
 
-        appService = new AppServiceImpl(ormService, nlsService, transactionService, messageService, new DefaultCronExpressionParser(), jsonService, fileImportService, taskService, userService, queryService, bundleContext, threadPrincipalService);
+        appService = new AppServiceImpl(ormService, nlsService, transactionService, messageService, new DefaultCronExpressionParser(), jsonService, fileImportService, taskService, userService, queryService, bundleContext, threadPrincipalService, webServicesService);
     }
 
     @SuppressWarnings("unchecked")
