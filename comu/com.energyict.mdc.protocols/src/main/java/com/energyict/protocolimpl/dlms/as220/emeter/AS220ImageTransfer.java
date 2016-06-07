@@ -48,7 +48,7 @@ public class AS220ImageTransfer {
 
 	public void initiate() throws IOException {
 		getAs220().getLogger().info("Received a firmware upgrade message, using firmware message builder...");
-		final FirmwareUpdateMessageBuilder builder = new FirmwareUpdateMessageBuilder(this.messaging.getAs220().getDeviceMessageFileService());
+		final FirmwareUpdateMessageBuilder builder = new FirmwareUpdateMessageBuilder();
 
 		try {
 		    builder.initFromXml(messageEntry.getContent());
@@ -65,7 +65,6 @@ public class AS220ImageTransfer {
 		}
 
 		// We requested an inlined file...
-		if (builder.getUserFile() != null) {
 		if (builder.getPath() != null) {
 			getAs220().getLogger().info("Pulling out user file and dispatching to the device...");
 
@@ -79,7 +78,7 @@ public class AS220ImageTransfer {
 				throw new IOException(errorMessage);
 			}
 		} else {
-		    errorMessage = "The message did not contain a path to use for the upgrade, message fails...";
+		    String errorMessage = "The message did not contain a path to use for the upgrade, message fails...";
 		    getAs220().getLogger().log(Level.WARNING, errorMessage);
 
 		    throw new IOException(errorMessage);
@@ -238,9 +237,4 @@ public class AS220ImageTransfer {
 		this.imageTransfer.imageActivation();
         getAs220().getLogger().log(Level.INFO, "Activation of the image was succesfull at : " + new Date());
 	}
-
-	private void loadFileInByteArray(DeviceMessageFile deviceMessageFile) {
-        this.data = DeviceMessageFileByteContentConsumer.readFrom(deviceMessageFile);
-    }
-
 }

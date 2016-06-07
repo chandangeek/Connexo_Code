@@ -11,9 +11,6 @@ import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.mdc.common.Password;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.topology.TopologyService;
-import com.energyict.mdc.protocol.api.codetables.Code;
-import com.energyict.mdc.protocol.api.codetables.CodeCalendar;
-import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.protocol.api.ProtocolException;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
 import com.energyict.mdc.protocol.api.device.messages.DlmsAuthenticationLevelMessageValues;
@@ -137,11 +134,9 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
     @Override
     public String format(PropertySpec propertySpec, Object messageAttribute) {
         switch (propertySpec.getName()) {
-            case UserFileConfigAttributeName:
-                return "";  //TODO file management
             case firmwareUpdateFileAttributeName:
                 return messageAttribute.toString();     //This is the path of the temp file representing the FirmwareVersion
-            case activityCalendarCodeTableAttributeName:
+            case activityCalendarAttributeName:
                 return convertCodeTableToXML((Calendar) messageAttribute);
             case authenticationLevelAttributeName:
                 return String.valueOf(DlmsAuthenticationLevelMessageValues.getValueFor(messageAttribute.toString()));

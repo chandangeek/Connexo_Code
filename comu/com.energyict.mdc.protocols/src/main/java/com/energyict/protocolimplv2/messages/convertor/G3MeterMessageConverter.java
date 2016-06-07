@@ -4,8 +4,6 @@ import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.HexString;
-import com.energyict.mdc.firmware.FirmwareVersion;
-import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.protocol.api.device.messages.DlmsAuthenticationLevelMessageValues;
 import com.energyict.mdc.protocol.api.device.messages.DlmsEncryptionLevelMessageValues;
 import com.energyict.mdc.protocol.api.device.messages.LoadProfileMode;

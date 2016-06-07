@@ -148,7 +148,7 @@ public class ZigbeeGasMessageConverterTest extends AbstractMessageConverterTest 
                     return europeanDateTimeFormat.parse("28/10/2013 10:00:00");
                 case DeviceMessageConstants.activityCalendarNameAttributeName:
                     return "MyActivityCal";
-                case DeviceMessageConstants.activityCalendarCodeTableAttributeName:
+                case DeviceMessageConstants.activityCalendarAttributeName:
                     Code code = mock(Code.class);
                     when(code.getId()).thenReturn(8);
                     return code;

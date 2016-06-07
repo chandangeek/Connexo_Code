@@ -2,8 +2,6 @@ package com.energyict.protocolimplv2.messages.convertor;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.Password;
-import com.energyict.mdc.protocol.api.UserFile;
-import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.protocol.api.DeviceMessageFile;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.protocols.util.TempFileLoader;

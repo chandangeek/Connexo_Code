@@ -1,10 +1,12 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.protocol.api.DeviceMessageFile;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ABBA230UserFileMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagMessageEntry;
+import com.energyict.protocols.messaging.DeviceMessageFileStringContentConsumer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -39,7 +41,7 @@ public class ABBA230MessageConverter extends AbstractMessageConverter {
         if (propertySpec.getName().equals(DeviceMessageConstants.firmwareUpdateFileAttributeName)) {
             return messageAttribute.toString();     //This is the path of the temp file representing the FirmwareVersion
         } else if (propertySpec.getName().equals(DeviceMessageConstants.MeterScheme)) {
-            return "";  //TODO file management
+            return DeviceMessageFileStringContentConsumer.readFrom((DeviceMessageFile) messageAttribute, CHARSET);  //Return the content of the file, should be ASCII (XML)
         } else {
             return messageAttribute.toString();
         }

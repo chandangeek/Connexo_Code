@@ -26,8 +26,8 @@ public class AnnotatedFWUpdateMessageBuilder extends FirmwareUpdateMessageBuilde
     public static final String ATTR_USER_FILE_CONTENT = "userFileContent";
     public static final String ATTR_URL = "url";
 
-    public AnnotatedFWUpdateMessageBuilder(DeviceMessageFileService deviceMessageFileService) {
-        super(deviceMessageFileService);
+    public AnnotatedFWUpdateMessageBuilder() {
+        super();
     }
 
     @Override

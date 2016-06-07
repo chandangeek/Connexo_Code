@@ -41,7 +41,7 @@ public class FirmwareUpdateMessageBuilderTest {
         attributes.add(attribute);
         when(offlineDeviceMessage.getDeviceMessageAttributes()).thenReturn(attributes);
 
-        MessageEntry messageEntry = new FirmwareUdateWithUserFileMessageEntry(DeviceMessageConstants.firmwareUpdateFileAttributeName).createMessageEntry(new AS220(null, null), offlineDeviceMessage);
+        MessageEntry messageEntry = new FirmwareUdateWithUserFileMessageEntry(DeviceMessageConstants.firmwareUpdateFileAttributeName).createMessageEntry(new AS220(null, null, null, null), offlineDeviceMessage);
         builder.initFromXml(messageEntry.getContent());
 
         assertEquals(PATH, builder.getPath());

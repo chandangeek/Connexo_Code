@@ -5,10 +5,7 @@ import com.elster.jupiter.calendar.ExceptionalOccurrence;
 import com.elster.jupiter.calendar.FixedExceptionalOccurrence;
 import com.elster.jupiter.calendar.RecurrentExceptionalOccurrence;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.firmware.FirmwareVersion;
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.mdc.protocol.api.codetables.Code;
-import com.energyict.mdc.protocol.api.codetables.CodeCalendar;
+import com.energyict.mdc.protocol.api.DeviceMessageFile;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.exceptions.GeneralParseException;
@@ -21,10 +18,10 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned8;
-import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractDlmsMessaging;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
+import com.energyict.protocols.messaging.DeviceMessageFileStringContentConsumer;
 
 import java.io.IOException;
 import java.util.Date;
@@ -101,7 +98,7 @@ public class EDPMessaging extends AbstractDlmsMessaging implements DeviceMessage
             case specialDaysAttributeName:
                 return parseSpecialDays((Calendar) messageAttribute);
             case configUserFileAttributeName:
-                return "";  //TODO file management
+                return DeviceMessageFileStringContentConsumer.readFrom((DeviceMessageFile) messageAttribute, "UTF-8");   // Content should be valid ASCII data
             case firmwareUpdateFileAttributeName:
                 return messageAttribute.toString();     //This is the path of the temp file representing the FirmwareVersion
             case activityCalendarActivationDateAttributeName:

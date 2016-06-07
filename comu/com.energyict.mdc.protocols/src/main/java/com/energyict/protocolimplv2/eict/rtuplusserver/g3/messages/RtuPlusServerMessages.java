@@ -10,6 +10,7 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Password;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.protocol.api.DeviceMessageFile;
 import com.energyict.mdc.protocol.api.MessageSeeds;
 import com.energyict.mdc.protocol.api.ProtocolException;
 import com.energyict.mdc.protocol.api.device.data.*;
@@ -21,12 +22,12 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
 import com.energyict.protocolimpl.dlms.idis.xml.XMLParser;
-import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.RtuPlusServer;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.properties.G3GatewayProperties;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
+import com.energyict.protocols.messaging.DeviceMessageFileByteContentConsumer;
 
 import java.io.IOException;
 import java.util.*;
@@ -920,7 +921,8 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
         if (propertySpec.getName().equals(DeviceMessageConstants.broadCastLogTableEntryTTLAttributeName)) {
             return String.valueOf(((TimeDuration) messageAttribute).getSeconds());
         } else if (propertySpec.getName().equals(DeviceMessageConstants.configUserFileAttributeName)) {
-            return "";  //TODO file management
+            byte[] bytes = DeviceMessageFileByteContentConsumer.readFrom((DeviceMessageFile) messageAttribute);
+            return ProtocolTools.getHexStringFromBytes(bytes, "");
         } else if (propertySpec.getName().equals(DeviceMessageConstants.encryptionLevelAttributeName)) {
             return String.valueOf(DlmsEncryptionLevelMessageValues.getValueFor(messageAttribute.toString()));
         } else if (propertySpec.getName().equals(DeviceMessageConstants.authenticationLevelAttributeName)) {

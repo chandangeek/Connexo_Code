@@ -99,7 +99,7 @@ public class G3MeterMessageConverterTest extends AbstractMessageConverterTest {
     protected Object getPropertySpecValue(PropertySpec propertySpec) {
         if (propertySpec.getName().equals(activityCalendarActivationDateAttributeName)) {
             return getDateInFuture();
-        } else if (propertySpec.getName().equals(specialDaysCodeTableAttributeName) || propertySpec.getName().equals(activityCalendarCodeTableAttributeName)) {
+        } else if (propertySpec.getName().equals(specialDaysAttributeName) || propertySpec.getName().equals(activityCalendarAttributeName)) {
             return mock(Code.class);
         } else if (propertySpec.getName().equals(activityCalendarNameAttributeName)) {
             return "KHE";
