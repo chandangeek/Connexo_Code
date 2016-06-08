@@ -8,7 +8,7 @@ Ext.define('Mdc.timeofuseondevice.store.CalendarContracts', {
 
     proxy: {
         type: 'rest',
-        url: "../../api/ddr/field/contracts",
+        url: "/api/ddr/field/contracts",
         reader: {
             type: 'json',
             root: 'contracts'

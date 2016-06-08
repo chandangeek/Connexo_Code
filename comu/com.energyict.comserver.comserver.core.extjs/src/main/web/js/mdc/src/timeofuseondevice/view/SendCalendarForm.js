@@ -20,6 +20,7 @@ Ext.define('Mdc.timeofuseondevice.view.SendCalendarForm', {
         me.content = [
             {
                 xtype: 'form',
+                mRID: me.mRID,
                 defaults: {
                     labelWidth: 250
                 },
@@ -37,10 +38,10 @@ Ext.define('Mdc.timeofuseondevice.view.SendCalendarForm', {
                     {
                         xtype: 'comboboxwithemptycomponent',
                         fieldLabel: Uni.I18n.translate('timeofuse.timeOfUseCalendar', 'MDC', 'Time of use calendar'),
+                        itemId: 'calendarComboBox',
                         required: true,
                         config: {
                             displayField: 'name',
-                            name: 'calendar',
                             valueField: 'id',
                             allowBlank: false,
                             store: 'Mdc.timeofuseondevice.store.AllowedCalendars',
@@ -129,6 +130,8 @@ Ext.define('Mdc.timeofuseondevice.view.SendCalendarForm', {
                         fieldLabel: Uni.I18n.translate('timeofuse.activateCalendar', 'MDC', 'Activate calendar'),
                         required: true,
                         itemId: 'activate-calendar-container',
+                        required: Mdc.dynamicprivileges.DeviceState.activationDateSupported(),
+                        hidden: !Mdc.dynamicprivileges.DeviceState.activationDateSupported() ,
                         layout: 'hbox',
                         items: [
                             {
@@ -155,12 +158,14 @@ Ext.define('Mdc.timeofuseondevice.view.SendCalendarForm', {
                                         itemId: 'no-activation-date',
                                         boxLabel: Uni.I18n.translate('timeofuse.sendWithoutActivation', 'MDC', 'Send without activation'),
                                         inputValue: 'no-activation',
-                                        checked: true
+                                        checked: Mdc.dynamicprivileges.DeviceState.bothSendSupported(),
+                                        hidden: !Mdc.dynamicprivileges.DeviceState.bothSendSupported()
                                     },
                                     {
                                         itemId: 'immediate-activation-date',
                                         boxLabel: Uni.I18n.translate('general.immediately', 'MDC', 'Immediately'),
-                                        inputValue: 'immediate-activation'
+                                        inputValue: 'immediate-activation',
+                                        checked: !Mdc.dynamicprivileges.DeviceState.bothSendSupported()
                                     },
                                     {
                                         itemId: 'on-activation-date',
@@ -173,7 +178,7 @@ Ext.define('Mdc.timeofuseondevice.view.SendCalendarForm', {
                                 itemId: 'activation-date-values',
                                 xtype: 'fieldcontainer',
                                 name: 'activationDateValues',
-                                margin: '55 0 10 -40',
+                                margin: Mdc.dynamicprivileges.DeviceState.bothSendSupported() ? '55 0 10 -40' : '30 0 10 -40',
                                 disabled: true,
                                 layout: 'hbox',
                                 items: [
@@ -209,7 +214,7 @@ Ext.define('Mdc.timeofuseondevice.view.SendCalendarForm', {
                         displayField: 'localizedValue',
                         valueField: 'calendarType',
                         allowBlank: !Mdc.dynamicprivileges.DeviceState.typeSupported(),
-                        name: 'type',
+                        itemId: 'typeCombo',
                         store: 'Mdc.timeofuseondevice.store.CalendarTypes',
                         emptyText: Uni.I18n.translate('timeofuse.selectType', 'MDC', 'Select a type...'),
                         width: 500
@@ -221,7 +226,7 @@ Ext.define('Mdc.timeofuseondevice.view.SendCalendarForm', {
                         hidden: !Mdc.dynamicprivileges.DeviceState.contractSupported() ,
                         displayField: 'localizedValue',
                         valueField: 'contract',
-                        name: 'contract',
+                        itemId: 'contractCombo',
                         allowBlank: !Mdc.dynamicprivileges.DeviceState.contractSupported(),
                         store: 'Mdc.timeofuseondevice.store.CalendarContracts',
                         emptyText: Uni.I18n.translate('timeofuse.selectContract', 'MDC', 'Select a contract...'),
@@ -248,18 +253,18 @@ Ext.define('Mdc.timeofuseondevice.view.SendCalendarForm', {
                             {
                                 itemId: 'full-calendar',
                                 boxLabel: Uni.I18n.translate('timeofuse.fullCalendar', 'MDC', 'Full calendar'),
-                                inputValue: 'full-activation',
+                                inputValue: 'fullCalendar',
                                 checked: true
                             },
                             {
                                 itemId: 'only-special-days',
                                 boxLabel: Uni.I18n.translate('timeofuse.onlySpecialDays', 'MDC', 'Only special days'),
-                                inputValue: 'only-special-days'
+                                inputValue: 'specialDays'
                             },
                             {
                                 itemId: 'only-activity-calendar',
                                 boxLabel: Uni.I18n.translate('timeofuse.onlyActivityCalendar', 'MDC', 'Only activity calendar'),
-                                inputValue: 'only-activity-calendar'
+                                inputValue: 'activityCalendar'
                             }
                         ]
                     },

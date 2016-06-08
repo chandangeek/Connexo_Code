@@ -8,7 +8,7 @@ Ext.define('Mdc.timeofuseondevice.store.AllowedCalendars', {
 
     proxy: {
         type: 'rest',
-        urlTpl: "../../api/ddr/devices/{mRID}/timeofuse/availablecalendars",
+        urlTpl: "/api/ddr/devices/{mRID}/timeofuse/availablecalendars",
         reader: {
             type: 'json'
         },

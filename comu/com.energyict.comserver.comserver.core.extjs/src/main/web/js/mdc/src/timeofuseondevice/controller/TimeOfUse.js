@@ -189,7 +189,7 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
         var me = this,
             form = me.getSendCalendarForm(),
             formErrorsPanel = form.down('#form-errors'),
-            record,
+            json = {},
             id;
 
         formErrorsPanel.hide();
@@ -197,7 +197,53 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
         if (!form.isValid()) {
             formErrorsPanel.show();
         } else {
+            if(form.down('#calendarComboBox').down('combo')) {
+                json.allowedCalendarId = form.down('#calendarComboBox').down('combo').value;
+            }
+            if(form.down('#on-release-date').checked) {
+                json.releaseDate = form.down('#release-date-values').down('#release-on').getValue().getTime();
+            }
+            if(form.down('#typeCombo').isVisible()) {
+                json.type = form.down('#typeCombo').value;
+            }
+            if(form.down('#contractCombo').isVisible()) {
+                debugger;
+                json.contract = form.down('#contractCombo').value;
+            }
+            if(form.down('#activate-calendar-container').isVisible()) {
+                if (form.down('#immediate-activation-date').checked) {
+                    json.activationDate = new Date().getTime();
+                } else if (form.down('#on-activation-date').checked) {
+                    json.activationDate = form.down('#activation-date-values').down('#activation-on').getValue().getTime();
+                }
+            }
+            if(form.down('#update-calendar').isVisible()) {
+                json.calendarUpdateOption = form.down('#update-calendar').getValue().updateCalendar;
+            }
+
+            me.sendCalendar(form.mRID, json);
         }
+    },
+
+    sendCalendar: function(mRID, payload) {
+        var me = this,
+            url = '/api/ddr/devices/'+ mRID + '/timeofuse/send';
+
+
+        Ext.Ajax.request({
+            url: url,
+            method: 'POST',
+            jsonData: Ext.encode(payload),
+            success: function () {
+                debugger;
+            },
+            failure: function (response) {
+                debugger;
+            },
+            callback: function () {
+
+            }
+        });
     }
 });
 
