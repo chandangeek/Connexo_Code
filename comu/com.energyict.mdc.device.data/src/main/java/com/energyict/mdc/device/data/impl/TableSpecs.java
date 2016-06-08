@@ -79,6 +79,7 @@ import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONGNULLZERO;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBERINUTCSECONDS2INSTANT;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
+import static com.elster.jupiter.orm.Version.version;
 
 /**
  * Models the database tables that hold the data of the
@@ -759,6 +760,7 @@ public enum TableSpecs {
         @Override
         void addTo(DataModel dataModel) {
             Table<ActivatedBreakerStatus> table = dataModel.addTable(name(), ActivatedBreakerStatus.class);
+            table.since(version(10, 2));
             table.map(ActivatedBreakerStatusImpl.class);
             Column idColumn = table.addAutoIdColumn();
             Column deviceColumn = table.column("DEVICEID").number().notNull().add();
