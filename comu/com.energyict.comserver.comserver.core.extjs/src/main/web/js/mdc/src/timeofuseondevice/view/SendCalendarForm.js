@@ -224,7 +224,7 @@ Ext.define('Mdc.timeofuseondevice.view.SendCalendarForm', {
                         name: 'contract',
                         allowBlank: !Mdc.dynamicprivileges.DeviceState.contractSupported(),
                         store: 'Mdc.timeofuseondevice.store.CalendarContracts',
-                        emptyText: Uni.I18n.translate('timeofuse.selectType', 'MDC', 'Select a contract...'),
+                        emptyText: Uni.I18n.translate('timeofuse.selectContract', 'MDC', 'Select a contract...'),
                         width: 500
                     },
                     {
