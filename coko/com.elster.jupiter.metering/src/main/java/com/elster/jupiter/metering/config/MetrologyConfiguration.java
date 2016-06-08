@@ -36,6 +36,8 @@ public interface MetrologyConfiguration extends HasId, HasName {
 
     void deactivate();
 
+    void deprecate();
+
     List<RegisteredCustomPropertySet> getCustomPropertySets();
 
     void addCustomPropertySet(RegisteredCustomPropertySet registeredCustomPropertySet);
