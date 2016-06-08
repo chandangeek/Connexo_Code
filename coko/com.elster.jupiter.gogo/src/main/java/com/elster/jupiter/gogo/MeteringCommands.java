@@ -137,7 +137,7 @@ public class MeteringCommands {
                         for (String readingType : readingTypes) {
                             Optional<ReadingType> readingTypeOptional = meteringService.getReadingType(readingType);
                             if (readingTypeOptional.isPresent()) {
-                                activate.createChannel(readingTypeOptional.get());
+                                activate.getChannelsContainer().createChannel(readingTypeOptional.get());
                             } else {
                                 System.out.println("Unknown reading type '" + readingType + "'. Skipping.");
                             }
@@ -147,7 +147,7 @@ public class MeteringCommands {
                 });
                 System.out.println("activation = " + activation);
                 System.out.println(" id = " + activation.getId());
-                for (Channel channel : activation.getChannels()) {
+                for (Channel channel : activation.getChannelsContainer().getChannels()) {
                     System.out.println("  channel " + channel.getId() + " : " + channel.getMainReadingType().getMRID());
                 }
             } catch (RuntimeException e) {
@@ -422,7 +422,7 @@ public class MeteringCommands {
             return;
         }
         //find channel
-        Optional<Channel> channel = meterActivation.get().getChannels().stream().filter(ch -> ch.getReadingTypes().contains(readingType.get())).findFirst();
+        Optional<Channel> channel = meterActivation.get().getChannelsContainer().getChannels().stream().filter(ch -> ch.getReadingTypes().contains(readingType.get())).findFirst();
         if (!channel.isPresent()) {
             System.out.println("No channel found for reading type " + readingTypeMRID);
             return;
