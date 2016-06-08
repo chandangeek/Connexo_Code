@@ -1,12 +1,5 @@
 package com.energyict.mdc.favorites.impl;
 
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.favorites.DeviceLabel;
-import com.energyict.mdc.favorites.FavoriteDeviceGroup;
-import com.energyict.mdc.favorites.FavoritesService;
-import com.energyict.mdc.favorites.LabelCategory;
-
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -15,10 +8,21 @@ import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.upgrade.FullInstaller;
+import com.elster.jupiter.upgrade.InstallIdentifier;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.favorites.DeviceLabel;
+import com.energyict.mdc.favorites.FavoriteDeviceGroup;
+import com.energyict.mdc.favorites.FavoritesService;
+import com.energyict.mdc.favorites.LabelCategory;
+
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -29,32 +33,31 @@ import javax.validation.MessageInterpolator;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
-@Component(name = "com.elster.jupiter.favorites", service = { InstallService.class, FavoritesService.class, MessageSeedProvider.class }, property = "name=" + FavoritesService.COMPONENTNAME, immediate = true)
-public class FavoritesServiceImpl implements FavoritesService, InstallService, MessageSeedProvider {
+@Component(name = "com.elster.jupiter.favorites", service = { FavoritesService.class, MessageSeedProvider.class }, property = "name=" + FavoritesService.COMPONENTNAME, immediate = true)
+public class FavoritesServiceImpl implements FavoritesService, MessageSeedProvider {
     private static final Logger LOGGER = Logger.getLogger(FavoritesServiceImpl.class.getName());
 
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
     private volatile Clock clock;
+    private volatile UpgradeService upgradeService;
 
     public FavoritesServiceImpl() {
     }
 
     @Inject
-    public FavoritesServiceImpl(Clock clock, OrmService ormService, NlsService nlsService) {
+    public FavoritesServiceImpl(Clock clock, OrmService ormService, NlsService nlsService, UpgradeService upgradeService) {
         this();
         setClockService(clock);
         setOrmService(ormService);
         setNlsService(nlsService);
+        setUpgradeService(upgradeService);
         activate();
-        if (!dataModel.isInstalled()) {
-            install();
-        }
     }
 
     @Activate
@@ -67,20 +70,22 @@ public class FavoritesServiceImpl implements FavoritesService, InstallService, M
                 bind(FavoritesService.class).toInstance(FavoritesServiceImpl.this);
             }
         });
+        upgradeService.register(InstallIdentifier.identifier(FavoritesService.COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
     }
 
-    @Override
-    public void install() {
-        try {
-            dataModel.install(true, true);
-        } catch (Exception ex) {
-            LOGGER.log(Level.SEVERE, "Could not install datamodel : " + ex.getMessage(), ex);
+    static class Installer implements FullInstaller {
+
+        private final DataModel dataModel;
+
+        @Inject
+        Installer(DataModel dataModel) {
+            this.dataModel = dataModel;
         }
-    }
 
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "USR", "NLS", "MTG", "DDC");
+        @Override
+        public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
+            dataModelUpgrader.upgrade(dataModel, Version.latest());
+        }
     }
 
     @Reference
@@ -109,6 +114,11 @@ public class FavoritesServiceImpl implements FavoritesService, InstallService, M
     @Reference
     public void setMeteringGroupService(MeteringGroupsService meteringGroupsService) {
         //Required for initialization data models in correct sequence
+    }
+
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
     }
 
     @Override
