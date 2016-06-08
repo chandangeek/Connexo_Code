@@ -3,8 +3,7 @@ Ext.define('Cfg.controller.DataValidationKpi', {
     stores: [
         'Cfg.store.DataValidationKpis',
         'Cfg.store.DataValidationKpiFrequency',
-        'Cfg.store.DataValidationGroups',
-        'Cfg.store.DataValidationKpiRange'
+        'Cfg.store.DataValidationGroups'
     ],
     models: [
         'Cfg.model.DataValidationKpi'
@@ -134,7 +133,7 @@ Ext.define('Cfg.controller.DataValidationKpi', {
                     form.loadRecord(Ext.create(kpiModel));
                 } else {
                     Ext.suspendLayouts();
-                    deviceGroupDisplayField.setValue('<span style="color: #eb5642">' + Uni.I18n.translate('datavalidationkpis.noDeviceGroup', 'CFG', 'No device group defined yet.') + '</span>');
+                    deviceGroupDisplayField.setValue('<span style="color: #eb5642">' + Uni.I18n.translate('datavalidationkpis.noDeviceGroup', 'CFG', 'No device group available.') + '</span>');
                     deviceGroupDisplayField.show();
                     deviceGroupCombo.hide();
                     createEditBtn.disable();

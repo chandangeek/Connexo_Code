@@ -55,14 +55,6 @@ Ext.define('Cfg.view.sep.datavalidationkpis.Preview', {
                             renderer: function (value) {
                                 return value ? Uni.util.ScheduleToStringConverter.convert(value) : '';
                             }
-                        },
-                        {
-                            name: 'displayRange',
-                            fieldLabel: Uni.I18n.translate('datavalidationkpis.displayRange', 'CFG', 'Display range'),
-                            itemId: 'display-range-data-validation-kpis-preview',
-                            renderer: function (value) {
-                                return value ? Ext.getStore('Cfg.store.DataValidationKpiRange').getById(value.count + value.timeUnit).get('name') : '';
-                            }
                         }
                     ]
                 },
