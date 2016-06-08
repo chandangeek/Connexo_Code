@@ -16,10 +16,11 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.upgrade.InstallIdentifier;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.NotFoundException;
@@ -115,8 +116,8 @@ import java.util.stream.Collectors;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-12-23 (13:47)
  */
-@Component(name = "com.energyict.mdc.protocol.pluggable", service = {ProtocolPluggableService.class, ServerProtocolPluggableService.class, InstallService.class, MessageSeedProvider.class, TranslationKeyProvider.class}, property = "name=" + ProtocolPluggableService.COMPONENTNAME)
-public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableService, InstallService, MessageSeedProvider, TranslationKeyProvider {
+@Component(name = "com.energyict.mdc.protocol.pluggable", service = {ProtocolPluggableService.class, ServerProtocolPluggableService.class, MessageSeedProvider.class, TranslationKeyProvider.class}, property = "name=" + ProtocolPluggableService.COMPONENTNAME)
+public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableService, MessageSeedProvider, TranslationKeyProvider {
 
     private static final Logger LOGGER = Logger.getLogger(ProtocolPluggableServiceImpl.class.getName());
     private static final String MDC_APPLICATION_KEY = "MDC";
@@ -142,6 +143,7 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
     private volatile UserService userService;
     private volatile MeteringService meteringService;
     private volatile DataVaultService dataVaultService;
+    private volatile UpgradeService upgradeService;
 
     private volatile boolean installed = false;
     private volatile List<ProtocolDeploymentListenerRegistrationImpl> registrations = new CopyOnWriteArrayList<>();
@@ -166,23 +168,25 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
                     CustomPropertySetService customPropertySetService,
                     LicenseService licenseService,
                     DataVaultService dataVaultService,
-                    TransactionService transactionService) {
+                    TransactionService transactionService,
+                    UpgradeService upgradeService
+    ) {
         this();
-        this.setOrmService(ormService);
-        this.setThreadPrincipalService(threadPrincipalService);
-        this.setEventService(eventService);
-        this.setNlsService(nlsService);
-        this.setMeteringService(meteringService);
-        this.setIssueService(issueService);
-        this.setPropertySpecService(propertySpecService);
-        this.setCustomPropertySetService(customPropertySetService);
-        this.setPluggableService(pluggableService);
-        this.setUserService(userService);
-        this.setLicenseService(licenseService);
-        this.setDataVaultService(dataVaultService);
-        this.setTransactionService(transactionService);
-        this.activate();
-        this.install();
+        setOrmService(ormService);
+        setThreadPrincipalService(threadPrincipalService);
+        setEventService(eventService);
+        setNlsService(nlsService);
+        setMeteringService(meteringService);
+        setIssueService(issueService);
+        setPropertySpecService(propertySpecService);
+        setCustomPropertySetService(customPropertySetService);
+        setPluggableService(pluggableService);
+        setUserService(userService);
+        setLicenseService(licenseService);
+        setDataVaultService(dataVaultService);
+        setTransactionService(transactionService);
+        setUpgradeService(upgradeService);
+        activate();
     }
 
     @Override
@@ -616,6 +620,11 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
         this.meteringService = meteringService;
     }
 
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
+    }
+
     @Override
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addDeviceProtocolService(DeviceProtocolService deviceProtocolService) {
@@ -845,8 +854,13 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
     public void activate() {
         //TODO need a proper implementation of the DataVault!
         this.dataModel.register(this.getModule());
-        this.installed = this.dataModel.isInstalled();
+
+        upgradeService.register(InstallIdentifier.identifier(ProtocolPluggableService.COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
+
+        this.installed = true;
         this.registerAllPluggableClasses();
+
+
     }
 
     private void registerAllPluggableClasses() {
@@ -858,7 +872,9 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
     }
 
     private void setPrincipal() {
-        this.threadPrincipalService.set(getPrincipal());
+        if (threadPrincipalService.getPrincipal() == null) {
+            this.threadPrincipalService.set(getPrincipal());
+        }
         this.threadPrincipalService.set(COMPONENTNAME, "PluggableClassRegistration");
     }
 
@@ -902,18 +918,6 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
     @Reference
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
-    }
-
-    @Override
-    public void install() {
-        if (!dataModel.isInstalled()) {
-            new Installer(this.dataModel, this.eventService).install(true, true);
-        }
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "USR", "EVT", "NLS");
     }
 
     @Override

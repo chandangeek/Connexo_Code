@@ -6,9 +6,11 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -87,7 +89,22 @@ public class ProtocolPluggableServiceImplTest {
     private DataVaultService dataVaultService;
     @Mock
     private TransactionService transactionService;
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    private DataModel dataModel;
 
+    @Before
+    public void setUp() {
+        when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
+        when(dataModel.getInstance(Installer.class)).thenAnswer(invocation -> {
+            return new Installer(dataModel, eventService);
+        });
+        when(licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.empty());
+    }
+
+    @After
+    public void tearDown() {
+
+    }
     @Test(expected = NoServiceFoundThatCanLoadTheJavaClass.class)
     public void createProtocolWithoutDeviceProtocolService() {
         ProtocolPluggableServiceImpl service = this.newTestInstance();
@@ -761,7 +778,7 @@ public class ProtocolPluggableServiceImplTest {
     }
 
     private ProtocolPluggableServiceImpl newTestInstance() {
-        return new ProtocolPluggableServiceImpl(this.ormService, this.threadPrincipalService, this.eventService, this.nlsService, this.issueService, this.userService, this.meteringService, this.propertySpecService, this.pluggableService, this.customPropertySetService, this.licenseService, this.dataVaultService, this.transactionService);
+        return new ProtocolPluggableServiceImpl(this.ormService, this.threadPrincipalService, this.eventService, this.nlsService, this.issueService, this.userService, this.meteringService, this.propertySpecService, this.pluggableService, this.customPropertySetService, this.licenseService, this.dataVaultService, this.transactionService, UpgradeModule.FakeUpgradeService.getInstance());
     }
 
 }

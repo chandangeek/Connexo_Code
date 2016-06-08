@@ -24,6 +24,8 @@ import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 import com.energyict.mdc.common.ObisCode;
@@ -381,6 +383,7 @@ public class DeviceProtocolPluggableClassImplTest {
             bind(DeviceProtocolSecurityService.class).toInstance(mock(DeviceProtocolSecurityService.class));
             bind(DeviceCacheMarshallingService.class).toInstance(mock(DeviceCacheMarshallingService.class));
             bind(DataModel.class).toProvider(() -> dataModel);
+            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
 
     }
