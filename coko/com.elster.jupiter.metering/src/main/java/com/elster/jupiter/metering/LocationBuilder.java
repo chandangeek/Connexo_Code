@@ -14,7 +14,6 @@ public interface LocationBuilder {
     LocationMemberBuilder member();
     Optional<LocationMemberBuilder> getMember(String locale);
 
-
     /**
      * Intermediate builder for members
      */
@@ -37,10 +36,7 @@ public interface LocationBuilder {
         LocationMemberBuilder isDaultLocation(boolean defaultLocation);
         LocationMemberBuilder setLocale(String locale);
         String getLocale();
-
         LocationMemberBuilder named(String name);
-        LocationMember createMember(Location location);
-
         LocationBuilder add();
     }
 }

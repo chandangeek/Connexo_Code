@@ -13,12 +13,12 @@ public class LocationBuilderImpl implements LocationBuilder {
 
 
     private String name;
-    private List<LocationMemberBuilder> members = new ArrayList<>();
+    private List<LocationMemberBuilderImpl> members = new ArrayList<>();
 
 
     private final DataModel dataModel;
 
-   LocationBuilderImpl(DataModel dataModel) {
+    LocationBuilderImpl(DataModel dataModel) {
         this.dataModel = dataModel;
     }
 
@@ -26,7 +26,7 @@ public class LocationBuilderImpl implements LocationBuilder {
     public Location create() {
         LocationImpl location = LocationImpl.from(dataModel, name);
         location.doSave();
-        for (LocationMemberBuilder member : members) {
+        for (LocationMemberBuilderImpl member : members) {
             member.createMember(location);
         }
         return location;
@@ -41,8 +41,15 @@ public class LocationBuilderImpl implements LocationBuilder {
 
 
     public Optional<LocationMemberBuilder> getMember(String locale) {
-        return members.stream().filter(location -> location.getLocale().equalsIgnoreCase(locale))
+        Optional<LocationMemberBuilderImpl> member = members.stream()
+                .filter(location -> location.getLocale().equalsIgnoreCase(locale))
                 .findFirst();
+        if(member.isPresent()){
+            return Optional.of(member.get());
+        }
+        return Optional.empty();
+
+
     }
 
 
@@ -186,11 +193,11 @@ public class LocationBuilderImpl implements LocationBuilder {
             return this.locale;
         }
 
-        @Override
-        public LocationMember createMember(Location location) {
-            return location.setMember(countryCode, countryName,
-                    administrativeArea,locality,subLocality,streetType,streetName,streetNumber,establishmentType,
-                    establishmentName,establishmentNumber,addressDetail,zipCode,defaultLocation,locale);
+
+        private LocationMemberImpl createMember(LocationImpl location) {
+            return location.setMember (countryCode, countryName,
+                            administrativeArea,locality,subLocality,streetType,streetName,streetNumber,establishmentType,
+                            establishmentName,establishmentNumber,addressDetail,zipCode,defaultLocation,locale);
         }
     }
 }
