@@ -7,12 +7,12 @@ import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.ValidationRuleSetInfo;
 import com.elster.jupiter.validation.security.Privileges;
-import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.data.Device;
@@ -22,6 +22,7 @@ import com.energyict.mdc.device.data.NumericalRegister;
 import com.energyict.mdc.device.data.exceptions.InvalidLastCheckedException;
 import com.energyict.mdc.device.data.rest.DeviceStatesRestricted;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
+
 import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
@@ -81,7 +82,10 @@ public class DeviceValidationResource {
     }
 
     private void fillValidationRuleSetStatus(List<ValidationRuleSet> linkedRuleSets, Optional<? extends MeterActivation> activation, List<DeviceValidationRuleSetInfo> result, Device device) {
-        List<? extends ValidationRuleSet> activeRuleSets = activation.map(validationService::activeRuleSets).orElse(Collections.emptyList());
+        List<? extends ValidationRuleSet> activeRuleSets = activation
+                .map(MeterActivation::getChannelsContainer)
+                .map(validationService::activeRuleSets)
+                .orElse(Collections.emptyList());
         for (ValidationRuleSet ruleSet : linkedRuleSets) {
             boolean isActive = (!activation.isPresent()) || activeRuleSets.contains(ruleSet);
             DeviceValidationRuleSetInfo info = new DeviceValidationRuleSetInfo(ruleSet, isActive);
@@ -111,9 +115,9 @@ public class DeviceValidationResource {
 
     private void setValidationRuleSetActivationStatus(MeterActivation activation, ValidationRuleSet ruleSet, boolean status) {
       if (status) {
-    	  validationService.activate(activation, ruleSet);
+          validationService.activate(activation.getChannelsContainer(), ruleSet);
       } else {
-    	  validationService.deactivate(activation, ruleSet);
+          validationService.deactivate(activation.getChannelsContainer(), ruleSet);
       }
     }
 

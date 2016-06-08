@@ -8,8 +8,8 @@ import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
@@ -84,7 +84,7 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
     @Mock
     private Channel meteringChannel;
     @Mock
-    private MeterActivation meterActivation;
+    private ChannelsContainer channelsContainer;
 
     public static final Instant BILLING_READING_INTERVAL_END = Instant.ofEpochMilli(1410786196000L);
     public static final Instant BILLING_READING_INTERVAL_START = Instant.ofEpochMilli(1409570229000L);
@@ -130,9 +130,9 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
 
         when(register.getReadings(any(Interval.class))).thenReturn(Arrays.asList(billingReading, numericalReading, numericalReadingConfirmed));
 
-        doReturn(Arrays.asList(meterActivation)).when(meter).getMeterActivations();
+        doReturn(Arrays.asList(channelsContainer)).when(meter).getChannelsContainers();
         when(registerType.getReadingType()).thenReturn(readingType);
-        when(meterActivation.getChannels()).thenReturn(Arrays.asList(meteringChannel));
+        when(channelsContainer.getChannels()).thenReturn(Arrays.asList(meteringChannel));
         doReturn(Arrays.asList(readingType)).when(meteringChannel).getReadingTypes();
         when(device.forValidation()).thenReturn(deviceValidation);
         when(deviceValidation.isValidationActive(any(Register.class), any(Instant.class))).thenReturn(false);
