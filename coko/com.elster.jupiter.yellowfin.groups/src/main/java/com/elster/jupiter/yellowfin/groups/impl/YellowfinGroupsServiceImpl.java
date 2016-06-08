@@ -66,7 +66,6 @@ public class YellowfinGroupsServiceImpl implements YellowfinGroupsService, Trans
         setUpgradeService(upgradeService);
         activate(null);
 
-        upgradeService.register(InstallIdentifier.identifier(COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
     }
 
     @Reference
@@ -104,6 +103,7 @@ public class YellowfinGroupsServiceImpl implements YellowfinGroupsService, Trans
                 }
             } catch (Exception e) {
             }
+            upgradeService.register(InstallIdentifier.identifier(COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
 
         } catch (Exception e) {
             e.printStackTrace();
