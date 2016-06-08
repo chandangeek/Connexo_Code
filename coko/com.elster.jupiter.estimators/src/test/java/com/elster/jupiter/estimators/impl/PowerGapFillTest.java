@@ -10,6 +10,7 @@ import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleProperties;
 import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
@@ -46,6 +47,7 @@ import static org.mockito.AdditionalMatchers.cmpEq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PowerGapFillTest {
@@ -79,11 +81,14 @@ public class PowerGapFillTest {
     private CimChannel bulkCimChannel;
     @Mock
     private MeterActivation meterActivation;
+    @Mock
+    private ChannelsContainer channelsContainer;
 
     @Before
     public void setUp() {
-        doReturn(meterActivation).when(channel).getChannelsContainer();
-        doReturn(Optional.empty()).when(meterActivation).getMeter();
+        when(meterActivation.getChannelsContainer()).thenReturn(channelsContainer);
+        doReturn(channelsContainer).when(channel).getChannelsContainer();
+        doReturn(Optional.empty()).when(channelsContainer).getMeter();
         doReturn("deltaReadingType").when(deltaReadingType).getMRID();
         doReturn("bulkReadingType").when(bulkReadingType).getMRID();
         doReturn(Arrays.asList(estimatable1, estimatable2, estimatable3)).when(estimationBlock).estimatables();

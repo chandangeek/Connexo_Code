@@ -9,6 +9,7 @@ import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleProperties;
 import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
@@ -41,6 +42,7 @@ import static com.elster.jupiter.estimators.impl.ValueFillEstimator.MAX_NUMBER_O
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ValueFillEstimatorTest {
@@ -62,15 +64,18 @@ public class ValueFillEstimatorTest {
     @Mock
     private MeterActivation meterActivation;
     @Mock
+    private ChannelsContainer channelsContainer;
+    @Mock
     private Meter meter;
 
     @Before
     public void setUp() {
         logRecorder = new LogRecorder(Level.ALL);
         LOGGER.addHandler(logRecorder);
+        when(meterActivation.getChannelsContainer()).thenReturn(channelsContainer);
         doReturn("readingType").when(readingType).getMRID();
-        doReturn(meterActivation).when(channel).getChannelsContainer();
-        doReturn(Optional.of(meter)).when(meterActivation).getMeter();
+        doReturn(channelsContainer).when(channel).getChannelsContainer();
+        doReturn(Optional.of(meter)).when(channelsContainer).getMeter();
 
         LoggingContext.get().with("rule", "rule");
     }
@@ -119,8 +124,8 @@ public class ValueFillEstimatorTest {
         doReturn(Arrays.asList(estimatable1, estimatable2)).when(estimationBlock).estimatables();
         doReturn(readingType).when(estimationBlock).getReadingType();
         doReturn(channel).when(estimationBlock).getChannel();
-        doReturn(meterActivation).when(channel).getChannelsContainer();
-        doReturn(Optional.of(meter)).when(meterActivation).getMeter();
+        doReturn(channelsContainer).when(channel).getChannelsContainer();
+        doReturn(Optional.of(meter)).when(channelsContainer).getMeter();
 
         Map<String, Object> properties = new HashMap<>();
         properties.put(ValueFillEstimator.FILL_VALUE, BigDecimal.valueOf(5));

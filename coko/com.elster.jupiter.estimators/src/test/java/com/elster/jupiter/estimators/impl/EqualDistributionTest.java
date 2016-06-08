@@ -17,6 +17,7 @@ import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.estimation.NoneAdvanceReadingsSettings;
 import com.elster.jupiter.estimation.ReadingTypeAdvanceReadingsSettings;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
@@ -62,6 +63,7 @@ import static org.mockito.AdditionalMatchers.cmpEq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EqualDistributionTest {
@@ -105,6 +107,8 @@ public class EqualDistributionTest {
     @Mock
     private MeterActivation meterActivation;
     @Mock
+    private ChannelsContainer channelsContainer;
+    @Mock
     private ReadingQualityRecord suspect1, suspect2, suspect3, suspect4;
     @Mock
     private MeteringService meteringService;
@@ -115,9 +119,9 @@ public class EqualDistributionTest {
     public void setUp() {
         doReturn(asList(estimatable1, estimatable2, estimatable3)).when(estimationBlock).estimatables();
         doReturn(channel).when(estimationBlock).getChannel();
-        doReturn(meterActivation).when(channel).getChannelsContainer();
-        doReturn(Optional.empty()).when(meterActivation).getMeter();
-        doReturn(asList(channel, otherChannel)).when(meterActivation).getChannels();
+        doReturn(channelsContainer).when(channel).getChannelsContainer();
+        doReturn(Optional.empty()).when(channelsContainer).getMeter();
+        doReturn(asList(channel, otherChannel)).when(channelsContainer).getChannels();
         doReturn(asList(deltaReadingType, bulkReadingType)).when(channel).getReadingTypes();
         doReturn(Collections.singletonList(advanceReadingType)).when(otherChannel).getReadingTypes();
         doReturn(Optional.of(bulkCimChannel)).when(channel).getCimChannel(bulkReadingType);
@@ -202,6 +206,7 @@ public class EqualDistributionTest {
         doReturn(BEFORE.toInstant()).when(bulkCimChannel).getPreviousDateTime(ESTIMATABLE1.toInstant());
         doReturn(AFTER.toInstant()).when(bulkCimChannel).getNextDateTime(ESTIMATABLE3.toInstant());
 
+        when(meterActivation.getChannelsContainer()).thenReturn(channelsContainer);
         logRecorder = new LogRecorder(Level.ALL);
         LOGGER.addHandler(logRecorder);
         LoggingContext.get().with("rule", "rule");
