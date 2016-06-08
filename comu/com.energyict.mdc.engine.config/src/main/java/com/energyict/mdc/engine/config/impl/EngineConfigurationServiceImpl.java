@@ -12,7 +12,6 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
@@ -22,6 +21,8 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.proxy.LazyLoader;
 import com.elster.jupiter.util.streams.DecoratedStream;
 import com.elster.jupiter.util.streams.Predicates;
+import com.elster.jupiter.upgrade.InstallIdentifier;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComPortPool;
@@ -59,6 +60,7 @@ import javax.validation.MessageInterpolator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -70,14 +72,15 @@ import static com.energyict.mdc.engine.config.impl.ComServerImpl.OFFLINE_COMSERV
 import static com.energyict.mdc.engine.config.impl.ComServerImpl.ONLINE_COMSERVER_DISCRIMINATOR;
 import static com.energyict.mdc.engine.config.impl.ComServerImpl.REMOTE_COMSERVER_DISCRIMINATOR;
 
-@Component(name = "com.energyict.mdc.engine.config", service = {EngineConfigurationService.class, InstallService.class, MessageSeedProvider.class, TranslationKeyProvider.class, PrivilegesProvider.class}, property = "name=" + EngineConfigurationService.COMPONENT_NAME)
-public class EngineConfigurationServiceImpl implements EngineConfigurationService, InstallService, MessageSeedProvider, TranslationKeyProvider, OrmClient, PrivilegesProvider {
+@Component(name = "com.energyict.mdc.engine.config", service = {EngineConfigurationService.class, MessageSeedProvider.class, TranslationKeyProvider.class, PrivilegesProvider.class}, property = "name=" + EngineConfigurationService.COMPONENT_NAME)
+public class EngineConfigurationServiceImpl implements EngineConfigurationService, MessageSeedProvider, TranslationKeyProvider, OrmClient, PrivilegesProvider {
 
     private volatile DataModel dataModel;
     private volatile EventService eventService;
     private volatile NlsService nlsService;
     private volatile ProtocolPluggableService protocolPluggableService;
     private volatile UserService userService;
+    private volatile UpgradeService upgradeService;
     private Thesaurus thesaurus;
 
     public EngineConfigurationServiceImpl() {
@@ -85,25 +88,15 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     }
 
     @Inject
-    public EngineConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, ProtocolPluggableService protocolPluggableService, UserService userService) {
+    public EngineConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, ProtocolPluggableService protocolPluggableService, UserService userService, UpgradeService upgradeService) {
         this();
         this.setOrmService(ormService);
         this.setEventService(eventService);
         this.setNlsService(nlsService);
         this.setProtocolPluggableService(protocolPluggableService);
         this.setUserService(userService);
+        this.setUpgradeService(upgradeService);
         this.activate();
-        this.install();
-    }
-
-    @Override
-    public void install() {
-        new Installer(this.dataModel, this.eventService, this.userService).install(true);
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "USR", "EVT", "USR");
     }
 
     @Override
@@ -158,6 +151,11 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
         this.userService = userService;
     }
 
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
+    }
+
     Module getModule() {
         return new AbstractModule() {
             @Override
@@ -183,6 +181,8 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     @Activate
     public void activate() {
         dataModel.register(getModule());
+
+        upgradeService.register(InstallIdentifier.identifier(EngineConfigurationService.COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
     }
 
 
