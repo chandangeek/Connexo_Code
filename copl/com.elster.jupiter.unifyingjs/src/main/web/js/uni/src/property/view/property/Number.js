@@ -66,11 +66,11 @@ Ext.define('Uni.property.view.property.Number', {
     },
 
     markInvalid: function (error) {
-        this.down('numberfield').markInvalid(error);
+        this.getField().markInvalid(error);
     },
 
     clearInvalid: function () {
-        this.down('numberfield').clearInvalid();
+        this.getField().clearInvalid();
     },
 
     getField: function () {
