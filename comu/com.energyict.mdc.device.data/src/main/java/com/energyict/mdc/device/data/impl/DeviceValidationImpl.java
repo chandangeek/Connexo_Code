@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
@@ -109,15 +110,16 @@ public class DeviceValidationImpl implements DeviceValidation {
     }
 
     private void applyLastChecked(Instant lastChecked, MeterActivation meterActivation) {
-        Optional<Instant> meterActivationLastChecked = validationService.getLastChecked(meterActivation);
+        ChannelsContainer channelsContainer = meterActivation.getChannelsContainer();
+        Optional<Instant> channelsContainerLastChecked = validationService.getLastChecked(channelsContainer);
         if (meterActivation.isCurrent()) {
-            if (meterActivationLastChecked.isPresent() && lastChecked.isAfter(meterActivationLastChecked.get())) {
-                throw InvalidLastCheckedException.lastCheckedAfterCurrentLastChecked(this.device, meterActivationLastChecked.get(), lastChecked, this.thesaurus, MessageSeeds.LAST_CHECKED_AFTER_CURRENT_LAST_CHECKED);
+            if (channelsContainerLastChecked.isPresent() && lastChecked.isAfter(channelsContainerLastChecked.get())) {
+                throw InvalidLastCheckedException.lastCheckedAfterCurrentLastChecked(this.device, channelsContainerLastChecked.get(), lastChecked, this.thesaurus, MessageSeeds.LAST_CHECKED_AFTER_CURRENT_LAST_CHECKED);
             }
-            this.validationService.updateLastChecked(meterActivation, lastChecked);
+            this.validationService.updateLastChecked(channelsContainer, lastChecked);
         } else {
-            Instant lastCheckedDateToSet = this.smallest(meterActivationLastChecked.orElse(meterActivation.getStart()), lastChecked);
-            validationService.updateLastChecked(meterActivation, lastCheckedDateToSet);
+            Instant lastCheckedDateToSet = this.smallest(channelsContainerLastChecked.orElse(channelsContainer.getStart()), lastChecked);
+            validationService.updateLastChecked(channelsContainer, lastCheckedDateToSet);
         }
     }
 
@@ -198,13 +200,16 @@ public class DeviceValidationImpl implements DeviceValidation {
 
     @Override
     public void validateData() {
-        List<? extends MeterActivation> meterActivations = device.getMeterActivations();
-        if (!meterActivations.isEmpty()) {
-            Range<Instant> range = meterActivations.get(0).getRange();
+        List<ChannelsContainer> channelsContainers = device.getMeterActivations()
+                .stream()
+                .map(MeterActivation::getChannelsContainer)
+                .collect(Collectors.toList());
+        if (!channelsContainers.isEmpty()) {
+            Range<Instant> range = channelsContainers.get(0).getRange();
             ValidationEvaluator evaluator = this.validationService.getEvaluator(this.fetchKoreMeter(), range);
-            meterActivations.forEach(meterActivation -> {
-                if (!evaluator.isAllDataValidated(meterActivation)) {
-                    this.validationService.validate(meterActivation);
+            channelsContainers.forEach(channelsContainer -> {
+                if (!evaluator.isAllDataValidated(channelsContainer)) {
+                    this.validationService.validate(channelsContainer);
                 }
             });
         }
@@ -275,6 +280,7 @@ public class DeviceValidationImpl implements DeviceValidation {
 
     private Optional<Instant> getLastChecked(Meter meter) {
         return getMeterActivationsMostRecentFirst(meter)
+                .map(MeterActivation::getChannelsContainer)
                 .map(validationService::getLastChecked)  // may be use evaluator to allow caching this
                 .flatMap(asStream())
                 .findAny();

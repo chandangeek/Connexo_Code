@@ -1308,7 +1308,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 loadProfileReading.setReadingTime(meterReading.getReportedDateTime());
             }
 
-            Optional<com.elster.jupiter.metering.Channel> koreChannel = this.getChannel(meterActivation, readingType);
+            Optional<com.elster.jupiter.metering.Channel> koreChannel = this.getChannel(meterActivation.getChannelsContainer(), readingType);
             if (koreChannel.isPresent()) {
                 List<DataValidationStatus> validationStatus = forValidation().getValidationStatus(mdcChannel, meterReadings, meterActivationInterval);
                 validationStatus.stream()
@@ -1605,7 +1605,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private Optional<ReadingRecord> getLastReadingsFor(Register register, Meter meter) {
         ReadingType readingType = register.getRegisterSpec().getRegisterType().getReadingType();
         for (MeterActivation meterActivation : this.getSortedMeterActivations(meter)) {
-            Optional<com.elster.jupiter.metering.Channel> channel = this.getChannel(meterActivation, readingType);
+            Optional<com.elster.jupiter.metering.Channel> channel = this.getChannel(meterActivation.getChannelsContainer(), readingType);
             if (channel.isPresent()) {
                 Instant lastReadingDate = channel.get().getLastDateTime();
                 if (lastReadingDate != null) {
@@ -1789,7 +1789,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private Optional<com.elster.jupiter.metering.Channel> findKoreChannel(Meter meter, Supplier<ReadingType> readingTypeSupplier, Instant when) {
         Optional<? extends MeterActivation> meterActivation = meter.getMeterActivation(when);
         if (meterActivation.isPresent()) {
-            return Optional.ofNullable(getChannel(meterActivation.get(), readingTypeSupplier.get()).orElse(null));
+            return Optional.ofNullable(getChannel(meterActivation.get().getChannelsContainer(), readingTypeSupplier.get()).orElse(null));
         } else {
             return Optional.empty();
         }
@@ -1818,8 +1818,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private com.elster.jupiter.metering.Channel findOrCreateKoreChannel(Instant when, ReadingType readingType) {
         Optional<MeterActivation> meterActivation = this.getMeterActivation(when);
         if (meterActivation.isPresent()) {
-            return this.getChannel(meterActivation.get(), readingType)
-                    .orElseGet(() -> meterActivation.get().createChannel(readingType));
+            return this.getChannel(meterActivation.get().getChannelsContainer(), readingType)
+                    .orElseGet(() -> meterActivation.get().getChannelsContainer().createChannel(readingType));
         } else {
             throw this.noMeterActivationAt(when).get();
         }

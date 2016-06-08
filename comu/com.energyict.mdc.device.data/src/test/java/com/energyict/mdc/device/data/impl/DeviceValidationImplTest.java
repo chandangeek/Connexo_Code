@@ -55,7 +55,7 @@ public class DeviceValidationImplTest {
     @Mock
     private com.elster.jupiter.metering.Channel koreChannel, otherKoreChannel;
     @Mock
-    private ChannelsContainer channelsContainer;
+    private ChannelsContainer channelsContainer1, channelsContainer2;
     @Mock
     private com.elster.jupiter.metering.ReadingType readingType;
     @Mock
@@ -75,11 +75,11 @@ public class DeviceValidationImplTest {
 
         when(device.findKoreMeter(amrSystem)).thenReturn(Optional.of(meter));
         when(device.findKoreChannel(channel, NOW.toInstant())).thenReturn(Optional.of(koreChannel));
-        when(koreChannel.getChannelsContainer()).thenReturn(channelsContainer);
+        when(koreChannel.getChannelsContainer()).thenReturn(channelsContainer1);
         doReturn(asList(readingType)).when(koreChannel).getReadingTypes();
-        doReturn(asList(channelsContainer)).when(meter).getChannelsContainers();
-        when(channelsContainer.getRange()).thenReturn(Range.atLeast(Instant.EPOCH));
-        when(channelsContainer.getChannels()).thenReturn(asList(koreChannel));
+        doReturn(asList(channelsContainer1, channelsContainer2)).when(meter).getChannelsContainers();
+        when(channelsContainer1.getRange()).thenReturn(Range.atLeast(Instant.EPOCH));
+        when(channelsContainer1.getChannels()).thenReturn(asList(koreChannel));
         when(clock.instant()).thenReturn(NOW.toInstant());
         when(channel.getReadingType()).thenReturn(readingType);
         when(device.findOrCreateKoreMeter(amrSystem)).thenReturn(meter);
@@ -129,8 +129,10 @@ public class DeviceValidationImplTest {
     @Test
     public void testValidateChannel() {
         doReturn(asList(meterActivation1, meterActivation2)).when(meter).getMeterActivations();
-        when(meterActivation1.getChannels()).thenReturn(asList(koreChannel1, koreChannel2));
-        when(meterActivation2.getChannels()).thenReturn(asList(koreChannel3, koreChannel4));
+        when(meterActivation1.getChannelsContainer()).thenReturn(channelsContainer1);
+        when(meterActivation2.getChannelsContainer()).thenReturn(channelsContainer2);
+        when(channelsContainer1.getChannels()).thenReturn(asList(koreChannel1, koreChannel2));
+        when(channelsContainer2.getChannels()).thenReturn(asList(koreChannel3, koreChannel4));
         doReturn(asList(readingType)).when(koreChannel2).getReadingTypes();
         doReturn(asList(readingType)).when(koreChannel4).getReadingTypes();
         when(koreChannel2.getMainReadingType()).thenReturn(readingType);
@@ -140,24 +142,26 @@ public class DeviceValidationImplTest {
         when(validationService.getLastChecked(koreChannel2)).thenReturn(Optional.of(LAST_CHECKED.toInstant()));
         when(validationService.getLastChecked(koreChannel4)).thenReturn(Optional.empty());
         when(validationEvaluator.getLastChecked(meter, readingType)).thenReturn(Optional.of(LAST_CHECKED.toInstant()), Optional.<Instant>empty());
-        when(koreChannel1.getChannelsContainer()).thenReturn(meterActivation1);
-        when(koreChannel2.getChannelsContainer()).thenReturn(meterActivation1);
-        when(koreChannel3.getChannelsContainer()).thenReturn(meterActivation2);
-        when(koreChannel4.getChannelsContainer()).thenReturn(meterActivation2);
+        when(koreChannel1.getChannelsContainer()).thenReturn(channelsContainer1);
+        when(koreChannel2.getChannelsContainer()).thenReturn(channelsContainer1);
+        when(koreChannel3.getChannelsContainer()).thenReturn(channelsContainer2);
+        when(koreChannel4.getChannelsContainer()).thenReturn(channelsContainer2);
         when(meterActivation1.getRange()).thenReturn(Range.closedOpen(Instant.EPOCH, SWITCH.toInstant()));
         when(meterActivation2.getRange()).thenReturn(Range.atLeast(SWITCH.toInstant()));
 
         deviceValidation.validateChannel(channel);
 
-        verify(validationService).validate(meterActivation1, readingType);
-        verify(validationService).validate(meterActivation2, readingType);
+        verify(validationService).validate(channelsContainer1, readingType);
+        verify(validationService).validate(channelsContainer2, readingType);
     }
 
     @Test
     public void testValidateChannelWithDate() {
         doReturn(asList(meterActivation1, meterActivation2)).when(meter).getMeterActivations();
-        when(meterActivation1.getChannels()).thenReturn(asList(koreChannel1, koreChannel2));
-        when(meterActivation2.getChannels()).thenReturn(asList(koreChannel3, koreChannel4));
+        when(meterActivation1.getChannelsContainer()).thenReturn(channelsContainer1);
+        when(meterActivation2.getChannelsContainer()).thenReturn(channelsContainer2);
+        when(channelsContainer1.getChannels()).thenReturn(asList(koreChannel1, koreChannel2));
+        when(channelsContainer2.getChannels()).thenReturn(asList(koreChannel3, koreChannel4));
         doReturn(asList(readingType)).when(koreChannel2).getReadingTypes();
         doReturn(asList(readingType)).when(koreChannel4).getReadingTypes();
         when(koreChannel2.getMainReadingType()).thenReturn(readingType);
@@ -166,17 +170,17 @@ public class DeviceValidationImplTest {
         when(readingType.getMRID()).thenReturn("MRID");
         when(validationService.getLastChecked(koreChannel2)).thenReturn(Optional.of(LAST_CHECKED.toInstant()));
         when(validationService.getLastChecked(koreChannel4)).thenReturn(Optional.empty());
-        when(koreChannel1.getChannelsContainer()).thenReturn(meterActivation1);
-        when(koreChannel2.getChannelsContainer()).thenReturn(meterActivation1);
-        when(koreChannel3.getChannelsContainer()).thenReturn(meterActivation2);
-        when(koreChannel4.getChannelsContainer()).thenReturn(meterActivation2);
+        when(koreChannel1.getChannelsContainer()).thenReturn(channelsContainer1);
+        when(koreChannel2.getChannelsContainer()).thenReturn(channelsContainer1);
+        when(koreChannel3.getChannelsContainer()).thenReturn(channelsContainer2);
+        when(koreChannel4.getChannelsContainer()).thenReturn(channelsContainer2);
         when(meterActivation1.getRange()).thenReturn(Range.closed(Instant.EPOCH, SWITCH.toInstant()));
         when(meterActivation2.getRange()).thenReturn(Range.atLeast(SWITCH.toInstant()));
 
         deviceValidation.validateChannel(channel);
 
-        verify(validationService).validate(meterActivation1, readingType);
-        verify(validationService).validate(meterActivation2, readingType);
+        verify(validationService).validate(channelsContainer1, readingType);
+        verify(validationService).validate(channelsContainer2, readingType);
     }
 
 }
