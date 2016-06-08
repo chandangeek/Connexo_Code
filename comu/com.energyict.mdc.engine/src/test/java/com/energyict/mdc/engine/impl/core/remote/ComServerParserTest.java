@@ -17,6 +17,8 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.impl.UserModule;
+import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.util.UtilModule;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
@@ -207,6 +209,7 @@ public class ComServerParserTest {
             bind(BundleContext.class).toInstance(this.bundleContext);
             bind(EventAdmin.class).toInstance(this.eventAdmin);
             bind(ProtocolPluggableService.class).toInstance(this.protocolPluggableService);
+            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }
 
