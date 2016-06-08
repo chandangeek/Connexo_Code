@@ -4,6 +4,8 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
@@ -14,6 +16,7 @@ import com.elster.jupiter.yellowfin.YellowfinReportInfo;
 import com.elster.jupiter.yellowfin.YellowfinService;
 import com.elster.jupiter.yellowfin.security.Privileges;
 
+import com.google.inject.AbstractModule;
 import com.hof.mi.web.service.AdministrationPerson;
 import com.hof.mi.web.service.AdministrationReport;
 import com.hof.mi.web.service.AdministrationServiceRequest;
@@ -42,6 +45,7 @@ import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -83,6 +87,15 @@ public class YellowfinServiceImpl implements YellowfinService, TranslationKeyPro
     public void activate(BundleContext context) {
         loadProperties(context);
         parseUrl();
+        DataModel dataModel = upgradeService.newNonOrmDataModel();
+        dataModel.register(new AbstractModule() {
+            @Override
+            protected void configure() {
+                bind(UserService.class).toInstance(userService);
+                bind(YellowfinService.class).toInstance(YellowfinServiceImpl.this);
+            }
+        });
+        upgradeService.register(InstallIdentifier.identifier("YFA"), dataModel, Installer.class, Collections.emptyMap());
     }
 
     private void loadProperties(BundleContext context){

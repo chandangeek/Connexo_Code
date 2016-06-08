@@ -78,6 +78,11 @@
         </dependency>
 
         <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>util</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>com.yellowfin</groupId>
             <artifactId>yellowfin-ws</artifactId>
             <version>7.1</version>
