@@ -3,6 +3,7 @@ package com.energyict.mdc.device.lifecycle.impl.micro.actions;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
@@ -65,9 +66,10 @@ public class ForceValidationAndEstimation extends TranslatableServerMicroAction 
     }
 
     private void validateAndEstimate(MeterActivation meterActivation) {
-        validationService.validate(meterActivation);
+        ChannelsContainer channelsContainer = meterActivation.getChannelsContainer();
+        validationService.validate(channelsContainer);
         estimationService.estimate(meterActivation, meterActivation.getRange());
-        boolean hasSuspects = !meterActivation.getChannels().stream()
+        boolean hasSuspects = !channelsContainer.getChannels().stream()
                 .allMatch(channel ->
                         channel.findReadingQualities(Collections.singleton(QualityCodeSystem.MDC), QualityCodeIndex.SUSPECT, Range.all(), true, false).isEmpty());
         if (hasSuspects) {

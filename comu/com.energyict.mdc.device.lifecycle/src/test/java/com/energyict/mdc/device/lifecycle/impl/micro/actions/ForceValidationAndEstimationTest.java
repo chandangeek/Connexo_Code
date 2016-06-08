@@ -2,6 +2,7 @@ package com.energyict.mdc.device.lifecycle.impl.micro.actions;
 
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.nls.Thesaurus;
@@ -34,6 +35,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -94,7 +96,7 @@ public class ForceValidationAndEstimationTest {
         when(this.device.forValidation()).thenReturn(deviceValidation);
         forceValidationAndEstimation.execute(this.device, Instant.now(), Collections.emptyList());
 
-        verify(validationService, never()).validate(any(MeterActivation.class));
+        verify(validationService, never()).validate(any(ChannelsContainer.class));
         verify(estimationService, never()).estimate(any(MeterActivation.class), any(Range.class));
     }
 
@@ -109,7 +111,7 @@ public class ForceValidationAndEstimationTest {
         when(this.device.forEstimation()).thenReturn(deviceEstimation);
         forceValidationAndEstimation.execute(this.device, Instant.now(), Collections.emptyList());
 
-        verify(validationService, never()).validate(any(MeterActivation.class));
+        verify(validationService, never()).validate(any(ChannelsContainer.class));
         verify(estimationService, never()).estimate(any(MeterActivation.class), any(Range.class));
     }
 
@@ -118,7 +120,7 @@ public class ForceValidationAndEstimationTest {
         Instant now = Instant.ofEpochSecond(97L);
 
         when(validationService.getEvaluator()).thenReturn(validationEvaluator);
-        when(validationEvaluator.isAllDataValidated(any(MeterActivation.class))).thenReturn(true);
+        when(validationEvaluator.isAllDataValidated(any(ChannelsContainer.class))).thenReturn(true);
 
         LoadProfile loadProfile1 = mock(LoadProfile.class);
         LoadProfile.LoadProfileUpdater updater1 = mock(LoadProfile.LoadProfileUpdater.class);
@@ -137,7 +139,9 @@ public class ForceValidationAndEstimationTest {
         when(deviceValidation.isValidationActive()).thenReturn(true);
         DeviceEstimation deviceEstimation = mock(DeviceEstimation.class);
         when(deviceEstimation.isEstimationActive()).thenReturn(true);
+        ChannelsContainer channelsContainer = mock(ChannelsContainer.class);
         MeterActivation meterActivation = mock(MeterActivation.class);
+        when(meterActivation.getChannelsContainer()).thenReturn(channelsContainer);
         when(this.device.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile1, loadProfile2));
         when(this.device.forValidation()).thenReturn(deviceValidation);
         when(this.device.forEstimation()).thenReturn(deviceEstimation);
@@ -147,7 +151,7 @@ public class ForceValidationAndEstimationTest {
         forceValidationAndEstimation.execute(this.device, now, Collections.emptyList());
 
         // Asserts
-        verify(validationService).validate(meterActivation);
+        verify(validationService).validate(channelsContainer);
         verify(estimationService).estimate(meterActivation, meterActivation.getRange());
     }
 
@@ -174,11 +178,13 @@ public class ForceValidationAndEstimationTest {
         when(deviceValidation.isValidationActive()).thenReturn(true);
         DeviceEstimation deviceEstimation = mock(DeviceEstimation.class);
         when(deviceEstimation.isEstimationActive()).thenReturn(true);
+        ChannelsContainer channelsContainer = mock(ChannelsContainer.class);
         MeterActivation meterActivation = mock(MeterActivation.class);
+        when(meterActivation.getChannelsContainer()).thenReturn(channelsContainer);
         Channel channel = mock(Channel.class);
-        when(meterActivation.getChannels()).thenReturn(Collections.singletonList(channel));
+        when(channelsContainer.getChannels()).thenReturn(Collections.singletonList(channel));
         ReadingQualityRecord suspect = mock(ReadingQualityRecord.class);
-        when(channel.findReadingQualities(any(), any(), any(), any(), any())).thenReturn(Collections.singletonList(suspect));
+        when(channel.findReadingQualities(any(), any(), any(), anyBoolean(), anyBoolean())).thenReturn(Collections.singletonList(suspect));
         when(this.device.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile1, loadProfile2));
         when(this.device.forValidation()).thenReturn(deviceValidation);
         when(this.device.forEstimation()).thenReturn(deviceEstimation);

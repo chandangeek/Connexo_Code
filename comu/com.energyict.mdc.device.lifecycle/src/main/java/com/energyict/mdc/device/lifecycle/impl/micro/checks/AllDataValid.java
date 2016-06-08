@@ -37,7 +37,7 @@ public class AllDataValid extends TranslatableServerMicroCheck {
         Optional<? extends MeterActivation> current = device.getCurrentMeterActivation();
         if (!current.isPresent()
                 || validationService.validationEnabled(current.get().getMeter().get())
-                && validationService.getEvaluator().areSuspectsPresent(Collections.singleton(QualityCodeSystem.MDC), current.get())) {
+                && validationService.getEvaluator().areSuspectsPresent(Collections.singleton(QualityCodeSystem.MDC), current.get().getChannelsContainer())) {
             return Optional.of(newViolation());
         }
         return Optional.empty();
