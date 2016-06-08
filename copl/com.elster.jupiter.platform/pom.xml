@@ -195,12 +195,6 @@
                 <scope>provided</scope>
             </dependency>
             <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>install</artifactId>
-                <version>1.2.0${revision}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
                 <groupId>com.elster.partners</groupId>
                 <artifactId>jbpm.extension</artifactId>
                 <version>1.1.0${revision}</version>
@@ -415,6 +409,12 @@
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>unifyingjs</artifactId>
                 <version>1.2.0${revision}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.elster.jupiter</groupId>
+                <artifactId>upgrade</artifactId>
+                <version>1.0.0${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -682,7 +682,6 @@
                 <module>../com.elster.jupiter.fsm.rest</module>
                 <module>../com.elster.jupiter.ftpclient</module>
                 <module>../com.elster.jupiter.http.whiteboard</module>
-                <module>../com.elster.jupiter.install</module>
                 <module>../com.elster.jupiter.launcher</module>
                 <module>../com.elster.jupiter.loaderjs</module>
                 <module>../com.elster.jupiter.login.app</module>
@@ -719,6 +718,7 @@
                 <module>../com.elster.jupiter.time.rest</module>
                 <module>../com.elster.jupiter.transaction</module>
                 <module>../com.elster.jupiter.unifyingjs</module>
+                <module>../com.elster.jupiter.upgrade</module>
                 <module>../com.elster.jupiter.users</module>
                 <module>../com.elster.jupiter.users.extjs</module>
                 <module>../com.elster.jupiter.users.rest</module>
