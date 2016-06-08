@@ -5,6 +5,7 @@ import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -144,18 +145,18 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     }
 
     @Override
-    public void link(UsagePoint usagePoint, MetrologyConfiguration metrologyConfiguration) {
+    public void link(UsagePoint usagePoint, UsagePointMetrologyConfiguration metrologyConfiguration) {
         usagePoint.apply(metrologyConfiguration, this.clock.instant());
     }
 
     @Override
-    public Boolean unlink(UsagePoint usagePoint, MetrologyConfiguration mc) {
+    public Boolean unlink(UsagePoint usagePoint, UsagePointMetrologyConfiguration mc) {
         usagePoint.removeMetrologyConfiguration(this.clock.instant());
         return Boolean.TRUE;
     }
 
     @Override
-    public Optional<MetrologyConfiguration> findMetrologyConfigurationForUsagePoint(UsagePoint usagePoint) {
+    public Optional<UsagePointMetrologyConfiguration> findMetrologyConfigurationForUsagePoint(UsagePoint usagePoint) {
         return usagePoint.getMetrologyConfiguration();
     }
 
