@@ -277,9 +277,10 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
 
     createLink: function (textColor, value) {
         var href, html;
+
         switch (value.type) {
             case 'issue':
-                href = this.router.getRoute('workspace/issues/view').buildUrl({issueId: value.id});
+                href = this.router.getRoute('workspace/issues/view').buildUrl({issueId: value.id}, {issueType: value.issueType});
                 html = '<a class="a-underline" style="color:' + textColor + ';" href="' + href + '">' + value.description;
                 break;
             case 'servicecall':

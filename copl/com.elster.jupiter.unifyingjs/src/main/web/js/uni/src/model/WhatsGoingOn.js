@@ -3,6 +3,7 @@ Ext.define('Uni.model.WhatsGoingOn', {
     idProperty: 'internalId',
     fields: [
         'type',
+        'issueType',
         'id',
         'description',
         {
@@ -25,6 +26,7 @@ Ext.define('Uni.model.WhatsGoingOn', {
             mapping: function(record){
                 return {
                     type: record.type,
+                    issueType: record.issueType,
                     id: record.id,
                     reference : record.reference,
                     description: record.description,
