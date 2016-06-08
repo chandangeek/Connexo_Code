@@ -14,7 +14,7 @@ import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.metering.WaterDetail;
-import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.units.Quantity;
 
@@ -92,7 +92,7 @@ public class UsagePointResourceTest extends MultisensePublicApiJerseyTest {
         when(gasDetail.isInterruptible()).thenReturn(YesNoAnswer.YES);
         when(gasDetail.isCollarInstalled()).thenReturn(YesNoAnswer.YES);
         UsagePoint usagePoint = mockUsagePoint(31L, "usage point", 2L, ServiceKind.GAS, gasDetail);
-        MetrologyConfiguration metrologyConfiguration = mockMetrologyConfiguration(13L, "metro", 1);
+        UsagePointMetrologyConfiguration metrologyConfiguration = mockMetrologyConfiguration(13L, "metro", 1);
         when(usagePoint.getMetrologyConfiguration()).thenReturn(Optional.of(metrologyConfiguration));
         Response response = target("/usagepoints/31").request().get();
 
@@ -351,7 +351,7 @@ public class UsagePointResourceTest extends MultisensePublicApiJerseyTest {
         info.metrologyConfiguration = new LinkInfo<>();
         info.metrologyConfiguration.id = 234L;
 
-        MetrologyConfiguration metrologyConfiguration = mockMetrologyConfiguration(234L, "metro", 1);
+        UsagePointMetrologyConfiguration metrologyConfiguration = mockMetrologyConfiguration(234L, "metro", 1);
         UsagePoint usagePoint = mockUsagePoint(11L, "usage point", 2L, ServiceKind.ELECTRICITY);
         when(usagePoint.getMetrologyConfiguration()).thenReturn(Optional.of(metrologyConfiguration));
         ElectricityDetail electricityDetail = mock(ElectricityDetail.class);
@@ -372,8 +372,8 @@ public class UsagePointResourceTest extends MultisensePublicApiJerseyTest {
         info.metrologyConfiguration = new LinkInfo<>();
         info.metrologyConfiguration.id = 235L;
 
-        MetrologyConfiguration oldMetrologyConfiguration = mockMetrologyConfiguration(234L, "metro", 1);
-        MetrologyConfiguration newMetrologyConfiguration = mockMetrologyConfiguration(235L, "metro", 1);
+        UsagePointMetrologyConfiguration oldMetrologyConfiguration = mockMetrologyConfiguration(234L, "metro", 1);
+        UsagePointMetrologyConfiguration newMetrologyConfiguration = mockMetrologyConfiguration(235L, "metro", 1);
         UsagePoint usagePoint = mockUsagePoint(11L, "usage point", 2L, ServiceKind.ELECTRICITY);
         when(usagePoint.getMetrologyConfiguration()).thenReturn(Optional.of(oldMetrologyConfiguration));
         ElectricityDetail electricityDetail = mock(ElectricityDetail.class);
@@ -394,7 +394,7 @@ public class UsagePointResourceTest extends MultisensePublicApiJerseyTest {
         info.metrologyConfiguration = new LinkInfo<>();
         info.metrologyConfiguration.id = null;
 
-        MetrologyConfiguration oldMetrologyConfiguration = mockMetrologyConfiguration(234L, "metro", 1);
+        UsagePointMetrologyConfiguration oldMetrologyConfiguration = mockMetrologyConfiguration(234L, "metro", 1);
         UsagePoint usagePoint = mockUsagePoint(11L, "usage point", 2L, ServiceKind.ELECTRICITY);
         when(usagePoint.getMetrologyConfiguration()).thenReturn(Optional.of(oldMetrologyConfiguration));
         ElectricityDetail electricityDetail = mock(ElectricityDetail.class);
@@ -415,7 +415,7 @@ public class UsagePointResourceTest extends MultisensePublicApiJerseyTest {
         info.metrologyConfiguration = new LinkInfo<>();
         info.metrologyConfiguration.id = 235L;
 
-        MetrologyConfiguration newMetrologyConfiguration = mockMetrologyConfiguration(235L, "metro", 1);
+        UsagePointMetrologyConfiguration newMetrologyConfiguration = mockMetrologyConfiguration(235L, "metro", 1);
         UsagePoint usagePoint = mockUsagePoint(11L, "usage point", 2L, ServiceKind.ELECTRICITY);
         when(usagePoint.getMetrologyConfiguration()).thenReturn(Optional.empty());
         ElectricityDetail electricityDetail = mock(ElectricityDetail.class);
