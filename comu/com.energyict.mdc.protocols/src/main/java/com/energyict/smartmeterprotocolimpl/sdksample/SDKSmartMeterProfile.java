@@ -1,5 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.sdksample;
 
+import com.elster.jupiter.metering.ReadingQualityType;
 import com.energyict.mdc.common.ObisCode;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.Unit;
@@ -12,11 +13,7 @@ import com.energyict.mdc.protocol.api.legacy.MultipleLoadProfileSupport;
 import com.energyict.protocolimpl.base.ParseUtils;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * For the <b>Kamstrup case</b> we support 1 Master and 2 Slaves.<br>
@@ -290,6 +287,13 @@ public class SDKSmartMeterProfile implements MultipleLoadProfileSupport {
             double multiplier = (2 * Math.PI) / steps;
             while (cal.getTime().before(endCal.getTime()) || cal.getTime().equals(endCal.getTime())) {
                 IntervalData id = new IntervalData(cal.getTime());
+
+                Set<ReadingQualityType> readingQualityTypes = Collections.emptySet();
+                String[] readingQualities = getProtocol().getProtocolProperties().getReadingQualities();
+                for (String readingQuality : readingQualities) {
+                    readingQualityTypes.add(new ReadingQualityType(readingQuality));
+                }
+                id.setReadingQualityTypes(readingQualityTypes);
 
                 for (int i = 1; i <= lpc.getNumberOfChannels(); i++) {
                     id.addValue(Math.sin(count * multiplier) * i);

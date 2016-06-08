@@ -2,7 +2,6 @@ package com.energyict.smartmeterprotocolimpl.sdksample;
 
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
-
 import com.energyict.protocolimpl.base.AbstractProtocolProperties;
 import com.energyict.protocolimpl.base.ProtocolProperty;
 
@@ -20,9 +19,12 @@ public class SDKSmartMeterProperties extends AbstractProtocolProperties {
 
     public static final String DEFAULT_SIMULATE_REAL_COMMUNICATION = "0";
 
+    public static final String READING_QUALITIES = "ReadingQualities";
+
     public List<String> getOptionalKeys() {
         List<String> optional = new ArrayList<String>();
         optional.add(SIMULATE_REAL_COMMUNICATION);
+        optional.add(READING_QUALITIES);
         return optional;
     }
 
@@ -34,6 +36,11 @@ public class SDKSmartMeterProperties extends AbstractProtocolProperties {
     @ProtocolProperty
     public boolean isSimulateRealCommunication() {
         return getBooleanProperty(SIMULATE_REAL_COMMUNICATION, DEFAULT_SIMULATE_REAL_COMMUNICATION);
+    }
+
+    public String[] getReadingQualities() {
+        String readingQualities = getStringValue(READING_QUALITIES, "");
+        return readingQualities.split(";");
     }
 
     @Override
