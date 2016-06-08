@@ -12,6 +12,7 @@ import com.elster.jupiter.export.FormattedExportData;
 import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
@@ -71,73 +72,52 @@ public class StandardCsvDataFormatterTest {
     public static final long EPOCH_MILLI = 1416783612449L;
     @Rule
     public TestRule timeZone = Using.timeZoneOfMcMurdo();
-
     @Mock
     private DataExportService dataExportService;
-
     @Mock
     private ValidationService validationService;
-
     @Mock
     private MeteringService meteringService;
-
     @Mock
     private ValidationEvaluator validationEvaluator;
-
     @Mock
     private Channel channel;
-
     @Mock
     private AppService appService;
-
     @Mock
     DataExportOccurrence dataExportOccurrence;
-
     @Mock
     ReadingTypeDataExportItem item, item1;
-
     @Mock
     MeterReading data, dataLoadProfile;
-
     @Mock
     Meter meter, meter1;
-
     @Mock
     MeterActivation meterActivation;
-
+    @Mock
+    ChannelsContainer channelsContainer;
     @Mock
     ReadingType readingType, readingType1;
-
     @Mock
     Logger logger;
-
     @Mock(extraInterfaces = IntervalReading.class)
     Reading reading, reading1, reading2;
-
     @Mock
     IntervalBlock intervalBlock;
-
     @Mock
     DataExportProperty propertyExtension, propertyPrefix, propertySeparator, propertyExtensionUpdated, propertyPrefixUpdated, propertyUpdateSeparateFile, property, propertyPath;
-
     @Mock
     ReadingQualityRecord readingQuality, readingQuality1;
-
     @Mock
     IntervalReading intervalReading, intervalReading1;
-
     @Mock
     ReadingContainer readingContainer, readingContainer1;
-
     @Mock
     private Thesaurus thesaurus;
-
     @Mock
     DataValidationStatus dataValidationStatus, dataValidationStatus1, dataValidationStatus2, dataValidationStatus3;
-
     @Mock
     private AppServer appServer;
-
 
     private FileSystem fileSystem;
 
@@ -148,6 +128,7 @@ public class StandardCsvDataFormatterTest {
 
     @Before
     public void setUp() throws IOException {
+        when(meterActivation.getChannelsContainer()).thenReturn(channelsContainer);
         fileSystem = Jimfs.newFileSystem(Configuration.windows());
         Path root = fileSystem.getRootDirectories().iterator().next();
         tempDirectory = Files.createTempDirectory(root, "tmp");
@@ -157,7 +138,7 @@ public class StandardCsvDataFormatterTest {
         doReturn(Optional.of(meterActivation)).when(meter1).getMeterActivation(Instant.ofEpochMilli(EPOCH_MILLI));
 
         List<? extends BaseReading> listReadings = Arrays.asList(reading, reading1, reading2);
-        when(meterActivation.getChannels()).thenReturn(Collections.singletonList(channel));
+        when(channelsContainer.getChannels()).thenReturn(Collections.singletonList(channel));
         doReturn(Arrays.asList(readingType, readingType1)).when(channel).getReadingTypes();
         when(readingQuality.isMissing()).thenReturn(true);
         when(readingQuality1.isMissing()).thenReturn(false);

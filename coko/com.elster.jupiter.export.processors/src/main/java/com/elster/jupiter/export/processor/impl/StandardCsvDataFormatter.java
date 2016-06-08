@@ -324,7 +324,7 @@ class StandardCsvDataFormatter implements ReadingDataFormatter, StandardFormatte
     }
 
     private Optional<Channel> findChannel(MeterActivation meterActivation) {
-        for (Channel channel : meterActivation.getChannels()) {
+        for (Channel channel : meterActivation.getChannelsContainer().getChannels()) {
             if (channel.getReadingTypes().contains(readingType)) {
                 return Optional.of(channel);
             }
