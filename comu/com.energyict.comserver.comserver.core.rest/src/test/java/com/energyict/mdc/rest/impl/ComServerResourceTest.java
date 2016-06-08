@@ -1,6 +1,5 @@
 package com.energyict.mdc.rest.impl;
 
-import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.time.TimeDuration;
@@ -13,11 +12,8 @@ import com.energyict.mdc.rest.impl.comserver.InboundComPortInfo;
 import com.energyict.mdc.rest.impl.comserver.OfflineComServerInfo;
 import com.energyict.mdc.rest.impl.comserver.OnlineComServerInfo;
 import com.energyict.mdc.rest.impl.comserver.RemoteComServerInfo;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.assertj.core.data.MapEntry;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
@@ -33,12 +29,23 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import org.assertj.core.data.MapEntry;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
 /**
  * When accessing a resource, I choose not to use UriBuilder, as you should be aware that changing the URI means changing the API!
@@ -169,13 +176,9 @@ public class ComServerResourceTest extends ComserverCoreApplicationJerseyTest {
         verify(serverSideComServer).setEventRegistrationUri(uriCaptor.capture());
         assertThat(uriCaptor.getValue()).isEqualTo("/new/uri");
 
-        assertThat(serverSideComServer.usesDefaultEventRegistrationUri()).isEqualTo(false);
-
         ArgumentCaptor<String> statusUriCaptor = ArgumentCaptor.forClass(String.class);
         verify(serverSideComServer).setStatusUri(statusUriCaptor.capture());
         assertThat(statusUriCaptor.getValue()).isEqualTo("/new/statusUri");
-
-        assertThat(serverSideComServer.usesDefaultStatusUri()).isEqualTo(false);
 
         ArgumentCaptor<TimeDuration> timeDurationCaptor = ArgumentCaptor.forClass(TimeDuration.class);
         verify(serverSideComServer).setSchedulingInterPollDelay(timeDurationCaptor.capture());
