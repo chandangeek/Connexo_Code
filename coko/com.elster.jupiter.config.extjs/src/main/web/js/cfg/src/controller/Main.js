@@ -11,6 +11,7 @@ Ext.define('Cfg.controller.Main', {
         'Cfg.controller.history.Validation',
         'Cfg.controller.history.EventType',
         'Cfg.controller.history.ValidationTask',
+        'Cfg.controller.history.DataValidationKpis',
         'Cfg.controller.Administration',
         'Cfg.controller.Validation',
         'Cfg.controller.EventType',
@@ -37,6 +38,7 @@ Ext.define('Cfg.controller.Main', {
     initHistorians: function () {
         this.getController('Cfg.controller.history.Validation');
         this.getController('Cfg.controller.history.ValidationTask');
+        this.getController('Cfg.controller.history.DataValidationKpis');
     },
 
     initMenu: function () {
@@ -67,6 +69,12 @@ Ext.define('Cfg.controller.Main', {
                         href: '#/administration/validationtasks',
                         hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.validationConfiguration', 'privilege.view.validationConfiguration'),
                         itemId: 'lnk-validation-tasks'
+                    },
+                    {
+                        text: Uni.I18n.translate('dataValidationKPIs.general.dataValidationKPIs', 'CFG', 'Data validation KPIs'),
+                        href: '#/administration/datavalidationkpis',
+                        hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.validationConfiguration', 'privilege.view.validationConfiguration'),
+                        itemId: 'lnk-data-validation-kpis'
                     }
                 ]
             });
