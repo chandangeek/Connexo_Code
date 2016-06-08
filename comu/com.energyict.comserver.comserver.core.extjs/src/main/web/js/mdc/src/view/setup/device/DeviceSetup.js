@@ -232,7 +232,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                             'background-color': '#71adc7'
                         },
                         text: Uni.I18n.translate('overview.widget.headerSection.refreshBtnTxt', 'MDC', 'Refresh'),
-                        icon: '/apps/sky/build/resources/images/form/restore.png'
+                        iconCls: 'icon-spinner11'
                     },
                     {
                         xtype: 'button',

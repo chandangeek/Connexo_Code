@@ -135,23 +135,9 @@ Ext.define('Mdc.view.setup.comserver.RemoteComServerEdit', {
                                 fieldLabel: 'queryAPIPostUri'
                             },
                             {
-                                xtype: 'checkbox',
-                                inputValue: true,
-                                uncheckedValue: 'false',
-                                name: 'usesDefaultQueryAPIPostUri',
-                                fieldLabel: 'usesDefaultQueryAPIPostUri'
-                            },
-                            {
                                 xtype: 'textfield',
                                 name: 'eventRegistrationUri',
                                 fieldLabel: 'eventRegistrationUri'
-                            },
-                            {
-                                xtype: 'checkbox',
-                                inputValue: true,
-                                uncheckedValue: 'false',
-                                name: 'usesDefaultEventRegistrationUri',
-                                fieldLabel: 'usesDefaultEventRegistrationUri'
                             }
                         ]
                     }
