@@ -224,7 +224,7 @@ public class MultiSenseHeadEndInterface implements HeadEndInterface, Translation
                             deviceMessageBuilder.addProperty(propertySpec.getName(), endDeviceCommand.getAttributes()
                                     .get(propertySpec.getName()));
                          */
-                            deviceMessageBuilder.addProperty(propertySpec.getName(), propertySpec);
+                        deviceMessageBuilder.addProperty(propertySpec.getName(), propertySpec);
                     }
                     deviceMessages.add(deviceMessageBuilder.add());
                 }
@@ -327,7 +327,7 @@ public class MultiSenseHeadEndInterface implements HeadEndInterface, Translation
 
     @Override
     public CompletionOptions sendCommand(EndDeviceCommand endDeviceCommand, Instant instant) {
-      //ALL CODE RELATED TO SERVICECALLS TEMPORARILY MOVED TO demo bundle under amiscs
+        //ALL CODE RELATED TO SERVICECALLS TEMPORARILY MOVED TO demo bundle under amiscs
         /*  String commandName = endDeviceCommand.getName();
         RegisteredCustomPropertySet customPropertySet = customPropertySetService.findActiveCustomPropertySets(ServiceCall.class)
                 .stream()

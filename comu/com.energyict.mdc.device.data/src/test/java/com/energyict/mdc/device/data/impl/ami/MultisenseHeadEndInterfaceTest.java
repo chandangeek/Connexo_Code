@@ -23,7 +23,6 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 
 import java.net.URI;
-import java.net.URL;
 import java.time.Clock;
 import java.util.Arrays;
 import java.util.Optional;
@@ -106,29 +105,29 @@ public class MultisenseHeadEndInterfaceTest {
     }
 
     @Test
-    public void getURLForEndDevice(){
+    public void getURLForEndDevice() {
         Optional<URI> uri = headEndInterface.getURIForEndDevice(endDevice);
-        if(uri.isPresent()){
-            assertTrue(uri.get().toString().equals("/devices/"+mRid));
-        }else{
+        if (uri.isPresent()) {
+            assertTrue(uri.get().toString().equals("/devices/" + mRid));
+        } else {
             throw new AssertionError("URL not found");
         }
     }
 
     @Test
-    public void getDeviceCapabilities(){
+    public void getDeviceCapabilities() {
         EndDeviceCapabilities endDeviceCapabilities = headEndInterface.getCapabilities(endDevice);
         AtomicInteger count = new AtomicInteger(0);
         Stream.of(EndDeviceControlTypeMapping.values()).forEach(type -> {
-                    if (type.getEndDeviceControlTypeMRID().startsWith(3 + ".")
-                            || type.getEndDeviceControlTypeMRID().startsWith("0.")
-                            || type.getEndDeviceControlTypeMRID().startsWith("*.")) {
-                        count.incrementAndGet();
-                    }
-                });
+            if (type.getEndDeviceControlTypeMRID().startsWith(3 + ".")
+                    || type.getEndDeviceControlTypeMRID().startsWith("0.")
+                    || type.getEndDeviceControlTypeMRID().startsWith("*.")) {
+                count.incrementAndGet();
+            }
+        });
 
         assertTrue(endDeviceCapabilities.getSupportedControlTypes().size() == count.get());
-        assertTrue(endDeviceCapabilities.getConfiguredReadingTypes().size()==1);
+        assertTrue(endDeviceCapabilities.getConfiguredReadingTypes().size() == 1);
         assertTrue(endDeviceCapabilities.getConfiguredReadingTypes().get(0).equals(readingType));
     }
 }
