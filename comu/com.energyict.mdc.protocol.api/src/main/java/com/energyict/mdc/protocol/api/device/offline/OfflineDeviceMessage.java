@@ -8,6 +8,8 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
@@ -20,6 +22,7 @@ import java.util.List;
  * Date: 18/02/13
  * Time: 16:27
  */
+@ProviderType
 public interface OfflineDeviceMessage extends Offline {
 
     /**

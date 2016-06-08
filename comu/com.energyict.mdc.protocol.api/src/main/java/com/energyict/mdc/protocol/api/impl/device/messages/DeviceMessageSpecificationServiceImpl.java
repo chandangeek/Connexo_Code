@@ -72,7 +72,6 @@ public class DeviceMessageSpecificationServiceImpl implements DeviceMessageSpeci
     public List<DeviceMessageCategory> filteredCategoriesForUserSelection() {
         EnumSet<DeviceMessageCategories> excluded =
                 EnumSet.of(
-                        DeviceMessageCategories.ACTIVITY_CALENDAR,
                         DeviceMessageCategories.FIRMWARE,
                         DeviceMessageCategories.ADVANCED_TEST,
                         DeviceMessageCategories.CHANNEL_CONFIGURATION,

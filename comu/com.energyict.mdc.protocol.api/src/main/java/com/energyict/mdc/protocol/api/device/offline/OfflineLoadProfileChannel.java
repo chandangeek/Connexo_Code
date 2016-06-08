@@ -5,6 +5,8 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Offline;
 import com.energyict.mdc.common.Unit;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.math.BigDecimal;
 
 /**
@@ -13,6 +15,7 @@ import java.math.BigDecimal;
  * @author gna
  * @since 30/05/12 - 9:49
  */
+@ProviderType
 public interface OfflineLoadProfileChannel extends Offline {
 
     /**

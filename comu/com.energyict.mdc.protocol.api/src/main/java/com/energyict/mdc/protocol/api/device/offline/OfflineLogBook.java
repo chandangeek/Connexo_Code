@@ -5,6 +5,8 @@ import com.energyict.mdc.common.Offline;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.time.Instant;
 import java.util.Optional;
 
@@ -14,6 +16,7 @@ import java.util.Optional;
  * @author sva
  * @since 07/12/12 - 14:30
  */
+@ProviderType
 public interface OfflineLogBook extends Offline {
 
     /**

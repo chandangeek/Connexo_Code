@@ -7,6 +7,8 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.util.List;
 import java.util.TimeZone;
 
@@ -17,6 +19,7 @@ import java.util.TimeZone;
  * @author gna
  * @since 11/04/12 - 10:01
  */
+@ProviderType
 public interface OfflineDevice extends Offline {
 
     /**
