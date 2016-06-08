@@ -45,8 +45,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -552,7 +553,7 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
         Optional<AmrSystem> amrSystem = getMeteringService().findAmrSystem(1);
         for (MeterActivation meterActivation : amrSystem.get().findMeter(String.valueOf(deviceId)).get().getMeterActivations()) {
             if (meterActivation.isCurrent()) {
-                return meterActivation.getChannels();
+                return meterActivation.getChannelsContainer().getChannels();
             }
         }
         return Collections.emptyList();
