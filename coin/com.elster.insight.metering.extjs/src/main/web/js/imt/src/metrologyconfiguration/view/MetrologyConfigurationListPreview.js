@@ -16,5 +16,9 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationListPreview', 
                 itemId: 'metrology-configuration-list-action-menu'
             }
         }
-    ]
+    ],
+    
+    disableActionsButton: function(disabled){
+        this.down('#actionButton').setDisabled(disabled)
+    }    
 });

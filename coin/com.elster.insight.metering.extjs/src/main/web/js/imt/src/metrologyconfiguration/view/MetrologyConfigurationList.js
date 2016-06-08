@@ -40,6 +40,9 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationList', {
                 menu: {
                     xtype: 'metrology-configuration-action-menu',
                     itemId: 'metrology-configuration-list-action-menu'
+                },
+                isDisabled: function(view, rowIndex, callIndex, item, record){
+                    return record.get('status').id == 'deprecated';
                 }
             }
         ];

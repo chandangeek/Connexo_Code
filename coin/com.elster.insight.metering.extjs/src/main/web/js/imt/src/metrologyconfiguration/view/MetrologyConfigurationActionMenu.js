@@ -31,9 +31,8 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationActionMenu', {
                 status = me.record.get('status').id.toLowerCase();
 
             Ext.suspendLayouts();
-            me.down('#deprecate-metrology-config').setDisabled(status != 'active');
-            me.down('#activate-metrology-config').setDisabled(status != 'inactive');
-
+            me.down('#deprecate-metrology-config').setVisible(status == 'active');
+            me.down('#activate-metrology-config').setVisible(status == 'inactive');
             Ext.resumeLayouts(true);
         }
     }
