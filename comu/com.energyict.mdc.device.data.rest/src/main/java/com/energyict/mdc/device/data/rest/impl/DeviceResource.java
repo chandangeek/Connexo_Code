@@ -904,7 +904,7 @@ public class DeviceResource {
 
         deviceMessageId = options[index].get();
 
-        return checkIfDeviceMessageIsAllowed(deviceMessageId, allowedOptions) ? Optional.empty() : Optional.of(deviceMessageId);
+        return checkIfDeviceMessageIsAllowed(deviceMessageId, allowedOptions) ? Optional.of(deviceMessageId) : Optional.empty();
     }
 
     private boolean checkIfDeviceMessageIsAllowed(DeviceMessageId deviceMessageId, Set<ProtocolSupportedCalendarOptions> allowedOptions) {

@@ -10,4 +10,8 @@ public class SendCalendarInfo {
     public String type;
     public BigDecimal contract;
     public String calendarUpdateOption;
+
+    public SendCalendarInfo() {
+
+    }
 }

@@ -4,7 +4,7 @@ package com.energyict.mdc.device.data.rest.impl;
 public enum  CalendarUpdateOption {
     FULL_CALENDAR("fullCalendar"),
     SPECIAL_DAYS("specialDays"),
-    ACTIVITY_CALENDAR("activiatyCalendar");
+    ACTIVITY_CALENDAR("activityCalendar");
 
     private String key;
 
