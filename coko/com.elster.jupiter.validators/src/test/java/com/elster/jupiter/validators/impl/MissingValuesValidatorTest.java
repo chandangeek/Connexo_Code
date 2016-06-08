@@ -4,8 +4,8 @@ import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.devtools.tests.rules.MockitoRule;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -74,7 +74,7 @@ public class MissingValuesValidatorTest {
         @Mock
         private Channel channel;
         @Mock
-        private MeterActivation meterActivation;
+        private ChannelsContainer channelsContainer;
         @Mock
         private ReadingType readingType, bulkReadingType;
         @Mock
@@ -110,8 +110,8 @@ public class MissingValuesValidatorTest {
             startPlus50 = base.plus(50, ChronoUnit.MINUTES);
             end = base.plus(60, ChronoUnit.MINUTES);
 
-            when(channel.getChannelsContainer()).thenReturn(meterActivation);
-            when(meterActivation.getStart()).thenReturn(start);
+            when(channel.getChannelsContainer()).thenReturn(channelsContainer);
+            when(channelsContainer.getStart()).thenReturn(start);
             when(intervalReading.getQuantity(readingType)).thenReturn(Quantity.create(BigDecimal.ONE, "Wh"));
             when(intervalReading.getValue()).thenReturn(BigDecimal.ONE);
             when(readingType.getBulkReadingType()).thenReturn(Optional.of(bulkReadingType));

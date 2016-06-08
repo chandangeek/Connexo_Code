@@ -209,7 +209,7 @@ public class RegisterValidationEvaluatorIT {
             return null;
         });
         ValidationEvaluator evaluator = validationService.getEvaluator(meter, Range.openClosed(date1, date1.plusSeconds(900 * 3)));
-        Channel channel = meter.getMeterActivations().get(0).getChannels().get(0);
+        Channel channel = meter.getMeterActivations().get(0).getChannelsContainer().getChannels().get(0);
         assertThat(validationService.getLastChecked(channel).get()).isEqualTo(date1.plusSeconds(900 * 3));
         List<DataValidationStatus> validationStates = evaluator.getValidationStatus(Collections.singleton(QualityCodeSystem.MDC),
                 channel, channel.getReadings(Range.all()));
@@ -244,7 +244,7 @@ public class RegisterValidationEvaluatorIT {
             return null;
         });
         ValidationEvaluator evaluator = validationService.getEvaluator(meter, Range.openClosed(date1, date1.plusSeconds(900 * 3)));
-        Channel channel = meter.getMeterActivations().get(0).getChannels().get(0);
+        Channel channel = meter.getMeterActivations().get(0).getChannelsContainer().getChannels().get(0);
         assertThat(validationService.getLastChecked(channel).get()).isEqualTo(date1.plusSeconds(900 * 3));
         List<DataValidationStatus> validationStates = evaluator.getValidationStatus(Collections.singleton(QualityCodeSystem.MDC),
                 channel, channel.getReadings(Range.all()));
