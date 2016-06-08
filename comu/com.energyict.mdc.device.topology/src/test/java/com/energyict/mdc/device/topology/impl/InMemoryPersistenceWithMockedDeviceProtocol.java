@@ -37,6 +37,8 @@ import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.ValidationService;
@@ -44,6 +46,7 @@ import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
+import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.data.impl.DeviceDataModelServiceImpl;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
 import com.energyict.mdc.device.data.impl.ServerDeviceService;
@@ -234,7 +237,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
     }
 
     private DataModel createNewDeviceDataService(Injector injector) {
-        deviceDataModelService = injector.getInstance(DeviceDataModelServiceImpl.class);
+        deviceDataModelService = (DeviceDataModelServiceImpl) injector.getInstance(DeviceDataModelService.class);
         return deviceDataModelService.dataModel();
     }
 
@@ -302,6 +305,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
             bind(DataModel.class).toProvider(() -> dataModel);
             bind(Thesaurus.class).toInstance(thesaurus);
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
+            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
 
     }

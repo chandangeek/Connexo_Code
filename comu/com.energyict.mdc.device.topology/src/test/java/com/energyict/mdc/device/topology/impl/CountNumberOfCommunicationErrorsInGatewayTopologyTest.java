@@ -36,6 +36,8 @@ import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.time.Interval;
@@ -46,6 +48,7 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.data.impl.DeviceDataModelServiceImpl;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
 import com.energyict.mdc.device.data.tasks.history.CommunicationErrorType;
@@ -146,6 +149,7 @@ public class CountNumberOfCommunicationErrorsInGatewayTopologyTest {
             bind(LogService.class).toInstance(mock(LogService.class));
             bind(IssueService.class).toInstance(mock(IssueService.class, RETURNS_DEEP_STUBS));
             bind(Thesaurus.class).toInstance(mock(Thesaurus.class, RETURNS_DEEP_STUBS));
+            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
 
     }
@@ -206,7 +210,7 @@ public class CountNumberOfCommunicationErrorsInGatewayTopologyTest {
             this.protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
             this.protocolPluggableService.addConnectionTypeService(this.connectionTypeService);
             injector.getInstance(MeteringGroupsService.class);
-            DeviceDataModelServiceImpl deviceDataModelService = injector.getInstance(DeviceDataModelServiceImpl.class);
+            DeviceDataModelServiceImpl deviceDataModelService = (DeviceDataModelServiceImpl) injector.getInstance(DeviceDataModelService.class);
             deviceDataModelService.communicationTaskReportService();
             this.deviceService = deviceDataModelService.deviceService();
             this.topologyService = injector.getInstance(TopologyService.class);
