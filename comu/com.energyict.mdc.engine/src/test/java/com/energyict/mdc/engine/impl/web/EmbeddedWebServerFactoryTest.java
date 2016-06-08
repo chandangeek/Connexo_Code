@@ -23,8 +23,9 @@ import org.fest.assertions.api.Assertions;
 
 import java.net.URISyntaxException;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -104,7 +105,6 @@ public class EmbeddedWebServerFactoryTest {
     @Test
     public void testEventsWithOnlineComServerThatDoesNotSupportEventRegistration () {
         OnlineComServer comServer = createOnlineComServer(null);
-        comServer.setUsesDefaultEventRegistrationUri(false);
 
         // Business method
         embeddedWebServer = this.factory.findOrCreateEventWebServer(comServer);
@@ -148,7 +148,6 @@ public class EmbeddedWebServerFactoryTest {
     @Test
     public void testEventsWithRemoteComServerThatDoesNotSupportEventRegistration () {
         RemoteComServer comServer = createRemoteComServerWithRegistrationUri(null);
-        comServer.setUsesDefaultEventRegistrationUri(false);
 
         // Business method
         embeddedWebServer = this.factory.findOrCreateEventWebServer(comServer);
