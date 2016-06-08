@@ -26,7 +26,6 @@ import com.elster.jupiter.metering.aggregation.CalculatedMetrologyContractData;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.MeterRole;
-import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
@@ -324,7 +323,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
                 .request()
                 .put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(202);
-        verify(usagePoint, never()).apply(any(MetrologyConfiguration.class));
+        verify(usagePoint, never()).apply(any(UsagePointMetrologyConfiguration.class));
 
         response = target("usagepoints/test/metrologyconfiguration").queryParam("validate", "false").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(200);
@@ -438,7 +437,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
 
     @Test
     public void testUsagePointMetrologyConfigurationDetails() {
-        Optional<MetrologyConfiguration> usagePointMetrologyConfiguration = Optional.of(this.mockMetrologyConfiguration(1, "MetrologyConfiguration"));
+        Optional<UsagePointMetrologyConfiguration> usagePointMetrologyConfiguration = Optional.of(this.mockMetrologyConfiguration(1, "MetrologyConfiguration"));
         when(usagePoint.getMetrologyConfiguration()).thenReturn(usagePointMetrologyConfiguration);
         MetrologyContract metrologyContract = usagePointMetrologyConfiguration.get().getContracts().stream().findFirst().get();
         MetrologyContract.Status status = mock(MetrologyContract.Status.class);
@@ -495,7 +494,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
 
     @Test
     public void testUsagePointPurposes() {
-        Optional<MetrologyConfiguration> usagePointMetrologyConfiguration = Optional.of(this.mockMetrologyConfiguration(1, "1test"));
+        Optional<UsagePointMetrologyConfiguration> usagePointMetrologyConfiguration = Optional.of(this.mockMetrologyConfiguration(1, "1test"));
         when(usagePoint.getMetrologyConfiguration()).thenReturn(usagePointMetrologyConfiguration);
         MetrologyContract metrologyContract = usagePointMetrologyConfiguration.get().getContracts().stream().findFirst().get();
         MetrologyContract.Status status = mock(MetrologyContract.Status.class);
@@ -514,7 +513,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
 
     @Test
     public void testOutputsOfUsagePointPurpose() {
-        Optional<MetrologyConfiguration> usagePointMetrologyConfiguration = Optional.of(this.mockMetrologyConfiguration(1, "1test"));
+        Optional<UsagePointMetrologyConfiguration> usagePointMetrologyConfiguration = Optional.of(this.mockMetrologyConfiguration(1, "1test"));
         when(usagePoint.getMetrologyConfiguration()).thenReturn(usagePointMetrologyConfiguration);
         String json = target("/usagepoints/MRID/purposes/1/outputs").request().get(String.class);
         JsonModel jsonModel = JsonModel.create(json);
@@ -529,7 +528,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
 
     @Test
     public void testChannelReadingsOfOutput() {
-        Optional<MetrologyConfiguration> usagePointMetrologyConfiguration = Optional.of(this.mockMetrologyConfiguration(2, "2test"));
+        Optional<UsagePointMetrologyConfiguration> usagePointMetrologyConfiguration = Optional.of(this.mockMetrologyConfiguration(2, "2test"));
         when(usagePoint.getMetrologyConfiguration()).thenReturn(usagePointMetrologyConfiguration);
         MetrologyContract metrologyContract = usagePointMetrologyConfiguration.get().getContracts().get(0);
         ReadingTypeDeliverable readingTypeDeliverable = metrologyContract.getDeliverables().get(0);
