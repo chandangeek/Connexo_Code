@@ -128,11 +128,25 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_COMTASK_ENABLEMENT(2102, Keys.NO_SUCH_COM_TASK_ENABLEMENT, "No comtask enablement with id {0}"),
     TRACKING_ID_MISSING(2103, Keys.DEVICE_MESSAGE_TRACKING_ID_MISSING, "Tracking id is missing"),
     TRACKING_CATEGORY_MISSING(2104, Keys.DEVICE_MESSAGE_TRACKING_CATEGORY_MISSING, "Tracking category is missing"),
+    NO_SUCH_DEVICE_MESSAGE(2105, Keys.NO_SUCH_DEVICE_MESSAGE, "No such device message"),
+    NO_SUCH_USAGE_POINT(2106, Keys.NO_SUCH_USAGE_POINT, "No such usage point"),
+    NO_CURRENT_METER_ACTIVATION(2107, Keys.NO_CURRENT_METER_ACTIVATION, "The requested meter does not seem to be active at the moment (no current meter activation)"),
+    NO_METER_IN_ACTIVATION(2108, Keys.NO_METER_IN_ACTIVATION, "The meter activation does not seem to contain a meter"),
+    NO_DEVICE_FOR_METER(2109, Keys.NO_DEVICE_FOR_METER, "The meter activation of the usage point contains a meter, but the device counterpoint with MRID {0} could not be found"),
+    NO_COMTASK_FOR_COMMAND(2110, Keys.NO_COMTASK_FOR_COMMAND, "A comtask to execute the device messages could not be located"),
+    UNKNOWN_STATUS(2111, Keys.UNKNOWN_STATUS, "The requested contactor status is not supported at this time"),
+    UNKNOWN_UNIT_CODE(2112, Keys.UNKNOWN_UNIT_CODE, "The requested load limit unit is not supported at this time"),
+    INCOMPLETE_LOADLIMIT(2113, Keys.INCOMPLETE_LOADLIMIT, "Received incomplete load limit - please make sure to specify both the limit and the unit."),
+    UNKNOWN_READING_TYPE(2114, Keys.UNKNOWN_READING_TYPE, "The requested load limit reading type is not supported at this time"),
+    NO_COMTASK_FOR_STATUS_INFORMATION(2115, Keys.NO_COMTASK_FOR_STATUS_INFORMATION, "A comtask to verify the status information could not be located"),
+    UNSPPORTED_COMMAND(2116, Keys.UNSPPORTED_COMMAND, "Unsupported Command {0} for device {1}"),
+    NO_DESTINATION_SPEC(2117, Keys.NO_DESTINATION_SPEC, "No such Destination Spec"),
     DUPLICATE_REGISTER_OBISCODE(2105, Keys.DUPLICATE_REGISTER_OBISCODE, "The OBIS code must be unique for all registers of your device"),
     DUPLICATE_CHANNEL_OBISCODE(2106, Keys.DUPLICATE_CHANNEL_OBISCODE, "The OBIS code must be unique for all the channels of your load profile"),
     OVERFLOW_INCREASED(2107, Keys.OVERFLOW_INCREASED, "The overflow value should not exceed the value of the configuration"),
     VETO_CANNOT_CHANGE_OBISCODE_CONFIG_ALREADY_OVERRIDDEN_DEVICE(2108, Keys.VETO_CANNOT_CHANGE_OBISCODE_CONFIG_ALREADY_OVERRIDDEN_DEVICE, "You can not change the OBIS code, you already have devices with an overridden value for this OBIS code: {0}"),
     ;
+
 
     private final int number;
     private final String key;
@@ -289,6 +303,20 @@ public enum MessageSeeds implements MessageSeed {
         public static final String NO_SUCH_COM_TASK_ENABLEMENT = "NoSuchComTaskEnablement";
         public static final String DEVICE_MESSAGE_TRACKING_ID_MISSING = "TrackingIdMissing";
         public static final String DEVICE_MESSAGE_TRACKING_CATEGORY_MISSING = "TrackingCategoryMissing";
+        public static final String NO_SUCH_DEVICE_MESSAGE = "No.such.device.message";
+        public static final String NO_SUCH_USAGE_POINT = "No.such.usage.point";
+        public static final String NO_CURRENT_METER_ACTIVATION = "The.requested.meter.does.not.seem.to.be.active.at.the.moment.(no.current.meter.activation)";
+        public static final String NO_METER_IN_ACTIVATION = "The.meter.activation.does.not.seem.to.contain.a.meter";
+        public static final String NO_DEVICE_FOR_METER = "The.meter.activation.of.the.usage.point.contains.a.meter,.but.the.device.counterpoint.with.respective.MRID.could.not.be.found";
+        public static final String NO_COMTASK_FOR_COMMAND = "A.comtask.to.execute.the.device.messages.could.not.be.located";
+        public static final String UNKNOWN_STATUS = "The.requested.contactor.status.is.not.supported.at.this.time";
+        public static final String UNKNOWN_UNIT_CODE = "The.requested.load.limit.unit.is.not.supported.at.this.time";
+        public static final String INCOMPLETE_LOADLIMIT = "Received.incomplete.load.limit.-.please.make.sure.to.specify.both.the.limit.and.the.unit.";
+        public static final String UNKNOWN_READING_TYPE = "The.requested.load.limit.reading.type.is.not.supported.at.this.time";
+        public static final String NO_COMTASK_FOR_STATUS_INFORMATION = "A.comtask.to.verify.the.status.information.could.not.be.located";
+        public static final String NO_SUCH_DEVICE = "No.such.device";
+        public static final String UNSPPORTED_COMMAND = "Unsupported.Command.{0}.for.device.{1}";
+        public static final String NO_DESTINATION_SPEC = "No.such.Destination.Spec";
         public static final String DUPLICATE_REGISTER_OBISCODE = "duplicate.register.obiscode";
         public static final String DUPLICATE_CHANNEL_OBISCODE = "duplicate.channel.obiscode";
         public static final String OVERFLOW_INCREASED = "overflow.increased";
