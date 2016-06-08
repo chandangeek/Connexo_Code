@@ -46,7 +46,7 @@ public class MeterReadingsGenerator {
 
     public MeterReadings createMeterReadings(MeterActivation meterActivation, Range<Instant> range) {
         MeterReadings meterReadings = payloadObjectFactory.createMeterReadings();
-        addMeterReadings(meterReadings, meterActivation, range);
+        addMeterReadings(meterReadings, meterActivation.getChannelsContainer(), range);
         return meterReadings;
     }
 

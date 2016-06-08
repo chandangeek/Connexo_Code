@@ -168,7 +168,7 @@ public class GetMeterReadingsHandler implements GetMeterReadingsPort {
     private void addForUsagePoint(MeterReadingsPayloadType meterReadingsPayloadType, com.elster.jupiter.metering.UsagePoint usagePoint, Range<Instant> range) {
         Set<Map.Entry<Range<Instant>,MeterActivation>> entries = getMeterActivationsPerInterval(usagePoint, range).entrySet();
         for (Map.Entry<Range<Instant>, MeterActivation> entry : entries) {
-            meterReadingsGenerator.addMeterReadings(meterReadingsPayloadType.getMeterReadings(), entry.getValue(), entry.getKey());
+            meterReadingsGenerator.addMeterReadings(meterReadingsPayloadType.getMeterReadings(), entry.getValue().getChannelsContainer(), entry.getKey());
         }
     }
 
@@ -201,7 +201,7 @@ public class GetMeterReadingsHandler implements GetMeterReadingsPort {
         Map<Range<Instant>, MeterActivation> map = new HashMap<>();
         for (MeterActivation meterActivation : usagePoint.getMeterActivations()) {
             if (meterActivation.overlaps(range)) {
-                map.put(intersection(meterActivation, range).get(), meterActivation);
+                map.put(intersection(meterActivation.getChannelsContainer(), range).get(), meterActivation);
             }
         }
         return map;
