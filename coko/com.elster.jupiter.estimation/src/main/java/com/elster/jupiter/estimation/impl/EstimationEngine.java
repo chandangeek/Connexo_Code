@@ -28,7 +28,7 @@ import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 class EstimationEngine {
 
     List<EstimationBlock> findBlocksToEstimate(MeterActivation meterActivation, Range<Instant> period, ReadingType readingType) {
-        return meterActivation.getChannels().stream()
+        return meterActivation.getChannelsContainer().getChannels().stream()
                 .filter(Channel::isRegular)
                 .filter(channel -> channel.getReadingTypes().contains(readingType))
                 .flatMap(channel -> findBlocksToEstimate(channel, period, readingType))

@@ -15,6 +15,7 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.logging.LoggingContext;
 import com.elster.jupiter.util.streams.Functions;
+
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -69,7 +70,7 @@ class EstimationTaskExecutor implements TaskExecutor {
     }
 
     private Range<Instant> period(MeterActivation meterActivation, RelativePeriod relativePeriod, Instant triggerTime) {
-        ZonedDateTime referenceDate = ZonedDateTime.ofInstant(triggerTime, meterActivation.getZoneId());
+        ZonedDateTime referenceDate = ZonedDateTime.ofInstant(triggerTime, meterActivation.getChannelsContainer().getZoneId());
         return relativePeriod.getOpenClosedInterval(referenceDate);
     }
 

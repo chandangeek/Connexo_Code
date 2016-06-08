@@ -84,7 +84,7 @@ public class EstimationConsoleCommands {
             EstimationEngine estimationEngine = new EstimationEngine();
             Meter meter = meteringService.findMeter(meterId).orElseThrow(IllegalArgumentException::new);
             meter.getCurrentMeterActivation().ifPresent(meterActivation -> {
-                meterActivation.getChannels().stream()
+                meterActivation.getChannelsContainer().getChannels().stream()
                         .flatMap(channel -> channel.getReadingTypes().stream())
                         .flatMap(readingType -> estimationEngine.findBlocksToEstimate(meterActivation, Range.<Instant>all(), readingType).stream())
                         .map(this::print)
@@ -262,7 +262,7 @@ public class EstimationConsoleCommands {
                 System.out.println("no meter activation present or meter " + meter.getName());
             } else {
                 MeterActivation meterActivation = meterActivationOptional.get();
-                for (Channel channel : meterActivation.getChannels()) {
+                for (Channel channel : meterActivation.getChannelsContainer().getChannels()) {
                     estimate(channel, estimator, meterActivation);
                 }
             }

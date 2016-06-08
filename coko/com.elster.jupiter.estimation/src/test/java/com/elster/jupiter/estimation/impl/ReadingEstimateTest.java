@@ -268,12 +268,12 @@ public class ReadingEstimateTest {
         ReadingType readingType = meteringService.getReadingType(readingTypeCode).get();
         try (TransactionContext ctx = transactionService.getContext()) {
             MeterActivation meterActivation = meter.getCurrentMeterActivation().get();
-            Channel channel = meterActivation.getChannels().get(0);
+            Channel channel = meterActivation.getChannelsContainer().getChannels().get(0);
             channel.getCimChannel(readingType).get().createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.KNOWNMISSINGREAD), newDate);
             channel.getCimChannel(readingType).get().createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), newDate);
             ctx.commit();
         }
-        Channel channel = meter.getCurrentMeterActivation().get().getChannels().get(0);
+        Channel channel = meter.getCurrentMeterActivation().get().getChannelsContainer().getChannels().get(0);
         assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), existDate).isPresent()).isTrue();
         assertThat(channel.findReadingQuality(new ReadingQualityType("2.6.1"), existDate).get().isActual()).isTrue();
         // make sure that editing a value adds an editing rq, removes the suspect rq, and updates the validation rq

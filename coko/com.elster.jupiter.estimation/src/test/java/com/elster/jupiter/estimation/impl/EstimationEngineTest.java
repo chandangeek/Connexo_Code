@@ -9,6 +9,7 @@ import com.elster.jupiter.estimation.Estimatable;
 import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingQualityRecord;
@@ -58,6 +59,8 @@ public class EstimationEngineTest {
     @Mock
     private MeterActivation meterActivation;
     @Mock
+    private ChannelsContainer channelsContainer;
+    @Mock
     private ReadingType readingType, readingType2;
     @Mock
     private Channel channel1;
@@ -70,7 +73,8 @@ public class EstimationEngineTest {
 
     @Before
     public void setUp() {
-        when(meterActivation.getChannels()).thenReturn(Collections.singletonList(channel1));
+        when(meterActivation.getChannelsContainer()).thenReturn(channelsContainer);
+        when(channelsContainer.getChannels()).thenReturn(Collections.singletonList(channel1));
         doReturn(Collections.singletonList(readingType)).when(channel1).getReadingTypes();
         when(channel1.isRegular()).thenReturn(true);
         when(channel1.getIntervalLength()).thenReturn(Optional.of(Duration.ofHours(1)));

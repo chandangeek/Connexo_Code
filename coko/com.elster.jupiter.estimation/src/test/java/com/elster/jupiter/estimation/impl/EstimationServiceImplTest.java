@@ -22,6 +22,7 @@ import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
@@ -36,9 +37,9 @@ import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.RelativePeriodCategory;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
-import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 
 import com.google.common.collect.ImmutableList;
@@ -112,6 +113,8 @@ public class EstimationServiceImplTest {
     @Mock
     private MeterActivation meterActivation;
     @Mock
+    private ChannelsContainer channelsContainer;
+    @Mock
     private ReadingType readingType1, readingType2;
     @Mock
     private EstimationResolver resolver;
@@ -148,6 +151,7 @@ public class EstimationServiceImplTest {
 
     @Before
     public void setUp() {
+        when(meterActivation.getChannelsContainer()).thenReturn(channelsContainer);
         when(messageService.getQueueTableSpec(any(String.class))).thenReturn(Optional.of(queueTableSpec));
         when(queueTableSpec.createDestinationSpec(any(String.class), any(Integer.class))).thenReturn(destinationSpec);
         doNothing().when(destinationSpec).save();
@@ -184,7 +188,7 @@ public class EstimationServiceImplTest {
         doReturn(Arrays.asList(rule1, rule2)).when(ruleSet).getRules();
         doReturn(ImmutableSet.of(readingType1, readingType2)).when(rule1).getReadingTypes();
         doReturn(ImmutableSet.of(readingType1, readingType2)).when(rule2).getReadingTypes();
-        doReturn(Arrays.asList(channel)).when(meterActivation).getChannels();
+        doReturn(Arrays.asList(channel)).when(channelsContainer).getChannels();
         doReturn(Arrays.asList(readingType1, readingType2)).when(channel).getReadingTypes();
         doReturn(true).when(channel).isRegular();
         List<ReadingQualityRecord> readingQualityRecords = readingQualities();
@@ -198,8 +202,8 @@ public class EstimationServiceImplTest {
         doReturn(estimator2).when(rule2).createNewEstimator();
         doReturn(true).when(rule1).isActive();
         doReturn(true).when(rule2).isActive();
-        doReturn(meterActivation).when(channel).getChannelsContainer();
-        doReturn(Optional.of(meter)).when(meterActivation).getMeter();
+        doReturn(channelsContainer).when(channel).getChannelsContainer();
+        doReturn(Optional.of(meter)).when(channelsContainer).getMeter();
         doAnswer(invocation -> {
             List<EstimationBlock> estimationBlocks = (List<EstimationBlock>) invocation.getArguments()[0];
             SimpleEstimationResult.EstimationResultBuilder builder = SimpleEstimationResult.builder();
