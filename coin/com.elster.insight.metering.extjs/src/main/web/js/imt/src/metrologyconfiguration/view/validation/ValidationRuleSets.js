@@ -35,6 +35,7 @@ Ext.define('Imt.metrologyconfiguration.view.validation.ValidationRuleSets', {
                         itemId: 'metrology-config-add-validation-rule-set-empty-msg-btn',
                         text: Uni.I18n.translate('validation.addRuleSet', 'IMT', 'Add validation rule set'),
                         privileges: Imt.privileges.MetrologyConfig.adminValidation,
+                        disabled: me.metrologyConfig.get('status').id == 'deprecated',
                         href: me.router.getRoute('administration/metrologyconfiguration/view/validation/add').buildUrl()
                     }
                 ]
@@ -84,7 +85,8 @@ Ext.define('Imt.metrologyconfiguration.view.validation.ValidationRuleSets', {
             itemId: 'purpose-with-rule-sets-grid',
             router: me.router,
             store: store,
-            purposes: me.purposes
+            purposes: me.purposes,
+            metrologyConfig: me.metrologyConfig
         };
         
         me.previewComponent = {

@@ -3,6 +3,7 @@ Ext.define('Imt.metrologyconfiguration.view.validation.PurposeWithRuleSetsGrid',
     alias: 'widget.purpose-with-rule-sets-grid',
     purposes: null,
     router: null,
+    metrologyConfig: null,
 
     initComponent: function () {
         var me = this;
@@ -57,6 +58,7 @@ Ext.define('Imt.metrologyconfiguration.view.validation.PurposeWithRuleSetsGrid',
                 xtype: 'actioncolumn',
                 itemId: 'remove-rule-set-from-purpose-column',
                 align: 'right',
+                hidden: me.metrologyConfig.get('status').id == 'deprecated',
                 privileges: Imt.privileges.MetrologyConfig.adminValidation,
                 text: Uni.I18n.translate('general.actions', 'IMT', 'Actions'),
                 items: [{
