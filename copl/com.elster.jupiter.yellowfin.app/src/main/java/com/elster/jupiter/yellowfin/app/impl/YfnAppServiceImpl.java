@@ -9,15 +9,9 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.upgrade.InstallIdentifier;
-import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.ApplicationPrivilegesProvider;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.yellowfin.YellowfinService;
 import com.elster.jupiter.yellowfin.app.YfnAppService;
 
-import com.google.inject.AbstractModule;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
@@ -28,7 +22,6 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 @Component(
@@ -48,9 +41,6 @@ public class YfnAppServiceImpl implements YfnAppService, TranslationKeyProvider,
 
     private volatile ServiceRegistration<App> registration;
     private volatile License license;
-    private volatile UpgradeService upgradeService;
-    private volatile UserService userService;
-    private volatile YellowfinService yellowfinService;
 
     public YfnAppServiceImpl() {
     }
@@ -70,15 +60,6 @@ public class YfnAppServiceImpl implements YfnAppService, TranslationKeyProvider,
         App app = new App(YfnAppService.APPLICATION_KEY, APP_NAME, APP_ICON, HTTP_RESOURCE_ALIAS, resource, url, user -> user.getPrivileges("YFN").stream().anyMatch(p -> "privilege.design.reports".equals(p.getName())));
 
         registration = context.registerService(App.class, app, null);
-        DataModel dataModel = upgradeService.newNonOrmDataModel();
-        dataModel.register(new AbstractModule() {
-            @Override
-            protected void configure() {
-                bind(UserService.class).toInstance(userService);
-                bind(YellowfinService.class).toInstance(yellowfinService);
-            }
-        });
-        upgradeService.register(InstallIdentifier.identifier("YFA"), dataModel, YfnAppInstaller.class, Collections.emptyMap());
     }
 
     @Deactivate
@@ -90,21 +71,6 @@ public class YfnAppServiceImpl implements YfnAppService, TranslationKeyProvider,
     @Reference(target = "(com.elster.jupiter.license.application.key=" + YfnAppService.APPLICATION_KEY + ")")
     public void setLicense(License license) {
         this.license = license;
-    }
-
-    @Reference
-    public void setUpgradeService(UpgradeService upgradeService) {
-        this.upgradeService = upgradeService;
-    }
-
-    @Reference
-    public void setUserService(UserService userService) {
-        this.userService = userService;
-    }
-
-    @Reference
-    public void setYellowfinService(YellowfinService yellowfinService) {
-        this.yellowfinService = yellowfinService;
     }
 
     @Override
