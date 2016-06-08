@@ -8,6 +8,7 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
@@ -241,12 +242,15 @@ public class ValidationServiceImpl implements ValidationService, PrivilegesProvi
                 meterValidation.get().setActivationStatus(true);
                 meterValidation.get().save();
                 meter.getCurrentMeterActivation()
+                        .map(MeterActivation::getChannelsContainer)
                         .map(this::updatedChannelsContainerValidationsFor)
                         .ifPresent(ChannelsContainerValidationList::activate);
             } // else already active
         } else {
             createMeterValidation(meter, true, false);
-            meter.getCurrentMeterActivation().ifPresent(this::updatedChannelsContainerValidationsFor);
+            meter.getCurrentMeterActivation()
+                    .map(MeterActivation::getChannelsContainer)
+                    .ifPresent(this::updatedChannelsContainerValidationsFor);
         }
     }
 
@@ -431,23 +435,23 @@ public class ValidationServiceImpl implements ValidationService, PrivilegesProvi
     }
 
     List<ChannelsContainerValidation> getStoredChannelsContainerValidations(ChannelsContainer channelsContainer) {
-        Condition condition = where("meterActivation").isEqualTo(channelsContainer).and(where("obsoleteTime").isNull());
+        Condition condition = where("channelsContainer").isEqualTo(channelsContainer).and(where("obsoleteTime").isNull());
         return dataModel.query(ChannelsContainerValidation.class, ChannelValidation.class).select(condition);
     }
 
     private List<ChannelsContainerValidation> getActiveStoredChannelsContainerValidations(ChannelsContainer channelsContainer) {
-        Condition condition = where("meterActivation").isEqualTo(channelsContainer).and(where(ValidationRuleSetImpl.OBSOLETE_TIME_FIELD).isNull()).and(where("active").isEqualTo(true));
+        Condition condition = where("channelsContainer").isEqualTo(channelsContainer).and(where(ValidationRuleSetImpl.OBSOLETE_TIME_FIELD).isNull()).and(where("active").isEqualTo(true));
         return dataModel.query(ChannelsContainerValidation.class, ChannelValidation.class).select(condition);
     }
 
     private ChannelsContainerValidation applyRuleSet(ValidationRuleSet ruleSet, ChannelsContainer channelsContainer) {
-        ChannelsContainerValidation meterActivationValidation = new ChannelsContainerValidationImpl(dataModel, clock).init(channelsContainer);
-        meterActivationValidation.setRuleSet(ruleSet);
+        ChannelsContainerValidation channelsContainerValidation = new ChannelsContainerValidationImpl(dataModel, clock).init(channelsContainer);
+        channelsContainerValidation.setRuleSet(ruleSet);
         channelsContainer.getChannels().stream()
                 .filter(c -> !ruleSet.getRules(c.getReadingTypes()).isEmpty())
-                .forEach(meterActivationValidation::addChannelValidation);
-        meterActivationValidation.save();
-        return meterActivationValidation;
+                .forEach(channelsContainerValidation::addChannelValidation);
+        channelsContainerValidation.save();
+        return channelsContainerValidation;
     }
 
     public List<? extends ChannelsContainerValidation> getChannelsContainerValidations(ChannelsContainer channelsContainer) {
@@ -694,7 +698,8 @@ public class ValidationServiceImpl implements ValidationService, PrivilegesProvi
                 sqlBuilder.append("WHERE EXISTS (");
                 sqlBuilder.append("SELECT * FROM MTR_READINGQUALITY mrq ");
                 sqlBuilder.append("  LEFT JOIN MTR_CHANNEL mc ON mrq.CHANNELID = mc.id");
-                sqlBuilder.append("  LEFT JOIN MTR_METERACTIVATION MA ON mc.meteractivationid = ma.id");
+                sqlBuilder.append("  LEFT JOIN MTR_CHANNEL_CONTAINER cc ON mc.CHANNEL_CONTAINER = cc.id");
+                sqlBuilder.append("  LEFT JOIN MTR_METERACTIVATION ma ON cc.METER_ACTIVATION = ma.id");
                 sqlBuilder.append(" WHERE (mrq.type = '3.5.258' OR mrq.type = '3.5.259')");
                 sqlBuilder.append("   AND mrq.actual='Y' AND MA.meterid = med.id)");
 

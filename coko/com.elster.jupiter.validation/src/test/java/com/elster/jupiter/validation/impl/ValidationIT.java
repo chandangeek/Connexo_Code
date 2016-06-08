@@ -186,8 +186,8 @@ public class ValidationIT {
                 Meter meter = amrSystem.newMeter("2331").create();
                 meter.update();
                 meterActivation = meter.activate(date1);
-                meterActivation.createChannel(readingType1, readingType2);
-                meterActivation.createChannel(readingType1, readingType3);
+                meterActivation.getChannelsContainer().createChannel(readingType1, readingType2);
+                meterActivation.getChannelsContainer().createChannel(readingType1, readingType3);
 
                 ValidationServiceImpl validationService = (ValidationServiceImpl) injector.getInstance(ValidationService.class);
                 validationService.addResource(validatorFactory);
@@ -239,10 +239,10 @@ public class ValidationIT {
             @Override
             protected void doPerform() {
                 ValidationService service = injector.getInstance(ValidationService.class);
-                service.validate(meterActivation);
+                service.validate(meterActivation.getChannelsContainer());
 
                 DataModel valDataModel = injector.getInstance(OrmService.class).getDataModel(ValidationService.COMPONENTNAME).get();
-                List<ChannelsContainerValidation> meterActivationValidations = valDataModel.mapper(ChannelsContainerValidation.class).find("meterActivation", meterActivation);
+                List<ChannelsContainerValidation> meterActivationValidations = valDataModel.mapper(ChannelsContainerValidation.class).find("channelsContainer", meterActivation.getChannelsContainer());
                 assertThat(meterActivationValidations).hasSize(1);
                 assertThat(meterActivationValidations.get(0).getRuleSet().getName()).isEqualTo(MY_RULE_SET);
                 assertThat(meterActivationValidations.get(0).isObsolete()).isFalse();

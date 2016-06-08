@@ -2,7 +2,6 @@ package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
@@ -34,7 +33,7 @@ import static java.util.Comparator.nullsLast;
 class ChannelsContainerValidationImpl implements ChannelsContainerValidation {
 
     private long id;
-    private Reference<MeterActivation> meterActivation = ValueReference.absent(); // TODO replace by ChannelsContainer
+    private Reference<ChannelsContainer> channelsContainer = ValueReference.absent();
     private Reference<IValidationRuleSet> ruleSet = ValueReference.absent();
     private Instant lastRun;
     private List<ChannelValidation> channelValidations = new ArrayList<>();
@@ -51,13 +50,13 @@ class ChannelsContainerValidationImpl implements ChannelsContainerValidation {
     }
 
     ChannelsContainerValidationImpl init(ChannelsContainer channelsContainer) {
-        this.meterActivation.set((MeterActivation) channelsContainer);
+        this.channelsContainer.set(channelsContainer);
         return this;
     }
 
     @Override
     public ChannelsContainer getChannelsContainer() {
-        return meterActivation.get();
+        return channelsContainer.get();
     }
 
     @Override

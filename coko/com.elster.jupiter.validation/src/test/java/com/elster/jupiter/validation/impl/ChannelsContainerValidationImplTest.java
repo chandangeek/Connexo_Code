@@ -2,8 +2,8 @@ package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.orm.DataMapper;
@@ -30,9 +30,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -51,7 +49,7 @@ public class ChannelsContainerValidationImplTest {
     ChannelsContainerValidationImpl meterActivationValidation;
 
     @Mock
-    private MeterActivation meterActivation;
+    private ChannelsContainer channelsContainer;
     @Mock
     private IValidationRuleSet validationRuleSet;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
@@ -76,29 +74,24 @@ public class ChannelsContainerValidationImplTest {
     private IntervalReadingRecord intervalReadingRecord;
     @Mock
     private IValidationRuleSetVersion ruleSetVersion1, ruleSetVersion2;
-    
+
 
     @Before
     public void setUp() {
         when(dataModel.mapper(ChannelValidation.class)).thenReturn(channelValidationFactory);
         when(dataModel.query(ChannelValidation.class, ChannelsContainerValidation.class)).thenReturn(channelValidationQuery);
-        when((Object) dataModel.getInstance(ChannelValidationImpl.class)).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new ChannelValidationImpl();
-            }
-        });
+        when((Object) dataModel.getInstance(ChannelValidationImpl.class)).thenAnswer(invocationOnMock -> new ChannelValidationImpl());
         when(channelValidationQuery.select(any())).thenReturn(Collections.emptyList());
         when(clock.instant()).thenReturn(DATE3);
         when(meteringService.findChannel(FIRST_CHANNEL_ID)).thenReturn(Optional.of(channel1));
         when(meteringService.findChannel(SECOND_CHANNEL_ID)).thenReturn(Optional.of(channel2));
-        when(meterActivation.getChannels()).thenReturn(Arrays.asList(channel1, channel2));
+        when(channelsContainer.getChannels()).thenReturn(Arrays.asList(channel1, channel2));
         when(channel1.getId()).thenReturn(FIRST_CHANNEL_ID);
         doReturn(Arrays.asList(readingType1)).when(channel1).getReadingTypes();
         when(channel2.getId()).thenReturn(SECOND_CHANNEL_ID);
         doReturn(Arrays.asList(readingType2)).when(channel2).getReadingTypes();
-        when(channel1.getChannelsContainer()).thenReturn(meterActivation);
-        when(channel2.getChannelsContainer()).thenReturn(meterActivation);
+        when(channel1.getChannelsContainer()).thenReturn(channelsContainer);
+        when(channel2.getChannelsContainer()).thenReturn(channelsContainer);
         when(validationRuleSet.getRules()).thenReturn(Arrays.asList(rule1, rule2));
         when(validationRuleSet.getRuleSetVersions()).thenReturn(Arrays.asList(ruleSetVersion1, ruleSetVersion2));
         when(ruleSetVersion1.getNotNullStartDate()).thenReturn(Instant.EPOCH);
@@ -110,15 +103,15 @@ public class ChannelsContainerValidationImplTest {
         when(rule2.isActive()).thenReturn(true);
         when(rule1.createNewValidator()).thenReturn(validator);
         when(rule2.createNewValidator()).thenReturn(validator);
-        
+
         when(channel1.getMainReadingType()).thenReturn(readingType1);
         when(channel2.getMainReadingType()).thenReturn(readingType2);
         when(readingType1.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
         when(readingType2.getMeasuringPeriod()).thenReturn(TimeAttribute.NOTAPPLICABLE);
-        when(meterActivation.getRange()).thenReturn(Range.atLeast(DATE1));
-        when(meterActivation.getStart()).thenReturn(DATE1);
+        when(channelsContainer.getRange()).thenReturn(Range.atLeast(DATE1));
+        when(channelsContainer.getStart()).thenReturn(DATE1);
 
-        meterActivationValidation = new ChannelsContainerValidationImpl(dataModel, clock).init(meterActivation);
+        meterActivationValidation = new ChannelsContainerValidationImpl(dataModel, clock).init(channelsContainer);
         meterActivationValidation.setRuleSet(validationRuleSet);
         meterActivationValidation.save();
     }
@@ -129,7 +122,7 @@ public class ChannelsContainerValidationImplTest {
 
     @Test
     public void testValidateWithoutChannels() throws Exception {
-        when(meterActivation.getChannels()).thenReturn(Collections.<Channel>emptyList());
+        when(channelsContainer.getChannels()).thenReturn(Collections.<Channel>emptyList());
 
         meterActivationValidation.validate();
 

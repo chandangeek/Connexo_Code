@@ -1,8 +1,8 @@
 package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
@@ -111,15 +111,15 @@ public enum TableSpecs {
             table.map(ChannelsContainerValidationImpl.class);
             Column idColumn = table.addAutoIdColumn();
             Column ruleSetColumn = table.column("RULESETID").number().conversion(NUMBER2LONG).add();
-            Column meterActivationColumn = table.column("METERACTIVATIONID").number().conversion(NUMBER2LONG).add();
+            Column channelContainer = table.column("CHANNEL_CONTAINER").number().conversion(NUMBER2LONG).add();
             table.column("LASTRUN").number().conversion(NUMBER2INSTANT).map("lastRun").add();
             table.column("ACTIVE").bool().map("active").add();
             Column obsoleteColumn = table.column("OBSOLETETIME").number().conversion(NUMBER2INSTANT).map("obsoleteTime").add();
             table.primaryKey("VAL_PK_MA_VALIDATION").on(idColumn).add();
-            table.foreignKey("VAL_FK_MA_VALIDATION_MA").references(MeterActivation.class).onDelete(RESTRICT).map("meterActivation").on(meterActivationColumn).add();
+            table.foreignKey("VAL_FK_MA_VALIDATION_MA").references(ChannelsContainer.class).onDelete(RESTRICT).map("channelsContainer").on(channelContainer).add();
             table.foreignKey("VAL_FK_MA_VALIDATION_VRS").references(VAL_VALIDATIONRULESET.name()).on(ruleSetColumn).onDelete(DeleteRule.RESTRICT)
                     .map("ruleSet", ValidationRuleSetVersionImpl.class, ValidationRuleImpl.class, ReadingTypeInValidationRule.class).add();
-            table.unique("VAL_MA_VALIDATION_U").on(ruleSetColumn, meterActivationColumn, obsoleteColumn).add();
+            table.unique("VAL_MA_VALIDATION_U").on(ruleSetColumn, channelContainer, obsoleteColumn).add();
         }
     },
     VAL_CH_VALIDATION {

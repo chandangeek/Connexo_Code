@@ -182,9 +182,9 @@ public class MeterActivationValidationIT {
             Meter meter = system.newMeter("1").create();
             MeterActivation meterActivation = meter.activate(ZonedDateTime.of(2012, 12, 19, 14, 15, 54, 0, ZoneId.systemDefault()).toInstant());
             ReadingType readingType = meteringService.getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
-            Channel channel = meterActivation.createChannel(readingType);
+            Channel channel = meterActivation.getChannelsContainer().createChannel(readingType);
             MeterActivation loaded = meteringService.findMeterActivation(meterActivation.getId()).get();
-            assertThat(loaded.getChannels()).hasSize(1).contains(channel);
+            assertThat(loaded.getChannelsContainer().getChannels()).hasSize(1).contains(channel);
         }
     }
 
@@ -203,9 +203,9 @@ public class MeterActivationValidationIT {
             ZonedDateTime newCutOff = ZonedDateTime.of(2012, 12, 20, 0, 0, 0, 0, ZoneId.systemDefault());
             MeterActivation meterActivation = meter.activate(startTime.toInstant());
             meterActivation.endAt(originalCutOff.toInstant());
-            Channel channel = meterActivation.createChannel(readingType);
+            Channel channel = meterActivation.getChannelsContainer().createChannel(readingType);
             MeterActivation currentActivation = meter.activate(originalCutOff.toInstant());
-            Channel currentChannel = currentActivation.createChannel(readingType);
+            Channel currentChannel = currentActivation.getChannelsContainer().createChannel(readingType);
             MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
             IntervalBlockImpl intervalBlock = IntervalBlockImpl.of("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
             intervalBlock.addIntervalReading(IntervalReadingImpl.of(newCutOff.minusMinutes(15).toInstant(), BigDecimal.valueOf(4025, 2)));
@@ -216,8 +216,8 @@ public class MeterActivationValidationIT {
             meterReading.addIntervalBlock(intervalBlock);
             meter.store(meterReading);
             validationService.activateValidation(meter);
-            validationService.validate(meterActivation);
-            validationService.validate(currentActivation);
+            validationService.validate(meterActivation.getChannelsContainer());
+            validationService.validate(currentActivation.getChannelsContainer());
 
             currentActivation.advanceStartDate(newCutOff.toInstant());
 
@@ -227,12 +227,12 @@ public class MeterActivationValidationIT {
             assertThat(first.getRange()).isEqualTo(Range.closedOpen(startTime.toInstant(), newCutOff.toInstant()));
             assertThat(second.getRange()).isEqualTo(Range.atLeast(newCutOff.toInstant()));
 
-            Instant lastCheckedOfPrior = validationService.getStoredChannelsContainerValidations(meterActivation).get(0)
-                    .getChannelValidation(meterActivation.getChannels().get(0)).get()
+            Instant lastCheckedOfPrior = validationService.getStoredChannelsContainerValidations(meterActivation.getChannelsContainer()).get(0)
+                    .getChannelValidation(meterActivation.getChannelsContainer().getChannels().get(0)).get()
                     .getLastChecked();
             assertThat(lastCheckedOfPrior).isEqualTo(newCutOff.toInstant());
-            Instant lastCheckedOfCurrent = validationService.getStoredChannelsContainerValidations(currentActivation).get(0)
-                    .getChannelValidation(currentActivation.getChannels().get(0)).get()
+            Instant lastCheckedOfCurrent = validationService.getStoredChannelsContainerValidations(currentActivation.getChannelsContainer()).get(0)
+                    .getChannelValidation(currentActivation.getChannelsContainer().getChannels().get(0)).get()
                     .getLastChecked();
             assertThat(lastCheckedOfCurrent).isEqualTo(newCutOff.toInstant());
         }

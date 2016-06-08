@@ -57,7 +57,7 @@ public class ValidationEventHandler extends EventHandler<LocalEvent> {
     }
 
     private void handleAdvanceEvent(EventType.MeterActivationAdvancedEvent advanceEvent) {
-        validationService.getStoredChannelsContainerValidations(advanceEvent.getAdvanced())
+        validationService.getStoredChannelsContainerValidations(advanceEvent.getAdvanced().getChannelsContainer())
                 .stream()
                 .forEach(iMeterActivationValidation -> {
                     iMeterActivationValidation.getChannelValidations()
@@ -65,18 +65,18 @@ public class ValidationEventHandler extends EventHandler<LocalEvent> {
                     iMeterActivationValidation.save();
                 });
         if (advanceEvent.getShrunk() != null) {
-            validationService.getStoredChannelsContainerValidations(advanceEvent.getShrunk())
+            validationService.getStoredChannelsContainerValidations(advanceEvent.getShrunk().getChannelsContainer())
                     .stream()
-                    .forEach(iMeterActivationValidation -> {
-                        iMeterActivationValidation.getChannelValidations()
-                                .forEach(iChannelValidation -> {
+                    .forEach(channelsContainerValidation -> {
+                        channelsContainerValidation.getChannelValidations()
+                                .forEach(channelValidation -> {
                                     Instant end = advanceEvent.getShrunk().getEnd();
-                                    if (iChannelValidation.getLastChecked() != null && end.isBefore(iChannelValidation.getLastChecked())) {
-                                        iChannelValidation.updateLastChecked(end);
+                                    if (channelValidation.getLastChecked() != null && end.isBefore(channelValidation.getLastChecked())) {
+                                        channelValidation.updateLastChecked(end);
                                     }
                                     ;
                                 });
-                        iMeterActivationValidation.save();
+                        channelsContainerValidation.save();
                     });
         }
     }
@@ -101,8 +101,8 @@ public class ValidationEventHandler extends EventHandler<LocalEvent> {
         return byChannel.entrySet().stream().collect(
                 HashMap::new,
                 (map, entry) -> {
-                    map.computeIfAbsent(entry.getKey().getChannelsContainer(), meterActivation -> new HashMap<>());
-                    map.computeIfPresent(entry.getKey().getChannelsContainer(), (meterActivation, map1) -> {
+                    map.computeIfAbsent(entry.getKey().getChannelsContainer(), channelsContainer -> new HashMap<>());
+                    map.computeIfPresent(entry.getKey().getChannelsContainer(), (channelsContainer, map1) -> {
                         map1.put(entry.getKey(), entry.getValue());
                         return map1;
                     });

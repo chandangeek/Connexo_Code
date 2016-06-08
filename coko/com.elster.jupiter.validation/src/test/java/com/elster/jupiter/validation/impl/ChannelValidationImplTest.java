@@ -4,7 +4,7 @@ import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.orm.DataModel;
@@ -52,7 +52,7 @@ public class ChannelValidationImplTest extends EqualsContractTest {
     @Mock
     private MeteringService meteringService;
     @Mock
-    private MeterActivation meterActivation, meterActivation1;
+    private ChannelsContainer channelsContainer, channelsContainer1;
     @Mock
     private ReadingQualityRecord readingQuality;
 
@@ -72,13 +72,13 @@ public class ChannelValidationImplTest extends EqualsContractTest {
                 return new ChannelValidationImpl();
             }
         });
-        when(channel.getChannelsContainer()).thenReturn(meterActivation);
-        when(channel1.getChannelsContainer()).thenReturn(meterActivation);
+        when(channel.getChannelsContainer()).thenReturn(channelsContainer);
+        when(channel1.getChannelsContainer()).thenReturn(channelsContainer);
         when(channel.getId()).thenReturn(1L);
         when(channel1.getId()).thenReturn(2L);
-        when(meterActivationValidation.getChannelsContainer()).thenReturn(meterActivation);
-        when(meterActivationValidation1.getChannelsContainer()).thenReturn(meterActivation);
-        when(meterActivation.getStart()).thenReturn(Year.of(2013).atMonth(Month.JANUARY).atDay(1).atTime(14,0).atZone(ZoneId.systemDefault()).toInstant());
+        when(meterActivationValidation.getChannelsContainer()).thenReturn(channelsContainer);
+        when(meterActivationValidation1.getChannelsContainer()).thenReturn(channelsContainer);
+        when(channelsContainer.getStart()).thenReturn(Year.of(2013).atMonth(Month.JANUARY).atDay(1).atTime(14, 0).atZone(ZoneId.systemDefault()).toInstant());
     }
 
     @Override
@@ -93,7 +93,7 @@ public class ChannelValidationImplTest extends EqualsContractTest {
                 new ChannelValidationImpl().init(meterActivationValidation1, channel),
                 new ChannelValidationImpl().init(meterActivationValidation, channel1),
                 new ChannelValidationImpl().init(meterActivationValidation1, channel1)
-                );
+        );
     }
 
     @Override
@@ -116,7 +116,7 @@ public class ChannelValidationImplTest extends EqualsContractTest {
         when(readingQuality.hasReasonabilityCategory()).thenReturn(true);
         ChannelValidationImpl channelValidation = new ChannelValidationImpl().init(meterActivationValidation, channel);
         assertThat(channelValidation.getLastChecked()).isNotNull();
-        assertThat(channelValidation.getLastChecked()).isEqualTo(meterActivation.getStart());
+        assertThat(channelValidation.getLastChecked()).isEqualTo(channelsContainer.getStart());
         ZonedDateTime dateTime = Year.of(2014).atMonth(Month.JANUARY).atDay(1).atStartOfDay(ZoneId.systemDefault());
         channelValidation.updateLastChecked(dateTime.toInstant());
         Instant instant = dateTime.minusMonths(1).toInstant();

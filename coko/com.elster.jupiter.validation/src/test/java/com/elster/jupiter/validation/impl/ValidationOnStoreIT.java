@@ -198,7 +198,7 @@ public class ValidationOnStoreIT {
                 AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
                 meter = amrSystem.newMeter("2331").create();
                 meterActivation = meter.activate(date1);
-                meterActivation.createChannel(bulkReadingType);
+                meterActivation.getChannelsContainer().createChannel(bulkReadingType);
 
                 ValidationServiceImpl validationService = (ValidationServiceImpl) injector.getInstance(ValidationService.class);
                 validationService.addResource(validatorFactory);
