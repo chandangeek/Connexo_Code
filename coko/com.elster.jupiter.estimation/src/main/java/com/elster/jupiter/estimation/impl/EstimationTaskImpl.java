@@ -20,6 +20,7 @@ import com.elster.jupiter.util.time.ScheduleExpression;
 
 import javax.inject.Inject;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -27,6 +28,27 @@ import java.util.Optional;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 final class EstimationTaskImpl implements IEstimationTask {
+
+    public enum ApplicationsNames {
+        MULTISENSE("MDC", "MultiSense"),
+        INSIGHT("INS", "Insight");
+
+        ApplicationsNames(String appKey, String appName) {
+            this.appKey = appKey;
+            this.appName = appName;
+        }
+
+        private final String appKey;
+        private final String appName;
+
+        public String appKey() {
+            return appKey;
+        }
+
+        public String appName() {
+            return appName;
+        }
+    }
 
     private final IEstimationService estimationService;
     private final TaskService taskService;
@@ -93,6 +115,11 @@ final class EstimationTaskImpl implements IEstimationTask {
     }
 
     @Override
+    public String getApplication() {
+        return application;
+    }
+
+    @Override
     public void doSave() {
         if (id == 0) {
             persist();
@@ -102,9 +129,16 @@ final class EstimationTaskImpl implements IEstimationTask {
         recurrentTaskDirty = false;
     }
 
+    private String findApplicationName(String application) {
+        return Arrays.stream(ApplicationsNames.values())
+                .filter(app -> app.appKey().equals(application))
+                .map(ApplicationsNames::appName)
+                .findFirst().orElse(application);
+    }
+
     private void persist() {
         RecurrentTask task = taskService.newBuilder()
-                .setApplication(application)
+                .setApplication(findApplicationName(application))
                 .setName(name)
                 .setScheduleExpression(scheduleExpression)
                 .setDestination(estimationService.getDestination())
