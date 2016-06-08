@@ -6,6 +6,7 @@ import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.AggregationLevel;
@@ -66,6 +67,8 @@ public class CopyTest {
     @Mock
     private MeterActivation meterActivation;
     @Mock
+    private ChannelsContainer channelsContainer;
+    @Mock
     private ReadingTypeDeliverableForMeterActivationProvider readingTypeDeliverableForMeterActivationProvider;
     @Mock
     private ServerMeteringService meteringService;
@@ -99,6 +102,7 @@ public class CopyTest {
         this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this.meteringService, this.userService, this.meterActivationValidatorsWhiteboard);
         when(this.meterActivation.getRange()).thenReturn(Range.atLeast(Instant.EPOCH));
         when(this.readingType.getMRID()).thenReturn("CopyTest");
+        when(this.meterActivation.getChannelsContainer()).thenReturn(this.channelsContainer);
     }
 
     @Test
@@ -309,7 +313,7 @@ public class CopyTest {
         when(requirement.getReadingType()).thenReturn(readingType);
         Channel channel = mock(Channel.class);
         when(channel.getMainReadingType()).thenReturn(readingType);
-        when(requirement.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(channel));
+        when(requirement.getMatchingChannelsFor(this.channelsContainer)).thenReturn(Collections.singletonList(channel));
         ExpressionNode formulaPart =
                 formulaBuilder.plus(
                     formulaBuilder.requirement(requirement),

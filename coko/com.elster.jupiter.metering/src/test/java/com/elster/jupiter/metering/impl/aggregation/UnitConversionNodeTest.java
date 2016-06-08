@@ -7,6 +7,7 @@ import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.Formula;
@@ -38,6 +39,8 @@ public class UnitConversionNodeTest {
     @Mock
     private MeterActivation meterActivation;
     @Mock
+    private ChannelsContainer channelsContainer;
+    @Mock
     private VirtualFactory virtualFactory;
     @Mock
     private VirtualReadingTypeRequirement virtualReadingTypeRequirement1;
@@ -61,12 +64,13 @@ public class UnitConversionNodeTest {
     @Before
     public void initializeMocks() {
         when(this.meterActivation.getRange()).thenReturn(Range.atLeast(Instant.EPOCH));
+        when(this.meterActivation.getChannelsContainer()).thenReturn(this.channelsContainer);
         this.fifteenMins_kWh = this.mock15minReadingType();
         this.thirtyMins_kWh = this.mock30minReadingType();
         this.daily_kWh = this.mockDailyReadingType();
         this.monthly_kWh = this.mockMonthlyReadingType();
-        when(this.requirement1.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(this.channel1));
-        when(this.requirement2.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(this.channel2));
+        when(this.requirement1.getMatchingChannelsFor(this.channelsContainer)).thenReturn(Collections.singletonList(this.channel1));
+        when(this.requirement2.getMatchingChannelsFor(this.channelsContainer)).thenReturn(Collections.singletonList(this.channel2));
         when(this.deliverable.getReadingType()).thenReturn(monthly_kWh);
         when(this.virtualFactory
                 .requirementFor(

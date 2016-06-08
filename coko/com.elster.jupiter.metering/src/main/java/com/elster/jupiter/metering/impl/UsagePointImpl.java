@@ -414,12 +414,12 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
-    public Optional<MetrologyConfiguration> getMetrologyConfiguration() {
+    public Optional<UsagePointMetrologyConfiguration> getMetrologyConfiguration() {
         return this.getMetrologyConfiguration(this.clock.instant());
     }
 
     @Override
-    public Optional<MetrologyConfiguration> getMetrologyConfiguration(Instant when) {
+    public Optional<UsagePointMetrologyConfiguration> getMetrologyConfiguration(Instant when) {
         return this.metrologyConfiguration.effective(when)
                 .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration);
     }
@@ -429,7 +429,7 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
-    public List<MetrologyConfiguration> getMetrologyConfigurations(Range<Instant> period) {
+    public List<UsagePointMetrologyConfiguration> getMetrologyConfigurations(Range<Instant> period) {
         return this.metrologyConfiguration
                 .effective(period)
                 .stream()
@@ -438,17 +438,17 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
-    public void apply(MetrologyConfiguration metrologyConfiguration) {
+    public void apply(UsagePointMetrologyConfiguration metrologyConfiguration) {
         this.apply(metrologyConfiguration, this.clock.instant());
     }
 
     @Override
-    public void apply(MetrologyConfiguration metrologyConfiguration, Instant when) {
+    public void apply(UsagePointMetrologyConfiguration metrologyConfiguration, Instant when) {
         this.removeMetrologyConfiguration(when);
         this.metrologyConfiguration.add(
                 this.dataModel
                         .getInstance(EffectiveMetrologyConfigurationOnUsagePointImpl.class)
-                        .initAndSave(this, (UsagePointMetrologyConfiguration) metrologyConfiguration, when));
+                        .initAndSave(this, metrologyConfiguration, when));
     }
 
     @Override
@@ -681,7 +681,7 @@ public class UsagePointImpl implements UsagePoint {
     @Override
     public MeterActivation activate(Meter meter, MeterRole meterRole, Instant from) {
         MeterActivationImpl result = meterActivationFactory.get().init(meter, meterRole, this, from);
-        dataModel.persist(result);
+        result.save();
         adopt(result);
         return result;
     }

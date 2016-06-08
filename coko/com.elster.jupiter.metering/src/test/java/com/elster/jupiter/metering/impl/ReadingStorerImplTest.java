@@ -6,6 +6,7 @@ import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.ids.TimeSeriesDataStorer;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.ProcessStatus;
 import com.elster.jupiter.metering.readings.BaseReading;
@@ -59,7 +60,7 @@ public class ReadingStorerImplTest {
     @Mock
     private FieldSpec fieldSpec;
     @Mock
-    private IMeterActivation meterActivation;
+    private ChannelsContainer channelsContainer;
 
     @Before
     public void setUp() {
@@ -67,8 +68,8 @@ public class ReadingStorerImplTest {
         doReturn(recordSpec).when(timeSeries).getRecordSpec();
         doReturn(Arrays.asList(fieldSpec, fieldSpec, fieldSpec)).when(recordSpec).getFieldSpecs();
         when(channel.getBulkQuantityReadingType()).thenReturn(Optional.empty());
-        when(channel.getChannelsContainer()).thenReturn(meterActivation);
-        when(meterActivation.getMeter()).thenReturn(Optional.empty());
+        when(channel.getChannelsContainer()).thenReturn(channelsContainer);
+        when(channelsContainer.getMeter()).thenReturn(Optional.empty());
         when(idsService.createOverrulingStorer()).thenReturn(storer);
         when(idsService.createUpdatingStorer()).thenReturn(updatingStorer);
         doReturn(channel).when(cimChannel).getChannel();
@@ -76,7 +77,7 @@ public class ReadingStorerImplTest {
         doReturn(Arrays.asList(readingType1, readingType2)).when(channel).getReadingTypes();
         doReturn(DerivationRule.MEASURED).when(channel).getDerivationRule(any());
 
-        readingStorer = (ReadingStorerImpl) ReadingStorerImpl.createOverrulingStorer(idsService, eventService);
+        readingStorer = ReadingStorerImpl.createOverrulingStorer(idsService, eventService);
 
     }
 

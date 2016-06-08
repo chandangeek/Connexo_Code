@@ -10,8 +10,8 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.Vault;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeterConfiguration;
 import com.elster.jupiter.metering.MeterReadingTypeConfiguration;
 import com.elster.jupiter.metering.MeteringService;
@@ -54,7 +54,7 @@ public class ChannelBuilderImplTest {
     @Mock
     private MeteringService meteringService;
     @Mock
-    private MeterActivation channelsContainer; //TODO change to channel container
+    private ChannelsContainer channelsContainer;
     @Mock
     private Meter meter;
     @Mock

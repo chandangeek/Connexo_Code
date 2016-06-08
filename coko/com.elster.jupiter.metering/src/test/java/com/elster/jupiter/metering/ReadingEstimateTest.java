@@ -146,7 +146,7 @@ public class ReadingEstimateTest {
             ctx.commit();
         }
         ReadingType readingType = meteringService.getReadingType(readingTypeCode).get();
-        Channel channel = meter.getCurrentMeterActivation().get().getChannels().get(0);
+        Channel channel = meter.getCurrentMeterActivation().get().getChannelsContainer().getChannels().get(0);
         assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), existDate).isPresent()).isTrue();
         assertThat(channel.findReadingQuality(new ReadingQualityType("2.6.1"), existDate).get().isActual()).isTrue();
         // make sure that editing a value adds an editing rq, removes the suspect rq, and updates the validation rq
@@ -188,7 +188,7 @@ public class ReadingEstimateTest {
             ctx.commit();
         }
         ReadingType readingType = meteringService.getReadingType(readingTypeCode).get();
-        Channel channel = meter.getCurrentMeterActivation().get().getChannels().get(0);
+        Channel channel = meter.getCurrentMeterActivation().get().getChannelsContainer().getChannels().get(0);
         assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), dateA).isPresent()).isTrue();
         assertThat(channel.findReadingQuality(new ReadingQualityType("2.6.1"), dateA).get().isActual()).isTrue();
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {

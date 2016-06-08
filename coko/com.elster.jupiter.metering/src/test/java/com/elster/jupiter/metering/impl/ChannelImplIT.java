@@ -174,7 +174,7 @@ public class ChannelImplIT {
             MeterActivation meterActivation = meter.activate(ACTIVATION.toInstant());
 
 
-            Channel channel = meterActivation.createChannel(bulkReadingType);
+            Channel channel = meterActivation.getChannelsContainer().createChannel(bulkReadingType);
 
             assertThat(channel.getReadingTypes()).contains(deltaReadingType);
 

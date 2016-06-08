@@ -8,7 +8,6 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.ConnectionState;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
@@ -44,9 +43,7 @@ import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.fest.reflect.core.Reflection.field;
@@ -116,7 +113,7 @@ public class UsagePointImplTest {
     @Mock
     private Validator validator;
     @Mock
-    private MeteringService meteringService;
+    private ServerMeteringService meteringService;
     @Mock
     private MeterImpl meter;
     @Mock
@@ -126,37 +123,20 @@ public class UsagePointImplTest {
 
     @Before
     public void setUp() {
+        when(meteringService.getClock()).thenReturn(clock);
+        when(meteringService.getDataModel()).thenReturn(dataModel);
         when(role.getMRID()).thenReturn(MarketRoleKind.ENERGYSERVICECONSUMER.name());
         when(dataModel.mapper(UsagePoint.class)).thenReturn(usagePointFactory);
         when(dataModel.mapper(Meter.class)).thenReturn(meterFactory);
         when(meterRole.getKey()).thenReturn(DefaultMeterRole.DEFAULT.getKey());
         when(meterFactory.getExisting(any())).thenReturn(meter);
-        when(dataModel.getInstance(UsagePointAccountabilityImpl.class)).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new UsagePointAccountabilityImpl(clock);
-            }
-        });
-        final Provider<ChannelBuilder> channelBuilderProvider = new Provider<ChannelBuilder>() {
-            @Override
-            public ChannelBuilder get() {
-                return channelBuilder;
-            }
-        };
+        when(dataModel.getInstance(UsagePointAccountabilityImpl.class)).thenAnswer(invocationOnMock -> new UsagePointAccountabilityImpl(clock));
+        final Provider<ChannelBuilder> channelBuilderProvider = () -> channelBuilder;
+        when(dataModel.getInstance(MeterActivationChannelsContainerImpl.class)).then(invocation -> new MeterActivationChannelsContainerImpl(meteringService, eventService, channelBuilderProvider));
         when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
         when(validatorFactory.getValidator()).thenReturn(validator);
-        when(meterActivationProvider.get()).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new MeterActivationImpl(dataModel, eventService, clock, channelBuilderProvider, thesaurus);
-            }
-        });
-        when(accountabilityProvider.get()).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new UsagePointAccountabilityImpl(clock);
-            }
-        });
+        when(meterActivationProvider.get()).thenAnswer(invocationOnMock -> new MeterActivationImpl(dataModel, eventService, clock, thesaurus));
+        when(accountabilityProvider.get()).thenAnswer(invocationOnMock -> new UsagePointAccountabilityImpl(clock));
         when(representation1.getDelegate()).thenReturn(user1);
         when(representation2.getDelegate()).thenReturn(user2);
         when(representation3.getDelegate()).thenReturn(user3);

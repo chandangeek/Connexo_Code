@@ -7,6 +7,7 @@ import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.Formula;
@@ -57,6 +58,8 @@ public class ApplyUnitConversionTest {
     @Mock
     private MeterActivation meterActivation;
     @Mock
+    private ChannelsContainer channelsContainer;
+    @Mock
     private ReadingTypeDeliverableForMeterActivationProvider readingTypeDeliverableForMeterActivationProvider;
     @Mock
     private ServerMeteringService meteringService;
@@ -82,6 +85,7 @@ public class ApplyUnitConversionTest {
         when(this.thesaurus.getFormat(any(TranslationKey.class))).thenReturn(messageFormat);
         when(this.thesaurus.getFormat(any(MessageSeed.class))).thenReturn(messageFormat);
         when(this.meterActivation.getRange()).thenReturn(Range.atLeast(Instant.EPOCH));
+        when(this.meterActivation.getChannelsContainer()).thenReturn(this.channelsContainer);
     }
 
     @Test
@@ -102,7 +106,7 @@ public class ApplyUnitConversionTest {
         when(ampereRequirement.getReadingType()).thenReturn(ampereReadingType);
         Channel chn1 = mock(Channel.class);
         when(chn1.getMainReadingType()).thenReturn(ampereReadingType);
-        when(ampereRequirement.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(chn1));
+        when(ampereRequirement.getMatchingChannelsFor(this.channelsContainer)).thenReturn(Collections.singletonList(chn1));
         VirtualReadingTypeRequirement ampereVirtualRequirement = mock(VirtualReadingTypeRequirement.class);
         VirtualReadingType ampereVirtualReadingType = VirtualReadingType.from(ampereReadingType);
         when(this.virtualFactory
@@ -124,7 +128,7 @@ public class ApplyUnitConversionTest {
         when(voltRequirement.getReadingType()).thenReturn(voltReadingType);
         Channel chn2 = mock(Channel.class);
         when(chn2.getMainReadingType()).thenReturn(voltReadingType);
-        when(voltRequirement.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(chn2));
+        when(voltRequirement.getMatchingChannelsFor(this.channelsContainer)).thenReturn(Collections.singletonList(chn2));
         VirtualReadingTypeRequirement voltVirtualRequirement = mock(VirtualReadingTypeRequirement.class);
         VirtualReadingType voltVirtualReadingType = VirtualReadingType.from(voltReadingType);
         when(this.virtualFactory
@@ -165,7 +169,7 @@ public class ApplyUnitConversionTest {
         when(ampereRequirement.getReadingType()).thenReturn(ampereReadingType);
         Channel chn1 = mock(Channel.class);
         when(chn1.getMainReadingType()).thenReturn(ampereReadingType);
-        when(ampereRequirement.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(chn1));
+        when(ampereRequirement.getMatchingChannelsFor(this.channelsContainer)).thenReturn(Collections.singletonList(chn1));
         VirtualReadingTypeRequirement ampereVirtualRequirement = mock(VirtualReadingTypeRequirement.class);
         VirtualReadingType ampereVirtualReadingType = VirtualReadingType.from(ampereReadingType);
         when(this.virtualFactory
@@ -187,7 +191,7 @@ public class ApplyUnitConversionTest {
         when(voltRequirement.getReadingType()).thenReturn(voltReadingType);
         Channel chn2 = mock(Channel.class);
         when(chn2.getMainReadingType()).thenReturn(voltReadingType);
-        when(voltRequirement.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(chn2));
+        when(voltRequirement.getMatchingChannelsFor(this.channelsContainer)).thenReturn(Collections.singletonList(chn2));
         VirtualReadingTypeRequirement voltVirtualRequirement = mock(VirtualReadingTypeRequirement.class);
         VirtualReadingType voltVirtualReadingType = VirtualReadingType.from(voltReadingType);
         when(this.virtualFactory
@@ -227,7 +231,7 @@ public class ApplyUnitConversionTest {
         when(ampereRequirement.getReadingType()).thenReturn(ampereReadingType);
         Channel chn1 = mock(Channel.class);
         when(chn1.getMainReadingType()).thenReturn(ampereReadingType);
-        when(ampereRequirement.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(chn1));
+        when(ampereRequirement.getMatchingChannelsFor(this.channelsContainer)).thenReturn(Collections.singletonList(chn1));
         VirtualReadingTypeRequirement ampereVirtualRequirement = mock(VirtualReadingTypeRequirement.class);
         VirtualReadingType ampereVirtualReadingType = VirtualReadingType.from(ampereReadingType);
         when(ampereVirtualRequirement.getSourceReadingType()).thenReturn(ampereVirtualReadingType);
@@ -250,7 +254,7 @@ public class ApplyUnitConversionTest {
         FullySpecifiedReadingTypeRequirement voltRequirement = mock(FullySpecifiedReadingTypeRequirement.class);
         when(voltRequirement.getDimension()).thenReturn(ReadingTypeUnit.VOLT.getUnit().getDimension());
         when(voltRequirement.getReadingType()).thenReturn(voltReadingType);
-        when(voltRequirement.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(chn2));
+        when(voltRequirement.getMatchingChannelsFor(this.channelsContainer)).thenReturn(Collections.singletonList(chn2));
         VirtualReadingTypeRequirement voltVirtualRequirement = mock(VirtualReadingTypeRequirement.class);
         VirtualReadingType voltVirtualReadingType = VirtualReadingType.from(voltReadingType);
         when(voltVirtualRequirement.getSourceReadingType()).thenReturn(voltVirtualReadingType);
@@ -302,7 +306,7 @@ public class ApplyUnitConversionTest {
         when(ampereRequirement.getReadingType()).thenReturn(ampereReadingType);
         Channel chn1 = mock(Channel.class);
         when(chn1.getMainReadingType()).thenReturn(ampereReadingType);
-        when(ampereRequirement.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(chn1));
+        when(ampereRequirement.getMatchingChannelsFor(this.channelsContainer)).thenReturn(Collections.singletonList(chn1));
         VirtualReadingTypeRequirement ampereVirtualRequirement = mock(VirtualReadingTypeRequirement.class);
         VirtualReadingType ampereVirtualReadingType = VirtualReadingType.from(ampereReadingType);
         when(ampereVirtualRequirement.getSourceReadingType()).thenReturn(ampereVirtualReadingType);
@@ -325,7 +329,7 @@ public class ApplyUnitConversionTest {
         FullySpecifiedReadingTypeRequirement voltRequirement = mock(FullySpecifiedReadingTypeRequirement.class);
         when(voltRequirement.getDimension()).thenReturn(ReadingTypeUnit.VOLT.getUnit().getDimension());
         when(voltRequirement.getReadingType()).thenReturn(voltReadingType);
-        when(voltRequirement.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(chn2));
+        when(voltRequirement.getMatchingChannelsFor(this.channelsContainer)).thenReturn(Collections.singletonList(chn2));
         VirtualReadingTypeRequirement voltVirtualRequirement = mock(VirtualReadingTypeRequirement.class);
         VirtualReadingType voltVirtualReadingType = VirtualReadingType.from(voltReadingType);
         when(voltVirtualRequirement.getSourceReadingType()).thenReturn(voltVirtualReadingType);
@@ -384,7 +388,7 @@ public class ApplyUnitConversionTest {
         when(ampereRequirement.getDimension()).thenReturn(ReadingTypeUnit.AMPERE.getUnit().getDimension());
         Channel chn1 = mock(Channel.class);
         when(chn1.getMainReadingType()).thenReturn(ampereReadingType);
-        when(ampereRequirement.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(chn1));
+        when(ampereRequirement.getMatchingChannelsFor(this.channelsContainer)).thenReturn(Collections.singletonList(chn1));
         VirtualReadingTypeRequirement ampereVirtualRequirement = mock(VirtualReadingTypeRequirement.class);
         VirtualReadingType ampereVirtualReadingType = VirtualReadingType.from(ampereReadingType);
         when(ampereVirtualRequirement.getSourceReadingType()).thenReturn(ampereVirtualReadingType);
@@ -406,7 +410,7 @@ public class ApplyUnitConversionTest {
         when(voltRequirement.getDimension()).thenReturn(ReadingTypeUnit.VOLT.getUnit().getDimension());
         Channel chn2 = mock(Channel.class);
         when(chn2.getMainReadingType()).thenReturn(voltReadingType);
-        when(voltRequirement.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(chn2));
+        when(voltRequirement.getMatchingChannelsFor(this.channelsContainer)).thenReturn(Collections.singletonList(chn2));
         VirtualReadingTypeRequirement voltVirtualRequirement = mock(VirtualReadingTypeRequirement.class);
         VirtualReadingType voltVirtualReadingType = VirtualReadingType.from(voltReadingType);
         when(voltVirtualRequirement.getSourceReadingType()).thenReturn(voltVirtualReadingType);
@@ -459,7 +463,7 @@ public class ApplyUnitConversionTest {
         when(ampereRequirement.getDimension()).thenReturn(ReadingTypeUnit.AMPERE.getUnit().getDimension());
         Channel chn1 = mock(Channel.class);
         when(chn1.getMainReadingType()).thenReturn(ampereReadingType);
-        when(ampereRequirement.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(chn1));
+        when(ampereRequirement.getMatchingChannelsFor(this.channelsContainer)).thenReturn(Collections.singletonList(chn1));
         VirtualReadingTypeRequirement ampereVirtualRequirement = mock(VirtualReadingTypeRequirement.class);
         VirtualReadingType ampereVirtualReadingType = VirtualReadingType.from(ampereReadingType);
         when(ampereVirtualRequirement.getSourceReadingType()).thenReturn(ampereVirtualReadingType);
@@ -481,7 +485,7 @@ public class ApplyUnitConversionTest {
         when(voltRequirement.getDimension()).thenReturn(ReadingTypeUnit.VOLT.getUnit().getDimension());
         Channel chn2 = mock(Channel.class);
         when(chn2.getMainReadingType()).thenReturn(voltReadingType);
-        when(voltRequirement.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(chn2));
+        when(voltRequirement.getMatchingChannelsFor(this.channelsContainer)).thenReturn(Collections.singletonList(chn2));
         VirtualReadingTypeRequirement voltVirtualRequirement = mock(VirtualReadingTypeRequirement.class);
         VirtualReadingType voltVirtualReadingType = VirtualReadingType.from(voltReadingType);
         when(voltVirtualRequirement.getSourceReadingType()).thenReturn(voltVirtualReadingType);
@@ -530,7 +534,7 @@ public class ApplyUnitConversionTest {
         FullySpecifiedReadingTypeRequirement pressure = mock(FullySpecifiedReadingTypeRequirement.class);
         when(pressure.getDimension()).thenReturn(Dimension.PRESSURE);
         when(pressure.getReadingType()).thenReturn(pressureReadingType);
-        when(pressure.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(pressureChannel));
+        when(pressure.getMatchingChannelsFor(this.channelsContainer)).thenReturn(Collections.singletonList(pressureChannel));
         VirtualReadingTypeRequirement pressureVirtualRequirement = mock(VirtualReadingTypeRequirement.class);
         VirtualReadingType pressureVirtualReadingType = VirtualReadingType.from(pressureReadingType);
         when(pressureVirtualRequirement.getSourceReadingType()).thenReturn(pressureVirtualReadingType);
@@ -553,7 +557,7 @@ public class ApplyUnitConversionTest {
         FullySpecifiedReadingTypeRequirement volume = mock(FullySpecifiedReadingTypeRequirement.class);
         when(volume.getDimension()).thenReturn(Dimension.VOLUME);
         when(volume.getReadingType()).thenReturn(volumeReadingType);
-        when(volume.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(volumeChannel));
+        when(volume.getMatchingChannelsFor(this.channelsContainer)).thenReturn(Collections.singletonList(volumeChannel));
         VirtualReadingTypeRequirement volumeVirtualRequirement = mock(VirtualReadingTypeRequirement.class);
         VirtualReadingType volumeVirtualReadingType = VirtualReadingType.from(volumeReadingType);
         when(volumeVirtualRequirement.getSourceReadingType()).thenReturn(volumeVirtualReadingType);
@@ -576,7 +580,7 @@ public class ApplyUnitConversionTest {
         FullySpecifiedReadingTypeRequirement temperature = mock(FullySpecifiedReadingTypeRequirement.class);
         when(temperature.getDimension()).thenReturn(Dimension.TEMPERATURE);
         when(temperature.getReadingType()).thenReturn(temperatureReadingType);
-        when(temperature.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(temperatureChannel));
+        when(temperature.getMatchingChannelsFor(this.channelsContainer)).thenReturn(Collections.singletonList(temperatureChannel));
         VirtualReadingTypeRequirement temperatureVirtualRequirement = mock(VirtualReadingTypeRequirement.class);
         VirtualReadingType temperatureVirtualReadingType = VirtualReadingType.from(temperatureReadingType);
         when(temperatureVirtualRequirement.getSourceReadingType()).thenReturn(temperatureVirtualReadingType);

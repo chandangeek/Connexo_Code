@@ -16,7 +16,6 @@ import com.google.common.collect.Range;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -34,22 +33,24 @@ public class MeterActivationsImpl implements ReadingContainer {
     @Override
     public List<? extends BaseReadingRecord> getReadings(Range<Instant> range, ReadingType readingType) {
         return meterActivations.stream()
-                .flatMap(meterActivation -> meterActivation.getReadings(range, readingType).stream())
+                .map(MeterActivation::getChannelsContainer)
+                .flatMap(channelsContainer -> channelsContainer.getReadings(range, readingType).stream())
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<? extends BaseReadingRecord> getReadingsUpdatedSince(Range<Instant> range, ReadingType readingType, Instant since) {
         return meterActivations.stream()
-                .flatMap(meterActivation -> meterActivation.getReadingsUpdatedSince(range, readingType, since).stream())
+                .map(MeterActivation::getChannelsContainer)
+                .flatMap(channelsContainer -> channelsContainer.getReadingsUpdatedSince(range, readingType, since).stream())
                 .collect(Collectors.toList());
     }
 
     @Override
     public Set<ReadingType> getReadingTypes(Range<Instant> range) {
         return meterActivations.stream()
-                .map(MeterActivation::getReadingTypes)
-                .flatMap(Collection::stream)
+                .map(MeterActivation::getChannelsContainer)
+                .flatMap(channelsContainer -> channelsContainer.getReadingTypes(range).stream())
                 .collect(Collectors.toSet());
     }
 
@@ -59,9 +60,9 @@ public class MeterActivationsImpl implements ReadingContainer {
             return Collections.emptyList();
         }
         List<BaseReadingRecord> result = new ArrayList<>();
-        result.addAll(last().getReadingsBefore(when, readingType, count));
+        result.addAll(last().getChannelsContainer().getReadingsBefore(when, readingType, count));
         for (int i = meterActivations.size() - 2; i >= 0 && result.size() < count; i--) {
-            result.addAll(meterActivations.get(i).getReadingsBefore(when, readingType, count - result.size()));
+            result.addAll(meterActivations.get(i).getChannelsContainer().getReadingsBefore(when, readingType, count - result.size()));
         }
         return result;
     }
@@ -72,16 +73,18 @@ public class MeterActivationsImpl implements ReadingContainer {
             return Collections.emptyList();
         }
         List<BaseReadingRecord> result = new ArrayList<>();
-        result.addAll(last().getReadingsOnOrBefore(when, readingType, count));
+        result.addAll(last().getChannelsContainer().getReadingsOnOrBefore(when, readingType, count));
         for (int i = meterActivations.size() - 2; i >= 0 && result.size() < count; i--) {
-            result.addAll(meterActivations.get(i).getReadingsOnOrBefore(when, readingType, count - result.size()));
+            result.addAll(meterActivations.get(i).getChannelsContainer().getReadingsOnOrBefore(when, readingType, count - result.size()));
         }
         return result;
     }
 
     @Override
     public boolean hasData() {
-        return meterActivations.stream().anyMatch(MeterActivationImpl::hasData);
+        return meterActivations.stream()
+                .map(MeterActivation::getChannelsContainer)
+                .anyMatch(ChannelsContainer::hasData);
     }
 
     private MeterActivationImpl last() {
@@ -100,7 +103,8 @@ public class MeterActivationsImpl implements ReadingContainer {
     public List<Instant> toList(ReadingType readingType, Range<Instant> exportInterval) {
         return meterActivations.stream()
                 .findFirst()
-                .map(meterActivation -> meterActivation.toList(readingType, exportInterval))
+                .map(MeterActivation::getChannelsContainer)
+                .map(channelsContainer -> channelsContainer.toList(readingType, exportInterval))
                 .orElseGet(Collections::emptyList);
     }
 
@@ -136,7 +140,8 @@ public class MeterActivationsImpl implements ReadingContainer {
     public ZoneId getZoneId() {
         return meterActivations.stream()
                 .findAny()
-                .map(MeterActivation::getZoneId)
+                .map(MeterActivation::getChannelsContainer)
+                .map(ChannelsContainer::getZoneId)
                 .orElse(ZoneId.systemDefault());
     }
 
@@ -144,12 +149,15 @@ public class MeterActivationsImpl implements ReadingContainer {
     public List<ReadingQualityRecord> getReadingQualities(Set<QualityCodeSystem> qualityCodeSystems, QualityCodeIndex qualityCodeIndex,
                                                           ReadingType readingType, Range<Instant> interval) {
         return meterActivations.stream()
-                .flatMap(meterActivation -> meterActivation.getReadingQualities(qualityCodeSystems, qualityCodeIndex, readingType, interval).stream())
+                .map(MeterActivation::getChannelsContainer)
+                .flatMap(channelsContainer -> channelsContainer.getReadingQualities(qualityCodeSystems, qualityCodeIndex, readingType, interval).stream())
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<ChannelsContainer> getChannelsContainers() {
-        return Collections.unmodifiableList(meterActivations);
+        return meterActivations.stream()
+                .map(MeterActivation::getChannelsContainer)
+                .collect(Collectors.toList());
     }
 }

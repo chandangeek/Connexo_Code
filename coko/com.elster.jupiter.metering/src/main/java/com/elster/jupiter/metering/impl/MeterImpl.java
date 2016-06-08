@@ -89,7 +89,7 @@ class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter {
     public MeterActivation activate(Range<Instant> range) {
         checkOverlaps(range);
         MeterActivationImpl result = meterActivationFactory.get().init(this, range);
-        getDataModel().persist(result);
+        result.save();
         meterActivations.add(result);
         return result;
     }
@@ -115,7 +115,7 @@ class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter {
     public MeterActivation activate(UsagePoint usagePoint, MeterRole meterRole, Instant from) {
         checkOverlaps(from);
         MeterActivationImpl result = meterActivationFactory.get().init(this, meterRole, usagePoint, from);
-        getDataModel().persist(result);
+        result.save();
         meterActivations.add(result);
         return result;
     }
@@ -201,8 +201,8 @@ class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter {
         if (!range.hasLowerBound() && !range.hasUpperBound()) {
             throw new IllegalArgumentException();
         }
-        QueryExecutor<ReadingQualityRecord> query = getDataModel().query(ReadingQualityRecord.class, Channel.class, MeterActivation.class);
-        Condition condition = Where.where("channel.meterActivation.meter").isEqualTo(this);
+        QueryExecutor<ReadingQualityRecord> query = getDataModel().query(ReadingQualityRecord.class, Channel.class, ChannelsContainer.class, MeterActivation.class);
+        Condition condition = Where.where("channel.channelsContainer.meterActivation.meter").isEqualTo(this);
         condition = condition.and(Where.where("readingTimestamp").in(range));
         return query.select(condition);
     }
@@ -225,14 +225,16 @@ class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter {
     @Override
     public ZoneId getZoneId() {
         return getCurrentMeterActivation()
-                .map(MeterActivation::getZoneId)
+                .map(MeterActivation::getChannelsContainer)
+                .map(ChannelsContainer::getZoneId)
                 .orElse(ZoneId.systemDefault());
     }
 
     @Override
     public List<Instant> toList(ReadingType readingType, Range<Instant> exportInterval) {
         return getCurrentMeterActivation()
-                .map(meterActivation -> meterActivation.toList(readingType, exportInterval))
+                .map(MeterActivation::getChannelsContainer)
+                .map(channelsContainer -> channelsContainer.toList(readingType, exportInterval))
                 .orElseGet(Collections::emptyList);
     }
 
@@ -240,13 +242,14 @@ class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter {
     public List<ReadingQualityRecord> getReadingQualities(Set<QualityCodeSystem> qualityCodeSystems, QualityCodeIndex qualityCodeIndex,
                                                           ReadingType readingType, Range<Instant> interval) {
         return meterActivations.stream()
-                .flatMap(meterActivation -> meterActivation.getReadingQualities(qualityCodeSystems, qualityCodeIndex, readingType, interval).stream())
+                .map(MeterActivation::getChannelsContainer)
+                .flatMap(channelsContainer -> channelsContainer.getReadingQualities(qualityCodeSystems, qualityCodeIndex, readingType, interval).stream())
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<ChannelsContainer> getChannelsContainers() {
-        return getMeterActivations().stream().map(ChannelsContainer.class::cast).collect(Collectors.toList());
+        return getMeterActivations().stream().map(MeterActivation::getChannelsContainer).collect(Collectors.toList());
     }
 
     void addConfiguration(MeterConfigurationImpl meterConfiguration) {

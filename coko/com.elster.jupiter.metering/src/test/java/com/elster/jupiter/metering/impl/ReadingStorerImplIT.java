@@ -609,7 +609,7 @@ public class ReadingStorerImplIT {
                         .calculating(caluclated)
                         .create();
 
-                return meterActivation.createChannel(measured);
+            return meterActivation.getChannelsContainer().createChannel(measured);
             });
     }
 
@@ -621,7 +621,7 @@ public class ReadingStorerImplIT {
                     .setName("Meter")
                     .create();
             MeterActivation meterActivation = meter.activate(ACTIVATION.toInstant());
-            return meterActivation.createChannel(bulkReadingType);
+            return meterActivation.getChannelsContainer().createChannel(bulkReadingType);
         });
     }
 }

@@ -5,6 +5,7 @@ import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.Formula;
@@ -45,6 +46,8 @@ public class InferReadingTypeTest {
     private ReadingTypeDeliverable deliverable;
     @Mock
     private MeterActivation meterActivation;
+    @Mock
+    private ChannelsContainer channelsContainer;
 
     private VirtualFactory virtualFactory = new VirtualFactoryImpl();
 
@@ -52,7 +55,8 @@ public class InferReadingTypeTest {
     public void initializeMocks() {
         ReadingType readingType = this.mock15minkWhReadingType();
         when(this.deliverable.getReadingType()).thenReturn(readingType);
-        when(this.requirement.getMatchesFor(this.meterActivation)).thenReturn(Collections.singletonList(readingType));
+        when(this.meterActivation.getChannelsContainer()).thenReturn(this.channelsContainer);
+        when(this.requirement.getMatchesFor(this.channelsContainer)).thenReturn(Collections.singletonList(readingType));
         when(this.meterActivation.getRange()).thenReturn(Range.all());
     }
 
@@ -109,8 +113,8 @@ public class InferReadingTypeTest {
         when(readingType.getCommodity()).thenReturn(Commodity.ELECTRICITY_PRIMARY_METERED);
         ChannelContract channel = mock(ChannelContract.class);
         when(channel.getMainReadingType()).thenReturn(readingType);
-        when(this.requirement.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(channel));
-        when(this.requirement.getMatchesFor(this.meterActivation)).thenReturn(Collections.singletonList(readingType));
+        when(this.requirement.getMatchingChannelsFor(this.channelsContainer)).thenReturn(Collections.singletonList(channel));
+        when(this.requirement.getMatchesFor(this.channelsContainer)).thenReturn(Collections.singletonList(readingType));
         VirtualRequirementNode node =
                 new VirtualRequirementNode(
                         Formula.Mode.AUTO,
@@ -135,7 +139,7 @@ public class InferReadingTypeTest {
         when(requirement1ReadingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
         when(requirement1ReadingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE2);   // Make sure this is not compatible with requirement 2
         when(requirement1.getReadingType()).thenReturn(requirement1ReadingType);
-        when(requirement1.getMatchesFor(this.meterActivation)).thenReturn(Collections.singletonList(requirement1ReadingType));
+        when(requirement1.getMatchesFor(this.channelsContainer)).thenReturn(Collections.singletonList(requirement1ReadingType));
         VirtualRequirementNode requirementNode1 =
                 new VirtualRequirementNode(
                         Formula.Mode.AUTO,
@@ -148,7 +152,7 @@ public class InferReadingTypeTest {
         when(requirement2ReadingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
         when(requirement2ReadingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);  // Incompatible with requirement 1
         when(requirement2.getReadingType()).thenReturn(requirement2ReadingType);
-        when(requirement2.getMatchesFor(this.meterActivation)).thenReturn(Collections.singletonList(requirement2ReadingType));
+        when(requirement2.getMatchesFor(this.channelsContainer)).thenReturn(Collections.singletonList(requirement2ReadingType));
         VirtualRequirementNode requirementNode2 =
                 new VirtualRequirementNode(
                         Formula.Mode.AUTO,
@@ -175,7 +179,7 @@ public class InferReadingTypeTest {
         when(requirement1ReadingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
         when(requirement1ReadingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE2);   // Make sure this is not compatible with requirement 2
         when(requirement1.getReadingType()).thenReturn(requirement1ReadingType);
-        when(requirement1.getMatchesFor(this.meterActivation)).thenReturn(Collections.singletonList(requirement1ReadingType));
+        when(requirement1.getMatchesFor(this.channelsContainer)).thenReturn(Collections.singletonList(requirement1ReadingType));
         VirtualRequirementNode requirementNode1 =
                 new VirtualRequirementNode(
                         Formula.Mode.AUTO,
@@ -188,7 +192,7 @@ public class InferReadingTypeTest {
         when(requirement2ReadingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
         when(requirement2ReadingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);  // Incompatible with requirement 1
         when(requirement2.getReadingType()).thenReturn(requirement2ReadingType);
-        when(requirement2.getMatchesFor(this.meterActivation)).thenReturn(Collections.singletonList(requirement2ReadingType));
+        when(requirement2.getMatchesFor(this.channelsContainer)).thenReturn(Collections.singletonList(requirement2ReadingType));
         VirtualRequirementNode requirementNode2 =
                 new VirtualRequirementNode(
                         Formula.Mode.AUTO,
@@ -234,7 +238,7 @@ public class InferReadingTypeTest {
         when(fifteenMinChannel.getMainReadingType()).thenReturn(fifteenMinReadingType);
 
         ReadingTypeRequirement requirement1 = mock(ReadingTypeRequirement.class);
-        when(requirement1.getMatchingChannelsFor(this.meterActivation)).thenReturn(Arrays.asList(fifteenMinChannel, hourlyChannel));
+        when(requirement1.getMatchingChannelsFor(this.channelsContainer)).thenReturn(Arrays.asList(fifteenMinChannel, hourlyChannel));
         VirtualRequirementNode requirementNode1 =
                 new VirtualRequirementNode(
                         Formula.Mode.AUTO,
@@ -243,7 +247,7 @@ public class InferReadingTypeTest {
                         this.deliverable,
                         this.meterActivation);
         ReadingTypeRequirement requirement2 = mock(ReadingTypeRequirement.class);
-        when(requirement2.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(fifteenMinChannel));
+        when(requirement2.getMatchingChannelsFor(this.channelsContainer)).thenReturn(Collections.singletonList(fifteenMinChannel));
         VirtualRequirementNode requirementNode2 =
                 new VirtualRequirementNode(
                         Formula.Mode.AUTO,
@@ -283,7 +287,7 @@ public class InferReadingTypeTest {
 
         ReadingTypeRequirement requirement1 = mock(ReadingTypeRequirement.class);
 
-        when(requirement1.getMatchingChannelsFor(this.meterActivation)).thenReturn(Arrays.asList(fifteenMinChannel, hourlyChannel));
+        when(requirement1.getMatchingChannelsFor(this.channelsContainer)).thenReturn(Arrays.asList(fifteenMinChannel, hourlyChannel));
         VirtualRequirementNode requirementNode1 =
                 new VirtualRequirementNode(
                         Formula.Mode.AUTO,
@@ -292,7 +296,7 @@ public class InferReadingTypeTest {
                         this.deliverable,
                         this.meterActivation);
         ReadingTypeRequirement requirement2 = mock(ReadingTypeRequirement.class);
-        when(requirement2.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(fifteenMinChannel));
+        when(requirement2.getMatchingChannelsFor(this.channelsContainer)).thenReturn(Collections.singletonList(fifteenMinChannel));
         VirtualRequirementNode requirementNode2 =
                 new VirtualRequirementNode(
                         Formula.Mode.AUTO,
@@ -340,7 +344,7 @@ public class InferReadingTypeTest {
         when(voltChannel.getMainReadingType()).thenReturn(voltReadingType);
 
         ReadingTypeRequirement y = mock(ReadingTypeRequirement.class);
-        when(y.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(ampereChannel));
+        when(y.getMatchingChannelsFor(this.channelsContainer)).thenReturn(Collections.singletonList(ampereChannel));
         VirtualRequirementNode nodeY =
                 new VirtualRequirementNode(
                         Formula.Mode.AUTO,
@@ -349,7 +353,7 @@ public class InferReadingTypeTest {
                         this.deliverable,
                         this.meterActivation);
         ReadingTypeRequirement z = mock(ReadingTypeRequirement.class);
-        when(z.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(voltChannel));
+        when(z.getMatchingChannelsFor(this.channelsContainer)).thenReturn(Collections.singletonList(voltChannel));
         VirtualRequirementNode nodeZ =
                 new VirtualRequirementNode(
                         Formula.Mode.AUTO,
@@ -388,7 +392,7 @@ public class InferReadingTypeTest {
         when(voltChannel.getMainReadingType()).thenReturn(voltReadingType);
 
         ReadingTypeRequirement y = mock(ReadingTypeRequirement.class);
-        when(y.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(ampereChannel));
+        when(y.getMatchingChannelsFor(this.channelsContainer)).thenReturn(Collections.singletonList(ampereChannel));
         VirtualRequirementNode nodeY =
                 new VirtualRequirementNode(
                         Formula.Mode.AUTO,
@@ -397,7 +401,7 @@ public class InferReadingTypeTest {
                         this.deliverable,
                         this.meterActivation);
         ReadingTypeRequirement z = mock(ReadingTypeRequirement.class);
-        when(z.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(voltChannel));
+        when(z.getMatchingChannelsFor(this.channelsContainer)).thenReturn(Collections.singletonList(voltChannel));
         VirtualRequirementNode nodeZ =
                 new VirtualRequirementNode(
                         Formula.Mode.AUTO,
@@ -449,7 +453,7 @@ public class InferReadingTypeTest {
         when(fifteenMin_kWh_Channel.getMainReadingType()).thenReturn(fifteenMin_kWh_ReadingType);
 
         ReadingTypeRequirement requirement1 = mock(ReadingTypeRequirement.class);
-        when(requirement1.getMatchingChannelsFor(this.meterActivation)).thenReturn(Arrays.asList(fifteenMin_kW_Channel, hourly_kW_Channel));
+        when(requirement1.getMatchingChannelsFor(this.channelsContainer)).thenReturn(Arrays.asList(fifteenMin_kW_Channel, hourly_kW_Channel));
         VirtualRequirementNode requirementNode1 =
                 new VirtualRequirementNode(
                         Formula.Mode.AUTO,
@@ -458,7 +462,7 @@ public class InferReadingTypeTest {
                         this.deliverable,
                         this.meterActivation);
         ReadingTypeRequirement requirement2 = mock(ReadingTypeRequirement.class);
-        when(requirement2.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(fifteenMin_kWh_Channel));
+        when(requirement2.getMatchingChannelsFor(this.channelsContainer)).thenReturn(Collections.singletonList(fifteenMin_kWh_Channel));
         VirtualRequirementNode requirementNode2 =
                 new VirtualRequirementNode(
                         Formula.Mode.AUTO,
@@ -507,7 +511,7 @@ public class InferReadingTypeTest {
         when(fifteenMin_kWh_Channel.getMainReadingType()).thenReturn(fifteenMin_kWh_ReadingType);
 
         ReadingTypeRequirement requirement1 = mock(ReadingTypeRequirement.class);
-        when(requirement1.getMatchingChannelsFor(this.meterActivation)).thenReturn(Arrays.asList(fifteenMin_kW_Channel, hourly_kW_Channel));
+        when(requirement1.getMatchingChannelsFor(this.channelsContainer)).thenReturn(Arrays.asList(fifteenMin_kW_Channel, hourly_kW_Channel));
         VirtualRequirementNode requirementNode1 =
                 new VirtualRequirementNode(
                         Formula.Mode.AUTO,
@@ -516,7 +520,7 @@ public class InferReadingTypeTest {
                         this.deliverable,
                         this.meterActivation);
         ReadingTypeRequirement requirement2 = mock(ReadingTypeRequirement.class);
-        when(requirement2.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(fifteenMin_kWh_Channel));
+        when(requirement2.getMatchingChannelsFor(this.channelsContainer)).thenReturn(Collections.singletonList(fifteenMin_kWh_Channel));
         VirtualRequirementNode requirementNode2 =
                 new VirtualRequirementNode(
                         Formula.Mode.AUTO,

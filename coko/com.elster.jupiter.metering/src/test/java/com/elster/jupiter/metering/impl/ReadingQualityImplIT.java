@@ -119,7 +119,7 @@ public class ReadingQualityImplIT {
         AmrSystem system = meteringService.findAmrSystem(1).get();
         Meter meter = system.newMeter("meter" + date.toEpochMilli()).create();
         MeterActivation meterActivation = usagePoint.activate(meter, inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT), date);
-        Channel channel = meterActivation.createChannel(readingType);
+        Channel channel = meterActivation.getChannelsContainer().createChannel(readingType);
         ReadingStorer regularStorer = meteringService.createNonOverrulingStorer();
         regularStorer.addReading(channel.getCimChannel(readingType).get(), IntervalReadingImpl.of(date, BigDecimal.valueOf(561561, 2)));
         regularStorer.execute();

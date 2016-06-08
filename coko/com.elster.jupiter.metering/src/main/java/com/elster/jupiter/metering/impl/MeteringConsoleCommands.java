@@ -143,7 +143,7 @@ public class MeteringConsoleCommands {
     }
 
     private String toString(MeterActivation meterActivation) {
-        String channels = meterActivation.getChannels().stream()
+        String channels = meterActivation.getChannelsContainer().getChannels().stream()
                 .map(channel -> channel.getId() + " " + channel.getMainReadingType().getMRID())
                 .collect(java.util.stream.Collectors.joining("\n\t"));
         return meterActivation.getRange().toString() + "\n\t" + channels;

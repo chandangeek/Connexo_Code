@@ -188,7 +188,7 @@ class CalculatedReadingRecord implements BaseReadingRecord {
     @Override
     public Optional<Range<Instant>> getTimePeriod() {
         MeterActivation meterActivation = this.usagePoint.getMeterActivations(this.getTimeStamp()).stream().findFirst().get();
-        ZoneId zoneId = meterActivation.getZoneId();
+        ZoneId zoneId = meterActivation.getChannelsContainer().getZoneId();
         IntervalLength intervalLength = IntervalLength.from(this.getReadingType());
         Instant startCandidate = intervalLength.truncate(this.getTimeStamp(), zoneId);
         if (startCandidate.equals(this.getTimeStamp())) {
@@ -197,7 +197,7 @@ class CalculatedReadingRecord implements BaseReadingRecord {
         }
         Optional<MeterActivation> meterActivationAtStart = this.usagePoint.getMeterActivations(startCandidate).stream().findFirst();
         if (meterActivationAtStart.isPresent()) {
-            if (zoneId.equals(meterActivationAtStart.get().getZoneId())) {
+            if (zoneId.equals(meterActivationAtStart.get().getChannelsContainer().getZoneId())) {
                 // Same ZoneId
                 return Optional.of(Range.openClosed(startCandidate, this.getTimeStamp()));
             } else {

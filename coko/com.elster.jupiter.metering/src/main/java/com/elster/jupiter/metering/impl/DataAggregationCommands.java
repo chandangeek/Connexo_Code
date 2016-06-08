@@ -11,6 +11,7 @@ import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -154,7 +155,9 @@ public class DataAggregationCommands {
         try (TransactionContext context = transactionService.getContext()) {
             UsagePoint usagePoint = meteringService.findUsagePoint(usagePointMRID)
                     .orElseThrow(() -> new NoSuchElementException("No such usagepoint"));
-            MetrologyConfiguration configuration = metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigId)
+            UsagePointMetrologyConfiguration configuration = metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigId)
+                    .filter(mc -> mc instanceof UsagePointMetrologyConfiguration)
+                    .map(UsagePointMetrologyConfiguration.class::cast)
                     .orElseThrow(() -> new NoSuchElementException("No such metrology configuration"));
 //            if (!metrologyConfigurationService.findLinkableMetrologyConfigurations(usagePoint).contains(configuration))
 //                throw new IllegalArgumentException("Metrology configuration no linkable to usage point");
@@ -183,6 +186,7 @@ public class DataAggregationCommands {
                 .getMatchingChannelsFor(meteringService.findMeter(meterMRID)
                         .orElseThrow(() -> new NoSuchElementException("No such meter"))
                         .getCurrentMeterActivation()
+                        .map(MeterActivation::getChannelsContainer)
                         .orElseThrow(() -> new NoSuchElementException("No current meter activation")))
                 .stream()
                 .map(ch -> ch.getMainReadingType().getMRID() + " " + ch.getMainReadingType().getFullAliasName())

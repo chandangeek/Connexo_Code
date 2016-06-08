@@ -17,7 +17,6 @@ import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeterConfiguration;
 import com.elster.jupiter.metering.MeterReadingTypeConfiguration;
 import com.elster.jupiter.metering.MeteringService;
@@ -91,9 +90,8 @@ public final class ChannelImpl implements ChannelContract {
     @SuppressWarnings("unused")
     private String userName;
 
-
     // associations
-    private Reference<MeterActivation> meterActivation = ValueReference.absent(); // TODO replace by ChannelsContainer
+    private Reference<ChannelsContainer> channelsContainer = ValueReference.absent();
     private Reference<TimeSeries> timeSeries = ValueReference.absent();
     private Reference<IReadingType> mainReadingType = ValueReference.absent();
     private DerivationRule mainDerivationRule;
@@ -122,7 +120,7 @@ public final class ChannelImpl implements ChannelContract {
     }
 
     ChannelImpl init(ChannelsContainer channelsContainer, List<IReadingType> readingTypes, BiFunction<IReadingType, IReadingType, DerivationRule> ruleDetermination) {
-        this.meterActivation.set((MeterActivation) channelsContainer);
+        this.channelsContainer.set(channelsContainer);
         this.mainReadingType.set(readingTypes.get(0));
         for (int index = 0; index < readingTypes.size(); index++) {
             DerivationRule rule = DerivationRule.MEASURED;
@@ -208,7 +206,7 @@ public final class ChannelImpl implements ChannelContract {
 
     @Override
     public ChannelsContainer getChannelsContainer() {
-        return meterActivation.get();
+        return channelsContainer.get();
     }
 
     public TimeSeries getTimeSeries() {
@@ -373,21 +371,21 @@ public final class ChannelImpl implements ChannelContract {
     private boolean usagePointHasMultiplier(Predicate<MultiplierUsage> matchesReadingTypes) {
         return getChannelsContainer().getUsagePoint()
                 .flatMap(use(UsagePoint::getConfiguration).with(getChannelsContainer().getStart()))
-                    .map(UsagePointConfiguration::getReadingTypeConfigs)
-                    .orElseGet(Collections::emptyList)
-                    .stream()
-                    .filter(on(UsagePointReadingTypeConfiguration::getCalculated).test(Optional::isPresent))
-                    .anyMatch(matchesReadingTypes);
+                .map(UsagePointConfiguration::getReadingTypeConfigs)
+                .orElseGet(Collections::emptyList)
+                .stream()
+                .filter(on(UsagePointReadingTypeConfiguration::getCalculated).test(Optional::isPresent))
+                .anyMatch(matchesReadingTypes);
     }
 
     private boolean meterHasMultiplier(Predicate<MultiplierUsage> matchesReadingTypes) {
         return getChannelsContainer().getMeter()
                 .flatMap(use(Meter::getConfiguration).with(getChannelsContainer().getStart()))
-                    .map(MeterConfiguration::getReadingTypeConfigs)
-                    .orElseGet(Collections::emptyList)
-                    .stream()
-                    .filter(on(MeterReadingTypeConfiguration::getCalculated).test(Optional::isPresent))
-                    .anyMatch(matchesReadingTypes);
+                .map(MeterConfiguration::getReadingTypeConfigs)
+                .orElseGet(Collections::emptyList)
+                .stream()
+                .filter(on(MeterReadingTypeConfiguration::getCalculated).test(Optional::isPresent))
+                .anyMatch(matchesReadingTypes);
     }
 
     Optional<IReadingType> getDerivedReadingType(IReadingType readingType) {

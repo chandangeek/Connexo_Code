@@ -14,7 +14,6 @@ import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeterAlreadyLinkedToUsagePoint;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.nls.NlsMessageFormat;
@@ -97,7 +96,7 @@ public class MeterActivationImplTest extends EqualsContractTest {
     @Mock
     private IdsService idsService;
     @Mock
-    private MeteringService meteringService;
+    private ServerMeteringService meteringService;
     @Mock
     private Vault vault;
     @Mock
@@ -112,25 +111,17 @@ public class MeterActivationImplTest extends EqualsContractTest {
 
     @Before
     public void setUp() {
+        when(meteringService.getClock()).thenReturn(clock);
+        when(meteringService.getDataModel()).thenReturn(dataModel);
         when(messageFormat.format(anyVararg())).thenReturn("Translation not supported in unit tests");
         when(thesaurus.getFormat(any(TranslationKey.class))).thenReturn(messageFormat);
         readingType1 = new ReadingTypeImpl(dataModel, thesaurus).init(MRID1, "readingType1");
         readingType2 = new ReadingTypeImpl(dataModel, thesaurus).init(MRID2, "readingType2");
         readingType3 = new ReadingTypeImpl(dataModel, thesaurus).init(MRID3, "readingType3");
 
-        final Provider<ChannelImpl> channelFactory = new Provider<ChannelImpl>() {
-            @Override
-            public ChannelImpl get() {
-                return new ChannelImpl(dataModel, idsService, meteringService, clock, eventService);
-            }
-        };
+        final Provider<ChannelImpl> channelFactory = () -> new ChannelImpl(dataModel, idsService, meteringService, clock, eventService);
+        channelBuilder = () -> new ChannelBuilderImpl(dataModel, channelFactory);
 
-        channelBuilder = new Provider<ChannelBuilder>() {
-            @Override
-            public ChannelBuilder get() {
-                return new ChannelBuilderImpl(dataModel, channelFactory);
-            }
-        };
         when(usagePoint.getId()).thenReturn(USAGEPOINT_ID);
         when(meter.getId()).thenReturn(METER_ID);
         when(idsService.getVault(anyString(), anyInt())).thenReturn(Optional.of(vault));
@@ -139,6 +130,7 @@ public class MeterActivationImplTest extends EqualsContractTest {
         when(meter.getConfiguration(any())).thenReturn(Optional.empty());
         when(usagePoint.getConfiguration(any())).thenReturn(Optional.empty());
         when(dataModel.getInstance(ReadingTypeInChannel.class)).thenAnswer(invocation -> new ReadingTypeInChannel(dataModel, meteringService));
+        when(dataModel.getInstance(MeterActivationChannelsContainerImpl.class)).then(invocation -> new MeterActivationChannelsContainerImpl(meteringService, eventService, channelBuilder));
 
         meterActivation = getTestInstanceAndInitWithActivationTime();
     }
@@ -148,7 +140,7 @@ public class MeterActivationImplTest extends EqualsContractTest {
     }
 
     private MeterActivationImpl getTestInstance() {
-        return new MeterActivationImpl(dataModel, eventService, clock, channelBuilder, thesaurus);
+        return new MeterActivationImpl(dataModel, eventService, clock, thesaurus);
     }
 
     @After
@@ -176,7 +168,7 @@ public class MeterActivationImplTest extends EqualsContractTest {
 
         meterActivation.endAt(END);
 
-        verify(dataModel.mapper(MeterActivation.class)).update(meterActivation);
+        verify(dataModel).update(meterActivation);
 
         assertThat(meterActivation.getRange().upperEndpoint()).isEqualTo(END);
     }
@@ -186,9 +178,9 @@ public class MeterActivationImplTest extends EqualsContractTest {
     public void testCreateChannel() {
         when(vault.createRegularTimeSeries(eq(recordSpec), eq(timeZone), any(), anyInt())).thenReturn(timeSeries);
 
-        Channel channel = meterActivation.createChannel(readingType1, readingType3);
+        Channel channel = meterActivation.getChannelsContainer().createChannel(readingType1, readingType3);
 
-        assertThat(channel.getChannelsContainer()).isEqualTo(meterActivation);
+        assertThat(channel.getChannelsContainer()).isInstanceOf(MeterActivationChannelsContainerImpl.class);
         assertThat(channel.getReadingTypes()).isEqualTo(Arrays.asList(readingType1, readingType3));
     }
 

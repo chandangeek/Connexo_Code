@@ -101,7 +101,6 @@ public class MeterConfigurationIT {
             bind(SearchService.class).toInstance(mock(SearchService.class));
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
-            bind(TimeService.class).toInstance(mock(TimeService.class));
         }
     }
 

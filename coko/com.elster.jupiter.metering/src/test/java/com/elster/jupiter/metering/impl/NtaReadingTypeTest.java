@@ -143,8 +143,8 @@ public class NtaReadingTypeTest {
         TransactionService txService = injector.getInstance(TransactionService.class);
         for (String code : readingTypeCodes) {
         	ReadingType readingType = meteringService.getReadingType(code).get();
-        	Channel channel = txService.execute(() -> meterActivation.createChannel(readingType));
-        	assertThat (((ChannelImpl) channel).getRecordSpecDefinition()).isEqualTo(RecordSpecs.BULKQUANTITYINTERVAL);
+            Channel channel = txService.execute(() -> meterActivation.getChannelsContainer().createChannel(readingType));
+            assertThat (((ChannelImpl) channel).getRecordSpecDefinition()).isEqualTo(RecordSpecs.BULKQUANTITYINTERVAL);
         }
     }
 

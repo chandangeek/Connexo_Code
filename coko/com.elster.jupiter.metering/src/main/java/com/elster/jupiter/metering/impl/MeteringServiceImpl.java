@@ -16,6 +16,7 @@ import com.elster.jupiter.metering.AmiBillingReadyKind;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.BypassStatus;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceControlType;
 import com.elster.jupiter.metering.GeoCoordinates;
@@ -367,6 +368,7 @@ public class MeteringServiceImpl implements ServerMeteringService, PrivilegesPro
                 MeterActivation.class,
                 UsagePoint.class,
                 ServiceLocation.class,
+                ChannelsContainer.class,
                 Channel.class);
         executor.setRestriction(Operator.EQUAL.compare("class", Meter.TYPE_IDENTIFIER));
         return queryService.wrap((QueryExecutor<Meter>) executor);

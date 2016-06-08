@@ -5,6 +5,7 @@ import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ProcessStatus;
@@ -93,7 +94,9 @@ public class CalculatedReadingRecordTest {
         when(this.resultSet.getLong(6)).thenReturn(1L);
         ProcessStatus expectedProcessStatus = new ProcessStatus(0);
         MeterActivation meterActivation = mock(MeterActivation.class);
-        when(meterActivation.getZoneId()).thenReturn(ZoneId.of("Europe/Brussels"));
+        ChannelsContainer channelsContainer = mock(ChannelsContainer.class);
+        when(meterActivation.getChannelsContainer()).thenReturn(channelsContainer);
+        when(channelsContainer.getZoneId()).thenReturn(ZoneId.of("Europe/Brussels"));
         UsagePoint usagePoint = mock(UsagePoint.class);
         when(usagePoint.getMeterActivations(any(Instant.class))).thenReturn(Collections.singletonList(meterActivation));
 

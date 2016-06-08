@@ -12,7 +12,6 @@ import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.TimeSeriesEntry;
 import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ProcessStatus;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
@@ -65,7 +64,7 @@ public abstract class AbstractBaseReadingImplTest {
     @Mock
     private IdsService idsService;
     @Mock
-    private MeteringService meteringService;
+    private ServerMeteringService meteringService;
     @Mock
     private EventService eventService;
     @Mock
@@ -77,8 +76,10 @@ public abstract class AbstractBaseReadingImplTest {
     @Mock
     private RecordSpec recordSpec;
 
+
     @Before
     public void setUp() {
+        when(meteringService.getClock()).thenReturn(clock);
         when(messageFormat.format(anyVararg())).thenReturn("Translation not supported in unit tests");
         when(thesaurus.getFormat(any(TranslationKey.class))).thenReturn(messageFormat);
         when(dataModel.getInstance(ReadingTypeInChannel.class)).then(invocation -> new ReadingTypeInChannel(dataModel, meteringService));
@@ -93,31 +94,22 @@ public abstract class AbstractBaseReadingImplTest {
                 return BigDecimal.valueOf((long) (int) invocationOnMock.getArguments()[0]);
             }
         });
-        final Provider<ChannelImpl> channelFactory = new Provider<ChannelImpl>() {
-            @Override
-            public ChannelImpl get() {
-                return new ChannelImpl(dataModel, idsService, meteringService, clock, eventService);
-            }
-        };
-        final Provider<ChannelBuilder> channelBuilder = new Provider<ChannelBuilder>() {
-            @Override
-            public ChannelBuilder get() {
-                return new ChannelBuilderImpl(dataModel, channelFactory);
-            }
-        };
-        meterActivation = new MeterActivationImpl(dataModel, eventService, clock, channelBuilder, thesaurus).init(meter, null, null, Instant.EPOCH);
+        final Provider<ChannelImpl> channelFactory = () -> new ChannelImpl(dataModel, idsService, meteringService, clock, eventService);
+        final Provider<ChannelBuilder> channelBuilder = () -> new ChannelBuilderImpl(dataModel, channelFactory);
+        when(dataModel.getInstance(MeterActivationChannelsContainerImpl.class)).then(invocation -> new MeterActivationChannelsContainerImpl(meteringService, eventService, channelBuilder));
+        meterActivation = new MeterActivationImpl(dataModel, eventService, clock, thesaurus).init(meter, null, null, Instant.EPOCH);
         ReadingTypeCodeBuilder builder = ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_PRIMARY_METERED)
                 .measure(MeasurementKind.ENERGY)
                 .in(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR)
                 .flow(FlowDirection.FORWARD);
-        readingType = new ReadingTypeImpl(dataModel,thesaurus).init(builder.code(),"");
+        readingType = new ReadingTypeImpl(dataModel, thesaurus).init(builder.code(), "");
         builder.flow(FlowDirection.REVERSE);
-        readingType1 = new ReadingTypeImpl(dataModel,thesaurus).init(builder.code(),"");
+        readingType1 = new ReadingTypeImpl(dataModel, thesaurus).init(builder.code(), "");
         builder.flow(FlowDirection.NET);
-        readingType2 = new ReadingTypeImpl(dataModel,thesaurus).init(builder.code(),"");
-        builder.measure(MeasurementKind.DEMAND).in(MetricMultiplier.KILO,ReadingTypeUnit.WATT);
-        unknownReadingType = new ReadingTypeImpl(dataModel,thesaurus).init(builder.code(),"");
-        channel = (ChannelImpl) meterActivation.createChannel(readingType1, readingType2, readingType);
+        readingType2 = new ReadingTypeImpl(dataModel, thesaurus).init(builder.code(), "");
+        builder.measure(MeasurementKind.DEMAND).in(MetricMultiplier.KILO, ReadingTypeUnit.WATT);
+        unknownReadingType = new ReadingTypeImpl(dataModel, thesaurus).init(builder.code(), "");
+        channel = (ChannelImpl) meterActivation.getChannelsContainer().createChannel(readingType1, readingType2, readingType);
 
         when(entry.getLong(0)).thenReturn(1L << ProcessStatus.Flag.SUSPECT.ordinal());
         baseReading = createInstanceToTest(channel, entry);

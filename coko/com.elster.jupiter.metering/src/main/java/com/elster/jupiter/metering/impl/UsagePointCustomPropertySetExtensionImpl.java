@@ -11,9 +11,10 @@ import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetValuesManageException;
 import com.elster.jupiter.metering.UsagePointPropertySet;
 import com.elster.jupiter.metering.UsagePointVersionedPropertySet;
-import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.time.RangeInstantComparator;
+
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
@@ -50,13 +51,13 @@ public class UsagePointCustomPropertySetExtensionImpl implements UsagePointCusto
         return this.usagePoint;
     }
 
-    private Optional<MetrologyConfiguration> getMetrologyConfiguration() {
+    private Optional<UsagePointMetrologyConfiguration> getMetrologyConfiguration() {
         return getUsagePoint().getMetrologyConfiguration();
     }
 
     @Override
     public List<UsagePointPropertySet> getPropertySetsOnMetrologyConfiguration() {
-        Optional<MetrologyConfiguration> metrologyConfiguration = getMetrologyConfiguration();
+        Optional<UsagePointMetrologyConfiguration> metrologyConfiguration = getMetrologyConfiguration();
         if (metrologyConfiguration.isPresent()) {
             return metrologyConfiguration.get().getCustomPropertySets()
                     .stream()

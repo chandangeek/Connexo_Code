@@ -203,7 +203,7 @@ public class VirtualFactoryImpl implements VirtualFactory {
                     mode,
                     requirement,
                     deliverable,
-                    requirement.getMatchingChannelsFor(this.parent.getMeterActivation()),
+                    requirement.getMatchingChannelsFor(this.parent.getMeterActivation().getChannelsContainer()),
                     readingType,
                     this.parent.getMeterActivation(),
                     this.parent.getRequestedPeriod(),
