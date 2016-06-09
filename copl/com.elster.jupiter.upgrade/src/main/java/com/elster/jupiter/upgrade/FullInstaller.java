@@ -15,8 +15,9 @@ public interface FullInstaller {
 
     default void doTry(String description, Runnable runnable, Logger logger) {
         try {
+            logger.log(Level.INFO, "Start   : " + description);
             runnable.run();
-            logger.log(Level.SEVERE, "Success : " + description);
+            logger.log(Level.INFO, "Success : " + description);
         } catch (RuntimeException e) {
             logger.log(Level.SEVERE, "Failed  : " + description, e);
             throw e;
@@ -25,8 +26,9 @@ public interface FullInstaller {
 
     default <T> T doTry(String description, Callable<T> callable, Logger logger) {
         try {
+            logger.log(Level.INFO, "Start   : " + description);
             T value = callable.call();
-            logger.log(Level.SEVERE, "Success : " + description);
+            logger.log(Level.INFO, "Success : " + description);
             return value;
         } catch (RuntimeException e) {
             logger.log(Level.SEVERE, "Failed  : " + description, e);
