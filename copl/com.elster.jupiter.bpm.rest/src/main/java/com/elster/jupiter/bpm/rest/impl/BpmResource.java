@@ -91,6 +91,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -996,6 +997,12 @@ public class BpmResource {
             taskContentInfos = new TaskContentInfos(obj);
         } else {
             throw conflictFactory.conflict()
+                    .withActualVersion(new Supplier<Long>() {
+                        @Override
+                        public Long get() {
+                            return 0L; // Not an actual version; process has been undeployed
+                        }
+                    })
                     .withMessageTitle(MessageSeeds.START_PROCESS_CONCURRENT_TITLE, id)
                     .withMessageBody(MessageSeeds.START_PROCESS_CONCURRENT_BODY, id)
                     .supplier().get();
