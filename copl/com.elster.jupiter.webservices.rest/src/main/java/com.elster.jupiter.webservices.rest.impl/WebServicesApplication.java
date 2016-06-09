@@ -40,7 +40,7 @@ public class WebServicesApplication extends Application {
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
                 RestValidationExceptionMapper.class,
-                EndPointResource.class
+                EndPointConfigurationResource.class
         );
     }
 

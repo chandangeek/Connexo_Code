@@ -25,14 +25,14 @@ import static java.util.stream.Collectors.toList;
  * Resource to manage end point configurations
  */
 @Path("/endpointconfigurations")
-public class EndPointResource {
+public class EndPointConfigurationResource {
 
     private final EndPointConfigurationService endPointConfigurationService;
     private final EndPointConfigurationInfoFactory endPointConfigurationInfoFactory;
     private final ExceptionFactory exceptionFactory;
 
     @Inject
-    public EndPointResource(EndPointConfigurationService endPointConfigurationService, EndPointConfigurationInfoFactory endPointConfigurationInfoFactory, ExceptionFactory exceptionFactory) {
+    public EndPointConfigurationResource(EndPointConfigurationService endPointConfigurationService, EndPointConfigurationInfoFactory endPointConfigurationInfoFactory, ExceptionFactory exceptionFactory) {
         this.endPointConfigurationService = endPointConfigurationService;
         this.endPointConfigurationInfoFactory = endPointConfigurationInfoFactory;
         this.exceptionFactory = exceptionFactory;

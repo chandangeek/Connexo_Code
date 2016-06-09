@@ -25,7 +25,7 @@ import static org.mockito.Mockito.when;
 /**
  * Created by bvn on 6/8/16.
  */
-public class EndPointResourceTest extends WebServicesApplicationTest {
+public class EndPointConfigurationResourceTest extends WebServicesApplicationTest {
 
     private InboundEndPointConfiguration inboundEndPointConfiguration;
     private OutboundEndPointConfiguration outboundEndPointConfiguration;
