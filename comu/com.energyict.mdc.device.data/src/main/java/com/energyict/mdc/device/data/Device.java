@@ -4,7 +4,6 @@ import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTimeline;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
-import com.elster.jupiter.metering.GeoCoordinates;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
@@ -15,6 +14,7 @@ import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
+import com.elster.jupiter.util.geo.SpatialCoordinates;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.AllowedCalendar;
@@ -77,9 +77,11 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
     void setLocation(Location location);
 
-    Optional<GeoCoordinates> getGeoCoordinates();
+    void updateLocation(long id);
 
-    void setGeoCoordinates(GeoCoordinates geoCoordinates);
+    Optional<SpatialCoordinates> getSpatialCoordinates();
+
+    void setSpatialCoordinates(SpatialCoordinates geoCoordinates);
 
     /**
      * Gets the name of the Device.

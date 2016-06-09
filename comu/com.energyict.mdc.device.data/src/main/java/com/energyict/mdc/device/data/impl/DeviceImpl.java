@@ -23,7 +23,6 @@ import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
-import com.elster.jupiter.metering.GeoCoordinates;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.LifecycleDates;
@@ -58,6 +57,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Ranges;
+import com.elster.jupiter.util.geo.SpatialCoordinates;
 import com.elster.jupiter.util.streams.Predicates;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
@@ -267,7 +267,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private transient BigDecimal multiplier;
 
     private Optional<Location> location = Optional.empty();
-    private Optional<GeoCoordinates> geoCoordinates = Optional.empty();
+    private Optional<SpatialCoordinates> spatialCoordinates = Optional.empty();
     private boolean dirtyMeter = false;
 
 
@@ -371,8 +371,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             if (this.location.isPresent()) {
                 meter.setLocation(location.get());
             }
-            if (this.geoCoordinates.isPresent()) {
-                meter.setGeoCoordinates(geoCoordinates.get());
+            if (this.spatialCoordinates.isPresent()) {
+                meter.setSpatialCoordinates(spatialCoordinates.get());
             }
             this.createMeterConfiguration(meter, this.clock.instant(), false);
             this.saveNewDialectProperties();
@@ -409,22 +409,30 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     @Override
-    public Optional<GeoCoordinates> getGeoCoordinates() {
-        Optional<Meter> meter = findKoreMeter(getMdcAmrSystem());
-        if (meter.isPresent()) {
-            return meter.get().getGeoCoordinates();
-        }
-        return this.geoCoordinates;
+    public void updateLocation(long id){
+            Optional<Meter> meter = findKoreMeter(getMdcAmrSystem());
+            if (meter.isPresent()) {
+                meter.get().updateLocation(id);
+                this.dirtyMeter = true;
+            }
     }
 
     @Override
-    public void setGeoCoordinates(GeoCoordinates geoCoordinates) {
+    public Optional<SpatialCoordinates> getSpatialCoordinates() {
         Optional<Meter> meter = findKoreMeter(getMdcAmrSystem());
         if (meter.isPresent()) {
-            meter.get().setGeoCoordinates(geoCoordinates);
+            return meter.get().getSpatialCoordinates();
+        }
+        return this.spatialCoordinates;
+    }
+
+    public void setSpatialCoordinates(SpatialCoordinates spatialCoordinates) {
+        Optional<Meter> meter = findKoreMeter(getMdcAmrSystem());
+        if (meter.isPresent()) {
+            meter.get().setSpatialCoordinates(spatialCoordinates);
             this.dirtyMeter = true;
         } else {
-            this.geoCoordinates = Optional.ofNullable(geoCoordinates);
+            this.spatialCoordinates = Optional.ofNullable(spatialCoordinates);
         }
     }
 
@@ -1659,9 +1667,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                             setLocation(loc);
                         }
                     });
-                    usagePoint.getGeoCoordinates().ifPresent(geo -> {
-                        if(!geoCoordinates.isPresent()) {
-                            setGeoCoordinates(geo);
+                    usagePoint.getSpatialCooridnates().ifPresent(geo -> {
+                        if(!spatialCoordinates.isPresent()) {
+                            setSpatialCoordinates(geo);
                         }
                     });
                 }
