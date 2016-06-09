@@ -24,7 +24,7 @@ Ext.define('Dxp.view.tasks.EventTypeWindow', {
                 name: 'form-errors',
                 itemId: 'form-errors',
                 margin: '10 0 10 0',
-                hidden: true,
+                hidden: true
             },
             {
                 xtype: 'radiogroup',
@@ -98,13 +98,12 @@ Ext.define('Dxp.view.tasks.EventTypeWindow', {
                                 itemId: 'des-eventtypeparts-input-radio',
                                 boxLabel: Uni.I18n.translate('export.eventType.specifyEventTypeParts', 'DES', 'Specify event type parts'),
                                 name: 'rb',
-                                inputValue: '1',
+                                inputValue: '1'
                             },
                             {
                                 xtype: 'form',
                                 border: false,
                                 itemId: 'specifyEventPartsForm',
-                                //width: 800,
                                 layout: {
                                     type: 'vbox',
                                     align: 'stretch'
@@ -223,7 +222,6 @@ Ext.define('Dxp.view.tasks.EventTypeWindow', {
     onAfterRender: function() {
         var me = this,
             radioEventTypeParts = me.down('#des-eventtypeparts-input-radio'),
-            fieldToFocus = me.down('#des-eventtype-input-field'),
             deviceTypeCombo = me.down('#des-device-type-combo'),
             deviceDomainCombo = me.down('#des-device-domain-combo'),
             deviceSubDomainCombo = me.down('#des-device-subdomain-combo'),
