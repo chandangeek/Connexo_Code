@@ -4,9 +4,10 @@ import com.elster.jupiter.nls.TranslationKey;
 
 public enum TranslationKeys implements TranslationKey {
 
+    //TODO rename interval to reading qualities
     MISSING_VALUES_VALIDATOR(MissingValuesValidator.class.getName(), "Check missing values"),
     INTERVAL_STATE_VALIDATOR(IntervalStateValidator.class.getName(), "Interval state"),
-    INTERVAL_STATE_VALIDATOR_INTERVAL_FLAGS(IntervalStateValidator.class.getName() + "." + IntervalStateValidator.INTERVAL_FLAGS, "Interval flags"),
+    INTERVAL_STATE_VALIDATOR_INTERVAL_FLAGS(IntervalStateValidator.class.getName() + "." + IntervalStateValidator.READING_QUALITIES, "Interval flags"),
     REGISTER_INCREASE_VALIDATOR(RegisterIncreaseValidator.class.getName(), "Register increase"),
     REGISTER_INCREASE_VALIDATOR_FAIL_EQUAL_DATA(RegisterIncreaseValidator.class.getName() + "." + RegisterIncreaseValidator.FAIL_EQUAL_DATA, "Fail equal data"),
     THRESHOLD_VALIDATOR(ThresholdValidator.class.getName(), "Threshold violation"),

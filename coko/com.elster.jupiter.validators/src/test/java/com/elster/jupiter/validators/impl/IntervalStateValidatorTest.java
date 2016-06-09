@@ -1,7 +1,6 @@
 package com.elster.jupiter.validators.impl;
 
 import com.elster.jupiter.metering.*;
-import com.elster.jupiter.metering.readings.ProtocolReadingQualities;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -9,7 +8,6 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.validation.ValidationResult;
-import com.elster.jupiter.validators.impl.IntervalStateValidator.IntervalFlag;
 
 import com.google.common.collect.Range;
 
@@ -27,7 +25,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static com.elster.jupiter.validators.impl.IntervalStateValidator.INTERVAL_FLAGS;
+import static com.elster.jupiter.validators.impl.IntervalStateValidator.READING_QUALITIES;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -57,13 +55,13 @@ public class IntervalStateValidatorTest {
         when(nlsMessageFormat.format()).thenReturn("This unit test does not care about translations");
         when(thesaurus.getFormat(any(TranslationKey.class))).thenReturn(nlsMessageFormat);
 
-        List<IntervalFlag> flags = new ArrayList<>();
+        //List<ReadingQualityInformation> flags = new ArrayList<>();
         Map<String, Object> properties = new HashMap<>();
-        properties.put(INTERVAL_FLAGS, flags);
+        //properties.put(READING_QUALITIES, flags);
         validator = new IntervalStateValidator(thesaurus, propertySpecService, properties);
 
-        flags.add(validator.new IntervalFlag(ProtocolReadingQualities.BADTIME, "badTime", "Bad time"));
-        flags.add(validator.new IntervalFlag(ProtocolReadingQualities.POWERDOWN, "powerDown", "Power down"));
+       // flags.add(validator.new ReadingQualityInformation(ProtocolReadingQualities.BADTIME, "badTime", "Bad time"));
+       // flags.add(validator.new ReadingQualityInformation(ProtocolReadingQualities.POWERDOWN, "powerDown", "Power down"));
 
         validator.init(channel, readingType, Range.closed(Instant.ofEpochMilli(7000L), Instant.ofEpochMilli(14000L)));
     }
@@ -117,16 +115,16 @@ public class IntervalStateValidatorTest {
 
         assertThat(propertySpecs).hasSize(1);
         PropertySpec propertySpec = propertySpecs.get(0);
-        assertThat(propertySpec.getName()).isEqualTo(INTERVAL_FLAGS);
+        assertThat(propertySpec.getName()).isEqualTo(READING_QUALITIES);
         assertThat(propertySpec.supportsMultiValues()).isTrue();
         assertThat(propertySpec.getValueFactory().getValueType()).isEqualTo(List.class);
     }
 
     @Test
     public void testGetPropertySpecByName() {
-        PropertySpec propertySpec = validator.getPropertySpec(INTERVAL_FLAGS).get();
+        PropertySpec propertySpec = validator.getPropertySpec(READING_QUALITIES).get();
 
-        assertThat(propertySpec.getName()).isEqualTo(INTERVAL_FLAGS);
+        assertThat(propertySpec.getName()).isEqualTo(READING_QUALITIES);
         assertThat(propertySpec.getValueFactory().getValueType()).isEqualTo(List.class);
 
         assertThat(validator.getPropertySpec("flags~")).isEmpty();
