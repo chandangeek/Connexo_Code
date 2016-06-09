@@ -447,6 +447,8 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
     void addPassiveCalendar(AllowedCalendar passiveCalendar);
 
+    void addPassiveCalendar(AllowedCalendar passiveCalendar, Instant activationDate, DeviceMessage deviceMessage);
+
     Optional<ActiveEffectiveCalendar> getActiveCalendar();
 
     void setActiveCalendar(AllowedCalendar allowedCalendar, Instant effective, Instant lastVerified);

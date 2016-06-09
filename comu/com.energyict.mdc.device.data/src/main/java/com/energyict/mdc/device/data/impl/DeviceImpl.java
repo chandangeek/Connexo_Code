@@ -2003,18 +2003,27 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return this.passiveCalendars;
     }
 
-    @Override
-    public void addPassiveCalendar(AllowedCalendar passiveCalendar) {
-        if (this.getDeviceType().getAllowedCalendars().stream().anyMatch(each -> each.equals(passiveCalendar))) {
-
-        } else {
+    private void savePassiveCalendar(AllowedCalendar passiveCalendar, PassiveEffectiveCalendarImpl passiveEffectiveCalendar) {
+        if (!this.getDeviceType().getAllowedCalendars().stream().anyMatch(each -> each.equals(passiveCalendar))) {
             throw new IllegalArgumentException("Calendar is not allowed on device type");
         }
-        PassiveEffectiveCalendarImpl passiveEffectiveCalendar = new PassiveEffectiveCalendarImpl();
         passiveEffectiveCalendar.setAllowedCalendar(passiveCalendar);
         passiveEffectiveCalendar.setDevice(this);
-        passiveEffectiveCalendar.setActivationDate(this.clock.instant());
         this.passiveCalendars.add(passiveEffectiveCalendar);
+    }
+
+    @Override
+    public void addPassiveCalendar(AllowedCalendar passiveCalendar) {
+        PassiveEffectiveCalendarImpl passiveEffectiveCalendar = new PassiveEffectiveCalendarImpl();
+        savePassiveCalendar(passiveCalendar, passiveEffectiveCalendar);
+    }
+
+    @Override
+    public void addPassiveCalendar(AllowedCalendar passiveCalendar, Instant activationDate, DeviceMessage deviceMessage) {
+        PassiveEffectiveCalendarImpl passiveEffectiveCalendar = new PassiveEffectiveCalendarImpl();
+        passiveEffectiveCalendar.setActivationDate(activationDate);
+        passiveEffectiveCalendar.setDeviceMessage(deviceMessage);
+        savePassiveCalendar(passiveCalendar, passiveEffectiveCalendar);
     }
 
     @Override
