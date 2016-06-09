@@ -2,8 +2,8 @@ package com.elster.jupiter.calendar.importers.impl;
 
 import com.elster.jupiter.calendar.MessageSeeds;
 import com.elster.jupiter.fileimport.FileImportOccurrence;
-import com.elster.jupiter.fileimport.FileImporter;;
-import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.fileimport.FileImporter;
+
 import org.xml.sax.SAXException;
 
 import javax.validation.ConstraintViolationException;
@@ -13,6 +13,8 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
+
+;
 
 /**
  * Created by igh on 27/04/2016.

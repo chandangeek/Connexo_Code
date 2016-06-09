@@ -17,7 +17,8 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.upgrade.InstallIdentifier;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
@@ -36,6 +37,7 @@ import javax.validation.MessageInterpolator;
 import java.time.Year;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
@@ -50,10 +52,10 @@ import java.util.stream.Stream;
 
 
 @Component(name = "com.elster.jupiter.calendar",
-        service = {CalendarService.class, InstallService.class, MessageSeedProvider.class, TranslationKeyProvider.class, PrivilegesProvider.class},
+        service = {CalendarService.class, MessageSeedProvider.class, TranslationKeyProvider.class, PrivilegesProvider.class},
         property = "name=" + CalendarService.COMPONENTNAME,
         immediate = true)
-public class CalendarServiceImpl implements ServerCalendarService, MessageSeedProvider, TranslationKeyProvider, PrivilegesProvider, InstallService {
+public class CalendarServiceImpl implements ServerCalendarService, MessageSeedProvider, TranslationKeyProvider, PrivilegesProvider {
 
     static final String TIME_OF_USE_CATEGORY_NAME = "Time of use";
 
@@ -61,6 +63,7 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
     private volatile Thesaurus thesaurus;
     private volatile UserService userService;
     private volatile EventService eventService;
+    private volatile UpgradeService upgradeService;
 
     private final List<CalendarResolver> calendarResolvers = new CopyOnWriteArrayList<>();
 
@@ -68,15 +71,13 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
     }
 
     @Inject
-    public CalendarServiceImpl(OrmService ormService, NlsService nlsService, UserService userService, EventService eventService) {
+    public CalendarServiceImpl(OrmService ormService, NlsService nlsService, UserService userService, EventService eventService, UpgradeService upgradeService) {
         setOrmService(ormService);
         setNlsService(nlsService);
         setUserService(userService);
         setEventService(eventService);
+        setUpgradeService(upgradeService);
         activate();
-        if (!dataModel.isInstalled()) {
-            install();
-        }
     }
 
     @Reference
@@ -102,25 +103,15 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
         this.eventService = eventService;
     }
 
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
+    }
+
     @Activate
     public void activate() {
         this.dataModel.register(this.getModule());
-    }
-
-    @Override
-    public void install() {
-        try {
-            dataModel.install(true, true);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        InstallerImpl installer = new InstallerImpl(eventService, dataModel);
-        installer.install();
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList(OrmService.COMPONENTNAME, UserService.COMPONENTNAME, EventService.COMPONENTNAME);
+        upgradeService.register(InstallIdentifier.identifier(CalendarService.COMPONENTNAME), dataModel, InstallerImpl.class, Collections.emptyMap());
     }
 
     private Module getModule() {

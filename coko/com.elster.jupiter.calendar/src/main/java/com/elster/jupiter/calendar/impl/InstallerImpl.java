@@ -4,20 +4,19 @@ import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.EventType;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.exception.ExceptionCatcher;
+import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.upgrade.FullInstaller;
 
 import javax.inject.Inject;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Created by igh on 18/04/2016.
- */
-public class InstallerImpl {
+class InstallerImpl implements FullInstaller {
 
     private static final Logger LOGGER = Logger.getLogger(InstallerImpl.class.getName());
 
     private final EventService eventService;
+    private final CalendarService calendarService;
     private final DataModel dataModel;
 
     @Inject
@@ -26,12 +25,18 @@ public class InstallerImpl {
         this.dataModel = dataModel;
     }
 
-    public void install() {
-        ExceptionCatcher.executing(
+    public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
+        dataModelUpgrader.upgrade(dataModel, Version.latest());
+        doTry(
+                "Create default Calendar categories.",
                 this::createTOUCategory,
-                this::createEventTypes
-        ).andHandleExceptionsWith(Throwable::printStackTrace)
-                .execute();
+                logger
+        );
+        doTry(
+                "Create event types for CAL.",
+                this::createEventTypes,
+                logger
+        );
     }
 
     private void createTOUCategory() {
