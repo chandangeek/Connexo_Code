@@ -24,7 +24,7 @@ import static java.util.stream.Collectors.toList;
 /**
  * Resource to manage end point configurations
  */
-@Path("/endpoints")
+@Path("/endpointconfigurations")
 public class EndPointResource {
 
     private final EndPointConfigurationService endPointConfigurationService;

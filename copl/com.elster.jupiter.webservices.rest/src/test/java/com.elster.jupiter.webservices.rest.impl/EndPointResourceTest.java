@@ -43,7 +43,7 @@ public class EndPointResourceTest extends WebServicesApplicationTest {
     public void testGetAllEndpoints() throws Exception {
         Finder<EndPointConfiguration> finder = mockFinder(Arrays.asList(inboundEndPointConfiguration, outboundEndPointConfiguration));
         when(endPointConfigurationService.findEndPointConfigurations()).thenReturn(finder);
-        Response response = target("/endpoints").request().get();
+        Response response = target("/endpointconfigurations").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel jsonModel = JsonModel.model((InputStream) response.getEntity());
         assertThat(jsonModel.<Integer>get("total")).isEqualTo(2);
@@ -63,7 +63,7 @@ public class EndPointResourceTest extends WebServicesApplicationTest {
 
     @Test
     public void testGetInboundEndpointByName() throws Exception {
-        Response response = target("/endpoints/1").request().get();
+        Response response = target("/endpointconfigurations/1").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel jsonModel = JsonModel.model((InputStream) response.getEntity());
         assertThat(jsonModel.<Integer>get("id")).isEqualTo(1);
@@ -96,7 +96,7 @@ public class EndPointResourceTest extends WebServicesApplicationTest {
         EndPointConfigurationService.InboundEndPointConfigBuilder builder = FakeBuilder.initBuilderStub(endPointConfig, EndPointConfigurationService.InboundEndPointConfigBuilder.class);
         when(endPointConfigurationService.newInboundEndPointConfiguration(anyString(), anyString(), anyString())).thenReturn(builder);
 
-        Response response = target("/endpoints").request().post(Entity.json(info));
+        Response response = target("/endpointconfigurations").request().post(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
     }
 
