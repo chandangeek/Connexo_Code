@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
+import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.config.Formula;
@@ -121,14 +122,41 @@ public class VirtualReadingTypeRequirement {
 
     @SuppressWarnings("unchecked")
     private void appendDefinitionWithoutAggregation(SqlBuilder sqlBuilder) {
+        TimeSeries timeSeries = this.getPreferredChannel().getTimeSeries();
+        if (this.hasLocalDateField(timeSeries)) {
+            sqlBuilder.add(
+                    timeSeries
+                            .getRawValuesSql(
+                                    this.rawDataPeriod,
+                                    this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.PROCESSSTATUS),
+                                    this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.VALUE),
+                                    this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.LOCALDATE)));
+        } else {
+            this.appendDefinitionWithoutLocalDate(sqlBuilder);
+        }
+    }
+
+    private boolean hasLocalDateField(TimeSeries timeSeries) {
+        return timeSeries.getRecordSpec().getFieldSpecs().stream().anyMatch(each -> "LOCALDATE".equals(each.getName()));
+    }
+
+    @SuppressWarnings("unchecked")
+    private void appendDefinitionWithoutLocalDate(SqlBuilder sqlBuilder) {
+        /* Will use 'sysdate' as value for the localdate column expected by the with clause.
+         * Tried to find a 'standard' oracle function that converts UTC milliseconds
+         * in a number field to an oracle DATE type but failed.
+         * As we do not plan to support time based aggregation on register data
+         * it does not really matter if the value of the localdate column
+         * is not actually the local version of the register reading's timestamp. */
+        sqlBuilder.append("SELECT ts.*, sysdate FROM (");
         sqlBuilder.add(
                 this.getPreferredChannel()
                         .getTimeSeries()
                         .getRawValuesSql(
                                 this.rawDataPeriod,
                                 this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.PROCESSSTATUS),
-                                this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.VALUE),
-                                this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.LOCALDATE)));
+                                this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.VALUE)));
+        sqlBuilder.append(") ts");
     }
 
     private Pair<String, String> toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames columnName) {

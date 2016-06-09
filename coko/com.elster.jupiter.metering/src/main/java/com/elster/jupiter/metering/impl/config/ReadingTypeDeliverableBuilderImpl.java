@@ -29,7 +29,7 @@ public class ReadingTypeDeliverableBuilderImpl implements ReadingTypeDeliverable
     private ServerMetrologyConfiguration metrologyConfiguration;
     private ReadingType readingType;
 
-    public ReadingTypeDeliverableBuilderImpl(ServerMetrologyConfiguration metrologyConfiguration, String name, ReadingType readingType, Formula.Mode mode, DataModel dataModel, Thesaurus thesaurus) {
+    ReadingTypeDeliverableBuilderImpl(ServerMetrologyConfiguration metrologyConfiguration, String name, ReadingType readingType, Formula.Mode mode, DataModel dataModel, Thesaurus thesaurus) {
         this.formulaBuilder = new FormulaBuilderImpl(mode, dataModel, thesaurus);
         this.name = name;
         this.metrologyConfiguration = metrologyConfiguration;
@@ -63,9 +63,6 @@ public class ReadingTypeDeliverableBuilderImpl implements ReadingTypeDeliverable
     public FormulaBuilder requirement(ReadingTypeRequirement requirement) {
         if (!requirement.getMetrologyConfiguration().equals(metrologyConfiguration)) {
             throw new InvalidNodeException(this.formulaBuilder.getThesaurus(), MessageSeeds.INVALID_METROLOGYCONFIGURATION_FOR_REQUIREMENT, (int) requirement.getId());
-        }
-        if ((isAutoMode()) && (!requirement.isRegular())) {
-            throw new InvalidNodeException(this.formulaBuilder.getThesaurus(), MessageSeeds.IRREGULAR_READINGTYPE_IN_REQUIREMENT);
         }
         if ((isAutoMode()) && (!UnitConversionSupport.isValidForAggregation(requirement.getUnit()))) {
             throw new InvalidNodeException(this.formulaBuilder.getThesaurus(), MessageSeeds.INVALID_READINGTYPE_IN_REQUIREMENT);

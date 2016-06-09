@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
+import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.Commodity;
 import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.MetricMultiplier;
@@ -42,7 +43,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class ReadingTypeDeliverableForMeterActivationDefinitionTest {
 
-    public static final long DELIVERABLE_ID = 97L;
+    private static final long DELIVERABLE_ID = 97L;
 
     @Mock
     private ReadingTypeDeliverable deliverable;
@@ -82,7 +83,7 @@ public class ReadingTypeDeliverableForMeterActivationDefinitionTest {
 
     @Test
     public void appendDefinitionTo() {
-        VirtualReadingType expressionReadingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR, Commodity.ELECTRICITY_PRIMARY_METERED);
+        VirtualReadingType expressionReadingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.ELECTRICITY_PRIMARY_METERED);
         ReadingTypeDeliverableForMeterActivation testInstance = this.testInstance(expressionReadingType);
 
         // Business method
@@ -107,7 +108,7 @@ public class ReadingTypeDeliverableForMeterActivationDefinitionTest {
 
     @Test
     public void appendDefinitionToWithAutoTimeBasedAggregation() {
-        VirtualReadingType expressionReadingType = VirtualReadingType.from(IntervalLength.HOUR1, MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR, Commodity.ELECTRICITY_PRIMARY_METERED);
+        VirtualReadingType expressionReadingType = VirtualReadingType.from(IntervalLength.HOUR1, MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.ELECTRICITY_PRIMARY_METERED);
         when(this.readingType.getMacroPeriod()).thenReturn(MacroPeriod.MONTHLY);
         when(this.readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.NOTAPPLICABLE);
         ReadingTypeDeliverableForMeterActivation testInstance = this.testInstance(expressionReadingType);
@@ -122,7 +123,7 @@ public class ReadingTypeDeliverableForMeterActivationDefinitionTest {
 
     @Test
     public void appendDefinitionToWithExpertTimeBasedAggregation() {
-        VirtualReadingType expressionReadingType = VirtualReadingType.from(IntervalLength.MONTH1, MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR, Commodity.ELECTRICITY_PRIMARY_METERED);
+        VirtualReadingType expressionReadingType = VirtualReadingType.from(IntervalLength.MONTH1, MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.ELECTRICITY_PRIMARY_METERED);
         when(this.readingType.getMacroPeriod()).thenReturn(MacroPeriod.MONTHLY);
         when(this.readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.NOTAPPLICABLE);
         FullySpecifiedReadingTypeRequirement requirement = mock(FullySpecifiedReadingTypeRequirement.class);

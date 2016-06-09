@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
+import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.Commodity;
 import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.MetricMultiplier;
@@ -618,6 +619,7 @@ public class ApplyUnitConversionTest {
                         IntervalLength.MINUTE15,
                         MetricMultiplier.ZERO,
                         ReadingTypeUnit.WATTHOUR,
+                        Accumulation.DELTADELTA,
                         Commodity.ELECTRICITY_PRIMARY_METERED));
     }
 
@@ -627,6 +629,7 @@ public class ApplyUnitConversionTest {
                         IntervalLength.DAY1,
                         MetricMultiplier.KILO,
                         ReadingTypeUnit.WATTHOUR,
+                        Accumulation.DELTADELTA,
                         Commodity.ELECTRICITY_PRIMARY_METERED));
     }
 

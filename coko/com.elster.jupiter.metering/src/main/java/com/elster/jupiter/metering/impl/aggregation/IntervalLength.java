@@ -687,7 +687,9 @@ public enum IntervalLength {
             }
             case BILLINGPERIOD: // Intentional fall-through
             case SEASONAL: // Intentional fall-through
-            case SPECIFIEDPERIOD: // Intentional fall-through
+            case SPECIFIEDPERIOD: {
+                return IntervalLength.NOT_SUPPORTED;
+            }
             default: {
                 throw new IllegalArgumentException("Unknown or unsupported macro period: " + macroPeriod.name());
             }
@@ -740,7 +742,7 @@ public enum IntervalLength {
     private static IntervalLength fromMeasurementPeriod(TimeAttribute measurementPeriod) {
         switch (measurementPeriod) {
             case NOTAPPLICABLE: {
-                throw new IllegalArgumentException("ReadingType must either specify MacroPeriod or MeasurementPeriod");
+                return IntervalLength.NOT_SUPPORTED;
             }
             case MINUTE1: {
                 return MINUTE1;
