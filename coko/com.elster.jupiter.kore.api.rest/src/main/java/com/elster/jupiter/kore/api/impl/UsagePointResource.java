@@ -5,12 +5,15 @@ import com.elster.jupiter.kore.api.impl.utils.MessageSeeds;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointFilter;
+import com.elster.jupiter.metering.ami.CompletionMessageInfo;
+import com.elster.jupiter.metering.ami.CompletionOptions;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PROPFIND;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.rest.util.hypermedia.FieldSelection;
 import com.elster.jupiter.rest.util.hypermedia.PagedInfoList;
+import com.elster.jupiter.servicecall.ServiceCall;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -29,7 +32,9 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
+import java.time.Instant;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
@@ -44,6 +49,7 @@ public class UsagePointResource {
     private final Provider<GasDetailResource> gasDetailResourceProvider;
     private final Provider<HeatDetailsResource> heatDetailResourceProvider;
     private final Provider<WaterDetailResource> waterDetailResourceProvider;
+    private final UsagePointCommandHelper usagePointCommandHelper;
 
     @Inject
     public UsagePointResource(MeteringService meteringService, UsagePointInfoFactory usagePointInfoFactory,
@@ -51,7 +57,8 @@ public class UsagePointResource {
                               Provider<ElectricityDetailResource> electricityDetailResourceProvider,
                               Provider<GasDetailResource> gasDetailResourceProvider,
                               Provider<HeatDetailsResource> heatDetailResourceProvider,
-                              Provider<WaterDetailResource> waterDetailResourceProvider) {
+                              Provider<WaterDetailResource> waterDetailResourceProvider,
+                              UsagePointCommandHelper usagePointCommandHelper) {
         this.meteringService = meteringService;
         this.usagePointInfoFactory = usagePointInfoFactory;
         this.exceptionFactory = exceptionFactory;
@@ -59,6 +66,7 @@ public class UsagePointResource {
         this.gasDetailResourceProvider = gasDetailResourceProvider;
         this.heatDetailResourceProvider = heatDetailResourceProvider;
         this.waterDetailResourceProvider = waterDetailResourceProvider;
+        this.usagePointCommandHelper = usagePointCommandHelper;
     }
 
     /**
@@ -243,5 +251,31 @@ public class UsagePointResource {
         }
     }
 
+    @PUT
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @Path("/{usagePointId}/command")
+//    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
+    @Transactional
+    public UsagePointInfo runCommandOnUsagePoint(@PathParam("usagePointId") long usagePointId,
+                                           UsagePointCommandInfo usagePointCommandInfo,
+                                           @Context UriInfo uriInfo) {
 
+        UsagePoint usagePoint = meteringService.findUsagePoint(usagePointId)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_USAGE_POINT));
+
+
+        ServiceCall serviceCall = usagePointCommandHelper.getServiceCall(usagePointCommandInfo.httpCallBack);
+
+        for (CompletionOptions options : usagePoint.disconnect(Instant.ofEpochMilli(usagePointCommandInfo.effectiveTimestamp), serviceCall)) {
+           if(options!=null) {
+               options.whenFinishedSend(new CompletionMessageInfo("success", serviceCall.getId(), true), usagePointCommandHelper.getDestinationSpec());
+           }
+        }
+
+        //mock
+        usagePointCommandHelper.getDestinationSpec().message("{\"id\":"+serviceCall.getId()+"}").send();
+
+        return usagePointInfoFactory.from(usagePoint, uriInfo, Collections.emptyList());
+    }
 }

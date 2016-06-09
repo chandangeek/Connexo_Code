@@ -4,6 +4,7 @@ import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.cps.rest.impl.CustomPropertySetApplication;
 import com.elster.jupiter.kore.api.impl.utils.MessageSeeds;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.nls.Layer;
@@ -15,6 +16,7 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.hypermedia.RestExceptionMapper;
+import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
 
@@ -54,6 +56,8 @@ public class PublicRestApplication extends Application implements TranslationKey
     private volatile MeteringService meteringService;
     private volatile CustomPropertySetService customPropertySetService;
     private volatile MetrologyConfigurationService metrologyConfigurationService;
+    private volatile ServiceCallService serviceCallService;
+    private volatile MessageService messageService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -62,6 +66,7 @@ public class PublicRestApplication extends Application implements TranslationKey
                 UsagePointCustomPropertySetResource.class,
                 MeterActivationResource.class,
                 MetrologyConfigurationResource.class,
+                UsagePointCommandHelper.class,
 
                 RestExceptionMapper.class
         );
@@ -127,6 +132,16 @@ public class PublicRestApplication extends Application implements TranslationKey
         this.metrologyConfigurationService = metrologyConfigurationService;
     }
 
+    @Reference
+    public void setServiceCallService(ServiceCallService serviceCallService) {
+        this.serviceCallService = serviceCallService;
+    }
+
+    @Reference
+    public void setMessageService(MessageService messageService) {
+        this.messageService = messageService;
+    }
+
     private Factory<Validator> getValidatorFactory() {
         return new Factory<Validator>() {
             private final ValidatorFactory validatorFactory = Validation.byDefaultProvider()
@@ -159,6 +174,8 @@ public class PublicRestApplication extends Application implements TranslationKey
             bind(meteringService).to(MeteringService.class);
             bind(customPropertySetService).to(CustomPropertySetService.class);
             bind(metrologyConfigurationService).to(MetrologyConfigurationService.class);
+            bind(messageService).to(MessageService.class);
+            bind(serviceCallService).to(ServiceCallService.class);
             bindFactory(getValidatorFactory()).to(Validator.class);
 
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
@@ -178,6 +195,7 @@ public class PublicRestApplication extends Application implements TranslationKey
             bind(HeatDetailsResource.class).to(HeatDetailsResource.class);
             bind(WaterDetailInfoFactory.class).to(WaterDetailInfoFactory.class);
             bind(WaterDetailResource.class).to(WaterDetailResource.class);
+            bind(UsagePointCommandHelper.class).to(UsagePointCommandHelper.class);
         }
     }
 

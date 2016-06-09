@@ -13,6 +13,8 @@ import com.elster.jupiter.rest.util.hypermedia.PropertyCopier;
 import com.elster.jupiter.rest.util.hypermedia.Relation;
 import com.elster.jupiter.rest.util.hypermedia.SelectableFieldFactory;
 
+import com.google.common.collect.Range;
+
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.ws.rs.core.Link;
@@ -125,7 +127,7 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
                     .asLink(mc, Relation.REF_RELATION, uriInfo));
         });
         map.put("detail", (usagePointInfo, usagePoint, uriInfo) -> {
-            List<? extends UsagePointDetail> details = usagePoint.getDetails();
+            List<? extends UsagePointDetail> details = usagePoint.getDetail(Range.all());
             if (!details.isEmpty()) {
                 usagePointInfo.detail = new LinkInfo<>();
                 usagePointInfo.detail.link = detailsLink(details.get(details.size() - 1), Relation.REF_RELATION, uriInfo);
