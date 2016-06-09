@@ -1,20 +1,29 @@
 package com.elster.jupiter.metering.rest.impl;
 
+import com.elster.jupiter.domain.util.FormValidationException;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointFilter;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.config.UnsatisfiedMerologyConfigurationEndDate;
+import com.elster.jupiter.metering.config.UnsatisfiedMerologyConfigurationStartDateRelativelyLatestEnd;
+import com.elster.jupiter.metering.config.UnsatisfiedMerologyConfigurationStartDateRelativelyLatestStart;
+import com.elster.jupiter.metering.config.UnsatisfiedReadingTypeRequirements;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.ListPager;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.RestValidationBuilder;
 import com.elster.jupiter.rest.util.Transactional;
@@ -67,6 +76,9 @@ public class UsagePointResource {
     private final ServiceCallService serviceCallService;
     private final Thesaurus thesaurus;
     private final ExceptionFactory exceptionFactory;
+    private final MetrologyConfigurationService metrologyConfigurationService;
+    private final MetrologyConfigurationInfoFactory metrologyConfigurationInfoFactory;
+    private final ResourceHelper resourceHelper;
 
     @Inject
     public UsagePointResource(MeteringService meteringService,
@@ -76,7 +88,10 @@ public class UsagePointResource {
                               ConcurrentModificationExceptionFactory conflictFactory,
                               UsagePointInfoFactory usagePointInfoFactory,
                               ExceptionFactory exceptionFactory,
-                              Thesaurus thesaurus) {
+                              Thesaurus thesaurus,
+                              MetrologyConfigurationService metrologyConfigurationService,
+                              MetrologyConfigurationInfoFactory metrologyConfigurationInfoFactory,
+                              ResourceHelper resourceHelper) {
         this.meteringService = meteringService;
         this.transactionService = transactionService;
         this.clock = clock;
@@ -85,6 +100,9 @@ public class UsagePointResource {
         this.serviceCallService = serviceCallService;
         this.thesaurus = thesaurus;
         this.exceptionFactory = exceptionFactory;
+        this.metrologyConfigurationService = metrologyConfigurationService;
+        this.metrologyConfigurationInfoFactory = metrologyConfigurationInfoFactory;
+        this.resourceHelper = resourceHelper;
     }
 
     @GET
@@ -117,10 +135,7 @@ public class UsagePointResource {
     @RolesAllowed({Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Transactional
     public UsagePointInfo updateUsagePoint(@PathParam("mRID") String mRID, UsagePointInfo info) {
-        UsagePoint usagePoint = meteringService.findAndLockUsagePointByIdAndVersion(info.id, info.version)
-                .orElseThrow(conflictFactory.contextDependentConflictOn(info.mRID)
-                        .withActualVersion(() -> meteringService.findUsagePoint(mRID).map(UsagePoint::getVersion).orElse(null))
-                        .supplier());
+        UsagePoint usagePoint = resourceHelper.findAndLockUsagePoint(info);
         info.writeTo(usagePoint);
         return usagePointInfoFactory.from(usagePoint);
     }
@@ -266,6 +281,60 @@ public class UsagePointResource {
                 .map(EffectiveMetrologyConfigurationOnUsagePointInfo::new)
                 .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("metrologyConfigurationVersions", infos, queryParameters);
+    }
+
+    @GET
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
+    @Path("/{mRID}/availablemetrologyconfigurations")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public PagedInfoList getMetrologyConfigurations(@PathParam("mRID") String mRID, @BeanParam JsonQueryParameters queryParameters) {
+        ServiceCategory serviceCategory = fetchUsagePoint(mRID).getServiceCategory();
+        List<UsagePointMetrologyConfiguration> allMetrologyConfigurations =
+                metrologyConfigurationService
+                        .findAllMetrologyConfigurations()
+                        .stream()
+                        .filter(metrologyConfiguration ->
+                                metrologyConfiguration instanceof UsagePointMetrologyConfiguration
+                                        && metrologyConfiguration.isActive()
+                                        && metrologyConfiguration.getServiceCategory().equals(serviceCategory))
+                        .map(UsagePointMetrologyConfiguration.class::cast)
+                        .collect(Collectors.toList());
+        List<MetrologyConfigurationInfo> metrologyConfigurationsInfos = ListPager.of(allMetrologyConfigurations).from(queryParameters).find()
+                .stream()
+                .map(metrologyConfigurationInfoFactory::asShortInfo)
+                .collect(Collectors.toList());
+        return PagedInfoList.fromPagedList("metrologyConfigurations", metrologyConfigurationsInfos, queryParameters);
+    }
+
+    @PUT
+    @Path("/{mRID}/metrologyconfigurations")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
+    @Transactional
+    public Response addMetrologyConfigurationVersion(UsagePointInfo info) {
+        UsagePoint usagePoint = resourceHelper.findAndLockUsagePoint(info);
+        UsagePointMetrologyConfiguration metrologyConfiguration = resourceHelper.findMetrologyConfiguration(info.metrologyConfiguration.id);
+        Instant start = Instant.ofEpochMilli(info.metrologyConfiguration.start);
+
+        try {
+            usagePoint.apply(metrologyConfiguration, start);
+            if (info.metrologyConfiguration.end != null) {
+                usagePoint.removeMetrologyConfiguration(Instant.ofEpochMilli(info.metrologyConfiguration.end));
+            }
+        } catch (UnsatisfiedReadingTypeRequirements ex) {
+            throw new FormValidationException().addException("metrologyConfiguration", ex);
+        } catch (UnsatisfiedMerologyConfigurationEndDate ex) {
+            throw new FormValidationException().addException("end", ex);
+        } catch (UnsatisfiedMerologyConfigurationStartDateRelativelyLatestStart | UnsatisfiedMerologyConfigurationStartDateRelativelyLatestEnd ex) {
+            throw new FormValidationException().addException("start", ex);
+        }
+
+        UsagePointInfo updatedInfo = usagePointInfoFactory.from(usagePoint);
+        updatedInfo.metrologyConfiguration = usagePoint.getEffectiveMetrologyConfiguration(start)
+                .map(EffectiveMetrologyConfigurationOnUsagePointInfo::new).orElse(null);
+
+        return Response.status(Response.Status.OK).entity(updatedInfo).build();
     }
 
     private ReadingInfos doGetReadingTypeReadings(String mRID, String rtMrid, Range<Instant> range) {

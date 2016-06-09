@@ -2,6 +2,9 @@ package com.elster.jupiter.metering.rest.impl;
 
 
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
@@ -30,6 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -48,6 +52,12 @@ public class UsagePointResourceTest extends MeteringApplicationJerseyTest {
     private ServiceCategory serviceCategory;
     @Mock
     private UsagePointBuilder usagePointBuilder;
+    @Mock
+    private MeterActivation meterActivation;
+    @Mock
+    private Meter meter;
+    @Mock
+    private AmrSystem amrSystem;
 
 
 
@@ -71,9 +81,13 @@ public class UsagePointResourceTest extends MeteringApplicationJerseyTest {
         when(usagePoint.getLocation()).thenReturn(Optional.empty());
         when(usagePoint.getGeoCoordinates()).thenReturn(Optional.empty());
         when(usagePoint.getMetrologyConfiguration()).thenReturn(Optional.empty());
-        when(usagePoint.getCurrentMeterActivation()).thenReturn(Optional.empty());
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint =  mockEffectiveMetrologyConfiguration();
         when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfigurationOnUsagePoint));
+        when(usagePoint.getCurrentMeterActivation()).thenReturn(Optional.of(meterActivation));
+        when(meterActivation.getMeter()).thenReturn(Optional.of(meter));
+        when(meter.getAmrSystem()).thenReturn(amrSystem);
+        doReturn(Optional.of(meterActivation)).when(meter).getCurrentMeterActivation();
+        when(meterActivation.getUsagePoint()).thenReturn(Optional.of(usagePoint));
     }
 
     private EffectiveMetrologyConfigurationOnUsagePoint mockEffectiveMetrologyConfiguration() {
