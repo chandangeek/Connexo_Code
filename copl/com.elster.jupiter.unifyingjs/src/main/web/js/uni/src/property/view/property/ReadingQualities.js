@@ -20,7 +20,88 @@ Ext.define('Uni.property.view.property.ReadingQualities', {
                 }
             ]
         });
+        this.initializeStoreInformation();
         this.callParent(arguments);
+    },
+
+    initializeStoreInformation: function() {
+        var me = this,
+            systemCode,
+            categoryCode,
+            indexCode,
+            systemCodesProcessed = new Set(),
+            systemModels = [],
+            categoryCodesProcessed = new Set(),
+            categoryModels = [],
+            indexCodesForCategoryProcessed = {};// key = categoryCode, value = a Set containing the processed index codes
+
+        me.indexModels = {}; // key = categoryCode, value = array of index models (=index store items corresponding with the chosen category)
+        if (Ext.isEmpty(me.systemStore)) {
+            me.systemStore = Ext.create('Ext.data.ArrayStore', {
+                fields: ['id', 'name']
+            });
+        }
+        if (Ext.isEmpty(me.categoryStore)) {
+            me.categoryStore = Ext.create('Ext.data.ArrayStore', {
+                fields: [ 'id', 'name' ]
+            });
+        }
+
+        Ext.Array.forEach(me.getProperty().getPredefinedPropertyValues().get('possibleValues'), function(possibleValueItem){
+            var cimCodeParts = possibleValueItem.cimCode.split('.');
+            systemCode = cimCodeParts[0];
+            categoryCode = cimCodeParts[1];
+            indexCode = cimCodeParts[2];
+            if (!systemCodesProcessed.has(systemCode)) { // system code not processed yet
+                systemCodesProcessed.add(systemCode);
+                systemModels.push({id: systemCode, name: possibleValueItem.systemName});
+            }
+            if (!categoryCodesProcessed.has(categoryCode)) { // category code not processed yet
+                categoryCodesProcessed.add(categoryCode);
+                categoryModels.push({id: categoryCode, name: possibleValueItem.categoryName});
+            }
+
+            if (!Object.prototype.hasOwnProperty.call(me.indexModels, categoryCode)) { // no index models yet for this category code
+                me.indexModels[categoryCode] = [];
+                me.indexModels[categoryCode].push({id: indexCode, name: possibleValueItem.indexName});
+                indexCodesForCategoryProcessed[categoryCode] = new Set();
+                indexCodesForCategoryProcessed[categoryCode].add(indexCode);
+            } else if (!indexCodesForCategoryProcessed[categoryCode].has(indexCode)) { // index code not processed yet
+                indexCodesForCategoryProcessed[categoryCode].add(indexCode);
+                me.indexModels[categoryCode].push({id: indexCode, name: possibleValueItem.indexName});
+            }
+        });
+
+        // Sort the system models (The '*' first, the rest alphabetically)
+        systemModels.sort(function(model1, model2){
+            if (model1.id === '*') {
+                return -1;
+            }
+            if (model2.id === '*') {
+                return 1;
+            }
+            return model1.name.localeCompare(model2.name);
+        });
+        me.systemStore.add(systemModels);
+
+        // Sort the category models alphabetically
+        categoryModels.sort(function(model1, model2){
+            return model1.name.localeCompare(model2.name);
+        });
+        me.categoryStore.add(categoryModels);
+
+        // Sort (each of) the index models (The '*' first, the rest alphabetically)
+        Object.keys(me.indexModels).forEach(function(key) {
+            this[key].sort(function(model1, model2){
+                if (model1.id === '*') {
+                    return -1;
+                }
+                if (model2.id === '*') {
+                    return 1;
+                }
+                return model1.name.localeCompare(model2.name);
+            });
+        }, me.indexModels);
     },
 
     getEditCmp: function () {
@@ -152,86 +233,6 @@ Ext.define('Uni.property.view.property.ReadingQualities', {
         return displayName;
     },
 
-    initializeStoreInformation: function() {
-        var me = this,
-            systemCode,
-            categoryCode,
-            indexCode,
-            systemCodesProcessed = new Set(),
-            systemModels = [],
-            categoryCodesProcessed = new Set(),
-            categoryModels = [],
-            indexCodesForCategoryProcessed = {};// key = categoryCode, value = a Set containing the processed index codes
-
-        me.indexModels = {}; // key = categoryCode, value = array of index models (=index store items corresponding with the chosen category)
-        if (Ext.isEmpty(me.systemStore)) {
-            me.systemStore = Ext.create('Ext.data.ArrayStore', {
-                fields: ['id', 'name']
-            });
-        }
-        if (Ext.isEmpty(me.categoryStore)) {
-            me.categoryStore = Ext.create('Ext.data.ArrayStore', {
-                fields: [ 'id', 'name' ]
-            });
-        }
-
-        Ext.Array.forEach(me.getProperty().getPredefinedPropertyValues().get('possibleValues'), function(possibleValueItem){
-            var cimCodeParts = possibleValueItem.cimCode.split('.');
-            systemCode = cimCodeParts[0];
-            categoryCode = cimCodeParts[1];
-            indexCode = cimCodeParts[2];
-            if (!systemCodesProcessed.has(systemCode)) { // system code not processed yet
-                systemCodesProcessed.add(systemCode);
-                systemModels.push({id: systemCode, name: possibleValueItem.systemName});
-            }
-            if (!categoryCodesProcessed.has(categoryCode)) { // category code not processed yet
-                categoryCodesProcessed.add(categoryCode);
-                categoryModels.push({id: categoryCode, name: possibleValueItem.categoryName});
-            }
-
-            if (!Object.prototype.hasOwnProperty.call(me.indexModels, categoryCode)) { // no index models yet for this category code
-                me.indexModels[categoryCode] = [];
-                me.indexModels[categoryCode].push({id: indexCode, name: possibleValueItem.indexName});
-                indexCodesForCategoryProcessed[categoryCode] = new Set();
-                indexCodesForCategoryProcessed[categoryCode].add(indexCode);
-            } else if (!indexCodesForCategoryProcessed[categoryCode].has(indexCode)) { // index code not processed yet
-                indexCodesForCategoryProcessed[categoryCode].add(indexCode);
-                me.indexModels[categoryCode].push({id: indexCode, name: possibleValueItem.indexName});
-            }
-        });
-
-        // Sort the system models (The '*' first, the rest alphabetically)
-        systemModels.sort(function(model1, model2){
-            if (model1.id === '*') {
-                return -1;
-            }
-            if (model2.id === '*') {
-                return 1;
-            }
-            return model1.name.localeCompare(model2.name);
-        });
-        me.systemStore.add(systemModels);
-
-        // Sort the category models alphabetically
-        categoryModels.sort(function(model1, model2){
-            return model1.name.localeCompare(model2.name);
-        });
-        me.categoryStore.add(categoryModels);
-
-        // Sort (each of) the index models (The '*' first, the rest alphabetically)
-        Object.keys(me.indexModels).forEach(function(key) {
-            this[key].sort(function(model1, model2){
-                if (model1.id === '*') {
-                    return -1;
-                }
-                if (model2.id === '*') {
-                    return 1;
-                }
-                return model1.name.localeCompare(model2.name);
-            });
-        }, me.indexModels);
-    },
-
     getSystemStore: function() {
         return this.systemStore;
     },
@@ -298,7 +299,7 @@ Ext.define('Uni.property.view.property.ReadingQualities', {
             } else if (Ext.isArray(value)) {
                 var modelItemsToAdd = [];
                 Ext.Array.forEach(value, function(arrayItem){
-                    modelItemsToAdd.push({name : arrayItem});
+                    modelItemsToAdd.push({cimCode: arrayItem, displayName: me.getDisplayName(arrayItem)});
                 });
                 me.getField().getStore().add(modelItemsToAdd);
                 me.down('#uni-noReadingQualitiesLabel').hide();

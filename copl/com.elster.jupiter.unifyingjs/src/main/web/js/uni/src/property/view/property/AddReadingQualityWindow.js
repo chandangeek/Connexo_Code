@@ -224,7 +224,6 @@ Ext.define('Uni.property.view.property.AddReadingQualityWindow', {
             categoryCombo = me.down('#uni-category-combo'),
             indexCombo = me.down('#uni-index-combo');
 
-        me.readingQualities.initializeStoreInformation();
         systemCombo.bindStore(me.readingQualities.getSystemStore(), true);
         categoryCombo.bindStore(me.readingQualities.getCategoryStore(), true);
         indexCombo.setDisabled(true);
