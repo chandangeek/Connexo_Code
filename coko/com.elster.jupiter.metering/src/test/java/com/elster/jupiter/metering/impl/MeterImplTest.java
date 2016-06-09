@@ -107,7 +107,8 @@ public class MeterImplTest {
 
     @Test
     public void testSetName() {
-        MeterImpl meter = new MeterImpl(clock, dataModel, eventService, deviceEventFactory, meteringService, thesaurus, meterActivationFactory, metrologyConfigurationService).init(amrSystem, "amrID", "mrId");
+        MeterImpl meter = new MeterImpl(clock, dataModel, eventService, deviceEventFactory, meteringService, thesaurus, meterActivationFactory, metrologyConfigurationService)
+                .init(amrSystem, "amrID", "mrId");
         meter.setName("name42");
 
         assertThat(meter.getName()).isEqualTo("name42");
