@@ -40,7 +40,7 @@ public class EditLocationInfo {
         createLocationInfo(meteringService, thesaurus, locationId);
         device.getUsagePoint().ifPresent(usagePoint -> {
             usagePoint.getLocation().ifPresent(usagePointLocation -> {
-                if(usagePointLocation.getId() == locationId){
+                if (usagePointLocation.getId() == locationId) {
                     isInherited = true;
                 }
                 usagePointLocationId = usagePointLocation.getId();
@@ -53,28 +53,27 @@ public class EditLocationInfo {
 
         List<String> unformattedList = new ArrayList<>();
         Optional<Location> location = meteringService.findLocation(locationId);
-        if(location.isPresent()){
-            List<List<String>> formattedLocationMembers = location.get().format();
-            formattedLocationMembers.stream()
+        if (location.isPresent()) {
+            List<List<String>> locationMembers = location.get().format();
+            locationMembers.stream()
                     .flatMap(Collection::stream)
                     .forEach(el -> {
-                        if (el == null){
+                        if (el == null) {
                             unformattedList.add("");
-                        }
-                        else {
+                        } else {
                             unformattedList.add(el);
                         }
                     });
-            unformattedLocationValue  = unformattedList.stream().collect(Collectors.joining(", "));
+            unformattedLocationValue = unformattedList.stream().collect(Collectors.joining(", "));
 
-
+            List<List<String>> formattedLocationMembers = locationMembers;
             formattedLocationMembers.stream().skip(1).forEach(list ->
                     list.stream().filter(Objects::nonNull).findFirst().ifPresent(member -> list.set(0, "\\r\\n" + member)));
             formattedLocationValue = formattedLocationMembers.stream()
                     .flatMap(List::stream).filter(Objects::nonNull)
                     .collect(Collectors.joining(", "));
 
-            locationValue = formattedLocationMembers.stream()
+            locationValue = locationMembers.stream()
                     .flatMap(Collection::stream)
                     .filter(Objects::nonNull)
                     .collect(Collectors.joining(", "));
@@ -82,7 +81,7 @@ public class EditLocationInfo {
             List<String> templateElementsNames = meteringService.getLocationTemplate().getTemplateElementsNames().stream()
                     .filter(m -> !m.equalsIgnoreCase("locale")).collect(Collectors.toList());
             PropertyInfo[] infoProperties = new PropertyInfo[templateElementsNames.size()];
-            List<String> locationList = formattedLocationMembers.stream()
+            List<String> locationList = locationMembers.stream()
                     .flatMap(Collection::stream).collect(Collectors.toList());
 
             for (int i = 0; i < templateElementsNames.size(); i++) {
@@ -104,9 +103,7 @@ public class EditLocationInfo {
             }
             properties = infoProperties;
         }
-        }
-
-
+    }
 
 
 }
