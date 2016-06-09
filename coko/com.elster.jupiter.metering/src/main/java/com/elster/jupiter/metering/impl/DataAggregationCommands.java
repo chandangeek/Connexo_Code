@@ -7,10 +7,12 @@ import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.aggregation.CalculatedMetrologyContractData;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -79,7 +81,8 @@ public class DataAggregationCommands {
         try (TransactionContext context = transactionService.getContext()) {
             UsagePoint usagePoint = meteringService.findUsagePoint(usagePointMRID)
                     .orElseThrow(() -> new NoSuchElementException("No such usagepoint"));
-            MetrologyConfiguration configuration = usagePoint.getMetrologyConfiguration()
+            MetrologyConfiguration configuration = usagePoint.getCurrentEffectiveMetrologyConfiguration()
+                    .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration)
                     .orElseThrow(() -> new NoSuchElementException("No metrology configuration"));
             MetrologyContract contract = configuration.getContracts().stream()
                     .filter(c -> c.getMetrologyPurpose().getName().equals(contractPurpose))
@@ -104,7 +107,8 @@ public class DataAggregationCommands {
         try (TransactionContext context = transactionService.getContext()) {
             UsagePoint usagePoint = meteringService.findUsagePoint(usagePointMRID)
                     .orElseThrow(() -> new NoSuchElementException("No such usagepoint"));
-            MetrologyConfiguration configuration = usagePoint.getMetrologyConfiguration()
+            MetrologyConfiguration configuration = usagePoint.getCurrentEffectiveMetrologyConfiguration()
+                    .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration)
                     .orElseThrow(() -> new NoSuchElementException("No metrology configuration"));
             MetrologyContract contract = configuration.getContracts().stream()
                     .filter(c -> c.getMetrologyPurpose().getName().equals(contractPurpose))
@@ -154,7 +158,9 @@ public class DataAggregationCommands {
         try (TransactionContext context = transactionService.getContext()) {
             UsagePoint usagePoint = meteringService.findUsagePoint(usagePointMRID)
                     .orElseThrow(() -> new NoSuchElementException("No such usagepoint"));
-            MetrologyConfiguration configuration = metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigId)
+            UsagePointMetrologyConfiguration configuration = metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigId)
+                    .filter(mc -> mc instanceof UsagePointMetrologyConfiguration)
+                    .map(UsagePointMetrologyConfiguration.class::cast)
                     .orElseThrow(() -> new NoSuchElementException("No such metrology configuration"));
 //            if (!metrologyConfigurationService.findLinkableMetrologyConfigurations(usagePoint).contains(configuration))
 //                throw new IllegalArgumentException("Metrology configuration no linkable to usage point");

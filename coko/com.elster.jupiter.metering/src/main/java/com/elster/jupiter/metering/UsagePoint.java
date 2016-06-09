@@ -5,6 +5,7 @@ import com.elster.jupiter.cbo.MarketRoleKind;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.users.User;
@@ -133,9 +134,9 @@ public interface UsagePoint extends HasId, IdentifiedObject {
      * from this point in time onward.
      *
      * @param metrologyConfiguration The MetrologyConfiguration
-     * @see #apply(MetrologyConfiguration, Instant)
+     * @see #apply(UsagePointMetrologyConfiguration, Instant)
      */
-    void apply(MetrologyConfiguration metrologyConfiguration);
+    void apply(UsagePointMetrologyConfiguration metrologyConfiguration);
 
     /**
      * Applies the specified {@link MetrologyConfiguration} to this UsagePoint
@@ -147,24 +148,7 @@ public interface UsagePoint extends HasId, IdentifiedObject {
      * @param metrologyConfiguration The MetrologyConfiguration
      * @param when The instant in time
      */
-    void apply(MetrologyConfiguration metrologyConfiguration, Instant when);
-
-    /**
-     * Gets the current {@link MetrologyConfiguration}
-     * that has been applied to this UsagePoint.
-     *
-     * @return The current MetrologyConfiguration
-     */
-    Optional<MetrologyConfiguration> getMetrologyConfiguration();
-
-    /**
-     * Gets the {@link MetrologyConfiguration} that was
-     * applied to this UsagePoint at the specified time.
-     *
-     * @param when The instant in time
-     * @return The MetrologyConfiguration
-     */
-    Optional<MetrologyConfiguration> getMetrologyConfiguration(Instant when);
+    void apply(UsagePointMetrologyConfiguration metrologyConfiguration, Instant when);
 
     /**
      * Gets the {@link MetrologyConfiguration}s that were
@@ -178,6 +162,8 @@ public interface UsagePoint extends HasId, IdentifiedObject {
     Optional<EffectiveMetrologyConfigurationOnUsagePoint> getCurrentEffectiveMetrologyConfiguration();
 
     List<EffectiveMetrologyConfigurationOnUsagePoint> getEffectiveMetrologyConfigurations();
+
+    Optional<EffectiveMetrologyConfigurationOnUsagePoint> getEffectiveMetrologyConfiguration(Instant when);
 
     void removeMetrologyConfiguration(Instant when);
 

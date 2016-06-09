@@ -11,6 +11,7 @@ import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.aggregation.MetrologyContractDoesNotApplyToUsagePointException;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
@@ -18,9 +19,9 @@ import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.ChannelContract;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
-import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.impl.config.MeterActivationValidatorsWhiteboard;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
 import com.elster.jupiter.metering.impl.config.ServerFormula;
@@ -110,7 +111,7 @@ public class DataAggregationServiceImplCalculateTest {
     @Mock
     private UserService userService;
     @Mock
-    private MetrologyConfiguration metrologyConfiguration;
+    private UsagePointMetrologyConfiguration metrologyConfiguration;
     @Mock
     private MeterActivationValidatorsWhiteboard meterActivationValidatorsWhiteboard;
     @Mock
@@ -174,7 +175,7 @@ public class DataAggregationServiceImplCalculateTest {
     @Test(expected = MetrologyContractDoesNotApplyToUsagePointException.class)
     public void otherMetrologyConfigurationAppliedToUsagePoint() {
         MetrologyContract otherContract = mock(MetrologyContract.class);
-        MetrologyConfiguration otherConfiguration = mock(MetrologyConfiguration.class);
+        UsagePointMetrologyConfiguration otherConfiguration = mock(UsagePointMetrologyConfiguration.class);
         when(otherConfiguration.getContracts()).thenReturn(Collections.singletonList(otherContract));
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
         when(effectiveMetrologyConfiguration.getMetrologyConfiguration()).thenReturn(otherConfiguration);

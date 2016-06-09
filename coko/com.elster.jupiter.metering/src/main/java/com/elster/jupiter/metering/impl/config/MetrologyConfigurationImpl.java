@@ -1,6 +1,8 @@
 package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.domain.util.DefaultFinder;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
@@ -8,9 +10,12 @@ import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationStatus;
+import com.elster.jupiter.metering.config.MetrologyConfigurationUpdater;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
@@ -19,6 +24,7 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.conditions.Where;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -125,9 +131,8 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
     }
 
     @Override
-    public void updateName(String name) {
-        this.setName(name);
-        this.update();
+    public MetrologyConfigurationUpdater startUpdate() {
+        return new MetrologyConfigurationUpdaterImpl(this);
     }
 
     @Override
@@ -164,6 +169,16 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
         return MetrologyConfigurationStatus.ACTIVE == status;
     }
 
+    private void checkLinkedUsagePoints() {
+        Finder<UsagePoint> finder = DefaultFinder
+                .of(UsagePoint.class, Where.where("metrologyConfiguration.metrologyConfiguration").isEqualTo(this), metrologyConfigurationService.getDataModel(),
+                        EffectiveMetrologyConfigurationOnUsagePoint.class, MetrologyConfiguration.class);
+
+        if (!finder.find().isEmpty()) {
+            throw new CannotDeactivateMetrologyConfiguration(this.metrologyConfigurationService.getThesaurus());
+        }
+    }
+
     @Override
     public void activate() {
         if (MetrologyConfigurationStatus.INACTIVE == status) {
@@ -175,6 +190,7 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
     @Override
     public void deactivate() {
         if (MetrologyConfigurationStatus.ACTIVE == status) {
+            checkLinkedUsagePoints();
             this.status = MetrologyConfigurationStatus.INACTIVE;
             this.update();
         }
@@ -273,7 +289,7 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
 
     @Override
     public List<ReadingTypeRequirement> getRequirements() {
-        return Collections.unmodifiableList(this.readingTypeRequirements);
+        return Collections.unmodifiableList(new ArrayList<>(this.readingTypeRequirements));
     }
 
     @Override
@@ -320,7 +336,7 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
 
     @Override
     public List<ReadingTypeDeliverable> getDeliverables() {
-        return Collections.unmodifiableList(this.deliverables);
+        return Collections.unmodifiableList(new ArrayList<>(this.deliverables));
     }
 
     void create() {

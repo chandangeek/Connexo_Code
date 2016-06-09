@@ -11,7 +11,7 @@ import java.time.Instant;
  */
 public interface EffectiveMetrologyConfigurationOnUsagePoint extends Effectivity {
 
-    MetrologyConfiguration getMetrologyConfiguration();
+    UsagePointMetrologyConfiguration getMetrologyConfiguration();
 
     void close(Instant closingDate);
 
