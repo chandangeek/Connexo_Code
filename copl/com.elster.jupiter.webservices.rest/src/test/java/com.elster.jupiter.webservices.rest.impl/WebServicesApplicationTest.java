@@ -68,6 +68,8 @@ public class WebServicesApplicationTest extends FelixRestApplicationJerseyTest {
         when(mock.isTracing()).thenReturn(true);
         when(endPointConfigurationService.getEndPointConfiguration(name)).thenReturn(Optional.of(mock));
         when(endPointConfigurationService.getEndPointConfiguration(id)).thenReturn(Optional.of(mock));
+        when(endPointConfigurationService.findAndLockEndPointConfigurationByIdAndVersion(id, version)).thenReturn(Optional
+                .of(mock));
         return mock;
     }
 
@@ -88,6 +90,8 @@ public class WebServicesApplicationTest extends FelixRestApplicationJerseyTest {
         when(mock.getUsername()).thenReturn("username");
         when(endPointConfigurationService.getEndPointConfiguration(name)).thenReturn(Optional.of(mock));
         when(endPointConfigurationService.getEndPointConfiguration(id)).thenReturn(Optional.of(mock));
+        when(endPointConfigurationService.findAndLockEndPointConfigurationByIdAndVersion(id, version)).thenReturn(Optional
+                .of(mock));
         return mock;
     }
 

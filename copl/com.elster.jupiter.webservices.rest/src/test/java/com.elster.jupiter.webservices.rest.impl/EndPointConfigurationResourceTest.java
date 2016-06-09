@@ -6,6 +6,7 @@ import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointConfiguration;
 
 import com.jayway.jsonpath.JsonModel;
@@ -20,6 +21,7 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -91,6 +93,7 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
         info.httpCompression = true;
         info.authenticated = false;
         info.url = "/srv";
+        info.active = false;
 
         InboundEndPointConfiguration endPointConfig = mockInboundEndPointConfig(10, 11, "new", "/url", "new service");
         EndPointConfigurationService.InboundEndPointConfigBuilder builder = FakeBuilder.initBuilderStub(endPointConfig, EndPointConfigurationService.InboundEndPointConfigBuilder.class);
@@ -100,5 +103,66 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
     }
 
+    @Test
+    public void testUpdateInActiveInboundEndPoint() throws Exception {
+        when(inboundEndPointConfiguration.isActive()).thenReturn(false);
 
+        EndPointConfigurationInfo info = new EndPointConfigurationInfo();
+        info.type = EndPointConfigType.Inbound;
+        info.version = 901L;
+        info.name = "new endpoint";
+        info.logLevel = new IdWithDisplayValueInfo<>();
+        info.logLevel.id = "SEVERE";
+        info.httpCompression = true;
+        info.schemaValidation = true;
+        info.tracing = true;
+        info.authenticated = false;
+        info.active = false;
+        info.url = "/srv";
+
+        Response response = target("/endpointconfigurations/1").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(inboundEndPointConfiguration).setAuthenticated(false);
+        verify(inboundEndPointConfiguration).setHttpCompression(true);
+        verify(inboundEndPointConfiguration).setSchemaValidation(true);
+        verify(inboundEndPointConfiguration).setTracing(true);
+        verify(inboundEndPointConfiguration).setName("new endpoint");
+        verify(inboundEndPointConfiguration).setLogLevel(LogLevel.SEVERE);
+        verify(inboundEndPointConfiguration).setUrl("/srv");
+        verify(inboundEndPointConfiguration).save();
+
+    }
+
+    @Test
+    public void testUpdateInActiveOutboundEndPoint() throws Exception {
+        when(outboundEndPointConfiguration.isActive()).thenReturn(false);
+
+        EndPointConfigurationInfo info = new EndPointConfigurationInfo();
+        info.type = EndPointConfigType.Outbound;
+        info.version = 902L;
+        info.name = "new endpoint";
+        info.logLevel = new IdWithDisplayValueInfo<>();
+        info.logLevel.id = "SEVERE";
+        info.httpCompression = true;
+        info.schemaValidation = true;
+        info.tracing = true;
+        info.authenticated = false;
+        info.username = "u";
+        info.password = "p";
+        info.active = false;
+        info.url = "/srv";
+
+        Response response = target("/endpointconfigurations/2").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(outboundEndPointConfiguration).setUsername("u");
+        verify(outboundEndPointConfiguration).setPassword("p");
+        verify(outboundEndPointConfiguration).setHttpCompression(true);
+        verify(outboundEndPointConfiguration).setSchemaValidation(true);
+        verify(outboundEndPointConfiguration).setTracing(true);
+        verify(outboundEndPointConfiguration).setName("new endpoint");
+        verify(outboundEndPointConfiguration).setLogLevel(LogLevel.SEVERE);
+        verify(outboundEndPointConfiguration).setUrl("/srv");
+        verify(outboundEndPointConfiguration).save();
+
+    }
 }

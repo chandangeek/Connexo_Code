@@ -7,7 +7,7 @@ import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
  */
 public class EndPointConfigurationInfo {
     public long id;
-    public long version;
+    public Long version;
     public String name;
     public String webServiceName;
     public String url;

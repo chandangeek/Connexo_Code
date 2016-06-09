@@ -102,4 +102,27 @@ public class EndPointConfigurationInfoFactory {
 
         return endPointConfiguration;
     }
+
+    public EndPointConfiguration updateEndPointConfiguration(OutboundEndPointConfiguration endPointConfiguration, EndPointConfigurationInfo info) {
+        this.applyCommonChanges(endPointConfiguration, info);
+        endPointConfiguration.setPassword(info.password);
+        endPointConfiguration.setUsername(info.username);
+        return endPointConfiguration;
+    }
+
+    public EndPointConfiguration updateEndPointConfiguration(InboundEndPointConfiguration endPointConfiguration, EndPointConfigurationInfo info) {
+        this.applyCommonChanges(endPointConfiguration, info);
+        endPointConfiguration.setAuthenticated(info.authenticated);
+        return endPointConfiguration;
+    }
+
+    private void applyCommonChanges(EndPointConfiguration endPointConfiguration, EndPointConfigurationInfo info) {
+        endPointConfiguration.setName(info.name);
+        endPointConfiguration.setUrl(info.url);
+        endPointConfiguration.setWebServiceName(info.webServiceName);
+        endPointConfiguration.setSchemaValidation(info.schemaValidation);
+        endPointConfiguration.setHttpCompression(info.httpCompression);
+        endPointConfiguration.setLogLevel(LogLevel.valueOf(info.logLevel.id));
+        endPointConfiguration.setTracing(info.tracing);
+    }
 }

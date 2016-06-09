@@ -5,7 +5,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import java.util.logging.Level;
 
 public enum MessageSeeds implements MessageSeed {
-    NO_SUCH_END_POINT_CONFIG(1, "NoSuchEndPointConfig", "No end point exists with id ''{0}''"),
+    NO_SUCH_END_POINT_CONFIG(1, "NoSuchEndPointConfig", "No such end point configurations exists"),
     PAYLOAD_EXPECTED(2, "PayloadExpected", "This method requires a payload"),
     FIELD_EXPECTED(3, "FieldIsRequired", "This field is required");
 
