@@ -124,14 +124,18 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
                     me.down('tabpanel').add({
                         layout: 'hbox',
                         margin: '38 0 0 0',
+                        tabConfig: {
+                            ui: 'default',
+                            cls: 'x-tab-default-disabled'
+                        },
                         items: [
                             {
                                 flex: 1
                             },
                             {
-                                html: '<span style="color:#70BB51;font-size:25px;">' +
-                                '<i class="icon-checkmark-circle" style="color:color:#70BB51;margin-right:20px;"></i>' +
-                                    Uni.I18n.translate('whatsGoingOn.everythingfine', 'UNI', 'Everything is going fine') +
+                                html: '<span style="color:#686868;font-size:20px;">' +
+                                '<i class="icon-info" style="color:#686868;margin-right:15px;"></i>' +
+                                    Uni.I18n.translate('whatsGoingOn.nothingToShow', 'UNI', 'No active issues, processes or service calls to show') +
                                     '</span>'
                             },
                             {
@@ -141,19 +145,37 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
 
                     });
                 } else {
-                    Ext.each(tabContents, function (tabContent, index) {
+                    if(tabContents.length===1){
                         me.down('tabpanel').add({
+                            tabConfig: {
+                                ui: 'default',
+                                cls: 'x-tab-default-disabled'
+                            },
                             layout: 'column',
-                            iconCls: index === 0 ? 'icon-circle' : 'icon-circle2',
+
                             items: [{
                                 columnWidth: 0.50,
-                                items: tabContent.splice(0, 5)
+                                items: tabContents[0].splice(0, 5)
                             }, {
                                 columnWidth: 0.50,
-                                items: tabContent
+                                items: tabContents[0]
                             }]
                         });
-                    });
+                    } else {
+                        Ext.each(tabContents, function (tabContent, index) {
+                            me.down('tabpanel').add({
+                                layout: 'column',
+                                iconCls: index === 0 ? 'icon-circle' : 'icon-circle2',
+                                items: [{
+                                    columnWidth: 0.50,
+                                    items: tabContent.splice(0, 5)
+                                }, {
+                                    columnWidth: 0.50,
+                                    items: tabContent
+                                }]
+                            });
+                        });
+                    }
                 }
                 Ext.resumeLayouts();
                 me.doLayout();
