@@ -116,6 +116,7 @@ public enum TableSpecs {
             Column relativePeriod = table.column("PERIOD").number().add();
 
             table.column("LASTRUN").number().conversion(NUMBER2INSTANT).map("lastRun").notAudited().add();
+            table.column("APPLICATION").varChar(NAME_LENGTH).map("application").add();
             table.addAuditColumns();
 
             table.foreignKey("EST_FK_ETSK_RECURRENTTASK")

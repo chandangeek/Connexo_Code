@@ -419,6 +419,14 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
     }
 
     @Override
+    public List<? extends EstimationTask> findEstimationTasks(String application) {
+        return getEstimationTaskQuery().select(Condition.TRUE, Order.descending("lastRun").nullsLast())
+                .stream()
+                .filter(task -> task.getApplication().equals(application))
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public Optional<? extends EstimationTask> findEstimationTask(long id) {
         return dataModel.mapper(IEstimationTask.class).getOptional(id);
     }
