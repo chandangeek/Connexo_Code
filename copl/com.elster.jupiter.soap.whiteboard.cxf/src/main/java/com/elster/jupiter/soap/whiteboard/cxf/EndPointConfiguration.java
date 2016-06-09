@@ -6,7 +6,7 @@ import java.util.List;
  * This class represents a configuration for an endpoint. There will be a 1-on-1 relation between a javax.xml.ws.EndPoint
  * and EndPointConfiguration, but this class was created to persist config of the actual endpoint. Is was named
  * EndPointConfiguration and not just EndPoint to avoid confusion with javax.xml.ws.endPoint. The relation is established/managed
- * by {ManagedEndpoint}.
+ * by {ManagedEndpoint}. The AppServers will create the actual endpoint based on configuration as found in an EndPointConfiguration.
  */
 public interface EndPointConfiguration {
     long getId();
@@ -43,7 +43,13 @@ public interface EndPointConfiguration {
 
     void setSchemaValidation(boolean schemaValidation);
 
-    void setActive(boolean active);
+    /**
+     * This method make a config change, but does not trigger appservers to publish/revoke the actual endpoint. Use
+     * EndPointConfigurationService::activate()/~::deactivate() for this purpose.
+     *
+     * @param active
+     */
+//    void setActive(boolean active);
 
     void save();
 

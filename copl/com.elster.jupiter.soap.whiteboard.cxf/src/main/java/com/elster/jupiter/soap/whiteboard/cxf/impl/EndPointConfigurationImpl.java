@@ -186,7 +186,6 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
         this.schemaValidation = schemaValidation;
     }
 
-    @Override
     public void setActive(boolean active) {
         this.active = active;
     }

@@ -62,6 +62,17 @@ public interface EndPointConfigurationService {
      */
     void deactivate(EndPointConfiguration endPointConfiguration);
 
+    /**
+     * Finds and locks a {@link EndPointConfiguration} which is uniquely identified by the given ID and with the given VERSION.
+     *
+     * @param id the id of the EndPointConfiguration
+     * @param version the version of the EndPointConfiguration
+     * @return the EndPointConfiguration or empty if the EndPointConfiguration does not exist
+     * or the version of the EndPointConfiguration is not equal to the specified version
+     */
+    Optional<EndPointConfiguration> findAndLockEndPointConfigurationByIdAndVersion(long id, long version);
+
+
     interface InboundEndPointConfigBuilder {
         InboundEndPointConfigBuilder tracing();
 

@@ -146,7 +146,7 @@ public class EndPointConfigurationServiceImpl implements EndPointConfigurationSe
     @Override
     @TransactionRequired
     public void activate(EndPointConfiguration endPointConfiguration) {
-        endPointConfiguration.setActive(true);
+        ((EndPointConfigurationImpl) endPointConfiguration).setActive(true);
         endPointConfiguration.save();
         endPointConfiguration.log(LogLevel.INFO, "Endpoint was activated");
         eventService.postEvent(EventType.WEB_SERVICE_CHANGED.topic(), endPointConfiguration);
@@ -155,10 +155,15 @@ public class EndPointConfigurationServiceImpl implements EndPointConfigurationSe
     @Override
     @TransactionRequired
     public void deactivate(EndPointConfiguration endPointConfiguration) {
-        endPointConfiguration.setActive(false);
+        ((EndPointConfigurationImpl) endPointConfiguration).setActive(false);
         endPointConfiguration.save();
         endPointConfiguration.log(LogLevel.INFO, "Endpoint was de-activated");
         eventService.postEvent(EventType.WEB_SERVICE_CHANGED.topic(), endPointConfiguration);
+    }
+
+    @Override
+    public Optional<EndPointConfiguration> findAndLockEndPointConfigurationByIdAndVersion(long id, long version) {
+        return this.dataModel.mapper(EndPointConfiguration.class).lockObjectIfVersion(version, id);
     }
 
     class InboundEndPointConfigurationBuilderImpl implements InboundEndPointConfigBuilder {
