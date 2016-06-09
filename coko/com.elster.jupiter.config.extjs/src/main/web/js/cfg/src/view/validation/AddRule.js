@@ -106,7 +106,6 @@ Ext.define('Cfg.view.validation.AddRule', {
                                     xtype: 'component',
                                     html: Uni.I18n.translate('general.noReadingTypesAvailable','CFG','No reading types have been added'),
                                     itemId: 'noReadingTypesForValidationRuleLabel',
-                                    //hidden: true,
                                     style: {
                                         'font': 'italic 13px/17px Lato',
                                         'color': '#686868',
@@ -119,8 +118,6 @@ Ext.define('Cfg.view.validation.AddRule', {
                                     itemId: 'readingTypesForValidationRuleGridPanel',
                                     store: 'ReadingTypesForRule',
                                     hidden: true,
-                                    //itemId: 'reading-types-grid',
-                                    //store: 'ext-empty-store',
                                     hideHeaders: true,
                                     padding: 0,
                                     scroll: 'vertical',
@@ -136,6 +133,7 @@ Ext.define('Cfg.view.validation.AddRule', {
                                             items: [
                                                 {
                                                     iconCls: 'uni-icon-delete',
+                                                    tooltip: Uni.I18n.translate('general.remove','CFG','Remove'),
                                                     handler: function (grid, rowIndex) {
                                                         grid.getStore().removeAt(rowIndex);
                                                         if (grid.getStore().count() === 0) {
