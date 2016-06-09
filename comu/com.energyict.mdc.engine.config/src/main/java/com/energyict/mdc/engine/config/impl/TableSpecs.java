@@ -10,6 +10,7 @@ import com.energyict.mdc.engine.config.ComPortPoolMember;
 import com.energyict.mdc.engine.config.ComServer;
 
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
+import static com.elster.jupiter.orm.Version.version;
 
 public enum TableSpecs {
 
@@ -49,25 +50,31 @@ public enum TableSpecs {
 
             table.column("CHANGESDELAYVALUE").number().conversion(ColumnConversion.NUMBER2INT).map("changesInterPollDelay.count").add();
             table.column("CHANGESDELAYUNIT").number().conversion(ColumnConversion.NUMBER2INT).map("changesInterPollDelay.timeUnitCode").add();
-
             table.column("SCHEDULINGDELAYVALUE").number().conversion(ColumnConversion.NUMBER2INT).map("schedulingInterPollDelay.count").add();
             table.column("SCHEDULINGDELAYUNIT").number().conversion(ColumnConversion.NUMBER2INT).map("schedulingInterPollDelay.timeUnitCode").add();
 
-            table.column("SERVERNAME").varChar().map("serverName").add();
-            table.column("QUERYAPIPORT").number().conversion(ColumnConversion.NUMBER2INT).map("queryApiPort").add();
+            table.column("QUERYAPIPOSTURI").type("varchar2(512)").map("queryAPIPostUri").upTo(version(10, 2)).add();
+            table.column("DEFAULTQUERYAPIPOSTURI").number().conversion(ColumnConversion.NUMBER2BOOLEAN).map("usesDefaultQueryAPIPostUri").upTo(version(10, 2)).add();
+            table.column("EVENTREGISTRATIONURI").type("varchar2(512)").map("eventRegistrationUri").upTo(version(10, 2)).add();
+            table.column("DEFAULTEVENTREGISTRATIONURI").number().conversion(ColumnConversion.NUMBER2BOOLEAN).map("usesDefaultEventRegistrationUri").upTo(version(10, 2)).add();
+            table.column("STATUSURI").varChar().map("statusUri").upTo(version(10, 2)).add();
+            table.column("DEFAULTSTATUSURI").number().conversion(ColumnConversion.NUMBER2BOOLEAN).map("usesDefaultStatusUri").upTo(version(10, 2)).add();
+            table.column("SERVERNAME").varChar().map("serverName").since(version(10, 2)).add();
+            table.column("STATUSPORT").number().conversion(ColumnConversion.NUMBER2INT).map("statusPort").since(version(10, 2)).add();
+            table.column("QUERYAPIPORT").number().conversion(ColumnConversion.NUMBER2INT).map("queryApiPort").since(version(10, 2)).add();
+            table.column("EVENTREGISTRATIONPORT").number().conversion(ColumnConversion.NUMBER2INT).map("eventRegistrationPort").since(version(10, 2)).add();
+
             Column obsoleteColumn = table.column("OBSOLETE_DATE").number().conversion(ColumnConversion.NUMBER2INSTANT).map("obsoleteDate").add();
             Column onlineComServer = table.column("ONLINESERVERID").number().conversion(ColumnConversion.NUMBER2INT).add(); // DO NOT MAP
             table.column("QUEUESIZE").number().conversion(ColumnConversion.NUMBER2INT).map("storeTaskQueueSize").add();
             table.column("THREADPRIORITY").number().conversion(ColumnConversion.NUMBER2INT).map("storeTaskThreadPriority").add();
             table.column("NROFTHREADS").number().conversion(ColumnConversion.NUMBER2INT).map("numberOfStoreTaskThreads").add();
-            table.column("EVENTREGISTRATIONPORT").number().conversion(ColumnConversion.NUMBER2INT).map("eventRegistrationPort").add();
-            table.column("STATUSPORT").number().conversion(ColumnConversion.NUMBER2INT).map("statusPort").add();
             table.foreignKey("FK_MDC_REMOTE_ONLINE")
                     .on(onlineComServer)
                     .references(MDC_COMSERVER.name())
                     .map("onlineComServer")
                     .add();
-            table.unique("MDC_UQ_COMSERVER_NAME").on(nameColumn, obsoleteColumn).add();
+            table.unique("MDC_UQ_COMSERVER_NAME").on(nameColumn, obsoleteColumn).since(version(10, 2)).add();
         }
     },
     MDC_COMPORT {
