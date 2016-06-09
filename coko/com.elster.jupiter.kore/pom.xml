@@ -31,12 +31,6 @@
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
-                <artifactId>bpmissueaction</artifactId>
-                <version>1.2.0${revision}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
                 <artifactId>calendar</artifactId>
                 <version>1.0.0${revision}</version>
                 <scope>provided</scope>
@@ -272,7 +266,6 @@
             <id>kore</id>
             <modules>
                 <module>../com.elster.jupiter.appserver.rest</module>
-                <module>../com.elster.jupiter.bpmissueaction</module>
                 <module>../com.elster.jupiter.calendar</module>
                 <module>../com.elster.jupiter.calendar.extjs</module>
                 <module>../com.elster.jupiter.calendar.rest</module>
