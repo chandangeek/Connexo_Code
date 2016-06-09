@@ -8,6 +8,7 @@ import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.util.geo.SpatialCoordinatesFactory;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
 import com.energyict.mdc.device.data.importers.impl.FileImportLogger;
@@ -40,7 +41,7 @@ public class DeviceInstallationImportProcessor extends DeviceTransitionImportPro
         EndDevice endDevice = super.getContext().getMeteringService().findEndDevice(data.getDeviceMRID())
                 .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_DEVICE, data.getLineNumber(), data.getDeviceMRID()));
         if(locationData!=null && !locationData.isEmpty()){
-            LocationBuilder builder = super.getContext().getMeteringService().newLocationBuilder();
+            LocationBuilder builder = endDevice.getAmrSystem().newMeter(endDevice.getAmrId()).newLocationBuilder();
             Map<String, Integer> ranking = super.getContext()
                     .getMeteringService()
                     .getLocationTemplate()
@@ -83,8 +84,7 @@ public class DeviceInstallationImportProcessor extends DeviceTransitionImportPro
         }
 
         if(geoCoordinatesData!=null && !geoCoordinatesData.isEmpty() && geoCoordinatesData.size() > 1){
-            endDevice.setGeoCoordinates(super.getContext().getMeteringService()
-                    .createGeoCoordinates(geoCoordinatesData.stream().reduce((s, t) -> s + ":" + t).get()));
+            endDevice.setSpatialCoordinates(new SpatialCoordinatesFactory().fromStringValue(geoCoordinatesData.stream().reduce((s, t) -> s + ":" + t).get()));
         }
         endDevice.update();
     }
