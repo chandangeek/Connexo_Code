@@ -997,11 +997,8 @@ public class BpmResource {
             taskContentInfos = new TaskContentInfos(obj);
         } else {
             throw conflictFactory.conflict()
-                    .withActualVersion(new Supplier<Long>() {
-                        @Override
-                        public Long get() {
-                            return 0L; // Not an actual version; process has been undeployed
-                        }
+                    .withActualVersion(() -> {
+                        return 0L; // Not an actual version; process has been undeployed
                     })
                     .withMessageTitle(MessageSeeds.START_PROCESS_CONCURRENT_TITLE, id)
                     .withMessageBody(MessageSeeds.START_PROCESS_CONCURRENT_BODY, id)
