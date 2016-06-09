@@ -20,12 +20,11 @@ import java.util.*;
 
 class IntervalStateValidator extends AbstractValidator {
 
-    static final String READING_QUALITIES = "readingQualities";
+    public static final String READING_QUALITIES = "readingQualities";
     private static final Set<String> SUPPORTED_APPLICATIONS = ImmutableSet.of("MDC", "INS");
-
+    private static List<ReadingQualityPropertyValue> possibleReadingQualityPropertyValues = Collections.synchronizedList(new ArrayList<>());
     private Set<String> selectedReadingQualities;
-
-    private List<ReadingQualityPropertyValue> possibleReadingQualityPropertyValues = null;
+    private Map<String, String> cachedTranslations;
 
     IntervalStateValidator(Thesaurus thesaurus, PropertySpecService propertySpecService) {
         super(thesaurus, propertySpecService);
@@ -36,11 +35,11 @@ class IntervalStateValidator extends AbstractValidator {
     }
 
     /**
-     * All possible reading qualities
+     * All possible reading qualities, with their translations
      */
     private List<ReadingQualityPropertyValue> getPossibleReadingQualityPropertyValues() {
-        if (possibleReadingQualityPropertyValues == null) {
-            possibleReadingQualityPropertyValues = new ArrayList<>();
+        if (possibleReadingQualityPropertyValues.isEmpty()) {
+            cachedTranslations = new HashMap<>();
 
             //Add every possible combination
             for (QualityCodeSystem system : QualityCodeSystem.values()) {
@@ -49,9 +48,9 @@ class IntervalStateValidator extends AbstractValidator {
                     String cimCode = system.ordinal() + "." + index.category().ordinal() + "." + index.index();
                     possibleReadingQualityPropertyValues.add(new ReadingQualityPropertyValue(
                             cimCode,
-                            getThesaurus().getStringBeyondComponent(system.getTranslationKey().getKey(), system.getTranslationKey().getDefaultFormat()),
-                            getThesaurus().getStringBeyondComponent(index.category().getTranslationKey().getKey(), index.category().getTranslationKey().getDefaultFormat()),
-                            getThesaurus().getStringBeyondComponent(index.getTranslationKey().getKey(), index.getTranslationKey().getDefaultFormat())
+                            getTranslation(system.getTranslationKey().getKey(), system.getTranslationKey().getDefaultFormat()),
+                            getTranslation(index.category().getTranslationKey().getKey(), index.category().getTranslationKey().getDefaultFormat()),
+                            getTranslation(index.getTranslationKey().getKey(), index.getTranslationKey().getDefaultFormat())
                     ));
                 }
             }
@@ -62,13 +61,25 @@ class IntervalStateValidator extends AbstractValidator {
                 String cimCode = "*." + qualityCodeCategory.ordinal() + ".*";
                 possibleReadingQualityPropertyValues.add(new ReadingQualityPropertyValue(
                         cimCode,
-                        getThesaurus().getStringBeyondComponent(com.elster.jupiter.cbo.TranslationKeys.ALL_SYSTEMS.getKey(), com.elster.jupiter.cbo.TranslationKeys.ALL_SYSTEMS.getDefaultFormat()),
-                        getThesaurus().getStringBeyondComponent(qualityCodeCategory.getTranslationKey().getKey(), qualityCodeCategory.getTranslationKey().getDefaultFormat()),
-                        getThesaurus().getStringBeyondComponent(com.elster.jupiter.cbo.TranslationKeys.ALL_INDEXES.getKey(), com.elster.jupiter.cbo.TranslationKeys.ALL_INDEXES.getDefaultFormat())
+                        getTranslation(com.elster.jupiter.cbo.TranslationKeys.ALL_SYSTEMS.getKey(), com.elster.jupiter.cbo.TranslationKeys.ALL_SYSTEMS.getDefaultFormat()),
+                        getTranslation(qualityCodeCategory.getTranslationKey().getKey(), qualityCodeCategory.getTranslationKey().getDefaultFormat()),
+                        getTranslation(com.elster.jupiter.cbo.TranslationKeys.ALL_INDEXES.getKey(), com.elster.jupiter.cbo.TranslationKeys.ALL_INDEXES.getDefaultFormat())
                 ));
             }
+
+            cachedTranslations = null;
         }
         return possibleReadingQualityPropertyValues;
+    }
+
+    private String getTranslation(String key, String defaultFormat) {
+        if (cachedTranslations.containsKey(key)) {
+            return cachedTranslations.get(key);
+        } else {
+            String translation = getThesaurus().getStringBeyondComponent(key, defaultFormat);
+            cachedTranslations.put(key, translation);
+            return translation;
+        }
     }
 
     @Override
@@ -118,7 +129,7 @@ class IntervalStateValidator extends AbstractValidator {
         return Collections.singletonList(
                 getPropertySpecService()
                         .specForValuesOf(new ReadingQualityValueFactory())
-                        .named(READING_QUALITIES, TranslationKeys.INTERVAL_STATE_VALIDATOR)
+                        .named(READING_QUALITIES, TranslationKeys.READING_QUALITIES_VALIDATOR)
                         .fromThesaurus(this.getThesaurus())
                         .addValues(getPossibleReadingQualityPropertyValues())
                         .markMultiValued()
@@ -127,7 +138,7 @@ class IntervalStateValidator extends AbstractValidator {
 
     @Override
     public String getDefaultFormat() {
-        return TranslationKeys.INTERVAL_STATE_VALIDATOR.getDefaultFormat();
+        return TranslationKeys.READING_QUALITIES_VALIDATOR.getDefaultFormat();
     }
 
     @Override
