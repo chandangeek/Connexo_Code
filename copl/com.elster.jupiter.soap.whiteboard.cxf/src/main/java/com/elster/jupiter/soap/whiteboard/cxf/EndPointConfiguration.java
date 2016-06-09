@@ -27,6 +27,8 @@ public interface EndPointConfiguration {
 
     boolean isActive();
 
+    long getVersion();
+
     void setName(String name);
 
     void setUrl(String url);

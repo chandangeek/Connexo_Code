@@ -132,6 +132,12 @@ public class EndPointConfigurationServiceImpl implements EndPointConfigurationSe
     }
 
     @Override
+    public Optional<EndPointConfiguration> getEndPointConfiguration(long id) {
+        return dataModel.mapper(EndPointConfiguration.class)
+                .getUnique(EndPointConfigurationImpl.Fields.ID.fieldName(), id);
+    }
+
+    @Override
     public Finder<EndPointConfiguration> findEndPointConfigurations() {
         return DefaultFinder.of(EndPointConfiguration.class, this.dataModel)
                 .defaultSortColumn(EndPointConfigurationImpl.Fields.NAME.fieldName());

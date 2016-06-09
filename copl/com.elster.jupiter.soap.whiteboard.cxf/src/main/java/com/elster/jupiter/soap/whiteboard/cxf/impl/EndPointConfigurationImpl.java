@@ -72,6 +72,7 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
     }
 
     enum Fields {
+        ID("id"),
         NAME("name"),
         URL("url"),
         WEB_SERVICE_NAME("webServiceName"),
@@ -143,6 +144,11 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
     @Override
     public boolean isActive() {
         return active;
+    }
+
+    @Override
+    public long getVersion() {
+        return version;
     }
 
     @Override

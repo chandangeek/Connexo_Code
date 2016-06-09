@@ -31,10 +31,18 @@ public interface EndPointConfigurationService {
     /**
      * Gets an existing end point configuration by name
      *
-     * @param name
-     * @return
+     * @param name The end point config name
+     * @return The endpoint config by that name, or Empty if none found
      */
     Optional<EndPointConfiguration> getEndPointConfiguration(String name);
+
+    /**
+     * Gets an existing end point configuration by db id
+     *
+     * @param id The end point config id
+     * @return The endpoint config by that id, or Empty if none found
+     */
+    Optional<EndPointConfiguration> getEndPointConfiguration(long id);
 
     Finder<EndPointConfiguration> findEndPointConfigurations();
 
