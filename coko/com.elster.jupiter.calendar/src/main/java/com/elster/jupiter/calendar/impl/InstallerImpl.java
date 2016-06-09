@@ -16,7 +16,6 @@ class InstallerImpl implements FullInstaller {
     private static final Logger LOGGER = Logger.getLogger(InstallerImpl.class.getName());
 
     private final EventService eventService;
-    private final CalendarService calendarService;
     private final DataModel dataModel;
 
     @Inject
