@@ -247,6 +247,7 @@ public class SecurityPropertySetImplCrudIT {
                     finiteStateMachineService,
                     injector.getInstance(DeviceLifeCycleConfigurationService.class),
                     injector.getInstance(CalendarService.class),
+                    injector.getInstance(CustomPropertySetService.class),
                     UpgradeModule.FakeUpgradeService.getInstance());
             ctx.commit();
         }
