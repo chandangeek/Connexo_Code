@@ -1,18 +1,21 @@
 package com.elster.jupiter.rest.util;
 
+import com.elster.jupiter.domain.util.FormValidationException;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.OptimisticLockException;
 import com.elster.jupiter.rest.util.impl.MessageSeeds;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
+
 import javax.inject.Inject;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Whenever a REST call results in a ConstraintViolationException(or other), this mapper will convert the exception in a Result understood by our
@@ -71,6 +74,13 @@ public class ConstraintViolationInfo {
 
     public ConstraintViolationInfo from(RestValidationBuilder.RestValidationException exception){
         exception.getErrors().stream().forEach(this::from);
+        return this;
+    }
+
+    public ConstraintViolationInfo from(FormValidationException exception) {
+        exception.getExceptions().entrySet()
+                .forEach(stringListEntry -> stringListEntry.getValue().stream()
+                        .forEach(message -> addFieldError(stringListEntry.getKey(), message)));
         return this;
     }
 
