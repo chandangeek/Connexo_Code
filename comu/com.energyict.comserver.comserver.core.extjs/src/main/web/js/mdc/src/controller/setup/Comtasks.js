@@ -919,7 +919,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
         var iconIntervals = Ext.ComponentQuery.query('#radioIntervals')[0].getEl().down('img'),
             textIntervals = Uni.I18n.translate('comtask.tooltip.textIntervals', 'MDC', 'If the clock difference between the clock in the meter and the clock of the communication server is equal to or bigger than the minimum clock difference, the intervals will be marked as bad time'),
             iconEvents = Ext.ComponentQuery.query('#radioEvents')[0].getEl().down('img'),
-            textEvents = Uni.I18n.translate('comtask.tooltip.textEvents', 'MDC', 'When data with a status flag comes in, meter events will be created'),
+            textEvents = Uni.I18n.translate('comtask.tooltip.textEvents', 'MDC', 'When data with a reading quality comes in, meter events will be created'),
             iconFail = Ext.ComponentQuery.query('#radioFail')[0].getEl().down('img'),
             textFail = Uni.I18n.translate('comtask.tooltip.textFail', 'MDC', 'A profile configuration defines how a load profile of that configuration looks like. When the profile configuration doesn\'t match the load profile, a failure occurs');
 
