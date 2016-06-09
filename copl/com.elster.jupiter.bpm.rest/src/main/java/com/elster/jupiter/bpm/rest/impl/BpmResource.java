@@ -994,7 +994,13 @@ public class BpmResource {
         }
         if(obj != null) {
             taskContentInfos = new TaskContentInfos(obj);
+        } else {
+            throw conflictFactory.conflict()
+                    .withMessageTitle(MessageSeeds.START_PROCESS_CONCURRENT_TITLE, id)
+                    .withMessageBody(MessageSeeds.START_PROCESS_CONCURRENT_BODY, id)
+                    .supplier().get();
         }
+
         return taskContentInfos;
     }
 
