@@ -40,7 +40,7 @@ public class SetUsagePointToDevicePostBuilder implements Consumer<Device> {
         Log.write(this.usagePointBuilder.withMRID(newMRID()).withName(device.getName())
                 .withInstallationTime(clock.instant())
                 .withLocation(device.getLocation().isPresent() ? device.getLocation().get() : null)
-                .withGeoCoordinates(device.getGeoCoordinates().isPresent() ? device.getGeoCoordinates().get() : null));
+                .withGeoCoordinates(device.getSpatialCoordinates().isPresent() ? device.getSpatialCoordinates().get() : null));
         this.usagePointBuilder.create();
         setUsagePoint(device, this.usagePointBuilder.get());
     }
