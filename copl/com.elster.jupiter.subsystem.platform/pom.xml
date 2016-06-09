@@ -288,6 +288,10 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
+            <artifactId>webservices.rest</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
             <artifactId>yellowfin</artifactId>
             <exclusions>
                 <exclusion>
