@@ -4,6 +4,8 @@ import com.elster.jupiter.nls.TranslationKey;
 
 public enum TranslationKeys implements TranslationKey {
 
+    ALL_INDEXES("ReadingQualityAllIndexes", "All indexes"),
+    ALL_SYSTEMS("ReadingQualityAllSystems", "All systems"),
     DATAVALID("ReadingQualityDataValid", "Data Valid"),
     VALIDATED("ReadingQualityValidated", "Validated"),
     DIAGNOSTICSFLAG("ReadingQualityDiagnosticsFlag", "Diagnostics Flag"),
@@ -83,7 +85,14 @@ public enum TranslationKeys implements TranslationKey {
     CATEGORY_OBSOLETE_OSCILLATORY("ReadingQualityCategory_OBSOLETE_OSCILLATORY", "Oscillatory"),
     CATEGORY_QUESTIONABLE("ReadingQualityCategory_QUESTIONABLE", "Questionable"),
     CATEGORY_DERIVED("ReadingQualityCategory_DERIVED", "Derived"),
-    CATEGORY_PROJECTED("ReadingQualityCategory_PROJECTED", "Projected");
+    CATEGORY_PROJECTED("ReadingQualityCategory_PROJECTED", "Projected"),
+
+    SYSTEM_NOTAPPLICABLE("ReadingQualitySystem_NOTAPPLICABLE", "Not applicable"),
+    SYSTEM_ENDDEVICE("ReadingQualitySystem_ENDDEVICE", "End device"),
+    SYSTEM_MDC("ReadingQualitySystem_MDC", "MDC"),
+    SYSTEM_MDM("ReadingQualitySystem_MDM", "MDM"),
+    SYSTEM_OTHER("ReadingQualitySystem_OTHER", "Other system"),
+    SYSTEM_EXTERNAL("ReadingQualitySystem_EXTERNAL", "Externally specified");
 
     private final String key;
     private final String defaultFormat;
