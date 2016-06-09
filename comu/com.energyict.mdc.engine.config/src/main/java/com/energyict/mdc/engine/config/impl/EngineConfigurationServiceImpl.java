@@ -13,6 +13,7 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
@@ -21,8 +22,6 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.proxy.LazyLoader;
 import com.elster.jupiter.util.streams.DecoratedStream;
 import com.elster.jupiter.util.streams.Predicates;
-import com.elster.jupiter.upgrade.InstallIdentifier;
-import com.elster.jupiter.upgrade.UpgradeService;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComPortPool;
@@ -47,6 +46,7 @@ import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.json.JSONException;
@@ -60,13 +60,14 @@ import javax.validation.MessageInterpolator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.elster.jupiter.orm.Version.version;
+import static com.elster.jupiter.upgrade.InstallIdentifier.identifier;
 import static com.elster.jupiter.util.conditions.Where.where;
 import static com.energyict.mdc.engine.config.impl.ComServerImpl.OFFLINE_COMSERVER_DISCRIMINATOR;
 import static com.energyict.mdc.engine.config.impl.ComServerImpl.ONLINE_COMSERVER_DISCRIMINATOR;
@@ -181,10 +182,8 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     @Activate
     public void activate() {
         dataModel.register(getModule());
-
-        upgradeService.register(InstallIdentifier.identifier(EngineConfigurationService.COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(identifier(EngineConfigurationService.COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(version(10, 2), UpgraderV10_2.class));
     }
-
 
     public DataModel getDataModel() {
         return this.dataModel;

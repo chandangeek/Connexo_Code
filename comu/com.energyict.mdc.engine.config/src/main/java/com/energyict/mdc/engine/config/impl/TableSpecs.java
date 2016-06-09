@@ -57,7 +57,7 @@ public enum TableSpecs {
             table.column("DEFAULTQUERYAPIPOSTURI").number().conversion(ColumnConversion.NUMBER2BOOLEAN).map("usesDefaultQueryAPIPostUri").upTo(version(10, 2)).add();
             table.column("EVENTREGISTRATIONURI").type("varchar2(512)").map("eventRegistrationUri").upTo(version(10, 2)).add();
             table.column("DEFAULTEVENTREGISTRATIONURI").number().conversion(ColumnConversion.NUMBER2BOOLEAN).map("usesDefaultEventRegistrationUri").upTo(version(10, 2)).add();
-            table.column("STATUSURI").varChar().map("statusUri").upTo(version(10, 2)).add();
+            table.column("STATUSURI").varChar().map("").upTo(version(10, 2)).add();
             table.column("DEFAULTSTATUSURI").number().conversion(ColumnConversion.NUMBER2BOOLEAN).map("usesDefaultStatusUri").upTo(version(10, 2)).add();
             table.column("SERVERNAME").varChar().map("serverName").since(version(10, 2)).add();
             table.column("STATUSPORT").number().conversion(ColumnConversion.NUMBER2INT).map("statusPort").since(version(10, 2)).add();
