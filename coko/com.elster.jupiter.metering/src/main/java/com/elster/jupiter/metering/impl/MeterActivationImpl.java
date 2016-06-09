@@ -4,6 +4,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.EventType;
+import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeterAlreadyLinkedToUsagePoint;
@@ -16,6 +17,7 @@ import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointConfiguration;
+import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
@@ -241,7 +243,7 @@ public final class MeterActivationImpl implements IMeterActivation {
     @Override
     public void endAt(Instant end) {
         if (isInvalidEndDate(end)) {
-            throw new IllegalArgumentException();
+            throw new ChannelDataPresentException();
         }
         doEndAt(end);
     }
@@ -559,5 +561,11 @@ public final class MeterActivationImpl implements IMeterActivation {
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());
 
+    }
+
+    class ChannelDataPresentException extends LocalizedException {
+        public ChannelDataPresentException() {
+            super(thesaurus, MessageSeeds.CHANNEL_DATA_PRESENT);
+        }
     }
 }

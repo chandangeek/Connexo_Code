@@ -77,7 +77,8 @@ public class MeterActivationImplIT {
         MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         AmrSystem system = meteringService.findAmrSystem(1).get();
         Meter meter = system.newMeter("testPersistence").create();
-        MeterActivation meterActivation = meter.activate(ZonedDateTime.of(2012, 12, 19, 14, 15, 54, 0, ZoneId.systemDefault()).toInstant());
+        MeterActivation meterActivation = meter.activate(ZonedDateTime.of(2012, 12, 19, 14, 15, 54, 0, ZoneId.systemDefault())
+                .toInstant());
         ReadingType readingType = meteringService.getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
         Channel channel = meterActivation.createChannel(readingType);
         MeterActivation loaded = meteringService.findMeterActivation(meterActivation.getId()).get();
@@ -156,11 +157,14 @@ public class MeterActivationImplIT {
         Channel currentChannel = currentActivation.createChannel(readingType);
         MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
         IntervalBlockImpl intervalBlock = IntervalBlockImpl.of("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
-        intervalBlock.addIntervalReading(IntervalReadingImpl.of(newCutOff.minusMinutes(15).toInstant(), BigDecimal.valueOf(4025, 2)));
+        intervalBlock.addIntervalReading(IntervalReadingImpl.of(newCutOff.minusMinutes(15)
+                .toInstant(), BigDecimal.valueOf(4025, 2)));
         intervalBlock.addIntervalReading(IntervalReadingImpl.of(newCutOff.toInstant(), BigDecimal.valueOf(4175, 2)));
-        intervalBlock.addIntervalReading(IntervalReadingImpl.of(newCutOff.plusMinutes(15).toInstant(), BigDecimal.valueOf(4225, 2)));
+        intervalBlock.addIntervalReading(IntervalReadingImpl.of(newCutOff.plusMinutes(15)
+                .toInstant(), BigDecimal.valueOf(4225, 2)));
         intervalBlock.addIntervalReading(IntervalReadingImpl.of(originalCutOff.toInstant(), BigDecimal.valueOf(4725, 2)));
-        intervalBlock.addIntervalReading(IntervalReadingImpl.of(originalCutOff.plusMinutes(15).toInstant(), BigDecimal.valueOf(4825, 2)));
+        intervalBlock.addIntervalReading(IntervalReadingImpl.of(originalCutOff.plusMinutes(15)
+                .toInstant(), BigDecimal.valueOf(4825, 2)));
         meterReading.addIntervalBlock(intervalBlock);
         meter.store(meterReading);
 
@@ -187,13 +191,17 @@ public class MeterActivationImplIT {
         assertThat(secondReadings.get(2).getValue()).isEqualTo(BigDecimal.valueOf(4825, 2));
         assertThat(secondReadings.get(2).getTimeStamp()).isEqualTo(originalCutOff.plusMinutes(15).toInstant());
 
-        List<? extends BaseReadingRecord> firstChannelReadings = first.getChannels().get(0).getReadings(readingType, Range.all());
+        List<? extends BaseReadingRecord> firstChannelReadings = first.getChannels()
+                .get(0)
+                .getReadings(readingType, Range.all());
         assertThat(firstChannelReadings).hasSize(2);
         assertThat(firstChannelReadings.get(0).getValue()).isEqualTo(BigDecimal.valueOf(4025, 2));
         assertThat(firstChannelReadings.get(0).getTimeStamp()).isEqualTo(newCutOff.minusMinutes(15).toInstant());
         assertThat(firstChannelReadings.get(1).getValue()).isEqualTo(BigDecimal.valueOf(4175, 2));
         assertThat(firstChannelReadings.get(1).getTimeStamp()).isEqualTo(newCutOff.toInstant());
-        List<? extends BaseReadingRecord> secondChannelReadings = second.getChannels().get(0).getReadings(readingType, Range.all());
+        List<? extends BaseReadingRecord> secondChannelReadings = second.getChannels()
+                .get(0)
+                .getReadings(readingType, Range.all());
         assertThat(secondChannelReadings).hasSize(3);
         assertThat(secondChannelReadings.get(0).getValue()).isEqualTo(BigDecimal.valueOf(4225, 2));
         assertThat(secondChannelReadings.get(0).getTimeStamp()).isEqualTo(newCutOff.plusMinutes(15).toInstant());
@@ -261,12 +269,16 @@ public class MeterActivationImplIT {
             meterActivation.getChannels().get(0).createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), readingType, newCutOff.toInstant());
             ReadingQualityRecord readingQuality = meterActivation.getChannels()
                     .get(0)
-                    .createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), readingType, newCutOff.plusMinutes(15).toInstant());
+                    .createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), readingType, newCutOff
+                            .plusMinutes(15)
+                            .toInstant());
             readingQuality.makePast();
             meterActivation.getChannels().get(0).createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), readingType, originalCutOff.toInstant());
             currentActivation.getChannels()
                     .get(0)
-                    .createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), readingType, originalCutOff.plusMinutes(15).toInstant());
+                    .createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), readingType, originalCutOff
+                            .plusMinutes(15)
+                            .toInstant());
             ctx.commit();
         }
 
@@ -331,10 +343,13 @@ public class MeterActivationImplIT {
         Meter meter = system.newMeter("testCanCreateMeterActivationWithMeterRole_Meter").create();
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         UsagePoint usagePoint = serviceCategory
-                .newUsagePoint("testCanCreateMeterActivationWithMeterRole_UP", inMemoryBootstrapModule.getClock().instant())
+                .newUsagePoint("testCanCreateMeterActivationWithMeterRole_UP", inMemoryBootstrapModule.getClock()
+                        .instant())
                 .create();
-        MeterRole meterRole = inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT);
-        MeterActivation meterActivation = meter.activate(usagePoint, meterRole, inMemoryBootstrapModule.getClock().instant());
+        MeterRole meterRole = inMemoryBootstrapModule.getMetrologyConfigurationService()
+                .findDefaultMeterRole(DefaultMeterRole.DEFAULT);
+        MeterActivation meterActivation = meter.activate(usagePoint, meterRole, inMemoryBootstrapModule.getClock()
+                .instant());
 
         Optional<MeterRole> meterRoleRef = meterActivation.getMeterRole();
         assertThat(meterRoleRef.isPresent()).isTrue();
@@ -353,8 +368,10 @@ public class MeterActivationImplIT {
         UsagePoint usagePoint = serviceCategory.newUsagePoint("usagePointForActivation", now).create();
 
         usagePoint.linkMeters()
-                .activate(meter, inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT))
-                .activate(meter, inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.MAIN))
+                .activate(meter, inMemoryBootstrapModule.getMetrologyConfigurationService()
+                        .findDefaultMeterRole(DefaultMeterRole.DEFAULT))
+                .activate(meter, inMemoryBootstrapModule.getMetrologyConfigurationService()
+                        .findDefaultMeterRole(DefaultMeterRole.MAIN))
                 .complete();
     }
 
@@ -371,15 +388,22 @@ public class MeterActivationImplIT {
         UsagePoint usagePoint = serviceCategory.newUsagePoint("usagePointForActivation", now).create();
 
         usagePoint.linkMeters()
-                .activate(meter, inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT))
+                .activate(meter, inMemoryBootstrapModule.getMetrologyConfigurationService()
+                        .findDefaultMeterRole(DefaultMeterRole.DEFAULT))
                 .complete();
 
-        List<MeterActivation> meterActivations = meteringService.findUsagePoint(usagePoint.getId()).get().getMeterActivations(now);
+        List<MeterActivation> meterActivations = meteringService.findUsagePoint(usagePoint.getId())
+                .get()
+                .getMeterActivations(now);
         assertThat(meterActivations).hasSize(1);
-        assertThat(meterActivations.get(0).getMeterRole().get()).isEqualTo(inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT));
+        assertThat(meterActivations.get(0)
+                .getMeterRole()
+                .get()).isEqualTo(inMemoryBootstrapModule.getMetrologyConfigurationService()
+                .findDefaultMeterRole(DefaultMeterRole.DEFAULT));
 
         usagePoint.linkMeters()
-                .activate(meter, inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.MAIN))
+                .activate(meter, inMemoryBootstrapModule.getMetrologyConfigurationService()
+                        .findDefaultMeterRole(DefaultMeterRole.MAIN))
                 .complete();
     }
 
@@ -406,7 +430,8 @@ public class MeterActivationImplIT {
                 .withReadingType(readingType);
         ReadingTypeDeliverableBuilder builder = metrologyConfiguration.newReadingTypeDeliverable("Deliverable", readingType, Formula.Mode.AUTO);
         ReadingTypeDeliverable deliverable = builder.build(builder.requirement(readingTypeRequirement));
-        metrologyConfiguration.addMandatoryMetrologyContract(metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.BILLING).get())
+        metrologyConfiguration.addMandatoryMetrologyContract(metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.BILLING)
+                .get())
                 .addDeliverable(deliverable);
         usagePoint.apply(metrologyConfiguration, now);
 
@@ -428,7 +453,8 @@ public class MeterActivationImplIT {
 
         try {
             usagePoint.linkMeters()
-                    .activate(meter, inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.MAIN))
+                    .activate(meter, inMemoryBootstrapModule.getMetrologyConfigurationService()
+                            .findDefaultMeterRole(DefaultMeterRole.MAIN))
                     .complete();
         } catch (ConstraintViolationException ex) {
             assertThat(ex.getConstraintViolations().size()).isEqualTo(1);
@@ -448,12 +474,17 @@ public class MeterActivationImplIT {
         UsagePoint usagePoint = serviceCategory.newUsagePoint("usagePointForActivation", now).create();
 
         usagePoint.linkMeters()
-                .activate(meter, inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT))
+                .activate(meter, inMemoryBootstrapModule.getMetrologyConfigurationService()
+                        .findDefaultMeterRole(DefaultMeterRole.DEFAULT))
                 .complete();
 
-        Optional<? extends MeterActivation> meterActivation = meteringService.findMeter(meter.getId()).get().getMeterActivation(now);
+        Optional<? extends MeterActivation> meterActivation = meteringService.findMeter(meter.getId())
+                .get()
+                .getMeterActivation(now);
         assertThat(meterActivation).isPresent();
-        assertThat(meteringService.findUsagePoint(usagePoint.getId()).get().getMeterActivations(now)).contains(meterActivation.get());
+        assertThat(meteringService.findUsagePoint(usagePoint.getId())
+                .get()
+                .getMeterActivations(now)).contains(meterActivation.get());
     }
 
     @Test
@@ -468,17 +499,25 @@ public class MeterActivationImplIT {
         UsagePoint usagePoint = serviceCategory.newUsagePoint("usagePointForActivation", now).create();
 
         usagePoint.linkMeters()
-                .activate(meter1, inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT))
-                .activate(meter2, inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.MAIN))
+                .activate(meter1, inMemoryBootstrapModule.getMetrologyConfigurationService()
+                        .findDefaultMeterRole(DefaultMeterRole.DEFAULT))
+                .activate(meter2, inMemoryBootstrapModule.getMetrologyConfigurationService()
+                        .findDefaultMeterRole(DefaultMeterRole.MAIN))
                 .complete();
 
-        Optional<? extends MeterActivation> meterActivation = meteringService.findMeter(meter1.getId()).get().getMeterActivation(now);
+        Optional<? extends MeterActivation> meterActivation = meteringService.findMeter(meter1.getId())
+                .get()
+                .getMeterActivation(now);
         assertThat(meterActivation).isPresent();
-        assertThat(meteringService.findUsagePoint(usagePoint.getId()).get().getMeterActivations(now)).contains(meterActivation.get());
+        assertThat(meteringService.findUsagePoint(usagePoint.getId())
+                .get()
+                .getMeterActivations(now)).contains(meterActivation.get());
 
         meterActivation = meteringService.findMeter(meter2.getId()).get().getMeterActivation(now);
         assertThat(meterActivation).isPresent();
-        assertThat(meteringService.findUsagePoint(usagePoint.getId()).get().getMeterActivations(now)).contains(meterActivation.get());
+        assertThat(meteringService.findUsagePoint(usagePoint.getId())
+                .get()
+                .getMeterActivations(now)).contains(meterActivation.get());
     }
 
     @Test
@@ -492,18 +531,26 @@ public class MeterActivationImplIT {
         UsagePoint usagePoint = serviceCategory.newUsagePoint("usagePointForActivation", now).create();
 
         usagePoint.linkMeters()
-                .activate(meter, inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT))
+                .activate(meter, inMemoryBootstrapModule.getMetrologyConfigurationService()
+                        .findDefaultMeterRole(DefaultMeterRole.DEFAULT))
                 .complete();
 
         assertThat(meteringService.findMeter(meter.getId()).get().getMeterActivation(now)).isPresent();
 
         usagePoint.linkMeters()
-                .activate(meter, inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.MAIN))
-                .clear(inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT))
+                .activate(meter, inMemoryBootstrapModule.getMetrologyConfigurationService()
+                        .findDefaultMeterRole(DefaultMeterRole.MAIN))
+                .clear(inMemoryBootstrapModule.getMetrologyConfigurationService()
+                        .findDefaultMeterRole(DefaultMeterRole.DEFAULT))
                 .complete();
 
-        List<MeterActivation> meterActivations = meteringService.findUsagePoint(usagePoint.getId()).get().getMeterActivations(now);
+        List<MeterActivation> meterActivations = meteringService.findUsagePoint(usagePoint.getId())
+                .get()
+                .getMeterActivations(now);
         assertThat(meterActivations).hasSize(1);
-        assertThat(meterActivations.get(0).getMeterRole().get()).isEqualTo(inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.MAIN));
+        assertThat(meterActivations.get(0)
+                .getMeterRole()
+                .get()).isEqualTo(inMemoryBootstrapModule.getMetrologyConfigurationService()
+                .findDefaultMeterRole(DefaultMeterRole.MAIN));
     }
 }
