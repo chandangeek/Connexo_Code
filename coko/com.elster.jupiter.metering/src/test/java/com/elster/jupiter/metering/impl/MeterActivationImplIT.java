@@ -45,7 +45,6 @@ import java.util.Optional;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -411,7 +410,6 @@ public class MeterActivationImplIT {
     @Test
     @Transactional
     @ExpectedConstraintViolation(property = "default", messageId = "MTR7003S This meter does not provide reading types matching to Requirement.", strict = true)
-    @Ignore // TODO Activate when meter can provide a real capabilities!
     public void testMeterDoesNotSatisfyMetrologyRequirements() {
         ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         ServerMetrologyConfigurationService metrologyConfigurationService = inMemoryBootstrapModule.getMetrologyConfigurationService();

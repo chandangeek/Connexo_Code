@@ -71,9 +71,9 @@ public class MetrologyConfigurationInstaller {
         config.addMeterRole(meterRole);
 
         ReadingType readingTypeMonthlyAplusWh = meteringService.findReadingTypes(Collections.singletonList("13.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0"))
-                .stream().findFirst().orElseGet(() -> meteringService.createReadingType("13.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "A+"));
+                .stream().findFirst().orElseGet(() -> meteringService.createReadingType("13.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "A+"));
         ReadingType readingTypeMonthlyAminusWh = meteringService.findReadingTypes(Collections.singletonList("13.0.0.4.19.1.12.0.0.0.0.0.0.0.0.3.72.0"))
-                .stream().findFirst().orElseGet(() -> meteringService.createReadingType("13.0.0.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0", "A-"));
+                .stream().findFirst().orElseGet(() -> meteringService.createReadingType("13.0.0.4.19.1.12.0.0.0.0.0.0.0.0.3.72.0", "A-"));
         ReadingType readingTypeDailyAplusWh = meteringService.findReadingTypes(Collections.singletonList("11.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0"))
                 .stream().findFirst().orElseGet(() -> meteringService.createReadingType("11.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "A+"));
         ReadingType readingTypeDailyAminusWh = meteringService.findReadingTypes(Collections.singletonList("11.0.0.4.19.1.12.0.0.0.0.0.0.0.0.3.72.0"))

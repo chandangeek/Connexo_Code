@@ -168,12 +168,9 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
                 }
                 List<ReadingTypeRequirement> unmatchedRequirements = getUnmatchedMeterReadingTypeRequirements(metrologyConfiguration, mandatoryReadingTypeRequirements, mappingEntry);
                 if (!unmatchedRequirements.isEmpty()) {
-                    result = true; // TODO change to false when meter will provide correct capabilities!
-                    String errorMessage = this.metrologyConfigurationService.getThesaurus()
-                            .getFormat(MessageSeeds.UNSATISFIED_METROLOGY_REQUIREMENT)
-                            .format(unmatchedRequirements.stream()
-                                    .map(ReadingTypeRequirement::getName)
-                                    .collect(Collectors.joining(", ")));
+                    result = false;
+                    String errorMessage = this.metrologyConfigurationService.getThesaurus().getFormat(MessageSeeds.UNSATISFIED_METROLOGY_REQUIREMENT)
+                            .format(unmatchedRequirements.stream().map(ReadingTypeRequirement::getName).collect(Collectors.joining(", ")));
                     context.buildConstraintViolationWithTemplate(errorMessage)
                             .addPropertyNode(mappingEntry.getKey().getKey())
                             .addConstraintViolation();
