@@ -26,6 +26,11 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
         {
             ref: 'sendCalendarForm',
             selector: 'tou-device-send-cal-form form'
+        },
+
+        {
+            ref: 'sendCalendarContainer',
+            selector: 'tou-device-send-cal-form'
         }
     ],
 
@@ -158,6 +163,15 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
         });
     },
 
+    redirectToOverview: function (mRID) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            route;
+
+        route = router.getRoute('devices/device/timeofuse', {mRID: mRID});
+        route.forward();
+    },
+
     goToSendCalendarForm: function (mRID) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
@@ -202,12 +216,13 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
             }
             if(form.down('#on-release-date').checked) {
                 json.releaseDate = form.down('#release-date-values').down('#release-on').getValue().getTime();
+            } else {
+                json.releaseDate = new Date().getTime()
             }
             if(form.down('#typeCombo').isVisible()) {
                 json.type = form.down('#typeCombo').value;
             }
             if(form.down('#contractCombo').isVisible()) {
-                debugger;
                 json.contract = form.down('#contractCombo').value;
             }
             if(form.down('#activate-calendar-container').isVisible()) {
@@ -217,8 +232,15 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
                     json.activationDate = form.down('#activation-date-values').down('#activation-on').getValue().getTime();
                 }
             }
+
             if(form.down('#update-calendar').isVisible()) {
                 json.calendarUpdateOption = form.down('#update-calendar').getValue().updateCalendar;
+            } else if (Mdc.dynamicprivileges.DeviceState.supportsSpecialDays() && ! Mdc.dynamicprivileges.DeviceState.supportsNormalSend()) {
+                debugger;
+                json.calendarUpdateOption = form.down('#only-special-days').inputValue
+            } else if (!Mdc.dynamicprivileges.DeviceState.supportsSpecialDays() && Mdc.dynamicprivileges.DeviceState.supportsNormalSend()) {
+                debugger;
+                json.calendarUpdateOption = form.down('#full-calendar').inputValue
             }
 
             me.sendCalendar(form.mRID, json);
@@ -230,18 +252,17 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
             url = '/api/ddr/devices/'+ mRID + '/timeofuse/send';
 
 
+        me.getSendCalendarContainer().setLoading(true);
         Ext.Ajax.request({
             url: url,
             method: 'POST',
             jsonData: Ext.encode(payload),
             success: function () {
-                debugger;
-            },
-            failure: function (response) {
-                debugger;
+                me.redirectToOverview(mRID);
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('timeofuse.commandScheduled', 'MDC', 'Command scheduled'));
             },
             callback: function () {
-
+                me.getSendCalendarContainer().setLoading(false);
             }
         });
     }

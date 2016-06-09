@@ -260,12 +260,13 @@ Ext.define('Mdc.timeofuseondevice.view.SendCalendarForm', {
                                 itemId: 'only-special-days',
                                 boxLabel: Uni.I18n.translate('timeofuse.onlySpecialDays', 'MDC', 'Only special days'),
                                 inputValue: 'specialDays'
-                            },
-                            {
-                                itemId: 'only-activity-calendar',
-                                boxLabel: Uni.I18n.translate('timeofuse.onlyActivityCalendar', 'MDC', 'Only activity calendar'),
-                                inputValue: 'activityCalendar'
                             }
+                            //,
+                            //{
+                            //    itemId: 'only-activity-calendar',
+                            //    boxLabel: Uni.I18n.translate('timeofuse.onlyActivityCalendar', 'MDC', 'Only activity calendar'),
+                            //    inputValue: 'activityCalendar'
+                            //}
                         ]
                     },
                     {
