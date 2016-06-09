@@ -412,6 +412,19 @@ public class AppServerResource {
         return importScheduleInfos;
     }
 
+//    @GET
+//    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+//    @Path("/{appserverName}/endpoints")
+//    @RolesAllowed({Privileges.Constants.VIEW_APPSEVER, Privileges.Constants.ADMINISTRATE_APPSEVER})
+//    public Response getEndPointsOnAppServer(@PathParam("appserverName") String appServerName) {
+//        return fetchAppServer(appServerName)
+//                .supportedEndPoints()
+//                .stream()
+//                .map()
+//
+//    }
+
+
     private List<AppServer> queryAppServers(QueryParameters queryParameters) {
         Query<AppServer> query = appService.getAppServerQuery();
         RestQuery<AppServer> restQuery = queryService.wrap(query);
