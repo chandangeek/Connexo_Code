@@ -19,6 +19,8 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.ami.EndDeviceCapabilities;
+import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.Formula;
@@ -40,8 +42,10 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -51,6 +55,9 @@ import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MeterActivationImplIT {
@@ -84,6 +91,57 @@ public class MeterActivationImplIT {
         MeterActivation loaded = meteringService.findMeterActivation(meterActivation.getId()).get();
         assertThat(loaded.getChannels()).hasSize(1).contains(channel);
     }
+
+    @Test
+    @Transactional
+    public void testPersistenceWithChannelCreationThroughMeterActivation() {
+        ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
+        ReadingType readingType = meteringService.getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
+        AmrSystem system = meteringService.findAmrSystem(1).get();
+        HeadEndInterface heMock = mock(HeadEndInterface.class);
+        when(heMock.getAmrSystem()).thenReturn(system.getName());
+        when(heMock.getCapabilities(any(Meter.class))).then(invocationOnMock -> new EndDeviceCapabilities(Collections.singletonList(readingType), Collections.emptyList()));
+        try {
+            meteringService.addHeadEndInterface(heMock);
+
+            Meter meter = system.newMeter("testPersistence").create();
+            MeterActivation meterActivation = meter.activate(ZonedDateTime.of(2012, 12, 19, 14, 15, 54, 0, ZoneId.systemDefault()).toInstant());
+
+            MeterActivation loaded = meteringService.findMeterActivation(meterActivation.getId()).get();
+            assertThat(loaded.getChannels()).hasSize(1);
+        } finally {
+            meteringService.removeHeadEndInterface(heMock);
+        }
+    }
+
+    @Test
+    @Transactional
+    public void testPersistenceWithChannelCreationThroughUpActivation() {
+        ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
+        ReadingType readingType = meteringService.getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
+        AmrSystem system = meteringService.findAmrSystem(1).get();
+        HeadEndInterface heMock = mock(HeadEndInterface.class);
+        when(heMock.getAmrSystem()).thenReturn(system.getName());
+        when(heMock.getCapabilities(any(Meter.class))).then(invocationOnMock -> new EndDeviceCapabilities(Collections.singletonList(readingType), Collections.emptyList()));
+        try {
+            meteringService.addHeadEndInterface(heMock);
+
+            Meter meter = system.newMeter("testPersistence").create();
+
+            UsagePoint usagePoint = meteringService.getServiceCategory(ServiceKind.ELECTRICITY)
+                    .orElseThrow(IllegalArgumentException::new)
+                    .newUsagePoint(UUID.randomUUID().toString(), ZonedDateTime.of(2012, 12, 18, 14, 15, 54, 0, ZoneId.systemDefault()).toInstant()).create();
+
+            MeterActivation meterActivation = usagePoint.activate(meter, inMemoryBootstrapModule.getMetrologyConfigurationService()
+                    .findDefaultMeterRole(DefaultMeterRole.DEFAULT), ZonedDateTime.of(2012, 12, 19, 14, 15, 54, 0, ZoneId.systemDefault()).toInstant());
+
+            MeterActivation loaded = meteringService.findMeterActivation(meterActivation.getId()).get();
+            assertThat(loaded.getChannels()).hasSize(1);
+        } finally {
+            meteringService.removeHeadEndInterface(heMock);
+        }
+    }
+
 
     @Test
     public void testCOPL854() {
