@@ -21,7 +21,7 @@ public class AllTranslationKeysTest {
     @Test
     public void testTranslationKeysAreUnique() throws Exception {
         Map<String, TranslationKey> uniqueKeys = new HashMap<>();
-        for (TranslationKey translationKey : new DashboardApplication().getKeys()) {
+        for (TranslationKey translationKey : new DashBoardInitService().getKeys()) {
             if (uniqueKeys.containsKey(translationKey.getKey())) {
                 TranslationKey duplicate = uniqueKeys.get(translationKey.getKey());
                 fail("Translation key:" + this.toString(translationKey) + " is a duplicate for " + this.toString(duplicate));

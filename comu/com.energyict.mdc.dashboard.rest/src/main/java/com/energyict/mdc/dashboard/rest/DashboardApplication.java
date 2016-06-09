@@ -6,15 +6,11 @@ import com.elster.jupiter.license.License;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.dashboard.DashboardService;
@@ -22,7 +18,6 @@ import com.energyict.mdc.dashboard.rest.status.ComServerStatusInfoFactory;
 import com.energyict.mdc.dashboard.rest.status.ComServerStatusResource;
 import com.energyict.mdc.dashboard.rest.status.ComServerStatusSummaryResource;
 import com.energyict.mdc.dashboard.rest.status.impl.BreakdownFactory;
-import com.energyict.mdc.dashboard.rest.status.impl.ComSessionSuccessIndicatorTranslationKeys;
 import com.energyict.mdc.dashboard.rest.status.impl.ComTaskExecutionInfoFactory;
 import com.energyict.mdc.dashboard.rest.status.impl.ComTaskExecutionSessionInfoFactory;
 import com.energyict.mdc.dashboard.rest.status.impl.CommunicationHeatMapInfoFactory;
@@ -30,26 +25,20 @@ import com.energyict.mdc.dashboard.rest.status.impl.CommunicationHeatMapResource
 import com.energyict.mdc.dashboard.rest.status.impl.CommunicationOverviewInfoFactory;
 import com.energyict.mdc.dashboard.rest.status.impl.CommunicationOverviewResource;
 import com.energyict.mdc.dashboard.rest.status.impl.CommunicationResource;
-import com.energyict.mdc.dashboard.rest.status.impl.CompletionCodeTranslationKeys;
 import com.energyict.mdc.dashboard.rest.status.impl.ConnectionHeatMapInfoFactory;
 import com.energyict.mdc.dashboard.rest.status.impl.ConnectionHeatMapResource;
 import com.energyict.mdc.dashboard.rest.status.impl.ConnectionOverviewInfoFactory;
 import com.energyict.mdc.dashboard.rest.status.impl.ConnectionOverviewResource;
 import com.energyict.mdc.dashboard.rest.status.impl.ConnectionResource;
-import com.energyict.mdc.dashboard.rest.status.impl.ConnectionStrategyTranslationKeys;
 import com.energyict.mdc.dashboard.rest.status.impl.ConnectionTaskInfoFactory;
-import com.energyict.mdc.dashboard.rest.status.impl.ConnectionTaskSuccessIndicatorTranslationKeys;
 import com.energyict.mdc.dashboard.rest.status.impl.DashboardFieldResource;
 import com.energyict.mdc.dashboard.rest.status.impl.FavoriteDeviceGroupResource;
 import com.energyict.mdc.dashboard.rest.status.impl.IssuesResource;
 import com.energyict.mdc.dashboard.rest.status.impl.KpiScoreFactory;
 import com.energyict.mdc.dashboard.rest.status.impl.LabeledDeviceResource;
-import com.energyict.mdc.dashboard.rest.status.impl.MessageSeeds;
 import com.energyict.mdc.dashboard.rest.status.impl.OverviewFactory;
 import com.energyict.mdc.dashboard.rest.status.impl.ResourceHelper;
 import com.energyict.mdc.dashboard.rest.status.impl.SummaryInfoFactory;
-import com.energyict.mdc.dashboard.rest.status.impl.TaskStatusTranslationKeys;
-import com.energyict.mdc.dashboard.rest.status.impl.TranslationKeys;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.FilterFactory;
@@ -74,11 +63,8 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
 import java.time.Clock;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -87,8 +73,8 @@ import java.util.Set;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-07-18 (10:32)
  */
-@Component(name = "com.energyict.mdc.dashboard.rest", service = {Application.class, MessageSeedProvider.class, TranslationKeyProvider.class}, immediate = true, property = {"alias=/dsr", "app=MDC", "name=" + DashboardApplication.COMPONENT_NAME})
-public class DashboardApplication extends Application implements MessageSeedProvider, TranslationKeyProvider {
+@Component(name = "com.energyict.mdc.dashboard.rest", service = {Application.class}, immediate = true, property = {"alias=/dsr", "app=MDC", "name=" + DashboardApplication.COMPONENT_NAME})
+public class DashboardApplication extends Application {
     public static final String APP_KEY = "MDC";
     public static final String COMPONENT_NAME = "DSR";
 
@@ -116,6 +102,7 @@ public class DashboardApplication extends Application implements MessageSeedProv
     private volatile JsonService jsonService;
     private volatile AppService appService;
     private volatile FirmwareService firmwareService;
+    private volatile DashBoardInitService dashBoardInitService;
 
     private Clock clock = Clock.systemDefaultZone();
 
@@ -133,33 +120,6 @@ public class DashboardApplication extends Application implements MessageSeedProv
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
         thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST);
-    }
-
-    @Override
-    public Layer getLayer() {
-        return Layer.REST;
-    }
-
-    @Override
-    public String getComponentName() {
-        return COMPONENT_NAME;
-    }
-
-    @Override
-    public List<TranslationKey> getKeys() {
-        List<TranslationKey> keys = new ArrayList<>();
-        keys.addAll(Arrays.asList(TranslationKeys.values()));
-        keys.addAll(Arrays.asList(TaskStatusTranslationKeys.values()));
-        keys.addAll(Arrays.asList(ConnectionTaskSuccessIndicatorTranslationKeys.values()));
-        keys.addAll(Arrays.asList(ComSessionSuccessIndicatorTranslationKeys.values()));
-        keys.addAll(Arrays.asList(CompletionCodeTranslationKeys.values()));
-        keys.addAll(Arrays.asList(ConnectionStrategyTranslationKeys.values()));
-        return keys;
-    }
-
-    @Override
-    public List<MessageSeed> getSeeds() {
-        return Arrays.asList(MessageSeeds.values());
     }
 
     @Reference
@@ -260,6 +220,11 @@ public class DashboardApplication extends Application implements MessageSeedProv
     @Reference
     public void setFirmwareService(FirmwareService firmwareService) {
         this.firmwareService = firmwareService;
+    }
+
+    @Reference
+    public void setDashBoardInitService(DashBoardInitService dashBoardInitService) {
+        this.dashBoardInitService = dashBoardInitService;
     }
 
     // Only for testing purposes
