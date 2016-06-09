@@ -6,9 +6,11 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.ActiveEffectiveCalendar;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.PassiveEffectiveCalendar;
+import com.energyict.mdc.device.data.rest.DeviceMessageStatusTranslationKeys;
 
 import javax.inject.Inject;
 import java.time.Clock;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -48,22 +50,22 @@ public class TimeOfUseInfoFactory {
                     .collect(Collectors.toList());
 
             Optional<PassiveEffectiveCalendar> nextInLine = passiveCalendars.stream()
-                    .filter(passiveCalendar -> passiveCalendar.getComTaskExecution().isPresent())
-                    .filter(passiveEffectiveCalendar -> passiveEffectiveCalendar.getComTaskExecution().get().getNextExecutionTimestamp().isAfter(this.clock.instant()))
-                    .sorted((p1, p2) -> compareNextExecution(p1, p2))
+                    .filter(passiveCalendar -> passiveCalendar.getDeviceMessage().isPresent())
+                    .sorted((p1, p2) -> compareCreationDate(p1, p2))
                     .findFirst();
 
             if(nextInLine.isPresent()) {
                 PassiveEffectiveCalendar next = nextInLine.get();
-                info.nextPassiveCalendar = new NextCalendarInfo(next.getAllowedCalendar().getName(), next.getComTaskExecution().get().getNextExecutionTimestamp().toEpochMilli(),
-                        next.getActivationDate().toEpochMilli(), TaskStatusTranslationKeys.translationFor(next.getComTaskExecution().get().getStatus(), thesaurus));
+                Instant activationDate = next.getActivationDate();
+                info.nextPassiveCalendar = new NextCalendarInfo(next.getAllowedCalendar().getName(), next.getDeviceMessage().get().getReleaseDate().toEpochMilli(),
+                        (activationDate != null) ? activationDate.toEpochMilli() : 0, DeviceMessageStatusTranslationKeys.translationFor(next.getDeviceMessage().get().getStatus(), thesaurus));
             }
         }
 
         return info;
     }
 
-    private int compareNextExecution(PassiveEffectiveCalendar p1, PassiveEffectiveCalendar p2) {
-        return p1.getComTaskExecution().get().getNextExecutionTimestamp().compareTo(p2.getComTaskExecution().get().getNextExecutionTimestamp());
+    private int compareCreationDate(PassiveEffectiveCalendar p1, PassiveEffectiveCalendar p2) {
+        return p2.getDeviceMessage().get().getCreationDate().compareTo(p1.getDeviceMessage().get().getCreationDate());
     }
 }

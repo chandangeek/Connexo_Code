@@ -43,11 +43,16 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.TopologyTimeline;
 import com.energyict.mdc.protocol.api.calendars.ProtocolSupportedCalendarOptions;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
+import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageCategories;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.mdc.protocol.api.messaging.Message;
+import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.tasks.MessagesTask;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -74,6 +79,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -818,8 +824,12 @@ public class DeviceResource {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         Optional<TimeOfUseOptions> timeOfUseOptions = deviceConfigurationService.findTimeOfUseOptions(device.getDeviceConfiguration().getDeviceType());
         Set<ProtocolSupportedCalendarOptions> allowedOptions = timeOfUseOptions.map(TimeOfUseOptions::getOptions).orElse(Collections.emptySet());
+        AllowedCalendar calendar = device.getDeviceType().getAllowedCalendars().stream()
+                .filter(allowedCalendar -> !allowedCalendar.isGhost() && allowedCalendar.getId() == sendCalendarInfo.allowedCalendarId)
+                .findFirst().orElseThrow(IllegalArgumentException::new);
         DeviceMessageId deviceMessageId = getDeviceMessageId(sendCalendarInfo, allowedOptions).orElseThrow(IllegalArgumentException::new);
-        sendNewMessage(device, deviceMessageId, sendCalendarInfo);
+        DeviceMessage<Device> deviceMessage = sendNewMessage(device, deviceMessageId, sendCalendarInfo, calendar);
+        device.addPassiveCalendar(calendar, sendCalendarInfo.activationDate, deviceMessage);
         return Response.ok().build();
     }
 
@@ -880,7 +890,7 @@ public class DeviceResource {
         boolean hasActivationDate = sendCalendarInfo.activationDate != null;
         boolean hasType = sendCalendarInfo.type != null;
         boolean hasContract = sendCalendarInfo.contract != null;
-        boolean hasActivityCalendarOption = CalendarUpdateOption.ACTIVITY_CALENDAR.equals(calendarUpdateOption);
+        boolean hasActivityCalendarOption = CalendarUpdateOption.FULL_CALENDAR.equals(calendarUpdateOption);
         boolean hasSpecialDaysCalendarOption = CalendarUpdateOption.SPECIAL_DAYS.equals(calendarUpdateOption);
         boolean sendCalendarWithDateAllowed = allowedOptions.contains(ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR_WITH_DATE);
         boolean sendCalendarWithDateTimeAllowed = allowedOptions.contains(ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR_WITH_DATETIME);
@@ -922,24 +932,23 @@ public class DeviceResource {
 
     }
 
-    private void sendNewMessage(Device device, DeviceMessageId deviceMessageId, SendCalendarInfo sendCalendarInfo) {
+    private DeviceMessage<Device> sendNewMessage(Device device, DeviceMessageId deviceMessageId, SendCalendarInfo sendCalendarInfo, AllowedCalendar calendar) {
         Device.DeviceMessageBuilder messageBuilder = device.newDeviceMessage(deviceMessageId);
-        Optional<AllowedCalendar> calendar = device.getDeviceType().getAllowedCalendars().stream()
-                .filter(allowedCalendar -> !allowedCalendar.isGhost() && allowedCalendar.getId() == sendCalendarInfo.allowedCalendarId)
-                .findFirst();
-        if (!calendar.isPresent()) {
-            throw new IllegalArgumentException();
+
+        if (isSpecialDays(deviceMessageId)) {
+            messageBuilder.addProperty(DeviceMessageConstants.specialDaysAttributeName, calendar.getCalendar().get());
         } else {
-            messageBuilder.addProperty(DeviceMessageConstants.activityCalendarNameAttributeName, calendar.get().getName())
-                    .addProperty(DeviceMessageConstants.activityCalendarAttributeName, calendar.get().getCalendar())
-                    .add();
+            messageBuilder.addProperty(DeviceMessageConstants.activityCalendarNameAttributeName, calendar.getName())
+                    .addProperty(DeviceMessageConstants.activityCalendarAttributeName, calendar.getCalendar().get());
         }
+
         if (sendCalendarInfo.releaseDate != null) {
             messageBuilder.setReleaseDate(sendCalendarInfo.releaseDate);
         }
         if (needsActivationDate(deviceMessageId)) {
+            Date date = Date.from(sendCalendarInfo.activationDate);
             messageBuilder.addProperty(DeviceMessageConstants.activityCalendarActivationDateAttributeName,
-                    sendCalendarInfo.activationDate);
+                    date);
         }
         if (needsType(deviceMessageId)) {
             messageBuilder.addProperty(DeviceMessageConstants.activityCalendarTypeAttributeName,
@@ -949,16 +958,16 @@ public class DeviceResource {
             messageBuilder.addProperty(DeviceMessageConstants.contractAttributeName,
                     sendCalendarInfo.contract);
         }
-        messageBuilder.add();
+        return messageBuilder.add();
     }
 
     private Predicate<Device> getFilterForCommunicationTopology(JsonQueryFilter filter) {
         Predicate<Device> predicate = d -> true;
         predicate = addPropertyStringFilterIfAvailabale(filter, "mrid", predicate, Device::getmRID);
         predicate = addPropertyStringFilterIfAvailabale(filter, "serialNumber", predicate, Device::getSerialNumber);
-        predicate = addPropertyListFilterIfAvailabale(filter, "deviceTypeId", predicate, d -> d.getDeviceType()
+        predicate = addPropertyListFilterIfAvailable(filter, "deviceTypeId", predicate, d -> d.getDeviceType()
                 .getId());
-        predicate = addPropertyListFilterIfAvailabale(filter, "deviceConfigurationId", predicate, d -> d.getDeviceConfiguration()
+        predicate = addPropertyListFilterIfAvailable(filter, "deviceConfigurationId", predicate, d -> d.getDeviceConfiguration()
                 .getId());
         return predicate;
     }
@@ -977,7 +986,7 @@ public class DeviceResource {
         return predicate;
     }
 
-    private Predicate<Device> addPropertyListFilterIfAvailabale(JsonQueryFilter filter, String name, Predicate<Device> predicate, Function<Device, Long> extractor) {
+    private Predicate<Device> addPropertyListFilterIfAvailable(JsonQueryFilter filter, String name, Predicate<Device> predicate, Function<Device, Long> extractor) {
         if (filter.hasProperty(name)) {
             List<Long> list = filter.getLongList(name);
             if (list != null) {
@@ -1039,5 +1048,11 @@ public class DeviceResource {
     private boolean needsContract(DeviceMessageId deviceMessageId) {
         return deviceMessageId.equals(ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_CONTRACT)
                 || deviceMessageId.equals(ACTIVITY_CALENDER_SPECIAL_DAY_CALENDAR_SEND_WITH_CONTRACT_AND_DATETIME);
+    }
+
+    private boolean isSpecialDays(DeviceMessageId deviceMessageId) {
+        return deviceMessageId.equals(ACTIVITY_CALENDAR_SPECIAL_DAY_CALENDAR_SEND)
+                || deviceMessageId.equals(ACTIVITY_CALENDER_SPECIAL_DAY_CALENDAR_SEND_WITH_CONTRACT_AND_DATETIME)
+                || deviceMessageId.equals(ACTIVITY_CALENDAR_SPECIAL_DAY_CALENDAR_SEND_WITH_TYPE);
     }
 }

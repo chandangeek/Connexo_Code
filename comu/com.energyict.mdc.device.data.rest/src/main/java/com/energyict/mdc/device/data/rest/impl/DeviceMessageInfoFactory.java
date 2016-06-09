@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -20,7 +21,9 @@ import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.MessagesTask;
 
 import javax.inject.Inject;
+import javax.ws.rs.core.UriInfo;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.Optional;
@@ -44,7 +47,7 @@ public class DeviceMessageInfoFactory {
         this.serviceCallService = serviceCallService;
     }
 
-    public DeviceMessageInfo asInfo(DeviceMessage<?> deviceMessage) {
+    public DeviceMessageInfo asInfo(DeviceMessage<?> deviceMessage, UriInfo uriInfo) {
         DeviceMessageInfo info = new DeviceMessageInfo();
         info.id = deviceMessage.getId();
         info.trackingIdAndName = new IdWithNameInfo(deviceMessage.getTrackingId(), "");
@@ -99,7 +102,7 @@ public class DeviceMessageInfoFactory {
 
         TypedProperties typedProperties = TypedProperties.empty();
         deviceMessage.getAttributes().stream().forEach(attribute->typedProperties.setProperty(attribute.getName(), attribute.getValue()));
-        mdcPropertyUtils.convertPropertySpecsToPropertyInfos(null,
+        mdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo,
                 deviceMessage.getAttributes().stream().map(DeviceMessageAttribute::getSpecification).collect(toList()),
                 typedProperties,
                 info.properties
