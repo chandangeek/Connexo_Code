@@ -8,6 +8,7 @@ import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.util.geo.SpatialCoordinates;
 
 import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
@@ -110,17 +111,15 @@ public interface UsagePoint extends HasId, IdentifiedObject {
 
     Optional<UsagePointConfiguration> getConfiguration(Instant time);
 
-    long getLocationId();
-
     Optional<Location> getLocation();
 
     void setLocation(long locationId);
 
-    long getGeoCoordinatesId();
+    Optional<SpatialCoordinates> getSpatialCooridnates();
 
-    Optional<GeoCoordinates> getGeoCoordinates();
+    void setSpatialCoordinates(SpatialCoordinates spatialCoordinates);
 
-    void setGeoCoordinates(GeoCoordinates geoCoordinates);
+    LocationBuilder updateLocation();
 
     /**
      * Applies the specified {@link MetrologyConfiguration} to this UsagePoint

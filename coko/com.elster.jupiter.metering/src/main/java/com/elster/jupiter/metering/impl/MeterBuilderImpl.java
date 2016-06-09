@@ -2,8 +2,11 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.Location;
+import com.elster.jupiter.metering.LocationBuilder;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterBuilder;
+import com.elster.jupiter.util.geo.SpatialCoordinates;
 
 import javax.inject.Provider;
 
@@ -16,6 +19,8 @@ class MeterBuilderImpl implements MeterBuilder {
     private String name;
     private FiniteStateMachine finiteStateMachine;
     private String serialNumber;
+    private Location location;
+    private SpatialCoordinates spatialCoordinates;
 
     MeterBuilderImpl(AmrSystem amrSystem, Provider<MeterImpl> meterFactory, String amrId) {
         this.amrSystem = amrSystem;
@@ -31,6 +36,8 @@ class MeterBuilderImpl implements MeterBuilder {
             meter.setFiniteStateMachine(finiteStateMachine);
         }
         meter.setSerialNumber(serialNumber);
+        meter.setLocation(location);
+        meter.setSpatialCoordinates(spatialCoordinates);
         meter.doSave();
         return meter;
     }
@@ -64,4 +71,22 @@ class MeterBuilderImpl implements MeterBuilder {
         this.serialNumber = serialNumber;
         return this;
     }
+
+    @Override
+    public MeterBuilder setLocation(Location location) {
+        this.location = location;
+        return this;
+    }
+
+    @Override
+    public MeterBuilder setSpatialCoordinates(SpatialCoordinates geoCoordinates) {
+        this.spatialCoordinates = geoCoordinates;
+        return this;
+    }
+
+    @Override
+    public LocationBuilder newLocationBuilder() {
+        return new LocationBuilderImpl(meterFactory.get().getDataModel());
+    }
+
 }

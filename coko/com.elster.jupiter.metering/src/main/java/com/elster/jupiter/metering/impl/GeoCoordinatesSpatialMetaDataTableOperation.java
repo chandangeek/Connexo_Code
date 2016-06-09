@@ -35,13 +35,22 @@ public final class GeoCoordinatesSpatialMetaDataTableOperation {
     private SqlBuilder setSpatialMetaDataSql() {
         SqlBuilder builder = new SqlBuilder();
         builder.append("INSERT INTO mdsys.user_sdo_geom_metadata VALUES ('"
-                + TableSpecs.MTR_GEOCOORDINATES.name()
+                + TableSpecs.MTR_ENDDEVICE.name()
                 + "', '"
                 + "GEOCOORDINATES"
                 + "', "
                 + "MDSYS.SDO_DIM_ARRAY ("
                 + "SDO_DIM_ELEMENT ('LONGITUDE',-180,180,1),"
-                + "SDO_DIM_ELEMENT ('LATITUDE',-90,90,1)),8307)"
+                + "SDO_DIM_ELEMENT ('LATITUDE',-90,90,1)),8307);"
+        );
+        builder.append("INSERT INTO mdsys.user_sdo_geom_metadata VALUES ('"
+                + TableSpecs.MTR_USAGEPOINT.name()
+                + "', '"
+                + "GEOCOORDINATES"
+                + "', "
+                + "MDSYS.SDO_DIM_ARRAY ("
+                + "SDO_DIM_ELEMENT ('LONGITUDE',-180,180,1),"
+                + "SDO_DIM_ELEMENT ('LATITUDE',-90,90,1)),8307);"
         );
         return builder;
     }
@@ -49,9 +58,11 @@ public final class GeoCoordinatesSpatialMetaDataTableOperation {
 
     private SqlBuilder dropSpatialMetaDataSql() {
         SqlBuilder builder = new SqlBuilder();
-        builder.append("DELETE FROM mdsys.user_sdo_geom_metadata where table_name = '"
-                + TableSpecs.MTR_GEOCOORDINATES.name()
-                + "' and column_name = '"
+        builder.append("DELETE FROM mdsys.user_sdo_geom_metadata where table_name IN ('"
+                + TableSpecs.MTR_ENDDEVICE.name()
+                +"', '"
+                + TableSpecs.MTR_USAGEPOINT.name()
+                + "') and column_name = '"
                 + "GEOCOORDINATES'"
         );
         return builder;

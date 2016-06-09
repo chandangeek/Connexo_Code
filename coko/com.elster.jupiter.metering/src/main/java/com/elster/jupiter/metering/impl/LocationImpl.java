@@ -5,6 +5,8 @@ import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.LocationMember;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.conditions.Operator;
+
 import javax.inject.Inject;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -101,8 +103,60 @@ public class LocationImpl implements Location {
 
     @Override
     public final String toString(){
-        return meteringService.getFormattedLocationMembers(getId()).stream()
+        return this.format().stream()
                 .flatMap(List::stream).filter(Objects::nonNull).collect(Collectors.joining(", "));
+
+    }
+
+    @Override
+
+    public List<List<String>> format(){
+        List<LocationMember> members = dataModel.query(LocationMember.class)
+                .select(Operator.EQUAL.compare("locationId", id));
+        List<List<String>> formattedLocation = new LinkedList<>();
+        if (!members.isEmpty()) {
+            LocationMember member = members.get(0);
+            Map<String, String> memberValues = new LinkedHashMap<>();
+            memberValues.put("countryCode", member.getCountryCode());
+            memberValues.put("countryName", member.getCountryName());
+            memberValues.put("administrativeArea", member.getAdministrativeArea());
+            memberValues.put("locality", member.getLocality());
+            memberValues.put("subLocality", member.getSubLocality());
+            memberValues.put("streetType", member.getStreetType());
+            memberValues.put("streetName", member.getStreetName());
+            memberValues.put("streetNumber", member.getStreetNumber());
+            memberValues.put("establishmentType", member.getEstablishmentType());
+            memberValues.put("establishmentName", member.getEstablishmentName());
+            memberValues.put("establishmentNumber", member.getEstablishmentNumber());
+            memberValues.put("addressDetail", member.getAddressDetail());
+            memberValues.put("zipCode", member.getZipCode());
+
+            formattedLocation = meteringService.getLocationTemplate().getTemplateMembers()
+                    .stream()
+                    .sorted((m1, m2) -> Integer.compare(m1.getRanking(), m2.getRanking()))
+                    .filter(m -> !m.getName().equalsIgnoreCase("locale"))
+                    .collect(() -> {
+                                List<List<String>> list = new ArrayList<>();
+                                list.add(new ArrayList<>());
+                                return list;
+                            },
+                            (list, s) -> {
+                                if (meteringService.getLocationTemplate().getSplitLineElements().contains(s.getAbbreviation())) {
+                                    list.add(new ArrayList<String>() {{
+                                        add(memberValues.get(s.getName()));
+                                    }});
+
+                                } else {
+                                    list.get(list.size() - 1).add(memberValues.get(s.getName()));
+                                }
+                            },
+                            (list1, list2) -> {
+                                list1.get(list1.size() - 1).addAll(list2.remove(0));
+                                list1.addAll(list2);
+                            });
+        }
+
+        return formattedLocation;
 
     }
 }
