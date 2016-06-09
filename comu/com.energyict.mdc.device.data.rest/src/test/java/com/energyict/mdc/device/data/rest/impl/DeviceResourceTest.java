@@ -1237,8 +1237,6 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(batchService.findBatch(device)).thenReturn(Optional.empty());
         Device oldGateway = mockDeviceForTopologyTest("oldGateway");
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.of(oldGateway));
-        when(meteringService.findDeviceLocation(device.getmRID())).thenReturn(Optional.empty());
-        when(meteringService.findDeviceGeoCoordinates(device.getmRID())).thenReturn(Optional.empty());
         when(deviceConfigurationService.findTimeOfUseOptions(any())).thenReturn(Optional.empty());
 
         DeviceInfo info = new DeviceInfo();
@@ -1282,8 +1280,6 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.of(deviceConfiguration));
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(eq(1L), anyLong())).thenReturn(Optional.of(deviceConfiguration));
-        when(meteringService.findDeviceLocation(device.getmRID())).thenReturn(Optional.empty());
-        when(meteringService.findDeviceGeoCoordinates(device.getmRID())).thenReturn(Optional.empty());
         when(deviceConfigurationService.findTimeOfUseOptions(any())).thenReturn(Optional.empty());
 
         when(batchService.findBatch(device)).thenReturn(Optional.empty());

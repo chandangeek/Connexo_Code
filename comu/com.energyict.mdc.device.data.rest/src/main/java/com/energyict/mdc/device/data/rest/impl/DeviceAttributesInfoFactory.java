@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.metering.GeoCoordinates;
+import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.LocationBuilder;
 import com.elster.jupiter.metering.LocationTemplate;
@@ -12,6 +12,8 @@ import com.elster.jupiter.rest.util.RestValidationBuilder;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.geo.SpatialCoordinates;
+import com.elster.jupiter.util.geo.SpatialCoordinatesFactory;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.CIMLifecycleDates;
 import com.energyict.mdc.device.data.Device;
@@ -54,13 +56,11 @@ public class DeviceAttributesInfoFactory {
     public DeviceAttributesInfo from(Device device) {
         State state = device.getState();
         DeviceAttributesInfo info = new DeviceAttributesInfo();
-        Optional<Location> location = meteringService.findDeviceLocation(device.getmRID());
-        Optional<GeoCoordinates> geoCoordinates = meteringService.findDeviceGeoCoordinates(device.getmRID());
+        Optional<Location> location = device.getLocation();
+        Optional<SpatialCoordinates> geoCoordinates = device.getSpatialCoordinates();
         String formattedLocation = "";
-        Long locationId = -1L;
         if (location.isPresent()) {
-            locationId = location.get().getId();
-            List<List<String>> formattedLocationMembers = meteringService.getFormattedLocationMembers(locationId);
+            List<List<String>> formattedLocationMembers = location.get().format();
             formattedLocationMembers.stream().skip(1).forEach(list ->
                     list.stream().filter(Objects::nonNull).findFirst().ifPresent(member -> list.set(0, "\\r\\n" + member)));
             formattedLocation = formattedLocationMembers.stream()
@@ -68,9 +68,9 @@ public class DeviceAttributesInfoFactory {
                     .collect(Collectors.joining(", "));
         }
 
-        info.device = DeviceInfo.from(device, formattedLocation, geoCoordinates.isPresent() ? geoCoordinates.get().getCoordinates().toString() : null);
+        info.device = DeviceInfo.from(device, formattedLocation, geoCoordinates.isPresent() ? geoCoordinates.get().toString() : null);
 
-        CoordinatesInfo coordinatesInfo = new CoordinatesInfo(meteringService, device);
+        CoordinatesInfo coordinatesInfo = new CoordinatesInfo(device);
         info.geoCoordinates = new DeviceAttributeInfo();
         info.geoCoordinates.displayValue = coordinatesInfo;
         fillAvailableAndEditable(info.geoCoordinates, DeviceAttribute.GEOCOORDINATES, state);
@@ -170,11 +170,11 @@ public class DeviceAttributesInfoFactory {
         if (DeviceAttributesInfo.DeviceAttribute.DECOMMISSIONING_DATE.isEditableForState(currentState)) {
             validateDate(validationBuilder, "decommissioningDate", info.getDecommissioningDate(), info.getDeactivationDate(), DefaultTranslationKey.CIM_DATE_REMOVE);
         }
-        if (DeviceAttribute.GEOCOORDINATES.isEditableForState(currentState)){
+        if (DeviceAttribute.GEOCOORDINATES.isEditableForState(currentState)) {
             validateGeoCoordinates(validationBuilder, "geoCoordinates", info.geoCoordinates);
         }
 
-        if (DeviceAttribute.GEOCOORDINATES.isEditableForState(currentState)){
+        if (DeviceAttribute.GEOCOORDINATES.isEditableForState(currentState)) {
             validateLocation(validationBuilder, "editLocation", info.location);
         }
         validationBuilder.validate();
@@ -204,7 +204,7 @@ public class DeviceAttributesInfoFactory {
     }
 
     private void validateGeoCoordinates(RestValidationBuilder validationBuilder, String fieldName, DeviceAttributeInfo<CoordinatesInfo> geoCoordinates) {
-        String spatialCoordinates = geoCoordinates.displayValue.spatialCoordinates;
+        String spatialCoordinates = geoCoordinates.displayValue.deviceSpatialCoordinates;
         if (spatialCoordinates == null || spatialCoordinates.length() == 0 || spatialCoordinates.indexOf(":") == -1) {
             return;
         }
@@ -236,8 +236,7 @@ public class DeviceAttributesInfoFactory {
                     || numericLongitude.compareTo(BigDecimal.valueOf(180)) > 0) {
                 validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.INVALID_COORDINATES, fieldName));
             }
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.INVALID_COORDINATES, fieldName));
         }
     }
@@ -287,13 +286,15 @@ public class DeviceAttributesInfoFactory {
         lifecycleDates.save();
 
         if (DeviceAttribute.GEOCOORDINATES.isEditableForState(state) && info.geoCoordinates != null) {
-            if(info.geoCoordinates.displayValue.isInherited){
-                if(info.geoCoordinates.displayValue.usagePointGeoCoordinatesId != null){
-                    meteringService.findGeoCoordinates(info.geoCoordinates.displayValue.usagePointGeoCoordinatesId).ifPresent(device::setGeoCoordinates);
+            if (info.geoCoordinates.displayValue.isInherited) {
+                SpatialCoordinates usagePointSpatialCoordinates = new SpatialCoordinatesFactory().fromStringValue(info.geoCoordinates.displayValue.usagePointSpatialCoordinates);
+                if (usagePointSpatialCoordinates != null) {
+                    device.setSpatialCoordinates(usagePointSpatialCoordinates);
                 }
             } else {
-                if(info.geoCoordinates.displayValue.spatialCoordinates != null ){
-                    device.setGeoCoordinates(meteringService.createGeoCoordinates(info.geoCoordinates.displayValue.spatialCoordinates));
+                if (info.geoCoordinates.displayValue.deviceSpatialCoordinates != null) {
+                    SpatialCoordinates deviceSpatialCoordinates = new SpatialCoordinatesFactory().fromStringValue(info.geoCoordinates.displayValue.deviceSpatialCoordinates);
+                    device.setSpatialCoordinates(deviceSpatialCoordinates);
                 }
             }
         }
@@ -305,7 +306,8 @@ public class DeviceAttributesInfoFactory {
                 List<String> locationData = propertyInfoList.stream()
                         .map(d -> d.propertyValueInfo.value.toString())
                         .collect(Collectors.toList());
-                LocationBuilder builder = meteringService.newLocationBuilder();
+                String amrId = meteringService.findEndDevice(device.getmRID()).get().getAmrId();
+                LocationBuilder builder = meteringService.findAmrSystem(Long.parseLong(amrId)).get().newMeter(amrId).newLocationBuilder();
                 Map<String, Integer> ranking = meteringService
                         .getLocationTemplate()
                         .getTemplateMembers()
@@ -320,10 +322,12 @@ public class DeviceAttributesInfoFactory {
                 }
                 device.setLocation(builder.create());
 
-            } else if((info.location.displayValue.isInherited) && (info.location.displayValue.usagePointLocationId != null)){
-                meteringService.findLocation(info.location.displayValue.usagePointLocationId).ifPresent(device::setLocation);
-            }else if ((info.location.displayValue.locationId != null) && (info.location.displayValue.locationId > 0) && (!info.location.displayValue.isInherited)) {
-                meteringService.findLocation(info.location.displayValue.locationId).ifPresent(device::setLocation);
+            } else if ((info.location.displayValue.isInherited) && (info.location.displayValue.usagePointLocationId != null)) {
+                String amrId = meteringService.findEndDevice(device.getmRID()).get().getAmrId();
+                Optional<EndDevice> endDevice = meteringService.findEndDevice(device.getmRID());
+                device.updateLocation(info.location.displayValue.usagePointLocationId);
+            } else if ((info.location.displayValue.locationId != null) && (info.location.displayValue.locationId > 0) && (!info.location.displayValue.isInherited)) {
+                device.updateLocation(info.location.displayValue.locationId);
             }
         }
         device.save();

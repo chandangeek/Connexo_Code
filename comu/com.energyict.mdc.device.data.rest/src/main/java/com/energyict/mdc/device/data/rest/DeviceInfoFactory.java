@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.data.rest;
 
 import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.metering.GeoCoordinates;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
@@ -9,6 +8,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
+import com.elster.jupiter.util.geo.SpatialCoordinates;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.Device;
@@ -97,12 +97,11 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
     }
 
     public DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices) {
-        Optional<Location> location = meteringService.findDeviceLocation(device.getmRID());
-        Optional<GeoCoordinates> geoCoordinates = meteringService.findDeviceGeoCoordinates(device.getmRID());
+        Optional<Location> location = device.getLocation();
+        Optional<SpatialCoordinates> geoCoordinates = device.getSpatialCoordinates();
         String formattedLocation = "";
         if (location.isPresent()) {
-            List<List<String>> formattedLocationMembers = meteringService.getFormattedLocationMembers(location.get()
-                    .getId());
+            List<List<String>> formattedLocationMembers = location.get().format();
             formattedLocationMembers.stream().skip(1).forEach(list ->
                     list.stream().filter(Objects::nonNull).findFirst().ifPresent(member -> list.set(0, "\\r\\n" + member)));
             formattedLocation = formattedLocationMembers.stream()
@@ -110,7 +109,7 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
                     .collect(Collectors.joining(", "));
         }
         return DeviceInfo.from(device, slaveDevices, batchService, topologyService, issueService, issueDataValidationService, meteringService, thesaurus, formattedLocation, geoCoordinates
-                .isPresent() ? geoCoordinates.get().getCoordinates().toString() : null);
+                .isPresent() ? geoCoordinates.get().toString() : null);
     }
 
 
@@ -153,5 +152,7 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
     private PropertyDescriptionInfo createDescription(String propertyName, Class<?> aClass) {
         return new PropertyDescriptionInfo(propertyName, aClass, thesaurus.getString(DeviceSearchModelTranslationKeys.Keys.PREFIX + propertyName, propertyName));
     }
+
+
 
 }
