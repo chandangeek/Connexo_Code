@@ -54,8 +54,6 @@ import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.users.PrivilegesProvider;
-import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
@@ -90,13 +88,13 @@ import java.util.stream.Stream;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name = "com.elster.jupiter.issue",
-    service = {IssueService.class, TranslationKeyProvider.class, MessageSeedProvider.class, PrivilegesProvider.class},
+    service = {IssueService.class, TranslationKeyProvider.class, MessageSeedProvider.class},
     property = {"name=" + IssueService.COMPONENT_NAME,
                 "osgi.command.scope=issue",
                 "osgi.command.function=rebuildAssignmentRules",
                 "osgi.command.function=loadAssignmentRuleFromFile"},
     immediate = true)
-public class IssueServiceImpl implements IssueService, TranslationKeyProvider, MessageSeedProvider, PrivilegesProvider {
+public class IssueServiceImpl implements IssueService, TranslationKeyProvider, MessageSeedProvider {
 
     private volatile DataModel dataModel;
     private volatile QueryService queryService;
@@ -449,28 +447,6 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     @Override
     public IssueCreationService getIssueCreationService() {
         return issueCreationService;
-    }
-
-    @Override
-    public String getModuleName() {
-        return IssueService.COMPONENT_NAME;
-    }
-
-    @Override
-    public List<ResourceDefinition> getModuleResources() {
-        List<ResourceDefinition> resources = new ArrayList<>();
-        resources.add(userService.createModuleResourceWithPrivileges(IssueService.COMPONENT_NAME, Privileges.RESOURCE_ISSUES.getKey(), Privileges.RESOURCE_ISSUES_DESCRIPTION.getKey(),
-                Arrays.asList(
-                        Privileges.Constants.VIEW_ISSUE, Privileges.Constants.COMMENT_ISSUE,
-                        Privileges.Constants.CLOSE_ISSUE, Privileges.Constants.ASSIGN_ISSUE,
-                        Privileges.Constants.ACTION_ISSUE
-                        )));
-        resources.add(userService.createModuleResourceWithPrivileges(IssueService.COMPONENT_NAME, Privileges.RESOURCE_ISSUES_CONFIGURATION.getKey(), Privileges.RESOURCE_ISSUES_CONFIGURATION_DESCRIPTION.getKey(),
-                Arrays.asList(
-                        Privileges.Constants.VIEW_CREATION_RULE,
-                        Privileges.Constants.ADMINISTRATE_CREATION_RULE, Privileges.Constants.VIEW_ASSIGNMENT_RULE
-                )));
-        return resources;
     }
 
     public void rebuildAssignmentRules() {
