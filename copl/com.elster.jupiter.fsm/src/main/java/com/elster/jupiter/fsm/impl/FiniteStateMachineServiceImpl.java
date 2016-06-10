@@ -29,8 +29,6 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.users.PrivilegesProvider;
-import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.concurrent.DelayedRegistrationHandler;
 import com.elster.jupiter.util.concurrent.RegistrationHandler;
@@ -49,7 +47,6 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -72,9 +69,9 @@ import static java.util.stream.Collectors.toMap;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-02 (16:50)
  */
-@Component(name = "com.elster.jupiter.fsm", service = {FiniteStateMachineService.class, ServerFiniteStateMachineService.class, MessageSeedProvider.class, TranslationKeyProvider.class, PrivilegesProvider.class}, property = "name=" + FiniteStateMachineService.COMPONENT_NAME)
+@Component(name = "com.elster.jupiter.fsm", service = {FiniteStateMachineService.class, ServerFiniteStateMachineService.class, MessageSeedProvider.class, TranslationKeyProvider.class}, property = "name=" + FiniteStateMachineService.COMPONENT_NAME)
 @SuppressWarnings("unused")
-public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineService, MessageSeedProvider, TranslationKeyProvider, PrivilegesProvider {
+public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineService, MessageSeedProvider, TranslationKeyProvider {
 
     private volatile DataModel dataModel;
     private volatile NlsService nlsService;
@@ -472,21 +469,6 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
     @Override
     public Optional<State> findAndLockStateByIdAndVersion(long id, long version) {
         return this.dataModel.mapper(State.class).lockObjectIfVersion(version, id);
-    }
-
-    @Override
-    public String getModuleName() {
-        return FiniteStateMachineService.COMPONENT_NAME;
-    }
-
-    @Override
-    public List<ResourceDefinition> getModuleResources() {
-        List<ResourceDefinition> resources = new ArrayList<>();
-        resources.add(userService.createModuleResourceWithPrivileges(FiniteStateMachineService.COMPONENT_NAME,
-                Privileges.RESOURCE_FSM.getKey(), Privileges.RESOURCE_FSM_DESCRIPTION.getKey(),
-                Arrays.asList(
-                        Privileges.Constants.CONFIGURE_FINITE_STATE_MACHINES, Privileges.Constants.VIEW_FINITE_STATE_MACHINES)));
-        return resources;
     }
 
     private class TranslationKeyFromString implements TranslationKey {
