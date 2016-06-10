@@ -10,8 +10,9 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.upgrade.InstallIdentifier;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
@@ -80,10 +81,10 @@ import java.util.stream.Stream;
  * Time: 11:03
  */
 @Component(name = "com.energyict.mdc.service.deviceprotocols",
-        service = {DeviceProtocolService.class, InstallService.class, MessageSeedProvider.class, TranslationKeyProvider.class},
+        service = {DeviceProtocolService.class, MessageSeedProvider.class, TranslationKeyProvider.class},
         immediate = true,
         property = "name=" + DeviceProtocolService.COMPONENT_NAME)
-public class DeviceProtocolServiceImpl implements DeviceProtocolService, InstallService, MessageSeedProvider, TranslationKeyProvider {
+public class DeviceProtocolServiceImpl implements DeviceProtocolService, MessageSeedProvider, TranslationKeyProvider {
 
     /* Services required by one of the actual protocol classes in this bundle
      * and therefore must be available in the Module provided to the guice injector. */
@@ -109,6 +110,7 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
     private volatile Thesaurus thesaurus;
     private volatile OrmClient ormClient;
     private volatile List<LoadProfileFactory> loadProfileFactories = new CopyOnWriteArrayList<>();
+    private volatile UpgradeService upgradeService;
 
     // For OSGi purposes
     public DeviceProtocolServiceImpl() {
@@ -117,28 +119,28 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
 
     // For testing purposes
     @Inject
-    public DeviceProtocolServiceImpl(IssueService issueService, MeteringService meteringService, Clock clock, OrmService ormService, NlsService nlsService, com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService, PropertySpecService propertySpecService, TopologyService topologyService, SocketService socketService, SerialComponentService serialComponentService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, CalendarService calendarService, DeviceConfigurationService deviceConfigurationService, DeviceMessageFileService deviceMessageFileService, TransactionService transactionService, ProtocolPluggableService protocolPluggableService) {
+    public DeviceProtocolServiceImpl(IssueService issueService, MeteringService meteringService, Clock clock, OrmService ormService, NlsService nlsService, com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService, PropertySpecService propertySpecService, TopologyService topologyService, SocketService socketService, SerialComponentService serialComponentService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, CalendarService calendarService, DeviceConfigurationService deviceConfigurationService, DeviceMessageFileService deviceMessageFileService, TransactionService transactionService, ProtocolPluggableService protocolPluggableService, UpgradeService upgradeService) {
         this();
-        this.setMeteringService(meteringService);
-        this.setTransactionService(transactionService);
-        this.setOrmService(ormService);
-        this.setNlsService(nlsService);
-        this.setIssueService(issueService);
-        this.setClock(clock);
-        this.setJupiterPropertySpecService(jupiterPropertySpecService);
-        this.setPropertySpecService(propertySpecService);
-        this.setTopologyService(topologyService);
-        this.setSocketService(socketService);
-        this.setSerialComponentService(serialComponentService);
-        this.setReadingTypeUtilService(readingTypeUtilService);
-        this.setIdentificationService(identificationService);
-        this.setCollectedDataFactory(collectedDataFactory);
-        this.setCalendarService(calendarService);
-        this.setDeviceConfigurationService(deviceConfigurationService);
-        this.setDeviceMessageFileService(deviceMessageFileService);
-        this.setProtocolPluggableService(protocolPluggableService);
-        this.activate();
-        this.install();
+        setMeteringService(meteringService);
+        setTransactionService(transactionService);
+        setOrmService(ormService);
+        setNlsService(nlsService);
+        setIssueService(issueService);
+        setClock(clock);
+        setJupiterPropertySpecService(jupiterPropertySpecService);
+        setPropertySpecService(propertySpecService);
+        setTopologyService(topologyService);
+        setSocketService(socketService);
+        setSerialComponentService(serialComponentService);
+        setReadingTypeUtilService(readingTypeUtilService);
+        setIdentificationService(identificationService);
+        setCollectedDataFactory(collectedDataFactory);
+        setCalendarService(calendarService);
+        setDeviceConfigurationService(deviceConfigurationService);
+        setDeviceMessageFileService(deviceMessageFileService);
+        setProtocolPluggableService(protocolPluggableService);
+        setUpgradeService(upgradeService);
+        activate();
     }
 
     @Activate
@@ -146,6 +148,7 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
         Module module = this.getModule();
         this.dataModel.register(module);
         this.injector = Guice.createInjector(module);
+        upgradeService.register(InstallIdentifier.identifier(DeviceProtocolService.COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
     }
 
     private Module getModule() {
@@ -222,6 +225,11 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
     public void setOrmService(OrmService ormService) {
         this.dataModel = ormService.newDataModel(DeviceProtocolService.COMPONENT_NAME, "DeviceProtocol service 1");
         this.createOrmClientIfAllDependenciesHaveBeenResolved();
+    }
+
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
     }
 
     private void createOrmClientIfAllDependenciesHaveBeenResolved() {
@@ -313,16 +321,6 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
     @Reference
     public void setDeviceMessageFileService(DeviceMessageFileService deviceMessageFileService) {
         this.deviceMessageFileService = deviceMessageFileService;
-    }
-
-    @Override
-    public void install() {
-        new Installer(this.dataModel).install(true);
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "NLS");
     }
 
     @Override
