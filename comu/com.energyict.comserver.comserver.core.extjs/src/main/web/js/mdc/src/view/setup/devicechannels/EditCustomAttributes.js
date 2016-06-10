@@ -60,7 +60,7 @@ Ext.define('Mdc.view.setup.devicechannels.EditCustomAttributes', {
                         {
                             xtype: 'button',
                             text: Uni.I18n.translate('general.restoretodefaults', 'MDC', 'Restore to defaults'),
-                            icon: '../sky/build/resources/images/form/restore.png',
+                            iconCls: 'icon-rotate-ccw3',
                             itemId: 'channelCustomAttributesRestoreBtn'
                         },
                         {

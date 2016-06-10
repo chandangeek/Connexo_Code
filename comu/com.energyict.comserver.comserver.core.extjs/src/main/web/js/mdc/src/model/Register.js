@@ -66,13 +66,13 @@ Ext.define('Mdc.model.Register', {
         type: 'rest',
         timeout: 120000,
         url: '/api/ddr/devices/{mRID}/registers',
-        urlTpl: '/api/ddr/devices/{mRID}/registers',
+        urlTpl: '/api/ddr/devices/{0}/registers',
         reader: {
             type: 'json'
         },
 
         setUrl: function (mRID) {
-            this.url = this.urlTpl.replace('{mRID}', encodeURIComponent(mRID));
+            this.url = Ext.String.format(this.urlTpl, encodeURIComponent(mRID));
         }
     }
 });

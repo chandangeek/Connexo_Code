@@ -98,15 +98,10 @@ Ext.define('Mdc.controller.setup.ComServerEdit', {
         model.set('storeTaskThreadPriority', 5);
 
         model.set('statusUri', 'http://localhost:8080/api/dsr/comserverstatus');
-        model.set('usesDefaultStatusUri', true);
         model.set('monitorPort', 8080);
 
-        model.set('eventRegistrationUri', 'ws://localhost:8888/event/registration');
-        model.set('usesDefaultEventRegistrationUri', true);
+        model.set('eventRegistrationUri', 'ws://localhost:8888/events/registration');
         model.set('eventRegistrationPort', 8888);
-
-        model.set('usesDefaultQueryAPIPostUri', true);
-
 
         model.endEdit();
         me.comServerModel = model;
@@ -148,19 +143,19 @@ Ext.define('Mdc.controller.setup.ComServerEdit', {
                             Ext.each(json.errors, function (item) {
                                 switch (item.id) {
                                     case 'statusUri':
-                                    case 'eventRegistrationUri':
+                                    case 'eventRegistrationUri':  // These errors are related to maximum uri size being exceeded
                                         item.id ='serverName';
-                                        item.msg = Uni.I18n.translate('general.required.field', 'MDC', 'This field is required');
+                                        item.msg = Uni.I18n.translate('comServer.formFieldErr.UriLengthExceeded', 'MDC', 'The maximum lenght for URL (consisting of server name and port) is 512');
                                         errorsToShow.push(item);
                                         break;
                                     case 'schedulingInterPollDelay':
                                         item.id ='schedulingInterPollDelay[count]';
-                                        item.msg = Uni.I18n.translate('comServer.formFieldErr.minimalAcceptableValue60sec', 'MDC', 'Minimal acceptable value is 60 seconds')
+                                        item.msg = Uni.I18n.translate('comServer.formFieldErr.minimalAcceptableValue60sec', 'MDC', 'Minimal acceptable value is 60 seconds');
                                         errorsToShow.push(item);
                                         break;
                                     case 'changesInterPollDelay':
                                         item.id='changesInterPollDelay[count]';
-                                        item.msg = Uni.I18n.translate('comServer.formFieldErr.minimalAcceptableValue60sec', 'MDC', 'Minimal acceptable value is 60 seconds')
+                                        item.msg = Uni.I18n.translate('comServer.formFieldErr.minimalAcceptableValue60sec', 'MDC', 'Minimal acceptable value is 60 seconds');
                                         errorsToShow.push(item);
                                         break;
                                     default:

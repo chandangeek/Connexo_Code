@@ -10,10 +10,13 @@ Ext.define('Mdc.model.ChannelOfLoadProfilesOfDevice', {
         {name: 'readingType', type: 'auto'},
         {name: 'calculatedReadingType', type: 'auto'},
         {name: 'obisCode', type: 'string'},
+        {name: 'overruledObisCode', type: 'string'},
         {name: 'multiplier', type: 'auto'},
         {name: 'useMultiplier', type: 'boolean'},
         {name: 'overflowValue', type: 'int'},
+        {name: 'overruledOverflowValue', type: 'int'},
         {name: 'nbrOfFractionDigits', type: 'int'},
+        {name: 'overruledNbrOfFractionDigits', type: 'int'},
         {name: 'flowUnit', type: 'string'},
         {name: 'lastReading', type: 'long', useNull: true},
         {name: 'lastValueTimestamp', type: 'long', useNull: true},
@@ -86,13 +89,13 @@ Ext.define('Mdc.model.ChannelOfLoadProfilesOfDevice', {
     ],
     proxy: {
         type: 'rest',
-        urlTpl: '/api/ddr/devices/{mRID}/channels',
+        urlTpl: '/api/ddr/devices/{0}/channels',
         reader: {
             type: 'json'
         },
         timeout: 300000,
-        setUrl: function (params) {
-            this.url = this.urlTpl.replace('{mRID}', encodeURIComponent(params.mRID));
+        setUrl: function (deviceMRID) {
+            this.url = Ext.String.format(this.urlTpl, encodeURIComponent(deviceMRID));
         }
     }
 });

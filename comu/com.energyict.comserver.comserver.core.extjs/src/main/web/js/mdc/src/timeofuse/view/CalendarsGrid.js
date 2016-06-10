@@ -58,7 +58,7 @@ Ext.define('Mdc.timeofuse.view.CalendarsGrid', {
         me.callParent(arguments);
     },
 
-    fnIsDisabled: function() {
+    fnIsDisabled: function () {
         return !this.timeOfUseAllowed;
     }
 });

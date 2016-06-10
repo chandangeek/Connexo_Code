@@ -49,7 +49,7 @@ Ext.define('Mdc.view.setup.devicechannels.PreviewForm', {
                                 },
                                 {
                                     xtype: 'obis-displayfield',
-                                    name: 'obisCode'
+                                    name: 'overruledObisCode'
                                 },
                                 {
                                     fieldLabel: Uni.I18n.translate('general.multiplier', 'MDC', 'Multiplier'),
@@ -61,27 +61,17 @@ Ext.define('Mdc.view.setup.devicechannels.PreviewForm', {
                                     fieldLabel: Uni.I18n.translate('devicechannels.interval', 'MDC', 'Interval'),
                                     name: 'interval_formatted'
                                 },
-                                //{
-                                //    fieldLabel: Uni.I18n.translate('devicechannels.lastReading', 'MDC', 'Last reading'),
-                                //    name: 'lastReading',
-                                //    renderer: function (value) {
-                                //        var tooltip = Uni.I18n.translate('deviceloadprofiles.tooltip.lastreading', 'MDC', 'The moment when the data was read out for the last time.');
-                                //        return value
-                                //            ? Uni.DateTime.formatDateTimeLong(value) + '<span style="margin: 0 0 0 10px; width: 16px; height: 16px" class="uni-icon-info-small" data-qtip="' + tooltip + '"></span>'
-                                //            : '';
-                                //    }
-                                //},
                                 {
                                     fieldLabel: Uni.I18n.translate('general.dataUntil', 'MDC', 'Data until'),
                                     name: 'lastValueTimestamp_formatted'
                                 },
                                 {
                                     fieldLabel: Uni.I18n.translate('channelConfig.overflowValue', 'MDC', 'Overflow value'),
-                                    name: 'overflowValue'
+                                    name: 'overruledOverflowValue'
                                 },
                                 {
                                     fieldLabel: Uni.I18n.translate('channelConfig.numberOfFractionDigits', 'MDC' ,'Number of fraction digits'),
-                                    name: 'nbrOfFractionDigits'
+                                    name: 'overruledNbrOfFractionDigits'
                                 },
                                 {
                                     fieldLabel: Uni.I18n.translate('channelConfig.useMultiplier', 'MDC', 'Use multiplier'),
