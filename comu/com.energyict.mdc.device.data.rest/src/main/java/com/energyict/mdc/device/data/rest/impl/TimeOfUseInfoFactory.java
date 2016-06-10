@@ -47,6 +47,7 @@ public class TimeOfUseInfoFactory {
 
             info.passiveCalendars = new ArrayList<>();
             info.passiveCalendars = passiveCalendars.stream()
+                    .distinct()
                     .map(PEC -> new PassiveCalendarInfo(PEC.getAllowedCalendar().getName(), PEC.getAllowedCalendar().isGhost()))
                     .collect(Collectors.toList());
 
