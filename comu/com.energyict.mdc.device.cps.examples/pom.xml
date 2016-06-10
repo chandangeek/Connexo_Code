@@ -6,14 +6,14 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
-        <version>1.2.0-SNAPSHOT</version>
+        <version>1.2.0${revision}</version>
         <relativePath>../com.energyict.mdc.parent/pom.xml</relativePath>
     </parent>
 
-    <artifactId>mdc.device.config.cps</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <artifactId>mdc.device.cps.examples</artifactId>
+    <version>1.0.0${revision}</version>
     <packaging>bundle</packaging>
-    <name>[MDC] mdc.device.config.cps</name>
+    <name>[MDC] mdc.device.cps.examples</name>
     <description>
         Contains custom property set components.
     </description>
