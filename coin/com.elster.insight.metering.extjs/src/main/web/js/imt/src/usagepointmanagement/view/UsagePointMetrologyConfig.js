@@ -112,7 +112,6 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
         var me = this,
             purposesContainer = me.down('#up-metrology-config-meters'),
             first = true,
-            purposesAdded = false,
             purposes;
         if(me.usagePoint.get('metrologyConfiguration')){
             purposes = me.usagePoint.get('metrologyConfiguration').purposes
@@ -120,32 +119,33 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
 
         if (!Ext.isEmpty(purposes)) {
             Ext.Array.each(purposes, function(purpose){
-                purpose.active && purposesContainer.add({
-                    xtype: 'displayfield',
-                    labelWidth: 120,
-                    margin: first ? 0 : '-13 0 0 0',
-                    fieldLabel: first ? Uni.I18n.translate('general.label.activePurposes', 'IMT', 'Active purposes') : '&nbsp;',
-                    value: purpose.name,
-                    renderer: function(value){
-                        var icon = '&nbsp;&nbsp;&nbsp;&nbsp;<i class="icon '
-                                + (purpose.status.id == 'incomplete' ? 'icon-warning2' : 'icon-checkmark-circle2')
-                                + '" style="display: inline-block; width: 16px; height: 16px;" data-qtip="'
-                                + purpose.status.name
-                                + '"></i>',
-                            url = me.router.getRoute('usagepoints/view/purpose').buildUrl({purposeId: purpose.id}),
-                            link = '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
-                        return link + icon;
-                    }
-                });
-                purposesAdded = true;
-                first = false;
+                if(purpose.active){
+                    purposesContainer.add({
+                        xtype: 'displayfield',
+                        labelWidth: 120,
+                        margin: first ? 0 : '-13 0 0 0',
+                        fieldLabel: first ? Uni.I18n.translate('general.label.activePurposes', 'IMT', 'Active purposes') : '&nbsp;',
+                        value: purpose.name,
+                        renderer: function(value){
+                            var icon = '&nbsp;&nbsp;&nbsp;&nbsp;<i class="icon '
+                                    + (purpose.status.id == 'incomplete' ? 'icon-warning2' : 'icon-checkmark-circle2')
+                                    + '" style="display: inline-block; width: 16px; height: 16px;" data-qtip="'
+                                    + purpose.status.name
+                                    + '"></i>',
+                                url = me.router.getRoute('usagepoints/view/purpose').buildUrl({purposeId: purpose.id}),
+                                link = '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
+                            return link + icon;
+                        }
+                    });
+                    first = false;
+                }
             });
         }
-        if(!purposesAdded) {
+        if(first) {
             purposesContainer.add({
                 xtype: 'displayfield',
                 labelWidth: 120,
-                fieldLabel: first ? Uni.I18n.translate('general.label.activePurposes', 'IMT', 'Active purposes') : '&nbsp;',
+                fieldLabel: Uni.I18n.translate('general.label.activePurposes', 'IMT', 'Active purposes'),
                 value: '-'
             })
         }
@@ -194,35 +194,37 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
                 var count = store.getCount();
                 if (count && count <= 2) {
                     store.each(function (meterActivation) {
-                        meterActivation.get('meter') && metersContainer.add({
-                            xtype: 'displayfield',
-                            labelWidth: 120,
-                            fieldLabel: first ? Uni.I18n.translate('general.meters', 'IMT', 'Meters') : '&nbsp;',
-                            value: meterActivation.get('meter'),
-                            renderer: function (value) {
-                                var result = '',
-                                    gotConfig = makeWGOTooltip(value.watsGoingOnMeterStatus),
-                                    tooltip = gotConfig.result,
-                                    icon = '&nbsp;&nbsp;&nbsp;&nbsp;<i class="icon '
-                                        + 'icon-warning2'
-                                        + '" style="display: inline-block; width: 16px; height: 16px;" data-qtip="'
-                                        + tooltip
-                                        + '"></i>',
-                                    url = Ext.String.format('{0}/devices/{1}', Uni.store.Apps.getAppUrl('MultiSense'), encodeURIComponent(value.mRID)),
-                                    link = '<a href="' + url + '">' + Ext.String.htmlEncode(value.mRID) + '</a>',
-                                    activationTime = meterActivation.get('meterRole').activationTime;
-                                result += gotConfig.status ? link + icon : link;
+                        if(meterActivation.get('meter')){
+                            metersContainer.add({
+                                xtype: 'displayfield',
+                                labelWidth: 120,
+                                fieldLabel: first ? Uni.I18n.translate('general.meters', 'IMT', 'Meters') : '&nbsp;',
+                                value: meterActivation.get('meter'),
+                                renderer: function (value) {
+                                    var result = '',
+                                        gotConfig = makeWGOTooltip(value.watsGoingOnMeterStatus),
+                                        tooltip = gotConfig.result,
+                                        icon = '&nbsp;&nbsp;&nbsp;&nbsp;<i class="icon '
+                                            + 'icon-warning2'
+                                            + '" style="display: inline-block; width: 16px; height: 16px;" data-qtip="'
+                                            + tooltip
+                                            + '"></i>',
+                                        url = Ext.String.format('{0}/devices/{1}', Uni.store.Apps.getAppUrl('MultiSense'), encodeURIComponent(value.mRID)),
+                                        link = '<a href="' + url + '">' + Ext.String.htmlEncode(value.mRID) + '</a>',
+                                        activationTime = meterActivation.get('meterRole').activationTime;
+                                    result += gotConfig.status ? link + icon : link;
 
-                                if (activationTime) {
-                                    result += '<br><span style="font-size: 90%">'
-                                        + Uni.I18n.translate('general.fromDate.lc', 'IMT', 'from {0}', [Uni.DateTime.formatDateTimeShort(new Date(activationTime))], false)
-                                        + '</span>';
+                                    if (activationTime) {
+                                        result += '<br><span style="font-size: 90%">'
+                                            + Uni.I18n.translate('general.fromDate.lc', 'IMT', 'from {0}', [Uni.DateTime.formatDateTimeShort(new Date(activationTime))], false)
+                                            + '</span>';
+                                    }
+
+                                    return result;
                                 }
-
-                                return result;
-                            }
-                        });
-                        first = false;
+                            });
+                            first = false;
+                        }
                     });
                 } else if (count && count > 2){
                     metersContainer.add({

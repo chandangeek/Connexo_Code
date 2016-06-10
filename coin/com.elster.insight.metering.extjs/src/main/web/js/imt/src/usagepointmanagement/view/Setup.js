@@ -74,7 +74,10 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                                 type: 'usagepoint',
                                 router: me.router,
                                 autoBuild: true,
-                                style: 'margin-bottom: 20px'
+                                style: {
+                                    'margin-bottom': '20px',
+                                    'margin-top': '16px'
+                                }
                             },
                             {
                                 xtype: 'container',
