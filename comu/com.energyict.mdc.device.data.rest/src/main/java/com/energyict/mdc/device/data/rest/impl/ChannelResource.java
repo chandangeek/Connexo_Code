@@ -6,19 +6,28 @@ import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
-import com.elster.jupiter.rest.util.*;
+import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.common.services.ListPager;
-import com.energyict.mdc.device.data.*;
+import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceValidation;
+import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.rest.DeviceStatesRestricted;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.issue.datavalidation.NotEstimatedBlock;
+
 import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
@@ -26,13 +35,30 @@ import com.google.common.collect.Range;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Provider;
-import javax.ws.rs.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.HttpMethod;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -63,14 +89,16 @@ public class ChannelResource {
         this.estimationHelper = estimationHelper;
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION})
     public Response getChannels(@PathParam("mRID") String mRID, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
         return channelHelper.get().getChannels(mRID, (d -> this.getFilteredChannels(d, filter)), queryParameters);
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/{channelid}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION})
@@ -79,7 +107,33 @@ public class ChannelResource {
         return channelHelper.get().getChannel(() -> channel);
     }
 
-    @GET @Transactional
+    @PUT
+    @Transactional
+    @Path("/{channelid}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE})
+    public Response updateChannel(@PathParam("mRID") String mRID, @PathParam("channelid") long channelId, ChannelInfo channelInfo) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
+        Channel.ChannelUpdater channelUpdater = device.getChannelUpdaterFor(channel);
+        if (!Objects.equals(channelInfo.overruledNbrOfFractionDigits, channelInfo.nbrOfFractionDigits)) {
+            channelUpdater.setNumberOfFractionDigits(channelInfo.overruledNbrOfFractionDigits);
+        }
+        if (channelInfo.overruledOverflowValue == null && channel.getOverflow().isPresent() ||
+                !Objects.equals(channelInfo.overruledOverflowValue, channelInfo.overflowValue)) {
+            channelUpdater.setOverflowValue(channelInfo.overruledOverflowValue);
+        }
+        if (!channelInfo.overruledObisCode.equals(channelInfo.obisCode)) {
+            channelUpdater.setObisCode(channelInfo.overruledObisCode);
+        }
+        channelUpdater.update();
+
+        return Response.ok().build();
+    }
+
+    @GET
+    @Transactional
     @Path("/{channelId}/customproperties")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
@@ -89,7 +143,8 @@ public class ChannelResource {
         return PagedInfoList.fromCompleteList("customproperties", customPropertySetInfo != null ? Arrays.asList(customPropertySetInfo) : new ArrayList<>(), queryParameters);
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/{channelId}/customproperties/{cpsId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
@@ -102,7 +157,8 @@ public class ChannelResource {
         return customPropertySetInfo;
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/{channelId}/customproperties/{cpsId}/versions/{timeStamp}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
@@ -115,7 +171,8 @@ public class ChannelResource {
         return customPropertySetInfo;
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/{channelId}/customproperties/{cpsId}/versions")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
@@ -124,7 +181,8 @@ public class ChannelResource {
         return PagedInfoList.fromCompleteList("versions", resourceHelper.getVersionedCustomPropertySetHistoryInfos(channel, cpsId), queryParameters);
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/{channelId}/customproperties/{cpsId}/currentinterval")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
@@ -135,7 +193,8 @@ public class ChannelResource {
         return IntervalInfo.from(interval.toClosedOpenRange());
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/{channelId}/customproperties/{cpsId}/conflicts")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
@@ -146,7 +205,8 @@ public class ChannelResource {
         return PagedInfoList.fromCompleteList("conflicts", overlapInfos, queryParameters);
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/{channelId}/customproperties/{cpsId}/conflicts/{timeStamp}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
@@ -157,7 +217,8 @@ public class ChannelResource {
         return PagedInfoList.fromCompleteList("conflicts", overlapInfos, queryParameters);
     }
 
-    @PUT @Transactional
+    @PUT
+    @Transactional
     @Path("/{channelId}/customproperties/{cpsId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -170,7 +231,8 @@ public class ChannelResource {
         return Response.ok().build();
     }
 
-    @POST @Transactional
+    @POST
+    @Transactional
     @Path("/{channelId}/customproperties/{cpsId}/versions")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
@@ -197,7 +259,8 @@ public class ChannelResource {
         return Response.ok().build();
     }
 
-    @PUT @Transactional
+    @PUT
+    @Transactional
     @Path("/{channelId}/customproperties/{cpsId}/versions/{timeStamp}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
@@ -275,7 +338,8 @@ public class ChannelResource {
         return null;
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/{channelid}/data")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTER_DECOMMISSIONED_DEVICE_DATA})
@@ -290,7 +354,9 @@ public class ChannelResource {
         if (filter.hasProperty("intervalStart") && filter.hasProperty("intervalEnd")) {
             Range<Instant> range = Ranges.openClosed(filter.getInstant("intervalStart"), filter.getInstant("intervalEnd"));
             List<LoadProfileReading> channelData = channel.getChannelData(range);
-            List<ChannelDataInfo> infos = channelData.stream().map(loadProfileReading -> deviceDataInfoFactory.createChannelDataInfo(channel, loadProfileReading, isValidationActive, deviceValidation)).collect(Collectors.toList());
+            List<ChannelDataInfo> infos = channelData.stream()
+                    .map(loadProfileReading -> deviceDataInfoFactory.createChannelDataInfo(channel, loadProfileReading, isValidationActive, deviceValidation))
+                    .collect(Collectors.toList());
             infos = filter(infos, filter);
             List<ChannelDataInfo> paginatedChannelData = ListPager.of(infos).from(queryParameters).find();
             PagedInfoList pagedInfoList = PagedInfoList.fromPagedList("data", paginatedChannelData, queryParameters);
@@ -299,7 +365,8 @@ public class ChannelResource {
         return Response.status(Response.Status.BAD_REQUEST).build();
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/{channelid}/data/{epochMillis}/validation")
@@ -317,15 +384,18 @@ public class ChannelResource {
         Optional<DataValidationStatus> dataValidationStatus = loadProfileReading.flatMap(lpReading -> lpReading.getChannelValidationStates().entrySet().stream().map(Map.Entry::getValue).findFirst());
 
         Optional<VeeReadingInfo> veeReadingInfo = dataValidationStatus.map(status -> {
-            IntervalReadingRecord channelReading = loadProfileReading.flatMap(lpReading -> lpReading.getChannelValues().entrySet().stream().map(Map.Entry::getValue).findFirst()).orElse(null);// There can be only one channel (or no channel at all if the channel has no dta for this interval)
+            IntervalReadingRecord channelReading = loadProfileReading.flatMap(lpReading -> lpReading.getChannelValues().entrySet().stream().map(Map.Entry::getValue).findFirst())
+                    .orElse(null);// There can be only one channel (or no channel at all if the channel has no dta for this interval)
             return validationInfoFactory.createVeeReadingInfoWithModificationFlags(channel, status, deviceValidation, channelReading, isValidationActive);
         });
-        if(veeReadingInfo.isPresent()) {
+        if (veeReadingInfo.isPresent()) {
             return Response.ok(veeReadingInfo.get()).build();
-        }else{
-            Range<Instant> range = Ranges.openClosed(Instant.ofEpochMilli(epochMillis-1), Instant.ofEpochMilli(epochMillis));
+        } else {
+            Range<Instant> range = Ranges.openClosed(Instant.ofEpochMilli(epochMillis - 1), Instant.ofEpochMilli(epochMillis));
             List<LoadProfileReading> channelData = channel.getChannelData(range);
-            Optional<ChannelDataInfo> found = channelData.stream().map(loadProfileReadings -> deviceDataInfoFactory.createChannelDataInfo(channel, loadProfileReadings, isValidationActive, deviceValidation)).findFirst();
+            Optional<ChannelDataInfo> found = channelData.stream()
+                    .map(loadProfileReadings -> deviceDataInfoFactory.createChannelDataInfo(channel, loadProfileReadings, isValidationActive, deviceValidation))
+                    .findFirst();
             return Response.ok(found.orElse(new ChannelDataInfo())).build();
         }
     }
@@ -344,7 +414,8 @@ public class ChannelResource {
         return info.value == null;
     }
 
-    @PUT @Transactional
+    @PUT
+    @Transactional
     @Path("/{channelid}/data")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -386,7 +457,8 @@ public class ChannelResource {
                 (channelDataInfo.bulkValidationInfo != null && channelDataInfo.bulkValidationInfo.isConfirmed));
     }
 
-    @POST @Transactional
+    @POST
+    @Transactional
     @Path("/{channelid}/data/estimate")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -422,14 +494,15 @@ public class ChannelResource {
 
     private Instant getCalculatedReadingTypeTimeStampForEstimationPreview(EstimateChannelDataInfo estimateChannelDataInfo) {
         Optional<IntervalInfo> min = estimateChannelDataInfo.intervals.stream().min((o1, o2) -> (o1.start < o2.start ? -1 : 1));
-        if(min.isPresent()){
+        if (min.isPresent()) {
             return Instant.ofEpochMilli(min.get().start);
         } else {
             return clock.instant();
         }
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("{channelid}/validationstatus")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({com.elster.jupiter.validation.security.Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.Constants.VIEW_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
@@ -439,7 +512,8 @@ public class ChannelResource {
         return Response.ok(deviceValidationStatusInfo).build();
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("{channelid}/validationpreview")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({com.elster.jupiter.validation.security.Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.Constants.VIEW_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
@@ -448,7 +522,8 @@ public class ChannelResource {
         return channelHelper.get().getChannelValidationInfo(() -> channel);
     }
 
-    @PUT @Transactional
+    @PUT
+    @Transactional
     @Path("{channelid}/validate")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(com.elster.jupiter.validation.security.Privileges.Constants.VALIDATE_MANUAL)
@@ -467,7 +542,8 @@ public class ChannelResource {
         return Response.ok().build();
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("{channelid}/datavalidationissues/{issueid}/validationblocks")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})

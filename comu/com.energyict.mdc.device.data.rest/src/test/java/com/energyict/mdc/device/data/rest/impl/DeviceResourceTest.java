@@ -1401,6 +1401,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     private Channel mockChannel(String name, String mrid, long id) {
         Channel mock = mock(Channel.class);
         ChannelSpec channelSpec = mock(ChannelSpec.class);
+        when(channelSpec.getOverflow()).thenReturn(Optional.empty());
         when(mock.getName()).thenReturn(name);
         when(mock.getId()).thenReturn(id);
         when(mock.getChannelSpec()).thenReturn(channelSpec);

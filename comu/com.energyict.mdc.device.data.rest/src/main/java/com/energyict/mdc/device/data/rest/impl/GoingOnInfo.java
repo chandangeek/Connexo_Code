@@ -11,6 +11,7 @@ public class GoingOnInfo {
     public Instant dueDate;
     public Severity severity;
     public String assignee;
+    public String issueType;
     public Boolean assigneeIsCurrentUser;
     public String status;
 
