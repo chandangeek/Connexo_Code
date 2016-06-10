@@ -23,6 +23,7 @@ import com.energyict.mdc.favorites.FavoriteDeviceGroup;
 import com.energyict.mdc.favorites.FavoritesService;
 import com.energyict.mdc.favorites.LabelCategory;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -33,10 +34,11 @@ import javax.validation.MessageInterpolator;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
+
+import static com.elster.jupiter.orm.Version.version;
 
 @Component(name = "com.elster.jupiter.favorites", service = { FavoritesService.class, MessageSeedProvider.class }, property = "name=" + FavoritesService.COMPONENTNAME, immediate = true)
 public class FavoritesServiceImpl implements FavoritesService, MessageSeedProvider {
@@ -68,9 +70,10 @@ public class FavoritesServiceImpl implements FavoritesService, MessageSeedProvid
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(FavoritesService.class).toInstance(FavoritesServiceImpl.this);
+                bind(DataModel.class).toInstance(dataModel);
             }
         });
-        upgradeService.register(InstallIdentifier.identifier(FavoritesService.COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier(FavoritesService.COMPONENTNAME), dataModel, Installer.class, ImmutableMap.of(version(10, 2), UpgraderV10_2.class));
     }
 
     static class Installer implements FullInstaller {
