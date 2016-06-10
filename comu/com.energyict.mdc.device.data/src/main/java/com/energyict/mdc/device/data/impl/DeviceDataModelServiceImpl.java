@@ -117,6 +117,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
     private ServerCommunicationTaskService communicationTaskService;
     private CommunicationTaskReportService communicationTaskReportService;
     private ServerDeviceService deviceService;
+    private DeviceHelper deviceHelper;
     private ServerLoadProfileService loadProfileService;
     private ServerLogBookService logBookService;
     private DataCollectionKpiService dataCollectionKpiService;
@@ -142,7 +143,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
             SchedulingService schedulingService, MessageService messageService,
             SecurityPropertyService securityPropertyService, UserService userService, DeviceMessageSpecificationService deviceMessageSpecificationService, MeteringGroupsService meteringGroupsService,
             QueryService queryService, TaskService mdcTaskService, MasterDataService masterDataService,
-            TransactionService transactionService, JsonService jsonService, com.energyict.mdc.issues.IssueService mdcIssueService, MdcReadingTypeUtilService mdcReadingTypeUtilService) {
+            TransactionService transactionService, JsonService jsonService, com.energyict.mdc.issues.IssueService mdcIssueService, MdcReadingTypeUtilService mdcReadingTypeUtilService,
+            DeviceHelper deviceHelper) {
         this();
         this.setOrmService(ormService);
         this.setEventService(eventService);
@@ -491,6 +493,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
                 bind(TransactionService.class).toInstance(transactionService);
                 bind(JsonService.class).toInstance(jsonService);
                 bind(com.energyict.mdc.issues.IssueService.class).toInstance(mdcIssueService);
+                bind(DeviceHelper.class).toInstance(deviceHelper);
             }
         };
     }
@@ -508,6 +511,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
         this.communicationTaskService = new CommunicationTaskServiceImpl(this);
         this.communicationTaskReportService = new CommunicationTaskReportServiceImpl(this, meteringService);
         this.deviceService = new DeviceServiceImpl(this, queryService, thesaurus);
+        this.deviceHelper = new DeviceHelperImpl();
         this.loadProfileService = new LoadProfileServiceImpl(this);
         this.logBookService = new LogBookServiceImpl(this);
         this.dataCollectionKpiService = new DataCollectionKpiServiceImpl(this);
@@ -521,6 +525,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
         this.registerCommunicationTaskService(bundleContext);
         this.registerCommunicationTaskReportService(bundleContext);
         this.registerDeviceService(bundleContext);
+        this.registerDeviceHelper(bundleContext);
         this.registerLoadProfileService(bundleContext);
         this.registerLogBookService(bundleContext);
         this.registerDataCollectionKpiService(bundleContext);
@@ -549,6 +554,10 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
     private void registerDeviceService(BundleContext bundleContext) {
         this.serviceRegistrations.add(bundleContext.registerService(DeviceService.class, deviceService, null));
         this.serviceRegistrations.add(bundleContext.registerService(ServerDeviceService.class, deviceService, null));
+    }
+
+    private void registerDeviceHelper(BundleContext bundleContext) {
+        this.serviceRegistrations.add(bundleContext.registerService(DeviceHelper.class, deviceHelper, null));
     }
 
     private void registerLogBookService(BundleContext bundleContext) {
