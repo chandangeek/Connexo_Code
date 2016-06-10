@@ -5,9 +5,17 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.FullInstaller;
+import com.elster.jupiter.users.PrivilegesProvider;
+import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.security.Privileges;
+
 import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -16,7 +24,7 @@ import java.util.logging.Logger;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-08-26 (08:30)
  */
-class Installer implements FullInstaller {
+class Installer implements FullInstaller, PrivilegesProvider {
 
     private final DataModel dataModel;
     private final EventService eventService;
@@ -38,6 +46,22 @@ class Installer implements FullInstaller {
                 this::createEventTypes,
                 logger
         );
+        userService.addModulePrivileges(this);
+    }
+
+    @Override
+    public String getModuleName() {
+        return EngineConfigurationService.COMPONENT_NAME;
+    }
+
+    @Override
+    public List<ResourceDefinition> getModuleResources() {
+        List<ResourceDefinition> resources = new ArrayList<>();
+        resources.add(userService.createModuleResourceWithPrivileges(EngineConfigurationService.COMPONENT_NAME, Privileges.RESOURCE_COMMUNICATION.getKey(), Privileges.RESOURCE_COMMUNICATION_DESCRIPTION.getKey(),
+                Arrays.asList(
+                        Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION,
+                        Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION_INTERNAL)));
+        return resources;
     }
 
     private void createEventTypes() {
