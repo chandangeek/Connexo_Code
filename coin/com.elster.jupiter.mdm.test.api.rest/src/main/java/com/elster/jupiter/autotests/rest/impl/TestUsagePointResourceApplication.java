@@ -20,7 +20,6 @@ import java.util.Set;
         immediate = true,
         property = {"alias=/test", "app=INS", "name=" + TestUsagePointResourceApplication.COMPONENT_NAME})
 public class TestUsagePointResourceApplication extends Application {
-    public static final String APP_KEY = "INS";
     public static final String COMPONENT_NAME = "TEST";
 
     private volatile MeteringService meteringService;
