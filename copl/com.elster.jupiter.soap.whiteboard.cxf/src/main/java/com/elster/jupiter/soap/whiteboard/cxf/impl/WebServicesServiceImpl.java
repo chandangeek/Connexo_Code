@@ -8,6 +8,8 @@ import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.SoapProviderSupportFactory;
 import com.elster.jupiter.soap.whiteboard.cxf.WebService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
+import com.elster.jupiter.upgrade.InstallIdentifier;
+import com.elster.jupiter.upgrade.UpgradeService;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -18,6 +20,7 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -36,15 +39,22 @@ public class WebServicesServiceImpl implements WebServicesService {
     private volatile SoapProviderSupportFactory soapProviderSupportFactory;
     private volatile BundleContext bundleContext;
     private volatile DataModel dataModel;
+    private volatile UpgradeService upgradeService;
 
     // OSGi
     public WebServicesServiceImpl() {
     }
 
     @Inject // For test purposes only
-    public WebServicesServiceImpl(SoapProviderSupportFactory soapProviderSupportFactory, OrmService ormService) {
+    public WebServicesServiceImpl(SoapProviderSupportFactory soapProviderSupportFactory, OrmService ormService, UpgradeService upgradeService) {
         setSoapProviderSupportFactory(soapProviderSupportFactory);
         setOrmService(ormService);
+        setUpgradeService(upgradeService);
+    }
+
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
     }
 
     @Reference
@@ -141,6 +151,8 @@ public class WebServicesServiceImpl implements WebServicesService {
     public void start(BundleContext bundleContext) {
         this.bundleContext = bundleContext;
         this.dataModel.register(this.getModule());
+        upgradeService.register(InstallIdentifier.identifier(WebServicesService.COMPONENT_NAME), dataModel, Installer.class, Collections
+                .emptyMap());
     }
 
     @Deactivate

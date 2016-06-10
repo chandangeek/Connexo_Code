@@ -16,8 +16,6 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.EventType;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
-import com.elster.jupiter.upgrade.InstallIdentifier;
-import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import com.google.inject.AbstractModule;
@@ -29,7 +27,6 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,18 +40,16 @@ public class EndPointConfigurationServiceImpl implements EndPointConfigurationSe
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
     private volatile EventService eventService;
-    private volatile UpgradeService upgradeService;
 
     // OSGi
     public EndPointConfigurationServiceImpl() {
     }
 
     @Inject // Test purposes only
-    public EndPointConfigurationServiceImpl(EventService eventService, NlsService nlsService, OrmService ormService, UpgradeService upgradeService) {
+    public EndPointConfigurationServiceImpl(EventService eventService, NlsService nlsService, OrmService ormService) {
         setEventService(eventService);
         setNlsService(nlsService);
         setOrmService(ormService);
-        setUpgradeService(upgradeService);
         activate();
     }
 
@@ -86,11 +81,6 @@ public class EndPointConfigurationServiceImpl implements EndPointConfigurationSe
         this.eventService = eventService;
     }
 
-    @Reference
-    public void setUpgradeService(UpgradeService upgradeService) {
-        this.upgradeService = upgradeService;
-    }
-
     private Module getModule() {
         return new AbstractModule() {
             @Override
@@ -106,8 +96,6 @@ public class EndPointConfigurationServiceImpl implements EndPointConfigurationSe
     @Activate
     public void activate() {
         this.dataModel.register(this.getModule());
-        upgradeService.register(InstallIdentifier.identifier(WebServicesService.COMPONENT_NAME), dataModel, Installer.class, Collections
-                .emptyMap());
     }
 
     @Override
