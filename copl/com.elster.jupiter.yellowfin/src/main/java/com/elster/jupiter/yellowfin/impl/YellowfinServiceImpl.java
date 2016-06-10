@@ -7,8 +7,6 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.users.PrivilegesProvider;
-import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.yellowfin.YellowfinFilterInfo;
 import com.elster.jupiter.yellowfin.YellowfinFilterListItemInfo;
@@ -51,8 +49,8 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@Component(name = "com.elster.jupiter.yellowfin", service = {YellowfinService.class, TranslationKeyProvider.class, PrivilegesProvider.class}, immediate = true, property = "name=" + YellowfinService.COMPONENTNAME)
-public class YellowfinServiceImpl implements YellowfinService, TranslationKeyProvider, PrivilegesProvider {
+@Component(name = "com.elster.jupiter.yellowfin", service = {YellowfinService.class, TranslationKeyProvider.class}, immediate = true, property = "name=" + YellowfinService.COMPONENTNAME)
+public class YellowfinServiceImpl implements YellowfinService, TranslationKeyProvider {
     private static final String YELLOWFIN_URL = "com.elster.jupiter.yellowfin.url";
     private static final String YELLOWFIN_EXTERNAL_URL = "com.elster.jupiter.yellowfin.externalurl";
     private static final String YELLOWFIN_WEBSERVICES_USER = "com.elster.jupiter.yellowfin.user";
@@ -600,22 +598,6 @@ public class YellowfinServiceImpl implements YellowfinService, TranslationKeyPro
         }
         return Optional.of(listItems);
     }
-
-
-
-    @Override
-    public List<ResourceDefinition> getModuleResources() {
-        return Arrays.asList(
-            userService.createModuleResourceWithPrivileges(getModuleName(),
-                    Privileges.RESOURCE_REPORTS.getKey(), Privileges.RESOURCE_REPORTS_DESCRIPTION.getKey(),
-                    Arrays.asList(Privileges.Constants.VIEW_REPORTS, Privileges.Constants.DESIGN_REPORTS)));
-    }
-
-    @Override
-    public String getModuleName() {
-        return YellowfinService.COMPONENTNAME;
-    }
-
 
     @Override
     public String getComponentName() {
