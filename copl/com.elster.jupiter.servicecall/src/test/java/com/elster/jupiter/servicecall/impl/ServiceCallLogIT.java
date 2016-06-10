@@ -32,6 +32,8 @@ import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 
@@ -105,6 +107,7 @@ public class ServiceCallLogIT {
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(MessageInterpolator.class).toInstance(messageInterpolator);
             bind(SearchService.class).toInstance(mock(SearchService.class));
+            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }
 

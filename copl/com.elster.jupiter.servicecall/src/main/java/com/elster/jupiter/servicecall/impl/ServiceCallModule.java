@@ -5,6 +5,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.servicecall.ServiceCallService;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Scopes;
 
 /**
  * Created by bvn on 2/5/16.
@@ -15,7 +16,7 @@ public class ServiceCallModule extends AbstractModule {
         requireBinding(OrmService.class);
         requireBinding(NlsService.class);
 
-        bind(ServiceCallService.class).to(ServiceCallServiceImpl.class);
-        bind(IServiceCallService.class).to(ServiceCallServiceImpl.class);
+        bind(ServiceCallService.class).to(IServiceCallService.class);
+        bind(IServiceCallService.class).to(ServiceCallServiceImpl.class).in(Scopes.SINGLETON);
     }
 }

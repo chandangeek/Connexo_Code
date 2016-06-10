@@ -7,13 +7,15 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.upgrade.FullInstaller;
 
 import javax.inject.Inject;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -21,7 +23,7 @@ import java.util.stream.Stream;
 /**
  * Created by bvn on 3/7/16.
  */
-public class Installer {
+public class Installer implements FullInstaller {
     private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
     private static final Logger LOGGER = Logger.getLogger(Installer.class.getName());
 
@@ -38,37 +40,53 @@ public class Installer {
         this.dataModel = dataModel;
     }
 
-    public void install() {
-        try {
-            this.dataModel.install(true, true);
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        }
+    @Override
+    public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
+        dataModelUpgrader.upgrade(dataModel, Version.latest());
         QueueTableSpec defaultQueueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
-        createMessageHandler(defaultQueueTableSpec, ServiceCallServiceImpl.SERIVCE_CALLS_DESTINATION_NAME, ServiceCallServiceImpl.SERIVCE_CALLS_SUBSCRIBER_NAME);
-        installDefaultLifeCycle();
+        createMessageHandler(defaultQueueTableSpec, ServiceCallServiceImpl.SERIVCE_CALLS_DESTINATION_NAME, ServiceCallServiceImpl.SERIVCE_CALLS_SUBSCRIBER_NAME, logger);
+        doTry(
+                "Install default Service Call Life Cycle.",
+                this::installDefaultLifeCycle,
+                logger
+        );
     }
 
-    private void createMessageHandler(QueueTableSpec defaultQueueTableSpec, String destinationName, String subscriberName) {
-        try {
-            Optional<DestinationSpec> destinationSpecOptional = messageService.getDestinationSpec(destinationName);
-            if (!destinationSpecOptional.isPresent()) {
-                DestinationSpec queue = defaultQueueTableSpec.createDestinationSpec(destinationName, DEFAULT_RETRY_DELAY_IN_SECONDS);
-                queue.activate();
-                queue.subscribe(subscriberName);
-            } else {
-                boolean notSubscribedYet = !destinationSpecOptional.get()
-                        .getSubscribers()
-                        .stream()
-                        .anyMatch(spec -> spec.getName().equals(subscriberName));
-                if (notSubscribedYet) {
-                    destinationSpecOptional.get().activate();
-                    destinationSpecOptional.get().subscribe(subscriberName);
-                }
+    private void createMessageHandler(QueueTableSpec defaultQueueTableSpec, String destinationName, String subscriberName, Logger logger) {
+        Optional<DestinationSpec> destinationSpecOptional = messageService.getDestinationSpec(destinationName);
+        if (!destinationSpecOptional.isPresent()) {
+            DestinationSpec queue = doTry(
+                    "Create Queue : " + ServiceCallServiceImpl.SERIVCE_CALLS_DESTINATION_NAME,
+                    () -> {
+                        DestinationSpec destinationSpec = defaultQueueTableSpec.createDestinationSpec(destinationName, DEFAULT_RETRY_DELAY_IN_SECONDS);
+                        destinationSpec.activate();
+                        return destinationSpec;
+                    },
+                    logger
+            );
+            doTry(
+                    "Create subsriber " + ServiceCallServiceImpl.SERIVCE_CALLS_SUBSCRIBER_NAME + " on " + ServiceCallServiceImpl.SERIVCE_CALLS_DESTINATION_NAME,
+                    () -> queue.subscribe(subscriberName),
+                    logger
+            );
+        } else {
+            DestinationSpec queue = destinationSpecOptional.get();
+            boolean notSubscribedYet = queue
+                    .getSubscribers()
+                    .stream()
+                    .noneMatch(spec -> spec.getName().equals(subscriberName));
+            if (notSubscribedYet) {
+                doTry(
+                        "Create subsriber " + ServiceCallServiceImpl.SERIVCE_CALLS_SUBSCRIBER_NAME + " on " + ServiceCallServiceImpl.SERIVCE_CALLS_DESTINATION_NAME,
+                        () -> {
+                            queue.activate();
+                            queue.subscribe(subscriberName);
+                        },
+                        logger
+                );
             }
-        } catch (Exception e) {
-            LOGGER.severe(e.getMessage());
         }
+
     }
 
     public void installDefaultLifeCycle() {

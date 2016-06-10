@@ -17,7 +17,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.MissingHandlerNameException;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -29,6 +28,8 @@ import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.servicecall.ServiceCallTypeBuilder;
 import com.elster.jupiter.servicecall.security.Privileges;
+import com.elster.jupiter.upgrade.InstallIdentifier;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
@@ -58,6 +59,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -72,11 +74,11 @@ import java.util.stream.Stream;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name = "com.elster.jupiter.servicecall",
-        service = {ServiceCallService.class, InstallService.class, MessageSeedProvider.class, TranslationKeyProvider.class, PrivilegesProvider.class},
+        service = {ServiceCallService.class, MessageSeedProvider.class, TranslationKeyProvider.class, PrivilegesProvider.class},
         property = "name=" + ServiceCallService.COMPONENT_NAME,
         immediate = true)
 @LiteralSql
-public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedProvider, TranslationKeyProvider, PrivilegesProvider, InstallService {
+public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedProvider, TranslationKeyProvider, PrivilegesProvider {
 
     static final String SERIVCE_CALLS_DESTINATION_NAME = "SerivceCalls";
     static final String SERIVCE_CALLS_SUBSCRIBER_NAME = "SerivceCalls";
@@ -88,13 +90,14 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
     private volatile JsonService jsonService;
     private final Map<String, ServiceCallHandler> handlerMap = new ConcurrentHashMap<>();
     private volatile UserService userService;
+    private volatile UpgradeService upgradeService;
 
     // OSGi
     public ServiceCallServiceImpl() {
     }
 
     @Inject
-    public ServiceCallServiceImpl(FiniteStateMachineService finiteStateMachineService, OrmService ormService, NlsService nlsService, UserService userService, CustomPropertySetService customPropertySetService, MessageService messageService, JsonService jsonService) {
+    public ServiceCallServiceImpl(FiniteStateMachineService finiteStateMachineService, OrmService ormService, NlsService nlsService, UserService userService, CustomPropertySetService customPropertySetService, MessageService messageService, JsonService jsonService, UpgradeService upgradeService) {
         setFiniteStateMachineService(finiteStateMachineService);
         setOrmService(ormService);
         setNlsService(nlsService);
@@ -102,8 +105,8 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
         setMessageService(messageService);
         setJsonService(jsonService);
         setCustomPropertySetService(customPropertySetService);
+        setUpgradeService(upgradeService);
         activate();
-        install();
     }
 
     @Reference
@@ -142,6 +145,11 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
     @Reference
     public void setJsonService(JsonService jsonService) {
         this.jsonService = jsonService;
+    }
+
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
@@ -202,24 +210,11 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
     }
 
     @Override
-    public void install() {
-        dataModel.getInstance(Installer.class).install();
-    }
-
-    @Override
     public Optional<ServiceCallHandler> findHandler(String handler) {
         if (Checks.is(handler).emptyOrOnlyWhiteSpace()) {
             return Optional.empty();
         }
         return Optional.ofNullable(handlerMap.get(handler));
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList(OrmService.COMPONENTNAME,
-                UserService.COMPONENTNAME,
-                FiniteStateMachineService.COMPONENT_NAME,
-                CustomPropertySetService.COMPONENT_NAME);
     }
 
     private Module getModule() {
@@ -241,7 +236,8 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
 
     @Activate
     public void activate() {
-        this.dataModel.register(this.getModule());
+        dataModel.register(getModule());
+        upgradeService.register(InstallIdentifier.identifier(COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
     }
 
     @Override
