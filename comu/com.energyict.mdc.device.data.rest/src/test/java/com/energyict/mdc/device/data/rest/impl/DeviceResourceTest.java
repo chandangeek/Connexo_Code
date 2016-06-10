@@ -1617,7 +1617,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     @Test
     public void getUnlinkedSlavesTest() throws Exception {
         Finder<DataLoggerReferenceImpl> finder = mockFinder(Collections.emptyList());
-        when(topologyService.findAllEffectiveDataLoggerSlaveDevices()).thenReturn(finder);
+        doReturn(finder).when(topologyService).findAllEffectiveDataLoggerSlaveDevices();
 
         Device slave1 = mockDeviceForTopologyTest("slave1");
         Device slave2 = mockDeviceForTopologyTest("slave2");
