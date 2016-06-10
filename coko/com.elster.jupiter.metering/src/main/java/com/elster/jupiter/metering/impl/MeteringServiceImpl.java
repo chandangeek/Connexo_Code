@@ -18,6 +18,7 @@ import com.elster.jupiter.metering.BypassStatus;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.GeoCoordinates;
+import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.LocationBuilder;
 import com.elster.jupiter.metering.LocationMember;
@@ -97,7 +98,6 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
@@ -113,13 +113,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Dictionary;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
@@ -167,6 +167,9 @@ public class MeteringServiceImpl implements ServerMeteringService, PrivilegesPro
     private static ImmutableList<TemplateField> locationTemplateMembers;
     private static String LOCATION_TEMPLATE = "com.elster.jupiter.location.template";
     private static String LOCATION_TEMPLATE_MANDATORY_FIELDS = "com.elster.jupiter.location.template.mandatoryfields";
+    private static final String MDC_URL = "com.elster.jupiter.mdc.url";
+    private static final String ENERGY_AXIS_URL = "com.elster.jupiter.energyaxis.url";
+    private Map<KnownAmrSystem, String> supportedApplicationsUrls = new HashMap<>();
 
     private List<HeadEndInterface> headEndInterfaces = new CopyOnWriteArrayList<>();
 
@@ -222,7 +225,7 @@ public class MeteringServiceImpl implements ServerMeteringService, PrivilegesPro
     }
 
     @Override
-    public  List<HeadEndInterface> getHeadEndInterfaces() {
+    public List<HeadEndInterface> getHeadEndInterfaces() {
         return headEndInterfaces;
     }
 
@@ -470,6 +473,10 @@ public class MeteringServiceImpl implements ServerMeteringService, PrivilegesPro
 
     @Activate
     public final void activate(BundleContext bundleContext) {
+        if (bundleContext != null) {
+            supportedApplicationsUrls.put(KnownAmrSystem.MDC, bundleContext.getProperty(MDC_URL));
+            supportedApplicationsUrls.put(KnownAmrSystem.ENERGY_AXIS, bundleContext.getProperty(ENERGY_AXIS_URL));
+        }
         if (dataModel != null && bundleContext != null) {
             createNewTemplate(bundleContext);
         } else if (bundleContext == null && locationTemplate == null) {
@@ -1068,6 +1075,11 @@ public class MeteringServiceImpl implements ServerMeteringService, PrivilegesPro
         EndDeviceControlTypeImpl endDeviceControlType = dataModel.getInstance(EndDeviceControlTypeImpl.class).init(mRID);
         dataModel.persist(endDeviceControlType);
         return endDeviceControlType;
+    }
+
+    @Override
+    public Map<KnownAmrSystem, String> getSupportedApplicationsUrls() {
+        return Collections.unmodifiableMap(supportedApplicationsUrls);
     }
 
     private void createNewTemplate(BundleContext context) {
