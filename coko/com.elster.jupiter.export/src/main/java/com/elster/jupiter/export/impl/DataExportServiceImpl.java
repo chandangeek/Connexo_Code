@@ -38,8 +38,6 @@ import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.users.PrivilegesProvider;
-import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.conditions.Condition;
@@ -80,10 +78,10 @@ import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(
         name = "com.elster.jupiter.export",
-        service = {DataExportService.class, IDataExportService.class, PrivilegesProvider.class, TranslationKeyProvider.class, MessageSeedProvider.class},
+        service = {DataExportService.class, IDataExportService.class, TranslationKeyProvider.class, MessageSeedProvider.class},
         property = "name=" + DataExportService.COMPONENTNAME,
         immediate = true)
-public class DataExportServiceImpl implements IDataExportService, PrivilegesProvider, TranslationKeyProvider, MessageSeedProvider {
+public class DataExportServiceImpl implements IDataExportService, TranslationKeyProvider, MessageSeedProvider {
 
     public static final String DESTINATION_NAME = "DataExport";
     public static final String SUBSCRIBER_NAME = "DataExport";
@@ -483,24 +481,6 @@ public class DataExportServiceImpl implements IDataExportService, PrivilegesProv
 
     private Optional<IExportTask> getReadingTypeDataExportTaskForRecurrentTask(RecurrentTask recurrentTask) {
         return dataModel.mapper(IExportTask.class).getUnique("recurrentTask", recurrentTask);
-    }
-
-    @Override
-    public String getModuleName() {
-        return DataExportService.COMPONENTNAME;
-    }
-
-    @Override
-    public List<ResourceDefinition> getModuleResources() {
-        List<ResourceDefinition> resources = new ArrayList<>();
-        resources.add(userService.createModuleResourceWithPrivileges(getModuleName(),
-                Privileges.RESOURCE_DATA_EXPORT.getKey(), Privileges.RESOURCE_DATA_EXPORT_DESCRIPTION.getKey(),
-                Arrays.asList(Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK,
-                        Privileges.Constants.VIEW_DATA_EXPORT_TASK,
-                        Privileges.Constants.UPDATE_DATA_EXPORT_TASK,
-                        Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK,
-                        Privileges.Constants.RUN_DATA_EXPORT_TASK)));
-        return resources;
     }
 
     @Override
