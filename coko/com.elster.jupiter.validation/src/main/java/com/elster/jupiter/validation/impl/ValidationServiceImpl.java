@@ -83,7 +83,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
         service = {ValidationService.class, PrivilegesProvider.class, MessageSeedProvider.class, TranslationKeyProvider.class},
         property = "name=" + ValidationService.COMPONENTNAME,
         immediate = true)
-public class ValidationServiceImpl implements ValidationService, PrivilegesProvider, MessageSeedProvider, TranslationKeyProvider {
+public class ValidationServiceImpl implements ValidationService, MessageSeedProvider, TranslationKeyProvider {
 
     public static final String DESTINATION_NAME = "DataValidation";
     public static final String SUBSCRIBER_NAME = "DataValidation";
@@ -511,22 +511,6 @@ public class ValidationServiceImpl implements ValidationService, PrivilegesProvi
 
     public void removeResource(ValidatorFactory validatorfactory) {
         validatorFactories.remove(validatorfactory);
-    }
-
-    @Override
-    public String getModuleName() {
-        return ValidationService.COMPONENTNAME;
-    }
-
-    @Override
-    public List<ResourceDefinition> getModuleResources() {
-        List<ResourceDefinition> resources = new ArrayList<>();
-        resources.add(userService.createModuleResourceWithPrivileges(ValidationService.COMPONENTNAME, Privileges.RESOURCE_VALIDATION.getKey(), Privileges.RESOURCE_VALIDATION_DESCRIPTION.getKey(),
-                Arrays.asList(
-                        Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.VIEW_VALIDATION_CONFIGURATION,
-                        Privileges.Constants.VALIDATE_MANUAL, Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE,
-                        Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION)));
-        return resources;
     }
 
     @Override
