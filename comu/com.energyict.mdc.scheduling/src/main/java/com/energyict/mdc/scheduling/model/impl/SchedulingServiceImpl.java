@@ -14,8 +14,6 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.users.PrivilegesProvider;
-import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.HasId;
@@ -39,7 +37,6 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -49,8 +46,8 @@ import java.util.stream.Collectors;
 import static com.elster.jupiter.util.conditions.Where.where;
 import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 
-@Component(name = "com.energyict.mdc.scheduling", service = {ServerSchedulingService.class,SchedulingService.class, MessageSeedProvider.class, PrivilegesProvider.class, TranslationKeyProvider.class}, immediate = true, property = "name=" + SchedulingService.COMPONENT_NAME)
-public class SchedulingServiceImpl implements ServerSchedulingService, MessageSeedProvider, PrivilegesProvider, TranslationKeyProvider {
+@Component(name = "com.energyict.mdc.scheduling", service = {ServerSchedulingService.class,SchedulingService.class, MessageSeedProvider.class, TranslationKeyProvider.class}, immediate = true, property = "name=" + SchedulingService.COMPONENT_NAME)
+public class SchedulingServiceImpl implements ServerSchedulingService, MessageSeedProvider, TranslationKeyProvider {
 
     private volatile DataModel dataModel;
     private volatile EventService eventService;
@@ -217,19 +214,6 @@ public class SchedulingServiceImpl implements ServerSchedulingService, MessageSe
     @Override
     public ComScheduleBuilder newComSchedule(String name, TemporalExpression temporalExpression, Instant startDate) {
         return new ComScheduleBuilderImpl(name, temporalExpression, startDate);
-    }
-
-    @Override
-    public String getModuleName() {
-        return SchedulingService.COMPONENT_NAME;
-    }
-
-    @Override
-    public List<ResourceDefinition> getModuleResources() {
-        List<ResourceDefinition> resources = new ArrayList<>();
-        resources.add(userService.createModuleResourceWithPrivileges(SchedulingService.COMPONENT_NAME, Privileges.RESOURCE_SCHEDULES.getKey(), Privileges.RESOURCE_SCHEDULES_DESCRIPTION.getKey(),
-                Arrays.asList(Privileges.Constants.ADMINISTRATE_SHARED_COMMUNICATION_SCHEDULE, Privileges.Constants.VIEW_SHARED_COMMUNICATION_SCHEDULE)));
-        return resources;
     }
 
     class ComScheduleBuilderImpl implements ComScheduleBuilder {
