@@ -40,6 +40,8 @@ import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
@@ -318,6 +320,7 @@ public class InMemoryIntegrationPersistence {
             bind(IssueService.class).toInstance(issueService);
             bind(FileSystem.class).toInstance(FileSystems.getDefault());
             bind(Thesaurus.class).toInstance(mock(Thesaurus.class));
+            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }
 
