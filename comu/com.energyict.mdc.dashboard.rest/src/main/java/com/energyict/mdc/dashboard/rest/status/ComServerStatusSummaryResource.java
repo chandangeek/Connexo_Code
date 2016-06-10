@@ -9,7 +9,6 @@ import com.energyict.mdc.engine.config.security.Privileges;
 import com.energyict.mdc.engine.status.ComServerType;
 
 import org.glassfish.jersey.client.ClientProperties;
-import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.glassfish.jersey.jackson.JacksonFeature;
 import org.joda.time.DateTimeConstants;
 
@@ -17,6 +16,7 @@ import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.Path;
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.Produces;
@@ -41,8 +41,6 @@ import java.util.logging.Logger;
 public class ComServerStatusSummaryResource {
 
     private static final Logger LOGGER = Logger.getLogger(ComServerStatusSummaryResource.class.getName());
-    public static final String COM_SERVER_INTERNAL_USER = "comServerInternal";
-    public static final String COM_SERVER_INTERNAL_USER_GROUP = "ComServerResources";
 
     private final EngineConfigurationService engineConfigurationService;
     private final ComServerStatusInfoFactory comServerStatusInfoFactory;
@@ -54,47 +52,45 @@ public class ComServerStatusSummaryResource {
         this.comServerStatusInfoFactory = comServerStatusInfoFactory;
     }
 
-    @GET @Transactional
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION, com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DEVICE})
-    public ComServerStatusSummaryInfo getComServerStatusSummary(@Context UriInfo uriInfo) {
+    @GET
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION, Privileges.Constants.VIEW_STATUS_COMMUNICATION_INFRASTRUCTURE})
+    public ComServerStatusSummaryInfo getComServerStatusSummary(@Context UriInfo uriInfo, @HeaderParam("Authorization") String authorization) {
         Client jerseyClient = this.newJerseyClient();
         UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri()).path(ComServerStatusResource.class).host("{host}");
         ComServerStatusSummaryInfo statusSummaryInfo = new ComServerStatusSummaryInfo();
-        this.engineConfigurationService.findAllOnlineComServers().stream().filter(ComServer::isActive).forEach(cs -> addStatusInfo(statusSummaryInfo, cs, jerseyClient, uriBuilder));
-        this.engineConfigurationService.findAllRemoteComServers().stream().filter(ComServer::isActive).forEach(cs -> addStatusInfo(statusSummaryInfo, cs, jerseyClient, uriBuilder));
+        this.engineConfigurationService.findAllOnlineComServers().stream().filter(ComServer::isActive).forEach(cs -> addStatusInfo(statusSummaryInfo, cs, jerseyClient, authorization, uriBuilder));
+        this.engineConfigurationService.findAllRemoteComServers().stream().filter(ComServer::isActive).forEach(cs -> addStatusInfo(statusSummaryInfo, cs, jerseyClient, authorization, uriBuilder));
         return statusSummaryInfo;
     }
 
     private Client newJerseyClient() {
-        // Todo: remove hard coding of development username/pass and replace with interval user that has specific privileges
-        HttpAuthenticationFeature basicAuthentication = HttpAuthenticationFeature.basic(COM_SERVER_INTERNAL_USER, "comserver");
         return ClientBuilder.newClient().
                 register(new JacksonFeature()).
-                register(basicAuthentication).
                 property(ClientProperties.CONNECT_TIMEOUT, DateTimeConstants.MILLIS_PER_SECOND * 5).
                 property(ClientProperties.READ_TIMEOUT, DateTimeConstants.MILLIS_PER_SECOND * 2);
     }
 
-    private void addStatusInfo(ComServerStatusSummaryInfo statusSummaryInfo, OnlineComServer comServer, Client jerseyClient, UriBuilder uriBuilder) {
-        this.addStatusInfo(statusSummaryInfo, jerseyClient, comServer.getId(), comServer.getName(), comServer.getStatusUri(), ComServerType.ONLINE);
+    private void addStatusInfo(ComServerStatusSummaryInfo statusSummaryInfo, OnlineComServer comServer, Client jerseyClient, String authorizationHeader, UriBuilder uriBuilder) {
+        this.addStatusInfo(statusSummaryInfo, jerseyClient, authorizationHeader, comServer.getId(), comServer.getName(), comServer.getStatusUri(), ComServerType.ONLINE);
     }
 
-    private void addStatusInfo(ComServerStatusSummaryInfo statusSummaryInfo, RemoteComServer comServer, Client jerseyClient, UriBuilder uriBuilder) {
-        this.addStatusInfo(statusSummaryInfo, jerseyClient, comServer.getId(), comServer.getName(), comServer.getStatusUri(), ComServerType.REMOTE);
+    private void addStatusInfo(ComServerStatusSummaryInfo statusSummaryInfo, RemoteComServer comServer, Client jerseyClient, String authorizationHeader, UriBuilder uriBuilder) {
+        this.addStatusInfo(statusSummaryInfo, jerseyClient, authorizationHeader, comServer.getId(), comServer.getName(), comServer.getStatusUri(), ComServerType.REMOTE);
     }
 
-    private void addStatusInfo(ComServerStatusSummaryInfo statusSummaryInfo, Client jerseyClient, long comServerId, String comServerName, String statusUri, ComServerType comServerType) {
+    private void addStatusInfo(ComServerStatusSummaryInfo statusSummaryInfo, Client jerseyClient, String authorizationHeader, long comServerId, String comServerName, String statusUri, ComServerType comServerType) {
         try {
             LOGGER.fine(() -> "Executing " + statusUri);
             ComServerStatusInfo comServerStatusInfo =
-                jerseyClient.
-                    target(statusUri).
-                    request(MediaType.APPLICATION_JSON).
-                    get(ComServerStatusInfo.class);
+                    jerseyClient.
+                            target(statusUri).
+                            request(MediaType.APPLICATION_JSON).
+                            header("Authorization", authorizationHeader)
+                            .get(ComServerStatusInfo.class);
             statusSummaryInfo.comServerStatusInfos.add(comServerStatusInfoFactory.translate(comServerStatusInfo));
-        }
-        catch (ClientErrorException | ProcessingException e) {
+        } catch (ClientErrorException | ProcessingException e) {
             /* Occurrence of ProcessingException was established when debugging the situation
              * where the host name of the ComServer was not known to the dns service.
              * The underlying exception in this case is: java.net.UnknownHostException */

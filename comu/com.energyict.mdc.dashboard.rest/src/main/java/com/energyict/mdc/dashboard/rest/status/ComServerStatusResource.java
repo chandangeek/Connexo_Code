@@ -1,9 +1,9 @@
 package com.energyict.mdc.dashboard.rest.status;
 
 import com.elster.jupiter.rest.util.Transactional;
+import com.energyict.mdc.engine.config.security.Privileges;
 import com.energyict.mdc.engine.status.ComServerStatus;
 import com.energyict.mdc.engine.status.StatusService;
-import com.energyict.mdc.engine.config.security.Privileges;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -37,7 +37,7 @@ public class ComServerStatusResource {
 
     @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION, Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION_INTERNAL, com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DEVICE})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION, Privileges.Constants.VIEW_STATUS_COMMUNICATION_INFRASTRUCTURE})
     public ComServerStatusInfo getComServerStatus(@Context UriInfo uriInfo) {
         UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri()).path(ComServerStatusResource.class).host("{host}");
         ComServerStatus status = this.statusService.getStatus();
