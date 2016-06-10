@@ -16,6 +16,8 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.EventType;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
+import com.elster.jupiter.upgrade.InstallIdentifier;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import com.google.inject.AbstractModule;
@@ -27,6 +29,7 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,34 +39,23 @@ import java.util.Optional;
 @Component(name = "com.elster.jupiter.soap.webservices.installer", service = {EndPointConfigurationService.class, InstallService.class, MessageSeedProvider.class},
         property = "name=" + WebServicesService.COMPONENT_NAME,
         immediate = true)
-public class EndPointConfigurationServiceImpl implements EndPointConfigurationService, InstallService, MessageSeedProvider {
+public class EndPointConfigurationServiceImpl implements EndPointConfigurationService, MessageSeedProvider {
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
     private volatile EventService eventService;
+    private volatile UpgradeService upgradeService;
 
     // OSGi
     public EndPointConfigurationServiceImpl() {
     }
 
     @Inject // Test purposes only
-    public EndPointConfigurationServiceImpl(EventService eventService, NlsService nlsService, OrmService ormService) {
+    public EndPointConfigurationServiceImpl(EventService eventService, NlsService nlsService, OrmService ormService, UpgradeService upgradeService) {
         setEventService(eventService);
         setNlsService(nlsService);
         setOrmService(ormService);
+        setUpgradeService(upgradeService);
         activate();
-        if (!dataModel.isInstalled()) {
-            install();
-        }
-    }
-
-    @Override
-    public void install() {
-        dataModel.getInstance(Installer.class).install();
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList(OrmService.COMPONENTNAME);
     }
 
     @Override
@@ -94,6 +86,11 @@ public class EndPointConfigurationServiceImpl implements EndPointConfigurationSe
         this.eventService = eventService;
     }
 
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
+    }
+
     private Module getModule() {
         return new AbstractModule() {
             @Override
@@ -109,6 +106,8 @@ public class EndPointConfigurationServiceImpl implements EndPointConfigurationSe
     @Activate
     public void activate() {
         this.dataModel.register(this.getModule());
+        upgradeService.register(InstallIdentifier.identifier(WebServicesService.COMPONENT_NAME), dataModel, Installer.class, Collections
+                .emptyMap());
     }
 
     @Override
