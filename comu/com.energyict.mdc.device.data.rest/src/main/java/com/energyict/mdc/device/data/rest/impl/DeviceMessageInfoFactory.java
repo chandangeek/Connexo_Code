@@ -10,6 +10,7 @@ import com.elster.jupiter.servicecall.ServiceCallService;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceHelper;
 import com.energyict.mdc.device.data.rest.DeviceMessageStatusTranslationKeys;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
@@ -39,12 +40,14 @@ public class DeviceMessageInfoFactory {
     private final Thesaurus thesaurus;
     private final MdcPropertyUtils mdcPropertyUtils;
     private final ServiceCallService serviceCallService;
+    private final DeviceHelper deviceHelper;
 
     @Inject
-    public DeviceMessageInfoFactory(Thesaurus thesaurus, MdcPropertyUtils mdcPropertyUtils, ServiceCallService serviceCallService) {
+    public DeviceMessageInfoFactory(Thesaurus thesaurus, MdcPropertyUtils mdcPropertyUtils, ServiceCallService serviceCallService, DeviceHelper deviceHelper) {
         this.thesaurus = thesaurus;
         this.mdcPropertyUtils = mdcPropertyUtils;
         this.serviceCallService = serviceCallService;
+        this.deviceHelper = deviceHelper;
     }
 
     public DeviceMessageInfo asInfo(DeviceMessage<?> deviceMessage, UriInfo uriInfo) {
@@ -73,23 +76,11 @@ public class DeviceMessageInfoFactory {
 
         Device device = (Device) deviceMessage.getDevice();
         if (EnumSet.of(DeviceMessageStatus.PENDING, DeviceMessageStatus.WAITING).contains(deviceMessage.getStatus())) {
-            info.willBePickedUpByPlannedComTask = device.getComTaskExecutions().stream().
-                    filter(cte-> !cte.isOnHold()).
-                    flatMap(cte -> cte.getComTasks().stream()).
-                    flatMap(comTask -> comTask.getProtocolTasks().stream()).
-                    filter(task -> task instanceof MessagesTask).
-                    flatMap(task -> ((MessagesTask) task).getDeviceMessageCategories().stream()).
-                    anyMatch(category -> category.getId() == deviceMessage.getSpecification().getCategory().getId());
+            info.willBePickedUpByPlannedComTask = deviceHelper.willDeviceMessageBePickedUpByPlannedComTask(device, deviceMessage);
             if (info.willBePickedUpByPlannedComTask) {
                 info.willBePickedUpByComTask = true; // shortcut
             } else {
-                info.willBePickedUpByComTask = device.getDeviceConfiguration().
-                        getComTaskEnablements().stream().
-                        map(ComTaskEnablement::getComTask).
-                        flatMap(comTask -> comTask.getProtocolTasks().stream()).
-                        filter(task -> task instanceof MessagesTask).
-                        flatMap(task -> ((MessagesTask) task).getDeviceMessageCategories().stream()).
-                        anyMatch(category -> category.getId() == deviceMessage.getSpecification().getCategory().getId());
+                info.willBePickedUpByComTask = deviceHelper.willDeviceMessageBePickedUpByComTask(device, deviceMessage);
             }
         }
 

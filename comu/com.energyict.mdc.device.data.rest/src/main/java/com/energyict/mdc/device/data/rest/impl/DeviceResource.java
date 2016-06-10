@@ -32,6 +32,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.config.TimeOfUseOptions;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceHelper;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.DevicesForConfigChangeSearch;
 import com.energyict.mdc.device.data.exceptions.CannotChangeDeviceConfigStillUnresolvedConflicts;
@@ -144,6 +145,7 @@ public class DeviceResource {
     private final CalendarInfoFactory calendarInfoFactory;
     private final TimeOfUseInfoFactory timeOfUseInfoFactory;
     private final CalendarService calendarService;
+    private final DeviceHelper deviceHelper;
 
     @Inject
     public DeviceResource(
@@ -183,7 +185,8 @@ public class DeviceResource {
             ServiceCallService serviceCallService,
             CalendarInfoFactory calendarInfoFactory,
             TimeOfUseInfoFactory timeOfUseInfoFactory,
-            CalendarService calendarService) {
+            CalendarService calendarService,
+            DeviceHelper deviceHelper) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.deviceService = deviceService;
@@ -221,6 +224,7 @@ public class DeviceResource {
         this.calendarInfoFactory = calendarInfoFactory;
         this.timeOfUseInfoFactory = timeOfUseInfoFactory;
         this.calendarService = calendarService;
+        this.deviceHelper = deviceHelper;
     }
 
     @GET

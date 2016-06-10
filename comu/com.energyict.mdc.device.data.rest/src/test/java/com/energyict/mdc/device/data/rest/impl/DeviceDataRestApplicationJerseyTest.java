@@ -42,6 +42,7 @@ import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfileService;
+import com.energyict.mdc.device.data.impl.DeviceHelperImpl;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.rest.DeviceStateAccessFeature;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
@@ -171,6 +172,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     CalendarInfoFactory calendarInfoFactory;
     @Mock
     CalendarService calendarService;
+
     @Mock
     private volatile ThreadPrincipalService threadPrincipalService;
 
@@ -240,6 +242,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         application.setThreadPrincipalService(threadPrincipalService);
         application.setCalendarInfoFactory(calendarInfoFactory);
         application.setCalendarService(calendarService);
+        application.setDeviceHelper(new DeviceHelperImpl());
         return application;
     }
 

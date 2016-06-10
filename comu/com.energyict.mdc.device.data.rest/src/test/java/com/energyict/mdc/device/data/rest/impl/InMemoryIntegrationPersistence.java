@@ -72,6 +72,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.config.impl.deviceconfigchange.DeviceConfigConflictMappingHandler;
 import com.energyict.mdc.device.data.BatchService;
+import com.energyict.mdc.device.data.DeviceHelper;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
 import com.energyict.mdc.device.data.impl.DeviceEndDeviceQueryProvider;
@@ -184,6 +185,7 @@ public class InMemoryIntegrationPersistence {
     private FiniteStateMachineService finiteStateMachineService;
     private ServiceCallService serviceCallService;
     private Injector injector;
+    private DeviceHelper deviceHelper;
 
     public InMemoryIntegrationPersistence() {
         super();
@@ -313,6 +315,7 @@ public class InMemoryIntegrationPersistence {
             this.dataCollectionKpiService = injector.getInstance(DataCollectionKpiService.class);
             this.finiteStateMachineService = injector.getInstance(FiniteStateMachineService.class);
             this.serviceCallService = injector.getInstance(ServiceCallService.class);
+            this.deviceHelper = injector.getInstance(DeviceHelper.class);
             injector.getInstance(CustomPropertySetService.class);
             initializePrivileges();
             ctx.commit();
@@ -491,6 +494,10 @@ public class InMemoryIntegrationPersistence {
 
     public CalendarService getCalendarService() {
         return calendarService;
+    }
+
+    public DeviceHelper getDeviceHelper() {
+        return deviceHelper;
     }
 
     public TimeOfUseInfoFactory getTimeOfUseInfoFactory() {
