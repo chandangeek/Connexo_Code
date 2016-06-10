@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.impl.core;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -33,6 +34,8 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
+
+import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
@@ -430,4 +433,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
     void updateFirmwareVersions(CollectedFirmwareVersion collectedFirmwareVersions);
 
     void updateBreakerStatus(CollectedBreakerStatus collectedBreakerStatus);
+
+    List<Pair<OfflineLoadProfile,Range<Instant>>> getStorageLoadProfileIdentifiers(OfflineLoadProfile loadProfile, String readingTypeMRID, Range<Instant> dataPeriod);
+
 }

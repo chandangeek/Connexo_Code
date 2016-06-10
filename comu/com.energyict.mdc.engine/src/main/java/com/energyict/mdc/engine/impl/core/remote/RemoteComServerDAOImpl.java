@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.Device;
@@ -47,6 +48,7 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 
+import com.google.common.collect.Range;
 import org.eclipse.jetty.websocket.WebSocket;
 import org.eclipse.jetty.websocket.WebSocketClient;
 import org.eclipse.jetty.websocket.WebSocketClientFactory;
@@ -700,4 +702,8 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
 
     }
 
+    @Override
+    public List<Pair<OfflineLoadProfile, Range<Instant>>> getStorageLoadProfileIdentifiers(OfflineLoadProfile loadProfile, String readingTypeMRID, Range<Instant> dataPeriod) {
+        throw new UnsupportedOperationException("Method not implemented");
+    }
 }

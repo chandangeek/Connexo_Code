@@ -5,11 +5,13 @@ import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.sql.Fetcher;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfile;
@@ -26,6 +28,7 @@ import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
+import com.energyict.mdc.device.topology.DataLoggerChannelUsage;
 import com.energyict.mdc.device.topology.Modulation;
 import com.energyict.mdc.device.topology.ModulationScheme;
 import com.energyict.mdc.device.topology.PhaseInfo;
@@ -76,11 +79,14 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 
+import com.google.common.collect.Range;
+
 import java.time.Clock;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -776,6 +782,35 @@ public class ComServerDAOImpl implements ComServerDAO {
         LoadProfile.LoadProfileUpdater loadProfileUpdater = device.getLoadProfileUpdaterFor(refreshedLoadProfile);
         loadProfileUpdater.setLastReadingIfLater(lastReading);
         loadProfileUpdater.update();
+    }
+
+    @Override
+    public List<Pair<OfflineLoadProfile,Range<Instant>>> getStorageLoadProfileIdentifiers(OfflineLoadProfile offlineLoadProfile, String readingTypeMRID , Range<Instant> dataPeriod) {
+        final Device dataLogger = (Device) offlineLoadProfile.getDeviceIdentifier().findDevice();
+        if (dataLogger != null){
+            if (dataLogger.getDeviceConfiguration().isDataloggerEnabled()){
+                Optional<Channel> dataLoggerChannel = dataLogger.getChannels().stream().filter((c) -> c.getReadingType().getMRID().equals(readingTypeMRID)).findFirst();
+                if (dataLoggerChannel.isPresent()){
+                    List<DataLoggerChannelUsage> dataLoggerChannelUsages = this.serviceProvider.topologyService().findDataLoggerChannelUsages(dataLoggerChannel.get(), dataPeriod);
+                    List<Pair<OfflineLoadProfile,Range<Instant>>> offLineLoadProfiles = new ArrayList<>();
+                    // 'linked' periods
+                    if (!dataLoggerChannelUsages.isEmpty()){
+                        dataLoggerChannelUsages.forEach(usage -> {
+                            Device slave = usage.getDataLoggerReference().getOrigin();
+                            Optional<Channel> slaveChannel = dataLogger.getChannels().stream().filter((c) -> c.getReadingType().getMRID().equals(readingTypeMRID)).findFirst();
+                            if (slaveChannel.isPresent()) {
+                                Optional<LoadProfile> loadProfile = slave.getLoadProfiles().stream().filter((lp) -> lp.getChannels().contains(slaveChannel.get())).findFirst();
+                                if (loadProfile.isPresent()) {
+                                    offLineLoadProfiles.add(Pair.of(new OfflineLoadProfileImpl(loadProfile.get(), this.serviceProvider.topologyService(),this.serviceProvider.identificationService()), usage.getRange()));
+                                }
+                            }
+                        });
+                    }
+                    return offLineLoadProfiles;
+                }
+            }
+        }
+        return Collections.singletonList(Pair.of(offlineLoadProfile,dataPeriod));
     }
 
     private Instant now() {

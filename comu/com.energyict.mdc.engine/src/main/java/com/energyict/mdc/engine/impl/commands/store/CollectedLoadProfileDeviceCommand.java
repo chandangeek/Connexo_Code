@@ -45,7 +45,7 @@ public class CollectedLoadProfileDeviceCommand extends DeviceCommandImpl<Collect
         PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(this.getClock(), this.getMdcReadingTypeUtilService(), comServerDAO);
         PreStoreLoadProfile.PreStoredLoadProfile preStoredLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
         if (preStoredLoadProfile.getPreStoreResult().equals(PreStoreLoadProfile.PreStoredLoadProfile.PreStoreResult.OK)) {
-            updateMeterDataStorer(preStoredLoadProfile.getDeviceIdentifier(), preStoredLoadProfile.getIntervalBlocks(), preStoredLoadProfile.getLastReading());
+            preStoredLoadProfile.updateCommand(this.meterDataStoreCommand);
         } else if (preStoredLoadProfile.getPreStoreResult().equals(PreStoreLoadProfile.PreStoredLoadProfile.PreStoreResult.NO_INTERVALS_COLLECTED)) {
             final Optional<OfflineLoadProfile> optionalLoadProfile = comServerDAO.findOfflineLoadProfile(this.collectedLoadProfile.getLoadProfileIdentifier());
             this.addIssue(
@@ -67,12 +67,12 @@ public class CollectedLoadProfileDeviceCommand extends DeviceCommandImpl<Collect
         }
     }
 
-    private void updateMeterDataStorer(DeviceIdentifier<Device> deviceIdentifier, List<IntervalBlock> intervalBlocks, Instant lastReading) {
-        if (!intervalBlocks.isEmpty()) {
-            this.meterDataStoreCommand.addIntervalReadings(deviceIdentifier, intervalBlocks);
-            this.meterDataStoreCommand.addLastReadingUpdater(this.collectedLoadProfile.getLoadProfileIdentifier(), lastReading);
-        }
-    }
+//    private void updateMeterDataStorer(DeviceIdentifier<Device> deviceIdentifier, List<IntervalBlock> intervalBlocks, Instant lastReading) {
+//        if (!intervalBlocks.isEmpty()) {
+//            this.meterDataStoreCommand.addIntervalReadings(deviceIdentifier, intervalBlocks);
+//            this.meterDataStoreCommand.addLastReadingUpdater(this.collectedLoadProfile.getLoadProfileIdentifier(), lastReading);
+//        }
+//    }
 
     @Override
     public ComServer.LogLevel getJournalingLogLevel() {

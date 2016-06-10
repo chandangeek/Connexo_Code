@@ -8,14 +8,13 @@ import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.collections.DualIterable;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
-import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfileChannel;
 
 import com.google.common.collect.Range;
 
@@ -56,88 +55,16 @@ public class PreStoreLoadProfile {
      * </ul>
      *
      * @param collectedLoadProfile the collected data from a LoadProfile to (pre)Store
-     * @return the preStored LoadProfile
+     * @return and Array of preStored LoadProfiles: for non datalogger devices this will only contain 1 element. A data logger for which
+     * at least one channel is linked to a slave channel can return an extra element, if not all channels are linked: 1 for non linked channels (device = datalogger)
+     * and 1 for each slave device ;
      */
     PreStoredLoadProfile preStore(CollectedLoadProfile collectedLoadProfile) {
-        PreStoredLoadProfile preStoredLoadProfile = new PreStoredLoadProfile(collectedLoadProfile.getLoadProfileIdentifier().getDeviceIdentifier());
         if (!collectedLoadProfile.getCollectedIntervalData().isEmpty()) {
-            Optional<OfflineLoadProfile> optionalLoadProfile = this.comServerDAO.findOfflineLoadProfile(collectedLoadProfile.getLoadProfileIdentifier());
-            optionalLoadProfile.ifPresent(offlineLoadProfile -> {
-                List<IntervalBlock> processedBlocks = new ArrayList<>();
-                Instant lastReading = null;
-                preStoredLoadProfile.setPreStoreResult(PreStoredLoadProfile.PreStoreResult.OK);
-                Range<Instant> range = getRangeForNewIntervalStorage(offlineLoadProfile);
-                for (Pair<IntervalBlock, ChannelInfo> intervalBlockChannelInfoPair : DualIterable.endWithLongest(MeterDataFactory.createIntervalBlocksFor(collectedLoadProfile), collectedLoadProfile.getChannelInfo())) {
-                    IntervalBlock intervalBlock = intervalBlockChannelInfoPair.getFirst();
-                    ChannelInfo channelInfo = intervalBlockChannelInfoPair.getLast();
-
-                    Unit configuredUnit = this.mdcReadingTypeUtilService.getMdcUnitFor(channelInfo.getReadingTypeMRID());
-                    int scaler = getScaler(channelInfo.getUnit(), configuredUnit);
-                    BigDecimal multiplier = channelInfo.getMultiplier();
-                    IntervalBlockImpl processingBlock = IntervalBlockImpl.of(intervalBlock.getReadingTypeCode());
-                    for (IntervalReading intervalReading : intervalBlock.getIntervals()) {
-                        if (range.contains(intervalReading.getTimeStamp())) {
-                            IntervalReading scaledIntervalReading = getScaledIntervalReading(scaler, intervalReading);
-                            IntervalReading multipliedReading = getMultipliedReading(multiplier, scaledIntervalReading);
-                            processingBlock.addIntervalReading(multipliedReading);
-                            lastReading = updateLastReadingIfLater(lastReading, intervalReading);
-                        }
-                    }
-                    processedBlocks.add(processingBlock);
-                }
-                checkIfYouHaveAnEmptyChannel(preStoredLoadProfile, processedBlocks);
-                preStoredLoadProfile.setLastReading(lastReading);
-            });
+            return new CompositePreStoredLoadProfile(this.comServerDAO, collectedLoadProfile.getLoadProfileIdentifier()).preprocess(collectedLoadProfile, clock.instant(), mdcReadingTypeUtilService);
         } else {
-            preStoredLoadProfile.setPreStoreResult(PreStoredLoadProfile.PreStoreResult.NO_INTERVALS_COLLECTED);
+            return PreStoredLoadProfile.forLoadProfileDataNotCollected();
         }
-        return preStoredLoadProfile;
-    }
-
-    private void checkIfYouHaveAnEmptyChannel(PreStoredLoadProfile preStoredLoadProfile, List<IntervalBlock> processedBlocks) {
-        final Optional<IntervalBlock> blockWithNoIntervals = processedBlocks.stream().filter(intervalBlock -> intervalBlock.getIntervals().isEmpty()).findAny();
-        if (blockWithNoIntervals.isPresent()) {
-            preStoredLoadProfile.setPreStoreResult(PreStoredLoadProfile.PreStoreResult.NO_INTERVALS_COLLECTED);
-        } else {
-            preStoredLoadProfile.setIntervalBlocks(processedBlocks);
-        }
-    }
-
-    private Range<Instant> getRangeForNewIntervalStorage(OfflineLoadProfile offlineLoadProfile) {
-        return Range.openClosed(offlineLoadProfile.getLastReading().orElse(Instant.EPOCH), clock.instant());
-    }
-
-    private IntervalReading getMultipliedReading(BigDecimal multiplier, IntervalReading intervalReading) {
-        if (!Checks.is(multiplier).equalValue(BigDecimal.ONE)) {
-            return IntervalReadingImpl.of(intervalReading.getTimeStamp(), intervalReading.getValue().multiply(multiplier), intervalReading.getProfileStatus());
-        }
-        else {
-            return intervalReading;
-        }
-    }
-
-    private IntervalReading getScaledIntervalReading(int scaler, IntervalReading intervalReading) {
-        if (scaler == 0) {
-            return intervalReading;
-        } else {
-            BigDecimal scaledValue = intervalReading.getValue().scaleByPowerOfTen(scaler);
-            return IntervalReadingImpl.of(intervalReading.getTimeStamp(), scaledValue, intervalReading.getProfileStatus());
-        }
-    }
-
-    private int getScaler(Unit fromUnit, Unit toUnit) {
-        if (fromUnit.equalBaseUnit(toUnit)) {
-            return fromUnit.getScale() - toUnit.getScale();
-        } else {
-            return 0;
-        }
-    }
-
-    private Instant updateLastReadingIfLater(Instant lastReading, IntervalReading intervalReading) {
-        if (lastReading == null || intervalReading.getTimeStamp().isAfter(lastReading)) {
-            lastReading = intervalReading.getTimeStamp();
-        }
-        return lastReading;
     }
 
     /**
@@ -146,47 +73,183 @@ public class PreStoreLoadProfile {
     static class PreStoredLoadProfile {
 
         enum PreStoreResult {
+            NOT_PROCESSED,
             OK,
             LOADPROFILE_NOT_FOUND,
             NO_INTERVALS_COLLECTED;
         }
 
-        private final DeviceIdentifier<Device> deviceIdentifier;
+        private OfflineLoadProfile offlineLoadProfile;
         private List<IntervalBlock> intervalBlocks;
+        private PreStoreResult preStoreResult = PreStoreResult.NOT_PROCESSED;
         private Instant lastReading;
-        private PreStoreResult preStoreResult = PreStoreResult.LOADPROFILE_NOT_FOUND;
 
-        PreStoredLoadProfile(DeviceIdentifier<Device> deviceIdentifier) {
-            this.deviceIdentifier = deviceIdentifier;
+
+        private PreStoredLoadProfile() {
         }
 
-        public DeviceIdentifier<Device> getDeviceIdentifier() {
-            return deviceIdentifier;
+        PreStoredLoadProfile(Optional<OfflineLoadProfile> offlineLoadProfile) {
+            if (offlineLoadProfile.isPresent()) {
+                this.offlineLoadProfile = offlineLoadProfile.get();
+            } else {
+                this.preStoreResult = PreStoreResult.LOADPROFILE_NOT_FOUND;
+            }
+        }
+
+        static PreStoredLoadProfile forLoadProfileDataNotCollected() {
+            PreStoredLoadProfile profile = new PreStoredLoadProfile();
+            profile.preStoreResult = PreStoreResult.NO_INTERVALS_COLLECTED;
+            return profile;
+        }
+
+        protected OfflineLoadProfile getOfflineLoadProfile() {
+            return this.offlineLoadProfile;
+        }
+
+        protected void setPreStoreResult(PreStoreResult result){
+            this.preStoreResult = result;
+        }
+
+        public LoadProfileIdentifier getLoadProfileIdentifier() {
+            return this.offlineLoadProfile.getLoadProfileIdentifier();
+        }
+
+        public DeviceIdentifier getDeviceIdentifier() {
+            return this.offlineLoadProfile.getDeviceIdentifier();
         }
 
         public List<IntervalBlock> getIntervalBlocks() {
             return intervalBlocks;
         }
 
-        public void setIntervalBlocks(List<IntervalBlock> intervalBlocks) {
-            this.intervalBlocks = intervalBlocks;
-        }
-
         public Instant getLastReading() {
             return lastReading;
-        }
-
-        public void setLastReading(Instant lastReading) {
-            this.lastReading = lastReading;
         }
 
         public PreStoreResult getPreStoreResult() {
             return preStoreResult;
         }
 
-        public void setPreStoreResult(PreStoreResult preStoreResult) {
-            this.preStoreResult = preStoreResult;
+
+        public PreStoredLoadProfile preprocess(CollectedLoadProfile collectedLoadProfile, Instant intervalStorageEnd, MdcReadingTypeUtilService mdcReadingTypeUtilService) {
+            if (this.preStoreResult == preStoreResult.NOT_PROCESSED) {
+                List<IntervalBlock> processedBlocks = new ArrayList<>();
+                Instant lastReading = null;
+                preStoreResult = PreStoredLoadProfile.PreStoreResult.OK;
+
+                Range<Instant> range = getRangeForNewIntervalStorage(offlineLoadProfile, intervalStorageEnd);
+                for (Pair<IntervalBlock, ChannelInfo> intervalBlockChannelInfoPair : DualIterable.endWithLongest(MeterDataFactory.createIntervalBlocksFor(collectedLoadProfile), collectedLoadProfile.getChannelInfo())) {
+                    IntervalBlock intervalBlock = intervalBlockChannelInfoPair.getFirst();
+                    ChannelInfo channelInfo = intervalBlockChannelInfoPair.getLast();
+                    Unit configuredUnit = mdcReadingTypeUtilService.getMdcUnitFor(channelInfo.getReadingTypeMRID());
+                    processedBlocks.add(processBlock(intervalBlock, range, channelInfo, configuredUnit));
+                }
+                checkIfYouHaveAnEmptyChannel(processedBlocks);
+                this.lastReading = lastReading;
+            }
+            return this;
         }
+
+        protected IntervalBlock processBlock(IntervalBlock intervalBlock, Range<Instant> rangeToProcess, ChannelInfo channelInfo, Unit configuredUnit){
+            int scaler = getScaler(channelInfo.getUnit(), configuredUnit);
+            BigDecimal multiplier = channelInfo.getMultiplier();
+            IntervalBlockImpl processingBlock = IntervalBlockImpl.of(intervalBlock.getReadingTypeCode());
+            for (IntervalReading intervalReading : intervalBlock.getIntervals()) {
+                if (rangeToProcess.contains(intervalReading.getTimeStamp())) {
+                    IntervalReading scaledIntervalReading = getScaledIntervalReading(scaler, intervalReading);
+                    IntervalReading multipliedReading = getMultipliedReading(multiplier, scaledIntervalReading);
+                    processingBlock.addIntervalReading(multipliedReading);
+                    lastReading = updateLastReadingIfLater(lastReading, intervalReading);
+                }
+            }
+            return processingBlock;
+        }
+
+        public void updateCommand(MeterDataStoreCommand meterDataStoreCommand) {
+            if (!intervalBlocks.isEmpty()) {
+                meterDataStoreCommand.addIntervalReadings(getDeviceIdentifier(), intervalBlocks);
+                meterDataStoreCommand.addLastReadingUpdater(getLoadProfileIdentifier(), lastReading);
+            }
+        }
+
+        final protected Range<Instant> getRangeForNewIntervalStorage(OfflineLoadProfile offlineLoadProfile, Instant intervalStorageEnd) {
+            return Range.openClosed(offlineLoadProfile.getLastReading().orElse(Instant.EPOCH), intervalStorageEnd);
+        }
+
+        final protected IntervalReading getMultipliedReading(BigDecimal multiplier, IntervalReading intervalReading) {
+            if (!Checks.is(multiplier).equalValue(BigDecimal.ONE)) {
+                return IntervalReadingImpl.of(intervalReading.getTimeStamp(), intervalReading.getValue().multiply(multiplier), intervalReading.getProfileStatus());
+            } else {
+                return intervalReading;
+            }
+        }
+
+        final protected IntervalReading getScaledIntervalReading(int scaler, IntervalReading intervalReading) {
+            if (scaler == 0) {
+                return intervalReading;
+            } else {
+                BigDecimal scaledValue = intervalReading.getValue().scaleByPowerOfTen(scaler);
+                return IntervalReadingImpl.of(intervalReading.getTimeStamp(), scaledValue, intervalReading.getProfileStatus());
+            }
+        }
+
+        final protected int getScaler(Unit fromUnit, Unit toUnit) {
+            if (fromUnit.equalBaseUnit(toUnit)) {
+                return fromUnit.getScale() - toUnit.getScale();
+            } else {
+                return 0;
+            }
+        }
+
+        final protected Instant updateLastReadingIfLater(Instant lastReading, IntervalReading intervalReading) {
+            if (lastReading == null || intervalReading.getTimeStamp().isAfter(lastReading)) {
+                lastReading = intervalReading.getTimeStamp();
+            }
+            return lastReading;
+        }
+
+        final protected void checkIfYouHaveAnEmptyChannel(List<IntervalBlock> processedBlocks) {
+            final Optional<IntervalBlock> blockWithNoIntervals = processedBlocks.stream().filter(intervalBlock -> intervalBlock.getIntervals().isEmpty()).findAny();
+            if (blockWithNoIntervals.isPresent()) {
+                this.preStoreResult = PreStoreResult.NO_INTERVALS_COLLECTED;
+            } else {
+                this.intervalBlocks = processedBlocks;
+            }
+        }
+    }
+
+    static class CompositePreStoredLoadProfile extends PreStoredLoadProfile {
+
+        private final ComServerDAO comServerDAO;
+        private List<PreStoredLoadProfile> preStoredLoadProfiles = new ArrayList<>();
+
+        CompositePreStoredLoadProfile(ComServerDAO comServerDAO , LoadProfileIdentifier loadProfileIdentifier) {
+            super(comServerDAO.findOfflineLoadProfile(loadProfileIdentifier));
+            this.comServerDAO = comServerDAO;
+        }
+
+        public PreStoredLoadProfile preprocess(CollectedLoadProfile collectedLoadProfile, Instant intervalStorageEnd, MdcReadingTypeUtilService mdcReadingTypeUtilService) {
+            setPreStoreResult(PreStoredLoadProfile.PreStoreResult.OK);
+
+            for (Pair<IntervalBlock, ChannelInfo> intervalBlockChannelInfoPair : DualIterable.endWithLongest(MeterDataFactory.createIntervalBlocksFor(collectedLoadProfile), collectedLoadProfile.getChannelInfo())) {
+                IntervalBlock intervalBlock = intervalBlockChannelInfoPair.getFirst();
+                ChannelInfo channelInfo = intervalBlockChannelInfoPair.getLast();
+                Unit configuredUnit = mdcReadingTypeUtilService.getMdcUnitFor(channelInfo.getReadingTypeMRID());
+                comServerDAO.getStorageLoadProfileIdentifiers(getOfflineLoadProfile(), channelInfo.getReadingTypeMRID(), collectedLoadProfile.getCollectedIntervalDataRange()).forEach(pair -> {
+                    PreStoredLoadProfile preStoredLoadProfile = new PreStoredLoadProfile(Optional.of(pair.getFirst()));
+                    preStoredLoadProfile.preprocess(collectedLoadProfile, intervalStorageEnd, mdcReadingTypeUtilService);
+                    preStoredLoadProfiles.add(preStoredLoadProfile);
+                });
+                super.processBlock(intervalBlock,getRangeForNewIntervalStorage(getOfflineLoadProfile(), intervalStorageEnd), channelInfo, configuredUnit);
+            }
+            return this;
+        }
+
+        public void updateCommand(MeterDataStoreCommand meterDataStoreCommand) {
+            preStoredLoadProfiles.stream().forEach(each -> each.updateCommand(meterDataStoreCommand));
+            super.updateCommand(meterDataStoreCommand);
+        }
+
     }
 
 }
