@@ -13,6 +13,8 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.upgrade.InstallIdentifier;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
@@ -21,8 +23,6 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.proxy.LazyLoader;
 import com.elster.jupiter.util.streams.DecoratedStream;
 import com.elster.jupiter.util.streams.Predicates;
-import com.elster.jupiter.upgrade.InstallIdentifier;
-import com.elster.jupiter.upgrade.UpgradeService;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComPortPool;
@@ -530,11 +530,9 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     private <T> Optional<T> unique(Collection<T> collection) {
         if (collection.isEmpty()) {
             return Optional.empty();
-        }
-        else if (collection.size() != 1) {
+        } else if (collection.size() != 1) {
             throw notUniqueException();
-        }
-        else {
+        } else {
             return Optional.of(collection.iterator().next());
         }
     }
@@ -551,10 +549,11 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     @Override
     public List<ResourceDefinition> getModuleResources() {
         List<ResourceDefinition> resources = new ArrayList<>();
-        resources.add(userService.createModuleResourceWithPrivileges(EngineConfigurationService.COMPONENT_NAME, Privileges.RESOURCE_COMMUNICATION.getKey(), Privileges.RESOURCE_COMMUNICATION_DESCRIPTION.getKey(),
-                Arrays.asList(
-                        Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION,
-                        Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION_INTERNAL)));
+        resources.add(userService.createModuleResourceWithPrivileges(EngineConfigurationService.COMPONENT_NAME,
+                Privileges.RESOURCE_COMMUNICATION.getKey(), Privileges.RESOURCE_COMMUNICATION_DESCRIPTION.getKey(),
+                Arrays.asList(Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION,
+                        Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION,
+                        Privileges.Constants.VIEW_STATUS_COMMUNICATION_INFRASTRUCTURE)));
         return resources;
     }
 
