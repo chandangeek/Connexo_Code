@@ -44,7 +44,7 @@ class MdcAppPrivileges {
                 //mdc.engine.config
                 com.energyict.mdc.engine.config.security.Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION,
                 com.energyict.mdc.engine.config.security.Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION,
-                com.energyict.mdc.engine.config.security.Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION_INTERNAL,
+                com.energyict.mdc.engine.config.security.Privileges.Constants.VIEW_STATUS_COMMUNICATION_INFRASTRUCTURE,
 
                 //mdc.device.data
                 com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTRATE_DEVICE,
