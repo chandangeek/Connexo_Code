@@ -181,6 +181,14 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
     }
 
     @Override
+    public void deprecate() {
+        if (MetrologyConfigurationStatus.ACTIVE == status) {
+            this.status = MetrologyConfigurationStatus.DEPRECATED;
+            this.update();
+        }
+    }
+
+    @Override
     public ServiceCategory getServiceCategory() {
         return serviceCategory.get();
     }
