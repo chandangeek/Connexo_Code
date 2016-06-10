@@ -118,11 +118,11 @@ public class MultisenseHeadEndInterfaceTest {
     }
 
     @Test
-    public void getURLForEndDevice(){
+    public void getURLForEndDevice() {
         Optional<URL> url = headEndInterface.getURLForEndDevice(endDevice);
-        if(url.isPresent()){
-            assertTrue(url.get().toString().equals(uri + "/devices/"+mRid));
-        }else{
+        if (url.isPresent()) {
+            assertTrue(url.get().toString().equals(uri + "/devices/" + mRid));
+        } else {
             throw new AssertionError("URL not found");
         }
     }

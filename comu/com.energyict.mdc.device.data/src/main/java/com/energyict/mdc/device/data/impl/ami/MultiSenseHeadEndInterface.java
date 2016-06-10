@@ -43,8 +43,6 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
 
-import static com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DEVICE;
-
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -63,6 +61,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DEVICE;
 
 @Component(name = "com.energyict.mdc.device.data.impl.ami.MultiSenseHeadEndInterface",
         service = {HeadEndInterface.class, TranslationKeyProvider.class},
