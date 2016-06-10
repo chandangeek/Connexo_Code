@@ -2,7 +2,7 @@ package com.energyict.mdc.device.topology;
 
 import aQute.bnd.annotation.ProviderType;
 
-import com.elster.jupiter.domain.util.DefaultFinder;
+
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.data.Channel;
@@ -11,7 +11,7 @@ import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.CommunicationErrorType;
-import com.energyict.mdc.device.topology.impl.DataLoggerReferenceImpl;
+import com.energyict.mdc.device.topology.impl.PhysicalGatewayReference;
 
 import com.google.common.collect.Range;
 
@@ -20,8 +20,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
-import static com.elster.jupiter.util.conditions.Where.where;
 
 /**
  * Provides services that relate to the topology of {@link Device}s.
@@ -262,8 +260,7 @@ public interface TopologyService {
      *
      * @return all data logger data slave devices which at this moment are effectively linked to a datalogger
      */
-    Finder<DataLoggerReferenceImpl>  findAllEffectiveDataLoggerSlaveDevices();
-
+    Finder<? extends DataLoggerReference>  findAllEffectiveDataLoggerSlaveDevices();
 
     /**
      * @param dataLoggerChannel
@@ -280,6 +277,15 @@ public interface TopologyService {
      *         false if not DataloggerChannelUsages were found having the given ('pulse') channel as gateway channel;
      */
     boolean isReferenced(Channel dataLoggerChannel);
+
+    /**
+     * Retrieve all DataLoggerChannelUsages for given dataLoggerChannel for given period
+     * @param dataLoggerChannel channel to inspect
+     * @param referencePeriod period to inspect
+     * @return true if the channel is already present as gateway channel in one or more DataLoggerChannelUsages
+     *         false if not DataloggerChannelUsages were found having the given ('pulse') channel as gateway channel;
+     */
+    List<DataLoggerChannelUsage> findDataLoggerChannelUsages(Channel dataLoggerChannel, Range<Instant> referencePeriod);
 
     /**
      * @param dataLoggerRegister

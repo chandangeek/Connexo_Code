@@ -1,8 +1,7 @@
 package com.energyict.mdc.device.topology;
 
+import com.elster.jupiter.orm.associations.Effectivity;
 import com.energyict.mdc.device.topology.impl.DataLoggerReferenceImpl;
-
-import java.time.Instant;
 
 /**
  * Represents the usage of a Data Logger channel by a slave channel
@@ -10,12 +9,12 @@ import java.time.Instant;
  * Date: 28/04/2016
  * Time: 11:05
  */
-public interface DataLoggerChannelUsage {
+public interface DataLoggerChannelUsage extends Effectivity {
 
     /**
      * @return the PhysicalGatewayReference this DataloggerChannelUsage makes part of
      */
-    DataLoggerReferenceImpl getDataLoggerReference();
+    DataLoggerReference getDataLoggerReference();
 
     /**
      * @return  The data logger's channel that is used

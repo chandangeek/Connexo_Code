@@ -11,6 +11,7 @@ import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.topology.DataLoggerChannelUsage;
+import com.energyict.mdc.device.topology.DataLoggerReference;
 
 import com.google.common.collect.Range;
 
@@ -30,7 +31,7 @@ import java.util.List;
 @GatewayDeviceTypeIsDataLoggerEnabled(groups = {Save.Create.class, Save.Update.class}, message = "{"+ MessageSeeds.Keys.GATEWAY_NOT_DATALOGGER_ENABLED +"}")
 @AllSlaveChannelsIncluded(groups = {Save.Create.class}, message = "{"+ MessageSeeds.Keys.NOT_ALL_SLAVE_CHANNELS_INCLUDED +"}")
 @AllDataLoggerChannelsAvailable(groups = {Save.Create.class}, message = "{" + MessageSeeds.Keys.DATA_LOGGER_CHANNEL_ALREADY_REFERENCED +"}")
-public class DataLoggerReferenceImpl extends AbstractPhysicalGatewayReferenceImpl {
+public class DataLoggerReferenceImpl extends AbstractPhysicalGatewayReferenceImpl implements DataLoggerReference {
 
     private List<DataLoggerChannelUsage> dataLoggerChannelUsages = new ArrayList<>();
 

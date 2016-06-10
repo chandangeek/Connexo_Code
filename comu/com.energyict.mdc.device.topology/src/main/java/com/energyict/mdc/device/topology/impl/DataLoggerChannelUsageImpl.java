@@ -5,10 +5,14 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.ImplField;
 import com.energyict.mdc.device.topology.DataLoggerChannelUsage;
 
+import com.google.common.collect.Range;
+
 import java.time.Instant;
+import java.util.Optional;
 
 /**
  * Copyrights EnergyICT
@@ -62,5 +66,30 @@ public class DataLoggerChannelUsageImpl implements DataLoggerChannelUsage {
     @Override
     public Channel getSlaveChannel() {
         return slaveChannel.get();
+    }
+
+    @Override
+    public Interval getInterval() {
+        return this.dataloggerReference.get().getInterval();
+    }
+
+    @Override
+    public Range<Instant> getRange() {
+        return this.dataloggerReference.get().getRange();
+    }
+
+    @Override
+    public boolean isEffectiveAt(Instant instant) {
+        return this.dataloggerReference.get().isEffectiveAt(instant);
+    }
+
+    @Override
+    public boolean overlaps(Range<Instant> otherRange) {
+        return this.dataloggerReference.get().overlaps(otherRange);
+    }
+
+    @Override
+    public Optional<Range<Instant>> intersection(Range<Instant> otherRange) {
+        return this.dataloggerReference.get().intersection(otherRange);
     }
 }
