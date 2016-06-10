@@ -2,13 +2,20 @@ package com.energyict.mdc.engine.monitor.app.impl;
 
 import com.elster.jupiter.http.whiteboard.*;
 import com.elster.jupiter.nls.*;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.upgrade.FullInstaller;
+import com.elster.jupiter.upgrade.InstallIdentifier;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.*;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.monitor.app.MdcMonitorAppService;
 import com.energyict.mdc.engine.monitor.app.security.MdcMonitorAppPrivileges;
 import com.energyict.mdc.engine.monitor.app.security.PrivilegeTranslationKeyPair;
 import com.energyict.mdc.engine.status.StatusService;
+
+import com.google.inject.AbstractModule;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.*;
@@ -22,11 +29,11 @@ import java.util.stream.Stream;
 
 @Component(
         name = "com.energyict.mdc.engine.monitor.app",
-        service = {MdcMonitorAppService.class, TranslationKeyProvider.class, PrivilegesProvider.class},
+        service = {MdcMonitorAppService.class, TranslationKeyProvider.class},
         property = "name=" + MdcMonitorAppService.COMPONENT_NAME,
         immediate = true)
 @SuppressWarnings("unused")
-public class MdcMonitorAppServiceImpl implements MdcMonitorAppService , TranslationKeyProvider, PrivilegesProvider{
+public class MdcMonitorAppServiceImpl implements MdcMonitorAppService , TranslationKeyProvider {
 
     private final Logger logger = Logger.getLogger(MdcMonitorAppServiceImpl.class.getName());
 
@@ -40,6 +47,7 @@ public class MdcMonitorAppServiceImpl implements MdcMonitorAppService , Translat
     private volatile EngineConfigurationService engineConfigurationService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile UserService userService;
+    private volatile UpgradeService upgradeService;
 
     public MdcMonitorAppServiceImpl() {
     }
@@ -48,7 +56,8 @@ public class MdcMonitorAppServiceImpl implements MdcMonitorAppService , Translat
     public MdcMonitorAppServiceImpl(StatusService statusService,
                                     EngineConfigurationService engineConfigurationService,
                                     ThreadPrincipalService threadPrincipalService,
-                                    UserService userService, BundleContext context) {
+                                    UserService userService, BundleContext context,
+                                    UpgradeService upgradeService) {
         setStatusService(statusService);
         setEngineConfigurationService(engineConfigurationService);
         setThreadPrincipalService(threadPrincipalService);
@@ -62,6 +71,46 @@ public class MdcMonitorAppServiceImpl implements MdcMonitorAppService , Translat
         // EXAMPLE: Below is how to enable local development mode.
         //HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, "C:\\git\\jupiter\\copl\\com.elster.jupiter.appserver.extjs\\src\\main\\web\\js\\appserver", new FileResolver());
         registration = context.registerService(HttpResource.class, resource, null);
+        DataModel dataModel = upgradeService.newNonOrmDataModel();
+        dataModel.register(new AbstractModule() {
+            @Override
+            protected void configure() {
+                bind(UserService.class).toInstance(userService);
+            }
+        });
+
+        upgradeService.register(InstallIdentifier.identifier(COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
+    }
+
+    static class Installer implements FullInstaller, PrivilegesProvider {
+        private final UserService userService;
+
+        @Inject
+        Installer(UserService userService) {
+            this.userService = userService;
+        }
+
+        @Override
+        public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
+            userService.addModulePrivileges(this);
+        }
+
+        @Override
+        public List<ResourceDefinition> getModuleResources() {
+            List<ResourceDefinition> resources = new ArrayList<>();
+            resources.add(userService.createModuleResourceWithPrivileges(COMPONENT_NAME,
+                    PrivilegeTranslationKeyPair.RESOURCE_COMMUNICATION_SERVER_MONITOR.getKey(),
+                    PrivilegeTranslationKeyPair.RESOURCE_COMMUNICATION_SERVER_MONITOR_DESCRIPTION.getKey(),
+                    Collections.singletonList(MdcMonitorAppPrivileges.MONITOR_COMMUNICATION_SERVER)));
+            return resources;
+        }
+
+        @Override
+        public String getModuleName() {
+            return COMPONENT_NAME;
+        }
+
+
     }
 
     @Deactivate
@@ -89,24 +138,14 @@ public class MdcMonitorAppServiceImpl implements MdcMonitorAppService , Translat
         this.userService = userService;
     }
 
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
+    }
+
     private boolean isAllowed(User user) {
         List<? super Privilege> appPrivileges = userService.getPrivileges(COMPONENT_NAME);
         return user.getPrivileges(COMPONENT_NAME).stream().anyMatch(appPrivileges::contains);
-    }
-
-    @Override
-    public List<ResourceDefinition> getModuleResources() {
-        List<ResourceDefinition> resources = new ArrayList<>();
-        resources.add(userService.createModuleResourceWithPrivileges(COMPONENT_NAME,
-                                        PrivilegeTranslationKeyPair.RESOURCE_COMMUNICATION_SERVER_MONITOR.getKey(),
-                                        PrivilegeTranslationKeyPair.RESOURCE_COMMUNICATION_SERVER_MONITOR_DESCRIPTION.getKey(),
-                Collections.singletonList(MdcMonitorAppPrivileges.MONITOR_COMMUNICATION_SERVER)));
-        return resources;
-    }
-
-    @Override
-    public String getModuleName() {
-        return COMPONENT_NAME;
     }
 
     @Override
