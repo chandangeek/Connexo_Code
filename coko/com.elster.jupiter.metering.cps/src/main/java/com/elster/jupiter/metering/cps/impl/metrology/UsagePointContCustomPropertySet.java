@@ -29,7 +29,7 @@ public class UsagePointContCustomPropertySet implements CustomPropertySet<UsageP
 
     public static final String TABLE_NAME = "MTC_CPS_MTR_USAGEPOINT_CON";
     public static final String FK_CPS_DEVICE_CONTRACTUAL = "FK_CPS_MTR_USAGEPOINT_CON";
-    public static final String COMPONENT_NAME = "MTC";
+    public static final String COMPONENT_NAME = "CON";
 
     public UsagePointContCustomPropertySet() {
         super();

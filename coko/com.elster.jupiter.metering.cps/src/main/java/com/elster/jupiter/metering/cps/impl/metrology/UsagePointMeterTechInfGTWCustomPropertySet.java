@@ -32,7 +32,7 @@ public class UsagePointMeterTechInfGTWCustomPropertySet implements CustomPropert
 
     public static final String TABLE_NAME = "MTC_CPS_MTR_USAGEPOINT_T_INFO";
     public static final String FK_CPS_DEVICE_METER_TECH_INFORM = "FK_CPS_MTR_USAGEPOINT_T_INFO";
-    public static final String COMPONENT_NAME = "MTC";
+    public static final String COMPONENT_NAME = "T_INFO";
 
     public UsagePointMeterTechInfGTWCustomPropertySet() {
         super();

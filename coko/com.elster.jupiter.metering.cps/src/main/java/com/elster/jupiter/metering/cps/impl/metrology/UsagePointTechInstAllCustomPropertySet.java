@@ -28,7 +28,7 @@ public class UsagePointTechInstAllCustomPropertySet implements CustomPropertySet
 
     public static final String TABLE_NAME = "MTC_CPS_MTR_USAGEPOINT_TECH";
     public static final String FK_CPS_DEVICE_TECHNICAL_INSTALLATION = "FK_CPS_MTR_USAGEPOINT_TECH";
-    public static final String COMPONENT_NAME = "MTC";
+    public static final String COMPONENT_NAME = "MTC_INST";
 
     public UsagePointTechInstAllCustomPropertySet() {
         super();
