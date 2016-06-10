@@ -1,5 +1,10 @@
 package com.energyict.mdc.protocol.pluggable.impl;
 
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.upgrade.FullInstaller;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.DeviceCapabilityAdapterMappingImpl;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.DeviceCapabilityMapping;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageAdapterMapping;
@@ -7,9 +12,7 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageAdapterM
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMapping;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingImpl;
 
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.orm.DataModel;
-
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -23,7 +26,7 @@ import java.util.stream.Collectors;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-12-23 (15:39)
  */
-public class Installer {
+class Installer implements FullInstaller {
 
     private static final Logger LOGGER = Logger.getLogger(Installer.class.getName());
     private static final String securityPropertyAdapterMappingLocation = "/securitymappings.properties";
@@ -33,26 +36,36 @@ public class Installer {
     private final DataModel dataModel;
     private final EventService eventService;
 
-    public Installer(DataModel dataModel, EventService eventService) {
+    @Inject
+    Installer(DataModel dataModel, EventService eventService) {
         super();
         this.dataModel = dataModel;
         this.eventService = eventService;
     }
 
-    public void install(boolean executeDdl, boolean createMasterData) {
-        try {
-            this.dataModel.install(executeDdl, true);
-            if (createMasterData) {
-                this.createMasterData();
-            }
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-        createSecurityAdapterMappings();
-        createMessageAdapterMappings();
-        createCapabilityMappings();
-        createEventTypes();
+    @Override
+    public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
+        dataModelUpgrader.upgrade(dataModel, Version.latest());
+        doTry(
+                "Create security adapter mappings",
+                this::createSecurityAdapterMappings,
+                logger
+        );
+        doTry(
+                "Create message adapter mappings",
+                this::createMessageAdapterMappings,
+                logger
+        );
+        doTry(
+                "Create Capability mappings",
+                this::createCapabilityMappings,
+                logger
+        );
+        doTry(
+                "Create event types for PPC",
+                this::createEventTypes,
+                logger
+        );
     }
 
     private void createCapabilityMappings() {
@@ -60,15 +73,15 @@ public class Installer {
         List<DeviceCapabilityMapping> existingMappings = dataModel.mapper(DeviceCapabilityMapping.class).find();
         for (DeviceCapabilityMapping existingMapping : existingMappings) {
             Object existingCapability = properties.get(existingMapping.getDeviceProtocolJavaClassName());
-            if(existingCapability != null){
+            if (existingCapability != null) {
                 properties.remove(existingMapping.getDeviceProtocolJavaClassName());
             }
         }
         List<DeviceCapabilityMapping> capabilityAdapterMappings =
                 properties.stringPropertyNames()
-                    .stream()
-                    .map(key -> new DeviceCapabilityAdapterMappingImpl(key, Integer.valueOf(properties.getProperty(key))))
-                    .collect(Collectors.toList());
+                        .stream()
+                        .map(key -> new DeviceCapabilityAdapterMappingImpl(key, Integer.valueOf(properties.getProperty(key))))
+                        .collect(Collectors.toList());
         dataModel.mapper(DeviceCapabilityMapping.class).persist(capabilityAdapterMappings);
     }
 
@@ -77,7 +90,7 @@ public class Installer {
         List<MessageAdapterMapping> existingMappings = dataModel.mapper(MessageAdapterMapping.class).find();
         for (MessageAdapterMapping existingMapping : existingMappings) {
             Object existingMappingForDeviceProtocol = properties.get(existingMapping.getDeviceProtocolJavaClassName());
-            if(existingMappingForDeviceProtocol != null){
+            if (existingMappingForDeviceProtocol != null) {
                 properties.remove(existingMapping.getDeviceProtocolJavaClassName());
             }
         }
@@ -93,7 +106,8 @@ public class Installer {
 
     private void createSecurityAdapterMappings() {
         Properties properties = loadProperties(securityPropertyAdapterMappingLocation);
-        List<SecuritySupportAdapterMapping> existingMappings = dataModel.mapper(SecuritySupportAdapterMapping.class).find();
+        List<SecuritySupportAdapterMapping> existingMappings = dataModel.mapper(SecuritySupportAdapterMapping.class)
+                .find();
         for (SecuritySupportAdapterMapping existingMapping : existingMappings) {
             Object existingMappingForDeviceProtocol = properties.get(existingMapping.getDeviceProtocolJavaClassName());
             if (existingMappingForDeviceProtocol != null) {
@@ -102,9 +116,9 @@ public class Installer {
         }
         List<SecuritySupportAdapterMapping> securitySupportAdapterMappings =
                 properties.stringPropertyNames()
-                    .stream()
-                    .map(key -> new SecuritySupportAdapterMappingImpl(key, properties.getProperty(key)))
-                    .collect(Collectors.toList());
+                        .stream()
+                        .map(key -> new SecuritySupportAdapterMappingImpl(key, properties.getProperty(key)))
+                        .collect(Collectors.toList());
         dataModel.mapper(SecuritySupportAdapterMapping.class).persist(securitySupportAdapterMappings);
     }
 
@@ -120,9 +134,6 @@ public class Installer {
             LOGGER.severe("Could not load the properties from " + propertiesLocation);
         }
         return mappings;
-    }
-
-    private void createMasterData() {
     }
 
     private void createEventTypes() {
