@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config;
 
+import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.metering.ReadingType;
@@ -284,6 +285,8 @@ public interface DeviceConfigurationService {
 
     List<PartialConnectionTask> findByComPortPool(ComPortPool comPortPool);
 
+    List<AllowedCalendar> findAllowedCalendars(String name);
+
     Optional<SecurityPropertySet> findSecurityPropertySet(long id);
 
     Optional<SecurityPropertySet> findAndLockSecurityPropertySetByIdAndVersion(long id, long version);
@@ -312,6 +315,8 @@ public interface DeviceConfigurationService {
     Finder<DeviceConfiguration> findActiveDeviceConfigurationsForDeviceType(DeviceType deviceType);
 
     List<DeviceConfiguration> findDeviceConfigurationsForValidationRuleSet(long validationRuleSetId);
+
+    List<DeviceType> findDeviceTypesForCalendar(Calendar calendar);
 
     List<ReadingType> getReadingTypesRelatedToConfiguration(DeviceConfiguration configuration);
 
