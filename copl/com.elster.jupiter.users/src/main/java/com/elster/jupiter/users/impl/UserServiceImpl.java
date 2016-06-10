@@ -636,8 +636,7 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
         this.clock = clock;
     }
 
-    @Reference(name = "ModulePrivilegesProvider", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    @SuppressWarnings("unused")
+    @Override
     public void addModulePrivileges(PrivilegesProvider privilegesProvider) {
         synchronized (privilegeProviderRegistrationLock) {
             if (upgradeService.isInstalled(identifier(COMPONENTNAME), version(1, 0))) {
