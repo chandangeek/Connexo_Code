@@ -27,7 +27,6 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
             ref: 'sendCalendarForm',
             selector: 'tou-device-send-cal-form form'
         },
-
         {
             ref: 'sendCalendarContainer',
             selector: 'tou-device-send-cal-form'
@@ -96,6 +95,8 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
                                         view.down('device-tou-planned-on-form').hide();
                                     } else {
                                         view.down('device-tou-planned-on-form').show();
+                                        view.down('device-tou-planned-on-form').checkWillNotBePickedUp(resultSet.records[0].getNextPassiveCalendar().get('willBePickedUpByPlannedComtask'),
+                                            resultSet.records[0].getNextPassiveCalendar().get('willBePickedUpByComtask'));
                                         view.down('device-tou-planned-on-form').down('form').loadRecord(resultSet.records[0].getNextPassiveCalendar());
                                     }
 
@@ -236,10 +237,8 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
             if(form.down('#update-calendar').isVisible()) {
                 json.calendarUpdateOption = form.down('#update-calendar').getValue().updateCalendar;
             } else if (Mdc.dynamicprivileges.DeviceState.supportsSpecialDays() && ! Mdc.dynamicprivileges.DeviceState.supportsNormalSend()) {
-                debugger;
                 json.calendarUpdateOption = form.down('#only-special-days').inputValue
             } else if (!Mdc.dynamicprivileges.DeviceState.supportsSpecialDays() && Mdc.dynamicprivileges.DeviceState.supportsNormalSend()) {
-                debugger;
                 json.calendarUpdateOption = form.down('#full-calendar').inputValue
             }
 
