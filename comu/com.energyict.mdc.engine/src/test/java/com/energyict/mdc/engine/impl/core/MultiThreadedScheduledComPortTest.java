@@ -78,9 +78,11 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
 import static com.elster.jupiter.util.Checks.is;
@@ -108,9 +110,7 @@ import static org.mockito.Mockito.withSettings;
  * @since 2012-04-10 (12:49)
  */
 
-// TODO fix this
-@Ignore // pwe agreed to ignore this test since it is causing random failures in the nightly build
-//@RunWith(MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class MultiThreadedScheduledComPortTest {
 
     private static final int NUMBER_OF_SIMULTANEOUS_CONNECTIONS = 3;
@@ -146,6 +146,7 @@ public class MultiThreadedScheduledComPortTest {
      * the scheduled comport has been shutdown.
      */
     private static final int SHUTDOWN_MILLIS = 50;
+    private static final int TIMEOUT = 120000;
 
     @Mock
     private ConnectionType simultaneousConnectionType;
@@ -362,7 +363,7 @@ public class MultiThreadedScheduledComPortTest {
         return defaultValue;
     }
 
-    @Test(timeout = 7000)
+    @Test(timeout = TIMEOUT)
     public void testStart() {
         ThreadFactory threadFactory = mock(ThreadFactory.class);
         Thread mockedThread = this.mockedThread();
@@ -377,7 +378,7 @@ public class MultiThreadedScheduledComPortTest {
         verify(mockedThread, times(NUMBER_OF_SIMULTANEOUS_CONNECTIONS + 1)).start();
     }
 
-    @Test(timeout = 7000)
+    @Test(timeout = TIMEOUT)
     public void testExecuteTasksWithNoWork() throws InterruptedException {
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         OutboundComPort comPort = this.mockComPort("testExecuteTasksWithNoWork");
@@ -402,7 +403,7 @@ public class MultiThreadedScheduledComPortTest {
         }
     }
 
-    @Test(timeout = 7000)
+    @Test(timeout = TIMEOUT)
     public void testExecuteTasksInParallel() throws InterruptedException, SQLException, ConnectionException {
         ComServerDAO comServerDAOMock = mock(ComServerDAO.class);
         OutboundComPort comPort = this.mockComPort("testExecuteTasksInParallel");
@@ -447,7 +448,7 @@ public class MultiThreadedScheduledComPortTest {
         }
     }
 
-    @Test(timeout = 7000)
+    @Test(timeout = TIMEOUT)
     public void testExecuteTasksInParallelWithConnectionFailure() throws InterruptedException, SQLException, ConnectionException {
         ComServerDAO comServerDAOMock = mock(ComServerDAO.class);
         OutboundComPort comPort = this.mockComPort("testExecuteTasksInParallelWithConnectionFailure");
@@ -492,7 +493,7 @@ public class MultiThreadedScheduledComPortTest {
         }
     }
 
-    @Test(timeout = 7000)
+    @Test(timeout = TIMEOUT)
     public void testExecuteTasksOneByOne() throws InterruptedException, SQLException, ConnectionException {
         ComServerDAO comServerDAOMock = mock(ComServerDAO.class);
         OutboundComPort comPort = this.mockComPort("testExecuteTasksOneByOne");
@@ -538,7 +539,7 @@ public class MultiThreadedScheduledComPortTest {
         }
     }
 
-    @Test(timeout = 7000)
+    @Test(timeout = TIMEOUT)
     public void testExecuteTasksOneByOneWithConnectionFailure() throws InterruptedException, SQLException, ConnectionException {
         ComServerDAO comServerDAOMock = mock(ComServerDAO.class);
         OutboundComPort comPort = this.mockComPort("testExecuteTasksOneByOneWithConnectionFailure");
@@ -584,7 +585,7 @@ public class MultiThreadedScheduledComPortTest {
 
     }
 
-    @Test(timeout = 7000)
+    @Test(timeout = TIMEOUT)
     public void testExecuteTasksInParallelWithWorkThatIsAlwaysStolenByOtherComponents() throws InterruptedException, SQLException, ConnectionException {
         ComServerDAO comServerDAOMock = mock(ComServerDAO.class);
         OutboundComPort comPort = this.mockComPort("testExecuteTasksInParallelWithWorkThatIsAlwaysStolenByOtherComponents");
@@ -631,7 +632,7 @@ public class MultiThreadedScheduledComPortTest {
         }
     }
 
-    @Test(timeout = 7000)
+    @Test(timeout = TIMEOUT)
     public void testExecuteTasksOneByOneWithWorkThatIsAlwaysStolenByOtherComponents() throws InterruptedException, SQLException, ConnectionException {
         ComServerDAO comServerDAOMock = mock(ComServerDAO.class);
         OutboundComPort comPort = this.mockComPort("testExecuteTasksOneByOneWithWorkThatIsAlwaysStolenByOtherComponents");
@@ -682,7 +683,7 @@ public class MultiThreadedScheduledComPortTest {
         }
     }
 
-    @Test(timeout = 7000)
+    @Test(timeout = TIMEOUT)
     public void testExecuteTasksInParallelWithWorkThatWasAlreadyExecutedByOtherComponents() throws InterruptedException, SQLException, ConnectionException {
         ComServerDAO comServerDAOMock = mock(ComServerDAO.class);
         OutboundComPort comPort = this.mockComPort("testExecuteTasksInParallelWithWorkThatIsAlwaysStolenByOtherComponents");
@@ -726,7 +727,7 @@ public class MultiThreadedScheduledComPortTest {
         }
     }
 
-    @Test(timeout = 7000)
+    @Test(timeout = TIMEOUT)
     public void testExecuteTasksOneByOneWithWorkThatWasAlreadyExecutedByOtherComponents() throws InterruptedException, SQLException, ConnectionException {
         ComServerDAO comServerDAOMock = mock(ComServerDAO.class);
         OutboundComPort comPort = this.mockComPort("testExecuteTasksOneByOneWithWorkThatIsAlwaysStolenByOtherComponents");
@@ -773,7 +774,7 @@ public class MultiThreadedScheduledComPortTest {
         }
     }
 
-    @Test(timeout = 7000)
+    @Test(timeout = TIMEOUT)
     public void testConnectionFailureReschedulesTask() throws InterruptedException, SQLException, ConnectionException {
         ComServerDAO comServerDAOMock = mock(ComServerDAO.class);
         OutboundComPort comPort = this.mockComPort("testConnectionFailureReschedulesTask");

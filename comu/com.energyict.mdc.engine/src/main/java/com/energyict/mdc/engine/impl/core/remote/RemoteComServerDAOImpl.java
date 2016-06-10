@@ -69,7 +69,9 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Provides an implementation for the {@link ComServerDAO} interface
@@ -496,9 +498,6 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
         catch (ExecutionException e) {
             throw new DataAccessException(e, MessageSeeds.UNEXPECTED_SQL_ERROR);
         }
-        catch (TimeoutException e) {
-            throw new DataAccessException(e, MessageSeeds.UNEXPECTED_SQL_ERROR);
-        }
     }
 
     private JSONObject newQuerySpecs (QueryMethod method, Map<String, Object> queryParameters) throws JSONException {
@@ -598,34 +597,61 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     private class QueryResponse implements Future<JSONObject> {
+        private Lock lock = new ReentrantLock();
         private JSONObject value;
         private boolean done = false;
+        private Condition condition = lock.newCondition();
 
         public JSONObject getValue () {
             return value;
         }
 
         public void setValue (JSONObject value) {
-            this.value = value;
-            this.done = true;
-            this.notifyAll();
+            lock.lock();
+            try {
+                this.value = value;
+                this.done = true;
+                condition.signalAll();
+            } finally {
+                lock.unlock();
+            }
         }
 
         @Override
         public boolean isDone () {
-            return this.done;
+            lock.lock();
+            try {
+                return this.done;
+            } finally {
+                lock.unlock();
+            }
         }
 
         @Override
         public JSONObject get () throws InterruptedException, ExecutionException {
-            this.wait();
+            lock.lock();
+            try {
+                while (!done) {
+                    condition.await();
+                }
+            } finally {
+                lock.unlock();
+            }
             return this.getValue();
         }
 
         @Override
-        public JSONObject get (long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
-            this.wait(unit.toMillis(timeout));
-            return this.getValue();
+        public JSONObject get (long timeout, TimeUnit unit) throws InterruptedException, ExecutionException {
+            lock.lock();
+            try {
+                boolean timedOut = false;
+                while (!done || timedOut) {
+                    timedOut = !condition.await(timeout, unit);
+                }
+                return this.getValue();
+            } finally {
+                lock.unlock();
+            }
         }
 
         @Override
