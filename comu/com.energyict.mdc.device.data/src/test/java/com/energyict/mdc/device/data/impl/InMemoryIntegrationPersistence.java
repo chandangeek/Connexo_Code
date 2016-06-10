@@ -47,6 +47,8 @@ import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.User;
@@ -223,6 +225,7 @@ public class InMemoryIntegrationPersistence {
                 new FiniteStateMachineModule(),
                 new MeteringModule(
                         "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0",
+                        "0.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0",
                         "0.0.0.1.1.2.12.0.0.0.0.0.0.0.0.3.72.0",
                         "0.0.0.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0",
                         "0.0.0.1.19.2.12.0.0.0.0.0.0.0.0.3.72.0",
@@ -522,6 +525,7 @@ public class InMemoryIntegrationPersistence {
             bind(IssueService.class).toInstance(issueService);
             bind(Thesaurus.class).toInstance(thesaurus);
             bind(DataModel.class).toProvider(() -> dataModel);
+            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }
 

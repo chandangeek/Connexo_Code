@@ -17,6 +17,10 @@
         Contains device related components.
     </description>
 
+    <properties>
+        <argLine>-Xmx2g -Xms512m</argLine>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.energyict</groupId>
@@ -147,6 +151,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>pubsub</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>upgrade</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>com.energyict</groupId>
@@ -248,6 +256,10 @@
         <dependency>
           <groupId>com.google.inject</groupId>
           <artifactId>guice</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>servicecall</artifactId>
         </dependency>
     </dependencies>
 </project>

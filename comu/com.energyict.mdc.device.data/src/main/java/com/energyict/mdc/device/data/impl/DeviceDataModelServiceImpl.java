@@ -9,13 +9,20 @@ import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.nls.*;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.SimpleTranslationKey;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.upgrade.InstallIdentifier;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
@@ -24,9 +31,19 @@ import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.*;
+import com.energyict.mdc.device.data.BatchService;
+import com.energyict.mdc.device.data.DeviceDataServices;
+import com.energyict.mdc.device.data.DeviceHelper;
+import com.energyict.mdc.device.data.DeviceMessageService;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.LoadProfileService;
+import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.impl.configchange.ServerDeviceForConfigChange;
-import com.energyict.mdc.device.data.impl.events.*;
+import com.energyict.mdc.device.data.impl.events.ComTaskEnablementChangeMessageHandler;
+import com.energyict.mdc.device.data.impl.events.ComTaskEnablementConnectionMessageHandlerFactory;
+import com.energyict.mdc.device.data.impl.events.ComTaskEnablementPriorityMessageHandlerFactory;
+import com.energyict.mdc.device.data.impl.events.ComTaskEnablementStatusMessageHandlerFactory;
+import com.energyict.mdc.device.data.impl.events.ConnectionTaskValidatorAfterPropertyRemovalMessageHandlerFactory;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiCalculatorHandlerFactory;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiServiceImpl;
 import com.energyict.mdc.device.data.impl.search.PropertyTranslationKeys;
@@ -48,7 +65,6 @@ import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
@@ -70,7 +86,14 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Clock;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Provides an implementation for the {@link DeviceDataModelService} interface.
@@ -78,9 +101,9 @@ import java.util.*;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-09-30 (17:33)
  */
-@Component(name = "com.energyict.mdc.device.data", service = {DeviceDataModelService.class, InstallService.class, TranslationKeyProvider.class, MessageSeedProvider.class, PrivilegesProvider.class}, property = {"name=" + DeviceDataServices.COMPONENT_NAME, "osgi.command.scope=mdc.service.testing", "osgi.command.function=testSearch",}, immediate = true)
+@Component(name = "com.energyict.mdc.device.data", service = {DeviceDataModelService.class, TranslationKeyProvider.class, MessageSeedProvider.class, PrivilegesProvider.class}, property = {"name=" + DeviceDataServices.COMPONENT_NAME, "osgi.command.scope=mdc.service.testing", "osgi.command.function=testSearch",}, immediate = true)
 @LiteralSql
-public class DeviceDataModelServiceImpl implements DeviceDataModelService, InstallService, TranslationKeyProvider, MessageSeedProvider, PrivilegesProvider {
+public class DeviceDataModelServiceImpl implements DeviceDataModelService, TranslationKeyProvider, MessageSeedProvider, PrivilegesProvider {
 
     private volatile DataModel dataModel;
     private volatile EventService eventService;
@@ -111,6 +134,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
     private volatile MasterDataService masterDataService;
     private volatile TransactionService transactionService;
     private volatile JsonService jsonService;
+    private volatile UpgradeService upgradeService;
 
     private ServerConnectionTaskService connectionTaskService;
     private ConnectionTaskReportService connectionTaskReportService;
@@ -144,61 +168,39 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
             SecurityPropertyService securityPropertyService, UserService userService, DeviceMessageSpecificationService deviceMessageSpecificationService, MeteringGroupsService meteringGroupsService,
             QueryService queryService, TaskService mdcTaskService, MasterDataService masterDataService,
             TransactionService transactionService, JsonService jsonService, com.energyict.mdc.issues.IssueService mdcIssueService, MdcReadingTypeUtilService mdcReadingTypeUtilService,
-            DeviceHelper deviceHelper) {
+            UpgradeService upgradeService, DeviceHelper deviceHelper) {
         this();
-        this.setOrmService(ormService);
-        this.setEventService(eventService);
-        this.setNlsService(nlsService);
-        this.setClock(clock);
-        this.setKpiService(kpiService);
-        this.setJupiterTaskService(jupiterTaskService);
-        this.setIssueService(issueService);
-        this.setPropertySpecService(propertySpecService);
-        this.setJupiterPropertySpecService(jupiterPropertySpecService);
-        this.setCustomPropertySetService(customPropertySetService);
-        this.setProtocolPluggableService(protocolPluggableService);
-        this.setEngineConfigurationService(engineConfigurationService);
-        this.setDeviceConfigurationService(deviceConfigurationService);
-        this.setMeteringService(meteringService);
-        this.setValidationService(validationService);
-        this.setEstimationService(estimationService);
-        this.setSchedulingService(schedulingService);
-        this.setMdcTaskService(mdcTaskService);
-        this.setMessagingService(messageService);
-        this.setSecurityPropertyService(securityPropertyService);
-        this.setUserService(userService);
-        this.setDeviceMessageSpecificationService(deviceMessageSpecificationService);
-        this.setMeteringGroupsService(meteringGroupsService);
-        this.setQueryService(queryService);
-        this.setMasterDataService(masterDataService);
-        this.setTransactionService(transactionService);
-        this.setJsonService(jsonService);
-        this.setMdcIssueService(mdcIssueService);
-        this.setMdcReadingTypeUtilService(mdcReadingTypeUtilService);
-        this.activate(bundleContext);
-        if (!this.dataModel.isInstalled()) {
-            this.install(true);
-        }
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList(
-                DeviceConfigurationService.COMPONENTNAME,
-                PluggableService.COMPONENTNAME,
-                EngineConfigurationService.COMPONENT_NAME,
-                SchedulingService.COMPONENT_NAME,
-                TaskService.COMPONENT_NAME,
-                MeteringGroupsService.COMPONENTNAME,
-                KpiService.COMPONENT_NAME,
-                com.elster.jupiter.tasks.TaskService.COMPONENTNAME,
-                UserService.COMPONENTNAME,
-                OrmService.COMPONENTNAME,
-                EventService.COMPONENTNAME,
-                NlsService.COMPONENTNAME,
-                MessageService.COMPONENTNAME,
-                EstimationService.COMPONENTNAME
-        );
+        setOrmService(ormService);
+        setEventService(eventService);
+        setNlsService(nlsService);
+        setClock(clock);
+        setKpiService(kpiService);
+        setJupiterTaskService(jupiterTaskService);
+        setIssueService(issueService);
+        setPropertySpecService(propertySpecService);
+        setJupiterPropertySpecService(jupiterPropertySpecService);
+        setCustomPropertySetService(customPropertySetService);
+        setProtocolPluggableService(protocolPluggableService);
+        setEngineConfigurationService(engineConfigurationService);
+        setDeviceConfigurationService(deviceConfigurationService);
+        setMeteringService(meteringService);
+        setValidationService(validationService);
+        setEstimationService(estimationService);
+        setSchedulingService(schedulingService);
+        setMdcTaskService(mdcTaskService);
+        setMessagingService(messageService);
+        setSecurityPropertyService(securityPropertyService);
+        setUserService(userService);
+        setDeviceMessageSpecificationService(deviceMessageSpecificationService);
+        setMeteringGroupsService(meteringGroupsService);
+        setQueryService(queryService);
+        setMasterDataService(masterDataService);
+        setTransactionService(transactionService);
+        setJsonService(jsonService);
+        setMdcIssueService(mdcIssueService);
+        setMdcReadingTypeUtilService(mdcReadingTypeUtilService);
+        setUpgradeService(upgradeService);
+        activate(bundleContext);
     }
 
     @Reference
@@ -279,6 +281,11 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
     @Reference
     public void setDeviceMessageSpecificationService(DeviceMessageSpecificationService deviceMessageSpecificationService) {
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
+    }
+
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
     }
 
     @Override
@@ -502,6 +509,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
     public void activate(BundleContext bundleContext) {
         this.createRealServices();
         this.dataModel.register(this.getModule());
+        upgradeService.register(InstallIdentifier.identifier(DeviceDataServices.COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
         this.registerRealServices(bundleContext);
     }
 
@@ -586,11 +594,6 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
     }
 
     @Override
-    public void install() {
-        this.install(true);
-    }
-
-    @Override
     public String getComponentName() {
         return DeviceDataServices.COMPONENT_NAME;
     }
@@ -634,10 +637,6 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
     @Override
     public List<MessageSeed> getSeeds() {
         return Arrays.asList(MessageSeeds.values());
-    }
-
-    private void install(boolean executeDdl) {
-        new Installer(this.dataModel, this.eventService, messagingService).install(executeDdl);
     }
 
     @Override
@@ -728,7 +727,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
     public List<ResourceDefinition> getModuleResources() {
 
         return Arrays.asList(
-                this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, Privileges.RESOURCE_DEVICES.getKey(), Privileges.RESOURCE_DEVICES_DESCRIPTION.getKey(), Arrays.asList(Privileges.Constants.ADD_DEVICE, Privileges.Constants.VIEW_DEVICE, Privileges.Constants.REMOVE_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_ATTRIBUTE)),
+                this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, Privileges.RESOURCE_DEVICES.getKey(), Privileges.RESOURCE_DEVICES_DESCRIPTION.getKey(), Arrays.asList(Privileges.Constants.ADMINISTRATE_DEVICE, Privileges.Constants.VIEW_DEVICE, Privileges.Constants.REMOVE_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_ATTRIBUTE)),
                 this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, Privileges.RESOURCE_DEVICE_DATA.getKey(), Privileges.RESOURCE_DEVICE_DATA_DESCRIPTION.getKey(), Arrays.asList(Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTER_DECOMMISSIONED_DEVICE_DATA)),
                 this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, Privileges.RESOURCE_DEVICE_COMMUNICATIONS.getKey(), Privileges.RESOURCE_DEVICE_COMMUNICATIONS_DESCRIPTION.getKey(), Arrays.asList(Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION)),
                 this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, Privileges.RESOURCE_DEVICE_GROUPS.getKey(), Privileges.RESOURCE_DEVICE_GROUPS_DESCRIPTION.getKey(), Arrays.asList(Privileges.Constants.ADMINISTRATE_DEVICE_GROUP, Privileges.Constants.ADMINISTRATE_DEVICE_ENUMERATED_GROUP, Privileges.Constants.VIEW_DEVICE_GROUP_DETAIL)),

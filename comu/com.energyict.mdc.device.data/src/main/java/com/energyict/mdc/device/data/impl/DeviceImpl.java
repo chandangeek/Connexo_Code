@@ -222,6 +222,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private final MdcReadingTypeUtilService readingTypeUtilService;
     private final List<LoadProfile> loadProfiles = new ArrayList<>();
     private final List<LogBook> logBooks = new ArrayList<>();
+    private List<ReadingTypeObisCodeUsageImpl> readingTypeObisCodeUsages = new ArrayList<>();
     private final BigDecimal MULTIPLIER_ONE = BigDecimal.ONE;
     private final Reference<DeviceType> deviceType = ValueReference.absent();
     @DeviceConfigurationIsPresentAndActive(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
@@ -633,6 +634,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     private void doDelete() {
+        this.readingTypeObisCodeUsages.clear();
         deleteAllIssues();
         deleteProperties();
         this.removeCustomProperties();
@@ -816,9 +818,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     public Optional<BigDecimal> getMultiplierAt(Instant multiplierEffectiveTimeStamp) {
         List<MeterActivation> meterActivationsMostRecentFirst = getMeterActivationsMostRecentFirst();
         Optional<MeterActivation> meterActivationForEffectiveTimeStamp = meterActivationsMostRecentFirst.stream()
-                .filter(meterActivation -> meterActivation.getInterval()
-                        .toOpenClosedRange()
-                        .contains(multiplierEffectiveTimeStamp))
+                .filter(meterActivation -> meterActivation.getInterval().toOpenClosedRange().contains(multiplierEffectiveTimeStamp))
                 .findAny();
         if (meterActivationForEffectiveTimeStamp.isPresent()) {
             return meterActivationForEffectiveTimeStamp.get().getMultiplier(getDefaultMultiplierType());
@@ -862,6 +862,10 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             }
         }
         return null;
+    }
+
+    public List<LoadProfile> getLoadProfiles() {
+        return Collections.unmodifiableList(this.loadProfiles);
     }
 
     @Override
@@ -957,7 +961,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         }
         checkIfAllConflictsAreSolved(this.getDeviceConfiguration(), destinationDeviceConfiguration);
     }
-
 
     @Override
     public void setNewDeviceConfiguration(DeviceConfiguration deviceConfiguration) {
@@ -1096,6 +1099,17 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             // Attempt to find the dialect properties in the list of new ones that have not been saved yet
             return this.getProtocolDialectPropertiesFrom(dialectName, this.newDialectProperties);
         }
+    }
+
+    public Optional<MeterReadingTypeConfiguration> getMeterReadingTypeConfigurationFor(ReadingType readingType) {
+        Optional<Meter> koreMeter = findKoreMeter(getMdcAmrSystem());
+        if (koreMeter.isPresent()) {
+            Optional<MeterConfiguration> configuration = koreMeter.get().getConfiguration(clock.instant());
+            if (configuration.isPresent()) {
+                return configuration.get().getReadingTypeConfiguration(readingType);
+            }
+        }
+        return Optional.empty();
     }
 
     private Optional<ProtocolDialectProperties> getProtocolDialectPropertiesFrom(String dialectName, List<ProtocolDialectPropertiesImpl> propertiesList) {
@@ -1272,6 +1286,11 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return () -> new RuntimeException("The MDC AMR system does not exist");
     }
 
+    @Override
+    public LoadProfile.LoadProfileUpdater getLoadProfileUpdaterFor(LoadProfile loadProfile) {
+        return new LoadProfileUpdaterForDevice((LoadProfileImpl) loadProfile);
+    }
+
     private Supplier<NoMeterActivationAt> noMeterActivationAt(Instant timestamp) {
         return () -> new NoMeterActivationAt(timestamp, thesaurus, MessageSeeds.NO_METER_ACTIVATION_AT);
     }
@@ -1289,8 +1308,27 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return newMeter;
     }
 
+    @Override
+    public List<ProtocolDialectProperties> getProtocolDialectPropertiesList() {
+        List<ProtocolDialectProperties> all = new ArrayList<>(this.dialectPropertiesList.size() + this.newDialectProperties.size());
+        all.addAll(this.dialectPropertiesList);
+        all.addAll(this.newDialectProperties);
+        return all;
+    }
+
     private Optional<AmrSystem> findMdcAmrSystem() {
         return this.meteringService.findAmrSystem(KnownAmrSystem.MDC.getId());
+    }
+
+    @Override
+    public Optional<ProtocolDialectProperties> getProtocolDialectProperties(String dialectName) {
+        Optional<ProtocolDialectProperties> dialectProperties = this.getProtocolDialectPropertiesFrom(dialectName, this.dialectPropertiesList);
+        if (dialectProperties.isPresent()) {
+            return dialectProperties;
+        } else {
+            // Attempt to find the dialect properties in the list of new ones that have not been saved yet
+            return this.getProtocolDialectPropertiesFrom(dialectName, this.newDialectProperties);
+        }
     }
 
     private AmrSystem getMdcAmrSystem() {
@@ -1367,6 +1405,20 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return Lists.reverse(loadProfileReadings);
     }
 
+    @Override
+    public void removeProtocolDialectProperty(String dialectName, String propertyName) {
+        Optional<ProtocolDialectProperties> dialectProperties = this.getProtocolDialectProperties(dialectName);
+        if (dialectProperties.isPresent()) {
+            ProtocolDialectProperties props = dialectProperties.get();
+            props.removeProperty(propertyName);
+            if (!this.dirtyDialectProperties.contains(props)) {
+                this.dirtyDialectProperties.add((ProtocolDialectPropertiesImpl) props);
+            }
+        } else {
+            createNewLocalDialectProperties(dialectName);
+        }
+    }
+
     /**
      * Adds meter readings for a single channel to the timeslot-map.
      *
@@ -1419,6 +1471,22 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return meterHasData;
     }
 
+    @Override
+    public void setProtocolProperty(String name, Object value) {
+        Optional<PropertySpec> optionalPropertySpec = getPropertySpecForProperty(name);
+        if (optionalPropertySpec.isPresent()) {
+            String propertyValue = optionalPropertySpec.get().getValueFactory().toStringValue(value);
+            boolean notUpdated = !updatePropertyIfExists(name, propertyValue);
+            if (notUpdated) {
+                addDeviceProperty(optionalPropertySpec, propertyValue);
+            }
+            if (getId() > 0) {
+                dataModel.touch(this);
+            }
+        } else {
+            throw DeviceProtocolPropertyException.propertyDoesNotExistForDeviceProtocol(name, this.getDeviceProtocolPluggableClass().getDeviceProtocol(), this, thesaurus, MessageSeeds.DEVICE_PROPERTY_NOT_ON_DEVICE_PROTOCOL);
+        }
+    }
 
     private List<ProfileStatus.Flag> getFlagsFromProfileStatus(ProfileStatus profileStatus) {
         List<ProfileStatus.Flag> flags = new ArrayList<>();
@@ -1428,6 +1496,13 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             }
         }
         return flags;
+    }
+
+    @Override
+    public void
+    setSecurityProperties(SecurityPropertySet securityPropertySet, TypedProperties typedProperties) {
+        dirtySecurityProperties.put(securityPropertySet, typedProperties);
+        //Don't persist yet, need to be validated (done in the save step of this device)
     }
 
     /**
@@ -1537,6 +1612,17 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return latestAttemptBefore;
     }
 
+    @Override
+    public void removeProtocolProperty(String name) {
+        for (DeviceProtocolProperty deviceProtocolProperty : deviceProperties) {
+            if (deviceProtocolProperty.getName().equals(name)) {
+                this.deviceProperties.remove(deviceProtocolProperty);
+                dataModel.touch(this);
+                break;
+            }
+        }
+    }
+
     private ZonedDateTime prefilledIntervalStartWithIntervalMonth(LoadProfile loadProfile, ZoneId zoneId, Range<Instant> requestedIntervalClippedToMeterActivation) {
         /* Implementation note: truncate meter activation end point of the interval to the interval length
          * and then increment with interval length until start > meter activation start
@@ -1558,6 +1644,13 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             nextAttempt = nextAttempt.minus(this.intervalLength(loadProfile));
         }
         return nextAttempt;
+    }
+
+    @Override
+    public TypedProperties getDeviceProtocolProperties() {
+        TypedProperties properties = TypedProperties.inheritingFrom(this.getDeviceConfiguration().getDeviceProtocolProperties().getTypedProperties());
+        this.addLocalProperties(properties, this.getDeviceProtocolPluggableClass().getDeviceProtocol().getPropertySpecs());
+        return properties;
     }
 
     private TemporalUnit truncationUnit(LoadProfile loadProfile) {
@@ -1971,6 +2064,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return comTaskExecution;
     }
 
+    @Override
     public MeterActivation activate(Instant start) {
         return activate(start, true);
     }
@@ -2163,6 +2257,11 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public void deactivateNow() {
+        this.deactivate(this.clock.instant());
+    }
+
     private DeviceLifeCycleChangeEvent newEventForMostRecent(Deque<StateTimeSlice> stateTimeSlices, Deque<com.energyict.mdc.device.config.DeviceLifeCycleChangeEvent> deviceTypeChangeEvents) {
         if (stateTimeSlices.isEmpty()) {
             return DeviceLifeCycleChangeEventImpl.from(deviceTypeChangeEvents.removeFirst());
@@ -2183,6 +2282,42 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 return DeviceLifeCycleChangeEventImpl.from(deviceTypeChangeEvents.removeFirst());
             }
         }
+    }
+
+    public Optional<ReadingTypeObisCodeUsage> getReadingTypeObisCodeUsage(ReadingType readingType) {
+        if (readingType == null) {
+            return Optional.empty();
+        }
+        for (ReadingTypeObisCodeUsageImpl readingTypeObisCodeUsage : readingTypeObisCodeUsages) {
+            if (readingTypeObisCodeUsage.getReadingType().getMRID().equals(readingType.getMRID())) {
+                return Optional.of(readingTypeObisCodeUsage);
+            }
+        }
+        return Optional.empty();
+    }
+
+    private void addReadingTypeObisCodeUsage(ReadingType readingType, ObisCode obisCode) {
+        ReadingTypeObisCodeUsageImpl readingTypeObisCodeUsage = dataModel.getInstance(ReadingTypeObisCodeUsageImpl.class);
+        readingTypeObisCodeUsage.initialize(this, readingType, obisCode);
+        readingTypeObisCodeUsages.add(readingTypeObisCodeUsage);
+    }
+
+    private void removeReadingTypeObisCodeUsage(ReadingType readingType) {
+        for (java.util.Iterator<ReadingTypeObisCodeUsageImpl> iterator = readingTypeObisCodeUsages.iterator(); iterator.hasNext(); ) {
+            ReadingTypeObisCodeUsageImpl readingTypeObisCodeUsage = iterator.next();
+            if (readingTypeObisCodeUsage.getReadingType().getMRID().equals(readingType.getMRID())) {
+                iterator.remove();
+                break;
+            }
+        }
+    }
+
+    @Override
+    public Optional<MeterActivation> getCurrentMeterActivation() {
+        if (!this.currentMeterActivation.isPresent()) {
+            this.currentMeterActivation = this.getOptionalMeterAspect(m -> m.getCurrentMeterActivation().map(Function.<MeterActivation>identity()));
+        }
+        return this.currentMeterActivation;
     }
 
     @Override
@@ -2260,6 +2395,26 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         abstract boolean appliesTo(RegisterSpec registerSpec);
 
         abstract RegisterImpl newRegister(DeviceImpl device, RegisterSpec registerSpec);
+    }
+
+    class LogBookUpdaterForDevice extends LogBookImpl.LogBookUpdater {
+
+        protected LogBookUpdaterForDevice(LogBookImpl logBook) {
+            super(logBook);
+        }
+    }
+
+    class LoadProfileUpdaterForDevice extends LoadProfileImpl.LoadProfileUpdater {
+
+        protected LoadProfileUpdaterForDevice(LoadProfileImpl loadProfile) {
+            super(loadProfile);
+        }
+
+        @Override
+        public void update() {
+            super.update();
+            dataModel.touch(DeviceImpl.this);
+        }
     }
 
     @Override
@@ -2493,6 +2648,280 @@ public class ManuallyScheduledComTaskExecutionBuilderForDevice
         return (ManuallyScheduledComTaskExecution) DeviceImpl.this.add((ComTaskExecutionImpl) comTaskExecution);
     }
 }
+
+    @Override
+    public Channel.ChannelUpdater getChannelUpdaterFor(Channel channel) {
+        return new ChannelUpdaterImpl(channel);
+    }
+
+    @Override
+    public Register.RegisterUpdater getRegisterUpdaterFor(Register register) {
+        return new RegisterUpdaterImpl(register);
+    }
+
+    private class RegisterUpdaterImpl implements Register.RegisterUpdater {
+
+        private final Register register;
+        private Integer overruledNbrOfFractionDigits;
+        private BigDecimal overruledOverflowValue;
+        private ObisCode overruledObisCode;
+
+        public RegisterUpdaterImpl(Register register) {
+            this.register = register;
+        }
+
+        @Override
+        public Register.RegisterUpdater setNumberOfFractionDigits(Integer overruledNbrOfFractionDigits) {
+            this.overruledNbrOfFractionDigits = overruledNbrOfFractionDigits;
+            return this;
+        }
+
+        @Override
+        public Register.RegisterUpdater setOverflowValue(BigDecimal overruledOverflowValue) {
+            this.overruledOverflowValue = overruledOverflowValue;
+            return this;
+        }
+
+        @Override
+        public Register.RegisterUpdater setObisCode(ObisCode overruledObisCode) {
+            this.overruledObisCode = overruledObisCode;
+            return this;
+        }
+
+        @Override
+        public void update() {
+            Instant updateInstant = DeviceImpl.this.clock.instant();
+            if (register.getRegisterSpec() instanceof NumericalRegisterSpec) { //textRegisters don't have fraction digits and overflow values
+                DeviceImpl.this.findKoreMeter(getMdcAmrSystem()).ifPresent(koreMeter -> {
+                    Optional<MeterConfiguration> currentMeterConfiguration = koreMeter.getConfiguration(updateInstant);
+                    if (requiredToCreateNewMeterConfiguration(currentMeterConfiguration, register.getReadingType(), overruledOverflowValue, overruledNbrOfFractionDigits)) { // if we need to update it
+                        if (currentMeterConfiguration.isPresent()) {
+                            MeterConfiguration meterConfiguration = currentMeterConfiguration.get();
+                            meterConfiguration.endAt(updateInstant);
+                            Meter.MeterConfigurationBuilder newMeterConfigBuilder = koreMeter.startingConfigurationOn(updateInstant);
+                            NumericalRegisterSpec registerSpec = (NumericalRegisterSpec) register.getRegisterSpec();
+                            meterConfiguration.getReadingTypeConfigs().stream().forEach(meterReadingTypeConfiguration -> {
+                                Meter.MeterReadingTypeConfigurationBuilder meterReadingTypeConfigurationBuilder = newMeterConfigBuilder.configureReadingType(meterReadingTypeConfiguration.getMeasured());
+                                if (registerWeNeedToUpdate(meterReadingTypeConfiguration)) {
+                                    if (overruledOverflowValue == null) {
+                                        meterReadingTypeConfigurationBuilder.withOverflowValue(registerSpec.getOverflowValue().orElse(null));
+                                    } else {
+                                        meterReadingTypeConfigurationBuilder.withOverflowValue(overruledOverflowValue);
+                                    }
+                                } else if (meterReadingTypeConfiguration.getOverflowValue().isPresent()) {
+                                    meterReadingTypeConfigurationBuilder.withOverflowValue(meterReadingTypeConfiguration.getOverflowValue().get());
+                                }
+                                if (registerWeNeedToUpdate(meterReadingTypeConfiguration)) {
+                                    if (overruledNbrOfFractionDigits == null) {
+                                        meterReadingTypeConfigurationBuilder.withNumberOfFractionDigits(registerSpec.getNumberOfFractionDigits());
+                                    } else {
+                                        meterReadingTypeConfigurationBuilder.withNumberOfFractionDigits(overruledNbrOfFractionDigits);
+                                    }
+                                } else if (meterReadingTypeConfiguration.getNumberOfFractionDigits().isPresent()) {
+                                    meterReadingTypeConfigurationBuilder.withNumberOfFractionDigits(meterReadingTypeConfiguration.getNumberOfFractionDigits().getAsInt());
+                                }
+                                meterReadingTypeConfiguration.getCalculated()
+                                        .ifPresent(readingType -> meterReadingTypeConfigurationBuilder.withMultiplierOfType(getDefaultMultiplierType()).calculating(readingType));
+                            });
+                            newMeterConfigBuilder.create();
+                        } else {
+                            Meter.MeterConfigurationBuilder newMeterConfigBuilder = koreMeter.startingConfigurationOn(updateInstant);
+                            getDeviceConfiguration().getRegisterSpecs().stream().filter(spec -> spec instanceof NumericalRegisterSpec)
+                                    .map(numeriaclSpec -> ((NumericalRegisterSpec) numeriaclSpec)).forEach(registerSpec -> {
+                                Meter.MeterReadingTypeConfigurationBuilder meterReadingTypeConfigurationBuilder = newMeterConfigBuilder.configureReadingType(registerSpec.getReadingType());
+                                if (registerWeNeedToUpdate(registerSpec) && overruledOverflowValue != null) {
+                                    meterReadingTypeConfigurationBuilder.withOverflowValue(overruledOverflowValue);
+                                } else if (registerSpec.getOverflowValue().isPresent()) {
+                                    meterReadingTypeConfigurationBuilder.withOverflowValue(registerSpec.getOverflowValue().get());
+                                }
+                                if (registerWeNeedToUpdate(registerSpec) && overruledNbrOfFractionDigits != null) {
+                                    meterReadingTypeConfigurationBuilder.withNumberOfFractionDigits(overruledNbrOfFractionDigits);
+                                } else {
+                                    meterReadingTypeConfigurationBuilder.withNumberOfFractionDigits(registerSpec.getNumberOfFractionDigits());
+                                }
+                                if (getMultiplier().compareTo(BigDecimal.ONE) == 1 && registerSpec.isUseMultiplier()) {
+                                    meterReadingTypeConfigurationBuilder.withMultiplierOfType(getDefaultMultiplierType()).calculating((registerSpec.getCalculatedReadingType().get()));
+                                }
+                            });
+                            newMeterConfigBuilder.create();
+                        }
+                    }
+                });
+            }
+
+            Optional<ReadingTypeObisCodeUsage> readingTypeObisCodeUsageOptional = DeviceImpl.this.getReadingTypeObisCodeUsage(register.getReadingType());
+            boolean currentlyNoOverruledObisCodeAlthoughRequested = overruledObisCode != null && // obiscode overruling requested...
+                    !readingTypeObisCodeUsageOptional.isPresent(), // ...while currently there is none
+                    currentOverruledObisCodeIsNotTheCorrectOne = overruledObisCode != null && // obiscode overruling requested and...
+                            readingTypeObisCodeUsageOptional.isPresent() && // ...the currently present one...
+                            !readingTypeObisCodeUsageOptional.get().getObisCode().equals(overruledObisCode), // ...is different
+                    currentOverruledObisCodeIsNotNeeded = overruledObisCode == null && // no obiscode overruling requested...
+                            readingTypeObisCodeUsageOptional.isPresent(); // ...however, currently present
+
+            if (currentOverruledObisCodeIsNotTheCorrectOne || currentOverruledObisCodeIsNotNeeded) {
+                DeviceImpl.this.removeReadingTypeObisCodeUsage(register.getReadingType());
+            }
+            if (currentOverruledObisCodeIsNotTheCorrectOne || currentlyNoOverruledObisCodeAlthoughRequested) {
+                DeviceImpl.this.addReadingTypeObisCodeUsage(register.getReadingType(), overruledObisCode);
+            }
+            DeviceImpl.this.save(); //just to make sure we increase the version
+        }
+
+        private boolean registerWeNeedToUpdate(RegisterSpec registerSpec) {
+            return registerSpec.getReadingType().equals(register.getReadingType());
+        }
+
+        private boolean registerWeNeedToUpdate(MeterReadingTypeConfiguration meterReadingTypeConfiguration) {
+            return meterReadingTypeConfiguration.getMeasured().equals(register.getReadingType());
+        }
+    }
+
+    private class ChannelUpdaterImpl implements Channel.ChannelUpdater {
+
+        private final Channel channel;
+        private Integer overruledNbrOfFractionDigits;
+        private BigDecimal overruledOverflowValue;
+        private ObisCode overruledObisCode;
+
+        public ChannelUpdaterImpl(Channel channel) {
+            this.channel = channel;
+        }
+
+        @Override
+        public Channel.ChannelUpdater setNumberOfFractionDigits(Integer overruledNbrOfFractionDigits) {
+            this.overruledNbrOfFractionDigits = overruledNbrOfFractionDigits;
+            return this;
+        }
+
+        @Override
+        public Channel.ChannelUpdater setOverflowValue(BigDecimal overruledOverflowValue) {
+            this.overruledOverflowValue = overruledOverflowValue;
+            return this;
+        }
+
+        @Override
+        public Channel.ChannelUpdater setObisCode(ObisCode overruledObisCode) {
+            this.overruledObisCode = overruledObisCode;
+            return this;
+        }
+
+        @Override
+        public void update() {
+            Instant updateInstant = DeviceImpl.this.clock.instant();
+            DeviceImpl.this.findKoreMeter(getMdcAmrSystem()).ifPresent(koreMeter -> {
+                Optional<MeterConfiguration> currentMeterConfiguration = koreMeter.getConfiguration(updateInstant);
+                if (requiredToCreateNewMeterConfiguration(currentMeterConfiguration, channel.getReadingType(), overruledOverflowValue, overruledNbrOfFractionDigits)) { // if we need to update it
+                    if (currentMeterConfiguration.isPresent()) {
+                        MeterConfiguration meterConfiguration = currentMeterConfiguration.get();
+                        meterConfiguration.endAt(updateInstant);
+                        Meter.MeterConfigurationBuilder newMeterConfigBuilder = koreMeter.startingConfigurationOn(updateInstant);
+                        meterConfiguration.getReadingTypeConfigs().stream().forEach(meterReadingTypeConfiguration -> {
+                            Meter.MeterReadingTypeConfigurationBuilder meterReadingTypeConfigurationBuilder = newMeterConfigBuilder.configureReadingType(meterReadingTypeConfiguration.getMeasured());
+                            if (channelWeNeedToUpdate(meterReadingTypeConfiguration)) {
+                                if (overruledOverflowValue == null) {
+                                    meterReadingTypeConfigurationBuilder.withOverflowValue(channel.getChannelSpec().getOverflow().orElse(null));
+                                } else {
+                                    meterReadingTypeConfigurationBuilder.withOverflowValue(overruledOverflowValue);
+                                }
+                            } else if (meterReadingTypeConfiguration.getOverflowValue().isPresent()) {
+                                meterReadingTypeConfigurationBuilder.withOverflowValue(meterReadingTypeConfiguration.getOverflowValue().get());
+                            }
+                            if (channelWeNeedToUpdate(meterReadingTypeConfiguration)) {
+                                if (overruledNbrOfFractionDigits == null) {
+                                    meterReadingTypeConfigurationBuilder.withNumberOfFractionDigits(channel.getChannelSpec().getNbrOfFractionDigits());
+                                } else {
+                                    meterReadingTypeConfigurationBuilder.withNumberOfFractionDigits(overruledNbrOfFractionDigits);
+                                }
+                            } else if (meterReadingTypeConfiguration.getNumberOfFractionDigits().isPresent()) {
+                                meterReadingTypeConfigurationBuilder.withNumberOfFractionDigits(meterReadingTypeConfiguration.getNumberOfFractionDigits().getAsInt());
+                            }
+                            meterReadingTypeConfiguration.getCalculated()
+                                    .ifPresent(readingType -> meterReadingTypeConfigurationBuilder.withMultiplierOfType(getDefaultMultiplierType()).calculating(readingType));
+                        });
+                        newMeterConfigBuilder.create();
+                    } else {
+                        Meter.MeterConfigurationBuilder newMeterConfigBuilder = koreMeter.startingConfigurationOn(updateInstant);
+                        getDeviceConfiguration().getChannelSpecs().forEach(channelSpec -> {
+                            Meter.MeterReadingTypeConfigurationBuilder meterReadingTypeConfigurationBuilder = newMeterConfigBuilder.configureReadingType(channelSpec.getReadingType());
+                            if (channelWeNeedToUpdate(channelSpec) && overruledOverflowValue != null) {
+                                meterReadingTypeConfigurationBuilder.withOverflowValue(overruledOverflowValue);
+                            } else if (channelSpec.getOverflow().isPresent()) {
+                                meterReadingTypeConfigurationBuilder.withOverflowValue(channelSpec.getOverflow().get());
+                            }
+                            if (channelWeNeedToUpdate(channelSpec) && overruledNbrOfFractionDigits != null) {
+                                meterReadingTypeConfigurationBuilder.withNumberOfFractionDigits(overruledNbrOfFractionDigits);
+                            } else {
+                                meterReadingTypeConfigurationBuilder.withNumberOfFractionDigits(channelSpec.getNbrOfFractionDigits());
+                            }
+                            if (getMultiplier().compareTo(BigDecimal.ONE) == 1 && channelSpec.isUseMultiplier()) {
+                                meterReadingTypeConfigurationBuilder.withMultiplierOfType(getDefaultMultiplierType()).calculating(getMultipliedReadingTypeForChannelSpec(channelSpec));
+                            }
+                        });
+                        newMeterConfigBuilder.create();
+                    }
+                }
+            });
+            Optional<ReadingTypeObisCodeUsage> readingTypeObisCodeUsageOptional = DeviceImpl.this.getReadingTypeObisCodeUsage(channel.getReadingType());
+            boolean currentlyNoOverruledObisCodeAlthoughRequested = overruledObisCode != null && // obiscode overruling requested...
+                    !readingTypeObisCodeUsageOptional.isPresent(), // ...while currently there is none
+                    currentOverruledObisCodeIsNotTheCorrectOne = overruledObisCode != null && // obiscode overruling requested and...
+                            readingTypeObisCodeUsageOptional.isPresent() && // ...the currently present one...
+                            !readingTypeObisCodeUsageOptional.get().getObisCode().equals(overruledObisCode), // ...is different
+                    currentOverruledObisCodeIsNotNeeded = overruledObisCode == null && // no obiscode overruling requested...
+                            readingTypeObisCodeUsageOptional.isPresent(); // ...however, currently present
+
+            if (currentOverruledObisCodeIsNotTheCorrectOne || currentOverruledObisCodeIsNotNeeded) {
+                DeviceImpl.this.removeReadingTypeObisCodeUsage(channel.getReadingType());
+            }
+            if (currentOverruledObisCodeIsNotTheCorrectOne || currentlyNoOverruledObisCodeAlthoughRequested) {
+                DeviceImpl.this.addReadingTypeObisCodeUsage(channel.getReadingType(), overruledObisCode);
+            }
+            DeviceImpl.this.save(); //just to make sure we increase the version
+        }
+
+        private boolean channelWeNeedToUpdate(ChannelSpec channelSpec) {
+            return channelSpec.getReadingType().equals(channel.getReadingType());
+        }
+
+        private boolean channelWeNeedToUpdate(MeterReadingTypeConfiguration meterReadingTypeConfiguration) {
+            return meterReadingTypeConfiguration.getMeasured().equals(channel.getReadingType());
+        }
+
+        private ReadingType getMultipliedReadingTypeForChannelSpec(ChannelSpec channelSpec) {
+            ReadingType calculatedReadingType = channelSpec.getCalculatedReadingType().get();
+            if (channelSpec.getReadingType().isCumulative()) {
+                String code = readingTypeUtilService.createReadingTypeCodeBuilderFrom(calculatedReadingType)
+                        .accumulate(channelSpec.getReadingType().getAccumulation()).code();
+                return readingTypeUtilService.findOrCreateReadingType(code, calculatedReadingType.getAliasName());
+            } else {
+                return calculatedReadingType;
+            }
+        }
+    }
+
+    private boolean requiredToCreateNewMeterConfiguration(Optional<MeterConfiguration> meterConfiguration, ReadingType readingType, BigDecimal overruledOverflowValue, Integer overruledNbrOfFractionDigits) {
+        if (meterConfiguration.isPresent()) {
+            boolean required;
+            Optional<MeterReadingTypeConfiguration> readingTypeConfiguration = meterConfiguration.get().getReadingTypeConfiguration(readingType);
+            if (overruledOverflowValue == null) {
+                required = readingTypeConfiguration.isPresent() && readingTypeConfiguration.get().getOverflowValue().isPresent();
+            } else {
+                required = !readingTypeConfiguration.isPresent() || !readingTypeConfiguration.get().getOverflowValue().isPresent() || !readingTypeConfiguration.get()
+                        .getOverflowValue()
+                        .get()
+                        .equals(overruledOverflowValue);
+            }
+
+            if (overruledNbrOfFractionDigits == null) {
+                required |= readingTypeConfiguration.isPresent() && readingTypeConfiguration.get().getNumberOfFractionDigits().isPresent();
+            } else {
+                required |= !readingTypeConfiguration.isPresent() || readingTypeConfiguration.get().getNumberOfFractionDigits().getAsInt() != overruledNbrOfFractionDigits;
+            }
+            return required;
+        } else {
+            return true;
+        }
+    }
 
 private class CIMLifecycleDatesImpl implements CIMLifecycleDates {
     private final EndDevice koreDevice;
@@ -2895,6 +3324,25 @@ private class NoCimLifecycleDates implements CIMLifecycleDates {
             return new NoCimLifecycleDates();
         }
     }
+
+    @Override
+    public List<DeviceLifeCycleChangeEvent> getDeviceLifeCycleChangeEvents() {
+        // Merge the StateTimeline with the list of change events from my DeviceType.
+        Deque<StateTimeSlice> stateTimeSlices = new LinkedList<>(this.getStateTimeline().getSlices());
+        Deque<com.energyict.mdc.device.config.DeviceLifeCycleChangeEvent> deviceTypeChangeEvents = new LinkedList<>(this.getDeviceTypeLifeCycleChangeEvents());
+        List<DeviceLifeCycleChangeEvent> changeEvents = new ArrayList<>();
+        boolean notReady;
+        do {
+            DeviceLifeCycleChangeEvent newEvent = this.newEventForMostRecent(stateTimeSlices, deviceTypeChangeEvents);
+            changeEvents.add(newEvent);
+            notReady = !stateTimeSlices.isEmpty() || !deviceTypeChangeEvents.isEmpty();
+        } while (notReady);
+        return changeEvents;
+    }
+
+
+
+
 
     @Override
     public long getVersion() {
