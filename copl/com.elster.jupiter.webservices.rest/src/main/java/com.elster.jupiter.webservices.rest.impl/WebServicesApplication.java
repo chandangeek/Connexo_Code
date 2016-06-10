@@ -40,7 +40,8 @@ public class WebServicesApplication extends Application {
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
                 RestValidationExceptionMapper.class,
-                EndPointConfigurationResource.class
+                EndPointConfigurationResource.class,
+                WebServicesResource.class
         );
     }
 
@@ -80,6 +81,7 @@ public class WebServicesApplication extends Application {
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(EndPointConfigurationInfoFactory.class).to(EndPointConfigurationInfoFactory.class);
+            bind(WebServicesInfoFactory.class).to(WebServicesInfoFactory.class);
             bind(webServicesService).to(WebServicesService.class);
             bind(transactionService).to(TransactionService.class);
             bind(thesaurus).to(Thesaurus.class);

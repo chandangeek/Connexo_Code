@@ -4,6 +4,7 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 
@@ -41,6 +42,7 @@ public class EndPointConfigurationResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Transactional
     public PagedInfoList getEndPointConfigurations(@BeanParam JsonQueryParameters queryParams) {
         List<EndPointConfigurationInfo> infoList = endPointConfigurationService.findEndPointConfigurations()
                 .from(queryParams)
@@ -54,6 +56,7 @@ public class EndPointConfigurationResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/{id}")
+    @Transactional
     public EndPointConfigurationInfo getEndPointConfiguration(@PathParam("id") long id) {
         return endPointConfigurationService.getEndPointConfiguration(id)
                 .map(endPointConfigurationInfoFactory::from)
@@ -63,6 +66,7 @@ public class EndPointConfigurationResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Transactional
     public Response createEndPointConfiguration(EndPointConfigurationInfo info) {
         if (info == null) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.PAYLOAD_EXPECTED);
@@ -82,6 +86,7 @@ public class EndPointConfigurationResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/{id}")
+    @Transactional
     public Response updateEndPointConfiguration(@PathParam("id") long id, EndPointConfigurationInfo info) {
         validatePostPayload(info);
         EndPointConfiguration endPointConfiguration = endPointConfigurationService.findAndLockEndPointConfigurationByIdAndVersion(id, info.version)
