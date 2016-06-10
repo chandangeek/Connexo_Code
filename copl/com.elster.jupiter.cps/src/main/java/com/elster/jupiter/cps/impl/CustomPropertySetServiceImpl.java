@@ -32,8 +32,6 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.users.PrivilegesProvider;
-import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.streams.Predicates;
@@ -71,8 +69,8 @@ import java.util.stream.Stream;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-08-10 (13:35)
  */
-@Component(name = "com.elster.jupiter.cps", service = {CustomPropertySetService.class, ServerCustomPropertySetService.class, TranslationKeyProvider.class, PrivilegesProvider.class}, property = "name=" + CustomPropertySetService.COMPONENT_NAME)
-public class CustomPropertySetServiceImpl implements ServerCustomPropertySetService, TranslationKeyProvider, PrivilegesProvider {
+@Component(name = "com.elster.jupiter.cps", service = {CustomPropertySetService.class, ServerCustomPropertySetService.class, TranslationKeyProvider.class}, property = "name=" + CustomPropertySetService.COMPONENT_NAME)
+public class CustomPropertySetServiceImpl implements ServerCustomPropertySetService, TranslationKeyProvider {
 
     private static final Logger LOGGER = Logger.getLogger(CustomPropertySetServiceImpl.class.getName());
 
@@ -131,27 +129,6 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
             }
         }
         this.dataModel = dataModel;
-    }
-
-    @Override
-    public String getModuleName() {
-        return CustomPropertySetService.COMPONENT_NAME;
-    }
-
-    @Override
-    public List<ResourceDefinition> getModuleResources() {
-        List<ResourceDefinition> resources = new ArrayList<>();
-        resources.add(userService.createModuleResourceWithPrivileges(getModuleName(),
-                Privileges.RESOURCE_CUSTOM_PROPERTIES.getKey(), Privileges.RESOURCE_CUSTOM_PROPERTIES_DESCRIPTION.getKey(),
-                Arrays.asList(Privileges.Constants.ADMINISTER_PRIVILEGES, Privileges.Constants.VIEW_PRIVILEGES)));
-        resources.add(userService.createModuleResourceWithPrivileges(getModuleName(),
-                Privileges.RESOURCE_CUSTOM_PRIVILEGES.getKey(), Privileges.RESOURCE_CUSTOM_PRIVILEGES_DESCRIPTION.getKey(),
-                Arrays.asList(
-                        Privileges.Constants.VIEW_CUSTOM_PROPERTIES_1, Privileges.Constants.VIEW_CUSTOM_PROPERTIES_2,
-                        Privileges.Constants.VIEW_CUSTOM_PROPERTIES_3, Privileges.Constants.VIEW_CUSTOM_PROPERTIES_4,
-                        Privileges.Constants.EDIT_CUSTOM_PROPERTIES_1, Privileges.Constants.EDIT_CUSTOM_PROPERTIES_2,
-                        Privileges.Constants.EDIT_CUSTOM_PROPERTIES_3, Privileges.Constants.EDIT_CUSTOM_PROPERTIES_4)));
-        return resources;
     }
 
     @Reference
@@ -218,6 +195,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
                 bind(TransactionService.class).toInstance(transactionService);
                 bind(CustomPropertySetService.class).toInstance(CustomPropertySetServiceImpl.this);
                 bind(ServerCustomPropertySetService.class).toInstance(CustomPropertySetServiceImpl.this);
+                bind(UserService.class).toInstance(userService);
             }
         };
     }
