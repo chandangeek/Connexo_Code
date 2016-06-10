@@ -29,6 +29,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.cron.impl.DefaultCronExpressionParser;
@@ -84,6 +85,8 @@ public class AppServiceImplTest {
 
     private CountDownLatch arrivalLatch = new CountDownLatch(1); // latch that mocking can count down on when they arrive at the point that verifications may begin
 
+    @Mock
+    private UpgradeService upgradeService;
     @Mock
     private BundleContext bundleContext;
     @Mock
@@ -180,7 +183,7 @@ public class AppServiceImplTest {
         setupBlockingCancellableSubscriberSpec();
         setupFakeTransactionService();
 
-        appService = new AppServiceImpl(ormService, nlsService, transactionService, messageService, new DefaultCronExpressionParser(), jsonService, fileImportService, taskService, userService, queryService, bundleContext, threadPrincipalService, webServicesService);
+        appService = new AppServiceImpl(ormService, nlsService, transactionService, messageService, new DefaultCronExpressionParser(), jsonService, fileImportService, taskService, userService, queryService, bundleContext, threadPrincipalService, webServicesService, upgradeService);
     }
 
     @SuppressWarnings("unchecked")
