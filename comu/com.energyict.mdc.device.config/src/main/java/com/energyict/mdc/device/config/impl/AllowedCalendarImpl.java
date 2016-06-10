@@ -90,5 +90,3 @@ public class AllowedCalendarImpl implements AllowedCalendar {
         dataModel.update(this);
     }
 }
-
-}
