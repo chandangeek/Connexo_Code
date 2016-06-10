@@ -8,7 +8,7 @@ Ext.define('Uni.grid.column.ValidationFlag', {
                 icon = '';
 
             if (record.get('isConfirmed')) {
-                icon = '<span class="icon-checkmark3" style="margin-left:10px; position:absolute"></span>'
+                icon = '<span class="icon-checkmark" style="margin-left:10px; position:absolute"></span>'
             } else if (status === 'suspect') {
                 icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:red"></span>';
             } else if (status === 'notValidated') {

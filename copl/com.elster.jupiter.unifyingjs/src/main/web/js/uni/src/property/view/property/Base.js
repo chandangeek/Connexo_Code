@@ -24,7 +24,7 @@ Ext.define('Uni.property.view.property.Base', {
     resetButtonHidden: false,
     showEditButton: false,
     editIcon: 'icon-pencil5',
-    clearIcon: 'icon-close',
+    clearIcon: 'icon-cross',
     usedIcon: 'icon-pencil5', // The currently used icon for the editButton
     editButtonTooltip: null, // The tooltip for the edit button when in 'edit mode'
     removeButtonTooltip: null, // The tooltip for the edit button when in 'remove/clear mode'

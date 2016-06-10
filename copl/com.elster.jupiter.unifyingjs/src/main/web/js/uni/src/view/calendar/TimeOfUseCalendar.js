@@ -71,7 +71,7 @@ Ext.define('Uni.view.calendar.TimeOfUseCalendar', {
                 type: 'json'
             },
 
-            setUrl: function(url) {
+            setUrl: function (url) {
                 this.url = url;
             }
         });
@@ -108,7 +108,7 @@ Ext.define('Uni.view.calendar.TimeOfUseCalendar', {
                 }
                 me.fireEvent('timeofusecalendarloaded', newRecord);
             },
-            failure: function() {
+            failure: function () {
                 me.down('#tou-content-panel').setLoading(false);
             }
         })
