@@ -10,28 +10,36 @@ import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.time.DefaultRelativePeriodDefinition;
 import com.elster.jupiter.time.EventType;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.time.security.Privileges;
 import com.elster.jupiter.upgrade.FullInstaller;
+import com.elster.jupiter.users.PrivilegesProvider;
+import com.elster.jupiter.users.ResourceDefinition;
+import com.elster.jupiter.users.UserService;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-class Installer implements FullInstaller {
+class Installer implements FullInstaller, PrivilegesProvider {
     private final Logger logger = Logger.getLogger(Installer.class.getName());
 
     private final DataModel dataModel;
     private final EventService eventService;
     private final TimeService timeService;
+    private final UserService userService;
 
     @Inject
-    Installer(DataModel dataModel, TimeService timeService, EventService eventService) {
+    Installer(DataModel dataModel, TimeService timeService, EventService eventService, UserService userService) {
         super();
         this.timeService = timeService;
         this.dataModel = dataModel;
         this.eventService = eventService;
+        this.userService = userService;
     }
 
     @Override
@@ -47,7 +55,20 @@ class Installer implements FullInstaller {
                 this::createDefaultRelativePeriods,
                 logger
         );
+        userService.addModulePrivileges(this);
+    }
 
+    @Override
+    public String getModuleName() {
+        return TimeService.COMPONENT_NAME;
+    }
+
+    @Override
+    public List<ResourceDefinition> getModuleResources() {
+        List<ResourceDefinition> resources = new ArrayList<>();
+        resources.add(userService.createModuleResourceWithPrivileges(TimeService.COMPONENT_NAME, Privileges.RESOURCE_RELATIVE_PERIODS.getKey(), Privileges.RESOURCE_RELATIVE_PERIODS_DESCRIPTION.getKey(),
+                Arrays.asList(Privileges.Constants.VIEW_RELATIVE_PERIOD, Privileges.Constants.ADMINISTRATE_RELATIVE_PERIOD)));
+        return resources;
     }
 
     private void createDefaultRelativePeriods() {

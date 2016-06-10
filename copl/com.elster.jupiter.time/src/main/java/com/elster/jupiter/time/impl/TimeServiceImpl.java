@@ -22,8 +22,6 @@ import com.elster.jupiter.time.impl.parser.TranslationKeys;
 import com.elster.jupiter.time.security.Privileges;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.users.PrivilegesProvider;
-import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -36,7 +34,6 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -48,10 +45,10 @@ import java.util.stream.Stream;
 
 @Component(
         name = "com.elster.jupiter.time",
-        service = {TimeService.class, PrivilegesProvider.class, TranslationKeyProvider.class, MessageSeedProvider.class},
+        service = {TimeService.class, TranslationKeyProvider.class, MessageSeedProvider.class},
         property = "name=" + TimeService.COMPONENT_NAME,
         immediate = true)
-public class TimeServiceImpl implements TimeService, PrivilegesProvider, TranslationKeyProvider, MessageSeedProvider {
+public class TimeServiceImpl implements TimeService, TranslationKeyProvider, MessageSeedProvider {
     private volatile DataModel dataModel;
     private volatile QueryService queryService;
     private volatile OrmService ormService;
@@ -192,19 +189,6 @@ public class TimeServiceImpl implements TimeService, PrivilegesProvider, Transla
     @Override
     public RelativePeriod getAllRelativePeriod() {
         return AllRelativePeriod.INSTANCE;
-    }
-
-    @Override
-    public String getModuleName() {
-        return TimeService.COMPONENT_NAME;
-    }
-
-    @Override
-    public List<ResourceDefinition> getModuleResources() {
-        List<ResourceDefinition> resources = new ArrayList<>();
-        resources.add(userService.createModuleResourceWithPrivileges(TimeService.COMPONENT_NAME, Privileges.RESOURCE_RELATIVE_PERIODS.getKey(), Privileges.RESOURCE_RELATIVE_PERIODS_DESCRIPTION.getKey(),
-                Arrays.asList(Privileges.Constants.VIEW_RELATIVE_PERIOD, Privileges.Constants.ADMINISTRATE_RELATIVE_PERIOD)));
-        return resources;
     }
 
     @Reference
