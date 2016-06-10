@@ -21,8 +21,6 @@ import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.users.PrivilegesProvider;
-import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 
 import com.google.inject.AbstractModule;
@@ -50,9 +48,9 @@ import static com.elster.jupiter.util.streams.Functions.asStream;
 @Component(
 		name="com.elster.jupiter.data.lifecycle",
 		property = "name=" + LifeCycleService.COMPONENTNAME,
-		service = {LifeCycleService.class, TranslationKeyProvider.class, PrivilegesProvider.class},
+		service = {LifeCycleService.class, TranslationKeyProvider.class},
 		immediate = true)
-public class LifeCycleServiceImpl implements LifeCycleService, TranslationKeyProvider, PrivilegesProvider{
+public class LifeCycleServiceImpl implements LifeCycleService, TranslationKeyProvider {
 
 	private volatile OrmService ormService;
 	private volatile DataModel dataModel;
@@ -102,6 +100,7 @@ public class LifeCycleServiceImpl implements LifeCycleService, TranslationKeyPro
 				bind(MeteringService.class).toInstance(meteringService);
                 bind(MessageService.class).toInstance(messageService);
                 bind(TaskService.class).toInstance(taskService);
+				bind(UserService.class).toInstance(userService);
 			}
 		});
         upgradeService.register(identifier(COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
@@ -227,19 +226,6 @@ public class LifeCycleServiceImpl implements LifeCycleService, TranslationKeyPro
 		translationKeys.add(new SimpleTranslationKey(Installer.DATA_LIFE_CYCLE_DESTINATION_NAME, Installer.DATA_LIFE_CYCLE_DISPLAY_NAME));
 		Arrays.stream(Privileges.values()).forEach(translationKeys::add);
 		return translationKeys;
-	}
-
-	@Override
-	public String getModuleName() {
-		return LifeCycleService.COMPONENTNAME;
-	}
-
-	@Override
-	public List<ResourceDefinition> getModuleResources() {
-		List<ResourceDefinition> resources = new ArrayList<>();
-		resources.add(userService.createModuleResourceWithPrivileges(LifeCycleService.COMPONENTNAME, Privileges.RESOURCE_DATA_PURGE.getKey(), Privileges.RESOURCE_DATA_PURGE_DESCRIPTION.getKey(),
-				Arrays.asList(Privileges.Constants.ADMINISTRATE_DATA_PURGE, Privileges.Constants.VIEW_DATA_PURGE)));
-		return resources;
 	}
 
 }
