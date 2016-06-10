@@ -167,7 +167,7 @@ public class MeteringServiceImpl implements ServerMeteringService, PrivilegesPro
     private static ImmutableList<TemplateField> locationTemplateMembers;
     private static String LOCATION_TEMPLATE = "com.elster.jupiter.location.template";
     private static String LOCATION_TEMPLATE_MANDATORY_FIELDS = "com.elster.jupiter.location.template.mandatoryfields";
-    private static final String MDC_URL = "com.elster.jupiter.mdc.url";
+    private static final String MDC_URL = "com.energyict.mdc.url";
     private static final String ENERGY_AXIS_URL = "com.elster.jupiter.energyaxis.url";
     private Map<KnownAmrSystem, String> supportedApplicationsUrls = new HashMap<>();
 
