@@ -5,6 +5,7 @@ import com.elster.jupiter.nls.Thesaurus;
 
 import com.energyict.mdc.device.data.ActiveEffectiveCalendar;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceHelper;
 import com.energyict.mdc.device.data.PassiveEffectiveCalendar;
 import com.energyict.mdc.device.data.rest.DeviceMessageStatusTranslationKeys;
 
@@ -19,16 +20,16 @@ import java.util.stream.Collectors;
 public class TimeOfUseInfoFactory {
     private Thesaurus thesaurus;
     private CalendarInfoFactory calendarInfoFactory;
-    private Clock clock;
+    private DeviceHelper deviceHelper;
 
     @Inject
-    public TimeOfUseInfoFactory(Thesaurus thesaurus, Clock clock, CalendarInfoFactory calendarInfoFactory) {
+    public TimeOfUseInfoFactory(Thesaurus thesaurus, Clock clock, CalendarInfoFactory calendarInfoFactory, DeviceHelper deviceHelper) {
         this.thesaurus = thesaurus;
-        this.clock = clock;
         this.calendarInfoFactory = calendarInfoFactory;
+        this.deviceHelper = deviceHelper;
     }
 
-    public TimeOfUseInfo from(Optional<ActiveEffectiveCalendar> activeCalendar, List<PassiveEffectiveCalendar> passiveCalendars) {
+    public TimeOfUseInfo from(Optional<ActiveEffectiveCalendar> activeCalendar, List<PassiveEffectiveCalendar> passiveCalendars, Device device) {
         TimeOfUseInfo info = new TimeOfUseInfo();
         if(activeCalendar.isPresent()) {
             if(activeCalendar.get().getAllowedCalendar().getCalendar().isPresent()) {
@@ -57,8 +58,11 @@ public class TimeOfUseInfoFactory {
             if(nextInLine.isPresent()) {
                 PassiveEffectiveCalendar next = nextInLine.get();
                 Instant activationDate = next.getActivationDate();
+                boolean willBePickedUpByPlannedComtask = deviceHelper.willDeviceMessageBePickedUpByPlannedComTask(device, next.getDeviceMessage().get());
+                boolean willBePickedUpByComtask = willBePickedUpByPlannedComtask || deviceHelper.willDeviceMessageBePickedUpByComTask(device, next.getDeviceMessage().get());
                 info.nextPassiveCalendar = new NextCalendarInfo(next.getAllowedCalendar().getName(), next.getDeviceMessage().get().getReleaseDate().toEpochMilli(),
-                        (activationDate != null) ? activationDate.toEpochMilli() : 0, DeviceMessageStatusTranslationKeys.translationFor(next.getDeviceMessage().get().getStatus(), thesaurus));
+                        (activationDate != null) ? activationDate.toEpochMilli() : 0, DeviceMessageStatusTranslationKeys.translationFor(next.getDeviceMessage().get().getStatus(), thesaurus),
+                        willBePickedUpByPlannedComtask, willBePickedUpByComtask);
             }
         }
 

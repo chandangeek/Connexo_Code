@@ -90,7 +90,9 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_TRACKING_ID(273, "InvalidTrackingId", "The tracking id is invalid for this tracking category"),
     BAD_REQUEST(274, "badRequest", "Bad request"),
     INVALID_COORDINATES(275, "invalidCoordinates", "All coordinates fields must contain valid values"),
-    VERIFY_CALENDAR_TASK_IS_NOT_ACTIVE(276, "VerifyCalendarTaskNotActive", "It is impossible to verify the active calendar because the communication task is not available on the device configuration");
+    VERIFY_CALENDAR_TASK_IS_NOT_ACTIVE(276, "VerifyCalendarTaskNotActive", "It is impossible to verify the active calendar because the communication task is not available on the device configuration"),
+    UNABLE_TO_FIND_CALENDAR(277, "CannotFindCalendar", "Unable to find the given calendar in the system."),
+    NO_ALLOWED_CALENDAR_DEVICE_MESSAGE(278, "NoAllowedCalendarMessage", "Unable to find an allowed calendar command with the given information");
     private final int number;
     private final String key;
     private final String format;
