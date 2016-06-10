@@ -10,7 +10,9 @@ Ext.define('Imt.purpose.view.ReadingsList', {
     overflowY: 'auto',
 
     initComponent: function () {
-        var me = this;
+        var me = this,
+            readingType = me.output.get('readingType'),
+            unit = readingType && readingType.names ? readingType.names.unitOfMeasure : undefined;
 
         me.columns = [
             {
@@ -26,7 +28,9 @@ Ext.define('Imt.purpose.view.ReadingsList', {
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('readings.label.value', 'IMT', 'Value'),
+                header: unit
+                    ? Uni.I18n.translate('general.value', 'MDC', 'Value ({0})', [unit])
+                    : Uni.I18n.translate('general.value.empty', 'MDC', 'Value'),
                 flex: 1,
                 align: 'right',
                 dataIndex: 'value'
