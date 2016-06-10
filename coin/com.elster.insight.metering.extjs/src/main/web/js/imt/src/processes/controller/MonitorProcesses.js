@@ -38,7 +38,7 @@ Ext.define('Imt.processes.controller.MonitorProcesses', {
                     properties: {
                         variableId: 'usagePointId',
                         name: 'usagePoint',
-                        value: mRID,
+                        value:  usagePoint.get('id'),
                         route: Dbp.privileges.DeviceProcesses.canAssignOrExecute()? 'workspace/tasks/performTask': null
                     }
                 });
@@ -86,7 +86,7 @@ Ext.define('Imt.processes.controller.MonitorProcesses', {
                             },
                             {
                                 name: 'value',
-                                value: record.get('id')
+                                value: usagePoint.get('id')
                             }
                         ],
                         successLink: router.getRoute('usagepoints/view/processes').buildUrl({usagePointId: mRID}),
