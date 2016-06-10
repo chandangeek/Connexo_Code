@@ -445,10 +445,11 @@ public class UsagePointImpl implements UsagePoint {
     @Override
     public void apply(UsagePointMetrologyConfiguration metrologyConfiguration, Instant when) {
         this.removeMetrologyConfiguration(when);
-        this.metrologyConfiguration.add(
-                this.dataModel
-                        .getInstance(EffectiveMetrologyConfigurationOnUsagePointImpl.class)
-                        .initAndSave(this, metrologyConfiguration, when));
+        EffectiveMetrologyConfigurationOnUsagePointImpl effectiveMetrologyConfiguration = this.dataModel
+                .getInstance(EffectiveMetrologyConfigurationOnUsagePointImpl.class);
+        effectiveMetrologyConfiguration.init(this, metrologyConfiguration, when);
+        this.metrologyConfiguration.add(effectiveMetrologyConfiguration);
+        effectiveMetrologyConfiguration.createChannelsContainers();
     }
 
     @Override

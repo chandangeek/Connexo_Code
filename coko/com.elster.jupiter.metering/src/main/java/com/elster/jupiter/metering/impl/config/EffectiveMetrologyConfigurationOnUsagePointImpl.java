@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl.config;
 
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.orm.DataModel;
@@ -9,7 +10,11 @@ import com.elster.jupiter.util.time.Interval;
 
 import javax.inject.Inject;
 import java.time.Instant;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
+import static com.elster.jupiter.util.conditions.Where.where;
 import static com.google.common.base.MoreObjects.toStringHelper;
 
 /**
@@ -25,13 +30,15 @@ public class EffectiveMetrologyConfigurationOnUsagePointImpl implements Effectiv
     private Reference<UsagePointMetrologyConfiguration> metrologyConfiguration = ValueReference.absent();
     private boolean active;
 
+    private List<ChannelsContainer> channelsContainers;
+
     @Inject
     public EffectiveMetrologyConfigurationOnUsagePointImpl(DataModel dataModel) {
         super();
         this.dataModel = dataModel;
     }
 
-    public EffectiveMetrologyConfigurationOnUsagePointImpl initAndSave(UsagePoint usagePoint, UsagePointMetrologyConfiguration metrologyConfiguration, Instant start) {
+    public EffectiveMetrologyConfigurationOnUsagePointImpl init(UsagePoint usagePoint, UsagePointMetrologyConfiguration metrologyConfiguration, Instant start) {
         this.usagePoint.set(usagePoint);
         this.metrologyConfiguration.set(metrologyConfiguration);
         this.interval = Interval.startAt(start);
@@ -71,6 +78,32 @@ public class EffectiveMetrologyConfigurationOnUsagePointImpl implements Effectiv
     public void activate() {
         this.active = true;
         this.dataModel.update(this);
+    }
+
+    public void createChannelsContainers() {
+        this.channelsContainers = getMetrologyConfiguration().getContracts()
+                .stream()
+                .filter(metrologyContract -> !metrologyContract.getDeliverables().isEmpty())
+                .map(metrologyContract -> {
+                    MetrologyContractChannelsContainerImpl channelsContainer = dataModel.getInstance(MetrologyContractChannelsContainerImpl.class)
+                            .init(this, metrologyContract);
+                    channelsContainer.save();
+                    return channelsContainer;
+                })
+                .collect(Collectors.toList());
+    }
+
+    private void ensureChannelsContainersLoaded() {
+        if (this.channelsContainers == null) {
+            this.channelsContainers = this.dataModel.mapper(ChannelsContainer.class)
+                    .select(where(MetrologyContractChannelsContainerImpl.Fields.METROLOGY_CONFIG.fieldName()).isEqualTo(this));
+        }
+    }
+
+    @Override
+    public List<ChannelsContainer> getChannelsContainers() {
+        ensureChannelsContainersLoaded();
+        return Collections.unmodifiableList(this.channelsContainers);
     }
 
     @Override

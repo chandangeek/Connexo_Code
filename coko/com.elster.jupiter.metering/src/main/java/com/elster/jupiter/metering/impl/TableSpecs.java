@@ -50,6 +50,7 @@ import com.elster.jupiter.metering.impl.config.MetrologyConfigurationCustomPrope
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationCustomPropertySetUsageImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationMeterRoleUsageImpl;
+import com.elster.jupiter.metering.impl.config.MetrologyContractChannelsContainerImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyContractImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyContractReadingTypeDeliverableUsage;
 import com.elster.jupiter.metering.impl.config.MetrologyPurposeImpl;
@@ -1512,12 +1513,17 @@ public enum TableSpecs {
 
             Map<String, Class<? extends ChannelsContainer>> implementers = new HashMap<>();
             implementers.put("MeterActivation", MeterActivationChannelsContainerImpl.class);
+            implementers.put("MetrologyContract", MetrologyContractChannelsContainerImpl.class);
             table.map(implementers);
 
             Column idColumn = table.addAutoIdColumn();
             List<Column> intervalColumns = table.addIntervalColumns("interval");
             table.addDiscriminatorColumn("CONTAINER_TYPE", "varchar(80)");
             Column meterActivationColumn = table.column("METER_ACTIVATION").number().add();
+
+            Column effectiveMetrologyConfigurationUsagePointColumn = table.column("USAGE_POINT").number().add();
+            Column metrologyContractColumn = table.column("METROLOGY_CONTRACT").number().add();
+
             table.addAuditColumns();
 
             table.primaryKey("MTR_CONTRACT_CHANNEL_PK").on(idColumn).add();
@@ -1526,6 +1532,21 @@ public enum TableSpecs {
                     .references(MeterActivation.class)
                     .map("meterActivation")
                     .onDelete(CASCADE)
+                    .add();
+            table.foreignKey("MTR_CH_CONTAINER_2_MC")
+                    .on(metrologyContractColumn)
+                    .references(MetrologyContract.class)
+                    .map(MetrologyContractChannelsContainerImpl.Fields.METROLOGY_CONTRACT.fieldName())
+                    .onDelete(CASCADE)
+                    .add();
+            table.foreignKey("MTR_CH_CONTAINER_2_UP")
+                    .on(effectiveMetrologyConfigurationUsagePointColumn, intervalColumns.get(0))
+                    .references(EffectiveMetrologyConfigurationOnUsagePoint.class)
+                    .map(MetrologyContractChannelsContainerImpl.Fields.METROLOGY_CONFIG.fieldName())
+                    .onDelete(CASCADE)
+                    .add();
+            table.unique("UQ_CH_CT_FOR_M_CONTRACT")
+                    .on(effectiveMetrologyConfigurationUsagePointColumn, intervalColumns.get(0), metrologyContractColumn)
                     .add();
         }
     },
