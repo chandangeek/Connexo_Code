@@ -8,7 +8,6 @@ import com.elster.jupiter.appserver.ImportFolderForAppServer;
 import com.elster.jupiter.appserver.ImportScheduleOnAppServer;
 import com.elster.jupiter.appserver.MessageSeeds;
 import com.elster.jupiter.appserver.SubscriberExecutionSpec;
-import com.elster.jupiter.appserver.security.Privileges;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
@@ -34,8 +33,6 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.users.PrivilegesProvider;
-import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Registration;
 import com.elster.jupiter.util.concurrent.DelayedRegistrationHandler;
@@ -82,8 +79,8 @@ import static com.elster.jupiter.upgrade.InstallIdentifier.identifier;
 import static com.elster.jupiter.util.conditions.Where.where;
 import static com.elster.jupiter.util.streams.Predicates.not;
 
-@Component(name = "com.elster.jupiter.appserver", service = {AppService.class, Subscriber.class, PrivilegesProvider.class, TopicHandler.class}, property = {"name=" + AppService.COMPONENT_NAME}, immediate = true)
-public class AppServiceImpl implements IAppService, Subscriber, PrivilegesProvider, TranslationKeyProvider, TopicHandler {
+@Component(name = "com.elster.jupiter.appserver", service = {AppService.class, Subscriber.class, TopicHandler.class}, property = {"name=" + AppService.COMPONENT_NAME}, immediate = true)
+public class AppServiceImpl implements IAppService, Subscriber, TranslationKeyProvider, TopicHandler {
 
     private static final Logger LOGGER = Logger.getLogger(AppServiceImpl.class.getName());
 
@@ -585,20 +582,6 @@ public class AppServiceImpl implements IAppService, Subscriber, PrivilegesProvid
     @Override
     public Query<AppServer> getAppServerQuery() {
         return queryService.wrap(dataModel.query(AppServer.class));
-    }
-
-    @Override
-    public String getModuleName() {
-        return AppService.COMPONENT_NAME;
-    }
-
-    @Override
-    public List<ResourceDefinition> getModuleResources() {
-        List<ResourceDefinition> resources = new ArrayList<>();
-        resources.add(userService.createModuleResourceWithPrivileges(getModuleName(),
-                Privileges.RESOURCE_APPSERVER.getKey(), Privileges.RESOURCE_APPSERVER_DESCRIPTION.getKey(),
-                Arrays.asList(Privileges.Constants.ADMINISTRATE_APPSEVER, Privileges.Constants.VIEW_APPSEVER)));
-        return resources;
     }
 
     @Override
