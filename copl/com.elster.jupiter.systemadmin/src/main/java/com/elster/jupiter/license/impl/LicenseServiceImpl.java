@@ -13,8 +13,6 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.users.PrivilegesProvider;
-import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 
@@ -60,10 +58,10 @@ import static com.elster.jupiter.upgrade.InstallIdentifier.identifier;
 
 @Component(
         name = "com.elster.jupiter.license",
-        service = {LicenseService.class, PrivilegesProvider.class, MessageSeedProvider.class, TranslationKeyProvider.class},
+        service = {LicenseService.class, MessageSeedProvider.class, TranslationKeyProvider.class},
         property = {"name=" + LicenseService.COMPONENTNAME},
         immediate = true)
-public class LicenseServiceImpl implements LicenseService, PrivilegesProvider, MessageSeedProvider, TranslationKeyProvider {
+public class LicenseServiceImpl implements LicenseService, MessageSeedProvider, TranslationKeyProvider {
 
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
@@ -89,20 +87,6 @@ public class LicenseServiceImpl implements LicenseService, PrivilegesProvider, M
         setEventService(eventService);
         setUpgradeService(upgradeService);
         activate(null);
-    }
-
-    @Override
-    public String getModuleName() {
-        return LicenseService.COMPONENTNAME;
-    }
-
-    @Override
-    public List<ResourceDefinition> getModuleResources() {
-        List<ResourceDefinition> resources = new ArrayList<>();
-        resources.add(userService.createModuleResourceWithPrivileges(LicenseService.COMPONENTNAME, Privileges.RESOURCE_LICENSE.getKey(), Privileges.RESOURCE_LICENSE_DESCRIPTION.getKey(),
-                Arrays.asList(
-                        Privileges.Constants.VIEW_LICENSE, Privileges.Constants.UPLOAD_LICENSE)));
-        return resources;
     }
 
     @Reference
