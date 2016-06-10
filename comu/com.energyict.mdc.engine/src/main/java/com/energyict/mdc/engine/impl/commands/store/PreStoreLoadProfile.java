@@ -118,8 +118,12 @@ public class PreStoreLoadProfile {
             return this.offlineLoadProfile.getDeviceIdentifier();
         }
 
-        public List<IntervalBlock> getIntervalBlocks() {
+        List<IntervalBlock> getIntervalBlocks() {
             return intervalBlocks;
+        }
+
+        protected void setIntervalBlocks(List<IntervalBlock> intervalBlocks) {
+            this.intervalBlocks = intervalBlocks;
         }
 
         public Instant getLastReading() {
@@ -238,9 +242,16 @@ public class PreStoreLoadProfile {
                 comServerDAO.getStorageLoadProfileIdentifiers(getOfflineLoadProfile(), channelInfo.getReadingTypeMRID(), collectedLoadProfile.getCollectedIntervalDataRange()).forEach(pair -> {
                     PreStoredLoadProfile preStoredLoadProfile = new PreStoredLoadProfile(Optional.of(pair.getFirst()));
                     preStoredLoadProfile.preprocess(collectedLoadProfile, intervalStorageEnd, mdcReadingTypeUtilService);
+                    if (preStoredLoadProfile.getIntervalBlocks() != null) {
+                        if (this.getIntervalBlocks() == null) {
+                            this.setIntervalBlocks(preStoredLoadProfile.getIntervalBlocks());
+                        } else {
+                            getIntervalBlocks().addAll(preStoredLoadProfile.getIntervalBlocks());
+                        }
+                    }
                     preStoredLoadProfiles.add(preStoredLoadProfile);
+
                 });
-                super.processBlock(intervalBlock,getRangeForNewIntervalStorage(getOfflineLoadProfile(), intervalStorageEnd), channelInfo, configuredUnit);
             }
             return this;
         }

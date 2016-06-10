@@ -806,6 +806,7 @@ public class ComServerDAOImpl implements ComServerDAO {
                             }
                         });
                     }
+                    offLineLoadProfiles.add(Pair.of(offlineLoadProfile,dataPeriod));   //All data is stored on the data logger channel
                     return offLineLoadProfiles;
                 }
             }

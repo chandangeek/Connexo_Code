@@ -1,9 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.time.TimeDuration;
@@ -40,7 +37,6 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -316,6 +312,10 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
         assertThat(preStoredLoadProfile.getIntervalBlocks().get(0).getIntervals().get(0).getTimeStamp()).isEqualTo(intervalEndTime2.toInstant());
         assertThat(preStoredLoadProfile.getIntervalBlocks().get(0).getIntervals().get(1).getTimeStamp()).isEqualTo(intervalEndTime3.toInstant());
     }
+
+//    public void testDataLoggerLinkedForWholePeriod(){
+//
+//    }
 
     protected ComServerDAO mockComServerDAOWithOfflineLoadProfile(OfflineLoadProfile offlineLoadProfile) {
         ComServerDAO comServerDAO = spy(new ComServerDAOImpl(this.serviceProvider));
