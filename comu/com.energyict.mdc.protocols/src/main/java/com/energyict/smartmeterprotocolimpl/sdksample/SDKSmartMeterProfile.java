@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.ReadingQualityType;
 import com.energyict.mdc.common.ObisCode;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
@@ -163,13 +164,17 @@ public class SDKSmartMeterProfile implements MultipleLoadProfileSupport {
      * @param loadProfilesToRead the list of LoadProfile ObisCodes
      * @return a list of {@link LoadProfileConfiguration} objects corresponding with the meter
      */
-    public List<LoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) {
+    public List<LoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) throws InvalidPropertyException {
 
         loadProfileConfigurationList = new ArrayList<LoadProfileConfiguration>();
 
         for (LoadProfileReader lpr : loadProfilesToRead) {
             LoadProfileConfiguration lpc = new LoadProfileConfiguration(lpr.getProfileObisCode(), lpr.getDeviceIdentifier());
-            Map<ObisCode, List<ChannelInfo>> tempMap = LoadProfileSerialNumberChannelInfoMap.get(lpr.getDeviceIdentifier());
+            Map<ObisCode, List<ChannelInfo>> tempMap = LoadProfileSerialNumberChannelInfoMap.get(lpr.getMeterSerialNumber());
+            if (tempMap == null) {
+                throw new InvalidPropertyException("Serial number should either be 'Master', 'Slave1' or 'Slave2'");
+            }
+
             if (tempMap.containsKey(lpr.getProfileObisCode())) {
                 lpc.setChannelInfos(tempMap.get(lpr.getProfileObisCode()));
                 lpc.setProfileInterval(LoadProfileIntervalMap.get(lpr.getProfileObisCode()));
