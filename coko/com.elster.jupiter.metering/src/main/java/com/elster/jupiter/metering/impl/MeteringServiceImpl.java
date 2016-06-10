@@ -17,6 +17,7 @@ import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.BypassStatus;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.EndDeviceControlType;
 import com.elster.jupiter.metering.GeoCoordinates;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Location;
@@ -44,7 +45,6 @@ import com.elster.jupiter.metering.UsagePointAccountability;
 import com.elster.jupiter.metering.UsagePointConnectedKind;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointFilter;
-import com.elster.jupiter.metering.EndDeviceControlType;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
@@ -214,11 +214,13 @@ public class MeteringServiceImpl implements ServerMeteringService, PrivilegesPro
         this.jsonService = jsonService;
     }
 
+    @Override
     @Reference(name = "ZHeadEndInterface", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addHeadEndInterface(HeadEndInterface headEndInterface) {
         headEndInterfaces.add(headEndInterface);
     }
 
+    @Override
     @SuppressWarnings("unused")
     public void removeHeadEndInterface(HeadEndInterface headEndInterface) {
         headEndInterfaces.remove(headEndInterface);
@@ -517,6 +519,7 @@ public class MeteringServiceImpl implements ServerMeteringService, PrivilegesPro
                 bind(LicenseService.class).toInstance(licenseService);
                 bind(MessageService.class).toInstance(messageService);
                 bind(MetrologyConfigurationServiceImpl.class).toInstance(metrologyConfigurationService);
+                bind(IMeterActivation.class).to(MeterActivationImpl.class);
             }
         });
 

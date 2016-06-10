@@ -115,7 +115,7 @@ public class UsagePointImpl implements UsagePoint {
     // associations
     private final Reference<ServiceCategory> serviceCategory = ValueReference.absent();
     private final Reference<ServiceLocation> serviceLocation = ValueReference.absent();
-    private final List<MeterActivationImpl> meterActivations = new ArrayList<>();
+    private final List<IMeterActivation> meterActivations = new ArrayList<>();
     private final List<UsagePointAccountability> accountabilities = new ArrayList<>();
     private List<UsagePointConfigurationImpl> usagePointConfigurations = new ArrayList<>();
     private final Reference<Location> upLocation = ValueReference.absent();
@@ -126,7 +126,7 @@ public class UsagePointImpl implements UsagePoint {
     private final EventService eventService;
     private final MeteringService meteringService;
     private final Thesaurus thesaurus;
-    private final Provider<MeterActivationImpl> meterActivationFactory;
+    private final Provider<IMeterActivation> meterActivationFactory;
     private final Provider<UsagePointAccountabilityImpl> accountabilityFactory;
     private final CustomPropertySetService customPropertySetService;
     private final ServerMetrologyConfigurationService metrologyConfigurationService;
@@ -135,7 +135,7 @@ public class UsagePointImpl implements UsagePoint {
     @Inject
     UsagePointImpl(
             Clock clock, DataModel dataModel, EventService eventService,
-            Thesaurus thesaurus, Provider<MeterActivationImpl> meterActivationFactory,
+            Thesaurus thesaurus, Provider<IMeterActivation> meterActivationFactory,
             Provider<UsagePointAccountabilityImpl> accountabilityFactory,
             CustomPropertySetService customPropertySetService, MeteringService meteringService, ServerMetrologyConfigurationService metrologyConfigurationService) {
         this.clock = clock;
