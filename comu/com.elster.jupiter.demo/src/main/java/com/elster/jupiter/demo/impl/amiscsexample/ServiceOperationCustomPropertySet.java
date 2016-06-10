@@ -58,7 +58,7 @@ public class ServiceOperationCustomPropertySet implements CustomPropertySet<Serv
 
     @Activate
     public void activate() {
-        System.out.println("Activating Contactor Operation Custom Property Set");
+        System.out.println("Activating Service Operation Custom Property Set");
     }
 
     @Deactivate
