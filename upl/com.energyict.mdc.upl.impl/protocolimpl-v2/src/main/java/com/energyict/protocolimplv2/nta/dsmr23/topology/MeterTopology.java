@@ -78,7 +78,8 @@ public class MeterTopology extends AbstractMeterTopology {
         List<DLMSAttribute> dlmsAttributes = new ArrayList<DLMSAttribute>();
         for (int i = 1; i <= MaxMbusDevices; i++) {
             ObisCode serialObisCode = ProtocolTools.setObisCodeField(MbusClientObisCode, ObisCodeBFieldIndex, (byte) i);
-            UniversalObject uo = DLMSUtils.findCosemObjectInObjectList(this.protocol.getDlmsSession().getMeterConfig().getInstantiatedObjectList(), serialObisCode);
+            UniversalObject uo = DLMSUtils.findCosemObjectInObjectListIgnoreBChannel(this.protocol.getDlmsSession().getMeterConfig().getInstantiatedObjectList(), serialObisCode);
+            uo.setObisCodeChannelB((byte) i);
             if (uo != null) {
                 ComposedMbusSerialNumber cMbusSerial = new ComposedMbusSerialNumber(
                         new DLMSAttribute(serialObisCode, MbusClientAttributes.MANUFACTURER_ID.getAttributeNumber(), uo.getClassID()),
@@ -119,7 +120,7 @@ public class MeterTopology extends AbstractMeterTopology {
             mbusMap = new ArrayList<>();
             for (int i = 1; i <= MaxMbusDevices; i++) {
                 ObisCode serialObisCode = ProtocolTools.setObisCodeField(MbusClientObisCode, ObisCodeBFieldIndex, (byte) i);
-                if (this.protocol.getDlmsSession().getMeterConfig().isObisCodeInObjectList(serialObisCode)) {
+                if (this.protocol.getDlmsSession().getMeterConfig().isObisCodeInObjectListIgnoreChannelB(serialObisCode)) {
                     try {
                         Unsigned16 manufacturer = this.discoveryComposedCosemObject.getAttribute(this.cMbusSerialNumbers.get(i - 1).getManufacturerId()).getUnsigned16();
                         Unsigned8 version = this.discoveryComposedCosemObject.getAttribute(this.cMbusSerialNumbers.get(i - 1).getVersion()).getUnsigned8();

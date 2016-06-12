@@ -501,6 +501,26 @@ public class DLMSMeterConfig {
     }
 
     /**
+     * Check if a given obisCode exists in the object list of the device ignoring the B Channel
+     *
+     * @param obisCode
+     * @return
+     */
+    public boolean isObisCodeInObjectListIgnoreChannelB(ObisCode obisCode) {
+        UniversalObject[] objectList = getInstantiatedObjectList();
+        if (objectList != null) {
+            for (int i = 0; i < objectList.length; i++) {
+                UniversalObject universalObject = objectList[i];
+                if (universalObject != null && universalObject.getObisCode().equalsIgnoreBChannel(obisCode)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+
+    /**
      * Get the DLMSClassId for a given obisCode from the objectLst.
      * Return DLMSClassId.UNKNOWN is not found.
      *
