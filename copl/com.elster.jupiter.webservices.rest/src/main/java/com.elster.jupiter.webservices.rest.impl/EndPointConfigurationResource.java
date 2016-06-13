@@ -11,6 +11,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -104,13 +105,20 @@ public class EndPointConfigurationResource {
         return Response.ok(endPointConfigurationInfo).build();
     }
 
+    @DELETE
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Path("/{id}")
+    @Transactional
+    public Response deleteEndPointConfiguration(@PathParam("id") long id, EndPointConfigurationInfo info) {
+        validateBasicPayload(info);
+        EndPointConfiguration endPointConfiguration = endPointConfigurationService.findAndLockEndPointConfigurationByIdAndVersion(id, info.version)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_END_POINT_CONFIG));
+        endPointConfigurationService.delete(endPointConfiguration);
+        return Response.ok().build();
+    }
+
     private void validatePostPayload(EndPointConfigurationInfo info) {
-        if (info == null) {
-            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.PAYLOAD_EXPECTED);
-        }
-        if (info.version == null) {
-            throw new LocalizedFieldValidationException(MessageSeeds.FIELD_EXPECTED, "version");
-        }
+        validateBasicPayload(info);
         if (info.type == null) {
             throw new LocalizedFieldValidationException(MessageSeeds.FIELD_EXPECTED, "type");
         }
@@ -125,6 +133,15 @@ public class EndPointConfigurationResource {
         }
         if (info.active == null) {
             throw new LocalizedFieldValidationException(MessageSeeds.FIELD_EXPECTED, "active");
+        }
+    }
+
+    private void validateBasicPayload(EndPointConfigurationInfo info) {
+        if (info == null) {
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.PAYLOAD_EXPECTED);
+        }
+        if (info.version == null) {
+            throw new LocalizedFieldValidationException(MessageSeeds.FIELD_EXPECTED, "version");
         }
     }
 
