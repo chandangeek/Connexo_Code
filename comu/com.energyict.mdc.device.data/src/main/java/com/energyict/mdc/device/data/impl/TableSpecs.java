@@ -836,6 +836,7 @@ public enum TableSpecs {
         @Override
         void addTo(DataModel dataModel) {
             Table<ReadingTypeObisCodeUsage> table = dataModel.addTable(name(), ReadingTypeObisCodeUsage.class);
+            table.since(version(10, 2));
             table.map(ReadingTypeObisCodeUsageImpl.class);
             Column readingType = table.column("READINGTYPEMRID").varChar(NAME_LENGTH).notNull().add();
             Column device = table.column("DEVICEID").number().notNull().add();
