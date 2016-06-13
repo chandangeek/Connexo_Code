@@ -19,7 +19,7 @@ import java.util.Optional;
  * </p><p>
  * All collected intervals of all the LoadProfiles can be marked as <i>BadTime</i> if the clockDifference exceeds the maximum.
  * </p><p>
- * It is also possible to map certain intervalStateBits to proper MeterEvents (of the Device itself ex. does not have MeterEvents).
+ * It is also possible to map certain reading qualities to proper MeterEvents (if the Device itself ex. does not have MeterEvents).
  * See {@link com.energyict.mdc.protocol.api.device.data.IntervalData#generateEvents()} for a mapping between the two.
  * </p>
  *
