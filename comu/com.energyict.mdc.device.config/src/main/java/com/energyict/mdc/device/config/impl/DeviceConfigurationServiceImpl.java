@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.domain.util.DefaultFinder;
