@@ -3,7 +3,6 @@ package com.elster.jupiter.orm.schema;
 import com.elster.jupiter.orm.DataModel;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface ExistingTable {
     String getName();
@@ -14,6 +13,12 @@ public interface ExistingTable {
 
     List<? extends ExistingIndex> getIndexes();
 
-    void addTo(DataModel existingDataModel, Optional<String> journalTableName);
+    default void addTo(DataModel existingDataModel, String journalTableName) {
+        addColumnsTo(existingDataModel, journalTableName);
+        addConstraintsTo(existingDataModel);
+    }
 
+    void addColumnsTo(DataModel existingDataModel, String journalTableName);
+
+    void addConstraintsTo(DataModel existingDataModel);
 }

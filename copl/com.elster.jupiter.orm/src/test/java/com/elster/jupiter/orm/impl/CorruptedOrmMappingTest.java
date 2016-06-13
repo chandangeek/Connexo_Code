@@ -5,6 +5,7 @@ import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.IllegalTableMappingException;
+import com.elster.jupiter.orm.Version;
 
 import org.junit.After;
 import org.junit.Before;
@@ -41,6 +42,7 @@ public class CorruptedOrmMappingTest {
 
         doReturn(otherTable).when(otherTablesColumn).getTable();
         when(otherTablesColumn.getName()).thenReturn("OTHERTABLESCOLUMN");
+        when(dataModel.getVersion()).thenReturn(Version.version(1, 0));
     }
 
     @After

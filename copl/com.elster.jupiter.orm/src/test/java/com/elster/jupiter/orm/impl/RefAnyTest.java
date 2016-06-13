@@ -3,6 +3,7 @@ package com.elster.jupiter.orm.impl;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.associations.RefAny;
+import com.elster.jupiter.orm.internal.TableSpecs;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.Transaction;
@@ -17,6 +18,7 @@ import org.osgi.framework.BundleContext;
 
 import java.security.Principal;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Optional;
 
 import org.junit.After;
@@ -63,7 +65,17 @@ public class RefAnyTest {
     @Test
     public void testRefAny() {
     	OrmServiceImpl service = (OrmServiceImpl) injector.getInstance(OrmService.class);
-    	Optional<?> tableHolder = service.getDataModel("ORM").map(DataModelImpl.class::cast).get().getTable("ORM_TABLE").getOptional("ORM","ORM_TABLE");
+
+        DataModelImpl dataModel =  injector.getInstance(TransactionService.class).execute(() -> {
+            DataModelImpl dModel = service.newDataModel("ORM", "forTest");
+            Arrays.stream(TableSpecs.values())
+                    .forEach(tableSpecs -> tableSpecs.addTo(dModel));
+            dModel.register();
+            dModel.install(true, true);
+            return dModel;
+        });
+
+        Optional<?> tableHolder = dataModel.getTable("ORM_TABLE").getOptional("ORM","ORM_TABLE");
     	assertThat(tableHolder.isPresent()).isTrue();
     	RefAny refAny = injector.getInstance(OrmService.class).getDataModels().get(0).asRefAny(tableHolder.get());
     	assertThat(refAny.isPresent()).isTrue();

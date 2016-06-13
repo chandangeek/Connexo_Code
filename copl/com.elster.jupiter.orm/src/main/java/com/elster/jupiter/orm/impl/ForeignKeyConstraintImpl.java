@@ -7,23 +7,29 @@ import com.elster.jupiter.orm.IllegalTableMappingException;
 import com.elster.jupiter.orm.Index;
 import com.elster.jupiter.orm.MappingException;
 import com.elster.jupiter.orm.TableConstraint;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.TemporalAspect;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.associations.impl.AssociationKind;
 import com.elster.jupiter.orm.associations.impl.PersistentReference;
 
+import com.google.common.collect.ImmutableRangeSet;
+import com.google.common.collect.Range;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
 import static com.elster.jupiter.util.Checks.is;
+import static com.elster.jupiter.util.Ranges.intersection;
 
-public class ForeignKeyConstraintImpl extends TableConstraintImpl implements ForeignKeyConstraint {
+public class ForeignKeyConstraintImpl extends TableConstraintImpl<ForeignKeyConstraintImpl> implements ForeignKeyConstraint {
     // persistent fields
     private DeleteRule deleteRule;
     private String fieldName;
@@ -40,6 +46,11 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
 
     // transient field for reverse mapping
     private AssociationKind associationKind;
+    private ForeignKeyConstraintImpl predecessor;
+
+    public ForeignKeyConstraintImpl() {
+        super(ForeignKeyConstraintImpl.class);
+    }
 
     @Override
     ForeignKeyConstraintImpl init(TableImpl<?> table, String name) {
@@ -306,11 +317,7 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
             return false;
         }
         Field field = getReferencedTable().getField(reverseFieldName);
-        if (field == null) {
-            return false;
-        } else {
-            return TemporalAspect.class.isAssignableFrom(field.getType());
-        }
+        return field != null && TemporalAspect.class.isAssignableFrom(field.getType());
     }
 
     public boolean isAutoIndex() {
@@ -324,6 +331,10 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
 
     public Class<?>[] reverseEagers() {
     	return reverseEagers;
+    }
+
+    public void setPredecessor(ForeignKeyConstraint predecessor) {
+        this.predecessor = (ForeignKeyConstraintImpl) predecessor;
     }
 
     static class BuilderImpl implements ForeignKeyConstraint.Builder {
@@ -370,6 +381,9 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
         @Override
         public Builder references(String name) {
             TableImpl<?> referencedTable = constraint.getTable().getDataModel().getTable(name);
+            if (referencedTable == null && constraint.getTable().getName().equals(name)) {
+                referencedTable = constraint.getTable();
+            }
             if (referencedTable == null) {
                 throw new IllegalTableMappingException("Foreign key " + constraint.getName() + " on table " + constraint.getTable().getName() + " the referenced table " + name + " does not exist.");
             }
@@ -446,6 +460,33 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
             constraint.validate();
             constraint.getTable().add(constraint);
             return constraint;
+        }
+
+        @Override
+        public Builder since(Version version) {
+            constraint.setVersions(intersection(constraint.getTable().getVersions(), ImmutableRangeSet.of(Range.atLeast(version))));
+            return this;
+        }
+
+        @Override
+        public Builder upTo(Version version) {
+            constraint.setVersions(intersection(constraint.getTable().getVersions(), ImmutableRangeSet.of(Range.lessThan(version))));
+            return this;
+        }
+
+        @Override
+        public Builder during(Range... ranges) {
+            ImmutableRangeSet.Builder<Version> builder = ImmutableRangeSet.builder();
+            Arrays.stream(ranges)
+                    .forEach(builder::add);
+            constraint.setVersions(intersection(constraint.getTable().getVersions(), builder.build()));
+            return this;
+        }
+
+        @Override
+        public Builder previously(ForeignKeyConstraint foreignKeyConstraint) {
+            constraint.setPredecessor(foreignKeyConstraint);
+            return this;
         }
     }
 }

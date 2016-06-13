@@ -1,14 +1,15 @@
 package com.elster.jupiter.orm.impl;
 
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.LifeCycleClass;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.TransactionRequiredException;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.orm.associations.RefAny;
 import com.elster.jupiter.orm.associations.impl.RefAnyImpl;
-import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.orm.internal.TableSpecs;
 import com.elster.jupiter.orm.schema.ExistingConstraint;
 import com.elster.jupiter.orm.schema.ExistingTable;
@@ -43,8 +44,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Logger;
 
-@Component(name = "com.elster.jupiter.orm", immediate = true, service = {OrmService.class, InstallService.class}, property = "name=" + OrmService.COMPONENTNAME)
-public class OrmServiceImpl implements OrmService, InstallService {
+@Component(name = "com.elster.jupiter.orm", immediate = true, service = {OrmService.class}, property = "name=" + OrmService.COMPONENTNAME)
+public class OrmServiceImpl implements OrmService {
 
     private volatile DataSource dataSource;
     private volatile ThreadPrincipalService threadPrincipalService;
@@ -62,7 +63,7 @@ public class OrmServiceImpl implements OrmService, InstallService {
 
     // For testing purposes
     @Inject
-    public OrmServiceImpl(Clock clock, DataSource dataSource, JsonService jsonService, ThreadPrincipalService threadPrincipalService, Publisher publisher, ValidationProviderResolver validationProviderResolver, FileSystem fileSystem) {
+    public OrmServiceImpl(Clock clock, DataSource dataSource, JsonService jsonService, ThreadPrincipalService threadPrincipalService, Publisher publisher, ValidationProviderResolver validationProviderResolver, FileSystem fileSystem, SchemaInfoProvider schemaInfoProvider) {
         this();
         setClock(clock);
         setThreadPrincipalService(threadPrincipalService);
@@ -71,10 +72,8 @@ public class OrmServiceImpl implements OrmService, InstallService {
         setPublisher(publisher);
         setValidationProviderResolver(validationProviderResolver);
         setFileSystem(fileSystem);
+        setSchemaInfoProvider(schemaInfoProvider);
         activate();
-        if (!getOrmDataModel().isInstalled()) {
-            install();
-        }
     }
 
     public Connection getConnection(boolean transactionRequired) throws SQLException {
@@ -97,7 +96,7 @@ public class OrmServiceImpl implements OrmService, InstallService {
 
     @Override
     public DataModelImpl newDataModel(String name, String description) {
-        return new DataModelImpl(this).init(name, description);
+        return new DataModelImpl(this).init(name, description, Version.latest());
     }
 
     public void register(DataModelImpl dataModel) {
@@ -110,16 +109,6 @@ public class OrmServiceImpl implements OrmService, InstallService {
 
     private DataModel getExistingTablesDataModel() {
         return dataModels.get(EXISTING_TABLES_DATA_MODEL);
-    }
-
-    @Override
-    public void install() {
-        createDataModel(false).install(true, true);
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Collections.emptyList();
     }
 
     public Clock getClock() {
@@ -307,6 +296,8 @@ public class OrmServiceImpl implements OrmService, InstallService {
             if (existingTable.isPresent()) {
                 ExistingTable userTable = existingTable.get();
 
+                userTable.addColumnsTo(existingModel, journalTableName);
+
                 for (ExistingConstraint existingConstraint : userTable.getConstraints()) {
                     if (existingConstraint.isForeignKey()) {
                         String referencedTableName = existingConstraint.getReferencedTableName();
@@ -315,7 +306,7 @@ public class OrmServiceImpl implements OrmService, InstallService {
                         }
                     }
                 }
-                userTable.addTo(existingModel, Optional.ofNullable(journalTableName));
+                userTable.addConstraintsTo(existingModel);
             }
         }
     }
@@ -334,6 +325,11 @@ public class OrmServiceImpl implements OrmService, InstallService {
 	public void createPartitions(Instant upTo, Logger logger) {
 		dataModels.values().forEach(dataModel -> dataModel.createPartitions(upTo, logger));
 	}
+
+    @Override
+    public DataModelUpgrader getDataModelUpgrader(Logger logger) {
+        return new DataModelUpgraderImpl(schemaInfoProvider, this, logger);
+    }
 
     public FileSystem getFileSystem() {
         return fileSystem;

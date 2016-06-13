@@ -66,4 +66,5 @@ public interface OrmService {
 	 */
 	void createPartitions(Instant upTo, Logger logger);
 
+    DataModelUpgrader getDataModelUpgrader(Logger logger);
 }

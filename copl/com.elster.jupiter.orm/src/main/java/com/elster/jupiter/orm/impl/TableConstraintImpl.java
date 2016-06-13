@@ -4,17 +4,25 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.IllegalTableMappingException;
 import com.elster.jupiter.orm.TableConstraint;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableRangeSet;
+import com.google.common.collect.Range;
+import com.google.common.collect.RangeSet;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-public abstract class TableConstraintImpl implements TableConstraint {
+import static com.elster.jupiter.util.Ranges.intersection;
+
+public abstract class TableConstraintImpl<S extends TableConstraint> implements TableConstraint {
 
     public static final Map<String, Class<? extends TableConstraint>> implementers = ImmutableMap.<String, Class<? extends TableConstraint>>of(
             "PRIMARYKEY", PrimaryKeyConstraintImpl.class,
@@ -29,6 +37,12 @@ public abstract class TableConstraintImpl implements TableConstraint {
     private final Reference<TableImpl<?>> table = ValueReference.absent();
     private final List<ColumnInConstraintImpl> columnHolders = new ArrayList<>();
 
+    private transient RangeSet<Version> versions = ImmutableRangeSet.<Version>of().complement();
+    private S self;
+
+    TableConstraintImpl(Class<S> selfType) {
+        self = selfType.cast(this);
+    }
 
     TableConstraintImpl init(TableImpl<?> table, String name) {
         if (name.length() > ColumnConversion.CATALOGNAMELIMIT) {
@@ -149,6 +163,10 @@ public abstract class TableConstraintImpl implements TableConstraint {
         return sb.toString();
     }
 
+    RangeSet<Version> versions() {
+        return ImmutableRangeSet.copyOf(versions);
+    }
+
     void validate() {
         Objects.requireNonNull(getTable());
         Objects.requireNonNull(name);
@@ -157,7 +175,7 @@ public abstract class TableConstraintImpl implements TableConstraint {
         }
     }
 
-    public boolean matches(TableConstraintImpl other) {
+    public boolean matches(TableConstraintImpl<?> other) {
         if (!getClass().equals(other.getClass())) {
             return false;
         }
@@ -176,6 +194,41 @@ public abstract class TableConstraintImpl implements TableConstraint {
     
     public boolean delayDdl() {
     	return false;
+    }
+
+    S since(Version version) {
+        versions = intersectWithTable(ImmutableRangeSet.of(Range.atLeast(version)));
+        return self;
+    }
+
+    S upTo(Version version) {
+        versions = intersectWithTable(ImmutableRangeSet.of(Range.lessThan(version)));
+        return self;
+    }
+
+    S during(Range... ranges) {
+        ImmutableRangeSet.Builder<Version> builder = ImmutableRangeSet.builder();
+        Arrays.stream(ranges)
+                .forEach(builder::add);
+        versions = intersectWithTable(builder.build());
+        return self;
+    }
+
+    public void setVersions(RangeSet<Version> versions) {
+        if (versions instanceof ImmutableRangeSet) {
+            this.versions = versions;
+        } else {
+            this.versions = ImmutableRangeSet.copyOf(versions);
+        }
+    }
+
+    @Override
+    public boolean isInVersion(Version version) {
+        return versions.contains(version);
+    }
+
+    private RangeSet<Version> intersectWithTable(RangeSet<Version> set) {
+        return intersection(table.get().getVersions(), set);
     }
 
 }

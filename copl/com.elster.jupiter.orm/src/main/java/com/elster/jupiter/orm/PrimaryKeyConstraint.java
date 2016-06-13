@@ -1,6 +1,7 @@
 package com.elster.jupiter.orm;
 
 import aQute.bnd.annotation.ProviderType;
+import com.google.common.collect.Range;
 
 /*
  * Models a primary key definition.
@@ -18,5 +19,13 @@ public interface PrimaryKeyConstraint extends TableConstraint {
 		Builder on(Column ... columns);
 		Builder allowZero();
 		PrimaryKeyConstraint add();
+
+		Builder since(Version version);
+
+		Builder upTo(Version version);
+
+		Builder during(Range... ranges);
+
+		Builder previously(PrimaryKeyConstraint primaryKeyConstraint);
 	}
 }

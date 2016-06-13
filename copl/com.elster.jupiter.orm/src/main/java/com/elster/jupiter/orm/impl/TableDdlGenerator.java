@@ -1,5 +1,11 @@
 package com.elster.jupiter.orm.impl;
 
+import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.SqlDialect;
+import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.util.streams.Functions;
+
+import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -8,18 +14,19 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-
-import com.elster.jupiter.orm.SqlDialect;
+import java.util.stream.Stream;
 
 class TableDdlGenerator implements PartitionMethod.Visitor {
 	
 	private final static long PARTITIONSIZE = 86400L * 30L * 1000L;
     private final TableImpl<?> table;
     private final SqlDialect dialect;
+    private final Version version; // TODO : actually use it
   
-    TableDdlGenerator(TableImpl<?> table, SqlDialect dialect) {
+    TableDdlGenerator(TableImpl<?> table, SqlDialect dialect, Version version) {
         this.table = table;
-        this.dialect = dialect;        
+        this.dialect = dialect;
+        this.version = version;
     }
 
     List<String> getDdl() {
@@ -28,24 +35,24 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
         if (table.hasJournal()) {
             ddl.add(getJournalTableDdl(table));
         }
-        for (TableConstraintImpl constraint : table.getConstraints()) {
+        for (TableConstraintImpl constraint : table.getConstraints(version)) {
             if (constraint.needsIndex()) {
                 ddl.add(getConstraintIndexDdl(constraint));
             }
         }
-        for (IndexImpl index : table.getIndexes()) {
+        for (IndexImpl index : table.getIndexes(version)) {
             ddl.add(getIndexDdl(index));
         }
-        for (ColumnImpl column : table.getColumns()) {
+        for (ColumnImpl column : table.getColumns(version)) {
             if (column.isAutoIncrement()) {
                 ddl.add(getSequenceDdl(column));
             }
         }
-        for (TableImpl<?> created : table.getDataModel().getTables()) {
+        for (TableImpl<?> created : table.getDataModel().getTables(version)) {
         	if (created.equals(table)) {
         		break;
         	}
-        	for (ForeignKeyConstraintImpl constraint : created.getForeignKeyConstraints()) {
+        	for (ForeignKeyConstraintImpl constraint : created.getForeignKeyConstraints(version)) {
         		if (constraint.getReferencedTable().equals(table) && !constraint.noDdl()) {
         			ddl.add("alter table " + constraint.getTable().getName() + " add " + getConstraintFragment(constraint));
         		}
@@ -56,10 +63,10 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
 
     private String getTableDdl() {
         StringBuilder sb = new StringBuilder("create table ");
-        sb.append(table.getQualifiedName());
+        sb.append(table.getQualifiedName(version));
         sb.append("(");
-        doAppendColumns(sb, table.getColumns(), true, true);
-        for (TableConstraintImpl constraint : table.getConstraints()) {
+        doAppendColumns(sb, table.getColumns(version), true, true);
+        for (TableConstraintImpl constraint : table.getConstraints(version)) {
         	if (!constraint.delayDdl() && !constraint.noDdl()) {
         		sb.append(", ");
         		sb.append(getConstraintFragment(constraint));
@@ -120,7 +127,7 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
         StringBuilder sb = new StringBuilder("create table ");
         sb.append(table.getQualifiedName(table.getJournalTableName()));
         sb.append(" (");
-        doAppendColumns(sb, table.getColumns(), true, true);
+        doAppendColumns(sb, table.getColumns(version), true, true);
         String separator = ", ";
         sb.append(separator);
         sb.append(TableImpl.JOURNALTIMECOLUMNNAME);
@@ -230,6 +237,9 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
             }
             if (addNullable) {
                 if (column.isNotNull()) {
+                    if (column.getInstallValue() != null) {
+                        builder.append(" DEFAULT ").append(column.getInstallValue());
+                    }
                     builder.append(" NOT");
                 }
                 builder.append(" NULL");
@@ -242,8 +252,14 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
         // Columns
         List<ColumnImpl> notMatched = new ArrayList<>();
         notMatched.addAll(table.getColumns());
-        for (ColumnImpl toColumn : toTable.getColumns()) {
-            Optional<ColumnImpl> fromColumn = table.getColumn(toColumn.getName());
+        for (ColumnImpl toColumn : toTable.getColumns(version)) {
+            Optional<ColumnImpl> fromColumn =
+                    Stream.of(
+                            table.getColumn(toColumn.getName()),
+                            toColumn.getPredecessor().map(Column::getName).flatMap(table::getColumn)
+                            )
+                    .flatMap(Functions.asStream())
+                    .findFirst();
             if (fromColumn.isPresent()) {
                 notMatched.remove(fromColumn.get());
                 List<String> upgradeDdl = getUpgradeDdl(fromColumn.get(), toColumn);
@@ -272,7 +288,7 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
                 }
             }
         }
-        for (IndexImpl index : toTable.getIndexes()) {
+        for (IndexImpl index : toTable.getIndexes(version)) {
             IndexImpl fromIndex = table.getIndex(index.getName());
             if (fromIndex == null) {
                 result.add(getIndexDdl(index));
@@ -288,7 +304,7 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
         }
         //Constraints
         Set<TableConstraintImpl> unmatched = new HashSet<>();
-        for (TableConstraintImpl constraint : table.getConstraints()) {
+        for (TableConstraintImpl constraint : table.getConstraints(version)) {
             unmatched.add(constraint);
         }
         for (TableConstraintImpl toConstraint : toTable.getConstraints()) {
@@ -301,7 +317,12 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
 
                 } else {
                     unmatched.remove(fromConstraint);
-                    result.add(getRenameConstraintDdl(fromConstraint, toConstraint));
+                    if (dialect.allowsConstraintRename()) {
+                        result.add(getRenameConstraintDdl(fromConstraint, toConstraint));
+                    } else {
+                        result.addAll(getDropConstraintDdls(fromConstraint));
+                        result.addAll(getAddConstraintDdls(toConstraint));
+                    }
                 }
             } else {
                 unmatched.remove(fromConstraint);
@@ -316,11 +337,25 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
         if (toTable.hasJournal() && !table.hasJournal()) {
             result.add(getJournalTableDdl(toTable));
         }
+        // name
+        if (!table.getName().equals(toTable.getName(version))) {
+            result.add(getRenameDdl(toTable));
+        }
+
         return result;
     }
 
+    private String getRenameDdl(TableImpl<?> toTable) {
+        return "alter table " + table.getName() + " rename to " + toTable.getName(version);
+    }
+
     private String getRenameConstraintDdl(TableConstraintImpl fromConstraint, TableConstraintImpl toConstraint) {
-        return "alter table " + fromConstraint.getTable().getName() + " rename constraint " + fromConstraint.getName() + " to " + toConstraint.getName();
+        return MessageFormat.format(
+                dialect.renameConstraintSyntax(),
+                fromConstraint.getTable().getName(),
+                fromConstraint.getName(),
+                toConstraint.getName()
+        );
     }
 
     private List<String> getAddConstraintDdls(TableConstraintImpl constraint) {
@@ -406,9 +441,32 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
         } else if (toColumn.isVirtual()) {
             throw new IllegalArgumentException("Cannot migrate existing column '" + fromColumn.getName() + "' to a virtual column on table " + fromColumn.getTable().getName());
         } else {
+            List<String> returnSqls = new ArrayList<>();
+            if (!fromColumn.getName().equalsIgnoreCase(toColumn.getName())) {
+                String renameSql = MessageFormat.format(
+                        dialect.renameColumnSyntax(),
+                        table.getName(),
+                        fromColumn.getName(),
+                        toColumn.getName()
+                );
+                returnSqls.add(renameSql);
+            }
             if (!fromColumn.getDbType().equalsIgnoreCase(toColumn.getDbType())
                     || (fromColumn.isNotNull() != toColumn.isNotNull())) {
-                List<String> returnSqls = new ArrayList<>();
+                // if from is null and to is not null then we'll try to update null to the install value
+                if (!fromColumn.isNotNull() && toColumn.isNotNull() && toColumn.getInstallValue() != null) {
+                    StringBuilder builder = new StringBuilder("update ")
+                            .append(table.getName())
+                            .append(" set ")
+                            .append('"').append(fromColumn.getName().toUpperCase()).append('"')
+                            .append(" = ")
+                            .append(toColumn.getInstallValue())
+                            .append(" where ")
+                            .append('"').append(fromColumn.getName().toUpperCase()).append('"')
+                            .append(" is null");
+                    returnSqls.add(builder.toString());
+                }
+                // test for rename
                 StringBuilder builder = new StringBuilder("alter table ");
                 builder.append(table.getName());
                 builder.append(" modify ");
@@ -421,8 +479,8 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
                     appendDdl(toColumn, builder, true, fromColumn.isNotNull() != toColumn.isNotNull());
                     returnSqls.add(builder.toString());
                 }
-                return returnSqls;
             }
+            return returnSqls;
         }
         return Collections.emptyList();
     }

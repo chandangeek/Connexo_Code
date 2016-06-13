@@ -1,11 +1,12 @@
 package com.elster.jupiter.orm;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.orm.associations.RefAny;
+
+import aQute.bnd.annotation.ConsumerType;
+import aQute.bnd.annotation.ProviderType;
 import com.google.inject.Module;
 
 import javax.validation.ValidatorFactory;
-
 import java.security.Principal;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -68,9 +69,11 @@ public interface DataModel {
      */
     RefAny asRefAny(Object object);
 
+    Table<?> getTable(String tableName, Version version);
+
     /*
-     * Adds a table in the default schema of the database user to the DataModel that maps to the type specified by the second argument
-     */
+         * Adds a table in the default schema of the database user to the DataModel that maps to the type specified by the second argument
+         */
     <T> Table<T> addTable(String name, Class<T> api);
 
     /*
@@ -91,6 +94,27 @@ public interface DataModel {
 
     Connection getConnection(boolean transactionRequired) throws SQLException;
 
+    default void useConnectionRequiringTransaction(ConnectionConsumer usage) {
+        try (Connection connection = getConnection(true)) {
+            usage.accept(connection);
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
+        }
+    }
+
+    default void useConnectionNotRequiringTransaction(ConnectionConsumer usage) {
+        try (Connection connection = getConnection(false)) {
+            usage.accept(connection);
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
+        }
+    }
+
+    @ConsumerType
+    static interface ConnectionConsumer {
+        void accept(Connection connection) throws SQLException;
+    }
+
     /*
      * gets the current principal from the ThreadPrincipalService
      */
@@ -105,6 +129,8 @@ public interface DataModel {
     String getDescription();
 
     List<? extends Table<?>> getTables();
+
+    List<? extends Table<?>> getTables(Version version);
 
     Table<?> getTable(String name);
 
@@ -123,4 +149,6 @@ public interface DataModel {
 	 * obtain a PartitionCreator for the table with the given name
 	 */
 	PartitionCreator partitionCreator(String tableName, Logger logger);
+
+    Version getVersion();
 }

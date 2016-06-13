@@ -26,4 +26,6 @@ public interface TableConstraint {
 	 * Useful when using partitioning
 	 */
 	boolean noDdl();
+
+	boolean isInVersion(Version version);
 }

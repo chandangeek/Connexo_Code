@@ -1,9 +1,9 @@
 package com.elster.jupiter.orm.impl;
 
-import javax.inject.Inject;
-
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+
+import javax.inject.Inject;
 
 public class ColumnInConstraintImpl {
 	private String columnName;
@@ -28,7 +28,7 @@ public class ColumnInConstraintImpl {
 		return new ColumnInConstraintImpl().init(constraint, column);
 	}
 	
-	TableConstraintImpl getConstraint() {
+	TableConstraintImpl<?> getConstraint() {
 		return constraint.get();
 	}
 		

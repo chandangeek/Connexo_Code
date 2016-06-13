@@ -10,6 +10,7 @@ import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.orm.SqlDialect;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.orm.associations.RefAny;
 import com.elster.jupiter.orm.associations.impl.ManagedPersistentList;
 import com.elster.jupiter.orm.associations.impl.RefAnyImpl;
@@ -17,7 +18,6 @@ import com.elster.jupiter.orm.query.impl.QueryExecutorImpl;
 import com.elster.jupiter.orm.query.impl.QueryStreamImpl;
 import com.elster.jupiter.util.streams.Functions;
 
-import com.google.common.collect.ImmutableList;
 import com.google.inject.ConfigurationException;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -43,8 +43,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 
 public class DataModelImpl implements DataModel {
@@ -64,14 +66,17 @@ public class DataModelImpl implements DataModel {
     private boolean registered;
     private Optional<Boolean> isInstalled = Optional.empty();
 
+    private Version version;
+
     @Inject
     DataModelImpl(OrmService ormService) {
         this.ormService = (OrmServiceImpl) ormService;
     }
 
-    DataModelImpl init(String name, String description) {
+    DataModelImpl init(String name, String description, Version version) {
         this.name = name;
         this.description = description;
+        this.version = version;
         return this;
     }
 
@@ -87,17 +92,38 @@ public class DataModelImpl implements DataModel {
 
     @Override
     public List<TableImpl<?>> getTables() {
-        return ImmutableList.copyOf(tables);
+        return tables.stream()
+                .filter(inVersion(getVersion()))
+                .collect(Collectors.toList());
+    }
+
+    private Predicate<TableImpl<?>> inVersion(Version version) {
+        return table -> table.isInVersion(version);
+    }
+
+    @Override
+    public List<TableImpl<?>> getTables(Version version) {
+        return tables.stream()
+                .filter(inVersion(version))
+                .collect(Collectors.toList());
     }
 
     @Override
     public TableImpl<?> getTable(String tableName) {
-        for (TableImpl<?> table : tables) {
-            if (table.getName().equals(tableName)) {
-                return table;
-            }
-        }
-        return null;
+        return tables.stream()
+                .filter(table -> table.getName().equals(tableName))
+                .filter(inVersion(getVersion()))
+                .findFirst()
+                .orElse(null);
+    }
+
+    @Override
+    public TableImpl<?> getTable(String tableName, Version version) {
+        return tables.stream()
+                .filter(table -> table.getName().equals(tableName))
+                .filter(inVersion(version))
+                .findFirst()
+                .orElse(null);
     }
 
     @Override
@@ -155,7 +181,7 @@ public class DataModelImpl implements DataModel {
     @Override
     public void install(boolean executeDdl, boolean store) {
         if (executeDdl) {
-            ormService.getUpgradeDataModel(this).upgradeTo(this);
+            ormService.getUpgradeDataModel(this).upgradeTo(this, Version.latest());
         }
         if (store) {
             if (ormService.isInstalled(this)) {
@@ -167,21 +193,20 @@ public class DataModelImpl implements DataModel {
 
     }
 
-
-    private void upgradeTo(DataModelImpl toDataModel) {
+    private void upgradeTo(DataModelImpl toDataModel, Version version) {
         try (Connection connection = getConnection(false);
              Statement statement = connection.createStatement()) {
             for (TableImpl<?> toTable : toDataModel.getTables()) {
                 if (toTable.isAutoInstall()) {
                     TableImpl<?> fromTable = getTable(toTable.getName());
                     if (fromTable != null) {
-                        List<String> upgradeDdl = fromTable.upgradeDdl(toTable);
+                        List<String> upgradeDdl = fromTable.upgradeDdl(toTable, version);
                         for (ColumnImpl sequenceColumn : toTable.getAutoUpdateColumns()) {
                             if (sequenceColumn.getQualifiedSequenceName() != null) {
                                 long sequenceValue = getLastSequenceValue(statement, sequenceColumn.getQualifiedSequenceName());
                                 long maxColumnValue = fromTable.getColumn(sequenceColumn.getName()) != null ? maxColumnValue(sequenceColumn, statement) : 0;
                                 if (maxColumnValue > sequenceValue) {
-                                    upgradeDdl.addAll(toTable.upgradeSequenceDdl(sequenceColumn, maxColumnValue + 1));
+                                    upgradeDdl.addAll(toTable.upgradeSequenceDdl(sequenceColumn, maxColumnValue + 1, version));
                                 }
                             }
                         }
@@ -398,6 +423,14 @@ public class DataModelImpl implements DataModel {
 
     Module getModule() {
         return getOrmService().getModule(this);
+    }
+
+    @Override
+    public Version getVersion() {
+        if (version == null) {
+            return Version.latest();
+        }
+        return version;
     }
 
     @Override

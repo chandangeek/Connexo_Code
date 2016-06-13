@@ -1,6 +1,7 @@
 package com.elster.jupiter.orm;
 
 import aQute.bnd.annotation.ProviderType;
+import com.google.common.collect.Range;
 
 /**
  * Describes a column mapping.
@@ -32,6 +33,7 @@ public interface Column {
 	boolean isNotNull();
 	boolean isDiscriminator();
 	boolean isVirtual();
+	boolean isInVersion(Version version);
 
 	@ProviderType
 	interface Builder {
@@ -55,8 +57,19 @@ public interface Column {
 		Builder audited();
 
 		Builder notAudited();
+
+		Builder since(Version version);
+
+		Builder upTo(Version version);
+
+		Builder during(Range... ranges);
+
+		Builder previously(Column column);
+
 		VirtualBuilder as(String formula);
 		Column add();
+
+		Builder installValue(String value);
 	}
 
 	@ProviderType

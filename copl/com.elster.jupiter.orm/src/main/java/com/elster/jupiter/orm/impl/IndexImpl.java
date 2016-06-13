@@ -3,10 +3,18 @@ package com.elster.jupiter.orm.impl;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.IllegalTableMappingException;
 import com.elster.jupiter.orm.Index;
+import com.elster.jupiter.orm.Version;
+
+import com.google.common.collect.ImmutableRangeSet;
+import com.google.common.collect.Range;
+import com.google.common.collect.RangeSet;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import static com.elster.jupiter.util.Ranges.intersection;
 
 public class IndexImpl implements Index {
 
@@ -14,6 +22,7 @@ public class IndexImpl implements Index {
     private int compress;
     private final List<ColumnImpl> columns = new ArrayList<>();
     private final TableImpl<?> table;
+    private RangeSet<Version> versions = ImmutableRangeSet.<Version>of().complement();
 
     IndexImpl(TableImpl<?> table, String name) {
         this.table = table;
@@ -62,6 +71,10 @@ public class IndexImpl implements Index {
         return true;
     }
 
+    RangeSet<Version> versions() {
+        return ImmutableRangeSet.copyOf(versions);
+    }
+
     static class BuilderImpl implements Index.Builder {
         private IndexImpl index;
 
@@ -91,8 +104,36 @@ public class IndexImpl implements Index {
             index.getTable().add(index);
             return index;
         }
+    }
 
+    @Override
+    public boolean isInVersion(Version version) {
+        return versions.contains(version);
+    }
 
+    @Override
+    public IndexImpl since(Version version) {
+        versions = intersectWithTable(ImmutableRangeSet.of(Range.atLeast(version)));
+        return this;
+    }
+
+    @Override
+    public IndexImpl upTo(Version version) {
+        versions = intersectWithTable(ImmutableRangeSet.of(Range.lessThan(version)));
+        return this;
+    }
+
+    @Override
+    public IndexImpl during(Range... ranges) {
+        ImmutableRangeSet.Builder<Version> builder = ImmutableRangeSet.builder();
+        Arrays.stream(ranges)
+                .forEach(builder::add);
+        versions = intersectWithTable(builder.build());
+        return this;
+    }
+
+    private RangeSet<Version> intersectWithTable(RangeSet<Version> set) {
+        return intersection(table.getVersions(), set);
     }
 
 }

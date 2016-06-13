@@ -3,10 +3,16 @@ package com.elster.jupiter.orm.impl;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.IllegalTableMappingException;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.fields.impl.ColumnConversionImpl;
 import com.elster.jupiter.orm.fields.impl.LazyLoadingBlob;
+
+import com.google.common.collect.ImmutableRangeSet;
+import com.google.common.collect.Range;
+import com.google.common.collect.RangeSet;
+import com.google.common.collect.TreeRangeSet;
 
 import javax.validation.constraints.Size;
 import java.lang.reflect.Field;
@@ -15,10 +21,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
+
+import static com.elster.jupiter.util.Ranges.intersection;
 
 public class ColumnImpl implements Column {
     private static final Logger LOGGER = Logger.getLogger(ColumnImpl.class.getName());
@@ -36,9 +45,12 @@ public class ColumnImpl implements Column {
     private boolean versionCount = false;
     private String insertValue;
     private String updateValue;
+    private String installValue;
     private boolean skipOnUpdate;
     private String formula;
     private boolean alwaysJournal = true;
+    private transient RangeSet<Version> versions = TreeRangeSet.<Version>create().complement();
+    private transient ColumnImpl predecessor;
 
     // associations
     private final Reference<TableImpl<?>> table = ValueReference.absent();
@@ -273,6 +285,10 @@ public class ColumnImpl implements Column {
         return insertValue;
     }
 
+    public String getInstallValue() {
+        return installValue;
+    }
+
     @Override
     public boolean hasInsertValue() {
         return insertValue != null && !insertValue.isEmpty();
@@ -497,6 +513,23 @@ public class ColumnImpl implements Column {
                 (!isVirtual() || getFormula().equalsIgnoreCase(column.getFormula()));
     }
 
+    @Override
+    public boolean isInVersion(Version version) {
+        return versions.contains(version);
+    }
+
+    private RangeSet<Version> intersectWithTable(RangeSet<Version> set) {
+        return intersection(table.get().getVersions(), set);
+    }
+
+    RangeSet<Version> versions() {
+        return ImmutableRangeSet.copyOf(versions);
+    }
+
+    Optional<ColumnImpl> getPredecessor() {
+        return Optional.ofNullable(predecessor);
+    }
+
     static class BuilderImpl implements Column.Builder {
         private final ColumnImpl column;
         private boolean setType = false;
@@ -613,6 +646,40 @@ public class ColumnImpl implements Column {
                 throw new IllegalArgumentException("" + length + " exceeds max varchar size");
             }
             return this.type("VARCHAR2(" + length + " CHAR)");
+        }
+
+        @Override
+        public Builder since(Version version) {
+            column.versions = column.intersectWithTable(ImmutableRangeSet.of(Range.atLeast(version)));
+            return this;
+        }
+
+        @Override
+        public Builder upTo(Version version) {
+            column.versions = column.intersectWithTable(ImmutableRangeSet.of(Range.lessThan(version)));
+            return this;
+        }
+
+        @Override
+        public Builder during(Range... ranges) {
+            ImmutableRangeSet.Builder<Version> builder = ImmutableRangeSet.builder();
+            Arrays.stream(ranges)
+                    .forEach(builder::add);
+            column.versions = column.intersectWithTable(builder.build());
+            return this;
+        }
+
+        @Override
+        public Builder previously(Column column) {
+            assert column.getTable().equals(this.column.getTable());
+            this.column.predecessor = (ColumnImpl) column;
+            return this;
+        }
+
+        @Override
+        public Builder installValue(String value) {
+            column.installValue = value;
+            return this;
         }
 
         private void setType() {
