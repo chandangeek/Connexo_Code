@@ -1,5 +1,6 @@
 package com.elster.jupiter.soap.whiteboard.cxf.impl;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
@@ -40,6 +41,7 @@ public class WebServicesServiceImpl implements WebServicesService {
     private volatile BundleContext bundleContext;
     private volatile DataModel dataModel;
     private volatile UpgradeService upgradeService;
+    private volatile EventService eventService;
 
     // OSGi
     public WebServicesServiceImpl() {
@@ -65,6 +67,14 @@ public class WebServicesServiceImpl implements WebServicesService {
     @Reference
     public void setOrmService(OrmService ormService) {
         this.dataModel = ormService.newDataModel("WebServicesService", "Injector for web services");
+        for (TableSpecs tableSpecs : TableSpecs.values()) {
+            tableSpecs.addTo(dataModel);
+        }
+    }
+
+    @Reference
+    public void setEventService(EventService eventService) {
+        this.eventService = eventService;
     }
 
     @Override
@@ -167,6 +177,7 @@ public class WebServicesServiceImpl implements WebServicesService {
                 bind(DataModel.class).toInstance(dataModel);
                 bind(BundleContext.class).toInstance(bundleContext);
                 bind(SoapProviderSupportFactory.class).toInstance(soapProviderSupportFactory);
+                bind(EventService.class).toInstance(eventService);
             }
         };
     }

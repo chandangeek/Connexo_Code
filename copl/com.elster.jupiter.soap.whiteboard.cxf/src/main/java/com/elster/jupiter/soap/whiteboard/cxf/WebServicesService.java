@@ -9,7 +9,7 @@ import java.util.List;
  */
 @ProviderType
 public interface WebServicesService {
-    public static final String COMPONENT_NAME = "WS";
+    public static final String COMPONENT_NAME = "WSS";
 
 
     /**

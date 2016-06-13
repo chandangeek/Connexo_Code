@@ -26,10 +26,6 @@ public class Installer implements FullInstaller {
         this.eventService = eventService;
     }
 
-    protected void installOrm() {
-        this.dataModel.install(true, true);
-    }
-
     private void createEventTypes() {
         for (EventType eventType : EventType.values()) {
             if (!this.eventService.getEventType(eventType.topic()).isPresent()) {
@@ -46,7 +42,6 @@ public class Installer implements FullInstaller {
     @Override
     public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
         dataModelUpgrader.upgrade(dataModel, Version.latest());
-        doTry("Create data model", this::installOrm, logger);
         doTry("Create event types", this::createEventTypes, logger);
     }
 }
