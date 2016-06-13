@@ -2,7 +2,6 @@ package com.elster.jupiter.mdm.usagepoint.config.impl;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
-import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.nls.Layer;
@@ -28,7 +27,6 @@ import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.time.Clock;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.orm.Version.version;
@@ -141,22 +139,6 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
 
     DataModel getDataModel() {
         return dataModel;
-    }
-
-    @Override
-    public void link(UsagePoint usagePoint, MetrologyConfiguration metrologyConfiguration) {
-        usagePoint.apply(metrologyConfiguration, this.clock.instant());
-    }
-
-    @Override
-    public Boolean unlink(UsagePoint usagePoint, MetrologyConfiguration mc) {
-        usagePoint.removeMetrologyConfiguration(this.clock.instant());
-        return Boolean.TRUE;
-    }
-
-    @Override
-    public Optional<MetrologyConfiguration> findMetrologyConfigurationForUsagePoint(UsagePoint usagePoint) {
-        return usagePoint.getMetrologyConfiguration();
     }
 
     @Override
