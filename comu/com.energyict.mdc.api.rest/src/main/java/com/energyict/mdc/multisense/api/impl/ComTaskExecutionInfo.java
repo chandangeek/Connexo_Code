@@ -1,6 +1,7 @@
 package com.energyict.mdc.multisense.api.impl;
 
 
+import com.elster.jupiter.rest.util.hypermedia.LinkInfo;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 
 import javax.validation.constraints.NotNull;

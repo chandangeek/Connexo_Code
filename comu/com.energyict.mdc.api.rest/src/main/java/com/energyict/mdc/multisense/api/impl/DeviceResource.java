@@ -3,16 +3,16 @@ package com.energyict.mdc.multisense.api.impl;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PROPFIND;
-import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.rest.util.hypermedia.FieldSelection;
+import com.elster.jupiter.rest.util.hypermedia.PagedInfoList;
+import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.topology.TopologyService;
-import com.energyict.mdc.multisense.api.impl.utils.FieldSelection;
 import com.energyict.mdc.multisense.api.impl.utils.MessageSeeds;
-import com.energyict.mdc.multisense.api.impl.utils.PagedInfoList;
 import com.energyict.mdc.multisense.api.impl.utils.ResourceHelper;
 import com.energyict.mdc.multisense.api.security.Privileges;
 
@@ -96,13 +96,12 @@ public class DeviceResource {
      * @param queryParameters Paging parameters 'start' and 'limit'
      * @param uriInfo uriInfo
      * @param fieldSelection field selection
-     * @param queryParameters queryParameters
      * @return Device information and links to related resources
      */
     @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    public PagedInfoList getDevices(@BeanParam JsonQueryParameters queryParameters, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
+    public PagedInfoList<DeviceInfo> getDevices(@BeanParam JsonQueryParameters queryParameters, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
         List<DeviceInfo> infos = deviceService.findAllDevices(Condition.TRUE).from(queryParameters).stream()
                 .map(d -> deviceInfoFactory.asHypermedia(d, uriInfo, fieldSelection.getFields())).collect(toList());
         UriBuilder uriBuilder = uriInfo.getBaseUriBuilder().path(DeviceResource.class);
