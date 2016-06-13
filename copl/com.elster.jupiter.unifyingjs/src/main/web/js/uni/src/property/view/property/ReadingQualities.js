@@ -192,14 +192,10 @@ Ext.define('Uni.property.view.property.ReadingQualities', {
             itemId: me.key + 'displayfield',
             renderer: function (data) {
                 var result = '';
-
                 Ext.isArray(data) && Ext.Array.each(data, function (item) {
-                    var flag = store.getById(item);
-
-                    flag && (result += Ext.String.htmlEncode(flag.get('name')) + '<br>');
+                    result += me.getDisplayName(item) + ' (' + item + ')' + '<br>';
                 });
-
-                return result;
+                return result.length>0 ? result : '-';
             }
         }
     },
