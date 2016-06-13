@@ -125,5 +125,4 @@ Ext.define('Mdc.dynamicprivileges.DeviceState', {
         || Uni.DynamicPrivileges.checkDynamicPrivileges(Mdc.dynamicprivileges.DeviceState.sendWithDateTime)
     }
 
-
 });

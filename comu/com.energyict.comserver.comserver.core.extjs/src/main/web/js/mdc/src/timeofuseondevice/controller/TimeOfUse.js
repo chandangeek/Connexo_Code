@@ -74,9 +74,11 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
                             resultSet = reader.read(result);
                             if (resultSet.records[0].getActiveCalendar() === null && resultSet.records[0].get('passiveCalendars') === null) {
                                 view.showEmptyComponent();
+                                view.down('tou-device-action-menu').showPreview = false;
                             } else {
 
                                 if (view.down('device-tou-preview-form')) {
+                                    debugger;
                                     if (!(Object.keys(result).length === 0 && result.constructor === Object)  && resultSet.records[0].getActiveCalendar() !== null) {
                                         view.down('device-tou-preview-form').fillFieldContainers(resultSet.records[0]);
                                         view.down('device-tou-preview-form').show();
@@ -126,11 +128,28 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
             case 'sendcalendar':
                 me.goToSendCalendarForm(menu.device.get('mRID'));
             case 'verifycalendars':
+                me.verifyCalendars(menu.device.get('mRID'));
                 break;
             case 'viewpreview':
                 me.redirectToPreview(menu.record.get('id'));
                 break;
         }
+    },
+
+    verifyCalendars: function(mRID) {
+        var me = this;
+        Ext.Ajax.request(
+            {
+                url: '/api/ddr/devices/' + mRID + '/timeofuse/verify',
+                method: 'PUT',
+                success: function (response, opt) {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('tou.verifyCalendarTaskPlannedMessage', 'MDC', 'The task has been planned. Actual calendar information will be available as soon as the task has completed.'));
+                },
+                failure: function () {
+                    debugger;
+                }
+            }
+        );
     },
 
     redirectToPreview: function (calendarId) {
