@@ -4,7 +4,6 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
     views: [
         'Fwc.devicefirmware.view.Setup',
         'Fwc.devicefirmware.view.Upload',
-        'Fwc.devicefirmware.view.DeviceSideMenu',
         'Fwc.devicefirmware.view.FirmwareForm',
         'Fwc.devicefirmware.view.ConfirmActivateVersionWindow'
     ],

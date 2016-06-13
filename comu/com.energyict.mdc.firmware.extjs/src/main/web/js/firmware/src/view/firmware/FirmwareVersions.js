@@ -11,30 +11,11 @@ Ext.define('Fwc.view.firmware.FirmwareVersions', {
     deviceType: null,
 
     initComponent: function () {
-        this.side = [
-            {
-                xtype: 'panel',
-                ui: 'medium',
-                layout: {
-                    type: 'vbox',
-                    align: 'stretch'
-                },
-                items: [
-                    {
-                        xtype: 'deviceTypeSideMenu',
-                        itemId: 'stepsMenu',
-                        router: this.router,
-                        deviceTypeId: this.deviceType.get('id')
-                    }
-                ]
-            }
-        ];
 
         this.content = [
             {
                 xtype: 'panel',
                 ui: 'large',
-                title: this.router.getRoute().getTitle(),
                 layout: {
                     type: 'vbox',
                     align: 'stretch'
@@ -43,12 +24,14 @@ Ext.define('Fwc.view.firmware.FirmwareVersions', {
                 items: [
                     {
                         xtype: 'uni-form-info-message',
+                        itemId: 'fwc-firmware-versions-info-message',
                         name: 'warning',
                         title: Uni.I18n.translate('deviceFirmware.title.optionsDisabled', 'FWC', 'Firmware management is not allowed on devices of this device type.'),
-                        html: Uni.I18n.translate('deviceFirmware.optionsDisabled', 'FWC', 'Devices of this type won\'t have the option to upload new firmware versions.<br>If you want to activate firmware management for this device type, click <a href="{0}"> here </a>', [this.router.getRoute('administration/devicetypes/view/firmwareoptions').buildUrl().toString()]),
-                        hidden: true,
-                        margin: '32 0 32 0',
-                        height: 130
+                        text: Uni.I18n.translate('deviceFirmware.optionsDisabled', 'FWC',
+                            'Devices of this type won\'t have the option to upload new firmware versions.<br>If you want to activate firmware management for this device type, click <a href="{0}"> here </a>',
+                            this.router.getRoute('administration/devicetypes/view/firmwareversions/editOptions').buildUrl().toString()
+                        ),
+                        hidden: true
                     },
                     {
                         xtype: 'emptygridcontainer',
