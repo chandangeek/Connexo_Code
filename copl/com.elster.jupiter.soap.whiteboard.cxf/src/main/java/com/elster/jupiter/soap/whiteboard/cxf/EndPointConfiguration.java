@@ -67,4 +67,5 @@ public interface EndPointConfiguration {
      * @return List of logs
      */
     List<EndPointLog> getLogs();
+
 }

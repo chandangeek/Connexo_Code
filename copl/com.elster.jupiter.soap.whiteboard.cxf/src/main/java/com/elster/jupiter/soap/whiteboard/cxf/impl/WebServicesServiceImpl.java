@@ -26,7 +26,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * Created by bvn on 4/29/16.
@@ -90,7 +91,7 @@ public class WebServicesServiceImpl implements WebServicesService {
             public boolean isInbound() {
                 return e.getValue().isInbound();
             }
-        }).collect(Collectors.toList());
+        }).collect(toList());
     }
 
     @Override
@@ -115,11 +116,12 @@ public class WebServicesServiceImpl implements WebServicesService {
     }
 
     @Override
-    public List<String> getEndPoints() {
-        return endpoints.values()
+    public List<EndPointConfiguration> getPublishedEndPoints() {
+        return endpoints.entrySet()
                 .stream()
-                .map(ep -> ep.getClass().getName())
-                .collect(Collectors.toList());
+                .filter(set -> set.getValue().isPublished())
+                .map(Map.Entry::getKey)
+                .collect(toList());
     }
 
     @Override
@@ -150,10 +152,13 @@ public class WebServicesServiceImpl implements WebServicesService {
     public void unregister(String webServiceName) {
         if (webServices.containsKey(webServiceName)) {
             webServices.remove(webServiceName);
-            endpoints.entrySet()
+            List<EndPointConfiguration> endPointConfigurations = endpoints.keySet()
                     .stream()
-                    .filter(e -> e.getKey().getWebServiceName().equals(webServiceName))
-                    .forEach(e -> e.getValue().stop());
+                    .filter(e -> e.getWebServiceName().equals(webServiceName))
+                    .collect(toList());
+            for (EndPointConfiguration endPointConfiguration : endPointConfigurations) {
+                endpoints.remove(endPointConfiguration).stop();
+            }
         }
     }
 

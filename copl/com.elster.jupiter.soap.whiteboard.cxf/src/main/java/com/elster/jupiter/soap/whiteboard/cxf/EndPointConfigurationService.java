@@ -72,6 +72,13 @@ public interface EndPointConfigurationService {
      */
     Optional<EndPointConfiguration> findAndLockEndPointConfigurationByIdAndVersion(long id, long version);
 
+    /**
+     * An event is sent to all appservers to drop support for the end point configuration
+     *
+     * @param endPointConfiguration
+     */
+    void delete(EndPointConfiguration endPointConfiguration);
+
 
     interface InboundEndPointConfigBuilder {
         InboundEndPointConfigBuilder tracing();

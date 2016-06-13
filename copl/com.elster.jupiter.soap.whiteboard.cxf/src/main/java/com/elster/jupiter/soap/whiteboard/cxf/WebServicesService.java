@@ -29,7 +29,6 @@ public interface WebServicesService {
 
     /**
      * The webservice for which the configuration is passed as argument will be torn down and no longer available (EndPoint for Inbound, ServiceRegistration for outbound)
-     * This method is not to be used externally, should move to IWebServicesService
      *
      * @param endPointConfiguration
      */
@@ -37,7 +36,6 @@ public interface WebServicesService {
 
     /**
      * Returns true is the configured webservice is currently running on the current appserver
-     * This method is not to be used externally, should move to IWebServicesService
      *
      * @param endPointConfiguration
      * @return true is web service is running/published, false otherwise
@@ -45,11 +43,11 @@ public interface WebServicesService {
     boolean isPublished(EndPointConfiguration endPointConfiguration);
 
     /**
-     * Get a list of configurations for web services. Each such configuration is know as EndPointConfiguration
+     * Get a list of end points configuration names that are currently published/running
      *
      * @return
      */
-    List<String> getEndPoints();
+    List<EndPointConfiguration> getPublishedEndPoints();
 
     boolean isInbound(String webServiceName);
 }

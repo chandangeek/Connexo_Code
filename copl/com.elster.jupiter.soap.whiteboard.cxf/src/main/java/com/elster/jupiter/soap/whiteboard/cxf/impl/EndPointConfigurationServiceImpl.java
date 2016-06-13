@@ -148,6 +148,12 @@ public class EndPointConfigurationServiceImpl implements EndPointConfigurationSe
     }
 
     @Override
+    public void delete(EndPointConfiguration endPointConfiguration) {
+        ((EndPointConfigurationImpl) endPointConfiguration).delete();
+        eventService.postEvent(EventType.WEB_SERVICE_CHANGED.topic(), endPointConfiguration);
+    }
+
+    @Override
     public Optional<EndPointConfiguration> findAndLockEndPointConfigurationByIdAndVersion(long id, long version) {
         return this.dataModel.mapper(EndPointConfiguration.class).lockObjectIfVersion(version, id);
     }
