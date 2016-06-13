@@ -12,7 +12,7 @@ Ext.define('Uni.property.view.property.ReadingQualities', {
 
     initComponent: function(){
         this.readingQualityStore = Ext.create('Ext.data.ArrayStore', {
-            fields: [ 'cimCode', 'displayName' ],
+            fields: [ 'cimCode', 'displayName', 'tooltip' ],
             sorters: [
                 {
                     property: 'displayName',
@@ -127,13 +127,17 @@ Ext.define('Uni.property.view.property.ReadingQualities', {
                         store: me.readingQualityStore,
                         hideHeaders: true,
                         padding: 0,
+                        viewConfig: {
+                            disableSelection: true
+                        },
                         scroll: 'vertical',
                         columns: [
                             {
                                 dataIndex: 'displayName',
                                 flex: 1,
                                 renderer: function(value, metaData, record) {
-                                    return record.get('displayName') + ' (' + record.get('cimCode') + ')';
+                                    return '<span style="display:inline-block; float: left; margin-right:7px;" >' + record.get('displayName') + '</span>'+
+                                        '<span class="icon-info" style="cursor: pointer; display:inline-block; color:#A9A9A9; font-size:16px;" data-qtip="' + Ext.htmlEncode(record.get('tooltip')) + '"></span>';
                                 }
                             },
                             {
@@ -193,7 +197,9 @@ Ext.define('Uni.property.view.property.ReadingQualities', {
             renderer: function (data) {
                 var result = '';
                 Ext.isArray(data) && Ext.Array.each(data, function (item) {
-                    result += me.getDisplayName(item) + ' (' + item + ')' + '<br>';
+                    result +=
+                        '<span style="display:inline-block; float: left; margin-right:7px;" >' + me.getDisplayName(item) + '</span>'+
+                        '<span class="icon-info" style="display:inline-block; color:#A9A9A9; font-size:16px;" data-qtip="' + Ext.htmlEncode(me.getTooltip(item)) + '"></span><br>';
                 });
                 return result.length>0 ? result : '-';
             }
@@ -211,22 +217,39 @@ Ext.define('Uni.property.view.property.ReadingQualities', {
         var me = this,
             displayName = '',
             parts = cimCode.split('.'),
-            systemCode = parts[0],
             categoryCode = parts[1],
             indexCode = parts[2],
             indexStore,
             storeRecord;
 
-        storeRecord = me.systemStore.findRecord('id', systemCode);
-        displayName += storeRecord ? storeRecord.get('name') : Uni.I18n.translate('general.unknown', 'UNI', 'Unknown');
-        displayName += ' - ';
-        storeRecord = me.categoryStore.findRecord('id', categoryCode);
-        displayName += storeRecord ? storeRecord.get('name') : Uni.I18n.translate('general.unknown', 'UNI', 'Unknown');
-        displayName += ' - ';
         indexStore = me.getIndexStore(categoryCode);
         storeRecord = Ext.isEmpty(indexStore) ? undefined : indexStore.findRecord('id', indexCode);
         displayName += storeRecord ? storeRecord.get('name') : Uni.I18n.translate('general.unknown', 'UNI', 'Unknown');
+        displayName += ' (' + cimCode + ')';
         return displayName;
+    },
+
+    getTooltip: function(cimCode) {
+        var me = this,
+            parts = cimCode.split('.'),
+            systemCode = parts[0],
+            categoryCode = parts[1],
+            indexCode = parts[2],
+            indexStore,
+            tooltip = '<table><tr><td>',
+            storeRecord;
+
+        tooltip += '<b>' + Uni.I18n.translate('general.readingQuality.field1.name', 'UNI', 'System') + ':</b></td>';
+        storeRecord = me.systemStore.findRecord('id', systemCode);
+        tooltip += '<td>' + (storeRecord ? storeRecord.get('name') : Uni.I18n.translate('general.unknown', 'UNI', 'Unknown')) + '</td></tr>';
+        tooltip += '<tr><td><b>' + Uni.I18n.translate('general.readingQuality.field2.name', 'UNI', 'Category') + ':</b></td>';
+        storeRecord = me.categoryStore.findRecord('id', categoryCode);
+        tooltip += '<td>' + (storeRecord ? storeRecord.get('name') : Uni.I18n.translate('general.unknown', 'UNI', 'Unknown')) + '</td></tr>';
+        tooltip += '<tr><td><b>' + Uni.I18n.translate('general.readingQuality.field3.name', 'UNI', 'Index') + ':</b></td>';
+        indexStore = me.getIndexStore(categoryCode);
+        storeRecord = Ext.isEmpty(indexStore) ? undefined : indexStore.findRecord('id', indexCode);
+        tooltip += '<td>' + (storeRecord ? storeRecord.get('name') : Uni.I18n.translate('general.unknown', 'UNI', 'Unknown')) + '</td></tr></table>';
+        return tooltip;
     },
 
     getSystemStore: function() {
@@ -295,7 +318,13 @@ Ext.define('Uni.property.view.property.ReadingQualities', {
             } else if (Ext.isArray(value)) {
                 var modelItemsToAdd = [];
                 Ext.Array.forEach(value, function(arrayItem){
-                    modelItemsToAdd.push({cimCode: arrayItem, displayName: me.getDisplayName(arrayItem)});
+                    modelItemsToAdd.push(
+                        {
+                            cimCode: arrayItem,
+                            displayName: me.getDisplayName(arrayItem),
+                            tooltip: me.getTooltip(arrayItem)
+                        }
+                    );
                 });
                 me.getField().getStore().add(modelItemsToAdd);
                 me.down('#uni-noReadingQualitiesLabel').hide();
