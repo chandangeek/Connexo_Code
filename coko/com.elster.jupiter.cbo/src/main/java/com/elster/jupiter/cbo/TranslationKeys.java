@@ -4,8 +4,6 @@ import com.elster.jupiter.nls.TranslationKey;
 
 public enum TranslationKeys implements TranslationKey {
 
-    ALL_INDEXES("ReadingQualityAllIndexes", "All indexes"),
-    ALL_SYSTEMS("ReadingQualityAllSystems", "All systems"),
     DATAVALID("ReadingQualityDataValid", "Data valid"),
     VALIDATED("ReadingQualityValidated", "Validated"),
     DIAGNOSTICSFLAG("ReadingQualityDiagnosticsFlag", "Diagnostics flag"),
