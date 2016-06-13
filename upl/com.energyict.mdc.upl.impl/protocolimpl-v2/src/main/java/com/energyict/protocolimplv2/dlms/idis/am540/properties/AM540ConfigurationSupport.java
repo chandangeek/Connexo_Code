@@ -25,6 +25,10 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
     public static final String USE_EQUIPMENT_IDENTIFIER_AS_SERIAL = "UseEquipmentIdentifierAsSerialNumber";
     public static final String POLLING_DELAY = "PollingDelay";
     public static final String INITIAL_FRAME_COUNTER = "InitialFrameCounter";
+    public static final String USE_METER_IN_TRANSPARENT_MODE = "UseMeterInTransparentMode";
+    public static final String TRANSP_CONNECT_TIME = "TransparentConnectTime";
+    public static final String PASSWORD = "Password";
+    public static final String METER_SECURITY_LEVEL = "SecurityLevel";
 
     public static final boolean USE_EQUIPMENT_IDENTIFIER_AS_SERIAL_DEFAULT_VALUE = false;
     public static final BigDecimal DEFAULT_SERVER_LOWER_MAC_ADDRESS = BigDecimal.valueOf(17);
@@ -56,7 +60,11 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
                 this.lastSeenDatePropertySpec(),
                 this.aarqRetriesPropertySpec(),
                 this.pollingDelayPropertySpec(),
-                this.initialFrameCounter()
+                this.initialFrameCounter(),
+                this.useMeterInTransparentMode(),
+                this.transparentConnectTime(),
+                this.transparentSecurityLevel(),
+                this.transparentPassword()
         );
     }
 
@@ -103,4 +111,21 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
     private PropertySpec initialFrameCounter() {
         return PropertySpecFactory.bigDecimalPropertySpec(INITIAL_FRAME_COUNTER);
     }
+
+    private PropertySpec useMeterInTransparentMode() {
+        return PropertySpecFactory.notNullableBooleanPropertySpec(USE_METER_IN_TRANSPARENT_MODE, false);
+    }
+
+    private PropertySpec transparentConnectTime() {
+        return PropertySpecFactory.bigDecimalPropertySpec(TRANSP_CONNECT_TIME, BigDecimal.valueOf(10));
+    }
+
+    private PropertySpec transparentPassword() {
+        return PropertySpecFactory.stringPropertySpec(PASSWORD, "00000000");
+    }
+
+    private PropertySpec transparentSecurityLevel() {
+        return PropertySpecFactory.stringPropertySpec(METER_SECURITY_LEVEL, "1:0");
+    }
+
 }

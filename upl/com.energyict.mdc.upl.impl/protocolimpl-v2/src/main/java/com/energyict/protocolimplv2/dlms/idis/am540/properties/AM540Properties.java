@@ -131,4 +131,21 @@ public class AM540Properties extends IDISProperties {
     public boolean timeoutMeansBrokenConnection() {
         return useBeaconMirrorDeviceDialect() || useSerialDialect();
     }
+
+    public boolean useMeterInTransparentMode() {
+        return getProperties().getTypedProperty(AM540ConfigurationSupport.USE_METER_IN_TRANSPARENT_MODE, false);
+    }
+
+    public int getTransparentConnectTime() {
+        return getProperties().getTypedProperty(AM540ConfigurationSupport.TRANSP_CONNECT_TIME, BigDecimal.valueOf(10)).intValue();
+    }
+
+    public String getTransparentPassword() {
+        return getProperties().getTypedProperty(AM540ConfigurationSupport.PASSWORD, "00000000");
+    }
+
+    public String getTransparentSecurityLevel() {
+        return getProperties().getTypedProperty(AM540ConfigurationSupport.METER_SECURITY_LEVEL, "1:0");
+    }
+
 }
