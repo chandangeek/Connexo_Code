@@ -1,12 +1,14 @@
 package com.elster.jupiter.validation;
 
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
@@ -128,4 +130,8 @@ public interface ValidationService {
     Optional<? extends ValidationRule> findAndLockValidationRuleByIdAndVersion(long id, long version);
 
     List<DataValidationTask> findByDeviceGroup(EndDeviceGroup endDevice, int skip, int limit);
+
+    DataModel dataModel();
+
+    KpiService kpiService();
 }

@@ -1,5 +1,6 @@
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.kpi.Kpi;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeterActivation;
@@ -20,6 +21,8 @@ import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleProperties;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
+import com.elster.jupiter.validation.impl.kpi.DataValidationKpiImpl;
+import com.elster.jupiter.validation.kpi.DataValidationKpi;
 
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
@@ -230,6 +233,35 @@ public enum TableSpecs {
             table.foreignKey("VAL_FK_OCC_VALIDATIONTASK").on(dataValidationTask).references(VAL_DATAVALIDATIONTASK.name())
                     .map("dataValidationTask").add();
 
+        }
+    },
+    VAL_DATA_VALIDATION_KPI {
+        @Override
+        void addTo(DataModel dataModel){
+            Table<DataValidationKpi> table = dataModel.addTable(name(), DataValidationKpi.class);
+            table.map(DataValidationKpiImpl.class);
+            Column id = table.addAutoIdColumn();
+            table.addAuditColumns();
+            Column endDeviceGroup = table.column("ENDDEVICEGROUP").number().notNull().add();
+            Column dataValidationKpi = table.column("DATAVALIDATIONKPI").number().add();
+            Column dataValidationKpiTask = table.column("DATAVALIDATIONKPI_TASK").number().add();
+
+            table.primaryKey("PK_DDC_DATA_VALIDATION_KPI").on(id).add();
+            table.foreignKey("FK_DDC_VAL_ENDDEVICEGROUP").
+                    on(endDeviceGroup).
+                    references(EndDeviceGroup.class).
+                    map(DataValidationKpiImpl.Fields.END_DEVICE_GROUP.fieldName()).
+                    add();
+            table.foreignKey("FK_DDC_VAL_KPI").
+                    on(dataValidationKpi).
+                    references(Kpi.class).
+                    map(DataValidationKpiImpl.Fields.DATA_VALIDATION_KPI.fieldName()).
+                    add();
+            table.foreignKey("FK_DDC_VAL_KPI_TASK").
+                    on(dataValidationKpiTask).
+                    references(RecurrentTask.class).
+                    map(DataValidationKpiImpl.Fields.DATA_VALIDATION_KPI_TASK.fieldName()).
+                    add();
         }
     };
     abstract void addTo(DataModel component);

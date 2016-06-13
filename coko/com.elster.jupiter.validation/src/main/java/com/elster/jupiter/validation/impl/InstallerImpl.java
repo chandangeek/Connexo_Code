@@ -12,6 +12,7 @@ import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.ExceptionCatcher;
+import com.elster.jupiter.validation.impl.kpi.DataValidationKpiCalculatorHandlerFactory;
 
 import java.util.Locale;
 import java.util.Optional;
@@ -22,6 +23,7 @@ public class InstallerImpl {
     public static final String DESTINATION_NAME = ValidationServiceImpl.DESTINATION_NAME;
     public static final String SUBSCRIBER_NAME = ValidationServiceImpl.SUBSCRIBER_NAME;
     private static final Logger LOGGER = Logger.getLogger(InstallerImpl.class.getName());
+    private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
 
     private final DataModel dataModel;
     private final EventService eventService;
@@ -48,7 +50,7 @@ public class InstallerImpl {
         }
         ExceptionCatcher.executing(
                 this::createEventTypes,
-                this::createDestinationAndSubscriber,
+                this::createMessageHandlers,
                 this::createValidationUser
         ).andHandleExceptionsWith(exception -> LOGGER.log(Level.SEVERE, exception.getMessage(), exception))
                 .execute();
@@ -73,17 +75,32 @@ public class InstallerImpl {
             }
         }
     }
-
-    private void createDestinationAndSubscriber() {
-        try
-        {
-            QueueTableSpec queueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
-            destinationSpec = queueTableSpec.createDestinationSpec(DESTINATION_NAME, 60);
-            destinationSpec.save();
-            destinationSpec.activate();
-            destinationSpec.subscribe(SUBSCRIBER_NAME);
+    private void createMessageHandlers() {
+        try {
+            QueueTableSpec defaultQueueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
+            this.createMessageHandler(defaultQueueTableSpec, DataValidationKpiCalculatorHandlerFactory.TASK_DESTINATION, DataValidationKpiCalculatorHandlerFactory.TASK_SUBSCRIBER);
+            this.createMessageHandler(defaultQueueTableSpec, DESTINATION_NAME, SUBSCRIBER_NAME);
         } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            LOGGER.severe(e.getMessage());
+        }
+    }
+
+    private void createMessageHandler(QueueTableSpec defaultQueueTableSpec, String destinationName, String subscriberName) {
+        try {
+            Optional<DestinationSpec> destinationSpecOptional = messageService.getDestinationSpec(destinationName);
+            if (!destinationSpecOptional.isPresent()) {
+                DestinationSpec queue = defaultQueueTableSpec.createDestinationSpec(destinationName, DEFAULT_RETRY_DELAY_IN_SECONDS);
+                queue.activate();
+                queue.subscribe(subscriberName);
+            } else {
+                boolean notSubscribedYet = !destinationSpecOptional.get().getSubscribers().stream().anyMatch(spec -> spec.getName().equals(subscriberName));
+                if (notSubscribedYet) {
+                    destinationSpecOptional.get().activate();
+                    destinationSpecOptional.get().subscribe(subscriberName);
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.severe(e.getMessage());
         }
     }
 

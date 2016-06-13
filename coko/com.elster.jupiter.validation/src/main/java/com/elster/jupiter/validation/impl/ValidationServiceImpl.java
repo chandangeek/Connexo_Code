@@ -3,6 +3,7 @@ package com.elster.jupiter.validation.impl;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.Channel;
@@ -48,10 +49,14 @@ import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.ValidatorFactory;
 import com.elster.jupiter.validation.ValidatorNotFoundException;
+import com.elster.jupiter.validation.impl.kpi.DataValidationKpiServiceImpl;
+import com.elster.jupiter.validation.kpi.DataValidationKpiService;
 import com.elster.jupiter.validation.security.Privileges;
 
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -96,17 +101,20 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
     private volatile Thesaurus thesaurus;
     private volatile QueryService queryService;
     private volatile UserService userService;
-
+    private volatile KpiService kpiService;
 
     private final List<ValidatorFactory> validatorFactories = new CopyOnWriteArrayList<>();
     private final List<ValidationRuleSetResolver> ruleSetResolvers = new CopyOnWriteArrayList<>();
     private Optional<DestinationSpec> destinationSpec = Optional.empty();
+    private DataValidationKpiService dataValidationKpiService;
+    private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
 
     public ValidationServiceImpl() {
     }
 
     @Inject
-    ValidationServiceImpl(Clock clock, MessageService messageService, EventService eventService, TaskService taskService, MeteringService meteringService, MeteringGroupsService meteringGroupsService, OrmService ormService, QueryService queryService, NlsService nlsService, UserService userService, Publisher publisher) {
+    ValidationServiceImpl(BundleContext bundleContext, Clock clock, MessageService messageService, EventService eventService, TaskService taskService, MeteringService meteringService, MeteringGroupsService meteringGroupsService,
+                          OrmService ormService, QueryService queryService, NlsService nlsService, UserService userService, Publisher publisher, KpiService kpiService) {
         this.clock = clock;
         this.messageService = messageService;
         setMessageService(messageService);
@@ -118,7 +126,8 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
         setOrmService(ormService);
         setNlsService(nlsService);
         setUserService(userService);
-        activate();
+        this.setKpiService(kpiService);
+        activate(bundleContext);
         if (!dataModel.isInstalled()) {
             install();
         }
@@ -129,7 +138,8 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
     }
 
     @Activate
-    public final void activate() {
+    public final void activate(BundleContext context) {
+        this.dataValidationKpiService = new DataValidationKpiServiceImpl(this);
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {
@@ -142,11 +152,15 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
                 bind(ValidationService.class).toInstance(ValidationServiceImpl.this);
                 bind(ValidatorCreator.class).toInstance(new DefaultValidatorCreator());
                 bind(Thesaurus.class).toInstance(thesaurus);
+                bind(KpiService.class).toInstance(kpiService);
+                bind(MessageService.class).toInstance(messageService);
+                bind(DataValidationKpiService.class).toInstance(dataValidationKpiService);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(UserService.class).toInstance(userService);
                 bind(DestinationSpec.class).toProvider(ValidationServiceImpl.this::getDestination);
             }
         });
+        this.registerDataValidationKpiService(context);
     }
 
     @Deactivate
@@ -160,7 +174,7 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "USR", "NLS", "EVT", "MTR", "MTG", TaskService.COMPONENTNAME);
+        return Arrays.asList("ORM", "USR", "NLS", "EVT", "MTR", "MTG", TaskService.COMPONENTNAME, KpiService.COMPONENT_NAME);
 
     }
 
@@ -170,6 +184,11 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
         for (TableSpecs spec : TableSpecs.values()) {
             spec.addTo(dataModel);
         }
+    }
+
+    @Reference
+    public void setKpiService(KpiService kpiService) {
+        this.kpiService = kpiService;
     }
 
     @Reference
@@ -745,8 +764,22 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public DataModel dataModel() {
+        return dataModel;
+    }
+
+    @Override
+    public KpiService kpiService() {
+        return kpiService;
+    }
+
 
     private Optional<DataValidationTask> getDataValidationTaskForRecurrentTask(RecurrentTask recurrentTask) {
         return dataModel.mapper(DataValidationTask.class).getUnique("recurrentTask", recurrentTask);
+    }
+
+    private void registerDataValidationKpiService(BundleContext bundleContext) {
+        this.serviceRegistrations.add(bundleContext.registerService(DataValidationKpiService.class, this.dataValidationKpiService, null));
     }
 }
