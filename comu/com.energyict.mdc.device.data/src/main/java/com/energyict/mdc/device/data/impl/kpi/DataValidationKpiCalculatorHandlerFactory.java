@@ -13,32 +13,22 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 
-/**
- * Provides factory services for {@link DataManagementKpiCalculatorHandler}.
- *
- * @author Rudi Vankeirsbilck (rudi)
- * @since 2014-10-07 (17:30)
- */
-@Component(name="com.energyict.mdc.device.data.kpi.calculator.factory", service = MessageHandlerFactory.class, property = {"subscriber=" + DataCollectionKpiCalculatorHandlerFactory.TASK_SUBSCRIBER, "destination=" + DataCollectionKpiCalculatorHandlerFactory.TASK_DESTINATION}, immediate = true)
-public class DataCollectionKpiCalculatorHandlerFactory implements MessageHandlerFactory {
+@Component(name="com.energyict.mdc.device.data.kpi.calculator.impl.factory", service = MessageHandlerFactory.class, property = {"subscriber=" + DataValidationKpiCalculatorHandlerFactory.TASK_SUBSCRIBER, "destination=" + DataValidationKpiCalculatorHandlerFactory.TASK_DESTINATION}, immediate = true)
+public class DataValidationKpiCalculatorHandlerFactory implements MessageHandlerFactory {
 
-    public static final String TASK_DESTINATION = "MDCKpiCalculatorTopic";
-    public static final String TASK_SUBSCRIBER = "MDCKpiCalculator";
-    public static final String TASK_SUBSCRIBER_DISPLAYNAME = "Calculate connection and communication kpi's";
-
+    public static final String TASK_DESTINATION = "MDCValKpiCalcTopic";
+    public static final String TASK_SUBSCRIBER = "MDCValKpiCalc";
+    public static final String TASK_SUBSCRIBER_DISPLAYNAME = "Calculate data validation kpi's";
     private volatile TaskService taskService;
     private volatile DataCollectionKpiService dataCollectionKpiService;
     private volatile DataValidationKpiService dataValidationKpiService;
     private volatile ConnectionTaskReportService connectionTaskReportService;
     private volatile CommunicationTaskReportService communicationTaskReportService;
 
-    // For OSGi framework only
-    public DataCollectionKpiCalculatorHandlerFactory() {super();}
+    public DataValidationKpiCalculatorHandlerFactory() {super();}
 
-    // For unit testing purposes only
     @Inject
-    public DataCollectionKpiCalculatorHandlerFactory(TaskService taskService, DataCollectionKpiService dataCollectionKpiService, ConnectionTaskReportService connectionTaskReportService,
-                                                     CommunicationTaskReportService communicationTaskReportService, DataValidationKpiService dataValidationKpiService) {
+    public DataValidationKpiCalculatorHandlerFactory(TaskService taskService, DataCollectionKpiService dataCollectionKpiService, ConnectionTaskReportService connectionTaskReportService, CommunicationTaskReportService communicationTaskReportService, DataValidationKpiService dataValidationKpiService) {
         this();
         this.setTaskService(taskService);
         this.setDataCollectionKpiService(dataCollectionKpiService);
@@ -68,7 +58,7 @@ public class DataCollectionKpiCalculatorHandlerFactory implements MessageHandler
     }
 
     @Reference
-    public void setDataValidationKpiService(DataValidationKpiService dataValidationKpiService){
+    public void setDataValidationKpiService(DataValidationKpiService dataValidationKpiService) {
         this.dataValidationKpiService = dataValidationKpiService;
     }
 

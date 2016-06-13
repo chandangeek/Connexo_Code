@@ -6,7 +6,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Implements the {@link DataCollectionKpiCalculator} interface
+ * Implements the {@link DataManagementKpiCalculator} interface
  * for the situation in which the id of the {@link DataCollectionKpiImpl}
  * that was contained in the payload is not the id
  * of an existing DataCollectionKpiImpl.
@@ -21,11 +21,11 @@ import java.util.logging.Logger;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-10-15 (17:29)
  */
-public class DataCollectionKpiDoesNotExist implements DataCollectionKpiCalculator {
+public class DataManagementKpiDoesNotExist implements DataManagementKpiCalculator {
     private final Logger logger;
     private final String payLoad;
 
-    public DataCollectionKpiDoesNotExist(Logger logger, String payLoad) {
+    public DataManagementKpiDoesNotExist(Logger logger, String payLoad) {
         super();
         this.logger = logger;
         this.payLoad = payLoad;

@@ -4,7 +4,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Implements the {@link DataCollectionKpiCalculator} interface
+ * Implements the {@link DataManagementKpiCalculator} interface
  * for the situation in which the payload could not be parsed
  * to extract the id of the {@link DataCollectionKpiImpl}.
  * <br>
@@ -18,7 +18,7 @@ import java.util.logging.Logger;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-10-15 (17:29)
  */
-public class PayloadContainsInvalidId implements DataCollectionKpiCalculator {
+public class PayloadContainsInvalidId implements DataManagementKpiCalculator {
     private final Logger logger;
     private final String payLoad;
     private final NumberFormatException exception;

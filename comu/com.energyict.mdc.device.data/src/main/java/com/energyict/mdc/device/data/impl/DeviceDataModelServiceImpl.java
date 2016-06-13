@@ -44,6 +44,7 @@ import com.energyict.mdc.device.data.impl.events.ComTaskEnablementStatusMessageH
 import com.energyict.mdc.device.data.impl.events.ConnectionTaskValidatorAfterPropertyRemovalMessageHandlerFactory;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiCalculatorHandlerFactory;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiServiceImpl;
+import com.energyict.mdc.device.data.impl.kpi.DataValidationKpiCalculatorHandlerFactory;
 import com.energyict.mdc.device.data.impl.kpi.DataValidationKpiServiceImpl;
 import com.energyict.mdc.device.data.impl.search.PropertyTranslationKeys;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
@@ -634,6 +635,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
         keys.addAll(Arrays.asList((DevicePropertyTranslationKeys.values())));
         keys.addAll(Arrays.asList(
                 new SimpleTranslationKey(DataCollectionKpiCalculatorHandlerFactory.TASK_SUBSCRIBER, DataCollectionKpiCalculatorHandlerFactory.TASK_SUBSCRIBER_DISPLAYNAME),
+                new SimpleTranslationKey(DataValidationKpiCalculatorHandlerFactory.TASK_SUBSCRIBER, DataValidationKpiCalculatorHandlerFactory.TASK_SUBSCRIBER_DISPLAYNAME),
                 new SimpleTranslationKey(ConnectionTaskValidatorAfterPropertyRemovalMessageHandlerFactory.TASK_SUBSCRIBER, ConnectionTaskValidatorAfterPropertyRemovalMessageHandlerFactory.TASK_SUBSCRIBER_DISPLAY_NAME),
                 new SimpleTranslationKey(Installer.COMSCHEDULE_RECALCULATOR_MESSAGING_NAME, Installer.COMSCHEDULE_RECALCULATOR_MESSAGING_DISPLAYNAME),
                 new SimpleTranslationKey(Installer.COMSCHEDULE_BACKGROUND_OBSOLETION_MESSAGING_NAME, Installer.COMSCHEDULE_BACKGROUND_OBSOLETION_MESSAGING_DISPLAYNAME),

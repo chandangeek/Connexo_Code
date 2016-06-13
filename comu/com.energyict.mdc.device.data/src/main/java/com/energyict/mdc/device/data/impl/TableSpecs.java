@@ -34,7 +34,6 @@ import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeInActio
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeRequest;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeRequestImpl;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiImpl;
-import com.energyict.mdc.device.data.impl.kpi.DataValidationKpiImpl;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.history.ComSessionImpl;
@@ -42,7 +41,6 @@ import com.energyict.mdc.device.data.impl.tasks.history.ComSessionJournalEntryIm
 import com.energyict.mdc.device.data.impl.tasks.history.ComTaskExecutionJournalEntryImpl;
 import com.energyict.mdc.device.data.impl.tasks.history.ComTaskExecutionSessionImpl;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
-import com.energyict.mdc.device.data.kpi.DataValidationKpi;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFields;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -575,7 +573,7 @@ public enum TableSpecs {
         }
     },
 
-    DDC_DATA_VALIDATION_KPI {
+/*    DDC_DATA_VALIDATION_KPI {
         @Override
         void addTo(DataModel dataModel){
             Table<DataValidationKpi> table = dataModel.addTable(name(), DataValidationKpi.class);
@@ -603,7 +601,7 @@ public enum TableSpecs {
                     map(DataValidationKpiImpl.Fields.DATA_VALIDATION_KPI_TASK.fieldName()).
                     add();
         }
-    },
+    },*/
 
     DDC_DEVICEMESSAGE {
         @Override

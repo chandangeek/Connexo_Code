@@ -73,7 +73,6 @@ public class DataValidationKpiServiceImpl implements DataValidationKpiService{
 
         @Override
         public DataValidationKpi build() {
-            //TODO DataValidationKpiBuilderState recive null for KpiBuilder
             this.state = this.state.build(this.underConstruction, deviceDataModelService.kpiService().newKpi());
             return this.underConstruction;
         }

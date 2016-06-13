@@ -5,6 +5,7 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.kpi.Kpi;
 import com.elster.jupiter.kpi.KpiBuilder;
 import com.elster.jupiter.kpi.KpiService;
+import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.nls.Thesaurus;
@@ -16,7 +17,10 @@ import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
+import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.streams.Functions;
+import com.elster.jupiter.util.time.ScheduleExpression;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.device.data.impl.constraintvalidators.MustHaveUniqueEndDeviceGroup;
@@ -25,7 +29,9 @@ import com.energyict.mdc.device.data.kpi.DataValidationKpiScore;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
+import java.time.Duration;
 import java.time.Instant;
+import java.time.Period;
 import java.time.temporal.TemporalAmount;
 import java.util.Comparator;
 import java.util.List;
@@ -69,6 +75,7 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
     private Reference<EndDeviceGroup> deviceGroup = ValueReference.absent();
     @NotNull(message = MessageSeeds.Keys.FIELD_REQUIRED, groups={Save.Create.class, Save.Update.class})
     private transient TemporalAmount frequency;
+    private RecurrentTaskSaveStrategy recurrentTaskSaveStrategy = new CreateRecurrentTask(dataValidationKpi, dataValidationKpiTask, KpiType.VALIDATION);
 
 
     @Inject
@@ -94,10 +101,18 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
         if (this.getId() == 0) {
             Save.CREATE.save(this.dataModel, this);
         }
+        this.recurrentTaskSaveStrategy.save();
         Save.UPDATE.save(this.dataModel, this);
     }
 
     void dataValidationKpiBuilder(KpiBuilder builder){
+        builder.interval(this.frequency);
+        Stream.of(MonitoredTaskStatus.values()).
+                map(s -> builder.member().named(s.name())).
+                map(s -> {
+                    s.add();
+                    return s;
+                });
         Kpi kpi = builder.create();
         this.dataValidationKpi.set(kpi);
     }
@@ -108,7 +123,12 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
 
     @Override
     public void postLoad() {
-        //TODO add support to postLoad
+        this.recurrentTaskSaveStrategy = new UpdateRecurrentTask(this.dataValidationKpi, this.dataValidationKpiTask, KpiType.VALIDATION);
+/*
+        Stream.of(this.dataValidationKpiCalculationIntervalLength())
+                .flatMap(Functions.asStream())
+                .findFirst()
+                .ifPresent(temporalAmount -> this.frequency = temporalAmount);*/
     }
 
     @Override
@@ -127,7 +147,6 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
 
     @Override
     public List<DataValidationKpiScore> getDataValidationKpiScores() {
-        //TODO getDataValidationKpiScores
         return null;
     }
 
@@ -187,4 +206,238 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
         kpi.ifPresent (Kpi::remove);
         recurrentTask.ifPresent(RecurrentTask::delete);
     }
+
+
+    private interface RecurrentTaskSaveStrategy {
+        void save();
+    }
+
+    private class CreateRecurrentTask implements RecurrentTaskSaveStrategy {
+        private final Reference<Kpi> kpi;
+        private final Reference<RecurrentTask> recurrentTask;
+        private final KpiType kpiType;
+
+        protected CreateRecurrentTask(Reference<Kpi> kpi, Reference<RecurrentTask> recurrentTask, KpiType kpiType) {
+            super();
+            this.kpi = kpi;
+            this.recurrentTask = recurrentTask;
+            this.kpiType = kpiType;
+        }
+
+        @Override
+        public void save() {
+            if (this.kpi.isPresent()) {
+                DestinationSpec destination = messageService.getDestinationSpec(DataValidationKpiCalculatorHandlerFactory.TASK_DESTINATION).get();
+                RecurrentTask recurrentTask = taskService.newBuilder()
+                        .setApplication("MultiSense")
+                        .setName(taskName())
+                        .setScheduleExpression(this.toScheduleExpression(this.kpi.get()))
+                        .setDestination(destination)
+                        .setPayLoad(scheduledExcutionPayload())
+                        .scheduleImmediately(true)
+                        .build();
+                this.setRecurrentTask(recurrentTask);
+            }
+        }
+
+        protected Optional<RecurrentTask> getRecurrentTask() {
+            return this.recurrentTask.getOptional();
+        }
+
+        protected void setRecurrentTask(RecurrentTask recurrentTask) {
+            this.recurrentTask.set(recurrentTask);
+        }
+
+        private ScheduleExpression toScheduleExpression(Kpi kpi) {
+            if (kpi.getIntervalLength() instanceof Duration) {
+                Duration duration = (Duration) kpi.getIntervalLength();
+                return new TemporalExpression(new TimeDurationFromDurationFactory().from(duration));
+            }
+            else {
+                Period period = (Period) kpi.getIntervalLength();
+                return new TemporalExpression(new TimeDurationFromPeriodFactory().from(period));
+            }
+        }
+
+        private String scheduledExcutionPayload() {
+            return this.kpiType.recurrentPayload(DataValidationKpiImpl.this.getId());
+        }
+
+        private String taskName() {
+            return this.kpiType.recurrentTaskName(deviceGroup.get());
+        }
+
+    }
+
+    private class UpdateRecurrentTask extends CreateRecurrentTask {
+        protected UpdateRecurrentTask(Reference<Kpi> kpi, Reference<RecurrentTask> recurrentTask, KpiType kpiType) {
+            super(kpi, recurrentTask, kpiType);
+        }
+
+        @Override
+        public void save() {
+            /* Todo: updating a RecurrentTask is not supported yet,
+             * Deleting and re-creating results in a constraint violation, so looks like that is not an option.
+              * Will only support adding a recurrentTask for newly added KPI at this point
+             */
+            if (!this.getRecurrentTask().isPresent()) {
+                super.save();
+            }
+        }
+    }
+
+
+    private interface TimeDurationFactory {
+        TimeDuration from(TemporalAmount temporalAmount);
+    }
+
+    private class TimeDurationFromDurationFactory implements TimeDurationFactory {
+        private Stream<TimeDurationFactory> factories;
+
+        private TimeDurationFromDurationFactory() {
+            super();
+            this.factories = Stream.of(
+                    new TimeDurationFromDurationInHoursFactory(),
+                    new TimeDurationFromDurationInMinutesFactory(),
+                    new TimeDurationFromDurationInSecondsFactory());
+        }
+
+        @Override
+        public TimeDuration from(TemporalAmount temporalAmount) {
+            return this.factories
+                    .map(f -> f.from(temporalAmount))
+                    .filter(t -> t != null)
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalArgumentException("Unable to convert Duration '" + temporalAmount + "' to TemporalExpression"));
+        }
+
+    }
+    private class TimeDurationFromDurationInHoursFactory implements TimeDurationFactory {
+        @Override
+        public TimeDuration from(TemporalAmount temporalAmount) {
+            return this.from((Duration) temporalAmount);
+        }
+
+        private TimeDuration from(Duration duration) {
+            if (duration.toHours() != 0) {
+                return TimeDuration.hours(Math.toIntExact(duration.toHours()));
+            }
+            else {
+                return null;
+            }
+        }
+    }
+
+    private class TimeDurationFromDurationInMinutesFactory implements TimeDurationFactory {
+        @Override
+        public TimeDuration from(TemporalAmount temporalAmount) {
+            return this.from((Duration) temporalAmount);
+        }
+
+        private TimeDuration from(Duration duration) {
+            if (duration.toMinutes() != 0) {
+                return TimeDuration.minutes(Math.toIntExact(duration.toMinutes()));
+            }
+            else {
+                return null;
+            }
+        }
+    }
+
+    private class TimeDurationFromDurationInSecondsFactory implements TimeDurationFactory {
+        @Override
+        public TimeDuration from(TemporalAmount temporalAmount) {
+            return this.from((Duration) temporalAmount);
+        }
+
+        private TimeDuration from(Duration duration) {
+            if (duration.getSeconds() != 0) {
+                return TimeDuration.seconds(Math.toIntExact(duration.getSeconds()));
+            }
+            else {
+                return null;
+            }
+        }
+    }
+
+    private class TimeDurationFromPeriodFactory implements TimeDurationFactory {
+        private Stream<TimeDurationFactory> factories;
+
+        private TimeDurationFromPeriodFactory() {
+            super();
+            this.factories = Stream.of(
+                    new TimeDurationFromPeriodValidatingFactory(),
+                    new TimeDurationFromPeriodInMonthsFactory(),
+                    new TimeDurationFromPeriodInDaysFactory());
+        }
+
+        @Override
+        public TimeDuration from(TemporalAmount temporalAmount) {
+            return this.factories
+                    .map(f -> f.from(temporalAmount))
+                    .filter(t -> t != null)
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalArgumentException("Unable to convert Period '" + temporalAmount + "' to TemporalExpression"));
+        }
+
+    }
+
+    private class TimeDurationFromPeriodValidatingFactory implements TimeDurationFactory {
+
+        @Override
+        public TimeDuration from(TemporalAmount temporalAmount) {
+            return this.from((Period) temporalAmount);
+        }
+
+        private TimeDuration from(Period period) {
+            if (period.getYears() != 0 || period.getMonths() != 0) {
+                return this.noDays(period);
+            }
+            else {
+                return null;
+            }
+        }
+
+        private TimeDuration noDays(Period period) {
+            if (period.getDays() != 0) {
+                throw new IllegalArgumentException("Years and days or months and days are not supported");
+            }
+            else {
+                return null;
+            }
+        }
+    }
+
+    private class TimeDurationFromPeriodInMonthsFactory implements TimeDurationFactory {
+        @Override
+        public TimeDuration from(TemporalAmount temporalAmount) {
+            return this.from((Period) temporalAmount);
+        }
+
+        private TimeDuration from(Period period) {
+            if (period.toTotalMonths() != 0) {
+                return TimeDuration.months(Math.toIntExact(period.toTotalMonths()));
+            }
+            else {
+                return null;
+            }
+        }
+    }
+
+    private class TimeDurationFromPeriodInDaysFactory implements TimeDurationFactory {
+        @Override
+        public TimeDuration from(TemporalAmount temporalAmount) {
+            return this.from((Period) temporalAmount);
+        }
+
+        private TimeDuration from(Period period) {
+            if (period.getDays() != 0) {
+                return TimeDuration.days(Math.toIntExact(period.getDays()));
+            }
+            else {
+                return null;
+            }
+        }
+    }
+
 }

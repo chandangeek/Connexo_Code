@@ -449,7 +449,7 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
         }
 
         private String scheduledExcutionPayload() {
-            return this.kpiType.recurrentPayload(DataCollectionKpiImpl.this);
+            return this.kpiType.recurrentPayload(DataCollectionKpiImpl.this.getId());
         }
 
         private String taskName() {

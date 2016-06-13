@@ -1,29 +1,26 @@
 package com.energyict.mdc.device.data.impl.kpi;
 
-import com.energyict.mdc.device.data.tasks.TaskStatus;
-
 import com.elster.jupiter.kpi.Kpi;
 import com.elster.jupiter.kpi.KpiMember;
+import com.energyict.mdc.device.data.tasks.TaskStatus;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Map;
-import java.util.logging.Logger;
-import java.util.stream.Stream;
 
 /**
  * Provides code reuse opportunities for classes that
- * implement the {@link DataCollectionKpiCalculator} interface.
+ * implement the {@link DataManagementKpiCalculator} interface.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-10-15 (17:48)
  */
-public class AbstractDataCollectionKpiCalculatorImpl {
+public class AbstractDataManagementKpiCalculatorImpl {
 
     private static final BigDecimal HUNDRED = new BigDecimal("100");
     private final Instant timestamp;
 
-    public AbstractDataCollectionKpiCalculatorImpl(Instant timestamp) {
+    public AbstractDataManagementKpiCalculatorImpl(Instant timestamp) {
         super();
         this.timestamp = timestamp;
     }
