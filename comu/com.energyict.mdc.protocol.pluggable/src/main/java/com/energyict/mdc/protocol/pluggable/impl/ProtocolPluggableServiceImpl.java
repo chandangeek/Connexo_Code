@@ -56,6 +56,7 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentif
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExceptions;
 import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
@@ -593,7 +594,7 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
 
     @Reference
     public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(COMPONENTNAME, Layer.DOMAIN);
+        this.thesaurus = nlsService.getThesaurus(COMPONENTNAME, Layer.DOMAIN).join(nlsService.getThesaurus(DeviceMessageSpecificationService.COMPONENT_NAME, Layer.DOMAIN));
     }
 
     @Reference
