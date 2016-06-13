@@ -1,6 +1,8 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.QueryService;
@@ -37,6 +39,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
+import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.ChannelSpecLinkType;
 import com.energyict.mdc.device.config.ComTaskEnablement;
@@ -148,6 +151,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     private volatile UpgradeService upgradeService;
     private volatile CalendarService calendarService;
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
+    private volatile CustomPropertySetService customPropertySetService;
 
     private final Set<Privilege> privileges = new HashSet<>();
 
@@ -156,7 +160,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Inject
-    public DeviceConfigurationServiceImpl(OrmService ormService, Clock clock, ThreadPrincipalService threadPrincipalService, EventService eventService, NlsService nlsService, PropertySpecService propertySpecService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, PluggableService pluggableService, ProtocolPluggableService protocolPluggableService, EngineConfigurationService engineConfigurationService, SchedulingService schedulingService, ValidationService validationService, EstimationService estimationService, MasterDataService masterDataService, FiniteStateMachineService finiteStateMachineService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, CalendarService calendarService, UpgradeService upgradeService) {
+    public DeviceConfigurationServiceImpl(OrmService ormService, Clock clock, ThreadPrincipalService threadPrincipalService, EventService eventService, NlsService nlsService, PropertySpecService propertySpecService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, PluggableService pluggableService, ProtocolPluggableService protocolPluggableService, EngineConfigurationService engineConfigurationService, SchedulingService schedulingService, ValidationService validationService, EstimationService estimationService, MasterDataService masterDataService, FiniteStateMachineService finiteStateMachineService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, CalendarService calendarService, CustomPropertySetService customPropertySetService, UpgradeService upgradeService) {
         this();
         this.setOrmService(ormService);
         this.setClock(clock);
@@ -178,6 +182,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         this.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
         this.setCalendarService(calendarService);
         this.setDeviceMessageSpecificationService(deviceMessageSpecificationService);
+        this.setCustomPropertySetService(customPropertySetService);
         setUpgradeService(upgradeService);
         this.activate();
     }
@@ -481,6 +486,11 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Override
+    public List<AllowedCalendar> findAllowedCalendars(String name) {
+        return dataModel.query(AllowedCalendar.class).select(where("name").isEqualTo(name));
+    }
+
+    @Override
     public Optional<ProtocolDialectConfigurationProperties> getProtocolDialectConfigurationProperties(long id) {
         return dataModel.mapper(ProtocolDialectConfigurationProperties.class).getOptional(id);
     }
@@ -598,6 +608,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                 bind(ValidationService.class).toInstance(validationService);
                 bind(EstimationService.class).toInstance(estimationService);
                 bind(CalendarService.class).toInstance(calendarService);
+                bind(CustomPropertySetService.class).toInstance(customPropertySetService);
             }
         };
     }
@@ -682,6 +693,11 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Reference
     public void setDeviceMessageSpecificationService(DeviceMessageSpecificationService deviceMessageSpecificationService) {
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
+    }
+
+    @Reference
+    public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
+        this.customPropertySetService = customPropertySetService;
     }
 
     @Reference
@@ -775,6 +791,14 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         return this.getDataModel().
                 query(DeviceConfiguration.class, DeviceConfValidationRuleSetUsage.class, DeviceType.class).
                 select(where("deviceConfValidationRuleSetUsages.validationRuleSetId").isEqualTo(validationRuleSetId), new Order[]{Order.ascending("deviceType"), Order.ascending("name")});
+    }
+
+
+    @Override
+    public List<DeviceType> findDeviceTypesForCalendar(Calendar calendar) {
+        return this.getDataModel().
+                query(DeviceType.class, AllowedCalendar.class).
+                select(where("allowedCalendars.calendar").isEqualTo(calendar));
     }
 
     @Override
