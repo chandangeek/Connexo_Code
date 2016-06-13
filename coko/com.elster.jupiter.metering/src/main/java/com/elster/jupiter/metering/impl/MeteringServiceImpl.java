@@ -74,7 +74,6 @@ import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Pair;
@@ -541,7 +540,6 @@ public class MeteringServiceImpl implements ServerMeteringService, TranslationKe
                     new String[]{
                             MetrologyConfigurationService.class.getName(),
                             ServerMetrologyConfigurationService.class.getName(),
-                            PrivilegesProvider.class.getName(),
                             TranslationKeyProvider.class.getName()},
                     this.metrologyConfigurationService,
                     properties));
