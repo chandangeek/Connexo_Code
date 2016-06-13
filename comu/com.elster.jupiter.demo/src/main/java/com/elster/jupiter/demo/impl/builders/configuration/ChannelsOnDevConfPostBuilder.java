@@ -9,7 +9,10 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-public class ChannelsOnDevConfPostBuilder implements Consumer<DeviceConfiguration>{
+public class ChannelsOnDevConfPostBuilder implements Consumer<DeviceConfiguration> {
+
+    private BigDecimal overflow = new BigDecimal(9999999999L);
+    ;
 
     @Override
     public void accept(DeviceConfiguration configuration) {
@@ -17,14 +20,12 @@ public class ChannelsOnDevConfPostBuilder implements Consumer<DeviceConfiguratio
                 .map(spec -> spec.getChannelType().getReadingType().getMRID()).collect(Collectors.toList());
         for (LoadProfileSpec loadProfileSpec : configuration.getLoadProfileSpecs()) {
             List<ChannelType> availableChannelTypes = loadProfileSpec.getLoadProfileType().getChannelTypes();
-            for (ChannelType channelType : availableChannelTypes) {
-                if (!channelsOnConfiguration.contains(channelType.getReadingType().getMRID())) {
-                    configuration.createChannelSpec(channelType, loadProfileSpec)
-                            .overflow(new BigDecimal(999999999L))
-                            .nbrOfFractionDigits(0)
-                            .add();
-                }
-            }
+            availableChannelTypes.stream().filter(channelType -> !channelsOnConfiguration.contains(channelType.getReadingType().getMRID())).forEach(channelType -> {
+                configuration.createChannelSpec(channelType, loadProfileSpec)
+                        .overflow(overflow)
+                        .nbrOfFractionDigits(0)
+                        .add();
+            });
         }
     }
 }
