@@ -62,29 +62,20 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                         if (channelBulkValueField) {
                             channelBulkValueField.setValue(record.get('channelCollectedData')[channel.id]);
                         }
-                        if (!Ext.isEmpty(dataQualities)) {
-                            dataQualitiesForChannels |= true;
-                            me.setDataQualityForChannel(channel.id, dataQualities);
-                        }
+                        dataQualitiesForChannels |= !Ext.isEmpty(dataQualities);
+                        me.setDataQualityForChannel(channel.id, dataQualities);
                     } else {
                         if (mainValidationInfoField) {
                             mainValidationInfoField.hide();
                         }
                         me.down('#bulkValidationInfo' + channel.id).hide();
                     }
-                    if (!dataQualitiesForChannels) {
-                        me.down('#mdc-qualities-panel').removeAll();
-                        me.down('#mdc-qualities-panel').add(
-                            {
-                                xtype: 'uni-form-info-message',
-                                itemId: 'mdc-noReadings-msg',
-                                text: Uni.I18n.translate('general.loadProfile.noDataQualities', 'MDC', 'There are no reading qualities for the channel readings on this load profile.'),
-                                margin: '7 10 32 0',
-                                padding: '10'
-                            }
-                        );
-                    }
                 });
+                if (!dataQualitiesForChannels) {
+                    me.down('#mdc-noReadings-msg').show();
+                } else {
+                    me.down('#mdc-noReadings-msg').hide();
+                }
                 Ext.Array.findBy(me.channels, function (channel) {
                     if (record.get('channelValidationData')[channel.id]) {
                         me.down('#readingDataValidated').setValue(record.get('channelValidationData')[channel.id].dataValidated);
@@ -273,8 +264,10 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             channelQualityContainer = me.down('#channelQualityContainer' + channelId);
 
         if (Ext.isEmpty(dataQualities)) {
-            me.down('#mdc-qualities-panel').remove(channelQualityContainer);
+            channelQualityContainer.hide();
             return;
+        } else {
+            channelQualityContainer.show();
         }
 
         var deviceQualityField = me.down('#mdc-device-quality-' + channelId),
@@ -376,6 +369,16 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
         );
 
         if (me.channels) {
+            qualityItems.push(
+                {
+                    xtype: 'uni-form-info-message',
+                        itemId: 'mdc-noReadings-msg',
+                    text: Uni.I18n.translate('general.loadProfile.noDataQualities', 'MDC', 'There are no reading qualities for the channel readings on this load profile.'),
+                    margin: '7 10 32 0',
+                    padding: '10'
+                }
+            );
+
             Ext.Array.each(me.channels, function (channel) {
                 var calculatedReadingType = channel.calculatedReadingType,
                     channelName = !Ext.isEmpty(channel.calculatedReadingType)
