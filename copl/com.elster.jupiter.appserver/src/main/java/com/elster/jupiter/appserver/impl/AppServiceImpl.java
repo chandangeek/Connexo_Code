@@ -285,6 +285,10 @@ public class AppServiceImpl implements IAppService, Subscriber, PrivilegesProvid
     private void reconfigureWebServices() {
         Optional<AppServer> appServer = this.getAppServer();
         if (appServer.isPresent()) {
+            List<EndPointConfiguration> runningButUnsupportedEndPoints = webServicesService.getPublishedEndPoints();
+            runningButUnsupportedEndPoints.removeAll(appServer.get().supportedEndPoints());
+            runningButUnsupportedEndPoints.stream().forEach(webServicesService::removeEndPoint);
+
             for (EndPointConfiguration endPointConfiguration : appServer.get().supportedEndPoints()) {
                 boolean published = webServicesService.isPublished(endPointConfiguration);
                 boolean shouldBePublished = endPointConfiguration.isActive();
