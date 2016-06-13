@@ -13,7 +13,7 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
         'Mdc.model.ValidationRuleSetVersionRule'
     ],
     stores: [
-        'Mdc.store.DataIntervalAndZoomLevels',
+        'Uni.store.DataIntervalAndZoomLevels',
         'Mdc.store.ValidationResultsDurations',
         'Mdc.store.ValidationResultsRuleSets',
         'Mdc.store.ValidationResultsRules',

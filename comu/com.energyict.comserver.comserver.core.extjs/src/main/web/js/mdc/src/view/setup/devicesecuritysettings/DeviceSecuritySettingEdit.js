@@ -210,7 +210,7 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingEdit', {
                                     {
                                         xtype: 'button',
                                         text: Uni.I18n.translate('general.restoreToDefaultSettings', 'MDC', 'Restore to default settings'),
-                                        icon: '../sky/build/resources/images/form/restore.png',
+                                        iconCls: 'icon-rotate-ccw3',
                                         itemId: 'restoreAllButton',
                                         action: 'restoreAll'
                                     },

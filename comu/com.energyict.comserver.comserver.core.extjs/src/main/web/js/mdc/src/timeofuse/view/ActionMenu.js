@@ -10,7 +10,7 @@ Ext.define('Mdc.timeofuse.view.ActionMenu', {
             text: Uni.I18n.translate('timeofuse.viewPreview', 'MDC', 'View preview'),
             privileges: Mdc.privileges.DeviceType.view,
             action: 'viewpreview',
-            visible: function() {
+            visible: function () {
                 return !this.record.get('ghost');
             }
         },

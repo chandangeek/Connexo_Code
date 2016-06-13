@@ -13,7 +13,7 @@ Ext.define('Mdc.privileges.Device', {
     viewDevice:['privilege.administrate.device','privilege.view.device'],
     viewDevices: ['privilege.administrate.deviceData','privilege.view.device','privilege.view.masterData'],
     deviceOperator: ['privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication'],
-    addDevice:['privilege.add.device'],
+    administrateDevice:['privilege.administrate.device'],
     flagDevice:['privilege.administrate.deviceData','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication'],
     administrateDeviceData:['privilege.administrate.deviceData'],
     changeDeviceConfiguration:['privilege.administrate.deviceCommunication'],
@@ -36,7 +36,7 @@ Ext.define('Mdc.privileges.Device', {
         return Ext.Array.merge(Mdc.privileges.Device.viewDevice,
             Mdc.privileges.Device.viewDeviceData,
             Mdc.privileges.Device.deviceOperator,
-            Mdc.privileges.Device.addDevice,
+            Mdc.privileges.Device.administrateDevice,
             Mdc.privileges.Device.administrateDeviceData,
             Mdc.privileges.Device.viewDeviceCommunication,
             Mdc.privileges.Device.administrateDeviceCommunication,
@@ -54,7 +54,7 @@ Ext.define('Mdc.privileges.Device', {
         return Uni.Auth.checkPrivileges(Mdc.privileges.Device.viewOrAdministrateDeviceData );
     },
     canAddDevice: function(){
-        return Uni.Auth.checkPrivileges(Mdc.privileges.Device.addDevice );
+        return Uni.Auth.checkPrivileges(Mdc.privileges.Device.administrateDevice );
     },
     canSearchDevices : function(){
         return Uni.Auth.checkPrivileges(Mdc.privileges.Device.viewDeviceCommunication );
