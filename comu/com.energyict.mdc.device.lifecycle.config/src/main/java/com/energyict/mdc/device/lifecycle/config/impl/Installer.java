@@ -12,6 +12,8 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.FullInstaller;
+import com.elster.jupiter.users.PrivilegesProvider;
+import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.DefaultCustomStateTransitionEventType;
@@ -25,6 +27,7 @@ import com.energyict.mdc.device.lifecycle.config.TransitionType;
 
 import javax.inject.Inject;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -39,7 +42,7 @@ import java.util.stream.Stream;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-11 (10:56)
  */
-class Installer implements FullInstaller {
+class Installer implements FullInstaller, PrivilegesProvider {
 
     public static final String PRIVILEGES_COMPONENT = "MDC";
 
@@ -73,7 +76,17 @@ class Installer implements FullInstaller {
                 () -> installDefaultLifeCycle(logger),
                 logger
         );
+        userService.addModulePrivileges(this);
+    }
 
+    @Override
+    public String getModuleName() {
+        return DeviceLifeCycleConfigurationService.COMPONENT_NAME;
+    }
+
+    @Override
+    public List<ResourceDefinition> getModuleResources() {
+        return ((DeviceLifeCycleConfigurationServiceImpl) deviceLifeCycleConfigurationService).getModuleResources();
     }
 
     private void createEventTypes() {

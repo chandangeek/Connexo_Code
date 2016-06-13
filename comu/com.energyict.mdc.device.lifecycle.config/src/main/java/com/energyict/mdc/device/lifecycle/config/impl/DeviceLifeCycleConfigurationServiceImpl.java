@@ -25,7 +25,6 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.Privilege;
-import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
@@ -74,10 +73,10 @@ import static com.elster.jupiter.util.conditions.Where.where;
  * @since 2015-03-11 (10:44)
  */
 @Component(name = "com.energyict.device.lifecycle.config", service = {DeviceLifeCycleConfigurationService.class,
-        TranslationKeyProvider.class, MessageSeedProvider.class, IssueCreationValidator.class, PrivilegesProvider.class},
+        TranslationKeyProvider.class, MessageSeedProvider.class, IssueCreationValidator.class},
         property = "name=" + DeviceLifeCycleConfigurationService.COMPONENT_NAME)
 @SuppressWarnings("unused")
-public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleConfigurationService, TranslationKeyProvider, MessageSeedProvider, IssueCreationValidator, PrivilegesProvider {
+public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleConfigurationService, TranslationKeyProvider, MessageSeedProvider, IssueCreationValidator {
 
     private static final Logger LOGGER = Logger.getLogger(DeviceLifeCycleConfigurationServiceImpl.class.getName());
 
@@ -387,13 +386,7 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
         return this.dataModel.mapper(AuthorizedAction.class).lockObjectIfVersion(version, id);
     }
 
-    @Override
-    public String getModuleName() {
-        return DeviceLifeCycleConfigurationService.COMPONENT_NAME;
-    }
-
-    @Override
-    public List<ResourceDefinition> getModuleResources() {
+    List<ResourceDefinition> getModuleResources() {
 
         return Arrays.asList(
                 this.userService.createModuleResourceWithPrivileges(DeviceLifeCycleConfigurationService.COMPONENT_NAME, Privileges.RESOURCE_DEVICE_LIFECYCLE.getKey(), Privileges.RESOURCE_DEVICE_LIFECYCLE_DESCRIPTION.getKey(),
