@@ -33,7 +33,6 @@ Ext.define('Mdc.timeofuseondevice.view.ActionMenu', {
             text: Uni.I18n.translate('timeofuse.verifyCalendars', 'MDC', 'Verify calendars'),
             privileges: Mdc.privileges.DeviceCommands.executeCommands,
             action: 'verifycalendars',
-            dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.verifyCalendar
         },
         {
             itemId: 'view-preview-tou',
