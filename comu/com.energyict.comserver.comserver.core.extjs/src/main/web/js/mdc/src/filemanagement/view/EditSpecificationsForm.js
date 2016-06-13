@@ -32,7 +32,7 @@ Ext.define('Mdc.timeofuse.view.EditSpecificationsForm', {
                     {
                         xtype: 'fieldcontainer',
                         itemId: 'file-management-radio',
-                        fieldLabel: Uni.I18n.translate('filemanagement.allowFileManagement', 'MDC', 'Allow file management'),
+                        fieldLabel: Uni.I18n.translate('filemanagement.fileManagementAllowed', 'MDC', 'File management allowed'),
                         defaultType: 'radiofield',
                         required: true,
                         layout: 'vbox',

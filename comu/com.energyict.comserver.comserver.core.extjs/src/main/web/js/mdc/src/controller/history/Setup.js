@@ -641,7 +641,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     dynamicPrivilege: Mdc.dynamicprivileges.DeviceTypeCapability.supportsFileManagement,
                                     items: {
                                         edit: {
-                                            title: Uni.I18n.translate('filemanagement.allowFileManagement', 'MDC', 'Allow file management'),
+                                            title: Uni.I18n.translate('timeofuse.editFileManagementSpecifications', 'MDC', 'Edit file management specifications'),
                                             route: 'edit',
                                             privileges: Mdc.privileges.DeviceType.admin,
                                             dynamicPrivilege: Mdc.dynamicprivileges.DeviceTypeCapability.supportsFileManagement,

@@ -55,7 +55,7 @@ Ext.define('Mdc.filemanagement.view.PreviewContainer', {
                         },
                         {
                             xtype: 'button',
-                            text: Uni.I18n.translate('tou.enableFilemanagement', 'MDC', 'Enable file management'),
+                            text: Uni.I18n.translate('tou.allowFilemanagement', 'MDC', 'Allow file management'),
                             itemId: 'enable-file-management-btn',
                             disabled: me.fileManagementEnabled
                         }

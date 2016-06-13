@@ -24,6 +24,7 @@ Ext.define('Mdc.timeofuse.view.EditSpecificationsSetup', {
                 items: [
                     {
                         xtype: 'tou-devicetype-edit-specs-form',
+                        itemId: 'tou-devicetype-edit-specs-form',
                         deviceTypeId: me.deviceTypeId
                     }
                 ]
