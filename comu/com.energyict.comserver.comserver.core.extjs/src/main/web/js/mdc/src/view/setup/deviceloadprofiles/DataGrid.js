@@ -89,7 +89,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataGrid', {
                             deviceQualityTooltipContent += (readingQualityName + '<br>');
                         });
                         deviceQualityTooltipContent += '<br>';
-                        deviceQualityTooltipContent += Uni.I18n.translate('general.deviceQuality.tooltip.moreMessage', 'MDC', 'View data quality details for more information.');
+                        deviceQualityTooltipContent += Uni.I18n.translate('general.deviceQuality.tooltip.moreMessage', 'MDC', 'View reading quality details for more information.');
 
                         deviceQualityIcon = '<span class="icon-price-tags" style="margin-left:3px; display:inline-block;" data-qtitle="'
                             + Uni.I18n.translate('general.deviceQuality', 'MDC', 'Device quality') + '" data-qtip="' + deviceQualityTooltipContent + '"></span>';

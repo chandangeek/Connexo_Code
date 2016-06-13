@@ -78,7 +78,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                             {
                                 xtype: 'uni-form-info-message',
                                 itemId: 'mdc-noReadings-msg',
-                                text: Uni.I18n.translate('general.loadProfile.noDataQualities', 'MDC', 'There are no data qualities for the channel readings on this load profile.'),
+                                text: Uni.I18n.translate('general.loadProfile.noDataQualities', 'MDC', 'There are no reading qualities for the channel readings on this load profile.'),
                                 margin: '7 10 32 0',
                                 padding: '10'
                             }
@@ -567,7 +567,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                 {
                     xtype: 'uni-form-info-message',
                     itemId: 'mdc-noReadings-msg',
-                    text: Uni.I18n.translate('general.reading.noDataQualities', 'MDC', 'There are no data qualities for this reading.'),
+                    text: Uni.I18n.translate('general.reading.noDataQualities', 'MDC', 'There are no reading qualities for this reading.'),
                     margin: '7 10 32 0',
                     padding: '10'
                 },

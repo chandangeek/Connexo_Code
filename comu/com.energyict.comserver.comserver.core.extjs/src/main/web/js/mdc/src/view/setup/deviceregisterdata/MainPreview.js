@@ -31,7 +31,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainPreview', {
                 {
                     xtype: 'uni-form-info-message',
                     itemId: 'mdc-noReadings-msg',
-                    text: Uni.I18n.translate('general.reading.noDataQualities', 'MDC', 'There are no data qualities for this reading.'),
+                    text: Uni.I18n.translate('general.reading.noDataQualities', 'MDC', 'There are no reading qualities for this reading.'),
                     margin: '7 10 32 0',
                     padding: '10'
                 },

@@ -68,7 +68,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                         });
                         if (tooltipContent.length > 0) {
                             tooltipContent += '<br>';
-                            tooltipContent += Uni.I18n.translate('general.deviceQuality.tooltip.moreMessage', 'MDC', 'View data quality details for more information.');
+                            tooltipContent += Uni.I18n.translate('general.deviceQuality.tooltip.moreMessage', 'MDC', 'View reading quality details for more information.');
 
                             icon = '<span class="icon-price-tags" style="margin-left:10px; position:absolute;" data-qtitle="'
                                 + Uni.I18n.translate('general.deviceQuality', 'MDC', 'Device quality') + '" data-qtip="'
