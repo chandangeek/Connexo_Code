@@ -30,7 +30,6 @@ import com.elster.jupiter.servicecall.ServiceCallTypeBuilder;
 import com.elster.jupiter.servicecall.security.Privileges;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Condition;
@@ -72,7 +71,7 @@ import java.util.stream.Stream;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name = "com.elster.jupiter.servicecall",
-        service = {ServiceCallService.class, MessageSeedProvider.class, TranslationKeyProvider.class, PrivilegesProvider.class},
+        service = {ServiceCallService.class, MessageSeedProvider.class, TranslationKeyProvider.class},
         property = "name=" + ServiceCallService.COMPONENT_NAME,
         immediate = true)
 @LiteralSql
@@ -211,6 +210,7 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
                 bind(IServiceCallService.class).toInstance(ServiceCallServiceImpl.this);
                 bind(JsonService.class).toInstance(jsonService);
                 bind(MessageService.class).toInstance(messageService);
+                bind(UserService.class).toInstance(userService);
             }
         };
     }
