@@ -5,7 +5,7 @@ import com.elster.jupiter.nls.TranslationKey;
 public enum TranslationKeys implements TranslationKey {
 
     MISSING_VALUES_VALIDATOR(MissingValuesValidator.class.getName(), "Check missing values"),
-    READING_QUALITIES_VALIDATOR(IntervalStateValidator.class.getName(), "Reading qualities"),
+    READING_QUALITIES_VALIDATOR(ReadingQualitiesValidator.class.getName(), "Reading qualities"),
     REGISTER_INCREASE_VALIDATOR(RegisterIncreaseValidator.class.getName(), "Register increase"),
     REGISTER_INCREASE_VALIDATOR_FAIL_EQUAL_DATA(RegisterIncreaseValidator.class.getName() + "." + RegisterIncreaseValidator.FAIL_EQUAL_DATA, "Fail equal data"),
     THRESHOLD_VALIDATOR(ThresholdValidator.class.getName(), "Threshold violation"),

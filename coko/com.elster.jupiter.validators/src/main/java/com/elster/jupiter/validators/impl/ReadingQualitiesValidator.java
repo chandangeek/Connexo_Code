@@ -18,7 +18,7 @@ import com.google.common.collect.Range;
 import java.time.Instant;
 import java.util.*;
 
-class IntervalStateValidator extends AbstractValidator {
+class ReadingQualitiesValidator extends AbstractValidator {
 
     public static final String READING_QUALITIES = "readingQualities";
     private static final Set<String> SUPPORTED_APPLICATIONS = ImmutableSet.of("MDC", "INS");
@@ -26,11 +26,11 @@ class IntervalStateValidator extends AbstractValidator {
     private Set<String> selectedReadingQualities;
     private Map<String, String> cachedTranslations;
 
-    IntervalStateValidator(Thesaurus thesaurus, PropertySpecService propertySpecService) {
+    ReadingQualitiesValidator(Thesaurus thesaurus, PropertySpecService propertySpecService) {
         super(thesaurus, propertySpecService);
     }
 
-    IntervalStateValidator(Thesaurus thesaurus, PropertySpecService propertySpecService, Map<String, Object> properties) {
+    ReadingQualitiesValidator(Thesaurus thesaurus, PropertySpecService propertySpecService, Map<String, Object> properties) {
         super(thesaurus, propertySpecService, properties);
     }
 

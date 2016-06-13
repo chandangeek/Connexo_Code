@@ -12,7 +12,6 @@ import com.elster.jupiter.validation.ValidationResult;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,14 +24,14 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static com.elster.jupiter.validators.impl.IntervalStateValidator.READING_QUALITIES;
+import static com.elster.jupiter.validators.impl.ReadingQualitiesValidator.READING_QUALITIES;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class IntervalStateValidatorTest {
+public class ReadingQualitiesValidatorTest {
 
     @Mock
     private Thesaurus thesaurus;
@@ -45,7 +44,7 @@ public class IntervalStateValidatorTest {
 
     private PropertySpecService propertySpecService = new PropertySpecServiceImpl();
 
-    private IntervalStateValidator validator;
+    private ReadingQualitiesValidator validator;
 
     //TODO adjust this to use reading qualities
 
@@ -58,7 +57,7 @@ public class IntervalStateValidatorTest {
         //List<ReadingQualityInformation> flags = new ArrayList<>();
         Map<String, Object> properties = new HashMap<>();
         //properties.put(READING_QUALITIES, flags);
-        validator = new IntervalStateValidator(thesaurus, propertySpecService, properties);
+        validator = new ReadingQualitiesValidator(thesaurus, propertySpecService, properties);
 
        // flags.add(validator.new ReadingQualityInformation(ProtocolReadingQualities.BADTIME, "badTime", "Bad time"));
        // flags.add(validator.new ReadingQualityInformation(ProtocolReadingQualities.POWERDOWN, "powerDown", "Power down"));
