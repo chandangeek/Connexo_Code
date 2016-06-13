@@ -17,15 +17,7 @@ public class PM5560RegisterFactory extends RegisterFactory {
     public static int OsFirmwareVersionAddress = 1637;
     public static int RsFirmwareVersionAddress = 1669;
 
-    public static int CurrentDateTimeAddress = 1845;
-    public static int SetDateTimeAddress = 1003;
-
-    public static int UnprotectedCommandAddress = 5250;
-    public static int UnprotectedCommandStatusAddress = 5375;
-    public static int UnprotectedCommandResultAddress = 5376;
-
-
-    private ParserFactory parserFactory;
+    protected ParserFactory parserFactory;
 
     public PM5560RegisterFactory(Modbus modBus) {
         super(modBus);
