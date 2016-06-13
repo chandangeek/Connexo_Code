@@ -111,9 +111,10 @@ public class MetrologyConfigurationResource {
         info.readingTypes.stream().forEach(readingTypeInfo -> {
             ReadingType readingType = meteringService.findReadingTypes(Collections.singletonList(readingTypeInfo.mRID)).stream().findFirst()
                     .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.READING_TYPE_NOT_FOUND));
-            FullySpecifiedReadingTypeRequirement fullySpecifiedReadingTypeRequirement = metrologyConfiguration.newReadingTypeRequirement(readingType.getFullAliasName())
-                    .withMeterRole(meterRoleDefault)
-                    .withReadingType(readingType);
+            FullySpecifiedReadingTypeRequirement fullySpecifiedReadingTypeRequirement =
+                    metrologyConfiguration
+                            .newReadingTypeRequirement(readingType.getFullAliasName(), meterRoleDefault)
+                            .withReadingType(readingType);
             ReadingTypeDeliverableBuilder builder = metrologyConfiguration.newReadingTypeDeliverable(readingType.getFullAliasName(), readingType, Formula.Mode.AUTO);
             ReadingTypeDeliverable deliverable = builder.build(builder.requirement(fullySpecifiedReadingTypeRequirement));
             MetrologyContract metrologyContract = metrologyConfiguration.addMetrologyContract(purpose);
