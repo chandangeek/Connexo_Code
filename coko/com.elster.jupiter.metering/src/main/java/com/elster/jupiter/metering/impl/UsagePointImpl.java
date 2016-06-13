@@ -32,6 +32,7 @@ import com.elster.jupiter.metering.WaterDetailBuilder;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.impl.config.EffectiveMetrologyConfigurationOnUsagePointImpl;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
@@ -413,12 +414,12 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
-    public Optional<MetrologyConfiguration> getMetrologyConfiguration() {
+    public Optional<UsagePointMetrologyConfiguration> getMetrologyConfiguration() {
         return this.getMetrologyConfiguration(this.clock.instant());
     }
 
     @Override
-    public Optional<MetrologyConfiguration> getMetrologyConfiguration(Instant when) {
+    public Optional<UsagePointMetrologyConfiguration> getMetrologyConfiguration(Instant when) {
         return this.metrologyConfiguration.effective(when)
                 .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration);
     }
@@ -428,7 +429,7 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
-    public List<MetrologyConfiguration> getMetrologyConfigurations(Range<Instant> period) {
+    public List<UsagePointMetrologyConfiguration> getMetrologyConfigurations(Range<Instant> period) {
         return this.metrologyConfiguration
                 .effective(period)
                 .stream()
@@ -437,12 +438,12 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
-    public void apply(MetrologyConfiguration metrologyConfiguration) {
+    public void apply(UsagePointMetrologyConfiguration metrologyConfiguration) {
         this.apply(metrologyConfiguration, this.clock.instant());
     }
 
     @Override
-    public void apply(MetrologyConfiguration metrologyConfiguration, Instant when) {
+    public void apply(UsagePointMetrologyConfiguration metrologyConfiguration, Instant when) {
         this.removeMetrologyConfiguration(when);
         this.metrologyConfiguration.add(
                 this.dataModel

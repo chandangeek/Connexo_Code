@@ -6,7 +6,6 @@ import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
@@ -45,7 +44,7 @@ public class InferReadingTypeTest {
     @Mock
     private ReadingTypeDeliverable deliverable;
     @Mock
-    private MeterActivation meterActivation;
+    private MeterActivationSet meterActivationSet;
 
     private VirtualFactory virtualFactory = new VirtualFactoryImpl();
 
@@ -53,8 +52,7 @@ public class InferReadingTypeTest {
     public void initializeMocks() {
         ReadingType readingType = this.mock15minkWhReadingType();
         when(this.deliverable.getReadingType()).thenReturn(readingType);
-        when(this.requirement.getMatchesFor(this.meterActivation)).thenReturn(Collections.singletonList(readingType));
-        when(this.meterActivation.getRange()).thenReturn(Range.all());
+        when(this.meterActivationSet.getRange()).thenReturn(Range.all());
     }
 
     @Test
@@ -110,15 +108,14 @@ public class InferReadingTypeTest {
         when(readingType.getCommodity()).thenReturn(Commodity.ELECTRICITY_PRIMARY_METERED);
         ChannelContract channel = mock(ChannelContract.class);
         when(channel.getMainReadingType()).thenReturn(readingType);
-        when(this.requirement.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(channel));
-        when(this.requirement.getMatchesFor(this.meterActivation)).thenReturn(Collections.singletonList(readingType));
+        when(this.meterActivationSet.getMatchingChannelsFor(this.requirement)).thenReturn(Collections.singletonList(channel));
         VirtualRequirementNode node =
                 new VirtualRequirementNode(
                         Formula.Mode.AUTO,
                         this.virtualFactory,
                         this.requirement,
                         this.deliverable,
-                        this.meterActivation);
+                        this.meterActivationSet);
 
         // Business method
         VirtualReadingType preferredReadingType = node.accept(infer);
@@ -136,28 +133,26 @@ public class InferReadingTypeTest {
         when(requirement1ReadingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
         when(requirement1ReadingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE2);   // Make sure this is not compatible with requirement 2
         when(requirement1.getReadingType()).thenReturn(requirement1ReadingType);
-        when(requirement1.getMatchesFor(this.meterActivation)).thenReturn(Collections.singletonList(requirement1ReadingType));
         VirtualRequirementNode requirementNode1 =
                 new VirtualRequirementNode(
                         Formula.Mode.AUTO,
                         this.virtualFactory,
                         requirement1,
                         this.deliverable,
-                        this.meterActivation);
+                        this.meterActivationSet);
         FullySpecifiedReadingTypeRequirement requirement2 = mock(FullySpecifiedReadingTypeRequirement.class);
         ReadingType requirement2ReadingType = mock(ReadingType.class);
         when(requirement2ReadingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
         when(requirement2ReadingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);  // Incompatible with requirement 1
         when(requirement2.getReadingType()).thenReturn(requirement2ReadingType);
-        when(requirement2.getMatchesFor(this.meterActivation)).thenReturn(Collections.singletonList(requirement2ReadingType));
         VirtualRequirementNode requirementNode2 =
                 new VirtualRequirementNode(
                         Formula.Mode.AUTO,
                         this.virtualFactory,
                         requirement2,
                         this.deliverable,
-                        this.meterActivation);
-        this.virtualFactory.nextMeterActivation(this.meterActivation, Range.all());
+                        this.meterActivationSet);
+        this.virtualFactory.nextMeterActivationSet(this.meterActivationSet, Range.all());
         OperationNode sum = Operator.PLUS.node(requirementNode1, requirementNode2);
         OperationNode multiply = Operator.MULTIPLY.node(sum, new NumericalConstantNode(BigDecimal.TEN));
 
@@ -176,27 +171,25 @@ public class InferReadingTypeTest {
         when(requirement1ReadingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
         when(requirement1ReadingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE2);   // Make sure this is not compatible with requirement 2
         when(requirement1.getReadingType()).thenReturn(requirement1ReadingType);
-        when(requirement1.getMatchesFor(this.meterActivation)).thenReturn(Collections.singletonList(requirement1ReadingType));
         VirtualRequirementNode requirementNode1 =
                 new VirtualRequirementNode(
                         Formula.Mode.AUTO,
                         this.virtualFactory,
                         requirement1,
                         this.deliverable,
-                        this.meterActivation);
+                        this.meterActivationSet);
         FullySpecifiedReadingTypeRequirement requirement2 = mock(FullySpecifiedReadingTypeRequirement.class);
         ReadingType requirement2ReadingType = mock(ReadingType.class);
         when(requirement2ReadingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
         when(requirement2ReadingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);  // Incompatible with requirement 1
         when(requirement2.getReadingType()).thenReturn(requirement2ReadingType);
-        when(requirement2.getMatchesFor(this.meterActivation)).thenReturn(Collections.singletonList(requirement2ReadingType));
         VirtualRequirementNode requirementNode2 =
                 new VirtualRequirementNode(
                         Formula.Mode.AUTO,
                         this.virtualFactory,
                         requirement2,
                         this.deliverable,
-                        this.meterActivation);
+                        this.meterActivationSet);
         FunctionCallNode maximum =
                 new FunctionCallNode(
                         Function.MAX,
@@ -235,24 +228,24 @@ public class InferReadingTypeTest {
         when(fifteenMinChannel.getMainReadingType()).thenReturn(fifteenMinReadingType);
 
         ReadingTypeRequirement requirement1 = mock(ReadingTypeRequirement.class);
-        when(requirement1.getMatchingChannelsFor(this.meterActivation)).thenReturn(Arrays.asList(fifteenMinChannel, hourlyChannel));
+        when(this.meterActivationSet.getMatchingChannelsFor(requirement1)).thenReturn(Arrays.asList(fifteenMinChannel, hourlyChannel));
         VirtualRequirementNode requirementNode1 =
                 new VirtualRequirementNode(
                         Formula.Mode.AUTO,
                         this.virtualFactory,
                         requirement1,
                         this.deliverable,
-                        this.meterActivation);
+                        this.meterActivationSet);
         ReadingTypeRequirement requirement2 = mock(ReadingTypeRequirement.class);
-        when(requirement2.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(fifteenMinChannel));
+        when(this.meterActivationSet.getMatchingChannelsFor(requirement2)).thenReturn(Collections.singletonList(fifteenMinChannel));
         VirtualRequirementNode requirementNode2 =
                 new VirtualRequirementNode(
                         Formula.Mode.AUTO,
                         this.virtualFactory,
                         requirement2,
                         this.deliverable,
-                        this.meterActivation);
-        this.virtualFactory.nextMeterActivation(this.meterActivation, Range.all());
+                        this.meterActivationSet);
+        this.virtualFactory.nextMeterActivationSet(this.meterActivationSet, Range.all());
         OperationNode sum = Operator.PLUS.node(requirementNode1, requirementNode2);
         OperationNode multiply = Operator.MULTIPLY.node(sum, new NumericalConstantNode(BigDecimal.TEN));
 
@@ -284,30 +277,30 @@ public class InferReadingTypeTest {
 
         ReadingTypeRequirement requirement1 = mock(ReadingTypeRequirement.class);
 
-        when(requirement1.getMatchingChannelsFor(this.meterActivation)).thenReturn(Arrays.asList(fifteenMinChannel, hourlyChannel));
+        when(this.meterActivationSet.getMatchingChannelsFor(requirement1)).thenReturn(Arrays.asList(fifteenMinChannel, hourlyChannel));
         VirtualRequirementNode requirementNode1 =
                 new VirtualRequirementNode(
                         Formula.Mode.AUTO,
                         this.virtualFactory,
                         requirement1,
                         this.deliverable,
-                        this.meterActivation);
+                        this.meterActivationSet);
         ReadingTypeRequirement requirement2 = mock(ReadingTypeRequirement.class);
-        when(requirement2.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(fifteenMinChannel));
+        when(this.meterActivationSet.getMatchingChannelsFor(requirement2)).thenReturn(Collections.singletonList(fifteenMinChannel));
         VirtualRequirementNode requirementNode2 =
                 new VirtualRequirementNode(
                         Formula.Mode.AUTO,
                         this.virtualFactory,
                         requirement2,
                         this.deliverable,
-                        this.meterActivation);
+                        this.meterActivationSet);
         FunctionCallNode maximum =
                 new FunctionCallNode(
                         Function.MAX,
                         IntermediateDimension.of(Dimension.DIMENSIONLESS), requirementNode1,
                         requirementNode2,
                         new NumericalConstantNode(BigDecimal.TEN));
-        this.virtualFactory.nextMeterActivation(this.meterActivation, Range.all());
+        this.virtualFactory.nextMeterActivationSet(this.meterActivationSet, Range.all());
 
         // Business method
         VirtualReadingType preferredReadingType = maximum.accept(infer);
@@ -341,24 +334,24 @@ public class InferReadingTypeTest {
         when(voltChannel.getMainReadingType()).thenReturn(voltReadingType);
 
         ReadingTypeRequirement y = mock(ReadingTypeRequirement.class);
-        when(y.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(ampereChannel));
+        when(this.meterActivationSet.getMatchingChannelsFor(y)).thenReturn(Collections.singletonList(ampereChannel));
         VirtualRequirementNode nodeY =
                 new VirtualRequirementNode(
                         Formula.Mode.AUTO,
                         this.virtualFactory,
                         y,
                         this.deliverable,
-                        this.meterActivation);
+                        this.meterActivationSet);
         ReadingTypeRequirement z = mock(ReadingTypeRequirement.class);
-        when(z.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(voltChannel));
+        when(this.meterActivationSet.getMatchingChannelsFor(z)).thenReturn(Collections.singletonList(voltChannel));
         VirtualRequirementNode nodeZ =
                 new VirtualRequirementNode(
                         Formula.Mode.AUTO,
                         this.virtualFactory,
                         z,
                         this.deliverable,
-                        this.meterActivation);
-        this.virtualFactory.nextMeterActivation(this.meterActivation, Range.all());
+                        this.meterActivationSet);
+        this.virtualFactory.nextMeterActivationSet(this.meterActivationSet, Range.all());
         OperationNode sum = Operator.PLUS.node(nodeY, nodeZ);
 
         // Business method
@@ -389,30 +382,30 @@ public class InferReadingTypeTest {
         when(voltChannel.getMainReadingType()).thenReturn(voltReadingType);
 
         ReadingTypeRequirement y = mock(ReadingTypeRequirement.class);
-        when(y.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(ampereChannel));
+        when(this.meterActivationSet.getMatchingChannelsFor(y)).thenReturn(Collections.singletonList(ampereChannel));
         VirtualRequirementNode nodeY =
                 new VirtualRequirementNode(
                         Formula.Mode.AUTO,
                         this.virtualFactory,
                         y,
                         this.deliverable,
-                        this.meterActivation);
+                        this.meterActivationSet);
         ReadingTypeRequirement z = mock(ReadingTypeRequirement.class);
-        when(z.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(voltChannel));
+        when(this.meterActivationSet.getMatchingChannelsFor(z)).thenReturn(Collections.singletonList(voltChannel));
         VirtualRequirementNode nodeZ =
                 new VirtualRequirementNode(
                         Formula.Mode.AUTO,
                         this.virtualFactory,
                         z,
                         this.deliverable,
-                        this.meterActivation);
+                        this.meterActivationSet);
         FunctionCallNode maximum =
                 new FunctionCallNode(
                         Function.MAX,
                         IntermediateDimension.of(Dimension.DIMENSIONLESS), nodeY,
                         nodeZ,
                         new NumericalConstantNode(BigDecimal.TEN));
-        this.virtualFactory.nextMeterActivation(this.meterActivation, Range.all());
+        this.virtualFactory.nextMeterActivationSet(this.meterActivationSet, Range.all());
 
         // Business method
         VirtualReadingType preferredReadingType = maximum.accept(infer);
@@ -450,24 +443,24 @@ public class InferReadingTypeTest {
         when(fifteenMin_kWh_Channel.getMainReadingType()).thenReturn(fifteenMin_kWh_ReadingType);
 
         ReadingTypeRequirement requirement1 = mock(ReadingTypeRequirement.class);
-        when(requirement1.getMatchingChannelsFor(this.meterActivation)).thenReturn(Arrays.asList(fifteenMin_kW_Channel, hourly_kW_Channel));
+        when(this.meterActivationSet.getMatchingChannelsFor(requirement1)).thenReturn(Arrays.asList(fifteenMin_kW_Channel, hourly_kW_Channel));
         VirtualRequirementNode requirementNode1 =
                 new VirtualRequirementNode(
                         Formula.Mode.AUTO,
                         this.virtualFactory,
                         requirement1,
                         this.deliverable,
-                        this.meterActivation);
+                        this.meterActivationSet);
         ReadingTypeRequirement requirement2 = mock(ReadingTypeRequirement.class);
-        when(requirement2.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(fifteenMin_kWh_Channel));
+        when(this.meterActivationSet.getMatchingChannelsFor(requirement2)).thenReturn(Collections.singletonList(fifteenMin_kWh_Channel));
         VirtualRequirementNode requirementNode2 =
                 new VirtualRequirementNode(
                         Formula.Mode.AUTO,
                         this.virtualFactory,
                         requirement2,
                         this.deliverable,
-                        this.meterActivation);
-        this.virtualFactory.nextMeterActivation(this.meterActivation, Range.all());
+                        this.meterActivationSet);
+        this.virtualFactory.nextMeterActivationSet(this.meterActivationSet, Range.all());
         OperationNode sum = Operator.PLUS.node(requirementNode1, requirementNode2);
         OperationNode multiply = Operator.MULTIPLY.node(sum, new NumericalConstantNode(BigDecimal.TEN));
 
@@ -508,30 +501,30 @@ public class InferReadingTypeTest {
         when(fifteenMin_kWh_Channel.getMainReadingType()).thenReturn(fifteenMin_kWh_ReadingType);
 
         ReadingTypeRequirement requirement1 = mock(ReadingTypeRequirement.class);
-        when(requirement1.getMatchingChannelsFor(this.meterActivation)).thenReturn(Arrays.asList(fifteenMin_kW_Channel, hourly_kW_Channel));
+        when(this.meterActivationSet.getMatchingChannelsFor(requirement1)).thenReturn(Arrays.asList(fifteenMin_kW_Channel, hourly_kW_Channel));
         VirtualRequirementNode requirementNode1 =
                 new VirtualRequirementNode(
                         Formula.Mode.AUTO,
                         this.virtualFactory,
                         requirement1,
                         this.deliverable,
-                        this.meterActivation);
+                        this.meterActivationSet);
         ReadingTypeRequirement requirement2 = mock(ReadingTypeRequirement.class);
-        when(requirement2.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(fifteenMin_kWh_Channel));
+        when(this.meterActivationSet.getMatchingChannelsFor(requirement2)).thenReturn(Collections.singletonList(fifteenMin_kWh_Channel));
         VirtualRequirementNode requirementNode2 =
                 new VirtualRequirementNode(
                         Formula.Mode.AUTO,
                         this.virtualFactory,
                         requirement2,
                         this.deliverable,
-                        this.meterActivation);
+                        this.meterActivationSet);
         FunctionCallNode maximum =
                 new FunctionCallNode(
                         Function.MAX,
                         IntermediateDimension.of(Dimension.DIMENSIONLESS), requirementNode1,
                         requirementNode2,
                         new NumericalConstantNode(BigDecimal.TEN));
-        this.virtualFactory.nextMeterActivation(this.meterActivation, Range.all());
+        this.virtualFactory.nextMeterActivationSet(this.meterActivationSet, Range.all());
 
         // Business method
         VirtualReadingType preferredReadingType = maximum.accept(infer);

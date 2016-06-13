@@ -61,11 +61,9 @@ public class ReadingTypeRequirementMeterRoleUsage implements SelfObjectValidator
     }
 
     private boolean validateThatMeterRoleIsAssignedToMetrologyConfiguration(ConstraintValidatorContext context) {
-        if (!((UsagePointMetrologyConfiguration) getReadingTypeRequirement().getMetrologyConfiguration()).getMeterRoles()
-                .stream()
-                .anyMatch(getMeterRole()::equals)) {
+        if (!((UsagePointMetrologyConfiguration) getReadingTypeRequirement().getMetrologyConfiguration()).getMeterRoles().contains(getMeterRole())) {
             context.disableDefaultConstraintViolation();
-            context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.CAN_NOT_ADD_REQUIREMENT_WITH_THAT_ROLE + "}")
+            context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.ROLE_IS_NOT_ALLOWED_ON_CONFIGURATION + "}")
                     .addPropertyNode(Fields.METER_ROLE.fieldName())
                     .addConstraintViolation();
             return false;

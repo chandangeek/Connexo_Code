@@ -1,6 +1,5 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
@@ -30,17 +29,17 @@ class Copy implements ExpressionNode.Visitor<ServerExpressionNode> {
 
     private final Formula.Mode mode;
     private final VirtualFactory virtualFactory;
-    private final ReadingTypeDeliverableForMeterActivationProvider deliverableProvider;
+    private final ReadingTypeDeliverableForMeterActivationSetProvider deliverableProvider;
     private final ReadingTypeDeliverable deliverable;
-    private final MeterActivation meterActivation;
+    private final MeterActivationSet meterActivationSet;
 
-    Copy(Formula.Mode mode, VirtualFactory virtualFactory, ReadingTypeDeliverableForMeterActivationProvider deliverableProvider, ReadingTypeDeliverable deliverable, MeterActivation meterActivation) {
+    Copy(Formula.Mode mode, VirtualFactory virtualFactory, ReadingTypeDeliverableForMeterActivationSetProvider deliverableProvider, ReadingTypeDeliverable deliverable, MeterActivationSet meterActivationSet) {
         super();
         this.mode = mode;
         this.virtualFactory = virtualFactory;
         this.deliverableProvider = deliverableProvider;
         this.deliverable = deliverable;
-        this.meterActivation = meterActivation;
+        this.meterActivationSet = meterActivationSet;
     }
 
     @Override
@@ -61,7 +60,7 @@ class Copy implements ExpressionNode.Visitor<ServerExpressionNode> {
                 this.virtualFactory,
                 node.getReadingTypeRequirement(),
                 this.deliverable,
-                this.meterActivation);
+                this.meterActivationSet);
     }
 
     @Override
@@ -70,7 +69,7 @@ class Copy implements ExpressionNode.Visitor<ServerExpressionNode> {
         return new VirtualDeliverableNode(
                 this.deliverableProvider.from(
                         node.getReadingTypeDeliverable(),
-                        this.meterActivation));
+                        this.meterActivationSet));
     }
 
     @Override

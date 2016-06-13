@@ -7,7 +7,6 @@ import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
@@ -245,15 +244,15 @@ public class ExpressionNodeToStringTest {
         VirtualReadingTypeRequirement virtualRequirement = mock(VirtualReadingTypeRequirement.class);
         when(virtualFactory.requirementFor(eq(Formula.Mode.AUTO), eq(requirement), eq(deliverable), any(VirtualReadingType.class)))
             .thenReturn(virtualRequirement);
-        MeterActivation meterActivation = mock(MeterActivation.class);
-        when(meterActivation.getRange()).thenReturn(Range.atLeast(Instant.EPOCH));
+        MeterActivationSet meterActivationSet = mock(MeterActivationSet.class);
+        when(meterActivationSet.getRange()).thenReturn(Range.atLeast(Instant.EPOCH));
         VirtualRequirementNode node =
                 new VirtualRequirementNode(
                         Formula.Mode.AUTO,
                         virtualFactory,
                         requirement,
                         deliverable,
-                        meterActivation);
+                        meterActivationSet);
 
         // Business method
         testInstance().visitVirtualRequirement(node);
@@ -265,7 +264,7 @@ public class ExpressionNodeToStringTest {
     @Test
     public void testDeliverable() {
         ReadingType hourlyWattHours = this.mockHourlyWattHoursReadingType();
-        ReadingTypeDeliverableForMeterActivation deliverable = mock(ReadingTypeDeliverableForMeterActivation.class);
+        ReadingTypeDeliverableForMeterActivationSet deliverable = mock(ReadingTypeDeliverableForMeterActivationSet.class);
         when(deliverable.getReadingType()).thenReturn(hourlyWattHours);
         VirtualDeliverableNode node = new VirtualDeliverableNode(deliverable);
 
@@ -278,8 +277,8 @@ public class ExpressionNodeToStringTest {
 
     @Test
     public void testUnitConversion() {
-        MeterActivation meterActivation = mock(MeterActivation.class);
-        when(meterActivation.getRange()).thenReturn(Range.atLeast(Instant.EPOCH));
+        MeterActivationSet meterActivationSet = mock(MeterActivationSet.class);
+        when(meterActivationSet.getRange()).thenReturn(Range.atLeast(Instant.EPOCH));
         VirtualFactory virtualFactory = mock(VirtualFactory.class);
         ReadingType hourWattHours = this.mockHourlyWattHoursReadingType();
         ReadingTypeDeliverable deliverable = mock(ReadingTypeDeliverable.class);
@@ -291,7 +290,7 @@ public class ExpressionNodeToStringTest {
         when(currentRequirement.getReadingType()).thenReturn(ampereReadingType);
         Channel ampereChannel = mock(Channel.class);
         when(ampereChannel.getMainReadingType()).thenReturn(ampereReadingType);
-        when(currentRequirement.getMatchingChannelsFor(meterActivation)).thenReturn(Collections.singletonList(ampereChannel));
+        when(meterActivationSet.getMatchingChannelsFor(currentRequirement)).thenReturn(Collections.singletonList(ampereChannel));
         VirtualReadingTypeRequirement virtualCurrentRequirement = mock(VirtualReadingTypeRequirement.class);
         when(virtualFactory.requirementFor(eq(Formula.Mode.AUTO), eq(currentRequirement), eq(deliverable), any(VirtualReadingType.class)))
                 .thenReturn(virtualCurrentRequirement);
@@ -301,7 +300,7 @@ public class ExpressionNodeToStringTest {
                         virtualFactory,
                         currentRequirement,
                         deliverable,
-                        meterActivation);
+                        meterActivationSet);
         // Similate effect of InferReadingType
         current.setTargetReadingType(VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.AMPERE, Accumulation.BULKQUANTITY, Commodity.ELECTRICITY_PRIMARY_METERED));
 
@@ -311,7 +310,7 @@ public class ExpressionNodeToStringTest {
         when(voltageRequirement.getReadingType()).thenReturn(voltReadingType);
         Channel voltChannel = mock(Channel.class);
         when(voltChannel.getMainReadingType()).thenReturn(voltReadingType);
-        when(voltageRequirement.getMatchingChannelsFor(meterActivation)).thenReturn(Collections.singletonList(voltChannel));
+        when(meterActivationSet.getMatchingChannelsFor(voltageRequirement)).thenReturn(Collections.singletonList(voltChannel));
         VirtualReadingTypeRequirement virtualVoltageRequirement = mock(VirtualReadingTypeRequirement.class);
         when(virtualFactory.requirementFor(eq(Formula.Mode.AUTO), eq(voltageRequirement), eq(deliverable), any(VirtualReadingType.class)))
                 .thenReturn(virtualVoltageRequirement);
@@ -321,7 +320,7 @@ public class ExpressionNodeToStringTest {
                         virtualFactory,
                         voltageRequirement,
                         deliverable,
-                        meterActivation);
+                        meterActivationSet);
         // Similate effect of InferReadingType
         voltage.setTargetReadingType(VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.VOLT, Accumulation.BULKQUANTITY, Commodity.ELECTRICITY_PRIMARY_METERED));
 

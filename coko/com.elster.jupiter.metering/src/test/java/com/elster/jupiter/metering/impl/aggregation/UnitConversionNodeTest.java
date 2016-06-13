@@ -8,7 +8,6 @@ import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
@@ -37,7 +36,7 @@ import static org.mockito.Mockito.when;
 public class UnitConversionNodeTest {
 
     @Mock
-    private MeterActivation meterActivation;
+    private MeterActivationSet meterActivationSet;
     @Mock
     private VirtualFactory virtualFactory;
     @Mock
@@ -56,18 +55,15 @@ public class UnitConversionNodeTest {
     private ReadingTypeDeliverable deliverable;
     private ReadingType fifteenMins_kWh;
     private ReadingType thirtyMins_kWh;
-    private ReadingType daily_kWh;
-    private ReadingType monthly_kWh;
 
     @Before
     public void initializeMocks() {
-        when(this.meterActivation.getRange()).thenReturn(Range.atLeast(Instant.EPOCH));
+        when(this.meterActivationSet.getRange()).thenReturn(Range.atLeast(Instant.EPOCH));
         this.fifteenMins_kWh = this.mock15minReadingType();
         this.thirtyMins_kWh = this.mock30minReadingType();
-        this.daily_kWh = this.mockDailyReadingType();
-        this.monthly_kWh = this.mockMonthlyReadingType();
-        when(this.requirement1.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(this.channel1));
-        when(this.requirement2.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(this.channel2));
+        ReadingType monthly_kWh = this.mockMonthlyReadingType();
+        when(this.meterActivationSet.getMatchingChannelsFor(this.requirement1)).thenReturn(Collections.singletonList(this.channel1));
+        when(this.meterActivationSet.getMatchingChannelsFor(this.requirement2)).thenReturn(Collections.singletonList(this.channel2));
         when(this.deliverable.getReadingType()).thenReturn(monthly_kWh);
         when(this.virtualFactory
                 .requirementFor(
@@ -196,7 +192,7 @@ public class UnitConversionNodeTest {
     }
 
     private VirtualRequirementNode requirementNode(FullySpecifiedReadingTypeRequirement requirement) {
-        return new VirtualRequirementNode(Formula.Mode.AUTO, this.virtualFactory, requirement, this.deliverable, this.meterActivation);
+        return new VirtualRequirementNode(Formula.Mode.AUTO, this.virtualFactory, requirement, this.deliverable, this.meterActivationSet);
     }
 
     private ReadingType mock15minReadingType() {
@@ -205,10 +201,6 @@ public class UnitConversionNodeTest {
 
     private ReadingType mock30minReadingType() {
         return this.mockReadingType(TimeAttribute.MINUTE30);
-    }
-
-    private ReadingType mockDailyReadingType() {
-        return this.mockReadingType(MacroPeriod.DAILY, TimeAttribute.NOTAPPLICABLE);
     }
 
     private ReadingType mockMonthlyReadingType() {

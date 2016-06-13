@@ -478,7 +478,7 @@ public class MeteringConsoleCommands {
                     DefaultMeterRole defaultMeterRole = DefaultMeterRole.valueOf(meterRoleName);
                     MeterRole meterRole = this.metrologyConfigurationService.findDefaultMeterRole(defaultMeterRole);
                     UsagePointMetrologyConfiguration upMetrologyConfiguration = (UsagePointMetrologyConfiguration) metrologyConfiguration;
-                    long id = upMetrologyConfiguration.newReadingTypeRequirement(name).withMeterRole(meterRole).withReadingType(readingType).getId();
+                    long id = upMetrologyConfiguration.newReadingTypeRequirement(name, meterRole).withReadingType(readingType).getId();
                     System.out.println("Requirment created with id: " + id);
                 } catch (IllegalArgumentException e) {
                     System.out.println("Unknown default meter role: " + meterRoleName + ". Use one of: " + Stream.of(DefaultMeterRole.values())
@@ -512,7 +512,7 @@ public class MeteringConsoleCommands {
                     DefaultMeterRole defaultMeterRole = DefaultMeterRole.valueOf(meterRoleName);
                     MeterRole meterRole = this.metrologyConfigurationService.findDefaultMeterRole(defaultMeterRole);
                     UsagePointMetrologyConfiguration upMetrologyConfiguration = (UsagePointMetrologyConfiguration) metrologyConfiguration;
-                    long id = upMetrologyConfiguration.newReadingTypeRequirement(name).withMeterRole(meterRole).withReadingTypeTemplate(template).getId();
+                    long id = upMetrologyConfiguration.newReadingTypeRequirement(name, meterRole).withReadingTypeTemplate(template).getId();
                     System.out.println("Requirment created with id: " + id);
                 } catch (IllegalArgumentException e) {
                     System.out.println("Unknown default meter role: " + meterRoleName + ". Use one of: " + Stream.of(DefaultMeterRole.values())

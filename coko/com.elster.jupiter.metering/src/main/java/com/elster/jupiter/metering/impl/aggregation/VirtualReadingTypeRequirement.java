@@ -43,12 +43,12 @@ public class VirtualReadingTypeRequirement {
     private final int meterActivationSequenceNumber;
     private Optional<ChannelContract> preferredChannel;   // Lazy from the list of matching channels and the targetIntervalLength
 
-    public VirtualReadingTypeRequirement(Formula.Mode mode, ReadingTypeRequirement requirement, ReadingTypeDeliverable deliverable, List<Channel> matchingChannels, VirtualReadingType targetReadingType, MeterActivation meterActivation, Range<Instant> requestedPeriod, int meterActivationSequenceNumber) {
+    public VirtualReadingTypeRequirement(Formula.Mode mode, ReadingTypeRequirement requirement, ReadingTypeDeliverable deliverable, List<Channel> matchingChannels, VirtualReadingType targetReadingType, MeterActivationSet meterActivationSet, Range<Instant> requestedPeriod, int meterActivationSequenceNumber) {
         super();
         this.mode = mode;
         this.requirement = requirement;
         this.deliverable = deliverable;
-        this.rawDataPeriod = this.toOpenClosed(requestedPeriod.intersection(meterActivation.getRange()));
+        this.rawDataPeriod = this.toOpenClosed(requestedPeriod.intersection(meterActivationSet.getRange()));
         this.matchingChannels = Collections.unmodifiableList(matchingChannels);
         this.targetReadingType = targetReadingType;
         this.meterActivationSequenceNumber = meterActivationSequenceNumber;

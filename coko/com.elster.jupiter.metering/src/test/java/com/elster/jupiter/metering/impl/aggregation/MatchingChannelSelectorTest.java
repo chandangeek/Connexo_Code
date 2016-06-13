@@ -7,7 +7,6 @@ import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
@@ -35,14 +34,14 @@ public class MatchingChannelSelectorTest {
     @Test
     public void meterActivationMatchingChannelsAreUsed() {
         ReadingTypeRequirement requirement = mock(ReadingTypeRequirement.class);
-        MeterActivation meterActivation = mock(MeterActivation.class);
-        when(requirement.getMatchingChannelsFor(meterActivation)).thenReturn(Collections.emptyList());
+        MeterActivationSet meterActivationSet = mock(MeterActivationSet.class);
+        when(meterActivationSet.getMatchingChannelsFor(requirement)).thenReturn(Collections.emptyList());
 
         // Business method
-        new MatchingChannelSelector(requirement, meterActivation);
+        new MatchingChannelSelector(requirement, meterActivationSet);
 
         // Asserts
-        verify(requirement).getMatchingChannelsFor(meterActivation);
+        verify(meterActivationSet).getMatchingChannelsFor(requirement);
     }
 
     @Test

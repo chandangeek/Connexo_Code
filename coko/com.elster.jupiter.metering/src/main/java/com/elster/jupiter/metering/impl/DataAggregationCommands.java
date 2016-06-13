@@ -11,6 +11,7 @@ import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -156,10 +157,12 @@ public class DataAggregationCommands {
                     .orElseThrow(() -> new NoSuchElementException("No such usagepoint"));
             MetrologyConfiguration configuration = metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigId)
                     .orElseThrow(() -> new NoSuchElementException("No such metrology configuration"));
-//            if (!metrologyConfigurationService.findLinkableMetrologyConfigurations(usagePoint).contains(configuration))
-//                throw new IllegalArgumentException("Metrology configuration no linkable to usage point");
-            usagePoint.apply(configuration);
-
+            if (configuration instanceof UsagePointMetrologyConfiguration) {
+                UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = (UsagePointMetrologyConfiguration) configuration;
+                usagePoint.apply(usagePointMetrologyConfiguration);
+            } else {
+                throw new NoSuchElementException("No such metrology configuration");
+            }
             context.commit();
         }
     }

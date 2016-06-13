@@ -7,6 +7,7 @@ import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.EndDeviceControlType;
 import com.elster.jupiter.metering.GeoCoordinates;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.LocationMember;
@@ -25,7 +26,6 @@ import com.elster.jupiter.metering.UsagePointAccountability;
 import com.elster.jupiter.metering.UsagePointConfiguration;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointReadingTypeConfiguration;
-import com.elster.jupiter.metering.EndDeviceControlType;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MeterRole;
@@ -860,7 +860,7 @@ public enum TableSpecs {
                     .add();
             table.foreignKey("MTR_FK_UPMTRCONFIG_MC")
                     .on(metrologyConfiguration)
-                    .references(MetrologyConfiguration.class)
+                    .references(UsagePointMetrologyConfiguration.class)
                     .map("metrologyConfiguration")
                     .add();
         }

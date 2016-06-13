@@ -25,13 +25,15 @@ import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.config.AggregationLevel;
+import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.Formula;
-import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableBuilder;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
@@ -95,11 +97,11 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class DataAggregationServiceImplExpertModeIT {
 
-    public static final String CELCIUS_15_MIN_MRID = "0.0.2.0.0.7.46.0.0.0.0.0.0.0.0.0.23.0";
-    public static final String MILLIBAR_15_MIN_MRID = "0.0.2.0.0.7.0.0.0.0.0.0.0.0.0.0.214.0";
-    public static final String MEGA_JOULE_15_MIN_MRID = "0.0.2.0.0.7.12.0.0.0.0.0.0.0.0.6.31.0";
-    public static final String MEGA_JOULE_DAILY_MRID = "11.2.2.0.0.7.12.0.0.0.0.0.0.0.0.6.31.0";
-    public static final String CUBIC_METER_15_MIN_MRID = "0.0.2.0.0.7.58.0.0.0.0.0.0.0.0.0.42.0";
+    private static final String CELCIUS_15_MIN_MRID = "0.0.2.0.0.7.46.0.0.0.0.0.0.0.0.0.23.0";
+    private static final String MILLIBAR_15_MIN_MRID = "0.0.2.0.0.7.0.0.0.0.0.0.0.0.0.0.214.0";
+    private static final String MEGA_JOULE_15_MIN_MRID = "0.0.2.0.0.7.12.0.0.0.0.0.0.0.0.6.31.0";
+    private static final String MEGA_JOULE_DAILY_MRID = "11.2.2.0.0.7.12.0.0.0.0.0.0.0.0.6.31.0";
+    private static final String CUBIC_METER_15_MIN_MRID = "0.0.2.0.0.7.58.0.0.0.0.0.0.0.0.0.42.0";
     private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private static Injector injector;
     private static ReadingType CELCIUS_15min;
@@ -120,7 +122,7 @@ public class DataAggregationServiceImplExpertModeIT {
     @Rule
     public TransactionalRule transactionalRule = new TransactionalRule(injector.getInstance(TransactionService.class));
 
-    private MetrologyConfiguration configuration;
+    private UsagePointMetrologyConfiguration configuration;
     private MetrologyPurpose metrologyPurpose;
     private MetrologyContract contract;
     private SqlBuilder temperatureWithClauseBuilder;
@@ -301,14 +303,16 @@ public class DataAggregationServiceImplExpertModeIT {
         this.activateMeter();
 
         // Setup MetrologyConfiguration
-        this.configuration = getMetrologyConfigurationService().newMetrologyConfiguration("energyFromGasVolume", ELECTRICITY).create();
+        MeterRole defaultMeterRole = getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT);
+        this.configuration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("energyFromGasVolume", ELECTRICITY).create();
+        this.configuration.addMeterRole(defaultMeterRole);
 
         // Setup configuration requirements
-        ReadingTypeRequirement temperature = this.configuration.newReadingTypeRequirement("T").withReadingType(CELCIUS_15min);
+        ReadingTypeRequirement temperature = this.configuration.newReadingTypeRequirement("T", defaultMeterRole).withReadingType(CELCIUS_15min);
         this.temperatureRequirementId = temperature.getId();
-        ReadingTypeRequirement pressure = this.configuration.newReadingTypeRequirement("P").withReadingType(PRESSURE_15min);
+        ReadingTypeRequirement pressure = this.configuration.newReadingTypeRequirement("P", defaultMeterRole).withReadingType(PRESSURE_15min);
         this.pressureRequirementId = pressure.getId();
-        ReadingTypeRequirement volume = this.configuration.newReadingTypeRequirement("V").withReadingType(VOLUME_15min);
+        ReadingTypeRequirement volume = this.configuration.newReadingTypeRequirement("V", defaultMeterRole).withReadingType(VOLUME_15min);
         this.volumeRequirementId = volume.getId();
 
         // Setup configuration deliverables
@@ -410,14 +414,16 @@ public class DataAggregationServiceImplExpertModeIT {
         this.activateMeter();
 
         // Setup MetrologyConfiguration
-        this.configuration = getMetrologyConfigurationService().newMetrologyConfiguration("energyFromGasVolume", ELECTRICITY).create();
+        MeterRole defaultMeterRole = getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT);
+        this.configuration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("energyFromGasVolume", ELECTRICITY).create();
+        this.configuration.addMeterRole(defaultMeterRole);
 
         // Setup configuration requirements
-        ReadingTypeRequirement temperature = this.configuration.newReadingTypeRequirement("T").withReadingType(CELCIUS_15min);
+        ReadingTypeRequirement temperature = this.configuration.newReadingTypeRequirement("T", defaultMeterRole).withReadingType(CELCIUS_15min);
         this.temperatureRequirementId = temperature.getId();
-        ReadingTypeRequirement pressure = this.configuration.newReadingTypeRequirement("P").withReadingType(PRESSURE_15min);
+        ReadingTypeRequirement pressure = this.configuration.newReadingTypeRequirement("P", defaultMeterRole).withReadingType(PRESSURE_15min);
         this.pressureRequirementId = pressure.getId();
-        ReadingTypeRequirement volume = this.configuration.newReadingTypeRequirement("V").withReadingType(VOLUME_15min);
+        ReadingTypeRequirement volume = this.configuration.newReadingTypeRequirement("V", defaultMeterRole).withReadingType(VOLUME_15min);
         this.volumeRequirementId = volume.getId();
 
         // Setup configuration deliverables
@@ -530,16 +536,18 @@ public class DataAggregationServiceImplExpertModeIT {
         this.activateMeter();
 
         // Setup MetrologyConfiguration
-        this.configuration = getMetrologyConfigurationService().newMetrologyConfiguration("energyFromGasVolume", ELECTRICITY).create();
+        MeterRole defaultMeterRole = getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT);
+        this.configuration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("energyFromGasVolume", ELECTRICITY).create();
+        this.configuration.addMeterRole(defaultMeterRole);
 
         // Setup configuration requirements
-        ReadingTypeRequirement temperature = this.configuration.newReadingTypeRequirement("T").withReadingType(CELCIUS_15min);
+        ReadingTypeRequirement temperature = this.configuration.newReadingTypeRequirement("T", defaultMeterRole).withReadingType(CELCIUS_15min);
         this.temperatureRequirementId = temperature.getId();
         System.out.println("temperatureRequirementId = " + this.temperatureRequirementId);
-        ReadingTypeRequirement pressure = this.configuration.newReadingTypeRequirement("P").withReadingType(PRESSURE_15min);
+        ReadingTypeRequirement pressure = this.configuration.newReadingTypeRequirement("P", defaultMeterRole).withReadingType(PRESSURE_15min);
         this.pressureRequirementId = pressure.getId();
         System.out.println("pressureRequirementId = " + this.pressureRequirementId);
-        ReadingTypeRequirement volume = this.configuration.newReadingTypeRequirement("V").withReadingType(VOLUME_15min);
+        ReadingTypeRequirement volume = this.configuration.newReadingTypeRequirement("V", defaultMeterRole).withReadingType(VOLUME_15min);
         this.volumeRequirementId = volume.getId();
         System.out.println("volumeRequirementId = " + this.volumeRequirementId);
 

@@ -1,6 +1,5 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
@@ -14,7 +13,7 @@ import java.util.Iterator;
 import java.util.Optional;
 
 /**
- * Redefines a {@link ReadingTypeDeliverable} for a {@link MeterActivation}.
+ * Redefines a {@link ReadingTypeDeliverable} for a {@link MeterActivationSet}.
  * Maintains a copy of the original expression tree because the target
  * intervals of the nodes that reference e.g. a Channel may be different
  * depending on the actual reading types of those Channels.
@@ -22,23 +21,21 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-05 (09:46)
  */
-class ReadingTypeDeliverableForMeterActivation {
+class ReadingTypeDeliverableForMeterActivationSet {
 
     private final Formula.Mode mode;
     private final ReadingTypeDeliverable deliverable;
-    private final MeterActivation meterActivation;
-    private final Range<Instant> requestedPeriod;
+    private final MeterActivationSet meterActivationSet;
     private final int meterActivationSequenceNumber;
     private final ServerExpressionNode expressionNode;
     private final VirtualReadingType expressionReadingType;
     private final VirtualReadingType targetReadingType;
 
-    ReadingTypeDeliverableForMeterActivation(Formula.Mode mode, ReadingTypeDeliverable deliverable, MeterActivation meterActivation, Range<Instant> requestedPeriod, int meterActivationSequenceNumber, ServerExpressionNode expressionNode, VirtualReadingType expressionReadingType) {
+    ReadingTypeDeliverableForMeterActivationSet(Formula.Mode mode, ReadingTypeDeliverable deliverable, MeterActivationSet meterActivationSet, int meterActivationSequenceNumber, ServerExpressionNode expressionNode, VirtualReadingType expressionReadingType) {
         super();
         this.mode = mode;
         this.deliverable = deliverable;
-        this.meterActivation = meterActivation;
-        this.requestedPeriod = requestedPeriod;
+        this.meterActivationSet = meterActivationSet;
         this.meterActivationSequenceNumber = meterActivationSequenceNumber;
         this.expressionNode = expressionNode;
         this.expressionReadingType = expressionReadingType;
@@ -58,7 +55,7 @@ class ReadingTypeDeliverableForMeterActivation {
     }
 
     private Range<Instant> getRange() {
-        return this.meterActivation.getRange();
+        return this.meterActivationSet.getRange();
     }
 
     ReadingTypeDeliverable getDeliverable() {
@@ -183,7 +180,7 @@ class ReadingTypeDeliverableForMeterActivation {
     private void appendValueToSelectClause(SqlBuilder sqlBuilder) {
         if (this.resultValueNeedsTimeBasedAggregation()) {
             Loggers.SQL.debug(() ->
-                    "Statement for deliverable " + this.deliverable.getName() + " in meter activation " + this.meterActivation.getRange() +
+                    "Statement for deliverable " + this.deliverable.getName() + " in meter activation " + this.meterActivationSet.getRange() +
                     " requires time based aggregation because raw data interval length is " + this.expressionReadingType.getIntervalLength() +
                     " and target interval length is " + this.targetReadingType.getIntervalLength());
             sqlBuilder.append(this.targetReadingType.aggregationFunction().sqlName());
@@ -209,7 +206,7 @@ class ReadingTypeDeliverableForMeterActivation {
 
     private void appendTimelineToSelectClause(SqlBuilder sqlBuilder) {
         if (this.resultValueNeedsTimeBasedAggregation()) {
-            Loggers.SQL.debug(() -> "Truncating timeline for deliverable " + this.deliverable.getName() + " in meter activation " + this.meterActivation.getRange() + " to ");
+            Loggers.SQL.debug(() -> "Truncating timeline for deliverable " + this.deliverable.getName() + " in meter activation " + this.meterActivationSet.getRange() + " to ");
             this.appendTruncatedTimeline(sqlBuilder, this.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.LOCALDATE.sqlName());
             sqlBuilder.append(", ");
             sqlBuilder.append(AggregationFunction.MAX.sqlName());
