@@ -60,7 +60,7 @@ class Installer implements FullInstaller, PrivilegesProvider {
         try {
             User user = userService.createUser(BATCH_EXECUTOR, "User to execute batch tasks.");
             user.update();
-            Group group = userService.createGroup(UserService.BATCH_EXECUTOR_ROLE, UserService.BATCH_EXECUTOR_ROLE_DESCRIPTION);
+            Group group = userService.findGroup(UserService.BATCH_EXECUTOR_ROLE).orElseThrow(() -> new IllegalStateException("Couldn't find Batch Executors role"));
             group.update();
             user.join(group);
         } catch (RuntimeException e) {
