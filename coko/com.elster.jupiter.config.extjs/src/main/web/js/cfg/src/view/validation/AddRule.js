@@ -121,6 +121,9 @@ Ext.define('Cfg.view.validation.AddRule', {
                                     hideHeaders: true,
                                     padding: 0,
                                     scroll: 'vertical',
+                                    viewConfig: {
+                                        disableSelection: true
+                                    },
                                     columns: [
                                         {
                                             xtype: 'reading-type-column',
