@@ -88,6 +88,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
@@ -585,9 +586,10 @@ public class DeviceTypeResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public Response uploadFile(@PathParam("id") long deviceTypeId, @FormDataParam("uploadField") InputStream fileInputStream,
-                                  @FormDataParam("uploadField") FormDataContentDisposition contentDispositionHeader) {
+                                  @FormDataParam("uploadField") FormDataContentDisposition contentDispositionHeader,
+                               @FormDataParam("fileName") String fileName) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
-        addFileToDeviceType(deviceType, fileInputStream, contentDispositionHeader.getFileName());
+        addFileToDeviceType(deviceType, fileInputStream, fileName);
 
         return Response.ok().header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN).build();
     }
