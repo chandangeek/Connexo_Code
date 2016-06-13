@@ -10,7 +10,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.TransactionRequired;
-import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.EventType;
@@ -33,7 +32,7 @@ import java.util.Optional;
 /**
  * Created by bvn on 5/4/16.
  */
-@Component(name = "com.elster.jupiter.soap.webservices.installer", service = {EndPointConfigurationService.class, InstallService.class, MessageSeedProvider.class},
+@Component(name = "com.elster.jupiter.soap.webservices.installer", service = {EndPointConfigurationService.class, MessageSeedProvider.class},
         property = "name=" + WebServicesService.COMPONENT_NAME,
         immediate = true)
 public class EndPointConfigurationServiceImpl implements EndPointConfigurationService, MessageSeedProvider {
