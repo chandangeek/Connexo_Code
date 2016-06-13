@@ -152,7 +152,6 @@ public class KpiResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/datavalidation")
-    //TODO privilege for view data validation kpi
 //    @RolesAllowed({Privileges.Constants.VIEW_DATA_COLLECTION_KPI, Privileges.Constants.ADMINISTER_DATA_COLLECTION_KPI})
     public PagedInfoList getAllDataValidationKpis(@BeanParam JsonQueryParameters queryParameters) {
         List<DataValidationKpiInfo> collection = dataValidationKpiService.dataValidationKpiFinder()
@@ -169,7 +168,6 @@ public class KpiResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/datavalidation/{id}")
-    //TODO privilege for view data validation kpi
 //    @RolesAllowed({Privileges.Constants.VIEW_DATA_COLLECTION_KPI, Privileges.Constants.ADMINISTER_DATA_COLLECTION_KPI})
     public DataValidationKpiInfo getDataValidationKpiById(@PathParam("id") long id) {
         DataValidationKpi dataValidationKpi = resourceHelper.findDataValidationKpiByIdOrThrowException(id);
@@ -181,7 +179,6 @@ public class KpiResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/datavalidation/{id}")
-    //TODO privilege for administrate data validation kpi
 //    @RolesAllowed({Privileges.Constants.ADMINISTER_DATA_COLLECTION_KPI})
     public Response deleteDataValidationKpi(@PathParam("id") long id, DataValidationKpiInfo info) {
         info.id = id;
@@ -194,7 +191,6 @@ public class KpiResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/datavalidation")
-    //TODO privilege for view data validation kpi
 //    @RolesAllowed({Privileges.Constants.ADMINISTER_DATA_COLLECTION_KPI})
     public Response createDataValidationKpi(DataValidationKpiInfo kpiInfo) {
 
