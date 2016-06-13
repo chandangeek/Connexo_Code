@@ -10,7 +10,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @since 8/06/2016 - 17:43
  */
 @XmlRootElement
-public class ReadingQualityPropertyValue {
+public class ReadingQualityPropertyValue extends HasIdAndName {
 
     private String cimCode;
     private String systemName;
@@ -32,25 +32,19 @@ public class ReadingQualityPropertyValue {
         this.indexName = indexName;
     }
 
+    @Override
+    public String getId() {
+        return getCimCode();
+    }
+
+    @Override
+    public String getName() {
+        return getCimCode();
+    }
+
     @XmlAttribute
     public String getCimCode() {
         return cimCode;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        ReadingQualityPropertyValue that = (ReadingQualityPropertyValue) o;
-
-        return getCimCode() != null ? getCimCode().equals(that.getCimCode()) : that.getCimCode() == null;
-
-    }
-
-    @Override
-    public int hashCode() {
-        return getCimCode() != null ? getCimCode().hashCode() : 0;
     }
 
     @XmlAttribute
