@@ -17,7 +17,7 @@ import static java.util.stream.Collectors.toList;
 
 public class MetrologyConfigurationInfoFactory extends SelectableFieldFactory<MetrologyConfigurationInfo, MetrologyConfiguration> {
 
-    public LinkInfo asLink(MetrologyConfiguration metrology, Relation relation, UriInfo uriInfo) {
+    public LinkInfo<Long> asLink(MetrologyConfiguration metrology, Relation relation, UriInfo uriInfo) {
         MetrologyConfigurationInfo info = new MetrologyConfigurationInfo();
         copySelectedFields(info, metrology, uriInfo, Arrays.asList("id", "version"));
         info.link = link(metrology, relation, uriInfo);
