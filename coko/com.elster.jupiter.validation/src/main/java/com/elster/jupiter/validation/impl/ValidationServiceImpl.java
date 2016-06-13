@@ -28,8 +28,6 @@ import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.users.PrivilegesProvider;
-import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
@@ -49,7 +47,6 @@ import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.ValidatorFactory;
 import com.elster.jupiter.validation.ValidatorNotFoundException;
-import com.elster.jupiter.validation.security.Privileges;
 
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
@@ -64,7 +61,6 @@ import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -80,7 +76,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(
         name = "com.elster.jupiter.validation",
-        service = {ValidationService.class, PrivilegesProvider.class, MessageSeedProvider.class, TranslationKeyProvider.class},
+        service = {ValidationService.class, MessageSeedProvider.class, TranslationKeyProvider.class},
         property = "name=" + ValidationService.COMPONENTNAME,
         immediate = true)
 public class ValidationServiceImpl implements ValidationService, MessageSeedProvider, TranslationKeyProvider {
