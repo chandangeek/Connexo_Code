@@ -76,7 +76,7 @@ class ReadingQualitiesValidator extends AbstractValidator {
         if (cachedTranslations.containsKey(key)) {
             return cachedTranslations.get(key);
         } else {
-            String translation = getThesaurus().getStringBeyondComponent(key, defaultFormat);
+            String translation = getThesaurus().getString(key, defaultFormat);
             cachedTranslations.put(key, translation);
             return translation;
         }
