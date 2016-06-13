@@ -63,7 +63,6 @@ import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 
-import java.util.Calendar;
 import java.util.List;
 
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
@@ -814,7 +813,7 @@ public enum TableSpecs {
             Column device = table.column("DEVICE").number().conversion(NUMBER2LONG).notNull().add();
             List<Column> intervalColumns = table.addIntervalColumns(ActiveEffectiveCalendarImpl.Fields.INTERVAL.fieldName());
             Column calendarColumn = table.column("ALLOWED_CALENDAR").number().notNull().add();
-            table.column("LAST_VERIFIED_DATE").type("number").conversion(NUMBER2INSTANT).map(ActiveEffectiveCalendarImpl.Fields.LASTVERIFIEDDATE.fieldName()).add();
+            table.column("LAST_VERIFIED_DATE").number().conversion(NUMBER2INSTANT).map(ActiveEffectiveCalendarImpl.Fields.LASTVERIFIEDDATE.fieldName()).add();
 
             table.primaryKey("DDC_PK_ACTIVE_CAL").on(device, intervalColumns.get(0)).add();
             table.foreignKey("DDC_ACTI_TO_ALLOWED")
@@ -828,6 +827,7 @@ public enum TableSpecs {
                     .references(DDC_DEVICE.name())
                     .map(ActiveEffectiveCalendarImpl.Fields.DEVICE.fieldName())
                     .reverseMap("activeCalendar")
+                    .composition()
                     .onDelete(CASCADE)
                     .add();
         }

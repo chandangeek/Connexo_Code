@@ -2,17 +2,15 @@ package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.util.time.Interval;
+import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.PassiveEffectiveCalendar;
 
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.MonthDay;
 import java.time.Year;
-import java.util.Collections;
 import java.util.TimeZone;
 
 import org.junit.Test;
@@ -21,21 +19,80 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ActiveEffectiveCalendarImplTest extends PersistenceIntegrationTest {
 
-    private Device createSimpleDeviceWithOneCalendar() {
-        Device device = inMemoryPersistence.getDeviceService()
-                .newDevice(deviceConfiguration, "DeviceName", "MyUniqueID");
-        Calendar calendar = createCalendar();
-        DeviceType deviceType = device.getDeviceConfiguration().getDeviceType();
-        deviceType.addCalendar(calendar);
-        device.setActiveCalendar(deviceType.getAllowedCalendars().get(0), inMemoryPersistence.getClock().instant().now(), Instant.MIN);
-        return device;
+    @Test
+    @Transactional
+    public void setInitialCalendar() {
+        Device device = createSimpleDeviceWithOneCalendar();
+        assertThat(device.getActiveCalendar().get().getAllowedCalendar().getName()).isEqualTo("Calendar");
     }
 
     @Test
     @Transactional
-    public void testDeviceEffectiveCalendar() {
+    public void setInitialCalendarWithReload() {
         Device device = createSimpleDeviceWithOneCalendar();
-        assertThat(device.getActiveCalendar().get().getAllowedCalendar().getName()).isEqualTo("Calendar");
+        Device reloaded = inMemoryPersistence.getDeviceService().findDeviceById(device.getId()).get();
+
+        assertThat(reloaded.getActiveCalendar().get().getAllowedCalendar().getName()).isEqualTo("Calendar");
+    }
+
+    @Test
+    @Transactional
+    public void updateCalendar() {
+        Instant may1st2016 = Instant.ofEpochMilli(1462053600000L);
+        Device device = createSimpleDeviceWithOneCalendar(may1st2016);
+        AllowedCalendar ghostCalendar = device.getDeviceType().addGhostCalendar("Casper");
+        Instant june1st2016 = Instant.ofEpochMilli(1464732000000L);
+
+        // Business method
+        device.setActiveCalendar(ghostCalendar, june1st2016, june1st2016);
+
+        // Asserts
+        assertThat(device.getActiveCalendar().get().getAllowedCalendar().getName()).isEqualTo("Casper");
+    }
+
+    @Test
+    @Transactional
+    public void updateCalendarWithReload() {
+        Instant may1st2016 = Instant.ofEpochMilli(1462053600000L);
+        Device device = createSimpleDeviceWithOneCalendar(may1st2016);
+        AllowedCalendar ghostCalendar = device.getDeviceType().addGhostCalendar("Casper");
+        Instant june1st2016 = Instant.ofEpochMilli(1464732000000L);
+
+        // Business method
+        device.setActiveCalendar(ghostCalendar, june1st2016, june1st2016);
+
+        // Asserts
+        Device reloaded = inMemoryPersistence.getDeviceService().findDeviceById(device.getId()).get();
+        assertThat(reloaded.getActiveCalendar().get().getAllowedCalendar().getName()).isEqualTo("Casper");
+    }
+
+    @Test
+    @Transactional
+    public void updateCalendarIncrementsVersion() {
+        Instant may1st2016 = Instant.ofEpochMilli(1462053600000L);
+        Device device = createSimpleDeviceWithOneCalendar(may1st2016);
+        AllowedCalendar ghostCalendar = device.getDeviceType().addGhostCalendar("Casper");
+        Instant june1st2016 = Instant.ofEpochMilli(1464732000000L);
+        long versionBefore = device.getVersion();
+
+        // Business method
+        device.setActiveCalendar(ghostCalendar, june1st2016, june1st2016);
+
+        // Asserts
+        assertThat(device.getVersion()).isGreaterThan(versionBefore);
+    }
+
+    private Device createSimpleDeviceWithOneCalendar() {
+        return this.createSimpleDeviceWithOneCalendar(inMemoryPersistence.getClock().instant());
+    }
+
+    private Device createSimpleDeviceWithOneCalendar(Instant effective) {
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceName", "MyUniqueID");
+        Calendar calendar = createCalendar();
+        DeviceType deviceType = device.getDeviceConfiguration().getDeviceType();
+        deviceType.addCalendar(calendar);
+        device.setActiveCalendar(deviceType.getAllowedCalendars().get(0), effective, effective);
+        return device;
     }
 
     private Calendar createCalendar() {
