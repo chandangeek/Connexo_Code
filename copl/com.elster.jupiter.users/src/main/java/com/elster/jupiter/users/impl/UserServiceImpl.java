@@ -99,14 +99,16 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
     private static final String JUPITER_REALM = "Local";
     private Logger userLogin = Logger.getLogger("userLog");
 
-    private class PrivilegeAssociation{
+    private class PrivilegeAssociation {
         public String group;
         public String application;
-        PrivilegeAssociation(String group, String application){
+
+        PrivilegeAssociation(String group, String application) {
             this.group = group;
             this.application = application;
         }
     }
+
     private final Map<String, List<PrivilegeAssociation>> privilegesNotYetRegistered = new HashMap<>();
 
     @GuardedBy("privilegeProviderRegistrationLock")
@@ -175,7 +177,8 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
     }
 
     private UserDirectory getUserDirectory(String domain, String userName, String ipAddr) {
-        List<UserDirectory> found = dataModel.query(UserDirectory.class).select(Operator.EQUALIGNORECASE.compare("name", domain));
+        List<UserDirectory> found = dataModel.query(UserDirectory.class)
+                .select(Operator.EQUALIGNORECASE.compare("name", domain));
         if (found.isEmpty()) {
             logMessage(UNSUCCESSFUL_LOGIN, userName, domain, ipAddr);
             throw new NoDomainFoundException(thesaurus, domain);
@@ -210,7 +213,8 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
 
     @Override
     public UserDirectory findDefaultUserDirectory() {
-        List<UserDirectory> found = dataModel.query(UserDirectory.class).select(Operator.EQUAL.compare("isDefault", true));
+        List<UserDirectory> found = dataModel.query(UserDirectory.class)
+                .select(Operator.EQUAL.compare("isDefault", true));
         if (found.isEmpty()) {
             throw new NoDefaultDomainException(thesaurus);
         }
@@ -240,7 +244,7 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
         String[] names = plainText.split(":");
 
         if (names.length <= 1) {
-            if(names.length == 1) {
+            if (names.length == 1) {
                 logMessage(UNSUCCESSFUL_LOGIN, names[0], null, ipAddr);
             }
             return Optional.empty();
@@ -260,10 +264,10 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
             userName = items[1];
         }
         Optional<User> user = authenticate(domain, userName, names[1], ipAddr);
-        if(user.isPresent() && !user.get().getPrivileges().isEmpty()){
+        if (user.isPresent() && !user.get().getPrivileges().isEmpty()) {
             logMessage(SUCCESSFUL_LOGIN, userName, domain, ipAddr);
-        }else{
-            if(!userName.equals("")) {
+        } else {
+            if (!userName.equals("")) {
                 logMessage(UNSUCCESSFUL_LOGIN, userName, domain, ipAddr);
             }
         }
@@ -281,7 +285,7 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
     @Override
     public User createApacheDirectoryUser(String name, String domain, boolean status) {
         ApacheDirectoryImpl directory = (ApacheDirectoryImpl) this.findUserDirectory(domain).orElse(null);
-        UserImpl result = directory.newUser(name, domain, false,status);
+        UserImpl result = directory.newUser(name, domain, false, status);
         result.update();
 
         return result;
@@ -313,13 +317,13 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
                 for (String privilege : privileges) {
                     try {
                         group.get().grant(applicationName, privilege);
-                    }
-                    catch(DoesNotExistException e){
+                    } catch (DoesNotExistException e) {
                         System.out.println("Privilege " + privilege + " not yet registered; grant is delayed for " + groupName + "on " + applicationName);
-                        if(!privilegesNotYetRegistered.containsKey(privilege)){
+                        if (!privilegesNotYetRegistered.containsKey(privilege)) {
                             privilegesNotYetRegistered.put(privilege, new ArrayList<>());
                         }
-                        privilegesNotYetRegistered.get(privilege).add(new PrivilegeAssociation(groupName, applicationName));
+                        privilegesNotYetRegistered.get(privilege)
+                                .add(new PrivilegeAssociation(groupName, applicationName));
                     }
                 }
             }
@@ -372,7 +376,8 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
     public Optional<User> findUser(String authenticationName, String userDirectoryName) {
         Condition userCondition = Operator.EQUALIGNORECASE.compare("authenticationName", authenticationName);
         Condition userDirectoryCondition = Operator.EQUALIGNORECASE.compare("userDirectory.name", userDirectoryName);
-        List<User> users = dataModel.query(User.class, UserDirectory.class).select(userCondition.and(userDirectoryCondition));
+        List<User> users = dataModel.query(User.class, UserDirectory.class)
+                .select(userCondition.and(userDirectoryCondition));
         if (!users.isEmpty()) {
             if (users.get(0).getStatus()) {
                 return Optional.of(users.get(0));
@@ -586,7 +591,8 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
 
     @Override
     public Optional<UserDirectory> findUserDirectoryIgnoreCase(String domain) {
-        List<UserDirectory> found = dataModel.query(UserDirectory.class).select(Operator.EQUALIGNORECASE.compare("name", domain));
+        List<UserDirectory> found = dataModel.query(UserDirectory.class)
+                .select(Operator.EQUALIGNORECASE.compare("name", domain));
         if (found.isEmpty()) {
             return Optional.empty();
         }
@@ -641,10 +647,8 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
         synchronized (privilegeProviderRegistrationLock) {
             if (upgradeService.isInstalled(identifier(COMPONENTNAME), version(1, 0))) {
                 try {
-                    transactionService.builder().principal(() -> "Jupiter Installer").action("INSTALL-privilege").module(getModuleName()).run(() -> {
-                        doInstallPrivileges(privilegesProvider);
-                        doAssignPrivileges(privilegesProvider);
-                    });
+                    doInstallPrivileges(privilegesProvider);
+                    doAssignPrivileges(privilegesProvider);
                 } catch (Exception e) {
                     System.out.println(e.getMessage());
                 }
@@ -709,13 +713,13 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
     }
 
     private void doAssignPrivileges(PrivilegesProvider privilegesProvider) {
-        if(!privilegesNotYetRegistered.isEmpty()) {
+        if (!privilegesNotYetRegistered.isEmpty()) {
             privilegesProvider.getModuleResources().stream()
                     .map(resource -> resource.getPrivilegeNames())
                     .flatMap(privileges -> privileges.stream())
                     .filter(item -> privilegesNotYetRegistered.containsKey(item))
                     .forEach(privilege -> {
-                        for(PrivilegeAssociation association : privilegesNotYetRegistered.get(privilege)) {
+                        for (PrivilegeAssociation association : privilegesNotYetRegistered.get(privilege)) {
                             Optional<Group> group = findGroup(association.group);
                             if (group.isPresent()) {
                                 System.out.println("Granting " + privilege + " to " + association.group + "on " + association.application);
@@ -739,13 +743,13 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
                         .stream()
                         .anyMatch(p -> applicationPrivileges.contains(p.getName())))
                 .map(r -> ResourceDefinitionImpl.createApplicationResource(applicationName,
-                                applicationName,
-                                r.getName(),
-                                r.getDescription(),
-                                r.getPrivileges()
-                                        .stream()
-                                        .filter(p -> applicationPrivileges.contains(p.getName()))
-                                        .collect(Collectors.toList()))
+                        applicationName,
+                        r.getName(),
+                        r.getDescription(),
+                        r.getPrivileges()
+                                .stream()
+                                .filter(p -> applicationPrivileges.contains(p.getName()))
+                                .collect(Collectors.toList()))
                 ).collect(Collectors.toList());
     }
 
@@ -802,7 +806,7 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
     @Override
     public Optional<User> getLoggedInUser(long userId) {
         Optional<User> found = this.loggedInUsers.stream().filter(user -> (user.getId() == userId)).findFirst();
-        if(!found.isPresent()){
+        if (!found.isPresent()) {
             found = this.getUser(userId);
         }
 
@@ -822,23 +826,23 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
         this.loggedInUsers.remove(user);
     }
 
-    private void logMessage(String message, String userName, String domain, String ipAddr){
+    private void logMessage(String message, String userName, String domain, String ipAddr) {
         ipAddr = ipAddr.equals("0:0:0:0:0:0:0:1") ? "localhost" : ipAddr;
-        if(message.equals(SUCCESSFUL_LOGIN)){
-            String userNameFormatted = domain == null ? userName : domain+ "/" + userName;
-            userLogin.log(Level.INFO, message + "[" + userNameFormatted + "] " , ipAddr);
+        if (message.equals(SUCCESSFUL_LOGIN)) {
+            String userNameFormatted = domain == null ? userName : domain + "/" + userName;
+            userLogin.log(Level.INFO, message + "[" + userNameFormatted + "] ", ipAddr);
             this.findUserIgnoreStatus(userName).ifPresent(user -> {
-                try(TransactionContext context = transactionService.getContext()) {
+                try (TransactionContext context = transactionService.getContext()) {
                     user.setLastSuccessfulLogin(clock.instant());
                     user.update();
                     context.commit();
                 }
             });
         } else {
-            String userNameFormatted = domain == null ? userName : domain+ "/" + userName;
-            userLogin.log(Level.WARNING, message + "[" + userNameFormatted + "] " , ipAddr);
+            String userNameFormatted = domain == null ? userName : domain + "/" + userName;
+            userLogin.log(Level.WARNING, message + "[" + userNameFormatted + "] ", ipAddr);
             this.findUserIgnoreStatus(userName).ifPresent(user -> {
-                try(TransactionContext context = transactionService.getContext()) {
+                try (TransactionContext context = transactionService.getContext()) {
                     user.setLastUnSuccessfulLogin(clock.instant());
                     user.update();
                     context.commit();

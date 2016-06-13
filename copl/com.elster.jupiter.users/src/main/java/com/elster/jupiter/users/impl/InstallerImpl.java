@@ -16,6 +16,7 @@ import javax.inject.Inject;
 import java.lang.reflect.Field;
 import java.util.Locale;
 import java.util.UUID;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static com.elster.jupiter.util.Checks.is;
@@ -38,6 +39,11 @@ public class InstallerImpl implements FullInstaller {
     public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
         dataModelUpgrader.upgrade(dataModel, Version.latest());
         doTry(
+                "Create batch executors group",
+                () -> createBatchExecutorRole(logger),
+                logger
+        );
+        doTry(
                 "Install User privileges.",
                 () -> userService.installPrivileges(),
                 logger
@@ -54,6 +60,17 @@ public class InstallerImpl implements FullInstaller {
                 logger
         );
     }
+
+    private void createBatchExecutorRole(Logger logger) {
+        try {
+            Group group = userService.createGroup(UserService.BATCH_EXECUTOR_ROLE, UserService.BATCH_EXECUTOR_ROLE_DESCRIPTION);
+            group.update();
+        } catch (RuntimeException e) {
+            logger.log(Level.SEVERE, "Failed to create a batch executor user.", e);
+            throw e;
+        }
+    }
+
 
     private void createMasterData(String adminPassword, Logger logger) {
         InternalDirectoryImpl directory = (InternalDirectoryImpl) userService.findUserDirectory(userService.getRealm())
