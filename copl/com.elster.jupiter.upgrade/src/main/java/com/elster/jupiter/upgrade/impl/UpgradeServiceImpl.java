@@ -133,9 +133,17 @@ public class UpgradeServiceImpl implements UpgradeService {
         }
 
         boolean precedes(UpgradeClasses possibleSuccessor) {
-            return fullInstallerClass.equals(possibleSuccessor.fullInstallerClass)
+            return equal(fullInstallerClass, possibleSuccessor.fullInstallerClass)
                     && upgraderClasses.size() <= possibleSuccessor.upgraderClasses.size()
-                    && possibleSuccessor.upgraderClasses.entrySet().containsAll(upgraderClasses.entrySet());
+                    && possibleSuccessor.upgraderClasses.entrySet().stream()
+                    .allMatch(entry -> {
+                        Class<? extends Upgrader> other = upgraderClasses.get(entry.getKey());
+                        return other != null && equal(entry.getValue(), other);
+                    });
+        }
+
+        private boolean equal(Class<?> clazz1, Class<?> clazz2) {
+            return clazz1.getName().equals(clazz2.getName());
         }
 
         @Override
