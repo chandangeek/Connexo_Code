@@ -1110,6 +1110,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             if (configuration.isPresent()) {
                 return configuration.get().getReadingTypeConfiguration(readingType);
             }
+        }
+        return Optional.empty();
+    }
 
     private Optional<ProtocolDialectProperties> getProtocolDialectPropertiesFrom(String dialectName, List<ProtocolDialectPropertiesImpl> propertiesList) {
         return propertiesList
@@ -2026,22 +2029,16 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     @Override
-    public void addPassiveCalendar(AllowedCalendar passiveCalendar) {
-        PassiveEffectiveCalendarImpl passiveEffectiveCalendar = new PassiveEffectiveCalendarImpl();
-        savePassiveCalendar(passiveCalendar, passiveEffectiveCalendar);
-    }
-
-    @Override
     public void addPassiveCalendar(AllowedCalendar passiveCalendar, Instant activationDate, DeviceMessage deviceMessage) {
+        if (this.getDeviceType().getAllowedCalendars().stream().anyMatch(each -> each.equals(passiveCalendar))) {
+
+        } else {
+            throw new IllegalArgumentException("Calendar is not allowed on device type");
+        }
         PassiveEffectiveCalendarImpl passiveEffectiveCalendar = new PassiveEffectiveCalendarImpl();
         passiveEffectiveCalendar.setActivationDate(activationDate);
         passiveEffectiveCalendar.setDeviceMessage(deviceMessage);
         savePassiveCalendar(passiveCalendar, passiveEffectiveCalendar);
-    }
-
-    @Override
-    public Optional<ActiveEffectiveCalendar> getActiveCalendar() {
-        return activeCalendar.effective(this.clock.instant());
     }
 
     public void setActiveCalendar(AllowedCalendar allowedCalendar, Instant effective, Instant lastVerified) {
@@ -2175,6 +2172,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 .filter(each -> each.getTimestamp().isAfter(this.createTime))
                 .collect(Collectors.toList());
     }
+
     @Override
     public void addPassiveCalendar(AllowedCalendar passiveCalendar) {
         if (this.getDeviceType().getAllowedCalendars().stream().anyMatch(each -> each.equals(passiveCalendar))) {
@@ -2196,16 +2194,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 .map(ActiveEffectiveCalendar.class::cast);
     }
 
-    @Override
-    public void setActiveCalendar(AllowedCalendar allowedCalendar, Instant effective, Instant lastVerified) {
-        Interval effectivityInterval = Interval.of(Range.atLeast(effective));
-        this.closeCurrentActiveCalendar(effective);
-        this.createNewActiveCalendar(allowedCalendar, lastVerified, effectivityInterval);
-        if (this.id != 0) {
-            this.dataModel.touch(this);
-        }
-    }
-
     private void closeCurrentActiveCalendar(Instant now) {
         this.activeCalendar.effective(now).ifPresent(active -> active.close(now));
     }
@@ -2213,198 +2201,11 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private void createNewActiveCalendar(AllowedCalendar allowedCalendar, Instant lastVerified, Interval effectivityInterval) {
         ServerActiveEffectiveCalendar newCalendar =
                 this.dataModel.getInstance(ActiveEffectiveCalendarImpl.class)
-                    .initialize(effectivityInterval, this, allowedCalendar, lastVerified);
+                        .initialize(effectivityInterval, this, allowedCalendar, lastVerified);
         this.activeCalendar.add(newCalendar);
     }
 
     @Override
-    public void runStatusInformationTask(Consumer<ComTaskExecution> requestedAction) {
-        Optional<ComTaskExecution> comTaskExecution = Optional.empty();
-        Optional<ComTaskExecution> bestComTaskExecution = getComTaskExecutions().stream()
-                .filter(cte -> containsStatusInformationProtocolTask(cte.getProtocolTasks()))
-                .sorted((cte1, cte2) -> compareProtocolTasks(cte1.getProtocolTasks(), cte2.getProtocolTasks()))
-                .findFirst();
-
-        Optional<ComTaskEnablement> bestComTaskEnablement = getDeviceConfiguration().getComTaskEnablements().stream()
-                .filter(comTaskEnablement -> containsStatusInformationProtocolTask(comTaskEnablement.getComTask().getProtocolTasks()))
-                .sorted((cte1, cte2) -> compareProtocolTasks(cte1.getComTask().getProtocolTasks(), cte2.getComTask().getProtocolTasks()))
-                .findFirst();
-
-        if(bestComTaskExecution.isPresent() && bestComTaskEnablement.isPresent()) {
-            if(bestComTaskExecution.get().getComTasks().contains(bestComTaskEnablement.get().getComTask())) {
-                comTaskExecution = bestComTaskExecution;
-            } else {
-                comTaskExecution = createAdHocComTaskExecutionToRunNow(bestComTaskEnablement.get());
-            }
-        } else if(bestComTaskExecution.isPresent()) {
-            comTaskExecution = bestComTaskExecution;
-        } else if(bestComTaskEnablement.isPresent()) {
-            comTaskExecution = createAdHocComTaskExecutionToRunNow(bestComTaskEnablement.get());
-        }
-
-        if(!comTaskExecution.isPresent()) {
-            throw new NoStatusInformationTaskException();
-        }
-
-        requestedAction.accept(comTaskExecution.get());
-    }
-
-    private Optional<ComTaskExecution> createAdHocComTaskExecutionToRunNow(ComTaskEnablement enablement) {
-        ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = newAdHocComTaskExecution(enablement);
-        if (enablement.hasPartialConnectionTask()) {
-            getConnectionTasks().stream()
-                    .filter(connectionTask -> connectionTask.getPartialConnectionTask().getId() == enablement.getPartialConnectionTask().get().getId())
-                    .forEach(comTaskExecutionBuilder::connectionTask);
-        }
-        ManuallyScheduledComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
-        save();
-        return Optional.of(comTaskExecution);
-    }
-
-
-    private boolean containsStatusInformationProtocolTask(List<ProtocolTask> protocolTasks) {
-        return protocolTasks
-                .stream()
-                .anyMatch(protocolTask -> protocolTask instanceof StatusInformationTask);
-    }
-
-    private int compareProtocolTasks(List<ProtocolTask> protocolTasks1, List<ProtocolTask> protocolTasks2) {
-        return compareScores(determineScore(protocolTasks1), determineScore(protocolTasks2));
-    }
-
-    private int compareScores(Integer[] scores1, Integer[] scores2) {
-        for (int i = 0; i < Math.min(scores1.length, scores2.length); i++) {
-            if (scores1[i] < scores2[i]) {
-                return -1;
-            } else if (scores1[i] > scores1[i]) {
-                return -1;
-            }
-        }
-        return 0;
-    }
-
-    private Integer[] determineScore(List<ProtocolTask> protocolTasks) {
-        return protocolTasks.stream()
-                .map(protocolTask -> score(protocolTask.getClass()))
-                .sorted(Integer::compareTo)
-                .sorted(Comparator.reverseOrder())
-                .toArray(Integer[]::new);
-    }
-
-    private int score(Class<? extends ProtocolTask> protocolTaskClass) {
-        return getProtocolTasksScores()
-                .entrySet()
-                .stream()
-                .filter(entry -> entry.getKey().test(protocolTaskClass))
-                .map(Map.Entry::getValue)
-                .max(Comparator.naturalOrder())
-                .orElse(0);
-    }
-
-    private Map<Predicate<Class<? extends ProtocolTask>>, Integer> getProtocolTasksScores() {
-        if (scorePerProtocolTask == null) {
-            scorePerProtocolTask = new HashMap<>();
-            scorePerProtocolTask.put(StatusInformationTask.class::isAssignableFrom, 1);
-            scorePerProtocolTask.put(BasicCheckTask.class::isAssignableFrom, 2);
-            scorePerProtocolTask.put(ClockTask.class::isAssignableFrom, 2);
-            scorePerProtocolTask.put(TopologyTask.class::isAssignableFrom, 3);
-            scorePerProtocolTask.put(RegistersTask.class::isAssignableFrom, 4);
-            scorePerProtocolTask.put(LogBooksTask.class::isAssignableFrom, 4);
-            scorePerProtocolTask.put(LoadProfilesTask.class::isAssignableFrom, 4);
-            scorePerProtocolTask.put(MessagesTask.class::isAssignableFrom, 5);
-            scorePerProtocolTask.put(FirmwareManagementTask.class::isAssignableFrom, 6);
-        }
-
-        return scorePerProtocolTask;
-    }
-
-    @Override
-    public List<DeviceLifeCycleChangeEvent> getDeviceLifeCycleChangeEvents() {
-        // Merge the StateTimeline with the list of change events from my DeviceType.
-        Deque<StateTimeSlice> stateTimeSlices = new LinkedList<>(this.getStateTimeline().getSlices());
-        Deque<com.energyict.mdc.device.config.DeviceLifeCycleChangeEvent> deviceTypeChangeEvents = new LinkedList<>(this.getDeviceTypeLifeCycleChangeEvents());
-        List<DeviceLifeCycleChangeEvent> changeEvents = new ArrayList<>();
-        boolean notReady;
-        do {
-            DeviceLifeCycleChangeEvent newEvent = this.newEventForMostRecent(stateTimeSlices, deviceTypeChangeEvents);
-            changeEvents.add(newEvent);
-            notReady = !stateTimeSlices.isEmpty() || !deviceTypeChangeEvents.isEmpty();
-        } while (notReady);
-        return changeEvents;
-    }
-
-    private List<com.energyict.mdc.device.config.DeviceLifeCycleChangeEvent> getDeviceTypeLifeCycleChangeEvents() {
-        return this.getDeviceType()
-                .getDeviceLifeCycleChangeEvents()
-                .stream()
-                .filter(each -> each.getTimestamp().isAfter(this.createTime))
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public void deactivateNow() {
-        this.deactivate(this.clock.instant());
-    }
-
-    private DeviceLifeCycleChangeEvent newEventForMostRecent(Deque<StateTimeSlice> stateTimeSlices, Deque<com.energyict.mdc.device.config.DeviceLifeCycleChangeEvent> deviceTypeChangeEvents) {
-        if (stateTimeSlices.isEmpty()) {
-            return DeviceLifeCycleChangeEventImpl.from(deviceTypeChangeEvents.removeFirst());
-        } else if (deviceTypeChangeEvents.isEmpty()) {
-            return DeviceLifeCycleChangeEventImpl.from(stateTimeSlices.removeFirst());
-        } else {
-            // Compare both timestamps and create event from the most recent one
-            StateTimeSlice stateTimeSlice = stateTimeSlices.peekFirst();
-            com.energyict.mdc.device.config.DeviceLifeCycleChangeEvent deviceLifeCycleChangeEvent = deviceTypeChangeEvents
-                    .peekFirst();
-            if (stateTimeSlice.getPeriod().lowerEndpoint().equals(deviceLifeCycleChangeEvent.getTimestamp())) {
-                // Give precedence to the device life cycle change but also consume the state change so the latter is ignored
-                stateTimeSlices.removeFirst();
-                return DeviceLifeCycleChangeEventImpl.from(deviceTypeChangeEvents.removeFirst());
-            } else if (stateTimeSlice.getPeriod().lowerEndpoint().isBefore(deviceLifeCycleChangeEvent.getTimestamp())) {
-                return DeviceLifeCycleChangeEventImpl.from(stateTimeSlices.removeFirst());
-            } else {
-                return DeviceLifeCycleChangeEventImpl.from(deviceTypeChangeEvents.removeFirst());
-            }
-        }
-    }
-
-    public Optional<ReadingTypeObisCodeUsage> getReadingTypeObisCodeUsage(ReadingType readingType) {
-        if (readingType == null) {
-            return Optional.empty();
-        }
-        for (ReadingTypeObisCodeUsageImpl readingTypeObisCodeUsage : readingTypeObisCodeUsages) {
-            if (readingTypeObisCodeUsage.getReadingType().getMRID().equals(readingType.getMRID())) {
-                return Optional.of(readingTypeObisCodeUsage);
-            }
-        }
-        return Optional.empty();
-    }
-
-    private void addReadingTypeObisCodeUsage(ReadingType readingType, ObisCode obisCode) {
-        ReadingTypeObisCodeUsageImpl readingTypeObisCodeUsage = dataModel.getInstance(ReadingTypeObisCodeUsageImpl.class);
-        readingTypeObisCodeUsage.initialize(this, readingType, obisCode);
-        readingTypeObisCodeUsages.add(readingTypeObisCodeUsage);
-    }
-
-    private void removeReadingTypeObisCodeUsage(ReadingType readingType) {
-        for (java.util.Iterator<ReadingTypeObisCodeUsageImpl> iterator = readingTypeObisCodeUsages.iterator(); iterator.hasNext(); ) {
-            ReadingTypeObisCodeUsageImpl readingTypeObisCodeUsage = iterator.next();
-            if (readingTypeObisCodeUsage.getReadingType().getMRID().equals(readingType.getMRID())) {
-                iterator.remove();
-                break;
-            }
-        }
-    }
-
-    @Override
-    public Optional<MeterActivation> getCurrentMeterActivation() {
-        if (!this.currentMeterActivation.isPresent()) {
-            this.currentMeterActivation = this.getOptionalMeterAspect(m -> m.getCurrentMeterActivation().map(Function.<MeterActivation>identity()));
-        }
-        return this.currentMeterActivation;
-    }
-
-    @Override
     public final int hashCode() {
         return Objects.hash(id);
     }
@@ -2481,15 +2282,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         abstract RegisterImpl newRegister(DeviceImpl device, RegisterSpec registerSpec);
     }
 
-    class LogBookUpdaterForDevice extends LogBookImpl.LogBookUpdater {
-
-        protected LogBookUpdaterForDevice(LogBookImpl logBook) {
-            super(logBook);
-        }
-    }
-
-    class LoadProfileUpdaterForDevice extends LoadProfileImpl.LoadProfileUpdater {
-
     private DeviceLifeCycleChangeEvent newEventForMostRecent(Deque<StateTimeSlice> stateTimeSlices, Deque<com.energyict.mdc.device.config.DeviceLifeCycleChangeEvent> deviceTypeChangeEvents) {
         if (stateTimeSlices.isEmpty()) {
             return DeviceLifeCycleChangeEventImpl.from(deviceTypeChangeEvents.removeFirst());
@@ -2539,96 +2331,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 break;
             }
         }
-    }
-
-    @Override
-    public final int hashCode() {
-        return Objects.hash(id);
-    }
-
-    @Override
-    public final boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        DeviceImpl device = (DeviceImpl) o;
-        return id == device.id;
-    }
-
-    private enum RegisterFactory {
-        Text {
-            @Override
-            boolean appliesTo(RegisterSpec registerSpec) {
-                return registerSpec.isTextual();
-            }
-
-            @Override
-            RegisterImpl newRegister(DeviceImpl device, RegisterSpec registerSpec) {
-                return new TextRegisterImpl(device, (TextualRegisterSpec) registerSpec);
-            }
-        },
-
-        Billing {
-            @Override
-            boolean appliesTo(RegisterSpec registerSpec) {
-                Set<Aggregate> eventAggregates = EnumSet.of(Aggregate.AVERAGE, Aggregate.SUM, Aggregate.MAXIMUM, Aggregate.SECONDMAXIMUM, Aggregate.THIRDMAXIMUM, Aggregate.FOURTHMAXIMUM, Aggregate.FIFTHMAXIMIMUM, Aggregate.MINIMUM, Aggregate.SECONDMINIMUM);
-                return eventAggregates.contains(this.getReadingType(registerSpec).getAggregate());
-            }
-
-            @Override
-            RegisterImpl newRegister(DeviceImpl device, RegisterSpec registerSpec) {
-                return new BillingRegisterImpl(device, (NumericalRegisterSpec) registerSpec);
-            }
-        },
-
-        Flags {
-            @Override
-            boolean appliesTo(RegisterSpec registerSpec) {
-                return this.getReadingType(registerSpec).getUnit().equals(ReadingTypeUnit.BOOLEANARRAY);
-            }
-
-            @Override
-            RegisterImpl newRegister(DeviceImpl device, RegisterSpec registerSpec) {
-                return new FlagsRegisterImpl(device, (NumericalRegisterSpec) registerSpec);
-            }
-        },
-
-        Numerical {
-            @Override
-            boolean appliesTo(RegisterSpec registerSpec) {
-                // When all others fail, use numerical
-                return true;
-            }
-
-            @Override
-            RegisterImpl newRegister(DeviceImpl device, RegisterSpec registerSpec) {
-                return new NumericalRegisterImpl(device, (NumericalRegisterSpec) registerSpec);
-            }
-        };
-
-        ReadingType getReadingType(RegisterSpec registerSpec) {
-            return registerSpec.getRegisterType().getReadingType();
-        }
-
-        abstract boolean appliesTo(RegisterSpec registerSpec);
-
-        abstract RegisterImpl newRegister(DeviceImpl device, RegisterSpec registerSpec);
-    }
-
-    public List<MeterActivation> getMeterActivationsMostRecentFirst() {
-        return this.getListMeterAspect(this::getSortedMeterActivations);
-    }
-
-private class InternalDeviceMessageBuilder implements DeviceMessageBuilder {
-
-    private final DeviceMessageImpl deviceMessage;
-
-    private InternalDeviceMessageBuilder(DeviceMessageId deviceMessageId, TrackingCategory trackingCategory) {
-        deviceMessage = DeviceImpl.this.dataModel.getInstance(DeviceMessageImpl.class).initialize(DeviceImpl.this, deviceMessageId);
-        deviceMessage.setTrackingCategory(trackingCategory);
     }
 
     @Override
@@ -3137,37 +2839,37 @@ private class InternalDeviceMessageBuilder implements DeviceMessageBuilder {
         }
     }
 
-private class CIMLifecycleDatesImpl implements CIMLifecycleDates {
-    private final EndDevice koreDevice;
-    private final LifecycleDates koreLifecycleDates;
+    private class CIMLifecycleDatesImpl implements CIMLifecycleDates {
+        private final EndDevice koreDevice;
+        private final LifecycleDates koreLifecycleDates;
 
-    private CIMLifecycleDatesImpl(EndDevice koreDevice, LifecycleDates koreLifecycleDates) {
-        super();
-        this.koreDevice = koreDevice;
-        this.koreLifecycleDates = koreLifecycleDates;
-    }
+        private CIMLifecycleDatesImpl(EndDevice koreDevice, LifecycleDates koreLifecycleDates) {
+            super();
+            this.koreDevice = koreDevice;
+            this.koreLifecycleDates = koreLifecycleDates;
+        }
 
-    @Override
-    public Optional<Instant> getManufacturedDate() {
-        return koreLifecycleDates.getManufacturedDate();
-    }
+        @Override
+        public Optional<Instant> getManufacturedDate() {
+            return koreLifecycleDates.getManufacturedDate();
+        }
 
-    @Override
-    public CIMLifecycleDates setManufacturedDate(Instant manufacturedDate) {
-        koreLifecycleDates.setManufacturedDate(manufacturedDate);
-        return this;
-    }
+        @Override
+        public CIMLifecycleDates setManufacturedDate(Instant manufacturedDate) {
+            koreLifecycleDates.setManufacturedDate(manufacturedDate);
+            return this;
+        }
 
-    @Override
-    public Optional<Instant> getPurchasedDate() {
-        return koreLifecycleDates.getPurchasedDate();
-    }
+        @Override
+        public Optional<Instant> getPurchasedDate() {
+            return koreLifecycleDates.getPurchasedDate();
+        }
 
-    @Override
-    public CIMLifecycleDates setPurchasedDate(Instant purchasedDate) {
-        koreLifecycleDates.setPurchasedDate(purchasedDate);
-        return this;
-    }
+        @Override
+        public CIMLifecycleDates setPurchasedDate(Instant purchasedDate) {
+            koreLifecycleDates.setPurchasedDate(purchasedDate);
+            return this;
+        }
 
         @Override
         public Optional<Instant> getReceivedDate() {
@@ -3536,78 +3238,4 @@ private class CIMLifecycleDatesImpl implements CIMLifecycleDates {
     public Instant getCreateTime() {
         return createTime;
     }
-
-    private class NoCimLifecycleDates implements CIMLifecycleDates {
-        @Override
-        public Optional<Instant> getManufacturedDate() {
-            return Optional.empty();
-        }
-
-        @Override
-        public CIMLifecycleDates setManufacturedDate(Instant manufacturedDate) {
-            // Ignore blissfully
-            return this;
-        }
-
-        @Override
-        public Optional<Instant> getPurchasedDate() {
-            return Optional.empty();
-        }
-
-        @Override
-        public CIMLifecycleDates setPurchasedDate(Instant purchasedDate) {
-            // Ignore blissfully
-            return this;
-        }
-
-        @Override
-        public Optional<Instant> getReceivedDate() {
-            return Optional.empty();
-        }
-
-        @Override
-        public CIMLifecycleDates setReceivedDate(Instant receivedDate) {
-            // Ignore blissfully
-            return this;
-        }
-
-        @Override
-        public Optional<Instant> getInstalledDate() {
-            return Optional.empty();
-        }
-
-        @Override
-        public CIMLifecycleDates setInstalledDate(Instant installedDate) {
-            // Ignore blissfully
-            return this;
-        }
-
-        @Override
-        public Optional<Instant> getRemovedDate() {
-            return Optional.empty();
-        }
-
-        @Override
-        public CIMLifecycleDates setRemovedDate(Instant removedDate) {
-            // Ignore blissfully
-            return this;
-        }
-
-        @Override
-        public Optional<Instant> getRetiredDate() {
-            return Optional.empty();
-        }
-
-        @Override
-        public CIMLifecycleDates setRetiredDate(Instant retiredDate) {
-            // Ignore blissfully
-            return this;
-        }
-
-        @Override
-        public void save() {
-            // Since there were no dates to start with, there is nothing to save
-        }
-    }
-
 }
