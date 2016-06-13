@@ -118,6 +118,7 @@ public class TaskServiceImpl implements TaskService, TranslationKeyProvider, Mes
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
+                bind(UserService.class).toInstance(userService);
             }
         });
         upgradeService.register(InstallIdentifier.identifier(COMPONENTNAME), dataModel, InstallerImpl.class, Collections.emptyMap());
