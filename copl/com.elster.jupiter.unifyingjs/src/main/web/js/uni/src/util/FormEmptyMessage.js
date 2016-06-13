@@ -24,7 +24,7 @@ Ext.define('Uni.util.FormEmptyMessage', {
         var me = this;
         me.renew();
         if (me.doAutoSize) {
-            me.on('afterrender', me.adaptSizeToText, me, {single:true});
+            me.on('afterrender', me.adaptSizeToText, me, {single: true});
         }
         me.callParent(arguments)
     },
@@ -73,7 +73,7 @@ Ext.define('Uni.util.FormEmptyMessage', {
         me.doLayout();
     },
 
-    adaptSizeToText: function() {
+    adaptSizeToText: function () {
         var me = this,
             metrics = new Ext.util.TextMetrics(me.down('#errorMessage').el),
             width = metrics.getWidth(me.text2Measure);

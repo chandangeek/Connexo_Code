@@ -36,11 +36,14 @@ Ext.define('Uni.view.search.field.internal.CriteriaButton', {
     },
 
     initComponent: function () {
-        var me = this;
+        var me = this,
+            criteria = me.property,
+            constraints = criteria.get('constraints');
 
         Ext.apply(me, {
             emptyText: me.text,
-            disabled: me.property.get('disabled'),
+            disabled: criteria.get('disabled'),
+
             menu: Ext.apply({
                 plain: true,
                 maxHeight: 600,
@@ -58,6 +61,25 @@ Ext.define('Uni.view.search.field.internal.CriteriaButton', {
                 click: me.onClickEvent
             }
         });
+
+        if (constraints
+            && constraints.length
+            && criteria.get('disabled')
+        ) {
+            constraints = criteria.get('constraints').map(function(c) {
+                return me.service.criteria.getByKey(c).get('displayValue')
+            });
+
+            Ext.apply(me, {
+                tooltip: {
+                    title: Uni.I18n.translate('search.criteriaselector.disabled.title', 'UNI', 'Enable {0}', [criteria.get('displayValue')]),
+                    text: Uni.I18n.translate('search.criteriaselector.disabled.body', 'UNI',
+                        '{0} property becomes available as soon as a value has been specified for the search criterion {1}',
+                        [criteria.get('displayValue'), constraints.join(', ')]),
+                    maxWidth: 150
+                }
+            });
+        }
 
         me.callParent(arguments);
 
@@ -90,7 +112,7 @@ Ext.define('Uni.view.search.field.internal.CriteriaButton', {
         }
     },
 
-    onClickEvent: function() {
+    onClickEvent: function () {
         this.toggle(false);
     },
 
@@ -114,5 +136,10 @@ Ext.define('Uni.view.search.field.internal.CriteriaButton', {
             this.setDisabled(criteria.get('disabled'));
             this.reconfigure();
         }
+    },
+
+    setDisabled: function (disabled) {
+        this.setTooltip(disabled ? this.tooltip : null);
+        this.callParent(arguments);
     }
 });

@@ -71,12 +71,19 @@ Ext.define('Uni.view.calendar.TimeOfUseCalendar', {
                 type: 'json'
             },
 
-            setUrl: function(url) {
+            setUrl: function (url) {
                 this.url = url;
             }
         });
         me.loadNewData();
         me.down('#tou-filter').down('#filter-apply-all').on('click', me.loadNewData, me)
+        me.down('#tou-filter').down('#filter-clear-all').on('click', me.loadNewDataFromClear, me)
+    },
+
+    loadNewDataFromClear: function() {
+        var me = this;
+        me.down('#tou-filter').down('#filter-clear-all').disable(true);
+        me.loadNewData();
     },
 
     loadNewData: function () {
@@ -101,7 +108,7 @@ Ext.define('Uni.view.calendar.TimeOfUseCalendar', {
                 }
                 me.fireEvent('timeofusecalendarloaded', newRecord);
             },
-            failure: function() {
+            failure: function () {
                 me.down('#tou-content-panel').setLoading(false);
             }
         })
