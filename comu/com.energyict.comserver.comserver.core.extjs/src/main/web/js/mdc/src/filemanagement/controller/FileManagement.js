@@ -216,16 +216,19 @@ Ext.define('Mdc.filemanagement.controller.FileManagement', {
             store = me.getStore('Mdc.filemanagement.store.Files'),
             max_file_size = 2 * 1024 * 1024;
         if (fileField.up('#no-files')) {
-            form = setup.down('files-devicetype-preview-container').down('#no-files').down('form').getEl().dom;
+            form = setup.down('files-devicetype-preview-container').down('#no-files').down('form');
         } else {
-            form = setup.down('files-devicetype-preview-container').down('#files-grid').down('form').getEl().dom;
+            form = setup.down('files-devicetype-preview-container').down('#files-grid').down('form');
         }
         store.getProxy().setUrl(me.deviceTypeId);
         setup.setLoading();
         Ext.Ajax.request({
             url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/files/upload',
             method: 'POST',
-            form: form,
+            form: form.getEl().dom,
+            params: {
+                fileName: me.getFileName(form.down('filefield').getValue())
+            },
             headers: {'Content-type': 'multipart/form-data'},
             isFormUpload: true,
             callback: function (config, success, response) {
@@ -248,6 +251,12 @@ Ext.define('Mdc.filemanagement.controller.FileManagement', {
                 setup.setLoading(false);
             }
         });
+    },
+
+    getFileName: function (fullPath) {
+        debugger;
+        var filename = fullPath.replace(/^.*[\\\/]/, '');
+        return filename;
     },
 
     removeFile: function (record) {
