@@ -244,7 +244,12 @@ public class SDKSmartMeterProfile implements MultipleLoadProfileSupport {
             int timeDuration = lpc.getProfileInterval();
 
             ProfileData pd = new ProfileData(lpro.getLoadProfileId());
-            pd.setChannelInfos(LoadProfileSerialNumberChannelInfoMap.get(lpro.getDeviceIdentifier()).get(lpro.getProfileObisCode()));
+            Map<ObisCode, List<ChannelInfo>> obisCodeListMap = LoadProfileSerialNumberChannelInfoMap.get(lpro.getMeterSerialNumber());
+            if (obisCodeListMap == null) {
+                throw new InvalidPropertyException("Serial number should either be 'Master', 'Slave1' or 'Slave2'");
+            }
+
+            pd.setChannelInfos(obisCodeListMap.get(lpro.getProfileObisCode()));
 
             Calendar cal = Calendar.getInstance(getProtocol().getTimeZone());
             cal.setTimeInMillis(lpro.getStartReadingTime().toEpochMilli());
