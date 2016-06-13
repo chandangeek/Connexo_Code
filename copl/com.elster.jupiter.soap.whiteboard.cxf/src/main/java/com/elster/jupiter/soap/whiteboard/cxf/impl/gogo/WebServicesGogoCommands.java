@@ -24,7 +24,7 @@ import static java.util.stream.Collectors.toList;
         property = {"osgi.command.scope=ws",
                 "osgi.command.function=webservices",
                 "osgi.command.function=endpoints",
-                "osgi.command.function=endpoint",
+                "osgi.command.function=createEndpoint",
                 "osgi.command.function=activate",
                 "osgi.command.function=deactivate",
                 "osgi.command.function=log"
@@ -77,12 +77,12 @@ public class WebServicesGogoCommands {
 
     }
 
-    public void endpoint() {
+    public void createEndpoint() {
         System.out.println("Create a new endpoint");
-        System.out.println("usage: endpoint <name> <webServiceName> <url> <log level>");
+        System.out.println("usage: createEndpoint <name> <webServiceName> <url> <log level>");
     }
 
-    public void endpoint(String name, String webServiceName, String url, String logLevel) {
+    public void createEndpoint(String name, String webServiceName, String url, String logLevel) {
         threadPrincipalService.set(() -> "Console");
 
         try (TransactionContext context = transactionService.getContext()) {

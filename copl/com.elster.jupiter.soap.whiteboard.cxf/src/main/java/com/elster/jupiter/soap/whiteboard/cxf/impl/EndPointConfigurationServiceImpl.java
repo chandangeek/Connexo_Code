@@ -88,6 +88,7 @@ public class EndPointConfigurationServiceImpl implements EndPointConfigurationSe
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(EventService.class).toInstance(eventService);
+                bind(EndPointConfigurationService.class).toInstance(EndPointConfigurationServiceImpl.this);
             }
         };
     }

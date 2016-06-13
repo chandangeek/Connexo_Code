@@ -33,7 +33,8 @@ public class UniqueNameValidator implements ConstraintValidator<UniqueName, EndP
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate(context.getDefaultConstraintMessageTemplate())
                     .addPropertyNode(EndPointConfigurationImpl.Fields.NAME.fieldName()).addConstraintViolation();
+            return false;
         }
-        return false;
+        return true;
     }
 }
