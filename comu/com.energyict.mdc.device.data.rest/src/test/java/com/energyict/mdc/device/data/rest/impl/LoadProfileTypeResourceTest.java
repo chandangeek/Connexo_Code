@@ -45,8 +45,8 @@ import static org.mockito.Mockito.*;
 
 public class LoadProfileTypeResourceTest extends DeviceDataRestApplicationJerseyTest {
 
-    public static final String BATTERY_LOW = "Battery Low";
-    public static final String BAD_TIME = "Clock Error";
+    public static final String BATTERY_LOW = "Battery low";
+    public static final String BAD_TIME = "Clock error";
     public static final Instant NOW = Instant.ofEpochMilli(1410786205000L);
     public static final Instant LAST_READING = Instant.ofEpochMilli(1410786196000L);
     public static final Date LAST_CHECKED = new Date(1409570229000L);
@@ -208,11 +208,13 @@ public class LoadProfileTypeResourceTest extends DeviceDataRestApplicationJersey
         assertThat(jsonModel.<List<?>>get("$.readingQualities")).hasSize(2);
 
         assertThat(jsonModel.<String>get("$.readingQualities[0].cimCode")).isEqualTo("1.1.1");
-        assertThat(jsonModel.<String>get("$.readingQualities[0].indexName")).isEqualTo("Battery Low");
+        assertThat(jsonModel.<String>get("$.readingQualities[0].indexName")).isEqualTo("Battery low");
+        assertThat(jsonModel.<String>get("$.readingQualities[0].systemName")).isEqualTo("End device");
         assertThat(jsonModel.<String>get("$.readingQualities[0].categoryName")).isEqualTo("Diagnostics");
 
         assertThat(jsonModel.<String>get("$.readingQualities[1].cimCode")).isEqualTo("1.1.9");
-        assertThat(jsonModel.<String>get("$.readingQualities[1].indexName")).isEqualTo("Clock Error");
+        assertThat(jsonModel.<String>get("$.readingQualities[1].indexName")).isEqualTo("Clock error");
+        assertThat(jsonModel.<String>get("$.readingQualities[1].systemName")).isEqualTo("End device");
         assertThat(jsonModel.<String>get("$.readingQualities[1].categoryName")).isEqualTo("Diagnostics");
 
 
@@ -224,11 +226,13 @@ public class LoadProfileTypeResourceTest extends DeviceDataRestApplicationJersey
         assertThat(jsonModel2.<List<?>>get("$.readingQualities")).hasSize(2);
 
         assertThat(jsonModel2.<String>get("$.readingQualities[0].cimCode")).isEqualTo("1.1.1");
-        assertThat(jsonModel2.<String>get("$.readingQualities[0].indexName")).isEqualTo("Battery Low");
+        assertThat(jsonModel2.<String>get("$.readingQualities[0].indexName")).isEqualTo("Battery low");
+        assertThat(jsonModel2.<String>get("$.readingQualities[0].systemName")).isEqualTo("End device");
         assertThat(jsonModel2.<String>get("$.readingQualities[0].categoryName")).isEqualTo("Diagnostics");
 
         assertThat(jsonModel2.<String>get("$.readingQualities[1].cimCode")).isEqualTo("1.1.9");
-        assertThat(jsonModel2.<String>get("$.readingQualities[1].indexName")).isEqualTo("Clock Error");
+        assertThat(jsonModel2.<String>get("$.readingQualities[1].indexName")).isEqualTo("Clock error");
+        assertThat(jsonModel2.<String>get("$.readingQualities[1].systemName")).isEqualTo("End device");
         assertThat(jsonModel2.<String>get("$.readingQualities[1].categoryName")).isEqualTo("Diagnostics");
     }
 

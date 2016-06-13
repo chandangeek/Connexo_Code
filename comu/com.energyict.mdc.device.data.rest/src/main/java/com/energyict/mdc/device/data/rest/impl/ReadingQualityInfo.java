@@ -21,6 +21,9 @@ public class ReadingQualityInfo {
     private String cimCode;
 
     @XmlAttribute
+    private String systemName;
+
+    @XmlAttribute
     private String categoryName;
 
     @XmlAttribute
@@ -29,8 +32,9 @@ public class ReadingQualityInfo {
     public ReadingQualityInfo() {
     }
 
-    public ReadingQualityInfo(String cimCode, String categoryName, String fullName) {
+    public ReadingQualityInfo(String cimCode, String systemName, String categoryName, String fullName) {
         this.cimCode = cimCode;
+        this.systemName = systemName;
         this.categoryName = categoryName;
         this.indexName = fullName;
     }
@@ -40,9 +44,17 @@ public class ReadingQualityInfo {
 
         result.setCimCode(type.getCode());
 
+        if (type.system().isPresent()) {
+            TranslationKeys translationKey = type.system().get().getTranslationKey();
+            String translatedSystem = thesaurus.getString(translationKey.getKey(), translationKey.getDefaultFormat());
+            result.setSystemName(translatedSystem);
+        } else {
+            result.setSystemName("");
+        }
+
         if (type.category().isPresent()) {
             TranslationKeys translationKey = type.category().get().getTranslationKey();
-            String translatedCategory = thesaurus.getStringBeyondComponent(translationKey.getKey(), translationKey.getDefaultFormat());
+            String translatedCategory = thesaurus.getString(translationKey.getKey(), translationKey.getDefaultFormat());
             result.setCategoryName(translatedCategory);
         } else {
             result.setCategoryName("");
@@ -50,7 +62,7 @@ public class ReadingQualityInfo {
 
         if (type.qualityIndex().isPresent()) {
             TranslationKey translationKey = type.qualityIndex().get().getTranslationKey();
-            String translatedIndex = thesaurus.getStringBeyondComponent(translationKey.getKey(), translationKey.getDefaultFormat());
+            String translatedIndex = thesaurus.getString(translationKey.getKey(), translationKey.getDefaultFormat());
             result.setIndexName(translatedIndex);
         } else {
             result.setIndexName("");
@@ -81,5 +93,13 @@ public class ReadingQualityInfo {
 
     public void setIndexName(String indexName) {
         this.indexName = indexName;
+    }
+
+    public String getSystemName() {
+        return systemName;
+    }
+
+    public void setSystemName(String systemName) {
+        this.systemName = systemName;
     }
 }
