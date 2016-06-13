@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Optional;
 
 public enum ProtocolSupportedCalendarOptions {
+    VERIFY_ACTIVE_CALENDAR("verify"),
     SEND_ACTIVITY_CALENDAR("send"),
     SEND_ACTIVITY_CALENDAR_WITH_DATE("sendWithDate"),
     SEND_ACTIVITY_CALENDAR_WITH_DATE_AND_TYPE("sendWithDateAndType"),

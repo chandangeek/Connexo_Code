@@ -23,6 +23,7 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
@@ -74,10 +75,6 @@ public class DeviceMessageSpecificationServiceImpl implements DeviceMessageSpeci
                         DeviceMessageCategories.ACTIVITY_CALENDAR,
                         DeviceMessageCategories.FIRMWARE,
                         DeviceMessageCategories.ADVANCED_TEST,
-                        DeviceMessageCategories.GENERAL,
-                        DeviceMessageCategories.PRICING_INFORMATION,
-                        DeviceMessageCategories.CONFIGURATION_CHANGE,
-                        DeviceMessageCategories.ZIGBEE_CONFIGURATION,
                         DeviceMessageCategories.CHANNEL_CONFIGURATION,
                         DeviceMessageCategories.EIWEB_PARAMETERS);
         EnumSet<DeviceMessageCategories> included = EnumSet.complementOf(excluded);
@@ -126,9 +123,12 @@ public class DeviceMessageSpecificationServiceImpl implements DeviceMessageSpeci
     }
 
     private List<DeviceMessageSpec> allMessageSpecs() {
-        return Stream.of(DeviceMessageCategories.values())
-                .map(deviceMessageCategories -> ((DeviceMessageCategory) new DeviceMessageCategoryImpl(deviceMessageCategories)))
-                .flatMap(category -> category.getMessageSpecifications().stream()).collect(Collectors.toList());
+        return Stream
+                .of(DeviceMessageCategories.values())
+                .map(DeviceMessageCategoryImpl::new)
+                .map(DeviceMessageCategory::getMessageSpecifications)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
     }
 
     @Override
