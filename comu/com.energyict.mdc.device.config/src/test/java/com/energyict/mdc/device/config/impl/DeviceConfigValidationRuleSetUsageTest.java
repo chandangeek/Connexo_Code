@@ -30,6 +30,8 @@ import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -85,6 +87,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -140,6 +143,7 @@ public class DeviceConfigValidationRuleSetUsageTest {
     public void setup() {
         when(principal.getName()).thenReturn("Ernie");
         when(userService.getPrivileges()).thenReturn(Arrays.asList());
+        when(userService.findGroup(anyString())).thenReturn(Optional.empty());
         this.bootstrapModule = new InMemoryBootstrapModule();
         injector = Guice.createInjector(
                 new MockModule(),
@@ -220,6 +224,7 @@ public class DeviceConfigValidationRuleSetUsageTest {
             bind(InboundDeviceProtocolService.class).toInstance(inboundDeviceProtocolService);
             bind(LicensedProtocolService.class).toInstance(licensedProtocolService);
             bind(UserService.class).toInstance(userService);
+            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }
 
@@ -277,7 +282,7 @@ public class DeviceConfigValidationRuleSetUsageTest {
     }
 
     private ValidationRuleSet createValidationRuleSet(String name) {
-        ValidationRuleSet ruleSet = injector.getInstance(ValidationService.class).createValidationRuleSet(name);
+        ValidationRuleSet ruleSet = injector.getInstance(ValidationService.class).createValidationRuleSet(name, "MDC");
         ruleSet.save();
         return ruleSet;
     }

@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.calendar.Calendar;
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
@@ -136,6 +137,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     private Clock clock;
     private ProtocolPluggableService protocolPluggableService;
     private DeviceConfigurationService deviceConfigurationService;
+    private CustomPropertySetService customPropertySetService;
 
     private DeviceTypePurpose deviceTypePurpose = DeviceTypePurpose.REGULAR;
     private boolean deviceTypePurposeChanged = false;
@@ -146,11 +148,12 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     private DeviceProtocol localDeviceProtocol;
 
     @Inject
-    public DeviceTypeImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, ProtocolPluggableService protocolPluggableService, DeviceConfigurationService deviceConfigurationService) {
+    public DeviceTypeImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, ProtocolPluggableService protocolPluggableService, DeviceConfigurationService deviceConfigurationService, CustomPropertySetService customPropertySetService) {
         super(DeviceType.class, dataModel, eventService, thesaurus);
         this.clock = clock;
         this.protocolPluggableService = protocolPluggableService;
         this.deviceConfigurationService = deviceConfigurationService;
+        this.customPropertySetService = customPropertySetService;
     }
 
     DeviceTypeImpl initializeRegular(String name, DeviceProtocolPluggableClass deviceProtocolPluggableClass, DeviceLifeCycle deviceLifeCycle) {
@@ -182,6 +185,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         this.registerTypeUsages.clear();
         this.loadProfileTypeUsages.clear();
         this.logBookTypeUsages.clear();
+        this.deviceMessageFiles.clear();
         Iterator<DeviceConfiguration> iterator = this.deviceConfigurations.iterator();
         // do not replace with foreach!! the deviceConfiguration will be removed from the iterator
         while (iterator.hasNext()) {
@@ -279,6 +283,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         return deviceTypeCustomPropertySetUsages
                 .stream()
                 .map(DeviceTypeCustomPropertySetUsageImpl::getRegisteredCustomPropertySet)
+                .filter(registeredCustomPropertySet -> customPropertySetService.findActiveCustomPropertySets().contains(registeredCustomPropertySet))
                 .collect(Collectors.toList());
     }
 
@@ -558,6 +563,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     @Override
     public Optional<RegisteredCustomPropertySet> getLoadProfileTypeCustomPropertySet(LoadProfileType loadProfileType) {
         return this.loadProfileTypeUsages.stream().filter(f -> f.sameLoadProfileType(loadProfileType))
+                .filter(registeredCustomPropertySet -> customPropertySetService.findActiveCustomPropertySets().contains(registeredCustomPropertySet))
                 .findAny()
                 .flatMap(DeviceTypeLoadProfileTypeUsage::getRegisteredCustomPropertySet);
     }
@@ -656,6 +662,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     public Optional<RegisteredCustomPropertySet> getRegisterTypeTypeCustomPropertySet(RegisterType registerType) {
         return this.registerTypeUsages.stream().filter(f -> f.sameRegisterType(registerType))
+                .filter(registeredCustomPropertySet -> customPropertySetService.findActiveCustomPropertySets().contains(registeredCustomPropertySet))
                 .findAny()
                 .flatMap(DeviceTypeRegisterTypeUsage::getRegisteredCustomPropertySet);
     }

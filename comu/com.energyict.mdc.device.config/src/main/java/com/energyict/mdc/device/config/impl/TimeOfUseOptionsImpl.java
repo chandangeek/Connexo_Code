@@ -111,7 +111,6 @@ public class TimeOfUseOptionsImpl implements TimeOfUseOptions {
                 case ACTIVATE_PASSIVE_CALENDAR:
                     this.activatePassive = true;
                     break;
-
             }
         });
     }

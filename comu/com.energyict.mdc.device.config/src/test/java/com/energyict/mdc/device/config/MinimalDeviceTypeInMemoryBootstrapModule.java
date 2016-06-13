@@ -26,6 +26,8 @@ import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.impl.ValidationModule;
@@ -35,6 +37,7 @@ import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurati
 import com.energyict.mdc.engine.config.impl.EngineModelModule;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -73,6 +76,7 @@ public class MinimalDeviceTypeInMemoryBootstrapModule {
                 new IdsModule(),
                 new EventsModule(),
                 new BasicPropertiesModule(),
+                new CalendarModule(),
                 new CustomPropertySetsModule(),
                 new PartyModule(),
                 new ValidationModule(),
@@ -92,6 +96,7 @@ public class MinimalDeviceTypeInMemoryBootstrapModule {
                 new CalendarModule());
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             injector.getInstance(ThreadPrincipalService.class);
+            injector.getInstance(PluggableService.class);
             ctx.commit();
         }
     }
@@ -130,6 +135,7 @@ public class MinimalDeviceTypeInMemoryBootstrapModule {
             bind(ProtocolPluggableService.class).toInstance(mock(ProtocolPluggableService.class));
             bind(BundleContext.class).toInstance(mock(BundleContext.class));
             bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
+            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }
 

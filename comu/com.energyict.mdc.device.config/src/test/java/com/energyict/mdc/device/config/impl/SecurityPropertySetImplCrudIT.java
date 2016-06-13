@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
-import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
@@ -40,6 +39,8 @@ import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
@@ -157,6 +158,7 @@ public class SecurityPropertySetImplCrudIT {
             bind(BundleContext.class).toInstance(bundleContext);
             bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
+            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
 
     }
@@ -190,6 +192,7 @@ public class SecurityPropertySetImplCrudIT {
                     new MasterDataModule(),
                     new BasicPropertiesModule(),
                     new MdcDynamicModule(),
+                    new PluggableModule(),
                     new ProtocolApiModule(),
                     new TasksModule(),
                     new ValidationModule(),
@@ -223,12 +226,14 @@ public class SecurityPropertySetImplCrudIT {
             injector.getInstance(TaskService.class);
             injector.getInstance(ValidationService.class);
             injector.getInstance(DeviceLifeCycleConfigurationService.class);
+            injector.getInstance(PluggableService.class);
             deviceConfigurationService = new DeviceConfigurationServiceImpl(
                     injector.getInstance(OrmService.class),
                     injector.getInstance(Clock.class),
                     injector.getInstance(ThreadPrincipalService.class),
                     eventService,
                     injector.getInstance(NlsService.class),
+                    injector.getInstance(com.elster.jupiter.properties.PropertySpecService.class),
                     injector.getInstance(MeteringService.class),
                     injector.getInstance(MdcReadingTypeUtilService.class),
                     injector.getInstance(UserService.class),
@@ -241,7 +246,9 @@ public class SecurityPropertySetImplCrudIT {
                     injector.getInstance(MasterDataService.class),
                     finiteStateMachineService,
                     injector.getInstance(DeviceLifeCycleConfigurationService.class),
-                    injector.getInstance(CalendarService.class));
+                    injector.getInstance(CalendarService.class),
+                    injector.getInstance(CustomPropertySetService.class),
+                    UpgradeModule.FakeUpgradeService.getInstance());
             ctx.commit();
         }
         enhanceEventServiceForConflictCalculation();

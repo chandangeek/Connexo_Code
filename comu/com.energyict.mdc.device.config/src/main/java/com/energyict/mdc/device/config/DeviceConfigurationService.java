@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config;
 
+import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.metering.ReadingType;
@@ -284,6 +285,8 @@ public interface DeviceConfigurationService {
 
     List<PartialConnectionTask> findByComPortPool(ComPortPool comPortPool);
 
+    List<AllowedCalendar> findAllowedCalendars(String name);
+
     Optional<SecurityPropertySet> findSecurityPropertySet(long id);
 
     Optional<SecurityPropertySet> findAndLockSecurityPropertySetByIdAndVersion(long id, long version);
@@ -313,6 +316,8 @@ public interface DeviceConfigurationService {
 
     List<DeviceConfiguration> findDeviceConfigurationsForValidationRuleSet(long validationRuleSetId);
 
+    List<DeviceType> findDeviceTypesForCalendar(Calendar calendar);
+
     List<ReadingType> getReadingTypesRelatedToConfiguration(DeviceConfiguration configuration);
 
     List<DeviceConfiguration> getLinkableDeviceConfigurations(ValidationRuleSet validationRuleSet);
@@ -327,11 +332,12 @@ public interface DeviceConfigurationService {
 
     Optional<DeviceConfigConflictMapping> findDeviceConfigConflictMapping(long id);
 
-    Set<ProtocolSupportedCalendarOptions> getSupportedTimeOfUseOptionsFor(DeviceType deviceType);
+    Set<ProtocolSupportedCalendarOptions> getSupportedTimeOfUseOptionsFor(DeviceType deviceType, boolean checkForVerifyCalendar);
 
     Optional<TimeOfUseOptions> findTimeOfUseOptions(DeviceType deviceType);
 
     Optional<TimeOfUseOptions> findAndLockTimeOfUseOptionsByIdAndVersion(DeviceType deviceType, long version);
 
     TimeOfUseOptions newTimeOfUseOptions(DeviceType deviceType);
+
 }
