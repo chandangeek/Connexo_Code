@@ -3,7 +3,6 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.CannotDeleteMeter;
 import com.elster.jupiter.metering.Channel;
@@ -25,8 +24,6 @@ import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryExecutor;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 
@@ -46,9 +43,7 @@ import java.util.stream.Collectors;
 
 class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter {
 
-    @SuppressWarnings("unused")
-    private Reference<AmrSystem> amrSystem = ValueReference.absent();
-    private List<MeterActivationImpl> meterActivations = new ArrayList<>();
+    private List<IMeterActivation> meterActivations = new ArrayList<>();
     private List<MeterConfigurationImpl> meterConfigurations = new ArrayList<>();
 
     private final MeteringService meteringService;
@@ -87,23 +82,7 @@ class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter {
 
     @Override
     public MeterActivation activate(Range<Instant> range) {
-        checkOverlaps(range);
-        MeterActivationImpl result = meterActivationFactory.get().init(this, range);
-        result.save();
-        meterActivations.add(result);
-        return result;
-    }
-
-    private void checkOverlaps(Instant start) {
-        checkOverlaps(Range.atLeast(start));
-    }
-
-    private void checkOverlaps(Range<Instant> range) {
-        if (meterActivations.stream()
-                .filter(meterActivation -> meterActivation.getRange().isConnected(range))
-                .anyMatch(meterActivation -> !meterActivation.getRange().intersection(range).isEmpty())) {
-            throw new MeterAlreadyActive(thesaurus, this, range.lowerEndpoint());
-        }
+        return this.activate(null, null, range);
     }
 
     @Override
@@ -113,11 +92,23 @@ class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter {
 
     @Override
     public MeterActivation activate(UsagePoint usagePoint, MeterRole meterRole, Instant from) {
-        checkOverlaps(from);
-        MeterActivationImpl result = meterActivationFactory.get().init(this, meterRole, usagePoint, from);
+        return this.activate(usagePoint, meterRole, Range.atLeast(from));
+    }
+
+    private MeterActivation activate(UsagePoint usagePoint, MeterRole meterRole, Range<Instant> range) {
+        checkOverlaps(range);
+        MeterActivationImpl result = meterActivationFactory.get().init(this, range);
         result.save();
         meterActivations.add(result);
         return result;
+    }
+
+    private void checkOverlaps(Range<Instant> range) {
+        if (meterActivations.stream()
+                .filter(meterActivation -> meterActivation.getRange().isConnected(range))
+                .anyMatch(meterActivation -> !meterActivation.getRange().intersection(range).isEmpty())) {
+            throw new MeterAlreadyActive(thesaurus, this, range.lowerEndpoint());
+        }
     }
 
     void adopt(MeterActivationImpl meterActivation) {
@@ -133,7 +124,7 @@ class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter {
                         }
                     }
                 });
-        Optional<MeterActivationImpl> first = meterActivations.stream().filter(activation -> activation.getId() != meterActivation.getId()).findFirst();
+        Optional<IMeterActivation> first = meterActivations.stream().filter(activation -> activation.getId() != meterActivation.getId()).findFirst();
         if (!first.isPresent()) {
             meterActivations.add(meterActivation);
         }

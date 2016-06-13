@@ -97,6 +97,7 @@ public abstract class AbstractBaseReadingImplTest {
         final Provider<ChannelImpl> channelFactory = () -> new ChannelImpl(dataModel, idsService, meteringService, clock, eventService);
         final Provider<ChannelBuilder> channelBuilder = () -> new ChannelBuilderImpl(dataModel, channelFactory);
         when(dataModel.getInstance(MeterActivationChannelsContainerImpl.class)).then(invocation -> new MeterActivationChannelsContainerImpl(meteringService, eventService, channelBuilder));
+        when(meter.getHeadEndInterface()).thenReturn(Optional.empty());
         meterActivation = new MeterActivationImpl(dataModel, eventService, clock, thesaurus).init(meter, null, null, Instant.EPOCH);
         ReadingTypeCodeBuilder builder = ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_PRIMARY_METERED)
                 .measure(MeasurementKind.ENERGY)

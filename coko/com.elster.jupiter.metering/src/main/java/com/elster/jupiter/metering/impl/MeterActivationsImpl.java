@@ -24,9 +24,9 @@ import java.util.stream.Collectors;
 
 public class MeterActivationsImpl implements ReadingContainer {
 
-    private final List<MeterActivationImpl> meterActivations = new ArrayList<>();
+    private final List<IMeterActivation> meterActivations = new ArrayList<>();
 
-    private void add(MeterActivationImpl meterActivation) {
+    private void add(IMeterActivation meterActivation) {
         meterActivations.add(meterActivation);
     }
 
@@ -87,11 +87,11 @@ public class MeterActivationsImpl implements ReadingContainer {
                 .anyMatch(ChannelsContainer::hasData);
     }
 
-    private MeterActivationImpl last() {
+    private IMeterActivation last() {
         return meterActivations.get(meterActivations.size() - 1);
     }
 
-    public static MeterActivationsImpl from(List<MeterActivationImpl> candidates, Range<Instant> range) {
+    public static MeterActivationsImpl from(List<IMeterActivation> candidates, Range<Instant> range) {
         MeterActivationsImpl meterActivations = new MeterActivationsImpl();
         candidates.stream()
                 .filter(meterActivation -> meterActivation.overlaps(range))
@@ -108,7 +108,7 @@ public class MeterActivationsImpl implements ReadingContainer {
                 .orElseGet(Collections::emptyList);
     }
 
-    public static MeterActivationsImpl from(List<MeterActivationImpl> candidates) {
+    public static MeterActivationsImpl from(List<IMeterActivation> candidates) {
         MeterActivationsImpl meterActivations = new MeterActivationsImpl();
         candidates.stream()
                 .forEach(meterActivations::add);
@@ -125,7 +125,7 @@ public class MeterActivationsImpl implements ReadingContainer {
         return meterActivations.stream()
                 .filter(activation -> activation.getRange().contains(instant))
                 .findAny()
-                .flatMap(MeterActivationImpl::getMeter);
+                .flatMap(IMeterActivation::getMeter);
     }
 
     @Override
@@ -133,7 +133,7 @@ public class MeterActivationsImpl implements ReadingContainer {
         return meterActivations.stream()
                 .filter(activation -> activation.getRange().contains(instant))
                 .findAny()
-                .flatMap(MeterActivationImpl::getUsagePoint);
+                .flatMap(IMeterActivation::getUsagePoint);
     }
 
     @Override

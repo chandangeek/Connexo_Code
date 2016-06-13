@@ -116,7 +116,7 @@ public class UsagePointImpl implements UsagePoint {
     // associations
     private final Reference<ServiceCategory> serviceCategory = ValueReference.absent();
     private final Reference<ServiceLocation> serviceLocation = ValueReference.absent();
-    private final List<MeterActivationImpl> meterActivations = new ArrayList<>();
+    private final List<IMeterActivation> meterActivations = new ArrayList<>();
     private final List<UsagePointAccountability> accountabilities = new ArrayList<>();
     private List<UsagePointConfigurationImpl> usagePointConfigurations = new ArrayList<>();
     private final Reference<Location> upLocation = ValueReference.absent();
@@ -492,6 +492,11 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
+    public List<UsagePointDetailImpl> getDetails() {
+        return detail.all();
+    }
+
+    @Override
     public void addDetail(UsagePointDetail newDetail) {
         Optional<UsagePointDetailImpl> optional = this.getDetail(newDetail.getRange().lowerEndpoint());
         if (optional.isPresent()) {
@@ -634,7 +639,10 @@ public class UsagePointImpl implements UsagePoint {
     @Override
     public Optional<MeterActivation> getMeterActivation(Instant when) {
         return getMeterActivations(when).stream()
-                .filter(ma -> ma.getMeterRole().isPresent() && ma.getMeterRole().get().getKey().equals(DefaultMeterRole.DEFAULT.getKey()))
+                .filter(ma -> ma.getMeterRole().isPresent() && ma.getMeterRole()
+                        .get()
+                        .getKey()
+                        .equals(DefaultMeterRole.DEFAULT.getKey()))
                 .findFirst();
     }
 
@@ -655,7 +663,10 @@ public class UsagePointImpl implements UsagePoint {
     @Override
     public Optional<MeterActivation> getCurrentMeterActivation() {
         return getCurrentMeterActivations().stream()
-                .filter(ma -> ma.getMeterRole().isPresent() && ma.getMeterRole().get().getKey().equals(DefaultMeterRole.DEFAULT.getKey()))
+                .filter(ma -> ma.getMeterRole().isPresent() && ma.getMeterRole()
+                        .get()
+                        .getKey()
+                        .equals(DefaultMeterRole.DEFAULT.getKey()))
                 .findFirst();
     }
 
@@ -719,7 +730,8 @@ public class UsagePointImpl implements UsagePoint {
 
     public void refreshMeterActivations() {
         this.meterActivations.clear();
-        this.meterActivations.addAll(this.dataModel.query(MeterActivationImpl.class).select(where("usagePoint").isEqualTo(this)));
+        this.meterActivations.addAll(this.dataModel.query(MeterActivationImpl.class)
+                .select(where("usagePoint").isEqualTo(this)));
     }
 
     @Override

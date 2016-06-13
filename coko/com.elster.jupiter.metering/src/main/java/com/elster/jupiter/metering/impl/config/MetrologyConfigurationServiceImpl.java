@@ -354,7 +354,8 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
     }
 
     @Override
-    public void validateUsagePointMeterActivation(MeterRole meterRole, Meter meter, UsagePoint usagePoint) throws CustomUsagePointMeterActivationValidationException {
+    public void validateUsagePointMeterActivation(MeterRole meterRole, Meter meter, UsagePoint usagePoint) throws
+            CustomUsagePointMeterActivationValidationException {
         this.activationValidatorsWhiteboard.validateUsagePointMeterActivation(meterRole, meter, usagePoint);
     }
 

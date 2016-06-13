@@ -5,19 +5,26 @@ import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.EventType;
+import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeterAlreadyLinkedToUsagePoint;
+import com.elster.jupiter.metering.MeterConfiguration;
 import com.elster.jupiter.metering.MultiplierType;
+import com.elster.jupiter.metering.MultiplierUsage;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointConfiguration;
+import com.elster.jupiter.metering.ami.EndDeviceCapabilities;
 import com.elster.jupiter.metering.config.MeterRole;
+import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.time.Interval;
 
 import com.google.common.collect.ImmutableList;
@@ -29,6 +36,7 @@ import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -39,6 +47,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.Ranges.does;
 import static com.elster.jupiter.util.streams.Currying.test;
@@ -88,11 +97,11 @@ public final class MeterActivationImpl implements IMeterActivation {
         return init(null, null, usagePoint, from);
     }
 
-    MeterActivationImpl init(Meter meter, MeterRole role, UsagePoint usagePoint, Instant from) {
+    public MeterActivationImpl init(Meter meter, MeterRole role, UsagePoint usagePoint, Instant from) {
         return init(meter, role, usagePoint, Range.atLeast(from));
     }
 
-    MeterActivationImpl init(Meter meter, MeterRole meterRole, UsagePoint usagePoint, Range<Instant> range) {
+    public MeterActivationImpl init(Meter meter, MeterRole meterRole, UsagePoint usagePoint, Range<Instant> range) {
         if (usagePoint != null && meter != meterRole && (meter == null || meterRole == null)) {
             throw new IllegalArgumentException("You are trying to activate meter on usage point, but you didn't specified a meter role" +
                     " or you specified a meter role, but forgot about meter.");
@@ -101,6 +110,12 @@ public final class MeterActivationImpl implements IMeterActivation {
         this.meterRole.set(meterRole);
         this.usagePoint.set(usagePoint);
         this.interval = Interval.of(range);
+        if (meter != null) {
+            meter.getHeadEndInterface()
+                    .map(headEndInterface -> headEndInterface.getCapabilities(meter))
+                    .map(EndDeviceCapabilities::getConfiguredReadingTypes)
+                    .ifPresent(readingTypeList -> createChannels(readingTypeList));
+        }
         this.channelsContainer.set(this.dataModel.getInstance(MeterActivationChannelsContainerImpl.class).init(this));
         return this;
     }
@@ -130,6 +145,33 @@ public final class MeterActivationImpl implements IMeterActivation {
         return this.meterRole.getOptional();
     }
 
+    private void createChannels(List<ReadingType> readingTypes) {
+        Stream<MultiplierUsage> meterMultipliers = getMeter()
+                .flatMap(meter -> meter.getConfiguration(getStart()))
+                .map(MeterConfiguration::getReadingTypeConfigs)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(MultiplierUsage.class::cast);
+        Stream<MultiplierUsage> usagePointMultipliers = getUsagePoint()
+                .flatMap(usagePoint -> usagePoint.getConfiguration(getStart()))
+                .map(UsagePointConfiguration::getReadingTypeConfigs)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(MultiplierUsage.class::cast);
+        Set<ReadingType> calculatedReadingTypes = Stream.concat(meterMultipliers, usagePointMultipliers).map(MultiplierUsage::getCalculated).flatMap(Functions.asStream()).collect(Collectors.toSet());
+
+        List<ReadingType> collect = readingTypes.stream()
+                .filter(not(calculatedReadingTypes::contains))
+                .filter(not(readingType -> isDeltaDeltaOfOther(readingType, readingTypes)))
+                .filter(not(readingType -> isDeltaDeltaOfOther(readingType, calculatedReadingTypes))) // if the calculated reading type is a bulk, automatically the deltadelta will be added
+                .distinct().collect(Collectors.toList());
+        collect.forEach(this.getChannelsContainer()::createChannel);
+    }
+
+    private boolean isDeltaDeltaOfOther(ReadingType readingType, Collection<ReadingType> readingTypes) {
+        return readingTypes.stream().anyMatch(readingType::isBulkQuantityReadingType);
+    }
+
     @Override
     public List<ReadingType> getReadingTypes() {
         ImmutableList.Builder<ReadingType> builder = ImmutableList.builder();
@@ -152,7 +194,7 @@ public final class MeterActivationImpl implements IMeterActivation {
     @Override
     public void endAt(Instant end) {
         if (isInvalidEndDate(end)) {
-            throw new IllegalArgumentException();
+            throw new ChannelDataPresentException();
         }
         doEndAt(end);
     }
@@ -412,5 +454,11 @@ public final class MeterActivationImpl implements IMeterActivation {
                 .filter(multiplierValue -> multiplierValue.getType().equals(type))
                 .map(MultiplierValue::getValue)
                 .findFirst();
+    }
+
+    class ChannelDataPresentException extends LocalizedException {
+        public ChannelDataPresentException() {
+            super(thesaurus, MessageSeeds.CHANNEL_DATA_PRESENT);
+        }
     }
 }

@@ -7,5 +7,4 @@ import java.time.Instant;
 public interface IMeterActivation extends MeterActivation {
 
     void doEndAt(Instant end);
-
 }

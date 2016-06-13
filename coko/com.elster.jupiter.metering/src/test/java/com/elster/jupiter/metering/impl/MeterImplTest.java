@@ -5,7 +5,9 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeterAlreadyActive;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
@@ -18,6 +20,8 @@ import javax.inject.Provider;
 import java.time.Clock;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Optional;
+import java.util.UUID;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -29,13 +33,16 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MeterImplTest {
 
     public static final ZonedDateTime START = ZonedDateTime.of(2017, 5, 14, 4, 1, 14, 0, ZoneId.systemDefault());
+    private static final String HEADEND_INTERFACE_NAME = UUID.randomUUID().toString();
     @Rule
     public TestRule zoneRule = Using.timeZoneOfMcMurdo();
 
@@ -63,6 +70,8 @@ public class MeterImplTest {
     private AmrSystem amrSystem;
     @Mock
     private MeterRole meterRole;
+    @Mock
+    private HeadEndInterface headEndInterface;
 
     @Before
     public void setUp() {
@@ -73,34 +82,42 @@ public class MeterImplTest {
         when(dataModel.getInstance(MeterActivationChannelsContainerImpl.class)).then(invocation -> new MeterActivationChannelsContainerImpl(meteringService, eventService, channelBuilderFactory));
         when(thesaurus.forLocale(any())).thenAnswer(invocation -> invocation.getArguments()[0]);
         when(metrologyConfigurationService.findDefaultMeterRole(DefaultMeterRole.DEFAULT)).thenReturn(meterRole);
+        when(dataModel.getInstance(MeteringService.class)).thenReturn(meteringService);
+        when(amrSystem.getName()).thenReturn(HEADEND_INTERFACE_NAME);
+        when(meteringService.getHeadEndInterface(eq(HEADEND_INTERFACE_NAME))).thenReturn(Optional.empty());
     }
 
     @Test
     public void testNoOverlapOnActivate() {
         MeterImpl meter = new MeterImpl(clock, dataModel, eventService, deviceEventFactory, meteringService, thesaurus, meterActivationFactory, metrologyConfigurationService);
+        meter.init(amrSystem, "1", "testNoOverlapOnActivate");
 
         MeterActivation meterActivation = meter.activate(START.toInstant());
 
         assertThat(meterActivation.getRange()).isEqualTo(Range.atLeast(START.toInstant()));
         assertThat(meterActivation.getMeter()).contains(meter);
         assertThat(meterActivation.getUsagePoint()).isEmpty();
+        verify(meteringService).getHeadEndInterface(HEADEND_INTERFACE_NAME);
     }
 
     @Test
     public void testActivateWithUsagePoint() {
         MeterImpl meter = new MeterImpl(clock, dataModel, eventService, deviceEventFactory, meteringService, thesaurus, meterActivationFactory, metrologyConfigurationService);
+        meter.init(amrSystem, "1", "testActivateWithUsagePoint");
 
         MeterActivation meterActivation = meter.activate(usagePoint, START.toInstant());
 
         assertThat(meterActivation.getRange()).isEqualTo(Range.atLeast(START.toInstant()));
         assertThat(meterActivation.getMeter()).contains(meter);
         assertThat(meterActivation.getUsagePoint()).contains(usagePoint);
+        verify(meteringService).getHeadEndInterface(HEADEND_INTERFACE_NAME);
 
     }
 
     @Test(expected = MeterAlreadyActive.class)
     public void testOverlapOnActivate() {
         MeterImpl meter = new MeterImpl(clock, dataModel, eventService, deviceEventFactory, meteringService, thesaurus, meterActivationFactory, metrologyConfigurationService);
+        meter.init(amrSystem, "1", "testOverlapOnActivate");
 
         meter.activate(START.toInstant());
         meter.activate(START.minusMonths(1).toInstant());
@@ -109,7 +126,8 @@ public class MeterImplTest {
 
     @Test
     public void testSetName() {
-        MeterImpl meter = new MeterImpl(clock, dataModel, eventService, deviceEventFactory, meteringService, thesaurus, meterActivationFactory, metrologyConfigurationService).init(amrSystem, "amrID", "mrId");
+        MeterImpl meter = new MeterImpl(clock, dataModel, eventService, deviceEventFactory, meteringService, thesaurus, meterActivationFactory, metrologyConfigurationService)
+                .init(amrSystem, "amrID", "mrId");
         meter.setName("name42");
 
         assertThat(meter.getName()).isEqualTo("name42");

@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -15,6 +16,10 @@ import java.time.Clock;
  * @since 2015-06-02 (14:56)
  */
 public interface ServerMeteringService extends MeteringService {
+
+    void addHeadEndInterface(HeadEndInterface headEndInterface);
+
+    void removeHeadEndInterface(HeadEndInterface headEndInterface);
 
     DataModel getDataModel();
 

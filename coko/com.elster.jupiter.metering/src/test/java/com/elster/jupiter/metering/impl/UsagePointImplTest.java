@@ -130,6 +130,7 @@ public class UsagePointImplTest {
         when(dataModel.mapper(Meter.class)).thenReturn(meterFactory);
         when(meterRole.getKey()).thenReturn(DefaultMeterRole.DEFAULT.getKey());
         when(meterFactory.getExisting(any())).thenReturn(meter);
+        when(meter.getHeadEndInterface()).thenReturn(Optional.empty());
         when(dataModel.getInstance(UsagePointAccountabilityImpl.class)).thenAnswer(invocationOnMock -> new UsagePointAccountabilityImpl(clock));
         final Provider<ChannelBuilder> channelBuilderProvider = () -> channelBuilder;
         when(dataModel.getInstance(MeterActivationChannelsContainerImpl.class)).then(invocation -> new MeterActivationChannelsContainerImpl(meteringService, eventService, channelBuilderProvider));
