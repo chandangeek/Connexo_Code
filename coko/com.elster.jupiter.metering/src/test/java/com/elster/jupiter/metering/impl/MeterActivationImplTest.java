@@ -67,7 +67,6 @@ public class MeterActivationImplTest extends EqualsContractTest {
     private static final String MRID1 = "13.2.2.4.0.8.12.8.16.9.11.12.13.14.128.3.72.124";
     private static final String MRID2 = "13.2.2.1.0.8.12.9.16.9.11.12.13.14.128.3.72.124";
     private static final String MRID3 = "13.2.3.4.0.8.12.10.16.9.11.12.13.14.128.3.72.124";
-    private static final String MRID4 = "13.2.3.4.0.8.12.10.16.9.11.12.13.14.128.3.72.124";
     private static final ZonedDateTime ACTIVATION_TIME_BASE = ZonedDateTime.of(1984, 11, 5, 13, 37, 3, 14_000_000, TimeZoneNeutral.getMcMurdo());
     private static final Instant ACTIVATION_TIME = ACTIVATION_TIME_BASE.toInstant();
     private static final long USAGEPOINT_ID = 6546L;
@@ -133,12 +132,14 @@ public class MeterActivationImplTest extends EqualsContractTest {
         };
         when(usagePoint.getId()).thenReturn(USAGEPOINT_ID);
         when(meter.getId()).thenReturn(METER_ID);
+        when(meter.getHeadEndInterface()).thenReturn(Optional.empty());
         when(idsService.getVault(anyString(), anyInt())).thenReturn(Optional.of(vault));
         when(idsService.getRecordSpec(anyString(), anyInt())).thenReturn(Optional.of(recordSpec));
         when(clock.getZone()).thenReturn(timeZone.toZoneId());
         when(meter.getConfiguration(any())).thenReturn(Optional.empty());
         when(usagePoint.getConfiguration(any())).thenReturn(Optional.empty());
         when(dataModel.getInstance(ReadingTypeInChannel.class)).thenAnswer(invocation -> new ReadingTypeInChannel(dataModel, meteringService));
+
 
         meterActivation = getTestInstanceAndInitWithActivationTime();
     }
@@ -315,6 +316,7 @@ public class MeterActivationImplTest extends EqualsContractTest {
         assertThat(meterActivation.getRange()).isEqualTo(Range.closedOpen(ACTIVATION_TIME_BASE.minusDays(5).toInstant(), ACTIVATION_TIME_BASE.plusYears(1).toInstant()));
     }
 
+
     private void simulateSavedMeterActivation() {
         field("id").ofType(Long.TYPE).in(meterActivation).set(ID);
     }
@@ -352,4 +354,6 @@ public class MeterActivationImplTest extends EqualsContractTest {
     protected Object getInstanceOfSubclassEqualToA() {
         return null;
     }
+
+
 }
