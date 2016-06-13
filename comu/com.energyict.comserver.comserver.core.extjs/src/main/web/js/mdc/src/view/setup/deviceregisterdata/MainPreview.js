@@ -168,7 +168,8 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainPreview', {
     },
 
     setDataQualityFields: function(deviceQualityField, multiSenseQualityField, insightQualityField, thirdPartyQualityField, dataQualities) {
-        var showDeviceQuality = false,
+        var me = this,
+            showDeviceQuality = false,
             showMultiSenseQuality = false,
             showInsightQuality = false,
             show3rdPartyQuality = false,
@@ -196,7 +197,9 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainPreview', {
             if (!Ext.isEmpty(field)) {
                 field.setValue(field.getValue()
                     + (Ext.isEmpty(field.getValue()) ? '' : '<br>')
-                    + readingQuality.indexName + ' (' + readingQuality.cimCode + ')'
+                    + '<span style="display:inline-block; float: left; margin-right:7px;" >' + readingQuality.indexName + ' (' + readingQuality.cimCode + ')' + '</span>'
+                    + '<span class="icon-info" style="cursor: pointer; display:inline-block; color:#A9A9A9; font-size:16px;" data-qtip="'
+                    + me.getTooltip('_TODO_', readingQuality.categoryName, readingQuality.indexName) + '"></span>'
                 );
             }
         });
@@ -205,6 +208,19 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainPreview', {
         showMultiSenseQuality ? multiSenseQualityField.show() : multiSenseQualityField.hide();
         showInsightQuality ? insightQualityField.show() : insightQualityField.hide();
         show3rdPartyQuality ? thirdPartyQualityField.show() : thirdPartyQualityField.hide();
+    },
+
+    getTooltip: function(systemName, categoryName, indexName) {
+        var me = this,
+            tooltip = '<table><tr><td>';
+
+        tooltip += '<b>' + Uni.I18n.translate('general.readingQuality.field1.name', 'UNI', 'System') + ':</b></td>';
+        tooltip += '<td>' + systemName + '</td></tr>';
+        tooltip += '<tr><td><b>' + Uni.I18n.translate('general.readingQuality.field2.name', 'UNI', 'Category') + ':</b></td>';
+        tooltip += '<td>' + categoryName + '</td></tr>';
+        tooltip += '<tr><td><b>' + Uni.I18n.translate('general.readingQuality.field3.name', 'UNI', 'Index') + ':</b></td>';
+        tooltip += '<td>' + indexName + '</td></tr></table>';
+        return tooltip;
     }
 
 });
