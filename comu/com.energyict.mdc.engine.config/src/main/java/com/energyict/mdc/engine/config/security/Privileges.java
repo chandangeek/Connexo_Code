@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.config.security;
 
 import com.elster.jupiter.nls.TranslationKey;
+
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
@@ -12,7 +13,9 @@ public enum Privileges implements TranslationKey {
     //Privileges
     ADMINISTRATE_COMMUNICATION_ADMINISTRATION(Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, "Administrate"),
     VIEW_COMMUNICATION_ADMINISTRATION(Constants.VIEW_COMMUNICATION_ADMINISTRATION, "View"),
-    VIEW_COMMUNICATION_ADMINISTRATION_INTERNAL(Constants.VIEW_COMMUNICATION_ADMINISTRATION_INTERNAL,"Internal view");
+    @Deprecated
+    VIEW_COMMUNICATION_ADMINISTRATION_INTERNAL(Constants.VIEW_COMMUNICATION_ADMINISTRATION_INTERNAL, "Internal view"),
+    VIEW_STATUS_COMMUNICATION_INFRASTRUCTURE(Constants.VIEW_STATUS_COMMUNICATION_INFRASTRUCTURE, "View status");
 
     private final String key;
     private final String description;
@@ -45,7 +48,9 @@ public enum Privileges implements TranslationKey {
     public interface Constants {
         String ADMINISTRATE_COMMUNICATION_ADMINISTRATION = "privilege.administrate.communicationAdministration";
         String VIEW_COMMUNICATION_ADMINISTRATION = "privilege.view.communicationAdministration";
+        @Deprecated
         String VIEW_COMMUNICATION_ADMINISTRATION_INTERNAL = "privilege.view.communicationAdministration.internal";
+        String VIEW_STATUS_COMMUNICATION_INFRASTRUCTURE = "privilege.view.communicationAdministration.status";
     }
 }
 

@@ -12,10 +12,13 @@ import com.energyict.mdc.protocol.api.ComPortType;
 
 import java.sql.SQLException;
 
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests the {@link ServletBasedInboundComPortImpl} component.
@@ -664,6 +667,9 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
         onlineComServerBuilder.storeTaskQueueSize(1);
         onlineComServerBuilder.storeTaskThreadPriority(1);
         onlineComServerBuilder.numberOfStoreTaskThreads(1);
+        onlineComServerBuilder.serverName(name);
+        onlineComServerBuilder.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
+        onlineComServerBuilder.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
         return onlineComServerBuilder.create();
     }
 }

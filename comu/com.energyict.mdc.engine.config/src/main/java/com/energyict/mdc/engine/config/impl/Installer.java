@@ -2,9 +2,12 @@ package com.energyict.mdc.engine.config.impl;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.users.UserService;
 
-import java.util.logging.Level;
+import javax.inject.Inject;
 import java.util.logging.Logger;
 
 /**
@@ -13,14 +16,13 @@ import java.util.logging.Logger;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-08-26 (08:30)
  */
-public class Installer {
-
-    private final Logger logger = Logger.getLogger(Installer.class.getName());
+class Installer implements FullInstaller {
 
     private final DataModel dataModel;
     private final EventService eventService;
     private final UserService userService;
 
+    @Inject
     public Installer(DataModel dataModel, EventService eventService, UserService userService) {
         super();
         this.dataModel = dataModel;
@@ -28,24 +30,19 @@ public class Installer {
         this.userService = userService;
     }
 
-    public void install(boolean executeDdl) {
-        try {
-            this.dataModel.install(executeDdl, true);
-        }
-        catch (Exception e) {
-            this.logger.log(Level.SEVERE, e.getMessage(), e);
-        }
-        this.createEventTypes();
+    @Override
+    public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
+        dataModelUpgrader.upgrade(dataModel, Version.latest());
+        doTry(
+                "Create event types for MDC",
+                this::createEventTypes,
+                logger
+        );
     }
 
     private void createEventTypes() {
         for (EventType eventType : EventType.values()) {
-            try {
-                eventType.install(this.eventService);
-            }
-            catch (Exception e) {
-                this.logger.log(Level.SEVERE, e.getMessage(), e);
-            }
+            eventType.install(this.eventService);
         }
     }
 

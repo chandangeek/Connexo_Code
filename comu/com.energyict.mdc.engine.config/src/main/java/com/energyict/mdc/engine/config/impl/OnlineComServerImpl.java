@@ -1,9 +1,11 @@
 package com.energyict.mdc.engine.config.impl;
 
+import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Range;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
@@ -32,19 +34,19 @@ import java.util.List;
  * @since 2012-03-28 (15:36)
  */
 @UniqueUri(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.MDC_DUPLICATE_COM_SERVER_URI + "}")
-@ValidComServerUri(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY + "}")
 public final class OnlineComServerImpl extends ComServerImpl implements OnlineComServer {
 
     private final EngineConfigurationService engineConfigurationService;
-    @URI(message = "{"+ MessageSeeds.Keys.MDC_INVALID_URL+"}", groups = {Save.Update.class, Save.Create.class})
-    @Size(max = 512)
-    private String queryAPIPostUri;
-    @URI(message = "{"+ MessageSeeds.Keys.MDC_INVALID_URL+"}", groups = {Save.Update.class, Save.Create.class})
-    @Size(max = 512)
-    private String eventRegistrationUri;
-    @URI(message = "{" + MessageSeeds.Keys.MDC_INVALID_URL + "}", groups = {Save.Update.class, Save.Create.class})
-    @Size(max = 512)
-    private String statusUri;
+
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY + "}")
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.MDC_FIELD_TOO_LONG + "}")
+    private String serverName;
+    @Range(min = MIN_NON_REQUIRED_PORT_RANGE, max = MAX_PORT_RANGE, message = "{" + MessageSeeds.Keys.MDC_VALUE_NOT_IN_RANGE + "}", groups = {Save.Update.class, Save.Create.class})
+    private int queryApiPort;
+    @Range(min = MIN_REQUIRED_PORT_RANGE, max = MAX_PORT_RANGE, message = "{" + MessageSeeds.Keys.MDC_VALUE_NOT_IN_RANGE + "}", groups = {Save.Update.class, Save.Create.class})
+    private int eventRegistrationPort;
+    @Range(min = MIN_REQUIRED_PORT_RANGE, max = MAX_PORT_RANGE, message = "{" + MessageSeeds.Keys.MDC_VALUE_NOT_IN_RANGE + "}", groups = {Save.Update.class, Save.Create.class})
+    private int statusPort;
     @Range(min=MINIMUM_STORE_TASK_QUEUE_SIZE, max=MAXIMUM_STORE_TASK_QUEUE_SIZE, message = "{"+ MessageSeeds.Keys.MDC_VALUE_NOT_IN_RANGE+"}", groups = {Save.Update.class, Save.Create.class})
     private int storeTaskQueueSize;
     @Range(min=MINIMUM_NUMBER_OF_STORE_TASK_THREADS, max=MAXIMUM_NUMBER_OF_STORE_TASK_THREADS, message = "{"+ MessageSeeds.Keys.MDC_VALUE_NOT_IN_RANGE+"}", groups = {Save.Update.class, Save.Create.class})
@@ -101,9 +103,19 @@ public final class OnlineComServerImpl extends ComServerImpl implements OnlineCo
     }
 
     @Override
+    public String getServerName() {
+        return serverName;
+    }
+
+    @Override
+    public void setServerName(String serverName) {
+        this.serverName = serverName;
+    }
+
+    @Override
     @XmlElement
     public String getQueryApiPostUri () {
-        return queryAPIPostUri;
+        return queryApiPort != 0 ? this.buildQueryApiPostUri(serverName, queryApiPort) : "";
     }
 
     @Override
@@ -117,9 +129,19 @@ public final class OnlineComServerImpl extends ComServerImpl implements OnlineCo
     }
 
     @Override
+    public int getQueryApiPort() {
+        return queryApiPort;
+    }
+
+    @Override
+    public void setQueryApiPort(int queryApiPort) {
+        this.queryApiPort = queryApiPort;
+    }
+
+    @Override
     @XmlElement
     public String getEventRegistrationUri () {
-        return eventRegistrationUri;
+        return eventRegistrationPort != 0 ? this.buildEventRegistrationUri(serverName, eventRegistrationPort) : null;
     }
 
     @Override
@@ -133,14 +155,29 @@ public final class OnlineComServerImpl extends ComServerImpl implements OnlineCo
     }
 
     @Override
-    public void setStatusUri(String statusUri) {
-        this.statusUri = statusUri;
+    public int getEventRegistrationPort() {
+        return eventRegistrationPort;
+    }
+
+    @Override
+    public void setEventRegistrationPort(int eventRegistrationPort) {
+        this.eventRegistrationPort = eventRegistrationPort;
+    }
+
+    @Override
+    public int getStatusPort() {
+        return statusPort;
+    }
+
+    @Override
+    public void setStatusPort(int statusPort) {
+        this.statusPort = statusPort;
     }
 
     @Override
     @XmlElement
     public String getStatusUri () {
-        return statusUri;
+        return statusPort != 0 ? this.buildStatusUri(serverName, statusPort) : null;
     }
 
     @Override
@@ -159,16 +196,6 @@ public final class OnlineComServerImpl extends ComServerImpl implements OnlineCo
     @XmlElement
     public int getStoreTaskThreadPriority () {
         return storeTaskThreadPriority;
-    }
-
-    @Override
-    public void setQueryAPIPostUri(String queryAPIPostUri) {
-        this.queryAPIPostUri = queryAPIPostUri;
-    }
-
-    @Override
-    public void setEventRegistrationUri(String eventRegistrationUri) {
-        this.eventRegistrationUri = eventRegistrationUri;
     }
 
     @Override
@@ -212,20 +239,26 @@ public final class OnlineComServerImpl extends ComServerImpl implements OnlineCo
         }
 
         @Override
-        public OnlineComServerBuilderImpl eventRegistrationUri(String eventRegistrationUri) {
-            getComServerInstance().setEventRegistrationUri(eventRegistrationUri);
+        public OnlineComServerBuilder serverName(String serverName) {
+            getComServerInstance().setServerName(serverName);
             return this;
         }
 
         @Override
-        public OnlineComServerBuilderImpl queryApiPostUri(String queryApiPostUri) {
-            getComServerInstance().setQueryAPIPostUri(queryApiPostUri);
+        public OnlineComServerBuilder eventRegistrationPort(int eventRegistrationPort) {
+            getComServerInstance().setEventRegistrationPort(eventRegistrationPort);
             return this;
         }
 
         @Override
-        public OnlineComServerBuilderImpl statusUri(String statusUri) {
-            getComServerInstance().setStatusUri(statusUri);
+        public OnlineComServerBuilder queryApiPort(int queryApiPostPort) {
+            getComServerInstance().setQueryApiPort(queryApiPostPort);
+            return this;
+        }
+
+        @Override
+        public OnlineComServerBuilder statusPort(int statusPort) {
+            getComServerInstance().setStatusPort(statusPort);
             return this;
         }
     }

@@ -9,26 +9,57 @@ package com.energyict.mdc.engine.config;
 public interface OnlineComServer extends ComServer, InboundCapableComServer, OutboundCapableComServer {
 
     /**
+     * Gets the server name of this OnlineComServer. This name will be used
+     * for building up the various URIs.
+     *
+     * @return the server name
+     */
+    public String getServerName();
+
+    public void setServerName(String serverName);
+
+    /**
      * Gets the URI on which the event registration mechanism runs.
      *
      * @return The URI or <code>null</code> if this ComServer does not support event registration
      */
-    public String getEventRegistrationUri ();
+    public String getEventRegistrationUri();
 
-    public void setEventRegistrationUri(String eventRegistrationUri);
+    /**
+     * Gets the port on which the event registration mechanism runs.
+     *
+     * @return the port on which the event registration mechanism runs
+     */
+    public int getEventRegistrationPort();
+
+    public void setEventRegistrationPort(int eventRegistrationPort);
 
     /**
      * Gets the URI that returns the status information of this ComServer.
      *
      * @return The URI
      */
-    public String getStatusUri ();
+    public String getStatusUri();
 
-    public void setStatusUri(String statusUri);
+    /**
+     * Gets the port on which the status information mechanism runs.
+     *
+     * @return the port on which the status information runs
+     */
+    public int getStatusPort();
 
-    public String getQueryApiPostUri ();
+    public void setStatusPort(int statusPort);
 
-    public void setQueryAPIPostUri(String queryAPIPostUri);
+    public String getQueryApiPostUri();
+
+    /**
+     * Gets the port on which the query API mechanism runs
+     *
+     * @return the port on which the query API mechanism runs
+     */
+    public int getQueryApiPort();
+
+    public void setQueryApiPort(int queryApiPort);
 
     /**
      * Gets the maximum number of store tasks that can be exeucted
@@ -45,9 +76,9 @@ public interface OnlineComServer extends ComServer, InboundCapableComServer, Out
      * after the communication with the meter completed.
      *
      * @return The maximum number of store tasks that this OnlineComServer
-     *         will be able to handle at one point in time
+     * will be able to handle at one point in time
      */
-    public int getStoreTaskQueueSize ();
+    public int getStoreTaskQueueSize();
 
     public void setStoreTaskQueueSize(int storeTaskQueueSize);
 
@@ -61,7 +92,7 @@ public interface OnlineComServer extends ComServer, InboundCapableComServer, Out
      *
      * @return The number of threads that will execute store tasks
      */
-    public int getNumberOfStoreTaskThreads ();
+    public int getNumberOfStoreTaskThreads();
 
     public void setNumberOfStoreTaskThreads(int numberOfStoreTaskThreads);
 
@@ -70,17 +101,24 @@ public interface OnlineComServer extends ComServer, InboundCapableComServer, Out
      *
      * @return The priority of the thread(s) that will exeucte store tasks.
      */
-    public int getStoreTaskThreadPriority ();
+    public int getStoreTaskThreadPriority();
 
     public void setStoreTaskThreadPriority(int storeTaskThreadPriority);
 
     interface OnlineComServerBuilder<OCS extends OnlineComServer> extends ComServerBuilder<OCS, OnlineComServerBuilder> {
         OnlineComServerBuilder numberOfStoreTaskThreads(int numberOfStoreTaskThreads);
+
         OnlineComServerBuilder storeTaskQueueSize(int storeTaskQueueSize);
+
         OnlineComServerBuilder storeTaskThreadPriority(int storeTaskThreadPriority);
-        OnlineComServerBuilder eventRegistrationUri(String eventRegistrationUri);
-        OnlineComServerBuilder queryApiPostUri(String queryApiPostUri);
-        OnlineComServerBuilder statusUri(String statusUri);
+
+        OnlineComServerBuilder serverName(String serverName);
+
+        OnlineComServerBuilder eventRegistrationPort(int eventRegistrationPort);
+
+        OnlineComServerBuilder queryApiPort(int queryApiPostPort);
+
+        OnlineComServerBuilder statusPort(int statusPort);
     }
 
 }

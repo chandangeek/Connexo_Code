@@ -12,7 +12,7 @@ import java.util.Optional;
 public class UniqueComServerUriValidator implements ConstraintValidator<UniqueUri, ComServer> {
 
     private static final String EVENT_REGISTRATION_PORT = "eventRegistrationPort";
-    private static final String MONITOR_PORT = "monitorPort";
+    private static final String STATUS_PORT = "statusPort";
     private String message;
     private EngineConfigurationService engineConfigurationService;
 
@@ -34,7 +34,8 @@ public class UniqueComServerUriValidator implements ConstraintValidator<UniqueUr
 
         boolean successful = true;
         if (comServer.isOnline()) {
-            Optional<ComServer> comServerWithTheSameEventRegistrationUri = engineConfigurationService.findComServerByEventRegistrationUri(((OnlineComServer) comServer).getEventRegistrationUri());
+            OnlineComServer onlineComServer = (OnlineComServer) comServer;
+            Optional<ComServer> comServerWithTheSameEventRegistrationUri = engineConfigurationService.findComServerByServerNameAndEventRegistrationPort(onlineComServer.getServerName(), onlineComServer.getEventRegistrationPort());
             if (comServerWithTheSameEventRegistrationUri.isPresent()
                     && comServer.getId() != comServerWithTheSameEventRegistrationUri.get().getId()
                     && !comServerWithTheSameEventRegistrationUri.get().isObsolete()) {
@@ -43,12 +44,12 @@ public class UniqueComServerUriValidator implements ConstraintValidator<UniqueUr
                 successful = false;
             }
 
-            Optional<ComServer> comServerWithTheSameStatusUri = engineConfigurationService.findComServerByStatusUri(((OnlineComServer) comServer).getStatusUri());
+            Optional<ComServer> comServerWithTheSameStatusUri = engineConfigurationService.findComServerByServerNameAndStatusPort(onlineComServer.getServerName(), onlineComServer.getStatusPort());
             if (comServerWithTheSameStatusUri.isPresent()
                     && comServer.getId() != comServerWithTheSameStatusUri.get().getId()
                     && !comServerWithTheSameStatusUri.get().isObsolete()) {
                 context.disableDefaultConstraintViolation();
-                context.buildConstraintViolationWithTemplate(message).addPropertyNode(MONITOR_PORT).addConstraintViolation();
+                context.buildConstraintViolationWithTemplate(message).addPropertyNode(STATUS_PORT).addConstraintViolation();
                 successful = false;
             }
         }

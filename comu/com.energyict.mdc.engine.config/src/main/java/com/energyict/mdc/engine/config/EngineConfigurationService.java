@@ -75,18 +75,20 @@ public interface EngineConfigurationService {
     /**
      * Finds the {@link ComServer} with the specified event registration uri
      *
-     * @param eventRegistrationUri
+     * @param serverName
+     * @param eventRegistrationPort
      * @return the ComServer or <code>null</code> if no such ComServer exists
      */
-    Optional<ComServer> findComServerByEventRegistrationUri(String eventRegistrationUri);
+    Optional<ComServer> findComServerByServerNameAndEventRegistrationPort(String serverName, int eventRegistrationPort);
 
     /**
      * Finds the {@link ComServer} with the specified status uri
      *
-     * @param statusUri
+     * @param serverName
+     * @param statusPort
      * @return the ComServer or <code>null</code> if no such ComServer exists
      */
-    Optional<ComServer> findComServerByStatusUri(String statusUri);
+    Optional<ComServer> findComServerByServerNameAndStatusPort(String serverName, int statusPort);
 
     OnlineComServer.OnlineComServerBuilder<? extends OnlineComServer> newOnlineComServerBuilder();
 

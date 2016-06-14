@@ -1,8 +1,11 @@
 package com.energyict.mdc.engine.config.impl;
 
+import com.elster.jupiter.domain.util.NotEmpty;
+import com.elster.jupiter.domain.util.Range;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -31,12 +34,14 @@ public final class RemoteComServerImpl extends ComServerImpl implements RemoteCo
 
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY + "}")
     private final Reference<OnlineComServer> onlineComServer = ValueReference.absent();
-    @URI(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.MDC_INVALID_URL + "}")
-    @Size(max = 512)
-    private String eventRegistrationUri;
-    @URI(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.MDC_INVALID_URL + "}")
-    @Size(max = 512)
-    private String statusUri;
+
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY + "}")
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.MDC_FIELD_TOO_LONG + "}")
+    private String serverName;
+    @Range(min = MIN_REQUIRED_PORT_RANGE, max = MAX_PORT_RANGE, message = "{" + MessageSeeds.Keys.MDC_VALUE_NOT_IN_RANGE + "}", groups = {Save.Update.class, Save.Create.class})
+    private int eventRegistrationPort;
+    @Range(min = MIN_REQUIRED_PORT_RANGE, max = MAX_PORT_RANGE, message = "{" + MessageSeeds.Keys.MDC_VALUE_NOT_IN_RANGE + "}", groups = {Save.Update.class, Save.Create.class})
+    private int statusPort;
 
     public static RemoteComServer from(DataModel dataModel) {
         return dataModel.getInstance(RemoteComServerImpl.class);
@@ -63,14 +68,29 @@ public final class RemoteComServerImpl extends ComServerImpl implements RemoteCo
     }
 
     @Override
-    public void setEventRegistrationUri(String eventRegistrationUri) {
-        this.eventRegistrationUri = eventRegistrationUri;
+    public String getServerName() {
+        return serverName;
+    }
+
+    @Override
+    public void setServerName(String serverName) {
+        this.serverName = serverName;
+    }
+
+    @Override
+    public int getEventRegistrationPort() {
+        return this.eventRegistrationPort;
+    }
+
+    @Override
+    public void setEventRegistrationPort(int eventRegistrationPort) {
+        this.eventRegistrationPort = eventRegistrationPort;
     }
 
     @Override
     @XmlElement
     public String getEventRegistrationUri() {
-        return eventRegistrationUri;
+        return eventRegistrationPort != 0 ? buildEventRegistrationUri(getServerName(), getEventRegistrationPort()) : "";
     }
 
     @Override
@@ -83,14 +103,19 @@ public final class RemoteComServerImpl extends ComServerImpl implements RemoteCo
     }
 
     @Override
-    public void setStatusUri(String statusUri) {
-        this.statusUri = statusUri;
+    public int getStatusPort() {
+        return this.statusPort;
+    }
+
+    @Override
+    public void setStatusPort(int statusPort) {
+        this.statusPort = statusPort;
     }
 
     @Override
     @XmlElement
     public String getStatusUri() {
-        return statusUri;
+        return buildStatusUri(getServerName(), getStatusPort());
     }
 
     static class RemoteComServerBuilderImpl extends AbstractComServerBuilder<RemoteComServerImpl, RemoteComServerBuilder> implements RemoteComServerBuilder<RemoteComServerImpl> {
@@ -107,14 +132,20 @@ public final class RemoteComServerImpl extends ComServerImpl implements RemoteCo
         }
 
         @Override
-        public RemoteComServerBuilder eventRegistrationUri(String eventRegistrationUri) {
-            getComServerInstance().setEventRegistrationUri(eventRegistrationUri);
+        public RemoteComServerBuilder serverName(String serverName) {
+            getComServerInstance().setServerName(serverName);
             return this;
         }
 
         @Override
-        public RemoteComServerBuilder statusUri(String statusUri) {
-            getComServerInstance().setStatusUri(statusUri);
+        public RemoteComServerBuilder eventRegistrationPort(int eventRegistrationPort) {
+            getComServerInstance().setEventRegistrationPort(eventRegistrationPort);
+            return this;
+        }
+
+        @Override
+        public RemoteComServerBuilder statusPort(int statusPort) {
+            getComServerInstance().setStatusPort(statusPort);
             return this;
         }
     }
