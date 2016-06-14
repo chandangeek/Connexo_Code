@@ -105,9 +105,10 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
 
     void dataValidationKpiBuilder(KpiBuilder builder){
         builder.interval(this.frequency);
-        //FixMe add member to kpi
-//        Kpi kpi = builder.create();
-        this.dataValidationKpi.set(builder.member().named(MonitoredValidationStatus.SUSPECT.name()).add().create());
+        this.dataValidationKpi.set(builder.member()
+                .named(MonitoredValidationStatus.SUSPECT.name())
+                .add()
+                .create());
     }
 
     public boolean hasDeviceGroup() {
@@ -117,8 +118,6 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
     @Override
     public void postLoad() {
         this.recurrentTaskSaveStrategy = new UpdateRecurrentTask(this.dataValidationKpi, this.dataValidationKpiTask, KpiType.VALIDATION);
-
-        //FixMe investigate this code below
         Stream.of(this.dataValidationKpiCalculationIntervalLength())
                 .flatMap(Functions.asStream())
                 .findFirst()
