@@ -19,5 +19,6 @@ public class EndPointConfigurationInfo {
     public Boolean authenticated;
     public String username;
     public String password;
-    public EndPointConfigType type;
+    public EndPointConfigDirection direction;
+    public String type = "SOAP";
 }

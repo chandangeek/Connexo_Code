@@ -86,7 +86,7 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
     @Test
     public void testCreateEndpoint() throws Exception {
         EndPointConfigurationInfo info = new EndPointConfigurationInfo();
-        info.type = EndPointConfigType.Inbound;
+        info.direction = EndPointConfigDirection.Inbound;
         info.name = "new endpoint";
         info.logLevel = new IdWithDisplayValueInfo<>();
         info.logLevel.id = "FINEST";
@@ -108,7 +108,7 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
         when(inboundEndPointConfiguration.isActive()).thenReturn(false);
 
         EndPointConfigurationInfo info = new EndPointConfigurationInfo();
-        info.type = EndPointConfigType.Inbound;
+        info.direction = EndPointConfigDirection.Inbound;
         info.version = 901L;
         info.name = "new endpoint";
         info.logLevel = new IdWithDisplayValueInfo<>();
@@ -138,7 +138,7 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
         when(outboundEndPointConfiguration.isActive()).thenReturn(false);
 
         EndPointConfigurationInfo info = new EndPointConfigurationInfo();
-        info.type = EndPointConfigType.Outbound;
+        info.direction = EndPointConfigDirection.Outbound;
         info.version = 902L;
         info.name = "new endpoint";
         info.logLevel = new IdWithDisplayValueInfo<>();

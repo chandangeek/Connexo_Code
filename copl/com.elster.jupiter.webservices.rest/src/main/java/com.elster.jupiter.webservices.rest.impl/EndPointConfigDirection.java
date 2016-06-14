@@ -7,7 +7,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointConfiguration;
 /**
  * Created by bvn on 6/8/16.
  */
-public enum EndPointConfigType {
+public enum EndPointConfigDirection {
     Inbound {
         @Override
         public EndPointConfiguration create(EndPointConfigurationInfoFactory factory, EndPointConfigurationInfo info) {

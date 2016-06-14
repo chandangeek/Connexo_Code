@@ -38,10 +38,10 @@ public class EndPointConfigurationInfoFactory {
         info.tracing = endPointConfiguration.isTracing();
         info.schemaValidation = endPointConfiguration.isSchemaValidation();
         if (InboundEndPointConfiguration.class.isAssignableFrom(endPointConfiguration.getClass())) {
-            info.type = EndPointConfigType.Inbound;
+            info.direction = EndPointConfigDirection.Inbound;
             info.authenticated = ((InboundEndPointConfiguration) endPointConfiguration).isAuthenticated();
         } else {
-            info.type = EndPointConfigType.Outbound;
+            info.direction = EndPointConfigDirection.Outbound;
             info.username = ((OutboundEndPointConfiguration) endPointConfiguration).getUsername();
             info.password = ((OutboundEndPointConfiguration) endPointConfiguration).getPassword();
         }

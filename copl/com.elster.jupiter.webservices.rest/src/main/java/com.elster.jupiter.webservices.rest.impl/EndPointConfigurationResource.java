@@ -72,13 +72,13 @@ public class EndPointConfigurationResource {
         if (info == null) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.PAYLOAD_EXPECTED);
         }
-        if (info.type == null) {
+        if (info.direction == null) {
             throw new LocalizedFieldValidationException(MessageSeeds.FIELD_EXPECTED, "type");
         }
         if (info.active == null) {
             throw new LocalizedFieldValidationException(MessageSeeds.FIELD_EXPECTED, "active");
         }
-        EndPointConfiguration endPointConfiguration = info.type.create(endPointConfigurationInfoFactory, info);
+        EndPointConfiguration endPointConfiguration = info.direction.create(endPointConfigurationInfoFactory, info);
         EndPointConfigurationInfo endPointConfigurationInfo = endPointConfigurationInfoFactory.from(endPointConfiguration);
         return Response.status(Response.Status.CREATED).entity(endPointConfigurationInfo).build();
     }
@@ -93,7 +93,7 @@ public class EndPointConfigurationResource {
         EndPointConfiguration endPointConfiguration = endPointConfigurationService.findAndLockEndPointConfigurationByIdAndVersion(id, info.version)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_END_POINT_CONFIG));
         if (!info.active) { // Changes will be ignored if EndPointConfig is active, all but the actual active-state
-            info.type.applyChanges(endPointConfigurationInfoFactory, endPointConfiguration, info);
+            info.direction.applyChanges(endPointConfigurationInfoFactory, endPointConfiguration, info);
             endPointConfiguration.save();
         }
         if (info.active && !endPointConfiguration.isActive()) {
@@ -119,7 +119,7 @@ public class EndPointConfigurationResource {
 
     private void validatePostPayload(EndPointConfigurationInfo info) {
         validateBasicPayload(info);
-        if (info.type == null) {
+        if (info.direction == null) {
             throw new LocalizedFieldValidationException(MessageSeeds.FIELD_EXPECTED, "type");
         }
         if (info.schemaValidation == null) {
