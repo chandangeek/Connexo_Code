@@ -6,18 +6,25 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.util.time.ScheduleExpression;
 
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
+import org.osgi.framework.BundleContext;
+
+import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystem;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Arrays;
 import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
-import com.elster.jupiter.util.time.ScheduleExpression;
-import com.google.common.jimfs.Configuration;
-import com.google.common.jimfs.Jimfs;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,13 +32,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.osgi.framework.BundleContext;
-
-import java.nio.file.DirectoryStream;
-import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -68,6 +68,8 @@ public class FileImportServiceImplTest {
     private FileUtils fileSystem;
     @Mock
     private DirectoryStream<Path> directoryStream;
+    @Mock
+    private UpgradeService upgradeService;
 
     private FileSystem testFileSystem;
 
@@ -78,7 +80,6 @@ public class FileImportServiceImplTest {
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
         when(dataModel.addTable(anyString(), any())).thenReturn(table);
         when(dataModel.mapper(ImportSchedule.class)).thenReturn(importScheduleFactory);
-        when(dataModel.isInstalled()).thenReturn(true);
         when(importScheduleFactory.getOptional(15L)).thenReturn(Optional.of(importSchedule));
         when(importSchedule.getId()).thenReturn(15L);
         when(clock.instant()).thenReturn(NOW);
@@ -88,6 +89,7 @@ public class FileImportServiceImplTest {
         fileImportService.setOrmService(ormService);
         fileImportService.setClock(clock);
         fileImportService.setOrmService(ormService);
+        fileImportService.setUpgradeService(upgradeService);
     }
 
     @After
