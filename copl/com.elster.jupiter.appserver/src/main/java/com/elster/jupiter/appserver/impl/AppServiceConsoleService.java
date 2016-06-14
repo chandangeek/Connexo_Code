@@ -453,10 +453,14 @@ public class AppServiceConsoleService {
     }
 
     private void printSubscriberExecutionSpecs(Stream<AppServer> appServerStream) {
-        appServerStream
+
+        List<List<?>> collect = appServerStream
                 .flatMap(server -> server.getSubscriberExecutionSpecs().stream())
-                .map(se -> "\t" + se.getSubscriberSpec().getDestination().getName() + " " + se.getSubscriberSpec().getName() + " " + se.getThreadCount() + " " + se.isActive())
-                .forEach(System.out::println);
+                .map(se -> Arrays.asList(se.getSubscriberSpec().getDestination().getName(), se.getSubscriberSpec()
+                        .getName(), se.getThreadCount(), se.isActive() ? "Active" : "Inactive"))
+                .collect(toList());
+        MysqlPrint mysqlPrint = new MysqlPrint();
+        mysqlPrint.printTableWithHeader(Arrays.asList("Destination", "Subscriber", "Thread count", "Status"), collect);
     }
 
     @Reference
