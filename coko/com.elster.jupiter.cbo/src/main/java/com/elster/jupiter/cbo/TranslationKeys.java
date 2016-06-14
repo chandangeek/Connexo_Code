@@ -86,11 +86,11 @@ public enum TranslationKeys implements TranslationKey {
     CATEGORY_PROJECTED("ReadingQualityCategory_PROJECTED", "Projected"),
 
     SYSTEM_NOTAPPLICABLE("ReadingQualitySystem_NOTAPPLICABLE", "Not applicable"),
-    SYSTEM_ENDDEVICE("ReadingQualitySystem_ENDDEVICE", "End device"),
-    SYSTEM_MDC("ReadingQualitySystem_MDC", "MDC"),
-    SYSTEM_MDM("ReadingQualitySystem_MDM", "MDM"),
-    SYSTEM_OTHER("ReadingQualitySystem_OTHER", "Other system"),
-    SYSTEM_EXTERNAL("ReadingQualitySystem_EXTERNAL", "Externally specified");
+    SYSTEM_ENDDEVICE("ReadingQualitySystem_ENDDEVICE", "Device"),
+    SYSTEM_MDC("ReadingQualitySystem_MDC", "MultiSense"),
+    SYSTEM_MDM("ReadingQualitySystem_MDM", "Insight"),
+    SYSTEM_OTHER("ReadingQualitySystem_OTHER", "Other system (third party)"),
+    SYSTEM_EXTERNAL("ReadingQualitySystem_EXTERNAL", "Externally specified (third party)");
 
     private final String key;
     private final String defaultFormat;
