@@ -15,14 +15,17 @@ import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.users.User;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 
-import java.net.URI;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Clock;
 import java.util.Arrays;
@@ -56,9 +59,6 @@ public class MultisenseHeadEndInterfaceTest {
     private volatile DeviceService deviceService;
 
     @Mock
-    private volatile MeteringService meteringService;
-
-    @Mock
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
 
     @Mock
@@ -85,12 +85,21 @@ public class MultisenseHeadEndInterfaceTest {
     @Mock
     private ReadingType readingType;
 
+    @Mock
+    private ThreadPrincipalService threadPrincipalService;
+
+    @Mock
+    User user;
+
     private HeadEndInterface headEndInterface;
-    private final String mRid = "mRID";
+    private final String mRid = "mRID0123456789";
+    private final String uri = "https://demo.eict.local:8080/apps/multisense/index.html#";
+
 
     @Before
-    public void setup() {
-        headEndInterface = new MultiSenseHeadEndInterface(clock, deviceService, meteringService, deviceMessageSpecificationService, deviceConfigurationService, messageService, nlsService, thesaurus, serviceCallService, customPropertySetService, propertySpecService);
+    public void setup() throws MalformedURLException {
+        MeteringService meteringService = mock(MeteringService.class, Mockito.RETURNS_DEEP_STUBS);
+        headEndInterface = new MultiSenseHeadEndInterface(clock, deviceService, meteringService, deviceMessageSpecificationService, deviceConfigurationService, messageService, nlsService, thesaurus, serviceCallService, customPropertySetService, propertySpecService, threadPrincipalService);
         endDevice.setMRID(mRid);
         AmrSystem amrSystem = mock(AmrSystem.class);
         when(endDevice.getAmrSystem()).thenReturn(amrSystem);
@@ -103,32 +112,35 @@ public class MultisenseHeadEndInterfaceTest {
         when(device.getDeviceConfiguration().getDeviceType().getId()).thenReturn(3L);
         EndDeviceControlType endDeviceControlType = mock(EndDeviceControlType.class);
         when(meteringService.getEndDeviceControlType(anyString())).thenReturn(Optional.of(endDeviceControlType));
+        when(threadPrincipalService.getPrincipal()).thenReturn(user);
+        when(user.hasPrivilege(KnownAmrSystem.MDC.getName(), Privileges.Constants.VIEW_DEVICE)).thenReturn(true);
+        when(meteringService.getSupportedApplicationsUrls().get(KnownAmrSystem.MDC)).thenReturn(uri);
     }
 
     @Test
-    public void getURLForEndDevice(){
-        Optional<URI> uri = headEndInterface.getURIForEndDevice(endDevice);
-        if(uri.isPresent()){
-            assertTrue(uri.get().toString().equals("/devices/"+mRid));
-        }else{
+    public void getURLForEndDevice() {
+        Optional<URL> url = headEndInterface.getURLForEndDevice(endDevice);
+        if (url.isPresent()) {
+            assertTrue(url.get().toString().equals(uri + "/devices/" + mRid));
+        } else {
             throw new AssertionError("URL not found");
         }
     }
 
     @Test
-    public void getDeviceCapabilities(){
+    public void getDeviceCapabilities() {
         EndDeviceCapabilities endDeviceCapabilities = headEndInterface.getCapabilities(endDevice);
         AtomicInteger count = new AtomicInteger(0);
         Stream.of(EndDeviceControlTypeMapping.values()).forEach(type -> {
-                    if (type.getEndDeviceControlTypeMRID().startsWith(3 + ".")
-                            || type.getEndDeviceControlTypeMRID().startsWith("0.")
-                            || type.getEndDeviceControlTypeMRID().startsWith("*.")) {
-                        count.incrementAndGet();
-                    }
-                });
+            if (type.getEndDeviceControlTypeMRID().startsWith(3 + ".")
+                    || type.getEndDeviceControlTypeMRID().startsWith("0.")
+                    || type.getEndDeviceControlTypeMRID().startsWith("*.")) {
+                count.incrementAndGet();
+            }
+        });
 
         assertTrue(endDeviceCapabilities.getSupportedControlTypes().size() == count.get());
-        assertTrue(endDeviceCapabilities.getConfiguredReadingTypes().size()==1);
+        assertTrue(endDeviceCapabilities.getConfiguredReadingTypes().size() == 1);
         assertTrue(endDeviceCapabilities.getConfiguredReadingTypes().get(0).equals(readingType));
     }
 }

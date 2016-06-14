@@ -31,12 +31,13 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
-import org.junit.Before;
 
 import java.time.Instant;
 import java.util.Calendar;
 import java.util.Optional;
 import java.util.TimeZone;
+
+import org.junit.Before;
 
 import static org.assertj.core.api.Fail.fail;
 import static org.mockito.Mockito.mock;
@@ -232,13 +233,17 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
 
     protected OutboundComPort createOutboundComPort() {
         OnlineComServer.OnlineComServerBuilder<? extends OnlineComServer> onlineComServerBuilder = inMemoryPersistence.getEngineConfigurationService().newOnlineComServerBuilder();
-        onlineComServerBuilder.name("ComServer");
+        String name = "ComServer";
+        onlineComServerBuilder.name(name);
         onlineComServerBuilder.storeTaskQueueSize(1);
         onlineComServerBuilder.storeTaskThreadPriority(1);
         onlineComServerBuilder.changesInterPollDelay(TimeDuration.minutes(5));
         onlineComServerBuilder.communicationLogLevel(ComServer.LogLevel.DEBUG);
         onlineComServerBuilder.schedulingInterPollDelay(TimeDuration.minutes(1));
         onlineComServerBuilder.serverLogLevel(ComServer.LogLevel.DEBUG);
+        onlineComServerBuilder.serverName(name);
+        onlineComServerBuilder.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
+        onlineComServerBuilder.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
         onlineComServerBuilder.numberOfStoreTaskThreads(2);
         final OnlineComServer onlineComServer = onlineComServerBuilder.create();
         OutboundComPort.OutboundComPortBuilder outboundComPortBuilder = onlineComServer.newOutboundComPort("ComPort", 1);
@@ -248,7 +253,8 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
 
     protected InboundComPort createInboundComPort() {
         OnlineComServer.OnlineComServerBuilder<? extends OnlineComServer> onlineComServerBuilder = inMemoryPersistence.getEngineConfigurationService().newOnlineComServerBuilder();
-        onlineComServerBuilder.name("ComServer");
+        String name = "ComServer";
+        onlineComServerBuilder.name(name);
         onlineComServerBuilder.storeTaskQueueSize(1);
         onlineComServerBuilder.storeTaskThreadPriority(1);
         onlineComServerBuilder.changesInterPollDelay(TimeDuration.minutes(5));
@@ -256,6 +262,9 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
         onlineComServerBuilder.schedulingInterPollDelay(TimeDuration.minutes(1));
         onlineComServerBuilder.serverLogLevel(ComServer.LogLevel.DEBUG);
         onlineComServerBuilder.numberOfStoreTaskThreads(2);
+        onlineComServerBuilder.serverName(name);
+        onlineComServerBuilder.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
+        onlineComServerBuilder.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
         final OnlineComServer onlineComServer = onlineComServerBuilder.create();
         InboundComPort.InboundComPortBuilder inboundComPortBuilder = onlineComServer.newTCPBasedInboundComPort("ComPort", 1, 80);
         return (InboundComPort) inboundComPortBuilder.add();
