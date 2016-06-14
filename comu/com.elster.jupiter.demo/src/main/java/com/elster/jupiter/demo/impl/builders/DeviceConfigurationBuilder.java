@@ -1,5 +1,7 @@
 package com.elster.jupiter.demo.impl.builders;
 
+import com.elster.jupiter.demo.impl.Log;
+import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.GatewayType;
@@ -8,9 +10,6 @@ import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.tasks.ComTask;
-
-import com.elster.jupiter.demo.impl.Log;
-import com.elster.jupiter.demo.impl.UnableToCreate;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
@@ -27,6 +26,7 @@ public class DeviceConfigurationBuilder extends NamedBuilder<DeviceConfiguration
     private List<LogBookType> logBookTypes;
     private List<ComTask> comTasks;
     private List<SecurityPropertySetBuilder> securityPropertySetBuilders;
+    private BigDecimal overflowValue = new BigDecimal(9999999999L);
 
     @Inject
     public DeviceConfigurationBuilder() {
@@ -43,12 +43,12 @@ public class DeviceConfigurationBuilder extends NamedBuilder<DeviceConfiguration
         return this;
     }
 
-    public DeviceConfigurationBuilder withCanActAsGateway(boolean canActAsGateway){
+    public DeviceConfigurationBuilder withCanActAsGateway(boolean canActAsGateway) {
         this.canActAsGateway = canActAsGateway;
         return this;
     }
 
-    public DeviceConfigurationBuilder withDirectlyAddressable(boolean directlyAddressable){
+    public DeviceConfigurationBuilder withDirectlyAddressable(boolean directlyAddressable) {
         this.directlyAddressable = directlyAddressable;
         return this;
     }
@@ -108,7 +108,7 @@ public class DeviceConfigurationBuilder extends NamedBuilder<DeviceConfiguration
         if (this.registerTypes != null) {
             for (RegisterType registerType : registerTypes) {
                 builder.newNumericalRegisterSpec(registerType)
-                        .overflowValue(new BigDecimal(99999999))
+                        .overflowValue(overflowValue)
                         .numberOfFractionDigits(0);
             }
         }
@@ -158,9 +158,9 @@ public class DeviceConfigurationBuilder extends NamedBuilder<DeviceConfiguration
 
     private Optional<ProtocolDialectConfigurationProperties> findTheTCPDialect(DeviceConfiguration configuration) {
         return configuration.getProtocolDialectConfigurationPropertiesList()
-                    .stream()
-                    .filter(protocolDialectConfigurationProperties ->
-                            protocolDialectConfigurationProperties.getDeviceProtocolDialectName().toLowerCase().contains("tcp"))
-                    .findFirst();
+                .stream()
+                .filter(protocolDialectConfigurationProperties ->
+                        protocolDialectConfigurationProperties.getDeviceProtocolDialectName().toLowerCase().contains("tcp"))
+                .findFirst();
     }
 }
