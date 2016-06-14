@@ -106,14 +106,8 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
     void dataValidationKpiBuilder(KpiBuilder builder){
         builder.interval(this.frequency);
         //FixMe add member to kpi
-        /*Stream.of(MonitoredTaskStatus.values()).
-                map(s -> builder.member().named(s.name())).
-                map(s -> {
-                    s.add();
-                    return s;
-                });*/
-        Kpi kpi = builder.create();
-        this.dataValidationKpi.set(kpi);
+//        Kpi kpi = builder.create();
+        this.dataValidationKpi.set(builder.member().named(MonitoredValidationStatus.SUSPECT.name()).add().create());
     }
 
     public boolean hasDeviceGroup() {
@@ -124,11 +118,11 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
     public void postLoad() {
         this.recurrentTaskSaveStrategy = new UpdateRecurrentTask(this.dataValidationKpi, this.dataValidationKpiTask, KpiType.VALIDATION);
 
-        /*FixMe investigate this code below
+        //FixMe investigate this code below
         Stream.of(this.dataValidationKpiCalculationIntervalLength())
                 .flatMap(Functions.asStream())
                 .findFirst()
-                .ifPresent(temporalAmount -> this.frequency = temporalAmount);*/
+                .ifPresent(temporalAmount -> this.frequency = temporalAmount);
     }
 
     @Override
