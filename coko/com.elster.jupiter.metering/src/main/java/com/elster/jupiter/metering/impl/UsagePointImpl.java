@@ -585,7 +585,12 @@ public class UsagePointImpl implements UsagePoint {
 
     @Override
     public ZoneId getZoneId() {
-        return ZoneId.systemDefault();
+        return getCurrentMeterActivations()
+                .stream()
+                .filter(ma -> ma.getMeter().isPresent())
+                .map(ma -> ma.getMeter().get().getZoneId())
+                .findAny()
+                .orElse(ZoneId.systemDefault());
     }
 
     void addConfiguration(UsagePointConfigurationImpl usagePointConfiguration) {
@@ -658,16 +663,6 @@ public class UsagePointImpl implements UsagePoint {
         return meterActivations.stream()
                 .filter(ma -> !ma.getStart().equals(ma.getEnd()))
                 .collect(Collectors.toList());
-    }
-
-    @Override
-    public Optional<MeterActivation> getCurrentMeterActivation() {
-        return getCurrentMeterActivations().stream()
-                .filter(ma -> ma.getMeterRole().isPresent() && ma.getMeterRole()
-                        .get()
-                        .getKey()
-                        .equals(DefaultMeterRole.DEFAULT.getKey()))
-                .findFirst();
     }
 
     @Override

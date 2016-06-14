@@ -46,11 +46,13 @@ import com.elster.jupiter.metering.UsagePointAccountability;
 import com.elster.jupiter.metering.UsagePointConnectedKind;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointFilter;
+import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.impl.aggregation.CalculatedReadingRecordFactory;
 import com.elster.jupiter.metering.impl.aggregation.CalculatedReadingRecordFactoryImpl;
+import com.elster.jupiter.metering.impl.aggregation.DataAggregationServiceImpl;
 import com.elster.jupiter.metering.impl.config.MeterActivationValidatorsWhiteboard;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
@@ -160,6 +162,7 @@ public class MeteringServiceImpl implements ServerMeteringService, PrivilegesPro
     private volatile LicenseService licenseService;
     private volatile MeterActivationValidatorsWhiteboard meterActivationValidatorsWhiteboard;
     private volatile UpgradeService upgradeService;
+    private volatile DataAggregationServiceImpl dataAggregationService;
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
 
     private volatile boolean createAllReadingTypes;
@@ -491,9 +494,12 @@ public class MeteringServiceImpl implements ServerMeteringService, PrivilegesPro
             spec.addTo(dataModel);
         }
 
+        this.dataAggregationService = new DataAggregationServiceImpl();
+        this.dataAggregationService.setMeteringService(this);
         this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this, this.userService, this.meterActivationValidatorsWhiteboard);
         this.usagePointRequirementsSearchDomain = new UsagePointRequirementsSearchDomain(this.propertySpecService, this, this.metrologyConfigurationService, this.clock, this.licenseService);
         this.searchService.register(this.usagePointRequirementsSearchDomain);
+        registerDataAggregationService(bundleContext);
         registerMetrologyConfigurationService(bundleContext);
 
         dataModel.register(new AbstractModule() {
@@ -522,6 +528,7 @@ public class MeteringServiceImpl implements ServerMeteringService, PrivilegesPro
                 bind(MessageService.class).toInstance(messageService);
                 bind(MetrologyConfigurationServiceImpl.class).toInstance(metrologyConfigurationService);
                 bind(IMeterActivation.class).to(MeterActivationImpl.class);
+                bind(DataAggregationService.class).toInstance(dataAggregationService);
             }
         });
 
@@ -547,6 +554,17 @@ public class MeteringServiceImpl implements ServerMeteringService, PrivilegesPro
                             PrivilegesProvider.class.getName(),
                             TranslationKeyProvider.class.getName()},
                     this.metrologyConfigurationService,
+                    properties));
+        }
+    }
+
+    private void registerDataAggregationService(BundleContext bundleContext) {
+        if (bundleContext != null) {
+            Dictionary<String, Object> properties = new Hashtable<>(1);
+            properties.put("name", "com.elster.jupiter.metering.aggregation");
+            this.serviceRegistrations.add(bundleContext.registerService(
+                    new String[]{DataAggregationService.class.getName()},
+                    this.dataAggregationService,
                     properties));
         }
 

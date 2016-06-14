@@ -73,6 +73,11 @@ public abstract class ChannelsContainerImpl implements ChannelsContainer {
             extraTypes[i] = (ReadingTypeImpl) readingTypes[i];
         }
         Channel channel = channelBuilder.get().channelsContainer(this).readingTypes(main, extraTypes).build();
+        storeChannel(channel);
+        return channel;
+    }
+
+    protected Channel storeChannel(Channel channel) {
         channels.add(channel);
         eventService.postEvent(EventType.CHANNEL_CREATED.topic(), channel);
         return channel;

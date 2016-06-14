@@ -200,13 +200,6 @@ public interface UsagePoint extends HasId, IdentifiedObject {
     List<MeterActivation> getMeterActivations(Instant when);
 
     /**
-     * Use the {@link #getCurrentMeterActivations()} instead.
-     * In fact this method returns the current meter activation for {@link com.elster.jupiter.metering.config.DefaultMeterRole#DEFAULT} meter role
-     */
-    @Deprecated
-    Optional<MeterActivation> getCurrentMeterActivation();
-
-    /**
      * Returns collection which contains effective meter activations per meter role.
      */
     List<MeterActivation> getCurrentMeterActivations();
@@ -251,10 +244,9 @@ public interface UsagePoint extends HasId, IdentifiedObject {
         UsagePointConfigurationBuilder calculating(ReadingType readingType);
     }
 
-    // TODO delete start (methods from ReadingContainer) =============================================================
+    ZoneId getZoneId();
 
-    @Deprecated
-    ZoneId getZoneId(); // dependency in data aggregation
+    // TODO delete start (methods from ReadingContainer) =============================================================
 
     @Deprecated
     List<? extends MeterActivation> getMeterActivations();

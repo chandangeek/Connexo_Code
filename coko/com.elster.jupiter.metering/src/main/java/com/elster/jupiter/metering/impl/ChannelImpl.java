@@ -115,11 +115,11 @@ public final class ChannelImpl implements ChannelContract {
         this.eventService = eventService;
     }
 
-    ChannelImpl init(ChannelsContainer channelsContainer, List<IReadingType> readingTypes) {
+    public ChannelImpl init(ChannelsContainer channelsContainer, List<IReadingType> readingTypes) {
         return init(channelsContainer, readingTypes, this::determineRule);
     }
 
-    ChannelImpl init(ChannelsContainer channelsContainer, List<IReadingType> readingTypes, BiFunction<IReadingType, IReadingType, DerivationRule> ruleDetermination) {
+    public ChannelImpl init(ChannelsContainer channelsContainer, List<IReadingType> readingTypes, BiFunction<IReadingType, IReadingType, DerivationRule> ruleDetermination) {
         this.channelsContainer.set(channelsContainer);
         this.mainReadingType.set(readingTypes.get(0));
         for (int index = 0; index < readingTypes.size(); index++) {

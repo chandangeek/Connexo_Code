@@ -3,11 +3,12 @@ package com.elster.jupiter.metering.impl.config;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.orm.associations.Effectivity;
 
 import java.time.Instant;
-import java.util.List;
+import java.util.Optional;
 
 /**
  * Models the effective relationship between
@@ -26,5 +27,5 @@ public interface EffectiveMetrologyConfigurationOnUsagePoint extends Effectivity
 
     void activate();
 
-    List<ChannelsContainer> getChannelsContainers();
+    Optional<ChannelsContainer> getChannelsContainer(MetrologyContract metrologyContract);
 }

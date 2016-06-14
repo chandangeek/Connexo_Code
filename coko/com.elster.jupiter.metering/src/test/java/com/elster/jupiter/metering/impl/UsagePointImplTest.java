@@ -263,7 +263,7 @@ public class UsagePointImplTest {
         activation1 = usagePoint.activate(meter, meterRole, START_DATE.toInstant());
         activation1.endAt(START_DATE.plusYears(1).toInstant());
         activation2 = usagePoint.activate(meter, meterRole, START_DATE.plusYears(1).toInstant());
-        assertThat(usagePoint.getCurrentMeterActivation()).contains(activation2);
+        assertThat(usagePoint.getCurrentMeterActivations()).contains(activation2);
     }
 
     @Test
