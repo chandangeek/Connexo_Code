@@ -252,6 +252,33 @@ Ext.define('Uni.property.view.property.ReadingQualities', {
         return tooltip;
     },
 
+    isCimCodeInvalid: function(cimCode) {
+        var me = this,
+            parts = cimCode.split('.'),
+            result = 0; // = valid
+
+        if (parts.length !== 3) {
+            return 1; // = invalid, message beneath manual input
+        }
+        var systemCode = parts[0],
+            categoryCode = parts[1],
+            indexCode = parts[2],
+            storeRecord;
+
+        storeRecord = me.systemStore.findRecord('id', systemCode);
+        if (Ext.isEmpty(storeRecord)) {
+            result |= 2; // = invalid, 1st part
+        }
+        storeRecord = me.categoryStore.findRecord('id', categoryCode);
+        if (Ext.isEmpty(storeRecord)) {
+            result |= 4; // = invalid, 2nd part
+        }
+        if (Ext.isEmpty(indexCode) || indexCode === 'null') {
+            result |= 8; // = invalid, 3rd part
+        }
+        return result;
+    },
+
     getSystemStore: function() {
         return this.systemStore;
     },

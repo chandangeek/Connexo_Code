@@ -12,7 +12,7 @@ Ext.define('Uni.property.view.property.AddReadingQualityWindow', {
     width: 450,
     defaultFocus: 'uni-reading-quality-input-field',
     requires: [
-        //'Uni.util.FormErrorMessage',
+        'Uni.util.FormErrorMessage'
     ],
     readingQualities: null,
     items: {
@@ -21,6 +21,13 @@ Ext.define('Uni.property.view.property.AddReadingQualityWindow', {
         border: false,
         itemId: 'readingQualityForm',
         items: [
+            {
+                xtype: 'uni-form-error-message',
+                name: 'form-errors',
+                itemId: 'form-errors',
+                margin: '10 0 10 0',
+                hidden: true
+            },
             {
                 xtype: 'radiogroup',
                 itemId: 'uni-reading-quality-input-method',
@@ -34,35 +41,20 @@ Ext.define('Uni.property.view.property.AddReadingQualityWindow', {
                         layout: 'vbox',
                         items: [
                             {
-                                xtype: 'fieldcontainer',
-                                layout: 'hbox',
-                                itemId: 'uni-reading-quality-container',
-                                required: true,
-                                msgTarget: 'under',
-                                items: [
-                                    {
-                                        xtype: 'radio',
-                                        itemId: 'uni-reading-quality-input-radio',
-                                        boxLabel: Uni.I18n.translate('general.specifyReadingQuality', 'UNI', 'Specify reading quality'),
-                                        name: 'manualInput',
-                                        inputValue: true,
-                                        margin: '10 0 0 0',
-                                        checked: true
-                                    },
-                                    {
-                                        xtype: 'button',
-                                        tooltip: Uni.I18n.translate('general.specifyReadingQuality.tooltip', 'UNI', "The wildcard '*' can be used in the 1st and 3rd part of the reading quality and will match all possible values."),
-                                        iconCls: 'uni-icon-info-small',
-                                        ui: 'blank',
-                                        shadow: false,
-                                        margin: '15 0 0 10',
-                                        width: 16,
-                                        tabIndex: -1
-                                    }
-                                ]
+                                xtype: 'radio',
+                                itemId: 'uni-reading-quality-input-radio',
+                                boxLabel: '<span style="display:inline-block; float: left; margin-right:7px;" >' + Uni.I18n.translate('general.specifyReadingQuality', 'UNI', 'Specify reading quality') + '</span>'
+                                            + '<span class="icon-info" style="display:inline-block; color:#A9A9A9; font-size:16px;" data-qtip="'
+                                            + Uni.I18n.translate('general.specifyReadingQuality.tooltip', 'UNI', "The wildcard '*' can be used in the 1st and 3rd part of the reading quality and will match all possible values.")
+                                            + '"></span>',
+                                name: 'manualInput',
+                                inputValue: true,
+                                margin: '10 0 0 0',
+                                checked: true
                             },
                             {
                                 xtype: 'form',
+                                margins: '5 0 0 0',
                                 border: false,
                                 itemId: 'uni-reading-quality-form',
                                 layout: {
@@ -76,6 +68,7 @@ Ext.define('Uni.property.view.property.AddReadingQualityWindow', {
                                     {
                                         xtype: 'textfield',
                                         itemId: 'uni-reading-quality-input-field',
+                                        emptyText: 'x.x.x',
                                         width: 380,
                                         fieldLabel: Uni.I18n.translate('general.readingQuality', 'UNI', 'Reading quality'),
                                         required: true
@@ -171,21 +164,22 @@ Ext.define('Uni.property.view.property.AddReadingQualityWindow', {
                 listeners: {
                     click: {
                         fn: function () {
-                            var inputRadioBtn = this.up('#uni-add-reading-quality-window').down('#uni-reading-quality-input-radio');
-                            if (inputRadioBtn.getValue()) {
-                                me.readingQualities.addReadingQuality(
-                                    this.up('#uni-add-reading-quality-window').down('#uni-reading-quality-input-field').getValue()
-                                );
-                            } else {
-                                me.readingQualities.addReadingQuality(
-                                    this.up('#uni-add-reading-quality-window').down('#uni-system-combo').getValue()
+                            var inputRadioBtn = this.up('#uni-add-reading-quality-window').down('#uni-reading-quality-input-radio'),
+                                enteredValue = inputRadioBtn.getValue()
+                                    ? this.up('#uni-add-reading-quality-window').down('#uni-reading-quality-input-field').getValue()
+                                    : this.up('#uni-add-reading-quality-window').down('#uni-system-combo').getValue()
                                         + '.' +
                                         this.up('#uni-add-reading-quality-window').down('#uni-category-combo').getValue()
                                         + '.' +
-                                        this.up('#uni-add-reading-quality-window').down('#uni-index-combo').getValue()
-                                );
+                                        this.up('#uni-add-reading-quality-window').down('#uni-index-combo').getValue(),
+                                validationResult = me.readingQualities.isCimCodeInvalid(enteredValue);
+
+                            if (validationResult === 0) {
+                                me.readingQualities.addReadingQuality(enteredValue);
+                                this.up('#uni-add-reading-quality-window').destroy();
+                            } else {
+                                me.showErrorMessage(enteredValue, validationResult);
                             }
-                            this.up('#uni-add-reading-quality-window').destroy();
                         }
                     }
                 }
@@ -219,7 +213,6 @@ Ext.define('Uni.property.view.property.AddReadingQualityWindow', {
     onAfterRender: function() {
         var me = this,
             radioButton = me.down('#uni-reading-quality-input-radio'),
-            inputField = me.down('#uni-reading-quality-input-field'),
             systemCombo = me.down('#uni-system-combo'),
             categoryCombo = me.down('#uni-category-combo'),
             indexCombo = me.down('#uni-index-combo');
@@ -228,13 +221,8 @@ Ext.define('Uni.property.view.property.AddReadingQualityWindow', {
         categoryCombo.bindStore(me.readingQualities.getCategoryStore(), true);
         indexCombo.setDisabled(true);
 
-        inputField.on("change", me.updateAddButton, me);
         radioButton.on("change", me.onRadioBtnChange, me);
-        systemCombo.on("change", me.updateAddButton, me);
         categoryCombo.on("change", me.onCategoryComboChanged, me);
-        indexCombo.on("change", me.updateAddButton, me);
-
-        me.updateAddButton();
     },
 
     onRadioBtnChange: function(field, newValue, oldValue) {
@@ -249,7 +237,7 @@ Ext.define('Uni.property.view.property.AddReadingQualityWindow', {
         categoryCombo.setDisabled(newValue);
         indexCombo.setDisabled(newValue ? newValue : Ext.isEmpty(categoryCombo.getValue()));
         fieldToFocus.focus(false, 200);
-        me.updateAddButton();
+        me.hideErrorMessage();
     },
 
     onCategoryComboChanged: function(combo, newValue, oldValue) {
@@ -259,31 +247,35 @@ Ext.define('Uni.property.view.property.AddReadingQualityWindow', {
         indexCombo.bindStore(me.readingQualities.getIndexStore(newValue), true);
         indexCombo.setValue(null);
         indexCombo.setDisabled(false);
-        me.updateAddButton();
     },
 
-    updateAddButton: function() {
-        var me = this,
-            inputRadioBtn = me.down('#uni-reading-quality-input-radio'),
-            inputField = me.down('#uni-reading-quality-input-field'),
-            systemCombo = me.down('#uni-system-combo'),
-            categoryCombo = me.down('#uni-category-combo'),
-            indexCombo = me.down('#uni-index-combo'),
-            addButton = me.down('#uni-reading-quality-add-button');
-
-        if (inputRadioBtn.getValue()) {
-            var typedCimCode = inputField.getValue();
-            addButton.setDisabled(
-                Ext.isEmpty(typedCimCode) ||
-                ! /^[0-9\*]+\.[0-9]+\.[0-9\*]+$/.test(typedCimCode)
-            );
+    showErrorMessage: function(enteredValue, validationResult) {
+        this.down('#form-errors').show();
+        if (this.down('#uni-reading-quality-input-radio').getValue()) {
+            if (Ext.isEmpty(enteredValue)) {
+                this.down('#uni-reading-quality-input-field').markInvalid(Uni.I18n.translate('general.requiredField', 'UNI', 'This field is required'));
+            } else {
+                this.down('#uni-reading-quality-input-field').markInvalid(Uni.I18n.translate('general.readingQuality.invalid', 'UNI', 'Reading quality is invalid'));
+            }
         } else {
-            addButton.setDisabled(
-                Ext.isEmpty(systemCombo.getValue()) ||
-                Ext.isEmpty(categoryCombo.getValue()) ||
-                Ext.isEmpty(indexCombo.getValue())
-            );
+            if (validationResult & 2) {
+                this.down('#uni-system-combo').markInvalid(Uni.I18n.translate('general.requiredField', 'UNI', 'This field is required'));
+            }
+            if (validationResult & 4) {
+                this.down('#uni-category-combo').markInvalid(Uni.I18n.translate('general.requiredField', 'UNI', 'This field is required'));
+            }
+            if (validationResult & 8) {
+                this.down('#uni-index-combo').markInvalid(Uni.I18n.translate('general.requiredField', 'UNI', 'This field is required'));
+            }
         }
+    },
+
+    hideErrorMessage: function() {
+        this.down('#form-errors').hide();
+        this.down('#uni-reading-quality-input-field').clearInvalid();
+        this.down('#uni-system-combo').clearInvalid();
+        this.down('#uni-category-combo').clearInvalid();
+        this.down('#uni-index-combo').clearInvalid();
     }
 
 });
