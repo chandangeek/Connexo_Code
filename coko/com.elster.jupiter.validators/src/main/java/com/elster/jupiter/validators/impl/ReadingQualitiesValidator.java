@@ -45,14 +45,16 @@ class ReadingQualitiesValidator extends AbstractValidator {
 
         //Add every possible combination
         for (QualityCodeSystem system : QualityCodeSystem.values()) {
-            for (QualityCodeIndex index : QualityCodeIndex.values()) {
-                String cimCode = system.ordinal() + "." + index.category().ordinal() + "." + index.index();
-                possibleReadingQualityPropertyValues.add(new ReadingQualityPropertyValue(
-                        cimCode,
-                        getThesaurus().getString(system.getTranslationKey().getKey(), system.getTranslationKey().getDefaultFormat()),
-                        getThesaurus().getString(index.category().getTranslationKey().getKey(), index.category().getTranslationKey().getDefaultFormat()),
-                        getThesaurus().getString(index.getTranslationKey().getKey(), index.getTranslationKey().getDefaultFormat())
-                ));
+            if (system != QualityCodeSystem.NOTAPPLICABLE) {
+                for (QualityCodeIndex index : QualityCodeIndex.values()) {
+                    String cimCode = system.ordinal() + "." + index.category().ordinal() + "." + index.index();
+                    possibleReadingQualityPropertyValues.add(new ReadingQualityPropertyValue(
+                            cimCode,
+                            getThesaurus().getString(system.getTranslationKey().getKey(), system.getTranslationKey().getDefaultFormat()),
+                            getThesaurus().getString(index.category().getTranslationKey().getKey(), index.category().getTranslationKey().getDefaultFormat()),
+                            getThesaurus().getString(index.getTranslationKey().getKey(), index.getTranslationKey().getDefaultFormat())
+                    ));
+                }
             }
         }
 
@@ -125,6 +127,7 @@ class ReadingQualitiesValidator extends AbstractValidator {
                         .fromThesaurus(this.getThesaurus())
                         .addValues(getPossibleReadingQualityPropertyValues())
                         .markMultiValued()
+                        .markRequired()
                         .finish());
     }
 
