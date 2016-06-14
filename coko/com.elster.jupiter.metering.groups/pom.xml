@@ -65,6 +65,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>properties</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>upgrade</artifactId>
+        </dependency>
 
         <!-- Testing -->
         <dependency>
@@ -130,6 +134,11 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>systemadmin</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>time</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
