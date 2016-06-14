@@ -15,6 +15,7 @@ import aQute.bnd.annotation.ProviderType;
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @ProviderType
@@ -179,4 +180,6 @@ public interface MeteringService {
     List<HeadEndInterface> getHeadEndInterfaces();
 
     Optional<HeadEndInterface> getHeadEndInterface(String amrSystem);
+
+    Map<KnownAmrSystem, String> getSupportedApplicationsUrls();
 }

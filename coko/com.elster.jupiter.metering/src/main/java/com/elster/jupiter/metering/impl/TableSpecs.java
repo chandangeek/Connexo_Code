@@ -411,7 +411,11 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<MeterRole> table = dataModel.addTable(name(), MeterRole.class);
             table.map(MeterRoleImpl.class);
-            Column nameColumn = table.column(MeterRoleImpl.Fields.KEY.name()).varChar(NAME_LENGTH).notNull().map(MeterRoleImpl.Fields.KEY.fieldName()).add();
+            Column nameColumn = table.column(MeterRoleImpl.Fields.KEY.name())
+                    .varChar(NAME_LENGTH)
+                    .notNull()
+                    .map(MeterRoleImpl.Fields.KEY.fieldName())
+                    .add();
 
             table.primaryKey("MTR_PK_METERROLE").on(nameColumn).add();
         }

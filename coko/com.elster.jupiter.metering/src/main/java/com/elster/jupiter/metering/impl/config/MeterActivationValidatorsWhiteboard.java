@@ -31,7 +31,8 @@ public class MeterActivationValidatorsWhiteboard {
         this.customValidators.remove(customUsagePointMeterActivationValidator);
     }
 
-    public void validateUsagePointMeterActivation(MeterRole meterRole, Meter meter, UsagePoint usagePoint) throws CustomUsagePointMeterActivationValidationException {
+    public void validateUsagePointMeterActivation(MeterRole meterRole, Meter meter, UsagePoint usagePoint) throws
+            CustomUsagePointMeterActivationValidationException {
         this.customValidators.stream().forEach(validator -> validator.validateActivation(meterRole, meter, usagePoint));
     }
 }
