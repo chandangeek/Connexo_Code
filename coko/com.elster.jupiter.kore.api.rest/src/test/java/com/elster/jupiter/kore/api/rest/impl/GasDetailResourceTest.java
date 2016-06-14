@@ -126,7 +126,7 @@ public class GasDetailResourceTest extends PlatformPublicApiJerseyTest {
         when(gasDetail.getRange()).thenReturn(Range.downTo(clock.instant(), BoundType.CLOSED));
         UsagePoint usagePoint = mockUsagePoint(31L, "usage point", 2L, ServiceKind.GAS, gasDetail);
         MetrologyConfiguration metrologyConfiguration = mockMetrologyConfiguration(13L, "metro", 1);
-        when(usagePoint.getMetrologyConfiguration()).thenReturn(Optional.of(metrologyConfiguration));
+        when(usagePoint.getMetrologyConfiguration()).thenReturn(Optional.of(metrologyConfiguration)); //TODO: fix tests
         Response response = target("/usagepoints/31/details").request().get();
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
