@@ -44,8 +44,6 @@ import com.energyict.mdc.device.data.impl.events.ComTaskEnablementStatusMessageH
 import com.energyict.mdc.device.data.impl.events.ConnectionTaskValidatorAfterPropertyRemovalMessageHandlerFactory;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiCalculatorHandlerFactory;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiServiceImpl;
-import com.energyict.mdc.device.data.impl.kpi.DataValidationKpiCalculatorHandlerFactory;
-import com.energyict.mdc.device.data.impl.kpi.DataValidationKpiServiceImpl;
 import com.energyict.mdc.device.data.impl.search.PropertyTranslationKeys;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.impl.tasks.CommunicationTaskServiceImpl;
@@ -55,7 +53,6 @@ import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
 import com.energyict.mdc.device.data.impl.tasks.report.CommunicationTaskReportServiceImpl;
 import com.energyict.mdc.device.data.impl.tasks.report.ConnectionTaskReportServiceImpl;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
-import com.energyict.mdc.device.data.kpi.DataValidationKpiService;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
@@ -144,7 +141,6 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
     private ServerLoadProfileService loadProfileService;
     private ServerLogBookService logBookService;
     private DataCollectionKpiService dataCollectionKpiService;
-    private DataValidationKpiService dataValidationKpiService;
     private DeviceMessageSpecificationService deviceMessageSpecificationService;
     private BatchService batchService;
     private DeviceMessageService deviceMessageService;
@@ -404,11 +400,6 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
     }
 
     @Override
-    public DataValidationKpiService dataValidationKpiService() {
-        return this.dataValidationKpiService;
-    }
-
-    @Override
     public ServerDeviceService deviceService() {
         return this.deviceService;
     }
@@ -512,7 +503,6 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
                 bind(LogBookService.class).toInstance(logBookService);
                 bind(DeviceMessageSpecificationService.class).toInstance(deviceMessageSpecificationService);
                 bind(DataCollectionKpiService.class).toInstance(dataCollectionKpiService);
-                bind(DataValidationKpiService.class).toInstance(dataValidationKpiService);
                 bind(MeteringGroupsService.class).toInstance(meteringGroupsService);
                 bind(MdcReadingTypeUtilService.class).toInstance(readingTypeUtilService);
                 bind(BatchService.class).toInstance(batchService);
@@ -542,7 +532,6 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
         this.loadProfileService = new LoadProfileServiceImpl(this);
         this.logBookService = new LogBookServiceImpl(this);
         this.dataCollectionKpiService = new DataCollectionKpiServiceImpl(this);
-        this.dataValidationKpiService = new DataValidationKpiServiceImpl(this);
         this.batchService = new BatchServiceImpl(this);
         this.deviceMessageService = new DeviceMessageServiceImpl(this);
     }
@@ -556,7 +545,6 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
         this.registerLoadProfileService(bundleContext);
         this.registerLogBookService(bundleContext);
         this.registerDataCollectionKpiService(bundleContext);
-        this.registerDataValidationKpiService(bundleContext);
         this.registerBatchService(bundleContext);
         this.registerDeviceMessageService(bundleContext);
     }
@@ -596,10 +584,6 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
         this.serviceRegistrations.add(bundleContext.registerService(DataCollectionKpiService.class, this.dataCollectionKpiService, null));
     }
 
-    private void registerDataValidationKpiService(BundleContext bundleContext) {
-        this.serviceRegistrations.add(bundleContext.registerService(DataValidationKpiService.class, this.dataValidationKpiService, null));
-    }
-
     private void registerBatchService(BundleContext bundleContext) {
         this.serviceRegistrations.add(bundleContext.registerService(BatchService.class, this.batchService, null));
     }
@@ -635,7 +619,6 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Insta
         keys.addAll(Arrays.asList((DevicePropertyTranslationKeys.values())));
         keys.addAll(Arrays.asList(
                 new SimpleTranslationKey(DataCollectionKpiCalculatorHandlerFactory.TASK_SUBSCRIBER, DataCollectionKpiCalculatorHandlerFactory.TASK_SUBSCRIBER_DISPLAYNAME),
-                new SimpleTranslationKey(DataValidationKpiCalculatorHandlerFactory.TASK_SUBSCRIBER, DataValidationKpiCalculatorHandlerFactory.TASK_SUBSCRIBER_DISPLAYNAME),
                 new SimpleTranslationKey(ConnectionTaskValidatorAfterPropertyRemovalMessageHandlerFactory.TASK_SUBSCRIBER, ConnectionTaskValidatorAfterPropertyRemovalMessageHandlerFactory.TASK_SUBSCRIBER_DISPLAY_NAME),
                 new SimpleTranslationKey(Installer.COMSCHEDULE_RECALCULATOR_MESSAGING_NAME, Installer.COMSCHEDULE_RECALCULATOR_MESSAGING_DISPLAYNAME),
                 new SimpleTranslationKey(Installer.COMSCHEDULE_BACKGROUND_OBSOLETION_MESSAGING_NAME, Installer.COMSCHEDULE_BACKGROUND_OBSOLETION_MESSAGING_DISPLAYNAME),

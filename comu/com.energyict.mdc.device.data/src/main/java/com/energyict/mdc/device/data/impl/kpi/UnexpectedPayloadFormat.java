@@ -4,7 +4,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Implements the {@link DataManagementKpiCalculator} interface
+ * Implements the {@link DataCollectionKpiCalculator} interface
  * for the situation in which the payload does not match the expected
  * format and can therefore not be parsed correctly.
  * <br>
@@ -18,7 +18,7 @@ import java.util.logging.Logger;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-10-15 (17:29)
  */
-public class UnexpectedPayloadFormat implements DataManagementKpiCalculator {
+public class UnexpectedPayloadFormat implements DataCollectionKpiCalculator {
     private final Logger logger;
     private final String payLoad;
 

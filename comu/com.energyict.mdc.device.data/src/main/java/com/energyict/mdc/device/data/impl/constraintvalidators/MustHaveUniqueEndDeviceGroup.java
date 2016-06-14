@@ -15,7 +15,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target({ java.lang.annotation.ElementType.TYPE })
 @Retention(RUNTIME)
 @Documented
-@Constraint(validatedBy = { MustHaveUniqueEndDeviceGroupValidator.class, MustHaveUniqueEndDeviceGroupValidatorForDataValidationKpi.class })
+@Constraint(validatedBy = { MustHaveUniqueEndDeviceGroupValidator.class })
 public @interface MustHaveUniqueEndDeviceGroup {
 
     String message();

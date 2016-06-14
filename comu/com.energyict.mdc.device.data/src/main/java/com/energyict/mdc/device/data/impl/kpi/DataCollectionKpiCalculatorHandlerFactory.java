@@ -4,7 +4,6 @@ import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.tasks.TaskService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
-import com.energyict.mdc.device.data.kpi.DataValidationKpiService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskReportService;
 
@@ -14,7 +13,7 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 
 /**
- * Provides factory services for {@link DataManagementKpiCalculatorHandler}.
+ * Provides factory services for {@link DataCollectionKpiCalculatorHandler}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-10-07 (17:30)
@@ -28,7 +27,6 @@ public class DataCollectionKpiCalculatorHandlerFactory implements MessageHandler
 
     private volatile TaskService taskService;
     private volatile DataCollectionKpiService dataCollectionKpiService;
-    private volatile DataValidationKpiService dataValidationKpiService;
     private volatile ConnectionTaskReportService connectionTaskReportService;
     private volatile CommunicationTaskReportService communicationTaskReportService;
 
@@ -37,24 +35,21 @@ public class DataCollectionKpiCalculatorHandlerFactory implements MessageHandler
 
     // For unit testing purposes only
     @Inject
-    public DataCollectionKpiCalculatorHandlerFactory(TaskService taskService, DataCollectionKpiService dataCollectionKpiService, ConnectionTaskReportService connectionTaskReportService,
-                                                     CommunicationTaskReportService communicationTaskReportService, DataValidationKpiService dataValidationKpiService) {
+    public DataCollectionKpiCalculatorHandlerFactory(TaskService taskService, DataCollectionKpiService dataCollectionKpiService, ConnectionTaskReportService connectionTaskReportService, CommunicationTaskReportService communicationTaskReportService) {
         this();
         this.setTaskService(taskService);
         this.setDataCollectionKpiService(dataCollectionKpiService);
         this.setConnectionTaskReportService(connectionTaskReportService);
         this.setCommunicationTaskService(communicationTaskReportService);
-        this.setDataValidationKpiService(dataValidationKpiService);
     }
 
     @Override
     public MessageHandler newMessageHandler() {
         return this.taskService.createMessageHandler(
-                new DataManagementKpiCalculatorHandler(
+                new DataCollectionKpiCalculatorHandler(
                         this.dataCollectionKpiService,
                         this.connectionTaskReportService,
-                        this.communicationTaskReportService,
-                        this.dataValidationKpiService));
+                        this.communicationTaskReportService));
     }
 
     @Reference
@@ -65,11 +60,6 @@ public class DataCollectionKpiCalculatorHandlerFactory implements MessageHandler
     @Reference
     public void setDataCollectionKpiService(DataCollectionKpiService dataCollectionKpiService) {
         this.dataCollectionKpiService = dataCollectionKpiService;
-    }
-
-    @Reference
-    public void setDataValidationKpiService(DataValidationKpiService dataValidationKpiService){
-        this.dataValidationKpiService = dataValidationKpiService;
     }
 
     @Reference

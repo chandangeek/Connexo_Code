@@ -14,7 +14,7 @@ import java.util.logging.Logger;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-10-07 (16:50)
  */
-public class CommunicationTaskExecutionKpiCalculator extends AbstractDataManagementKpiCalculatorImpl implements DataManagementKpiCalculator {
+public class CommunicationTaskExecutionKpiCalculator extends AbstractDataCollectionKpiCalculatorImpl implements DataCollectionKpiCalculator {
 
     private final DataCollectionKpiImpl kpi;
     private final CommunicationTaskReportService communicationTaskReportService;

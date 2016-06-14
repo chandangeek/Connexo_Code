@@ -13,7 +13,6 @@ import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
-import com.energyict.mdc.device.data.kpi.DataValidationKpiService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskReportService;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
@@ -63,8 +62,6 @@ public interface DeviceDataModelService {
     ServerDeviceService deviceService();
 
     DataCollectionKpiService dataCollectionKpiService();
-
-    DataValidationKpiService dataValidationKpiService();
 
     BatchService batchService();
 

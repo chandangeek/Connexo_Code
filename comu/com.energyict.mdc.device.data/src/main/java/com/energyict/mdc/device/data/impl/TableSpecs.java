@@ -573,36 +573,6 @@ public enum TableSpecs {
         }
     },
 
-/*    DDC_DATA_VALIDATION_KPI {
-        @Override
-        void addTo(DataModel dataModel){
-            Table<DataValidationKpi> table = dataModel.addTable(name(), DataValidationKpi.class);
-            table.map(DataValidationKpiImpl.class);
-            Column id = table.addAutoIdColumn();
-            table.addAuditColumns();
-            Column endDeviceGroup = table.column("ENDDEVICEGROUP").number().notNull().add();
-            Column dataValidationKpi = table.column("DATAVALIDATIONKPI").number().add();
-            Column dataValidationKpiTask = table.column("DATAVALIDATIONKPI_TASK").number().add();
-
-            table.primaryKey("PK_DDC_DATA_VALIDATION_KPI").on(id).add();
-            table.foreignKey("FK_DDC_VAL_ENDDEVICEGROUP").
-                    on(endDeviceGroup).
-                    references(EndDeviceGroup.class).
-                    map(DataValidationKpiImpl.Fields.END_DEVICE_GROUP.fieldName()).
-                    add();
-            table.foreignKey("FK_DDC_VAL_KPI").
-                    on(dataValidationKpi).
-                    references(Kpi.class).
-                    map(DataValidationKpiImpl.Fields.DATA_VALIDATION_KPI.fieldName()).
-                    add();
-            table.foreignKey("FK_DDC_VAL_KPI_TASK").
-                    on(dataValidationKpiTask).
-                    references(RecurrentTask.class).
-                    map(DataValidationKpiImpl.Fields.DATA_VALIDATION_KPI_TASK.fieldName()).
-                    add();
-        }
-    },*/
-
     DDC_DEVICEMESSAGE {
         @Override
         void addTo(DataModel dataModel) {
