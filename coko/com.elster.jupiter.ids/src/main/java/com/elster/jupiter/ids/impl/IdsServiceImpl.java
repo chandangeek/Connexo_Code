@@ -12,9 +12,10 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.util.exception.MessageSeed;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -25,44 +26,44 @@ import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
 
-@Component(name = "com.elster.jupiter.ids", service = {IdsService.class, InstallService.class, MessageSeedProvider.class}, property = "name=" + IdsService.COMPONENTNAME)
-public class IdsServiceImpl implements IdsService, InstallService, MessageSeedProvider {
+import static com.elster.jupiter.upgrade.InstallIdentifier.identifier;
+
+@Component(name = "com.elster.jupiter.ids", service = {IdsService.class, MessageSeedProvider.class}, property = "name=" + IdsService.COMPONENTNAME)
+public class IdsServiceImpl implements IdsService, MessageSeedProvider {
 
     private volatile DataModel dataModel;
     private volatile Clock clock;
     private volatile Thesaurus thesaurus;
     private volatile ThreadPrincipalService threadPrincipalService;
+    private volatile UpgradeService upgradeService;
 
     public IdsServiceImpl() {
     }
 
     @Inject
-    public IdsServiceImpl(Clock clock, OrmService ormService, NlsService nlsService, ThreadPrincipalService threadPrincipalService) {
+    public IdsServiceImpl(Clock clock, OrmService ormService, NlsService nlsService, ThreadPrincipalService threadPrincipalService, UpgradeService upgradeService) {
         this();
         setClock(clock);
         setOrmService(ormService);
         setNlsService(nlsService);
         setThreadPrincipalService(threadPrincipalService);
+        setUpgradeService(upgradeService);
         activate();
-        if (!dataModel.isInstalled()) {
-            install();
-        }
     }
 
     @Override
     public Optional<Vault> getVault(String component, long id) {
-        // check if dataModel is installed because this method can be/us called before the install is run
-        return dataModel.isInstalled() ? dataModel.mapper(Vault.class).getOptional(component, id) : Optional.<Vault>empty();
+        return dataModel.mapper(Vault.class).getOptional(component, id);
     }
 
     @Override
     public Optional<RecordSpec> getRecordSpec(String component, long id) {
-        // check if dataModel is installed because this method can be/us called before the install is run
-        return dataModel.isInstalled() ? dataModel.mapper(RecordSpec.class).getOptional(component, id) : Optional.<RecordSpec>empty();
+        return dataModel.mapper(RecordSpec.class).getOptional(component, id);
     }
 
     @Override
@@ -83,16 +84,6 @@ public class IdsServiceImpl implements IdsService, InstallService, MessageSeedPr
     @Override
     public TimeSeriesDataStorer createNonOverrulingStorer() {
         return TimeSeriesDataStorerImpl.createNonOverrulingStorer(dataModel, clock, thesaurus);
-    }
-
-    @Override
-    public void install() {
-        new InstallerImpl(dataModel, this, clock).install(true, true);
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "APS");
     }
 
     @Override
@@ -148,9 +139,16 @@ public class IdsServiceImpl implements IdsService, InstallService, MessageSeedPr
         this.threadPrincipalService = threadPrincipalService;
     }
 
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
+    }
+
     @Activate
     public final void activate() {
         dataModel.register(getModule());
+
+        upgradeService.register(identifier(COMPONENTNAME), dataModel, InstallerImpl.class, Collections.emptyMap());
     }
 
     private Module getModule() {
