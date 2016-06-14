@@ -317,13 +317,20 @@ Ext.define('Cfg.controller.Validation', {
                 me.getAddRule().setLoading(false);
                 var json = Ext.decode(operation.response.responseText, true);
                 if (json && json.errors) {
+                    var readingQualitiesErrorSet = false;
                     Ext.Array.each(json.errors, function (item) {
                         if (item.id.indexOf("readingTypes") !== -1) {
                             form.down('#readingTypesForValidationRuleGridPanel').addCls('error-border');
                             form.down('#readingTypesErrorLabel').setText(item.msg);
                             form.down('#readingTypesErrorLabel').show();
                         }
+                        if (item.id.indexOf('readingQualities') !== -1 && !readingQualitiesErrorSet) {
+                            form.down('#readingQualitiesErrorLabel').setText(item.msg);
+                            form.down('#readingQualitiesErrorLabel').show();
+                            readingQualitiesErrorSet = true;
+                        }
                     });
+
                     form.getForm().markInvalid(json.errors);
                     formErrorsPanel.show();
                     me.validationRuleRecord = null;
