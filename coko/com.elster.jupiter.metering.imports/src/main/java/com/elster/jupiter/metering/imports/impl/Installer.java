@@ -26,7 +26,6 @@ final class Installer implements FullInstaller {
                     this::createQueue,
                     logger
             );
-            createQueue();
         }
     }
 
