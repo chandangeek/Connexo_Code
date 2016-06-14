@@ -70,14 +70,14 @@ Ext.define('Cfg.view.datavalidationkpis.Add', {
                     fieldLabel: '&nbsp',
                     items: [
                         {
-                            text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
+                            text: Uni.I18n.translate('general.add', 'CFG', 'Add'),
                             xtype: 'button',
                             ui: 'action',
                             action: 'add',
                             itemId: 'create-add-button'
                         },
                         {
-                            text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
+                            text: Uni.I18n.translate('general.cancel', 'CFG', 'Cancel'),
                             xtype: 'button',
                             ui: 'link',
                             itemId: 'cancelLink',
