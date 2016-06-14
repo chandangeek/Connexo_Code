@@ -106,7 +106,7 @@ public class DeviceResource {
         if (maySeeAny(securityContext)) {
             Optional<Meter> foundMeter = meteringService.findMeter(mRID);
             if (foundMeter.isPresent()) {
-                Optional<Location> location = meteringService.findDeviceLocation(foundMeter.get().getMRID());
+                Optional<Location> location = foundMeter.get().getLocation();
                 if (location.isPresent()) {
                     Optional<LocationMember> locationMember = location.get().getMember(locale);
                     if (locationMember.isPresent()) {
@@ -128,7 +128,7 @@ public class DeviceResource {
         if (maySeeAny(securityContext)) {
             Optional<Meter> foundMeter = meteringService.findMeter(mRID);
             if (foundMeter.isPresent()) {
-                Optional<Location> location = meteringService.findDeviceLocation(foundMeter.get().getMRID());
+                Optional<Location> location = foundMeter.get().getLocation();
                 if (location.isPresent()) {
                     result = new LocationMemberInfos(location.get().getMembers());
                 }
