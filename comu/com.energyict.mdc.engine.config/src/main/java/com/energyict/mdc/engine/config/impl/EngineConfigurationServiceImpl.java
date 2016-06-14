@@ -45,6 +45,7 @@ import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.json.JSONException;
@@ -64,6 +65,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.elster.jupiter.orm.Version.version;
+import static com.elster.jupiter.upgrade.InstallIdentifier.identifier;
 import static com.elster.jupiter.util.conditions.Where.where;
 import static com.energyict.mdc.engine.config.impl.ComServerImpl.OFFLINE_COMSERVER_DISCRIMINATOR;
 import static com.energyict.mdc.engine.config.impl.ComServerImpl.ONLINE_COMSERVER_DISCRIMINATOR;
@@ -178,10 +181,8 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     @Activate
     public void activate() {
         dataModel.register(getModule());
-
-        upgradeService.register(InstallIdentifier.identifier(EngineConfigurationService.COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(identifier(EngineConfigurationService.COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(version(10, 2), UpgraderV10_2.class));
     }
-
 
     public DataModel getDataModel() {
         return this.dataModel;
@@ -241,14 +242,18 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     }
 
     @Override
-    public Optional<ComServer> findComServerByEventRegistrationUri(String eventRegistrationUri) {
-        Condition condition = where("eventRegistrationUri").isEqualToIgnoreCase(eventRegistrationUri).and(where("obsoleteDate").isNull());
+    public Optional<ComServer> findComServerByServerNameAndEventRegistrationPort(String serverName, int eventRegistrationPort) {
+        Condition condition = where("serverName").isEqualToIgnoreCase(serverName)
+                .and(where("eventRegistrationPort").isEqualTo(eventRegistrationPort))
+                .and(where("obsoleteDate").isNull());
         return unique(dataModel.mapper(ComServer.class).select(condition));
     }
 
     @Override
-    public Optional<ComServer> findComServerByStatusUri(String statusUri) {
-        Condition condition = where("statusUri").isEqualToIgnoreCase(statusUri).and(where("obsoleteDate").isNull());
+    public Optional<ComServer> findComServerByServerNameAndStatusPort(String serverName, int statusPort) {
+        Condition condition = where("serverName").isEqualToIgnoreCase(serverName)
+                .and(where("statusPort").isEqualTo(statusPort))
+                .and(where("obsoleteDate").isNull());
         return unique(dataModel.mapper(ComServer.class).select(condition));
     }
 
@@ -527,11 +532,9 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     private <T> Optional<T> unique(Collection<T> collection) {
         if (collection.isEmpty()) {
             return Optional.empty();
-        }
-        else if (collection.size() != 1) {
+        } else if (collection.size() != 1) {
             throw notUniqueException();
-        }
-        else {
+        } else {
             return Optional.of(collection.iterator().next());
         }
     }

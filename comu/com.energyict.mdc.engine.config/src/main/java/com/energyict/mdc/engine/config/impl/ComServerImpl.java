@@ -31,6 +31,7 @@ import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -336,6 +337,33 @@ public abstract class ComServerImpl implements ComServer {
                 }
             }
         }
+    }
+
+    /**
+     * Builds the event registration URI for this ComServer.
+     *
+     * @return The event registration URI
+     */
+    protected String buildEventRegistrationUri(String serverName, int eventRegistrationPort) {
+        return MessageFormat.format(EVENT_REGISTRATION_URI_PATTERN, serverName, Integer.toString(eventRegistrationPort));
+    }
+
+    /**
+     * Build the query api post uri for this ComServer.
+     *
+     * @return The query api URI
+     */
+    protected String buildQueryApiPostUri(String serverName, int queryApiPort) {
+        return MessageFormat.format(QUERY_API_URI_PATTERN, serverName, Integer.toString(queryApiPort));
+    }
+
+    /**
+     * Builds the event registration URI for this ComServer.
+     *
+     * @return The event registration URI
+     */
+    protected String buildStatusUri(String serverName, int statusPort) {
+        return MessageFormat.format(STATUS_URI_ATTERN, serverName, Integer.toString(statusPort));
     }
 
     @Override

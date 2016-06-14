@@ -1,8 +1,11 @@
 package com.energyict.mdc.engine.config.impl;
 
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.Expected;
 import com.energyict.mdc.ExpectedErrorRule;
-import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.ComServer;
@@ -12,15 +15,12 @@ import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.engine.config.PersistenceTest;
 import com.energyict.mdc.protocol.api.ComPortType;
 
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
-
 import java.sql.SQLException;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.rules.*;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
@@ -320,6 +320,9 @@ public class OutboundComPortPoolImplTest extends PersistenceTest {
         onlineComServerBuilder.storeTaskQueueSize(1);
         onlineComServerBuilder.storeTaskThreadPriority(1);
         onlineComServerBuilder.numberOfStoreTaskThreads(1);
+        onlineComServerBuilder.serverName(name);
+        onlineComServerBuilder.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
+        onlineComServerBuilder.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
         return onlineComServerBuilder.create();
     }
 

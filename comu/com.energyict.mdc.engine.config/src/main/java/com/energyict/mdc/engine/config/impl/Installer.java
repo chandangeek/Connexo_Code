@@ -57,12 +57,14 @@ class Installer implements FullInstaller, PrivilegesProvider {
     @Override
     public List<ResourceDefinition> getModuleResources() {
         List<ResourceDefinition> resources = new ArrayList<>();
-        resources.add(userService.createModuleResourceWithPrivileges(EngineConfigurationService.COMPONENT_NAME, Privileges.RESOURCE_COMMUNICATION.getKey(), Privileges.RESOURCE_COMMUNICATION_DESCRIPTION.getKey(),
-                Arrays.asList(
-                        Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION,
-                        Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION_INTERNAL)));
+        resources.add(userService.createModuleResourceWithPrivileges(EngineConfigurationService.COMPONENT_NAME,
+                Privileges.RESOURCE_COMMUNICATION.getKey(), Privileges.RESOURCE_COMMUNICATION_DESCRIPTION.getKey(),
+                Arrays.asList(Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION,
+                        Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION,
+                        Privileges.Constants.VIEW_STATUS_COMMUNICATION_INFRASTRUCTURE)));
         return resources;
     }
+
 
     private void createEventTypes() {
         for (EventType eventType : EventType.values()) {
