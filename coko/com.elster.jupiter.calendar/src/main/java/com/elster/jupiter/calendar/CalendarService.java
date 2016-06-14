@@ -33,11 +33,15 @@ public interface CalendarService {
 
     List<Calendar> findAllCalendars();
 
+    Optional<Category> findCategoryByName(String name);
+
     Optional<Calendar> findCalendar(long id);
 
     Optional<Calendar> findCalendarByName(String name);
 
     Optional<Calendar> findCalendarByMRID(String mRID);
+
+    boolean isCalendarInUse(Calendar calendar);
 
     @ProviderType
     interface CalendarBuilder {

@@ -1,6 +1,5 @@
 package com.elster.jupiter.calendar.impl;
 
-import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.Category;
 import com.elster.jupiter.calendar.MessageSeeds;
 import com.elster.jupiter.domain.util.NotEmpty;
@@ -13,6 +12,7 @@ import javax.validation.constraints.Size;
 /**
  * Created by igh on 15/04/2016.
  */
+@UniqueCategoryName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_CATEGORY_NAME + "}")
 public class CategoryImpl implements Category {
 
     public enum Fields {

@@ -1,11 +1,14 @@
 package com.elster.jupiter.calendar.impl;
 
 import com.elster.jupiter.calendar.Calendar;
+import com.elster.jupiter.calendar.CalendarResolver;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.Category;
 import com.elster.jupiter.calendar.MessageSeeds;
 import com.elster.jupiter.calendar.security.Privileges;
 import com.elster.jupiter.domain.util.DefaultFinder;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.events.impl.EventServiceImpl;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -14,7 +17,8 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.upgrade.InstallIdentifier;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
@@ -25,15 +29,19 @@ import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.time.Year;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -44,29 +52,32 @@ import java.util.stream.Stream;
 
 
 @Component(name = "com.elster.jupiter.calendar",
-        service = {CalendarService.class, InstallService.class, MessageSeedProvider.class, TranslationKeyProvider.class, PrivilegesProvider.class},
+        service = {CalendarService.class, MessageSeedProvider.class, TranslationKeyProvider.class, PrivilegesProvider.class},
         property = "name=" + CalendarService.COMPONENTNAME,
         immediate = true)
-public class CalendarServiceImpl implements ServerCalendarService, MessageSeedProvider, TranslationKeyProvider, PrivilegesProvider, InstallService {
+public class CalendarServiceImpl implements ServerCalendarService, MessageSeedProvider, TranslationKeyProvider, PrivilegesProvider {
 
     static final String TIME_OF_USE_CATEGORY_NAME = "Time of use";
 
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
     private volatile UserService userService;
+    private volatile EventService eventService;
+    private volatile UpgradeService upgradeService;
+
+    private final List<CalendarResolver> calendarResolvers = new CopyOnWriteArrayList<>();
 
     public CalendarServiceImpl() {
     }
 
     @Inject
-    public CalendarServiceImpl(OrmService ormService, NlsService nlsService, UserService userService) {
+    public CalendarServiceImpl(OrmService ormService, NlsService nlsService, UserService userService, EventService eventService, UpgradeService upgradeService) {
         setOrmService(ormService);
         setNlsService(nlsService);
         setUserService(userService);
+        setEventService(eventService);
+        setUpgradeService(upgradeService);
         activate();
-        if (!dataModel.isInstalled()) {
-            install();
-        }
     }
 
     @Reference
@@ -83,29 +94,24 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
     }
 
     @Reference
-    public void setUserService(UserService userService) {
+     public void setUserService(UserService userService) {
         this.userService = userService;
+    }
+
+    @Reference
+    public void setEventService(EventService eventService) {
+        this.eventService = eventService;
+    }
+
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
     }
 
     @Activate
     public void activate() {
         this.dataModel.register(this.getModule());
-    }
-
-    @Override
-    public void install() {
-        try {
-            dataModel.install(true, true);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        InstallerImpl installer = new InstallerImpl(this, dataModel);
-        installer.install();
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList(OrmService.COMPONENTNAME, UserService.COMPONENTNAME);
+        upgradeService.register(InstallIdentifier.identifier(CalendarService.COMPONENTNAME), dataModel, InstallerImpl.class, Collections.emptyMap());
     }
 
     private Module getModule() {
@@ -116,6 +122,7 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(CalendarService.class).toInstance(CalendarServiceImpl.this);
+                bind(EventService.class).toInstance(eventService);
                 bind(ServerCalendarService.class).toInstance(CalendarServiceImpl.this);
             }
         };
@@ -176,6 +183,11 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
     }
 
     @Override
+    public Optional<Category> findCategoryByName(String name) {
+        return this.getDataModel().mapper(Category.class).getUnique("name", name);
+    }
+
+    @Override
     public Optional<Calendar> findCalendarByName(String name) {
         return this.getDataModel().mapper(Calendar.class).getUnique("name", name);
     }
@@ -191,6 +203,16 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
     }
 
     @Override
+    public boolean isCalendarInUse(Calendar calendar) {
+        for (CalendarResolver resolver : calendarResolvers) {
+            if (resolver.isCalendarInUse(calendar)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
     public DataModel getDataModel() {
         return dataModel;
     }
@@ -198,5 +220,14 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
     @Override
     public Thesaurus getThesaurus() {
         return thesaurus;
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addCalendarResolver(CalendarResolver resolver) {
+        calendarResolvers.add(resolver);
+    }
+
+    public void removeCalendarResolver(CalendarResolver resolver) {
+        calendarResolvers.remove(resolver);
     }
 }

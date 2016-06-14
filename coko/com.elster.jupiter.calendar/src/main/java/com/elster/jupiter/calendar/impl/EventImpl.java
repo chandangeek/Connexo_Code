@@ -5,6 +5,7 @@ import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.Event;
 import com.elster.jupiter.calendar.MessageSeeds;
 import com.elster.jupiter.domain.util.NotEmpty;
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
@@ -109,4 +110,10 @@ public class EventImpl implements Event {
         }
         calendarService.getDataModel().remove(this);
     }
+
+    void save() {
+        Save.CREATE.save(calendarService.getDataModel(), this, Save.Create.class);
+    }
+
+
 }

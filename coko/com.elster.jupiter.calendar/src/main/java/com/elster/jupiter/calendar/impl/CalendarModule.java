@@ -1,6 +1,7 @@
 package com.elster.jupiter.calendar.impl;
 
 import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.orm.OrmService;
 import com.google.inject.AbstractModule;
@@ -17,8 +18,9 @@ public class CalendarModule  extends AbstractModule {
         requireBinding(Clock.class);
         requireBinding(OrmService.class);
         requireBinding(NlsService.class);
+        requireBinding(EventService.class);
 
-        bind(CalendarService.class).to(CalendarServiceImpl.class).in(Scopes.SINGLETON);
+        bind(CalendarService.class).to(ServerCalendarService.class);
         bind(ServerCalendarService.class).to(CalendarServiceImpl.class).in(Scopes.SINGLETON);
     }
 }

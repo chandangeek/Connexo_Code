@@ -71,7 +71,7 @@ public enum TableSpecs {
                     .onDelete(CASCADE)
                     .map(EventImpl.Fields.CALENDAR.fieldName())
                     .reverseMap(CalendarImpl.Fields.EVENTS.fieldName())
-                    .composition()
+                    //.composition()
                     .add();
         }
     },

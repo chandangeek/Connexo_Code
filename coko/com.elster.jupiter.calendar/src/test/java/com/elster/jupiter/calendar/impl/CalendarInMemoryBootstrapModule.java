@@ -4,6 +4,7 @@ import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
@@ -16,6 +17,8 @@ import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 
@@ -24,8 +27,6 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
-
-import java.time.Clock;
 
 import static org.mockito.Mockito.mock;
 
@@ -65,6 +66,7 @@ public class CalendarInMemoryBootstrapModule {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             injector.getInstance(ThreadPrincipalService.class);
             injector.getInstance(CalendarService.class);
+            //injector.getInstance(EventService.class);
             ctx.commit();
         }
     }
@@ -76,6 +78,10 @@ public class CalendarInMemoryBootstrapModule {
     public ServerCalendarService getCalendarService() {
         return injector.getInstance(ServerCalendarService.class);
     }
+
+    /*public EventService getEventService() {
+        return injector.getInstance(EventService.class);
+    }*/
 
     public TransactionService getTransactionService() {
         return injector.getInstance(TransactionService.class);
@@ -106,6 +112,7 @@ public class CalendarInMemoryBootstrapModule {
             bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
             //bind(SearchService.class).toInstance(mock(SearchService.class));
             bind(TimeService.class).toInstance(mock(TimeService.class));
+            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }
 }

@@ -5,6 +5,7 @@ import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.Category;
 import com.elster.jupiter.calendar.DayType;
 import com.elster.jupiter.calendar.Event;
+import com.elster.jupiter.calendar.EventType;
 import com.elster.jupiter.calendar.ExceptionalOccurrence;
 import com.elster.jupiter.calendar.FixedExceptionalOccurrence;
 import com.elster.jupiter.calendar.FixedPeriodTransitionSpec;
@@ -16,6 +17,7 @@ import com.elster.jupiter.calendar.RecurrentExceptionalOccurrence;
 import com.elster.jupiter.calendar.RecurrentPeriodTransitionSpec;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -32,7 +34,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
 
@@ -40,7 +41,7 @@ import java.util.stream.Collectors;
  * Created by igh on 18/04/2016.
  */
 @UniqueMRID(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_CALENDAR_MRID + "}")
-@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_CALENDAR_NAME + "}")
+@UniqueCalendarName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_CALENDAR_NAME + "}")
 @ValidTransitions(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.VALID_TRANSITIONS + "}")
 public class CalendarImpl implements Calendar {
 
@@ -107,10 +108,12 @@ public class CalendarImpl implements Calendar {
     private List<PeriodTransitionSpec> periodTransitionSpecs = new ArrayList<>();
 
     private final ServerCalendarService calendarService;
+    private final EventService eventService;
 
     @Inject
-    CalendarImpl(ServerCalendarService calendarService) {
+    CalendarImpl(ServerCalendarService calendarService, EventService eventService) {
         this.calendarService = calendarService;
+        this.eventService = eventService;
         this.category.set(calendarService.findTimeOfUseCategory().get());
     }
 
@@ -190,43 +193,58 @@ public class CalendarImpl implements Calendar {
 
     private void doSave() {
         Save.CREATE.save(calendarService.getDataModel(), this, Save.Create.class);
+        saveEvents();
         saveDayTypes();
         savePeriods();
         savePeriodTransitionSpecs();
         saveExceptionalOccurrences();
+        eventService.postEvent(EventType.CALENDAR_CREATE.topic(), this);
     }
 
     private void doUpdate() {
+        Calendar savedCalendar = calendarService.findCalendar(this.getId()).get();
+        for (ExceptionalOccurrence occurrence : savedCalendar.getExceptionalOccurrences()) {
+            ((ExceptionalOccurrenceImpl) occurrence).delete();
+        }
+
+        for (PeriodTransitionSpec periodTransitionSpec : savedCalendar.getPeriodTransitionSpecs()) {
+            ((PeriodTransitionSpecImpl) periodTransitionSpec).delete();
+        }
+
+        for (Period period : savedCalendar.getPeriods()) {
+            ((PeriodImpl) period).delete();
+        }
+
+        for (DayType dayType : savedCalendar.getDayTypes()) {
+            ((DayTypeImpl) dayType).delete();
+        }
+        for (Event event : savedCalendar.getEvents()) {
+            ((EventImpl) event).delete();
+        }
+
         Save.UPDATE.save(calendarService.getDataModel(), this, Save.Update.class);
+        saveEvents();
         saveDayTypes();
         savePeriods();
         savePeriodTransitionSpecs();
         saveExceptionalOccurrences();
+        eventService.postEvent(EventType.CALENDAR_UPDATE.topic(), this);
     }
 
     @Override
     public CalendarService.CalendarBuilder redefine(){
-        for (ExceptionalOccurrence occurrence : this.getExceptionalOccurrences()) {
-            ((ExceptionalOccurrenceImpl) occurrence).delete();
-        }
-
-        for (PeriodTransitionSpec periodTransitionSpec : this.getPeriodTransitionSpecs()) {
-            ((PeriodTransitionSpecImpl) periodTransitionSpec).delete();
-        }
-
-        for (Period period : this.getPeriods()) {
-            ((PeriodImpl) period).delete();
-        }
-
-        for (DayType dayType : this.getDayTypes()) {
-            ((DayTypeImpl) dayType).delete();
-        }
         exceptionalOccurrences.clear();
         periodTransitionSpecs.clear();
         periods.clear();
         dayTypes.clear();
         events.clear();
         return new CalendarBuilderImpl(calendarService.getDataModel(), this);
+    }
+
+    private void saveEvents() {
+        for (Event event : events) {
+            ((EventImpl) event).save();
+        }
     }
 
     private void saveDayTypes() {
@@ -255,7 +273,27 @@ public class CalendarImpl implements Calendar {
 
     @Override
     public void delete() {
+        Calendar savedCalendar = calendarService.findCalendar(this.getId()).get();
+        for (ExceptionalOccurrence occurrence : savedCalendar.getExceptionalOccurrences()) {
+            ((ExceptionalOccurrenceImpl) occurrence).delete();
+        }
+
+        for (PeriodTransitionSpec periodTransitionSpec : savedCalendar.getPeriodTransitionSpecs()) {
+            ((PeriodTransitionSpecImpl) periodTransitionSpec).delete();
+        }
+
+        for (Period period : savedCalendar.getPeriods()) {
+            ((PeriodImpl) period).delete();
+        }
+
+        for (DayType dayType : savedCalendar.getDayTypes()) {
+            ((DayTypeImpl) dayType).delete();
+        }
+        for (Event event : savedCalendar.getEvents()) {
+            ((EventImpl) event).delete();
+        }
         calendarService.getDataModel().remove(this);
+        eventService.postEvent(EventType.CALENDAR_DELETE.topic(), this);
     }
 
     @Override
