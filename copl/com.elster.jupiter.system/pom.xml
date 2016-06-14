@@ -41,5 +41,11 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>upgrade</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>datavault</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>

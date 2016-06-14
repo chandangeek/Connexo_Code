@@ -3,19 +3,25 @@ package com.elster.jupiter.system;
 import com.elster.jupiter.system.beans.ComponentImpl;
 import com.elster.jupiter.system.beans.SubsystemImpl;
 import com.elster.jupiter.system.impl.SubsystemServiceImpl;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import com.elster.jupiter.upgrade.impl.UpgradeModule;
+import com.elster.jupiter.users.UserService;
+
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
 import java.util.Arrays;
 import java.util.List;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SubsystemServiceTest {
@@ -24,10 +30,14 @@ public class SubsystemServiceTest {
     BundleContext bundleContext;
 
     SubsystemServiceImpl subsystemService;
+    @Mock
+    private UserService userService;
 
     @Before
     public void setUp() {
         subsystemService = new SubsystemServiceImpl();
+        subsystemService.setUpgradeService(UpgradeModule.FakeUpgradeService.getInstance());
+        subsystemService.setUserService(userService);
         subsystemService.activate(bundleContext);
     }
 
