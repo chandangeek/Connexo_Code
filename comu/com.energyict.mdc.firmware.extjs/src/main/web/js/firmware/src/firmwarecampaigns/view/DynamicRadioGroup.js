@@ -30,8 +30,10 @@ Ext.define('Fwc.firmwarecampaigns.view.DynamicRadioGroup', {
                     break;
             }
             me.add({
-                boxLabel: option.localizedValue + (config.showDescription
-                    ? '<div class="uni-icon-info-small" style="width: 16px; height: 16px; margin-left:10px;" data-qtip="'+ msg +'"></div>' : ''),
+                boxLabel: '<span style="display:inline-block; float:left; margin-right:7px;">' + option.localizedValue + '</span>'
+                            + (config.showDescription
+                                ? '<span class="icon-info" style="cursor:default; display:inline-block; color:#A9A9A9; font-size:16px;" data-qtip="' + msg + '"></span>'
+                                : ''),
                 name: me.name,
                 disabled: config.disabled,
                 itemId: me.name + '-option-' + option.id,
@@ -57,9 +59,10 @@ Ext.define('Fwc.firmwarecampaigns.view.DynamicRadioGroup', {
             me.add({
                 xtype: 'displayfield',
                 padding: '0 0 0 0',
-                value: (config.isRecord ? options[0].get('localizedValue') : options[0].localizedValue) +
-                      (config.showDescription
-                          ? '<div class="uni-icon-info-small" style="width: 16px; height: 16px; margin-left:10px;" data-qtip="'+ msg +'"></div>'
+                value: '<span style="display:inline-block; float:left; margin-right:7px;">'
+                       + (config.isRecord ? options[0].get('localizedValue') : options[0].localizedValue) + '</span>' +
+                       (config.showDescription
+                          ? '<span class="icon-info" style="cursor:default; display:inline-block; color:#A9A9A9; font-size:16px;" data-qtip="' + msg + '"></span>'
                           : ''),
                 htmlEncode: false
             });
