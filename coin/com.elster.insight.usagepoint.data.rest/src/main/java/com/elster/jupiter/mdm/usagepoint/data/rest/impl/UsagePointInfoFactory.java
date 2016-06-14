@@ -6,23 +6,7 @@ import com.elster.jupiter.issue.share.IssueFilter;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.license.License;
-import com.elster.jupiter.metering.ElectricityDetail;
-import com.elster.jupiter.metering.GasDetail;
-import com.elster.jupiter.metering.GeoCoordinates;
-import com.elster.jupiter.metering.HeatDetail;
-import com.elster.jupiter.metering.Location;
-import com.elster.jupiter.metering.LocationBuilder;
-import com.elster.jupiter.metering.LocationTemplate;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ServiceKind;
-import com.elster.jupiter.metering.ServiceLocation;
-import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.UsagePointBuilder;
-import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
-import com.elster.jupiter.metering.UsagePointDetail;
-import com.elster.jupiter.metering.WaterDetail;
+import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.nls.Layer;
@@ -35,7 +19,8 @@ import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCallService;
-
+import com.elster.jupiter.util.geo.SpatialCoordinates;
+import com.elster.jupiter.util.geo.SpatialCoordinatesFactory;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -44,13 +29,7 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -262,7 +241,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                 .withServiceDeliveryRemark(usagePointInfo.serviceDeliveryRemark)
                 .withServiceLocationString(usagePointInfo.extendedLocation.unformattedLocationValue);
 
-        GeoCoordinates geoCoordinates = getGeoCoordinates(usagePointInfo);
+        SpatialCoordinates geoCoordinates = getGeoCoordinates(usagePointInfo);
         if (geoCoordinates != null) {
             usagePointBuilder.withGeoCoordinates(geoCoordinates);
         }
@@ -274,9 +253,9 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         return usagePointBuilder;
     }
 
-    public GeoCoordinates getGeoCoordinates(UsagePointInfo usagePointInfo) {
+    public SpatialCoordinates getGeoCoordinates(UsagePointInfo usagePointInfo) {
         if ((usagePointInfo.extendedGeoCoordinates != null) && (usagePointInfo.extendedGeoCoordinates.spatialCoordinates != null)) {
-            return meteringService.createGeoCoordinates(usagePointInfo.extendedGeoCoordinates.spatialCoordinates);
+            return new SpatialCoordinatesFactory().fromStringValue(usagePointInfo.extendedGeoCoordinates.spatialCoordinates);
         }
         return null;
     }
@@ -288,7 +267,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
             List<String> locationData = propertyInfoList.stream()
                     .map(d -> d.propertyValueInfo.value.toString())
                     .collect(Collectors.toList());
-            LocationBuilder builder = meteringService.newLocationBuilder();
+            LocationBuilder builder = newUsagePointBuilder(usagePointInfo).newLocationBuilder();
             Map<String, Integer> ranking = meteringService
                     .getLocationTemplate()
                     .getTemplateMembers()
