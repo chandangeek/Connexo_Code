@@ -292,6 +292,10 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
+            <artifactId>webservices.extjs</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
             <artifactId>webservices.rest</artifactId>
         </dependency>
         <dependency>
