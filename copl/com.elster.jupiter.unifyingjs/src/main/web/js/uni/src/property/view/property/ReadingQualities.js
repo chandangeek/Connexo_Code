@@ -106,6 +106,8 @@ Ext.define('Uni.property.view.property.ReadingQualities', {
 
     getEditCmp: function () {
         var me = this;
+
+        me.layout = 'vbox';
         return [
             {
                 layout: 'hbox',
@@ -168,6 +170,12 @@ Ext.define('Uni.property.view.property.ReadingQualities', {
                         margin: '0 0 0 10'
                     }
                 ]
+            },
+            {
+                xtype: 'label',
+                cls: 'x-form-invalid-under',
+                itemId: 'readingQualitiesErrorLabel',
+                hidden: true
             }
         ];
     },
