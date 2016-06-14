@@ -19,18 +19,18 @@ import java.util.stream.Collectors;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-18 (13:28)
  */
-public class JoinClausesForExpressionNode implements ServerExpressionNode.Visitor<Void> {
+class JoinClausesForExpressionNode implements ServerExpressionNode.Visitor<Void> {
 
     private String sourceTableName;
     private Collection<JoinClause> joinClauses = new ArrayList<>();
     private Set<String> joinTableNames = new HashSet<>();
 
-    public JoinClausesForExpressionNode(String sourceTableName) {
+    JoinClausesForExpressionNode(String sourceTableName) {
         super();
         this.sourceTableName = sourceTableName;
     }
 
-    public List<String> joinClauses() {
+    List<String> joinClauses() {
         return this.joinClauses
                 .stream()
                 .map(each -> each.joinWith(" JOIN ", this.sourceTableName))
@@ -125,7 +125,11 @@ public class JoinClausesForExpressionNode implements ServerExpressionNode.Visito
     }
 
     private String timestampFrom(String tableName) {
-        return tableName + "." + SqlConstants.TimeSeriesColumnNames.TIMESTAMP.sqlName();
+        return this.fullyQualified(tableName, SqlConstants.TimeSeriesColumnNames.TIMESTAMP.sqlName());
+    }
+
+    private String fullyQualified(String tableName, String columnName) {
+        return tableName + "." + columnName;
     }
 
     private interface JoinClause {
@@ -165,8 +169,9 @@ public class JoinClausesForExpressionNode implements ServerExpressionNode.Visito
 
         @Override
         public String joinWith(String prefix, String joinTableName) {
-            return prefix + this.tableName + " ON " + timestampFrom(this.tableName) + " < " + timestampFrom(joinTableName)
-                    + " AND " + timestampFrom(joinTableName) + " <= " + timestampFrom(this.tableName);
+            return prefix + this.tableName + " ON " + fullyQualified(this.tableName, "starttime") + " < " + timestampFrom(joinTableName)
+                    + " AND " + timestampFrom(joinTableName) + " <= " + fullyQualified(this.tableName, "endtime");
         }
     }
+
 }

@@ -278,7 +278,7 @@ public class JoinClausesForExpressionNodeTest {
         // Asserts
         List<String> joinClauses = testInstance.joinClauses();
         assertThat(joinClauses).hasSize(1);
-        assertThat(joinClauses.get(0)).isEqualTo(" JOIN " + expectedJoinTableName + " ON " + expectedJoinTableName + ".timestamp < " + SOURCE_TABLE_NAME + ".timestamp AND " + SOURCE_TABLE_NAME + ".timestamp <= " + expectedJoinTableName + ".timestamp");
+        assertThat(joinClauses.get(0)).isEqualTo(" JOIN " + expectedJoinTableName + " ON " + expectedJoinTableName + ".starttime < " + SOURCE_TABLE_NAME + ".timestamp AND " + SOURCE_TABLE_NAME + ".timestamp <= " + expectedJoinTableName + ".endtime");
     }
 
     private ReadingType mockedReadingType() {

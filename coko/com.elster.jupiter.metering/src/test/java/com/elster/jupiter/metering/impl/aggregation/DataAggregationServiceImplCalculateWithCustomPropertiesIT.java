@@ -22,7 +22,6 @@ import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.license.impl.LicenseServiceImpl;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
@@ -64,6 +63,8 @@ import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.sql.SqlBuilder;
@@ -116,9 +117,9 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
 
-    public static final String FIFTEEN_MINS_PRIMARY_METERED_POWER_MRID = "0.0.2.1.1.2.12.0.0.0.0.0.0.0.0.3.38.0";
-    public static final String FIFTEEN_MINS_NET_CONSUMPTION_MRID = "0.0.2.1.4.2.12.0.0.0.0.0.0.0.0.3.72.0";
-    public static final String MONTHLY_NET_CONSUMPTION_MRID = "13.0.0.1.4.2.12.0.0.0.0.0.0.0.0.3.72.0";
+    private static final String FIFTEEN_MINS_PRIMARY_METERED_POWER_MRID = "0.0.2.1.1.2.12.0.0.0.0.0.0.0.0.3.38.0";
+    private static final String FIFTEEN_MINS_NET_CONSUMPTION_MRID = "0.0.2.1.4.2.12.0.0.0.0.0.0.0.0.3.72.0";
+    private static final String MONTHLY_NET_CONSUMPTION_MRID = "13.0.0.1.4.2.12.0.0.0.0.0.0.0.0.3.72.0";
     private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private static Injector injector;
     private static ReadingType fifteenMinuteskWForward;
@@ -136,7 +137,6 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
     private MetrologyContract contract;
     private UsagePoint usagePoint;
     private MeterActivation meterActivation;
-    private Channel power15MinChannel;
     private MetrologyConfiguration configuration;
     private long customPropertySetId;
     private long localPowerRequirementId;
@@ -160,6 +160,7 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
             bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
             bind(DataVaultService.class).toInstance(mock(DataVaultService.class));
             bind(SearchService.class).toInstance(mock(SearchService.class));
+            bind(UpgradeService.class).toInstance(new UpgradeModule.FakeUpgradeService());
         }
     }
 
@@ -393,7 +394,7 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
             assertThat(netConsumptionSql)
                     .matches("SELECT.*FROM\\s*cps" + this.customPropertySetId + "_" + AntennaFields.POWER.javaName() + "_" + this.meterActivation.getId() + "\\s*JOIN.*");
             assertThat(netConsumptionSql)
-                    .matches("SELECT.*JOIN\\s*cps" + this.customPropertySetId + "_" + AntennaFields.COUNT.javaName() + "_" + this.meterActivation.getId() + "\\s*ON\\s*cps" + this.customPropertySetId + "_" + AntennaFields.COUNT.javaName() + "\\_" + this.meterActivation.getId() + ".timestamp < cps" + this.customPropertySetId + "_" + AntennaFields.POWER.javaName() + "_" + this.meterActivation.getId() + ".timestamp.*");
+                    .matches("SELECT.*JOIN\\s*cps" + this.customPropertySetId + "_" + AntennaFields.COUNT.javaName() + "_" + this.meterActivation.getId() + "\\s*ON\\s*cps" + this.customPropertySetId + "_" + AntennaFields.COUNT.javaName() + "\\_" + this.meterActivation.getId() + ".starttime < cps" + this.customPropertySetId + "_" + AntennaFields.POWER.javaName() + "_" + this.meterActivation.getId() + ".timestamp.*");
             verify(clauseAwareSqlBuilder).select();
             // Assert that the overall select statement selects the target reading type
             String overallSelectWithoutNewlines = this.selectClauseBuilder.getText().replace("\n", " ");
@@ -486,7 +487,7 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
             assertThat(netConsumptionSql)
                     .matches("SELECT.*FROM\\s*rid" + this.localPowerRequirementId + "_" + this.netConsumptionDeliverableId + "_" + this.meterActivation.getId() + "\\s*JOIN.*");
             assertThat(netConsumptionSql)
-                    .matches("SELECT.*JOIN\\s*cps" + this.customPropertySetId + "_" + AntennaFields.POWER.javaName() + "_" + this.meterActivation.getId() + "\\s*ON\\s*cps" + this.customPropertySetId + "_" + AntennaFields.POWER.javaName() + "_" + this.meterActivation.getId() + "\\.timestamp < rid" + this.localPowerRequirementId + "_" + this.netConsumptionDeliverableId + "_" + this.meterActivation.getId() + ".timestamp.*");
+                    .matches("SELECT.*JOIN\\s*cps" + this.customPropertySetId + "_" + AntennaFields.POWER.javaName() + "_" + this.meterActivation.getId() + "\\s*ON\\s*cps" + this.customPropertySetId + "_" + AntennaFields.POWER.javaName() + "_" + this.meterActivation.getId() + "\\.starttime < rid" + this.localPowerRequirementId + "_" + this.netConsumptionDeliverableId + "_" + this.meterActivation.getId() + ".timestamp.*");
             verify(clauseAwareSqlBuilder).select();
             // Assert that the overall select statement selects the target reading type
             String overallSelectWithoutNewlines = this.selectClauseBuilder.getText().replace("\n", " ");
@@ -532,7 +533,7 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
 
     private void activateMeterWith15MinPower() {
         this.activateMeter();
-        this.power15MinChannel = this.meterActivation.createChannel(fifteenMinuteskWForward);
+        this.meterActivation.createChannel(fifteenMinuteskWForward);
     }
 
     private String mRID2GrepPattern(String mRID) {

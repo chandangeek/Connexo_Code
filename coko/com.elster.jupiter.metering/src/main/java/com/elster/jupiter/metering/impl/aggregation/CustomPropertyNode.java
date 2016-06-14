@@ -52,7 +52,7 @@ class CustomPropertyNode implements ServerExpressionNode {
     }
 
     void appendDefinitionTo(ClauseAwareSqlBuilder sqlBuilder) {
-        SqlBuilder withClauseBuilder = sqlBuilder.with(this.sqlName(), Optional.of(this.sqlComment()), SqlConstants.TimeSeriesColumnNames.names());
+        SqlBuilder withClauseBuilder = sqlBuilder.with(this.sqlName(), Optional.of(this.sqlComment()), this.withClauseSqlNames());
         this.appendWithClause(withClauseBuilder);
     }
 
@@ -60,9 +60,17 @@ class CustomPropertyNode implements ServerExpressionNode {
         return "Value for custom property '" + this.propertySpec.getName() + "' of set '" + this.getCustomPropertySet().getName() + "' (id=" + this.customPropertySet.getId() + ") in " + this.meterActivation.getRange();
     }
 
+    private String[] withClauseSqlNames() {
+        return new String[] {
+                "starttime",
+                "endtime",
+                SqlConstants.TimeSeriesColumnNames.VALUE.sqlName(),
+                SqlConstants.TimeSeriesColumnNames.LOCALDATE.sqlName()};
+    }
+
     @SuppressWarnings("unchecked")
     private void appendWithClause(SqlBuilder withClauseBuilder) {
-        withClauseBuilder.append("SELECT -1, starttime, 0, 0, 0, value, null FROM (");
+        withClauseBuilder.append("SELECT starttime, endtime, value, null FROM (");
         withClauseBuilder.add(
                 this.customPropertySetService.getRawValuesSql(
                         this.getCustomPropertySet(),
