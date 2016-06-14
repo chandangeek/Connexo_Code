@@ -274,7 +274,7 @@ public class AppServerImpl implements AppServer {
         Objects.nonNull(endPointConfiguration);
         EndPointForAppServerImpl link = webServiceForAppServerProvider.get().init(this, endPointConfiguration);
         link.save();
-        if (endPointConfiguration.isActive()) {
+        if (this.isActive() && endPointConfiguration.isActive()) {
             webServicesService.publishEndPoint(endPointConfiguration);
             endPointConfiguration.log(LogLevel.INFO, String.format("Endpoint was published on appserver %s", this.getName()));
         }
@@ -292,7 +292,7 @@ public class AppServerImpl implements AppServer {
         if (!links.isEmpty()) {
             dataModel.mapper(WebServiceForAppServer.class).remove(links.get(0)); // there can only be one anyway
         }
-        if (webServicesService.isPublished(endPointConfiguration)) {
+        if (this.isActive() && webServicesService.isPublished(endPointConfiguration)) {
             webServicesService.removeEndPoint(endPointConfiguration);
             endPointConfiguration.log(LogLevel.INFO, String.format("Endpoint was revoked on appserver %s", this.getName()));
         }
