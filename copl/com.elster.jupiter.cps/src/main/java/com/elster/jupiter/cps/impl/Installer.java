@@ -1,8 +1,11 @@
 package com.elster.jupiter.cps.impl;
 
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.upgrade.FullInstaller;
 
-import java.util.logging.Level;
+import javax.inject.Inject;
 import java.util.logging.Logger;
 
 /**
@@ -11,24 +14,18 @@ import java.util.logging.Logger;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-08-10 (14:36)
  */
-public class Installer {
-
-    private final Logger logger = Logger.getLogger(Installer.class.getName());
+public class Installer implements FullInstaller {
 
     private final DataModel dataModel;
 
+    @Inject
     public Installer(DataModel dataModel) {
         super();
         this.dataModel = dataModel;
     }
 
-    public void install(boolean executeDdl) {
-        try {
-            this.dataModel.install(executeDdl, true);
-        }
-        catch (Exception e) {
-            logger.log(Level.SEVERE, e.getMessage(), e);
-        }
+    @Override
+    public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
+        dataModelUpgrader.upgrade(dataModel, Version.latest());
     }
-
 }

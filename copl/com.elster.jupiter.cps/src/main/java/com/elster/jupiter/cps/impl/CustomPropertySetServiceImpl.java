@@ -23,7 +23,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.search.SearchableProperty;
@@ -31,6 +30,8 @@ import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.transaction.CommitException;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.upgrade.InstallIdentifier;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
@@ -72,8 +73,8 @@ import java.util.stream.Stream;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-08-10 (13:35)
  */
-@Component(name = "com.elster.jupiter.cps", service = {CustomPropertySetService.class, ServerCustomPropertySetService.class, InstallService.class, TranslationKeyProvider.class, PrivilegesProvider.class}, property = "name=" + CustomPropertySetService.COMPONENT_NAME)
-public class CustomPropertySetServiceImpl implements ServerCustomPropertySetService, InstallService, TranslationKeyProvider, PrivilegesProvider {
+@Component(name = "com.elster.jupiter.cps", service = {CustomPropertySetService.class, ServerCustomPropertySetService.class, TranslationKeyProvider.class, PrivilegesProvider.class}, property = "name=" + CustomPropertySetService.COMPONENT_NAME)
+public class CustomPropertySetServiceImpl implements ServerCustomPropertySetService, TranslationKeyProvider, PrivilegesProvider {
 
     private static final Logger LOGGER = Logger.getLogger(CustomPropertySetServiceImpl.class.getName());
 
@@ -84,6 +85,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     private volatile Thesaurus thesaurus;
     private volatile TransactionService transactionService;
     private volatile SearchService searchService;
+    private volatile UpgradeService upgradeService;
 
     /**
      * Holds the {@link CustomPropertySet}s that were published on the whiteboard
@@ -105,15 +107,15 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
 
     // For testing purposes
     @Inject
-    public CustomPropertySetServiceImpl(OrmService ormService, NlsService nlsService, TransactionService transactionService, UserService userService, SearchService searchService) {
+    public CustomPropertySetServiceImpl(OrmService ormService, NlsService nlsService, TransactionService transactionService, UserService userService, SearchService searchService, UpgradeService upgradeService) {
         this();
         this.setOrmService(ormService);
         this.setNlsService(nlsService);
         this.setTransactionService(transactionService);
         this.setUserService(userService);
         this.setSearchService(searchService);
+        this.setUpgradeService(upgradeService);
         this.activate();
-        this.install();
     }
 
     @SuppressWarnings("unused")
@@ -207,6 +209,11 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         this.searchService = searchService;
     }
 
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
+    }
+
     private Module getModule() {
         return new AbstractModule() {
             @Override
@@ -224,7 +231,8 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     @Activate
     public void activate() {
         this.dataModel.register(this.getModule());
-        this.installed = this.dataModel.isInstalled();
+        upgradeService.register(InstallIdentifier.identifier(COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
+        this.installed = true;
         this.registerAllCustomPropertySets();
     }
 
@@ -264,19 +272,6 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         } else {
             LOGGER.fine("No custom property sets have registered yet, makes no sense to attempt to register them all right ;-)");
         }
-    }
-
-    @Override
-    public void install() {
-        if (!dataModel.isInstalled()) {
-            new Installer(this.dataModel).install(true);
-            this.installed = this.dataModel.isInstalled();
-        }
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "USR", "EVT", "NLS");
     }
 
     @Override
@@ -380,7 +375,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         DataModel dataModel = this.newDataModelFor(customPropertySet);
         this.addTableFor(customPropertySet, dataModel);
         dataModel.register(this.getCustomPropertySetModule(dataModel, customPropertySet));
-        dataModel.install(executeDdl, false);
+        dataModel.install(executeDdl, false); // TODO
         return dataModel;
     }
 

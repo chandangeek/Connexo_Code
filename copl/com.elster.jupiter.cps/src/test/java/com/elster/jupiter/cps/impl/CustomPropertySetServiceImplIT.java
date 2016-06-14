@@ -27,9 +27,16 @@ import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.beans.BeanService;
+import com.elster.jupiter.util.beans.impl.BeanServiceImpl;
+import com.elster.jupiter.util.json.JsonService;
+import com.elster.jupiter.util.json.impl.JsonServiceImpl;
+
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
@@ -151,6 +158,7 @@ public class CustomPropertySetServiceImplIT {
             bind(BundleContext.class).toInstance(bundleContext);
             bind(FileSystem.class).toInstance(FileSystems.getDefault());
             bind(TimeService.class).toInstance(timeService);
+            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }
 
@@ -348,6 +356,7 @@ public class CustomPropertySetServiceImplIT {
         service.setNlsService(this.injector.getInstance(NlsService.class));
         service.setTransactionService(this.transactionService);
         service.setSearchService(mock(SearchService.class));
+        service.setUpgradeService(UpgradeModule.FakeUpgradeService.getInstance());
 
         /* Create 3 threads that will wait on CountdownLatch to start simultaneously
          *    1. activate the service
