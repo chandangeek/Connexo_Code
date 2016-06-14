@@ -21,24 +21,29 @@ import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
-import com.elster.jupiter.nls.*;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.InvalidateCacheRequest;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.pubsub.Subscriber;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.tasks.TaskService;
-import com.elster.jupiter.tasks.TaskStatus;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Registration;
+import com.elster.jupiter.util.concurrent.DelayedRegistrationHandler;
 import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.streams.Functions;
+
 import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
 import org.osgi.framework.BundleContext;
@@ -72,11 +77,13 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.elster.jupiter.orm.Version.version;
+import static com.elster.jupiter.upgrade.InstallIdentifier.identifier;
 import static com.elster.jupiter.util.conditions.Where.where;
 import static com.elster.jupiter.util.streams.Predicates.not;
 
-@Component(name = "com.elster.jupiter.appserver", service = {InstallService.class, AppService.class, Subscriber.class, PrivilegesProvider.class, TopicHandler.class}, property = {"name=" + AppService.COMPONENT_NAME}, immediate = true)
-public class AppServiceImpl implements InstallService, IAppService, Subscriber, PrivilegesProvider, TranslationKeyProvider, TopicHandler {
+@Component(name = "com.elster.jupiter.appserver", service = {AppService.class, Subscriber.class, PrivilegesProvider.class, TopicHandler.class}, property = {"name=" + AppService.COMPONENT_NAME}, immediate = true)
+public class AppServiceImpl implements IAppService, Subscriber, PrivilegesProvider, TranslationKeyProvider, TopicHandler {
 
     private static final Logger LOGGER = Logger.getLogger(AppServiceImpl.class.getName());
 
@@ -97,6 +104,7 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber, 
     private volatile Thesaurus thesaurus;
     private volatile EventService eventService;
     private volatile ThreadPrincipalService threadPrincipalService;
+    private volatile UpgradeService upgradeService;
 
     private volatile AppServerImpl appServer;
     private volatile List<? extends SubscriberExecutionSpec> subscriberExecutionSpecs = Collections.emptyList();
@@ -107,13 +115,14 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber, 
     @GuardedBy("reconfigureLock")
     private Set<ImportSchedule> servedImportSchedules = new HashSet<>();
     private final Object reconfigureLock = new Object();
+    private final DelayedRegistrationHandler delayedNotifications = new DelayedRegistrationHandler();
 
     public AppServiceImpl() {
         threadGroup = new ThreadGroup("AppServer message listeners");
     }
 
     @Inject
-    AppServiceImpl(OrmService ormService, NlsService nlsService, TransactionService transactionService, MessageService messageService, CronExpressionParser cronExpressionParser, JsonService jsonService, FileImportService fileImportService, TaskService taskService, UserService userService, QueryService queryService, BundleContext bundleContext, ThreadPrincipalService threadPrincipalService) {
+    AppServiceImpl(OrmService ormService, NlsService nlsService, TransactionService transactionService, MessageService messageService, CronExpressionParser cronExpressionParser, JsonService jsonService, FileImportService fileImportService, TaskService taskService, UserService userService, QueryService queryService, BundleContext bundleContext, ThreadPrincipalService threadPrincipalService, UpgradeService upgradeService) {
         this();
         setThreadPrincipalService(threadPrincipalService);
         setOrmService(ormService);
@@ -126,11 +135,10 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber, 
         setTaskService(taskService);
         setUserService(userService);
         setQueryService(queryService);
+        setUpgradeService(upgradeService);
 
-        if (!dataModel.isInstalled()) {
-            install();
-        }
         activate(bundleContext);
+        delayedNotifications.ready();
     }
 
     @Activate
@@ -153,14 +161,17 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber, 
                     bind(AppService.class).toInstance(AppServiceImpl.this);
                     bind(IAppService.class).toInstance(AppServiceImpl.this);
                     bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
+                    bind(UserService.class).toInstance(userService);
                 }
             });
 
-            if (dataModel.isInstalled()) {
-                tryActivate(context);
-            }
+            upgradeService.register(identifier(COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
+
+            tryActivate(context);
+
         } catch (RuntimeException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw e;
         }
     }
 
@@ -339,16 +350,6 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber, 
     }
 
     @Override
-    public void install() {
-        new Installer(userService, dataModel, messageService, thesaurus).install();
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "USR", "MSG", "NLS");
-    }
-
-    @Override
     public void stopAppServer() {
         for (Runnable deactivateTask : deactivateTasks) {
             deactivateTask.run();
@@ -440,22 +441,23 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber, 
     @Override
     public void handle(Object notification, Object... notificationDetails) {
         if (notification instanceof InvalidateCacheRequest) {
-            InvalidateCacheRequest invalidateCacheRequest = (InvalidateCacheRequest) notification;
-            Properties properties = new Properties();
-            properties.put(COMPONENT_NAME_KEY, invalidateCacheRequest.getComponentName());
-            properties.put(TABLE_NAME, invalidateCacheRequest.getTableName());
-            AppServerCommand command = new AppServerCommand(Command.INVALIDATE_CACHE, properties);
+            delayedNotifications.handle(() -> {
+                InvalidateCacheRequest invalidateCacheRequest = (InvalidateCacheRequest) notification;
+                Properties properties = new Properties();
+                properties.put(COMPONENT_NAME_KEY, invalidateCacheRequest.getComponentName());
+                properties.put(TABLE_NAME, invalidateCacheRequest.getTableName());
+                AppServerCommand command = new AppServerCommand(Command.INVALIDATE_CACHE, properties);
 
-            Optional<DestinationSpec> allServerDestination = messageService.getDestinationSpec(ALL_SERVERS);
-            if (allServerDestination.isPresent()) {
-                allServerDestination.get().message(jsonService.serialize(command)).send();
-            } else {
-                if (dataModel.isInstalled()) {
-                    LOGGER.log(Level.SEVERE, "Could not notify other servers of InvalidateCacheRequest. AllServers queue does not exist!");
+                Optional<DestinationSpec> allServerDestination = messageService.getDestinationSpec(ALL_SERVERS);
+                if (allServerDestination.isPresent()) {
+                    allServerDestination.get().message(jsonService.serialize(command)).send();
+                } else {
+                    if (upgradeService.isInstalled(identifier(COMPONENT_NAME), version(1, 0))) {
+                        LOGGER.log(Level.SEVERE, "Could not notify other servers of InvalidateCacheRequest. AllServers queue does not exist!");
+                    }
                 }
-            }
+            });
         }
-
     }
 
     @Override
@@ -481,6 +483,11 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber, 
     @Reference
     public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
         this.threadPrincipalService = threadPrincipalService;
+    }
+
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
     }
 
     private class CommandHandler implements MessageHandler {
