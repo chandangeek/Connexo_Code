@@ -40,6 +40,9 @@ public class SDKSmartMeterProperties extends AbstractProtocolProperties {
 
     public String[] getReadingQualities() {
         String readingQualities = getStringValue(READING_QUALITIES, "");
+        if (readingQualities.isEmpty()) {
+            return new String[0];
+        }
         return readingQualities.split(";");
     }
 

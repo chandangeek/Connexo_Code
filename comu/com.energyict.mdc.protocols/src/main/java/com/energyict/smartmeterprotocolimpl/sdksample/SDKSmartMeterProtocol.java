@@ -4,10 +4,7 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
-import com.energyict.mdc.protocol.api.LoadProfileReader;
-import com.energyict.mdc.protocol.api.MessageProtocol;
+import com.energyict.mdc.protocol.api.*;
 import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
@@ -230,7 +227,7 @@ public class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol implements
      * @param loadProfileObisCodes the list of LoadProfile ObisCodes
      * @return a list of {@link LoadProfileConfiguration} objects corresponding with the meter
      */
-    public List<LoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfileObisCodes) throws InvalidPropertyException {
+    public List<LoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfileObisCodes) throws InvalidPropertyException, LoadProfileConfigurationException {
         return getSMartMeterProfile().fetchLoadProfileConfiguration(loadProfileObisCodes);
     }
 
