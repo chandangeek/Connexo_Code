@@ -13,6 +13,7 @@ import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
+import static com.elster.jupiter.orm.Version.version;
 
 public enum TableSpecs {
 
@@ -32,6 +33,7 @@ public enum TableSpecs {
         @Override
         void describeTable(Table table) {
             table.map(BpmProcessPropertyImpl.class);
+            table.since(version(10, 2));
 
             Column nameColumn = table.column("NAME").map("name").varChar(NAME_LENGTH).notNull().add();
             Column processColumn = table.column("PROCESSID").number().conversion(NUMBER2LONG).notNull().add();
@@ -60,30 +62,15 @@ public enum TableSpecs {
         @Override
         void describeTable(Table table) {
             table.map(BpmProcessDeviceStateImpl.class);
-            Column processIdColumn = table.column("PROCESSID")
-                    .number()
-                    .notNull()
-                    .conversion(NUMBER2LONG)
-                    .map("processId")
-                    .add();
-            Column deviceStateId = table.column("DEVICESTATEID")
-                    .number()
-                    .notNull()
-                    .conversion(NUMBER2LONG)
-                    .map("deviceStateId")
-                    .add();
+            Column processIdColumn = table.column("PROCESSID").number().notNull().conversion(NUMBER2LONG).map("processId").add();
+            Column deviceStateId = table.column("DEVICESTATEID").number().notNull().conversion(NUMBER2LONG).map("deviceStateId").add();
             table.column("DEVICELIFECYCLEID").number().notNull().conversion(NUMBER2LONG).map("deviceLifeCycleId").add();
             table.column("NAME").type("varchar2(30)").notNull().map("name").add();
             table.column("DEVICESTATE").type("varchar2(30)").notNull().map("deviceState").add();
             table.addCreateTimeColumn("CREATETIME", "createTime");
             table.primaryKey("BPM_PK_DEVICESTATE").on(processIdColumn, deviceStateId).add();
-            table.foreignKey("FK_DEVICESTATE")
-                    .references(BPM_PROCESS.name())
-                    .onDelete(CASCADE)
-                    .map("bpmProcessDefinition")
-                    .reverseMap("processDeviceStates")
-                    .on(processIdColumn)
-                    .add();
+            table.foreignKey("FK_DEVICESTATE").references(BPM_PROCESS.name()).onDelete(CASCADE).map("bpmProcessDefinition")
+                    .reverseMap("processDeviceStates").on(processIdColumn).add();
         }
     };
 
