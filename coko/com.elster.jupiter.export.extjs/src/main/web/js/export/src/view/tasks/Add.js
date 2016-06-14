@@ -344,6 +344,10 @@ Ext.define('Dxp.view.tasks.Add', {
                                 store: 'Dxp.store.EventTypesForTask',
                                 hideHeaders: true,
                                 padding: 0,
+                                scroll: 'vertical',
+                                viewConfig: {
+                                    disableSelection: true
+                                },
                                 hidden: true,
                                 columns: [
                                     {
