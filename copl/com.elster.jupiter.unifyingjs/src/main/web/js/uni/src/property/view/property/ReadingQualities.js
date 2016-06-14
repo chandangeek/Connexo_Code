@@ -137,7 +137,7 @@ Ext.define('Uni.property.view.property.ReadingQualities', {
                                 flex: 1,
                                 renderer: function(value, metaData, record) {
                                     return '<span style="display:inline-block; float: left; margin-right:7px;" >' + record.get('displayName') + '</span>'+
-                                        '<span class="icon-info" style="cursor: pointer; display:inline-block; color:#A9A9A9; font-size:16px;" data-qtip="' + Ext.htmlEncode(record.get('tooltip')) + '"></span>';
+                                        '<span class="icon-info" style="display:inline-block; color:#A9A9A9; font-size:16px;" data-qtip="' + Ext.htmlEncode(record.get('tooltip')) + '"></span>';
                                 }
                             },
                             {
