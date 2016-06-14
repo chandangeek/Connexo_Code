@@ -8,6 +8,8 @@ import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.validation.kpi.DataValidationKpi;
 import com.elster.jupiter.validation.kpi.DataValidationKpiService;
 import com.elster.jupiter.validation.rest.impl.MessageSeeds;
@@ -26,8 +28,10 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -78,6 +82,26 @@ public class KpiResource {
         return dataValidationKpiInfoFactory.from(dataValidationKpi);
     }
 
+    @GET
+    @Transactional
+    @Path("/groups")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_VALIDATION_CONFIGURATION, Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION})
+    public Response getAvailableDeviceGroups(@BeanParam JsonQueryParameters queryParameters) {
+        List<EndDeviceGroup> allGroups = meteringGroupsService.getEndDeviceGroupQuery().select(Condition.TRUE, Order.ascending("upper(name)"));
+        List<Long> usedGroupIds = dataValidationKpiService.findAllDataValidationKpis().stream().map(kpi -> kpi.getDeviceGroup().getId()).collect(Collectors
+                .toList());
+        Iterator<EndDeviceGroup> groupIterator = allGroups.iterator();
+        while (groupIterator.hasNext()) {
+            EndDeviceGroup next = groupIterator.next();
+            if (usedGroupIds.contains(next.getId())) {
+                groupIterator.remove();
+            }
+        }
+        return Response.ok(PagedInfoList.fromPagedList("deviceGroups", allGroups.stream()
+                .map(gr -> new LongIdWithNameInfo(gr.getId(), gr.getName())).collect(Collectors.toList()), queryParameters)).build();
+    }
+
     @DELETE
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
@@ -86,10 +110,11 @@ public class KpiResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION})
     public Response deleteDataValidationKpi(@PathParam("id") long id, DataValidationKpiInfo info) {
         info.id = id;
-        getLockedDataValidationKpi(info.id, info.version)
+        DataValidationKpi lockedDataValidationKpi = getLockedDataValidationKpi(info.id, info.version)
                 .orElseThrow(conflictFactory.contextDependentConflictOn(info.deviceGroup.name)
                         .withActualVersion(() -> getCurrentDataValidationKpiVersion(info.id))
                         .supplier());
+        lockedDataValidationKpi.delete();
         return Response.ok().build();
     }
 
