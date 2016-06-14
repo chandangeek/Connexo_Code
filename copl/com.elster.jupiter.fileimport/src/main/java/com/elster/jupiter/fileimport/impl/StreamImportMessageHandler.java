@@ -104,7 +104,7 @@ class StreamImportMessageHandler implements MessageHandler {
     private void handleException(ServerFileImportOccurrence occurrence, Exception ex) {
         occurrence.getLogger().log(Level.SEVERE, ex.getLocalizedMessage(), ex);
         if (Status.PROCESSING.equals(occurrence.getStatus())) {
-            fileImportOccurrence.markFailure(ex.getLocalizedMessage());
+            occurrence.markFailure(ex.getLocalizedMessage());
         }
         occurrence.save();
     }
