@@ -198,8 +198,8 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainPreview', {
                 field.setValue(field.getValue()
                     + (Ext.isEmpty(field.getValue()) ? '' : '<br>')
                     + '<span style="display:inline-block; float: left; margin-right:7px;" >' + readingQuality.indexName + ' (' + readingQuality.cimCode + ')' + '</span>'
-                    + '<span class="icon-info" style="cursor: pointer; display:inline-block; color:#A9A9A9; font-size:16px;" data-qtip="'
-                    + me.getTooltip('_TODO_', readingQuality.categoryName, readingQuality.indexName) + '"></span>'
+                    + '<span class="icon-info" style="display:inline-block; color:#A9A9A9; font-size:16px;" data-qtip="'
+                    + me.getTooltip(readingQuality.systemName, readingQuality.categoryName, readingQuality.indexName) + '"></span>'
                 );
             }
         });
@@ -214,11 +214,11 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainPreview', {
         var me = this,
             tooltip = '<table><tr><td>';
 
-        tooltip += '<b>' + Uni.I18n.translate('general.readingQuality.field1.name', 'UNI', 'System') + ':</b></td>';
+        tooltip += '<b>' + Uni.I18n.translate('general.readingQuality.field1.name', 'MDC', 'System') + ':</b></td>';
         tooltip += '<td>' + systemName + '</td></tr>';
-        tooltip += '<tr><td><b>' + Uni.I18n.translate('general.readingQuality.field2.name', 'UNI', 'Category') + ':</b></td>';
+        tooltip += '<tr><td><b>' + Uni.I18n.translate('general.readingQuality.field2.name', 'MDC', 'Category') + ':</b></td>';
         tooltip += '<td>' + categoryName + '</td></tr>';
-        tooltip += '<tr><td><b>' + Uni.I18n.translate('general.readingQuality.field3.name', 'UNI', 'Index') + ':</b></td>';
+        tooltip += '<tr><td><b>' + Uni.I18n.translate('general.readingQuality.field3.name', 'MDC', 'Index') + ':</b></td>';
         tooltip += '<td>' + indexName + '</td></tr></table>';
         return tooltip;
     }
