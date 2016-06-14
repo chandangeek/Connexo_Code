@@ -232,6 +232,10 @@ public class AppServiceConsoleService {
         return appService.getDataModel();
     }
 
+    public void create() {
+        System.out.println("usage: appserver:create <app server name> <cronString>  [active]");
+    }
+
     public void create(String name, String cronString) {
         create(name, cronString, true);
     }
