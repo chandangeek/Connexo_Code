@@ -311,6 +311,7 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
 	    <artifactId>yellowfin.installer</artifactId>
+	    <scope>provided</scope>
 	</dependency>
 
         <dependency>
