@@ -654,6 +654,10 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
         return dataModel.query(DataValidationOccurrence.class, DataValidationTask.class).select(EQUAL.compare("taskOccurrence", occurrence)).stream().findFirst();
     }
 
+    public DataValidationOccurrence findAndLockDataValidationOccurrence(TaskOccurrence occurrence) {
+        return dataModel.mapper(DataValidationOccurrence.class).lock(occurrence.getId());
+    }
+
     @Override
     public Optional<SqlBuilder> getValidationResults(long endDeviceGroupId, Optional<Integer> start, Optional<Integer> limit) {
         SqlBuilder sqlBuilder = new SqlBuilder();

@@ -74,6 +74,7 @@ public class DataValidationTaskExecutor implements TaskExecutor {
             throw ex;
         } finally {
             try (TransactionContext transactionContext = transactionService.getContext()) {
+                dataValidationOccurrence = findAndLockOccurrence(occurrence); // Reload occurrence, because #doExecute can took a long time
                 dataValidationOccurrence.end(success ? DataValidationTaskStatus.SUCCESS : DataValidationTaskStatus.FAILED, errorMessage);
                 dataValidationOccurrence.update();
                 transactionContext.commit();
@@ -95,6 +96,10 @@ public class DataValidationTaskExecutor implements TaskExecutor {
 
     private DataValidationOccurrence findOccurrence(TaskOccurrence occurrence) {
         return validationService.findDataValidationOccurrence(occurrence).orElseThrow(IllegalArgumentException::new);
+    }
+
+    private DataValidationOccurrence findAndLockOccurrence(TaskOccurrence occurrence) {
+        return ((ValidationServiceImpl) validationService).findAndLockDataValidationOccurrence(occurrence);
     }
 
     private void doExecute(DataValidationOccurrence occurrence, Logger logger) {
