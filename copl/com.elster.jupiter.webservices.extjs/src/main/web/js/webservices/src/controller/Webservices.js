@@ -2,8 +2,12 @@ Ext.define('Wss.controller.Webservices', {
     extend: 'Ext.app.Controller',
 
     views: [],
-    stores: [],
-    models: [],
+    stores: [
+        'Wss.store.Endpoints'
+    ],
+    models: [
+        'Wss.model.Endpoint'
+    ],
 
     refs: [],
 
