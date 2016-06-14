@@ -46,9 +46,7 @@ Ext.define('Cfg.view.validation.AddRule', {
                         },
                         defaults: {
                             validateOnChange: false,
-                            validateOnBlur: false,
-                            labelWidth: 260,
-                            width: 600
+                            validateOnBlur: false
                         },
                         items: [
                         {
@@ -56,6 +54,8 @@ Ext.define('Cfg.view.validation.AddRule', {
                             xtype: 'uni-form-error-message',
                             name: 'form-errors',
                             margin: '0 0 10 0',
+                            labelWidth: 260,
+                            width: 600,
                             hidden: true
                         },
                         {
@@ -100,6 +100,7 @@ Ext.define('Cfg.view.validation.AddRule', {
                             fieldLabel: Uni.I18n.translate('general.readingTypes', 'CFG', 'Reading types'),
                             required: true,
                             layout: 'hbox',
+                            labelWidth: 260,
                             width: 1100,
                             items: [
                                 {
@@ -163,7 +164,9 @@ Ext.define('Cfg.view.validation.AddRule', {
                             xtype: 'label',
                             cls: 'x-form-invalid-under',
                             itemId: 'readingTypesErrorLabel',
-                            margin: '0 0 0 275'
+                            margin: '0 0 0 275',
+                            labelWidth: 260,
+                            width: 600
                         },
                         {
                             xtype: 'radiogroup',
@@ -195,7 +198,6 @@ Ext.define('Cfg.view.validation.AddRule', {
                             width: '100%',
                             defaults: {
                                 labelWidth: 260,
-                                width: 325,
                                 resetButtonHidden: true
                             }
                         },
