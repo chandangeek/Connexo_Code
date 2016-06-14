@@ -29,6 +29,7 @@ import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.PassiveEffectiveCalendar;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
+import com.energyict.mdc.device.data.ReadingTypeObisCodeUsage;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeInAction;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeInActionImpl;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeRequest;
@@ -77,6 +78,7 @@ import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONGNULLZERO;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBERINUTCSECONDS2INSTANT;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
+import static com.elster.jupiter.orm.Version.version;
 
 /**
  * Models the database tables that hold the data of the
@@ -750,6 +752,7 @@ public enum TableSpecs {
         @Override
         void addTo(DataModel dataModel) {
             Table<ActivatedBreakerStatus> table = dataModel.addTable(name(), ActivatedBreakerStatus.class);
+            table.since(version(10, 2));
             table.map(ActivatedBreakerStatusImpl.class);
             Column idColumn = table.addAutoIdColumn();
             Column deviceColumn = table.column("DEVICEID").number().notNull().add();
@@ -832,7 +835,8 @@ public enum TableSpecs {
     DDC_OVERRULEDOBISCODE {
         @Override
         void addTo(DataModel dataModel) {
-            Table<ReadingTypeObisCodeUsageImpl> table = dataModel.addTable(name(), ReadingTypeObisCodeUsageImpl.class);
+            Table<ReadingTypeObisCodeUsage> table = dataModel.addTable(name(), ReadingTypeObisCodeUsage.class);
+            table.since(version(10, 2));
             table.map(ReadingTypeObisCodeUsageImpl.class);
             Column readingType = table.column("READINGTYPEMRID").varChar(NAME_LENGTH).notNull().add();
             Column device = table.column("DEVICEID").number().notNull().add();

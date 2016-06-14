@@ -2,13 +2,16 @@ package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeInAction;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeRequest;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -46,7 +49,7 @@ public interface ServerDeviceService extends DeviceService {
      * if the property were to be removed from the {@link ProtocolDialectConfigurationProperties}.
      *
      * @param configurationProperties The DeviceConfiguration
-     * @param propertySpec            The PropertySpec
+     * @param propertySpec The PropertySpec
      * @return <code>true</code> iff there is at least one Device with overruling properties
      */
     long countDevicesThatRelyOnRequiredProperty(ProtocolDialectConfigurationProperties configurationProperties, PropertySpec propertySpec);
@@ -57,7 +60,7 @@ public interface ServerDeviceService extends DeviceService {
      * Checks if there is currently an active 'ChangeDeviceConfiguration' happening.
      * We do this by validation whether the origin or destination are part of a the business lock for deviceConfigChanges
      *
-     * @param originDeviceConfiguration      the origin DeviceConfiguration
+     * @param originDeviceConfiguration the origin DeviceConfiguration
      * @param destinationDeviceConfiguration the destination DeviceConfiguration
      * @return true if there is currently a changeDeviceConfiguration happening for either of the DeviceConfigurations
      */
@@ -66,5 +69,21 @@ public interface ServerDeviceService extends DeviceService {
     Optional<DeviceConfigChangeRequest> findDeviceConfigChangeRequestById(long id);
 
     Optional<DeviceConfigChangeInAction> findDeviceConfigChangeInActionById(long id);
+
+    /**
+     * Finds a list of devices which have the same overridden OBIS code value for another register then defined by the provided registerspec
+     *
+     * @param registerSpec the registerSpec which OBIS code can have been updated
+     * @return a list of devices which have an overridden value for the OBIS code, but not linked to provided registerpec
+     */
+    List<Device> findDeviceWithOverruledObisCodeForOtherThanRegisterSpec(RegisterSpec registerSpec);
+
+    /**
+     * Finds a list of devices which have the same overridden OBIS code value for another channel in the LoadProfile then defined by the provided channelspec
+     *
+     * @param channelSpec the ChannelSpec which OBIS code can have been updated
+     * @return a list of devices which have an overridden value for the OBIS code, but not linked to provided ChannelSpec
+     */
+    List<Device> findDeviceWithOverruledObisCodeForOtherThanChannelSpec(ChannelSpec channelSpec);
 
 }
