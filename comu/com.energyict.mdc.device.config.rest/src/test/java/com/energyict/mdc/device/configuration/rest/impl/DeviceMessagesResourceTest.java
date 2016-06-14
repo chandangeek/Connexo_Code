@@ -12,14 +12,22 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Test;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -61,7 +69,7 @@ public class DeviceMessagesResourceTest extends BaseLoadProfileTest {
         DeviceMessageCategory displayCategory = mock(DeviceMessageCategory.class);
         DeviceMessageSpec displayMessage = mock(DeviceMessageSpec.class);
 
-        when(deviceMessageSpecificationService.filteredCategoriesForUserSelection()).thenReturn(Arrays.asList(clockCategory, displayCategory));
+        when(deviceMessageSpecificationService.filteredCategoriesForComTaskDefinition()).thenReturn(Arrays.asList(clockCategory, displayCategory));
         when(clockCategory.getName()).thenReturn("Clock");
         when(displayCategory.getName()).thenReturn("Display");
         when(clockCategory.getMessageSpecifications()).thenReturn(Arrays.asList(clockSetTimeMessage, clockSetDSTMessage));
