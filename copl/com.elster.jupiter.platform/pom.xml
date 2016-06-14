@@ -449,6 +449,12 @@
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
+                <artifactId>webservices.extjs</artifactId>
+                <version>1.0.0${revision}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.elster.jupiter</groupId>
                 <artifactId>webservices.rest</artifactId>
                 <version>1.0.0${revision}</version>
                 <scope>provided</scope>
@@ -734,6 +740,7 @@
                 <module>../com.elster.jupiter.users.extjs</module>
                 <module>../com.elster.jupiter.users.rest</module>
                 <module>../com.elster.jupiter.util</module>
+                <module>../com.elster.jupiter.webservices.extjs</module>
                 <module>../com.elster.jupiter.webservices.rest</module>
                 <module>../com.elster.jupiter.yellowfin</module>
                 <module>../com.elster.jupiter.yellowfin.app</module>
