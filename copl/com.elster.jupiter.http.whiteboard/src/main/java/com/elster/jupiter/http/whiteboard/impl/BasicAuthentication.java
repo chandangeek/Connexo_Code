@@ -4,11 +4,11 @@ import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.http.whiteboard.HttpAuthenticationService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.upgrade.InstallIdentifier;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.exception.ExceptionCatcher;
 
 import com.google.inject.AbstractModule;
 import org.osgi.framework.BundleContext;
@@ -22,15 +22,12 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -39,8 +36,8 @@ import static com.elster.jupiter.util.Checks.is;
 
 @Component(name = "com.elster.jupiter.http.whiteboard.HttpAutenticationService",
         property = {"name=HTW", "osgi.command.scope=jupiter", "osgi.command.function=createNewTokenKey"},
-        immediate = true, service = {HttpAuthenticationService.class, InstallService.class})
-public class BasicAuthentication implements HttpAuthenticationService, InstallService {
+        immediate = true, service = {HttpAuthenticationService.class})
+public class BasicAuthentication implements HttpAuthenticationService {
 
     private final static String TIMEOUT = "com.elster.jupiter.timeout";
     private final static String TOKEN_REFRESH_MAX_COUNT = "com.elster.jupiter.token.refresh.maxcount";
@@ -75,6 +72,8 @@ public class BasicAuthentication implements HttpAuthenticationService, InstallSe
     private volatile SecurityTokenImpl securityToken;
     private volatile DataModel dataModel;
     private volatile TransactionService transactionService;
+    private volatile UpgradeService upgradeService;
+
     private int timeout;
     private int tokenRefreshMaxCount;
     private int tokenExpTime;
@@ -82,16 +81,14 @@ public class BasicAuthentication implements HttpAuthenticationService, InstallSe
 
 
     @Inject
-    BasicAuthentication(UserService userService, OrmService ormService, DataVaultService dataVaultService) throws
+    BasicAuthentication(UserService userService, OrmService ormService, DataVaultService dataVaultService, UpgradeService upgradeService) throws
             InvalidKeySpecException,
             NoSuchAlgorithmException {
         setUserService(userService);
         setOrmService(ormService);
         setDataVaultService(dataVaultService);
+        setUpgradeService(upgradeService);
         activate(null);
-        if (!dataModel.isInstalled()) {
-            install();
-        }
     }
 
     public BasicAuthentication() {
@@ -121,6 +118,11 @@ public class BasicAuthentication implements HttpAuthenticationService, InstallSe
         this.transactionService = transactionService;
     }
 
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
+    }
+
     @Activate
     public void activate(BundleContext context) throws InvalidKeySpecException, NoSuchAlgorithmException {
 
@@ -130,15 +132,15 @@ public class BasicAuthentication implements HttpAuthenticationService, InstallSe
                 bind(UserService.class).toInstance(userService);
                 bind(DataVaultService.class).toInstance(dataVaultService);
                 bind(DataModel.class).toInstance(dataModel);
+                bind(BasicAuthentication.class).toInstance(BasicAuthentication.this);
             }
         });
         timeout = getIntParameter(TIMEOUT, context, 300);
         tokenRefreshMaxCount = getIntParameter(TOKEN_REFRESH_MAX_COUNT, context, 100);
         tokenExpTime = getIntParameter(TOKEN_EXPIRATION_TIME, context, 300);
         installDir = context.getProperty("install.dir");
-        if (dataModel.isInstalled()) {
-            initSecurityTokenImpl();
-        }
+        upgradeService.register(InstallIdentifier.identifier("HTP"), dataModel, Installer.class, Collections.emptyMap());
+        initSecurityTokenImpl();
     }
 
     private void initSecurityTokenImpl() {
@@ -169,70 +171,16 @@ public class BasicAuthentication implements HttpAuthenticationService, InstallSe
         return defaultValue;
     }
 
-    @Override
-    public void install() {
-        ExceptionCatcher.executing(this::installDataModel, this::createKeys, this::initSecurityTokenImpl, this::dumpPublicKey)
-                .andHandleExceptionsWith(Throwable::printStackTrace)
-                .execute();
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "EVT", "DVA");
-    }
-
-    private void installDataModel() {
-        dataModel.install(true, true);
-    }
-
-    private void createKeys() {
-        if (!getKeyPair().isPresent()) {
-            try {
-                dataModel.getInstance(KeyStoreImpl.class).init(dataVaultService);
-            } catch (NoSuchAlgorithmException e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }
-
-    private void dumpPublicKey() {
-        if (!is(installDir).emptyOrOnlyWhiteSpace()) {
-            Path conf = FileSystems.getDefault().getPath(installDir).resolve("publicKey.txt");
-            dumpToFile(conf);
-        }
-    }
-
-    private void dumpToFile(Path conf) {
-        try (OutputStreamWriter writer = new FileWriter(conf.toFile())) {
-            writer.write(new String(dataVaultService.decrypt(getKeyPair().get().getPublicKey())));
-            writer.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void createNewTokenKey(String fileName) {
-        try {
-            transactionService.builder().run(() -> {
-                Optional<KeyStoreImpl> keyPair = getKeyPair();
-                if (keyPair.isPresent()) {
-                    keyPair.get().delete();
-                }
-                createKeys();
-                dumpToFile(FileSystems.getDefault().getPath(fileName));
-                initSecurityTokenImpl();
-            });
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private Optional<KeyStoreImpl> getKeyPair() {
+    Optional<KeyStoreImpl> getKeyPair() {
         List<KeyStoreImpl> keys = new ArrayList<>(dataModel.mapper(KeyStoreImpl.class).find());
         if (!keys.isEmpty()) {
             return Optional.of(keys.get(0));
         }
         return Optional.empty();
+    }
+
+    String getInstallDir() {
+        return installDir;
     }
 
     @Override
