@@ -60,9 +60,9 @@ public class WebServicesGogoCommands {
     public void webservices() {
         List<List<?>> collect = webServicesService.getWebServices()
                 .stream()
-                .map(ws -> Arrays.asList(ws.getName(), ws.isInbound() ? "Inbound" : "Outbound"))
+                .map(ws -> Arrays.asList(ws.getName(), ws.isInbound() ? "Inbound" : "Outbound", "SOAP"))
                 .collect(toList());
-        collect.add(0, Arrays.asList("Web service", "Type"));
+        collect.add(0, Arrays.asList("Web service", "Direction", "Type"));
         MYSQL_PRINT.printTableWithHeader(collect);
     }
 
