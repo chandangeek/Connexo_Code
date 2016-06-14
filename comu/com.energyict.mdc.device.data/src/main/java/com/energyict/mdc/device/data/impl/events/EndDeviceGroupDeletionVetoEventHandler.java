@@ -8,11 +8,15 @@ import com.elster.jupiter.metering.groups.EventType;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.validation.kpi.DataValidationKpiService;
 import com.energyict.mdc.device.data.DeviceDataServices;
+import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
-import javax.inject.Inject;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+
+import javax.inject.Inject;
 
 /**
  * Copyrights EnergyICT
@@ -23,14 +27,16 @@ import org.osgi.service.component.annotations.Reference;
 public class EndDeviceGroupDeletionVetoEventHandler implements TopicHandler {
 
     private volatile DataCollectionKpiService dataCollectionKpiService;
+    private volatile DataValidationKpiService dataValidationKpiService;
     private volatile Thesaurus thesaurus;
 
     public EndDeviceGroupDeletionVetoEventHandler() {
     }
 
     @Inject
-    public EndDeviceGroupDeletionVetoEventHandler(DataCollectionKpiService dataCollectionKpiService, Thesaurus thesaurus) {
+    public EndDeviceGroupDeletionVetoEventHandler(DataCollectionKpiService dataCollectionKpiService, Thesaurus thesaurus, DataValidationKpiService dataValidationKpiService) {
         setDataCollectionKpiService(dataCollectionKpiService);
+        setDataValidationKpiService(dataValidationKpiService);
         this.thesaurus = thesaurus;
     }
 
@@ -38,6 +44,12 @@ public class EndDeviceGroupDeletionVetoEventHandler implements TopicHandler {
     @SuppressWarnings("unused")
     public void setDataCollectionKpiService(DataCollectionKpiService dataCollectionKpiService) {
         this.dataCollectionKpiService = dataCollectionKpiService;
+    }
+
+    @Reference
+    @SuppressWarnings("unused")
+    public void setDataValidationKpiService(DataValidationKpiService dataValidationKpiService) {
+        this.dataValidationKpiService = dataValidationKpiService;
     }
 
     @Reference
@@ -49,8 +61,14 @@ public class EndDeviceGroupDeletionVetoEventHandler implements TopicHandler {
     public void handle(LocalEvent localEvent) {
         EndDeviceGroupEventData eventSource = (EndDeviceGroupEventData) localEvent.getSource();
         EndDeviceGroup endDeviceGroup = eventSource.getEndDeviceGroup();
+        if(dataCollectionKpiService.findDataCollectionKpi(endDeviceGroup).isPresent() && dataValidationKpiService.findDataValidationKpi(endDeviceGroup).isPresent()){
+            throw new VetoDeleteDeviceGroupException(thesaurus, MessageSeeds.KPIS_DEVICEGROUP_DELETION, endDeviceGroup);
+        }
         if (dataCollectionKpiService.findDataCollectionKpi(endDeviceGroup).isPresent()) {
-            throw new VetoDeleteDeviceGroupException(thesaurus, endDeviceGroup);
+            throw new VetoDeleteDeviceGroupException(thesaurus, MessageSeeds.VETO_DEVICEGROUP_DELETION, endDeviceGroup);
+        }
+        if(dataValidationKpiService.findDataValidationKpi(endDeviceGroup).isPresent()){
+            throw new VetoDeleteDeviceGroupException(thesaurus, MessageSeeds.VAL_KPI_DEVICEGROUP_DELETION, endDeviceGroup);
         }
     }
 

@@ -140,7 +140,9 @@ public enum MessageSeeds implements MessageSeed {
     UNKNOWN_READING_TYPE(2114, Keys.UNKNOWN_READING_TYPE, "The requested load limit reading type is not supported at this time"),
     NO_COMTASK_FOR_STATUS_INFORMATION(2115, Keys.NO_COMTASK_FOR_STATUS_INFORMATION, "A comtask to verify the status information could not be located"),
     UNSPPORTED_COMMAND(2116, Keys.UNSPPORTED_COMMAND, "Unsupported Command {0} for device {1}"),
-    NO_DESTINATION_SPEC(2117, Keys.NO_DESTINATION_SPEC, "No such Destination Spec")
+    NO_DESTINATION_SPEC(2117, Keys.NO_DESTINATION_SPEC, "No such Destination Spec"),
+    VAL_KPI_DEVICEGROUP_DELETION(3001, "deviceGroupXstillInUse", "Device group {0} is still in use by a data validation KPI"),
+    KPIS_DEVICEGROUP_DELETION(3001, "deviceGroupXstillInUse", "Device group {0} is still in use by: data validation KPI, data collection KPI")
     ;
 
     private final int number;
