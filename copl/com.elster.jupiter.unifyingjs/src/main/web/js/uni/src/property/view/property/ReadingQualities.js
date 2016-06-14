@@ -208,7 +208,7 @@ Ext.define('Uni.property.view.property.ReadingQualities', {
 
     addReadingQuality: function(cimCode) {
         var me = this;
-        me.readingQualityStore.add({cimCode: cimCode, displayName: me.getDisplayName(cimCode)});
+        me.readingQualityStore.add({cimCode: cimCode, displayName: me.getDisplayName(cimCode), tooltip: me.getTooltip(cimCode)});
         me.down('#uni-noReadingQualitiesLabel').hide();
         me.getField().show();
     },
