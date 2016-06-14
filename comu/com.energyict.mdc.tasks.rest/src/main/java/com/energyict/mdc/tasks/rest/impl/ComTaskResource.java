@@ -4,7 +4,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
-import com.elster.jupiter.util.streams.Currying;
+import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.engine.config.security.Privileges;
 import com.energyict.mdc.masterdata.MasterDataService;
@@ -34,7 +34,11 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -98,10 +102,8 @@ public class ComTaskResource {
 
     private List<DeviceMessageCategory> getMessageCategories(ComTaskInfo comTaskInfo) {
         return comTaskInfo.messages.stream()
-                .map(category -> {
-                    java.util.Optional<DeviceMessageCategory> categoryRef = deviceMessageSpecificationService.findCategoryById(category.id);
-                    return categoryRef.isPresent() ? categoryRef.get() : null;
-                })
+                .map(category -> deviceMessageSpecificationService.findCategoryById(category.id))
+                .flatMap(Functions.asStream())
                 .collect(Collectors.toList());
     }
 
@@ -164,7 +166,7 @@ public class ComTaskResource {
     @RolesAllowed({Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION, Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION})
     public PagedInfoList getActions(@QueryParam("category") String categoryParameter, @BeanParam JsonQueryParameters queryParameters) {
         if (categoryParameter != null) {
-            Categories categories = null;
+            Categories categories;
             try {
                 categories = Categories.valueOf(categoryParameter.toUpperCase());
             } catch (IllegalArgumentException x) {
@@ -183,7 +185,7 @@ public class ComTaskResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION, Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION})
     public Response getMessageCategories(@Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters) {
-        Stream<DeviceMessageCategory> messageCategoriesStream = deviceMessageSpecificationService.filteredCategoriesForUserSelection().stream();
+        Stream<DeviceMessageCategory> messageCategoriesStream = deviceMessageSpecificationService.filteredCategoriesForComTaskDefinition().stream();
         String availableFor = uriInfo.getQueryParameters().getFirst("availableFor");
         if (availableFor != null) {
             ComTask comTask = taskService.findComTask(Long.parseLong(availableFor)).orElse(null);
@@ -200,13 +202,15 @@ public class ComTaskResource {
     }
 
     private List<Integer> getMessageCategoriesIdsInComTask(ComTask comTask) {
-        List<Integer> categoriesInComTask = new ArrayList<>();
-        for (ProtocolTask protocolTask : comTask.getProtocolTasks()) {
-            if (protocolTask instanceof MessagesTask) {
-                MessagesTask task = (MessagesTask) protocolTask;
-                categoriesInComTask.addAll(task.getDeviceMessageCategories().stream().map(cat -> cat.getId()).collect(Collectors.toList()));
-            }
-        }
-        return categoriesInComTask;
+        return comTask
+                .getProtocolTasks()
+                .stream()
+                .filter(protocolTask -> protocolTask instanceof MessagesTask)
+                .map(MessagesTask.class::cast)
+                .map(MessagesTask::getDeviceMessageCategories)
+                .flatMap(Collection::stream)
+                .map(DeviceMessageCategory::getId)
+                .collect(Collectors.toList());
     }
+
 }
