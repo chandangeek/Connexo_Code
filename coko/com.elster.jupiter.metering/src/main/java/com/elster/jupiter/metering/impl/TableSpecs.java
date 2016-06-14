@@ -70,6 +70,8 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
 
+import com.google.common.collect.Range;
+
 import java.util.List;
 
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
@@ -87,6 +89,7 @@ import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
 import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 import static com.elster.jupiter.orm.Table.SHORT_DESCRIPTION_LENGTH;
+import static com.elster.jupiter.orm.Version.version;
 
 
 public enum TableSpecs {
@@ -100,7 +103,7 @@ public enum TableSpecs {
             Column idColumn = table.column("ID").number().notNull().conversion(NUMBER2ENUMPLUSONE).map("kind").add();
             table.column("ALIASNAME").varChar(NAME_LENGTH).map("aliasName").add();
             table.column("DESCRIPTION").varChar(SHORT_DESCRIPTION_LENGTH).map("description").add();
-            table.column("ACTIVE").type("char(1)").conversion(CHAR2BOOLEAN).map("active").notNull().add();
+            table.column("ACTIVE").type("char(1)").conversion(CHAR2BOOLEAN).map("active").notNull().since(version(10, 2)).installValue("'Y'").add();
             table.addAuditColumns();
             table.primaryKey("MTR_PK_SERVICECATEGORY").on(idColumn).add();
         }
@@ -134,14 +137,8 @@ public enum TableSpecs {
             table.column("MASTATUSREASON").varChar(NAME_LENGTH).map("mainAddress.status.reason").add();
             table.column("MASTATUSREMARK").varChar(NAME_LENGTH).map("mainAddress.status.remark").add();
             table.column("MASTATUSVALUE").varChar(NAME_LENGTH).map("mainAddress.status.value").add();
-            table.column("MASTREETADDRESSGENERAL")
-                    .varChar(NAME_LENGTH)
-                    .map("mainAddress.streetDetail.addressGeneral")
-                    .add();
-            table.column("MASTREETBUILDINGNAME")
-                    .varChar(NAME_LENGTH)
-                    .map("mainAddress.streetDetail.buildingName")
-                    .add();
+            table.column("MASTREETADDRESSGENERAL").varChar(NAME_LENGTH).map("mainAddress.streetDetail.addressGeneral").add();
+            table.column("MASTREETBUILDINGNAME").varChar(NAME_LENGTH).map("mainAddress.streetDetail.buildingName").add();
             table.column("MASTREETCODE").varChar(NAME_LENGTH).map("mainAddress.streetDetail.code").add();
             table.column("MASTREETNAME").varChar(NAME_LENGTH).map("mainAddress.streetDetail.name").add();
             table.column("MASTREETNUMBER").varChar(NAME_LENGTH).map("mainAddress.streetDetail.number").add();
@@ -149,11 +146,7 @@ public enum TableSpecs {
             table.column("MASTREETSUFFIX").varChar(NAME_LENGTH).map("mainAddress.streetDetail.suffix").add();
             table.column("MASTREETSUITENUMBER").varChar(NAME_LENGTH).map("mainAddress.streetDetail.suiteNumber").add();
             table.column("MASTREETTYPE").varChar(NAME_LENGTH).map("mainAddress.streetDetail.type").add();
-            table.column("MASTREETWITHINTOWN")
-                    .type("char(1)")
-                    .conversion(CHAR2BOOLEAN)
-                    .map("mainAddress.streetDetail.withinTownLimits")
-                    .add();
+            table.column("MASTREETWITHINTOWN").type("char(1)").conversion(CHAR2BOOLEAN).map("mainAddress.streetDetail.withinTownLimits").add();
             table.column("MATOWNCODE").varChar(NAME_LENGTH).map("mainAddress.townDetail.code").add();
             table.column("MATOWNCOUNTRY").varChar(NAME_LENGTH).map("mainAddress.townDetail.country").add();
             table.column("MATOWNNAME").varChar(NAME_LENGTH).map("mainAddress.townDetail.name").add();
@@ -177,29 +170,16 @@ public enum TableSpecs {
             table.column("SASTATUSREASON").varChar(NAME_LENGTH).map("secondaryAddress.status.reason").add();
             table.column("SASTATUSREMARK").varChar(NAME_LENGTH).map("secondaryAddress.status.remark").add();
             table.column("SASTATUSVALUE").varChar(NAME_LENGTH).map("secondaryAddress.status.value").add();
-            table.column("SASTREETADDRESSGENERAL")
-                    .varChar(NAME_LENGTH)
-                    .map("secondaryAddress.streetDetail.addressGeneral")
-                    .add();
-            table.column("SASTREETBUILDINGNAME")
-                    .varChar(NAME_LENGTH)
-                    .map("secondaryAddress.streetDetail.buildingName")
-                    .add();
+            table.column("SASTREETADDRESSGENERAL").varChar(NAME_LENGTH).map("secondaryAddress.streetDetail.addressGeneral").add();
+            table.column("SASTREETBUILDINGNAME").varChar(NAME_LENGTH).map("secondaryAddress.streetDetail.buildingName").add();
             table.column("SASTREETCODE").varChar(NAME_LENGTH).map("secondaryAddress.streetDetail.code").add();
             table.column("SASTREETNAME").varChar(NAME_LENGTH).map("secondaryAddress.streetDetail.name").add();
             table.column("SASTREETNUMBER").varChar(NAME_LENGTH).map("secondaryAddress.streetDetail.number").add();
             table.column("SASTREETPREFIX").varChar(NAME_LENGTH).map("secondaryAddress.streetDetail.prefix").add();
             table.column("SASTREETSUFFIX").varChar(NAME_LENGTH).map("secondaryAddress.streetDetail.suffix").add();
-            table.column("SASTREETSUITENUMBER")
-                    .varChar(NAME_LENGTH)
-                    .map("secondaryAddress.streetDetail.suiteNumber")
-                    .add();
+            table.column("SASTREETSUITENUMBER").varChar(NAME_LENGTH).map("secondaryAddress.streetDetail.suiteNumber").add();
             table.column("SASTREETTYPE").varChar(NAME_LENGTH).map("secondaryAddress.streetDetail.type").add();
-            table.column("SASTREETWITHINTOWN")
-                    .type("char(1)")
-                    .conversion(CHAR2BOOLEAN)
-                    .map("secondaryAddress.streetDetail.withinTownLimits")
-                    .add();
+            table.column("SASTREETWITHINTOWN").type("char(1)").conversion(CHAR2BOOLEAN).map("secondaryAddress.streetDetail.withinTownLimits").add();
             table.column("SATOWNCODE").varChar(NAME_LENGTH).map("secondaryAddress.townDetail.code").add();
             table.column("SATOWNCOUNTRY").varChar(NAME_LENGTH).map("secondaryAddress.townDetail.country").add();
             table.column("SATOWNNAME").varChar(NAME_LENGTH).map("secondaryAddress.townDetail.name").add();
@@ -211,12 +191,7 @@ public enum TableSpecs {
             table.column("STATUSVALUE").varChar(NAME_LENGTH).map("status.value").add();
             table.column("SERVICELOCATIONTYPE").varChar(NAME_LENGTH).map("type").add();
             table.column("ACCESSMETHOD").varChar(NAME_LENGTH).map("accessMethod").add();
-            table.column("NEEDSINSPECTION")
-                    .type("char(1)")
-                    .notNull()
-                    .conversion(CHAR2BOOLEAN)
-                    .map("needsInspection")
-                    .add();
+            table.column("NEEDSINSPECTION").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map("needsInspection").add();
             table.column("SITEACCESSPROBLEM").varChar(NAME_LENGTH).map("siteAccessProblem").add();
             table.addAuditColumns();
             table.primaryKey("MTR_PK_SERVICELOCATION").on(idColumn).add();
@@ -228,6 +203,7 @@ public enum TableSpecs {
         @Override
         void addTo(DataModel dataModel) {
             Table<LocationTemplate> table = dataModel.addTable(name(), LocationTemplate.class);
+            table.since(version(10, 2));
             table.map(LocationTemplateImpl.class);
             table.setJournalTableName("MTR_LOCATIONTEMPLATEJRNL");
             Column idColumn = table.addAutoIdColumn();
@@ -246,6 +222,7 @@ public enum TableSpecs {
         @Override
         void addTo(DataModel dataModel) {
             Table<Location> table = dataModel.addTable(name(), Location.class);
+            table.since(version(10, 2));
             table.map(LocationImpl.class);
             Column idColumn = table.addAutoIdColumn();
             table.primaryKey("MTR_PK_LOCATION").on(idColumn).add();
@@ -256,6 +233,7 @@ public enum TableSpecs {
         @Override
         void addTo(DataModel dataModel) {
             Table<LocationMember> table = dataModel.addTable(name(), LocationMember.class);
+            table.since(version(10, 2));
             table.map(LocationMemberImpl.class);
             TableBuilder.buildLocationMemberTable(table, MeteringServiceImpl.getLocationTemplateMembers());
         }
@@ -265,6 +243,7 @@ public enum TableSpecs {
         @Override
         void addTo(DataModel dataModel) {
             Table<GeoCoordinates> table = dataModel.addTable(name(), GeoCoordinates.class);
+            table.since(version(10, 2));
             table.map(GeoCoordinatesImpl.class);
             Column idColumn = table.addAutoIdColumn();
             table.column("GEOCOORDINATES")
@@ -300,39 +279,38 @@ public enum TableSpecs {
             table.setJournalTableName("MTR_USAGEPOINTJRNL");
             Column idColumn = table.addAutoIdColumn();
             Column mRIDColumn = table.column("MRID").varChar(NAME_LENGTH).map("mRID").add();
-            Column serviceKindColumn = table.column("SERVICEKIND")
-                    .number()
-                    .notNull()
-                    .conversion(NUMBER2ENUMPLUSONE)
-                    .add();
-            Column serviceLocationIdColumn = table.column("SERVICELOCATIONID")
-                    .number()
-                    .conversion(NUMBER2LONGNULLZERO)
-                    .add();
-            table.column("SERVICELOCATIONSTRING").varChar(SHORT_DESCRIPTION_LENGTH).map("serviceLocationString").add();
+            Column serviceKindColumn = table.column("SERVICEKIND").number().notNull().conversion(NUMBER2ENUMPLUSONE).add();
+            Column serviceLocationIdColumn = table.column("SERVICELOCATIONID").number().conversion(NUMBER2LONGNULLZERO).add();
+            table.column("SERVICELOCATIONSTRING").varChar(SHORT_DESCRIPTION_LENGTH).map("serviceLocationString").since(version(10, 2)).add();
             table.column("NAME").varChar(NAME_LENGTH).map("name").add();
             table.column("ALIASNAME").varChar(NAME_LENGTH).map("aliasName").add();
             table.column("DESCRIPTION").varChar(SHORT_DESCRIPTION_LENGTH).map("description").add();
             table.column("ISSDP").bool().map("isSdp").add();
             table.column("ISVIRTUAL").bool().map("isVirtual").add();
             table.column("OUTAGEREGION").varChar(NAME_LENGTH).map("outageRegion").add();
+            table.column("READCYCLE").varChar(NAME_LENGTH).map("readCycle").upTo(version(10, 2)).add();
             table.column("READROUTE").varChar(NAME_LENGTH).map("readRoute").add();
             table.column("SERVICEPRIORITY").varChar(NAME_LENGTH).map("servicePriority").add();
-            table.column("SERVICEDELIVERYREMARK").varChar(SHORT_DESCRIPTION_LENGTH).map("serviceDeliveryRemark").add();
+            table.column("SERVICEDELIVERYREMARK").varChar(SHORT_DESCRIPTION_LENGTH).map("serviceDeliveryRemark").since(version(10, 2)).add();
+            table.column("CONNECTIONSTATE").type("varchar2(30)").conversion(CHAR2ENUM).map("connectionState").add();
             table.column("INSTALLATIONTIME")
                     .number()
                     .notNull()
                     .conversion(ColumnConversion.NUMBER2INSTANT)
                     .map("installationTime")
+                    .since(version(10, 2))
+                    .installValue("0")
                     .add();
             Column locationIdColumn = table.column("LOCATIONID")
                     .number()
                     .conversion(NUMBER2LONGNULLZERO)
                     .map("location")
+                    .since(version(10, 2))
                     .add();
             Column geoCoordinatesIdColumn = table.column("GEOCOORDINATESID")
                     .number()
                     .conversion(NUMBER2LONGNULLZERO)
+                    .since(version(10, 2))
                     .add();
 
             table.addAuditColumns();
@@ -356,12 +334,14 @@ public enum TableSpecs {
                     .references(Location.class)
                     .onDelete(RESTRICT)
                     .map("upLocation")
+                    .since(version(10, 2))
                     .add();
             table.foreignKey("MTR_FK_USAGEPOINTGEOCOORDS")
                     .on(geoCoordinatesIdColumn)
                     .references(GeoCoordinates.class)
                     .onDelete(RESTRICT)
                     .map("geoCoordinates")
+                    .since(version(10, 2))
                     .add();
         }
     },
@@ -411,35 +391,16 @@ public enum TableSpecs {
             table.column("EARADIO").varChar(NAME_LENGTH).map("electronicAddress.radio").add();
             table.column("EAUSERID").varChar(NAME_LENGTH).map("electronicAddress.userID").add();
             table.column("EAWEB").varChar(NAME_LENGTH).map("electronicAddress.web").add();
-            table.column("MANUFACTUREDDATE")
-                    .number()
-                    .map("manufacturedDate")
-                    .conversion(ColumnConversion.NUMBER2INSTANT)
-                    .add();
-            table.column("PURCHASEDDATE")
-                    .number()
-                    .map("purchasedDate")
-                    .conversion(ColumnConversion.NUMBER2INSTANT)
-                    .add();
+            table.column("MANUFACTUREDDATE").number().map("manufacturedDate").conversion(ColumnConversion.NUMBER2INSTANT).add();
+            table.column("PURCHASEDDATE").number().map("purchasedDate").conversion(ColumnConversion.NUMBER2INSTANT).add();
             table.column("RECEIVEDDATE").number().map("receivedDate").conversion(ColumnConversion.NUMBER2INSTANT).add();
-            table.column("INSTALLEDDATE")
-                    .number()
-                    .map("installedDate")
-                    .conversion(ColumnConversion.NUMBER2INSTANT)
-                    .add();
+            table.column("INSTALLEDDATE").number().map("installedDate").conversion(ColumnConversion.NUMBER2INSTANT).add();
             table.column("REMOVEDDATE").number().map("removedDate").conversion(ColumnConversion.NUMBER2INSTANT).add();
             table.column("RETIREDDATE").number().map("retiredDate").conversion(ColumnConversion.NUMBER2INSTANT).add();
-            Column obsoleteTime = table.column("OBSOLETETIME")
-                    .number()
-                    .map("obsoleteTime")
-                    .conversion(ColumnConversion.NUMBER2INSTANT)
-                    .add();
+            Column obsoleteTime = table.column("OBSOLETETIME").number().map("obsoleteTime").conversion(ColumnConversion.NUMBER2INSTANT).add();
             Column stateMachine = table.column("FSM").number().add();
-            Column locationIdColumn = table.column("LOCATIONID").number().conversion(NUMBER2LONGNULLZERO).add();
-            Column geoCoordinatesIdColumn = table.column("GEOCOORDINATESID")
-                    .number()
-                    .conversion(NUMBER2LONGNULLZERO)
-                    .add();
+            Column locationIdColumn = table.column("LOCATIONID").number().conversion(NUMBER2LONGNULLZERO).since(version(10, 2)).add();
+            Column geoCoordinatesIdColumn = table.column("GEOCOORDINATESID").number().conversion(NUMBER2LONGNULLZERO).since(version(10, 2)).add();
 
             table.addAuditColumns();
             table.primaryKey("MTR_PK_METER").on(idColumn).add();
@@ -461,12 +422,14 @@ public enum TableSpecs {
                     .references(Location.class)
                     .onDelete(RESTRICT)
                     .map("location")
+                    .since(version(10, 2))
                     .add();
             table.foreignKey("MTR_FK_ENDDEVICEGEOCOORDS")
                     .on(geoCoordinatesIdColumn)
                     .references(GeoCoordinates.class)
                     .onDelete(RESTRICT)
                     .map("geoCoordinates")
+                    .since(version(10, 2))
                     .add();
             table.index("MTR_IDX_ENDDEVICE_NAME").on(nameColumn).add();
         }
@@ -481,20 +444,20 @@ public enum TableSpecs {
             table.addAuditColumns();
             Column state = table.column("STATE").notNull().number().add();
             table.primaryKey("PK_MTR_ENDDEVICESTATUS").on(endDevice, intervalColumns.get(0)).add();
-            table.foreignKey("FK_MTR_STATUS_ENDDEVICE").
-                    on(endDevice).
-                    references(EndDevice.class).
-                    onDelete(CASCADE).
-                    map("endDevice").
-                    reverseMap("status").
-                    composition().
-                    add();
-            table.foreignKey("FK_MTR_STATUS_STATE").
-                    on(state).
-                    references(State.class).
-                    onDelete(RESTRICT).
-                    map("state").
-                    add();
+            table.foreignKey("FK_MTR_STATUS_ENDDEVICE")
+                    .on(endDevice)
+                    .references(EndDevice.class)
+                    .onDelete(CASCADE)
+                    .map("endDevice")
+                    .reverseMap("status")
+                    .composition()
+                    .add();
+            table.foreignKey("FK_MTR_STATUS_STATE")
+                    .on(state)
+                    .references(State.class)
+                    .onDelete(RESTRICT)
+                    .map("state")
+                    .add();
         }
     },
     MTR_METERROLE {
@@ -502,7 +465,11 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<MeterRole> table = dataModel.addTable(name(), MeterRole.class);
             table.map(MeterRoleImpl.class);
-            Column nameColumn = table.column(MeterRoleImpl.Fields.KEY.name()).varChar(NAME_LENGTH).notNull().map(MeterRoleImpl.Fields.KEY.fieldName()).add();
+            Column nameColumn = table.column(MeterRoleImpl.Fields.KEY.name())
+                    .varChar(NAME_LENGTH)
+                    .notNull()
+                    .map(MeterRoleImpl.Fields.KEY.fieldName())
+                    .add();
 
             table.primaryKey("MTR_PK_METERROLE").on(nameColumn).add();
         }
@@ -523,6 +490,7 @@ public enum TableSpecs {
                     .add();
             Column meterRoleIdColumn = table.column("METERROLE")
                     .varChar(Table.NAME_LENGTH)
+                    .since(version(10, 2))
                     .add();
             table.addIntervalColumns("interval");
             table.addAuditColumns();
@@ -570,20 +538,9 @@ public enum TableSpecs {
                     .conversion(NUMBER2LONG)
                     .add();
             Column mainReadingTypeMRIDColumn = table.column("MAINREADINGTYPEMRID").varChar(NAME_LENGTH).notNull().add();
-            table.column("MAINDERIVATIONRULE")
-                    .number()
-                    .conversion(ColumnConversion.NUMBER2ENUM)
-                    .map("mainDerivationRule")
-                    .notNull()
-                    .add();
-            Column bulkQuantityReadingTypeMRIDColumn = table.column("BULKQUANTITYREADINGTYPEMRID")
-                    .varChar(NAME_LENGTH)
-                    .add();
-            table.column("BULKDERIVATIONRULE")
-                    .number()
-                    .conversion(ColumnConversion.NUMBER2ENUM)
-                    .map("bulkDerivationRule")
-                    .add();
+            table.column("MAINDERIVATIONRULE").number().conversion(ColumnConversion.NUMBER2ENUM).map("mainDerivationRule").notNull().add();
+            Column bulkQuantityReadingTypeMRIDColumn = table.column("BULKQUANTITYREADINGTYPEMRID").varChar(NAME_LENGTH).add();
+            table.column("BULKDERIVATIONRULE").number().conversion(ColumnConversion.NUMBER2ENUM).map("bulkDerivationRule").add();
             table.addAuditColumns();
             table.primaryKey("MTR_PK_CHANNEL").on(idColumn).add();
             table.foreignKey("MTR_FK_CHANNELACTIVATION")
@@ -629,12 +586,7 @@ public enum TableSpecs {
                     .map("position")
                     .add();
             Column readingTypeMRidColumn = table.column("READINGTYPEMRID").varChar(NAME_LENGTH).notNull().add();
-            table.column("DERIVATIONRULE")
-                    .number()
-                    .conversion(ColumnConversion.NUMBER2ENUM)
-                    .map("derivationRule")
-                    .notNull()
-                    .add();
+            table.column("DERIVATIONRULE").number().conversion(ColumnConversion.NUMBER2ENUM).map("derivationRule").notNull().add();
             table.primaryKey("MTR_PK_READINGTYPEINCHANNEL").on(channelIdColumn, positionColumn).add();
             table.foreignKey("MTR_FK_READINGTYPEINCHANNEL1")
                     .on(channelIdColumn)
@@ -846,24 +798,31 @@ public enum TableSpecs {
 
             table.addDiscriminatorColumn("SERVICECATEGORY", "varchar2(1)");
 
-            table.column("GROUNDED").type("varchar2(7)").conversion(CHAR2ENUM).map("grounded").add();
-            table.addQuantityColumns("NOMINALVOLTAGE", false, "nominalServiceVoltage");
+            table.column("AMIBILLINGREADY").number().notNull().conversion(NUMBER2ENUM).map("amiBillingReady").upTo(version(10, 2)).add();
+            table.column("CHECKBILLING").bool().map("checkBilling").upTo(version(10, 2)).add();
+            table.column("CONNECTIONSTATE").number().notNull().conversion(NUMBER2ENUM).map("connectionState").upTo(version(10, 2)).add();
+            table.column("MINIMALUSAGEEXPECTED").bool().map("minimalUsageExpected").upTo(version(10, 2)).add();
+            table.column("SERVICEDELIVERYREMARK").varChar(NAME_LENGTH).map("serviceDeliveryRemark").upTo(version(10, 2)).add();
+
+            Column groundedColumn1 = table.column("GROUNDED").type("char(1)").conversion(CHAR2BOOLEAN).map("grounded").upTo(version(10, 2)).add();
+            table.column("GROUNDED").type("varchar2(7)").conversion(CHAR2ENUM).map("grounded").since(version(10, 2)).previously(groundedColumn1).installValue("'Y'").add();
+            table.addQuantityColumns("NOMINALVOLTAGE", false, "nominalServiceVoltage", Range.atLeast(version(10, 2)));
             table.column("PHASECODE").type("varchar2(7)").conversion(CHAR2ENUM).map("phaseCode").add();
-            table.addQuantityColumns("PHYSICALCAPACITY", false, "physicalCapacity");
+            table.addQuantityColumns("PHYSICALCAPACITY", false, "physicalCapacity", Range.atLeast(version(10, 2)));
             table.addQuantityColumns("RATEDCURRENT", false, "ratedCurrent");
             table.addQuantityColumns("RATEDPOWER", false, "ratedPower");
             table.addQuantityColumns("ESTIMATEDLOAD", false, "estimatedLoad");
-            table.column("LIMITER").type("varchar2(7)").conversion(CHAR2ENUM).map("limiter").add();
-            table.column("LOADLIMITERTYPE").varChar(NAME_LENGTH).map("loadLimiterType").add();
-            table.addQuantityColumns("LOADLIMIT", false, "loadLimit");
-            table.addQuantityColumns("PRESSURE", false, "pressure");
-            table.column("INTERRUPTIBLE").type("varchar2(7)").conversion(CHAR2ENUM).map("interruptible").add();
-            table.column("COLLAR").type("varchar2(7)").conversion(CHAR2ENUM).map("collar").add();
-            table.column("BYPASS").type("varchar2(7)").conversion(CHAR2ENUM).map("bypass").add();
-            table.column("BYPASSSTATUS").type("varchar2(7)").conversion(CHAR2ENUM).map("bypassStatus").add();
-            table.column("VALVE").type("varchar2(7)").conversion(CHAR2ENUM).map("valve").add();
-            table.column("CAPPED").type("varchar2(7)").conversion(CHAR2ENUM).map("capped").add();
-            table.column("CLAMPED").type("varchar2(7)").conversion(CHAR2ENUM).map("clamped").add();
+            table.column("LIMITER").type("varchar2(7)").conversion(CHAR2ENUM).map("limiter").since(version(10, 2)).add();
+            table.column("LOADLIMITERTYPE").varChar(NAME_LENGTH).map("loadLimiterType").since(version(10, 2)).add();
+            table.addQuantityColumns("LOADLIMIT", false, "loadLimit", Range.atLeast(version(10, 2)));
+            table.addQuantityColumns("PRESSURE", false, "pressure", Range.atLeast(version(10, 2)));
+            table.column("INTERRUPTIBLE").type("varchar2(7)").conversion(CHAR2ENUM).map("interruptible").since(version(10, 2)).add();
+            table.column("COLLAR").type("varchar2(7)").conversion(CHAR2ENUM).map("collar").since(version(10, 2)).add();
+            table.column("BYPASS").type("varchar2(7)").conversion(CHAR2ENUM).map("bypass").since(version(10, 2)).add();
+            table.column("BYPASSSTATUS").type("varchar2(7)").conversion(CHAR2ENUM).map("bypassStatus").since(version(10, 2)).add();
+            table.column("VALVE").type("varchar2(7)").conversion(CHAR2ENUM).map("valve").since(version(10, 2)).add();
+            table.column("CAPPED").type("varchar2(7)").conversion(CHAR2ENUM).map("capped").since(version(10, 2)).add();
+            table.column("CLAMPED").type("varchar2(7)").conversion(CHAR2ENUM).map("clamped").since(version(10, 2)).add();
 
             table.addAuditColumns();
             table.primaryKey("MTR_PK_USAGEPOINTDETAIL").on(usagePointIdColumn, intervalColumns.get(0)).add();
@@ -881,6 +840,7 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<MetrologyConfiguration> table = dataModel.addTable(name(), MetrologyConfiguration.class);
             table.map(MetrologyConfigurationImpl.IMPLEMENTERS);
+            table.since(version(10, 2));
             Column id = table.addAutoIdColumn();
             table.addDiscriminatorColumn("CONFIG_TYPE", "char(1)");
             Column name = table.column(MetrologyConfigurationImpl.Fields.NAME.name())
@@ -913,6 +873,7 @@ public enum TableSpecs {
         @Override
         public void addTo(DataModel dataModel) {
             Table<MetrologyConfigurationCustomPropertySetUsage> table = dataModel.addTable(name(), MetrologyConfigurationCustomPropertySetUsage.class);
+            table.since(version(10, 2));
             table.map(MetrologyConfigurationCustomPropertySetUsageImpl.class);
             Column metrologyConfig = table.column(MetrologyConfigurationCustomPropertySetUsageImpl.Fields.METROLOGY_CONFIG.name())
                     .number()
@@ -950,6 +911,7 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<EffectiveMetrologyConfigurationOnUsagePoint> table = dataModel.addTable(name(), EffectiveMetrologyConfigurationOnUsagePoint.class);
             table.map(EffectiveMetrologyConfigurationOnUsagePointImpl.class);
+            table.since(version(10, 2));
             Column usagePoint = table.column("USAGEPOINT").number().notNull().add();
             List<Column> intervalColumns = table.addIntervalColumns("interval");
             Column metrologyConfiguration = table.column("METROLOGYCONFIG").number().notNull().add();
@@ -1044,11 +1006,7 @@ public enum TableSpecs {
             Column multiplierType = table.column("MULTIPLIERTYPE").number().add();
             table.addAuditColumns();
             table.column("OVERFLOW").number().map("overflowValue").add();
-            table.column("FRACTIONDIGITS")
-                    .number()
-                    .conversion(ColumnConversion.NUMBER2INTWRAPPER)
-                    .map("numberOfFractionDigits")
-                    .add();
+            table.column("FRACTIONDIGITS").number().conversion(ColumnConversion.NUMBER2INTWRAPPER).map("numberOfFractionDigits").add();
 
             table.primaryKey("MTR_PK_RT_METER_CONFIG").on(meterConfig, measured).add();
             table.foreignKey("MTR_FK_RTMC_METER_CONFIG")
@@ -1142,6 +1100,7 @@ public enum TableSpecs {
         @Override
         public void addTo(DataModel dataModel) {
             Table<ServiceCategoryCustomPropertySetUsage> table = dataModel.addTable(name(), ServiceCategoryCustomPropertySetUsage.class);
+            table.since(version(10, 2));
             table.map(ServiceCategoryCustomPropertySetUsage.class);
             Column serviceCategory = table.column("SERVICECATEGORY")
                     .number()

@@ -5,7 +5,8 @@ Private-Package: com.elster.jupiter.metering.impl,\
 	com.elster.jupiter.metering.impl.aggregation,\
 	com.elster.jupiter.metering.impl.config,\
 	com.elster.jupiter.metering.impl.search,\
-	com.elster.jupiter.metering.impl.search.enddevice
+	com.elster.jupiter.metering.impl.search.enddevice,\
+    com.elster.jupiter.metering.impl.upgraders
 
 Export-Package: com.elster.jupiter.metering,\
 	com.elster.jupiter.metering.aggregation,\
