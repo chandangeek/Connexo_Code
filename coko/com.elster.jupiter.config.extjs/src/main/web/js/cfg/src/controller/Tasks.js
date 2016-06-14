@@ -447,7 +447,7 @@ Ext.define('Cfg.controller.Tasks', {
             confirmationWindow = Ext.create('Uni.view.window.Confirmation');
         confirmationWindow.show({
             msg: Uni.I18n.translate('validationTasks.general.remove.msg', 'CFG', 'This validation task will no longer be available.'),
-            title: Uni.I18n.translate('general.removex', 'CFG', "Remove '{0}'", [record.data.name]),
+            title: Uni.I18n.translate('general.removex', 'CFG', "Remove '{0}'?", [record.data.name]),
             config: {},
             fn: function (state) {
                 if (state === 'confirm') {
