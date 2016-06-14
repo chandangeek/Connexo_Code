@@ -84,7 +84,7 @@ public class AppServerIT {
     private EventAdmin eventAdmin;
     @Mock
     private FileImporterFactory fileImporterFactory;
-    @Mock
+
     private WebServicesService webServicesService;
 
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
@@ -137,6 +137,7 @@ public class AppServerIT {
         transactionService = injector.getInstance(TransactionService.class);
         transactionService.execute(() -> {
             endPointConfigurationService = injector.getInstance(EndPointConfigurationService.class);
+            webServicesService = injector.getInstance(WebServicesService.class);
             appService = injector.getInstance(AppService.class);
             return null;
         });
