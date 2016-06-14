@@ -10,9 +10,11 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.exception.MessageSeed;
+
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
@@ -42,6 +44,7 @@ public class AppServerApplication extends Application implements MessageSeedProv
     private volatile CronExpressionParser cronExpressionParser;
     private volatile FileSystem fileSystem;
     private volatile DataExportService dataExportService;
+    private volatile EndPointConfigurationService endPointConfigurationService;
 
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
@@ -70,6 +73,11 @@ public class AppServerApplication extends Application implements MessageSeedProv
     @Reference
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
+    }
+
+    @Reference
+    public void setEndPointConfigurationService(EndPointConfigurationService endPointConfigurationService) {
+        this.endPointConfigurationService = endPointConfigurationService;
     }
 
     @Reference
@@ -118,6 +126,7 @@ public class AppServerApplication extends Application implements MessageSeedProv
                 bind(fileImportService).to(FileImportService.class);
                 bind(fileSystem).to(FileSystem.class);
                 bind(dataExportService).to(DataExportService.class);
+                bind(endPointConfigurationService).to(EndPointConfigurationService.class);
             }
         });
         return Collections.unmodifiableSet(hashSet);

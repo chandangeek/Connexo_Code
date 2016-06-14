@@ -10,10 +10,12 @@ import java.util.stream.Collectors;
 
 public class AppServerInfo {
 
+    private final EndPointConfigurationInfoFactory endPointConfigurationInfoFactory = new EndPointConfigurationInfoFactory();
     public String name;
     public boolean active;
     public List<SubscriberExecutionSpecInfo> executionSpecs;
     public List<ImportScheduleInfo> importServices;
+    public List<EndPointConfigurationInfo> endPointConfigurations;
     public String importDirectory;
     public String exportDirectory;
     public long version;
@@ -41,6 +43,10 @@ public class AppServerInfo {
                 .collect(Collectors.toList());
         importDirectory = importPath;
         exportDirectory = exportPath;
+        endPointConfigurations = appServer.supportedEndPoints()
+                .stream()
+                .map(endPointConfigurationInfoFactory::from)
+                .collect(Collectors.toList());
     }
 
 }

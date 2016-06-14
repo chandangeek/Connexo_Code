@@ -17,6 +17,8 @@ import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.Pair;
@@ -48,10 +50,13 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 @Path("/appserver")
 public class AppServerResource {
@@ -67,9 +72,10 @@ public class AppServerResource {
 
     private final DataExportService dataExportService;
     private final FileSystem fileSystem;
+    private final EndPointConfigurationService endPointConfigurationService;
 
     @Inject
-    public AppServerResource(RestQueryService queryService, AppService appService, MessageService messageService, FileImportService fileImportService, TransactionService transactionService, CronExpressionParser cronExpressionParser, Thesaurus thesaurus, DataExportService dataExportService, FileSystem fileSystem, ConcurrentModificationExceptionFactory conflictFactory) {
+    public AppServerResource(RestQueryService queryService, AppService appService, MessageService messageService, FileImportService fileImportService, TransactionService transactionService, CronExpressionParser cronExpressionParser, Thesaurus thesaurus, DataExportService dataExportService, FileSystem fileSystem, ConcurrentModificationExceptionFactory conflictFactory, EndPointConfigurationService endPointConfigurationService) {
         this.queryService = queryService;
         this.appService = appService;
         this.messageService = messageService;
@@ -80,6 +86,7 @@ public class AppServerResource {
         this.conflictFactory = conflictFactory;
         this.dataExportService = dataExportService;
         this.fileSystem = fileSystem;
+        this.endPointConfigurationService = endPointConfigurationService;
     }
 
     private AppServer fetchAppServer(String appServerName) {
@@ -166,6 +173,12 @@ public class AppServerResource {
             }
             if (info.importDirectory != null) {
                 appServer.setImportDirectory(fileSystem.getPath(info.importDirectory));
+            }
+            if (info.endPointConfigurations != null) {
+                info.endPointConfigurations.stream()
+                        .map(i -> endPointConfigurationService.getEndPointConfiguration(i.name))
+                        .flatMap(Functions.asStream())
+                        .forEach(appServer::supportEndPoint);
             }
             context.commit();
         }
@@ -257,7 +270,12 @@ public class AppServerResource {
         List<Pair<SubscriberExecutionSpec, SubscriberExecutionSpecInfo>> pairsMessageServices = zipperMessageServices.zip(appServer.getSubscriberExecutionSpecs(), info.executionSpecs);
 
         Zipper<ImportScheduleOnAppServer, ImportScheduleInfo> zipperImportServices = new Zipper<>((s, i) -> s.getImportSchedule().isPresent() && (i.id == s.getImportSchedule().get().getId()));
-        List<Pair<ImportScheduleOnAppServer, ImportScheduleInfo>> pairsImportServices = zipperImportServices.zip(appServer.getImportSchedulesOnAppServer().stream().collect(Collectors.toList()), info.importServices);
+        List<Pair<ImportScheduleOnAppServer, ImportScheduleInfo>> pairsImportServices = zipperImportServices.zip(appServer
+                .getImportSchedulesOnAppServer()
+                .stream()
+                .collect(toList()), info.importServices);
+
+        updateSupportedEndPoints(info, appServer);
 
         try (AppServer.BatchUpdate updater = appServer.forBatchUpdate()) {
             doSubscriberExecutionSpecUpdates(pairsMessageServices, updater);
@@ -275,11 +293,43 @@ public class AppServerResource {
         }
     }
 
+    /**
+     * Drop end point support for end points that are no longer supported, add support for new end point configurations
+     *
+     * @param info
+     * @param appServer
+     */
+    private void updateSupportedEndPoints(AppServerInfo info, AppServer appServer) {
+        if (info.endPointConfigurations == null) {
+            info.endPointConfigurations = Collections.emptyList();
+        }
+        List<String> currentSupportedEndpoints = appServer.supportedEndPoints()
+                .stream()
+                .map(EndPointConfiguration::getName)
+                .collect(toList());
+        List<String> wantedSupportedEndpoints = info.endPointConfigurations.stream().map(i -> i.name).collect(toList());
+
+        List<String> toBeRemoved = new ArrayList<>(currentSupportedEndpoints);
+        toBeRemoved.removeAll(wantedSupportedEndpoints);
+        toBeRemoved.stream()
+                .map(endPointConfigurationService::getEndPointConfiguration)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .forEach(appServer::dropEndPointSupport);
+        List<String> toBeSupported = new ArrayList<>(wantedSupportedEndpoints);
+        toBeSupported.removeAll(currentSupportedEndpoints);
+        toBeSupported.stream()
+                .map(endPointConfigurationService::getEndPointConfiguration)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .forEach(appServer::supportEndPoint);
+    }
+
     private void doMessageServicesAdditions(List<Pair<SubscriberExecutionSpec, SubscriberExecutionSpecInfo>> pairs, AppServer.BatchUpdate updater) {
         List<Pair<SubscriberSpec, SubscriberExecutionSpecInfo>> toAdd = pairs.stream()
                 .filter(pair -> pair.getFirst() == null)
                 .map(pair -> pair.withFirst((f, l) -> messageService.getSubscriberSpec(l.subscriberSpec.destination, l.subscriberSpec.subscriber).orElse(null)))
-                .collect(Collectors.toList());
+                .collect(toList());
 
         if (toAdd.stream().anyMatch(pair -> pair.getFirst() == null)) {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
@@ -308,7 +358,7 @@ public class AppServerResource {
         List<Pair<ImportSchedule, ImportScheduleInfo>> toAdd = pairs.stream()
                 .filter(pair -> pair.getFirst() == null)
                 .map(pair -> pair.withFirst((f, l) -> fileImportService.getImportSchedule(l.id).orElse(null)))
-                .collect(Collectors.toList());
+                .collect(toList());
 
         if (toAdd.stream().anyMatch(pair -> pair.getFirst() == null)) {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
@@ -353,14 +403,14 @@ public class AppServerResource {
                 .orElseGet(Collections::emptyList)
                 .stream()
                 .map(SubscriberExecutionSpec::getSubscriberSpec)
-                .collect(Collectors.toList());
+                .collect(toList());
         List<SubscriberSpec> subscribers = messageService.getNonSystemManagedSubscribers().stream()
                 .filter(sub -> served.stream()
                                 .filter(s -> sub.getName().equals(s.getName()))
                                 .map(SubscriberSpec::getDestination)
                                 .noneMatch(d -> sub.getDestination().getName().equals(d.getName()))
                 )
-                .collect(Collectors.toList());
+                .collect(toList());
         SubscriberSpecInfos subscriberSpecInfos = new SubscriberSpecInfos(subscribers, thesaurus);
 
         /*for (SubscriberSpecInfo info : subscriberSpecInfos.subscriberSpecs) {
@@ -404,7 +454,7 @@ public class AppServerResource {
                 .filter(schedule -> served.stream()
                                 .noneMatch(s -> schedule.getName().equals(s.getName()))
                 )
-                .collect(Collectors.toList());
+                .collect(toList());
 
         ImportScheduleInfos importScheduleInfos = new ImportScheduleInfos(unserved);
 
@@ -438,7 +488,7 @@ public class AppServerResource {
                 .stream()
                 .map(ImportScheduleOnAppServer::getImportSchedule)
                 .flatMap(Functions.asStream())
-                .collect(Collectors.toList());
+                .collect(toList());
     }
 
     private void validatePath(String path, String field) {

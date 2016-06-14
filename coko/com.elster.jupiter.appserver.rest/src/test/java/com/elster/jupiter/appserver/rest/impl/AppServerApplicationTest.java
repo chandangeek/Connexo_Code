@@ -7,12 +7,14 @@ import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.util.cron.CronExpressionParser;
-import org.mockito.Mock;
 
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.SecurityContext;
 import java.nio.file.FileSystem;
+
+import org.mockito.Mock;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
@@ -35,6 +37,8 @@ public class AppServerApplicationTest extends FelixRestApplicationJerseyTest {
     static FileSystem fileSystem;
     @Mock
     static SecurityContext securityContext;
+    @Mock
+    EndPointConfigurationService endPointConfigurationService;
 
     @Override
     protected Application getApplication() {
@@ -49,6 +53,7 @@ public class AppServerApplicationTest extends FelixRestApplicationJerseyTest {
         application.setCronExpressionParser(cronExpressionParser);
         application.setNlsService(nlsService);
         application.setDataExportService(dataExportService);
+        application.setEndPointConfigurationService(endPointConfigurationService);
         application.setFileSystem(fileSystem);
         return application;
     }

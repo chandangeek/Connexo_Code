@@ -11,26 +11,35 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.cron.CronExpression;
-import org.junit.Test;
-import org.mockito.Matchers;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.Test;
+import org.mockito.Matchers;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class AppServerResourceTest extends AppServerApplicationTest {
 
@@ -255,6 +264,85 @@ public class AppServerResourceTest extends AppServerApplicationTest {
         when(dataExportService.getExportDirectory(appServer)).thenReturn(Optional.<Path>empty());
 
         return appServer;
+    }
+
+    @Test
+    public void testCreateAppServerWithEndPoints() throws Exception {
+        AppServer newAppServer = mock(AppServer.class);
+        AppServer.BatchUpdate batchUpdate = mock(AppServer.BatchUpdate.class);
+        when(newAppServer.getName()).thenReturn("NEW-APP-SERVER");
+        when(newAppServer.isActive()).thenReturn(false);
+        when(newAppServer.forBatchUpdate()).thenReturn(batchUpdate);
+        addServicesOnAppServer(newAppServer);
+        CronExpression cronExpression = mock(CronExpression.class);
+        when(cronExpressionParser.parse(any(String.class))).thenReturn(Optional.of(cronExpression));
+        when(appService.createAppServer(eq("NEW-APP-SERVER"), eq(cronExpression))).thenReturn(newAppServer);
+
+        AppServerInfo info = new AppServerInfo();
+        info.name = "NEW-APP-SERVER";
+        info.exportDirectory = "X";
+        info.importDirectory = "X";
+        EndPointConfigurationInfo endPointConfigurationInfo = new EndPointConfigurationInfo();
+        endPointConfigurationInfo.name = "cim";
+        EndPointConfiguration epc1 = mock(EndPointConfiguration.class);
+        when(endPointConfigurationService.getEndPointConfiguration("cim")).thenReturn(Optional.of(epc1));
+        EndPointConfigurationInfo endPointConfigurationInfo2 = new EndPointConfigurationInfo();
+        endPointConfigurationInfo2.name = "cim2";
+        EndPointConfiguration epc2 = mock(EndPointConfiguration.class);
+        when(endPointConfigurationService.getEndPointConfiguration("cim2")).thenReturn(Optional.of(epc2));
+        info.endPointConfigurations = Arrays.asList(endPointConfigurationInfo, endPointConfigurationInfo2);
+        Entity<AppServerInfo> json = Entity.json(info);
+
+        Response response = target("/appserver").request().post(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
+        verify(newAppServer).supportEndPoint(epc1);
+        verify(newAppServer).supportEndPoint(epc2);
+    }
+
+    @Test
+    public void testUpdateAppServerWithEndPoints() throws Exception {
+        AppServer updatedAppServer = mock(AppServer.class);
+        AppServer.BatchUpdate batchUpdate = mock(AppServer.BatchUpdate.class);
+        when(updatedAppServer.getName()).thenReturn("cxo");
+        when(updatedAppServer.isActive()).thenReturn(false);
+        when(updatedAppServer.forBatchUpdate()).thenReturn(batchUpdate);
+        when(updatedAppServer.getImportSchedulesOnAppServer()).thenReturn(Collections.emptyList());
+        when(updatedAppServer.getSubscriberExecutionSpecs()).thenReturn(Collections.emptyList());
+        CronExpression cronExpression = mock(CronExpression.class);
+        when(cronExpressionParser.parse(any(String.class))).thenReturn(Optional.of(cronExpression));
+        when(appService.findAndLockAppServerByNameAndVersion(eq("cxo"), eq(1L))).thenReturn(Optional.of(updatedAppServer));
+        when(dataExportService.getExportDirectory(updatedAppServer)).thenReturn(Optional.of(Paths.get("X")));
+        when(updatedAppServer.getImportDirectory()).thenReturn(Optional.of(Paths.get("X")));
+
+        AppServerInfo info = new AppServerInfo();
+        info.name = "cxo";
+        info.version = 1L;
+        info.exportDirectory = "X";
+        info.importDirectory = "X";
+        info.executionSpecs = Collections.emptyList();
+        info.importServices = Collections.emptyList();
+        EndPointConfigurationInfo endPointConfigurationInfo = new EndPointConfigurationInfo();
+        endPointConfigurationInfo.name = "cim";
+        EndPointConfiguration epc1 = mock(EndPointConfiguration.class);
+        when(epc1.getName()).thenReturn("cim");
+        when(endPointConfigurationService.getEndPointConfiguration("cim")).thenReturn(Optional.of(epc1));
+        EndPointConfigurationInfo endPointConfigurationInfo2 = new EndPointConfigurationInfo();
+        endPointConfigurationInfo2.name = "cim2";
+        EndPointConfiguration epc2 = mock(EndPointConfiguration.class);
+        when(epc2.getName()).thenReturn("cim2");
+        when(endPointConfigurationService.getEndPointConfiguration("cim2")).thenReturn(Optional.of(epc2));
+        EndPointConfiguration epc3 = mock(EndPointConfiguration.class);
+        when(epc3.getName()).thenReturn("cim3");
+        when(endPointConfigurationService.getEndPointConfiguration("cim3")).thenReturn(Optional.of(epc3));
+        when(updatedAppServer.supportedEndPoints()).thenReturn(Arrays.asList(epc3, epc2));
+        info.endPointConfigurations = Arrays.asList(endPointConfigurationInfo, endPointConfigurationInfo2);
+        Entity<AppServerInfo> json = Entity.json(info);
+
+        Response response = target("/appserver/cxo").request().put(json);
+        verify(updatedAppServer).supportEndPoint(epc1);
+        verify(updatedAppServer, never()).supportEndPoint(epc2);
+        verify(updatedAppServer).dropEndPointSupport(epc3);
+        verify(updatedAppServer, never()).dropEndPointSupport(epc2);
     }
 
     @SuppressWarnings("unchecked")
