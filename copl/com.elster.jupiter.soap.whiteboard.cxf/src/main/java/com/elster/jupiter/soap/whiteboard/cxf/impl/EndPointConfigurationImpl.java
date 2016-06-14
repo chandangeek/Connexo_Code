@@ -26,6 +26,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
  * Created by bvn on 4/29/16.
  */
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_MUST_BE_UNIQUE + "}")
+@UniqueUrl(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_MUST_BE_UNIQUE + "}")
 public abstract class EndPointConfigurationImpl implements EndPointConfiguration {
     private final Clock clock;
 

@@ -44,6 +44,9 @@ public interface EndPointConfigurationService {
      */
     Optional<EndPointConfiguration> getEndPointConfiguration(long id);
 
+    /**
+     * Finder for all known end point configurations. This methods supports paging.
+     */
     Finder<EndPointConfiguration> findEndPointConfigurations();
 
     /**
@@ -78,7 +81,6 @@ public interface EndPointConfigurationService {
      * @param endPointConfiguration
      */
     void delete(EndPointConfiguration endPointConfiguration);
-
 
     interface InboundEndPointConfigBuilder {
         InboundEndPointConfigBuilder tracing();
