@@ -254,7 +254,6 @@ Ext.define('Mdc.filemanagement.controller.FileManagement', {
     },
 
     getFileName: function (fullPath) {
-        debugger;
         var filename = fullPath.replace(/^.*[\\\/]/, '');
         return filename;
     },
