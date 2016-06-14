@@ -11,8 +11,8 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.issue.datavalidation.impl.actions.CloseIssueAction;
-import com.energyict.mdc.issue.datavalidation.impl.actions.RetryEstimationAction;
+//import com.energyict.mdc.issue.datavalidation.impl.actions.CloseIssueAction;
+//import com.energyict.mdc.issue.datavalidation.impl.actions.RetryEstimationAction;
 import com.google.inject.*;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -121,8 +121,8 @@ public class DataValidationActionsFactory implements IssueActionFactory {
 
     private void addDefaultActions() {
         try {
-            actionProviders.put(CloseIssueAction.class.getName(), injector.getProvider(CloseIssueAction.class));
-            actionProviders.put(RetryEstimationAction.class.getName(), injector.getProvider(RetryEstimationAction.class));
+            //actionProviders.put(CloseIssueAction.class.getName(), injector.getProvider(CloseIssueAction.class));
+            //actionProviders.put(RetryEstimationAction.class.getName(), injector.getProvider(RetryEstimationAction.class));
         } catch (ConfigurationException | ProvisionException e) {
             LOG.warning(e.getMessage());
         }
