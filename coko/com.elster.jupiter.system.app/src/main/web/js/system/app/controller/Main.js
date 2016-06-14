@@ -48,7 +48,8 @@ Ext.define('SystemApp.controller.Main', {
         'Mtr.controller.Main',
         'Sct.controller.Main',
         'Bpm.controller.Main',
-        'Cal.controller.Main'
+        'Cal.controller.Main',
+        'Wss.controller.Main'
     ],
     onLaunch: function(){
         this.getController('Bpm.controller.Main').addProcessManagement();

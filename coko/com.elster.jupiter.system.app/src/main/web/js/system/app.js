@@ -47,6 +47,10 @@ Ext.onReady(function () {
         {
             name: 'Cal',
             path: '../../apps/cal/src'
+        },
+        {
+            name: 'Wss',
+            path: '../../apps/wss/src'
         }
     ];
 
