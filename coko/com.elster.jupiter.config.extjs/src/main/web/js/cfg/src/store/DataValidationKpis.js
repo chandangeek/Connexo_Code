@@ -7,7 +7,7 @@ Ext.define('Cfg.store.DataValidationKpis', {
     storeId: 'DataValidationKpis',
     proxy: {
         type: 'rest',
-        url: '/api/ddr/kpis',
+        url: '/api/val/kpis',
         reader: {
             type: 'json',
             root: 'kpis'

@@ -8,6 +8,6 @@ Ext.define('Cfg.model.DataValidationKpi', {
     ],
     proxy: {
         type: 'rest',
-        url: '/api/ddr/kpis'
+        url: '/api/val/kpis'
     }
 });

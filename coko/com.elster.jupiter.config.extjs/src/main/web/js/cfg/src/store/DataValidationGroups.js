@@ -7,7 +7,7 @@ Ext.define('Cfg.store.DataValidationGroups', {
     storeId: 'DataValidationGroup',
     proxy: {
         type: 'rest',
-        url: '/api/ddr/kpis/groups',
+        url: '/api/val/kpis/groups',
         pageParam: false,
         startParam: false,
         limitParam: false,
