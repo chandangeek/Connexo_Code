@@ -1,0 +1,27 @@
+Ext.define('Wss.view.Setup', {
+    extend: 'Uni.view.container.ContentContainer',
+    alias: 'widget.webservices-setup',
+    router: null,
+    store: null,
+
+    requires: [
+        'Wss.view.WebservicesPreviewContainer'
+    ],
+
+    initComponent: function () {
+        var me = this;
+
+        me.content = {
+            ui: 'large',
+            title: Uni.I18n.translate('webservices.webserviceEndpoints', 'WSS', 'Webservice endpoints'),
+            items: [
+                {
+                    xtype: 'webservices-preview-container',
+                }
+            ]
+        };
+
+
+        me.callParent(arguments);
+    }
+});
