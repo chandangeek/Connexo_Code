@@ -21,6 +21,8 @@ public interface EstimationTask extends HasName, HasAuditInfo {
 
     Instant getNextExecution();
 
+    String getApplication();
+
     EndDeviceGroup getEndDeviceGroup();
 
     Optional<Instant> getLastRun();
