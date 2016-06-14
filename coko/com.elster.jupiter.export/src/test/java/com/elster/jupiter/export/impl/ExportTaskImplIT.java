@@ -63,6 +63,8 @@ import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.time.Never;
@@ -109,6 +111,7 @@ import static com.elster.jupiter.time.RelativeField.MINUTES;
 import static com.elster.jupiter.time.RelativeField.MONTH;
 import static com.elster.jupiter.time.RelativeField.YEAR;
 import static org.assertj.core.data.MapEntry.entry;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -128,6 +131,7 @@ public class ExportTaskImplIT {
             bind(LogService.class).toInstance(logService);
 
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
+            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }
 
@@ -227,6 +231,7 @@ public class ExportTaskImplIT {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+        when(userService.findGroup(anyString())).thenReturn(Optional.empty());
         transactionService = injector.getInstance(TransactionService.class);
         transactionService.execute(() -> {
             injector.getInstance(FiniteStateMachineService.class);
@@ -549,7 +554,6 @@ public class ExportTaskImplIT {
     }
 
     @Test
-    @Ignore
     public void testNameUniqueness() {
         createAndSaveTask();
         try {
