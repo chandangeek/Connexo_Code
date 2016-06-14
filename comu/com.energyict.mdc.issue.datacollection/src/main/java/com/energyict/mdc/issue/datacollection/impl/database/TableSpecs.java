@@ -18,6 +18,7 @@ import java.util.ListIterator;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
+import static com.elster.jupiter.orm.Version.version;
 import static com.energyict.mdc.issue.datacollection.impl.database.DatabaseConst.IDC_BASE_ISSUE;
 import static com.energyict.mdc.issue.datacollection.impl.database.DatabaseConst.IDC_COMMUNICATION_TASK;
 import static com.energyict.mdc.issue.datacollection.impl.database.DatabaseConst.IDC_COM_SESSION;
@@ -110,9 +111,9 @@ public enum TableSpecs {
             Column comTaskColRef = table.column(IDC_COMMUNICATION_TASK).number().conversion(NUMBER2LONG).add();
             Column comSessionColRef = table.column(IDC_COM_SESSION).number().conversion(NUMBER2LONG).add();
             table.column(IDC_DEVICE_MRID).varChar(NAME_LENGTH).map("deviceMRID").add();
-            table.column(IDC_FIRST_TRY).number().conversion(NUMBER2INSTANT).map("firstConnectionAttemptTimestamp").add();
-            table.column(IDC_LAST_TRY).number().conversion(NUMBER2INSTANT).map("lastConnectionAttemptTimestamp").add();
-            table.column(IDC_NUMBER_TRIES).number().conversion(NUMBER2LONG).map("connectionAttempt").add();
+            table.column(IDC_FIRST_TRY).number().conversion(NUMBER2INSTANT).map("firstConnectionAttemptTimestamp").since(version(10, 2)).add();
+            table.column(IDC_LAST_TRY).number().conversion(NUMBER2INSTANT).map("lastConnectionAttemptTimestamp").since(version(10, 2)).add();
+            table.column(IDC_NUMBER_TRIES).number().conversion(NUMBER2LONG).map("connectionAttempt").since(version(10, 2)).add();
 
             table.primaryKey(pkKey).on(idColumn).add();
             if (fkKeys == null || fkKeys.length != EXPECTED_FK_KEYS_LENGTH){
