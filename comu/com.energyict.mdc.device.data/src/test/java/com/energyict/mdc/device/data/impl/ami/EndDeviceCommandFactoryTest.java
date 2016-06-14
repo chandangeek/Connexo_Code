@@ -15,8 +15,6 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.PropertySpecBuilderWizard;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
@@ -45,11 +43,9 @@ import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.validateMockitoUsage;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -106,7 +102,7 @@ public class EndDeviceCommandFactoryTest {
         commandFactory = new EndDeviceCommandFactoryImpl(meteringService, deviceService, deviceMessageSpecificationService, nlsService, thesaurus, propertySpecService);
         propertySpecService = new PropertySpecServiceImpl(this.timeService, this.ormService, this.beanService);
         Date activationDate = mock(Date.class);
-        ValueFactory valueFactory =  mock(ValueFactory.class);
+        ValueFactory valueFactory = mock(ValueFactory.class);
         when(deviceService.findByUniqueMrid(anyString())).thenReturn(Optional.of(device));
         when(device.getDeviceConfiguration().getDeviceType().getId()).thenReturn(6L);
         when(meteringService.getEndDeviceControlType(anyString())).thenReturn(Optional.of(endDeviceControlType));
