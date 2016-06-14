@@ -3,7 +3,10 @@ package com.elster.jupiter.validators.impl;
 import com.elster.jupiter.cbo.QualityCodeCategory;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
-import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.ReadingRecord;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
@@ -17,14 +20,14 @@ import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 
 class ReadingQualitiesValidator extends AbstractValidator {
 
     public static final String READING_QUALITIES = "readingQualities";
     private static final Set<String> SUPPORTED_APPLICATIONS = ImmutableSet.of("MDC", "INS");
-    private static List<ReadingQualityPropertyValue> possibleReadingQualityPropertyValues = Collections.synchronizedList(new ArrayList<>());
-    private Set<String> selectedReadingQualities;
-    private Map<String, String> cachedTranslations;
+
+    private Set<ReadingQualityPropertyValue> selectedReadingQualities;
 
     ReadingQualitiesValidator(Thesaurus thesaurus, PropertySpecService propertySpecService) {
         super(thesaurus, propertySpecService);
@@ -38,48 +41,33 @@ class ReadingQualitiesValidator extends AbstractValidator {
      * All possible reading qualities, with their translations
      */
     private List<ReadingQualityPropertyValue> getPossibleReadingQualityPropertyValues() {
-        if (possibleReadingQualityPropertyValues.isEmpty()) {
-            cachedTranslations = new HashMap<>();
+        List<ReadingQualityPropertyValue> possibleReadingQualityPropertyValues = new ArrayList<>();
 
-            //Add every possible combination
-            for (QualityCodeSystem system : QualityCodeSystem.values()) {
-
-                for (QualityCodeIndex index : QualityCodeIndex.values()) {
-                    String cimCode = system.ordinal() + "." + index.category().ordinal() + "." + index.index();
-                    possibleReadingQualityPropertyValues.add(new ReadingQualityPropertyValue(
-                            cimCode,
-                            getTranslation(system.getTranslationKey().getKey(), system.getTranslationKey().getDefaultFormat()),
-                            getTranslation(index.category().getTranslationKey().getKey(), index.category().getTranslationKey().getDefaultFormat()),
-                            getTranslation(index.getTranslationKey().getKey(), index.getTranslationKey().getDefaultFormat())
-                    ));
-                }
-            }
-
-            //Add the wildcard combinations
-            for (QualityCodeCategory qualityCodeCategory : QualityCodeCategory.values()) {
-
-                String cimCode = "*." + qualityCodeCategory.ordinal() + ".*";
+        //Add every possible combination
+        for (QualityCodeSystem system : QualityCodeSystem.values()) {
+            for (QualityCodeIndex index : QualityCodeIndex.values()) {
+                String cimCode = system.ordinal() + "." + index.category().ordinal() + "." + index.index();
                 possibleReadingQualityPropertyValues.add(new ReadingQualityPropertyValue(
                         cimCode,
-                        getTranslation(com.elster.jupiter.cbo.TranslationKeys.ALL_SYSTEMS.getKey(), com.elster.jupiter.cbo.TranslationKeys.ALL_SYSTEMS.getDefaultFormat()),
-                        getTranslation(qualityCodeCategory.getTranslationKey().getKey(), qualityCodeCategory.getTranslationKey().getDefaultFormat()),
-                        getTranslation(com.elster.jupiter.cbo.TranslationKeys.ALL_INDEXES.getKey(), com.elster.jupiter.cbo.TranslationKeys.ALL_INDEXES.getDefaultFormat())
+                        getThesaurus().getString(system.getTranslationKey().getKey(), system.getTranslationKey().getDefaultFormat()),
+                        getThesaurus().getString(index.category().getTranslationKey().getKey(), index.category().getTranslationKey().getDefaultFormat()),
+                        getThesaurus().getString(index.getTranslationKey().getKey(), index.getTranslationKey().getDefaultFormat())
                 ));
             }
+        }
 
-            cachedTranslations = null;
+        //Add the wildcard combinations
+        for (QualityCodeCategory qualityCodeCategory : QualityCodeCategory.values()) {
+
+            String cimCode = ReadingQualityPropertyValue.WILDCARD + "." + qualityCodeCategory.ordinal() + "." + ReadingQualityPropertyValue.WILDCARD;
+            possibleReadingQualityPropertyValues.add(new ReadingQualityPropertyValue(
+                    cimCode,
+                    getThesaurus().getString(TranslationKeys.ALL_SYSTEMS.getKey(), TranslationKeys.ALL_SYSTEMS.getDefaultFormat()),
+                    getThesaurus().getString(qualityCodeCategory.getTranslationKey().getKey(), qualityCodeCategory.getTranslationKey().getDefaultFormat()),
+                    getThesaurus().getString(TranslationKeys.ALL_INDEXES.getKey(), TranslationKeys.ALL_INDEXES.getDefaultFormat())
+            ));
         }
         return possibleReadingQualityPropertyValues;
-    }
-
-    private String getTranslation(String key, String defaultFormat) {
-        if (cachedTranslations.containsKey(key)) {
-            return cachedTranslations.get(key);
-        } else {
-            String translation = getThesaurus().getString(key, defaultFormat);
-            cachedTranslations.put(key, translation);
-            return translation;
-        }
     }
 
     @Override
@@ -95,15 +83,15 @@ class ReadingQualitiesValidator extends AbstractValidator {
         if (value != null) {
             if (value instanceof Collection) {
                 for (Object element : ((Collection) value)) {
-                    getSelectedReadingQualities().add(String.valueOf(element));
+                    getSelectedReadingQualities().add(new ReadingQualityPropertyValue(String.valueOf(element)));
                 }
             } else {
-                getSelectedReadingQualities().add(String.valueOf(value));
+                getSelectedReadingQualities().add(new ReadingQualityPropertyValue(String.valueOf(value)));
             }
         }
     }
 
-    public Set<String> getSelectedReadingQualities() {
+    public Set<ReadingQualityPropertyValue> getSelectedReadingQualities() {
         if (selectedReadingQualities == null) {
             selectedReadingQualities = Collections.emptySet();
         }
@@ -112,16 +100,20 @@ class ReadingQualitiesValidator extends AbstractValidator {
 
     @Override
     public ValidationResult validate(IntervalReadingRecord intervalReadingRecord) {
-        List<? extends ReadingQualityRecord> readingQualities = intervalReadingRecord.getReadingQualities();
-        //TODO implement, also support wildcard
-        return Collections.disjoint(getSelectedReadingQualities(), readingQualities) ? ValidationResult.VALID : ValidationResult.SUSPECT;
+        List<ReadingQualityPropertyValue> readingQualities = intervalReadingRecord.getReadingQualities()
+                .stream()
+                .map(readingQualityRecord -> new ReadingQualityPropertyValue(readingQualityRecord.getType().getCode()))
+                .collect(Collectors.toList());
+        return Collections.disjoint(readingQualities, getSelectedReadingQualities()) ? ValidationResult.VALID : ValidationResult.SUSPECT;
     }
 
     @Override
     public ValidationResult validate(ReadingRecord readingRecord) {
-        List<? extends ReadingQualityRecord> readingQualities = readingRecord.getReadingQualities();
-        //TODO implement, also support wildcard
-        return Collections.disjoint(getSelectedReadingQualities(), readingQualities) ? ValidationResult.VALID : ValidationResult.SUSPECT;
+        List<ReadingQualityPropertyValue> readingQualities = readingRecord.getReadingQualities()
+                .stream()
+                .map(readingQualityRecord -> new ReadingQualityPropertyValue(readingQualityRecord.getType().getCode()))
+                .collect(Collectors.toList());
+        return Collections.disjoint(readingQualities, getSelectedReadingQualities()) ? ValidationResult.VALID : ValidationResult.SUSPECT;
     }
 
     @Override
