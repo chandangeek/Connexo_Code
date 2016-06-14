@@ -15,11 +15,13 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.pubsub.Publisher;
+import com.elster.jupiter.upgrade.InstallIdentifier;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
+
 import com.google.inject.AbstractModule;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
@@ -39,10 +41,10 @@ import java.util.Optional;
 
 @Component(
         name = "com.elster.jupiter.events",
-        service = {InstallService.class, EventService.class, MessageSeedProvider.class},
+        service = {EventService.class, MessageSeedProvider.class},
         property = "name=" + EventService.COMPONENTNAME,
         immediate = true)
-public class EventServiceImpl implements EventService, InstallService, MessageSeedProvider {
+public class EventServiceImpl implements EventService, MessageSeedProvider {
 
     private volatile Clock clock;
     private volatile Publisher publisher;
@@ -51,6 +53,7 @@ public class EventServiceImpl implements EventService, InstallService, MessageSe
     private volatile JsonService jsonService;
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
+    private volatile UpgradeService upgradeService;
     private final EventConfiguration eventConfiguration = new DefaultEventConfiguration();
 
     private LocalEventDispatcher localEventDispatcher = new LocalEventDispatcher();
@@ -59,7 +62,7 @@ public class EventServiceImpl implements EventService, InstallService, MessageSe
     }
 
     @Inject
-    public EventServiceImpl(Clock clock, JsonService jsonService, Publisher publisher, BeanService beanService, OrmService ormService, MessageService messageService, BundleContext bundleContext, NlsService nlsService) {
+    public EventServiceImpl(Clock clock, JsonService jsonService, Publisher publisher, BeanService beanService, OrmService ormService, MessageService messageService, BundleContext bundleContext, NlsService nlsService, UpgradeService upgradeService) {
         setClock(clock);
         setPublisher(publisher);
         setBeanService(beanService);
@@ -67,21 +70,10 @@ public class EventServiceImpl implements EventService, InstallService, MessageSe
         setMessageService(messageService);
         setOrmService(ormService);
         setNlsService(nlsService);
+        setUpgradeService(upgradeService);
         activate(bundleContext);
-        if (!dataModel.isInstalled()) {
-            install();
-        }
+
         publisher.addSubscriber(this.localEventDispatcher);
-    }
-
-    @Override
-    public final void install() {
-        new InstallerImpl(dataModel, messageService).install();
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "MSG", "NLS");
     }
 
     @Reference
@@ -135,6 +127,11 @@ public class EventServiceImpl implements EventService, InstallService, MessageSe
         thesaurus = nlsService.getThesaurus(EventService.COMPONENTNAME, Layer.DOMAIN);
     }
 
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
+    }
+
     @Activate
     public final void activate(BundleContext context) {
         localEventDispatcher.register(context);
@@ -152,6 +149,7 @@ public class EventServiceImpl implements EventService, InstallService, MessageSe
                 bind(MessageInterpolator.class).toInstance(thesaurus);
             }
         });
+        upgradeService.register(InstallIdentifier.identifier(COMPONENTNAME), dataModel, InstallerImpl.class, Collections.emptyMap());
     }
 
     @Deactivate
