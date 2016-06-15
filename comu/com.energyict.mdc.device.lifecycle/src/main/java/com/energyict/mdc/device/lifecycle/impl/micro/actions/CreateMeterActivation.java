@@ -28,13 +28,15 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.elster.jupiter.util.streams.Predicates.not;
+
 /**
  * Provides an implementation for the {@link ServerMicroAction} interface
  * that will create a meter activation for the Device on the effective
  * timestamp of the transition.
- * @see {@link com.energyict.mdc.device.lifecycle.config.MicroAction#CREATE_METER_ACTIVATION}
  *
  * @author Rudi Vankeirsbilck (rudi)
+ * @see {@link com.energyict.mdc.device.lifecycle.config.MicroAction#CREATE_METER_ACTIVATION}
  * @since 2015-05-2 5(14:19)
  */
 public class CreateMeterActivation extends TranslatableServerMicroAction {
@@ -75,7 +77,7 @@ public class CreateMeterActivation extends TranslatableServerMicroAction {
                 .flatMap(Functions.asStream());
         Stream<Instant> registerTimes = device.getRegisters()
                 .stream()
-                .map(r -> (Register<?,?>) r)
+                .map(r -> (Register<?, ?>) r)
                 .map(Register::getLastReadingDate)
                 .flatMap(Functions.asStream());
         return Stream.of(registerTimes, loadProfileTimes)
@@ -84,12 +86,17 @@ public class CreateMeterActivation extends TranslatableServerMicroAction {
                 .max(Instant::compareTo);
     }
 
-    private static List<Channel> createNewChannelsForNewMeterActivation(MeterActivation newMeterActivation, List<Channel> channels) {
-        return channels.stream().map(channel -> {
-            ReadingType mainReadingType = channel.getMainReadingType();
-            ReadingType[] extraReadingTypes = channel.getReadingTypes().stream().filter(rt -> !rt.equals(mainReadingType)).toArray(ReadingType[]::new);
-            return newMeterActivation.createChannel(mainReadingType, extraReadingTypes);
-        }).collect(Collectors.toList());
+    private List<Channel> createNewChannelsForNewMeterActivation(MeterActivation newMeterActivation, List<Channel> channels) {
+        List<Channel> defaultChannels = newMeterActivation.getChannels();
+        List<Channel> newChannels = channels.stream()
+                .filter(not(channel1 -> defaultChannels.stream().anyMatch(defaultChannel -> defaultChannel.hasReadingType(channel1.getMainReadingType()))))
+                .map(channel -> {
+                    ReadingType mainReadingType = channel.getMainReadingType();
+                    ReadingType[] extraReadingTypes = channel.getReadingTypes().stream().filter(rt -> !rt.equals(mainReadingType)).toArray(ReadingType[]::new);
+                    return newMeterActivation.createChannel(mainReadingType, extraReadingTypes);
+                }).collect(Collectors.toList());
+        newChannels.addAll(defaultChannels);
+        return newChannels;
     }
 
     private static void removeReadingQualities(List<Channel> channels) {
