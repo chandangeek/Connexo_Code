@@ -12,15 +12,22 @@ import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.users.Group;
+import com.elster.jupiter.users.PrivilegesProvider;
+import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.security.Privileges;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.logging.Logger;
 
-public class InstallerImpl implements FullInstaller {
+public class InstallerImpl implements FullInstaller, PrivilegesProvider {
     public static final String DESTINATION_NAME = ValidationServiceImpl.DESTINATION_NAME;
     public static final String SUBSCRIBER_NAME = ValidationServiceImpl.SUBSCRIBER_NAME;
 
@@ -61,7 +68,23 @@ public class InstallerImpl implements FullInstaller {
                 this::createValidationUser,
                 logger
         );
+        userService.addModulePrivileges(this);
+    }
 
+    @Override
+    public String getModuleName() {
+        return ValidationService.COMPONENTNAME;
+    }
+
+    @Override
+    public List<ResourceDefinition> getModuleResources() {
+        List<ResourceDefinition> resources = new ArrayList<>();
+        resources.add(userService.createModuleResourceWithPrivileges(ValidationService.COMPONENTNAME, Privileges.RESOURCE_VALIDATION.getKey(), Privileges.RESOURCE_VALIDATION_DESCRIPTION.getKey(),
+                Arrays.asList(
+                        Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.VIEW_VALIDATION_CONFIGURATION,
+                        Privileges.Constants.VALIDATE_MANUAL, Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE,
+                        Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION)));
+        return resources;
     }
 
     private void createValidationUser() {
