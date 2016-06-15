@@ -27,6 +27,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
  */
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_MUST_BE_UNIQUE + "}")
 @UniqueUrl(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_MUST_BE_UNIQUE + "}")
+@ValidTarceFileName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.INVALID_FILE_NAME + "}")
 public abstract class EndPointConfigurationImpl implements EndPointConfiguration {
     private final Clock clock;
 
@@ -44,6 +45,8 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     private LogLevel logLevel;
     private boolean tracing;
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String traceFile;
     private boolean httpCompression;
     private boolean schemaValidation;
 
@@ -84,6 +87,7 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
         WEB_SERVICE_NAME("webServiceName"),
         LOG_LEVEL("logLevel"),
         TRACING("tracing"),
+        TRACEFILE("traceFile"),
         HTTP_COMPRESSION("httpCompression"),
         SCHEMA_VALIDATION("schemaValidation"),
         AUTHENTICATED("authenticated"),
@@ -138,6 +142,11 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
     }
 
     @Override
+    public String getTraceFile() {
+        return traceFile;
+    }
+
+    @Override
     public boolean isHttpCompression() {
         return httpCompression;
     }
@@ -180,6 +189,11 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
     @Override
     public void setTracing(boolean tracing) {
         this.tracing = tracing;
+    }
+
+    @Override
+    public void setTraceFile(String traceFile) {
+        this.traceFile = traceFile;
     }
 
     @Override

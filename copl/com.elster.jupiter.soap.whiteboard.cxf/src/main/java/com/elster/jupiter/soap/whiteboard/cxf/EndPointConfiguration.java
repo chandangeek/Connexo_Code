@@ -19,7 +19,15 @@ public interface EndPointConfiguration {
 
     LogLevel getLogLevel();
 
+    /**
+     * If tracing is on, detailed information for this end point will be logged to the trace file
+     */
     boolean isTracing();
+
+    /**
+     * The name of the file where trace log information will be stored
+     **/
+    String getTraceFile();
 
     boolean isHttpCompression();
 
@@ -33,11 +41,24 @@ public interface EndPointConfiguration {
 
     void setUrl(String url);
 
+    /**
+     * This name identifies the web service for which this configuration applies
+     */
     void setWebServiceName(String webServiceName);
 
     void setLogLevel(LogLevel logLevel);
 
+    /**
+     * If tracing is on, detailed information for this end point will be logged to the trace file
+     */
     void setTracing(boolean tracing);
+
+    /**
+     * Sets the name of the tracing file
+     *
+     * @param traceFile The name of the file where trace log information will be stored
+     */
+    void setTraceFile(String traceFile);
 
     void setHttpCompression(boolean httpCompression);
 

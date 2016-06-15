@@ -174,6 +174,12 @@ public class EndPointConfigurationServiceImpl implements EndPointConfigurationSe
         }
 
         @Override
+        public InboundEndPointConfigBuilder traceFile(String traceFile) {
+            instance.setTraceFile(traceFile);
+            return this;
+        }
+
+        @Override
         public InboundEndPointConfigBuilder httpCompression() {
             instance.setHttpCompression(true);
             return this;
@@ -216,6 +222,12 @@ public class EndPointConfigurationServiceImpl implements EndPointConfigurationSe
         @Override
         public OutboundEndPointConfigBuilder tracing() {
             instance.setTracing(true);
+            return this;
+        }
+
+        @Override
+        public OutboundEndPointConfigBuilder traceFile(String traceFile) {
+            instance.setTraceFile(traceFile);
             return this;
         }
 

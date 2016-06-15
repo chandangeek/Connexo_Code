@@ -40,6 +40,11 @@ public enum TableSpecs {
                     .map(EndPointConfigurationImpl.Fields.SCHEMA_VALIDATION.fieldName())
                     .add();
             table.column("tracing").bool().map(EndPointConfigurationImpl.Fields.TRACING.fieldName()).add();
+            table.column("tracefile")
+                    .varChar()
+                    .notNull()
+                    .map(EndPointConfigurationImpl.Fields.TRACEFILE.fieldName())
+                    .add();
             table.column("logLevel")
                     .number()
                     .conversion(ColumnConversion.NUMBER2ENUM)

@@ -12,7 +12,8 @@ public enum MessageSeeds implements MessageSeed {
 
     FIELD_REQUIRED(1, Keys.FIELD_REQUIRED, "This field is required", Level.SEVERE),
     FIELD_TOOL_LONG(2, Keys.FIELD_TOO_LONG, "This field is too long", Level.SEVERE),
-    FIELD_NOT_UNIQUE(3, Keys.FIELD_MUST_BE_UNIQUE, "This field must be unique", Level.SEVERE);
+    FIELD_NOT_UNIQUE(3, Keys.FIELD_MUST_BE_UNIQUE, "This field must be unique", Level.SEVERE),
+    INVALID_FILE_NAME(4, Keys.INVALID_FILE_NAME, "Invalid file name", Level.SEVERE);
 
     private final int number;
     private final String key;
@@ -55,6 +56,7 @@ public enum MessageSeeds implements MessageSeed {
         String FIELD_REQUIRED = "field.required";
         String FIELD_TOO_LONG = "ThisFieldIsTooLong";
         String FIELD_MUST_BE_UNIQUE = "FieldMustBeUnique";
+        String INVALID_FILE_NAME = "InvalidFileName";
     }
 
 }

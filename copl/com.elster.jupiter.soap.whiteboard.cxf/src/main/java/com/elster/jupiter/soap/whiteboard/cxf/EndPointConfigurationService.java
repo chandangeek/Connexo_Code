@@ -85,6 +85,8 @@ public interface EndPointConfigurationService {
     interface InboundEndPointConfigBuilder {
         InboundEndPointConfigBuilder tracing();
 
+        InboundEndPointConfigBuilder traceFile(String traceFile);
+
         InboundEndPointConfigBuilder httpCompression();
 
         InboundEndPointConfigBuilder authenticated();
@@ -98,6 +100,8 @@ public interface EndPointConfigurationService {
 
     interface OutboundEndPointConfigBuilder {
         OutboundEndPointConfigBuilder tracing();
+
+        OutboundEndPointConfigBuilder traceFile(String traceFile);
 
         OutboundEndPointConfigBuilder httpCompression();
 
