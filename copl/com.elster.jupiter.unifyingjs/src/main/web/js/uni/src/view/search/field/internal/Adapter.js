@@ -35,7 +35,7 @@ Ext.define('Uni.view.search.field.internal.Adapter', {
                 {
                     margin: '0 0 0 2',
                     xtype: 'button',
-                    iconCls: ' icon-close2',
+                    iconCls: 'icon-cancel-circle2',
                     action: 'remove'
                 }
             ];
