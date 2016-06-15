@@ -64,7 +64,6 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceHelper;
 import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiServiceImpl;
@@ -362,8 +361,8 @@ public class DeviceImplDoSomethingWithEventsTest {
                                 injector.getInstance(JsonService.class),
                                 mdcIssueService,
                                 injector.getInstance(MdcReadingTypeUtilService.class),
-                                UpgradeModule.FakeUpgradeService.getInstance(),
-                                injector.getInstance(DeviceHelper.class));
+                                UpgradeModule.FakeUpgradeService.getInstance()
+                        );
                 this.dataModel = this.deviceDataModelService.dataModel();
                 ctx.commit();
             }

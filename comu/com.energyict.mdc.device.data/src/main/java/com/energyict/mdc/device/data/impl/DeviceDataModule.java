@@ -9,7 +9,6 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
-import com.energyict.mdc.device.data.DeviceHelper;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfileService;
@@ -61,7 +60,6 @@ public class DeviceDataModule extends AbstractModule {
         bind(SecurityPropertyService.class).to(SecurityPropertyServiceImpl.class).in(Scopes.SINGLETON);
         bind(DeviceDataModelService.class).to(DeviceDataModelServiceImpl.class).in(Scopes.SINGLETON);
         bind(DeviceService.class).to(DeviceServiceImpl.class).in(Scopes.SINGLETON);
-        bind(DeviceHelper.class).to(DeviceHelperImpl.class).in(Scopes.SINGLETON);
         bind(ConnectionTaskService.class).to(ConnectionTaskServiceImpl.class).in(Scopes.SINGLETON);
         bind(CommunicationTaskService.class).to(CommunicationTaskServiceImpl.class).in(Scopes.SINGLETON);
         bind(CommunicationTaskReportService.class).to(CommunicationTaskReportServiceImpl.class).in(Scopes.SINGLETON);

@@ -33,7 +33,6 @@ import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.DeviceDataServices;
-import com.energyict.mdc.device.data.DeviceHelper;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfileService;
@@ -141,7 +140,6 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     private ServerCommunicationTaskService communicationTaskService;
     private CommunicationTaskReportService communicationTaskReportService;
     private ServerDeviceService deviceService;
-    private DeviceHelper deviceHelper;
     private ServerLoadProfileService loadProfileService;
     private ServerLogBookService logBookService;
     private DataCollectionKpiService dataCollectionKpiService;
@@ -168,7 +166,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
             SecurityPropertyService securityPropertyService, UserService userService, DeviceMessageSpecificationService deviceMessageSpecificationService, MeteringGroupsService meteringGroupsService,
             QueryService queryService, TaskService mdcTaskService, MasterDataService masterDataService,
             TransactionService transactionService, JsonService jsonService, com.energyict.mdc.issues.IssueService mdcIssueService, MdcReadingTypeUtilService mdcReadingTypeUtilService,
-            UpgradeService upgradeService, DeviceHelper deviceHelper) {
+            UpgradeService upgradeService) {
         this();
         setOrmService(ormService);
         setEventService(eventService);
@@ -500,7 +498,6 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
                 bind(TransactionService.class).toInstance(transactionService);
                 bind(JsonService.class).toInstance(jsonService);
                 bind(com.energyict.mdc.issues.IssueService.class).toInstance(mdcIssueService);
-                bind(DeviceHelper.class).toInstance(deviceHelper);
             }
         };
     }
@@ -519,7 +516,6 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         this.communicationTaskService = new CommunicationTaskServiceImpl(this);
         this.communicationTaskReportService = new CommunicationTaskReportServiceImpl(this, meteringService);
         this.deviceService = new DeviceServiceImpl(this, queryService, thesaurus);
-        this.deviceHelper = new DeviceHelperImpl();
         this.loadProfileService = new LoadProfileServiceImpl(this);
         this.logBookService = new LogBookServiceImpl(this);
         this.dataCollectionKpiService = new DataCollectionKpiServiceImpl(this);
@@ -533,7 +529,6 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         this.registerCommunicationTaskService(bundleContext);
         this.registerCommunicationTaskReportService(bundleContext);
         this.registerDeviceService(bundleContext);
-        this.registerDeviceHelper(bundleContext);
         this.registerLoadProfileService(bundleContext);
         this.registerLogBookService(bundleContext);
         this.registerDataCollectionKpiService(bundleContext);
@@ -562,10 +557,6 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     private void registerDeviceService(BundleContext bundleContext) {
         this.serviceRegistrations.add(bundleContext.registerService(DeviceService.class, deviceService, null));
         this.serviceRegistrations.add(bundleContext.registerService(ServerDeviceService.class, deviceService, null));
-    }
-
-    private void registerDeviceHelper(BundleContext bundleContext) {
-        this.serviceRegistrations.add(bundleContext.registerService(DeviceHelper.class, deviceHelper, null));
     }
 
     private void registerLogBookService(BundleContext bundleContext) {
@@ -733,7 +724,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
                 this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, Privileges.RESOURCE_DEVICE_GROUPS.getKey(), Privileges.RESOURCE_DEVICE_GROUPS_DESCRIPTION.getKey(), Arrays.asList(Privileges.Constants.ADMINISTRATE_DEVICE_GROUP, Privileges.Constants.ADMINISTRATE_DEVICE_ENUMERATED_GROUP, Privileges.Constants.VIEW_DEVICE_GROUP_DETAIL)),
                 this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, Privileges.RESOURCE_INVENTORY_MANAGEMENT.getKey(), Privileges.RESOURCE_INVENTORY_MANAGEMENT_DESCRIPTION.getKey(), Arrays.asList(Privileges.Constants.IMPORT_INVENTORY_MANAGEMENT, Privileges.Constants.REVOKE_INVENTORY_MANAGEMENT)),
                 this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, Privileges.RESOURCE_DATA_COLLECTION_KPI.getKey(), Privileges.RESOURCE_DATA_COLLECTION_KPI_DESCRIPTION.getKey(), Arrays.asList(Privileges.Constants.ADMINISTER_DATA_COLLECTION_KPI, Privileges.Constants.VIEW_DATA_COLLECTION_KPI)),
-                this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, Privileges.RESOURCE_DEVICES.getKey(), Privileges.RESOURCE_DEVICES_DESCRIPTION.getKey(), Arrays.asList(Privileges.Constants.ADMINISTER_DEVICE_TIME_SLICED_CPS))
+                this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, Privileges.RESOURCE_DEVICES.getKey(), Privileges.RESOURCE_DEVICES_DESCRIPTION.getKey(), Collections.singletonList(Privileges.Constants.ADMINISTER_DEVICE_TIME_SLICED_CPS))
         );
 
     }

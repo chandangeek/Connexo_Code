@@ -1039,7 +1039,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 });
     }
 
-    public Optional<ReadingType> getCalculatedReadingTypeFromMeterConfiguration(ReadingType readingType, Instant timeStamp) {
+    Optional<ReadingType> getCalculatedReadingTypeFromMeterConfiguration(ReadingType readingType, Instant timeStamp) {
         Optional<MeterConfiguration> configuration = findKoreMeter(getMdcAmrSystem()).get().getConfiguration(timeStamp);
         if (configuration.isPresent()) {
             Optional<MeterReadingTypeConfiguration> mrtConfiguration = configuration.get()
@@ -1058,9 +1058,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
 
-    class LogBookUpdaterForDevice extends LogBookImpl.LogBookUpdater {
+    private class LogBookUpdaterForDevice extends LogBookImpl.LogBookUpdater {
 
-        protected LogBookUpdaterForDevice(LogBookImpl logBook) {
+        LogBookUpdaterForDevice(LogBookImpl logBook) {
             super(logBook);
         }
     }
@@ -1070,9 +1070,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return new LoadProfileUpdaterForDevice((LoadProfileImpl) loadProfile);
     }
 
-    class LoadProfileUpdaterForDevice extends LoadProfileImpl.LoadProfileUpdater {
+    private class LoadProfileUpdaterForDevice extends LoadProfileImpl.LoadProfileUpdater {
 
-        protected LoadProfileUpdaterForDevice(LoadProfileImpl loadProfile) {
+        LoadProfileUpdaterForDevice(LoadProfileImpl loadProfile) {
             super(loadProfile);
         }
 
@@ -1103,7 +1103,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         }
     }
 
-    public Optional<MeterReadingTypeConfiguration> getMeterReadingTypeConfigurationFor(ReadingType readingType) {
+    Optional<MeterReadingTypeConfiguration> getMeterReadingTypeConfigurationFor(ReadingType readingType) {
         Optional<Meter> koreMeter = findKoreMeter(getMdcAmrSystem());
         if (koreMeter.isPresent()) {
             Optional<MeterConfiguration> configuration = koreMeter.get().getConfiguration(clock.instant());
@@ -1292,7 +1292,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return () -> new NoMeterActivationAt(timestamp, thesaurus, MessageSeeds.NO_METER_ACTIVATION_AT);
     }
 
-    Meter createKoreMeter(AmrSystem amrSystem) {
+    private Meter createKoreMeter(AmrSystem amrSystem) {
         FiniteStateMachine stateMachine = this.getDeviceType().getDeviceLifeCycle().getFiniteStateMachine();
         Meter newMeter = amrSystem.newMeter(String.valueOf(getId()))
                 .setMRID(getmRID())
@@ -1847,7 +1847,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         }
     }
 
-    Optional<MeterActivation> getMeterActivation(Instant when) {
+    private Optional<MeterActivation> getMeterActivation(Instant when) {
         return this.getOptionalMeterAspect(meter -> meter.getMeterActivation(when).map(MeterActivation.class::cast));
     }
 
@@ -1880,7 +1880,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return findKoreChannels(register::getReadingType);
     }
 
-    List<com.elster.jupiter.metering.Channel> findKoreChannels(Supplier<ReadingType> readingTypeSupplier) {
+    private List<com.elster.jupiter.metering.Channel> findKoreChannels(Supplier<ReadingType> readingTypeSupplier) {
         return this.getListMeterAspect(meter -> this.findKoreChannels(readingTypeSupplier, meter));
     }
 
@@ -1947,7 +1947,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return this.getOptionalMeterAspect(this::hasData).get();
     }
 
-    public DataMapper<DeviceImpl> getDataMapper() {
+    private DataMapper<DeviceImpl> getDataMapper() {
         return this.dataModel.mapper(DeviceImpl.class);
     }
 
@@ -2041,12 +2041,25 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         savePassiveCalendar(passiveCalendar, passiveEffectiveCalendar);
     }
 
+    @Override
     public void setActiveCalendar(AllowedCalendar allowedCalendar, Instant effective, Instant lastVerified) {
         Interval effectivityInterval = Interval.of(Range.atLeast(effective));
-        this.activeCalendar.add(
+        this.closeCurrentActiveCalendar(effective);
+        this.createNewActiveCalendar(allowedCalendar, lastVerified, effectivityInterval);
+        if (this.id != 0) {
+            this.dataModel.touch(this);
+        }
+    }
+
+    private void closeCurrentActiveCalendar(Instant now) {
+        this.activeCalendar.effective(now).ifPresent(active -> active.close(now));
+    }
+
+    private void createNewActiveCalendar(AllowedCalendar allowedCalendar, Instant lastVerified, Interval effectivityInterval) {
+        ServerActiveEffectiveCalendar newCalendar =
                 this.dataModel.getInstance(ActiveEffectiveCalendarImpl.class)
-                        .initialize(effectivityInterval, this, allowedCalendar, lastVerified)
-        );
+                        .initialize(effectivityInterval, this, allowedCalendar, lastVerified);
+        this.activeCalendar.add(newCalendar);
     }
 
     @Override
@@ -2093,7 +2106,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return Optional.of(comTaskExecution);
     }
 
-
     private boolean containsStatusInformationProtocolTask(List<ProtocolTask> protocolTasks) {
         return protocolTasks
                 .stream()
@@ -2109,7 +2121,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             if (scores1[i] < scores2[i]) {
                 return -1;
             } else if (scores1[i] > scores1[i]) {
-                return -1;
+                return 1;
             }
         }
         return 0;
@@ -2120,7 +2132,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 .map(protocolTask -> score(protocolTask.getClass()))
                 .sorted(Integer::compareTo)
                 .sorted(Comparator.reverseOrder())
-                .toArray(size -> new Integer[size]);
+                .toArray(Integer[]::new);
     }
 
     private int score(Class<? extends ProtocolTask> protocolTaskClass) {
@@ -2192,17 +2204,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return activeCalendar
                 .effective(this.clock.instant())
                 .map(ActiveEffectiveCalendar.class::cast);
-    }
-
-    private void closeCurrentActiveCalendar(Instant now) {
-        this.activeCalendar.effective(now).ifPresent(active -> active.close(now));
-    }
-
-    private void createNewActiveCalendar(AllowedCalendar allowedCalendar, Instant lastVerified, Interval effectivityInterval) {
-        ServerActiveEffectiveCalendar newCalendar =
-                this.dataModel.getInstance(ActiveEffectiveCalendarImpl.class)
-                        .initialize(effectivityInterval, this, allowedCalendar, lastVerified);
-        this.activeCalendar.add(newCalendar);
     }
 
     @Override
@@ -2490,7 +2491,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         }
     }
 
-    public class ScheduledComTaskExecutionBuilderForDevice
+    private class ScheduledComTaskExecutionBuilderForDevice
             extends ScheduledComTaskExecutionImpl.ScheduledComTaskExecutionBuilderImpl {
 
         private Set<ComTaskExecution> executionsToDelete;
@@ -2520,7 +2521,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         }
     }
 
-    public class AdHocComTaskExecutionBuilderForDevice
+    private class AdHocComTaskExecutionBuilderForDevice
             extends ManuallyScheduledComTaskExecutionImpl.ManuallyScheduledComTaskExecutionBuilderImpl {
 
         private AdHocComTaskExecutionBuilderForDevice(Provider<ManuallyScheduledComTaskExecutionImpl> comTaskExecutionProvider, ComTaskEnablement comTaskEnablement) {
@@ -2536,7 +2537,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         }
     }
 
-    public class FirmwareComTaskExecutionBuilderForDevice extends FirmwareComTaskExecutionImpl.FirmwareComTaskExecutionBuilderImpl {
+    private class FirmwareComTaskExecutionBuilderForDevice extends FirmwareComTaskExecutionImpl.FirmwareComTaskExecutionBuilderImpl {
 
         private FirmwareComTaskExecutionBuilderForDevice(Provider<FirmwareComTaskExecutionImpl> comTaskExecutionProvider, ComTaskEnablement comTaskEnablement) {
             super(comTaskExecutionProvider.get());
@@ -2550,7 +2551,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         }
     }
 
-    public class ManuallyScheduledComTaskExecutionBuilderForDevice
+    private class ManuallyScheduledComTaskExecutionBuilderForDevice
             extends ManuallyScheduledComTaskExecutionImpl.ManuallyScheduledComTaskExecutionBuilderImpl {
 
         private ManuallyScheduledComTaskExecutionBuilderForDevice(Provider<ManuallyScheduledComTaskExecutionImpl> comTaskExecutionProvider, ComTaskEnablement comTaskEnablement, TemporalExpression temporalExpression) {
