@@ -71,7 +71,6 @@ Ext.define('Mdc.view.setup.devicegeneralattributes.Edit', {
         me.side = [
             {
                 xtype: 'panel',
-                title: Uni.I18n.translate('general.devices', 'MDC', 'Devices'),
                 ui: 'medium',
                 items: [
                     {
