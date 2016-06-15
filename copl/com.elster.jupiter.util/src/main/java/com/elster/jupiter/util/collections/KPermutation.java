@@ -94,7 +94,7 @@ public final class KPermutation {
         return new KPermutation(indices);
     }
 
-    public static KPermutation of(long[] source, long[] result) {
+    public static <T> KPermutation of(long[] source, long[] result) {
         Counter counter = Counters.newLenientCounter();
         int[] indices = Arrays.stream(result)
                 .mapToInt(value -> indexOf(source, value))
