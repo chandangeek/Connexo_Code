@@ -79,6 +79,7 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
     private Reference<Device> device = ValueReference.absent();
     private long deviceMessageId;
     private DeviceMessageStatus deviceMessageStatus;
+    private int oldDeviceMessageStatus;
     @IsRevokeAllowed(groups = {Save.Create.class, Save.Update.class})
     private RevokeChecker revokeChecker;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DEVICE_MESSAGE_RELEASE_DATE_IS_REQUIRED + "}")
@@ -167,6 +168,10 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
         return this.deviceMessageStatus == DeviceMessageStatus.WAITING && this.releaseDate != null && !this.releaseDate.isAfter(this.clock.instant());
     }
 
+    public int getOldDeviceMessageStatus() {
+        return oldDeviceMessageStatus;
+    }
+
     @Override
     public String getProtocolInfo() {
         return this.protocolInfo;
@@ -222,6 +227,7 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
     @Override
     public void revoke() {
         this.revokeChecker = new RevokeChecker(deviceMessageStatus);
+        this.oldDeviceMessageStatus = getStatus().dbValue();
         this.deviceMessageStatus = DeviceMessageStatus.REVOKED;
     }
 
@@ -236,6 +242,7 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
         if (!getStatus().isPredecessorOf(status)) {
             throw new InvalidDeviceMessageStatusMove(this.deviceMessageStatus, status, getThesaurus(), MessageSeeds.DEVICE_MESSAGE_STATUS_INVALID_MOVE);
         }
+        this.oldDeviceMessageStatus = getStatus().dbValue();
         this.deviceMessageStatus = status;
     }
 

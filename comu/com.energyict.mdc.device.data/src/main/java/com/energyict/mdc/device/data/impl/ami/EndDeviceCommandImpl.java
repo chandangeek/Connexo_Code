@@ -3,104 +3,46 @@ package com.energyict.mdc.device.data.impl.ami;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceControlType;
 import com.elster.jupiter.metering.ami.EndDeviceCommand;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.common.rest.FieldValidationException;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.exceptions.NoSuchElementException;
+import com.energyict.mdc.protocol.api.TrackingCategory;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
-
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-@Component(name = "com.energyict.mdc.device.data.impl.ami.EndDeviceCommand",
-        service = {EndDeviceCommand.class},
-        property = "name=EndDeviceCommand", immediate = true)
 public class EndDeviceCommandImpl implements EndDeviceCommand {
-    private volatile String commandName;
-    private volatile EndDeviceControlType endDeviceControlType;
-    private volatile EndDevice endDevice;
-    private volatile List<DeviceMessageId> deviceMessageIds;
-    private volatile PropertySpecService propertySpecService;
-    private volatile List<PropertySpec> commandArgumentSpecs = new ArrayList<>();
-    private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
 
+    private final EndDevice endDevice;
+    private final EndDeviceControlType endDeviceControlType;
+    private final List<DeviceMessageId> possibleDeviceMessageIds;
+    private final DeviceMessageSpecificationService deviceMessageSpecificationService;
+    private final DeviceService deviceService;
+    private final Thesaurus thesaurus;
 
-    protected enum EndDeviceCommandType {
-        ARM("arm"),
-        CONNECT("connect"),
-        DISCONNECT("disconnect"),
-        ENABLE_LOAD_LIMIT("enableLoadLimit"),
-        DISABLE_LOAD_LIMIT("disableLoadLimit");
+    private List<PropertySpec> commandArgumentSpecs = null;
+    private Map<PropertySpec, Object> propertyValueMap = new HashMap<>();
 
-        private final String typeName;
-
-
-        EndDeviceCommandType(String typeName) {
-            this.typeName = typeName;
-        }
-
-        public String getName() {
-            return typeName;
-        }
-
-    }
-
-    //For OSGI purposes
-    public EndDeviceCommandImpl() {
-    }
-
-    public EndDeviceCommandImpl(String commandName, EndDevice endDevice, EndDeviceControlType endDeviceControlType, List<DeviceMessageId> deviceMessageIds, PropertySpecService propertySpecService, DeviceMessageSpecificationService deviceMessageSpecificationService) {
-        this.commandName = commandName;
-        this.endDeviceControlType = endDeviceControlType;
+    public EndDeviceCommandImpl(EndDevice endDevice, EndDeviceControlType endDeviceControlType, List<DeviceMessageId> possibleDeviceMessageIds, DeviceService deviceService, DeviceMessageSpecificationService deviceMessageSpecificationService, Thesaurus thesaurus) {
         this.endDevice = endDevice;
-        this.deviceMessageIds = deviceMessageIds;
-        this.propertySpecService = propertySpecService;
+        this.endDeviceControlType = endDeviceControlType;
+        this.possibleDeviceMessageIds = possibleDeviceMessageIds;
+        this.deviceService = deviceService;
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
-    }
-
-    EndDeviceCommandImpl init() {
-        initCommandArgumentSpecs();
-        return this;
-    }
-
-
-    @Reference
-    public void setDeviceMessageSpecificationService(DeviceMessageSpecificationService deviceMessageSpecificationService) {
-        this.deviceMessageSpecificationService = deviceMessageSpecificationService;
-    }
-
-    @Reference
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
-    }
-
-
-
-
-    @Activate
-    public void activate() {
-        System.out.println("Activating EndDevice Command");
-    }
-
-    @Deactivate
-    public void deactivate() {
-    }
-
-
-    @Override
-    public EndDeviceControlType getEndDeviceControlType() {
-        return endDeviceControlType;
-    }
-
-    @Override
-    public List<PropertySpec> getCommandArgumentSpecs() {
-        return commandArgumentSpecs;
+        this.thesaurus = thesaurus;
     }
 
     @Override
@@ -109,49 +51,119 @@ public class EndDeviceCommandImpl implements EndDeviceCommand {
     }
 
     @Override
+    public EndDeviceControlType getEndDeviceControlType() {
+        return endDeviceControlType;
+    }
+
+    @Override
+    public List<PropertySpec> getCommandArgumentSpecs() {
+        if (this.commandArgumentSpecs == null) {
+            Map<String, PropertySpec> uniquePropertySpecs = new HashMap<>();
+            getDeviceMessageSpecs().stream().forEach(messageSpec -> messageSpec.getPropertySpecs().stream().forEach(spec -> uniquePropertySpecs.put(spec.getName(), spec)));
+            this.commandArgumentSpecs = new ArrayList<>(uniquePropertySpecs.values());
+        }
+        return this.commandArgumentSpecs;
+    }
+
+    private List<DeviceMessageSpec> getDeviceMessageSpecs() {
+        List<DeviceMessageSpec> deviceMessageSpecs = new ArrayList<>();
+        possibleDeviceMessageIds.stream().forEach(msgId -> this.deviceMessageSpecificationService.findMessageSpecById(msgId.dbValue()).ifPresent(deviceMessageSpecs::add));
+        return deviceMessageSpecs;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
     public void setPropertyValue(PropertySpec propertySpec, Object value) {
         List<PropertySpec> argumentSpecs = getCommandArgumentSpecs();
 
         if (!argumentSpecs.contains(propertySpec)) {
             throw new FieldValidationException("Property spec not found", propertySpec.getName());
-        } else {
-            if (!propertySpec.getValueFactory().getValueType().isAssignableFrom(value.getClass())) {
-                throw new FieldValidationException("Incorrect type", propertySpec.getName());
-            }
-            PropertySpec newPropertySpec = propertySpecService.
-                    specForValuesOf(propertySpec.getValueFactory())
-                    .named(propertySpec.getName(), propertySpec.getDisplayName())
-                    .describedAs(propertySpec.getDescription())
-                    .setDefaultValue(value)
-                    .finish();
-            argumentSpecs.set(argumentSpecs.indexOf(propertySpec), newPropertySpec);
-
-
-
+        } else if (!propertySpec.getValueFactory().getValueType().isAssignableFrom(value.getClass())) {
+            throw new FieldValidationException("Incorrect type", propertySpec.getName());
         }
+        getPropertyValueMap().put(propertySpec, value);
     }
 
-    @Override
-    public List<Long> getDeviceMessageIds() {
-        List<Long> longDeviceMessageIds = new ArrayList<>();
-        deviceMessageIds.stream().forEach(id -> longDeviceMessageIds.add(id.dbValue()));
-        return longDeviceMessageIds;
+    public List<DeviceMessage<Device>> createCorrespondingMultiSenseDeviceMessages(ServiceCall serviceCall, Instant releaseDate) {
+        List<DeviceMessageId> actualDeviceMessageIds = new ArrayList<>();
+        boolean useReleaseDate = false;
+        switch (EndDeviceControlTypeMapping.getMappingFor(getEndDeviceControlType())) {
+            case ARM_REMOTE_SWITCH_FOR_CLOSURE:
+            case ARM_REMOTE_SWITCH_FOR_OPEN:
+                if (hasCommandArgumentValueFor(DeviceMessageConstants.contactorActivationDateAttributeName) && deviceHasSupportFor(DeviceMessageId.CONTACTOR_OPEN_WITH_ACTIVATION_DATE)) {
+                    actualDeviceMessageIds.addAll(Arrays.asList(DeviceMessageId.CONTACTOR_OPEN_WITH_ACTIVATION_DATE, DeviceMessageId.CONTACTOR_ARM_WITH_ACTIVATION_DATE));
+                } else {
+                    actualDeviceMessageIds.addAll(Arrays.asList(DeviceMessageId.CONTACTOR_OPEN, DeviceMessageId.CONTACTOR_ARM));
+                    useReleaseDate = true;
+                }
+                break;
+            case CLOSE_REMOTE_SWITCH:
+                if (hasCommandArgumentValueFor(DeviceMessageConstants.contactorActivationDateAttributeName) && deviceHasSupportFor(DeviceMessageId.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE)) {
+                    actualDeviceMessageIds.add(DeviceMessageId.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE);
+                } else {
+                    actualDeviceMessageIds.add(DeviceMessageId.CONTACTOR_CLOSE);
+                    useReleaseDate = true;
+                }
+                break;
+            case OPEN_REMOTE_SWITCH:
+                if (hasCommandArgumentValueFor(DeviceMessageConstants.contactorActivationDateAttributeName) && deviceHasSupportFor(DeviceMessageId.CONTACTOR_OPEN_WITH_ACTIVATION_DATE)) {
+                    actualDeviceMessageIds.add(DeviceMessageId.CONTACTOR_OPEN_WITH_ACTIVATION_DATE);
+                } else {
+                    actualDeviceMessageIds.add(DeviceMessageId.CONTACTOR_OPEN);
+                    useReleaseDate = true;
+                }
+                break;
+            case LOAD_CONTROL_INITITATE:
+                actualDeviceMessageIds.add(
+                        hasCommandArgumentValueFor(DeviceMessageConstants.overThresholdDurationAttributeName)
+                                ? DeviceMessageId.LOAD_BALANCING_CONFIGURE_LOAD_LIMIT_THRESHOLD_AND_DURATION
+                                : DeviceMessageId.LOAD_BALANCING_SET_LOAD_LIMIT_THRESHOLD);
+                break;
+            default:
+                actualDeviceMessageIds.addAll(getPossibleDeviceMessageIds()); // Default case, all possible DeviceMessageIds should be used 1-on-1
+                break;
+        }
+
+        return doCreateCorrespondingMultiSenseDeviceMessages(serviceCall, useReleaseDate ? releaseDate : Instant.now(), actualDeviceMessageIds);
     }
 
-    private List<DeviceMessageSpec> getDeviceMessageSpecs() {
-        List<DeviceMessageSpec> deviceMessageSpecs = new ArrayList<>();
-        deviceMessageIds.stream()
-                .forEach(msgId -> this.deviceMessageSpecificationService.findMessageSpecById(msgId
-                        .dbValue()).ifPresent(foundMsgSpec -> deviceMessageSpecs.add(foundMsgSpec)));
-        return deviceMessageSpecs;
+    private boolean hasCommandArgumentValueFor(String commandArgumentName) {
+        return getPropertyValueMap().keySet().stream().anyMatch(propertySpec -> propertySpec.getName().equals(commandArgumentName));
     }
 
-    public String getName() {
-        return commandName;
+    private boolean deviceHasSupportFor(DeviceMessageId deviceMessageId) {
+        return findDeviceForEndDevice(endDevice).getDeviceProtocolPluggableClass().getDeviceProtocol().getSupportedMessages().contains(deviceMessageId);
     }
 
-    private void initCommandArgumentSpecs() {
-        getDeviceMessageSpecs().stream()
-                .forEach(messageSpec -> commandArgumentSpecs.addAll(messageSpec.getPropertySpecs()));
+    private List<DeviceMessage<Device>> doCreateCorrespondingMultiSenseDeviceMessages(ServiceCall serviceCall, Instant releaseDate, List<DeviceMessageId> deviceMessageIds) {
+        Device multiSenseDevice = findDeviceForEndDevice(getEndDevice());
+        List<DeviceMessage<Device>> deviceMessages = new ArrayList<>(deviceMessageIds.size());
+        deviceMessageIds.stream().forEach(deviceMessageId -> {
+            Device.DeviceMessageBuilder deviceMessageBuilder = multiSenseDevice.newDeviceMessage(deviceMessageId, TrackingCategory.serviceCall)
+                    .setTrackingId(Long.toString(serviceCall.getId()))
+                    .setReleaseDate(releaseDate);
+            for (PropertySpec propertySpec : findDeviceMessageSpec(deviceMessageId).getPropertySpecs()) {
+                deviceMessageBuilder.addProperty(propertySpec.getName(), getPropertyValueMap().get(propertySpec));
+            }
+            deviceMessages.add(deviceMessageBuilder.add());
+        });
+        return deviceMessages;
+    }
+
+    protected Map<PropertySpec, Object> getPropertyValueMap() {
+        return propertyValueMap;
+    }
+
+    private List<DeviceMessageId> getPossibleDeviceMessageIds() {
+        return possibleDeviceMessageIds;
+    }
+
+    private Device findDeviceForEndDevice(EndDevice endDevice) {
+        return deviceService.findByUniqueMrid(endDevice.getMRID()).orElseThrow(NoSuchElementException.deviceWithMRIDNotFound(thesaurus, endDevice.getMRID()));
+    }
+
+    private DeviceMessageSpec findDeviceMessageSpec(DeviceMessageId deviceMessageId) {
+        return this.deviceMessageSpecificationService.findMessageSpecById(deviceMessageId.dbValue())
+                .orElseThrow(NoSuchElementException.deviceMessageSpecWithIdNotFound(thesaurus, deviceMessageId.dbValue()));
     }
 }

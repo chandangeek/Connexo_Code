@@ -140,7 +140,10 @@ public enum MessageSeeds implements MessageSeed {
     UNKNOWN_READING_TYPE(2114, Keys.UNKNOWN_READING_TYPE, "The requested load limit reading type is not supported at this time"),
     NO_COMTASK_FOR_STATUS_INFORMATION(2115, Keys.NO_COMTASK_FOR_STATUS_INFORMATION, "A comtask to verify the status information could not be located"),
     UNSPPORTED_COMMAND(2116, Keys.UNSPPORTED_COMMAND, "Unsupported Command {0} for device {1}"),
-    NO_DESTINATION_SPEC(2117, Keys.NO_DESTINATION_SPEC, "No such Destination Spec")
+    NO_DESTINATION_SPEC(2117, Keys.NO_DESTINATION_SPEC, "No such Destination Spec"),
+    NO_SUCH_END_DEVICE_CONTROL_TYPE(2118, "NoSuchEndDeviceControlType", "No end device control type with MRID {0}"),
+    NO_SUCH_DEVICE_MESSAGE_SPEC(2119, "NoSuchDeviceMessageSpec", "No such device message spec: {0}"),
+    NO_ACTIVE_BREAKER_STATUS(2120, "NoActiveBreakerStatus", "No active breaker status found for device with MRID {0}"),
     ;
 
     private final int number;

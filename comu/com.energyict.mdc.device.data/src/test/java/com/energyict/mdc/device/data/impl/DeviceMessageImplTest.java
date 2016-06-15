@@ -60,6 +60,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static junit.framework.TestCase.assertEquals;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -623,6 +624,19 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         Device device = createSimpleDeviceWithName("userDoesNotHaveTheCorrectPrivilegeTest", "userDoesNotHaveTheCorrectPrivilegeTest");
         DeviceMessageId contactorClose = DeviceMessageId.CONTACTOR_CLOSE;
         device.newDeviceMessage(contactorClose).setReleaseDate(myReleaseInstant).add();
+    }
+
+
+    @Test
+    @Transactional
+    public void oldDeviceMessageStatusFilledInWhenMovingToTest() {
+        Device device = createSimpleDeviceWithName("updateReleaseDateWithStatusConfirmedTest", "updateReleaseDateWithStatusConfirmedTest");
+        DeviceMessageId contactorClose = DeviceMessageId.CONTACTOR_CLOSE;
+        DeviceMessage<Device> deviceMessage = device.newDeviceMessage(contactorClose).setReleaseDate(initializeClockWithCurrentAfterReleaseInstant()).add();
+        ((ServerDeviceMessage) deviceMessage).moveTo(DeviceMessageStatus.CONFIRMED);
+        deviceMessage.save();
+
+        assertEquals(DeviceMessageStatus.PENDING.ordinal(), ((DeviceMessageImpl) deviceMessage).getOldDeviceMessageStatus());
     }
 
     private void createAndSetPrincipleForUserWithLimitedPrivileges() {
