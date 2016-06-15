@@ -1,4 +1,4 @@
-Ext.define('Mdc.fileManagement.view.EditSpecificationsSetup', {
+Ext.define('Mdc.filemanagement.view.EditSpecificationsSetup', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.files-devicetype-edit-specs-setup',
     overflowY: true,
