@@ -1,6 +1,9 @@
 package com.energyict.mdc.multisense.api.impl;
 
-import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.elster.jupiter.rest.util.hypermedia.LinkInfo;
+import com.elster.jupiter.rest.util.hypermedia.PropertyCopier;
+import com.elster.jupiter.rest.util.hypermedia.Relation;
+import com.elster.jupiter.rest.util.hypermedia.SelectableFieldFactory;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.Device;
@@ -9,8 +12,6 @@ import com.energyict.mdc.device.lifecycle.ExecutableAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.TopologyTimeline;
-import com.energyict.mdc.multisense.api.impl.utils.PropertyCopier;
-import com.energyict.mdc.multisense.api.impl.utils.SelectableFieldFactory;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.Link;
