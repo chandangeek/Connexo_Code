@@ -22,6 +22,7 @@ import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.collections.ObserverContainer;
 import com.elster.jupiter.util.collections.Subscription;
 import com.elster.jupiter.util.collections.ThreadSafeObserverContainer;
+
 import com.google.common.collect.Maps;
 import com.google.common.collect.Range;
 
@@ -188,9 +189,7 @@ class ReadingStorerImpl implements ReadingStorer {
 
         IntStream.range(offset, values.length)
                 .filter(i -> valuesToAdd[i] != null)
-                .forEach(i -> {
-                    values[i] = valuesToAdd[i];
-                });
+                .forEach(i -> values[i] = valuesToAdd[i]);
 
         ProcessStatus processStatus;
         if (values[0] != null && !Objects.equals(storer.doNotUpdateMarker(), values[0])) {
@@ -208,6 +207,7 @@ class ReadingStorerImpl implements ReadingStorer {
             }
         }
         addScope(channel, reading.getTimeStamp());
+        readings.put(key, reading);
     }
 
     @Override
@@ -523,16 +523,14 @@ class ReadingStorerImpl implements ReadingStorer {
                         Object[] currentReading = previousReadings.get(entry.getKey());
                         int bulkIndex = slotOffset + derivation.index + 1;
                         getValue(previousReading, null, bulkIndex)
-                                .ifPresent(previous -> {
-                                    getValue(consolidatedEntry, currentReading, bulkIndex)
-                                            .ifPresent(current -> {
-                                                IReadingType bulkReadingType = channel.getReadingTypes().get(derivation.index + 1);
-                                                Instant instant = entry.getKey().getLast();
-                                                Function<BigDecimal, BigDecimal> overflowCorrection = getOverflowCorrection(channel, bulkReadingType, instant, previous, current);
+                                .ifPresent(previous -> getValue(consolidatedEntry, currentReading, bulkIndex)
+                                        .ifPresent(current -> {
+                                            IReadingType bulkReadingType = channel.getReadingTypes().get(derivation.index + 1);
+                                            Instant instant = entry.getKey().getLast();
+                                            Function<BigDecimal, BigDecimal> overflowCorrection = getOverflowCorrection(channel, bulkReadingType, instant, previous, current);
 
-                                                consolidatedEntry[slotOffset + derivation.index] = overflowCorrection.apply(delta(previous, current));
-                                            });
-                                });
+                                            consolidatedEntry[slotOffset + derivation.index] = overflowCorrection.apply(delta(previous, current));
+                                        }));
                     }
                 });
     }
