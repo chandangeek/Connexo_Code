@@ -129,6 +129,7 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
                 break;
             case 'sendcalendar':
                 me.goToSendCalendarForm(menu.device.get('mRID'));
+                break;
             case 'verifycalendars':
                 me.verifyCalendars(menu.device.get('mRID'));
                 break;
