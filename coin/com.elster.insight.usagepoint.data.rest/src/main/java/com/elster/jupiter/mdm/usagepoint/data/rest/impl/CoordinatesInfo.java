@@ -1,7 +1,6 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
 
 import java.util.Optional;
