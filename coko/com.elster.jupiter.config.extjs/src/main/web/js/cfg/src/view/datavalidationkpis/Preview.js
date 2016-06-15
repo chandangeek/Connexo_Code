@@ -1,4 +1,4 @@
-Ext.define('Cfg.view.sep.datavalidationkpis.Preview', {
+Ext.define('Cfg.view.datavalidationkpis.Preview', {
     extend: 'Ext.panel.Panel',
     frame: true,
     alias: 'widget.cfg-data-validation-kpis-preview',
