@@ -30,4 +30,8 @@
 .#{$prefix}form-display-field{
   height: auto;
   min-height: $form-field-height;
+
+  .application {
+    color: $color-grey-2;
+  }
 }

@@ -3028,6 +3028,10 @@ div.x-form-spinner-down {
   min-height: 28px;
 }
 
+.x-form-display-field .application{
+  color: #A0A0A0;
+}
+
 /* line 4, ../../sass/src/window/MessageBox.scss */
 .x-message-box .x-window-body .x-header .x-header-text {
   font-weight: bold;
