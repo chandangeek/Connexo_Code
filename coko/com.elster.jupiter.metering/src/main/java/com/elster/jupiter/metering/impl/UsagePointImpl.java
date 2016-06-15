@@ -47,6 +47,7 @@ import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.time.Interval;
 
 import com.google.common.collect.ImmutableList;
@@ -694,6 +695,7 @@ public class UsagePointImpl implements UsagePoint {
     public void adopt(MeterActivationImpl meterActivation) {
         meterActivations.stream()
                 .filter(activation -> activation.getId() != meterActivation.getId())
+                .filter(activation -> this.sameMeterRole(activation, meterActivation))
                 .reduce((m1, m2) -> m2)
                 .ifPresent(last -> {
                     if (last.getRange().lowerEndpoint().isAfter(meterActivation.getRange().lowerEndpoint())) {
@@ -714,6 +716,20 @@ public class UsagePointImpl implements UsagePoint {
             ((MeterImpl) existing).adopt(meterActivation);
         }
         meterActivations.add(meterActivation);
+    }
+
+    private boolean sameMeterRole(MeterActivation ma1, MeterActivation ma2) {
+        return this.sameMeterRole(ma1.getMeterRole(), ma2.getMeterRole());
+    }
+
+    private boolean sameMeterRole(Optional<MeterRole> r1, Optional<MeterRole> r2) {
+        if (r1.isPresent() && r2.isPresent()) {
+            return Checks.is(r1.get()).equalTo(r2.get());
+        } else if (!r1.isPresent() && !r2.isPresent()) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public void refreshMeterActivations() {
