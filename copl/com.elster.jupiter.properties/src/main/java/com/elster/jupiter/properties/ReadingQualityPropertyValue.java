@@ -66,6 +66,11 @@ public class ReadingQualityPropertyValue extends HasIdAndName {
         return test.matches(regex);
     }
 
+    @Override
+    public String toString() {
+        return getCimCode();
+    }
+
     /**
      * Escape the normal dot in the CIM code, so it is not interpreted as a regex character
      */
