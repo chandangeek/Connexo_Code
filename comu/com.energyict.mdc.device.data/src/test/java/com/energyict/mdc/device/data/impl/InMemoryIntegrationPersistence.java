@@ -22,6 +22,7 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -50,7 +51,6 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.Privilege;
-import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
@@ -314,9 +314,9 @@ public class InMemoryIntegrationPersistence {
     }
 
     private void initializePrivileges() {
-        ((PrivilegesProvider)deviceConfigurationService).getModuleResources().stream()
+        new com.energyict.mdc.device.config.impl.Installer(dataModel, eventService, userService).getModuleResources().stream()
                 .forEach(definition -> this.userService.saveResourceWithPrivileges(definition.getComponentName(), definition.getName(), definition.getDescription(), definition.getPrivilegeNames().stream().toArray(String[]::new)));
-        ((PrivilegesProvider)deviceDataModelService).getModuleResources().stream()
+        new Installer(dataModel, userService, eventService, injector.getInstance(MessageService.class)).getModuleResources().stream()
                 .forEach(definition -> this.userService.saveResourceWithPrivileges(definition.getComponentName(), definition.getName(), definition.getDescription(), definition.getPrivilegeNames().stream().toArray(String[]::new)));
     }
 
