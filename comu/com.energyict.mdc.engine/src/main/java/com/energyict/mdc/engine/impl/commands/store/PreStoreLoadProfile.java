@@ -22,8 +22,10 @@ import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
 
 /**
@@ -133,6 +135,11 @@ public class PreStoreLoadProfile {
             if (this.intervalBlocks == null){
                 this.intervalBlocks = new ArrayList<>();
             }
+            intervalBlock.getIntervals()
+                    .stream()
+                    .map(IntervalReading::getTimeStamp)
+                    .reduce(BinaryOperator.maxBy(Comparator.comparingLong(Instant::toEpochMilli)))
+                    .ifPresent((maxTimeStamp)-> this.lastReading = maxTimeStamp);
             return this.intervalBlocks.add(intervalBlock);
         }
 
@@ -142,25 +149,6 @@ public class PreStoreLoadProfile {
 
         public PreStoreResult getPreStoreResult() {
             return preStoreResult;
-        }
-
-
-        public PreStoredLoadProfile preprocess(CollectedLoadProfile collectedLoadProfile, Instant intervalStorageEnd) {
-            if (this.preStoreResult == preStoreResult.NOT_PROCESSED) {
-                List<IntervalBlock> processedBlocks = new ArrayList<>();
-                Instant lastReading = null;
-                preStoreResult = PreStoredLoadProfile.PreStoreResult.OK;
-
-                Range<Instant> range = getRangeForNewIntervalStorage(intervalStorageEnd);
-                for (Pair<IntervalBlock, ChannelInfo> intervalBlockChannelInfoPair : DualIterable.endWithLongest(MeterDataFactory.createIntervalBlocksFor(collectedLoadProfile), collectedLoadProfile.getChannelInfo())) {
-                    IntervalBlock intervalBlock = intervalBlockChannelInfoPair.getFirst();
-                    ChannelInfo channelInfo = intervalBlockChannelInfoPair.getLast();
-                    processedBlocks.add(processBlock(intervalBlock, channelInfo, range));
-                }
-                checkIfYouHaveAnEmptyChannel(processedBlocks);
-                this.lastReading = lastReading;
-            }
-            return this;
         }
 
         protected IntervalBlock processBlock(IntervalBlock intervalBlock, ChannelInfo channelInfo,  Range<Instant> rangeToProcess){
@@ -173,7 +161,6 @@ public class PreStoreLoadProfile {
                     IntervalReading scaledIntervalReading = getScaledIntervalReading(scaler, intervalReading);
                     IntervalReading multipliedReading = getMultipliedReading(multiplier, scaledIntervalReading);
                     processingBlock.addIntervalReading(multipliedReading);
-                    lastReading = updateLastReadingIfLater(lastReading, intervalReading);
                 }
             }
             return processingBlock;
@@ -215,12 +202,11 @@ public class PreStoreLoadProfile {
             }
         }
 
-        final protected Instant updateLastReadingIfLater(Instant lastReading, IntervalReading intervalReading) {
-            if (lastReading == null || intervalReading.getTimeStamp().isAfter(lastReading)) {
-                lastReading = intervalReading.getTimeStamp();
-            }
-            return lastReading;
-        }
+//        final protected void updateLastReadingIfLater(IntervalReading intervalReading) {
+//            if (this.lastReading == null || intervalReading.getTimeStamp().isAfter(this.lastReading)) {
+//                this.lastReading = intervalReading.getTimeStamp();
+//            }
+//        }
 
         final protected void checkIfYouHaveAnEmptyChannel(List<IntervalBlock> processedBlocks) {
             final Optional<IntervalBlock> blockWithNoIntervals = processedBlocks.stream().filter(intervalBlock -> intervalBlock.getIntervals().isEmpty()).findAny();
@@ -252,7 +238,7 @@ public class PreStoreLoadProfile {
                         PreStoredLoadProfile preStoredLoadProfile = findOrCreatePreStoredLoadProfile(pair.getFirst());
                         if (preStoredLoadProfile.addIntervalBlock(processed)){
                             preStoredLoadProfile.setPreStoreResult(PreStoreResult.OK);
-                        };
+                        }
                     }
                 });
             }

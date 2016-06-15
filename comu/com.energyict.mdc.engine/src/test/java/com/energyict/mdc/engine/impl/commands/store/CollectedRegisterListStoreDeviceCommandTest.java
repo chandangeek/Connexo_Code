@@ -42,6 +42,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doCallRealMethod;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -91,9 +92,10 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
         CollectedRegisterListDeviceCommand collectedRegisterListDeviceCommand = new CollectedRegisterListDeviceCommand(collectedRegisterList, null, meterDataStoreCommand, serviceProvider);
 
         OfflineRegister offlineRegister = mock(OfflineRegister.class);
+        when(offlineRegister.getDeviceIdentifier()).thenReturn(deviceIdentifier);
         when(offlineRegister.getOverFlowValue()).thenReturn(new BigDecimal(Double.MAX_VALUE));
         ComServerDAOImpl comServerDAO = mockComServerDAOButCallRealMethodForMeterReadingStoring();
-        when(comServerDAO.findOfflineRegister(registerIdentifier, any(Instant.class))).thenReturn(Optional.of(offlineRegister));
+        doReturn(Optional.of(offlineRegister)).when(comServerDAO).findOfflineRegister(registerIdentifier, registerEventTime1);
 
         // Business method
         collectedRegisterListDeviceCommand.execute(comServerDAO);

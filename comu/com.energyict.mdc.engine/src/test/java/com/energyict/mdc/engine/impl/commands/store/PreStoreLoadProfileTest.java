@@ -258,6 +258,9 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
         when(deviceIdentifier.getDeviceIdentifierType()).thenReturn(DeviceIdentifierType.ActualDevice);
         when(deviceIdentifier.getIdentifier()).thenReturn(String.valueOf(device.getId()));
         when(this.identificationService.createDeviceIdentifierForAlreadyKnownDevice(device)).thenReturn(deviceIdentifier);
+        LoadProfileIdentifier loadProfileIdentifier = mock(LoadProfileIdentifier.class);
+        when(loadProfileIdentifier.findLoadProfile()).thenReturn(device.getLoadProfiles().get(0));
+        when(this.identificationService.createLoadProfileIdentifierForAlreadyKnownLoadProfile(device.getLoadProfiles().get(0))).thenReturn(loadProfileIdentifier);
         return new OfflineLoadProfileImpl(device.getLoadProfiles().get(0), getTopologyService(), this.identificationService);
     }
 

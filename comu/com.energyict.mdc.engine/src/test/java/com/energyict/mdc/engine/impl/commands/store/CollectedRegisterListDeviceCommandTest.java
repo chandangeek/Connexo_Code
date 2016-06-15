@@ -18,6 +18,7 @@ import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceImpl;
 import com.energyict.mdc.protocol.api.device.DeviceFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
@@ -85,6 +86,9 @@ public class CollectedRegisterListDeviceCommandTest {
         when(offlineRegister.getRegisterId()).thenReturn(REGISTER_ID);
         when(offlineRegister.getObisCode()).thenReturn(REGISTER_OBIS);
         when(offlineRegister.getOverFlowValue()).thenReturn(new BigDecimal(DeviceCreator.CHANNEL_OVERFLOW_VALUE));
+        DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
+        when(deviceIdentifier.findDevice()).thenReturn(device);
+        when(offlineRegister.getDeviceIdentifier()).thenReturn(deviceIdentifier);
 
         when(this.collectedRegister.getCollectedQuantity()).thenReturn(new Quantity("2", Unit.getUndefined()));
         when(this.collectedRegister.getEventTime()).thenReturn(Instant.ofEpochMilli(1358757000000L)); // 21 januari 2013 9:30:00
@@ -101,7 +105,7 @@ public class CollectedRegisterListDeviceCommandTest {
         when(this.meteringService.getReadingType(Matchers.<String>any())).thenReturn(Optional.empty());
         when(serviceProvider.mdcReadingTypeUtilService()).thenReturn(new MdcReadingTypeUtilServiceImpl(this.meteringService));
         when(serviceProvider.clock()).thenReturn(Clock.systemDefaultZone());
-    }
+   }
 
     @Test
     public void testExecutionOfDeviceCommand() {
