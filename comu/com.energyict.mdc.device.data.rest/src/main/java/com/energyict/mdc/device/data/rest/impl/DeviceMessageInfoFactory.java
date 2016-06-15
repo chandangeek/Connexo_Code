@@ -2,7 +2,6 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -10,7 +9,7 @@ import com.elster.jupiter.servicecall.ServiceCallService;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceHelper;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.rest.DeviceMessageStatusTranslationKeys;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
@@ -24,7 +23,6 @@ import com.energyict.mdc.tasks.MessagesTask;
 import javax.inject.Inject;
 import javax.ws.rs.core.UriInfo;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.Optional;
@@ -40,14 +38,14 @@ public class DeviceMessageInfoFactory {
     private final Thesaurus thesaurus;
     private final MdcPropertyUtils mdcPropertyUtils;
     private final ServiceCallService serviceCallService;
-    private final DeviceHelper deviceHelper;
+    private final DeviceMessageService deviceMessageService;
 
     @Inject
-    public DeviceMessageInfoFactory(Thesaurus thesaurus, MdcPropertyUtils mdcPropertyUtils, ServiceCallService serviceCallService, DeviceHelper deviceHelper) {
+    public DeviceMessageInfoFactory(Thesaurus thesaurus, MdcPropertyUtils mdcPropertyUtils, ServiceCallService serviceCallService, DeviceMessageService deviceMessageService) {
         this.thesaurus = thesaurus;
         this.mdcPropertyUtils = mdcPropertyUtils;
         this.serviceCallService = serviceCallService;
-        this.deviceHelper = deviceHelper;
+        this.deviceMessageService = deviceMessageService;
     }
 
     public DeviceMessageInfo asInfo(DeviceMessage<?> deviceMessage, UriInfo uriInfo) {
@@ -76,11 +74,11 @@ public class DeviceMessageInfoFactory {
 
         Device device = (Device) deviceMessage.getDevice();
         if (EnumSet.of(DeviceMessageStatus.PENDING, DeviceMessageStatus.WAITING).contains(deviceMessage.getStatus())) {
-            info.willBePickedUpByPlannedComTask = deviceHelper.willDeviceMessageBePickedUpByPlannedComTask(device, deviceMessage);
+            info.willBePickedUpByPlannedComTask = this.deviceMessageService.willDeviceMessageBePickedUpByPlannedComTask(device, deviceMessage);
             if (info.willBePickedUpByPlannedComTask) {
                 info.willBePickedUpByComTask = true; // shortcut
             } else {
-                info.willBePickedUpByComTask = deviceHelper.willDeviceMessageBePickedUpByComTask(device, deviceMessage);
+                info.willBePickedUpByComTask = this.deviceMessageService.willDeviceMessageBePickedUpByComTask(device, deviceMessage);
             }
         }
 

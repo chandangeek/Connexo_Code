@@ -23,7 +23,6 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.common.services.ListPager;
@@ -34,7 +33,7 @@ import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.config.TimeOfUseOptions;
 import com.energyict.mdc.device.data.ActiveEffectiveCalendar;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceHelper;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.DevicesForConfigChangeSearch;
 import com.energyict.mdc.device.data.exceptions.CannotChangeDeviceConfigStillUnresolvedConflicts;
@@ -47,15 +46,10 @@ import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.TopologyTimeline;
 import com.energyict.mdc.protocol.api.calendars.ProtocolSupportedCalendarOptions;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageCategories;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-import com.energyict.mdc.protocol.api.messaging.Message;
-import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.tasks.MessagesTask;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -147,7 +141,7 @@ public class DeviceResource {
     private final CalendarInfoFactory calendarInfoFactory;
     private final TimeOfUseInfoFactory timeOfUseInfoFactory;
     private final CalendarService calendarService;
-    private final DeviceHelper deviceHelper;
+    private final DeviceMessageService deviceMessageService;
 
     @Inject
     public DeviceResource(
@@ -188,7 +182,7 @@ public class DeviceResource {
             CalendarInfoFactory calendarInfoFactory,
             TimeOfUseInfoFactory timeOfUseInfoFactory,
             CalendarService calendarService,
-            DeviceHelper deviceHelper) {
+            DeviceMessageService deviceMessageService) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.deviceService = deviceService;
@@ -226,7 +220,7 @@ public class DeviceResource {
         this.calendarInfoFactory = calendarInfoFactory;
         this.timeOfUseInfoFactory = timeOfUseInfoFactory;
         this.calendarService = calendarService;
-        this.deviceHelper = deviceHelper;
+        this.deviceMessageService = deviceMessageService;
     }
 
     @GET
@@ -325,7 +319,7 @@ public class DeviceResource {
         return Response.ok().entity(deviceInfoFactory.from(device, getSlaveDevicesForDevice(device))).build();
     }
 
-    public Device updateDeviceConfig(Device device, long deviceVersion, DeviceConfiguration destinationConfiguration, long deviceConfigurationVersion) {
+    private Device updateDeviceConfig(Device device, long deviceVersion, DeviceConfiguration destinationConfiguration, long deviceConfigurationVersion) {
         return deviceService.changeDeviceConfigurationForSingleDevice(device.getId(), deviceVersion, destinationConfiguration
                 .getId(), deviceConfigurationVersion);
     }
@@ -416,12 +410,11 @@ public class DeviceResource {
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
     public CustomPropertySetInfo getDeviceCustomProperty(@PathParam("mRID") String mRID, @PathParam("cpsId") long cpsId) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
-        CustomPropertySetInfo customPropertySetInfo = resourceHelper.getDeviceCustomPropertySetInfos(device)
+        return resourceHelper.getDeviceCustomPropertySetInfos(device)
                 .stream()
                 .filter(f -> f.id == cpsId)
                 .findFirst()
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET, cpsId));
-        return customPropertySetInfo;
     }
 
     @GET
@@ -442,12 +435,11 @@ public class DeviceResource {
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
     public CustomPropertySetInfo getDeviceCustomPropertyVersionedHistory(@PathParam("mRID") String mRID, @PathParam("cpsId") long cpsId, @PathParam("timeStamp") Long timeStamp) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
-        CustomPropertySetInfo customPropertySetInfo = resourceHelper.getDeviceCustomPropertySetInfos(device, Instant.ofEpochMilli(timeStamp))
+        return resourceHelper.getDeviceCustomPropertySetInfos(device, Instant.ofEpochMilli(timeStamp))
                 .stream()
                 .filter(f -> f.id == cpsId)
                 .findFirst()
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET, cpsId));
-        return customPropertySetInfo;
     }
 
     @GET

@@ -40,7 +40,6 @@ import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
 import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
-import com.energyict.mdc.device.data.DeviceHelper;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfileService;
@@ -65,7 +64,6 @@ import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageSpecificationServiceImpl;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
@@ -135,7 +133,6 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     private volatile CalendarInfoFactory calendarInfoFactory;
     private volatile CalendarService calendarService;
     private volatile ThreadPrincipalService threadPrincipalService;
-    private volatile DeviceHelper deviceHelper;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -288,11 +285,6 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     @Reference
     public void setCalendarService(CalendarService calendarService) {
         this.calendarService = calendarService;
-    }
-
-    @Reference
-    public void setDeviceHelper(DeviceHelper deviceHelper) {
-        this.deviceHelper = deviceHelper;
     }
 
     @Override
@@ -538,7 +530,6 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(threadPrincipalService).to(ThreadPrincipalService.class);
             bind(calendarInfoFactory).to(CalendarInfoFactory.class);
             bind(calendarService).to(CalendarService.class);
-            bind(deviceHelper).to(DeviceHelper.class);
             bind(TimeOfUseInfoFactory.class).to(TimeOfUseInfoFactory.class);
         }
     }

@@ -2,15 +2,13 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.calendar.rest.CalendarInfoFactory;
 import com.elster.jupiter.nls.Thesaurus;
-
 import com.energyict.mdc.device.data.ActiveEffectiveCalendar;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceHelper;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.PassiveEffectiveCalendar;
 import com.energyict.mdc.device.data.rest.DeviceMessageStatusTranslationKeys;
 
 import javax.inject.Inject;
-import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,13 +18,13 @@ import java.util.stream.Collectors;
 public class TimeOfUseInfoFactory {
     private Thesaurus thesaurus;
     private CalendarInfoFactory calendarInfoFactory;
-    private DeviceHelper deviceHelper;
+    private DeviceMessageService deviceMessageService;
 
     @Inject
-    public TimeOfUseInfoFactory(Thesaurus thesaurus, Clock clock, CalendarInfoFactory calendarInfoFactory, DeviceHelper deviceHelper) {
+    public TimeOfUseInfoFactory(Thesaurus thesaurus, CalendarInfoFactory calendarInfoFactory, DeviceMessageService deviceMessageService) {
         this.thesaurus = thesaurus;
         this.calendarInfoFactory = calendarInfoFactory;
-        this.deviceHelper = deviceHelper;
+        this.deviceMessageService = deviceMessageService;
     }
 
     public TimeOfUseInfo from(Optional<ActiveEffectiveCalendar> activeCalendar, List<PassiveEffectiveCalendar> passiveCalendars, Device device) {
@@ -43,7 +41,7 @@ public class TimeOfUseInfoFactory {
             }
         }
 
-        if(passiveCalendars.size() > 0) {
+        if (!passiveCalendars.isEmpty()) {
 
             info.passiveCalendars = new ArrayList<>();
             info.passiveCalendars = passiveCalendars.stream()
@@ -53,14 +51,14 @@ public class TimeOfUseInfoFactory {
 
             Optional<PassiveEffectiveCalendar> nextInLine = passiveCalendars.stream()
                     .filter(passiveCalendar -> passiveCalendar.getDeviceMessage().isPresent())
-                    .sorted((p1, p2) -> compareCreationDate(p1, p2))
+                    .sorted(this::compareCreationDate)
                     .findFirst();
 
             if(nextInLine.isPresent()) {
                 PassiveEffectiveCalendar next = nextInLine.get();
                 Instant activationDate = next.getActivationDate();
-                boolean willBePickedUpByPlannedComtask = deviceHelper.willDeviceMessageBePickedUpByPlannedComTask(device, next.getDeviceMessage().get());
-                boolean willBePickedUpByComtask = willBePickedUpByPlannedComtask || deviceHelper.willDeviceMessageBePickedUpByComTask(device, next.getDeviceMessage().get());
+                boolean willBePickedUpByPlannedComtask = deviceMessageService.willDeviceMessageBePickedUpByPlannedComTask(device, next.getDeviceMessage().get());
+                boolean willBePickedUpByComtask = willBePickedUpByPlannedComtask || deviceMessageService.willDeviceMessageBePickedUpByComTask(device, next.getDeviceMessage().get());
                 info.nextPassiveCalendar = new NextCalendarInfo(next.getAllowedCalendar().getName(), next.getDeviceMessage().get().getReleaseDate().toEpochMilli(),
                         (activationDate != null) ? activationDate.toEpochMilli() : 0, DeviceMessageStatusTranslationKeys.translationFor(next.getDeviceMessage().get().getStatus(), thesaurus),
                         willBePickedUpByPlannedComtask, willBePickedUpByComtask);
