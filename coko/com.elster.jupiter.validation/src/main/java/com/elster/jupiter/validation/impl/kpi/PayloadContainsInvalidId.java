@@ -19,7 +19,7 @@ public class PayloadContainsInvalidId implements DataManagementKpiCalculator{
 
     @Override
     public void calculateAndStore() {
-        this.logger.log(Level.SEVERE, "The data collection kpi identifier in the payload '" + this.payLoad + "' could not be parsed to long", this.exception);
+        this.logger.log(Level.SEVERE, "The data validation kpi identifier in the payload '" + this.payLoad + "' could not be parsed to long", this.exception);
     }
 
 }
