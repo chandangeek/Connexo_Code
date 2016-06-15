@@ -109,6 +109,9 @@ Ext.define('Wss.controller.Webservices', {
             case 'remove':
                 me.removeEndpoint(menu.record);
                 break;
+            case 'activate': {
+                me.activateOrDeactivate(menu.record);
+            }
         }
     },
 
@@ -119,7 +122,7 @@ Ext.define('Wss.controller.Webservices', {
 
         confirmationWindow.show(
             {
-                title: Uni.I18n.translate('general.removeX', 'CAL', "Remove '{0}'?", [record.get('name')]),
+                title: Uni.I18n.translate('general.removeX', 'WSS', "Remove '{0}'?", [record.get('name')]),
                 msg: Uni.I18n.translate('webservices.remove.msg', 'WSS', 'This webservice endpoint will be removed and no longer be available.'),
                 fn: function (state) {
                     if (state === 'confirm') {
@@ -133,4 +136,21 @@ Ext.define('Wss.controller.Webservices', {
                 }
             });
     },
+
+    activateOrDeactivate: function (record) {
+        var me = this,
+            toState = !record.get('active');
+        record.beginEdit();
+        record.set('active', toState);
+        record.endEdit();
+        record.save({
+                success: function (record) {
+                    me.getApplication().fireEvent('acknowledge', record.get('active') ?
+                        Uni.I18n.translate('general.xActivated', 'WSS', '{0} activated ', [record.get('name')])  :
+                        Uni.I18n.translate('general.xDeactivated', 'WSS', '{0} deactivated ', [record.get('name')])
+                    );
+                }
+            }
+        );
+    }
 });
