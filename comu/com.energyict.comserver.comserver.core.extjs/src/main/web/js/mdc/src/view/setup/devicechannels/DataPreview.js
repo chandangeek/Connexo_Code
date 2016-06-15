@@ -114,10 +114,14 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
     setValidationRules: function (field, value) {
         var str = '',
             prop,
+            me = this,
             failEqualDataValue,
             intervalFlagsValue = '';
 
         Ext.Array.each(value, function (rule) {
+            var application = rule.application
+                ? '<span class="application">'+ Uni.I18n.translate('general.application', 'MDC', '({0})', [rule.application.name]) + '</span>'
+                : '';
             if (!Ext.isEmpty(rule.properties)) {
                 switch (rule.implementation) {
                     case 'com.elster.jupiter.validators.impl.ThresholdValidator':
@@ -151,15 +155,23 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                 prop = '';
             }
             if (rule.deleted) {
-                str += '<span style="word-wrap: break-word; display: inline-block; width: 800px">' + rule.name + ' ' + Uni.I18n.translate('device.registerData.removedRule', 'MDC', '(removed rule)') + prop + '</span>' + '<br>';
+                str += '<span style="word-wrap: break-word; display: inline-block; width: 800px">' + rule.name + ' ' + Uni.I18n.translate('device.registerData.removedRule', 'MDC', '(removed rule)') + prop + '</span>' + '&nbsp;' + application  + '<br>';
             } else {
                 str = '<span style="word-wrap: break-word; display: inline-block; width: 800px">';
+
                 if (Cfg.privileges.Validation.canViewOrAdministrate()) {
-                    str += '<a href="#/administration/validation/rulesets/' + rule.ruleSetVersion.ruleSet.id + '/versions/' + rule.ruleSetVersion.id + '/rules/' + rule.id + '">' + rule.name + '</a>';
+                    var url = me.router.getRoute('administration/rulesets/overview/versions/overview/rules').buildUrl({ruleSetId: rule.ruleSetVersion.ruleSet.id, versionId: rule.ruleSetVersion.id, ruleId: rule.id}).slice(1),
+                        appUrl = rule.application ? Uni.store.Apps.getAppUrl(rule.application.name) : null;
+
+                    if (Ext.isObject(appUrl)) {
+                        appUrl = null;
+                    }
+
+                    str += appUrl ? ('<a href="' + appUrl + url +  '">' + rule.name + '</a>') : rule.name;
                 } else {
                     str += rule.name;
                 }
-                str += prop + '</span>' + '<br>';
+                str += prop + '&nbsp;' + application + '</span><br>';
             }
         });
         field.setValue(str);
@@ -189,7 +201,10 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
         } else if (Array.isArray(value) && !Ext.isEmpty(value)) {
             field.show();
             Ext.Array.each(value, function (rule) {
-                result += Ext.String.htmlEncode(rule.name) + '<br>';
+                var application = rule.application
+                    ? '<span class="application">'+ Uni.I18n.translate('general.application', 'MDC', '({0})', [rule.application.name]) + '</span>'
+                    : '';
+                result += Ext.String.htmlEncode(rule.name) + '&nbsp;' + application + '<br>';
             });
             field.setValue(result);
         } else {
