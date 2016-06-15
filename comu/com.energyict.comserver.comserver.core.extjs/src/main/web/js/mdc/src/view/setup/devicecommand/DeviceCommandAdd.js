@@ -25,6 +25,7 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandAdd', {
                         name: 'form-errors',
                         itemId: 'form-errors',
                         margin: '0 0 10 0',
+                        maxWidth: 600,
                         hidden: true
                     },
                     {
