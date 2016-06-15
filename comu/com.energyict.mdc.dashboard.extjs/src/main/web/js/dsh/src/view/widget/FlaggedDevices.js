@@ -53,7 +53,7 @@ Ext.define('Dsh.view.widget.FlaggedDevices', {
                     '<a data-qtip="'+
                     Uni.I18n.translate('overview.widget.flaggedDevices.unflag', 'DSH', 'Click to remove from the list of flagged devices') +
                     '" class="flag-toggle x-btn x-btn-plain-small">',
-                        '<span style="width: 16px; height: 16px; font-size: 16px" class="x-btn-button"><span class="x-btn-icon-el icon-star6"></span></span></a>',
+                        '<span style="width: 16px; height: 16px; font-size: 16px" class="x-btn-button"><span class="x-btn-icon-el icon-star-full"></span></span></a>',
                     '</td>',
                     '</tpl>',
                 '</tr>',
@@ -70,7 +70,7 @@ Ext.define('Dsh.view.widget.FlaggedDevices', {
             'itemclick': function (view, record, item) {
                 var elm = new Ext.dom.Element(item);
                 var icon = elm.down('.x-btn-icon-el');
-                var pressed = icon.hasCls('icon-star6');
+                var pressed = icon.hasCls('icon-star-full');
                 var flag = record.getLabel();
                 flag.proxy.setUrl(record.getId());
 
@@ -78,8 +78,8 @@ Ext.define('Dsh.view.widget.FlaggedDevices', {
                     if (operation && !Ext.isEmpty(operation.response.responseText)) {
                         flag.set('creationDate', Ext.decode(operation.response.responseText).creationDate);
                     }
-                    icon.toggleCls('icon-star6');
-                    icon.toggleCls('icon-star4');
+                    icon.toggleCls('icon-star-full');
+                    icon.toggleCls('icon-star-empty');
                     elm.set({'data-qtip': pressed
                         ? Uni.I18n.translate('overview.widget.flaggedDevices.flag', 'DSH', 'Click to flag the device')
                         : Uni.I18n.translate('overview.widget.flaggedDevices.unflag', 'DSH', 'Click to remove from the list of flagged devices')
