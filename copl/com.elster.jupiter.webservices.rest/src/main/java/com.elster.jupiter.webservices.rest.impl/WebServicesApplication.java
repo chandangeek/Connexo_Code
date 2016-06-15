@@ -4,6 +4,8 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
@@ -27,7 +29,7 @@ import java.util.Set;
 @Component(name = "com.elster.jupiter.servicecall.rest",
         service = {Application.class, MessageSeedProvider.class}, immediate = true,
         property = {"alias=/ws", "app=" + WebServicesApplication.APP_KEY, "name=" + WebServicesApplication.COMPONENT_NAME})
-public class WebServicesApplication extends Application implements MessageSeedProvider {
+public class WebServicesApplication extends Application implements MessageSeedProvider, TranslationKeyProvider {
 
     public static final String APP_KEY = "SYS";
     public static final String COMPONENT_NAME = "WS";
@@ -43,7 +45,8 @@ public class WebServicesApplication extends Application implements MessageSeedPr
         return ImmutableSet.of(
                 RestValidationExceptionMapper.class,
                 EndPointConfigurationResource.class,
-                WebServicesResource.class
+                WebServicesResource.class,
+                WebServicesFieldResource.class
         );
     }
 
@@ -77,8 +80,18 @@ public class WebServicesApplication extends Application implements MessageSeedPr
     }
 
     @Override
+    public String getComponentName() {
+        return COMPONENT_NAME;
+    }
+
+    @Override
     public Layer getLayer() {
         return Layer.REST;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        return Arrays.asList(TranslationKeys.values());
     }
 
     @Override

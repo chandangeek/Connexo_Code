@@ -106,6 +106,7 @@ public class EndPointConfigurationResource {
     }
 
     @DELETE
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/{id}")
     @Transactional

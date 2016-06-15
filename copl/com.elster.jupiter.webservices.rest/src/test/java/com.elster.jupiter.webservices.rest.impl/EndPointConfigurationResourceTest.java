@@ -80,7 +80,7 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
         assertThat(jsonModel.<String>get("webServiceName")).isEqualTo("CIM");
         assertThat(jsonModel.<String>get("url")).isEqualTo("/cim");
         assertThat(jsonModel.<String>get("logLevel.id")).isEqualTo("INFO");
-        assertThat(jsonModel.<String>get("logLevel.displayValue")).isEqualTo("Info");
+        assertThat(jsonModel.<String>get("logLevel.displayValue")).isEqualTo("Information");
     }
 
     @Test

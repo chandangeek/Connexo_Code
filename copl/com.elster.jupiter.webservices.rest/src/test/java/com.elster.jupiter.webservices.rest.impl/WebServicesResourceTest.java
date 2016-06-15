@@ -29,10 +29,12 @@ public class WebServicesResourceTest extends WebServicesApplicationTest {
         JsonModel jsonModel = JsonModel.model((InputStream) response.getEntity());
         assertThat(jsonModel.<Integer>get("total")).isEqualTo(2);
         assertThat(jsonModel.<String>get("webServices[0].name")).isEqualTo("ws1");
-        assertThat(jsonModel.<String>get("webServices[0].direction")).isEqualTo("Inbound");
+        assertThat(jsonModel.<String>get("webServices[0].direction.id")).isEqualTo("INBOUND");
+        assertThat(jsonModel.<String>get("webServices[0].direction.displayValue")).isEqualTo("Inbound");
         assertThat(jsonModel.<String>get("webServices[0].type")).isEqualTo("SOAP");
         assertThat(jsonModel.<String>get("webServices[1].name")).isEqualTo("ws2");
-        assertThat(jsonModel.<String>get("webServices[1].direction")).isEqualTo("Outbound");
+        assertThat(jsonModel.<String>get("webServices[1].direction.id")).isEqualTo("OUTBOUND");
+        assertThat(jsonModel.<String>get("webServices[1].direction.displayValue")).isEqualTo("Outbound");
         assertThat(jsonModel.<String>get("webServices[1].type")).isEqualTo("SOAP");
     }
 
