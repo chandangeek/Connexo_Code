@@ -1,4 +1,4 @@
-Ext.define('Mdc.timeofuse.view.EditSpecificationsForm', {
+Ext.define('Mdc.filemanagement.view.EditSpecificationsForm', {
     extend: 'Ext.form.Panel',
     alias: 'widget.files-devicetype-edit-specs-form',
     requires: [
