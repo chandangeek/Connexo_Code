@@ -46,7 +46,7 @@ public class DeviceConfigCRUDLockingTest extends PersistenceIntegrationTest {
 
         final ConflictCreationEventHandler conflictCreationEventHandler = new ConflictCreationEventHandler();
         conflictCreationEventHandler.setDeviceService(inMemoryPersistence.getDeviceService());
-        conflictCreationEventHandler.setThesaurus(inMemoryPersistence.getThesaurus());
+        conflictCreationEventHandler.setThesaurus(inMemoryPersistence.getThesaurusFromDeviceDataModel());
         conflictCreationEventHandler.handle(localEvent);
     }
 
