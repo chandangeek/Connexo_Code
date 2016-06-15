@@ -3,6 +3,7 @@ package com.elster.jupiter.soap.whiteboard.cxf;
 import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by bvn on 4/29/16.
@@ -50,4 +51,12 @@ public interface WebServicesService {
     List<EndPointConfiguration> getPublishedEndPoints();
 
     boolean isInbound(String webServiceName);
+
+    /**
+     * Find a web service by the given name. Web services are registered through the soap whiteboard
+     *
+     * @param webServiceName
+     * @return Empty is no such web service has been registered
+     */
+    Optional<WebService> getWebService(String webServiceName);
 }

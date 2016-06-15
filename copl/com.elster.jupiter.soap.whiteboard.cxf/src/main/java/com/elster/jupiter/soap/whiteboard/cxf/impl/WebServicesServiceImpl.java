@@ -24,6 +24,7 @@ import javax.inject.Inject;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
@@ -78,6 +79,25 @@ public class WebServicesServiceImpl implements WebServicesService {
     @Reference
     public void setEventService(EventService eventService) {
         this.eventService = eventService;
+    }
+
+    @Override
+    public Optional<WebService> getWebService(String webServiceName) {
+        if (webServices.containsKey(webServiceName)) {
+            return Optional.of(new WebService() {
+                @Override
+                public String getName() {
+                    return webServiceName;
+                }
+
+                @Override
+                public boolean isInbound() {
+                    return webServices.get(webServiceName).isInbound();
+                }
+            });
+        } else {
+            return Optional.empty();
+        }
     }
 
     @Override
