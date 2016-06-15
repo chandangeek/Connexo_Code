@@ -27,9 +27,7 @@ Ext.define('Wss.controller.Webservices', {
         this.control({
             'endpoint-add button[action=add]': {
                 click: this.addEndpoint
-            }
-        });
-        this.control({
+            },
             'webservices-setup webservices-grid': {
                 select: this.showPreview
             }
