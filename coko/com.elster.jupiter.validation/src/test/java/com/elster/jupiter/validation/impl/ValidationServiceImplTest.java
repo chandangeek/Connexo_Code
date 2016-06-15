@@ -33,6 +33,7 @@ import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.validation.DataValidationOccurrence;
@@ -209,6 +210,8 @@ public class ValidationServiceImplTest {
     private KpiService kpiService;
     @Mock
     private BundleContext bundleContext;
+    @Mock
+    private UpgradeService upgradeService;
 
     @Before
     public void setUp() {
