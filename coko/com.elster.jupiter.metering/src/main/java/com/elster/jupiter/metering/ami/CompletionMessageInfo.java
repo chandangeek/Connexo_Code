@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.ami;
 
 public class CompletionMessageInfo {
+
     long correlationId;
     boolean status;
     String failureReason;
@@ -13,7 +14,6 @@ public class CompletionMessageInfo {
         this.correlationId = correlationId;
         this.status = status;
     }
-
 
     public long getCorrelationId() {
         return correlationId;

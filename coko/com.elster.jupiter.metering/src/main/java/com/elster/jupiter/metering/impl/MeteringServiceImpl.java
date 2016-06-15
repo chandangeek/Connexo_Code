@@ -17,6 +17,7 @@ import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.BypassStatus;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.EndDeviceControlType;
 import com.elster.jupiter.metering.GeoCoordinates;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.LocationBuilder;
@@ -43,7 +44,6 @@ import com.elster.jupiter.metering.UsagePointAccountability;
 import com.elster.jupiter.metering.UsagePointConnectedKind;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointFilter;
-import com.elster.jupiter.metering.EndDeviceControlType;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
@@ -95,7 +95,6 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
@@ -117,7 +116,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
@@ -226,8 +224,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
 
     @Override
     public Optional<HeadEndInterface> getHeadEndInterface(String amrSystem) {
-        return headEndInterfaces.stream()
-                .filter(itf -> itf.getAmrSystem().equalsIgnoreCase(amrSystem)).findFirst();
+        return headEndInterfaces.stream().filter(itf -> itf.getAmrSystem().equalsIgnoreCase(amrSystem)).findFirst();
     }
 
 

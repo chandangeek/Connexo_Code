@@ -2,10 +2,12 @@ package com.elster.jupiter.metering.ami;
 
 import com.elster.jupiter.metering.EndDeviceControlType;
 import com.elster.jupiter.metering.ReadingType;
+
 import java.util.Collections;
 import java.util.List;
 
 public final class EndDeviceCapabilities {
+
     private List<ReadingType> readingTypes;
     private List<EndDeviceControlType> controlTypes;
 
@@ -16,7 +18,7 @@ public final class EndDeviceCapabilities {
     }
 
     public List<ReadingType> getConfiguredReadingTypes() {
-       return Collections.unmodifiableList(readingTypes);
+        return Collections.unmodifiableList(readingTypes);
     }
 
     public List<EndDeviceControlType> getSupportedControlTypes() {

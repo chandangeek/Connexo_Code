@@ -204,7 +204,7 @@ abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> impleme
 
     @Override
     public Optional<HeadEndInterface> getHeadEndInterface(){
-        return dataModel.getInstance(MeteringService.class).getHeadEndInterface(this.amrSystem.getName());
+        return dataModel.getInstance(MeteringService.class).getHeadEndInterface(getAmrSystem().getName());
     }
 
     @Override
