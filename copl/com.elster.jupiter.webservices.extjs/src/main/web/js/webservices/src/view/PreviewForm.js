@@ -28,41 +28,57 @@ Ext.define('Wss.view.PreviewForm', {
                 {
                     xtype: 'displayfield',
                     fieldLabel: Uni.I18n.translate('general.logLevel', 'WSS', 'Log level'),
-                    name: 'logLevel'
+                    name: 'logLevel',
+                    renderer: function (value) {
+                        return value.displayValue;
+                    }
+
                 },
                 {
                     xtype: 'displayfield',
                     fieldLabel: Uni.I18n.translate('webservices.traceRequests', 'WSS', 'Trace requests'),
-                    name: 'tracing'
+                    name: 'tracing',
+                    renderer: me.renderYesOrNo
                 },
                 {
                     xtype: 'displayfield',
                     fieldLabel: Uni.I18n.translate('webservices.traceRequestsFileName', 'WSS', 'Trace requests file name'),
-                    name: 'tracing'
+                    name: '//TODO'
                 },
                 {
                     xtype: 'displayfield',
                     fieldLabel: Uni.I18n.translate('webservices.httpCompression', 'WSS', 'HTTP compression'),
-                    name: 'httpCompression'
+                    name: 'httpCompression',
+                    renderer: me.renderYesOrNo
                 },
                 {
                     xtype: 'displayfield',
                     fieldLabel: Uni.I18n.translate('webservices.schemeValidation', 'WSS', 'Scheme validation'),
-                    name: 'schemaValidation'
+                    name: 'schemaValidation',
+                    renderer: me.renderYesOrNo
                 },
                 {
                     xtype: 'displayfield',
                     fieldLabel: Uni.I18n.translate('webservices.authenticationRequired', 'WSS', 'Authentication required'),
-                    name: 'authenticated'
+                    name: 'authenticated',
+                    renderer: me.renderYesOrNo
                 },
                 {
                     xtype: 'displayfield',
                     fieldLabel: Uni.I18n.translate('general.userRole', 'WSS', 'User role'),
-                    name: 'authenticated'
+                    name: '//TODO'
                 }
             ]
         };
         me.callParent(arguments);
+    },
+
+    renderYesOrNo: function (value) {
+        if (value === true) {
+            return Uni.I18n.translate('general.yes', 'WSS', 'Yes');
+        } else {
+            return Uni.I18n.translate('general.no', 'WSS', 'No')
+        }
     }
 
 });
