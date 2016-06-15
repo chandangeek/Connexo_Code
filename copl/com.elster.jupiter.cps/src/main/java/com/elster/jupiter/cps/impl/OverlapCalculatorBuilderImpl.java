@@ -6,6 +6,7 @@ import com.elster.jupiter.cps.ValuesRangeConflict;
 import com.elster.jupiter.cps.ValuesRangeConflictType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.time.Interval;
+
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -14,51 +15,50 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-public class OverlapCalculatorBuilderImpl implements OverlapCalculatorBuilder{
+class OverlapCalculatorBuilderImpl implements OverlapCalculatorBuilder {
 
-    private Thesaurus thesaurus;
-    private List<CustomPropertySetValues> customPropertySetValues;
+    private final Thesaurus thesaurus;
+    private final List<CustomPropertySetValues> customPropertySetValues;
 
-    public OverlapCalculatorBuilderImpl(List<CustomPropertySetValues> customPropertySetValues, Thesaurus thesaurus) {
+    OverlapCalculatorBuilderImpl(List<CustomPropertySetValues> customPropertySetValues, Thesaurus thesaurus) {
         this.thesaurus = thesaurus;
-        this.customPropertySetValues = customPropertySetValues;
+        this.customPropertySetValues = Collections.unmodifiableList(customPropertySetValues);
     }
 
     @Override
     public List<ValuesRangeConflict> whenCreating(Range<Instant> newRange){
-        return getConflicts(newRange,customPropertySetValues);
-
+        return getConflicts(newRange, customPropertySetValues.stream());
     }
 
     @Override
     public List<ValuesRangeConflict> whenUpdating(Instant existingRangeStart, Range<Instant> newRange){
-        List<CustomPropertySetValues> existingOtherValues = customPropertySetValues.stream()
-                .filter(value -> !value.getEffectiveRange().contains(existingRangeStart)).collect(Collectors.toList());
-        return getConflicts(newRange, existingOtherValues);
+        return getConflicts(
+                newRange,
+                customPropertySetValues
+                        .stream()
+                        .filter(value -> !value.getEffectiveRange().contains(existingRangeStart)));
     }
 
-    private List<ValuesRangeConflict> getConflicts(Range<Instant> newRange, List<CustomPropertySetValues> existingOtherValues){
+    private List<ValuesRangeConflict> getConflicts(Range<Instant> newRange, Stream<CustomPropertySetValues> existingOtherValues) {
         List<ValuesRangeConflict> issues = new ArrayList<>();
         List<Range<Instant>> rangesAfterUpdate = new ArrayList<>();
 
-
-        for (CustomPropertySetValues value : existingOtherValues) {
+        existingOtherValues.forEach(value -> {
             Range<Instant> r = value.getEffectiveRange();
-
             if (hasOverlap(r,newRange)) {
                 if (newRange.encloses(r)) {
                     issues.add(getValuesRangeConflictDelete(value, getConflictingRangeOverlap(r, newRange)));
                 } else if (hasEndOverlap(r, newRange)) {
                     if (!r.hasLowerBound()) {
                         rangesAfterUpdate.add(Range.lessThan(newRange.lowerEndpoint()));
-                    }else{
+                    } else{
                         rangesAfterUpdate.add(Range.closedOpen(r.lowerEndpoint(),newRange.lowerEndpoint()));
                     }
                     issues.add(getValuesRangeConflictUpdateEnd(value, getConflictingRangeOverlap(r,newRange)));
                 } else if (hasStartOverlap(r,newRange)) {
-                    if(!r.hasUpperBound()) {
+                    if (!r.hasUpperBound()) {
                         rangesAfterUpdate.add(Range.atLeast(newRange.upperEndpoint()));
                     } else {
                         rangesAfterUpdate.add(Range.closedOpen(newRange.upperEndpoint(),r.upperEndpoint()));
@@ -67,17 +67,16 @@ public class OverlapCalculatorBuilderImpl implements OverlapCalculatorBuilder{
                 } else {
                     issues.add(getValuesRangeConflictDelete(value, getConflictingRangeOverlap(r,newRange)));
                 }
-            }
-            else {
+            } else {
                 rangesAfterUpdate.add(r);
             }
-        }
+        });
 
         rangesAfterUpdate.add(newRange);
 
         issues.addAll(getGaps(rangesAfterUpdate, newRange));
 
-        if(!issues.isEmpty()){
+        if (!issues.isEmpty()) {
             issues.add(getValuesRangeInsertedValue(CustomPropertySetValues.emptyDuring(Interval.of(newRange)),newRange));
         }
 
@@ -85,7 +84,6 @@ public class OverlapCalculatorBuilderImpl implements OverlapCalculatorBuilder{
     }
 
     private List<ValuesRangeConflict> getGaps(List<Range<Instant>> ranges, Range<Instant> newRange){
-
         List<ValuesRangeConflict> issues = new ArrayList<>();
         Collections.sort(ranges, getRangeComparator());
         for (int i = 0; i < ranges.size() - 1; i++) {
@@ -167,4 +165,5 @@ public class OverlapCalculatorBuilderImpl implements OverlapCalculatorBuilder{
         return customPropertySetValues.stream().filter(values -> values.getEffectiveRange().equals(range)).findFirst()
                 .orElseThrow(IllegalArgumentException::new);
     }
+
 }
