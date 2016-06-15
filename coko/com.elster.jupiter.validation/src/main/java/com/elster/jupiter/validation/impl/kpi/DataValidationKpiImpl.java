@@ -30,6 +30,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.Period;
 import java.time.temporal.TemporalAmount;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -140,8 +141,8 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
 
     @Override
     public List<DataValidationKpiScore> getDataValidationKpiScores() {
-        //FixMe getDataValidationKpiScores;
-        return null;
+        //FixMe will be implemented in next story CXO-1611;
+        return Collections.emptyList();
     }
 
     @Override

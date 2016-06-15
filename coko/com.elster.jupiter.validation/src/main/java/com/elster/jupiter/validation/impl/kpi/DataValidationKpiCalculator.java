@@ -19,8 +19,8 @@ public class DataValidationKpiCalculator implements DataManagementKpiCalculator 
 
     @Override
     public void calculateAndStore() {
-        //FixMe implement calculateAndStore for DataValidationKpiCalculator
-        logger.log(Level.INFO, "++++++++++++++++++++++++++>>>>>>>>>>> CalculateAndStore !!!");
+        //FixMe will be implemented in next story CXO-1611;
+        logger.log(Level.FINE, ">>>>>>>>>>> CalculateAndStore !!!");
 
     }
 }
