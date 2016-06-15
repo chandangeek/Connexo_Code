@@ -125,7 +125,7 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
                                     tooltipText += item.fullAliasName + '<br>';
                                 });
                                 return Uni.I18n.translatePlural('general.nrOfReadingTypes', value.length, 'DES', 'No reading types', '1 reading type', '{0} reading types')
-                                    + '<span class="uni-icon-info-small" style="display: inline-block; width: 16px; height: 16px; margin: 0 0 0 10px" data-qtip="' + tooltipText + '"></span>';
+                                    + '<span class="icon-info" style="cursor:default; display:inline-block; color:#A9A9A9; font-size:16px; margin-left:7px;" data-qtip="' + tooltipText + '"></span>';
                             }
                         }
                     },

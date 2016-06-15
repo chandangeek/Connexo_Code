@@ -45,7 +45,7 @@ Ext.define('Dxp.view.tasks.DestinationsField', {
             });
         }
         result += nrOfDestinations;
-        result += '<span class="uni-icon-info-small" style="display: inline-block; width: 16px; height: 16px; margin: 0 0 0 10px" data-qtip="' + toolTip +'"></span>';
+        result += '<span class="icon-info" style="cursor:default; display:inline-block; color:#A9A9A9; font-size:16px; margin-left:7px;" data-qtip="' + toolTip + '"></span>';
         return result;
     }
 });
