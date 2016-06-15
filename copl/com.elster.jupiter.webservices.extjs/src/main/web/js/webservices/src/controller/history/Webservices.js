@@ -16,7 +16,12 @@ Ext.define('Wss.controller.history.Webservices', {
                     controller: 'Wss.controller.Webservices',
                     action: 'showWebservicesOverview',
                     items: {
-
+                        add: {
+                            title: Uni.I18n.translate('webservices.addWebServiceEndpoint', 'WSS', 'Add webservice endpoint'),
+                            route: 'add',
+                            controller: 'Wss.controller.Webservices',
+                            action: 'showAddWebserviceEndPoint'
+                        }
                     }
                 }
             }
