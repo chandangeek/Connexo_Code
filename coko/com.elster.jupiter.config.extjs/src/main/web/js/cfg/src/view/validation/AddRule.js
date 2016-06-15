@@ -164,9 +164,7 @@ Ext.define('Cfg.view.validation.AddRule', {
                             xtype: 'label',
                             cls: 'x-form-invalid-under',
                             itemId: 'readingTypesErrorLabel',
-                            margin: '0 0 0 275',
-                            labelWidth: 260,
-                            width: 600
+                            margin: '0 0 0 275' // labelWidth (260) + 15
                         },
                         {
                             xtype: 'radiogroup',
