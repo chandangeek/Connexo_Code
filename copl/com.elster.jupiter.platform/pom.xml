@@ -28,6 +28,12 @@
             <!-- Project modules - please keep in alphabetical order on artifactId -->
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
+                <artifactId>api.rest</artifactId>
+                <version>1.0.0${revision}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.elster.jupiter</groupId>
                 <artifactId>appserver</artifactId>
                 <version>2.1.0${revision}</version>
                 <scope>provided</scope>
@@ -258,6 +264,12 @@
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>properties</artifactId>
                 <version>2.1.0${revision}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.elster.jupiter</groupId>
+                <artifactId>public.rest.util</artifactId>
+                <version>1.0.0${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -681,6 +693,7 @@
                 <module>../com.elster.jupiter.orm.schema.oracle</module>
                 <module>../com.elster.jupiter.osgi.goodies</module>
                 <module>../com.elster.jupiter.properties</module>
+                <module>../com.elster.jupiter.public.rest.util</module>
                 <module>../com.elster.jupiter.pubsub</module>
                 <module>../com.elster.jupiter.rest.util</module>
                 <module>../com.elster.jupiter.rest.whiteboard</module>
