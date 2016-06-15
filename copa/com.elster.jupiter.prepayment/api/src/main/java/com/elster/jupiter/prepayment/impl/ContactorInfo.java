@@ -2,6 +2,7 @@ package com.elster.jupiter.prepayment.impl;
 
 import com.elster.jupiter.util.units.Unit;
 
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Optional;
@@ -12,6 +13,7 @@ import java.util.Optional;
 public class ContactorInfo {
 
     public BreakerStatus status;
+    @XmlJavaTypeAdapter(JsonInstantAdapter.class)
     public Instant activationDate;
     public LoadLimit loadLimit;
     public Integer loadTolerance;
@@ -21,7 +23,9 @@ public class ContactorInfo {
     public String toString() {
         StringBuilder msgBuilder = new StringBuilder();
         msgBuilder.append("ContactorInfo{");
-        msgBuilder.append("status: ").append(status.getDescription());
+        if (status != null) {
+            msgBuilder.append("status: ").append(status.getDescription());
+        }
         if (activationDate != null) {
             msgBuilder.append(", activationDate: ").append(activationDate);
         }
@@ -50,7 +54,11 @@ public class ContactorInfo {
          * @return An Optional containing the Unit
          */
         public Optional<Unit> getUnit() {
-            return Optional.ofNullable(unit != null ? Unit.get(unit) : null);
+            try {
+                return Optional.ofNullable(unit != null ? Unit.get(unit) : null);
+            } catch (IllegalArgumentException e) {
+                return Optional.empty();
+            }
         }
 
         /**

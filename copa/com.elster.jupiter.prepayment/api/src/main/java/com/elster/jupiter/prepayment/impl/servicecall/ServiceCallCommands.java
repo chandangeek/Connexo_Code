@@ -2,7 +2,6 @@ package com.elster.jupiter.prepayment.impl.servicecall;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
-import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.TransactionRequired;
 import com.elster.jupiter.prepayment.impl.BreakerStatus;
@@ -15,7 +14,7 @@ import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 
 import javax.inject.Inject;
-import java.time.Instant;
+import java.text.MessageFormat;
 import java.util.Optional;
 
 /**
@@ -60,16 +59,11 @@ public class ServiceCallCommands {
     }
 
     @TransactionRequired
-    public ServiceCall createContactorOperationServiceCall(Optional<UsagePoint> usagePoint, Optional<EndDevice> endDevice, ContactorInfo contactorInfo) {
+    public ServiceCall createContactorOperationServiceCall(Optional<UsagePoint> usagePoint, ContactorInfo contactorInfo) {
         ServiceCallType serviceCallType = getServiceCallType(contactorInfo);
 
         ContactorOperationDomainExtension contactorOperationDomainExtension = new ContactorOperationDomainExtension();
-        contactorOperationDomainExtension.setmRIDUsagePoint(usagePoint.isPresent() ? usagePoint.get().getMRID() : "unknown");
-        contactorOperationDomainExtension.setmRIDDevice(endDevice.isPresent() ? endDevice.get().getMRID() : "unknown");
-        contactorOperationDomainExtension.setActivationDate(contactorInfo.activationDate != null ? contactorInfo.activationDate : Instant.now());
-        contactorOperationDomainExtension.setBreakerStatus(contactorInfo.status);
         contactorOperationDomainExtension.setCallback(contactorInfo.callback);
-
         ServiceCallBuilder serviceCallBuilder = serviceCallType.newServiceCall().origin("Redknee").extendedWith(contactorOperationDomainExtension);
         if (usagePoint.isPresent()) {
             serviceCallBuilder.targetObject(usagePoint.get());
@@ -87,7 +81,7 @@ public class ServiceCallCommands {
      */
     @TransactionRequired
     public void rejectServiceCall(ServiceCall serviceCall, String message) {
-        serviceCall.log(LogLevel.SEVERE, message);
+        serviceCall.log(LogLevel.SEVERE, MessageFormat.format("Service call has failed: {0}", message));
         if (serviceCall.canTransitionTo(DefaultState.REJECTED)) {
             requestTransition(serviceCall, DefaultState.REJECTED);
         } else {
@@ -97,7 +91,6 @@ public class ServiceCallCommands {
 
     @TransactionRequired
     public void requestTransition(ServiceCall serviceCall, DefaultState newState) {
-        serviceCall.log(LogLevel.INFO, "Now entering state " + newState.getDefaultFormat());
         serviceCall.requestTransition(newState);
     }
 
@@ -113,7 +106,7 @@ public class ServiceCallCommands {
             ServiceCallTypes serviceCallType = getServiceCallTypesFor(contactorInfo);
             this.serviceCallType = serviceCallService.findServiceCallType(serviceCallType.getTypeName(), serviceCallType.getTypeVersion())
                     .orElseGet(() -> serviceCallService.createServiceCallType(serviceCallType.getTypeName(), serviceCallType.getTypeVersion())
-                            .handler("RedkneeNoOperationHandler")
+                            .handler(OperationHandler.HANDLER_NAME)
                             .logLevel(LogLevel.FINEST)
                             .customPropertySet(customPropertySet)
                             .create());
@@ -122,10 +115,10 @@ public class ServiceCallCommands {
     }
 
     private ServiceCallTypes getServiceCallTypesFor(ContactorInfo contactorInfo) {
-        if (BreakerStatus.CONNECTED.equals(contactorInfo.status)) {
+        if (BreakerStatus.connected.equals(contactorInfo.status)) {
             return (contactorInfo.loadLimit == null || contactorInfo.loadLimit.shouldDisableLoadLimit()) ? ServiceCallTypes.connectWithoutLoadLimit : ServiceCallTypes.connectWithLoadLimit;
         }
-        if (BreakerStatus.ARMED.equals(contactorInfo.status)) {
+        if (BreakerStatus.armed.equals(contactorInfo.status)) {
             return (contactorInfo.loadLimit == null || contactorInfo.loadLimit.shouldDisableLoadLimit()) ? ServiceCallTypes.armWithoutLoadLimit : ServiceCallTypes.armWithLoadLimit;
         }
         return ServiceCallTypes.disconnect;

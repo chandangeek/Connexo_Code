@@ -1,9 +1,9 @@
 package com.elster.jupiter.prepayment.impl;
 
 public enum BreakerStatus {
-    CONNECTED("connected"),
-    DISCONNECTED("disconnected"),
-    ARMED("armed"),;
+    connected("connected"),
+    disconnected("disconnected"),
+    armed("armed"),;
 
     private final String description;
 

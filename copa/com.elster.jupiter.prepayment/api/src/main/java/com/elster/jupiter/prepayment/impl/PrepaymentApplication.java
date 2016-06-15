@@ -2,6 +2,7 @@ package com.elster.jupiter.prepayment.impl;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.license.License;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -9,9 +10,8 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.prepayment.impl.fullduplex.FullDuplexController;
-import com.elster.jupiter.prepayment.impl.fullduplex.MultiSenseAMRImpl;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.prepayment.impl.servicecall.ServiceCallCommands;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
@@ -38,7 +38,7 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 @Component(name = "com.elster.jupiter.prepayment.rest",
-        service = {Application.class, InstallService.class, TranslationKeyProvider.class},
+        service = {Application.class, TranslationKeyProvider.class},
         immediate = true,
         property = {"alias=/rkn", "app=MDC", "name=" + PrepaymentApplication.COMPONENT_NAME, "version=v1.0"})
 public class PrepaymentApplication extends Application implements TranslationKeyProvider, MessageSeedProvider {
@@ -48,10 +48,12 @@ public class PrepaymentApplication extends Application implements TranslationKey
     public static final String APP_KEY = "MDC";
     public static final String COMPONENT_NAME = "RKN"; // Redknee
 
+    private volatile DataModel dataModel;
     private volatile DeviceService deviceService;
     private volatile MeteringService meteringService;
     private volatile Thesaurus thesaurus;
     private volatile NlsService nlsService;
+    private volatile MessageService messageService;
     private volatile TransactionService transactionService;
     private volatile ServiceCallService serviceCallService;
     private volatile PropertySpecService propertySpecService;
@@ -102,6 +104,11 @@ public class PrepaymentApplication extends Application implements TranslationKey
     }
 
     @Reference
+    public void setMessageService(MessageService messageService) {
+        this.messageService = messageService;
+    }
+
+    @Reference
     public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
     }
@@ -114,6 +121,12 @@ public class PrepaymentApplication extends Application implements TranslationKey
     @Reference
     public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
         this.customPropertySetService = customPropertySetService;
+    }
+
+    @Reference
+    public void setOrmService(OrmService ormService) {
+        DataModel dataModel = ormService.newDataModel(COMPONENT_NAME, "Redknee prepayment");
+        this.dataModel = dataModel;
     }
 
     @Override
@@ -158,13 +171,14 @@ public class PrepaymentApplication extends Application implements TranslationKey
             bind(propertySpecService).to(PropertySpecService.class);
             bind(serviceCallService).to(ServiceCallService.class);
             bind(customPropertySetService).to(CustomPropertySetService.class);
+            bind(messageService).to(MessageService.class);
             bind(clock).to(Clock.class);
+            bind(DataModel.class).to(DataModel.class);
 
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(ServiceCallCommands.class).to(ServiceCallCommands.class);
-            bind(FullDuplexController.class).to(FullDuplexController.class);
-            bind(MultiSenseAMRImpl.class).to(MultiSenseAMRImpl.class);
+            bind(HeadEndController.class).to(HeadEndController.class);
         }
     }
 

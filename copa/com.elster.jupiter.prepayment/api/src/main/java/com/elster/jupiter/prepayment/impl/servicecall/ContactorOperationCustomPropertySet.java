@@ -6,7 +6,6 @@ import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -18,7 +17,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -90,45 +88,7 @@ public class ContactorOperationCustomPropertySet implements CustomPropertySet<Se
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return Arrays.asList(
-                this.propertySpecService
-                        .stringSpec()
-                        .named(ContactorOperationDomainExtension.FieldNames.MRID_USAGE_POINT.javaName(), ContactorOperationDomainExtension.FieldNames.MRID_USAGE_POINT
-                                .javaName())
-                        .describedAs("MRID usage point")
-                        .finish(),
-                this.propertySpecService
-                        .stringSpec()
-                        .named(ContactorOperationDomainExtension.FieldNames.MRID_DEVICE.javaName(), ContactorOperationDomainExtension.FieldNames.MRID_DEVICE
-                                .javaName())
-                        .describedAs("MRID device")
-                        .finish(),
-                this.propertySpecService
-                        .longSpec()
-                        .named(ContactorOperationDomainExtension.FieldNames.ACTIVATION_DATE.javaName(), ContactorOperationDomainExtension.FieldNames.ACTIVATION_DATE
-                                .javaName())
-                        .describedAs("Activation date")
-                        .finish(),
-                this.propertySpecService
-                        .longSpec()
-                        .named(ContactorOperationDomainExtension.FieldNames.BREAKER_STATUS.javaName(), ContactorOperationDomainExtension.FieldNames.BREAKER_STATUS
-                                .javaName())
-                        .describedAs("Desired breaker status")
-                        .finish(),
-                this.propertySpecService
-                        .longSpec()
-                        .named(ContactorOperationDomainExtension.FieldNames.NR_OF_UNCONFIRMED_DEVICE_COMMANDS.javaName(), ContactorOperationDomainExtension.FieldNames.NR_OF_UNCONFIRMED_DEVICE_COMMANDS
-                                .javaName())
-                        .describedAs("Nr of unconfirmed device commands")
-                        .setDefaultValue(0L)
-                        .finish(),
-                this.propertySpecService
-                        .longSpec()
-                        .named(ContactorOperationDomainExtension.FieldNames.STATUS_INFORMATION_TASK_TRY_COUNT.javaName(), ContactorOperationDomainExtension.FieldNames.STATUS_INFORMATION_TASK_TRY_COUNT
-                                .javaName())
-                        .describedAs("Status information try count")
-                        .setDefaultValue(0L)
-                        .finish(),
+        return Collections.singletonList(
                 this.propertySpecService
                         .stringSpec()
                         .named(ContactorOperationDomainExtension.FieldNames.CALLBACK.javaName(), ContactorOperationDomainExtension.FieldNames.CALLBACK.javaName())
@@ -177,46 +137,6 @@ public class ContactorOperationCustomPropertySet implements CustomPropertySet<Se
 
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
-            table
-                    .column(ContactorOperationDomainExtension.FieldNames.MRID_USAGE_POINT.databaseName())
-                    .varChar()
-                    .map(ContactorOperationDomainExtension.FieldNames.MRID_USAGE_POINT.javaName())
-                    .notNull()
-                    .add();
-            table
-                    .column(ContactorOperationDomainExtension.FieldNames.MRID_DEVICE.databaseName())
-                    .varChar()
-                    .map(ContactorOperationDomainExtension.FieldNames.MRID_DEVICE.javaName())
-                    .notNull()
-                    .add();
-            table
-                    .column(ContactorOperationDomainExtension.FieldNames.ACTIVATION_DATE.databaseName())
-                    .number()
-                    .conversion(ColumnConversion.NUMBER2INSTANT)
-                    .map(ContactorOperationDomainExtension.FieldNames.ACTIVATION_DATE.javaName())
-                    .notNull()
-                    .add();
-            table
-                    .column(ContactorOperationDomainExtension.FieldNames.BREAKER_STATUS.databaseName())
-                    .number()
-                    .conversion(ColumnConversion.NUMBER2ENUM)
-                    .map(ContactorOperationDomainExtension.FieldNames.BREAKER_STATUS.javaName())
-                    .notNull()
-                    .add();
-            table
-                    .column(ContactorOperationDomainExtension.FieldNames.NR_OF_UNCONFIRMED_DEVICE_COMMANDS.databaseName())
-                    .number()
-                    .conversion(ColumnConversion.NUMBER2INT)
-                    .map(ContactorOperationDomainExtension.FieldNames.NR_OF_UNCONFIRMED_DEVICE_COMMANDS.javaName())
-                    .notNull()
-                    .add();
-            table
-                    .column(ContactorOperationDomainExtension.FieldNames.STATUS_INFORMATION_TASK_TRY_COUNT.databaseName())
-                    .number()
-                    .conversion(ColumnConversion.NUMBER2INT)
-                    .map(ContactorOperationDomainExtension.FieldNames.STATUS_INFORMATION_TASK_TRY_COUNT.javaName())
-                    .notNull()
-                    .add();
             table
                     .column(ContactorOperationDomainExtension.FieldNames.CALLBACK.databaseName())
                     .varChar()
