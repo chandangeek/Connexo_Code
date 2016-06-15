@@ -141,6 +141,10 @@ public enum MessageSeeds implements MessageSeed {
     NO_COMTASK_FOR_STATUS_INFORMATION(2115, Keys.NO_COMTASK_FOR_STATUS_INFORMATION, "A comtask to verify the status information could not be located"),
     UNSPPORTED_COMMAND(2116, Keys.UNSPPORTED_COMMAND, "Unsupported Command {0} for device {1}"),
     NO_DESTINATION_SPEC(2117, Keys.NO_DESTINATION_SPEC, "No such Destination Spec"),
+    DUPLICATE_REGISTER_OBISCODE(2118, Keys.DUPLICATE_REGISTER_OBISCODE, "The OBIS code must be unique for all registers of your device"),
+    DUPLICATE_CHANNEL_OBISCODE(2119, Keys.DUPLICATE_CHANNEL_OBISCODE, "The OBIS code must be unique for all the channels of your load profile"),
+    OVERFLOW_INCREASED(2120, Keys.OVERFLOW_INCREASED, "The overflow value should not exceed the value of the configuration"),
+    VETO_CANNOT_CHANGE_OBISCODE_CONFIG_ALREADY_OVERRIDDEN_DEVICE(2121, Keys.VETO_CANNOT_CHANGE_OBISCODE_CONFIG_ALREADY_OVERRIDDEN_DEVICE, "You can not change the OBIS code, you already have devices with an overridden value for this OBIS code: {0}"),
     VAL_KPI_DEVICEGROUP_DELETION(3001, "deviceGroupXstillInUse", "Device group {0} is still in use by a data validation KPI"),
     KPIS_DEVICEGROUP_DELETION(3001, "deviceGroupXstillInUse", "Device group {0} is still in use by: data validation KPI, data collection KPI")
     ;
@@ -314,5 +318,9 @@ public enum MessageSeeds implements MessageSeed {
         public static final String NO_SUCH_DEVICE = "No.such.device";
         public static final String UNSPPORTED_COMMAND = "Unsupported.Command.{0}.for.device.{1}";
         public static final String NO_DESTINATION_SPEC = "No.such.Destination.Spec";
+        public static final String DUPLICATE_REGISTER_OBISCODE = "duplicate.register.obiscode";
+        public static final String DUPLICATE_CHANNEL_OBISCODE = "duplicate.channel.obiscode";
+        public static final String OVERFLOW_INCREASED = "overflow.increased";
+        public static final String VETO_CANNOT_CHANGE_OBISCODE_CONFIG_ALREADY_OVERRIDDEN_DEVICE = "cannot.change.obiscode.config.already.overriden.device";
     }
 }

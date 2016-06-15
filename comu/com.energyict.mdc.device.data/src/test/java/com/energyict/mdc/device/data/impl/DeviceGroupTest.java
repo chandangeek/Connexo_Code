@@ -113,7 +113,7 @@ public class DeviceGroupTest extends PersistenceIntegrationTest {
     public void testVetoDeletionOfDeviceGroupInKpi() throws Exception {
         DataCollectionKpiService kpiService = inMemoryPersistence.getDataCollectionKpiService();
         DataValidationKpiService dataValidationKpi = inMemoryPersistence.getDataValidationKpiService();
-        Thesaurus thesaurus = inMemoryPersistence.getThesaurus();
+        Thesaurus thesaurus = inMemoryPersistence.getThesaurusFromDeviceDataModel();
         MeteringGroupsService meteringGroupsService = inMemoryPersistence.getMeteringGroupsService();
         ((EventServiceImpl)inMemoryPersistence.getEventService()).addTopicHandler(new EndDeviceGroupDeletionVetoEventHandler(kpiService, thesaurus, dataValidationKpi));
 

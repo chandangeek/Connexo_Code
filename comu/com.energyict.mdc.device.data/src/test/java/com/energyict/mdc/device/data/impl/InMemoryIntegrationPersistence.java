@@ -12,6 +12,7 @@ import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.estimation.impl.EstimationModule;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
@@ -46,6 +47,8 @@ import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.User;
@@ -233,8 +236,8 @@ public class InMemoryIntegrationPersistence {
                         "13.0.0.1.1.2.12.0.0.0.0.0.0.0.0.3.72.0",
                         "13.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0",
                         "13.0.0.4.1.2.12.0.0.0.0.0.0.0.0.3.72.0",
-                        "0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0",
                         "13.0.0.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0",
+                        "0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0",
                         "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0"),
                 new MeteringGroupsModule(),
                 new SearchModule(),
@@ -427,8 +430,12 @@ public class InMemoryIntegrationPersistence {
         return this.deviceDataModelService.dataModel();
     }
 
-    public Thesaurus getThesaurus() {
+    public Thesaurus getThesaurusFromDeviceDataModel() {
         return this.deviceDataModelService.thesaurus();
+    }
+
+    public Thesaurus getMockedThesaurus() {
+        return thesaurus;
     }
 
     public NlsService getNlsService() {
@@ -509,6 +516,14 @@ public class InMemoryIntegrationPersistence {
         }
     }
 
+    public TopicHandler getRegisterSpecUpdateHandler() {
+        return injector.getInstance(RegisterSpecUpdateEventHandler.class);
+    }
+
+    public TopicHandler getChannelSpecUpdateHandler() {
+        return injector.getInstance(ChannelSpecUpdateEventHandler.class);
+    }
+
     private class MockModule extends AbstractModule {
         @Override
         protected void configure() {
@@ -525,6 +540,7 @@ public class InMemoryIntegrationPersistence {
             bind(IssueService.class).toInstance(issueService);
             bind(Thesaurus.class).toInstance(thesaurus);
             bind(DataModel.class).toProvider(() -> dataModel);
+            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }
 
