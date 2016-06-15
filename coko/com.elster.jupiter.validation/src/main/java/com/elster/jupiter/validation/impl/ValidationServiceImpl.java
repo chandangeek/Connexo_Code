@@ -50,7 +50,6 @@ import com.elster.jupiter.validation.ValidatorFactory;
 import com.elster.jupiter.validation.ValidatorNotFoundException;
 import com.elster.jupiter.validation.impl.kpi.DataValidationKpiServiceImpl;
 import com.elster.jupiter.validation.kpi.DataValidationKpiService;
-import com.elster.jupiter.validation.security.Privileges;
 
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
@@ -67,6 +66,7 @@ import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;

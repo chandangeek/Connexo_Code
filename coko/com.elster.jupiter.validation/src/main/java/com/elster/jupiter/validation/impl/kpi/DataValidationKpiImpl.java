@@ -259,7 +259,7 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
         }
 
         private String taskName() {
-            return this.kpiType.recurrentTaskName(deviceGroup.get());
+            return this.kpiType.recurrentTaskName(deviceGroup.get().getId());
         }
 
     }

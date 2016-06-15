@@ -1,7 +1,6 @@
 package com.elster.jupiter.validation.impl.kpi;
 
 
-import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.validation.kpi.DataValidationKpi;
 import com.elster.jupiter.validation.kpi.DataValidationKpiService;
@@ -15,8 +14,8 @@ public enum KpiType {
 
     VALIDATION {
         @Override
-        public String recurrentTaskName(EndDeviceGroup deviceGroup) {
-            return deviceGroup.getName() + " - Validation KPI";
+        public String recurrentTaskName(Long id) {
+            return String.valueOf(id) + " - Validation KPI";
         }
 
         @Override
@@ -29,7 +28,7 @@ public enum KpiType {
 
     private static final Pattern PAYLOAD_PARSE_PATTERN = Pattern.compile("(\\w*)-(\\d*)");
 
-    public abstract String recurrentTaskName(EndDeviceGroup endDeviceGroup);
+    public abstract String recurrentTaskName(Long id);
 
     public String recurrentPayload(long id) {
         return this.name() + '-' + id;
