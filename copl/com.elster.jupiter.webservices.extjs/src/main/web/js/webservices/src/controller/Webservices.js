@@ -3,7 +3,7 @@ Ext.define('Wss.controller.Webservices', {
 
     views: [
         'Wss.view.Setup',
-        'Uni.view.window.Confirmation'
+        'Uni.view.window.Confirmation',
         'Wss.view.Add'
     ],
     stores: [
