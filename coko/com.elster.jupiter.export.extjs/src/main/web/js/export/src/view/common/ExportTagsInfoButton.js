@@ -2,7 +2,8 @@ Ext.define('Dxp.view.common.ExportTagsInfoButton', {
     extend: 'Ext.button.Button',
     xtype: 'dxp-export-tags-info-button',
     tooltip: '-- To do -- ',
-    iconCls: 'uni-icon-info-small',
+    text: '<span class="icon-info" style="cursor:default; display:inline-block; color:#A9A9A9; font-size:16px;"></span>',
+    disabled: true, // to avoid a hand cursor
     ui: 'blank',
     shadow: false,
     margin: '5 0 0 10',

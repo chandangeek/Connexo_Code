@@ -48,21 +48,14 @@ Ext.define('Dxp.view.tasks.EventTypeWindow', {
                                     {
                                         xtype: 'radio',
                                         itemId: 'des-eventtype-input-radio',
-                                        boxLabel: Uni.I18n.translate('export.eventType.specifyEventType', 'DES', 'Specify event type'),
+                                        boxLabel: '<span style="display:inline-block; float: left; margin-right:7px;" >' + Uni.I18n.translate('export.eventType.specifyEventType', 'DES', 'Specify event type') + '</span>'
+                                            + '<span class="icon-info" style="cursor:default; display:inline-block; color:#A9A9A9; font-size:16px;" data-qtip="'
+                                            + Uni.I18n.translate('export.eventType.tooltip', 'DES', "The wildcard '*' can be used in each part of the event type and will match all possible values.")
+                                            + '"></span>',
                                         name: 'rb',
                                         inputValue: '0',
                                         margin: '10 0 0 0',
                                         checked: true
-                                    },
-                                    {
-                                        xtype: 'button',
-                                        tooltip: Uni.I18n.translate('export.eventType.tooltip', 'DES', "The wildcard '*' can be used in each part of the event type and will match all possible values."),
-                                        iconCls: 'uni-icon-info-small',
-                                        ui: 'blank',
-                                        shadow: false,
-                                        margin: '15 0 0 10',
-                                        width: 16,
-                                        tabIndex: -1
                                     }
                                 ]
                             },

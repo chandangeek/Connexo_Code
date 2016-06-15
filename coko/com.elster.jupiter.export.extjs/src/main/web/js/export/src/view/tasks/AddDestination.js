@@ -214,7 +214,8 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                                 xtype: 'button',
                                 itemId: 'txt-user-name-info',
                                 tooltip: Uni.I18n.translate('dataExport.recipients.tooltip', 'DES', 'Separate multiple e-mailaddresses by semicolons (;)'),
-                                iconCls: 'uni-icon-info-small',
+                                text: '<span class="icon-info" style="cursor:default; display:inline-block; color:#A9A9A9; font-size:16px;"></span>',
+                                disabled: true, // to avoid a hand cursor
                                 ui: 'blank',
                                 shadow: false,
                                 margin: '6 0 0 10',

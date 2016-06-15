@@ -670,7 +670,8 @@ Ext.define('Dxp.view.tasks.Add', {
                             {
                                 xtype: 'button',
                                 tooltip:'',
-                                iconCls: 'uni-icon-info-small',
+                                text: '<span class="icon-info" style="cursor:default; display:inline-block; color:#A9A9A9; font-size:16px;"></span>',
+                                disabled: true, // to avoid a hand cursor
                                 ui: 'blank',
                                 itemId: 'file-formatter-info',
                                 shadow: false,
