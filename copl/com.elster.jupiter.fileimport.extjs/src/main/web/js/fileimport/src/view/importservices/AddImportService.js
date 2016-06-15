@@ -123,7 +123,7 @@ Ext.define('Fim.view.importservices.AddImportService', {
                                 xtype: 'button',
                                 itemId: 'txt-file-pattern-info',
                                 tooltip: Uni.I18n.translate('importService.filePattern.tooltip', 'FIM', 'Click for more information'),
-                                iconCls: 'uni-icon-info-small',
+                                text: '<span class="icon-info" style="display:inline-block; color:#A9A9A9; font-size:16px;"></span>',
                                 ui: 'blank',
                                 shadow: false,
                                 margin: '6 0 0 10',
