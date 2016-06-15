@@ -77,6 +77,7 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
 
     public void install(Logger logger) {
         new Installer(this.meteringService, this).install(null, logger);
+        userService.addModulePrivileges(this);
     }
 
     @Override
@@ -348,7 +349,8 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
     }
 
     @Override
-    public void validateUsagePointMeterActivation(MeterRole meterRole, Meter meter, UsagePoint usagePoint) throws CustomUsagePointMeterActivationValidationException {
+    public void validateUsagePointMeterActivation(MeterRole meterRole, Meter meter, UsagePoint usagePoint) throws
+            CustomUsagePointMeterActivationValidationException {
         this.activationValidatorsWhiteboard.validateUsagePointMeterActivation(meterRole, meter, usagePoint);
     }
 
