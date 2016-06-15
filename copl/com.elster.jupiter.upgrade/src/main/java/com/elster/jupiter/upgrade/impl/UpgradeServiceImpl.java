@@ -26,6 +26,9 @@ import javax.sql.DataSource;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 @Component(name = "com.elster.jupiter.upgrade", immediate = true, service = UpgradeService.class)
@@ -40,6 +43,24 @@ public class UpgradeServiceImpl implements UpgradeService {
     private final Logger logger = Logger.getLogger("com.elster.jupiter.upgrade");
 
     public UpgradeServiceImpl() {
+        Logger flywayLogger = Logger.getLogger("org.flywaydb");
+        flywayLogger.setUseParentHandlers(false);
+        Arrays.stream(flywayLogger.getHandlers())
+                .forEach(flywayLogger::removeHandler);
+        flywayLogger.addHandler(new Handler() {
+            @Override
+            public void publish(LogRecord record) {
+                logger.log(record);
+            }
+
+            @Override
+            public void flush() {
+            }
+
+            @Override
+            public void close() throws SecurityException {
+            }
+        });
     }
 
     @Inject
@@ -78,7 +99,10 @@ public class UpgradeServiceImpl implements UpgradeService {
             } else {
                 MigrationInfoService migrationInfoService = flyway.info();
                 if (migrationInfoService.pending().length != 0) {
-                    throw new RuntimeException("Upgrade needed for " + installIdentifier);
+                    String message = "Upgrade needed for " + installIdentifier;
+                    logger.log(Level.SEVERE, message);
+                    System.out.println(message);
+                    System.exit(4);
                 }
             }
         } catch (RuntimeException e) { // TODO (maybe separate exc handling for both modes?)
@@ -89,6 +113,7 @@ public class UpgradeServiceImpl implements UpgradeService {
 
     private Flyway createFlyway(InstallIdentifier installIdentifier) {
         Flyway flyway = new Flyway();
+        flyway.setSkipDefaultResolvers(true);
         DataSource dataSource = bootstrapService.createDataSource();
         flyway.setDataSource(dataSource);
         flyway.setTable("FLYWAYMETA." + installIdentifier);
