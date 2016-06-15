@@ -2,6 +2,7 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
     extend: 'Ext.app.Controller',
 
     views: [
+        'Uni.util.FormEmptyMessage',
         'Mdc.view.setup.devicehistory.Setup',
         'Mdc.view.setup.devicehistory.LifeCycle',
         'Mdc.view.setup.devicehistory.Firmware',
@@ -73,8 +74,11 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
             firmwareHistoryStore.load(function() {
                 if (firmwareHistoryStore.getTotalCount()===0) {
                     firmwareTab.add({
-                        xtype: 'label',
-                        text: Uni.I18n.translate('general.noFirmwareHistory', 'MDC', 'No firmware history available')
+                        xtype: 'form',
+                        items: {
+                            xtype: 'uni-form-empty-message',
+                            text: Uni.I18n.translate('general.noFirmwareHistory', 'MDC', 'No firmware history available')
+                        }
                     });
                 } else {
                     firmwareTab.add(firmwareHistoryPanel);
