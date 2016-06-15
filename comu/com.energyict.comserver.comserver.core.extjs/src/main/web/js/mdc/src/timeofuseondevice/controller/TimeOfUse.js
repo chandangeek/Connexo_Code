@@ -82,6 +82,9 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
                                     if (!(Object.keys(result).length === 0 && result.constructor === Object)  && resultSet.records[0].getActiveCalendar() !== null) {
                                         view.down('device-tou-preview-form').fillFieldContainers(resultSet.records[0]);
                                         view.down('device-tou-preview-form').show();
+                                        if(resultSet.records[0].get('activeIsGhost') === true) {
+                                            view.down('tou-device-action-menu').showPreview = false;
+                                        }
                                         view.down('tou-device-action-menu').record = resultSet.records[0].getActiveCalendar();
 
                                     } else {
@@ -170,7 +173,7 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
             success: function (record) {
                 me.getApplication().fireEvent('loadDevice', record);
                 view = Ext.widget('tou-device-view-calendar-setup', {
-                    url: '/api/ddr/devices/device/timeofuse',
+                    url: '/api/ddr/devices/'+ mRID + '/timeofuse',
                     calendarId: calendarId,
                     device: record
                 });
