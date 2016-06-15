@@ -105,8 +105,12 @@ public class UpgradeServiceImpl implements UpgradeService {
                     System.exit(4);
                 }
             }
-        } catch (RuntimeException e) { // TODO (maybe separate exc handling for both modes?)
+        } catch (RuntimeException e) {
+            String message = "Upgrade of " + installIdentifier + " failed with an exception.";
+            logger.log(Level.SEVERE, message, e);
             e.printStackTrace();
+            System.out.println(message);
+            System.exit(5);
             throw e;
         }
     }
