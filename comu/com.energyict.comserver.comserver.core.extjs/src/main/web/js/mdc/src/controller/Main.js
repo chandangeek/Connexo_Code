@@ -107,6 +107,7 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.timeofuse.controller.TimeOfUse',
         'Mdc.controller.setup.ServiceCalls',
         'Mdc.timeofuseondevice.controller.TimeOfUse',
+        'Mdc.filemanagement.controller.FileManagement',
         'Mdc.metrologyconfiguration.controller.ListView',
         'Mdc.metrologyconfiguration.controller.AddView'
     ],
