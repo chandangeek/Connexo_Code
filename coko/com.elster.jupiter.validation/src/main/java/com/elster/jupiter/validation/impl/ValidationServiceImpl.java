@@ -28,8 +28,6 @@ import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.users.PrivilegesProvider;
-import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
@@ -49,7 +47,6 @@ import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.ValidatorFactory;
 import com.elster.jupiter.validation.ValidatorNotFoundException;
-import com.elster.jupiter.validation.security.Privileges;
 
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
@@ -64,7 +61,6 @@ import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -80,10 +76,10 @@ import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(
         name = "com.elster.jupiter.validation",
-        service = {ValidationService.class, PrivilegesProvider.class, MessageSeedProvider.class, TranslationKeyProvider.class},
+        service = {ValidationService.class, MessageSeedProvider.class, TranslationKeyProvider.class},
         property = "name=" + ValidationService.COMPONENTNAME,
         immediate = true)
-public class ValidationServiceImpl implements ValidationService, PrivilegesProvider, MessageSeedProvider, TranslationKeyProvider {
+public class ValidationServiceImpl implements ValidationService, MessageSeedProvider, TranslationKeyProvider {
 
     public static final String DESTINATION_NAME = "DataValidation";
     public static final String SUBSCRIBER_NAME = "DataValidation";
@@ -510,22 +506,6 @@ public class ValidationServiceImpl implements ValidationService, PrivilegesProvi
     }
 
     @Override
-    public String getModuleName() {
-        return ValidationService.COMPONENTNAME;
-    }
-
-    @Override
-    public List<ResourceDefinition> getModuleResources() {
-        List<ResourceDefinition> resources = new ArrayList<>();
-        resources.add(userService.createModuleResourceWithPrivileges(ValidationService.COMPONENTNAME, Privileges.RESOURCE_VALIDATION.getKey(), Privileges.RESOURCE_VALIDATION_DESCRIPTION.getKey(),
-                Arrays.asList(
-                        Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.VIEW_VALIDATION_CONFIGURATION,
-                        Privileges.Constants.VALIDATE_MANUAL, Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE,
-                        Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION)));
-        return resources;
-    }
-
-    @Override
     public String getComponentName() {
         return ValidationService.COMPONENTNAME;
     }
@@ -668,6 +648,10 @@ public class ValidationServiceImpl implements ValidationService, PrivilegesProvi
     @Override
     public Optional<DataValidationOccurrence> findDataValidationOccurrence(TaskOccurrence occurrence) {
         return dataModel.query(DataValidationOccurrence.class, DataValidationTask.class).select(EQUAL.compare("taskOccurrence", occurrence)).stream().findFirst();
+    }
+
+    public DataValidationOccurrence findAndLockDataValidationOccurrence(TaskOccurrence occurrence) {
+        return dataModel.mapper(DataValidationOccurrence.class).lock(occurrence.getId());
     }
 
     @Override
