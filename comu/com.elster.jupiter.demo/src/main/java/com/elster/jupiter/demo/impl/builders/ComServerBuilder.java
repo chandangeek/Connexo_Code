@@ -7,14 +7,9 @@ import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.OnlineComServer;
 
 import javax.inject.Inject;
-import java.text.MessageFormat;
 import java.util.Optional;
 
 public class ComServerBuilder extends NamedBuilder<ComServer, ComServerBuilder> {
-
-    private static final String EVENT_REGISTRATIION_URI_PATTERN = "ws://{0}:8888/events/registration";
-    private static final String QUERY_API_URI_PATTERN = "ws://{0}:8889/remote/queries";
-    private static final String STATUS_URI_PATTERN = "http://{0}:8080/api/dsr/comserverstatus";
 
     private final EngineConfigurationService engineModelService;
 
@@ -50,9 +45,10 @@ public class ComServerBuilder extends NamedBuilder<ComServer, ComServerBuilder> 
         comServer.storeTaskQueueSize(50);
         comServer.numberOfStoreTaskThreads(5);
         comServer.storeTaskThreadPriority(5);
-        comServer.statusUri(MessageFormat.format(STATUS_URI_PATTERN, getName()));
-        comServer.queryApiPostUri(MessageFormat.format(QUERY_API_URI_PATTERN, getName()));
-        comServer.eventRegistrationUri(MessageFormat.format(EVENT_REGISTRATIION_URI_PATTERN, getName()));
+        comServer.serverName(getName());
+        comServer.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
+        comServer.queryApiPort(ComServer.DEFAULT_QUERY_API_PORT_NUMBER);
+        comServer.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
         return comServer.create();
     }
 
