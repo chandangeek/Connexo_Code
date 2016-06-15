@@ -42,6 +42,7 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 
 import javax.inject.Inject;
+import java.net.URL;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -153,7 +154,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         info.version = usagePoint.getVersion();
         info.createTime = usagePoint.getCreateDate().toEpochMilli();
         info.modTime = usagePoint.getModificationDate().toEpochMilli();
-        info.connectionState = new IdWithNameInfo(usagePoint.getConnectionState(), thesaurus.getFormat(ConnectionStateTranslationKeys
+        info.connectionState = new IdWithNameInfo(usagePoint.getConnectionState().getId(), thesaurus.getFormat(ConnectionStateTranslationKeys
                 .getTranslatedKeys(usagePoint.getConnectionState())).format());
         info.displayConnectionState = usagePoint.getConnectionState().getName();
         info.displayServiceCategory = usagePoint.getServiceCategory().getDisplayName();
@@ -361,8 +362,12 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                         meterActivationInfo.meter.watsGoingOnMeterStatus = getWatsGoingOnMeterStatus(meter, auth);
                         meterActivationInfo.meterRole.activationTime = meterActivationForMeterRole.getStart();
                         meterActivationInfo.id = meterActivationForMeterRole.getId();
+                        meterActivationInfo.meter.url = meter.getHeadEndInterface()
+                                .map(he -> he.getURLForEndDevice(meter)
+                                        .map(URL::toString)
+                                        .orElse(null))
+                                .orElse(null);
                     }
-
                     return meterActivationInfo;
                 })
                 .collect(Collectors.toList());
