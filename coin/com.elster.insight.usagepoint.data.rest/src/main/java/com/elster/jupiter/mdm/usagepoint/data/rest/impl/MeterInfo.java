@@ -6,13 +6,14 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.UsagePoint;
 
+import java.net.URL;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class MeterInfo {
-	
+
     public long id;
     public String aliasName;
     public String description;
@@ -30,11 +31,12 @@ public class MeterInfo {
     public long removedDate;
     public long retiredDate;
     public List meterActivations;
+    public String url;
     public WatsGoingOnMeterStatusInfo watsGoingOnMeterStatus;
 
     public MeterInfo() {
     }
-    
+
     public MeterInfo(Meter meter) {
         this.id = meter.getId();
         this.aliasName = meter.getAliasName();
@@ -76,6 +78,12 @@ public class MeterInfo {
      		usagePointName = usagePoint.get().getName();
      		usagePointMRId = usagePoint.get().getMRID();
         }
+
+        this.url = meter.getHeadEndInterface()
+                .map(he -> he.getURLForEndDevice(meter)
+                        .map(URL::toString)
+                        .orElse(null))
+                .orElse(null);
     }
     
 }
