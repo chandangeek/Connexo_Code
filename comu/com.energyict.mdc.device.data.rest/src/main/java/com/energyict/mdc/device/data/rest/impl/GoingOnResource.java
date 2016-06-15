@@ -125,6 +125,7 @@ public class GoingOnResource {
         private GoingOnInfo toGoingOnInfo(Issue issue) {
             GoingOnInfo goingOnInfo = new GoingOnInfo();
             goingOnInfo.type = "issue";
+            goingOnInfo.issueType = issue.getReason().getIssueType().getKey();
             goingOnInfo.id = issue.getId();
             goingOnInfo.reference = null;
             goingOnInfo.description = issue.getReason().getName();
@@ -139,6 +140,7 @@ public class GoingOnResource {
         private GoingOnInfo toGoingOnInfo(ServiceCall serviceCall) {
             GoingOnInfo goingOnInfo = new GoingOnInfo();
             goingOnInfo.type = "servicecall";
+            goingOnInfo.issueType = null;
             goingOnInfo.id = serviceCall.getId();
             goingOnInfo.reference = serviceCall.getNumber();
             goingOnInfo.description = serviceCall.getType().getName();
@@ -156,6 +158,7 @@ public class GoingOnResource {
                     .min(Comparator.comparing(info -> Long.parseLong(info.dueDate)));
             GoingOnInfo goingOnInfo = new GoingOnInfo();
             goingOnInfo.type = "process";
+            goingOnInfo.issueType = null;
             goingOnInfo.id = userTaskInfo.map(info -> Long.parseLong(info.id)).orElse(0L);
             goingOnInfo.reference = null;
             goingOnInfo.description = processInstanceInfo.name;
