@@ -55,10 +55,14 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
         assertThat(jsonModel.<Boolean>get("endpoints[0].authenticated")).isEqualTo(Boolean.TRUE);
         assertThat(jsonModel.<String>get("endpoints[0].username")).isNull();
         assertThat(jsonModel.<String>get("endpoints[0].password")).isNull();
+        assertThat(jsonModel.<Boolean>get("endpoints[0].tracing")).isTrue();
+        assertThat(jsonModel.<String>get("endpoints[0].traceFile")).isEqualTo("webservices.log");
         assertThat(jsonModel.<Integer>get("endpoints[1].id")).isEqualTo(2);
         assertThat(jsonModel.<Integer>get("endpoints[1].version")).isEqualTo(902);
         assertThat(jsonModel.<String>get("endpoints[1].name")).isEqualTo("currency");
         assertThat(jsonModel.<Boolean>get("endpoints[1].authenticated")).isNull();
+        assertThat(jsonModel.<Boolean>get("endpoints[1].tracing")).isTrue();
+        assertThat(jsonModel.<String>get("endpoints[1].traceFile")).isEqualTo("webservices.log");
         assertThat(jsonModel.<String>get("endpoints[1].username")).isEqualTo("username");
         assertThat(jsonModel.<String>get("endpoints[1].password")).isEqualTo("password");
     }
@@ -77,6 +81,8 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
         assertThat(jsonModel.<Boolean>get("httpCompression")).isEqualTo(Boolean.TRUE);
         assertThat(jsonModel.<String>get("username")).isNull();
         assertThat(jsonModel.<String>get("password")).isNull();
+        assertThat(jsonModel.<Boolean>get("tracing")).isTrue();
+        assertThat(jsonModel.<String>get("traceFile")).isEqualTo("webservices.log");
         assertThat(jsonModel.<String>get("webServiceName")).isEqualTo("CIM");
         assertThat(jsonModel.<String>get("url")).isEqualTo("/cim");
         assertThat(jsonModel.<String>get("logLevel.id")).isEqualTo("INFO");
@@ -116,6 +122,7 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
         info.httpCompression = true;
         info.schemaValidation = true;
         info.tracing = true;
+        info.traceFile = "yyy";
         info.authenticated = false;
         info.active = false;
         info.url = "/srv";
@@ -126,6 +133,7 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
         verify(inboundEndPointConfiguration).setHttpCompression(true);
         verify(inboundEndPointConfiguration).setSchemaValidation(true);
         verify(inboundEndPointConfiguration).setTracing(true);
+        verify(inboundEndPointConfiguration).setTraceFile("yyy");
         verify(inboundEndPointConfiguration).setName("new endpoint");
         verify(inboundEndPointConfiguration).setLogLevel(LogLevel.SEVERE);
         verify(inboundEndPointConfiguration).setUrl("/srv");
@@ -146,6 +154,7 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
         info.httpCompression = true;
         info.schemaValidation = true;
         info.tracing = true;
+        info.traceFile = "xxx";
         info.authenticated = false;
         info.username = "u";
         info.password = "p";
@@ -159,6 +168,7 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
         verify(outboundEndPointConfiguration).setHttpCompression(true);
         verify(outboundEndPointConfiguration).setSchemaValidation(true);
         verify(outboundEndPointConfiguration).setTracing(true);
+        verify(outboundEndPointConfiguration).setTraceFile("xxx");
         verify(outboundEndPointConfiguration).setName("new endpoint");
         verify(outboundEndPointConfiguration).setLogLevel(LogLevel.SEVERE);
         verify(outboundEndPointConfiguration).setUrl("/srv");

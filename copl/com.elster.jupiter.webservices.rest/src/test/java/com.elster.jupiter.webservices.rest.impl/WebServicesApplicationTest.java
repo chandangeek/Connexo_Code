@@ -66,6 +66,7 @@ public class WebServicesApplicationTest extends FelixRestApplicationJerseyTest {
         when(mock.isHttpCompression()).thenReturn(true);
         when(mock.isSchemaValidation()).thenReturn(true);
         when(mock.isTracing()).thenReturn(true);
+        when(mock.getTraceFile()).thenReturn("webservices.log");
         when(endPointConfigurationService.getEndPointConfiguration(name)).thenReturn(Optional.of(mock));
         when(endPointConfigurationService.getEndPointConfiguration(id)).thenReturn(Optional.of(mock));
         when(endPointConfigurationService.findAndLockEndPointConfigurationByIdAndVersion(id, version)).thenReturn(Optional
@@ -86,6 +87,7 @@ public class WebServicesApplicationTest extends FelixRestApplicationJerseyTest {
         when(mock.isHttpCompression()).thenReturn(true);
         when(mock.isSchemaValidation()).thenReturn(true);
         when(mock.isTracing()).thenReturn(true);
+        when(mock.getTraceFile()).thenReturn("webservices.log");
         when(mock.getPassword()).thenReturn("password");
         when(mock.getUsername()).thenReturn("username");
         when(endPointConfigurationService.getEndPointConfiguration(name)).thenReturn(Optional.of(mock));

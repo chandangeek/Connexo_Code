@@ -131,6 +131,8 @@ public class EndPointConfigurationResource {
         }
         if (info.tracing == null) {
             throw new LocalizedFieldValidationException(MessageSeeds.FIELD_EXPECTED, "tracing");
+        } else if (info.traceFile == null) {
+            throw new LocalizedFieldValidationException(MessageSeeds.FIELD_EXPECTED, "traceFile");
         }
         if (info.active == null) {
             throw new LocalizedFieldValidationException(MessageSeeds.FIELD_EXPECTED, "active");

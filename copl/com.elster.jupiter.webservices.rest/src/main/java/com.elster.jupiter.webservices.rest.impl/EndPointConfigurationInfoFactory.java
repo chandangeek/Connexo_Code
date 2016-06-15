@@ -36,6 +36,7 @@ public class EndPointConfigurationInfoFactory {
                 .getDisplayName(thesaurus));
         info.httpCompression = endPointConfiguration.isHttpCompression();
         info.tracing = endPointConfiguration.isTracing();
+        info.traceFile = endPointConfiguration.getTraceFile();
         info.schemaValidation = endPointConfiguration.isSchemaValidation();
         if (InboundEndPointConfiguration.class.isAssignableFrom(endPointConfiguration.getClass())) {
             info.direction = EndPointConfigDirection.Inbound;
@@ -66,6 +67,7 @@ public class EndPointConfigurationInfoFactory {
         if (Boolean.TRUE.equals(info.authenticated)) {
             builder.authenticated();
         }
+        builder.traceFile(info.traceFile);
         EndPointConfiguration endPointConfiguration = builder.create();
         if (Boolean.TRUE.equals(info.active)) {
             endPointConfigurationService.activate(endPointConfiguration);
@@ -95,6 +97,7 @@ public class EndPointConfigurationInfoFactory {
         if (info.password != null) {
             builder.username(info.password);
         }
+        builder.traceFile(info.traceFile);
         EndPointConfiguration endPointConfiguration = builder.create();
         if (Boolean.TRUE.equals(info.active)) {
             endPointConfigurationService.activate(endPointConfiguration);
@@ -124,5 +127,6 @@ public class EndPointConfigurationInfoFactory {
         endPointConfiguration.setHttpCompression(info.httpCompression);
         endPointConfiguration.setLogLevel(LogLevel.valueOf(info.logLevel.id));
         endPointConfiguration.setTracing(info.tracing);
+        endPointConfiguration.setTraceFile(info.traceFile);
     }
 }

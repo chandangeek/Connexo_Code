@@ -13,6 +13,7 @@ public class EndPointConfigurationInfo {
     public String url;
     public IdWithDisplayValueInfo<String> logLevel;
     public Boolean tracing;
+    public String traceFile;
     public Boolean httpCompression;
     public Boolean schemaValidation;
     public Boolean active;
