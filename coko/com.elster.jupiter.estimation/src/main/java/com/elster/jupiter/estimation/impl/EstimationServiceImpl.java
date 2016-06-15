@@ -38,8 +38,6 @@ import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.users.PrivilegesProvider;
-import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UpdatableHolder;
 import com.elster.jupiter.util.conditions.Condition;
@@ -62,7 +60,6 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import javax.validation.MessageInterpolator;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -81,8 +78,8 @@ import java.util.stream.Stream;
 import static com.elster.jupiter.util.conditions.Where.where;
 import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 
-@Component(name = "com.elster.jupiter.estimation", service = {EstimationService.class, TranslationKeyProvider.class, MessageSeedProvider.class, PrivilegesProvider.class}, property = "name=" + EstimationService.COMPONENTNAME, immediate = true)
-public class EstimationServiceImpl implements IEstimationService, TranslationKeyProvider, MessageSeedProvider, PrivilegesProvider {
+@Component(name = "com.elster.jupiter.estimation", service = {EstimationService.class, TranslationKeyProvider.class, MessageSeedProvider.class}, property = "name=" + EstimationService.COMPONENTNAME, immediate = true)
+public class EstimationServiceImpl implements IEstimationService, TranslationKeyProvider, MessageSeedProvider {
 
     static final String ESTIMATION_TASKS_USER = "estimation";
     static final String DESTINATION_NAME = "EstimationTask";
@@ -543,24 +540,6 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
     @Override
     public Layer getLayer() {
         return Layer.DOMAIN;
-    }
-
-    @Override
-    public String getModuleName() {
-        return EstimationService.COMPONENTNAME;
-    }
-
-    @Override
-    public List<ResourceDefinition> getModuleResources() {
-        List<ResourceDefinition> resources = new ArrayList<>();
-        resources.add(userService.createModuleResourceWithPrivileges(EstimationService.COMPONENTNAME, Privileges.RESOURCE_ESTIMATION_RULES.getKey(), Privileges.RESOURCE_ESTIMATION_RULES_DESCRIPTION.getKey(),
-                Arrays.asList(
-                        Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION,
-                        Privileges.Constants.UPDATE_ESTIMATION_CONFIGURATION,Privileges.Constants.UPDATE_SCHEDULE_ESTIMATION_TASK,
-                        Privileges.Constants.RUN_ESTIMATION_TASK, Privileges.Constants.VIEW_ESTIMATION_TASK,
-                        Privileges.Constants.ADMINISTRATE_ESTIMATION_TASK, Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE,
-                        Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE_CONFIGURATION)));
-        return resources;
     }
 
     @Override

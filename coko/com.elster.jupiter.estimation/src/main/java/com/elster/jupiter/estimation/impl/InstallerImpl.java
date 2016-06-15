@@ -1,5 +1,7 @@
 package com.elster.jupiter.estimation.impl;
 
+import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.estimation.security.Privileges;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
@@ -12,11 +14,16 @@ import com.elster.jupiter.time.RelativePeriodCategory;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.users.Group;
+import com.elster.jupiter.users.PrivilegesProvider;
+import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
 
@@ -29,7 +36,7 @@ import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.THIS_YEAR;
 import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.TODAY;
 import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.YESTERDAY;
 
-class InstallerImpl implements FullInstaller {
+class InstallerImpl implements FullInstaller, PrivilegesProvider {
 
     public static final String DESTINATION_NAME = EstimationServiceImpl.DESTINATION_NAME;
     public static final String SUBSCRIBER_NAME = EstimationServiceImpl.SUBSCRIBER_NAME;
@@ -85,7 +92,7 @@ class InstallerImpl implements FullInstaller {
                 this::createTaskExecutorUser,
                 logger
         );
-
+        userService.addModulePrivileges(this);
     }
 
     private void createRelativePeriodCategory() {
@@ -99,6 +106,25 @@ class InstallerImpl implements FullInstaller {
         destinationSpec.activate();
         destinationSpec.subscribe(SUBSCRIBER_NAME);
     }
+
+    @Override
+    public String getModuleName() {
+        return EstimationService.COMPONENTNAME;
+    }
+
+    @Override
+    public List<ResourceDefinition> getModuleResources() {
+        List<ResourceDefinition> resources = new ArrayList<>();
+        resources.add(userService.createModuleResourceWithPrivileges(EstimationService.COMPONENTNAME, Privileges.RESOURCE_ESTIMATION_RULES.getKey(), Privileges.RESOURCE_ESTIMATION_RULES_DESCRIPTION.getKey(),
+                Arrays.asList(
+                        Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION,
+                        Privileges.Constants.UPDATE_ESTIMATION_CONFIGURATION,Privileges.Constants.UPDATE_SCHEDULE_ESTIMATION_TASK,
+                        Privileges.Constants.RUN_ESTIMATION_TASK, Privileges.Constants.VIEW_ESTIMATION_TASK,
+                        Privileges.Constants.ADMINISTRATE_ESTIMATION_TASK, Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE,
+                        Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE_CONFIGURATION)));
+        return resources;
+    }
+
 
     private RelativePeriodCategory getCategory() {
         return timeService.findRelativePeriodCategoryByName(RELATIVE_PERIOD_CATEGORY)
