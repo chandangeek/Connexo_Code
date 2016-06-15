@@ -15,7 +15,8 @@ Ext.define('Wss.controller.Webservices', {
     ],
 
     refs: [
-        {ref: 'addForm', selector: '#addForm'}
+        {ref: 'preview', selector: 'webservices-preview'},
+        {ref: 'addForm', selector: '#addForm'},
         {
             ref: 'preview',
             selector: 'webservices-preview'
@@ -31,7 +32,7 @@ Ext.define('Wss.controller.Webservices', {
         this.control({
             'webservices-setup webservices-grid': {
                 select: this.showPreview
-            },
+            }
         });
     },
 
