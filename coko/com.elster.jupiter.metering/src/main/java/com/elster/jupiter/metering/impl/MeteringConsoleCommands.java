@@ -181,6 +181,11 @@ public class MeteringConsoleCommands {
         }
     }
 
+    public void activateMeter() {
+        System.out.println("Usage activateMeter <mRID> <epoch millis> [<meter role> <usage point mRID]");
+        System.out.println("       where meter role is one of: " + Stream.of(DefaultMeterRole.values()).map(DefaultMeterRole::name).collect(Collectors.joining(", ")));
+    }
+
     public void activateMeter(String mrId, long epochMilli) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
@@ -189,6 +194,29 @@ public class MeteringConsoleCommands {
             meter.activate(activationDate);
             meter.update();
             context.commit();
+        } finally {
+            threadPrincipalService.clear();
+        }
+    }
+
+    public void activateMeter(String mrId, long epochMilli, String defaultMeterRoleName, String usagePointMRID) {
+        threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            DefaultMeterRole defaultMeterRole = DefaultMeterRole.valueOf(defaultMeterRoleName);
+            MeterRole meterRole = this.metrologyConfigurationService.findDefaultMeterRole(defaultMeterRole);
+            Optional<Meter> meter = meteringService.findMeter(mrId);
+            if (meter.isPresent()) {
+                Optional<UsagePoint> usagePoint = this.meteringService.findUsagePoint(usagePointMRID);
+                if (usagePoint.isPresent()) {
+                    Instant activationDate = Instant.ofEpochMilli(epochMilli);
+                    meter.get().activate(usagePoint.get(), meterRole, activationDate);
+                    context.commit();
+                } else {
+                    throw new RuntimeException("Usagepoint with mRID " + usagePointMRID + " does not exist");
+                }
+            } else {
+                throw new RuntimeException("Meter with mRID " + mrId + " does not exist");
+            }
         } finally {
             threadPrincipalService.clear();
         }
