@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-
+@MustHaveUniqueEndDeviceGroup(message=MessageSeeds.Constants.DEVICE_GROUP_MUST_BE_UNIQUE, groups={Save.Create.class, Save.Update.class})
 public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAware {
 
     public enum Fields {
@@ -70,7 +70,7 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
     private Reference<RecurrentTask> dataValidationKpiTask = ValueReference.absent();
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
     private Reference<EndDeviceGroup> deviceGroup = ValueReference.absent();
-    @NotNull(message = MessageSeeds.Constants.NAME_REQUIRED_KEY, groups={Save.Create.class, Save.Update.class})
+    @NotNull(message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
     private transient TemporalAmount frequency;
     private RecurrentTaskSaveStrategy recurrentTaskSaveStrategy = new CreateRecurrentTask(dataValidationKpi, dataValidationKpiTask, KpiType.VALIDATION);
 
