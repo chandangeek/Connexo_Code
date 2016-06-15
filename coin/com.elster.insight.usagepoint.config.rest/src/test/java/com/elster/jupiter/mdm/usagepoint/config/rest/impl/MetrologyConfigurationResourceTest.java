@@ -498,4 +498,17 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         Response response = target("metrologyconfigurations/13/activate").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
+
+    @Test
+    public void testdeprecateMetrologyConfiguration() throws Exception {
+        UsagePointMetrologyConfiguration metrologyConfiguration = mockMetrologyConfiguration(13L, "Residential", ServiceKind.ELECTRICITY, MetrologyConfigurationStatus.INACTIVE);
+        MetrologyConfigurationInfo info = new MetrologyConfigurationInfo();
+        info.id = 13L;
+        info.version = 1;
+
+        when(metrologyConfigurationService.findAndLockMetrologyConfiguration(info.id, info.version)).thenReturn(Optional.of(metrologyConfiguration));
+
+        Response response = target("metrologyconfigurations/13/deprecate").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    }
 }

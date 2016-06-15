@@ -140,6 +140,18 @@ public class MetrologyConfigurationResource {
         return metrologyConfigurationInfoFactory.asInfo(metrologyConfiguration);
     }
 
+    @PUT
+    @Path("/{id}/deprecate")
+    @RolesAllowed({Privileges.Constants.ADMINISTER_METROLOGY_CONFIGURATION})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Transactional
+    public MetrologyConfigurationInfo deprecateMetrologyConfiguration(@PathParam("id") long id, MetrologyConfigurationInfo info) {
+        info.id = id;
+        UsagePointMetrologyConfiguration metrologyConfiguration = resourceHelper.findAndLockMetrologyConfiguration(info);
+        metrologyConfiguration.deprecate();
+        return metrologyConfigurationInfoFactory.asInfo(metrologyConfiguration);
+    }
+
     @DELETE
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
