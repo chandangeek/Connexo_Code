@@ -37,7 +37,11 @@ Ext.define('Bpm.processes.model.EditProcess', {
         {
             name: 'privileges',
             persist: false
-        }
+        },
+        {
+            name: 'versionDB',
+            type: 'string'
+        },
     ],
     associations: [
         {

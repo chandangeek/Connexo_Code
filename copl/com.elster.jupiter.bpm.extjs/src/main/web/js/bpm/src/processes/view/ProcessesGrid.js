@@ -51,6 +51,23 @@ Ext.define('Bpm.processes.view.ProcessesGrid', {
 
             },
             {
+                header: Uni.I18n.translate('bpm.process.application', 'BPM', 'Application'),
+                dataIndex: 'appKey',
+                flex: 2,
+                renderer: function (value, metaData, record) {
+                    switch (value) {
+                        case 'INS':
+                            return Uni.I18n.translate('bpm.process.insight', 'BPM', 'Insight');
+                            break;
+                        case 'MDC':
+                            return Uni.I18n.translate('bpm.process.mdc', 'BPM', 'MultiSense');
+                            break;
+                        default:
+                            return value;
+                    }
+                }
+            },
+            {
                 xtype: 'uni-actioncolumn',
                 privileges: Bpm.privileges.BpmManagement.administrateProcesses,
                 width: 100,
