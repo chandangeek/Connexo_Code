@@ -27,14 +27,14 @@ import static java.util.stream.Collectors.toList;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-30 (15:42)
  */
-class Installer implements FullInstaller, PrivilegesProvider {
+public class Installer implements FullInstaller, PrivilegesProvider {
 
     private final DataModel dataModel;
     private final EventService eventService;
     private final UserService userService;
 
     @Inject
-    Installer(DataModel dataModel, EventService eventService, UserService userService) {
+    public Installer(DataModel dataModel, EventService eventService, UserService userService) {
         super();
         this.dataModel = dataModel;
         this.eventService = eventService;
