@@ -81,6 +81,8 @@ import static org.mockito.Mockito.when;
 public class DirectoryForAppServerlIT {
 
     private AppServer appServer;
+    @Mock
+    private Group group;
 
     private class MockModule extends AbstractModule {
 
@@ -169,7 +171,7 @@ public class DirectoryForAppServerlIT {
         }
         when(userService.createUser(any(), any())).thenReturn(user);
         when(userService.createGroup(anyString(), anyString())).thenReturn(mock(Group.class));
-        when(userService.findGroup(anyString())).thenReturn(Optional.empty());
+        when(userService.findGroup(anyString())).thenReturn(Optional.of(group));
         transactionService = injector.getInstance(TransactionService.class);
         transactionService.execute(() -> {
             injector.getInstance(FiniteStateMachineService.class);

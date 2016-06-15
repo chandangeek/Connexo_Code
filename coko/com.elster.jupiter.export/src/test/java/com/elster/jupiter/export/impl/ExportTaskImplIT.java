@@ -65,6 +65,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
+import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.time.Never;
@@ -120,6 +121,8 @@ public class ExportTaskImplIT {
 
     public static final String NAME = "NAME";
     private EnumeratedEndDeviceGroup anotherEndDeviceGroup;
+    @Mock
+    private Group group;
 
     private class MockModule extends AbstractModule {
 
@@ -231,7 +234,7 @@ public class ExportTaskImplIT {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        when(userService.findGroup(anyString())).thenReturn(Optional.empty());
+        when(userService.findGroup(anyString())).thenReturn(Optional.of(group));
         transactionService = injector.getInstance(TransactionService.class);
         transactionService.execute(() -> {
             injector.getInstance(FiniteStateMachineService.class);
