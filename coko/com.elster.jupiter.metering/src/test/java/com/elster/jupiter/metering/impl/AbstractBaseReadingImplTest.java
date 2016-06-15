@@ -105,6 +105,7 @@ public abstract class AbstractBaseReadingImplTest {
                 return new ChannelBuilderImpl(dataModel, channelFactory);
             }
         };
+        when(meter.getHeadEndInterface()).thenReturn(Optional.empty());
         meterActivation = new MeterActivationImpl(dataModel, eventService, clock, channelBuilder, thesaurus).init(meter, null, null, Instant.EPOCH);
         ReadingTypeCodeBuilder builder = ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_PRIMARY_METERED)
                 .measure(MeasurementKind.ENERGY)

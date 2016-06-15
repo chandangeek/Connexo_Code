@@ -88,6 +88,11 @@ public interface UsagePoint extends HasId, IdentifiedObject {
 
     List<? extends UsagePointDetail> getDetail(Range<Instant> range);
 
+    /**
+     * Get all existing details for this usage point
+     */
+    List<? extends UsagePointDetail> getDetails();
+
     Optional<? extends UsagePointDetail> getDetail(Instant when);
 
     void addDetail(UsagePointDetail usagePointDetail);

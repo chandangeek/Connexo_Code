@@ -6,6 +6,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.EventType;
+import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeterAlreadyLinkedToUsagePoint;
@@ -17,12 +18,15 @@ import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointConfiguration;
+import com.elster.jupiter.metering.ami.EndDeviceCapabilities;
 import com.elster.jupiter.metering.config.MeterRole;
+import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.time.Interval;
 
 import com.google.common.collect.ImmutableList;
@@ -36,6 +40,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -98,11 +103,13 @@ public final class MeterActivationImpl implements IMeterActivation {
         return init(null, null, usagePoint, from);
     }
 
-    MeterActivationImpl init(Meter meter, MeterRole role, UsagePoint usagePoint, Instant from) {
+    @Override
+    public MeterActivationImpl init(Meter meter, MeterRole role, UsagePoint usagePoint, Instant from) {
         return init(meter, role, usagePoint, Range.atLeast(from));
     }
 
-    MeterActivationImpl init(Meter meter, MeterRole meterRole, UsagePoint usagePoint, Range<Instant> range) {
+    @Override
+    public MeterActivationImpl init(Meter meter, MeterRole meterRole, UsagePoint usagePoint, Range<Instant> range) {
         if (usagePoint != null && meter != meterRole && (meter == null || meterRole == null)) {
             throw new IllegalArgumentException("You are trying to activate meter on usage point, but you didn't specified a meter role" +
                     " or you specified a meter role, but forgot about meter.");
@@ -111,6 +118,12 @@ public final class MeterActivationImpl implements IMeterActivation {
         this.meterRole.set(meterRole);
         this.usagePoint.set(usagePoint);
         this.interval = Interval.of(range);
+        if (meter != null) {
+            meter.getHeadEndInterface()
+                    .map(headEndInterface -> headEndInterface.getCapabilities(meter))
+                    .map(EndDeviceCapabilities::getConfiguredReadingTypes)
+                    .ifPresent(readingTypeList -> createChannels(readingTypeList));
+        }
         return this;
     }
 
@@ -144,6 +157,33 @@ public final class MeterActivationImpl implements IMeterActivation {
         return Collections.unmodifiableList(channels);
     }
 
+    private void createChannels(List<ReadingType> readingTypes) {
+        Stream<MultiplierUsage> meterMultipliers = getMeter()
+                .flatMap(meter -> meter.getConfiguration(getStart()))
+                .map(MeterConfiguration::getReadingTypeConfigs)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(MultiplierUsage.class::cast);
+        Stream<MultiplierUsage> usagePointMultipliers = getUsagePoint()
+                .flatMap(usagePoint -> usagePoint.getConfiguration(getStart()))
+                .map(UsagePointConfiguration::getReadingTypeConfigs)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(MultiplierUsage.class::cast);
+        Set<ReadingType> calculatedReadingTypes = Stream.concat(meterMultipliers, usagePointMultipliers).map(MultiplierUsage::getCalculated).flatMap(Functions.asStream()).collect(Collectors.toSet());
+
+        List<ReadingType> collect = readingTypes.stream()
+                .filter(not(calculatedReadingTypes::contains))
+                .filter(not(readingType -> isDeltaDeltaOfOther(readingType, readingTypes)))
+                .filter(not(readingType -> isDeltaDeltaOfOther(readingType, calculatedReadingTypes))) // if the calculated reading type is a bulk, automatically the deltadelta will be added
+                .distinct().collect(Collectors.toList());
+        collect.forEach(this::createChannel);
+    }
+
+    private boolean isDeltaDeltaOfOther(ReadingType readingType, Collection<ReadingType> readingTypes) {
+        return readingTypes.stream().anyMatch(readingType::isBulkQuantityReadingType);
+    }
+
     @Override
     public Channel createChannel(ReadingType main, ReadingType... readingTypes) {
         //TODO: check for duplicate channel
@@ -171,14 +211,12 @@ public final class MeterActivationImpl implements IMeterActivation {
         if (!requested.isConnected(getInterval().toOpenClosedRange())) {
             return Collections.emptyList();
         }
-        Channel channel = getChannel(readingType);
-        if (channel == null) {
-            return Collections.emptyList();
-        } else {
+        Optional<Channel> readingTypeChannel = getChannel(readingType);
+        return readingTypeChannel.map(channel -> {
             Function<Interval, Range<Instant>> toRange = channel.isRegular() ? Interval::toOpenClosedRange : Interval::toClosedRange;
             Range<Instant> active = requested.intersection(toRange.apply(getInterval()));
             return channel.getReadings(readingType, active);
-        }
+        }).orElse(Collections.emptyList());
     }
 
     @Override
@@ -187,32 +225,17 @@ public final class MeterActivationImpl implements IMeterActivation {
             return Collections.emptyList();
         }
         Range<Instant> active = range.intersection(getRange());
-        Channel channel = getChannel(readingType);
-        if (channel == null) {
-            return Collections.emptyList();
-        } else {
-            return channel.getReadingsUpdatedSince(readingType, active, since);
-        }
+        return getChannel(readingType).map(channel -> channel.getReadingsUpdatedSince(readingType, active, since)).orElse(Collections.emptyList());
     }
 
     @Override
     public List<BaseReadingRecord> getReadingsBefore(Instant when, ReadingType readingType, int count) {
-        Channel channel = getChannel(readingType);
-        if (channel == null) {
-            return Collections.emptyList();
-        } else {
-            return channel.getReadingsBefore(when, count);
-        }
+        return getChannel(readingType).map(channel -> channel.getReadingsBefore(when, count)).orElse(Collections.emptyList());
     }
 
     @Override
     public List<BaseReadingRecord> getReadingsOnOrBefore(Instant when, ReadingType readingType, int count) {
-        Channel channel = getChannel(readingType);
-        if (channel == null) {
-            return Collections.emptyList();
-        } else {
-            return channel.getReadingsOnOrBefore(when, count);
-        }
+        return getChannel(readingType).map(channel -> channel.getReadingsOnOrBefore(when, count)).orElse(Collections.emptyList());
     }
 
     @Override
@@ -242,7 +265,7 @@ public final class MeterActivationImpl implements IMeterActivation {
     @Override
     public void endAt(Instant end) {
         if (isInvalidEndDate(end)) {
-            throw new IllegalArgumentException();
+            throw new ChannelDataPresentException();
         }
         doEndAt(end);
     }
@@ -272,13 +295,13 @@ public final class MeterActivationImpl implements IMeterActivation {
         return dataModel.mapper(MeterActivation.class);
     }
 
-    private Channel getChannel(ReadingType readingType) {
+    private Optional<Channel> getChannel(ReadingType readingType) {
         for (Channel channel : getChannels()) {
             if (channel.getReadingTypes().contains(readingType)) {
-                return channel;
+                return Optional.of(channel);
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     @Override
@@ -358,7 +381,7 @@ public final class MeterActivationImpl implements IMeterActivation {
 
     @Override
     public List<Instant> toList(ReadingType readingType, Range<Instant> exportInterval) {
-        return Optional.ofNullable(getChannel(readingType)).map(channel -> channel.toList(exportInterval)).orElseGet(Collections::emptyList);
+        return getChannel(readingType).map(channel -> channel.toList(exportInterval)).orElseGet(Collections::emptyList);
     }
 
     @Override
@@ -481,7 +504,7 @@ public final class MeterActivationImpl implements IMeterActivation {
     @Override
     public List<ReadingQualityRecord> getReadingQualities(Set<QualityCodeSystem> qualityCodeSystems, QualityCodeIndex qualityCodeIndex,
                                                           ReadingType readingType, Range<Instant> interval) {
-        return Optional.ofNullable(getChannel(readingType))
+        return getChannel(readingType)
                 .flatMap(channel -> channel.getCimChannel(readingType))
                 .map(cimChannel -> cimChannel.findReadingQualities(qualityCodeSystems, qualityCodeIndex, interval, true))
                 .orElse(Collections.emptyList());
@@ -559,5 +582,11 @@ public final class MeterActivationImpl implements IMeterActivation {
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());
 
+    }
+
+    class ChannelDataPresentException extends LocalizedException {
+        public ChannelDataPresentException() {
+            super(thesaurus, MessageSeeds.CHANNEL_DATA_PRESENT);
+        }
     }
 }
