@@ -44,7 +44,7 @@ Ext.define('Uni.property.view.property.AddReadingQualityWindow', {
                                 xtype: 'radio',
                                 itemId: 'uni-reading-quality-input-radio',
                                 boxLabel: '<span style="display:inline-block; float: left; margin-right:7px;" >' + Uni.I18n.translate('general.specifyReadingQuality', 'UNI', 'Specify reading quality') + '</span>'
-                                            + '<span class="icon-info" style="display:inline-block; color:#A9A9A9; font-size:16px;" data-qtip="'
+                                            + '<span class="icon-info" style="cursor:default; display:inline-block; color:#A9A9A9; font-size:16px;" data-qtip="'
                                             + Uni.I18n.translate('general.specifyReadingQuality.tooltip', 'UNI', "The wildcard '*' can be used in the 1st and 3rd part of the reading quality and will match all possible values.")
                                             + '"></span>',
                                 name: 'manualInput',
