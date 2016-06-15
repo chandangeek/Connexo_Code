@@ -27,8 +27,7 @@ class LoggingServiceCallHandler implements ServiceCallHandler {
     }
 
     private void logException(ServiceCall serviceCall, RuntimeException e) {
-        NlsMessageFormat format = thesaurus
-                .getFormat(MessageSeeds.SERVICE_CALL_HANDLER_FAILURE);
+        NlsMessageFormat format = thesaurus.getFormat(MessageSeeds.SERVICE_CALL_HANDLER_FAILURE);
         serviceCall.log(format.format(), e);
     }
 
