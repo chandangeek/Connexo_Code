@@ -25,6 +25,8 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -251,7 +253,7 @@ public class DeviceResourceTest extends MultisensePublicApiJerseyTest {
 
     @Test
     public void testTriggerDeviceExecutableActionsWithDateProperty() throws Exception {
-        Date now = new Date(1436306400000L);
+        Date now = Date.from(LocalDateTime.of(2015, 7, 8, 0, 0).atZone(ZoneId.systemDefault()).toInstant());
         PropertySpec datePropertySpec = mockDatePropertySpec(now);
         ExecutableAction executableAction1 = mockExecutableAction(1L, "action.name.1", MicroAction.ENABLE_ESTIMATION, datePropertySpec);
         when(deviceLifeCycleService.getExecutableActions(deviceXas)).thenReturn(Collections.singletonList(executableAction1));
