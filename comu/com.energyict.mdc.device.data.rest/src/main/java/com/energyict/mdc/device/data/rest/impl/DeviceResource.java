@@ -32,6 +32,7 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.config.TimeOfUseOptions;
+import com.energyict.mdc.device.data.ActiveEffectiveCalendar;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceHelper;
 import com.energyict.mdc.device.data.DeviceService;
@@ -844,13 +845,19 @@ public class DeviceResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.VIEW_DEVICE)
     public Response getCalendar(@PathParam("mRID") String mRID, @PathParam("calendarId") long calendarId, @QueryParam("weekOf") long milliseconds) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+        ActiveEffectiveCalendar activeCalendar = device.getActiveCalendar().orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.UNABLE_TO_FIND_CALENDAR));
+        AllowedCalendar allowedCalendar = activeCalendar.getAllowedCalendar();
+        Calendar calendar = allowedCalendar.getCalendar().orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.UNABLE_TO_FIND_CALENDAR));
+        if(calendar.getId() != calendarId) {
+            throw exceptionFactory.newException(MessageSeeds.CALENDAR_NOT_ACTIVE_ON_DEVICE);
+        }
         if (milliseconds <= 0) {
             return Response.ok(calendarService.findCalendar(calendarId)
                     .map(calendarInfoFactory::detailedFromCalendar)
                     .orElseThrow(IllegalArgumentException::new)).build();
         } else {
             Instant instant = Instant.ofEpochMilli(milliseconds);
-            Calendar calendar = calendarService.findCalendar(calendarId).get();
             LocalDate localDate = LocalDateTime.ofInstant(instant, ZoneId.of("UTC"))
                     .toLocalDate();
 

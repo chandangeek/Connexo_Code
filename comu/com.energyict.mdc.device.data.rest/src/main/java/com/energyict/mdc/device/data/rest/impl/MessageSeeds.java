@@ -92,7 +92,10 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_COORDINATES(275, "invalidCoordinates", "All coordinates fields must contain valid values"),
     VERIFY_CALENDAR_TASK_IS_NOT_ACTIVE(276, "VerifyCalendarTaskNotActive", "It is impossible to verify the active calendar because the communication task is not available on the device configuration"),
     UNABLE_TO_FIND_CALENDAR(277, "CannotFindCalendar", "Unable to find the given calendar in the system."),
-    NO_ALLOWED_CALENDAR_DEVICE_MESSAGE(278, "NoAllowedCalendarMessage", "Unable to find an allowed calendar command with the given information");
+    NO_ALLOWED_CALENDAR_DEVICE_MESSAGE(278, "NoAllowedCalendarMessage", "Unable to find an allowed calendar command with the given information"),
+    NO_ACTIVE_CALENDAR(279, "NoActiveCalendar", "This device doesn't have an active calendar"),
+    ACTIVE_CALENDAR_IS_GHOST(280, "ActiveCalendarIsGhost", "The active calendar on this device is a ghost calendar and can not be previewed"),
+    CALENDAR_NOT_ACTIVE_ON_DEVICE(281, "CalendarNotActiveOnDevice", "The requested calendar is not an active calendar on this device");
     private final int number;
     private final String key;
     private final String format;
