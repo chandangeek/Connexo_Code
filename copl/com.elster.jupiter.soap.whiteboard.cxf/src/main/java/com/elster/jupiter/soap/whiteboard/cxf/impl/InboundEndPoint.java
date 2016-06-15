@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by bvn on 5/10/16.
+ * This endpoint manager knows how to set up and tear down an inbound SOAP endpoint
  */
 public final class InboundEndPoint implements ManagedEndpoint {
     private InboundEndPointProvider endPointProvider;
