@@ -1,34 +1,33 @@
 package com.elster.jupiter.validators.impl;
 
 import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.readings.ProtocolReadingQualities;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.ValidationResult;
-
 import com.google.common.collect.Range;
-
-import java.time.Instant;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import static com.elster.jupiter.validators.impl.ReadingQualitiesValidator.READING_QUALITIES;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ReadingQualitiesValidatorTest {
@@ -41,27 +40,27 @@ public class ReadingQualitiesValidatorTest {
     private ReadingType readingType;
     @Mock
     private IntervalReadingRecord intervalReadingRecord;
+    @Mock
+    private ReadingRecord readingRecord;
 
     private PropertySpecService propertySpecService = new PropertySpecServiceImpl();
 
     private ReadingQualitiesValidator validator;
-
-    //TODO adjust this to use reading qualities
 
     @Before
     public void setUp() {
         NlsMessageFormat nlsMessageFormat = mock(NlsMessageFormat.class);
         when(nlsMessageFormat.format()).thenReturn("This unit test does not care about translations");
         when(thesaurus.getFormat(any(TranslationKey.class))).thenReturn(nlsMessageFormat);
+        when(thesaurus.getFormat(any(MessageSeed.class))).thenReturn(nlsMessageFormat);
 
-        //List<ReadingQualityInformation> flags = new ArrayList<>();
+        //Make a validation rule that checks for reading qualities 'Bad time' and 'Power down'
         Map<String, Object> properties = new HashMap<>();
-        //properties.put(READING_QUALITIES, flags);
+        ArrayList<String> selectedReadingQualities = new ArrayList<>();
+        selectedReadingQualities.add(ProtocolReadingQualities.BADTIME.getCimCode());
+        selectedReadingQualities.add(ProtocolReadingQualities.POWERDOWN.getCimCode());
+        properties.put(ReadingQualitiesValidator.READING_QUALITIES, selectedReadingQualities);
         validator = new ReadingQualitiesValidator(thesaurus, propertySpecService, properties);
-
-       // flags.add(validator.new ReadingQualityInformation(ProtocolReadingQualities.BADTIME, "badTime", "Bad time"));
-       // flags.add(validator.new ReadingQualityInformation(ProtocolReadingQualities.POWERDOWN, "powerDown", "Power down"));
-
         validator.init(channel, readingType, Range.closed(Instant.ofEpochMilli(7000L), Instant.ofEpochMilli(14000L)));
     }
 
@@ -71,9 +70,7 @@ public class ReadingQualitiesValidatorTest {
 
     @Test
     public void testValidationOk() {
-        //ProfileStatus profileStatus = ProfileStatus.of();
-        //TODO replace by reading qualities
-        //when(intervalReadingRecord.getProfileStatus()).thenReturn(profileStatus);
+        when(intervalReadingRecord.getReadingQualities()).thenReturn(new ArrayList<>());
 
         ValidationResult validationResult = validator.validate(intervalReadingRecord);
 
@@ -81,10 +78,10 @@ public class ReadingQualitiesValidatorTest {
     }
 
     @Test
-    public void testValidationOkDifferentFlags() {
-        //ProfileStatus profileStatus = ProfileStatus.of(Flag.POWERUP);
-        //TODO replace by reading qualities
-        //when(intervalReadingRecord.getProfileStatus()).thenReturn(profileStatus);
+    public void testValidationOkDifferentReadingQualities() {
+        ArrayList<ReadingQualityRecord> readingQualities = new ArrayList<>();
+        readingQualities.add(mockReadingQuality(ProtocolReadingQualities.POWERUP.getCimCode()));
+        doReturn(readingQualities).when(intervalReadingRecord).getReadingQualities();
 
         ValidationResult validationResult = validator.validate(intervalReadingRecord);
 
@@ -92,11 +89,10 @@ public class ReadingQualitiesValidatorTest {
     }
 
     @Test
-    @Ignore
     public void testValidationSuspect() {
-        //ProfileStatus profileStatus = ProfileStatus.of(Flag.BADTIME);
-        //TODO replace by reading qualities
-        //when(intervalReadingRecord.getProfileStatus()).thenReturn(profileStatus);
+        ArrayList<ReadingQualityRecord> readingQualities = new ArrayList<>();
+        readingQualities.add(mockReadingQuality(ProtocolReadingQualities.BADTIME.getCimCode()));
+        doReturn(readingQualities).when(intervalReadingRecord).getReadingQualities();
 
         ValidationResult validationResult = validator.validate(intervalReadingRecord);
 
@@ -104,8 +100,48 @@ public class ReadingQualitiesValidatorTest {
     }
 
     @Test
+    public void testValidationOk_Registers() {
+        when(readingRecord.getReadingQualities()).thenReturn(new ArrayList<>());
+
+        ValidationResult validationResult = validator.validate(readingRecord);
+
+        assertThat(validationResult).isEqualTo(ValidationResult.VALID);
+    }
+
+    @Test
+    public void testValidationOkDifferentReadingQualities_Registers() {
+        ArrayList<ReadingQualityRecord> readingQualities = new ArrayList<>();
+        readingQualities.add(mockReadingQuality(ProtocolReadingQualities.POWERUP.getCimCode()));
+        doReturn(readingQualities).when(readingRecord).getReadingQualities();
+
+        ValidationResult validationResult = validator.validate(readingRecord);
+
+        assertThat(validationResult).isEqualTo(ValidationResult.VALID);
+    }
+
+    @Test
+    public void testValidationSuspect_Registers() {
+        ArrayList<ReadingQualityRecord> readingQualities = new ArrayList<>();
+        readingQualities.add(mockReadingQuality(ProtocolReadingQualities.BADTIME.getCimCode()));
+        doReturn(readingQualities).when(readingRecord).getReadingQualities();
+
+        ValidationResult validationResult = validator.validate(readingRecord);
+
+        assertThat(validationResult).isEqualTo(ValidationResult.SUSPECT);
+    }
+
+    private ReadingQualityRecord mockReadingQuality(String code) {
+        ReadingQualityRecord readingQuality = mock(ReadingQualityRecord.class);
+        ReadingQualityType readingQualityType = new ReadingQualityType(code);
+        when(readingQuality.getType()).thenReturn(readingQualityType);
+        when(readingQuality.isActual()).thenReturn(true);
+        when(readingQuality.getTypeCode()).thenReturn(code);
+        return readingQuality;
+    }
+
+    @Test
     public void testDefaultFormat() {
-        assertThat(validator.getDefaultFormat()).isEqualTo("Interval state");
+        assertThat(validator.getDefaultFormat()).isEqualTo("Reading qualities");
     }
 
     @Test
@@ -116,6 +152,7 @@ public class ReadingQualitiesValidatorTest {
         PropertySpec propertySpec = propertySpecs.get(0);
         assertThat(propertySpec.getName()).isEqualTo(READING_QUALITIES);
         assertThat(propertySpec.supportsMultiValues()).isTrue();
+        assertThat(propertySpec.isRequired()).isTrue();
         assertThat(propertySpec.getValueFactory().getValueType()).isEqualTo(List.class);
     }
 
@@ -126,7 +163,7 @@ public class ReadingQualitiesValidatorTest {
         assertThat(propertySpec.getName()).isEqualTo(READING_QUALITIES);
         assertThat(propertySpec.getValueFactory().getValueType()).isEqualTo(List.class);
 
-        assertThat(validator.getPropertySpec("flags~")).isEmpty();
+        assertThat(validator.getPropertySpec("invalidPropertyName")).isEmpty();
     }
 
     @Test
