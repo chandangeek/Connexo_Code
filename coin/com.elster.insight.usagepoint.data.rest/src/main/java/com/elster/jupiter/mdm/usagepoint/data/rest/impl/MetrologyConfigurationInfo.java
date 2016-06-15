@@ -1,6 +1,7 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.ConstantNode;
@@ -19,6 +20,7 @@ import com.elster.jupiter.rest.util.IdWithNameInfo;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import java.net.URL;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -78,7 +80,13 @@ public class MetrologyConfigurationInfo {
                 .filter(meterActivationToCheck -> meterActivationToCheck.getEnd() == null)
                 .findFirst()
                 .orElse(null) : null;
+        Meter meter = meterActivation != null ? meterActivation.getMeter().get() : null;
         info.mRID = meterActivation != null ? meterActivation.getMeter().get().getMRID() : null;
+        info.url = meter != null ? meter.getHeadEndInterface()
+                .map(he -> he.getURLForEndDevice(meter)
+                        .map(URL::toString)
+                        .orElse(null))
+                .orElse(null) : null;
         info.activationTime = meterActivation != null ? this.activationTime : null;
         List<ReadingTypeDeliverable> readingTypeDeliverables = metrologyConfiguration.getContracts()
                 .stream()
@@ -144,7 +152,13 @@ public class MetrologyConfigurationInfo {
                 .filter(meterActivationToCheck -> meterActivationToCheck.getEnd() == null)
                 .findFirst()
                 .orElse(null) : null;
+        Meter meter = meterActivation != null ? meterActivation.getMeter().get() : null;
         info.mRID = meterActivation != null ? meterActivation.getMeter().get().getMRID() : null;
+        info.url = meter != null ? meter.getHeadEndInterface()
+                .map(he -> he.getURLForEndDevice(meter)
+                        .map(URL::toString)
+                        .orElse(null))
+                .orElse(null) : null;
         return info;
     }
 
