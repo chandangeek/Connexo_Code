@@ -1,6 +1,5 @@
 package com.elster.jupiter.metering.impl.config;
 
-import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.CustomUsagePointMeterActivationValidationException;
@@ -30,12 +29,10 @@ import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsKey;
-import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
@@ -52,6 +49,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -61,7 +59,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-15 (13:20)
  */
-public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigurationService, InstallService, PrivilegesProvider, TranslationKeyProvider {
+public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigurationService, PrivilegesProvider, TranslationKeyProvider {
 
     static final String METER_ROLE_KEY_PREFIX = "meter.role.";
     static final String METER_PURPOSE_KEY_PREFIX = "metrology.purpose.";
@@ -77,14 +75,9 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
         this.activationValidatorsWhiteboard = activationValidatorsWhiteboard;
     }
 
-    @Override
-    public void install() {
-        new Installer(this.meteringService, this).install();
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "EVT", "MTR", "VAL", NlsService.COMPONENTNAME, CustomPropertySetService.COMPONENT_NAME);
+    public void install(Logger logger) {
+        new Installer(this.meteringService, this).install(null, logger);
+        userService.addModulePrivileges(this);
     }
 
     @Override
@@ -356,7 +349,8 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
     }
 
     @Override
-    public void validateUsagePointMeterActivation(MeterRole meterRole, Meter meter, UsagePoint usagePoint) throws CustomUsagePointMeterActivationValidationException {
+    public void validateUsagePointMeterActivation(MeterRole meterRole, Meter meter, UsagePoint usagePoint) throws
+            CustomUsagePointMeterActivationValidationException {
         this.activationValidatorsWhiteboard.validateUsagePointMeterActivation(meterRole, meter, usagePoint);
     }
 

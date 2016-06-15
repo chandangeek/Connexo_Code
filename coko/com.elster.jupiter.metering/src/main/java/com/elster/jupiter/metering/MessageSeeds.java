@@ -79,11 +79,12 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_READINGTYPE_IN_DELIVERABLE(6016, Constants.INVALID_READINGTYPE_IN_DELIVERABLE, "The readingtype for the deliverable is not valid, it should represent a numerical value."),
     INVALID_READINGTYPE_IN_REQUIREMENT(6017, Constants.INVALID_READINGTYPE_IN_REQUIREMENT, "The readingtype for a requirement is not valid, it should represent a numerical value."),
     INCOMPATIBLE_INTERVAL_LENGTHS(6018, Constants.INCOMPATIBLE_INTERVAL_LENGTHS, "''{0}'' values cannot be aggregated to ''{1}'' values."),
+    CHANNEL_DATA_PRESENT(6019, "ChannelDataIsPresent", "A meter activation could not be created: channel data is already present beyond the meter activation start time"),
 
     USAGE_POINT_INCORRECT_STATE(7001, Constants.USAGE_POINT_INCORRECT_STATE, "Usage point ''{0}'' should be in ''Under construction'' state to activate meters"),
     THE_SAME_METER_ACTIVATED_TWICE_ON_USAGE_POINT(7002, Constants.THE_SAME_METER_ACTIVATED_TWICE_ON_USAGE_POINT, "The same meter can''t be specified for different meter roles."),
-    UNSATISFIED_METROLOGY_REQUIREMENT(7003, Constants.UNSATISFIED_METROLOGY_REQUIREMENT, "This meter does not provide reading types matching to {0}."),
-    ;
+    UNSATISFIED_METROLOGY_REQUIREMENT(7003, Constants.UNSATISFIED_METROLOGY_REQUIREMENT, "This meter does not provide reading types matching to {0}.");
+
 
     private final int number;
     private final String key;
