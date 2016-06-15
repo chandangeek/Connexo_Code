@@ -4,23 +4,27 @@ Ext.define('Wss.controller.Webservices', {
     views: [
         'Wss.view.Setup',
         'Uni.view.window.Confirmation'
+        'Wss.view.Add'
     ],
     stores: [
-        'Wss.store.Endpoints'
+        'Wss.store.Endpoints',
+        'Wss.store.Webservices'
     ],
     models: [
-        'Wss.model.Endpoint'
+        'Wss.model.Endpoint',
+        'Wss.model.Webservice'
     ],
 
     refs: [
-        {
-            ref: 'preview',
-            selector: 'webservices-preview'
-        }
+        {ref: 'preview', selector: 'webservices-preview'},
+        {ref: 'addForm', selector: '#addForm'}
     ],
 
     init: function () {
         this.control({
+            'endpoint-add button[action=add]': {
+                click: this.addEndpoint
+            },
             'webservices-setup webservices-grid': {
                 select: this.showPreview
             },
@@ -37,6 +41,54 @@ Ext.define('Wss.controller.Webservices', {
 
         view = Ext.widget('webservices-setup');
         me.getApplication().fireEvent('changecontentevent', view);
+    },
+
+    showAddWebserviceEndPoint: function(){
+        var me = this,
+            view,
+            store = me.getStore('Wss.store.Webservices');
+
+        view = Ext.widget('endpoint-add',{
+            action: 'add',
+            returnLink: me.getController('Uni.controller.history.Router').getRoute('administration/webserviceendpoints').buildUrl()
+        });
+        me.getApplication().fireEvent('changecontentevent', view);
+
+    },
+
+    addEndpoint: function(button){
+        var form = button.up('form');
+        var record = Ext.create('Wss.model.Endpoint');
+        record.set(form.getValues());
+        //record.phantom = true;
+        //record.getProxy().appendId = false;
+        record.save({
+            success: function (record) {
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('endPointAdd.endpointAdded', 'WSS', 'Webservice endpoint added'));
+                //location.href = '#/administration/devicetypes/' + encodeURIComponent(record.get('id'));
+                //record.phantom = true;       // force 'POST' method for request otherwise 'PUT' will be performed
+                //record.getProxy().appendId = false;
+            },
+            failure: function (record, operation) {
+                var json = Ext.decode(operation.response.responseText);
+                if (json && json.errors) {
+                    form.markInvalid(json.errors);
+                    me.showErrorPanel();
+                }
+            }
+        });
+    },
+
+    showErrorPanel: function () {
+        var me = this,
+            formErrorsPlaceHolder = me.getAddFrom().down('#addEndPointFormErrors');
+
+        formErrorsPlaceHolder.hide();
+        formErrorsPlaceHolder.removeAll();
+        formErrorsPlaceHolder.add({
+            html: Uni.I18n.translate('general.formErrors', 'WSS', 'There are errors on this page that require your attention.')
+        });
+        formErrorsPlaceHolder.show();
     },
 
     showPreview: function(selectionModel, record) {
