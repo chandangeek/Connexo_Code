@@ -16,6 +16,9 @@ public interface DeviceBuilderForTesting {
     DeviceBuilderForTesting mRDI(String mRDI);
     DeviceBuilderForTesting loadProfileTypes(LoadProfileType... loadProfilesTypes);
     DeviceBuilderForTesting logBookTypes(LogBookType... logBooks);
-    DeviceBuilderForTesting creationDate(Instant creationDate);
-    Device create();
+    DeviceBuilderForTesting deviceTypeName(String deviceTypeName);
+    DeviceBuilderForTesting deviceConfigName(String deviceConfigName);
+    DeviceBuilderForTesting dataLoggerEnabled(boolean enabled);
+    DeviceBuilderForTesting dataLoggerSlaveDevice();
+    Device create(Instant when);
 }

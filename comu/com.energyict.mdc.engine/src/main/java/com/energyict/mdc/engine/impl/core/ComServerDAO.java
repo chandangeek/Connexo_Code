@@ -312,7 +312,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * @param identifier The RegisterIdentifier
      * @return The offline version of the Register that is identified by the RegisterIdentifier
      */
-    Optional<OfflineRegister> findOfflineRegister(RegisterIdentifier identifier);
+    Optional<OfflineRegister> findOfflineRegister(RegisterIdentifier identifier, Instant when);
 
     Optional<OfflineLoadProfile> findOfflineLoadProfile(LoadProfileIdentifier loadProfileIdentifier);
 

@@ -67,13 +67,6 @@ public class CollectedLoadProfileDeviceCommand extends DeviceCommandImpl<Collect
         }
     }
 
-//    private void updateMeterDataStorer(DeviceIdentifier<Device> deviceIdentifier, List<IntervalBlock> intervalBlocks, Instant lastReading) {
-//        if (!intervalBlocks.isEmpty()) {
-//            this.meterDataStoreCommand.addIntervalReadings(deviceIdentifier, intervalBlocks);
-//            this.meterDataStoreCommand.addLastReadingUpdater(this.collectedLoadProfile.getLoadProfileIdentifier(), lastReading);
-//        }
-//    }
-
     @Override
     public ComServer.LogLevel getJournalingLogLevel() {
         return ComServer.LogLevel.INFO;

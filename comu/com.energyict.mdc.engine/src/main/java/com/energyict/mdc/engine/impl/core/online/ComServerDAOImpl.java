@@ -80,6 +80,8 @@ import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 
 import com.google.common.collect.Range;
+import com.google.common.collect.RangeSet;
+import com.google.common.collect.TreeRangeSet;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -306,8 +308,8 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public Optional<OfflineRegister> findOfflineRegister(RegisterIdentifier identifier) {
-        return Optional.of(new OfflineRegisterImpl((Register) identifier.findRegister(), this.serviceProvider.identificationService()));
+    public Optional<OfflineRegister> findOfflineRegister(RegisterIdentifier identifier, Instant when) {
+        return Optional.of(new OfflineRegisterImpl(this.getStorageRegister((Register) identifier.findRegister(), when), this.serviceProvider.identificationService()));
     }
 
     @Override
@@ -792,26 +794,48 @@ public class ComServerDAOImpl implements ComServerDAO {
                 Optional<Channel> dataLoggerChannel = dataLogger.getChannels().stream().filter((c) -> c.getReadingType().getMRID().equals(readingTypeMRID)).findFirst();
                 if (dataLoggerChannel.isPresent()){
                     List<DataLoggerChannelUsage> dataLoggerChannelUsages = this.serviceProvider.topologyService().findDataLoggerChannelUsages(dataLoggerChannel.get(), dataPeriod);
-                    List<Pair<OfflineLoadProfile,Range<Instant>>> offLineLoadProfiles = new ArrayList<>();
+                    List<Pair<OfflineLoadProfile,Range<Instant>>> linkedOffLineLoadProfiles = new ArrayList<>();
                     // 'linked' periods
                     if (!dataLoggerChannelUsages.isEmpty()){
                         dataLoggerChannelUsages.forEach(usage -> {
                             Device slave = usage.getDataLoggerReference().getOrigin();
-                            Optional<Channel> slaveChannel = dataLogger.getChannels().stream().filter((c) -> c.getReadingType().getMRID().equals(readingTypeMRID)).findFirst();
+                            Optional<Channel> slaveChannel = slave.getChannels().stream().filter((c) -> c.getReadingType().getMRID().equals(readingTypeMRID)).findFirst();
                             if (slaveChannel.isPresent()) {
-                                Optional<LoadProfile> loadProfile = slave.getLoadProfiles().stream().filter((lp) -> lp.getChannels().contains(slaveChannel.get())).findFirst();
-                                if (loadProfile.isPresent()) {
-                                    offLineLoadProfiles.add(Pair.of(new OfflineLoadProfileImpl(loadProfile.get(), this.serviceProvider.topologyService(),this.serviceProvider.identificationService()), usage.getRange()));
-                                }
+                               linkedOffLineLoadProfiles.add(Pair.of(new OfflineLoadProfileImpl(slaveChannel.get().getLoadProfile(), this.serviceProvider.topologyService(),this.serviceProvider.identificationService()), usage.getRange().intersection(dataPeriod)));
                             }
                         });
                     }
-                    offLineLoadProfiles.add(Pair.of(offlineLoadProfile,dataPeriod));   //All data is stored on the data logger channel
-                    return offLineLoadProfiles;
+                    //'unlinked periods'
+                    if (linkedOffLineLoadProfiles.isEmpty()) {
+                        linkedOffLineLoadProfiles.add(Pair.of(offlineLoadProfile, dataPeriod));   //All data is stored on the data logger channel
+                    }else{
+                        RangeSet<Instant> unlinkedPeriods = TreeRangeSet.create();
+                        unlinkedPeriods.add(dataPeriod);
+                        linkedOffLineLoadProfiles.stream().forEach((each)->{
+                            unlinkedPeriods.remove(each.getLast());
+                        });
+                        unlinkedPeriods.asRanges().forEach((unlinkedRange)->{
+                            linkedOffLineLoadProfiles.add(Pair.of(offlineLoadProfile, unlinkedRange));
+                        });
+                    }
+                    return linkedOffLineLoadProfiles;
                 }
             }
         }
         return Collections.singletonList(Pair.of(offlineLoadProfile,dataPeriod));
+    }
+
+    private Register getStorageRegister(Register register, Instant readingDate) {
+        final Device dataLogger = register.getDevice();
+        if (dataLogger != null){
+            if (dataLogger.getDeviceConfiguration().isDataloggerEnabled()){
+                Optional<Register> slaveRegister  =  this.serviceProvider.topologyService().getSlaveRegister(register, readingDate);
+                if (slaveRegister.isPresent()){
+                    return slaveRegister.get();
+                }
+            }
+        }
+        return register;
     }
 
     private Instant now() {

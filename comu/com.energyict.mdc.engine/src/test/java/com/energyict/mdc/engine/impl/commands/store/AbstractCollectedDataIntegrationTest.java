@@ -45,6 +45,7 @@ import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.impl.TopologyModule;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.EngineService;
@@ -113,6 +114,7 @@ public abstract class AbstractCollectedDataIntegrationTest {
     private static Clock clock = mock(Clock.class);
     private static MdcReadingTypeUtilService mdcReadingTypeUtilService;
     private static MasterDataService masterDataService;
+    private static TopologyService topologyService;
 
     @Mock
     private DeviceFactory deviceFactory;
@@ -187,7 +189,8 @@ public abstract class AbstractCollectedDataIntegrationTest {
                 new TopologyModule(),
                 new CustomPropertySetsModule(),
                 new FirmwareModule(),
-                new CalendarModule());
+                new CalendarModule(),
+                new TopologyModule());
         initializeTopModuleInATransaction();
     }
 
@@ -204,10 +207,12 @@ public abstract class AbstractCollectedDataIntegrationTest {
                 injector.getInstance(MasterDataService.class);
                 injector.getInstance(MeteringGroupsService.class);
                 injector.getInstance(EngineService.class);
+                injector.getInstance(TopologyService.class);
                 EventService eventService = injector.getInstance(EventService.class);
                 meteringService = injector.getInstance(MeteringService.class);
                 mdcReadingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
                 masterDataService = injector.getInstance(MasterDataService.class);
+                topologyService = injector.getInstance(TopologyService.class);
             }
         });
     }
@@ -262,6 +267,8 @@ public abstract class AbstractCollectedDataIntegrationTest {
     public MasterDataService getMasterDataService() {
         return masterDataService;
     }
+
+    public TopologyService getTopologyService() {return topologyService;}
 
     private static class MockModule extends AbstractModule {
 

@@ -349,7 +349,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public Optional<OfflineRegister> findOfflineRegister(RegisterIdentifier identifier) {
+    public Optional<OfflineRegister> findOfflineRegister(RegisterIdentifier identifier, Instant when) {
         return Optional.empty();
     }
 

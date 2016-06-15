@@ -129,7 +129,7 @@ public class MonitoringComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public Optional<OfflineRegister> findOfflineRegister(RegisterIdentifier identifier) {
+    public Optional<OfflineRegister> findOfflineRegister(RegisterIdentifier identifier, Instant when) {
         return Optional.empty();
     }
 
@@ -398,7 +398,7 @@ public class MonitoringComServerDAO implements ComServerDAO {
         }
 
         @Override
-        public Optional<OfflineRegister> findOfflineRegister(RegisterIdentifier identifier) {
+        public Optional<OfflineRegister> findOfflineRegister(RegisterIdentifier identifier, Instant when) {
             return Optional.empty();
         }
 

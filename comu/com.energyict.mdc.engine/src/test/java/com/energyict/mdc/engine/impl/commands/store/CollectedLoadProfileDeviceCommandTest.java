@@ -176,7 +176,7 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
     @Test
     @Transactional
     public void successfulDoubleStoreTestWithSameData() {
-        Device device = this.deviceCreator.name(DEVICE_NAME).mRDI("successfulDoubleStoreTestWithSameData").loadProfileTypes(this.loadProfileType).creationDate(Instant.ofEpochMilli(fromClock.getTime())).create();
+        Device device = this.deviceCreator.name(DEVICE_NAME).mRDI("successfulDoubleStoreTestWithSameData").loadProfileTypes(this.loadProfileType).create(Instant.ofEpochMilli(fromClock.getTime()));
         long deviceId = device.getId();
         when(this.getComServerDAOServiceProvider().deviceService()).thenReturn(this.deviceService);
         when(this.deviceService.findDeviceById(deviceId)).thenReturn(Optional.of(device));
@@ -223,7 +223,7 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
     @Test
     @Transactional
     public void successfulStoreTest() throws SQLException {
-        Device device = this.deviceCreator.name(DEVICE_NAME).mRDI("successfulStoreTest").loadProfileTypes(this.loadProfileType).creationDate(Instant.ofEpochMilli(fromClock.getTime())).create();
+        Device device = this.deviceCreator.name(DEVICE_NAME).mRDI("successfulStoreTest").loadProfileTypes(this.loadProfileType).create(Instant.ofEpochMilli(fromClock.getTime()));
 
         long deviceId = device.getId();
         CollectedLoadProfile collectedLoadProfile = createCollectedLoadProfile(device.getLoadProfiles().get(0));
@@ -269,7 +269,7 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
     @Transactional
     @Ignore //todo this fails !!!!
     public void successfulStoreWithDeltaDataTest() {
-        Device device = this.deviceCreator.name(DEVICE_NAME).mRDI("successfulStoreWithDeltaDataTest").loadProfileTypes(this.loadProfileType).creationDate(Instant.ofEpochMilli(fromClock.getTime())).create();
+        Device device = this.deviceCreator.name(DEVICE_NAME).mRDI("successfulStoreWithDeltaDataTest").loadProfileTypes(this.loadProfileType).create(Instant.ofEpochMilli(fromClock.getTime()));
         long deviceId = device.getId();
         CollectedLoadProfile collectedLoadProfile = createCollectedLoadProfileWithDeltaData(device.getLoadProfiles().get(0));
         when(this.getComServerDAOServiceProvider().deviceService()).thenReturn(this.deviceService);
@@ -307,7 +307,7 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
     @Test
     @Transactional
     public void successfulStoreWithUpdatedDataTest() {
-        Device device = this.deviceCreator.name(DEVICE_NAME).mRDI("successfulStoreWithUpdatedDataTest").loadProfileTypes(this.loadProfileType).creationDate(Instant.ofEpochMilli(fromClock.getTime())).create();
+        Device device = this.deviceCreator.name(DEVICE_NAME).mRDI("successfulStoreWithUpdatedDataTest").loadProfileTypes(this.loadProfileType).create(Instant.ofEpochMilli(fromClock.getTime()));
         long deviceId = device.getId();
         CollectedLoadProfile collectedLoadProfile = createCollectedLoadProfile(device.getLoadProfiles().get(0));
         when(this.getComServerDAOServiceProvider().deviceService()).thenReturn(this.deviceService);
@@ -366,7 +366,7 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
     @Test
     @Transactional
     public void updateLastReadingTest() throws SQLException {
-        Device device = this.deviceCreator.name(DEVICE_NAME).mRDI("updateLastReadingTest").loadProfileTypes(this.loadProfileType).create();
+        Device device = this.deviceCreator.name(DEVICE_NAME).mRDI("updateLastReadingTest").loadProfileTypes(this.loadProfileType).create(Instant.ofEpochMilli(fromClock.getTime()));
         LoadProfile loadProfile = device.getLoadProfiles().get(0);
         CollectedLoadProfile collectedLoadProfile = createCollectedLoadProfile(loadProfile);
         when(this.getComServerDAOServiceProvider().deviceService()).thenReturn(this.deviceService);
