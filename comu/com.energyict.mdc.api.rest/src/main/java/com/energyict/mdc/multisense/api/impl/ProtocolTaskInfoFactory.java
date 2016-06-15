@@ -1,7 +1,9 @@
 package com.energyict.mdc.multisense.api.impl;
 
-import com.energyict.mdc.multisense.api.impl.utils.PropertyCopier;
-import com.energyict.mdc.multisense.api.impl.utils.SelectableFieldFactory;
+import com.elster.jupiter.rest.util.hypermedia.LinkInfo;
+import com.elster.jupiter.rest.util.hypermedia.PropertyCopier;
+import com.elster.jupiter.rest.util.hypermedia.Relation;
+import com.elster.jupiter.rest.util.hypermedia.SelectableFieldFactory;
 import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.rest.Categories;
 

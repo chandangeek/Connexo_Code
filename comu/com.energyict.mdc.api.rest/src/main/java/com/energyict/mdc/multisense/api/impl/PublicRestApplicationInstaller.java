@@ -24,10 +24,10 @@ import java.util.logging.Logger;
  * Created by bvn on 9/8/15.
  */
 @Component(name = "com.energyict.mdc.api.rest.installer",
-        service = {PrivilegesProvider.class},
+        service = {PublicRestApplicationInstaller.class},
         property = "name=" + PublicRestApplicationInstaller.COMPONENT_NAME,
         immediate = true)
-public class PublicRestApplicationInstaller implements PrivilegesProvider {
+public class PublicRestApplicationInstaller {
 
     static final String COMPONENT_NAME = "MRI";
 
@@ -59,7 +59,7 @@ public class PublicRestApplicationInstaller implements PrivilegesProvider {
         this.upgradeService = upgradeService;
     }
 
-    static class Installer implements FullInstaller {
+    static class Installer implements FullInstaller, PrivilegesProvider {
         private static final Logger LOGGER = Logger.getLogger(Installer.class.getName());
         private final UserService userService;
 
@@ -80,6 +80,7 @@ public class PublicRestApplicationInstaller implements PrivilegesProvider {
                     this::assignPrivilegesToDefaultRoles,
                     logger
             );
+            userService.addModulePrivileges(this);
         }
 
         public void createDefaultRoles() {
@@ -90,24 +91,24 @@ public class PublicRestApplicationInstaller implements PrivilegesProvider {
             }
         }
 
+        @Override
+        public String getModuleName() {
+            return PublicRestApplication.COMPONENT_NAME;
+        }
+
+        @Override
+        public List<ResourceDefinition> getModuleResources() {
+            return Collections.singletonList(userService.createModuleResourceWithPrivileges(getModuleName(),
+                    Privileges.RESOURCE_PUBLIC_API.getKey(), Privileges.RESOURCE_PUBLIC_API_DESCRIPTION.getKey(),
+                    Collections.singletonList(Privileges.Constants.PUBLIC_REST_API)));
+        }
+
         private void assignPrivilegesToDefaultRoles() {
             userService.grantGroupWithPrivilege(Roles.DEVELOPER.value(), PublicRestApplication.APP_KEY, new String[] {Privileges.Constants.PUBLIC_REST_API});
             //TODO: workaround: attached Meter expert to user admin !!! to remove this line when the user can be created/added to system
             userService.getUser(1).ifPresent(u -> u.join(userService.getGroups().stream().filter(e -> e.getName().equals(Roles.DEVELOPER.value())).findFirst().get()));
         }
 
-    }
-
-    @Override
-    public String getModuleName() {
-        return PublicRestApplication.COMPONENT_NAME;
-    }
-
-    @Override
-    public List<ResourceDefinition> getModuleResources() {
-        return Collections.singletonList(userService.createModuleResourceWithPrivileges(getModuleName(),
-                Privileges.RESOURCE_PUBLIC_API.getKey(), Privileges.RESOURCE_PUBLIC_API_DESCRIPTION.getKey(),
-                Collections.singletonList(Privileges.Constants.PUBLIC_REST_API)));
     }
 
     enum Roles {

@@ -1,5 +1,6 @@
 package com.energyict.mdc.multisense.api.impl;
 
+import com.elster.jupiter.rest.util.hypermedia.LinkInfo;
 import com.elster.jupiter.time.TemporalExpression;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
