@@ -51,10 +51,8 @@ import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import java.time.Instant;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.Optional;
-
-import static com.elster.jupiter.util.conditions.Where.where;
+import java.util.stream.Collectors;
 
 @Path("/validationtasks")
 public class DataValidationTaskResource {
