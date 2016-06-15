@@ -65,6 +65,7 @@ Ext.define('Mdc.view.setup.executionlevels.AddExecutionLevels', {
                             items: [
                                 {
                                     text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
+                                    itemId: 'btn-add-privileges',
                                     xtype: 'button',
                                     action: 'add',
                                     ui: 'action'
@@ -73,6 +74,7 @@ Ext.define('Mdc.view.setup.executionlevels.AddExecutionLevels', {
                                     text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
                                     action: 'cancel',
                                     xtype: 'button',
+                                    itemId: 'btn-cancel-privileges',
                                     ui: 'link',
                                     listeners: {
                                         click: {

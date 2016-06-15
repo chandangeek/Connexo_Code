@@ -61,9 +61,8 @@ Ext.define('Mdc.view.setup.devicechannels.EditChannelForm', {
                         msgTarget: 'under',
                         itemId: 'mdc-editOverflowValueField',
                         width: 150,
-                        maxValue: 2147483647,
                         hideTrigger: true,
-                        maxLength: 22,
+                        maxLength: 15, // don't increase this value. Javascript can't handle precise values larger than 9007199254740992
                         enforceMaxLength: true,
                         required: true,
                         allowBlank: false,
