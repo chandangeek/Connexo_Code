@@ -1,24 +1,35 @@
 package com.energyict.mdc.device.topology.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.ReadingRecord;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.readings.EndDeviceEvent;
+import com.elster.jupiter.metering.readings.IntervalBlock;
 import com.elster.jupiter.metering.readings.IntervalReading;
+import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.metering.readings.Reading;
-import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
-import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
+import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.topology.DataLoggerChannelUsage;
 import com.energyict.mdc.device.topology.DataLoggerReference;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * Represents the link between a Data Logger and its gateway
@@ -26,11 +37,11 @@ import java.util.List;
  * Date: 10/03/14
  * Time: 09:57
  */
-@PhysicalGatewayNotSameAsOrigin(groups = {Save.Create.class, Save.Update.class}, message = "{"+ MessageSeeds.Keys.DEVICE_CANNOT_BE_DATA_LOGGER_FOR_ITSELF +"}")
-@OriginDeviceTypeIsDataLogger(groups = {Save.Create.class, Save.Update.class}, message = "{"+ MessageSeeds.Keys.NOT_A_DATALOGGER_SLAVE_DEVICE +"}")
-@GatewayDeviceTypeIsDataLoggerEnabled(groups = {Save.Create.class, Save.Update.class}, message = "{"+ MessageSeeds.Keys.GATEWAY_NOT_DATALOGGER_ENABLED +"}")
-@AllSlaveChannelsIncluded(groups = {Save.Create.class}, message = "{"+ MessageSeeds.Keys.NOT_ALL_SLAVE_CHANNELS_INCLUDED +"}")
-@AllDataLoggerChannelsAvailable(groups = {Save.Create.class}, message = "{" + MessageSeeds.Keys.DATA_LOGGER_CHANNEL_ALREADY_REFERENCED +"}")
+@PhysicalGatewayNotSameAsOrigin(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DEVICE_CANNOT_BE_DATA_LOGGER_FOR_ITSELF + "}")
+@OriginDeviceTypeIsDataLogger(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NOT_A_DATALOGGER_SLAVE_DEVICE + "}")
+@GatewayDeviceTypeIsDataLoggerEnabled(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.GATEWAY_NOT_DATALOGGER_ENABLED + "}")
+@AllSlaveChannelsIncluded(groups = {Save.Create.class}, message = "{" + MessageSeeds.Keys.NOT_ALL_SLAVE_CHANNELS_INCLUDED + "}")
+@AllDataLoggerChannelsAvailable(groups = {Save.Create.class}, message = "{" + MessageSeeds.Keys.DATA_LOGGER_CHANNEL_ALREADY_REFERENCED + "}")
 public class DataLoggerReferenceImpl extends AbstractPhysicalGatewayReferenceImpl implements DataLoggerReference {
 
     private List<DataLoggerChannelUsage> dataLoggerChannelUsages = new ArrayList<>();
@@ -40,8 +51,8 @@ public class DataLoggerReferenceImpl extends AbstractPhysicalGatewayReferenceImp
         return this;
     }
 
-    public boolean addDataLoggerChannelUsage(Channel slaveChannel, Channel dataLoggerChannel){
-         return dataLoggerChannelUsages.add(new DataLoggerChannelUsageImpl().createFor(this, slaveChannel, dataLoggerChannel));
+    public boolean addDataLoggerChannelUsage(Channel slaveChannel, Channel dataLoggerChannel) {
+        return dataLoggerChannelUsages.add(new DataLoggerChannelUsageImpl().createFor(this, slaveChannel, dataLoggerChannel));
     }
 
     public List<DataLoggerChannelUsage> getDataLoggerChannelUsages() {
@@ -51,85 +62,241 @@ public class DataLoggerReferenceImpl extends AbstractPhysicalGatewayReferenceImp
     /**
      * Data from each DataLogger Channel is transferred to the slave channel for this DataLoggerReference's interval
      */
-    void transferChannelDataToSlave(TopologyServiceImpl topologyService){
+    void transferChannelDataToSlave(TopologyServiceImpl topologyService) {
         this.dataLoggerChannelUsages.stream().forEach((channelUsage) -> transferChannelDataToSlave(topologyService, channelUsage));
     }
 
     /**
      * Closes the current interval.
      */
-    public void terminate(Instant closingDate){
+    public void terminate(Instant closingDate) {
         // Data on the slave channels having a dat
         this.dataLoggerChannelUsages.stream().forEach((usage) -> transferChannelDataToDataLogger(usage, closingDate));
         this.getOrigin().activate(closingDate);   //current Meter Activation is stopped and a new one is started
         super.terminate(closingDate);
     }
 
-    private void transferChannelDataToSlave(TopologyServiceImpl topologyService, DataLoggerChannelUsage channelUsage){
-        MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
-
+    private void transferChannelDataToSlave(TopologyServiceImpl topologyService, DataLoggerChannelUsage channelUsage) {
         Channel dataloggerChannel = channelUsage.getDataLoggerChannel();
         Channel slaveChannel = channelUsage.getSlaveChannel();
 
         if (dataloggerChannel.hasData()) {
-            if (dataloggerChannel.isRegular()) {
-                List<IntervalReading> readings = new ArrayList<>();
-                readings.addAll(dataloggerChannel.getIntervalReadings(getInterval().toOpenClosedRange()));
-                if (readings.isEmpty()) {
-                    return;
-                }
-                IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(slaveChannel.getMainReadingType().getMRID());
-                intervalBlock.addAllIntervalReadings(readings);
-                meterReading.addAllIntervalBlocks(Collections.singletonList(intervalBlock));
-
-            } else {
-                List<Reading> readings = new ArrayList<>();
-                readings.addAll(dataloggerChannel.getRegisterReadings(this.getRange()));
-                if (readings.isEmpty()) {
-                    return;
-                }
-                meterReading.addAllReadings(readings);
-            }
+            ReadingType dataLoggerCollectedReadingType = dataloggerChannel.getBulkQuantityReadingType().orElse(dataloggerChannel.getMainReadingType());
+            ReadingType slaveCollectedReadingType = slaveChannel.getBulkQuantityReadingType().orElse(slaveChannel.getMainReadingType());
+            MeterReading meterReading = new FilteredMeterReading(dataloggerChannel.deleteReadings(getInterval().toOpenClosedRange()),
+                    block -> block.getReadingTypeCode().equals(dataLoggerCollectedReadingType.getMRID()),
+                    reading -> reading.getReadingTypeCode().equals(dataLoggerCollectedReadingType.getMRID()),
+                    rq -> rq.getType().system().map(QualityCodeSystem.ENDDEVICE::equals).orElse(false),
+                    ImmutableMap.of(dataLoggerCollectedReadingType, slaveCollectedReadingType)
+            );
             this.getOrigin().store(meterReading);
-            if (dataloggerChannel.isRegular()){
+            if (dataloggerChannel.isRegular()) {
                 updateLastReadingIfApplicable(topologyService, slaveChannel);
             }
         }
     }
 
-    private void updateLastReadingIfApplicable(TopologyServiceImpl topologyService, Channel channel){
-        LoadProfile toUpdate =  topologyService.getChannel(this.getOrigin(), channel).map(com.energyict.mdc.device.data.Channel::getLoadProfile).get();
+    private void updateLastReadingIfApplicable(TopologyServiceImpl topologyService, Channel channel) {
+        LoadProfile toUpdate = topologyService.getChannel(this.getOrigin(), channel).map(com.energyict.mdc.device.data.Channel::getLoadProfile).get();
         if (!toUpdate.getLastReading().isPresent() || toUpdate.getLastReading().get().isBefore(channel.getLastDateTime())) {
             this.getOrigin().getLoadProfileUpdaterFor(toUpdate).setLastReading(channel.getLastDateTime()).update();
         }
     }
 
-    private void transferChannelDataToDataLogger(DataLoggerChannelUsage channelUsage, Instant start){
-        MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+    private void transferChannelDataToDataLogger(DataLoggerChannelUsage channelUsage, Instant start) {
         // Make sure we are using the current Meter Activation channels instances
-        Channel slaveChannel = getOrigin().getCurrentMeterActivation().get().getChannels().stream().filter((each) -> each.getId() ==  channelUsage.getSlaveChannel().getId()).findFirst().get();
+        Channel slaveChannel = getOrigin().getCurrentMeterActivation().get().getChannels().stream().filter((each) -> each.getId() == channelUsage.getSlaveChannel().getId()).findFirst().get();
         Channel dataloggerChannel = channelUsage.getDataLoggerChannel();
         if (slaveChannel.hasData()) {
-            if (slaveChannel.isRegular()) {
-                List<IntervalReading> readings = new ArrayList<>();
-                readings.addAll(slaveChannel.getIntervalReadings(Range.openClosed(start, slaveChannel.getLastDateTime())));
-                if (readings.isEmpty()) {
-                    return;
-                }
-                IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(dataloggerChannel.getMainReadingType().getMRID());
-                intervalBlock.addAllIntervalReadings(readings);
-                meterReading.addAllIntervalBlocks(Collections.singletonList(intervalBlock));
-                slaveChannel.removeReadings(slaveChannel.getIntervalReadings(Range.greaterThan(start)));
-            } else {
-                List<ReadingRecord> readings = new ArrayList<>();
-                readings.addAll(slaveChannel.getRegisterReadings(Range.atLeast(start)));
-                if (readings.isEmpty()) {
-                    return;
-                }
-                meterReading.addAllReadings(readings);
-                slaveChannel.removeReadings(readings);
-            }
+            ReadingType dataLoggerCollectedReadingType = dataloggerChannel.getBulkQuantityReadingType().orElse(dataloggerChannel.getMainReadingType());
+            ReadingType slaveCollectedReadingType = slaveChannel.getBulkQuantityReadingType().orElse(slaveChannel.getMainReadingType());
+            MeterReading meterReading = new FilteredMeterReading(slaveChannel.deleteReadings(Range.atLeast(start)),
+                    block -> block.getReadingTypeCode().equals(slaveCollectedReadingType.getMRID()),
+                    reading -> reading.getReadingTypeCode().equals(slaveCollectedReadingType.getMRID()),
+                    rq -> rq.getType().system().map(QualityCodeSystem.ENDDEVICE::equals).orElse(false),
+                    ImmutableMap.of(slaveCollectedReadingType, dataLoggerCollectedReadingType)
+            );
+
             this.getGateway().store(meterReading);
         }
     }
+
+    private class FilteredMeterReading implements MeterReading {
+
+        private final MeterReading decorated;
+        private final Predicate<IntervalBlock> intervalBlockFilter;
+        private final Predicate<Reading> readingFilter;
+        private final Predicate<ReadingQuality> readingQualityPredicate;
+        private final Map<String, String> readingTypeMap;
+
+        public FilteredMeterReading(MeterReading decorated, Predicate<IntervalBlock> intervalBlockFilter, Predicate<Reading> readingFilter, Predicate<ReadingQuality> readingQualityPredicate, Map<ReadingType, ReadingType> readingTypeReplacement) {
+            this.decorated = decorated;
+            this.intervalBlockFilter = intervalBlockFilter;
+            this.readingFilter = readingFilter;
+            this.readingQualityPredicate = readingQualityPredicate;
+            this.readingTypeMap = new HashMap<>();
+            readingTypeReplacement.entrySet().forEach(entry -> readingTypeMap.put(entry.getKey().getMRID(), entry.getValue().getMRID()));
+        }
+
+        @Override
+        public List<Reading> getReadings() {
+            return decorated.getReadings().stream()
+                    .filter(readingFilter)
+                    .map(reading -> new FilteredReading(reading, readingQualityPredicate, readingTypeMap.get(reading.getReadingTypeCode()))
+                    ).map(Reading.class::cast)
+                    .collect(Collectors.toList());
+        }
+
+        @Override
+        public List<IntervalBlock> getIntervalBlocks() {
+            return decorated.getIntervalBlocks()
+                    .stream()
+                    .filter(intervalBlockFilter)
+                    .map(block -> new FilteredIntervalBlock(block, readingQualityPredicate, readingTypeMap.get(block.getReadingTypeCode())))
+                    .map(IntervalBlock.class::cast)
+                    .collect(Collectors.toList());
+        }
+
+        @Override
+        public List<EndDeviceEvent> getEvents() {
+            return decorated.getEvents();
+        }
+    }
+
+    private class FilteredIntervalBlock implements IntervalBlock {
+
+        private final IntervalBlock decorated;
+        private final Predicate<ReadingQuality> readingQualityPredicate;
+        private final String readingTypeReplacement;
+
+        public FilteredIntervalBlock(IntervalBlock decorated, Predicate<ReadingQuality> readingQualityPredicate, String readingTypeReplacement) {
+            this.decorated = decorated;
+            this.readingQualityPredicate = readingQualityPredicate;
+            this.readingTypeReplacement = readingTypeReplacement;
+        }
+
+        @Override
+        public List<IntervalReading> getIntervals() {
+            return decorated.getIntervals().stream().map(ir -> new FilteredIntervalReading(ir, readingQualityPredicate)).map(IntervalReading.class::cast).collect(Collectors.toList());
+        }
+
+        @Override
+        public String getReadingTypeCode() {
+            return readingTypeReplacement != null ? readingTypeReplacement : decorated.getReadingTypeCode();
+        }
+    }
+
+    private class FilteredIntervalReading implements IntervalReading {
+        private final IntervalReading decorated;
+        private final Predicate<ReadingQuality> readingQualityFilter;
+
+        public FilteredIntervalReading(IntervalReading decorated, Predicate<ReadingQuality> readingQualityFilter) {
+            this.decorated = decorated;
+            this.readingQualityFilter = readingQualityFilter;
+        }
+
+        @Override
+        public ProfileStatus getProfileStatus() {
+            return decorated.getProfileStatus();
+        }
+
+        @Override
+        public BigDecimal getSensorAccuracy() {
+            return decorated.getSensorAccuracy();
+        }
+
+        @Override
+        public Instant getTimeStamp() {
+            return decorated.getTimeStamp();
+        }
+
+        @Override
+        public Instant getReportedDateTime() {
+            return decorated.getReportedDateTime();
+        }
+
+        @Override
+        public BigDecimal getValue() {
+            return decorated.getValue();
+        }
+
+        @Override
+        public String getSource() {
+            return decorated.getSource();
+        }
+
+        @Override
+        public Optional<Range<Instant>> getTimePeriod() {
+            return decorated.getTimePeriod();
+        }
+
+        @Override
+        public List<? extends ReadingQuality> getReadingQualities() {
+            return decorated.getReadingQualities().stream().filter(readingQualityFilter::test).collect(Collectors.toList());
+        }
+    }
+
+    private class FilteredReading implements Reading {
+
+        private final Reading decoratedReading;
+        private final Predicate<ReadingQuality> readingQualityFilter;
+        private final String readingType;
+
+        public FilteredReading(Reading decoratedReading, Predicate<ReadingQuality> readingQualityFilter, String replacementReadingType) {
+            this.decoratedReading = decoratedReading;
+            this.readingQualityFilter = readingQualityFilter;
+            this.readingType = replacementReadingType;
+        }
+
+        @Override
+        public String getReason() {
+            return decoratedReading.getReason();
+        }
+
+        @Override
+        public String getReadingTypeCode() {
+            return readingType != null ? readingType : decoratedReading.getReadingTypeCode();
+        }
+
+        @Override
+        public String getText() {
+            return decoratedReading.getText();
+        }
+
+        @Override
+        public BigDecimal getSensorAccuracy() {
+            return decoratedReading.getSensorAccuracy();
+        }
+
+        @Override
+        public Instant getTimeStamp() {
+            return decoratedReading.getTimeStamp();
+        }
+
+        @Override
+        public Instant getReportedDateTime() {
+            return decoratedReading.getReportedDateTime();
+        }
+
+        @Override
+        public BigDecimal getValue() {
+            return decoratedReading.getValue();
+        }
+
+        @Override
+        public String getSource() {
+            return decoratedReading.getSource();
+        }
+
+        @Override
+        public Optional<Range<Instant>> getTimePeriod() {
+            return decoratedReading.getTimePeriod();
+        }
+
+        @Override
+        public List<? extends ReadingQuality> getReadingQualities() {
+            return decoratedReading.getReadingQualities().stream().filter(readingQualityFilter::test).collect(Collectors.toList());
+        }
+    }
+
 }

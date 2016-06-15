@@ -39,7 +39,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
@@ -47,7 +46,7 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 /**
  * Test covering the data transfer between channels when slave is linked to data logger, or
  * when slave is unlinked from data logger.
- *
+ * <p>
  * Copyrights EnergyICT
  * Date: 25/05/2016
  * Time: 9:04
@@ -73,13 +72,25 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
         ReadingType registerReadingType6 = inMemoryPersistence.getReadingTypeUtilService().getReadingTypeFrom(ObisCode.fromString("1.0.2.8.2.255"), kiloWattHours);
 
         // set up for first loadProfile
-        channelReadingType1 = inMemoryPersistence.getReadingTypeUtilService().getIntervalAppliedReadingType(registerReadingType1,Optional.of(TimeDuration.minutes(15)), ObisCode.fromString("1.0.1.8.0.255")).get();
-        channelReadingType2 = inMemoryPersistence.getReadingTypeUtilService().getIntervalAppliedReadingType(registerReadingType2,Optional.of(TimeDuration.minutes(15)), ObisCode.fromString("1.0.2.8.0.255")).get();
+        channelReadingType1 = inMemoryPersistence.getReadingTypeUtilService()
+                .getIntervalAppliedReadingType(registerReadingType1, Optional.of(TimeDuration.minutes(15)), ObisCode.fromString("1.0.1.8.0.255"))
+                .get();
+        channelReadingType2 = inMemoryPersistence.getReadingTypeUtilService()
+                .getIntervalAppliedReadingType(registerReadingType2, Optional.of(TimeDuration.minutes(15)), ObisCode.fromString("1.0.2.8.0.255"))
+                .get();
         // set up for second loadProfile
-        channelReadingType3 = inMemoryPersistence.getReadingTypeUtilService().getIntervalAppliedReadingType(registerReadingType3,Optional.of(TimeDuration.minutes(15)), ObisCode.fromString("1.0.1.8.1.255")).get();
-        channelReadingType4 = inMemoryPersistence.getReadingTypeUtilService().getIntervalAppliedReadingType(registerReadingType4,Optional.of(TimeDuration.minutes(15)), ObisCode.fromString("1.0.1.8.2.255")).get();
-        channelReadingType5 = inMemoryPersistence.getReadingTypeUtilService().getIntervalAppliedReadingType(registerReadingType5,Optional.of(TimeDuration.minutes(15)), ObisCode.fromString("1.0.2.8.1.255")).get();
-        channelReadingType6 = inMemoryPersistence.getReadingTypeUtilService().getIntervalAppliedReadingType(registerReadingType6,Optional.of(TimeDuration.minutes(15)), ObisCode.fromString("1.0.2.8.2.255")).get();
+        channelReadingType3 = inMemoryPersistence.getReadingTypeUtilService()
+                .getIntervalAppliedReadingType(registerReadingType3, Optional.of(TimeDuration.minutes(15)), ObisCode.fromString("1.0.1.8.1.255"))
+                .get();
+        channelReadingType4 = inMemoryPersistence.getReadingTypeUtilService()
+                .getIntervalAppliedReadingType(registerReadingType4, Optional.of(TimeDuration.minutes(15)), ObisCode.fromString("1.0.1.8.2.255"))
+                .get();
+        channelReadingType5 = inMemoryPersistence.getReadingTypeUtilService()
+                .getIntervalAppliedReadingType(registerReadingType5, Optional.of(TimeDuration.minutes(15)), ObisCode.fromString("1.0.2.8.1.255"))
+                .get();
+        channelReadingType6 = inMemoryPersistence.getReadingTypeUtilService()
+                .getIntervalAppliedReadingType(registerReadingType6, Optional.of(TimeDuration.minutes(15)), ObisCode.fromString("1.0.2.8.2.255"))
+                .get();
 
 
         RegisterType registerTypeForChannel1 = inMemoryPersistence.getMasterDataService().findRegisterTypeByReadingType(registerReadingType1)
@@ -231,11 +242,11 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
         return inMemoryPersistence.getDeviceService().newDevice(configurationForSlaveWithRegisters, name, name + "MrId", start);
     }
 
-    private void addProfileDataToDevice(Device device, Instant start, Instant end){
+    private void addProfileDataToDevice(Device device, Instant start, Instant end) {
         MeterReadingImpl reading = MeterReadingImpl.newInstance();
 
         IntervalBlockImpl intervalBlock1 = IntervalBlockImpl.of(channelReadingType1.getMRID());
-        intervalBlock1.addAllIntervalReadings(profileOfQuarterlyIntervals(start, end , BigDecimal.ONE));
+        intervalBlock1.addAllIntervalReadings(profileOfQuarterlyIntervals(start, end, BigDecimal.ONE));
         reading.addIntervalBlock(intervalBlock1);
         IntervalBlockImpl intervalBlock2 = IntervalBlockImpl.of(channelReadingType2.getMRID());
         intervalBlock2.addAllIntervalReadings(profileOfQuarterlyIntervals(start, end, new BigDecimal(2)));
@@ -257,32 +268,32 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
     }
 
     // We will create a 2 month profile with quarterly readings
-    private List<IntervalReading> profileOfQuarterlyIntervals(Instant start, Instant end, BigDecimal value){
+    private List<IntervalReading> profileOfQuarterlyIntervals(Instant start, Instant end, BigDecimal value) {
         List<IntervalReading> profile = new ArrayList<>();
 
         Instant readingTime = start;
         do {
-           readingTime = readingTime.plus(15,ChronoUnit.MINUTES);
-           // ProfileStatus set to Test so to easily filter them
-           profile.add(IntervalReadingImpl.of(readingTime, value, ProfileStatus.of(ProfileStatus.Flag.TEST)));
+            readingTime = readingTime.plus(15, ChronoUnit.MINUTES);
+            // ProfileStatus set to Test so to easily filter them
+            profile.add(IntervalReadingImpl.of(readingTime, value, ProfileStatus.of(ProfileStatus.Flag.TEST)));
         }
-        while(readingTime.isBefore(end));
+        while (readingTime.isBefore(end));
         return profile;
     }
 
-    private MeterReadingImpl addRegisterDataToDevice(Device device, Instant start, Instant end){
+    private MeterReadingImpl addRegisterDataToDevice(Device device, Instant start, Instant end) {
         MeterReadingImpl reading = MeterReadingImpl.newInstance();
-        device.getRegisters().forEach((each) -> this.addRandomRegisterReadings(reading ,each, start, end));
+        device.getRegisters().forEach((each) -> this.addRandomRegisterReadings(reading, each, start, end));
         device.store(reading);
         return reading;
     }
 
-    private void addRandomRegisterReadings(MeterReadingImpl meterReading, Register register, Instant start, Instant end){
-        Instant readingDate= start.plusSeconds(new Double(randomBetween(86400, 345600)).longValue());
-        do{
+    private void addRandomRegisterReadings(MeterReadingImpl meterReading, Register register, Instant start, Instant end) {
+        Instant readingDate = start.plusSeconds(new Double(randomBetween(86400, 345600)).longValue());
+        do {
             meterReading.addReading(ReadingImpl.of(register.getReadingType().getMRID(), BigDecimal.valueOf(randomBetween(110, 1120)), readingDate));
             readingDate = readingDate.plusSeconds(new Double(randomBetween(86400, 345600)).longValue());
-        }while(readingDate.isBefore(end));
+        } while (readingDate.isBefore(end));
     }
 
     private double randomBetween(double minValue, double maxValue) {
@@ -291,15 +302,15 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    public void testLinkSlaveWithoutData(){
+    public void testLinkSlaveWithoutData() {
         setUpForDataLoggerEnabledDevice();
         setUpForSlaveHavingLoadProfiles();
 
         Instant start = LocalDateTime.of(2016, 4, 1, 0, 0).toInstant(ZoneOffset.UTC);
-        Instant startLink =  LocalDateTime.of(2016, 5, 1, 0, 0).toInstant(ZoneOffset.UTC);
-        Instant firstOfJune =  LocalDateTime.of(2016, 6, 1, 0, 0).toInstant(ZoneOffset.UTC);
+        Instant startLink = LocalDateTime.of(2016, 5, 1, 0, 0).toInstant(ZoneOffset.UTC);
+        Instant firstOfJune = LocalDateTime.of(2016, 6, 1, 0, 0).toInstant(ZoneOffset.UTC);
 
-        Device slave= createSlaveWithProfiles("slave1", start);
+        Device slave = createSlaveWithProfiles("slave1", start);
         Device dataLogger = createDataLoggerDevice("dataLogger", start);
 
         HashMap<Channel, Channel> channelMapping = new HashMap<>();
@@ -309,7 +320,7 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
         channelMapping.put(slave.getChannels().get(2), dataLogger.getChannels().get(2));
         HashMap<Register, Register> registerMapping = new HashMap<>();
 
-        inMemoryPersistence.getTopologyService().setDataLogger(slave, dataLogger,startLink, channelMapping, registerMapping );
+        inMemoryPersistence.getTopologyService().setDataLogger(slave, dataLogger, startLink, channelMapping, registerMapping);
 
         List<DataLoggerReferenceImpl> dataLoggerReferences = inMemoryPersistence.getTopologyService().dataModel().query(DataLoggerReferenceImpl.class).select(Condition.TRUE);
         assertThat(dataLoggerReferences).hasSize(1);
@@ -340,13 +351,13 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    public void testLinkSlaveWithRegistersWithoutData(){
+    public void testLinkSlaveWithRegistersWithoutData() {
         setUpForDataLoggerEnabledDevice();
         setUpForSlaveHavingRegisters();
 
         Instant start = LocalDateTime.of(2016, 4, 1, 0, 0).toInstant(ZoneOffset.UTC);
-        Instant startLink =  LocalDateTime.of(2016, 5, 1, 0, 0).toInstant(ZoneOffset.UTC);
-        Instant firstOfJune =  LocalDateTime.of(2016, 6, 1, 0, 0).toInstant(ZoneOffset.UTC);
+        Instant startLink = LocalDateTime.of(2016, 5, 1, 0, 0).toInstant(ZoneOffset.UTC);
+        Instant firstOfJune = LocalDateTime.of(2016, 6, 1, 0, 0).toInstant(ZoneOffset.UTC);
 
         Device slave = createSlaveWithRegisters("slave1", start);
         Device dataLogger = createDataLoggerDevice("dataLogger", start);
@@ -357,7 +368,7 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
         registerMapping.put(slave.getRegisters().get(1), dataLogger.getRegisters().get(1));
         registerMapping.put(slave.getRegisters().get(2), dataLogger.getRegisters().get(2));
 
-        inMemoryPersistence.getTopologyService().setDataLogger(slave, dataLogger,startLink, channelMapping, registerMapping );
+        inMemoryPersistence.getTopologyService().setDataLogger(slave, dataLogger, startLink, channelMapping, registerMapping);
 
         List<DataLoggerReferenceImpl> dataLoggerReferences = inMemoryPersistence.getTopologyService().dataModel().query(DataLoggerReferenceImpl.class).select(Condition.TRUE);
         assertThat(dataLoggerReferences).hasSize(1);
@@ -386,58 +397,73 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
         assertThat(slave.hasData()).isFalse();
     }
 
-     @Test
-     @Transactional
-     public void testLinkSlaveWithProfileData() {
-         setUpForDataLoggerEnabledDevice();
-         setUpForSlaveHavingLoadProfiles();
+    @Test
+    @Transactional
+    public void testLinkSlaveWithProfileData() {
+        setUpForDataLoggerEnabledDevice();
+        setUpForSlaveHavingLoadProfiles();
 
-         Instant start = LocalDateTime.of(2016, 4, 1, 0, 0).toInstant(ZoneOffset.UTC);
-         Instant startLink = LocalDateTime.of(2016, 5, 1, 0, 0).toInstant(ZoneOffset.UTC);
-         Instant endOfData = LocalDateTime.of(2016, 6, 1, 0, 0).toInstant(ZoneOffset.UTC);
-         Instant firstOfJuli = LocalDateTime.of(2016, 7, 1, 0, 0).toInstant(ZoneOffset.UTC);
+        Instant start = LocalDateTime.of(2016, 4, 1, 0, 0).toInstant(ZoneOffset.UTC);
+        Instant startLink = LocalDateTime.of(2016, 5, 1, 0, 0).toInstant(ZoneOffset.UTC);
+        Instant endOfData = LocalDateTime.of(2016, 6, 1, 0, 0).toInstant(ZoneOffset.UTC);
+        Instant firstOfJuli = LocalDateTime.of(2016, 7, 1, 0, 0).toInstant(ZoneOffset.UTC);
 
-         Device slave= createSlaveWithProfiles("slave1", start);
-         assertThat(slave.getChannels().get(0).getLastReading().isPresent()).isFalse();
-         assertThat(slave.getChannels().get(1).getLastReading().isPresent()).isFalse();
-         assertThat(slave.getChannels().get(2).getLastReading().isPresent()).isFalse();
-         Device dataLogger = createDataLoggerDevice("dataLogger", start);
-         addProfileDataToDevice(dataLogger, start, endOfData);
-         // Make sure the data on the data logger is present
-         assertThat(dataLogger.getChannels().get(0).hasData()).isTrue();
-         assertThat(dataLogger.getChannels().get(0).getLastDateTime().get()).isEqualTo(endOfData);
-         assertThat(dataLogger.getChannels().get(0).getChannelData(Range.closedOpen(start,firstOfJuli))).hasSize(5856); //mont april: 30*24*4 + month may: 31*24*4
+        Device slave = createSlaveWithProfiles("slave1", start);
+        assertThat(slave.getChannels().get(0).getLastReading().isPresent()).isFalse();
+        assertThat(slave.getChannels().get(1).getLastReading().isPresent()).isFalse();
+        assertThat(slave.getChannels().get(2).getLastReading().isPresent()).isFalse();
+        Device dataLogger = createDataLoggerDevice("dataLogger", start);
+        addProfileDataToDevice(dataLogger, start, endOfData);
+        // Make sure the data on the data logger is present
+        assertThat(dataLogger.getChannels().get(0).hasData()).isTrue();
+        assertThat(dataLogger.getChannels().get(0).getLastDateTime().get()).isEqualTo(endOfData);
+        assertThat(dataLogger.getChannels().get(0).getChannelData(Range.closedOpen(start, firstOfJuli))).hasSize(5856); //mont april: 30*24*4 + month may: 31*24*4
 
-         HashMap<Channel, Channel> channelMapping = new HashMap<>();
+        HashMap<Channel, Channel> channelMapping = new HashMap<>();
 
-         channelMapping.put(slave.getChannels().get(0), dataLogger.getChannels().get(0));
-         channelMapping.put(slave.getChannels().get(1), dataLogger.getChannels().get(1));
-         channelMapping.put(slave.getChannels().get(2), dataLogger.getChannels().get(2));
-         HashMap<Register, Register> registerMapping = new HashMap<>();
+        channelMapping.put(slave.getChannels().get(0), dataLogger.getChannels().get(0));
+        channelMapping.put(slave.getChannels().get(1), dataLogger.getChannels().get(1));
+        channelMapping.put(slave.getChannels().get(2), dataLogger.getChannels().get(2));
+        HashMap<Register, Register> registerMapping = new HashMap<>();
 
-         inMemoryPersistence.getTopologyService().setDataLogger(slave, dataLogger, startLink, channelMapping, registerMapping );
+        inMemoryPersistence.getTopologyService().setDataLogger(slave, dataLogger, startLink, channelMapping, registerMapping);
 
-         assertThat(slave.hasData()).isTrue();
-         List<LoadProfileReading> intervals1 = slave.getChannels().get(0).getChannelData(Range.open(start,firstOfJuli)).stream().filter((loadProfileReading -> loadProfileReading.getFlags().contains(ProfileStatus.Flag.TEST))).collect(Collectors.toList());
-         List<LoadProfileReading> intervals2 = slave.getChannels().get(0).getChannelData(Range.open(start,firstOfJuli)).stream().filter((loadProfileReading -> loadProfileReading.getFlags().contains(ProfileStatus.Flag.TEST))).collect(Collectors.toList());
-         List<LoadProfileReading> intervals3 = slave.getChannels().get(0).getChannelData(Range.open(start,firstOfJuli)).stream().filter((loadProfileReading -> loadProfileReading.getFlags().contains(ProfileStatus.Flag.TEST))).collect(Collectors.toList());
+        assertThat(slave.hasData()).isTrue();
+        List<LoadProfileReading> intervals1 = slave.getChannels()
+                .get(0)
+                .getChannelData(Range.open(start, firstOfJuli))
+                .stream()
+                .filter((loadProfileReading -> loadProfileReading.getFlags().contains(ProfileStatus.Flag.TEST)))
+                .collect(Collectors.toList());
+        List<LoadProfileReading> intervals2 = slave.getChannels()
+                .get(0)
+                .getChannelData(Range.open(start, firstOfJuli))
+                .stream()
+                .filter((loadProfileReading -> loadProfileReading.getFlags().contains(ProfileStatus.Flag.TEST)))
+                .collect(Collectors.toList());
+        List<LoadProfileReading> intervals3 = slave.getChannels()
+                .get(0)
+                .getChannelData(Range.open(start, firstOfJuli))
+                .stream()
+                .filter((loadProfileReading -> loadProfileReading.getFlags().contains(ProfileStatus.Flag.TEST)))
+                .collect(Collectors.toList());
 
-         assertThat(intervals1).hasSize(2976); //month may: 31*24*4
-         assertThat(intervals2).hasSize(2976); //month may: 31*24*4
-         assertThat(intervals3).hasSize(2976); //month may: 31*24*4
+        assertThat(intervals1).hasSize(2976); //month may: 31*24*4
+        assertThat(intervals2).hasSize(2976); //month may: 31*24*4
+        assertThat(intervals3).hasSize(2976); //month may: 31*24*4
 
-         assertThat(slave.getChannels().get(0).getLastReading().get()).isEqualTo(endOfData);
-         assertThat(slave.getChannels().get(1).getLastReading().get()).isEqualTo(endOfData);
-         assertThat(slave.getChannels().get(2).getLastReading().get()).isEqualTo(endOfData);
-         assertThat(slave.getChannels().get(0).getLastDateTime().get()).isEqualTo(endOfData);
-         assertThat(slave.getChannels().get(1).getLastDateTime().get()).isEqualTo(endOfData);
-         assertThat(slave.getChannels().get(2).getLastDateTime().get()).isEqualTo(endOfData);
+        assertThat(slave.getChannels().get(0).getLastReading().get()).isEqualTo(endOfData);
+        assertThat(slave.getChannels().get(1).getLastReading().get()).isEqualTo(endOfData);
+        assertThat(slave.getChannels().get(2).getLastReading().get()).isEqualTo(endOfData);
+        assertThat(slave.getChannels().get(0).getLastDateTime().get()).isEqualTo(endOfData);
+        assertThat(slave.getChannels().get(1).getLastDateTime().get()).isEqualTo(endOfData);
+        assertThat(slave.getChannels().get(2).getLastDateTime().get()).isEqualTo(endOfData);
 
-     }
+    }
 
     @Test
     @Transactional
-    public void testLinkSlaveWithRegisterData(){
+    public void testLinkSlaveWithRegisterData() {
         setUpForDataLoggerEnabledDevice();
         setUpForSlaveHavingRegisters();
 
@@ -457,6 +483,10 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
         List<Reading> readingsDataLoggerR1 = meterReading.getReadings().stream().filter((each) -> each.getReadingTypeCode().equals(registerReadingType1.getMRID())).collect(Collectors.toList());
         List<Reading> readingsDataLoggerR2 = meterReading.getReadings().stream().filter((each) -> each.getReadingTypeCode().equals(registerReadingType3.getMRID())).collect(Collectors.toList());
         List<Reading> readingsDataLoggerR3 = meterReading.getReadings().stream().filter((each) -> each.getReadingTypeCode().equals(registerReadingType4.getMRID())).collect(Collectors.toList());
+        Instant r1End = readingsDataLoggerR1.get(readingsDataLoggerR1.size() - 1).getTimeStamp();
+        Instant r2End = readingsDataLoggerR2.get(readingsDataLoggerR2.size() - 1).getTimeStamp();
+        Instant r3End = readingsDataLoggerR3.get(readingsDataLoggerR3.size() - 1).getTimeStamp();
+
 
         assertThat(dataLoggerR1.getReadings(Interval.of(Range.openClosed(start, firstOfJune)))).hasSize(readingsDataLoggerR1.size());
         assertThat(dataLoggerR2.getReadings(Interval.of(Range.openClosed(start, firstOfJune)))).hasSize(readingsDataLoggerR2.size());
@@ -468,7 +498,7 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
         registerMapping.put(slave.getRegisters().get(1), dataLoggerR2);
         registerMapping.put(slave.getRegisters().get(2), dataLoggerR3);
 
-        inMemoryPersistence.getTopologyService().setDataLogger(slave, dataLogger,startLink, channelMapping, registerMapping );
+        inMemoryPersistence.getTopologyService().setDataLogger(slave, dataLogger, startLink, channelMapping, registerMapping);
 
         List<DataLoggerReferenceImpl> dataLoggerReferences = inMemoryPersistence.getTopologyService().dataModel().query(DataLoggerReferenceImpl.class).select(Condition.TRUE);
         assertThat(dataLoggerReferences).hasSize(1);
@@ -480,13 +510,19 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
         assertThat(slave.getRegisters().get(1).hasData()).isTrue();
         assertThat(slave.getRegisters().get(2).hasData()).isTrue();
 
-        assertThat(slave.getRegisters().get(0).getLastReadingDate()).isEqualTo(dataLoggerR1.getLastReadingDate()); // all data on data logger after link date copied
-        assertThat(slave.getRegisters().get(1).getLastReadingDate()).isEqualTo(dataLoggerR2.getLastReadingDate());
-        assertThat(slave.getRegisters().get(2).getLastReadingDate()).isEqualTo(dataLoggerR3.getLastReadingDate());
+        assertThat(slave.getRegisters().get(0).getLastReadingDate()).isEqualTo(Optional.of(r1End)); // all data on data logger after link date copied
+        assertThat(slave.getRegisters().get(1).getLastReadingDate()).isEqualTo(Optional.of(r2End));
+        assertThat(slave.getRegisters().get(2).getLastReadingDate()).isEqualTo(Optional.of(r3End));
 
-        assertThat(slave.getRegisters().get(0).getReadings(Interval.of(Range.atLeast(startLink)))).hasSize(new Long(readingsDataLoggerR1.stream().filter((reading) -> Range.atLeast(startLink).contains(reading.getTimeStamp())).count()).intValue());
-        assertThat(slave.getRegisters().get(1).getReadings(Interval.of(Range.atLeast(startLink)))).hasSize(new Long(readingsDataLoggerR2.stream().filter((reading) -> Range.atLeast(startLink).contains(reading.getTimeStamp())).count()).intValue());
-        assertThat(slave.getRegisters().get(2).getReadings(Interval.of(Range.atLeast(startLink)))).hasSize(new Long(readingsDataLoggerR3.stream().filter((reading) -> Range.atLeast(startLink).contains(reading.getTimeStamp())).count()).intValue());
+        assertThat(slave.getRegisters().get(0).getReadings(Interval.of(Range.atLeast(startLink)))).hasSize(new Long(readingsDataLoggerR1.stream()
+                .filter((reading) -> Range.atLeast(startLink).contains(reading.getTimeStamp()))
+                .count()).intValue());
+        assertThat(slave.getRegisters().get(1).getReadings(Interval.of(Range.atLeast(startLink)))).hasSize(new Long(readingsDataLoggerR2.stream()
+                .filter((reading) -> Range.atLeast(startLink).contains(reading.getTimeStamp()))
+                .count()).intValue());
+        assertThat(slave.getRegisters().get(2).getReadings(Interval.of(Range.atLeast(startLink)))).hasSize(new Long(readingsDataLoggerR3.stream()
+                .filter((reading) -> Range.atLeast(startLink).contains(reading.getTimeStamp()))
+                .count()).intValue());
 
         assertThat(slave.getRegisters().get(0).getReadings(Interval.of(Range.openClosed(start, startLink)))).isEmpty(); // No data before link date
         assertThat(slave.getRegisters().get(1).getReadings(Interval.of(Range.openClosed(start, startLink)))).isEmpty();
@@ -496,13 +532,13 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    public void testUnLinkSlaveWithoutData(){
+    public void testUnLinkSlaveWithoutData() {
         setUpForDataLoggerEnabledDevice();
         setUpForSlaveHavingLoadProfiles();
 
         Instant start = LocalDateTime.of(2016, 4, 1, 0, 0).toInstant(ZoneOffset.UTC);
-        Instant startLink =  LocalDateTime.of(2016, 5, 1, 0, 0).toInstant(ZoneOffset.UTC);
-        Instant midMay =  LocalDateTime.of(2016, 5, 15, 0, 0).toInstant(ZoneOffset.UTC);
+        Instant startLink = LocalDateTime.of(2016, 5, 1, 0, 0).toInstant(ZoneOffset.UTC);
+        Instant midMay = LocalDateTime.of(2016, 5, 15, 0, 0).toInstant(ZoneOffset.UTC);
 
         Device slave = createSlaveWithProfiles("slave1", start);
         assertThat(slave.getMeterActivationsMostRecentFirst()).hasSize(1);
@@ -515,13 +551,13 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
         channelMapping.put(slave.getChannels().get(2), dataLogger.getChannels().get(2));
         HashMap<Register, Register> registerMapping = new HashMap<>();
 
-        inMemoryPersistence.getTopologyService().setDataLogger(slave, dataLogger,startLink, channelMapping, registerMapping );
+        inMemoryPersistence.getTopologyService().setDataLogger(slave, dataLogger, startLink, channelMapping, registerMapping);
 
         List<Device> slaves = inMemoryPersistence.getTopologyService().findDataLoggerSlaves(dataLogger);
         assertThat(slaves).hasSize(1);
         assertThat(slaves.get(0).getId()).isEqualTo(slave.getId());
 
-        inMemoryPersistence.getTopologyService().clearDataLogger(slaves.get(0) ,midMay);
+        inMemoryPersistence.getTopologyService().clearDataLogger(slaves.get(0), midMay);
 
         assertThat(inMemoryPersistence.getTopologyService().findAllEffectiveDataLoggerSlaveDevices().find()).isEmpty();
         assertThat(inMemoryPersistence.getTopologyService().findDataLoggerSlaves(dataLogger)).isEmpty();
@@ -537,8 +573,8 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    @Ignore // This test fails: JIRA CXO-1970!!!!!
-    public void testUnLinkSlaveWithProfileData(){
+    //@Ignore // This test fails: JIRA CXO-1970!!!!!
+    public void testUnLinkSlaveWithProfileData() {
         setUpForDataLoggerEnabledDevice();
         setUpForSlaveHavingLoadProfiles();
 
@@ -554,7 +590,7 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
         // Make sure the data on the data logger is present
         assertThat(dataLogger.getChannels().get(0).hasData()).isTrue();
         assertThat(dataLogger.getChannels().get(0).getLastDateTime().get()).isEqualTo(endOfData);
-        assertThat(dataLogger.getChannels().get(0).getChannelData(Range.openClosed(start,firstOfJuli))).hasSize(5856); //month april: 30*24*4 + month may: 31*24*4
+        assertThat(dataLogger.getChannels().get(0).getChannelData(Range.openClosed(start, firstOfJuli))).hasSize(5856); //month april: 30*24*4 + month may: 31*24*4
 
         HashMap<Channel, Channel> channelMapping = new HashMap<>();
 
@@ -563,7 +599,7 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
         channelMapping.put(slave.getChannels().get(2), dataLogger.getChannels().get(2));
         HashMap<Register, Register> registerMapping = new HashMap<>();
 
-        inMemoryPersistence.getTopologyService().setDataLogger(slave, dataLogger, startLink, channelMapping, registerMapping );
+        inMemoryPersistence.getTopologyService().setDataLogger(slave, dataLogger, startLink, channelMapping, registerMapping);
 
         assertThat(slave.hasData()).isTrue();
         // Making sure all data is in the slave channels until 2016/06/01
@@ -571,7 +607,7 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
         assertThat(slave.getChannels().get(1).getLastDateTime().get()).isEqualTo(endOfData);
         assertThat(slave.getChannels().get(2).getLastDateTime().get()).isEqualTo(endOfData);
 
-        inMemoryPersistence.getTopologyService().clearDataLogger(slave ,endLink);
+        inMemoryPersistence.getTopologyService().clearDataLogger(slave, endLink);
 
         assertThat(inMemoryPersistence.getTopologyService().findAllEffectiveDataLoggerSlaveDevices().find()).isEmpty();
         assertThat(inMemoryPersistence.getTopologyService().findDataLoggerSlaves(dataLogger)).isEmpty();
@@ -591,14 +627,14 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    public void testUnLinkSlaveWithRegisterData(){
+    public void testUnLinkSlaveWithRegisterData() {
         setUpForDataLoggerEnabledDevice();
         setUpForSlaveHavingRegisters();
 
         Instant start = LocalDateTime.of(2016, 4, 1, 0, 0).toInstant(ZoneOffset.UTC);
         Instant startLink = LocalDateTime.of(2016, 5, 1, 0, 0).toInstant(ZoneOffset.UTC);
         Instant firstOfJune = LocalDateTime.of(2016, 6, 1, 0, 0).toInstant(ZoneOffset.UTC);
-        Instant endLink =  LocalDateTime.of(2016, 5, 15, 0, 0).toInstant(ZoneOffset.UTC);
+        Instant endLink = LocalDateTime.of(2016, 5, 15, 0, 0).toInstant(ZoneOffset.UTC);
 
         Device slave = createSlaveWithRegisters("slave1", start);
         Device dataLogger = createDataLoggerDevice("dataLogger", start);
@@ -618,13 +654,19 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
         registerMapping.put(slave.getRegisters().get(1), dataLoggerR2);
         registerMapping.put(slave.getRegisters().get(2), dataLoggerR3);
 
-        inMemoryPersistence.getTopologyService().setDataLogger(slave, dataLogger,startLink, channelMapping, registerMapping );
+        inMemoryPersistence.getTopologyService().setDataLogger(slave, dataLogger, startLink, channelMapping, registerMapping);
         // Making sure data has been transferred form data logge<r to slave
-        assertThat(slave.getRegisters().get(0).getReadings(Interval.of(Range.atLeast(startLink)))).hasSize(new Long(readingsDataLoggerR1.stream().filter((reading) -> Range.atLeast(startLink).contains(reading.getTimeStamp())).count()).intValue());
-        assertThat(slave.getRegisters().get(1).getReadings(Interval.of(Range.atLeast(startLink)))).hasSize(new Long(readingsDataLoggerR2.stream().filter((reading) -> Range.atLeast(startLink).contains(reading.getTimeStamp())).count()).intValue());
-        assertThat(slave.getRegisters().get(2).getReadings(Interval.of(Range.atLeast(startLink)))).hasSize(new Long(readingsDataLoggerR3.stream().filter((reading) -> Range.atLeast(startLink).contains(reading.getTimeStamp())).count()).intValue());
+        assertThat(slave.getRegisters().get(0).getReadings(Interval.of(Range.atLeast(startLink)))).hasSize(new Long(readingsDataLoggerR1.stream()
+                .filter((reading) -> Range.atLeast(startLink).contains(reading.getTimeStamp()))
+                .count()).intValue());
+        assertThat(slave.getRegisters().get(1).getReadings(Interval.of(Range.atLeast(startLink)))).hasSize(new Long(readingsDataLoggerR2.stream()
+                .filter((reading) -> Range.atLeast(startLink).contains(reading.getTimeStamp()))
+                .count()).intValue());
+        assertThat(slave.getRegisters().get(2).getReadings(Interval.of(Range.atLeast(startLink)))).hasSize(new Long(readingsDataLoggerR3.stream()
+                .filter((reading) -> Range.atLeast(startLink).contains(reading.getTimeStamp()))
+                .count()).intValue());
 
-        inMemoryPersistence.getTopologyService().clearDataLogger(slave ,endLink);
+        inMemoryPersistence.getTopologyService().clearDataLogger(slave, endLink);
 
         assertThat(inMemoryPersistence.getTopologyService().findAllEffectiveDataLoggerSlaveDevices().find()).isEmpty();
         assertThat(inMemoryPersistence.getTopologyService().findDataLoggerSlaves(dataLogger)).isEmpty();
@@ -637,13 +679,17 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
         assertThat(meterActivations.get(0).getChannels().get(0).hasData()).isFalse();  // No data on new MeterActivation
         assertThat(meterActivations.get(0).getChannels().get(1).hasData()).isFalse();
         assertThat(meterActivations.get(0).getChannels().get(2).hasData()).isFalse();
-        assertThat(meterActivations.get(1).getChannels().get(0).getReadings(Range.openClosed(startLink, endLink))).hasSize(new Long(readingsDataLoggerR1.stream().filter((reading) -> Range.openClosed(startLink, endLink).contains(reading.getTimeStamp())).count()).intValue());  // Still data on previous MeterActivation
-        assertThat(meterActivations.get(1).getChannels().get(1).getReadings(Range.openClosed(startLink, endLink))).hasSize(new Long(readingsDataLoggerR2.stream().filter((reading) -> Range.openClosed(startLink, endLink).contains(reading.getTimeStamp())).count()).intValue());
-        assertThat(meterActivations.get(1).getChannels().get(2).getReadings(Range.openClosed(startLink, endLink))).hasSize(new Long(readingsDataLoggerR3.stream().filter((reading) -> Range.openClosed(startLink, endLink).contains(reading.getTimeStamp())).count()).intValue());
+        assertThat(meterActivations.get(1).getChannels().get(0).getReadings(Range.openClosed(startLink, endLink))).hasSize(new Long(readingsDataLoggerR1.stream()
+                .filter((reading) -> Range.openClosed(startLink, endLink).contains(reading.getTimeStamp()))
+                .count()).intValue());  // Still data on previous MeterActivation
+        assertThat(meterActivations.get(1).getChannels().get(1).getReadings(Range.openClosed(startLink, endLink))).hasSize(new Long(readingsDataLoggerR2.stream()
+                .filter((reading) -> Range.openClosed(startLink, endLink).contains(reading.getTimeStamp()))
+                .count()).intValue());
+        assertThat(meterActivations.get(1).getChannels().get(2).getReadings(Range.openClosed(startLink, endLink))).hasSize(new Long(readingsDataLoggerR3.stream()
+                .filter((reading) -> Range.openClosed(startLink, endLink).contains(reading.getTimeStamp()))
+                .count()).intValue());
 
     }
-
-
 
 
 }
