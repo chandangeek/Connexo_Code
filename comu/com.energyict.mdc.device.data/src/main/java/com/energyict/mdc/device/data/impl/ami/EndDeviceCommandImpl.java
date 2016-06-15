@@ -138,15 +138,16 @@ public class EndDeviceCommandImpl implements EndDeviceCommand {
     private List<DeviceMessage<Device>> doCreateCorrespondingMultiSenseDeviceMessages(ServiceCall serviceCall, Instant releaseDate, List<DeviceMessageId> deviceMessageIds) {
         Device multiSenseDevice = findDeviceForEndDevice(getEndDevice());
         List<DeviceMessage<Device>> deviceMessages = new ArrayList<>(deviceMessageIds.size());
-        deviceMessageIds.stream().forEach(deviceMessageId -> {
+        int idx = 0;
+        for (DeviceMessageId deviceMessageId : deviceMessageIds) {
             Device.DeviceMessageBuilder deviceMessageBuilder = multiSenseDevice.newDeviceMessage(deviceMessageId, TrackingCategory.serviceCall)
                     .setTrackingId(Long.toString(serviceCall.getId()))
-                    .setReleaseDate(releaseDate);
+                    .setReleaseDate(releaseDate.plusMillis(idx++)); // Add milliseconds to release date in order to ensure the order the device messages are executed is guaranteed
             for (PropertySpec propertySpec : findDeviceMessageSpec(deviceMessageId).getPropertySpecs()) {
                 deviceMessageBuilder.addProperty(propertySpec.getName(), getPropertyValueMap().get(propertySpec));
             }
             deviceMessages.add(deviceMessageBuilder.add());
-        });
+        }
         return deviceMessages;
     }
 

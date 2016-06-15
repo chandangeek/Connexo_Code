@@ -115,7 +115,7 @@ public abstract class AbstractContactorOperationServiceCallHandler extends Abstr
             serviceCall.log(LogLevel.INFO, MessageFormat.format("Confirmed device breaker status: {0}", breakerStatus.getBreakerStatus()));
             serviceCall.requestTransition(DefaultState.SUCCESSFUL);
         } else {
-            serviceCall.log(LogLevel.SEVERE, MessageFormat.format("Device breaker status {0} doesn't match expected status {1}", breakerStatus.getBreakerStatus(), getDesiredBreakerStatus()));
+            serviceCall.log(LogLevel.SEVERE, MessageFormat.format("Device breaker status {0} doesn''t match expected status {1}", breakerStatus.getBreakerStatus(), getDesiredBreakerStatus()));
             serviceCall.requestTransition(DefaultState.FAILED);
         }
     }

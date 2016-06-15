@@ -323,11 +323,11 @@ public class EndDeviceCommandImplTest {
         verify(deviceMessageBuilder, times(2)).addProperty(propertyArgumentCaptor.capture(), valueArgumentCaptor.capture());
 
         argumentCaptureValuesAreEqual(trackingIdArgumentCaptor);
-        argumentCaptureValuesAreEqual(releaseDateArgumentCaptor);
         argumentCaptureValuesAreEqual(propertyArgumentCaptor);
         argumentCaptureValuesAreEqual(valueArgumentCaptor);
         assertEquals(Long.toString(SERVICE_CALL_ID), trackingIdArgumentCaptor.getValue());
-        assertTrue(releaseDateArgumentCaptor.getValue().isAfter(releaseDate));
+        assertTrue(releaseDateArgumentCaptor.getAllValues().get(0).isAfter(releaseDate));
+        assertTrue(releaseDateArgumentCaptor.getAllValues().get(1).isAfter(releaseDate));
         assertEquals(dateTimeSpec.getName(), propertyArgumentCaptor.getValue());
         assertEquals(Date.from(releaseDate), valueArgumentCaptor.getValue());
     }
@@ -400,10 +400,9 @@ public class EndDeviceCommandImplTest {
         verify(deviceMessageBuilder, never()).addProperty(anyString(), anyObject());    // Should never be called, as the 'Contactor open' message has no property specs
 
         argumentCaptureValuesAreEqual(trackingIdArgumentCaptor);
-        argumentCaptureValuesAreEqual(releaseDateArgumentCaptor);
         assertEquals(Long.toString(SERVICE_CALL_ID), trackingIdArgumentCaptor.getValue());
         assertEquals(releaseDate, releaseDateArgumentCaptor.getAllValues().get(0));
-        assertEquals(releaseDate, releaseDateArgumentCaptor.getValue());
+        assertEquals("Release date of 2th message should be 1 milliseconds shifted", releaseDate.plusMillis(1), releaseDateArgumentCaptor.getAllValues().get(1));
     }
 
     private void argumentCaptureValuesAreEqual(ArgumentCaptor argumentCaptor) {
