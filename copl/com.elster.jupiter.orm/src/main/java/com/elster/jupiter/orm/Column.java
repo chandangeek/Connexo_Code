@@ -35,6 +35,11 @@ public interface Column {
 	boolean isVirtual();
 	boolean isInVersion(Version version);
 
+	Column since(Version version);
+	Column upTo(Version version);
+	Column during(Range... ranges);
+	Column previously(Column column);
+
 	@ProviderType
 	interface Builder {
 		Builder type(String type);

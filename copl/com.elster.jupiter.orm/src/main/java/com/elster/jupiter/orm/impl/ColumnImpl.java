@@ -530,6 +530,35 @@ public class ColumnImpl implements Column {
         return Optional.ofNullable(predecessor);
     }
 
+    @Override
+    public ColumnImpl since(Version version) {
+        versions = intersectWithTable(ImmutableRangeSet.of(Range.atLeast(version)));
+        return this;
+    }
+
+    @Override
+    public ColumnImpl upTo(Version version) {
+        versions = intersectWithTable(ImmutableRangeSet.of(Range.lessThan(version)));
+        return this;
+    }
+
+    @Override
+    public ColumnImpl during(Range... ranges) {
+        ImmutableRangeSet.Builder<Version> builder = ImmutableRangeSet.builder();
+        Arrays.stream(ranges)
+                .forEach(builder::add);
+        versions = intersectWithTable(builder.build());
+        return this;
+    }
+
+    @Override
+    public ColumnImpl previously(Column column) {
+        assert column.getTable().equals(getTable());
+        predecessor = (ColumnImpl) column;
+        return this;
+    }
+
+
     static class BuilderImpl implements Column.Builder {
         private final ColumnImpl column;
         private boolean setType = false;
