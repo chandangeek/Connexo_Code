@@ -76,7 +76,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
         service = {UserService.class, MessageSeedProvider.class, TranslationKeyProvider.class},
         immediate = true,
         property = "name=" + UserService.COMPONENTNAME)
-public class UserServiceImpl implements UserService, MessageSeedProvider, TranslationKeyProvider, PrivilegesProvider {
+public class UserServiceImpl implements UserService, MessageSeedProvider, TranslationKeyProvider {
 
     private volatile DataModel dataModel;
     private volatile TransactionService transactionService;
@@ -155,7 +155,6 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
             }
         });
         userPreferencesService = new UserPreferencesServiceImpl(dataModel);
-        addModulePrivileges(this);
         synchronized (privilegeProviderRegistrationLock) {
             upgradeService.register(identifier(COMPONENTNAME), dataModel, InstallerImpl.class, Collections.emptyMap());
         }
@@ -765,22 +764,6 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
 
     private DataMapper<User> userFactory() {
         return dataModel.mapper(User.class);
-    }
-
-    @Override
-    public String getModuleName() {
-        return UserService.COMPONENTNAME;
-    }
-
-    @Override
-    public List<ResourceDefinition> getModuleResources() {
-        List<ResourceDefinition> resources = new ArrayList<>();
-        resources.add(createModuleResourceWithPrivileges(
-                UserService.COMPONENTNAME,
-                Privileges.RESOURCE_USERS.getKey(), Privileges.RESOURCE_USERS_DESCRIPTION.getKey(),
-                Arrays.asList(Privileges.Constants.ADMINISTRATE_USER_ROLE, Privileges.Constants.VIEW_USER_ROLE)));
-
-        return resources;
     }
 
     @Override

@@ -6,6 +6,8 @@ import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.users.FormatKey;
 import com.elster.jupiter.users.Group;
+import com.elster.jupiter.users.PrivilegesProvider;
+import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserPreferencesService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.security.Privileges;
@@ -14,6 +16,9 @@ import org.osgi.framework.BundleContext;
 
 import javax.inject.Inject;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -21,7 +26,7 @@ import java.util.logging.Logger;
 
 import static com.elster.jupiter.util.Checks.is;
 
-public class InstallerImpl implements FullInstaller {
+public class InstallerImpl implements FullInstaller, PrivilegesProvider {
     private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
 
     private final DataModel dataModel;
@@ -38,6 +43,7 @@ public class InstallerImpl implements FullInstaller {
     @Override
     public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
         dataModelUpgrader.upgrade(dataModel, Version.latest());
+        userService.addModulePrivileges(this);
         doTry(
                 "Create batch executors group",
                 () -> createBatchExecutorRole(logger),
@@ -49,7 +55,6 @@ public class InstallerImpl implements FullInstaller {
                 logger
         );
         addDefaults(bundleContext != null ? bundleContext.getProperty("admin.password") : null, logger);
-
     }
 
     public void addDefaults(String adminPassword, Logger logger) {
@@ -59,6 +64,22 @@ public class InstallerImpl implements FullInstaller {
                 () -> createUserPreferences(userService.getUserPreferencesService()),
                 logger
         );
+    }
+
+    @Override
+    public String getModuleName() {
+        return UserService.COMPONENTNAME;
+    }
+
+    @Override
+    public List<ResourceDefinition> getModuleResources() {
+        List<ResourceDefinition> resources = new ArrayList<>();
+        resources.add(userService.createModuleResourceWithPrivileges(
+                UserService.COMPONENTNAME,
+                Privileges.RESOURCE_USERS.getKey(), Privileges.RESOURCE_USERS_DESCRIPTION.getKey(),
+                Arrays.asList(Privileges.Constants.ADMINISTRATE_USER_ROLE, Privileges.Constants.VIEW_USER_ROLE)));
+
+        return resources;
     }
 
     private void createBatchExecutorRole(Logger logger) {
