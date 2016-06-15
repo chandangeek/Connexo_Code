@@ -497,7 +497,6 @@ public enum ColumnConversionImpl {
 
         @Override
         public Object convertFromDb(ColumnImpl column, ResultSet rs, int index) throws SQLException {
-            Object sdoGeometry = rs.getObject(index);
             return new SpatialCoordinatesFactory().valueFromDb(rs.getObject(index));
         }
     };
