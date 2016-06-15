@@ -1,6 +1,7 @@
 package com.elster.jupiter.validation.rest;
 
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.validation.ValidationAction;
@@ -24,6 +25,7 @@ public class ValidationRuleInfo {
     public ValidationRuleSetVersionInfo ruleSetVersion;
     public long version;
     public VersionInfo<Long> parent;
+    public IdWithNameInfo application;
 
     public ValidationRuleInfo() {
     }
