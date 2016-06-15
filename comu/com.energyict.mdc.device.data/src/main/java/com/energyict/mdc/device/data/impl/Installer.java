@@ -54,7 +54,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
     private final MessageService messageService;
 
     @Inject
-    Installer(DataModel dataModel, UserService userService, EventService eventService, MessageService messageService) {
+    public Installer(DataModel dataModel, UserService userService, EventService eventService, MessageService messageService) {
         super();
         this.dataModel = dataModel;
         this.userService = userService;
