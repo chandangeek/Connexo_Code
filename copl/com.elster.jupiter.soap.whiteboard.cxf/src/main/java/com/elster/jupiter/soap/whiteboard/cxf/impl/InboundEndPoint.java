@@ -48,7 +48,7 @@ public final class InboundEndPoint implements ManagedEndpoint {
                 features.add(new GZIPFeature());
             }
             if (endPointConfiguration.isSchemaValidation()) {
-                features.add(new SchemaValidationFeature(operationInfo -> SchemaValidation.SchemaValidationType.BOTH));
+                features.add(new SchemaValidationFeature(operationInfo -> SchemaValidation.SchemaValidationType.IN));
             }
             Object implementor = endPointProvider.get();
             JaxWsServerFactoryBean svrFactory = new JaxWsServerFactoryBean();
