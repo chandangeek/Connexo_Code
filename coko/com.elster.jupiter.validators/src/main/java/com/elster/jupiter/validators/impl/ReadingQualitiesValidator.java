@@ -95,7 +95,7 @@ class ReadingQualitiesValidator extends AbstractValidator {
 
     public Set<ReadingQualityPropertyValue> getSelectedReadingQualities() {
         if (selectedReadingQualities == null) {
-            selectedReadingQualities = Collections.emptySet();
+            selectedReadingQualities = new HashSet<>();
         }
         return selectedReadingQualities;
     }
