@@ -16,6 +16,10 @@ Ext.define('Wss.controller.Webservices', {
 
     refs: [
         {ref: 'addForm', selector: '#addForm'}
+        {
+            ref: 'preview',
+            selector: 'webservices-preview'
+        }
     ],
 
     init: function () {
@@ -23,6 +27,11 @@ Ext.define('Wss.controller.Webservices', {
             'endpoint-add button[action=add]': {
                 click: this.addEndpoint
             }
+        });
+        this.control({
+            'webservices-setup webservices-grid': {
+                select: this.showPreview
+            },
         });
     },
 
@@ -81,5 +90,16 @@ Ext.define('Wss.controller.Webservices', {
             html: Uni.I18n.translate('general.formErrors', 'WSS', 'There are errors on this page that require your attention.')
         });
         formErrorsPlaceHolder.show();
+    },
+
+    showPreview: function(selectionModel, record) {
+        var me = this,
+            preview = me.getPreview(),
+            previewForm = preview.down('webservices-preview-form'),
+            form = previewForm.down('form');
+
+        form.loadRecord(record);
+        preview.setTitle(Ext.String.htmlEncode(record.get('name')));
+        preview.down('webservices-action-menu').record = record;
     }
 });

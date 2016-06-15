@@ -19,7 +19,7 @@ Ext.define('Wss.view.Grid', {
             },
             {
                 header: Uni.I18n.translate('general.type', 'WSS', 'Type'),
-                dataIndex: 'type',
+                dataIndex: 'direction',
                 flex: 1
             },
             {
@@ -30,17 +30,27 @@ Ext.define('Wss.view.Grid', {
             {
                 header: Uni.I18n.translate('general.status', 'WSS', 'Status'),
                 dataIndex: 'active',
-                flex: 1
+                flex: 1,
+                renderer: function(value) {
+                    if(value === true) {
+                        return Uni.I18n.translate('general.active', 'WSS', 'Active');
+                    } else {
+                        return Uni.I18n.translate('general.inactive', 'WSS', 'Inactive');
+                    }
+                }
             },
             {
                 header: Uni.I18n.translate('general.logLevel', 'WSS', 'Log level'),
                 dataIndex: 'logLevel',
-                flex: 1
+                flex: 1,
+                renderer: function (value) {
+                    return value.displayValue;
+                }
             },
             {
                 xtype: 'uni-actioncolumn',
                 menu: {
-                    xtype: 'webservices-action-menu',
+                    xtype: 'webservices-action-menu'
                 },
                 flex: 0.5
             }
@@ -57,7 +67,7 @@ Ext.define('Wss.view.Grid', {
                 items: [
                     {
                         xtype: 'button',
-                        text: Uni.I18n.translate('general.addApplicationServer', 'APR', 'Add webservice endpoint'),
+                        text: Uni.I18n.translate('general.addWebserviceEndpoint', 'WSS', 'Add webservice endpoint'),
                         privileges: Apr.privileges.AppServer.admin,
                         itemId: 'add-webservice-endpoint',
                         href: '#/administration/webserviceendpoints/add'
