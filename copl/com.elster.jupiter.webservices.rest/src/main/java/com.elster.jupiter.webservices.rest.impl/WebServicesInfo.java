@@ -4,6 +4,6 @@ import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
 
 public class WebServicesInfo {
     public String name;
-    public IdWithDisplayValueInfo<WebServiceType> direction;
+    public IdWithDisplayValueInfo<WebServiceDirection> direction;
     public WebServiceProtocol type;
 }

@@ -7,6 +7,7 @@ import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -33,12 +34,14 @@ public class EndPointConfigurationResource {
     private final EndPointConfigurationService endPointConfigurationService;
     private final EndPointConfigurationInfoFactory endPointConfigurationInfoFactory;
     private final ExceptionFactory exceptionFactory;
+    private final WebServicesService webServicesService;
 
     @Inject
-    public EndPointConfigurationResource(EndPointConfigurationService endPointConfigurationService, EndPointConfigurationInfoFactory endPointConfigurationInfoFactory, ExceptionFactory exceptionFactory) {
+    public EndPointConfigurationResource(EndPointConfigurationService endPointConfigurationService, EndPointConfigurationInfoFactory endPointConfigurationInfoFactory, ExceptionFactory exceptionFactory, WebServicesService webServicesService) {
         this.endPointConfigurationService = endPointConfigurationService;
         this.endPointConfigurationInfoFactory = endPointConfigurationInfoFactory;
         this.exceptionFactory = exceptionFactory;
+        this.webServicesService = webServicesService;
     }
 
     @GET
@@ -69,16 +72,11 @@ public class EndPointConfigurationResource {
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
     public Response createEndPointConfiguration(EndPointConfigurationInfo info) {
-        if (info == null) {
-            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.PAYLOAD_EXPECTED);
-        }
-        if (info.direction == null) {
-            throw new LocalizedFieldValidationException(MessageSeeds.FIELD_EXPECTED, "type");
-        }
-        if (info.active == null) {
-            throw new LocalizedFieldValidationException(MessageSeeds.FIELD_EXPECTED, "active");
-        }
-        EndPointConfiguration endPointConfiguration = info.direction.create(endPointConfigurationInfoFactory, info);
+        validatePayload(info);
+        WebServiceDirection strategy = webServicesService.getWebService(info.webServiceName)
+                .get()
+                .isInbound() ? WebServiceDirection.INBOUND : WebServiceDirection.OUTBOUND;
+        EndPointConfiguration endPointConfiguration = strategy.create(endPointConfigurationInfoFactory, info);
         EndPointConfigurationInfo endPointConfigurationInfo = endPointConfigurationInfoFactory.from(endPointConfiguration);
         return Response.status(Response.Status.CREATED).entity(endPointConfigurationInfo).build();
     }
@@ -89,11 +87,14 @@ public class EndPointConfigurationResource {
     @Path("/{id}")
     @Transactional
     public Response updateEndPointConfiguration(@PathParam("id") long id, EndPointConfigurationInfo info) {
-        validatePostPayload(info);
+        validatePayload(info);
         EndPointConfiguration endPointConfiguration = endPointConfigurationService.findAndLockEndPointConfigurationByIdAndVersion(id, info.version)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_END_POINT_CONFIG));
         if (!info.active) { // Changes will be ignored if EndPointConfig is active, all but the actual active-state
-            info.direction.applyChanges(endPointConfigurationInfoFactory, endPointConfiguration, info);
+            WebServiceDirection webServiceDirection = webServicesService.getWebService(info.webServiceName)
+                    .get()
+                    .isInbound() ? WebServiceDirection.INBOUND : WebServiceDirection.OUTBOUND;
+            webServiceDirection.applyChanges(endPointConfigurationInfoFactory, endPointConfiguration, info);
             endPointConfiguration.save();
         }
         if (info.active && !endPointConfiguration.isActive()) {
@@ -118,10 +119,12 @@ public class EndPointConfigurationResource {
         return Response.ok().build();
     }
 
-    private void validatePostPayload(EndPointConfigurationInfo info) {
+    private void validatePayload(EndPointConfigurationInfo info) {
         validateBasicPayload(info);
-        if (info.direction == null) {
-            throw new LocalizedFieldValidationException(MessageSeeds.FIELD_EXPECTED, "type");
+        if (info.webServiceName == null) {
+            throw new LocalizedFieldValidationException(MessageSeeds.FIELD_EXPECTED, "webServiceName");
+        } else if (!webServicesService.getWebService(info.webServiceName).isPresent()) {
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.NO_SUCH_WEB_SERVICE);
         }
         if (info.schemaValidation == null) {
             throw new LocalizedFieldValidationException(MessageSeeds.FIELD_EXPECTED, "schemaValidation");
@@ -131,7 +134,7 @@ public class EndPointConfigurationResource {
         }
         if (info.tracing == null) {
             throw new LocalizedFieldValidationException(MessageSeeds.FIELD_EXPECTED, "tracing");
-        } else if (info.traceFile == null) {
+        } else if (info.tracing && info.traceFile == null) {
             throw new LocalizedFieldValidationException(MessageSeeds.FIELD_EXPECTED, "traceFile");
         }
         if (info.active == null) {
@@ -142,9 +145,6 @@ public class EndPointConfigurationResource {
     private void validateBasicPayload(EndPointConfigurationInfo info) {
         if (info == null) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.PAYLOAD_EXPECTED);
-        }
-        if (info.version == null) {
-            throw new LocalizedFieldValidationException(MessageSeeds.FIELD_EXPECTED, "version");
         }
     }
 

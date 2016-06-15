@@ -20,8 +20,8 @@ public class WebServicesInfoFactory {
     public WebServicesInfo from(WebService webService) {
         WebServicesInfo info = new WebServicesInfo();
         info.name = webService.getName();
-        WebServiceType webServiceType = webService.isInbound() ? WebServiceType.INBOUND : WebServiceType.OUTBOUND;
-        info.direction = new IdWithDisplayValueInfo<>(webServiceType, webServiceType.getDisplayName(thesaurus));
+        WebServiceDirection webServiceDirection = webService.isInbound() ? WebServiceDirection.INBOUND : WebServiceDirection.OUTBOUND;
+        info.direction = new IdWithDisplayValueInfo<>(webServiceDirection, webServiceDirection.getDisplayName(thesaurus));
         info.type = WebServiceProtocol.SOAP;
         return info;
     }

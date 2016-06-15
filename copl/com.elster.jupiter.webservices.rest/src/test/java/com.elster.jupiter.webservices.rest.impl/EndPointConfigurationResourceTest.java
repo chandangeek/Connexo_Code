@@ -8,6 +8,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.WebService;
 
 import com.jayway.jsonpath.JsonModel;
 
@@ -15,6 +16,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -38,7 +40,28 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
         super.setUp();
         inboundEndPointConfiguration = mockInboundEndPointConfig(1L, 901L, "metering", "/cim", "CIM");
         outboundEndPointConfiguration = mockOutboundEndPointConfig(2L, 902L, "currency", "http://xe.xom/xe", "XE");
+        when(webServicesService.getWebService("someInboundService")).thenReturn(Optional.of(new WebService() {
+            @Override
+            public String getName() {
+                return "someInboundService";
+            }
 
+            @Override
+            public boolean isInbound() {
+                return true;
+            }
+        }));
+        when(webServicesService.getWebService("someOutboundService")).thenReturn(Optional.of(new WebService() {
+            @Override
+            public String getName() {
+                return "someOutboundService";
+            }
+
+            @Override
+            public boolean isInbound() {
+                return false;
+            }
+        }));
     }
 
     @Test
@@ -92,11 +115,13 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
     @Test
     public void testCreateEndpoint() throws Exception {
         EndPointConfigurationInfo info = new EndPointConfigurationInfo();
-        info.direction = EndPointConfigDirection.Inbound;
         info.name = "new endpoint";
+        info.webServiceName = "someInboundService";
         info.logLevel = new IdWithDisplayValueInfo<>();
         info.logLevel.id = "FINEST";
         info.httpCompression = true;
+        info.schemaValidation = true;
+        info.tracing = false;
         info.authenticated = false;
         info.url = "/srv";
         info.active = false;
@@ -114,8 +139,8 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
         when(inboundEndPointConfiguration.isActive()).thenReturn(false);
 
         EndPointConfigurationInfo info = new EndPointConfigurationInfo();
-        info.direction = EndPointConfigDirection.Inbound;
         info.version = 901L;
+        info.webServiceName = "someInboundService";
         info.name = "new endpoint";
         info.logLevel = new IdWithDisplayValueInfo<>();
         info.logLevel.id = "SEVERE";
@@ -146,8 +171,8 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
         when(outboundEndPointConfiguration.isActive()).thenReturn(false);
 
         EndPointConfigurationInfo info = new EndPointConfigurationInfo();
-        info.direction = EndPointConfigDirection.Outbound;
         info.version = 902L;
+        info.webServiceName = "someOutboundService";
         info.name = "new endpoint";
         info.logLevel = new IdWithDisplayValueInfo<>();
         info.logLevel.id = "SEVERE";

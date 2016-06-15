@@ -7,7 +7,7 @@ import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
  */
 public class EndPointConfigurationInfo {
     public long id;
-    public Long version;
+    public long version;
     public String name;
     public String webServiceName;
     public String url;
@@ -20,6 +20,6 @@ public class EndPointConfigurationInfo {
     public Boolean authenticated;
     public String username;
     public String password;
-    public EndPointConfigDirection direction;
+    public IdWithDisplayValueInfo<WebServiceDirection> direction;
     public String type = "SOAP";
 }

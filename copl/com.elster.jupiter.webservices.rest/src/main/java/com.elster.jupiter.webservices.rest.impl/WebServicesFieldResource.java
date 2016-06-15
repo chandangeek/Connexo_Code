@@ -42,9 +42,9 @@ public class WebServicesFieldResource extends FieldResource {
     @Path("/direction")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public Object getDirectionValues() {
-        return asJsonArrayObjectWithTranslation("directions", "direction", Arrays.asList(WebServiceType.values()),
-                Stream.of(WebServiceType.values())
-                        .map(WebServiceType::getTranslationKey)
+        return asJsonArrayObjectWithTranslation("directions", "direction", Arrays.asList(WebServiceDirection.values()),
+                Stream.of(WebServiceDirection.values())
+                        .map(WebServiceDirection::getTranslationKey)
                         .collect(toList()));
     }
 

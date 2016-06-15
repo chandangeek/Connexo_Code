@@ -39,10 +39,10 @@ public class EndPointConfigurationInfoFactory {
         info.traceFile = endPointConfiguration.getTraceFile();
         info.schemaValidation = endPointConfiguration.isSchemaValidation();
         if (InboundEndPointConfiguration.class.isAssignableFrom(endPointConfiguration.getClass())) {
-            info.direction = EndPointConfigDirection.Inbound;
+            info.direction = new IdWithDisplayValueInfo<>(WebServiceDirection.INBOUND, WebServiceDirection.INBOUND.getDisplayName(thesaurus));
             info.authenticated = ((InboundEndPointConfiguration) endPointConfiguration).isAuthenticated();
         } else {
-            info.direction = EndPointConfigDirection.Outbound;
+            info.direction = new IdWithDisplayValueInfo<>(WebServiceDirection.OUTBOUND, WebServiceDirection.OUTBOUND.getDisplayName(thesaurus));
             info.username = ((OutboundEndPointConfiguration) endPointConfiguration).getUsername();
             info.password = ((OutboundEndPointConfiguration) endPointConfiguration).getPassword();
         }
