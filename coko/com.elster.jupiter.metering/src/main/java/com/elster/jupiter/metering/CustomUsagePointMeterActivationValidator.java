@@ -6,5 +6,6 @@ import aQute.bnd.annotation.ConsumerType;
 
 @ConsumerType
 public interface CustomUsagePointMeterActivationValidator {
-    void validateActivation(MeterRole meterRole, Meter meter, UsagePoint usagePoint) throws CustomUsagePointMeterActivationValidationException;
+    void validateActivation(MeterRole meterRole, Meter meter, UsagePoint usagePoint) throws
+            CustomUsagePointMeterActivationValidationException;
 }
