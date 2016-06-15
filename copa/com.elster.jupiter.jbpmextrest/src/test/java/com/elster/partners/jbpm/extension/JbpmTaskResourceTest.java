@@ -106,10 +106,17 @@ public class JbpmTaskResourceTest {
         records.add(obj);
         when(query.getResultList()).thenReturn(records);
 
+        ProcessDefinitionInfo processDefinitionInfo = new ProcessDefinitionInfo("TestProcessId", "TestProcessId", "1.0", "Y", "device", "Device", "test:TestProcessId:1.0", new ArrayList<>(), new ArrayList<>());
+        ProcessDefinitionInfos processDefinitionInfos = new ProcessDefinitionInfos();
+        processDefinitionInfos.total = 1;
+        processDefinitionInfos.processes.add(processDefinitionInfo);
+
         ClientRequest request = new ClientRequest(baseUri + "/1");
+        request.body(MediaType.APPLICATION_JSON_TYPE, processDefinitionInfos);
+
         when(internalTaskService.getTaskById(1)).thenReturn(null);
 
-        ClientResponse<TaskSummary> response = request.get(TaskSummary.class);
+        ClientResponse<TaskSummary> response = request.post(TaskSummary.class);
 
         assertEquals(1L, response.getEntity().getId());
         assertEquals("TestTask", response.getEntity().getName());
@@ -140,10 +147,17 @@ public class JbpmTaskResourceTest {
         calendar.set(Calendar.DAY_OF_MONTH, 15);
         when(taskData.getExpirationTime()).thenReturn(calendar.getTime());
 
+        ProcessDefinitionInfo processDefinitionInfo = new ProcessDefinitionInfo("TestProcessId", "TestProcessId", "1.0", "Y", "device", "Device", "TestDeploymentId", new ArrayList<>(), new ArrayList<>());
+        ProcessDefinitionInfos processDefinitionInfos = new ProcessDefinitionInfos();
+        processDefinitionInfos.total = 1;
+        processDefinitionInfos.processes.add(processDefinitionInfo);
+
         ClientRequest request = new ClientRequest(baseUri + "/1");
+        request.body(MediaType.APPLICATION_JSON_TYPE, processDefinitionInfos);
+
         when(internalTaskService.getTaskById(1)).thenReturn(task);
 
-        ClientResponse<TaskSummary> response = request.get(TaskSummary.class);
+        ClientResponse<TaskSummary> response = request.post(TaskSummary.class);
 
         assertEquals(1L, response.getEntity().getId());
         assertEquals("TestTask", response.getEntity().getName());
