@@ -7,7 +7,6 @@ Ext.define('Wss.view.Setup', {
     requires: [
         'Wss.view.WebservicesPreviewContainer'
     ],
-
     initComponent: function () {
         var me = this;
 
@@ -17,6 +16,7 @@ Ext.define('Wss.view.Setup', {
             items: [
                 {
                     xtype: 'webservices-preview-container',
+                    router: me.router
                 }
             ]
         };

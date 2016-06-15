@@ -4,7 +4,9 @@ Ext.define('Wss.controller.Webservices', {
     views: [
         'Wss.view.Setup',
         'Uni.view.window.Confirmation',
-        'Wss.view.Add'
+        'Wss.view.Add',
+        'Wss.view.LandingPage',
+        'Wss.view.LoggingPage'
     ],
     stores: [
         'Wss.store.Endpoints',
@@ -39,7 +41,9 @@ Ext.define('Wss.controller.Webservices', {
             view,
             store = me.getStore('Wss.store.Endpoints');
 
-        view = Ext.widget('webservices-setup');
+        view = Ext.widget('webservices-setup', {
+            router: me.getController('Uni.controller.history.Router')
+        });
         me.getApplication().fireEvent('changecontentevent', view);
     },
 
@@ -152,5 +156,43 @@ Ext.define('Wss.controller.Webservices', {
                 }
             }
         );
+    },
+    showEndpointOverview: function (endpointId) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            view;
+
+
+        me.getModel('Wss.model.Endpoint').load(endpointId, {
+            success: function (record) {
+                view = Ext.widget('webservice-landing-page', {
+                    router: router,
+                    record: record
+                });
+                if (view.down('webservices-action-menu')) {
+                    view.down('webservices-action-menu').record = record;
+                }
+                me.getApplication().fireEvent('changecontentevent', view);
+                me.getApplication().fireEvent('endpointload', record.get('name'));
+            }
+        });
+    },
+
+    showLoggingPage: function (endpointId) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            view;
+
+
+        me.getModel('Wss.model.Endpoint').load(endpointId, {
+            success: function (record) {
+                view = Ext.widget('webservice-logging-page', {
+                    router: router,
+                    record: record
+                });
+                me.getApplication().fireEvent('changecontentevent', view);
+                me.getApplication().fireEvent('endpointload', record.get('name'));
+            }
+        });
     }
 });

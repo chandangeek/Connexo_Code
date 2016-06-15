@@ -8,6 +8,7 @@ Ext.define('Wss.view.Grid', {
         'Uni.view.toolbar.PagingBottom',
         'Wss.view.ActionMenu'
     ],
+    router: null,
 
     initComponent: function () {
         var me = this;
@@ -15,7 +16,11 @@ Ext.define('Wss.view.Grid', {
             {
                 header: Uni.I18n.translate('general.name', 'WSS', 'Name'),
                 dataIndex: 'name',
-                flex: 2
+                flex: 2,
+                renderer: function (value, metaData, record) {
+                    var url = me.router.getRoute('administration/webserviceendpoints/view').buildUrl({endpointId: record.get('id')});
+                    return '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
+                },
             },
             {
                 header: Uni.I18n.translate('general.type', 'WSS', 'Type'),

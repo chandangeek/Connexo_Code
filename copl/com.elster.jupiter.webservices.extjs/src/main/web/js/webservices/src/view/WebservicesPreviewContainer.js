@@ -14,11 +14,14 @@ Ext.define('Wss.view.WebservicesPreviewContainer', {
         text: Uni.I18n.translate('webservices.mpty', 'WSS', 'No webservice endpoints have been defined yet.')
     },
 
+    router: null,
+
     initComponent: function () {
         var me = this;
         me.grid = {
             xtype: 'webservices-grid',
             itemId: 'grd-webservices',
+            router: me.router
         };
 
         me.previewComponent = {
