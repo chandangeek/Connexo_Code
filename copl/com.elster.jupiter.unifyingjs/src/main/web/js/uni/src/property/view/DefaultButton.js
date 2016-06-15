@@ -1,7 +1,7 @@
 Ext.define('Uni.property.view.DefaultButton', {
     extend: 'Ext.button.Button',
     xtype: 'uni-default-button',
-
+    tabIndex: -1,
     border: 0,
     iconCls: 'icon-rotate-ccw3',
     iconAlign: 'center',
