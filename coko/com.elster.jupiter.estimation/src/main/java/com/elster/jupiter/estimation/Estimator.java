@@ -1,10 +1,12 @@
 package com.elster.jupiter.estimation;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.properties.HasDynamicProperties;
 import com.elster.jupiter.properties.PropertySpec;
 
 import aQute.bnd.annotation.ConsumerType;
+import com.google.common.collect.ImmutableSet;
 
 import java.util.List;
 import java.util.Map;
@@ -30,14 +32,21 @@ public interface Estimator extends HasDynamicProperties {
         // empty by default
     }
 
-    EstimationResult estimate(List<EstimationBlock> estimationBlock);
+    /**
+     * The method to perform data estimation
+     *
+     * @param estimationBlocks a list of {@link EstimationBlock}s to estimate
+     * @param system {@link QualityCodeSystem} that performs estimation
+     * @return {@link EstimationResult}
+     */
+    EstimationResult estimate(List<EstimationBlock> estimationBlocks, QualityCodeSystem system);
 
     String getDisplayName();
 
     String getDefaultFormat();
 
     default void validateProperties(Map<String, Object> properties) {
-
+        // empty by default
     }
 
     NlsKey getNlsKey();
@@ -52,4 +61,14 @@ public interface Estimator extends HasDynamicProperties {
      * @see EstimationService#getAvailableEstimators(String)
      */
     Set<String> getSupportedApplications();
+
+    /**
+     * Returns {@link QualityCodeSystem}s whose reading qualities to take into account during estimation
+     *
+     * @param currentSystem {@link QualityCodeSystem} that performs estimation
+     * @return {@link QualityCodeSystem}s whose reading qualities to take into account during estimation
+     */
+    static Set<QualityCodeSystem> qualityCodeSystemsToTakeIntoAccount(QualityCodeSystem currentSystem) {
+        return ImmutableSet.of(QualityCodeSystem.ENDDEVICE, currentSystem);
+    }
 }

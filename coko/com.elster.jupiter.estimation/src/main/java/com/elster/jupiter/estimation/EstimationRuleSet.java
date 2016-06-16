@@ -17,6 +17,8 @@ public interface EstimationRuleSet extends IdentifiedObject {
 
     void setName(String name);
 
+    String getApplicationName();
+
     void setAliasName(String aliasName);
 
     void setDescription(String description);

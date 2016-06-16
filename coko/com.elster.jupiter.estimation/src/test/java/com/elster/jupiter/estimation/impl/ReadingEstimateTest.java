@@ -125,9 +125,9 @@ public class ReadingEstimateTest {
                 private AtomicLong value = new AtomicLong(1);
 
                 @Override
-                public EstimationResult estimate(List<EstimationBlock> estimationBlock) {
+                public EstimationResult estimate(List<EstimationBlock> estimationBlocks, QualityCodeSystem system) {
                     SimpleEstimationResult.EstimationResultBuilder builder = SimpleEstimationResult.builder();
-                    estimationBlock.stream()
+                    estimationBlocks.stream()
                             .peek(block -> {
                                 if (block.estimatables().size() > 3) {
                                     builder.addRemaining(block);
@@ -315,13 +315,13 @@ public class ReadingEstimateTest {
         });
 
         try (TransactionContext ctx = transactionService.getContext()) {
-//        	ReadingImpl reading1 = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(2), existDate);
+//            ReadingImpl reading1 = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(2), existDate);
 //            reading1.addQuality("3.8.1"); // estimated by rule 1
-//        	ReadingImpl reading2 = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(2), newDate);
+//            ReadingImpl reading2 = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(2), newDate);
 //            reading2.addQuality("3.8.2"); // estimated by rule 2
 //            channel.getCimChannel(readingType).get().estimateReadings(ImmutableList.of(reading1, reading2));
 
-            estimationService.estimate(meter.getCurrentMeterActivation().get(), Range.<Instant>all());
+            estimationService.estimate(QualityCodeSystem.MDC, meter.getCurrentMeterActivation().get(), Range.all());
 
             ctx.commit();
         }

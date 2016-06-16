@@ -19,7 +19,7 @@ class EstimationTaskBuilderImpl implements EstimationTaskBuilder {
     private boolean scheduleImmediately;
     private String name;
     private EndDeviceGroup endDeviceGroup;
-    private String application;
+    private String applicationName;
 
     public EstimationTaskBuilderImpl(DataModel dataModel) {
         this.dataModel = dataModel;
@@ -39,7 +39,7 @@ class EstimationTaskBuilderImpl implements EstimationTaskBuilder {
 
     @Override
     public EstimationTaskBuilder setApplication(String application) {
-        this.application = application;
+        this.applicationName = application;
         return this;
     }
 
@@ -51,7 +51,7 @@ class EstimationTaskBuilderImpl implements EstimationTaskBuilder {
 
     @Override
     public EstimationTask create() {
-        IEstimationTask task = EstimationTaskImpl.from(dataModel, name, endDeviceGroup, scheduleExpression, nextExecution, application);
+        IEstimationTask task = EstimationTaskImpl.from(dataModel, name, endDeviceGroup, scheduleExpression, nextExecution, applicationName);
         task.setScheduleImmediately(scheduleImmediately);
         if (period != null) {
             task.setPeriod(period);

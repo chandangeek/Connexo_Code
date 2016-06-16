@@ -57,6 +57,7 @@ final class EstimationTaskImpl implements IEstimationTask {
     private long id;
 
     private String name;
+    private String application;
     private Reference<RecurrentTask> recurrentTask = ValueReference.absent();
     private Reference<EndDeviceGroup> endDeviceGroup = ValueReference.absent();
     private Reference<RelativePeriod> period = ValueReference.absent();
@@ -71,8 +72,6 @@ final class EstimationTaskImpl implements IEstimationTask {
     private Instant createTime;
     private Instant modTime;
     private String userName;
-
-    public String application;
 
     @Inject
     public EstimationTaskImpl(DataModel dataModel, IEstimationService estimationService, TaskService taskService) {
