@@ -91,9 +91,13 @@ Ext.define('Wss.view.Add', {
             },
             {
                 xtype: 'combobox',
+                itemId: 'logLevelCombo',
                 name: 'logLevel',
+                store: 'Wss.store.LogLevels',
+                displayField: 'localizedValue',
+                valueField: 'localizedValue',
                 fieldLabel: Uni.I18n.translate('endPointAdd.logLevel', 'WSS', 'Log level'),
-                required: true
+                required: true,
             },
             {
                 xtype: 'checkbox',
@@ -132,7 +136,7 @@ Ext.define('Wss.view.Add', {
                 required: true
             }
         );
-        if(record.get('direction')==='Inbound'){
+        if(record.get('direction').id ==='INBOUND'){
             form.add(
                 {
                     xtype: 'combobox',
@@ -141,7 +145,7 @@ Ext.define('Wss.view.Add', {
                     required: true
                 }
             );
-        } else if (record.get('direction')==='Outbound') {
+        } else if (record.get('direction').id ==='OUTBOUND') {
             form.add(
                 {
                     xtype: 'textfield',

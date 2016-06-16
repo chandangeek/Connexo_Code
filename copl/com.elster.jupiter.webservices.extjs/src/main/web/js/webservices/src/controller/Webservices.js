@@ -7,7 +7,8 @@ Ext.define('Wss.controller.Webservices', {
     ],
     stores: [
         'Wss.store.Endpoints',
-        'Wss.store.Webservices'
+        'Wss.store.Webservices',
+        'Wss.store.LogLevels'
     ],
     models: [
         'Wss.model.Endpoint',
@@ -57,22 +58,21 @@ Ext.define('Wss.controller.Webservices', {
     },
 
     addEndpoint: function(button){
+        var me = this;
         var form = button.up('form');
         var record = Ext.create('Wss.model.Endpoint');
         record.set(form.getValues());
-        //record.phantom = true;
-        //record.getProxy().appendId = false;
+        var logLevel = form.down('#logLevelCombo').findRecordByValue(record.get('logLevel'));
+        record.set('logLevel',{id: logLevel.get('logLevel'), displayValue: logLevel.get('localizedValue')});
         record.save({
             success: function (record) {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('endPointAdd.endpointAdded', 'WSS', 'Webservice endpoint added'));
-                //location.href = '#/administration/devicetypes/' + encodeURIComponent(record.get('id'));
-                //record.phantom = true;       // force 'POST' method for request otherwise 'PUT' will be performed
-                //record.getProxy().appendId = false;
             },
             failure: function (record, operation) {
                 var json = Ext.decode(operation.response.responseText);
                 if (json && json.errors) {
-                    form.markInvalid(json.errors);
+                    debugger;
+                    form.getForm().markInvalid(json.errors);
                     me.showErrorPanel();
                 }
             }
@@ -81,7 +81,7 @@ Ext.define('Wss.controller.Webservices', {
 
     showErrorPanel: function () {
         var me = this,
-            formErrorsPlaceHolder = me.getAddFrom().down('#addEndPointFormErrors');
+            formErrorsPlaceHolder = me.getAddForm().down('#addEndPointFormErrors');
 
         formErrorsPlaceHolder.hide();
         formErrorsPlaceHolder.removeAll();

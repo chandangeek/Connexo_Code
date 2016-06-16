@@ -8,6 +8,7 @@ Ext.define('Wss.model.Endpoint', {
         {name: 'url', type: 'string'},
         {name: 'logLevel', type: 'auto'},
         {name: 'tracing', type: 'boolean'},
+        {name: 'traceFile', type: 'string'},
         {name: 'httpCompression', type: 'boolean'},
         {name: 'schemaValidation', type: 'boolean'},
         {name: 'active', type: 'boolean'},
@@ -16,7 +17,6 @@ Ext.define('Wss.model.Endpoint', {
         {name: 'password', type: 'string'},
         {name: 'type', type: 'string'},
         {name: 'direction', type: 'auto'}
-
     ],
 
     proxy: {
