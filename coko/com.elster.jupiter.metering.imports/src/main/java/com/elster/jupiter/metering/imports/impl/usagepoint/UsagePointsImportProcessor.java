@@ -517,4 +517,15 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
                 .setLocale(data.getLocation().get(ranking.get("locale")));
         return builder;
     }
+
+    private boolean validateGeoCoordinatesData(List<String> geoCoordinatesData){
+        int count = 0;
+        for(String geoElement : geoCoordinatesData){
+            if (geoElement == null){
+                count++;
+            }
+        }
+        return count < 2;
+    }
+
 }
