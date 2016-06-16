@@ -143,16 +143,16 @@ public class MessagesCommandImpl extends SimpleComCommand implements MessagesCom
         this.device.getAllPendingDeviceMessages().stream()
                 .sorted(getDeviceMessageComparatorBasedOnReleaseDate())
                 .forEach(offlineDeviceMessage -> {
-                    if (offlineDeviceMessage.getDeviceId() == comTaskExecution.getDevice()
-                            .getId()) {   //Only add the messages of the master or the slave, not both
+                    //Only add the messages of the master or the slave, not both
+                    if (offlineDeviceMessage.getDeviceId() == comTaskExecution.getDevice().getId()) {
                         this.updatePendingDeviceMessage(offlineDeviceMessage);
                     }
                 });
         this.device.getAllSentDeviceMessages().stream()
                 .sorted(getDeviceMessageComparatorBasedOnReleaseDate())
                 .forEach(offlineDeviceMessage -> {
-                    if (offlineDeviceMessage.getDeviceId() == comTaskExecution.getDevice()
-                            .getId()) {   //Only add the messages of the master or the slave, not both
+                    //Only add the messages of the master or the slave, not both
+                    if (offlineDeviceMessage.getDeviceId() == comTaskExecution.getDevice().getId()) {
                         this.updateSentDeviceMessage(offlineDeviceMessage);
                     }
                 });
@@ -181,8 +181,7 @@ public class MessagesCommandImpl extends SimpleComCommand implements MessagesCom
     }
 
     private void createAllowedCategoryPrimaryKeyList() {
-        this.allowedCategories = new ArrayList<>();
-        this.allowedCategories.addAll(this.messagesTask.getDeviceMessageCategories().stream().map(DeviceMessageCategory::getId).collect(Collectors.toList()));
+        this.allowedCategories = this.messagesTask.getDeviceMessageCategories().stream().map(DeviceMessageCategory::getId).collect(Collectors.toList());
     }
 
     @Override
