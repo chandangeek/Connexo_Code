@@ -21,6 +21,7 @@ public final class ReadingTypeGenerator {
         readingTypes.addAll(new ReadingTypeGeneratorForGas().generateReadingTypes());
         readingTypes.addAll(new ReadingTypeGeneratorForWater().generateReadingTypes());
         readingTypes.addAll(new ReadingTypeGeneratorForParameters().generateReadingTypes());
+        readingTypes.addAll(new ReadingTypeGeneratorForDataLogger().generateReadingTypes());
         return readingTypes;
     }
 
