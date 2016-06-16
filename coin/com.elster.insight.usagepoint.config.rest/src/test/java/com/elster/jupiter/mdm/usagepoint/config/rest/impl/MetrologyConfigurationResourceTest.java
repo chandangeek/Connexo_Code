@@ -26,6 +26,8 @@ import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.search.SearchablePropertyOperator;
 import com.elster.jupiter.search.SearchablePropertyValue;
+import com.elster.jupiter.util.time.Never;
+import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.rest.ValidationRuleSetInfo;
 import com.elster.jupiter.validation.rest.ValidationRuleSetInfos;
@@ -65,6 +67,8 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
     private ValidationRuleSet vrs, vrs2;
     @Mock
     private ServiceCategory serviceCategory;
+    @Mock
+    private MetrologyContract metrologyContract;
 
     @Before
     public void setUpStubs() {
@@ -107,7 +111,6 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
 
         ReadingType readingType = mock(ReadingType.class);
 
-        MetrologyContract contract = mock(MetrologyContract.class);
         MetrologyPurpose purpose = mock(MetrologyPurpose.class);
         when(purpose.getId()).thenReturn(1L);
         when(purpose.getDescription()).thenReturn(DefaultMetrologyPurpose.BILLING.getDescription().getDefaultMessage());
@@ -124,11 +127,12 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         when(requirementNode.getReadingTypeRequirement()).thenReturn(requirement);
         when(formula.getExpressionNode()).thenReturn(requirementNode);
         when(deliverable.getFormula()).thenReturn(formula);
-        when(contract.getMetrologyPurpose()).thenReturn(purpose);
-        when(contract.getMetrologyConfiguration()).thenReturn(mock);
-        when(contract.getDeliverables()).thenReturn(Collections.singletonList(deliverable));
+        when(metrologyContract.getId()).thenReturn(1L);
+        when(metrologyContract.getMetrologyPurpose()).thenReturn(purpose);
+        when(metrologyContract.getMetrologyConfiguration()).thenReturn(mock);
+        when(metrologyContract.getDeliverables()).thenReturn(Collections.singletonList(deliverable));
 
-        when(mock.getContracts()).thenReturn(Collections.singletonList(contract));
+        when(mock.getContracts()).thenReturn(Collections.singletonList(metrologyContract));
         return mock;
     }
 
@@ -510,5 +514,24 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
 
         Response response = target("metrologyconfigurations/13/deprecate").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    }
+
+    @Test
+    public void testValidationSchedule() {
+        UsagePointMetrologyConfiguration metrologyConfiguration = mockMetrologyConfiguration(15L, "Residential", ServiceKind.ELECTRICITY, MetrologyConfigurationStatus.INACTIVE);
+        DataValidationTask validationTask = mock(DataValidationTask.class);
+        when(validationTask.getId()).thenReturn(1L);
+        when(validationTask.getApplication()).thenReturn("INS");
+        when(validationTask.getMetrologyContract()).thenReturn(Optional.of(metrologyContract));
+        when(validationTask.getEndDeviceGroup()).thenReturn(Optional.empty());
+        when(validationTask.getScheduleExpression()).thenReturn(Never.NEVER);
+        when(validationTask.getLastRun()).thenReturn(Optional.empty());
+        when(validationTask.getLastOccurrence()).thenReturn(Optional.empty());
+        when(validationService.findValidationTasks()).thenReturn(Collections.singletonList(validationTask));
+        when(metrologyConfigurationService.findMetrologyConfiguration(15)).thenReturn(Optional.of(metrologyConfiguration));
+        String json = target("metrologyconfigurations/15/schedule").request().header("X-CONNEXO-APPLICATION-NAME", "INS").get(String.class);
+        JsonModel jsonModel = JsonModel.create(json);
+        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
+        assertThat(jsonModel.<Integer>get("$.contracts[0].validationTasks[0].id")).isEqualTo(1);
     }
 }
