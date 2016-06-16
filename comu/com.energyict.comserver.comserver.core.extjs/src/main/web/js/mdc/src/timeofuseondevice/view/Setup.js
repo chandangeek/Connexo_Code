@@ -72,6 +72,21 @@ Ext.define('Mdc.timeofuseondevice.view.Setup', {
                         Uni.I18n.translate('timeofUse.noCalendarsFound.list.item2', 'MDC', 'There is no planned calendar.'),
                         Uni.I18n.translate('timeofUse.noCalendarsFound.list.item3', 'MDC', 'There is an active calendar but you need to verify.')
                     ],
+                    stepItems: [
+                        {
+                            text:Uni.I18n.translate('timeofuse.sendCalendar', 'MDC', 'Send calendar'),
+                            privileges: Mdc.privileges.DeviceCommands.executeCommands,
+                            itemId: 'empty-comp-send-calendar-tou',
+                            dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.supportsSend,
+                            mRID: me.device.get('mRID')
+                        },
+                        {
+                            text: Uni.I18n.translate('timeofuse.verifyCalendars', 'MDC', 'Verify calendars'),
+                            itemId: 'empty-comp-verify-calendars-tou',
+                            privileges: Mdc.privileges.DeviceCommands.executeCommands,
+                            mRID: me.device.get('mRID')
+                        },
+                    ],
                     hidden: true
                 }
             ]

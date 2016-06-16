@@ -41,6 +41,12 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
             },
             'tou-device-send-cal-form #tou-save-calendar-command-button': {
                 click: me.saveCommand
+            },
+            '#empty-comp-send-calendar-tou': {
+                click: me.goToSendCalendarFormFromEmptyComponent
+            },
+            '#empty-comp-verify-calendars-tou': {
+                click: me.verifyCalendarFromEmptyComponent
             }
         });
     },
@@ -75,6 +81,7 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
                             if (resultSet.records[0].getActiveCalendar() === null && resultSet.records[0].get('passiveCalendars') === null) {
                                 view.showEmptyComponent();
                                 view.down('tou-device-action-menu').showPreview = false;
+                                view.down('#tou-device-actions-button' ).hide();
                             } else {
 
                                 if (view.down('device-tou-preview-form')) {
@@ -190,6 +197,14 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
 
         route = router.getRoute('devices/device/timeofuse', {mRID: mRID});
         route.forward();
+    },
+
+    goToSendCalendarFormFromEmptyComponent: function (stepButton) {
+        this.goToSendCalendarForm(stepButton.mRID);
+    },
+
+    verifyCalendarFromEmptyComponent: function (stepButton) {
+        this.verifyCalendars(stepButton.mRID);
     },
 
     goToSendCalendarForm: function (mRID) {
