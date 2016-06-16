@@ -77,7 +77,7 @@ class ChannelsContainerValidationImpl implements ChannelsContainerValidation {
     @Override
     public ChannelValidationImpl addChannelValidation(Channel channel) {
         ChannelValidationImpl channelValidation = new ChannelValidationImpl().init(this, channel);
-        Condition condition = Where.where("channel").isEqualTo(channel).and(Where.where("meterActivationValidation.obsoleteTime").isNull());
+        Condition condition = Where.where("channelId").isEqualTo(channel.getId()).and(Where.where("meterActivationValidation.obsoleteTime").isNull());
         dataModel.query(ChannelValidation.class, ChannelsContainerValidation.class).select(condition).stream()
                 .map(ChannelValidation::getLastChecked)
                 .min(Comparator.naturalOrder())
