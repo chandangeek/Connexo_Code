@@ -16,10 +16,12 @@ public enum QualityCodeSystem {
     }
 
     public static QualityCodeSystem of(String systemName) {
-        return Arrays.stream(values())
-                .filter(system -> system.name().equalsIgnoreCase(systemName))
-                .findAny()
-                .orElse(NOTAPPLICABLE);
+        return systemName == null || systemName.isEmpty() ?
+                NOTAPPLICABLE :
+                Arrays.stream(values())
+                        .filter(system -> system.name().equalsIgnoreCase(systemName))
+                        .findAny()
+                        .orElse(OTHER);
     }
 
     public static QualityCodeSystem ofApplication(String applicationName) {
