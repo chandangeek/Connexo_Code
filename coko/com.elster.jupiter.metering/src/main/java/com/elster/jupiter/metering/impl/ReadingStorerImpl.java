@@ -261,7 +261,7 @@ class ReadingStorerImpl implements ReadingStorer {
         }
     }
 
-    private FlowDetection flowDetection(CimChannel cimChannel, BigDecimal overflowValue, BigDecimal value, BigDecimal previousValue) {
+    private static FlowDetection flowDetection(CimChannel cimChannel, BigDecimal overflowValue, BigDecimal value, BigDecimal previousValue) {
         if (value.compareTo(overflowValue) > 0) {
             return FlowDetection.OVERFLOW;
         }
@@ -282,11 +282,11 @@ class ReadingStorerImpl implements ReadingStorer {
     }
 
     private Object[] getPreviousValues(ChannelContract channel, Instant timestamp) {
-        if (!channel.isRegular()) {
-            return null;
+        if (channel.isRegular()) {
+            Instant previousDateTime = channel.getPreviousDateTime(timestamp);
+            return previousReadings.get(Pair.of(channel, previousDateTime));
         }
-        Instant previousDateTime = channel.getPreviousDateTime(timestamp);
-        return previousReadings.get(Pair.of(channel, previousDateTime));
+        return null;
     }
 
     private List<MeterReadingTypeConfiguration> getMeterReadingTypeConfigurations(ChannelContract channel, Instant timestamp) {
