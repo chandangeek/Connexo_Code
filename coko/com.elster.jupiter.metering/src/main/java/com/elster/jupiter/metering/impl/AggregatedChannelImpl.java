@@ -287,7 +287,7 @@ public class AggregatedChannelImpl implements ChannelContract {
             List<? extends BaseReadingRecord> deliverableData = calculatedMetrologyContractData.getCalculatedDataFor(this.deliverable);
             if (!deliverableData.isEmpty()) {
                 Instant calculatedLastDateTime = deliverableData.get(deliverableData.size() - 1).getTimeStamp();
-                return calculatedLastDateTime.compareTo(persistedChannelLastDateTime) >= 0 ? calculatedLastDateTime : persistedChannelLastDateTime;
+                return persistedChannelLastDateTime == null || calculatedLastDateTime.compareTo(persistedChannelLastDateTime) >= 0 ? calculatedLastDateTime : persistedChannelLastDateTime;
             }
         }
         return persistedChannelLastDateTime;
@@ -390,7 +390,8 @@ public class AggregatedChannelImpl implements ChannelContract {
 
         @Override
         public void setProcessingFlags(ProcessStatus.Flag... flags) {
-            record.setProcessingFlags(flags);
+            // do nothing
+            // TODO store that reading and set processing flag for real entry?
         }
 
         @Override

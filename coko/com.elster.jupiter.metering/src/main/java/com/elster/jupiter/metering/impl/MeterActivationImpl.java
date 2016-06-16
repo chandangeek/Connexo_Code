@@ -110,13 +110,13 @@ public final class MeterActivationImpl implements IMeterActivation {
         this.meterRole.set(meterRole);
         this.usagePoint.set(usagePoint);
         this.interval = Interval.of(range);
+        this.channelsContainer.set(this.dataModel.getInstance(MeterActivationChannelsContainerImpl.class).init(this));
         if (meter != null) {
             meter.getHeadEndInterface()
                     .map(headEndInterface -> headEndInterface.getCapabilities(meter))
                     .map(EndDeviceCapabilities::getConfiguredReadingTypes)
                     .ifPresent(readingTypeList -> createChannels(readingTypeList));
         }
-        this.channelsContainer.set(this.dataModel.getInstance(MeterActivationChannelsContainerImpl.class).init(this));
         return this;
     }
 

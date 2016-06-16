@@ -128,9 +128,11 @@ public abstract class ReadingTypeRequirementImpl implements ReadingTypeRequireme
     @Override
     public List<Channel> getMatchingChannelsFor(ChannelsContainer channelsContainer) {
         return channelsContainer.getChannels().stream()
-                .filter(channel -> channel.getMainReadingType().getMacroPeriod() != MacroPeriod.NOTAPPLICABLE
-                        || channel.getMainReadingType().getMeasuringPeriod() != TimeAttribute.NOTAPPLICABLE)
-                .filter(channel -> matches(channel.getMainReadingType()))
+                .filter(channel -> channel.getReadingTypes()
+                        .stream()
+                        .filter(readingType -> readingType.getMacroPeriod() != MacroPeriod.NOTAPPLICABLE
+                                || readingType.getMeasuringPeriod() != TimeAttribute.NOTAPPLICABLE)
+                        .anyMatch(this::matches))
                 .collect(Collectors.toList());
     }
 
