@@ -12,7 +12,6 @@ Ext.define('Wss.view.ActionMenu', {
         },
         {
             itemId: 'activate-webservice',
-            text: Uni.I18n.translate('general.activate', 'WSS', 'Activate'),
             action: 'activate'
         },
         {
@@ -24,13 +23,8 @@ Ext.define('Wss.view.ActionMenu', {
     listeners: {
         beforeshow: function () {
             var me = this;
-            me.items.each(function (item) {
-                if (item.visible === undefined) {
-                    item.show();
-                } else {
-                    item.visible.call(me) ? item.show() : item.hide();
-                }
-            })
+            me.down('#activate-webservice').setText(me.record.get('active') ? Uni.I18n.translate('general.deactivate', 'WSS', 'Dectivate')
+                : Uni.I18n.translate('general.activate', 'WSS', 'Activate'));
         }
     }
 });

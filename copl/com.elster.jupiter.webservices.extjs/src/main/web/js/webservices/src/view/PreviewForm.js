@@ -5,6 +5,7 @@ Ext.define('Wss.view.PreviewForm', {
     layout: {
         type: 'column'
     },
+    isLandingPage: false,
 
     initComponent: function () {
         var me = this;
@@ -15,6 +16,25 @@ Ext.define('Wss.view.PreviewForm', {
                 labelWidth: 250
             },
             items: [
+                {
+                    xtype: 'displayfield',
+                    fieldLabel:Uni.I18n.translate('general.status', 'WSS', 'Status'),
+                    name: 'active',
+                    hidden: !me.isLandingPage,
+                    renderer: function(value) {
+                        if(value === true) {
+                            return Uni.I18n.translate('general.active', 'WSS', 'Active');
+                        } else {
+                            return Uni.I18n.translate('general.inactive', 'WSS', 'Inactive');
+                        }
+                    }
+                },
+                {
+                    xtype: 'displayfield',
+                    fieldLabel: Uni.I18n.translate('general.type', 'WSS', 'Type'),
+                    name: 'direction',
+                    hidden: !me.isLandingPage
+                },
                 {
                     xtype: 'displayfield',
                     fieldLabel: Uni.I18n.translate('general.webservice', 'WSS', 'Webservice'),

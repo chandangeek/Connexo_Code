@@ -21,6 +21,36 @@ Ext.define('Wss.controller.history.Webservices', {
                             route: 'add',
                             controller: 'Wss.controller.Webservices',
                             action: 'showAddWebserviceEndPoint'
+                        },
+                        view: {
+                            route: '{endpointId}',
+                            title: Uni.I18n.translate('webservices.webserviceEndpointOverview', 'WSS', 'Webservice endpoint overview'),
+                            //privileges: Apr.privileges.AppServer.view,
+                            controller: 'Wss.controller.Webservices',
+                            action: 'showEndpointOverview',
+                            callback: function (route) {
+                                this.getApplication().on('endpointload', function (name) {
+                                    route.setTitle(Ext.String.htmlEncode(name));
+                                    return true;
+                                }, {single: true});
+                                return this;
+                            },
+                            items: {
+                                logs: {
+                                    route: 'logs',
+                                    title: Uni.I18n.translate('general.Logging', 'WSS', 'Logging'),
+                                    //privileges: Apr.privileges.AppServer.view,
+                                    controller: 'Wss.controller.Webservices',
+                                    action: 'showLoggingPage',
+                                    callback: function (route) {
+                                        this.getApplication().on('endpointload', function (name) {
+                                            route.setTitle(Ext.String.htmlEncode(name));
+                                            return true;
+                                        }, {single: true});
+                                        return this;
+                                    }
+                                }
+                            }
                         }
                     }
                 }
