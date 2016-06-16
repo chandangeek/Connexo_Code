@@ -10,7 +10,7 @@ Ext.define('Mdc.usagepointmanagement.view.UsagePointActionMenu', {
 
         me.items = [
             {
-                text: Uni.I18n.translate('general.addUsagePoint.edit', 'MDC', "Edit '{0}'", Ext.String.htmlEncode(me.mRID)),
+                text: Uni.I18n.translate('general.addUsagePoint.editUsagePoint', 'MDC', 'Edit'),
                 href: me.router.getRoute('usagepoints/usagepoint/edit').buildUrl()
             }
         ];
