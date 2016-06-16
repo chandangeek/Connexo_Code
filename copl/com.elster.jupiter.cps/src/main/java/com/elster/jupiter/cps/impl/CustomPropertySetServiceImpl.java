@@ -20,9 +20,11 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.search.SearchableProperty;
@@ -30,8 +32,10 @@ import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.transaction.CommitException;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.streams.Predicates;
@@ -54,6 +58,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -347,8 +352,34 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         DataModel dataModel = this.newDataModelFor(customPropertySet);
         this.addTableFor(customPropertySet, dataModel);
         dataModel.register(this.getCustomPropertySetModule(dataModel, customPropertySet));
-        dataModel.install(executeDdl, false); // TODO
+        PersistenceSupport persistenceSupport = customPropertySet.getPersistenceSupport();
+
+        Map<Version, Class<? extends Upgrader>> versionClassMap = dataModel.changeVersions()
+                .stream()
+                .collect(Collectors.toMap(Function.identity(), version -> Installer.class));
+
+        upgradeService.register(InstallIdentifier.identifier(persistenceSupport.componentName()), dataModel, Installer.class, versionClassMap);
         return dataModel;
+    }
+
+    static class Installer implements FullInstaller, Upgrader {
+
+        private final DataModel dataModel;
+
+        @Inject
+        Installer(DataModel dataModel) {
+            this.dataModel = dataModel;
+        }
+
+        @Override
+        public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
+            dataModelUpgrader.upgrade(dataModel, Version.latest());
+        }
+
+        @Override
+        public void migrate(DataModelUpgrader dataModelUpgrader) {
+            dataModelUpgrader.upgrade(dataModel, Version.latest());
+        }
     }
 
     private DataModel newDataModelFor(CustomPropertySet customPropertySet) {
