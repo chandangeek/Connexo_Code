@@ -40,8 +40,8 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointSummary', {
             itemId: 'up-summary-geoCoordinates',
             fieldLabel: Uni.I18n.translate('general.label.coordinates', 'IMT', 'Coordinates'),
             renderer: function (value) {
-                if (!Ext.isEmpty(value) && !Ext.isEmpty(value.coordinatesDisplay)) {
-                    return Ext.String.htmlEncode(value.coordinatesDisplay);
+                if (!Ext.isEmpty(value) && !Ext.isEmpty(value.deviceCoordinatesDisplay)) {
+                    return Ext.String.htmlEncode(value.deviceCoordinatesDisplay);
                 } else {
                     return '-'
                 }
