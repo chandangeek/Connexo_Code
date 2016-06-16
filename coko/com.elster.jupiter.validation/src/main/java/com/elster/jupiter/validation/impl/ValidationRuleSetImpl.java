@@ -112,14 +112,7 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
 
     @Override
     public QualityCodeSystem getQualityCodeSystem() {
-        switch(applicationName) {
-            case "MDC":
-                return QualityCodeSystem.MDC;
-            case "INS":
-                return QualityCodeSystem.MDM;
-            default:
-                return QualityCodeSystem.NOTAPPLICABLE;
-        }
+        return QualityCodeSystem.ofApplication(applicationName);
     }
 
     @Override

@@ -43,6 +43,7 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     @NotEmpty(message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY  + "}")
     @Size(max = 80, message = "{" + MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
     private String name;
+    private String application;
 
     private final TaskService taskService;
     private Instant lastRun;
@@ -66,8 +67,6 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     private transient boolean recurrentTaskDirty;
     private boolean scheduleImmediately;
     private ScheduleExpression scheduleExpression;
-
-    private String application;
 
     @Inject
     DataValidationTaskImpl(DataModel dataModel, TaskService taskService, ValidationService dataValidationService, Thesaurus thesaurus, Provider<DestinationSpec> destinationSpecProvider) {
