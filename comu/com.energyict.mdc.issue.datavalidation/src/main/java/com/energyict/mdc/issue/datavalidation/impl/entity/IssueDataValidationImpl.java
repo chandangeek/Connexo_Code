@@ -25,11 +25,10 @@ import java.util.Objects;
 import java.util.Optional;
 
 public class IssueDataValidationImpl implements IssueDataValidation {
-    
+
     public enum Fields {
         BASEISSUE("baseIssue"),
-        NOTESTIMATEDBLOCKS("notEstimatedBlocks"),
-        ;
+        NOTESTIMATEDBLOCKS("notEstimatedBlocks"),;
 
         private final String javaFieldName;
 
@@ -51,16 +50,21 @@ public class IssueDataValidationImpl implements IssueDataValidation {
     private String userName;
 
     private final DataModel dataModel;
-    private final IssueDataValidationService issueDataValidationService;    
-    
+    private final IssueDataValidationService issueDataValidationService;
+
     @Inject
     public IssueDataValidationImpl(DataModel dataModel, IssueDataValidationService issueDataValidationService) {
         this.dataModel = dataModel;
         this.issueDataValidationService = issueDataValidationService;
     }
-    
+
     Issue getBaseIssue() {
         return baseIssue.orNull();
+    }
+
+    @Override
+    public String getIssueId() {
+        return getBaseIssue().getIssueId();
     }
 
     @Override
@@ -192,10 +196,10 @@ public class IssueDataValidationImpl implements IssueDataValidation {
         Save.UPDATE.save(dataModel, this);
     }
 
-    public void delete(){
+    public void delete() {
         dataModel.remove(this);
     }
-    
+
     @Override
     public List<NotEstimatedBlock> getNotEstimatedBlocks() {
         Optional<? extends IssueDataValidation> issue = null;
