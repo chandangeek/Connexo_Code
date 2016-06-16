@@ -63,7 +63,7 @@ public class GoingOnResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    public Response getGoingOn(@PathParam("mRID") String mrid, @BeanParam JsonQueryParameters queryParameters, @Context SecurityContext securityContext, @HeaderParam("Authorization") String auth) {
+    public Response getGoingOn(@PathParam("mRID") String mrid, @BeanParam JsonQueryParameters queryParameters, @Context SecurityContext securityContext, @HeaderParam("Authorization") String auth, @HeaderParam("X-CONNEXO-APPLICATION-NAME") String appKey) {
 
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
 
@@ -86,7 +86,7 @@ public class GoingOnResource {
                 .map(goingOnInfoFactory::toGoingOnInfo)
                 .collect(Collectors.toList());
 
-        List<GoingOnInfo> processInstances = bpmService.getRunningProcesses(auth, filterFor(device))
+        List<GoingOnInfo> processInstances = bpmService.getRunningProcesses(auth, filterFor(device), appKey)
                 .processes
                 .stream()
                 .map(goingOnInfoFactory::toGoingOnInfo)
