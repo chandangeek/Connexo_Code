@@ -107,6 +107,7 @@ public class WebServicesApplication extends Application implements MessageSeedPr
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(EndPointConfigurationInfoFactory.class).to(EndPointConfigurationInfoFactory.class);
             bind(WebServicesInfoFactory.class).to(WebServicesInfoFactory.class);
+            bind(EndpointConfigurationLogInfoFactory.class).to(EndpointConfigurationLogInfoFactory.class);
             bind(webServicesService).to(WebServicesService.class);
             bind(transactionService).to(TransactionService.class);
             bind(thesaurus).to(Thesaurus.class);
