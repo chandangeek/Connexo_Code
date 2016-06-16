@@ -45,10 +45,6 @@ Ext.define('Ddv.view.ValidationOverview', {
                         xtype: 'uni-form-empty-message',
                         itemId: 'ctr-no-group-selected',
                         hidden: me.hiddenNoGroup,
-                        style: {
-                            marginRight: '17px',
-                            padding: '17px'
-                        },
                         text: Uni.I18n.translate('validation.validationOverview.noGroup', 'DDV', 'No device group has been selected yet.')
                     }
                 ]
