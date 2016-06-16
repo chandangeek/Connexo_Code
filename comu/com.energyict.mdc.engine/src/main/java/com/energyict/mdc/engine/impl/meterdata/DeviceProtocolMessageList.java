@@ -46,7 +46,10 @@ public class DeviceProtocolMessageList extends CompositeCollectedData<CollectedM
     }
 
     public List<CollectedMessage> getCollectedMessages(MessageIdentifier messageIdentifier){
-        return this.getCollectedMessages().stream().filter(x -> x.getMessageIdentifier().equals(messageIdentifier)).collect(Collectors.toList());
+        return this.getCollectedMessages()
+                .stream()
+                .filter(x -> x.getMessageIdentifier().equals(messageIdentifier))
+                .collect(Collectors.toList());
     }
 
 }

@@ -10,6 +10,7 @@ import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
@@ -19,7 +20,6 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 
@@ -48,61 +48,69 @@ public class OfflineDeviceImpl implements OfflineDevice {
     private ServiceProvider serviceProvider;
 
     /**
-     * The ID of the Persistent Device object
+     * The ID of the Persistent Device object.
      */
     private long id;
 
     /**
-     * The SerialNumber of the Device
+     * The SerialNumber of the Device.
      */
     private String serialNumber;
 
     /**
-     * Contains all protocol related allProperties
+     * Contains all protocol related allProperties.
      */
     private TypedProperties allProperties;
 
     /**
-     * Contains all Offline Slave devices
+     * Contains all Offline Slave devices.
      */
     private List<OfflineDevice> slaveDevices = Collections.emptyList();
 
     /**
-     * Contains the {@link OfflineLoadProfile offlineLoadProfiles} which are owned by this {@link OfflineDevice}
+     * Contains the {@link OfflineLoadProfile offlineLoadProfiles} which are owned by this {@link OfflineDevice}.
      */
     private List<OfflineLoadProfile> masterLoadProfiles = Collections.emptyList();
 
     /**
-     * Contains all {@link OfflineLoadProfile offlineLoadProfiles} which are owned by this {@link OfflineDevice} <b>AND</b> OR any slave device
+     * Contains all {@link OfflineLoadProfile offlineLoadProfiles} which are owned by this {@link OfflineDevice} <b>AND</b> OR any slave device.
      */
     private List<OfflineLoadProfile> allLoadProfiles = Collections.emptyList();
 
     /**
-     * Contains all {@link OfflineLogBook offlineLogBooks} which are owned by this {@link OfflineDevice}
+     * Contains all {@link OfflineLogBook offlineLogBooks} which are owned by this {@link OfflineDevice}.
      */
     private List<OfflineLogBook> allLogBooks = Collections.emptyList();
 
     /**
      * Contains all {@link OfflineRegister rtuRegisters} which are owned by this {@link OfflineDevice} or a slave which has the
-     * {@link com.energyict.mdc.device.config.DeviceType#isLogicalSlave() rtuType.isLogicalSlave} checked
+     * {@link com.energyict.mdc.device.config.DeviceType#isLogicalSlave() rtuType.isLogicalSlave} checked.
      */
     private List<OfflineRegister> allRegisters = Collections.emptyList();
 
     /**
-     * Contains all {@link DeviceMessageStatus#PENDING pending} {@link OfflineDeviceMessage}
+     * Contains all {@link DeviceMessageStatus#PENDING pending} {@link OfflineDeviceMessage}.
      */
     private List<OfflineDeviceMessage> pendingDeviceMessages = Collections.emptyList();
+
     /**
-     * Contains all {@link DeviceMessageStatus#SENT sent} {@link OfflineDeviceMessage}
+     * Contains all {@link DeviceMessageStatus#PENDING pending} {@link OfflineDeviceMessage}
+     * that have become invalid since their creation.
+     */
+    private List<OfflineDeviceMessage> pendingInvalidDeviceMessages = Collections.emptyList();
+
+    /**
+     * Contains all {@link DeviceMessageStatus#SENT sent} {@link OfflineDeviceMessage}.
      */
     private List<OfflineDeviceMessage> sentDeviceMessages = Collections.emptyList();
+
     /**
-     * The used DeviceProtocolPluggableClass
+     * The used DeviceProtocolPluggableClass.
      */
     private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
 
     /**
-     * The used DeviceProtocolCache for this Device
+     * The used DeviceProtocolCache for this Device.
      */
     private DeviceProtocolCache deviceProtocolCache;
 
@@ -154,7 +162,21 @@ public class OfflineDeviceImpl implements OfflineDevice {
             setAllRegisters(convertToOfflineRegister(createCompleteRegisterList(serviceProvider.topologyService())));
         }
         if (context.needsPendingMessages()) {
-            setAllPendingMessages(createOfflineMessageList(getAllPendingMessagesIncludingSlaves(device)));
+            PendingMessagesValidator validator = new PendingMessagesValidator(this.device);
+            List<DeviceMessage<Device>> pendingMessages = getAllPendingMessagesIncludingSlaves(device);
+            List<DeviceMessage<Device>> reallyPending = new ArrayList<>();
+            List<DeviceMessage<Device>> invalidSinceCreation = new ArrayList<>();
+            pendingMessages
+                    .stream()
+                    .forEach(deviceDeviceMessage -> {
+                        if (validator.isStillValid(deviceDeviceMessage)) {
+                            reallyPending.add(deviceDeviceMessage);
+                        } else {
+                            invalidSinceCreation.add(deviceDeviceMessage);
+                        }
+                    });
+            setAllPendingMessages(createOfflineMessageList(reallyPending));
+            setAllPendingInvalidMessages(createOfflineMessageList(invalidSinceCreation));
         }
         if (context.needsSentMessages()) {
             setAllSentMessages(createOfflineMessageList(getAllSentMessagesIncludingSlaves(device)));
@@ -320,6 +342,11 @@ public class OfflineDeviceImpl implements OfflineDevice {
     }
 
     @Override
+    public List<OfflineDeviceMessage> getAllInvalidPendingDeviceMessages() {
+        return Collections.unmodifiableList(this.pendingInvalidDeviceMessages);
+    }
+
+    @Override
     public List<OfflineDeviceMessage> getAllSentDeviceMessages() {
         return this.sentDeviceMessages;
     }
@@ -407,12 +434,16 @@ public class OfflineDeviceImpl implements OfflineDevice {
         this.allLoadProfiles = allLoadProfiles;
     }
 
-    public void setAllLogBooks(List<OfflineLogBook> allLogBooks) {
+    private void setAllLogBooks(List<OfflineLogBook> allLogBooks) {
         this.allLogBooks = allLogBooks;
     }
 
     private void setAllPendingMessages(final List<OfflineDeviceMessage> allPendingMessages) {
         this.pendingDeviceMessages = allPendingMessages;
+    }
+
+    private void setAllPendingInvalidMessages(final List<OfflineDeviceMessage> messages) {
+        this.pendingInvalidDeviceMessages = messages;
     }
 
     private void setAllSentMessages(final List<OfflineDeviceMessage> allSentMessages) {
