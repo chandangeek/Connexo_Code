@@ -1,6 +1,5 @@
 package com.elster.jupiter.orm;
 
-
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
@@ -63,8 +62,8 @@ public class LobTest {
         bundleContext = mock(BundleContext.class);
         principal = mock(Principal.class);
 // Uncomment to work with OracleBootstrapModule
-//    	when(bundleContext.getProperty("com.elster.jupiter.datasource.jdbcurl")).thenReturn("jdbc:oracle:thin:@doraps003.eict.vpdc:7137:DEVJUPITER");
-//    	when(bundleContext.getProperty("com.elster.jupiter.datasource.jdbcuser")).thenReturn("RVK_1553");
+//    	when(bundleContext.getProperty("com.elster.jupiter.datasource.jdbcurl")).thenReturn("jdbc:oracle:thin:@doraps003.eict.vpdc:7137:DEVRD");
+//    	when(bundleContext.getProperty("com.elster.jupiter.datasource.jdbcuser")).thenReturn("RVK_DATA_AGGREGATION");
 //    	when(bundleContext.getProperty("com.elster.jupiter.datasource.jdbcpassword")).thenReturn("zorro");
     	Module module = new AbstractModule() {
     		@Override
@@ -80,6 +79,8 @@ public class LobTest {
         			new PubSubModule(),
         			new TransactionModule(false),
         			new OrmModule());
+// Uncomment to work with OracleBootstrapModule
+//        			new OrmModule(new OracleSchemaInfo()));
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
         	injector.getInstance(OrmService.class);
         	ctx.commit();
