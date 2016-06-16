@@ -1690,7 +1690,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.OVERFLOW_INCREASED + "}", property = "overruledOverflow")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.OVERFLOW_INCREASED + "}", property = "overruledOverflowValue")
     public void overruleChannelOverFlowWithLargerValueTest() {
         RegisterType registerType1 = this.createRegisterTypeIfMissing(forwardEnergyObisCode, forwardBulkSecondaryEnergyReadingType);
         RegisterType registerType2 = createRegisterTypeIfMissing(reverseEnergyObisCode, reverseBulkSecondaryEnergyReadingType);
