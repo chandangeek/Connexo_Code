@@ -30,6 +30,7 @@ import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointDetailBuilder;
 import com.elster.jupiter.metering.UsagePointMeterActivator;
 import com.elster.jupiter.metering.WaterDetailBuilder;
+import com.elster.jupiter.metering.ami.CompletionOptions;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
@@ -46,8 +47,10 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.parties.PartyRole;
+import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.util.units.Quantity;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
@@ -66,6 +69,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -506,6 +510,52 @@ public class UsagePointImpl implements UsagePoint {
                 .getInstance(UsagePointConnectionStateImpl.class)
                 .initialize(stateEffectivityInterval, this, connectionState);
         this.connectionState.add(usagePointConnectionState);
+    }
+
+    @Override
+    public List<CompletionOptions> connect(Instant when, ServiceCall serviceCall) {
+        return this.getMeterActivations()
+                .stream()
+                .flatMap(meterActivation -> meterActivation.getMeter()
+                        .isPresent() ? Stream.of(meterActivation.getMeter().get()) : Stream.empty())
+                .map(meter -> meter.getHeadEndInterface()
+                        .map(headEndInterface -> headEndInterface.sendCommand(headEndInterface.getCommandFactory()
+                                .createConnectCommand(meter, when), when, serviceCall)))
+                .flatMap(completionOptions -> completionOptions.isPresent() ? Stream.of(completionOptions.get()) : Stream
+                        .empty())
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CompletionOptions> disconnect(Instant when, ServiceCall serviceCall) {
+        return this.getMeterActivations()
+                .stream()
+                .flatMap(meterActivation -> meterActivation.getMeter()
+                        .isPresent() ? Stream.of(meterActivation.getMeter().get()) : Stream.empty())
+                .map(meter -> meter.getHeadEndInterface()
+                        .map(headEndInterface -> headEndInterface.sendCommand(headEndInterface.getCommandFactory()
+                                .createDisconnectCommand(meter, when), when, serviceCall)))
+                .flatMap(completionOptions -> completionOptions.isPresent() ? Stream.of(completionOptions.get()) : Stream
+                        .empty())
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CompletionOptions> enableLoadLimit(Instant when, Quantity loadLimit, ServiceCall serviceCall) {
+        //not implemented yet
+        return null;
+    }
+
+    @Override
+    public List<CompletionOptions> disableLoadLimit(Instant when, ServiceCall serviceCall) {
+        //not implemented yet
+        return null;
+    }
+
+    @Override
+    public List<CompletionOptions> readData(Instant when, List<ReadingType> readingTypes, ServiceCall serviceCall) {
+        //not implemented yet
+        return null;
     }
 
     @Override
