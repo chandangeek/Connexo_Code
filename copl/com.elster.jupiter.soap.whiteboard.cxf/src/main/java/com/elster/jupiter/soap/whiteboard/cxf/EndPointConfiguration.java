@@ -1,5 +1,7 @@
 package com.elster.jupiter.soap.whiteboard.cxf;
 
+import com.elster.jupiter.domain.util.Finder;
+
 import java.util.List;
 
 /**
@@ -83,10 +85,10 @@ public interface EndPointConfiguration {
     void log(LogLevel logLevel, String message);
 
     /**
-     * Retrieve a log of all end point entries. List is sorted, most recent message comes first.
+     * Retrieve a finder of logs of all end point entries. List is sorted, most recent message comes first.
      *
-     * @return List of logs
+     * @return Finder of logs
      */
-    List<EndPointLog> getLogs();
+    Finder<EndPointLog> getLogs();
 
 }

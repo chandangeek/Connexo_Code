@@ -1,5 +1,7 @@
 package com.elster.jupiter.soap.whiteboard.cxf.impl;
 
+import com.elster.jupiter.domain.util.DefaultFinder;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
@@ -8,6 +10,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointLog;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.conditions.Where;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -223,10 +226,11 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
     }
 
     @Override
-    public List<EndPointLog> getLogs() {
-        return dataModel.query(EndPointLog.class)
-                .select(where(EndPointLogImpl.Fields.endPointConfiguration.fieldName()).isEqualTo(this), Order.descending(EndPointLogImpl.Fields.timestamp
-                        .fieldName()));
+    public Finder<EndPointLog> getLogs() {
+        return DefaultFinder.of(EndPointLog.class,
+                Where.where(EndPointLogImpl.Fields.endPointConfiguration.fieldName())
+                        .isEqualTo(this), dataModel).sorted(EndPointLogImpl.Fields.timestamp.fieldName(), false);
+
     }
 
     @Override
