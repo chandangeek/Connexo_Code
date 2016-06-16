@@ -8,6 +8,8 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.fields.impl.ColumnConversionImpl;
 import com.elster.jupiter.orm.fields.impl.LazyLoadingBlob;
+import com.elster.jupiter.util.Ranges;
+import com.elster.jupiter.util.streams.Functions;
 
 import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.Range;
@@ -24,7 +26,10 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.Ranges.intersection;
@@ -558,6 +563,14 @@ public class ColumnImpl implements Column {
         return this;
     }
 
+    @Override
+    public SortedSet<Version> changeVersions() {
+        return versions()
+                .asRanges()
+                .stream()
+                .flatMap(range -> Stream.of(Ranges.lowerBound(range), Ranges.upperBound(range)).flatMap(Functions.asStream()))
+                .collect(Collectors.toCollection(TreeSet::new));
+    }
 
     static class BuilderImpl implements Column.Builder {
         private final ColumnImpl column;

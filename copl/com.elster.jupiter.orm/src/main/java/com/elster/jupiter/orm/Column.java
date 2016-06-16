@@ -3,6 +3,8 @@ package com.elster.jupiter.orm;
 import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
 
+import java.util.SortedSet;
+
 /**
  * Describes a column mapping.
  */
@@ -39,6 +41,8 @@ public interface Column {
 	Column upTo(Version version);
 	Column during(Range... ranges);
 	Column previously(Column column);
+
+	SortedSet<Version> changeVersions();
 
 	@ProviderType
 	interface Builder {

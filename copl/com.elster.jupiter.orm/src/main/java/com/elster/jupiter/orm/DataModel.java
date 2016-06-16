@@ -11,6 +11,7 @@ import java.security.Principal;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.SortedSet;
 import java.util.logging.Logger;
 
 /**
@@ -121,6 +122,8 @@ public interface DataModel {
     Principal getPrincipal();
 
     SqlDialect getSqlDialect();
+
+    SortedSet<Version> changeVersions();
 
     ValidatorFactory getValidatorFactory();
 

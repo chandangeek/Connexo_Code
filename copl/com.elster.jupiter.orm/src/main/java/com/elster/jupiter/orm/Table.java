@@ -10,6 +10,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.SortedSet;
 import java.util.logging.Logger;
 
 /**
@@ -202,4 +203,6 @@ public interface Table<T> {
     void previouslyNamed(Range<Version> versionRange, String name);
 
     String getName(Version version);
+
+    SortedSet<Version> changeVersions();
 }
