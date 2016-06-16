@@ -71,8 +71,10 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
                                 renderer: function (value, field) {
                                     var result = '',
                                         record = field.up('form').getRecord();
-                                    if (record && !record.get('supportedOptions').length) {
-                                        result = Uni.I18n.translate('deviceType.firmwaremanagementoptions.notAllowedByProtocol', 'FWC', 'Firmware management is not supported by the communication protocol of this device type');
+                                    if (record && record.get('supportedOptions').length === 0) {
+                                        result = Uni.I18n.translate('deviceType.firmwaremanagementoptions.notAllowedByProtocol', 'FWC',
+                                            'Firmware management is not supported by the communication protocol of this device type'
+                                        );
                                         field.show();
                                     } else {
                                         field.hide();
@@ -86,16 +88,24 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
                                 itemId: 'allowed-options',
                                 fieldStyle: 'margin-top : 3px;',
                                 fieldLabel: Uni.I18n.translate('general.firmwareManagementOptions', 'FWC', 'Firmware management options'),
-                                renderer: function (value) {
-                                    var tpl = Ext.create('FirmwareOptionsXTemplate');
-                                    return tpl.apply(value);
+                                renderer: function (value, field) {
+                                    var result = '',
+                                        record = field.up('form').getRecord();
+                                    if (record && record.get('supportedOptions').length === 0) {
+                                        field.hide();
+                                    } else {
+                                        field.show();
+                                        var tpl = Ext.create('FirmwareOptionsXTemplate');
+                                        result = tpl.apply(value);
+                                    }
+                                    return result;
                                 }
                             }
                         ],
                         loadRecord: function (record) {
                             this.getForm().loadRecord(record);
                             if (record.get('supportedOptions').length === 0) {
-                                me.down('button#button-edit').disable();
+                                me.down('#fwc-specifications-actions-btn').disable();
                             }
                         }
                     }

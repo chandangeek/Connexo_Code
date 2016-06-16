@@ -423,10 +423,6 @@ Ext.define('Fwc.controller.Firmware', {
                     if (form) {
                         form.loadRecord(optionsRecord);
 
-                        if (!optionsRecord.get('isAllowed')) {
-                            me.getContainer().down('uni-form-info-message[name=warning]').show();
-                        }
-
                         supportedFirmwareTypesStore.load({
                             scope: this,
                             callback: function () {
