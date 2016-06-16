@@ -251,7 +251,7 @@ public class EndDeviceCommandImplTest {
 
         ServiceCall serviceCall = mock(ServiceCall.class);
         when(serviceCall.getId()).thenReturn(SERVICE_CALL_ID);
-        Instant releaseDate = Instant.now();
+        Instant releaseDate = Instant.ofEpochSecond(1465941600);    // 15/06/20165 00:00:00
         endDeviceCommand.setPropertyValue(dateTimeSpec, Date.from(releaseDate));
 
         DeviceMessage<Device> deviceMessage = mock(DeviceMessage.class);
@@ -298,7 +298,7 @@ public class EndDeviceCommandImplTest {
 
         ServiceCall serviceCall = mock(ServiceCall.class);
         when(serviceCall.getId()).thenReturn(SERVICE_CALL_ID);
-        Instant releaseDate = Instant.now();
+        Instant releaseDate = Instant.ofEpochSecond(1465941600);    // 15/06/20165 00:00:00
         endDeviceCommand.setPropertyValue(dateTimeSpec, Date.from(releaseDate));
 
         DeviceMessage<Device> deviceMessage = mock(DeviceMessage.class);

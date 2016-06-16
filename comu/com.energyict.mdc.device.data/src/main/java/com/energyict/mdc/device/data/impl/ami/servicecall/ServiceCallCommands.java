@@ -4,7 +4,6 @@ import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.EndDeviceControlType;
 import com.elster.jupiter.orm.TransactionRequired;
-import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallBuilder;
@@ -94,11 +93,6 @@ public class ServiceCallCommands {
         serviceCallBuilder.extendedWith(commandServiceCallDomainExtension);
         serviceCallBuilder.targetObject(device);
         return serviceCallBuilder.create();
-    }
-
-    @TransactionRequired
-    public void requestTransition(ServiceCall serviceCall, DefaultState newState) {
-        serviceCall.requestTransition(newState);
     }
 
     private ServiceCallType getServiceCallType(EndDeviceControlType endDeviceControlType) {
