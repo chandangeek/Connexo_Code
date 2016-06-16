@@ -161,6 +161,11 @@
             <artifactId>parties</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>search</artifactId>
+            <scope>test</scope>
+        </dependency>
 
     </dependencies>
 
