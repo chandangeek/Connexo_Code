@@ -68,7 +68,7 @@ Ext.define('Cfg.controller.DataValidationKpi', {
     removeDataValidationKPI: function (record) {
         var me = this;
         Ext.create('Uni.view.window.Confirmation').show({
-            title: Uni.I18n.translate('general.removex', 'CFG', "Remove '{0}'?", [record.get('deviceGroup').name]),
+            title: Uni.I18n.translate('general.removex.kpi', 'CFG', "Remove '{0}'?", [record.get('deviceGroup').name]),
             msg: Uni.I18n.translate('datavalidationkpis.deleteConfirmation.msg', 'CFG', 'This data validation KPI will no longer be available in the system.'),
             fn: function (state) {
                 switch (state) {
