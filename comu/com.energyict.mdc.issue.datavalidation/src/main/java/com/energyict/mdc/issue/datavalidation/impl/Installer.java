@@ -13,6 +13,7 @@ import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.FullInstaller;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.issue.datavalidation.impl.actions.CloseIssueAction;
+import com.energyict.mdc.issue.datavalidation.impl.actions.RetryEstimationAction;
 import com.energyict.mdc.issue.datavalidation.impl.event.DataValidationEventDescription;
 import com.energyict.mdc.issue.datavalidation.impl.event.DataValidationEventHandlerFactory;
 import com.energyict.mdc.issue.datavalidation.impl.DataValidationActionsFactory;
@@ -31,7 +32,7 @@ class Installer implements FullInstaller {
     private final DataModel dataModel;
     private final EventService eventService;
     private final MessageService messageService;
-    private IssueType issueType;
+    //private IssueType issueType;
 
     @Inject
     Installer(DataModel dataModel, IssueService issueService,IssueActionService issueActionService, EventService eventService, MessageService messageService) {
@@ -73,7 +74,7 @@ class Installer implements FullInstaller {
         IssueType type = issueService.createIssueType(IssueDataValidationService.ISSUE_TYPE_NAME, TranslationKeys.DATA_VALIDATION_ISSUE_TYPE);
         issueService.createReason(IssueDataValidationService.DATA_VALIDATION_ISSUE_REASON, type,
                 TranslationKeys.DATA_VALIDATION_ISSUE_REASON, TranslationKeys.DATA_VALIDATION_ISSUE_REASON_DESCRIPTION);
-        issueActionService.createActionType(DataValidationActionsFactory.ID, RetryEstimationAction.class.getName(), setSupportedIssueType(), CreationRuleActionPhase.OVERDUE);
+        //issueActionService.createActionType(DataValidationActionsFactory.ID, RetryEstimationAction.class.getName(), setSupportedIssueType(), CreationRuleActionPhase.OVERDUE);
     }
 
     private void publishEvents() {
@@ -85,9 +86,9 @@ class Installer implements FullInstaller {
         }
     }
 
-    private IssueType setSupportedIssueType() {
-        return issueService.createIssueType(IssueDataValidationService.ISSUE_TYPE_NAME, TranslationKeys.DATA_VALIDATION_ISSUE_TYPE);
-    }
+//    private IssueType setSupportedIssueType() {
+//        return issueService.createIssueType(IssueDataValidationService.ISSUE_TYPE_NAME, TranslationKeys.DATA_VALIDATION_ISSUE_TYPE);
+//    }
 
     private void setAQSubscriber() {
         DestinationSpec destinationSpec = messageService.getDestinationSpec(EventService.JUPITER_EVENTS).get();
