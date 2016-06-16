@@ -2,6 +2,8 @@ package com.elster.jupiter.orm.impl;
 
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.fields.impl.ColumnConversionImpl;
+import com.elster.jupiter.util.geo.SpatialCoordinates;
+import com.elster.jupiter.util.geo.SpatialCoordinatesFactory;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import org.junit.Test;
@@ -89,6 +91,20 @@ public class ColumnConversionTest {
 		} catch (SQLException ex) {
 			assertThat(true).isFalse();
 		}
+	}
+
+	@Test
+
+	public void testSdoGeometry2SpatialGeoObj() {
+		SpatialCoordinates coordinates = new SpatialCoordinatesFactory().fromStringValue("4.3:3.2:1");
+		assertThat(ColumnConversionImpl.SDOGEOMETRY2SPATIALGEOOBJ.convert(column, "4.3:3.2:1")).isEqualTo(coordinates);
+		//assertThat(ColumnConversionImpl.SDOGEOMETRY2SPATIALGEOOBJ.convertToDb(column, coordinates)).isEqualTo();
+		//try {
+			//when(rs.getString(anyInt())).thenReturn(convertedPath);
+			//assertThat(ColumnConversionImpl.CHAR2PATH.convertFromDb(column, rs, 5)).isEqualTo(path);
+		//} catch (SQLException ex) {
+		//	assertThat(true).isFalse();
+		//}
 	}
 
 }
