@@ -62,7 +62,12 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
     }
 
     public String getVersion() {
-        return "$Date: 2016-06-16 08:51:46 +0300 (Thu, 16 Jun 2016)$";
+        return "$Date: 2016-06-16 15:48:28 +0200 (Thu, 16 Jun 2016)$";
+    }
+
+    @Override
+    public String getConfiguredSerialNumber() {
+        return getOfflineDevice().getSerialNumber();
     }
 
     @Override
@@ -71,7 +76,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
         for (LoadProfileReader loadProfileReader : loadProfilesToRead) {
             if (isMaster(loadProfileReader.getMeterSerialNumber())) {     //Master device
                 ObisCode profileObisCode = loadProfileReader.getProfileObisCode();
-                CollectedLoadProfileConfiguration config = MdcManager.getCollectedDataFactory().createCollectedLoadProfileConfiguration(profileObisCode, getSerialNumber());
+                CollectedLoadProfileConfiguration config = MdcManager.getCollectedDataFactory().createCollectedLoadProfileConfiguration(profileObisCode, getConfiguredSerialNumber());
                 if (!profileObisCode.equals(DeviceLoadProfileSupport.GENERIC_LOAD_PROFILE_OBISCODE)) {                        //Only one LP is supported
                     config.setSupportedByMeter(false);
                 } else {
@@ -79,7 +84,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
                 }
                 result.add(config);
             } else {                                                                                    //Slave doesn't support
-                CollectedLoadProfileConfiguration slaveConfig = MdcManager.getCollectedDataFactory().createCollectedLoadProfileConfiguration(loadProfileReader.getProfileObisCode(), getSerialNumber());
+                CollectedLoadProfileConfiguration slaveConfig = MdcManager.getCollectedDataFactory().createCollectedLoadProfileConfiguration(loadProfileReader.getProfileObisCode(), getConfiguredSerialNumber());
                 slaveConfig.setSupportedByMeter(false);
                 result.add(slaveConfig);
             }

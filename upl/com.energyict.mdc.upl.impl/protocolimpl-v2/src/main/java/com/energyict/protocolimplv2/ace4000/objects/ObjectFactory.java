@@ -1036,7 +1036,7 @@ public class ObjectFactory {
             allEvents.add(powerFailEvent);
         }
         MeterEvent announceEvent = getAnnouncement().getMeterEvent();
-        if (powerFailEvent != null) {
+        if (announceEvent != null) {
             allEvents.add(announceEvent);
         }
         return allEvents;

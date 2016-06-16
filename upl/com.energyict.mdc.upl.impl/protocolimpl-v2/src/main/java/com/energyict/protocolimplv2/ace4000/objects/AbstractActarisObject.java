@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.ace4000.objects;
 
 import com.energyict.cbo.ApplicationException;
+import com.energyict.protocol.exceptions.DataParseException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -37,7 +38,7 @@ abstract public class AbstractActarisObject {
 
     public AbstractActarisObject(ObjectFactory of) {
         this.objectFactory = of;
-        this.serialNumber = getObjectFactory().getAce4000().getSerialNumber();
+        this.serialNumber = getObjectFactory().getAce4000().getConfiguredSerialNumber();
     }
 
     /**
@@ -89,7 +90,7 @@ abstract public class AbstractActarisObject {
             DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             return builder.newDocument();
         } catch (ParserConfigurationException e) {
-            return null;
+            throw DataParseException.generalParseException(e);
         }
     }
 

@@ -72,8 +72,8 @@ public class ACE4000Inbound extends ACE4000 implements BinaryInboundDeviceProtoc
         }
 
         if (!getObjectFactory().getAllMeterEvents().isEmpty()) {
-        CollectedLogBook deviceLogBook = getObjectFactory().getDeviceLogBook(new LogBookIdentifierByObisCodeAndDevice(getDeviceIdentifier(), LogBookTypeFactory.GENERIC_LOGBOOK_TYPE_OBISCODE));
-        collectedDatas.add(deviceLogBook);
+            CollectedLogBook deviceLogBook = getObjectFactory().getDeviceLogBook(new LogBookIdentifierByObisCodeAndDevice(getDeviceIdentifier(), LogBookTypeFactory.GENERIC_LOGBOOK_TYPE_OBISCODE));
+            collectedDatas.add(deviceLogBook);
         }
 
         return collectedDatas;
@@ -85,7 +85,7 @@ public class ACE4000Inbound extends ACE4000 implements BinaryInboundDeviceProtoc
     }
 
     public String getVersion() {
-        return "$Date: 2016-06-02 17:27:06 +0200 (Thu, 02 Jun 2016)$";
+        return "$Date: 2016-06-16 15:48:28 +0200 (Thu, 16 Jun 2016)$";
     }
 
     /**
@@ -116,5 +116,14 @@ public class ACE4000Inbound extends ACE4000 implements BinaryInboundDeviceProtoc
     @Override
     public void initComChannel(ComChannel comChannel) {
         setAce4000Connection(new ACE4000Connection(comChannel, this, true));
+    }
+
+    /**
+     * No configured serial number available at this point (we're still discovering the device)
+     * Return the serial number that was received from the device instead.
+     */
+    @Override
+    public String getConfiguredSerialNumber() {
+        return getSerialNumber();
     }
 }
