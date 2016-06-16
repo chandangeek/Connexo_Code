@@ -36,8 +36,7 @@ Ext.define('Wss.view.LoggingPage', {
                     flex: 1,
                     items: {
                         xtype: 'wss-logging-setup',
-                        router: me.router,
-                        margin: '0 0 0 100'
+                        router: me.router
                     }
                 }
             ]

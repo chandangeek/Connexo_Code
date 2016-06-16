@@ -1,4 +1,4 @@
-Ext.define('WSS.model.Log', {
+Ext.define('Wss.model.Log', {
     extend: 'Ext.data.Model',
     requires: ['Uni.DateTime'],
     fields: [

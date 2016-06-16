@@ -25,7 +25,10 @@ Ext.define('Wss.view.Grid', {
             {
                 header: Uni.I18n.translate('general.type', 'WSS', 'Type'),
                 dataIndex: 'direction',
-                flex: 1
+                flex: 1,
+                renderer: function (value) {
+                    return value.displayValue;
+                },
             },
             {
                 header: Uni.I18n.translate('general.webservice', 'WSS', 'Webservice'),
