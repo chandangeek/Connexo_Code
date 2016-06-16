@@ -100,7 +100,7 @@ Ext.define('Mdc.filemanagement.controller.FileManagement', {
                     deviceTypeId: deviceTypeId,
                     fileManagementEnabled: deviceType.get('fileManagementEnabled')
                 });
-                me.getEditForm().loadRecord(deviceType);
+                view.down('files-devicetype-edit-specs-form').loadRecord(deviceType);
                 me.fromEditForm = true;
                 me.deviceTypeId = deviceTypeId;
                 view.setLoading(true);
