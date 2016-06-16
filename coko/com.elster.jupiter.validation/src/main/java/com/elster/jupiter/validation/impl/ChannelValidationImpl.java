@@ -33,11 +33,11 @@ final class ChannelValidationImpl implements ChannelValidation {
     ChannelValidationImpl() {
     }
 
-    ChannelValidationImpl init(ChannelsContainerValidation meterActivationValidation, Channel channel) {
-        if (!channel.getChannelsContainer().equals(meterActivationValidation.getChannelsContainer())) {
+    ChannelValidationImpl init(ChannelsContainerValidation channelsContainerValidation, Channel channel) {
+        if (!channel.getChannelsContainer().equals(channelsContainerValidation.getChannelsContainer())) {
             throw new IllegalArgumentException();
         }
-        this.meterActivationValidation.set(meterActivationValidation);
+        this.meterActivationValidation.set(channelsContainerValidation);
         this.channelId = channel.getId();
         this.channel = channel;
         this.lastChecked = minLastChecked();

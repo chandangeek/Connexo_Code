@@ -77,6 +77,7 @@ class ChannelsContainerValidationImpl implements ChannelsContainerValidation {
     @Override
     public ChannelValidationImpl addChannelValidation(Channel channel) {
         ChannelValidationImpl channelValidation = new ChannelValidationImpl().init(this, channel);
+        // It is possible that channel is a wrapper on persisted entity (for example AggregatedChannelImpl), so use the channelId!
         Condition condition = Where.where("channelId").isEqualTo(channel.getId()).and(Where.where("meterActivationValidation.obsoleteTime").isNull());
         dataModel.query(ChannelValidation.class, ChannelsContainerValidation.class).select(condition).stream()
                 .map(ChannelValidation::getLastChecked)

@@ -3,6 +3,7 @@ package com.elster.jupiter.validation.impl;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointFilter;
@@ -24,7 +25,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class DataValidationTaskExecutor implements TaskExecutor {
@@ -135,44 +135,27 @@ public class DataValidationTaskExecutor implements TaskExecutor {
                         .filter(Optional::isPresent)
                         .map(Optional::get)
                         .forEach(effectiveMetrologyConfiguration -> {
+                            // Validate inputs
+                            effectiveMetrologyConfiguration.getUsagePoint().getCurrentMeterActivations()
+                                    .stream()
+                                    .map(MeterActivation::getChannelsContainer)
+                                    .forEach(channelsContainer -> {
+                                        try (TransactionContext transactionContext = transactionService.getContext()) {
+                                            validationService.validate(channelsContainer);
+                                            transactionContext.commit();
+                                        }
+                                    });
+                            // Validate outputs
                             effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract).ifPresent(channelsContainer -> {
                                 try (TransactionContext transactionContext = transactionService.getContext()) {
                                     validationService.validate(channelsContainer);
                                     transactionContext.commit();
                                 }
-                                transactionService.execute(VoidTransaction.of(() -> MessageSeeds.USAGE_POINT_TASK_VALIDATED_SUCCESFULLY.log(logger, thesaurus, effectiveMetrologyConfiguration.getUsagePoint()
-                                        .getMRID(), occurrence.getStartDate().get())));
                             });
+                            transactionService.execute(VoidTransaction.of(() -> MessageSeeds.USAGE_POINT_TASK_VALIDATED_SUCCESFULLY.log(logger, thesaurus, effectiveMetrologyConfiguration.getUsagePoint()
+                                    .getMRID(), occurrence.getStartDate().get())));
                         });
                 break;
-        }
-    }
-
-    private LoggingExceptions loggingExceptions(Logger logger, Runnable runnable) {
-        return new LoggingExceptions(runnable, logger);
-    }
-
-    private class LoggingExceptions implements Runnable {
-
-        private final Runnable decorated;
-        private final Logger logger;
-
-        private LoggingExceptions(Runnable decorated, Logger logger) {
-            this.decorated = decorated;
-            this.logger = logger;
-        }
-
-        @Override
-        public void run() {
-            try {
-                decorated.run();
-            } catch (RuntimeException e) {
-                try (TransactionContext context = transactionService.getContext()) {
-                    logger.log(Level.SEVERE, e.getLocalizedMessage(), e);
-                    context.commit();
-                }
-                throw e;
-            }
         }
     }
 }
