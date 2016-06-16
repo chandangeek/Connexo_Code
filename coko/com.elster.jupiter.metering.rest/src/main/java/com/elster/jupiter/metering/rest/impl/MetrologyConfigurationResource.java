@@ -3,7 +3,6 @@ package com.elster.jupiter.metering.rest.impl;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
-import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.Formula;
@@ -11,6 +10,7 @@ import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.config.MetrologyConfigurationUpdater;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
@@ -31,13 +31,14 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.Arrays;
-import java.util.Collections;
+import javax.ws.rs.core.SecurityContext;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -81,6 +82,15 @@ public class MetrologyConfigurationResource {
         return PagedInfoList.fromPagedList("metrologyConfigurations", metrologyConfigurationsInfos, queryParameters);
     }
 
+    @GET
+    @Path("/{id}")
+    @RolesAllowed({Privileges.Constants.VIEW_METROLOGY_CONFIGURATION, Privileges.Constants.ADMINISTER_METROLOGY_CONFIGURATION})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public MetrologyConfigurationInfo getMetrologyConfiguration(@PathParam("id") long id) {
+        UsagePointMetrologyConfiguration metrologyConfiguration = resourceHelper.findMetrologyConfiguration(id);
+        return metrologyConfigurationInfoFactory.asInfo(metrologyConfiguration);
+    }
+
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -93,34 +103,51 @@ public class MetrologyConfigurationResource {
                 .notEmpty(info.readingTypes, "readingTypes")
                 .validate();
 
-        ServiceCategory serviceCategory = meteringService.getServiceCategory(Arrays.stream(ServiceKind.values())
-                .filter(kind -> kind.name().equals(info.serviceCategory.id))
-                .findFirst()
-                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.SERVICE_CATEGORY_NOT_FOUND)))
-                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.SERVICE_CATEGORY_NOT_FOUND));
+        ServiceCategory serviceCategory = resourceHelper.findServiceCategory(info.serviceCategory);
         UsagePointMetrologyConfiguration metrologyConfiguration = metrologyConfigurationService.newUsagePointMetrologyConfiguration(info.name, serviceCategory)
                 .withDescription(info.description).create();
 
-        MetrologyPurpose purpose = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
-                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEFAULT_METROLOGY_PURPOSE_NOT_FOUND));
-        MeterRole meterRoleDefault = metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey())
-                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEFAULT_METER_ROLE_NOT_FOUND));
-
-        metrologyConfiguration.addMeterRole(meterRoleDefault);
-
-        info.readingTypes.stream().forEach(readingTypeInfo -> {
-            ReadingType readingType = meteringService.findReadingTypes(Collections.singletonList(readingTypeInfo.mRID)).stream().findFirst()
-                    .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.READING_TYPE_NOT_FOUND));
-            FullySpecifiedReadingTypeRequirement fullySpecifiedReadingTypeRequirement = metrologyConfiguration.newReadingTypeRequirement(readingType.getFullAliasName())
-                    .withMeterRole(meterRoleDefault)
-                    .withReadingType(readingType);
-            ReadingTypeDeliverableBuilder builder = metrologyConfiguration.newReadingTypeDeliverable(readingType.getFullAliasName(), readingType, Formula.Mode.AUTO);
-            ReadingTypeDeliverable deliverable = builder.build(builder.requirement(fullySpecifiedReadingTypeRequirement));
-            MetrologyContract metrologyContract = metrologyConfiguration.addMetrologyContract(purpose);
-            metrologyContract.addDeliverable(deliverable);
-        });
+        setReadingTypes(metrologyConfiguration, resourceHelper.findReadingTypes(info.readingTypes), false);
 
         return Response.status(Response.Status.CREATED).entity(metrologyConfigurationInfoFactory.asInfo(metrologyConfiguration)).build();
+    }
+
+    @PUT
+    @Path("/{id}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTER_METROLOGY_CONFIGURATION})
+    @Transactional
+    public Response updateMetrologyConfiguration(@PathParam("id") long id, MetrologyConfigurationInfo info, @Context SecurityContext securityContext) {
+        new RestValidationBuilder()
+                .notEmpty(info.name, "name")
+                .notEmpty(info.serviceCategory, "serviceCategory")
+                .notEmpty(info.readingTypes, "readingTypes")
+                .validate();
+
+        UsagePointMetrologyConfiguration metrologyConfiguration = resourceHelper.findAndLockMetrologyConfiguration(info);
+        MetrologyConfigurationUpdater metrologyConfigurationUpdater = metrologyConfiguration.startUpdate();
+
+        metrologyConfigurationUpdater
+                .setName(info.name)
+                .setDescription(info.description);
+
+        if (!metrologyConfiguration.isActive()) {
+            metrologyConfigurationUpdater.setServiceCategory(resourceHelper.findServiceCategory(info.serviceCategory));
+            setReadingTypes(metrologyConfiguration, resourceHelper.findReadingTypes(info.readingTypes), true);
+        }
+
+        metrologyConfigurationUpdater.complete();
+
+        if (info.status != null && !metrologyConfiguration.getStatus().getId().equals(info.status.id)) {
+            if (metrologyConfiguration.isActive()) {
+                metrologyConfiguration.deactivate();
+            } else {
+                metrologyConfiguration.activate();
+            }
+        }
+
+        return Response.ok().entity(metrologyConfigurationInfoFactory.asInfo(metrologyConfiguration)).build();
     }
 
     @DELETE
@@ -138,5 +165,32 @@ public class MetrologyConfigurationResource {
         metrologyConfiguration.delete();
 
         return Response.status(Response.Status.OK).build();
+    }
+
+    private void setReadingTypes(UsagePointMetrologyConfiguration metrologyConfiguration, List<ReadingType> readingTypes, boolean isUpdate) {
+        MetrologyPurpose purpose = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEFAULT_METROLOGY_PURPOSE_NOT_FOUND));
+        MeterRole meterRoleDefault = metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey())
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEFAULT_METER_ROLE_NOT_FOUND));
+
+        if (isUpdate) {
+            metrologyConfiguration.getDeliverables().stream().forEach(deliverable -> {
+                metrologyConfiguration.getContracts().forEach(metrologyContract -> metrologyContract.removeDeliverable(deliverable));
+                metrologyConfiguration.removeReadingTypeDeliverable(deliverable);
+            });
+            metrologyConfiguration.getRequirements().stream().forEach(metrologyConfiguration::removeReadingTypeRequirement);
+        } else {
+            metrologyConfiguration.addMeterRole(meterRoleDefault);
+        }
+
+        readingTypes.stream().forEach(readingType -> {
+            FullySpecifiedReadingTypeRequirement fullySpecifiedReadingTypeRequirement = metrologyConfiguration.newReadingTypeRequirement(readingType.getFullAliasName())
+                    .withMeterRole(meterRoleDefault)
+                    .withReadingType(readingType);
+            ReadingTypeDeliverableBuilder builder = metrologyConfiguration.newReadingTypeDeliverable(readingType.getFullAliasName(), readingType, Formula.Mode.AUTO);
+            ReadingTypeDeliverable deliverable = builder.build(builder.requirement(fullySpecifiedReadingTypeRequirement));
+            MetrologyContract metrologyContract = metrologyConfiguration.addMetrologyContract(purpose);
+            metrologyContract.addDeliverable(deliverable);
+        });
     }
 }
