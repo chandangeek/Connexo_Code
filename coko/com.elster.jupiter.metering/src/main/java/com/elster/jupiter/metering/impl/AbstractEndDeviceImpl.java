@@ -537,7 +537,7 @@ abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> impleme
 
     @Override
     public Optional<SpatialCoordinates> getSpatialCoordinates() {
-        return Optional.of(spatialCoordinates);
+        return spatialCoordinates == null ? Optional.empty() : Optional.of(spatialCoordinates);
     }
 
     @Override

@@ -617,7 +617,7 @@ public class UsagePointImpl implements UsagePoint {
 
     @Override
     public Optional<SpatialCoordinates> getSpatialCooridnates() {
-        return Optional.of(spatialCoordinates);
+        return spatialCoordinates == null ? Optional.empty() : Optional.of(spatialCoordinates);
     }
 
     @Override
