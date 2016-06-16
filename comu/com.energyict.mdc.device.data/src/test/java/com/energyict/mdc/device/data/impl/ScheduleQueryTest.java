@@ -1,5 +1,8 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.util.sql.Fetcher;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImplIT;
 import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
@@ -9,15 +12,11 @@ import com.energyict.mdc.engine.config.OnlineComServer;
 import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
 
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.util.sql.Fetcher;
-
 import java.time.Instant;
 import java.util.Calendar;
 import java.util.Iterator;
 
-import org.junit.*;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -56,7 +55,8 @@ public class ScheduleQueryTest extends ConnectionTaskImplIT {
 
     private OutboundComPort createOutboundComPort() {
         OnlineComServer.OnlineComServerBuilder<? extends OnlineComServer> onlineComServerBuilder = inMemoryPersistence.getEngineConfigurationService().newOnlineComServerBuilder();
-        onlineComServerBuilder.name("ComServer");
+        String name = "ComServer";
+        onlineComServerBuilder.name(name);
         onlineComServerBuilder.storeTaskQueueSize(1);
         onlineComServerBuilder.storeTaskThreadPriority(1);
         onlineComServerBuilder.changesInterPollDelay(TimeDuration.minutes(5));
@@ -64,6 +64,9 @@ public class ScheduleQueryTest extends ConnectionTaskImplIT {
         onlineComServerBuilder.schedulingInterPollDelay(TimeDuration.minutes(1));
         onlineComServerBuilder.serverLogLevel(ComServer.LogLevel.DEBUG);
         onlineComServerBuilder.numberOfStoreTaskThreads(2);
+        onlineComServerBuilder.serverName(name);
+        onlineComServerBuilder.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
+        onlineComServerBuilder.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
         final OnlineComServer onlineComServer = onlineComServerBuilder.create();
         OutboundComPort.OutboundComPortBuilder outboundComPortBuilder = onlineComServer.newOutboundComPort("ComPort", 1);
         outboundComPortBuilder.comPortType(ComPortType.TCP);
@@ -74,7 +77,8 @@ public class ScheduleQueryTest extends ConnectionTaskImplIT {
 
     private OutboundComPort createComPortInOtherComPortPool() {
         OnlineComServer.OnlineComServerBuilder<? extends OnlineComServer> onlineComServerBuilder = inMemoryPersistence.getEngineConfigurationService().newOnlineComServerBuilder();
-        onlineComServerBuilder.name("ComServer");
+        String name = "ComServer";
+        onlineComServerBuilder.name(name);
         onlineComServerBuilder.storeTaskQueueSize(1);
         onlineComServerBuilder.storeTaskThreadPriority(1);
         onlineComServerBuilder.changesInterPollDelay(TimeDuration.minutes(5));
@@ -82,6 +86,9 @@ public class ScheduleQueryTest extends ConnectionTaskImplIT {
         onlineComServerBuilder.schedulingInterPollDelay(TimeDuration.minutes(1));
         onlineComServerBuilder.serverLogLevel(ComServer.LogLevel.DEBUG);
         onlineComServerBuilder.numberOfStoreTaskThreads(2);
+        onlineComServerBuilder.serverName(name);
+        onlineComServerBuilder.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
+        onlineComServerBuilder.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
         final OnlineComServer onlineComServer = onlineComServerBuilder.create();
         OutboundComPort.OutboundComPortBuilder outboundComPortBuilder = onlineComServer.newOutboundComPort("ComPort", 1);
         outboundComPortBuilder.comPortType(ComPortType.TCP);

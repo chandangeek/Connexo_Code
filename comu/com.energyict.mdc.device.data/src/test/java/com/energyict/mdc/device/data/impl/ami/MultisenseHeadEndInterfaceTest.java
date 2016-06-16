@@ -118,29 +118,29 @@ public class MultisenseHeadEndInterfaceTest {
     }
 
     @Test
-    public void getURLForEndDevice(){
+    public void getURLForEndDevice() {
         Optional<URL> url = headEndInterface.getURLForEndDevice(endDevice);
-        if(url.isPresent()){
-            assertTrue(url.get().toString().equals(uri + "/devices/"+mRid));
-        }else{
+        if (url.isPresent()) {
+            assertTrue(url.get().toString().equals(uri + "/devices/" + mRid));
+        } else {
             throw new AssertionError("URL not found");
         }
     }
 
     @Test
-    public void getDeviceCapabilities(){
+    public void getDeviceCapabilities() {
         EndDeviceCapabilities endDeviceCapabilities = headEndInterface.getCapabilities(endDevice);
         AtomicInteger count = new AtomicInteger(0);
         Stream.of(EndDeviceControlTypeMapping.values()).forEach(type -> {
-                    if (type.getEndDeviceControlTypeMRID().startsWith(3 + ".")
-                            || type.getEndDeviceControlTypeMRID().startsWith("0.")
-                            || type.getEndDeviceControlTypeMRID().startsWith("*.")) {
-                        count.incrementAndGet();
-                    }
-                });
+            if (type.getEndDeviceControlTypeMRID().startsWith(3 + ".")
+                    || type.getEndDeviceControlTypeMRID().startsWith("0.")
+                    || type.getEndDeviceControlTypeMRID().startsWith("*.")) {
+                count.incrementAndGet();
+            }
+        });
 
         assertTrue(endDeviceCapabilities.getSupportedControlTypes().size() == count.get());
-        assertTrue(endDeviceCapabilities.getConfiguredReadingTypes().size()==1);
+        assertTrue(endDeviceCapabilities.getConfiguredReadingTypes().size() == 1);
         assertTrue(endDeviceCapabilities.getConfiguredReadingTypes().get(0).equals(readingType));
     }
 }

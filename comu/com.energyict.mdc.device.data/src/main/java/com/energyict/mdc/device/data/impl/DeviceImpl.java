@@ -112,6 +112,7 @@ import com.energyict.mdc.device.data.impl.configchange.ServerSecurityPropertySer
 import com.energyict.mdc.device.data.impl.constraintvalidators.DeviceConfigurationIsPresentAndActive;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueComTaskScheduling;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueMrid;
+import com.energyict.mdc.device.data.impl.constraintvalidators.ValidOverruledAttributes;
 import com.energyict.mdc.device.data.impl.constraintvalidators.ValidSecurityProperties;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.impl.security.ServerDeviceForValidation;
@@ -206,6 +207,7 @@ import static java.util.stream.Collectors.toList;
 @UniqueMrid(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_DEVICE_MRID + "}")
 @UniqueComTaskScheduling(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_COMTASK + "}")
 @ValidSecurityProperties(groups = {Save.Update.class})
+@ValidOverruledAttributes(groups = {Save.Update.class})
 public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDeviceForValidation {
 
     private static final BigDecimal maxMultiplier = BigDecimal.valueOf(Integer.MAX_VALUE);
@@ -1435,6 +1437,24 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return meterHasData;
     }
 
+    @Override
+    public void setProtocolProperty(String name, Object value) {
+        Optional<PropertySpec> optionalPropertySpec = getPropertySpecForProperty(name);
+        if (optionalPropertySpec.isPresent()) {
+            String propertyValue = optionalPropertySpec.get().getValueFactory().toStringValue(value);
+            boolean notUpdated = !updatePropertyIfExists(name, propertyValue);
+            if (notUpdated) {
+                addDeviceProperty(optionalPropertySpec, propertyValue);
+            }
+            if (getId() > 0) {
+                dataModel.touch(this);
+            }
+        } else {
+            throw DeviceProtocolPropertyException.propertyDoesNotExistForDeviceProtocol(name, this.getDeviceProtocolPluggableClass()
+                    .getDeviceProtocol(), this, thesaurus, MessageSeeds.DEVICE_PROPERTY_NOT_ON_DEVICE_PROTOCOL);
+        }
+    }
+
     private List<ProfileStatus.Flag> getFlagsFromProfileStatus(ProfileStatus profileStatus) {
         List<ProfileStatus.Flag> flags = new ArrayList<>();
         for (ProfileStatus.Flag flag : ProfileStatus.Flag.values()) {
@@ -2644,7 +2664,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                         } else {
                             Meter.MeterConfigurationBuilder newMeterConfigBuilder = koreMeter.startingConfigurationOn(updateInstant);
                             getDeviceConfiguration().getRegisterSpecs().stream().filter(spec -> spec instanceof NumericalRegisterSpec)
-                                    .map(numeriaclSpec -> ((NumericalRegisterSpec) numeriaclSpec)).forEach(registerSpec -> {
+                                    .map(numericalRegisterSpec -> ((NumericalRegisterSpec) numericalRegisterSpec)).forEach(registerSpec -> {
                                 Meter.MeterReadingTypeConfigurationBuilder meterReadingTypeConfigurationBuilder = newMeterConfigBuilder.configureReadingType(registerSpec.getReadingType());
                                 if (registerWeNeedToUpdate(registerSpec) && overruledOverflowValue != null) {
                                     meterReadingTypeConfigurationBuilder.withOverflowValue(overruledOverflowValue);
@@ -2681,7 +2701,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             if (currentOverruledObisCodeIsNotTheCorrectOne || currentlyNoOverruledObisCodeAlthoughRequested) {
                 DeviceImpl.this.addReadingTypeObisCodeUsage(register.getReadingType(), overruledObisCode);
             }
-            DeviceImpl.this.save(); //just to make sure we increase the version
+
+            DeviceImpl.this.save(); //do validation and make sure the version increases
         }
 
         private boolean registerWeNeedToUpdate(RegisterSpec registerSpec) {
@@ -2793,7 +2814,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             if (currentOverruledObisCodeIsNotTheCorrectOne || currentlyNoOverruledObisCodeAlthoughRequested) {
                 DeviceImpl.this.addReadingTypeObisCodeUsage(channel.getReadingType(), overruledObisCode);
             }
-            DeviceImpl.this.save(); //just to make sure we increase the version
+            DeviceImpl.this.save(); //do validation and make sure version increases
         }
 
         private boolean channelWeNeedToUpdate(ChannelSpec channelSpec) {
@@ -3129,10 +3150,12 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return this.getDeviceConfiguration().getProtocolDialectConfigurationPropertiesList();
     }
 
+
     @Override
     public boolean hasSecurityProperties(SecurityPropertySet securityPropertySet) {
         return this.hasSecurityProperties(clock.instant(), securityPropertySet);
     }
+
 
     @Override
     public boolean securityPropertiesAreValid() {
@@ -3195,6 +3218,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return getListMeterAspect(this::getOpenIssuesForMeter);
     }
 
+
     @Override
     public State getState() {
         return this.getState(this.clock.instant()).get();
@@ -3231,6 +3255,22 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     @Override
+    public List<DeviceLifeCycleChangeEvent> getDeviceLifeCycleChangeEvents() {
+        // Merge the StateTimeline with the list of change events from my DeviceType.
+        Deque<StateTimeSlice> stateTimeSlices = new LinkedList<>(this.getStateTimeline().getSlices());
+        Deque<com.energyict.mdc.device.config.DeviceLifeCycleChangeEvent> deviceTypeChangeEvents = new LinkedList<>(this.getDeviceTypeLifeCycleChangeEvents());
+        List<DeviceLifeCycleChangeEvent> changeEvents = new ArrayList<>();
+        boolean notReady;
+        do {
+            DeviceLifeCycleChangeEvent newEvent = this.newEventForMostRecent(stateTimeSlices, deviceTypeChangeEvents);
+            changeEvents.add(newEvent);
+            notReady = !stateTimeSlices.isEmpty() || !deviceTypeChangeEvents.isEmpty();
+        } while (notReady);
+        return changeEvents;
+    }
+
+
+    @Override
     public long getVersion() {
         return version;
     }
@@ -3239,4 +3279,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     public Instant getCreateTime() {
         return createTime;
     }
+
+
 }

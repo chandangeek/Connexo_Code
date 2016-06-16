@@ -81,8 +81,6 @@ public class EndDeviceCommandImpl implements EndDeviceCommand {
     }
 
 
-
-
     @Activate
     public void activate() {
         System.out.println("Activating EndDevice Command");
@@ -125,7 +123,6 @@ public class EndDeviceCommandImpl implements EndDeviceCommand {
                     .setDefaultValue(value)
                     .finish();
             argumentSpecs.set(argumentSpecs.indexOf(propertySpec), newPropertySpec);
-
 
 
         }
