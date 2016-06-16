@@ -41,8 +41,8 @@ public class FirmwareUpgrade extends AbstractRequest<OfflineDeviceMessage, Colle
         CollectedMessage collectedMessage = messageExecutor.createCollectedMessage(getInput());
         if (isFailedRequest(RequestType.Firmware, trackingId)) {
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-            collectedMessage.setFailureInformation(ResultType.ConfigurationError, messageExecutor.createMessageFailedIssue(getInput(), "Firmware upgrade failed, meter returned NACK." + getReasonDescription()));
-            collectedMessage.setDeviceProtocolInformation("Firmware upgrade failed, meter returned NACK.");
+            collectedMessage.setFailureInformation(ResultType.ConfigurationError, messageExecutor.createMessageFailedIssue(getInput(), "Firmware upgrade failed, meter returned NACK. " + getReasonDescription()));
+            collectedMessage.setDeviceProtocolInformation("Firmware upgrade failed, meter returned NACK. " + getReasonDescription());
         } else {
             //If no nak has been received, assume that the command was successful. The meter does not send confirmation.
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);

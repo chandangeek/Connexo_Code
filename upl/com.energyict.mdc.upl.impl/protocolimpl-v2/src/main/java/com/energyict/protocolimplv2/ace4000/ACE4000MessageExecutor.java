@@ -9,8 +9,10 @@ import com.energyict.mdc.protocol.tasks.support.DeviceLoadProfileSupport;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineLoadProfile;
 import com.energyict.mdw.offline.OfflineLogBook;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocol.LogBookReader;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.ace4000.requests.*;
@@ -91,7 +93,7 @@ public class ACE4000MessageExecutor {
 
     public Integer sendConfigurationMessage(OfflineDeviceMessage pendingMessage) {
 
-        if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.SendShortDisplayMessage)){
+        if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.SendShortDisplayMessage)) {
             sendDisplayMessage(pendingMessage, 1);
         } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.SendLongDisplayMessage)) {
             sendDisplayMessage(pendingMessage, 2);
@@ -132,7 +134,7 @@ public class ACE4000MessageExecutor {
         ace4000.getObjectFactory().sendLoadProfileConfiguration(enable, intervalInMinutes, maxNumberOfRecords);
     }
 
-    private CollectedMessage readProfileData(OfflineDeviceMessage pendingMessage){
+    private CollectedMessage readProfileData(OfflineDeviceMessage pendingMessage) {
 
         String fromDateString = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.fromDateAttributeName).getDeviceMessageAttributeValue();
         String toDateString = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.toDateAttributeName).getDeviceMessageAttributeValue();
@@ -184,14 +186,18 @@ public class ACE4000MessageExecutor {
         return MdcManager.getCollectedDataFactory().createCollectedMessageWithLoadProfileData(new DeviceMessageIdentifierById(message.getDeviceMessageId()), collectedLoadProfile);
     }
 
-    private CollectedMessage readEvents(OfflineDeviceMessage pendingMessage){
-        try{
+    private CollectedMessage readEvents(OfflineDeviceMessage pendingMessage) {
+        try {
             ReadMeterEvents readMeterEventsRequest = new ReadMeterEvents(ace4000);
             OfflineLogBook offlineLogBook = ace4000.getOfflineDevice().getAllOfflineLogBooks().get(0);
-            List<CollectedLogBook> collectedLogBooks = readMeterEventsRequest.request(new LogBookIdentifierById(offlineLogBook.getLogBookId(), offlineLogBook.getOfflineLogBookSpec().getDeviceObisCode()));
-            CollectedMessage collectedMessage = createCollectedMessageWithLogbookData(pendingMessage, collectedLogBooks.get(0));
-            return collectedMessage;
-        }catch (Exception e){
+
+            ObisCode logBookDeviceObisCode = offlineLogBook.getOfflineLogBookSpec().getDeviceObisCode();
+            LogBookIdentifierById logBookIdentifierById = new LogBookIdentifierById(offlineLogBook.getLogBookId(), logBookDeviceObisCode);
+            LogBookReader logBookReader = new LogBookReader(logBookDeviceObisCode, new Date(), logBookIdentifierById, pendingMessage.getDeviceSerialNumber());
+
+            List<CollectedLogBook> collectedLogBooks = readMeterEventsRequest.request(logBookReader);
+            return createCollectedMessageWithLogbookData(pendingMessage, collectedLogBooks.get(0));
+        } catch (Exception e) {
             createMessageFailedIssue(pendingMessage, "Read events request failed");
         }
         return null;
@@ -205,12 +211,12 @@ public class ACE4000MessageExecutor {
         String message = "";
         if (mode == 1) {
             message = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.SHORT_DISPLAY_MESSAGE).getDeviceMessageAttributeValue();
-            if(message.length() > 8){
+            if (message.length() > 8) {
                 createMessageFailedIssue(pendingMessage, "Short display message failed, invalid arguments");
             }
-        } else if(mode == 2) {
+        } else if (mode == 2) {
             message = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.LONG_DISPLAY_MESSAGE).getDeviceMessageAttributeValue();
-            if(message.length() > 1024){
+            if (message.length() > 1024) {
                 createMessageFailedIssue(pendingMessage, "Long display message failed, invalid arguments");
             }
         }

@@ -4,6 +4,7 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.channels.ip.InboundIpConnectionType;
+import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.meterdata.*;
@@ -62,7 +63,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
     }
 
     public String getVersion() {
-        return "$Date: 2016-06-16 15:48:28 +0200 (Thu, 16 Jun 2016)$";
+        return "$Date: 2016-06-16 18:17:52 +0200 (Thu, 16 Jun 2016)$";
     }
 
     @Override
@@ -101,7 +102,8 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
                 result.addAll(readLoadProfileRequest.request(loadProfileReader));
             } else {    //Slave device
                 CollectedLoadProfile collectedLoadProfile = CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedLoadProfile(new LoadProfileIdentifierById(loadProfileReader.getLoadProfileId(), loadProfileReader.getProfileObisCode()));
-                collectedLoadProfile.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning("MBus slave device doesn't support load profiles"));
+                Issue<LoadProfileReader> warning = MdcManager.getIssueFactory().createWarning(loadProfileReader, "loadProfileXIssue", loadProfileReader.getProfileObisCode(), "MBus slave device doesn't support load profiles");
+                collectedLoadProfile.setFailureInformation(ResultType.NotSupported, warning);
                 result.add(collectedLoadProfile);
             }
         }
@@ -272,11 +274,11 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
         LogBookReader logBookReader = logBooks.get(0);
         if (isMaster(logBookReader.getMeterSerialNumber())) {
             ReadMeterEvents readMeterEventsRequest = new ReadMeterEvents(this);
-            return readMeterEventsRequest.request(logBookReader.getLogBookIdentifier());
+            return readMeterEventsRequest.request(logBookReader);
         } else {
             List<CollectedLogBook> result = new ArrayList<>();
             CollectedLogBook deviceLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(logBookReader.getLogBookIdentifier());
-            deviceLogBook.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning("MBus slave device doesn't support events"));
+            deviceLogBook.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(logBookReader, "logBookXissue", logBookReader.getLogBookObisCode().toString(), "MBus slave device doesn't support events"));
             result.add(deviceLogBook);
             return result;
         }

@@ -11,6 +11,7 @@ import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.MeteringWarehouseFactory;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
+import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.ace4000.ACE4000MessageExecutor;
 import com.energyict.protocolimplv2.ace4000.ACE4000Outbound;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.CodeTableBase64Builder;
@@ -24,11 +25,11 @@ import java.util.List;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.CODE_TABLE_ID;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.contactorActivationDateAttributeName;
 
-public class ACE4000Messaging implements DeviceMessageSupport{
+public class ACE4000Messaging implements DeviceMessageSupport {
 
     protected final SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
     protected final SimpleDateFormat europeanDateTimeFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-    private List supportedMessages;
+    private List<DeviceMessageSpec> supportedMessages;
     private ACE4000MessageExecutor messageExecutor;
     private ACE4000Outbound protocol;
 
@@ -80,7 +81,7 @@ public class ACE4000Messaging implements DeviceMessageSupport{
 
     @Override
     public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
-        return null;
+        return MdcManager.getCollectedDataFactory().createEmptyCollectedMessageList();  //Nothing to do here
     }
 
     @Override
@@ -89,18 +90,19 @@ public class ACE4000Messaging implements DeviceMessageSupport{
             return dateFormat.format((Date) messageAttribute);
         } else if (propertySpec.getName().equals(DeviceMessageConstants.ACTIVATION_DATE) ||
                 propertySpec.getName().equals(DeviceMessageConstants.fromDateAttributeName) ||
-                propertySpec.getName().equals(DeviceMessageConstants.toDateAttributeName)){
+                propertySpec.getName().equals(DeviceMessageConstants.toDateAttributeName)) {
             return europeanDateTimeFormat.format((Date) messageAttribute);
         } else if (propertySpec.getName().equals(contactorActivationDateAttributeName)) {
             return String.valueOf(((Date) messageAttribute).getTime());
         } else if (propertySpec.getName().equals(CODE_TABLE_ID)) {
             Environment.getDefault();
-            Code codeTable = mw().getCodeFactory().find((Integer)messageAttribute);
+            Code codeTable = mw().getCodeFactory().find((Integer) messageAttribute);
             return CodeTableBase64Builder.getXmlStringFromCodeTable(codeTable);
         } else {
             return messageAttribute.toString();     //Works for BigDecimal, boolean and (hex)string property specs
         }
     }
+
     @Override
     public String prepareMessageContext(OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
         return "";

@@ -122,20 +122,20 @@ public class ReadRegisters extends AbstractRequest<List<OfflineRegister>, List<C
     @Override
     protected void parseResult() {
         //Check if all necessary registers are received
-        boolean receivedAllNecessaryRegisters = false;
+        boolean receivedAllNecessaryRegisters = true;
         if (mustReceiveBilling) {
-            receivedAllNecessaryRegisters = receivedBillingRegisters();
+            receivedAllNecessaryRegisters &= receivedBillingRegisters();
         }
         if (mustReceiveCurrent) {
-            receivedAllNecessaryRegisters = receivedCurrentRegisters();
+            receivedAllNecessaryRegisters &= receivedCurrentRegisters();
         }
         if (mustReceiveInstant) {
-            receivedAllNecessaryRegisters = receivedInstantRegisters();
+            receivedAllNecessaryRegisters &= receivedInstantRegisters();
         }
 
-        //Retry if necessary, return results if all registers were received
+        //Retry if necessary, only return results if all registers were ACK'ed/NACK'ed
         if (receivedAllNecessaryRegisters) {
-            createResult("Requested register but the meter responded with NACK." + getReasonDescription());  //E.g. billing data not available
+            createResult("Requested register but the meter responded with NACK. " + getReasonDescription());  //E.g. billing data not available
         }
     }
 
@@ -157,7 +157,7 @@ public class ReadRegisters extends AbstractRequest<List<OfflineRegister>, List<C
             }
             if (!receivedRegister) {
                 CollectedRegister defaultDeviceRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(new RegisterDataIdentifierByObisCodeAndDevice(rtuRegister.getObisCode(), getAce4000().getDeviceIdentifier()));
-                defaultDeviceRegister.setFailureInformation(ResultType.DataIncomplete, MdcManager.getIssueFactory().createWarning(rtuRegister.getObisCode(), msg, rtuRegister.getObisCode()));
+                defaultDeviceRegister.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueFactory().createWarning(rtuRegister.getObisCode(), "registerXissue", rtuRegister.getObisCode(), msg));
                 result.add(defaultDeviceRegister);
             }
         }
