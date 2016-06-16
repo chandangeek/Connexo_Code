@@ -1,5 +1,8 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -20,13 +23,9 @@ import com.energyict.mdc.protocol.api.tasks.support.UsesLegacyMessageConverter;
 import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.util.exception.MessageSeed;
-
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -74,7 +73,7 @@ public abstract class AbstractDeviceMessageConverterAdapter implements DeviceMes
      */
     private boolean messagesAreSupported = true;
 
-    private Map<MessageEntry, OfflineDeviceMessage> messageEntries = new HashMap<>();
+    private Map<MessageEntry, OfflineDeviceMessage> messageEntries = new LinkedHashMap<>(); // Specific chosen for a LinkedHashMap, cause the order in which messages are added is important & should be kept
 
     protected AbstractDeviceMessageConverterAdapter(DataModel dataModel, MessageAdapterMappingFactory messageAdapterMappingFactory, ProtocolPluggableService protocolPluggableService, IssueService issueService, CollectedDataFactory collectedDataFactory) {
         super();
