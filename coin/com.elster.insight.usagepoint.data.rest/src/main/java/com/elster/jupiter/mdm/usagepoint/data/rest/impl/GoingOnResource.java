@@ -57,8 +57,8 @@ public class GoingOnResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public Response getGoingOn(@PathParam("mRID") String mrid, @BeanParam JsonQueryParameters queryParameters, @Context SecurityContext securityContext, @HeaderParam("authorization") String auth) {
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    public Response getGoingOn(@PathParam("mRID") String mrid, @BeanParam JsonQueryParameters queryParameters, @Context SecurityContext securityContext, @HeaderParam("authorization") String auth, @HeaderParam("X-CONNEXO-APPLICATION-NAME") String appKey) {
 
         UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mrid);
 
@@ -74,7 +74,7 @@ public class GoingOnResource {
                 .map(goingOnInfoFactory::toGoingOnInfo)
                 .collect(Collectors.toList());
 
-        List<GoingOnInfo> processInstances = bpmService.getRunningProcesses(auth, filterFor(usagePoint))
+        List<GoingOnInfo> processInstances = bpmService.getRunningProcesses(auth, filterFor(usagePoint), appKey)
                 .processes
                 .stream()
                 .map(goingOnInfoFactory::toGoingOnInfo)
@@ -89,7 +89,7 @@ public class GoingOnResource {
     }
 
     private String filterFor(UsagePoint usagePoint) {
-        return "?variableid=usagePointId&variablevalue=" + usagePoint.getMRID();
+            return "?variableid=usagePointId&variablevalue=" + usagePoint.getMRID();
     }
 
     private EnumSet<DefaultState> nonFinalStates() {
