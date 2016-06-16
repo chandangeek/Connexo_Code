@@ -27,8 +27,9 @@ public enum TableSpecs {
                     .add();
             table.column("active").bool().map(EndPointConfigurationImpl.Fields.ACTIVE.fieldName()).add();
             table.column("authenticated")
-                    .type("CHAR(1)")
-                    .conversion(ColumnConversion.CHAR2BOOLEAN)
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2ENUM)
+                    .notNull()
                     .map(EndPointConfigurationImpl.Fields.AUTHENTICATED.fieldName())
                     .add();
             table.column("httpCompression")

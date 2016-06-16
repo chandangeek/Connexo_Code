@@ -90,7 +90,7 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
         TRACEFILE("traceFile"),
         HTTP_COMPRESSION("httpCompression"),
         SCHEMA_VALIDATION("schemaValidation"),
-        AUTHENTICATED("authenticated"),
+        AUTHENTICATED("authenticationMethod"),
         ACTIVE("active");
 
         private final String javaFieldName;

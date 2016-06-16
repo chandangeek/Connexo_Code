@@ -1,6 +1,7 @@
 package com.elster.jupiter.soap.whiteboard.cxf.impl;
 
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
 
 import javax.inject.Inject;
@@ -11,7 +12,7 @@ import java.time.Clock;
  */
 public final class InboundEndPointConfigurationImpl extends EndPointConfigurationImpl implements InboundEndPointConfiguration {
 
-    private boolean authenticated;
+    private EndPointAuthentication authenticationMethod;
 
     @Inject
     public InboundEndPointConfigurationImpl(DataModel dataModel, Clock clock) {
@@ -19,12 +20,12 @@ public final class InboundEndPointConfigurationImpl extends EndPointConfiguratio
     }
 
     @Override
-    public boolean isAuthenticated() {
-        return authenticated;
+    public EndPointAuthentication getAuthenticationMethod() {
+        return authenticationMethod;
     }
 
     @Override
-    public void setAuthenticated(boolean authenticated) {
-        this.authenticated = authenticated;
+    public void setAuthenticationMethod(EndPointAuthentication authenticated) {
+        this.authenticationMethod = authenticated;
     }
 }

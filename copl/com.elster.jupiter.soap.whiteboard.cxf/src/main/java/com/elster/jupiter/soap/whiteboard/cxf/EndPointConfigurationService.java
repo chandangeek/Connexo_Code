@@ -89,7 +89,7 @@ public interface EndPointConfigurationService {
 
         InboundEndPointConfigBuilder httpCompression();
 
-        InboundEndPointConfigBuilder authenticated();
+        InboundEndPointConfigBuilder setAuthenticationMethod(EndPointAuthentication authenticationMethod);
 
         InboundEndPointConfigBuilder schemaValidation();
 

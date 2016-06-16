@@ -10,6 +10,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.TransactionRequired;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.EventType;
@@ -186,8 +187,8 @@ public class EndPointConfigurationServiceImpl implements EndPointConfigurationSe
         }
 
         @Override
-        public InboundEndPointConfigBuilder authenticated() {
-            instance.setAuthenticated(true);
+        public InboundEndPointConfigBuilder setAuthenticationMethod(EndPointAuthentication endPointAuthentication) {
+            instance.setAuthenticationMethod(endPointAuthentication);
             return this;
         }
 
