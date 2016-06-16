@@ -1,16 +1,20 @@
 package com.energyict.mdc.engine;
 
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.DeviceTypePurpose;
 import com.energyict.mdc.device.config.LoadProfileSpec;
+import com.energyict.mdc.device.config.NumericalRegisterSpec;
+import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
+import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
@@ -122,6 +126,11 @@ public final class DeviceCreator implements DeviceBuilderForTesting {
     }
 
     @Override
+    public DeviceBuilderForTesting registerType(RegisterType registerType) {
+        return state.registerType(registerType);
+    }
+
+    @Override
     public Device create(Instant when) {
         this.device = state.create(when);
         this.state = COMPLETE;
@@ -132,6 +141,7 @@ public final class DeviceCreator implements DeviceBuilderForTesting {
 
         private String name;
         private String mRDI;
+        private RegisterType registerType;
         protected List<LoadProfileType> loadProfileTypes = new ArrayList<>();
         private List<LogBookType> logBookTypes = new ArrayList<>();
         private String deviceTypeName = DEVICE_TYPE_NAME;
@@ -150,6 +160,12 @@ public final class DeviceCreator implements DeviceBuilderForTesting {
         @Override
         public DeviceBuilderForTesting mRDI(String mRDI) {
             this.mRDI = mRDI;
+            return DeviceCreator.this;
+        }
+
+        @Override
+        public DeviceBuilderForTesting registerType(RegisterType registerType) {
+            this.registerType = registerType;
             return DeviceCreator.this;
         }
 
@@ -234,6 +250,9 @@ public final class DeviceCreator implements DeviceBuilderForTesting {
                     ChannelSpec.ChannelSpecBuilder channelSpecBuilder = deviceConfigurationBuilder.newChannelSpec(channelType, loadProfileSpecBuilder);
                     channelSpecBuilder.overflow(BigDecimal.valueOf(CHANNEL_OVERFLOW_VALUE));
                 }
+            }
+            if (this.registerType != null) {
+                deviceConfigurationBuilder.newNumericalRegisterSpec(registerType).add();
             }
             for (LogBookType logBookType : logBookTypes) {
                 deviceConfigurationBuilder.newLogBookSpec(logBookType);

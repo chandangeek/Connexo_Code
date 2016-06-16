@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.MeterReading;
@@ -28,6 +29,7 @@ import com.google.common.collect.Range;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.Optional;
 
 import org.junit.*;
@@ -129,6 +131,51 @@ public class CollectedRegisterListDeviceCommandTest {
         Assert.assertEquals(collectedRegister.getFromTime(), registerValue.getTimePeriod().filter(Range::hasLowerBound).map(Range::lowerEndpoint).orElse(null));
         Assert.assertEquals(collectedRegister.getToTime(), registerValue.getTimePeriod().filter(Range::hasUpperBound).map(Range::upperEndpoint).orElse(null));
     }
+//
+//    @Test
+//    public void testUnlinkedDataLogger(){
+//
+//        Device dataLogger = this.deviceCreator
+//                .name("DataLogger")
+//                .mRDI("unLinkedDataLogger")
+//                .loadProfileTypes(this.loadProfileType)
+//                .deviceTypeName(DeviceCreator.DATA_LOGGER_DEVICE_TYPE_NAME)
+//                .deviceConfigName(DeviceCreator.DATA_LOGGER_DEVICE_CONFIGURATION_NAME)
+//                .dataLoggerEnabled(true)
+//                .create(Instant.ofEpochMilli(fromClock.getTime()));
+//        LoadProfile loadProfile = dataLogger.getLoadProfiles().get(0);
+//        CollectedLoadProfile collectedLoadProfile =
+//                enhanceCollectedLoadProfile(loadProfile, createMockLoadProfileWithTwoChannelsAndDataInFuture(loadProfile.getInterval()));
+//        OfflineLoadProfile offlineLoadProfile = createMockedOfflineLoadProfile(dataLogger);
+//
+//        final ComServerDAO comServerDAO = mockComServerDAOWithOfflineLoadProfile(offlineLoadProfile);
+//
+//        freezeClock(currentTimeStamp);
+//
+//        // Assert That the channels are not linked
+//        assertThat(getTopologyService().getSlaveChannel(loadProfile.getChannels().get(0), fromClock.toInstant()).isPresent()).isFalse();
+//        assertThat(getTopologyService().getSlaveChannel(loadProfile.getChannels().get(1), fromClock.toInstant()).isPresent()).isFalse();
+//
+//        assertThat(collectedLoadProfile.getCollectedIntervalData()).overridingErrorMessage("The collected data should contain {0} intervals to start", 6).hasSize(6);
+//
+//        PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(getClock(), getMdcReadingTypeUtilService(), comServerDAO);
+//        PreStoreLoadProfile.CompositePreStoredLoadProfile preStoredLoadProfile = (PreStoreLoadProfile.CompositePreStoredLoadProfile) loadProfilePreStorer.preStore(collectedLoadProfile);
+//
+//        assertThat(preStoredLoadProfile.getPreStoreResult()).isEqualTo(PreStoreLoadProfile.PreStoredLoadProfile.PreStoreResult.OK);
+//        assertThat(preStoredLoadProfile.getIntervalBlocks()).hasSize(2);
+//
+//        // All data should be 'Prestored' on the data logger channel
+//        assertThat(preStoredLoadProfile.getPreStoredLoadProfiles()).hasSize(1);
+//        PreStoreLoadProfile.PreStoredLoadProfile singlePreStoredLoadProfile = preStoredLoadProfile.getPreStoredLoadProfiles().get(0);
+//        assertThat(singlePreStoredLoadProfile.getDeviceIdentifier().findDevice().getId()).isEqualTo(dataLogger.getId());
+//
+//        assertThat(singlePreStoredLoadProfile.getIntervalBlocks()).hasSize(2);
+//        assertThat(singlePreStoredLoadProfile.getIntervalBlocks().get(0).getReadingTypeCode()).isEqualTo(loadProfile.getChannels().get(0).getReadingType().getMRID());
+//        assertThat(singlePreStoredLoadProfile.getIntervalBlocks().get(1).getReadingTypeCode()).isEqualTo(loadProfile.getChannels().get(1).getReadingType().getMRID());
+//        assertThat(singlePreStoredLoadProfile.getIntervalBlocks().get(0).getIntervals()).hasSize(4);
+//        assertThat(singlePreStoredLoadProfile.getIntervalBlocks().get(1).getIntervals()).hasSize(4);
+//
+//    }
 
     @Test
     public void testToJournalMessageDescription() {
