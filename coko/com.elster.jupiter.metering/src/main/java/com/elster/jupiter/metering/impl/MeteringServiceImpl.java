@@ -48,6 +48,8 @@ import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointFilter;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.impl.aggregation.CalculatedReadingRecordFactory;
@@ -654,7 +656,10 @@ public class MeteringServiceImpl implements ServerMeteringService, TranslationKe
         if (filter.isAccountabilityOnly()) {
             condition = condition.and(hasAccountability());
         }
-        return DefaultFinder.of(UsagePoint.class, condition, dataModel);
+        if (filter.getMetrologyContract() != null) {
+            condition = condition.and(where("metrologyConfiguration.metrologyConfiguration").isEqualTo(filter.getMetrologyContract().getMetrologyConfiguration()));
+        }
+        return DefaultFinder.of(UsagePoint.class, condition, dataModel, EffectiveMetrologyConfigurationOnUsagePoint.class, MetrologyConfiguration.class);
     }
 
     @Override
