@@ -14,6 +14,7 @@ import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.firmware.FirmwareVersionBuilder;
 import com.energyict.mdc.firmware.FirmwareVersionFilter;
+
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
@@ -116,7 +117,7 @@ public class FirmwareVersionResource {
 
         FirmwareVersionBuilder firmwareVersionBuilder = firmwareService.newFirmwareVersion(deviceType, firmwareVersion, firmwareStatus, firmwareType);
         byte[] firmwareFile = loadFirmwareFile(fileInputStream);
-        setExpectedFirmwareSize(firmwareVersionBuilder, firmwareFile);;
+        setExpectedFirmwareSize(firmwareVersionBuilder, firmwareFile);
         FirmwareVersion version = firmwareVersionBuilder.create();
         setFirmwareFile(version, firmwareFile);
 
@@ -276,12 +277,15 @@ public class FirmwareVersionResource {
     }
 
     private long parseEntityVersion(InputStream is) {
+        long entityVersion;
         String versionAsString = getStringValueFromStream(is);
         try {
-            return Long.parseLong(versionAsString);
+            entityVersion = Long.parseLong(versionAsString);
         } catch (NumberFormatException ex) {
+            // if we fail to parse it, reset it to zero
+            entityVersion = 0;
         }
-        return 0;
+        return entityVersion;
     }
 
     private String getStringValueFromStream(InputStream is) {
