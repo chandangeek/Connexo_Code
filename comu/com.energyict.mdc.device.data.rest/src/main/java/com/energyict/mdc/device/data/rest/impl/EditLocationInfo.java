@@ -77,32 +77,34 @@ public class EditLocationInfo {
                     .flatMap(Collection::stream)
                     .filter(Objects::nonNull)
                     .collect(Collectors.joining(", "));
-
-            List<String> templateElementsNames = meteringService.getLocationTemplate().getTemplateElementsNames().stream()
-                    .filter(m -> !m.equalsIgnoreCase("locale")).collect(Collectors.toList());
-            PropertyInfo[] infoProperties = new PropertyInfo[templateElementsNames.size()];
-            List<String> locationList = locationMembers.stream()
-                    .flatMap(Collection::stream).collect(Collectors.toList());
-
-            for (int i = 0; i < templateElementsNames.size(); i++) {
-                Boolean isMandatory = false;
-                String field = templateElementsNames.get(i);
-                isMandatory = meteringService.getLocationTemplate().getTemplateMembers().stream()
-                        .filter(member -> member.getName().equalsIgnoreCase(field))
-                        .collect(Collectors.toList()).
-                                get(0).isMandatory();
-
-                StringValidationRules stringValidationRules = new StringValidationRules();
-                stringValidationRules.setMinLength(0);
-                stringValidationRules.setMaxLength(80);
-                infoProperties[i] = new PropertyInfo(thesaurus.getString(templateElementsNames.get(i), templateElementsNames.get(i)),
-                        templateElementsNames.get(i),
-                        new PropertyValueInfo<>(locationList.size() > i ? locationList.get(i) : null, "", false),
-                        new PropertyTypeInfo(BasicPropertyTypes.TEXT, stringValidationRules, null, null),
-                        isMandatory);
-            }
-            properties = infoProperties;
         }
+
+        List<String> templateElementsNames = meteringService.getLocationTemplate().getTemplateElementsNames().stream()
+                .filter(m -> !m.equalsIgnoreCase("locale")).collect(Collectors.toList());
+        PropertyInfo[] infoProperties = new PropertyInfo[templateElementsNames.size()];
+        List<String> locationList = new ArrayList<>();
+        if (location.isPresent()) {
+            locationList = location.get().format().stream()
+                    .flatMap(Collection::stream).collect(Collectors.toList());
+        }
+        for (int i = 0; i < templateElementsNames.size(); i++) {
+            Boolean isMandatory = false;
+            String field = templateElementsNames.get(i);
+            isMandatory = meteringService.getLocationTemplate().getTemplateMembers().stream()
+                    .filter(member -> member.getName().equalsIgnoreCase(field))
+                    .collect(Collectors.toList()).
+                            get(0).isMandatory();
+
+            StringValidationRules stringValidationRules = new StringValidationRules();
+            stringValidationRules.setMinLength(0);
+            stringValidationRules.setMaxLength(80);
+            infoProperties[i] = new PropertyInfo(thesaurus.getString(templateElementsNames.get(i), templateElementsNames.get(i)),
+                    templateElementsNames.get(i),
+                    new PropertyValueInfo<>(locationList.size() > i ? locationList.get(i) : null, "", false),
+                    new PropertyTypeInfo(BasicPropertyTypes.TEXT, stringValidationRules, null, null),
+                    isMandatory);
+        }
+        properties = infoProperties;
     }
 
 
