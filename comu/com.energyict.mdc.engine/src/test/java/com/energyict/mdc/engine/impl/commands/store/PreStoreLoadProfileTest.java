@@ -13,6 +13,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierForAlreadyKnownDeviceByMrID;
+import com.energyict.mdc.device.data.impl.identifiers.LoadProfileIdentifierForAlreadyKnownLoadProfile;
 import com.energyict.mdc.engine.DeviceCreator;
 import com.energyict.mdc.engine.impl.commands.offline.OfflineLoadProfileImpl;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
@@ -121,7 +122,9 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
 
         this.loadProfileType = createLoadProfileType();
         when(this.identificationService.createDeviceIdentifierForAlreadyKnownDevice(any())).thenAnswer(invocationOnMock -> new DeviceIdentifierForAlreadyKnownDeviceByMrID((Device) invocationOnMock.getArguments()[0]));
+        when(this.identificationService.createLoadProfileIdentifierForAlreadyKnownLoadProfile(any())).thenAnswer(invocationOnMock -> new LoadProfileIdentifierForAlreadyKnownLoadProfile((LoadProfile) invocationOnMock.getArguments()[0]));;
         when(this.serviceProvider.topologyService()).thenReturn(getTopologyService());
+        when(this.serviceProvider.identificationService()).thenReturn(this.identificationService);
     }
 
     private LoadProfileType createLoadProfileType() {

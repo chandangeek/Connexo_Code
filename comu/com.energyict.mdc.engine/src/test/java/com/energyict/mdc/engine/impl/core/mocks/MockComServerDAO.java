@@ -473,7 +473,7 @@ public class MockComServerDAO implements ComServerDAO {
 
     @Override
     public void updateLastReadingFor(LoadProfileIdentifier loadProfileIdentifier, Instant lastReading) {
-
+         // I am her
     }
 
     @Override
