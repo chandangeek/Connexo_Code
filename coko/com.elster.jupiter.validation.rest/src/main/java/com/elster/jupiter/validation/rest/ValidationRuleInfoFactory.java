@@ -1,5 +1,6 @@
 package com.elster.jupiter.validation.rest;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
@@ -47,7 +48,7 @@ public class ValidationRuleInfoFactory {
         if (validationRule.getRuleSet().getQualityCodeSystem() != null) {
             IdWithNameInfo applicationInfo = new IdWithNameInfo();
             applicationInfo.id = validationRule.getRuleSet().getQualityCodeSystem().name();
-            applicationInfo.name = applicationInfo.id.equals("MDC") ? "MultiSense" : "Insight";
+            applicationInfo.name = validationRule.getRuleSet().getQualityCodeSystem() == QualityCodeSystem.MDC ? "MultiSense" : "Insight";
             validationRuleInfo.application = applicationInfo;
         }
         return validationRuleInfo;
