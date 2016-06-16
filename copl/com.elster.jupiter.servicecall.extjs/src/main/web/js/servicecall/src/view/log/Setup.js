@@ -11,7 +11,6 @@ Ext.define('Scs.view.log.Setup', {
 
         me.content = {
             xtype: 'panel',
-            ui: 'large',
             title: Uni.I18n.translate('general.logging', 'SCS', 'Logging'),
             items: [
                 {
