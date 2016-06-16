@@ -7,6 +7,7 @@ Ext.define('Cps.customattributesets.view.AttributesTopFilter', {
     filters: [
         {
             type: 'combobox',
+            itemId: 'cps-attribute-set-type-combo',
             minWidth: 200,
             dataIndex: 'domainExtension',
             emptyText: Uni.I18n.translate('customattributesets.topfilter.customattributetypeempty', 'CPS', 'Custom attribute set type'),
