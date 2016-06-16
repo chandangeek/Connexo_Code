@@ -143,16 +143,14 @@ public class MessagesCommandImpl extends SimpleComCommand implements MessagesCom
         this.device.getAllPendingDeviceMessages().stream()
                 .sorted(getDeviceMessageComparatorBasedOnReleaseDate())
                 .forEach(offlineDeviceMessage -> {
-                    if (offlineDeviceMessage.getDeviceId() == comTaskExecution.getDevice()
-                            .getId()) {   //Only add the messages of the master or the slave, not both
+                    if (offlineDeviceMessage.getDeviceId() == comTaskExecution.getDevice().getId()) {   //Only add the messages of the master or the slave, not both
                         this.updatePendingDeviceMessage(offlineDeviceMessage);
                     }
                 });
         this.device.getAllSentDeviceMessages().stream()
                 .sorted(getDeviceMessageComparatorBasedOnReleaseDate())
                 .forEach(offlineDeviceMessage -> {
-                    if (offlineDeviceMessage.getDeviceId() == comTaskExecution.getDevice()
-                            .getId()) {   //Only add the messages of the master or the slave, not both
+                    if (offlineDeviceMessage.getDeviceId() == comTaskExecution.getDevice().getId()) {   //Only add the messages of the master or the slave, not both
                         this.updateSentDeviceMessage(offlineDeviceMessage);
                     }
                 });
