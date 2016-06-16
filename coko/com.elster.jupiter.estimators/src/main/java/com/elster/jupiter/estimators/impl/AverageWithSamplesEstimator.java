@@ -8,6 +8,7 @@ import com.elster.jupiter.estimation.BulkAdvanceReadingsSettings;
 import com.elster.jupiter.estimation.Estimatable;
 import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.estimation.EstimationResult;
+import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.estimation.NoneAdvanceReadingsSettings;
 import com.elster.jupiter.estimation.ReadingTypeAdvanceReadingsSettings;
 import com.elster.jupiter.estimators.AbstractEstimator;
@@ -16,6 +17,7 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
@@ -42,7 +44,6 @@ import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -59,7 +60,7 @@ import static java.math.RoundingMode.HALF_UP;
 /**
  * Created by igh on 25/03/2015.
  */
-public class AverageWithSamplesEstimator extends AbstractEstimator {
+class AverageWithSamplesEstimator extends AbstractEstimator {
 
     /**
      * Contains {@link TranslationKey}s for all the
@@ -70,7 +71,8 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
      */
     public enum TranslationKeys implements TranslationKey {
         MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS("averagewithsamples.maxNumberOfConsecutiveSuspects", "Max number of consecutive suspects"),
-        MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DESCRIPTION("averagewithsamples.maxNumberOfConsecutiveSuspects.description", "The maximum number of consecutive suspects that is allowed. If this amount is exceeded data is not estimated, but can be manually edited or estimated."),
+        MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DESCRIPTION("averagewithsamples.maxNumberOfConsecutiveSuspects.description",
+                "The maximum number of consecutive suspects that is allowed. If this amount is exceeded data is not estimated, but can be manually edited or estimated."),
         MIN_NUMBER_OF_SAMPLES("averagewithsamples.minNumberOfSamples", "Minimum samples"),
         MIN_NUMBER_OF_SAMPLES_DESCRIPTION("averagewithsamples.minNumberOfSamples.description", "The minimum amount of sample needed for estimation."),
         MAX_NUMBER_OF_SAMPLES("averagewithsamples.maxNumberOfSamples", "Maximum samples"),
@@ -80,7 +82,8 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
         RELATIVE_PERIOD("averagewithsamples.relativePeriod", "Relative period"),
         RELATIVE_PERIOD_DESCRIPTION("averagewithsamples.relativePeriod.description", "The number of samples you will find and be able to use for estimation."),
         ADVANCE_READINGS_SETTINGS("averagewithsamples.advanceReadingsSettings", "Use advance readings"),
-        ADVANCE_READINGS_SETTINGS_DESCRIPTION("averagewithsamples.advanceReadingsSettings.description", "Use other data than the channel’s own delta values to estimate suspect data.");
+        ADVANCE_READINGS_SETTINGS_DESCRIPTION("averagewithsamples.advanceReadingsSettings.description",
+                "Use other data than the channel’s own delta values to estimate suspect data.");
 
         private final String key;
         private final String defaultFormat;
@@ -89,7 +92,6 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
             this.key = key;
             this.defaultFormat = defaultFormat;
         }
-
 
         @Override
         public String getKey() {
@@ -100,10 +102,9 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
         public String getDefaultFormat() {
             return this.defaultFormat;
         }
-
     }
 
-    class SamplesComparator implements Comparator<BaseReadingRecord> {
+    private static class SamplesComparator implements Comparator<BaseReadingRecord> {
 
         private ZonedDateTime estimatableTime;
 
@@ -152,14 +153,18 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
     private RelativePeriod relativePeriod;
     private AdvanceReadingsSettings advanceReadingsSettings;
 
-    AverageWithSamplesEstimator(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, TimeService timeService) {
+    AverageWithSamplesEstimator(Thesaurus thesaurus, PropertySpecService propertySpecService,
+                                ValidationService validationService, MeteringService meteringService,
+                                TimeService timeService) {
         super(thesaurus, propertySpecService);
         this.validationService = validationService;
         this.meteringService = meteringService;
         this.timeService = timeService;
     }
 
-    AverageWithSamplesEstimator(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, TimeService timeService, Map<String, Object> properties) {
+    AverageWithSamplesEstimator(Thesaurus thesaurus, PropertySpecService propertySpecService,
+                                ValidationService validationService, MeteringService meteringService,
+                                TimeService timeService, Map<String, Object> properties) {
         super(thesaurus, propertySpecService, properties);
         this.validationService = validationService;
         this.meteringService = meteringService;
@@ -167,16 +172,16 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
     }
 
     @Override
-    public EstimationResult estimate(List<EstimationBlock> estimationBlocks) {
+    public EstimationResult estimate(List<EstimationBlock> estimationBlocks, QualityCodeSystem system) {
         List<EstimationBlock> remain = new ArrayList<>();
         List<EstimationBlock> estimated = new ArrayList<>();
+        Set<QualityCodeSystem> systems = Estimator.qualityCodeSystemsToTakeIntoAccount(system);
         for (EstimationBlock block : estimationBlocks) {
-
             try (LoggingContext context = initLoggingContext(block)) {
-                if (!isEstimatable(block)) {
+                if (!isEstimable(block)) {
                     remain.add(block);
                 } else {
-                    if (estimate(block)) {
+                    if (estimate(block, systems)) {
                         estimated.add(block);
                     } else {
                         remain.add(block);
@@ -192,6 +197,7 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
         return "Average with samples";
     }
 
+    @Override
     public void validateProperties(Map<String, Object> estimatorProperties) {
         Long maxSamples = null;
         Long minSamples = null;
@@ -202,7 +208,8 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
             if (property.getKey().equals(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS)) {
                 Long value = (Long) property.getValue();
                 if (value.intValue() < 1) {
-                    throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER_OF_CONSECUTIVE_SUSPECTS_SHOULD_BE_INTEGER_VALUE, MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS);
+                    throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER_OF_CONSECUTIVE_SUSPECTS_SHOULD_BE_INTEGER_VALUE,
+                            MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS);
                 }
             } else if (property.getKey().equals(ADVANCE_READINGS_SETTINGS)) {
                 Object settings = property.getValue();
@@ -350,7 +357,7 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
         return blockSizeOk;
     }
 
-    private boolean isEstimatable(EstimationBlock block) {
+    private boolean isEstimable(EstimationBlock block) {
         if (!canEstimate(block)) {
             return false;
         }
@@ -362,19 +369,18 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
         return true;
     }
 
-    private boolean estimate(EstimationBlock estimationBlock) {
+    private boolean estimate(EstimationBlock estimationBlock, Set<QualityCodeSystem> systems) {
         if (advanceReadingsSettings instanceof BulkAdvanceReadingsSettings) {
-            return estimateWithBulk(estimationBlock);
+            return estimateWithBulk(estimationBlock, systems);
         } else if (advanceReadingsSettings instanceof ReadingTypeAdvanceReadingsSettings) {
-            return estimateWithDeltas(estimationBlock);
+            return estimateWithDeltas(estimationBlock, systems);
         } else {
-            return estimateWithoutAdvances(estimationBlock);
+            return estimateWithoutAdvances(estimationBlock, systems);
         }
     }
 
-    private boolean estimateWithBulk(EstimationBlock estimationBlock) {
-        boolean estimationWithoutAdvances = estimateWithoutAdvances(estimationBlock);
-        if (!estimationWithoutAdvances) {
+    private boolean estimateWithBulk(EstimationBlock estimationBlock, Set<QualityCodeSystem> systems) {
+        if (!estimateWithoutAdvances(estimationBlock, systems)) {
             return false;
         }
         return calculateConsumptionUsingBulk(estimationBlock)
@@ -392,7 +398,6 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
                     return calculateConsumptionUsingBulk(estimationBlock.getChannel(), bulkReadingType, startInterval, endInterval);
                 })
                 .orElseGet(() -> {
-
                     String message = "Failed estimation with {rule}: Block {block} since the reading type {readingType} has no bulk reading type";
                     LoggingContext.get().info(getLogger(), message);
                     return Optional.empty();
@@ -426,19 +431,19 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
         return Optional.of(endQty.getValue().subtract(startQty.getValue()));
     }
 
-    private void rescaleEstimation(EstimationBlock estimationBlock, BigDecimal totalConsumption) {
+    private static void rescaleEstimation(EstimationBlock estimationBlock, BigDecimal totalConsumption) {
         BigDecimal factor = totalConsumption.divide(getTotalEstimatedConsumption(estimationBlock), 10, HALF_UP);
         estimationBlock.estimatables().stream()
                 .forEach(estimatable -> estimatable.setEstimation(estimatable.getEstimation().multiply(factor).setScale(6, HALF_UP)));
     }
 
-    private BigDecimal getTotalEstimatedConsumption(EstimationBlock estimationBlock) {
+    private static BigDecimal getTotalEstimatedConsumption(EstimationBlock estimationBlock) {
         return estimationBlock.estimatables().stream()
                 .map(Estimatable::getEstimation)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    private BigDecimal getTotalConsumption(List<? extends BaseReadingRecord> readings, ReadingType readingType, Map<Instant, BigDecimal> percentages) {
+    private static BigDecimal getTotalConsumption(List<? extends BaseReadingRecord> readings, ReadingType readingType, Map<Instant, BigDecimal> percentages) {
         return readings.stream()
                 .map(reading -> {
                     BigDecimal percentage = percentages.get(reading.getTimeStamp()).setScale(10, HALF_UP);
@@ -451,7 +456,7 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    private Optional<CimChannel> getCimChannel(EstimationBlock block, ReadingType readingType) {
+    private static Optional<CimChannel> getCimChannel(EstimationBlock block, ReadingType readingType) {
         for (Channel channel : block.getChannel().getMeterActivation().getChannels()) {
             if (channel.getReadingTypes().contains(readingType)) {
                 return channel.getCimChannel(readingType);
@@ -460,14 +465,13 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
         return Optional.empty();
     }
 
-    private boolean estimateWithDeltas(EstimationBlock estimationBlock) {
-        boolean estimationWithoutAdvances = estimateWithoutAdvances(estimationBlock);
-        if (!estimationWithoutAdvances) {
+    private boolean estimateWithDeltas(EstimationBlock estimationBlock, Set<QualityCodeSystem> systems) {
+        if (!estimateWithoutAdvances(estimationBlock, systems)) {
             return false;
         }
-        List<? extends Estimatable> esimatables = estimationBlock.estimatables();
-        Instant startInterval = esimatables.get(0).getTimestamp();
-        Instant endInterval = esimatables.get(esimatables.size() - 1).getTimestamp();
+        List<? extends Estimatable> estimables = estimationBlock.estimatables();
+        Instant startInterval = estimables.get(0).getTimestamp();
+        Instant endInterval = estimables.get(estimables.size() - 1).getTimestamp();
 
         ReadingType registerReadingType =
                 ((ReadingTypeAdvanceReadingsSettings) advanceReadingsSettings).getReadingType();
@@ -496,7 +500,7 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
         }
 
         CimChannel cimChannel = cimChannelFound.get();
-        if (!isValidReading(cimChannel, readingBefore)) {
+        if (!isValidReading(cimChannel, readingBefore, systems)) {
             String message = "Failed estimation with {rule}: Block {block} since the prior advance reading is suspect, estimated or overflow";
             LoggingContext.get().info(getLogger(), message);
             return false;
@@ -504,7 +508,7 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
 
         BaseReadingRecord readingAfter = readingsAfter.get(0);
 
-        if (!isValidReading(cimChannel, readingAfter)) {
+        if (!isValidReading(cimChannel, readingAfter, systems)) {
             String message = "Failed estimation with {rule}: Block {block} since the later advance reading is suspect, estimated or overflow";
             LoggingContext.get().info(getLogger(), message);
             return false;
@@ -516,13 +520,15 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
         CimChannel consumptionCimChannel = estimationBlock.getCimChannel();
 
         Range<Instant> preInterval = Range.openClosed(readingBefore.getTimeStamp(), estimationBlock.getChannel().getPreviousDateTime(startInterval));
-        if (hasSuspects(consumptionCimChannel, preInterval)) {
+        if (hasSuspects(consumptionCimChannel, preInterval, systems)) {
             String message = "Failed estimation with {rule}: Block {block} since there are other suspects between the advance readings";
             LoggingContext.get().info(getLogger(), message);
             return false;
         }
         List<Instant> instants = new ArrayList<>(estimationBlock.getChannel().toList(preInterval));
-        Map<Instant, BigDecimal> percentages = percentages(instants, readingBefore.getTimeStamp(), estimationBlock.getChannel().getPreviousDateTime(startInterval), estimationBlock.getChannel().getZoneId(), estimationBlock.getChannel().getIntervalLength().get());
+        Map<Instant, BigDecimal> percentages = percentages(instants, readingBefore.getTimeStamp(),
+                estimationBlock.getChannel().getPreviousDateTime(startInterval), estimationBlock.getChannel().getZoneId(),
+                estimationBlock.getChannel().getIntervalLength().get());
         BigDecimal consumptionBetweenPreviousRegisterReadingAndStartOfBlock = getTotalConsumption(
                 estimationBlock.getChannel().getReadings(preInterval), estimationBlock.getReadingType(), percentages);
 
@@ -533,12 +539,13 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
             instants.add(addedInstant);
             postInterval = Range.openClosed(endInterval, addedInstant);
         }
-        if (hasSuspects(consumptionCimChannel, postInterval)) {
+        if (hasSuspects(consumptionCimChannel, postInterval, systems)) {
             String message = "Failed estimation with {rule}: Block {block} since there are other suspects between the advance readings";
             LoggingContext.get().info(getLogger(), message);
             return false;
         }
-        percentages = percentages(instants, endInterval, readingAfter.getTimeStamp(), estimationBlock.getChannel().getZoneId(), estimationBlock.getChannel().getIntervalLength().get());
+        percentages = percentages(instants, endInterval, readingAfter.getTimeStamp(), estimationBlock.getChannel().getZoneId(),
+                estimationBlock.getChannel().getIntervalLength().get());
         BigDecimal consumptionBetweenEndOfBlockAndNextRegisterReading = getTotalConsumption(
                 estimationBlock.getChannel().getReadings(Range.openClosed(endInterval, lastOf(instants))), estimationBlock.getReadingType(), percentages);
 
@@ -555,17 +562,18 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
         return true;
     }
 
-    private boolean hasSuspects(CimChannel cimChannel, Range<Instant> preInterval) {
-        // TODO: estimation refactoring: decide here which system should be used (CXO-1443)
-        return !cimChannel.findReadingQualities(Collections.singleton(QualityCodeSystem.MDC), QualityCodeIndex.SUSPECT, preInterval, true).isEmpty();
+    private static boolean hasSuspects(CimChannel cimChannel, Range<Instant> interval, Set<QualityCodeSystem> systems) {
+        return !cimChannel
+                .findReadingQualities(systems, QualityCodeIndex.SUSPECT, interval, true)
+                .isEmpty();
     }
 
-    private Instant lastOf(List<Instant> instants) {
+    private static Instant lastOf(List<Instant> instants) {
         return instants.get(instants.size() - 1);
     }
 
-    private Map<Instant, BigDecimal> percentages(List<Instant> instants, Instant from, Instant to, ZoneId zoneId, TemporalAmount intervalLength) {
-        Map<Instant, BigDecimal> percentages = instants.stream().collect(Collectors.toMap(Function.<Instant>identity(), instant -> BigDecimal.ONE));
+    private static Map<Instant, BigDecimal> percentages(List<Instant> instants, Instant from, Instant to, ZoneId zoneId, TemporalAmount intervalLength) {
+        Map<Instant, BigDecimal> percentages = instants.stream().collect(Collectors.toMap(Function.identity(), instant -> BigDecimal.ONE));
         if (!instants.get(0).equals(from)) {
             Instant intervalEnd = instants.get(0);
             Instant intervalStart = ZonedDateTime.ofInstant(intervalEnd, zoneId).minus(intervalLength).toInstant();
@@ -583,24 +591,22 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
         return percentages;
     }
 
-    private boolean estimateWithoutAdvances(EstimationBlock estimationBlock) {
+    private boolean estimateWithoutAdvances(EstimationBlock estimationBlock, Set<QualityCodeSystem> systems) {
         for (Estimatable estimatable : estimationBlock.estimatables()) {
-            if (!estimateWithoutAdvances(estimationBlock, estimatable)) {
+            if (!estimateWithoutAdvances(estimationBlock, estimatable, systems)) {
                 return false;
             }
         }
         return true;
     }
 
-    private boolean estimateWithoutAdvances(EstimationBlock estimationBlock, Estimatable estimatable) {
+    private boolean estimateWithoutAdvances(EstimationBlock estimationBlock, Estimatable estimatable, Set<QualityCodeSystem> systems) {
         Instant timeToEstimate = estimatable.getTimestamp();
         Range<Instant> period = getPeriod(estimationBlock.getChannel(), timeToEstimate);
-        List<BaseReadingRecord> samples = getSamples(estimationBlock, timeToEstimate, period);
+        List<BaseReadingRecord> samples = getSamples(estimationBlock, timeToEstimate, period, systems);
         if (samples.size() < this.minNumberOfSamples.intValue()) {
-
             String message = "Failed estimation with {rule}: Block {block} since not enough samples are found.  Found {0} samples, requires {1} samples";
             LoggingContext.get().info(getLogger(), message, samples.size(), this.minNumberOfSamples.intValue());
-
             return false;
         } else {
             if (samples.size() > this.maxNumberOfSamples.intValue()) {
@@ -614,49 +620,46 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
             if (average.compareTo(BigDecimal.ZERO) >= 0 || allowNegativeValues) {
                 estimatable.setEstimation(average);
             } else {
-
                 String message = "Failed estimation with {rule}: Block {block} since no negative values are allowed.";
                 LoggingContext.get().info(getLogger(), message);
-
                 return false;
             }
         }
         return true;
     }
 
-    private List<BaseReadingRecord> getSamples(EstimationBlock estimationBlock, Instant estimatableTime, Range<Instant> period) {
-        List<BaseReadingRecord> records = estimationBlock.getChannel().getReadings(period);
-        List<BaseReadingRecord> samples = new ArrayList<>();
-        for (BaseReadingRecord record : records) {
-            if (isValidSample(estimationBlock, estimatableTime, record)) {
-                samples.add(record);
-            }
-        }
-        samples.sort(new SamplesComparator(estimatableTime, estimationBlock.getChannel().getZoneId()));
-        return samples;
+    private static List<BaseReadingRecord> getSamples(EstimationBlock estimationBlock, Instant estimableTime,
+                                                      Range<Instant> period, Set<QualityCodeSystem> systems) {
+        return estimationBlock.getChannel().getReadings(period).stream()
+                .filter(record -> isValidSample(estimationBlock, estimableTime, record, systems))
+                .sorted(new SamplesComparator(estimableTime, estimationBlock.getChannel().getZoneId()))
+                .collect(Collectors.toList());
     }
 
-    private boolean isValidSample(EstimationBlock estimationBlock, Instant estimatableTime, BaseReadingRecord record) {
+    private static boolean isValidSample(EstimationBlock estimationBlock, Instant estimableTime,
+                                         BaseReadingRecord record, Set<QualityCodeSystem> systems) {
         ZoneId zone = estimationBlock.getChannel().getZoneId();
-        return sameTimeOfWeek(ZonedDateTime.ofInstant(record.getTimeStamp(), zone), ZonedDateTime.ofInstant(estimatableTime, zone))
+        return sameTimeOfWeek(ZonedDateTime.ofInstant(record.getTimeStamp(), zone), ZonedDateTime.ofInstant(estimableTime, zone))
                 && record.getQuantity(estimationBlock.getReadingType()) != null
-                && ofRequiredQuality(estimationBlock, record.getTimeStamp())
-                && !estimatableTime.equals(record.getTimeStamp());
+                && ofRequiredQuality(estimationBlock, record.getTimeStamp(), systems)
+                && !estimableTime.equals(record.getTimeStamp());
     }
 
-    private boolean ofRequiredQuality(EstimationBlock estimationBlock, Instant timeStamp) {
-        // TODO: estimation refactoring: decide here which system should be used (CXO-1443)
-        return estimationBlock.getChannel().findReadingQualities(timeStamp).stream()
+    private static boolean ofRequiredQuality(EstimationBlock estimationBlock, Instant timeStamp, Set<QualityCodeSystem> systems) {
+        return estimationBlock.getCimChannel().findReadingQualities(timeStamp).stream()
                 .filter(ReadingQualityRecord::isActual)
-                .filter(readingQualityRecord -> readingQualityRecord.getReadingType().equals(estimationBlock.getReadingType()))
-                .noneMatch(either(ReadingQualityRecord::isSuspect)
-                        .or(ReadingQualityRecord::hasEstimatedCategory)
-                        .or(ReadingQualityRecord::hasEditCategory)
-                        .or(ReadingQualityRecord::isConfirmed));
+                .map(ReadingQualityRecord::getType)
+                .filter(readingQualityType -> systems.stream()
+                        .anyMatch(qcs -> qcs.ordinal() == readingQualityType.getSystemCode()))
+                .noneMatch(either(ReadingQualityType::isSuspect)
+                        .or(ReadingQualityType::hasEstimatedCategory)
+                        .or(ReadingQualityType::hasEditCategory)
+                        .or(ReadingQualityType::isConfirmed));
     }
 
-    private boolean sameTimeOfWeek(ZonedDateTime first, ZonedDateTime second) {
-        return first.getDayOfWeek().equals(second.getDayOfWeek()) && first.getLong(ChronoField.NANO_OF_DAY) == second.getLong(ChronoField.NANO_OF_DAY);
+    private static boolean sameTimeOfWeek(ZonedDateTime first, ZonedDateTime second) {
+        return first.getDayOfWeek().equals(second.getDayOfWeek())
+                && first.getLong(ChronoField.NANO_OF_DAY) == second.getLong(ChronoField.NANO_OF_DAY);
     }
 
     private Range<Instant> getPeriod(Channel channel, Instant referenceTime) {
@@ -669,14 +672,18 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
         }
     }
 
-    private boolean isValidReading(CimChannel advanceCimChannel, BaseReadingRecord readingToEvaluate) {
+    private static boolean isValidReading(CimChannel advanceCimChannel, BaseReadingRecord readingToEvaluate,
+                                          Set<QualityCodeSystem> systems) {
         return advanceCimChannel.findReadingQualities(readingToEvaluate.getTimeStamp()).stream()
                 .filter(ReadingQualityRecord::isActual)
+                .map(ReadingQualityRecord::getType)
+                .filter(readingQualityType -> systems.stream()
+                        .anyMatch(qcs -> qcs.ordinal() == readingQualityType.getSystemCode()))
                 .noneMatch(
-                        either(ReadingQualityRecord::isSuspect)
-                                .or(ReadingQualityRecord::hasEstimatedCategory)
-                                .or(readingQualityRecord -> readingQualityRecord.getType().qualityIndex().filter(QualityCodeIndex.OVERFLOWCONDITIONDETECTED::equals).isPresent())
+                        either(ReadingQualityType::isSuspect)
+                                .or(ReadingQualityType::hasEstimatedCategory)
+                                .or(readingQualityType -> readingQualityType.qualityIndex()
+                                        .filter(QualityCodeIndex.OVERFLOWCONDITIONDETECTED::equals).isPresent())
                 );
     }
-
 }

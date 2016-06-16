@@ -1,5 +1,6 @@
 package com.elster.jupiter.estimators.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.devtools.tests.fakes.LogRecorder;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.estimation.Estimatable;
@@ -99,7 +100,7 @@ public class ValueFillEstimatorTest {
         Estimator estimator = new ValueFillEstimator(thesaurus, propertySpecService, properties);
         estimator.init(LOGGER);
 
-        EstimationResult estimationResult = estimator.estimate(Collections.singletonList(estimationBlock));
+        EstimationResult estimationResult = estimator.estimate(Collections.singletonList(estimationBlock), QualityCodeSystem.NOTAPPLICABLE);
 
         assertThat(estimationResult.remainingToBeEstimated()).isEmpty();
         assertThat(estimationResult.estimated()).containsExactly(estimationBlock);
@@ -129,7 +130,7 @@ public class ValueFillEstimatorTest {
         Estimator estimator = new ValueFillEstimator(thesaurus, propertySpecService, properties);
         estimator.init(LOGGER);
 
-        EstimationResult estimationResult = estimator.estimate(Collections.singletonList(estimationBlock));
+        EstimationResult estimationResult = estimator.estimate(Collections.singletonList(estimationBlock), QualityCodeSystem.NOTAPPLICABLE);
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);

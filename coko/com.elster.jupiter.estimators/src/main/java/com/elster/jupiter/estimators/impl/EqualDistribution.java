@@ -14,11 +14,10 @@ import com.elster.jupiter.estimation.ReadingTypeAdvanceReadingsSettings;
 import com.elster.jupiter.estimators.AbstractEstimator;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.CimChannel;
-import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -49,9 +48,9 @@ import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.streams.Predicates.either;
 
-public class EqualDistribution extends AbstractEstimator implements Estimator {
-    public static final String MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS = TranslationKeys.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS.getKey();
-    public static final String ADVANCE_READINGS_SETTINGS = TranslationKeys.ADVANCE_READINGS_SETTINGS.getKey();
+class EqualDistribution extends AbstractEstimator implements Estimator {
+    static final String MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS = TranslationKeys.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS.getKey();
+    static final String ADVANCE_READINGS_SETTINGS = TranslationKeys.ADVANCE_READINGS_SETTINGS.getKey();
     private static final long MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE = 10L;
 
     /**
@@ -63,9 +62,11 @@ public class EqualDistribution extends AbstractEstimator implements Estimator {
      */
     public enum TranslationKeys implements TranslationKey {
         MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS("equaldistribution.maxNumberOfConsecutiveSuspects", "Max number of consecutive suspects"),
-        MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DESCRIPTION("equaldistribution.maxNumberOfConsecutiveSuspects.description", "The maximum number of consecutive suspects that is allowed. If this amount is exceeded data is not estimated, but can be manually edited or estimated."),
+        MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DESCRIPTION("equaldistribution.maxNumberOfConsecutiveSuspects.description",
+                "The maximum number of consecutive suspects that is allowed. If this amount is exceeded data is not estimated, but can be manually edited or estimated."),
         ADVANCE_READINGS_SETTINGS("equaldistribution.advanceReadingsSettings", "Use advance readings"),
-        ADVANCE_READINGS_SETTINGS_DESCRIPTION("equaldistribution.advanceReadingsSettings.description", "Use other data than the channel’s own delta values to estimate suspect data.");
+        ADVANCE_READINGS_SETTINGS_DESCRIPTION("equaldistribution.advanceReadingsSettings.description",
+                "Use other data than the channel’s own delta values to estimate suspect data.");
 
         private final String key;
         private final String defaultFormat;
@@ -74,7 +75,6 @@ public class EqualDistribution extends AbstractEstimator implements Estimator {
             this.key = key;
             this.defaultFormat = defaultFormat;
         }
-
 
         @Override
         public String getKey() {
@@ -85,7 +85,6 @@ public class EqualDistribution extends AbstractEstimator implements Estimator {
         public String getDefaultFormat() {
             return this.defaultFormat;
         }
-
     }
 
     private static final Set<String> SUPPORTED_APPLICATIONS = ImmutableSet.of("MDC", "INS");
@@ -93,12 +92,12 @@ public class EqualDistribution extends AbstractEstimator implements Estimator {
     private AdvanceReadingsSettings advanceReadingsSettings;
     private long maxNumberOfConsecutiveSuspects;
 
-    public EqualDistribution(Thesaurus thesaurus, PropertySpecService propertySpecService, MeteringService meteringService) {
+    EqualDistribution(Thesaurus thesaurus, PropertySpecService propertySpecService, MeteringService meteringService) {
         super(thesaurus, propertySpecService);
         this.meteringService = meteringService;
     }
 
-    public EqualDistribution(Thesaurus thesaurus, PropertySpecService propertySpecService, MeteringService meteringService, Map<String, Object> properties) {
+    EqualDistribution(Thesaurus thesaurus, PropertySpecService propertySpecService, MeteringService meteringService, Map<String, Object> properties) {
         super(thesaurus, propertySpecService, properties);
         this.meteringService = meteringService;
     }
@@ -122,11 +121,12 @@ public class EqualDistribution extends AbstractEstimator implements Estimator {
     }
 
     @Override
-    public EstimationResult estimate(List<EstimationBlock> estimationBlocks) {
+    public EstimationResult estimate(List<EstimationBlock> estimationBlocks, QualityCodeSystem system) {
         SimpleEstimationResult.EstimationResultBuilder builder = SimpleEstimationResult.builder();
+        Set<QualityCodeSystem> systems = Estimator.qualityCodeSystemsToTakeIntoAccount(system);
         estimationBlocks.forEach(block -> {
             try (LoggingContext context = initLoggingContext(block)) {
-                if (estimate(block)) {
+                if (estimate(block, systems)) {
                     builder.addEstimated(block);
                 } else {
                     builder.addRemaining(block);
@@ -136,14 +136,15 @@ public class EqualDistribution extends AbstractEstimator implements Estimator {
         return builder.build();
     }
 
-    private boolean estimate(EstimationBlock block) {
+    private boolean estimate(EstimationBlock block, Set<QualityCodeSystem> systems) {
         if (!canEstimate(block)) {
             return false;
         }
         if (BulkAdvanceReadingsSettings.INSTANCE.equals(advanceReadingsSettings)) {
-            return estimateUsingBulk(block);
+            return estimateUsingBulk(block, systems);
         } else if (advanceReadingsSettings instanceof ReadingTypeAdvanceReadingsSettings) {
-            return estimateUsingAdvances(block, ((ReadingTypeAdvanceReadingsSettings) advanceReadingsSettings).getReadingType());
+            return estimateUsingAdvances(block,
+                    ((ReadingTypeAdvanceReadingsSettings) advanceReadingsSettings).getReadingType(), systems);
         }
         return false;
     }
@@ -170,20 +171,17 @@ public class EqualDistribution extends AbstractEstimator implements Estimator {
         return blockSizeOk;
     }
 
-
-    private boolean estimateUsingAdvances(EstimationBlock block, ReadingType readingType) {
-        Optional<CimChannel> advanceCimChannel = getAdvanceCimChannel(block, readingType);
-        if (!advanceCimChannel.isPresent()) {
-            String message = "Failed estimation with {rule}: Block {block} since the meter does not have readings for the reading type {0}";
-            LoggingContext.get().info(getLogger(), message, readingType.getMRID());
-            return false;
-        }
-        return advanceCimChannel
-                .map(cimChannel -> estimateUsingAdvances(block, cimChannel))
-                .orElse(false);
+    private boolean estimateUsingAdvances(EstimationBlock block, ReadingType readingType, Set<QualityCodeSystem> systems) {
+        return getAdvanceCimChannel(block, readingType)
+                .map(cimChannel -> estimateUsingAdvances(block, cimChannel, systems))
+                .orElseGet(() -> {
+                    String message = "Failed estimation with {rule}: Block {block} since the meter does not have readings for the reading type {0}";
+                    LoggingContext.get().info(getLogger(), message, readingType.getMRID());
+                    return false;
+                });
     }
 
-    private Optional<CimChannel> getAdvanceCimChannel(EstimationBlock block, ReadingType readingType) {
+    private static Optional<CimChannel> getAdvanceCimChannel(EstimationBlock block, ReadingType readingType) {
         return block.getChannel().getMeterActivation().getChannels().stream()
                 .filter(channel -> channel.getReadingTypes().contains(readingType))
                 .map(channel -> channel.getCimChannel(readingType))
@@ -191,13 +189,15 @@ public class EqualDistribution extends AbstractEstimator implements Estimator {
                 .findFirst();
     }
 
-    private boolean estimateUsingAdvances(EstimationBlock block, CimChannel advanceCimChannel) {
+    private boolean estimateUsingAdvances(EstimationBlock block, CimChannel advanceCimChannel, Set<QualityCodeSystem> systems) {
         Instant before = block.getChannel().getPreviousDateTime(block.estimatables().get(0).getTimestamp());
         return advanceCimChannel.getReadingsOnOrBefore(before, 1).stream()
                 .findFirst()
-                .flatMap(priorReading -> advanceCimChannel.getReadings(Range.atLeast(lastOf(block.estimatables()).getTimestamp())).stream()
-                        .findFirst()
-                        .map(laterReading -> estimateUsingAdvances(block, priorReading, laterReading, advanceCimChannel.getReadingType(), advanceCimChannel)))
+                .flatMap(priorReading ->
+                        advanceCimChannel.getReadings(Range.atLeast(lastOf(block.estimatables()).getTimestamp())).stream()
+                                .findFirst()
+                                .map(laterReading -> estimateUsingAdvances(block, priorReading, laterReading,
+                                        advanceCimChannel.getReadingType(), advanceCimChannel, systems)))
                 .orElseGet(() -> {
                     String message = "Failed estimation with {rule}: Block {block} since there was no prior and later advance reading.";
                     LoggingContext.get().info(getLogger(), message);
@@ -205,8 +205,9 @@ public class EqualDistribution extends AbstractEstimator implements Estimator {
                 });
     }
 
-    private boolean estimateUsingAdvances(EstimationBlock block, BaseReadingRecord priorReading, BaseReadingRecord laterReading, ReadingType advanceReadingType, CimChannel advanceCimChannel) {
-        if (!canEstimate(block, priorReading, laterReading, advanceReadingType, advanceCimChannel)) {
+    private boolean estimateUsingAdvances(EstimationBlock block, BaseReadingRecord priorReading, BaseReadingRecord laterReading,
+                                          ReadingType advanceReadingType, CimChannel advanceCimChannel, Set<QualityCodeSystem> systems) {
+        if (!canEstimate(block, priorReading, laterReading, advanceReadingType, advanceCimChannel, systems)) {
             return false;
         }
 
@@ -215,30 +216,31 @@ public class EqualDistribution extends AbstractEstimator implements Estimator {
         BigDecimal advance = laterReading.getValue().subtract(priorReading.getValue()).setScale(10, RoundingMode.HALF_UP).multiply(conversionFactor);
 
         return block.getChannel().getCimChannel(block.getReadingType())
-                .flatMap(cimChannel -> calculateConsumption(block, priorReading, laterReading, cimChannel)
+                .flatMap(cimChannel -> calculateConsumption(block, priorReading, laterReading, cimChannel, systems)
                         .map(advance::subtract)
                         .map(toDistribute -> toDistribute.divide(BigDecimal.valueOf(block.estimatables().size()), 6, RoundingMode.HALF_UP))
                         .map(perInterval -> {
-                            block.estimatables().forEach(estimatable -> estimatable.setEstimation(perInterval));
+                            block.estimatables().forEach(estimable-> estimable.setEstimation(perInterval));
                             return true;
                         })).orElse(false);
     }
 
-    private BigDecimal calculateConversionFactor(EstimationBlock block, ReadingType advanceReadingType) {
+    private static BigDecimal calculateConversionFactor(EstimationBlock block, ReadingType advanceReadingType) {
         int metricMultiplierConversion = advanceReadingType.getMultiplier().getMultiplier() - block.getReadingType().getMultiplier().getMultiplier();
         return BigDecimal.valueOf(1, -metricMultiplierConversion).setScale(10, RoundingMode.HALF_UP);
     }
 
-    private boolean canEstimate(EstimationBlock block, BaseReadingRecord priorReading, BaseReadingRecord laterReading, ReadingType advanceReadingType, CimChannel advanceCimChannel) {
+    private boolean canEstimate(EstimationBlock block, BaseReadingRecord priorReading, BaseReadingRecord laterReading,
+                                ReadingType advanceReadingType, CimChannel advanceCimChannel, Set<QualityCodeSystem> systems) {
         if (!block.getReadingType().getUnit().equals(advanceReadingType.getUnit())) {
             return false;
         }
-        if (!isValidReading(advanceCimChannel, priorReading)) {
+        if (!isValidReading(advanceCimChannel, priorReading, systems)) {
             String message = "Failed estimation with {rule}: Block {block} since the prior advance reading is suspect, estimated or overflow";
             LoggingContext.get().info(getLogger(), message);
             return false;
         }
-        if (!isValidReading(advanceCimChannel, laterReading)) {
+        if (!isValidReading(advanceCimChannel, laterReading, systems)) {
             String message = "Failed estimation with {rule}: Block {block} since the later advance reading is suspect, estimated or overflow";
             LoggingContext.get().info(getLogger(), message);
             return false;
@@ -256,17 +258,23 @@ public class EqualDistribution extends AbstractEstimator implements Estimator {
         return true;
     }
 
-    private boolean isValidReading(CimChannel advanceCimChannel, BaseReadingRecord readingToEvaluate) {
+    private static boolean isValidReading(CimChannel advanceCimChannel, BaseReadingRecord readingToEvaluate, Set<QualityCodeSystem> systems) {
         return advanceCimChannel.findReadingQualities(readingToEvaluate.getTimeStamp()).stream()
                 .filter(ReadingQualityRecord::isActual)
+                .map(ReadingQualityRecord::getType)
+                .filter(readingQualityType -> systems.stream()
+                        .anyMatch(qcs -> qcs.ordinal() == readingQualityType.getSystemCode()))
                 .noneMatch(
-                        either(ReadingQualityRecord::isSuspect)
-                                .or(ReadingQualityRecord::hasEstimatedCategory)
-                                .or(readingQualityRecord -> readingQualityRecord.getType().qualityIndex().filter(QualityCodeIndex.OVERFLOWCONDITIONDETECTED::equals).isPresent())
+                        either(ReadingQualityType::isSuspect)
+                                .or(ReadingQualityType::hasEstimatedCategory)
+                                .or(readingQualityType -> readingQualityType.qualityIndex()
+                                        .filter(QualityCodeIndex.OVERFLOWCONDITIONDETECTED::equals).isPresent())
                 );
     }
 
-    private Optional<BigDecimal> calculateConsumption(EstimationBlock block, BaseReadingRecord priorReading, BaseReadingRecord laterReading, CimChannel cimChannel) {
+    private Optional<BigDecimal> calculateConsumption(EstimationBlock block,
+                                                      BaseReadingRecord priorReading, BaseReadingRecord laterReading,
+                                                      CimChannel cimChannel, Set<QualityCodeSystem> systems) {
         Instant from = priorReading.getTimeStamp();
         Instant to = laterReading.getTimeStamp();
         List<Instant> instants = new ArrayList<>(cimChannel.toList(Range.closed(from, to)));
@@ -274,14 +282,13 @@ public class EqualDistribution extends AbstractEstimator implements Estimator {
             instants.add(cimChannel.getNextDateTime(lastOf(instants)));
         }
         Map<Instant, List<ReadingQualityRecord>> invalidsByTimestamp =
-                // TODO: estimation refactoring: decide here which system should be used (CXO-1443)
-                cimChannel.findReadingQualities(Collections.singleton(QualityCodeSystem.MDC), null, Range.closed(instants.get(0), lastOf(instants)), true).stream()
+                cimChannel.findReadingQualities(systems, null, Range.closed(instants.get(0), lastOf(instants)), true).stream()
                         .filter(either(ReadingQualityRecord::isSuspect).or(ReadingQualityRecord::hasEstimatedCategory))
                         .collect(Collectors.groupingBy(ReadingQualityRecord::getReadingTimestamp));
 
         TemporalAmount intervalLength = cimChannel.getIntervalLength().get();
 
-        Map<Instant, BigDecimal> percentages = instants.stream().collect(Collectors.toMap(Function.<Instant>identity(), instant -> BigDecimal.ONE));
+        Map<Instant, BigDecimal> percentages = instants.stream().collect(Collectors.toMap(Function.identity(), instant -> BigDecimal.ONE));
         if (!instants.get(0).equals(from)) {
             Instant intervalEnd = instants.get(0);
             Instant intervalStart = ZonedDateTime.ofInstant(intervalEnd, cimChannel.getZoneId()).minus(intervalLength).toInstant();
@@ -302,7 +309,9 @@ public class EqualDistribution extends AbstractEstimator implements Estimator {
                 .collect(Collectors.toList());
 
         if (neededConsumption.stream().anyMatch(invalidsByTimestamp::containsKey)) {
-            boolean suspects = neededConsumption.stream().anyMatch(instant -> Optional.ofNullable(invalidsByTimestamp.get(instant)).orElse(Collections.emptyList()).stream().anyMatch(ReadingQualityRecord::isSuspect));
+            boolean suspects = neededConsumption.stream()
+                    .anyMatch(instant -> Optional.ofNullable(invalidsByTimestamp.get(instant)).orElse(Collections.emptyList()).stream()
+                            .anyMatch(ReadingQualityRecord::isSuspect));
             String message = suspects ? "Failed estimation with {rule}: Block {block} since there are additional suspects between the advance readings"
                     : "Failed estimation with {rule}: Block {block} since there are estimated consumptions between the advance readings";
             LoggingContext.get().info(getLogger(), message);
@@ -317,9 +326,9 @@ public class EqualDistribution extends AbstractEstimator implements Estimator {
                 .reduce(BigDecimal.ZERO, BigDecimal::add));
     }
 
-    private boolean estimateUsingBulk(EstimationBlock block) {
+    private boolean estimateUsingBulk(EstimationBlock block, Set<QualityCodeSystem> systems) {
         return block.getReadingType().getBulkReadingType()
-                .map(bulkReadingType -> estimate(block, bulkReadingType))
+                .map(bulkReadingType -> estimateUsingBulk(block, bulkReadingType, systems))
                 .orElseGet(() -> {
                     String message = "Failed estimation with {rule}: Block {block} since the reading type {readingType} has no bulk reading type.";
                     LoggingContext.get().info(getLogger(), message);
@@ -327,9 +336,9 @@ public class EqualDistribution extends AbstractEstimator implements Estimator {
                 });
     }
 
-    private boolean estimate(EstimationBlock block, ReadingType bulkReadingType) {
+    private boolean estimateUsingBulk(EstimationBlock block, ReadingType bulkReadingType, Set<QualityCodeSystem> systems) {
         return block.getChannel().getCimChannel(bulkReadingType)
-                .map(cimChannel -> estimate(block, cimChannel))
+                .map(cimChannel -> estimateUsingBulk(block, cimChannel, systems))
                 .orElseGet(() -> {
                     String message = "Failed estimation with {rule}: Block {block} since the channel has no bulk reading type.";
                     LoggingContext.get().info(getLogger(), message);
@@ -337,13 +346,13 @@ public class EqualDistribution extends AbstractEstimator implements Estimator {
                 });
     }
 
-    private boolean estimate(EstimationBlock block, CimChannel bulkCimChannel) {
-        return getValueAt(bulkCimChannel, lastOf(block.estimatables()))
-                .flatMap(valueAt -> getValueBefore(bulkCimChannel, block.estimatables().get(0))
+    private boolean estimateUsingBulk(EstimationBlock block, CimChannel bulkCimChannel, Set<QualityCodeSystem> systems) {
+        return getValueAt(bulkCimChannel, lastOf(block.estimatables()).getTimestamp(), systems)
+                .flatMap(valueAt -> getValueAt(bulkCimChannel, bulkCimChannel.getPreviousDateTime(block.estimatables().get(0).getTimestamp()), systems)
                         .map(valueAt::subtract))
                 .map(difference -> difference.divide(BigDecimal.valueOf(block.estimatables().size()), 6, BigDecimal.ROUND_HALF_UP))
                 .map(equalValue -> {
-                    block.estimatables().forEach(estimatable -> estimatable.setEstimation(equalValue));
+                    block.estimatables().forEach(estimable -> estimable.setEstimation(equalValue));
                     return true;
                 })
                 .orElseGet(() -> {
@@ -353,7 +362,7 @@ public class EqualDistribution extends AbstractEstimator implements Estimator {
                 });
     }
 
-    private <T> T lastOf(List<? extends T> elements) {
+    private static <T> T lastOf(List<T> elements) {
         return elements.get(elements.size() - 1);
     }
 
@@ -374,35 +383,26 @@ public class EqualDistribution extends AbstractEstimator implements Estimator {
                 .setDefaultValue(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE)
                 .finish());
         builder.add(
-            getPropertySpecService()
-                .specForValuesOf(new AdvanceReadingsSettingsWithoutNoneFactory(meteringService))
-                .named(TranslationKeys.ADVANCE_READINGS_SETTINGS)
-                .describedAs(TranslationKeys.ADVANCE_READINGS_SETTINGS_DESCRIPTION)
-                .fromThesaurus(this.getThesaurus())
-                .markRequired()
-                .setDefaultValue(BulkAdvanceReadingsSettings.INSTANCE)
-                .finish());
+                getPropertySpecService()
+                        .specForValuesOf(new AdvanceReadingsSettingsWithoutNoneFactory(meteringService))
+                        .named(TranslationKeys.ADVANCE_READINGS_SETTINGS)
+                        .describedAs(TranslationKeys.ADVANCE_READINGS_SETTINGS_DESCRIPTION)
+                        .fromThesaurus(this.getThesaurus())
+                        .markRequired()
+                        .setDefaultValue(BulkAdvanceReadingsSettings.INSTANCE)
+                        .finish());
         return builder.build();
     }
 
-    private Optional<BigDecimal> getValueAt(CimChannel bulkCimChannel, Estimatable last) {
-        return bulkCimChannel.getReading(last.getTimestamp())
-                .map(IntervalReadingRecord.class::cast)
-                .filter(intervalReadingRecord -> !intervalReadingRecord.getProfileStatus().get(ProfileStatus.Flag.OVERFLOW))
-                .filter(intervalReadingRecord -> bulkCimChannel.findReadingQualities(last.getTimestamp()).stream()
+    private static Optional<BigDecimal> getValueAt(CimChannel bulkCimChannel, Instant timestamp, Set<QualityCodeSystem> systems) {
+        return bulkCimChannel.getReading(timestamp)
+                .filter(baseReadingRecord -> bulkCimChannel.findReadingQualities(timestamp).stream()
                         .filter(ReadingQualityRecord::isActual)
-                        .noneMatch(readingQualityRecord -> readingQualityRecord.getType().qualityIndex().filter(QualityCodeIndex.OVERFLOWCONDITIONDETECTED::equals).isPresent()))
-                .flatMap(baseReadingRecord -> Optional.ofNullable(baseReadingRecord.getValue()));
-    }
-
-    private Optional<BigDecimal> getValueBefore(CimChannel bulkCimChannel, Estimatable first) {
-        Instant timestampBefore = bulkCimChannel.getPreviousDateTime(first.getTimestamp());
-        return bulkCimChannel.getReading(timestampBefore)
-                .map(IntervalReadingRecord.class::cast)
-                .filter(intervalReadingRecord -> !intervalReadingRecord.getProfileStatus().get(ProfileStatus.Flag.OVERFLOW))
-                .filter(intervalReadingRecord -> bulkCimChannel.findReadingQualities(first.getTimestamp()).stream()
-                        .filter(ReadingQualityRecord::isActual)
-                        .noneMatch(readingQualityRecord -> readingQualityRecord.getType().qualityIndex().filter(QualityCodeIndex.OVERFLOWCONDITIONDETECTED::equals).isPresent()))
+                        .map(ReadingQualityRecord::getType)
+                        .filter(readingQualityType -> systems.stream()
+                                .anyMatch(qcs -> qcs.ordinal() == readingQualityType.getSystemCode()))
+                        .noneMatch(readingQualityType -> readingQualityType.qualityIndex()
+                                .filter(QualityCodeIndex.OVERFLOWCONDITIONDETECTED::equals).isPresent()))
                 .flatMap(baseReadingRecord -> Optional.ofNullable(baseReadingRecord.getValue()));
     }
 
