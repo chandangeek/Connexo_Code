@@ -27,19 +27,13 @@ Ext.define('Wss.view.LoggingPage', {
         ];
 
         me.content = {
-            xtype: 'container',
-            layout: 'hbox',
-            items: [
-                {
-                    ui: 'large',
-                    title: Uni.I18n.translate('general.Logging', 'WSS', 'Logging'),
-                    flex: 1,
-                    items: {
-                        xtype: 'wss-logging-setup',
-                        router: me.router
-                    }
-                }
-            ]
+            ui: 'large',
+            title: Uni.I18n.translate('general.Logging', 'WSS', 'Logging'),
+            items: {
+                xtype: 'wss-logging-setup',
+                router: me.router
+            }
+
         };
 
         me.callParent(arguments);
