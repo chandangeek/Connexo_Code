@@ -1,12 +1,12 @@
 package com.elster.jupiter.cbo;
 
-import org.junit.Test;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -26,8 +26,9 @@ public class QualityCodeIndexTest {
     }
 
     @Test
-    public void testUsageBelow() {
+    public void testPrescribedQualityCodeIndexIsFound() {
         assertThat(QualityCodeIndex.get(QualityCodeCategory.VALIDATION, 4).get()).isEqualTo(QualityCodeIndex.USAGEBELOW);
+        assertThat(QualityCodeIndex.get(QualityCodeCategory.EDITED, 3).get()).isEqualTo(QualityCodeIndex.REJECTED);
     }
 
     @Test

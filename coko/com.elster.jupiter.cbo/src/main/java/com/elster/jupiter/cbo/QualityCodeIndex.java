@@ -1,9 +1,13 @@
 package com.elster.jupiter.cbo;
 
 import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.util.Pair;
 
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.elster.jupiter.cbo.QualityCodeCategory.DATACOLLECTION;
 import static com.elster.jupiter.cbo.QualityCodeCategory.DERIVED;
@@ -81,6 +85,9 @@ public enum QualityCodeIndex {
     INFERRED(DERIVED, 1, TranslationKeys.INFERRED),
     PROJECTEDGENERIC(PROJECTED, 0, TranslationKeys.PROJECTEDGENERIC);
 
+    private static final Map<Pair<QualityCodeCategory, Integer>, QualityCodeIndex> INDICES =
+            Arrays.stream(values())
+                    .collect(Collectors.toMap(index -> Pair.of(index.category, index.index), Function.identity()));
     private final QualityCodeCategory category;
     private final int index;
     private TranslationKey translationKey;
@@ -104,9 +111,6 @@ public enum QualityCodeIndex {
     }
 
     static Optional<QualityCodeIndex> get(QualityCodeCategory category, int index) {
-        return Arrays.stream(values())
-                .filter(codeIndex -> codeIndex.category == category)
-                .filter(codeIndex -> codeIndex.index == index)
-                .findFirst();
+        return Optional.ofNullable(INDICES.get(Pair.of(category, index)));
     }
 }
