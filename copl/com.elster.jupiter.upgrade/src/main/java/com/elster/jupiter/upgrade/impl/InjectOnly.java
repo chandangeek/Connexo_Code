@@ -10,8 +10,8 @@ import com.elster.jupiter.orm.SqlDialect;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.orm.associations.RefAny;
-//import com.elster.jupiter.orm.impl.TableImpl;
 
+import com.google.common.collect.ImmutableSortedSet;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
@@ -21,7 +21,10 @@ import java.security.Principal;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.SortedSet;
 import java.util.logging.Logger;
+
+//import com.elster.jupiter.orm.impl.TableImpl;
 
 public class InjectOnly implements DataModel {
 
@@ -165,5 +168,10 @@ public class InjectOnly implements DataModel {
     @Override
     public Version getVersion() {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public SortedSet<Version> changeVersions() {
+        return ImmutableSortedSet.of();
     }
 }
