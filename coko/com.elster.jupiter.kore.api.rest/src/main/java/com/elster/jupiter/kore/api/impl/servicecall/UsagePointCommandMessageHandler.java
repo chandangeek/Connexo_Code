@@ -3,6 +3,7 @@ package com.elster.jupiter.kore.api.impl.servicecall;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.util.json.JsonService;
 
@@ -19,9 +20,11 @@ public class UsagePointCommandMessageHandler implements MessageHandler {
         this.jsonService = jsonService;
     }
 
-    @OverrideHEI
+    @Override
     public void process(Message message) {
         Map<?, ?> map = jsonService.deserialize(message.getPayload(), Map.class);
-        serviceCallService.getServiceCall((Integer)map.get("id")).ifPresent(serviceCall -> NNnserviceCall.requestTransition(DefaultState.SUCCESSFUL));
+        ServiceCall serviceCall = serviceCallService.getServiceCall((Integer)map.get("id")).get();
+        serviceCall.getExtension(UsagePointCommandDomainExtension.class).
+        serviceCallService.getServiceCall((Integer)map.get("id")).ifPresent(serviceCall -> serviceCall.requestTransition(DefaultState.SUCCESSFUL));
     }
 }

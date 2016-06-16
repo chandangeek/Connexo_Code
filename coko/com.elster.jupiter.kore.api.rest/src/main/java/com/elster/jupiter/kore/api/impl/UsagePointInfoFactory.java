@@ -1,6 +1,7 @@
 package com.elster.jupiter.kore.api.impl;
 
 import com.elster.jupiter.kore.api.impl.utils.MessageSeeds;
+import com.elster.jupiter.metering.ConnectionState;
 import com.elster.jupiter.metering.LocationMember;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
@@ -134,6 +135,11 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
                 usagePointInfo.detail.id = details.get(details.size() - 1).getRange().lowerEndpoint().toEpochMilli();
             }
         });
+        map.put("connectionState", (usagePointInfo, usagePoint, uriInfo) -> {
+            ConnectionState connectionState = usagePoint.getConnectionState();
+            usagePointInfo.connectionState = new UsagePointConnectionStateInfo();
+            usagePointInfo.connectionState.connectionStateId = connectionState.getId();
+        });
         map.put("meterActivations", (usagePointInfo, usagePoint, uriInfo) -> usagePointInfo.meterActivations = meterActivationInfoFactory
                 .get()
                 .asLink(usagePoint.getMeterActivations(), Relation.REF_RELATION, uriInfo));
@@ -202,6 +208,22 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
         usagePoint.setReadRoute(usagePointInfo.readRoute);
         usagePoint.setServiceDeliveryRemark(usagePointInfo.serviceDeliveryRemark);
         usagePoint.setServicePriority(usagePointInfo.servicePriority);
+
+        if (usagePointInfo.connectionState!=null && usagePointInfo.connectionState.startDate != null) {
+            usagePoint.setConnectionState(Arrays.stream(ConnectionState.values())
+                    .filter(connectionState -> connectionState.getId()
+                            .equalsIgnoreCase(usagePointInfo.connectionState.connectionStateId))
+                    .findFirst()
+                    .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.BAD_REQUEST, MessageSeeds.NO_SUCH_CONNECTION_STATE)),
+                    Instant.ofEpochMilli(usagePointInfo.connectionState.startDate));
+        } else if (usagePointInfo.connectionState != null && !usagePoint.getConnectionState().getId().equalsIgnoreCase(usagePointInfo.connectionState.connectionStateId)) {
+            usagePoint.setConnectionState(Arrays.stream(ConnectionState.values())
+                    .filter(connectionState -> connectionState.getId()
+                            .equalsIgnoreCase(usagePointInfo.connectionState.connectionStateId))
+                    .findFirst()
+                    .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.BAD_REQUEST, MessageSeeds.NO_SUCH_CONNECTION_STATE)));
+        }
+
         usagePoint.update();
         Instant now = clock.instant();
         if (usagePointInfo.metrologyConfiguration != null && usagePointInfo.metrologyConfiguration.id != null) {

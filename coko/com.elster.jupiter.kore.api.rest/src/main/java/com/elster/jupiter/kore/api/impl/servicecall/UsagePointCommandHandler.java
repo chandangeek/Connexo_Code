@@ -48,40 +48,40 @@ public class UsagePointCommandHandler  implements ServiceCallHandler {
         }
     }
 
-    public String sendResponce(String targetURL, String authorization) {
-        HttpURLConnection httpConnection = null;
-        String authorizationHeader = (basicAuthString != null) ? basicAuthString : authorization;
-        try {
-            URL targetUrl = new URL(url + targetURL);
-            httpConnection = (HttpURLConnection) targetUrl.openConnection();
-            httpConnection.setConnectTimeout(60000);
-            httpConnection.setDoOutput(true);
-            httpConnection.setRequestMethod("GET");
-            httpConnection.setRequestProperty("Authorization", authorizationHeader);
-            httpConnection.setRequestProperty("Accept", "application/json");
-
-            int responseCode = httpConnection.getResponseCode();
-            if (responseCode != 200 && responseCode != 204) {
-                throw new RuntimeException(Integer.toString(responseCode));
-            }
-            BufferedReader br = new BufferedReader(new InputStreamReader(
-                    (httpConnection.getInputStream())));
-
-            String output;
-            StringBuilder jsonContent = new StringBuilder();
-            while ((output = br.readLine()) != null) {
-                jsonContent.append(output);
-            }
-            return jsonContent.toString();
-
-        } catch (IOException e) {
-            return e.getMessage();
-        } finally {
-            if (httpConnection != null) {
-                httpConnection.disconnect();
-            }
-        }
-    }
+//    public String sendResponce(String targetURL, String authorization) {
+//        HttpURLConnection httpConnection = null;
+//        String authorizationHeader = (basicAuthString != null) ? basicAuthString : authorization;
+//        try {
+//            URL targetUrl = new URL(url + targetURL);
+//            httpConnection = (HttpURLConnection) targetUrl.openConnection();
+//            httpConnection.setConnectTimeout(60000);
+//            httpConnection.setDoOutput(true);
+//            httpConnection.setRequestMethod("GET");
+//            httpConnection.setRequestProperty("Authorization", authorizationHeader);
+//            httpConnection.setRequestProperty("Accept", "application/json");
+//
+//            int responseCode = httpConnection.getResponseCode();
+//            if (responseCode != 200 && responseCode != 204) {
+//                throw new RuntimeException(Integer.toString(responseCode));
+//            }
+//            BufferedReader br = new BufferedReader(new InputStreamReader(
+//                    (httpConnection.getInputStream())));
+//
+//            String output;
+//            StringBuilder jsonContent = new StringBuilder();
+//            while ((output = br.readLine()) != null) {
+//                jsonContent.append(output);
+//            }
+//            return jsonContent.toString();
+//
+//        } catch (IOException e) {
+//            return e.getMessage();
+//        } finally {
+//            if (httpConnection != null) {
+//                httpConnection.disconnect();
+//            }
+//        }
+//    }
 
 
 

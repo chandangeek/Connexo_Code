@@ -22,6 +22,7 @@ public class UsagePointInfo extends LinkInfo<Long> {
     public LinkInfo<Long> metrologyConfiguration;
     public List<LocationInfo> locations;
     public LinkInfo<Long> detail;
+    public UsagePointConnectionStateInfo connectionState;
 
     public List<LinkInfo> meterActivations;
     public List<LinkInfo> accountabilities;
