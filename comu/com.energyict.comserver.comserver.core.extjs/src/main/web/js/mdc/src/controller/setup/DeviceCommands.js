@@ -405,6 +405,7 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
                 method: 'POST',
                 success: function (record, operation) {
                     if (operation.success) {
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommand.overview.addSuccess', 'MDC', 'Command added'));
                         var router = me.getController('Uni.controller.history.Router'),
                             response = Ext.JSON.decode(operation.response.responseText);
                         router.getRoute('devices/device/commands').forward();
