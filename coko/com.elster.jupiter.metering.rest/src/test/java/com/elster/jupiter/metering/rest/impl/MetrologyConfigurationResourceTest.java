@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfigurationStatus;
+import com.elster.jupiter.metering.config.MetrologyConfigurationUpdater;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
@@ -215,7 +216,7 @@ public class MetrologyConfigurationResourceTest extends MeteringApplicationJerse
         Response response = target("metrologyconfigurations/" + info.id).request().method("DELETE", json);
 
         //Asserts
-        assertThat(response.getStatus()).isEqualTo(200);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(metrologyConfiguration).delete();
     }
 
@@ -231,6 +232,106 @@ public class MetrologyConfigurationResourceTest extends MeteringApplicationJerse
         Response response = target("metrologyconfigurations/" + info.id).request().method("DELETE", json);
 
         //Asserts
-        assertThat(response.getStatus()).isEqualTo(409);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+    }
+
+    @Test
+    public void testGetMetrologyConfiguration() {
+        MetrologyConfigurationInfo info = mockMetrologyConfigurationInfo(1L, "config1", "some description", 1L);
+        UsagePointMetrologyConfiguration metrologyConfiguration = mockMetrologyConfiguration(1L, "config1", ServiceKind.ELECTRICITY, MetrologyConfigurationStatus.INACTIVE, "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0");
+        when(metrologyConfigurationService.findMetrologyConfiguration(1L)).thenReturn(Optional.of(metrologyConfiguration));
+
+        //Business method
+        String json = target("metrologyconfigurations/" + info.id).request().get(String.class);
+
+        //Asserts
+        JsonModel jsonModel = JsonModel.create(json);
+        assertThat(jsonModel.<Number>get("$.id")).isEqualTo(1);
+        assertThat(jsonModel.<String>get("$.name")).isEqualTo("config1");
+        assertThat(jsonModel.<Number>get("$.description")).isEqualTo("some description");
+        assertThat(jsonModel.<String>get("$.status.id")).isEqualTo("inactive");
+        assertThat(jsonModel.<String>get("$.serviceCategory.id")).isEqualTo("ELECTRICITY");
+        assertThat(jsonModel.<List>get("$.readingTypes")).hasSize(1);
+        assertThat(jsonModel.<String>get("$.readingTypes[0].mRID")).isEqualTo("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0");
+        assertThat(jsonModel.<Number>get("$.version")).isEqualTo(1);
+    }
+
+    @Test
+    public void testGetMetrologyConfigurationNotFound() {
+        when(metrologyConfigurationService.findMetrologyConfiguration(1L)).thenReturn(Optional.empty());
+
+        //Business method
+        Response response = target("metrologyconfigurations/1").request().get();
+
+        //Asserts
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
+    }
+
+    @Test
+    public void testUpdateMetrologyConfiguration() throws Exception {
+        MetrologyConfigurationInfo info = mockMetrologyConfigurationInfo(1L, "config1", "some description", 1L);
+        UsagePointMetrologyConfiguration metrologyConfiguration = mockMetrologyConfiguration(mockMetrologyConfigurationInfo(1L, "config1", "some description", 2L));
+        when(metrologyConfigurationService.findAndLockMetrologyConfiguration(1L, 1L)).thenReturn(Optional.of(metrologyConfiguration));
+        when(metrologyConfigurationService.findMetrologyConfiguration(1L)).thenReturn(Optional.of(metrologyConfiguration));
+        MetrologyConfigurationUpdater metrologyConfigurationUpdater = mock(MetrologyConfigurationUpdater.class);
+        when(metrologyConfiguration.startUpdate()).thenReturn(metrologyConfigurationUpdater);
+        when(metrologyConfigurationUpdater.setName(info.name)).thenReturn(metrologyConfigurationUpdater);
+        when(metrologyConfigurationUpdater.setDescription(info.description)).thenReturn(metrologyConfigurationUpdater);
+
+        //Business method
+        Response response = target("metrologyconfigurations/" + info.id).request().put(Entity.json(info));
+
+        //Asserts
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    }
+
+    @Test
+    public void testUpdateMetrologyConfigurationConcurrentModification() throws Exception {
+        MetrologyConfigurationInfo info = mockMetrologyConfigurationInfo(1L, "config1", "some description", 1L);
+        mockMetrologyConfiguration(mockMetrologyConfigurationInfo(1L, "config1", "some description", 2L));
+        when(metrologyConfigurationService.findAndLockMetrologyConfiguration(1L, 1L)).thenReturn(Optional.empty());
+        when(metrologyConfigurationService.findMetrologyConfiguration(1L)).thenReturn(Optional.empty());
+
+        //Business method
+        Response response = target("metrologyconfigurations/" + info.id).request().put(Entity.json(info));
+
+        //Asserts
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+    }
+
+    @Test
+    public void testActivateMetrologyConfiguration() throws Exception {
+        MetrologyConfigurationInfo info = mockMetrologyConfigurationInfo(1L, "config1", "some description", 1L);
+        UsagePointMetrologyConfiguration metrologyConfiguration = mockMetrologyConfiguration(mockMetrologyConfigurationInfo(1L, "config1", "some description", 1L));
+        when(metrologyConfigurationService.findAndLockMetrologyConfiguration(1L, 1L)).thenReturn(Optional.of(metrologyConfiguration));
+        when(metrologyConfigurationService.findMetrologyConfiguration(1L)).thenReturn(Optional.of(metrologyConfiguration));
+        MetrologyConfigurationUpdater metrologyConfigurationUpdater = mock(MetrologyConfigurationUpdater.class);
+        when(metrologyConfiguration.startUpdate()).thenReturn(metrologyConfigurationUpdater);
+        when(metrologyConfigurationUpdater.setName(info.name)).thenReturn(metrologyConfigurationUpdater);
+        when(metrologyConfigurationUpdater.setDescription(info.description)).thenReturn(metrologyConfigurationUpdater);
+
+        //Business method
+        MetrologyConfigurationStatus status = MetrologyConfigurationStatus.ACTIVE;
+        info.status = new IdWithNameInfo(status.getId(), thesaurus.getFormat(status.getTranslationKey()).format());
+        Response response = target("metrologyconfigurations/" + info.id).request().put(Entity.json(info));
+
+        //Asserts
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    }
+
+    @Test
+    public void testActivateMetrologyConfigurationConcurrentModification() throws Exception {
+        MetrologyConfigurationInfo info = mockMetrologyConfigurationInfo(1L, "config1", "some description", 1L);
+        mockMetrologyConfiguration(mockMetrologyConfigurationInfo(1L, "config1", "some description", 2L));
+        when(metrologyConfigurationService.findAndLockMetrologyConfiguration(1L, 1L)).thenReturn(Optional.empty());
+        when(metrologyConfigurationService.findMetrologyConfiguration(1L)).thenReturn(Optional.empty());
+
+        //Business method
+        MetrologyConfigurationStatus status = MetrologyConfigurationStatus.ACTIVE;
+        info.status = new IdWithNameInfo(status.getId(), thesaurus.getFormat(status.getTranslationKey()).format());
+        Response response = target("metrologyconfigurations/" + info.id).request().put(Entity.json(info));
+
+        //Asserts
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
     }
 }
