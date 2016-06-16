@@ -3,6 +3,7 @@ package com.elster.jupiter.webservices.rest.impl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.FieldResource;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 
 import javax.inject.Inject;
@@ -45,6 +46,18 @@ public class WebServicesFieldResource extends FieldResource {
         return asJsonArrayObjectWithTranslation("directions", "direction", Arrays.asList(WebServiceDirection.values()),
                 Stream.of(WebServiceDirection.values())
                         .map(WebServiceDirection::getTranslationKey)
+                        .collect(toList()));
+    }
+
+    @GET
+    @Transactional
+    @Path("/authenticationMethod")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public Object getAuthenticationMethods() {
+        return asJsonArrayObjectWithTranslation("authenticationMethods", "authenticationMethod", Arrays.asList(EndPointAuthentication
+                        .values()),
+                Stream.of(EndPointAuthentication.values())
+                        .map(EndPointAuthentication::getTranslationKey)
                         .collect(toList()));
     }
 

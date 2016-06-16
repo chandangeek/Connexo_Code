@@ -3,6 +3,7 @@ package com.elster.jupiter.webservices.rest.impl;
 import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
@@ -75,7 +76,7 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
         assertThat(jsonModel.<Integer>get("endpoints[0].id")).isEqualTo(1);
         assertThat(jsonModel.<Integer>get("endpoints[0].version")).isEqualTo(901);
         assertThat(jsonModel.<String>get("endpoints[0].name")).isEqualTo("metering");
-        assertThat(jsonModel.<Boolean>get("endpoints[0].authenticated")).isEqualTo(Boolean.TRUE);
+        assertThat(jsonModel.<String>get("endpoints[0].authenticationMethod.id")).isEqualTo("NONE");
         assertThat(jsonModel.<String>get("endpoints[0].username")).isNull();
         assertThat(jsonModel.<String>get("endpoints[0].password")).isNull();
         assertThat(jsonModel.<Boolean>get("endpoints[0].tracing")).isTrue();
@@ -83,7 +84,7 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
         assertThat(jsonModel.<Integer>get("endpoints[1].id")).isEqualTo(2);
         assertThat(jsonModel.<Integer>get("endpoints[1].version")).isEqualTo(902);
         assertThat(jsonModel.<String>get("endpoints[1].name")).isEqualTo("currency");
-        assertThat(jsonModel.<Boolean>get("endpoints[1].authenticated")).isNull();
+        assertThat(jsonModel.<Boolean>get("endpoints[1].authenticationMethod")).isNull();
         assertThat(jsonModel.<Boolean>get("endpoints[1].tracing")).isTrue();
         assertThat(jsonModel.<String>get("endpoints[1].traceFile")).isEqualTo("webservices.log");
         assertThat(jsonModel.<String>get("endpoints[1].username")).isEqualTo("username");
@@ -98,7 +99,7 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
         assertThat(jsonModel.<Integer>get("id")).isEqualTo(1);
         assertThat(jsonModel.<Integer>get("version")).isEqualTo(901);
         assertThat(jsonModel.<String>get("name")).isEqualTo("metering");
-        assertThat(jsonModel.<Boolean>get("authenticated")).isEqualTo(Boolean.TRUE);
+        assertThat(jsonModel.<String>get("authenticationMethod.id")).isEqualTo("NONE");
         assertThat(jsonModel.<Boolean>get("tracing")).isEqualTo(Boolean.TRUE);
         assertThat(jsonModel.<Boolean>get("active")).isEqualTo(Boolean.TRUE);
         assertThat(jsonModel.<Boolean>get("httpCompression")).isEqualTo(Boolean.TRUE);
@@ -122,7 +123,7 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
         info.httpCompression = true;
         info.schemaValidation = true;
         info.tracing = false;
-        info.authenticated = false;
+        info.authenticationMethod = new IdWithDisplayValueInfo<>(EndPointAuthentication.NONE, null);
         info.url = "/srv";
         info.active = false;
 
@@ -148,13 +149,13 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
         info.schemaValidation = true;
         info.tracing = true;
         info.traceFile = "yyy";
-        info.authenticated = false;
+        info.authenticationMethod = new IdWithDisplayValueInfo<>(EndPointAuthentication.NONE, null);
         info.active = false;
         info.url = "/srv";
 
         Response response = target("/endpointconfigurations/1").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(inboundEndPointConfiguration).setAuthenticated(false);
+        verify(inboundEndPointConfiguration).setAuthenticationMethod(EndPointAuthentication.NONE);
         verify(inboundEndPointConfiguration).setHttpCompression(true);
         verify(inboundEndPointConfiguration).setSchemaValidation(true);
         verify(inboundEndPointConfiguration).setTracing(true);
@@ -180,7 +181,6 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
         info.schemaValidation = true;
         info.tracing = true;
         info.traceFile = "xxx";
-        info.authenticated = false;
         info.username = "u";
         info.password = "p";
         info.active = false;

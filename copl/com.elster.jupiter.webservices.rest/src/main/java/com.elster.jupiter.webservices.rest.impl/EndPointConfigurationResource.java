@@ -126,6 +126,11 @@ public class EndPointConfigurationResource {
         } else if (!webServicesService.getWebService(info.webServiceName).isPresent()) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.NO_SUCH_WEB_SERVICE);
         }
+        if (webServicesService.getWebService(info.webServiceName)
+                .get()
+                .isInbound() && (info.authenticationMethod == null || info.authenticationMethod.id == null)) {
+            throw new LocalizedFieldValidationException(MessageSeeds.FIELD_EXPECTED, "authentication.id");
+        }
         if (info.schemaValidation == null) {
             throw new LocalizedFieldValidationException(MessageSeeds.FIELD_EXPECTED, "schemaValidation");
         }

@@ -40,7 +40,11 @@ public class EndPointConfigurationInfoFactory {
         info.schemaValidation = endPointConfiguration.isSchemaValidation();
         if (InboundEndPointConfiguration.class.isAssignableFrom(endPointConfiguration.getClass())) {
             info.direction = new IdWithDisplayValueInfo<>(WebServiceDirection.INBOUND, WebServiceDirection.INBOUND.getDisplayName(thesaurus));
-            info.authenticated = ((InboundEndPointConfiguration) endPointConfiguration).isAuthenticated();
+            info.authenticationMethod = new IdWithDisplayValueInfo<>(((InboundEndPointConfiguration) endPointConfiguration)
+                    .getAuthenticationMethod(),
+                    ((InboundEndPointConfiguration) endPointConfiguration).getAuthenticationMethod()
+                            .getDisplayName(thesaurus));
+            ((InboundEndPointConfiguration) endPointConfiguration).getAuthenticationMethod();
         } else {
             info.direction = new IdWithDisplayValueInfo<>(WebServiceDirection.OUTBOUND, WebServiceDirection.OUTBOUND.getDisplayName(thesaurus));
             info.username = ((OutboundEndPointConfiguration) endPointConfiguration).getUsername();
@@ -64,9 +68,7 @@ public class EndPointConfigurationInfoFactory {
         if (Boolean.TRUE.equals(info.tracing)) {
             builder.tracing();
         }
-        if (Boolean.TRUE.equals(info.authenticated)) {
-            builder.authenticated();
-        }
+        builder.setAuthenticationMethod(info.authenticationMethod.id);
         builder.traceFile(info.traceFile);
         EndPointConfiguration endPointConfiguration = builder.create();
         if (Boolean.TRUE.equals(info.active)) {
@@ -115,7 +117,7 @@ public class EndPointConfigurationInfoFactory {
 
     public EndPointConfiguration updateEndPointConfiguration(InboundEndPointConfiguration endPointConfiguration, EndPointConfigurationInfo info) {
         this.applyCommonChanges(endPointConfiguration, info);
-        endPointConfiguration.setAuthenticated(info.authenticated);
+        endPointConfiguration.setAuthenticationMethod(info.authenticationMethod.id);
         return endPointConfiguration;
     }
 

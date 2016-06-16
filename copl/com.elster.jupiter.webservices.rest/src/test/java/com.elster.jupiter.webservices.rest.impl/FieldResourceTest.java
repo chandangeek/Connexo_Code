@@ -31,4 +31,13 @@ public class FieldResourceTest extends WebServicesApplicationTest {
         assertThat(jsonModel.<String>get("$.directions[0].localizedValue")).isEqualTo("Inbound");
 
     }
+
+    @Test
+    public void testAuthenticationMethods() throws Exception {
+        Response response = target("/fields/authenticationMethod").request().get();
+        JsonModel jsonModel = JsonModel.model((InputStream) response.getEntity());
+        assertThat(jsonModel.<String>get("$.authenticationMethods[0].authenticationMethod")).isEqualTo("NONE");
+        assertThat(jsonModel.<String>get("$.authenticationMethods[0].localizedValue")).isEqualTo("No authentication");
+
+    }
 }

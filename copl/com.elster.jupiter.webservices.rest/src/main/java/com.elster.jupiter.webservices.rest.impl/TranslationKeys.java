@@ -15,7 +15,9 @@ public enum TranslationKeys implements TranslationKey {
     LL_FINER("webservices.loglevel.finer", "Finer"),
     LL_FINEST("webservices.loglevel.finest", "Finest"),
     WST_INBOUND("webservices.direction.inbound", "Inbound"),
-    WST_OUTBOUND("webservices.direction.outbound", "Outbound");
+    WST_OUTBOUND("webservices.direction.outbound", "Outbound"),
+    AUTH_NONE("webservices.authentication.none", "No authentication"),
+    AUTH_BASIC("webservices.authentication.basic", "Basic authentication");
     ;
 
     private final String key;

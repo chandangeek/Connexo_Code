@@ -1,6 +1,7 @@
 package com.elster.jupiter.webservices.rest.impl;
 
 import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
 
 /**
  * Model the configuration to create an actual endpoint. The latter is a purely runtime entity.
@@ -17,7 +18,7 @@ public class EndPointConfigurationInfo {
     public Boolean httpCompression;
     public Boolean schemaValidation;
     public Boolean active;
-    public Boolean authenticated;
+    public IdWithDisplayValueInfo<EndPointAuthentication> authenticationMethod;
     public String username;
     public String password;
     public IdWithDisplayValueInfo<WebServiceDirection> direction;

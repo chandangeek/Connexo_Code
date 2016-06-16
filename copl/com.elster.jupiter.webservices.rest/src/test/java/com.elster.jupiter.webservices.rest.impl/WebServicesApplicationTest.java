@@ -3,6 +3,7 @@ package com.elster.jupiter.webservices.rest.impl;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.QueryParameters;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
@@ -61,7 +62,7 @@ public class WebServicesApplicationTest extends FelixRestApplicationJerseyTest {
         when(mock.getVersion()).thenReturn(version);
         when(mock.getWebServiceName()).thenReturn(webServiceName);
         when(mock.getLogs()).thenReturn(Collections.emptyList());
-        when(mock.isAuthenticated()).thenReturn(true);
+        when(mock.getAuthenticationMethod()).thenReturn(EndPointAuthentication.NONE);
         when(mock.isActive()).thenReturn(true);
         when(mock.isHttpCompression()).thenReturn(true);
         when(mock.isSchemaValidation()).thenReturn(true);
