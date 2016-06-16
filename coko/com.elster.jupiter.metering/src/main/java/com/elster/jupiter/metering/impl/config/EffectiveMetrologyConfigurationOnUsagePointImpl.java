@@ -41,6 +41,13 @@ public class EffectiveMetrologyConfigurationOnUsagePointImpl implements Effectiv
         return this;
     }
 
+    public EffectiveMetrologyConfigurationOnUsagePointImpl initAndSaveWithInterval(UsagePoint usagePoint, UsagePointMetrologyConfiguration metrologyConfiguration, Instant start, Instant end) {
+        this.usagePoint.set(usagePoint);
+        this.metrologyConfiguration.set(metrologyConfiguration);
+        this.interval = Interval.of(start, end);
+        return this;
+    }
+
     @Override
     public UsagePointMetrologyConfiguration getMetrologyConfiguration() {
         return metrologyConfiguration.get();

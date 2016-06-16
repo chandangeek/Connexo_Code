@@ -449,8 +449,17 @@ public class UsagePointImpl implements UsagePoint {
 
     @Override
     public void apply(UsagePointMetrologyConfiguration metrologyConfiguration, Instant when) {
+        this.removeMetrologyConfiguration(when);
+        this.metrologyConfiguration.add(
+                this.dataModel
+                        .getInstance(EffectiveMetrologyConfigurationOnUsagePointImpl.class)
+                        .initAndSave(this, metrologyConfiguration, when));
+    }
+
+    @Override
+    public void applyWithInterval(UsagePointMetrologyConfiguration metrologyConfiguration, Instant start, Instant end){
         Thesaurus thesaurus = this.metrologyConfigurationService.getThesaurus();
-        List<MeterActivation> meterActivations = this.getMeterActivations(when);
+        List<MeterActivation> meterActivations = this.getMeterActivations(start);
 
         Optional<EffectiveMetrologyConfigurationOnUsagePoint> latest = this.metrologyConfiguration.all().stream()
                 .sorted((m1, m2) -> -m1.getStart().compareTo(m2.getStart())).findFirst();
@@ -458,11 +467,18 @@ public class UsagePointImpl implements UsagePoint {
             Instant startDate = latest.get().getStart();
             Instant endDate = latest.get().getEnd();
             if (endDate != null) {
-                if (when.isBefore(endDate)) {
+                if(end.isBefore(start)){
+                    throw new UnsatisfiedMerologyConfigurationEndDate(thesaurus);
+                }
+                if (start.isBefore(endDate)) {
                     throw new UnsatisfiedMerologyConfigurationStartDateRelativelyLatestEnd(thesaurus);
                 }
-            } else if (when.isBefore(startDate)) {
-                throw new UnsatisfiedMerologyConfigurationStartDateRelativelyLatestStart(thesaurus);
+
+            } else{
+                if (start.isBefore(startDate)) {
+                    throw new UnsatisfiedMerologyConfigurationStartDateRelativelyLatestStart(thesaurus);
+                }
+                latest.get().close(start);
             }
         }
 
@@ -476,11 +492,11 @@ public class UsagePointImpl implements UsagePoint {
         });
         metrologyConfiguration.validateMeterCapabilities(pairs);
 
-        this.removeMetrologyConfiguration(when);
+
         this.metrologyConfiguration.add(
                 this.dataModel
                         .getInstance(EffectiveMetrologyConfigurationOnUsagePointImpl.class)
-                        .initAndSave(this, metrologyConfiguration, when));
+                        .initAndSaveWithInterval(this, metrologyConfiguration, start, end));
     }
 
     @Override

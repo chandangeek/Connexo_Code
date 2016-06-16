@@ -150,6 +150,8 @@ public interface UsagePoint extends HasId, IdentifiedObject {
      */
     void apply(UsagePointMetrologyConfiguration metrologyConfiguration, Instant when);
 
+    void applyWithInterval(UsagePointMetrologyConfiguration metrologyConfiguration, Instant start, Instant end);
+
     /**
      * Gets the {@link MetrologyConfiguration}s that were
      * applied to this UsagePoint during the specified period in time.
