@@ -58,6 +58,7 @@ Ext.define('Mdc.metrologyconfiguration.controller.ListView', {
 
     chooseAction: function (menu, item) {
         var me = this,
+            router = me.getController('Uni.controller.history.Router'),
             record = menu.record;
 
         switch (item.action) {
@@ -72,6 +73,13 @@ Ext.define('Mdc.metrologyconfiguration.controller.ListView', {
                         }
                     }
                 });
+                break;
+            case 'edit':
+                router.getRoute('administration/metrologyconfiguration/edit').forward({metrologyConfigurationId: record.getId()});
+                break;
+            case 'toggleActivation':
+                me.toggleActivation(record);
+                break;
         }
     },
 
@@ -84,6 +92,31 @@ Ext.define('Mdc.metrologyconfiguration.controller.ListView', {
             success: function () {
                 me.getController('Uni.controller.history.Router').getRoute().forward();
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('metrologyconfiguration.remove.acknowlegment', 'MDC', 'Metrology configuration removed'));
+            },
+            callback: function () {
+                page.setLoading(false);
+            }
+        });
+    },
+
+    toggleActivation: function (record) {
+        var me = this,
+            page = me.getPage(),
+            isActive = record.get('status').id === 'active';
+
+        record.set('status', isActive
+            ? {id: 'inactive', name: Uni.I18n.translate('general.inactive', 'MDC', 'Inactive')}
+            : {id: 'active', name: Uni.I18n.translate('general.active', 'MDC', 'Active')});
+        page.setLoading();
+        record.save({
+            isNotEdit: true,
+            success: function () {
+                me.getApplication().fireEvent('acknowledge', isActive
+                    ? Uni.I18n.translate('metrologyconfiguration.deactivateMetrologyConfigurationSuccess', 'MDC', 'Metrology configuration deactivated')
+                    : Uni.I18n.translate('metrologyconfiguration.activateMetrologyConfigurationSuccess', 'MDC', 'Metrology configuration activated'));
+            },
+            failure: function () {
+                record.reject();
             },
             callback: function () {
                 page.setLoading(false);

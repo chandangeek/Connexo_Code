@@ -6,6 +6,10 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.EditRegisterForm', {
         'Uni.property.view.DefaultButton'
     ],
     alias: 'widget.device-register-edit-form',
+    layout: {
+        type: 'vbox',
+        align: 'stretch' // in order to completely see the error messages
+    },
     returnLink: null,
 
     initComponent: function () {
@@ -16,7 +20,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.EditRegisterForm', {
                 xtype: 'uni-form-error-message',
                 itemId: 'form-errors',
                 margin: '0 0 10 0',
-                width: 450,
+                maxWidth: 450,
                 hidden: true
             },
             {
