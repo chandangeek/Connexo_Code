@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.commands.offline;
 
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.util.streams.Functions;
+import com.elster.jupiter.util.streams.Predicates;
 import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
@@ -31,13 +32,22 @@ class PendingMessagesValidator {
 
     boolean isStillValid(DeviceMessage<Device> message) {
         if (this.hasCalendarAttribute(message)) {
-            Set<Calendar> allowedCalendars = this.allowedCalendars(device);
+            Set<Calendar> allowedCalendars = this.allowedCalendars(this.device);
             return this.calendarAttributeValues(message)
                             .stream()
                             .allMatch(allowedCalendars::contains);
         } else {
             return true;
         }
+    }
+
+    String failingCalendarNames(DeviceMessage<Device> message) {
+        Set<Calendar> allowedCalendars = this.allowedCalendars(this.device);
+        return this.calendarAttributeValues(message)
+                .stream()
+                .filter(Predicates.not(allowedCalendars::contains))
+                .map(Calendar::getName)
+                .collect(Collectors.joining(", "));
     }
 
     private boolean hasCalendarAttribute(DeviceMessage<Device> message) {

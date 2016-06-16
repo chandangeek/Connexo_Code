@@ -1,11 +1,13 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.issues.Problem;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
@@ -27,9 +29,10 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyList;
+import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -105,21 +108,22 @@ public class MessagesCommandImplTest {
     @Test
     public void testInvalidPendingMessages() throws Exception {
         when(messageTask.getDeviceMessageCategories()).thenReturn(Collections.singletonList(deviceMessageCategory));
-        OfflineDeviceMessage msg1 = getNewOfflineDeviceMessage(Instant.ofEpochSecond(1454284800));
-        List<OfflineDeviceMessage> deviceMessages = Collections.singletonList(msg1);
+        OfflineDeviceMessage message = getNewOfflineDeviceMessage(Instant.ofEpochSecond(1454284800));
+        List<OfflineDeviceMessage> deviceMessages = Collections.singletonList(message);
         when(offlineDevice.getAllInvalidPendingDeviceMessages()).thenReturn(deviceMessages);
         when(offlineDevice.getAllPendingDeviceMessages()).thenReturn(Collections.emptyList());
         when(offlineDevice.getAllSentDeviceMessages()).thenReturn(Collections.emptyList());
-
+        when(deviceProtocol.updateSentMessages(anyList())).thenReturn(mock(CollectedMessageList.class));
+        when(deviceProtocol.executePendingMessages(anyList())).thenReturn(mock(CollectedMessageList.class));
+        when(this.issueService.newProblem(any(), any(Thesaurus.class), any(MessageSeed.class), anyVararg())).thenReturn(mock(Problem.class));
         MessagesCommandImpl messagesCommand = new MessagesCommandImpl(messageTask, offlineDevice, commandRoot, comTaskExecution, this.issueService, this.thesaurus);
 
         // Business method
         messagesCommand.doExecute(this.deviceProtocol, null);
 
         // Asserts
-        verify(this.deviceProtocol, never()).executePendingMessages(anyList());
         verify(this.offlineDevice).getAllInvalidPendingDeviceMessages();
-        verify(this.issueService).newProblem(this.device, this.thesaurus, MessageSeeds.MESSAGE_NO_LONGER_VALID);
+        verify(this.issueService).newProblem(this.offlineDevice, this.thesaurus, MessageSeeds.MESSAGE_NO_LONGER_VALID);
     }
 
     private OfflineDeviceMessage getNewOfflineDeviceMessage(Instant releaseDate) {

@@ -230,7 +230,7 @@ public class MessagesCommandImpl extends SimpleComCommand implements MessagesCom
     public void doExecute(DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
         messagesCollectedData.add(deviceProtocol.updateSentMessages(this.sentMessages));
         messagesCollectedData.add(deviceProtocol.executePendingMessages(this.pendingMessages));
-        this.executeInvalidPendingMessages();
+        messagesCollectedData.add(this.executeInvalidPendingMessages());
         messagesCollectedData.stream().forEach(this::process);
         addListOfCollectedDataItems(messagesCollectedData);
     }

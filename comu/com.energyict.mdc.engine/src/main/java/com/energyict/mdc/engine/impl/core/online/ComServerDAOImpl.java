@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.core.online;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
@@ -98,6 +99,8 @@ public class ComServerDAOImpl implements ComServerDAO {
 
         Clock clock();
 
+        Thesaurus thesaurus();
+
         EngineConfigurationService engineConfigurationService();
 
         ConnectionTaskService connectionTaskService();
@@ -181,6 +184,11 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     private class OfflineDeviceServiceProvider implements OfflineDeviceImpl.ServiceProvider {
+
+        @Override
+        public Thesaurus thesaurus() {
+            return serviceProvider.thesaurus();
+        }
 
         @Override
         public TopologyService topologyService() {

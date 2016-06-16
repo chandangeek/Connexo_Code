@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.offline;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
@@ -7,6 +8,7 @@ import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
+import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
@@ -116,6 +118,8 @@ public class OfflineDeviceImpl implements OfflineDevice {
 
     public interface ServiceProvider {
 
+        Thesaurus thesaurus();
+
         TopologyService topologyService();
 
         Optional<DeviceCache> findProtocolCacheByDevice(Device device);
@@ -168,11 +172,17 @@ public class OfflineDeviceImpl implements OfflineDevice {
             List<DeviceMessage<Device>> invalidSinceCreation = new ArrayList<>();
             pendingMessages
                     .stream()
-                    .forEach(deviceDeviceMessage -> {
-                        if (validator.isStillValid(deviceDeviceMessage)) {
-                            reallyPending.add(deviceDeviceMessage);
+                    .forEach(deviceMessage -> {
+                        if (validator.isStillValid(deviceMessage)) {
+                            deviceMessage.setProtocolInformation(
+                                    this.serviceProvider.thesaurus()
+                                            .getFormat(MessageSeeds.CALENDAR_NO_LONGER_ALLOWED)
+                                            .format(
+                                                validator.failingCalendarNames(deviceMessage),
+                                                this.device.getDeviceType().getName()));
+                            reallyPending.add(deviceMessage);
                         } else {
-                            invalidSinceCreation.add(deviceDeviceMessage);
+                            invalidSinceCreation.add(deviceMessage);
                         }
                     });
             setAllPendingMessages(createOfflineMessageList(reallyPending));
@@ -405,9 +415,17 @@ public class OfflineDeviceImpl implements OfflineDevice {
     }
 
     private List<OfflineDeviceMessage> createOfflineMessageList(final List<DeviceMessage<Device>> deviceMessages) {
-        List<OfflineDeviceMessage> offlineDeviceMessages = new ArrayList<>(deviceMessages.size());
-        offlineDeviceMessages.addAll(deviceMessages.stream().map(deviceMessage -> new OfflineDeviceMessageImpl(deviceMessage, deviceMessage.getDevice().getDeviceProtocolPluggableClass().getDeviceProtocol(), serviceProvider.identificationService())).collect(Collectors.toList()));
-        return offlineDeviceMessages;
+        return deviceMessages
+                    .stream()
+                    .map(this::toOfflineDeviceMessage)
+                    .collect(Collectors.toList());
+    }
+
+    private OfflineDeviceMessageImpl toOfflineDeviceMessage(DeviceMessage<Device> deviceMessage) {
+        return new OfflineDeviceMessageImpl(
+                        deviceMessage,
+                        deviceMessage.getDevice().getDeviceProtocolPluggableClass().getDeviceProtocol(),
+                        serviceProvider.identificationService());
     }
 
     private void setId(final long id) {
