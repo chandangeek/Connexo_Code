@@ -9,6 +9,7 @@ import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.modbus.core.AbstractRegister;
 import com.energyict.protocolimpl.modbus.core.ModbusException;
+import com.energyict.protocolimpl.modbus.core.connection.ModbusConnection;
 import com.energyict.protocolimpl.modbus.core.functioncode.ReadStatuses;
 import com.energyict.protocolimpl.modbus.schneider.powerlogic.profile.ProfileBuilder;
 
@@ -16,12 +17,16 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.Properties;
+import java.util.TimeZone;
+import java.util.logging.Logger;
 
 public class PM5561 extends PM5560 implements SerialNumberSupport {
+    private static final String TIMEZONE = "TimeZone";
     private static final String APPLY_CTRATIO = "ApplyCTRatio";
     public static final int SETCLOCK			= 0x0104;
     private ProfileBuilder profileBuilder;
     private boolean applyCtRatio;
+    private String timeZone;
 
     @Override
     public String getSerialNumber() {
@@ -34,8 +39,14 @@ public class PM5561 extends PM5560 implements SerialNumberSupport {
 
     @Override
     protected void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
+        setTimeZone(properties.getProperty(TIMEZONE, "GMT"));
         applyCtRatio = Integer.parseInt(properties.getProperty(APPLY_CTRATIO, "0").trim()) == 1;
     }
+
+    private void setTimeZone(String timeZone) {
+        this.timeZone = timeZone;
+    }
+
 
     @Override
     protected void initRegisterFactory() {
@@ -77,12 +88,20 @@ public class PM5561 extends PM5560 implements SerialNumberSupport {
 
     @Override
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
-        return getProfileData(lastReading, new Date(), includeEvents);
+        if(getProfileBuilder().isSupported()) {
+            return getProfileData(lastReading, new Date(), includeEvents);
+        }else{
+            throw new UnsupportedException("ProfileData is not supported by the meter.");
+        }
     }
 
     @Override
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
-        return getProfileBuilder().getProfileData(from, to, includeEvents);
+        if(getProfileBuilder().isSupported()) {
+            return getProfileBuilder().getProfileData(from, to, includeEvents);
+        }else{
+            throw new UnsupportedException("ProfileData is not supported by the meter.");
+        }
     }
 
     public ProfileBuilder getProfileBuilder() {
@@ -96,4 +115,53 @@ public class PM5561 extends PM5560 implements SerialNumberSupport {
     public boolean isApplyCtRatio() {
         return applyCtRatio;
     }
+
+
+    /**
+     * Setter for the {@link ModbusConnection}
+     *
+     * @param modbusConnection - the used modbusConnection
+     */
+    public void setModbusConnection(ModbusConnection modbusConnection){
+        this.modbusConnection = modbusConnection;
+    }
+
+    /**
+     * Setter for the {@link Logger}
+     *
+     * @param logger - the desired logger
+     */
+    public void setLogger(Logger logger){
+        setAbstractLogger(logger);
+    }
+
+    /**
+     * The protocol version date
+     */
+    public String getProtocolVersion() {
+        return "$Date: 2016-06-16 16:58:46 +0300 (Thu, 16 Jun 2016)$";
+    }
+
+    @Override
+    public TimeZone getTimeZone(){
+        if (timeZone == null) {
+            timeZone = String.valueOf(TimeZone.getDefault());
+        }
+        return TimeZone.getTimeZone(timeZone);
+    }
+
+
+    @Override
+    public Date getTime() throws IOException {
+        return com.energyict.protocolimpl.modbus.emco.DateTime.parseDateTime(getDateTimeRegister().values(), getTimeZone()).getMeterCalender().getTime();
+    }
+
+    @Override
+    public void setTime() throws IOException {
+        getDateTimeRegister().getWriteMultipleRegisters(com.energyict.protocolimpl.modbus.emco.DateTime.getCurrentDate(getTimeZone()));
+    }
+    private AbstractRegister getDateTimeRegister() throws IOException {
+        return getRegisterFactory().findRegister(PM5561RegisterFactory.CurrentDateTime);
+    }
+
 }

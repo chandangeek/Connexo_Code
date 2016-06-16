@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.modbus.schneider.powerlogic.profile;
 
 import java.util.Date;
+import java.util.List;
 
 
 public class ProfileRecord {
@@ -9,18 +10,17 @@ public class ProfileRecord {
 
     private Date date;
     private boolean incompleteIntegrationPeriod;
-    private long value;
+    private List values;
+    private Object value;
 
     public ProfileRecord() {
     }
 
-    public static ProfileRecord parse(int[] values, int offset) {
-        int ptr = offset;
+    public static ProfileRecord parse(List values) {
         ProfileRecord profileRecord = new ProfileRecord();
-        long secondsSinceFistJan2000 = values[ptr++] <<16 | values[ptr++];
-        profileRecord.setDate(new Date((EPOCH_FIRST_JAN_2000 + secondsSinceFistJan2000) * 1000));
-        profileRecord.setIncompleteIntegrationPeriod(values[ptr++] != 0);
-        profileRecord.setValue(values[ptr++]);
+        Long secondsSinceFistJan2000 = (Long) values.get(0);
+        profileRecord.setDate(new Date((EPOCH_FIRST_JAN_2000 + secondsSinceFistJan2000.longValue()) * 1000));
+        profileRecord.setValues(values.subList(1, values.size()));
         return profileRecord;
     }
 
@@ -32,23 +32,15 @@ public class ProfileRecord {
         this.date = date;
     }
 
-    public boolean isIncompleteIntegrationPeriod() {
-        return incompleteIntegrationPeriod;
-    }
-
-    public void setIncompleteIntegrationPeriod(boolean incompleteIntegrationPeriod) {
-        this.incompleteIntegrationPeriod = incompleteIntegrationPeriod;
-    }
-
-    public long getValue() {
-        return value;
-    }
-
-    public void setValue(long value) {
-        this.value = value;
+    public void setValues(List values) {
+        this.values = values;
     }
 
     public int getWordLength() {
         return 4;
+    }
+
+    public List getValues() {
+        return values;
     }
 }

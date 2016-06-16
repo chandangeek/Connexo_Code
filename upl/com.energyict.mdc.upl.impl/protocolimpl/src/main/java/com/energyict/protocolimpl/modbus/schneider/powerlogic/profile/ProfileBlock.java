@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.modbus.schneider.powerlogic.profile;
 
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Unit;
 import com.energyict.protocol.*;
 
 import java.util.*;
@@ -11,8 +13,8 @@ public class ProfileBlock {
     private ProfileHeader profileHeader;
     private ProfileRecords profileRecords;
 
-    public ProfileBlock(int[] values, double ctRatio) {
-        this.profileHeader = ProfileHeader.parse(values, 0, ctRatio);
+    public ProfileBlock(List values) {
+        this.profileHeader = ProfileHeader.parse(values);
         this.profileRecords = ProfileRecords.parse(values, this.profileHeader, this.profileHeader.getWordLength());
     }
 
@@ -33,7 +35,7 @@ public class ProfileBlock {
 
     private List<ChannelInfo> buildChannelInfos() {
         List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
-        channelInfos.add(new ChannelInfo(channelInfos.size(), CHANNEL_OBIS, getProfileHeader().getEisUnit()));
+        channelInfos.add(new ChannelInfo(channelInfos.size(), CHANNEL_OBIS, Unit.get(BaseUnit.VOLTAMPEREREACTIVE)));
         return channelInfos;
     }
 
@@ -41,24 +43,26 @@ public class ProfileBlock {
         List<IntervalData> intervalDatas = new ArrayList<IntervalData>();
         for (ProfileRecord profileRecord : getProfileRecords().getProfileRecords()) {
             List<IntervalValue> intervalValues = new ArrayList<IntervalValue>();
-            double value = profileRecord.getValue() * getProfileHeader().getNumeratorRate() / getProfileHeader().getDenominatorRate();
-            double valueWithCtRate = value * getProfileHeader().getCtRatio();
+            //double value = (Long)profileRecord.getValue() * (Long)getProfileHeader().getNumeratorRate() / getProfileHeader().getDenominatorRate();
 
-            intervalValues.add(new IntervalValue(
-                    valueWithCtRate,
-                    0,
-                    0
-            ));
+            for(Object value: profileRecord.getValues()){
+                intervalValues.add(new IntervalValue(
+                        (Long)value,
+                        0,
+                        0
+                ));
+            }
 
-            intervalDatas.add(
-                    new IntervalData(
-                            profileRecord.getDate(),
-                            IntervalStateBits.OK,
-                            profileRecord.isIncompleteIntegrationPeriod() ? 1 : 0,
-                            IntervalStateBits.POWERDOWN,
-                            intervalValues
-                    )
-            );
+
+//            intervalDatas.add(
+//                    new IntervalData(
+//                            profileRecord.getDate(),
+//                            IntervalStateBits.OK,
+//                            0,
+//                            IntervalStateBits.POWERDOWN,
+//                            intervalValues
+//                    )
+//            );
         }
 
         sortIntervalData(intervalDatas);

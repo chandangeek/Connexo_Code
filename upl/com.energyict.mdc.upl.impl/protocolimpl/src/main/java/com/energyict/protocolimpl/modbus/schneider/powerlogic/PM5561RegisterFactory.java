@@ -13,6 +13,9 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 public class PM5561RegisterFactory extends AbstractRegisterFactory{
+    protected static final String CurrentDateTime = "CurrentDateTime";
+    public final static String profileInterval	= "profileInterval";
+    public final static String channelInfos	= "channelInfos";
     public static final String SERIAL_NUMBER = "SerialNo";
     private static final String Ascii16Parser = "Ascii16Parser";
     private static final String AsciiParser = "AsciiParser";
@@ -31,6 +34,12 @@ public class PM5561RegisterFactory extends AbstractRegisterFactory{
     private static final int KILO_SCALE = 3;
     private static final int DECA_SCALE = 1;
     private static final int MEGA_SCALE = 6;
+
+    public static final String LOAD_PROFILE_STATUS = "Load Profile Status";
+    public static final String LOAD_PROFILE_RECORD_ITEM1 = "Load Profile Configuration";
+    public static final String LOAD_PROFILE_FIRST_RECORD = "Load Profile Configuration - First Record Sequence Number";
+    public static final String LOAD_PROFILE_LAST_RECORD = "Load Profile Configuration - Last Record Sequence Number";
+    private static final String LOAD_PROFILE_NUMBER_OF_RECORDS = "Number of records in file";
 
     public PM5561RegisterFactory(Modbus modBus) {
         super(modBus);
@@ -51,8 +60,6 @@ public class PM5561RegisterFactory extends AbstractRegisterFactory{
         getRegisters().add(new HoldingRegister(0x88, 2, ObisCode.fromString("1.0.96.6.0.255"), "Hardware Revision").setParser(UnsignedValueParser));
         getRegisters().add(new HoldingRegister(0x665, 2, ObisCode.fromString("1.0.96.7.0.255"), "Present Firmware Version (DLF Format) X.Y.T").setParser(UnsignedValueParser));
         getRegisters().add(new HoldingRegister(0x66A, 2, ObisCode.fromString("1.0.96.8.0.255"), "Previous Firmware Version (DLF Format) X.Y.T").setParser(UnsignedValueParser));
-
-
 
         //Meteorology affected by current and voltage transformers
         getRegisters().add(new HoldingRegister(0xBCC, 2, ObisCode.fromString("1.0.128.7.0.255"), "Voltage A-B").setParser(VOLTAGE));
@@ -93,25 +100,22 @@ public class PM5561RegisterFactory extends AbstractRegisterFactory{
 //        getRegisters().add(new HoldingRegister(0xC68C, 1, ObisCode.fromString("1.0.1.5.0.255"), Unit.get(BaseUnit.WATT), "Last average (P+) (not affected by CT and VT)").setParser(UnsignedValueCheckNotAvailableParser));
 
 
-
-
-
-
-
-
         //Energy values per tariff
-
-
-
-
-
-
         getRegisters().add(new HoldingRegister(0xC84, 4, ObisCode.fromString("170.3.12.132.133.255"), "Active Energy Delivered (Into Load)").setParser(Integer.toString(DataTypeSelector.LONG_DATA_TYPE.getDataTypeCode())));
 
+        //CurrentDateTime
+        getRegisters().add(new HoldingRegister(0x72D, 6, CurrentDateTime));
 
         //Load Profiles
         getRegisters().add(new HoldingRegister(0x856, 1, ObisCode.fromString("0.1.128.0.0.255"), "Energy Channel").setParser(UnsignedValueParser));
         getRegisters().add(new HoldingRegister(0x4A38, 1, ObisCode.fromString("170.3.74.56.3.255"), "Logging Status").setParser(UnsignedValueParser));
+
+        // LoadProfile related registers
+        getRegisters().add(new HoldingRegister(0x4A38, 1, ObisCode.fromString("170.3.74.60.3.255"), LOAD_PROFILE_STATUS).setParser(UnsignedValueParser));
+        getRegisters().add(new HoldingRegister(0x4A49, 1, ObisCode.fromString("170.3.74.73.3.255"), LOAD_PROFILE_RECORD_ITEM1).setParser(UnsignedValueParser));
+        getRegisters().add(new HoldingRegister(0x4A3E, 1, ObisCode.fromString("170.3.74.62.3.255"), LOAD_PROFILE_FIRST_RECORD).setParser(UnsignedValueParser));
+        getRegisters().add(new HoldingRegister(0x4A3F, 1, ObisCode.fromString("170.3.74.63.3.255"),LOAD_PROFILE_LAST_RECORD).setParser(UnsignedValueParser));
+        getRegisters().add(new HoldingRegister(0x4A3D, 1, ObisCode.fromString("170.3.74.61.3.255"),LOAD_PROFILE_NUMBER_OF_RECORDS).setParser(UnsignedValueParser));
 
     }
 
@@ -317,6 +321,7 @@ public class PM5561RegisterFactory extends AbstractRegisterFactory{
             return returnValue;
         }
     }
+
     protected int[] convertLittleToBigEndian(int[] values) {
         int[] result = new int[values.length];
         for (int i = 0; i < values.length; i++) {
