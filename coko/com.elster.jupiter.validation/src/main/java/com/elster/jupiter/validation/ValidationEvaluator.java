@@ -39,7 +39,7 @@ public interface ValidationEvaluator {
     /**
      * checks if there's at least one suspect put to {@link ChannelsContainer} by one of the {@param qualityCodeSystems}
      * @param qualityCodeSystems systems to take into account when checking for suspects; <code>null</code> or empty set mean all systems
-     * @param meterActivation {@link ChannelsContainer} to check
+     * @param channelsContainer {@link ChannelsContainer} to check
      * @return <code>true</code> if there's at least a suspect, <code>false</code> otherwise
      */
     boolean areSuspectsPresent(Set<QualityCodeSystem> qualityCodeSystems, ChannelsContainer channelsContainer);
