@@ -132,10 +132,6 @@ public class ValidationRuleSetTest extends EqualsContractTest {
     public void testGetApplicationNameGetQualityCodeSystem() {
         assertThat(validationRuleSet.getApplicationName()).isEqualTo(APPLICATION);
         assertThat(validationRuleSet.getQualityCodeSystem()).isEqualTo(QualityCodeSystem.MDC);
-        assertThat(validationRuleSet.init(NAME, "INS", null).getQualityCodeSystem())
-                .isEqualTo(QualityCodeSystem.MDM);
-        assertThat(validationRuleSet.init(NAME, "BOOTLEG", null).getQualityCodeSystem())
-                .isEqualTo(QualityCodeSystem.NOTAPPLICABLE);
     }
 
     @Test
