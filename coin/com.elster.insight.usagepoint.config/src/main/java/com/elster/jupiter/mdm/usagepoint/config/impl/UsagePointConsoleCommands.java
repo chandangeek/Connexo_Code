@@ -78,7 +78,7 @@ public class UsagePointConsoleCommands {
                     .principal(() -> "console")
                     .run(() -> {
                         MetrologyConfiguration metrologyConfiguration = metrologyConfigurationService.findMetrologyConfiguration(id).get();
-                        metrologyConfiguration.updateName(name);
+                        metrologyConfiguration.startUpdate().setName(name).complete();
                     });
         } catch (Exception e) {
             e.printStackTrace();
