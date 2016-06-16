@@ -4,6 +4,8 @@ import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointFilter;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -117,7 +119,8 @@ public class DataValidationTaskExecutor implements TaskExecutor {
                                 validationService.validate(channelsContainer);
                                 transactionContext.commit();
                             }
-                            transactionService.execute(VoidTransaction.of(() -> MessageSeeds.TASK_VALIDATED_SUCCESFULLY.log(logger, thesaurus, device.getMRID(), occurrence.getStartDate().get())));
+                            transactionService.execute(VoidTransaction.of(() -> MessageSeeds.DEVICE_TASK_VALIDATED_SUCCESFULLY.log(logger, thesaurus, device.getMRID(), occurrence.getStartDate()
+                                    .get())));
                         }
 
                     }
@@ -125,9 +128,23 @@ public class DataValidationTaskExecutor implements TaskExecutor {
                 break;
             case INSIGHT_KEY:
                 MetrologyContract metrologyContract = task.getMetrologyContract().get();
-                // Validation should be added in scope of "Usage point validation".
+                UsagePointFilter usagePointFilter = new UsagePointFilter();
+                usagePointFilter.setMetrologyContract(metrologyContract);
+                meteringService.getUsagePoints(usagePointFilter).stream()
+                        .map(UsagePoint::getEffectiveMetrologyConfiguration)
+                        .filter(Optional::isPresent)
+                        .map(Optional::get)
+                        .forEach(effectiveMetrologyConfiguration -> {
+                            effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract).ifPresent(channelsContainer -> {
+                                try (TransactionContext transactionContext = transactionService.getContext()) {
+                                    validationService.validate(channelsContainer);
+                                    transactionContext.commit();
+                                }
+                                transactionService.execute(VoidTransaction.of(() -> MessageSeeds.USAGE_POINT_TASK_VALIDATED_SUCCESFULLY.log(logger, thesaurus, effectiveMetrologyConfiguration.getUsagePoint()
+                                        .getMRID(), occurrence.getStartDate().get())));
+                            });
+                        });
                 break;
-
         }
     }
 
