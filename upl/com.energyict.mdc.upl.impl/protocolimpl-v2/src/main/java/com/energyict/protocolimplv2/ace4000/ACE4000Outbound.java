@@ -62,7 +62,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
     }
 
     public String getVersion() {
-        return "$Date: 2016-05-06 09:43:54 +0300 (Fri, 06 May 2016)$";
+        return "$Date: 2016-06-16 08:51:46 +0300 (Thu, 16 Jun 2016)$";
     }
 
     @Override
@@ -74,6 +74,8 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
                 CollectedLoadProfileConfiguration config = MdcManager.getCollectedDataFactory().createCollectedLoadProfileConfiguration(profileObisCode, getSerialNumber());
                 if (!profileObisCode.equals(DeviceLoadProfileSupport.GENERIC_LOAD_PROFILE_OBISCODE)) {                        //Only one LP is supported
                     config.setSupportedByMeter(false);
+                } else {
+                    config.setChannelInfos(loadProfileReader.getChannelInfos());
                 }
                 result.add(config);
             } else {                                                                                    //Slave doesn't support
