@@ -35,7 +35,7 @@ public class SerialDeviceProtocolDialectPropertyPersistenceSupport implements Pe
 
     @Override
     public String tableName() {
-        return DeviceProtocolService.COMPONENT_NAME + "_SERIAL_DIALECT";
+        return DeviceProtocolService.COMPONENT_NAME + "SERIAL_DIALECT";
     }
 
     @Override
