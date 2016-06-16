@@ -38,6 +38,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anySetOf;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -99,7 +100,7 @@ public class ForceValidationAndEstimationTest {
         forceValidationAndEstimation.execute(this.device, Instant.now(), Collections.emptyList());
 
         verify(validationService, never()).validate(any(MeterActivation.class));
-        verify(estimationService, never()).estimate(any(MeterActivation.class), any(Range.class));
+        verify(estimationService, never()).estimate(eq(QualityCodeSystem.MDC), any(MeterActivation.class), any(Range.class));
     }
 
     @Test
@@ -114,7 +115,7 @@ public class ForceValidationAndEstimationTest {
         forceValidationAndEstimation.execute(this.device, Instant.now(), Collections.emptyList());
 
         verify(validationService, never()).validate(any(MeterActivation.class));
-        verify(estimationService, never()).estimate(any(MeterActivation.class), any(Range.class));
+        verify(estimationService, never()).estimate(eq(QualityCodeSystem.MDC), any(MeterActivation.class), any(Range.class));
     }
 
     @Test
@@ -152,7 +153,7 @@ public class ForceValidationAndEstimationTest {
 
         // Asserts
         verify(validationService).validate(meterActivation);
-        verify(estimationService).estimate(meterActivation, meterActivation.getRange());
+        verify(estimationService).estimate(QualityCodeSystem.MDC, meterActivation, meterActivation.getRange());
     }
 
     @Test(expected = ForceValidationAndEstimation.ForceValidationAndEstimationException.class)
