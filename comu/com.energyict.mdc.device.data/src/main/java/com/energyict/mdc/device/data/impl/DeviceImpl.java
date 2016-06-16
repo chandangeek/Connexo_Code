@@ -1437,24 +1437,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return meterHasData;
     }
 
-    @Override
-    public void setProtocolProperty(String name, Object value) {
-        Optional<PropertySpec> optionalPropertySpec = getPropertySpecForProperty(name);
-        if (optionalPropertySpec.isPresent()) {
-            String propertyValue = optionalPropertySpec.get().getValueFactory().toStringValue(value);
-            boolean notUpdated = !updatePropertyIfExists(name, propertyValue);
-            if (notUpdated) {
-                addDeviceProperty(optionalPropertySpec, propertyValue);
-            }
-            if (getId() > 0) {
-                dataModel.touch(this);
-            }
-        } else {
-            throw DeviceProtocolPropertyException.propertyDoesNotExistForDeviceProtocol(name, this.getDeviceProtocolPluggableClass()
-                    .getDeviceProtocol(), this, thesaurus, MessageSeeds.DEVICE_PROPERTY_NOT_ON_DEVICE_PROTOCOL);
-        }
-    }
-
     private List<ProfileStatus.Flag> getFlagsFromProfileStatus(ProfileStatus profileStatus) {
         List<ProfileStatus.Flag> flags = new ArrayList<>();
         for (ProfileStatus.Flag flag : ProfileStatus.Flag.values()) {
@@ -3255,22 +3237,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     @Override
-    public List<DeviceLifeCycleChangeEvent> getDeviceLifeCycleChangeEvents() {
-        // Merge the StateTimeline with the list of change events from my DeviceType.
-        Deque<StateTimeSlice> stateTimeSlices = new LinkedList<>(this.getStateTimeline().getSlices());
-        Deque<com.energyict.mdc.device.config.DeviceLifeCycleChangeEvent> deviceTypeChangeEvents = new LinkedList<>(this.getDeviceTypeLifeCycleChangeEvents());
-        List<DeviceLifeCycleChangeEvent> changeEvents = new ArrayList<>();
-        boolean notReady;
-        do {
-            DeviceLifeCycleChangeEvent newEvent = this.newEventForMostRecent(stateTimeSlices, deviceTypeChangeEvents);
-            changeEvents.add(newEvent);
-            notReady = !stateTimeSlices.isEmpty() || !deviceTypeChangeEvents.isEmpty();
-        } while (notReady);
-        return changeEvents;
-    }
-
-
-    @Override
     public long getVersion() {
         return version;
     }
@@ -3279,6 +3245,4 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     public Instant getCreateTime() {
         return createTime;
     }
-
-
 }
