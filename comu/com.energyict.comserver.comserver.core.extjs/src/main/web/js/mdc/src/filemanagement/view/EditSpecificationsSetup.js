@@ -23,7 +23,7 @@ Ext.define('Mdc.filemanagement.view.EditSpecificationsSetup', {
                 },
                 items: [
                     {
-                        xtype: 'tou-devicetype-edit-specs-form',
+                        xtype: 'files-devicetype-edit-specs-form',
                         deviceTypeId: me.deviceTypeId
                     }
                 ]
