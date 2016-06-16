@@ -187,7 +187,7 @@ Ext.define('Cfg.controller.DataValidationKpi', {
                             Ext.each(json.errors, function (error) {
 
                                 if (error.id === 'endDeviceGroup') {
-                                    deviceGroupCombo.markInvalid(error.msg);
+                                    editForm.down('[name=deviceGroup]').markInvalid(error.msg);
                                 }
                             });
                             editForm.getForm().markInvalid(json.errors);
