@@ -1,6 +1,7 @@
 package com.elster.jupiter.estimation.impl;
 
 import com.elster.jupiter.cbo.IdentifiedObject;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.estimation.Estimatable;
 import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.estimation.EstimationResult;
@@ -96,11 +97,15 @@ public class ConsoleCommands {
     }
 
     public void availableEstimators() {
-        System.out.println("Usage: availableEstimators <applicationName: INS, MDC>");
+        System.out.println("Usage: availableEstimators <qualityCodeSystem: MDM, MDC, OTHER>");
     }
 
-    public void availableEstimators(String applicationName) {
-        estimationService.getAvailableEstimators(applicationName).stream()
+    public void availableEstimators(String qualityCodeSystem) {
+        QualityCodeSystem system = Stream.of(QualityCodeSystem.values())
+                .filter(s -> s.name().equals(qualityCodeSystem))
+                .findAny()
+                .orElse(QualityCodeSystem.OTHER);
+        estimationService.getAvailableEstimators(system).stream()
                 .peek(est -> System.out.println(est.getDefaultFormat()))
                 .flatMap(est -> est.getPropertySpecs().stream())
                 .map(spec -> spec.getName() + ' ' + spec.getValueFactory().getValueType().toString())
@@ -108,14 +113,17 @@ public class ConsoleCommands {
     }
 
     public void createRuleSet() {
-        System.out.println("Usage: createRuleSet <ruleSetName> <applicationName: INS, MDC>");
+        System.out.println("Usage: createRuleSet <ruleSetName> <qualityCodeSystem: MDM, MDC, OTHER>");
     }
 
-    public void createRuleSet(String name, String applicationName) {
+    public void createRuleSet(String name, String qualityCodeSystem) {
         threadPrincipalService.set(() -> "Console");
         try {
             transactionService.execute(VoidTransaction.of(() -> {
-                EstimationRuleSet estimationRuleSet = estimationService.createEstimationRuleSet(name, applicationName);
+                EstimationRuleSet estimationRuleSet = estimationService.createEstimationRuleSet(name, Stream.of(QualityCodeSystem.values())
+                        .filter(system -> system.name().equals(qualityCodeSystem))
+                        .findAny()
+                        .orElse(QualityCodeSystem.OTHER));
                 estimationRuleSet.save();
                 System.out.println(print(estimationRuleSet));
             }));
@@ -306,7 +314,7 @@ public class ConsoleCommands {
         try (TransactionContext context = transactionService.getContext()) {
             EstimationTask estimationTask = estimationService.newBuilder()
                     .setName(name)
-                    .setApplication("MDC")
+                    .setQualityCodeSystem(QualityCodeSystem.MDC)
                     .setNextExecution(Instant.ofEpochMilli(nextExecution))
                     .setEndDeviceGroup(endDeviceGroup(groupId))
                     .setScheduleExpression(parse(scheduleExpression)).create();

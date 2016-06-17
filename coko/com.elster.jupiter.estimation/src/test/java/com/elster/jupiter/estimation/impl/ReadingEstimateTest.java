@@ -167,7 +167,7 @@ public class ReadingEstimateTest {
                 }
 
                 @Override
-                public Set<String> getSupportedApplications() {
+                public Set<QualityCodeSystem> getSupportedQualityCodeSystems() {
                     return Collections.emptySet();
                 }
             };
@@ -284,7 +284,7 @@ public class ReadingEstimateTest {
         EstimationRuleSet ruleSet = null;
         EstimationRule rule = null;
         try (TransactionContext ctx = transactionService.getContext()) {
-            ruleSet = estimationService.createEstimationRuleSet("testRuleSet", "MDC");
+            ruleSet = estimationService.createEstimationRuleSet("testRuleSet", QualityCodeSystem.MDC);
             rule = ruleSet.addRule(IMPLEMENTATION, "testRule")
                     .withReadingType(readingType)
                     .active(true)

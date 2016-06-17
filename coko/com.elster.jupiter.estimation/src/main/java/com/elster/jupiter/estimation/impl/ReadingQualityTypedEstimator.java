@@ -1,5 +1,6 @@
 package com.elster.jupiter.estimation.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.estimation.EstimationResult;
 import com.elster.jupiter.estimation.Estimator;
@@ -62,8 +63,8 @@ class ReadingQualityTypedEstimator implements Estimator {
     }
 
     @Override
-    public Set<String> getSupportedApplications() {
-        return decorated.getSupportedApplications();
+    public Set<QualityCodeSystem> getSupportedQualityCodeSystems() {
+        return decorated.getSupportedQualityCodeSystems();
     }
 
 }

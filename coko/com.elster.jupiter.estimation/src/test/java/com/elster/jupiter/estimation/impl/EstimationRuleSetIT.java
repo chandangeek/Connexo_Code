@@ -169,7 +169,7 @@ public class EstimationRuleSetIT {
     public void testPersist() {
         UpdatableHolder<Long> ruleSetId = new UpdatableHolder<>(null);
         transactionService.execute(VoidTransaction.of(() -> {
-                    EstimationRuleSet estimationRuleSet = estimationService.createEstimationRuleSet("myRuleSet", "MDC");
+            EstimationRuleSet estimationRuleSet = estimationService.createEstimationRuleSet("myRuleSet", QualityCodeSystem.MDC);
                     EstimationRule zeroesRule = estimationRuleSet.addRule(ZERO_FILL, "consecutiveZeroes")
                             .withReadingType(readingType)
                             .havingProperty(MAX_NUMBER_IN_SEQUENCE)
@@ -192,7 +192,7 @@ public class EstimationRuleSetIT {
     public void testAddSecondRuleSeeIfReadingTypesArentLost() {
         EstimationRuleSet estimationRuleSet;
         try (TransactionContext context = transactionService.getContext()) {
-            estimationRuleSet = estimationService.createEstimationRuleSet("myRuleSet", "MDC");
+            estimationRuleSet = estimationService.createEstimationRuleSet("myRuleSet", QualityCodeSystem.MDC);
             EstimationRule zeroesRule = estimationRuleSet.addRule(ZERO_FILL, "consecutiveZeroes")
                     .withReadingType(readingType)
                     .havingProperty(MAX_NUMBER_IN_SEQUENCE).withValue(BigDecimal.valueOf(20))
@@ -218,7 +218,7 @@ public class EstimationRuleSetIT {
     public void testAddSecondRuleSeeIfPropertiesArentLost() {
         EstimationRuleSet estimationRuleSet;
         try (TransactionContext context = transactionService.getContext()) {
-            estimationRuleSet = estimationService.createEstimationRuleSet("myRuleSet", "MDC");
+            estimationRuleSet = estimationService.createEstimationRuleSet("myRuleSet", QualityCodeSystem.MDC);
             EstimationRule zeroesRule = estimationRuleSet.addRule(ZERO_FILL, "consecutiveZeroes")
                     .withReadingType(readingType)
                     .havingProperty(MAX_NUMBER_IN_SEQUENCE).withValue(BigDecimal.valueOf(20))
@@ -244,7 +244,7 @@ public class EstimationRuleSetIT {
     public void testReorderRules() {
         UpdatableHolder<Long> ruleSetId = new UpdatableHolder<>(null);
         transactionService.execute(VoidTransaction.of(() -> {
-                    EstimationRuleSet estimationRuleSet = estimationService.createEstimationRuleSet("myRuleSet", "MDC");
+            EstimationRuleSet estimationRuleSet = estimationService.createEstimationRuleSet("myRuleSet", QualityCodeSystem.MDC);
                     EstimationRule zeroesRule = estimationRuleSet.addRule(ZERO_FILL, "consecutiveZeroes")
                             .withReadingType(readingType)
                             .havingProperty(MAX_NUMBER_IN_SEQUENCE).withValue(BigDecimal.valueOf(20))
@@ -274,7 +274,7 @@ public class EstimationRuleSetIT {
     public void testFindEstimationRuleByQualityType() {
         UpdatableHolder<Long> ruleId = new UpdatableHolder<>(null);
         transactionService.execute(VoidTransaction.of(() -> {
-                    EstimationRuleSet estimationRuleSet = estimationService.createEstimationRuleSet("myRuleSet", "MDC");
+            EstimationRuleSet estimationRuleSet = estimationService.createEstimationRuleSet("myRuleSet", QualityCodeSystem.MDC);
                     EstimationRule zeroesRule = estimationRuleSet.addRule(ZERO_FILL, "consecutiveZeroes")
                             .withReadingType(readingType)
                             .havingProperty(MAX_NUMBER_IN_SEQUENCE).withValue(BigDecimal.valueOf(20))

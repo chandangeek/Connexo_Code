@@ -1,5 +1,6 @@
 package com.elster.jupiter.estimation.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.estimation.EstimationBlock;
@@ -204,20 +205,20 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
     }
 
     @Override
-    public List<String> getAvailableEstimatorImplementations(String targetApplication) {
+    public List<String> getAvailableEstimatorImplementations(QualityCodeSystem qualityCodeSystem) {
         return estimatorFactories.stream()
                 .flatMap(factory -> factory.available().stream()
-                        .filter(implementation -> factory.createTemplate(implementation).getSupportedApplications().contains(targetApplication)))
+                        .filter(implementation -> factory.createTemplate(implementation).getSupportedQualityCodeSystems().contains(qualityCodeSystem)))
                 .distinct()
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<Estimator> getAvailableEstimators(String targetApplication) {
+    public List<Estimator> getAvailableEstimators(QualityCodeSystem qualityCodeSystem) {
         return estimatorFactories.stream()
                 .flatMap(factory -> factory.available().stream()
                         .map(factory::createTemplate)
-                        .filter(estimator -> estimator.getSupportedApplications().contains(targetApplication)))
+                        .filter(estimator -> estimator.getSupportedQualityCodeSystems().contains(qualityCodeSystem)))
                 .collect(Collectors.toList());
     }
 
@@ -321,7 +322,9 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
                         EstimationResult estimationResult = result.get();
                         estimationResult.estimated().stream().forEach(block -> report.reportEstimated(readingType, block));
                         EstimationResult newResult = estimator.estimate(estimationResult.remainingToBeEstimated());
-                        newResult.estimated().stream().forEach(block -> loggingContext.info(logger, "Successful estimation with {rule}: block {0}", EstimationBlockFormatter.getInstance().format(block)));
+                        newResult.estimated()
+                                .stream()
+                                .forEach(block -> loggingContext.info(logger, "Successful estimation with {rule}: block {0}", EstimationBlockFormatter.getInstance().format(block)));
                         result.update(newResult);
                     }
                 });
@@ -338,15 +341,15 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
     }
 
     @Override
-    public EstimationRuleSet createEstimationRuleSet(String name, String applicationName) {
-        EstimationRuleSetImpl set = dataModel.getInstance(EstimationRuleSetImpl.class).init(name, applicationName);
+    public EstimationRuleSet createEstimationRuleSet(String name, QualityCodeSystem qualityCodeSystem) {
+        EstimationRuleSetImpl set = dataModel.getInstance(EstimationRuleSetImpl.class).init(name, qualityCodeSystem);
         set.save();
         return set;
     }
 
     @Override
-    public EstimationRuleSet createEstimationRuleSet(String name, String applicationName, String description) {
-        EstimationRuleSet set = dataModel.getInstance(EstimationRuleSetImpl.class).init(name, applicationName, description);
+    public EstimationRuleSet createEstimationRuleSet(String name, QualityCodeSystem qualityCodeSystem, String description) {
+        EstimationRuleSet set = dataModel.getInstance(EstimationRuleSetImpl.class).init(name, qualityCodeSystem, description);
         set.save();
         return set;
     }
@@ -419,7 +422,7 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
     public List<? extends EstimationTask> findEstimationTasks(String application) {
         return getEstimationTaskQuery().select(Condition.TRUE, Order.descending("lastRun").nullsLast())
                 .stream()
-                .filter(task -> task.getApplication().equals(application))
+                .filter(task -> task.getQualityCodeSystem().equals(application))
                 .collect(Collectors.toList());
     }
 

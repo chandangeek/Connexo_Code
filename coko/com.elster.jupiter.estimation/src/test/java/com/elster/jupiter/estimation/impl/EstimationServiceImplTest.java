@@ -36,9 +36,9 @@ import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.RelativePeriodCategory;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
-import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 
 import com.google.common.collect.ImmutableList;
@@ -285,31 +285,31 @@ public class EstimationServiceImplTest {
 
     @Test
     public void testGetAvailableEstimators() {
-        when(estimator1.getSupportedApplications()).thenReturn(ImmutableSet.of("APP", "APP1"));
-        when(estimator2.getSupportedApplications()).thenReturn(ImmutableSet.of("APP"));
-        assertThat(estimationService.getAvailableEstimators("APP"))
-                .as("Both estimators must be supported for APP")
+        when(estimator1.getSupportedQualityCodeSystems()).thenReturn(ImmutableSet.of(QualityCodeSystem.ENDDEVICE, QualityCodeSystem.EXTERNAL));
+        when(estimator2.getSupportedQualityCodeSystems()).thenReturn(ImmutableSet.of(QualityCodeSystem.ENDDEVICE));
+        assertThat(estimationService.getAvailableEstimators(QualityCodeSystem.ENDDEVICE))
+                .as("Both estimators must be supported for ENDDEVICE")
                 .containsExactly(estimator1, estimator2);
-        assertThat(estimationService.getAvailableEstimators("APP1"))
-                .as("Only estimator1 must be supported for APP1")
+        assertThat(estimationService.getAvailableEstimators(QualityCodeSystem.EXTERNAL))
+                .as("Only estimator1 must be supported for EXTERNAL")
                 .containsExactly(estimator1);
-        assertThat(estimationService.getAvailableEstimators("NoAPP"))
-                .as("No estimator must be supported for NoAPP")
+        assertThat(estimationService.getAvailableEstimators(QualityCodeSystem.OTHER))
+                .as("No estimator must be supported for OTHER")
                 .isEmpty();
     }
 
     @Test
     public void testGetAvailableEstimatorImplementations() {
-        when(estimator1.getSupportedApplications()).thenReturn(ImmutableSet.of("APP"));
-        when(estimator2.getSupportedApplications()).thenReturn(ImmutableSet.of("APP", "APP1"));
-        assertThat(estimationService.getAvailableEstimatorImplementations("APP"))
-                .as("Both estimators must be supported for APP")
+        when(estimator1.getSupportedQualityCodeSystems()).thenReturn(ImmutableSet.of(QualityCodeSystem.ENDDEVICE));
+        when(estimator2.getSupportedQualityCodeSystems()).thenReturn(ImmutableSet.of(QualityCodeSystem.ENDDEVICE, QualityCodeSystem.EXTERNAL));
+        assertThat(estimationService.getAvailableEstimatorImplementations(QualityCodeSystem.ENDDEVICE))
+                .as("Both estimators must be supported for ENDDEVICE")
                 .containsExactly("Estimator1", "Estimator2");
-        assertThat(estimationService.getAvailableEstimatorImplementations("APP1"))
-                .as("Only estimator2 must be supported for APP1")
+        assertThat(estimationService.getAvailableEstimatorImplementations(QualityCodeSystem.EXTERNAL))
+                .as("Only estimator2 must be supported for EXTERNAL")
                 .containsExactly("Estimator2");
-        assertThat(estimationService.getAvailableEstimatorImplementations("NoAPP"))
-                .as("No estimator must be supported for NoAPP")
+        assertThat(estimationService.getAvailableEstimatorImplementations(QualityCodeSystem.OTHER))
+                .as("No estimator must be supported for OTHER")
                 .isEmpty();
     }
 }

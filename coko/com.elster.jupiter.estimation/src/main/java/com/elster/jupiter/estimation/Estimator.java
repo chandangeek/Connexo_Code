@@ -1,5 +1,6 @@
 package com.elster.jupiter.estimation;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.properties.HasDynamicProperties;
 import com.elster.jupiter.properties.PropertySpec;
@@ -45,11 +46,11 @@ public interface Estimator extends HasDynamicProperties {
     List<String> getRequiredProperties();
 
     /**
-     * Returns the set of target applications supported by this estimator.
+     * Returns the set of target quality code systems supported by this estimator.
      *
      * @return the set of target applications supported by this estimator.
-     * @see EstimationService#getAvailableEstimatorImplementations(String)
-     * @see EstimationService#getAvailableEstimators(String)
+     * @see EstimationService#getAvailableEstimatorImplementations(QualityCodeSystem)
+     * @see EstimationService#getAvailableEstimators(QualityCodeSystem)
      */
-    Set<String> getSupportedApplications();
+    Set<QualityCodeSystem> getSupportedQualityCodeSystems();
 }
