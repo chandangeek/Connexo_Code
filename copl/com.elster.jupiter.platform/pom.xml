@@ -690,7 +690,6 @@
                 <module>../com.elster.jupiter.messaging.oracle</module>
                 <module>../com.elster.jupiter.nls.rest</module>
                 <module>../com.elster.jupiter.orm</module>
-                <module>../com.elster.jupiter.orm.schema.oracle</module>
                 <module>../com.elster.jupiter.osgi.goodies</module>
                 <module>../com.elster.jupiter.properties</module>
                 <module>../com.elster.jupiter.public.rest.util</module>
