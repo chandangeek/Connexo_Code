@@ -1,6 +1,7 @@
 package com.elster.jupiter.estimation.rest.impl;
 
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleBuilder;
@@ -94,6 +95,11 @@ public class EstimationResource {
         this.conflictFactory = conflictFactory;
     }
 
+    private QualityCodeSystem getQualityCodeSystemFromApplicationName(@HeaderParam(APPLICATION_HEADER_PARAM) String applicationName) {
+        // TODO kore shouldn't know anything about applications, to be fixed
+        return "MDC".equals(applicationName) ? QualityCodeSystem.MDC : QualityCodeSystem.MDM;
+    }
+
     /**
      * Get all estimation rulesets
      *
@@ -106,7 +112,7 @@ public class EstimationResource {
             Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE, Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
     public EstimationRuleSetInfos getEstimationRuleSets(@HeaderParam(APPLICATION_HEADER_PARAM) String applicationName, @Context UriInfo uriInfo) {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
-        List<EstimationRuleSet> list = queryRuleSets(params, applicationName);
+        List<EstimationRuleSet> list = queryRuleSets(params, getQualityCodeSystemFromApplicationName(applicationName));
 
         EstimationRuleSetInfos infos = new EstimationRuleSetInfos(params.clipToLimit(list));
         infos.total = params.determineTotal(list.size());
@@ -114,9 +120,9 @@ public class EstimationResource {
         return infos;
     }
 
-    private List<EstimationRuleSet> queryRuleSets(QueryParameters queryParameters, String applicationName) {
+    private List<EstimationRuleSet> queryRuleSets(QueryParameters queryParameters, QualityCodeSystem qualityCodeSystem) {
         Query<EstimationRuleSet> query = estimationService.getEstimationRuleSetQuery();
-        query.setRestriction(where("applicationName").isEqualTo(applicationName));
+        query.setRestriction(where("qualityCodeSystem").isEqualTo(qualityCodeSystem));
         RestQuery<EstimationRuleSet> restQuery = queryService.wrap(query);
         return restQuery.select(queryParameters, Order.ascending("upper(name)"));
     }
@@ -153,12 +159,10 @@ public class EstimationResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION)
     public Response createEstimationRuleSet(final EstimationRuleSetInfo info, @HeaderParam(APPLICATION_HEADER_PARAM) String applicationName) {
-        return Response.status(Response.Status.CREATED).entity(new EstimationRuleSetInfo(transactionService.execute(new Transaction<EstimationRuleSet>() {
-            @Override
-            public EstimationRuleSet perform() {
-                return estimationService.createEstimationRuleSet(info.name, applicationName, info.description);
-            }
-        }))).build();
+        return Response.status(Response.Status.CREATED)
+                .entity(new EstimationRuleSetInfo(transactionService.execute(
+                        () -> estimationService.createEstimationRuleSet(info.name, getQualityCodeSystemFromApplicationName(applicationName), info.description))))
+                .build();
     }
 
     @PUT
@@ -209,7 +213,9 @@ public class EstimationResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION})
     public PagedInfoList getAvailableEstimators(@HeaderParam(APPLICATION_HEADER_PARAM) String applicationName, @BeanParam JsonQueryParameters parameters) {
-        List<EstimationInfo> data = estimationService.getAvailableEstimators(applicationName).stream()
+        QualityCodeSystem qualityCodeSystem = getQualityCodeSystemFromApplicationName(applicationName);
+
+        List<EstimationInfo> data = estimationService.getAvailableEstimators(qualityCodeSystem).stream()
                 .sorted(Compare.BY_DISPLAY_NAME)
                 .map(estimator -> new EstimationInfo(
                         estimator.getClass().getName(),
@@ -354,7 +360,8 @@ public class EstimationResource {
     public EstimationTaskInfo getEstimationTask(@PathParam("id") long id,
                                                 @HeaderParam(APPLICATION_HEADER_PARAM) String applicationName,
                                                 @Context SecurityContext securityContext) {
-        return new EstimationTaskInfo(fetchEstimationTask(id, applicationName), thesaurus);
+        QualityCodeSystem qualityCodeSystem = getQualityCodeSystemFromApplicationName(applicationName);
+        return new EstimationTaskInfo(fetchEstimationTask(id, qualityCodeSystem), thesaurus);
     }
 
     @PUT
@@ -362,11 +369,13 @@ public class EstimationResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION, Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.UPDATE_ESTIMATION_CONFIGURATION, Privileges.Constants.UPDATE_SCHEDULE_ESTIMATION_TASK, Privileges.Constants.RUN_ESTIMATION_TASK})
     public Response triggerEstimationTask(EstimationTaskInfo info, @HeaderParam(APPLICATION_HEADER_PARAM) String applicationName) {
-        transactionService.execute(VoidTransaction.of(() -> findAndLockEstimationTaskByIdAndVersionInApplication(info.id, info.version, applicationName)
+        QualityCodeSystem qualityCodeSystem = getQualityCodeSystemFromApplicationName(applicationName);
+
+        transactionService.execute(VoidTransaction.of(() -> findAndLockEstimationTaskByIdAndVersionInApplication(info.id, info.version, qualityCodeSystem)
                 .orElseThrow(conflictFactory.conflict()
                         .withMessageTitle(MessageSeeds.RUN_TASK_CONCURRENT_TITLE, info.name)
                         .withMessageBody(MessageSeeds.RUN_TASK_CONCURRENT_BODY, info.name)
-                        .withActualVersion(() -> findEstimationTaskInApplication(info.id, applicationName).map(EstimationTask::getVersion).orElse(null))
+                        .withActualVersion(() -> findEstimationTaskInApplication(info.id, qualityCodeSystem).map(EstimationTask::getVersion).orElse(null))
                         .supplier())
                 .triggerNow()));
         return Response.status(Response.Status.OK).build();
@@ -378,10 +387,12 @@ public class EstimationResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION)
     public Response addEstimationTask(EstimationTaskInfo info, @HeaderParam(APPLICATION_HEADER_PARAM) String applicationName) {
+        QualityCodeSystem qualityCodeSystem = getQualityCodeSystemFromApplicationName(applicationName);
+
         try (TransactionContext context = transactionService.getContext()) {
             EstimationTask dataExportTask = estimationService.newBuilder()
                     .setName(info.name)
-                    .setApplication(applicationName)
+                    .setQualityCodeSystem(qualityCodeSystem)
                     .setScheduleExpression(getScheduleExpression(info))
                     .setNextExecution(info.nextRun == null ? null : Instant.ofEpochMilli(info.nextRun))
                     .setPeriod(getRelativePeriod(info.period))
@@ -397,9 +408,11 @@ public class EstimationResource {
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION)
     public Response removeEstimationTask(@PathParam("id") long id, EstimationTaskInfo info,
                                          @HeaderParam(APPLICATION_HEADER_PARAM) String applicationName) {
+        QualityCodeSystem qualityCodeSystem = getQualityCodeSystemFromApplicationName(applicationName);
+
         String taskName = "id = " + id;
         try (TransactionContext context = transactionService.getContext()) {
-            EstimationTask task = findAndLockTask(info, applicationName);
+            EstimationTask task = findAndLockTask(info, qualityCodeSystem);
             taskName = task.getName();
             if (!task.canBeDeleted()) {
                 throw new LocalizedFieldValidationException(MessageSeeds.DELETE_TASK_STATUS_BUSY, "status");
@@ -418,8 +431,10 @@ public class EstimationResource {
     @RolesAllowed({Privileges.Constants.UPDATE_ESTIMATION_CONFIGURATION, Privileges.Constants.UPDATE_SCHEDULE_ESTIMATION_TASK})
     public Response updateEstimationTask(@PathParam("id") long id, EstimationTaskInfo info,
                                          @HeaderParam(APPLICATION_HEADER_PARAM) String applicationName) {
+        QualityCodeSystem qualityCodeSystem = getQualityCodeSystemFromApplicationName(applicationName);
+
         try (TransactionContext context = transactionService.getContext()) {
-            EstimationTask task = findAndLockTask(info, applicationName);
+            EstimationTask task = findAndLockTask(info, qualityCodeSystem);
             task.setName(info.name);
             task.setScheduleExpression(getScheduleExpression(info));
             if (Never.NEVER.equals(task.getScheduleExpression())) {
@@ -444,8 +459,9 @@ public class EstimationResource {
     public PagedInfoList getEstimationTaskHistory(@PathParam("id") long id, @Context SecurityContext securityContext,
                                                   @BeanParam JsonQueryFilter filter, @BeanParam JsonQueryParameters parameters,
                                                   @HeaderParam(APPLICATION_HEADER_PARAM) String applicationName) {
+        QualityCodeSystem qualityCodeSystem = getQualityCodeSystemFromApplicationName(applicationName);
 
-        EstimationTask task = fetchEstimationTask(id, applicationName);
+        EstimationTask task = fetchEstimationTask(id, qualityCodeSystem);
         EstimationTaskOccurrenceFinder occurrencesFinder = task.getOccurrencesFinder().setStart(parameters.getStart().orElse(0)).setLimit(parameters.getLimit().orElse(10) + 1);
 
         if (filter.hasProperty("startedOnFrom")) {
@@ -480,7 +496,9 @@ public class EstimationResource {
     public PagedInfoList getEstimationTaskHistory(@PathParam("id") long id, @PathParam("occurrenceId") long occurrenceId,
                                                   @HeaderParam(APPLICATION_HEADER_PARAM) String applicationName,
                                                   @BeanParam JsonQueryParameters parameters) {
-        EstimationTask task = fetchEstimationTask(id, applicationName);
+        QualityCodeSystem qualityCodeSystem = getQualityCodeSystemFromApplicationName(applicationName);
+
+        EstimationTask task = fetchEstimationTask(id, qualityCodeSystem);
         TaskOccurrence occurrence = fetchTaskOccurrence(occurrenceId, task);
         LogEntryFinder finder = occurrence.getLogsFinder().setStart(parameters.getStart().orElse(0)).setLimit(parameters.getLimit().orElse(10) + 1);
 
@@ -492,10 +510,10 @@ public class EstimationResource {
         return PagedInfoList.fromPagedList("data", taskOccurrenceLogsList, parameters);
     }
 
-    private EstimationTask findAndLockTask(EstimationTaskInfo info, String applicationName) {
-        return findAndLockEstimationTaskByIdAndVersionInApplication(info.id, info.version, applicationName)
+    private EstimationTask findAndLockTask(EstimationTaskInfo info, QualityCodeSystem qualityCodeSystem) {
+        return findAndLockEstimationTaskByIdAndVersionInApplication(info.id, info.version, qualityCodeSystem)
                 .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
-                        .withActualVersion(() -> findEstimationTaskInApplication(info.id, applicationName).map(EstimationTask::getVersion).orElse(null))
+                        .withActualVersion(() -> findEstimationTaskInApplication(info.id, qualityCodeSystem).map(EstimationTask::getVersion).orElse(null))
                         .supplier());
     }
 
@@ -567,19 +585,20 @@ public class EstimationResource {
         return timeService.findRelativePeriod(relativePeriodInfo.id).orElse(null);
     }
 
-    private EstimationTask fetchEstimationTask(long id, String applicationName) {
-        return findEstimationTaskInApplication(id, applicationName).filter(task -> task.getApplication().equals(applicationName)).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+    private EstimationTask fetchEstimationTask(long id, QualityCodeSystem qualityCodeSystem) {
+        return findEstimationTaskInApplication(id, qualityCodeSystem).filter(task -> task.getQualityCodeSystem().equals(qualityCodeSystem))
+                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
     private TaskOccurrence fetchTaskOccurrence(long occurrenceId, EstimationTask task) {
         return task.getOccurrence(occurrenceId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
-    private Optional<? extends EstimationTask> findEstimationTaskInApplication(long id, String applicationName) {
-        return estimationService.findEstimationTask(id).filter(task -> task.getApplication().equals(applicationName));
+    private Optional<? extends EstimationTask> findEstimationTaskInApplication(long id, QualityCodeSystem qualityCodeSystem) {
+        return estimationService.findEstimationTask(id).filter(task -> task.getQualityCodeSystem().equals(qualityCodeSystem));
     }
 
-    private Optional<? extends EstimationTask> findAndLockEstimationTaskByIdAndVersionInApplication(long id, long version, String applicationName) {
-        return estimationService.findAndLockEstimationTask(id, version).filter(task -> task.getApplication().equals(applicationName));
+    private Optional<? extends EstimationTask> findAndLockEstimationTaskByIdAndVersionInApplication(long id, long version, QualityCodeSystem qualityCodeSystem) {
+        return estimationService.findAndLockEstimationTask(id, version).filter(task -> task.getQualityCodeSystem().equals(qualityCodeSystem));
     }
 }

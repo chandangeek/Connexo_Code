@@ -1,5 +1,6 @@
 package com.elster.jupiter.estimation.rest.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.estimation.EstimationTask;
 import com.elster.jupiter.estimation.EstimationTaskBuilder;
@@ -22,11 +23,12 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
@@ -80,7 +82,7 @@ public class EstimationTaskResourceTest extends EstimationApplicationJerseyTest 
         doReturn(Collections.singletonList(estimationTask)).when(restQuery).select(any(), anyVararg());
         when(estimationTask.getEndDeviceGroup()).thenReturn(endDeviceGroup);
         when(estimationTask.getPeriod()).thenReturn(Optional.of(period));
-        when(estimationTask.getApplication()).thenReturn(MULTISENSE_KEY);
+        when(estimationTask.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDC);
         when(period.getRelativeDateFrom()).thenReturn(new RelativeDate(RelativeField.DAY.minus(1)));
         when(period.getRelativeDateTo()).thenReturn(new RelativeDate());
         when(estimationTask.getNextExecution()).thenReturn(NEXT_EXECUTION.toInstant());

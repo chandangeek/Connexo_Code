@@ -8,6 +8,7 @@ import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.MeasurementKind;
 import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.Phase;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cbo.RationalNumber;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
@@ -102,7 +103,7 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
     @Test
     public void testGetEstimationRuleSetsNoRuleSets() {
         mockRuleSetQuery();
-        EstimationRuleSetInfos response = target("/estimation").request().header(APPLICATION_HEADER_PARAM, "APP").get(EstimationRuleSetInfos.class);
+        EstimationRuleSetInfos response = target("/estimation").request().header(APPLICATION_HEADER_PARAM, "MDC").get(EstimationRuleSetInfos.class);
 
         assertThat(response.total).isEqualTo(0);
         assertThat(response.ruleSets).hasSize(0);
@@ -111,7 +112,7 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
     @Test
     public void testGetEstimationRuleSets() {
         mockRuleSetQuery(mockDefaultRuleSet());
-        EstimationRuleSetInfos response = target("/estimation").request().header(APPLICATION_HEADER_PARAM, "APP").get(EstimationRuleSetInfos.class);
+        EstimationRuleSetInfos response = target("/estimation").request().header(APPLICATION_HEADER_PARAM, "MDC").get(EstimationRuleSetInfos.class);
 
         assertThat(response.total).isEqualTo(1);
         List<EstimationRuleSetInfo> ruleSetInfos = response.ruleSets;
@@ -245,9 +246,9 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
     @Test
     public void testGetEstimators() throws IOException {
         List<Estimator> mockEstimators = Arrays.asList(mockEstimator("B Estimator"), mockEstimator("A Estimator"));
-        when(estimationService.getAvailableEstimators("APP")).thenReturn(mockEstimators);
+        when(estimationService.getAvailableEstimators(QualityCodeSystem.MDC)).thenReturn(mockEstimators);
 
-        Response response = target("/estimation/estimators").request().header(APPLICATION_HEADER_PARAM, "APP").get();
+        Response response = target("/estimation/estimators").request().header(APPLICATION_HEADER_PARAM, "MDC").get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel body = JsonModel.model((ByteArrayInputStream)response.getEntity());
         assertThat(body.<Integer>get("$.total")).isEqualTo(2);
@@ -356,8 +357,8 @@ public class EstimationResourceTest extends EstimationApplicationJerseyTest {
         info.description="desc";
 
         EstimationRuleSet ruleSet = mockDefaultRuleSet();
-        when(estimationService.createEstimationRuleSet(info.name, "PLEASE", info.description)).thenReturn(ruleSet);
-        Response response = target("/estimation").request().header(APPLICATION_HEADER_PARAM, "PLEASE").post(Entity.json(info));
+        when(estimationService.createEstimationRuleSet(info.name, QualityCodeSystem.MDC, info.description)).thenReturn(ruleSet);
+        Response response = target("/estimation").request().header(APPLICATION_HEADER_PARAM, "MDC").post(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
     }
 
