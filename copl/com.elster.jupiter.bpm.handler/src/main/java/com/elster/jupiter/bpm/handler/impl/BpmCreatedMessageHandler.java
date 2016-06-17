@@ -10,7 +10,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Map;
 
-public class BpmCreatedMessageHandler implements MessageHandler{
+public class BpmCreatedMessageHandler implements MessageHandler {
     private final JsonService jsonService;
     private final BpmServer bpmRestClient;
 
@@ -29,14 +29,15 @@ public class BpmCreatedMessageHandler implements MessageHandler{
 
     private String getProcessParameters(Map<String, Object> params) {
         String result = "";
-        if (params != null && params.size() > 0) {
+        if (params != null && !params.isEmpty()) {
             for (Map.Entry<String, Object> entry : params.entrySet()) {
                 String paramValue = "&";
                 try {
-                    if(entry.getValue() != null) {
+                    if (entry.getValue() != null) {
                         paramValue = URLEncoder.encode(entry.getValue().toString(), "UTF-8") + "&";
                     }
                 } catch (UnsupportedEncodingException e) {
+                    throw new IllegalArgumentException(e);
                 }
                 result += "map_" + entry.getKey() + "=" + paramValue;
             }
@@ -44,5 +45,5 @@ public class BpmCreatedMessageHandler implements MessageHandler{
         }
         return result;
     }
-}
 
+}
