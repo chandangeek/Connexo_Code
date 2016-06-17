@@ -3,8 +3,7 @@ Ext.define('Cfg.view.validation.RulePreviewContainerPanel', {
     alias: 'widget.rule-preview-container-panel',
     itemId: 'rulePreviewContainerPanel',
     title: Uni.I18n.translate('general.validationRules', 'CFG', 'Validation rules'),
-    ui: 'medium',
-    padding: 0,
+    ui: 'large',
     ruleSetId: null,
     versionId: null,
     isSecondPagination: false,
@@ -36,10 +35,12 @@ Ext.define('Cfg.view.validation.RulePreviewContainerPanel', {
                     ],
                     stepItems: [
                         {
+                            xtype: 'button',
                             text: Uni.I18n.translate('validation.addValidationRule', 'CFG', 'Add validation rule'),
                             privileges : Cfg.privileges.Validation.admin,
-                            href: '#/administration/validation/rulesets/' + me.ruleSetId  + '/versions/'+ me.versionId + '/rules/add'
-							
+                            itemId: 'cfg-add-rule-btn',
+                            ruleSetId: me.ruleSetId,
+                            versionId: me.versionId
                         }
                     ]
                 },
