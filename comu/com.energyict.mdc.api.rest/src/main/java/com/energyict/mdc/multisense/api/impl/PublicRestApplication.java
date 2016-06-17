@@ -2,12 +2,9 @@ package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
-import com.elster.jupiter.cps.rest.impl.CustomPropertySetApplication;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.license.License;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -16,6 +13,7 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.hypermedia.RestExceptionMapper;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.rest.ExceptionLogger;
@@ -31,7 +29,6 @@ import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.multisense.api.impl.utils.DeviceLifeCycleActionViolationExceptionMapper;
 import com.energyict.mdc.multisense.api.impl.utils.MessageSeeds;
 import com.energyict.mdc.multisense.api.impl.utils.ResourceHelper;
-import com.energyict.mdc.multisense.api.impl.utils.RestExceptionMapper;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -86,9 +83,7 @@ public class PublicRestApplication extends Application implements TranslationKey
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
     private volatile DeviceMessageService deviceMessageService;
     private volatile CommunicationTaskService communicationTaskService;
-    private volatile MeteringService meteringService;
     private volatile CustomPropertySetService customPropertySetService;
-    private volatile MetrologyConfigurationService metrologyConfigurationService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -119,9 +114,6 @@ public class PublicRestApplication extends Application implements TranslationKey
                 PartialConnectionTaskResource.class,
                 ProtocolDialectConfigurationPropertiesResource.class,
                 ProtocolTaskResource.class,
-                UsagePointResource.class,
-                UsagePointCustomPropertySetResource.class,
-                MetrologyConfigurationResource.class,
 
                 RestExceptionMapper.class,
                 DeviceLifeCycleActionViolationExceptionMapper.class
@@ -165,7 +157,6 @@ public class PublicRestApplication extends Application implements TranslationKey
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST);
-        this.thesaurus.join(nlsService.getThesaurus(CustomPropertySetApplication.COMPONENT_NAME, Layer.REST));
     }
 
     @Reference
@@ -201,11 +192,6 @@ public class PublicRestApplication extends Application implements TranslationKey
     @Reference
     public void setSchedulingService(SchedulingService schedulingService) {
         this.schedulingService = schedulingService;
-    }
-
-    @Reference
-    public void setMeteringService(MeteringService meteringService) {
-        this.meteringService = meteringService;
     }
 
     @Override
@@ -262,11 +248,6 @@ public class PublicRestApplication extends Application implements TranslationKey
         this.customPropertySetService = customPropertySetService;
     }
 
-    @Reference
-    public void setMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
-        this.metrologyConfigurationService = metrologyConfigurationService;
-    }
-
     private Factory<Validator> getValidatorFactory() {
         return new Factory<Validator>() {
             private final ValidatorFactory validatorFactory = Validation.byDefaultProvider()
@@ -311,9 +292,7 @@ public class PublicRestApplication extends Application implements TranslationKey
             bind(schedulingService).to(SchedulingService.class);
             bind(deviceMessageService).to(DeviceMessageService.class);
             bind(communicationTaskService).to(CommunicationTaskService.class);
-            bind(meteringService).to(MeteringService.class);
             bind(customPropertySetService).to(CustomPropertySetService.class);
-            bind(metrologyConfigurationService).to(MetrologyConfigurationService.class);
             bindFactory(getValidatorFactory()).to(Validator.class);
 
             bind(MdcPropertyUtils.class).to(MdcPropertyUtils.class);
@@ -344,10 +323,7 @@ public class PublicRestApplication extends Application implements TranslationKey
             bind(DeviceMessageSpecificationInfoFactory.class).to(DeviceMessageSpecificationInfoFactory.class);
             bind(DeviceMessageEnablementInfoFactory.class).to(DeviceMessageEnablementInfoFactory.class);
             bind(DeviceSecurityPropertySetInfoFactory.class).to(DeviceSecurityPropertySetInfoFactory.class);
-            bind(UsagePointInfoFactory.class).to(UsagePointInfoFactory.class);
             bind(CustomPropertySetInfoFactory.class).to(CustomPropertySetInfoFactory.class);
-            bind(UsagePointCustomPropertySetInfoFactory.class).to(UsagePointCustomPropertySetInfoFactory.class);
-            bind(MetrologyConfigurationInfoFactory.class).to(MetrologyConfigurationInfoFactory.class);
         }
     }
 
