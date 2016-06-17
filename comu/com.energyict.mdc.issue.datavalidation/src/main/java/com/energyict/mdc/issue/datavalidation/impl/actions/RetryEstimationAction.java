@@ -21,8 +21,7 @@ import java.util.List;
 public class RetryEstimationAction extends AbstractIssueAction {
 
     private static final String NAME = "RetryEstimationAction";
-    //public static final String CLOSE_STATUS = NAME + ".status";
-    //public static final String COMMENT = NAME + ".comment";
+
 
     private IssueService issueService;
 
@@ -49,7 +48,7 @@ public class RetryEstimationAction extends AbstractIssueAction {
         if (issue != null && !issue.getStatus().isHistorical() && issue instanceof IssueDataValidation){
             IssueDataValidation dvIssue = (IssueDataValidation) issue;
             if (!dvIssue.getStatus().isHistorical()) {
-
+                return true;
             }
         }
         return false;

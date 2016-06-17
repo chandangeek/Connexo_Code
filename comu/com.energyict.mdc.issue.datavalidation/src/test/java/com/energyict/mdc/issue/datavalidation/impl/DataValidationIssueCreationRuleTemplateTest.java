@@ -134,8 +134,8 @@ public class DataValidationIssueCreationRuleTemplateTest {
                 .period(TimeAttribute.MINUTE1)
                 .code();
         readingType = inMemoryPersistence.getService(MeteringService.class).createReadingType(readingTypeCode, "RT");
-        meter = createMeter(deviceConfiguration, "Device #1", fixedTime);
-        channel = meter.getCurrentMeterActivation().get().createChannel(readingType);
+        meter = createMeter(deviceConfiguration, "Device #1");
+        channel = meter.activate(fixedTime).createChannel(readingType);
 
         createRuleForDeviceConfiguration("Rule #1", deviceConfiguration);
         assertThat(issueCreationService.reReadRules()).as("Drools compilation of the rule: there are errors").isTrue();
@@ -195,8 +195,8 @@ public class DataValidationIssueCreationRuleTemplateTest {
     @Transactional
     public void testFilterByDeviceConfiguration() {
         DeviceConfiguration altDeviceConfiguration = createDeviceConfiguration(deviceType, "Alternative");
-        Meter meter = createMeter(altDeviceConfiguration, "Device #2", fixedTime);
-        Channel channel = meter.getCurrentMeterActivation().get().createChannel(readingType);
+        Meter meter = createMeter(altDeviceConfiguration, "Device #2");
+        Channel channel = meter.activate(fixedTime).createChannel(readingType);
 
         Instant now = Instant.now();
         Message message = mockCannotEstimateDataMessage(now, now, channel, readingType);
@@ -338,10 +338,10 @@ public class DataValidationIssueCreationRuleTemplateTest {
         return deviceConfiguration;
     }
 
-    private Meter createMeter(DeviceConfiguration deviceConfiguration, String name, Instant creationDate) {
+    private Meter createMeter(DeviceConfiguration deviceConfiguration, String name) {
         DeviceService deviceService = inMemoryPersistence.getService(DeviceService.class);
-        Device device = deviceService.newDevice(deviceConfiguration, name, name, creationDate);
-
+        Device device = deviceService.newDevice(deviceConfiguration, name, name);
+        device.save();
         MeteringService meteringService = inMemoryPersistence.getService(MeteringService.class);
         AmrSystem amrSystem  = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
         return amrSystem.findMeter(String.valueOf(device.getId())).get();

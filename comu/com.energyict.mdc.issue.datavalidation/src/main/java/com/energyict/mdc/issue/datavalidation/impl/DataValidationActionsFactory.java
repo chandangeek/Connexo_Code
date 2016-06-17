@@ -11,7 +11,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.issue.datavalidation.impl.actions.CloseIssueAction;
 import com.energyict.mdc.issue.datavalidation.impl.actions.RetryEstimationAction;
 import com.google.inject.*;
 import org.osgi.service.component.annotations.Activate;
