@@ -10,16 +10,22 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.RegisterType;
+
 import org.fest.assertions.core.Condition;
-import org.junit.*;
-import org.junit.rules.TestRule;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
+
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
@@ -40,7 +46,7 @@ public class MasterDataServiceImplTest {
             Pair.of("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.111.0", "0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.111.0"),
             Pair.of("0.0.0.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0", "0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0"),
             Pair.of("0.0.0.1.19.2.12.0.0.0.0.0.0.0.0.3.72.0", "0.0.2.1.19.2.12.0.0.0.0.0.0.0.0.3.72.0")
-            );
+    );
 
     @Rule
     public TestRule transactionalRule = new TransactionalRule(getTransactionService());
@@ -53,7 +59,9 @@ public class MasterDataServiceImplTest {
     public static void initialize() {
         inMemoryPersistence = new InMemoryPersistence();
         inMemoryPersistence.initializeDatabase("com.energyict.mdc.masterdata.impl.MasterDataServiceImplTest", false, false,
-                readingTypes.stream().flatMap(pair -> Stream.of(pair.getFirst(), pair.getLast())).toArray(String[]::new));
+                readingTypes.stream()
+                        .flatMap(pair -> Stream.of(pair.getFirst(), pair.getLast()))
+                        .toArray(String[]::new));
     }
 
     @AfterClass
@@ -66,13 +74,25 @@ public class MasterDataServiceImplTest {
     public void setup() {
         readingTypes.forEach(pair -> {
             ReadingType readingType = inMemoryPersistence.getMeteringService().getReadingType(pair.getFirst()).get();
-            if(!readingType.isRegular()){
-                RegisterType registerType = inMemoryPersistence.getMasterDataService().newRegisterType(readingType, ObisCode.fromString("1.2.3.4.5.6"));
-                registerType.save();
-                ChannelType channelType = inMemoryPersistence.getMasterDataService()
-                        .newChannelType(registerType, TimeDuration.minutes(15), inMemoryPersistence.getMeteringService()
-                                .getReadingType(pair.getLast()).get());
-                channelType.save();
+            if (!readingType.isRegular()) {
+                RegisterType registerType = inMemoryPersistence.getMasterDataService()
+                        .findRegisterTypeByReadingType(readingType)
+                        .orElseGet(() -> {
+                            RegisterType newRegisterType = inMemoryPersistence.getMasterDataService()
+                                    .newRegisterType(readingType, ObisCode.fromString("1.2.3.4.5.6"));
+                            newRegisterType.save();
+                            return newRegisterType;
+                        });
+
+                ReadingType channelReadingType = inMemoryPersistence.getMeteringService().getReadingType(pair.getLast()).get();
+
+                ChannelType channelType = inMemoryPersistence.getMasterDataService().findChannelTypeByReadingType(channelReadingType)
+                        .orElseGet(() -> {
+                            ChannelType newChannelType = inMemoryPersistence.getMasterDataService()
+                                    .newChannelType(registerType, TimeDuration.minutes(15), channelReadingType);
+                            newChannelType.save();
+                            return newChannelType;
+                        });
             }
         });
     }
@@ -82,11 +102,15 @@ public class MasterDataServiceImplTest {
     public void getPossibleMultiplyReadingTypesForChannelsSecondaryElectricityTest() {
         MeasurementType measurementType = inMemoryPersistence.getMasterDataService()
                 .findMeasurementTypeByReadingType(
-                        inMemoryPersistence.getMeteringService().getReadingType("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get()).get();
+                        inMemoryPersistence.getMeteringService()
+                                .getReadingType("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0")
+                                .get()).get();
 
-        List<ReadingType> possibleMultiplyRegisterTypesFor = inMemoryPersistence.getMasterDataService().getOrCreatePossibleMultiplyReadingTypesFor(measurementType.getReadingType());
+        List<ReadingType> possibleMultiplyRegisterTypesFor = inMemoryPersistence.getMasterDataService()
+                .getOrCreatePossibleMultiplyReadingTypesFor(measurementType.getReadingType());
         assertThat(possibleMultiplyRegisterTypesFor).hasSize(1);
-        assertThat(possibleMultiplyRegisterTypesFor.get(0).getMRID()).isEqualTo("0.0.2.1.1.2.12.0.0.0.0.0.0.0.0.3.72.0");
+        assertThat(possibleMultiplyRegisterTypesFor.get(0)
+                .getMRID()).isEqualTo("0.0.2.1.1.2.12.0.0.0.0.0.0.0.0.3.72.0");
     }
 
     @Test
@@ -94,11 +118,15 @@ public class MasterDataServiceImplTest {
     public void getPossibleMultiplyReadingTypesForRegistersSecondaryElectricityTest() {
         MeasurementType measurementType = inMemoryPersistence.getMasterDataService()
                 .findMeasurementTypeByReadingType(
-                        inMemoryPersistence.getMeteringService().getReadingType("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get()).get();
+                        inMemoryPersistence.getMeteringService()
+                                .getReadingType("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0")
+                                .get()).get();
 
-        List<ReadingType> possibleMultiplyRegisterTypesFor = inMemoryPersistence.getMasterDataService().getOrCreatePossibleMultiplyReadingTypesFor(measurementType.getReadingType());
+        List<ReadingType> possibleMultiplyRegisterTypesFor = inMemoryPersistence.getMasterDataService()
+                .getOrCreatePossibleMultiplyReadingTypesFor(measurementType.getReadingType());
         assertThat(possibleMultiplyRegisterTypesFor).hasSize(1);
-        assertThat(possibleMultiplyRegisterTypesFor.get(0).getMRID()).isEqualTo("0.0.0.1.1.2.12.0.0.0.0.0.0.0.0.3.72.0");
+        assertThat(possibleMultiplyRegisterTypesFor.get(0)
+                .getMRID()).isEqualTo("0.0.0.1.1.2.12.0.0.0.0.0.0.0.0.3.72.0");
     }
 
     @Test
@@ -106,9 +134,12 @@ public class MasterDataServiceImplTest {
     public void getPossibleMultiplyReadingTypesForRegistersPrimaryElectricityTest() {
         MeasurementType measurementType = inMemoryPersistence.getMasterDataService()
                 .findMeasurementTypeByReadingType(
-                        inMemoryPersistence.getMeteringService().getReadingType("0.0.0.1.1.2.12.0.0.0.0.0.0.0.0.3.72.0").get()).get();
+                        inMemoryPersistence.getMeteringService()
+                                .getReadingType("0.0.0.1.1.2.12.0.0.0.0.0.0.0.0.3.72.0")
+                                .get()).get();
 
-        List<ReadingType> possibleMultiplyRegisterTypesFor = inMemoryPersistence.getMasterDataService().getOrCreatePossibleMultiplyReadingTypesFor(measurementType.getReadingType());
+        List<ReadingType> possibleMultiplyRegisterTypesFor = inMemoryPersistence.getMasterDataService()
+                .getOrCreatePossibleMultiplyReadingTypesFor(measurementType.getReadingType());
         assertThat(possibleMultiplyRegisterTypesFor).isEmpty();
     }
 
@@ -117,9 +148,12 @@ public class MasterDataServiceImplTest {
     public void getPossibleMultiplyReadingTypesForRegistersCountersTest() {
         MeasurementType measurementType = inMemoryPersistence.getMasterDataService()
                 .findMeasurementTypeByReadingType(
-                        inMemoryPersistence.getMeteringService().getReadingType("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.111.0").get()).get();
+                        inMemoryPersistence.getMeteringService()
+                                .getReadingType("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.111.0")
+                                .get()).get();
 
-        List<ReadingType> possibleMultiplyRegisterTypesFor = inMemoryPersistence.getMasterDataService().getOrCreatePossibleMultiplyReadingTypesFor(measurementType.getReadingType());
+        List<ReadingType> possibleMultiplyRegisterTypesFor = inMemoryPersistence.getMasterDataService()
+                .getOrCreatePossibleMultiplyReadingTypesFor(measurementType.getReadingType());
         assertThat(possibleMultiplyRegisterTypesFor).hasSize(1);
         assertThat(possibleMultiplyRegisterTypesFor).haveExactly(1, new Condition<ReadingType>() {
             @Override

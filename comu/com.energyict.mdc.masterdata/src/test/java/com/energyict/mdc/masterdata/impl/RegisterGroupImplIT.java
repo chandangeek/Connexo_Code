@@ -1,10 +1,5 @@
 package com.energyict.mdc.masterdata.impl;
 
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.masterdata.RegisterGroup;
-import com.energyict.mdc.masterdata.RegisterType;
-import com.energyict.mdc.masterdata.exceptions.RegisterTypesRequiredException;
-
 import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.Commodity;
 import com.elster.jupiter.cbo.FlowDirection;
@@ -18,14 +13,24 @@ import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.transaction.TransactionService;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.masterdata.RegisterGroup;
+import com.energyict.mdc.masterdata.RegisterType;
+import com.energyict.mdc.masterdata.exceptions.RegisterTypesRequiredException;
 
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Currency;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.junit.*;
-import org.junit.rules.*;
-import org.junit.runner.*;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -55,7 +60,7 @@ public class RegisterGroupImplIT {
     @BeforeClass
     public static void initialize() {
         inMemoryPersistence = new InMemoryPersistence();
-        inMemoryPersistence.initializeDatabase("mdc.masterdata.registergroup", false, false, "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "0.0.0.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0");
+        inMemoryPersistence.initializeDatabase("mdc.masterdata.registergroup", false, false, "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.840", "0.0.0.1.19.1.12.0.0.0.0.0.0.0.0.3.72.840");
     }
 
     @AfterClass
@@ -254,14 +259,18 @@ public class RegisterGroupImplIT {
                 .accumulate(Accumulation.BULKQUANTITY)
                 .flow(FlowDirection.FORWARD)
                 .measure(MeasurementKind.ENERGY)
-                .in(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR).code();
+                .in(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR)
+                .currency(Currency.getInstance("USD"))
+                .code();
         this.readingType1 = inMemoryPersistence.getMeteringService().getReadingType(code).get();
         String code2 = ReadingTypeCodeBuilder
                 .of(Commodity.ELECTRICITY_SECONDARY_METERED)
                 .accumulate(Accumulation.BULKQUANTITY)
                 .flow(FlowDirection.REVERSE)
                 .measure(MeasurementKind.ENERGY)
-                .in(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR).code();
+                .in(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR)
+                .currency(Currency.getInstance("USD"))
+                .code();
         this.readingType2 = inMemoryPersistence.getMeteringService().getReadingType(code2).get();
     }
 
