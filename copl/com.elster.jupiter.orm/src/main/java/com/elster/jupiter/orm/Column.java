@@ -11,7 +11,7 @@ public interface Column {
 	/**
 	 * The dummy fieldname of a discriminator column
 	 */
-	public static final String TYPEFIELDNAME = "class";
+	String TYPEFIELDNAME = "class";
 
 	Table<?> getTable();
 	String getName();
