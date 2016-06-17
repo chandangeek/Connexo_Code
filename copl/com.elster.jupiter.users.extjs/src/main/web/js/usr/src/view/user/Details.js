@@ -49,10 +49,7 @@ Ext.define('Usr.view.user.Details', {
                                 align: 'stretch'
                             },
                             defaults: {
-                                labelWidth: 250,
-                                renderer: function(value) {
-                                    return value ? value : '-';
-                                }
+                                labelWidth: 250
                             },
                             items: [
                                 {

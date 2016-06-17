@@ -19,10 +19,7 @@ Ext.define('Usr.view.user.List', {
                 flex: 1,
                 sortable: false,
                 hideable: false,
-                fixed: true,
-                renderer: function(value) {
-                    return value ? value : '-';
-                }
+                fixed: true
             },
             items: [
                 {
