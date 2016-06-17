@@ -1,11 +1,14 @@
 package com.energyict.mdc.rest.impl.comserver;
 
-import com.energyict.mdc.engine.config.*;
-
-import java.util.Optional;
+import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.OnlineComServer;
+import com.energyict.mdc.engine.config.RemoteComServer;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
+import java.util.Optional;
 
 @XmlRootElement
 public class RemoteComServerInfo extends ComServerInfo<RemoteComServer.RemoteComServerBuilder, RemoteComServer> {
@@ -30,21 +33,17 @@ public class RemoteComServerInfo extends ComServerInfo<RemoteComServer.RemoteCom
     }
 
     private void readFrom(RemoteComServer remoteComServer) {
-        this.eventRegistrationUri = remoteComServer.getEventRegistrationUri();
-        this.usesDefaultEventRegistrationUri = remoteComServer.usesDefaultEventRegistrationUri();
+        this.serverName = remoteComServer.getServerName();
+        this.eventRegistrationPort = remoteComServer.getEventRegistrationPort();
+        this.statusPort = remoteComServer.getStatusPort();
         this.onlineComServerId = remoteComServer.getOnlineComServer() != null ? remoteComServer.getOnlineComServer().getId() : null;
     }
 
     public RemoteComServer.RemoteComServerBuilder writeTo(RemoteComServer.RemoteComServerBuilder comServerBuilder, EngineConfigurationService engineConfigurationService) {
         super.writeTo(comServerBuilder, engineConfigurationService);
-        Optional<String> eventRegistrationUri = Optional.ofNullable(this.eventRegistrationUri);
-        if (eventRegistrationUri.isPresent()) {
-            comServerBuilder.eventRegistrationUri(eventRegistrationUri.get());
-        }
-        Optional<Boolean> usesDefaultEventRegistrationUri = Optional.ofNullable(this.usesDefaultEventRegistrationUri);
-        if (usesDefaultEventRegistrationUri.isPresent()) {
-            comServerBuilder.usesDefaultEventRegistrationUri(usesDefaultEventRegistrationUri.get());
-        }
+        comServerBuilder.serverName(this.serverName);
+        comServerBuilder.statusPort(this.statusPort != null ? this.statusPort : 0);
+        comServerBuilder.eventRegistrationPort(this.eventRegistrationPort != null ? this.eventRegistrationPort : 0);
         Optional<Long> onlineComServerId = Optional.ofNullable(this.onlineComServerId);
         if (onlineComServerId.isPresent()) {
             Optional<? extends ComServer> onlineComServer = engineConfigurationService.findComServer(onlineComServerId.get());
@@ -58,14 +57,9 @@ public class RemoteComServerInfo extends ComServerInfo<RemoteComServer.RemoteCom
 
     @Override
     public RemoteComServer updateTo(RemoteComServer remoteComServer, EngineConfigurationService engineConfigurationService) {
-        Optional<String> eventRegistrationUri = Optional.ofNullable(this.eventRegistrationUri);
-        if (eventRegistrationUri.isPresent()) {
-            remoteComServer.setEventRegistrationUri(eventRegistrationUri.get());
-        }
-        Optional<Boolean> usesDefaultEventRegistrationUri = Optional.ofNullable(this.usesDefaultEventRegistrationUri);
-        if (usesDefaultEventRegistrationUri.isPresent()) {
-            remoteComServer.setUsesDefaultEventRegistrationUri(usesDefaultEventRegistrationUri.get());
-        }
+        remoteComServer.setServerName(this.serverName);
+        remoteComServer.setStatusPort(this.statusPort != null ? this.statusPort : 0);
+        remoteComServer.setEventRegistrationPort(this.eventRegistrationPort != null ? this.eventRegistrationPort : 0);
         Optional<Long> onlineComServerId = Optional.ofNullable(this.onlineComServerId);
         if (onlineComServerId.isPresent()) {
             Optional<? extends ComServer> onlineComServer = engineConfigurationService.findComServer(onlineComServerId.get());

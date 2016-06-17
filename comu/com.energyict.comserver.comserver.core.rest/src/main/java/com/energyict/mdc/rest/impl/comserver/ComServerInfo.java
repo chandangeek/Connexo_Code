@@ -5,15 +5,14 @@ import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.InboundComPort;
+
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @XmlRootElement
@@ -37,12 +36,10 @@ public abstract class ComServerInfo<B extends ComServer.ComServerBuilder,C exten
     public List<InboundComPortInfo> inboundComPorts;
     public List<OutboundComPortInfo> outboundComPorts;
     public Long onlineComServerId;
-    public String queryAPIPostUri;
-    public Boolean usesDefaultQueryAPIPostUri;
-    public String eventRegistrationUri;
-    public Boolean usesDefaultEventRegistrationUri;
-    public String statusUri;
-    public Boolean usesDefaultStatusUri;
+    public String serverName;
+    public Integer queryAPIPort;
+    public Integer eventRegistrationPort;
+    public Integer statusPort;
     public Integer storeTaskQueueSize;
     public Integer numberOfStoreTaskThreads;
     public Integer storeTaskThreadPriority;
