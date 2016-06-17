@@ -268,7 +268,11 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
             List<String> locationData = propertyInfoList.stream()
                     .map(d -> d.propertyValueInfo.value.toString())
                     .collect(Collectors.toList());
-            LocationBuilder builder = newUsagePointBuilder(usagePointInfo).newLocationBuilder();
+            LocationBuilder builder = meteringService.getServiceCategory(ServiceKind.valueOf(usagePointInfo.serviceCategory))
+                    .orElseThrow(IllegalArgumentException::new)
+                    .newUsagePoint(
+                            usagePointInfo.mRID,
+                            usagePointInfo.installationTime != null ? Instant.ofEpochMilli(usagePointInfo.installationTime) : clock.instant()).newLocationBuilder();
             Map<String, Integer> ranking = meteringService
                     .getLocationTemplate()
                     .getTemplateMembers()
