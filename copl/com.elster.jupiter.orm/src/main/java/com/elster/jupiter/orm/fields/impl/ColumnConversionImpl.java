@@ -3,6 +3,7 @@ package com.elster.jupiter.orm.fields.impl;
 import com.elster.jupiter.orm.Blob;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.impl.ColumnImpl;
+import com.elster.jupiter.orm.impl.IOResource;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
 import com.elster.jupiter.util.geo.SpatialCoordinatesFactory;
 import com.elster.jupiter.util.json.JsonService;
@@ -10,10 +11,13 @@ import com.elster.jupiter.util.units.Unit;
 
 import javax.inject.Inject;
 import java.io.File;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.time.Instant;
 import java.util.Currency;
+import java.util.Optional;
 
 // naming convention is DATABASE TYPE 2 JAVATYPE
 public enum ColumnConversionImpl {
@@ -150,7 +154,12 @@ public enum ColumnConversionImpl {
 	},
 	// convert number to enum field by ordinal
 	NUMBER2ENUM { // 9
-		@Override
+        @Override
+        public boolean isEnumRelated() {
+            return true;
+        }
+
+        @Override
 		public Object convertToDb(ColumnImpl column, Object value) {
 			return value == null ? null : ((Enum<?>) value).ordinal();
 		}
@@ -159,18 +168,26 @@ public enum ColumnConversionImpl {
 		public Object convertFromDb(ColumnImpl column, ResultSet rs, int index) throws SQLException {
 			// returns the enum ordinal , create the enum with correct ordinal is handled by Mapper implementation
 			int value = rs.getInt(index);
-			return rs.wasNull() ? null : value;
+            if (rs.wasNull()) {
+                return null;
+            } else {
+                return column.createEnum(value);
+            }
 		}
 
 		public Object convert(ColumnImpl column, String in) {
-			throw new UnsupportedOperationException();
+			return column.createEnum(in);
 		}
-
 	},
 	// convert number to enum field by ordinal + 1
 	// useful in to avoid 0 in database, which often means Not Applicable
 	NUMBER2ENUMPLUSONE { // 10
-		@Override
+        @Override
+        public boolean isEnumRelated() {
+            return true;
+        }
+
+        @Override
 		public Object convertToDb(ColumnImpl column, Object value) {
 			return value == null ? null : ((Enum<?>) value).ordinal() + 1;
 		}
@@ -179,16 +196,24 @@ public enum ColumnConversionImpl {
 		public Object convertFromDb(ColumnImpl column, ResultSet rs, int index) throws SQLException {
 			// returns the enum ordinal , create the enum with correct ordinal is handled by Mapper implementation
 			int value = rs.getInt(index);
-			return rs.wasNull() ? null : value - 1;
+            if (rs.wasNull()) {
+                return null;
+            } else {
+                return column.createEnum(value - 1);
+            }
 		}
 
 		public Object convert(ColumnImpl column, String in) {
-			throw new UnsupportedOperationException();
+			return column.createEnum(in);
 		}
-
 	},
 	CHAR2ENUM {  // 11
-		@Override
+        @Override
+        public boolean isEnumRelated() {
+            return true;
+        }
+
+        @Override
 		public Object convertToDb(ColumnImpl column, Object value) {
 			return value == null ? null : ((Enum<?>) value).name();
 		}
@@ -196,12 +221,12 @@ public enum ColumnConversionImpl {
 		@Override
 		public Object convertFromDb(ColumnImpl column, ResultSet rs, int index) throws SQLException {
 			// returns the enum name , create the enum with correct ordinal is handled by Mapper implementation
-			return rs.getString(index);
+			return column.createEnum(rs.getString(index));
 		}
 
 		@Override
 		public Object convert(ColumnImpl column, String in) {
-			throw new UnsupportedOperationException();
+			return column.createEnum(in);
 		}
 	},
 	CHAR2PRINCIPAL { // 12
@@ -309,17 +334,17 @@ public enum ColumnConversionImpl {
     CHAR2JSON {
         @Override
         public Object convert(ColumnImpl column, String in) {
-            throw new UnsupportedOperationException();
+            return column.jsonConverter().convert(in);
         }
 
         @Override
         public Object convertToDb(ColumnImpl column, Object value) {
-        	throw new UnsupportedOperationException();
+        	return column.jsonConverter().convertToDb(value);
         }
 
         @Override
-        public Object convertFromDb(ColumnImpl column, ResultSet rs, int index) {
-            throw new UnsupportedOperationException();
+        public Object convertFromDb(ColumnImpl column, ResultSet rs, int index) throws SQLException {
+            return column.jsonConverter().convertFromDb(rs, index);
         }
     },
     DATE2INSTANT {
@@ -411,6 +436,17 @@ public enum ColumnConversionImpl {
         public Object convertFromDb(ColumnImpl column, ResultSet rs, int index) {
             return LazyLoadingBlob.from(column);
         }
+
+        @Override
+        public Optional<IOResource> setConvertedObject(ColumnImpl column, PreparedStatement statement, int index, Object dbValue) throws SQLException {
+            if (dbValue instanceof LazyLoadingBlob) {
+                LazyLoadingBlob lazyLoadingBlob = (LazyLoadingBlob) dbValue;
+                lazyLoadingBlob.bindTo(statement, index);
+                return Optional.of(lazyLoadingBlob);
+            } else {
+                return super.setConvertedObject(column, statement, index, dbValue);
+            }
+        }
     },
     NUMBERINUTCSECONDS2INSTANT {
     	@Override
@@ -467,7 +503,6 @@ public enum ColumnConversionImpl {
 	SDOGEOMETRY2SPATIALGEOOBJ {
 		@Override
 		public Object convert(ColumnImpl column, String in) {
-
 			return in == null ? null : new SpatialCoordinatesFactory().fromStringValue(in);
 		}
 
@@ -485,23 +520,47 @@ public enum ColumnConversionImpl {
 			Object sdoGeometry = rs.getObject(index);
 			return sdoGeometry == null ? null : new SpatialCoordinatesFactory().valueFromDb(rs.getObject(index));
 		}
-	};
+
+        @Override
+        protected Optional<IOResource> setConvertedObject(ColumnImpl column, PreparedStatement statement, int index, Object dbValue) throws SQLException {
+            if (dbValue == null) {
+                statement.setNull(index, Types.STRUCT, "MDSYS.SDO_GEOMETRY");
+                return Optional.empty();
+            } else {
+                return super.setConvertedObject(column, statement, index, dbValue);
+            }
+        }
+    };
 
 	private static final String[] trueStrings = { "1" , "y" ,"yes" , "on" };
 
 	private static boolean toBoolean(String in) {
 		for (String each : trueStrings) {
-			if (each.equalsIgnoreCase(in))
+			if (each.equalsIgnoreCase(in)) {
 				return true;
+			}
 		}
 		return Boolean.valueOf(in);
 	}
+
+    public boolean isEnumRelated() {
+        return false;
+    }
 
 	public abstract Object convertToDb(ColumnImpl column, Object value);
 
 	public abstract Object convertFromDb(ColumnImpl column, ResultSet rs, int index) throws SQLException;
 
 	public abstract Object convert(ColumnImpl column, String in);
+
+    public Optional<IOResource> setObject(ColumnImpl column, PreparedStatement statement, int index, Object domainValue) throws SQLException {
+        return this.setConvertedObject(column, statement, index, this.convertToDb(column, domainValue));
+    }
+
+    protected Optional<IOResource> setConvertedObject(ColumnImpl column, PreparedStatement statement, int index, Object dbValue) throws SQLException {
+        statement.setObject(index, dbValue);
+        return Optional.empty();
+    }
 
 	Long getTime(Object value) {
 		if (value == null) {
@@ -526,17 +585,17 @@ public enum ColumnConversionImpl {
 		}
 
         public Object convert(String in) {
-            Object[] objects = jsonService.deserialize(in, Object[].class);
-            return objects;
+            return jsonService.deserialize(in, Object[].class);
         }
 
-        public Object convertToDb(Object value) {
+        Object convertToDb(Object value) {
             return jsonService.serialize(value);
         }
 
-        public Object convertFromDb(ResultSet rs, int index) throws SQLException {
+        Object convertFromDb(ResultSet rs, int index) throws SQLException {
             String jsonString = rs.getString(index);
             return jsonString == null ? null : convert(jsonString);
         }
 	}
+
 }
