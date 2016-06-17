@@ -31,11 +31,15 @@ public class ValidationConsoleCommands {
     }
 
     public void availableValidators() {
-        System.out.println("Usage: availableValidators <applicationName: INS, MDC>");
+        System.out.println("Usage: availableValidators <qualityCodeSystem: MDM, MDC, OTHER>");
     }
 
-    public void availableValidators(String applicationName) {
-        validationService.getAvailableValidators(applicationName).stream()
+    public void availableValidators(String qualityCodeSystem) {
+        QualityCodeSystem system = Stream.of(QualityCodeSystem.values())
+                .filter(s -> s.name().equals(qualityCodeSystem))
+                .findAny()
+                .orElse(QualityCodeSystem.NOTAPPLICABLE);
+        validationService.getAvailableValidators(system).stream()
                 .peek(est -> System.out.println(est.getDefaultFormat()))
                 .flatMap(est -> est.getPropertySpecs().stream())
                 .map(spec -> spec.getName() + ' ' + spec.getValueFactory().getValueType().toString())
@@ -43,7 +47,7 @@ public class ValidationConsoleCommands {
     }
 
     public void createRuleSet() {
-        System.out.println("Usage: createRuleSet <ruleSetName> <applicationName: INS, MDC>");
+        System.out.println("Usage: createRuleSet <ruleSetName> <qualityCodeSystem: MDM, MDC, OTHER>");
     }
 
     public void createRuleSet(String name, String qualityCodeSystem) {
@@ -54,7 +58,7 @@ public class ValidationConsoleCommands {
                         validationService.createValidationRuleSet(name, Stream.of(QualityCodeSystem.values())
                                 .filter(system -> system.name().equals(qualityCodeSystem))
                                 .findAny()
-                                .orElse(QualityCodeSystem.NOTAPPLICABLE));
+                                .orElse(QualityCodeSystem.OTHER));
                     });
         } catch (Exception e) {
             e.printStackTrace();

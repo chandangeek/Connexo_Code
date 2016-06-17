@@ -291,19 +291,19 @@ public class ValidationServiceImplTest {
 
     @Test
     public void testGetAvailableValidators() {
-        when(validator1.getSupportedApplications()).thenReturn(ImmutableSet.of("HERO", "BORING"));
-        when(validator2.getSupportedApplications()).thenReturn(Collections.singleton("HERO"));
+        when(validator1.getSupportedQualityCodeSystems()).thenReturn(ImmutableSet.of(QualityCodeSystem.ENDDEVICE, QualityCodeSystem.EXTERNAL));
+        when(validator2.getSupportedQualityCodeSystems()).thenReturn(Collections.singleton(QualityCodeSystem.ENDDEVICE));
         assertThat(validationService.getAvailableValidators())
                 .as("There must be 2 validators in sum")
                 .containsExactly(validator1, validator2);
-        assertThat(validationService.getAvailableValidators("HERO"))
-                .as("Application HERO must be supported by both validators")
+        assertThat(validationService.getAvailableValidators(QualityCodeSystem.ENDDEVICE))
+                .as("QualityCodeSystem ENDDEVICE must be supported by both validators")
                 .containsExactly(validator1, validator2);
-        assertThat(validationService.getAvailableValidators("BADDIE"))
-                .as("Application BADDIE is supported by some validator but must not be...")
+        assertThat(validationService.getAvailableValidators(QualityCodeSystem.OTHER))
+                .as("QualityCodeSystem OTHER is supported by some validator but must not be...")
                 .isEmpty();
-        assertThat(validationService.getAvailableValidators("BORING"))
-                .as("Application BORING must be supported by only one validator1")
+        assertThat(validationService.getAvailableValidators(QualityCodeSystem.EXTERNAL))
+                .as("QualityCodeSystem EXTERNAL must be supported by only one validator1")
                 .containsExactly(validator1);
     }
 

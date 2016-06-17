@@ -473,12 +473,12 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
     }
 
     @Override
-    public List<Validator> getAvailableValidators(String application) {
+    public List<Validator> getAvailableValidators(QualityCodeSystem qualityCodeSystem) {
         ValidatorCreator validatorCreator = new DefaultValidatorCreator();
         return validatorFactories.stream()
                 .flatMap(f -> f.available().stream())
                 .map(validatorCreator::getTemplateValidator)
-                .filter(validator -> validator.getSupportedApplications().contains(application))
+                .filter(validator -> validator.getSupportedQualityCodeSystems().contains(qualityCodeSystem))
                 .collect(Collectors.toList());
     }
 
