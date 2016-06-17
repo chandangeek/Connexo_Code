@@ -4,12 +4,12 @@ Ext.define('Imt.metrologyconfiguration.view.validation.ValidationConfiguration',
 
     requires: [
         'Imt.metrologyconfiguration.view.MetrologyConfigurationSideMenu',
-        'Imt.metrologyconfiguration.view.validation.ValidationRuleSets'
+        'Imt.metrologyconfiguration.view.validation.ValidationRuleSets',
+        'Imt.metrologyconfiguration.view.validation.ValidationSchedule'
     ],
 
     router: null,
     metrologyConfig: null,
-    purposes: null,
     rulesStore: null,
 
     initComponent: function () {
@@ -32,23 +32,25 @@ Ext.define('Imt.metrologyconfiguration.view.validation.ValidationConfiguration',
             title: Uni.I18n.translate('usagepoint.dataValidation.validationConfiguration', 'IMT', 'Validation configuration'),
             ui: 'large',
             itemId: 'metrology-configuration-validation-tab-panel',
-            activeTab: 0,
+            activeTab: 'metrology-configuration-' + me.activeTab,
             items: [
                 {
                     title: Uni.I18n.translate('general.ruleSets', 'IMT', 'Rule sets'),
-                    itemId: 'metrology-configuration-validation-rule-sets-tab',
-                    items: {
-                        xtype: 'validation-mc-rule-sets',
-                        metrologyConfig: me.metrologyConfig,
-                        purposes: me.purposes,
-                        rulesStore: me.rulesStore,
-                        router: me.router
-                    }                    
+                    itemId: 'metrology-configuration-rules',
+                    metrologyConfig: me.metrologyConfig,
+                    listeners: {
+                        activate: me.controller.showRulesTab,
+                        scope: me.controller
+                    }
                 },
                 {
                     title: Uni.I18n.translate('general.schedule', 'IMT', 'Schedule'),
-                    itemId: 'metrology-configuration-validation-schedule-tab',
-                    hidden: true
+                    itemId: 'metrology-configuration-schedule',
+                    metrologyConfig: me.metrologyConfig,
+                    listeners: {
+                        activate: me.controller.showScheduleTab,
+                        scope: me.controller
+                    }
                 }
             ]
         };

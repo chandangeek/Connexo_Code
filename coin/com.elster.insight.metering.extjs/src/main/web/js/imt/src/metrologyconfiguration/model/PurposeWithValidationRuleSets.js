@@ -12,6 +12,12 @@ Ext.define('Imt.metrologyconfiguration.model.PurposeWithValidationRuleSets', {
             type: 'hasMany',
             model: 'Imt.metrologyconfiguration.model.ValidationRuleSet',
             associationKey: 'validationRuleSets'
+        },
+        {
+            name: 'validationTasks',
+            type: 'hasMany',
+            model: 'Imt.metrologyconfiguration.model.ValidationTask',
+            associationKey: 'validationTasks'
         }
     ],
     proxy: {
