@@ -925,7 +925,7 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         validationRuleSet.save();
         deviceConfiguration.addValidationRuleSet(validationRuleSet);
 
-        EstimationRuleSet estimationRuleSet = inMemoryPersistence.getEstimationService().createEstimationRuleSet("EstimationRuleSet", "MDC");
+        EstimationRuleSet estimationRuleSet = inMemoryPersistence.getEstimationService().createEstimationRuleSet("EstimationRuleSet", QualityCodeSystem.MDC);
         estimationRuleSet.save();
         deviceConfiguration.addEstimationRuleSet(estimationRuleSet);
 

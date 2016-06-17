@@ -239,9 +239,9 @@ public class DeviceConfigurationImplCloneTest extends PersistenceTest {
     public void cloneWithEstimationRuleSetsTest() {
         DeviceType deviceType = createSimpleDeviceType();
         DeviceConfiguration configWithEstimation = deviceType.newConfiguration("configWithEstimation").add();
-        EstimationRuleSet myEstimationRule1 = inMemoryPersistence.getEstimationService().createEstimationRuleSet("MyEstimationRule1", "MDC");
+        EstimationRuleSet myEstimationRule1 = inMemoryPersistence.getEstimationService().createEstimationRuleSet("MyEstimationRule1", QualityCodeSystem.MDC);
         myEstimationRule1.save();
-        EstimationRuleSet myEstimationRule2 = inMemoryPersistence.getEstimationService().createEstimationRuleSet("MyEstimationRule2", "MDC");
+        EstimationRuleSet myEstimationRule2 = inMemoryPersistence.getEstimationService().createEstimationRuleSet("MyEstimationRule2", QualityCodeSystem.MDC);
         myEstimationRule2.save();
         configWithEstimation.addEstimationRuleSet(myEstimationRule1);
         configWithEstimation.addEstimationRuleSet(myEstimationRule2);
