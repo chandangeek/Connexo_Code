@@ -23,7 +23,7 @@ final class ChannelValidationImpl implements ChannelValidation {
 
     private long id;
     private long channelId;
-    private Reference<ChannelsContainerValidation> meterActivationValidation = ValueReference.absent(); // TODO rename
+    private Reference<ChannelsContainerValidation> channelsContainerValidation = ValueReference.absent();
     private Instant lastChecked;
     @SuppressWarnings("unused")
     private boolean activeRules;
@@ -37,7 +37,7 @@ final class ChannelValidationImpl implements ChannelValidation {
         if (!channel.getChannelsContainer().equals(channelsContainerValidation.getChannelsContainer())) {
             throw new IllegalArgumentException();
         }
-        this.meterActivationValidation.set(channelsContainerValidation);
+        this.channelsContainerValidation.set(channelsContainerValidation);
         this.channelId = channel.getId();
         this.channel = channel;
         this.lastChecked = minLastChecked();
@@ -52,7 +52,7 @@ final class ChannelValidationImpl implements ChannelValidation {
 
     @Override
     public ChannelsContainerValidation getChannelsContainerValidation() {
-        return meterActivationValidation.get();
+        return channelsContainerValidation.get();
     }
 
     @Override
@@ -62,7 +62,7 @@ final class ChannelValidationImpl implements ChannelValidation {
 
     public Channel getChannel() {
         if (channel == null) {
-            channel = meterActivationValidation.get().getChannelsContainer().getChannels().stream()
+            channel = channelsContainerValidation.get().getChannelsContainer().getChannels().stream()
                     .filter(channel -> channel.getId() == channelId)
                     .findFirst()
                     .get();
@@ -101,17 +101,17 @@ final class ChannelValidationImpl implements ChannelValidation {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        return channelId == ((ChannelValidationImpl) o).channelId && meterActivationValidation.equals(((ChannelValidationImpl) o).meterActivationValidation);
+        return channelId == ((ChannelValidationImpl) o).channelId && channelsContainerValidation.equals(((ChannelValidationImpl) o).channelsContainerValidation);
 
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(channelId, meterActivationValidation);
+        return Objects.hash(channelId, channelsContainerValidation);
     }
 
     private final Instant minLastChecked() {
-        return meterActivationValidation.get().getChannelsContainer().getStart();
+        return channelsContainerValidation.get().getChannelsContainer().getStart();
     }
 
     @Override
@@ -121,7 +121,7 @@ final class ChannelValidationImpl implements ChannelValidation {
         }
         Instant newValue = instant.isBefore(minLastChecked()) ? minLastChecked() : instant;
         if (lastChecked.isAfter(newValue)) {
-            getChannel().findReadingQualities(Collections.singleton(meterActivationValidation.get().getRuleSet().getQualityCodeSystem()),
+            getChannel().findReadingQualities(Collections.singleton(channelsContainerValidation.get().getRuleSet().getQualityCodeSystem()),
                     null, Range.greaterThan(newValue), false, false).stream()
                     .filter(ChannelValidationImpl::isValidationRelatedQuality)
                     .forEach(ReadingQualityRecord::delete);

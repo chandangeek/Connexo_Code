@@ -241,14 +241,15 @@ public class ValidationAddRemoveIT {
                 meterReading.addReading(ReadingImpl.of(readingType, BigDecimal.valueOf(12L), date1.plusSeconds(900 * 3)));
                 meter.store(meterReading);
                 DataModel valDataModel = injector.getInstance(OrmService.class).getDataModel(ValidationService.COMPONENTNAME).get();
-                List<ChannelsContainerValidation> meterActivationValidations = valDataModel.mapper(ChannelsContainerValidation.class).find("channelsContainer", meterActivation.getChannelsContainer());
-                ChannelValidation channelValidation = meterActivationValidations.get(0).getChannelValidations().iterator().next();
+                List<ChannelsContainerValidation> channelsContainerValidations = valDataModel.mapper(ChannelsContainerValidation.class)
+                        .find("channelsContainer", meterActivation.getChannelsContainer());
+                ChannelValidation channelValidation = channelsContainerValidations.get(0).getChannelValidations().iterator().next();
                 assertThat(channelValidation.getLastChecked()).isEqualTo(date1.plusSeconds(900 * 3));
                 Channel channel = meter.getMeterActivations().get(0).getChannelsContainer().getChannels().get(0);
                 List<BaseReadingRecord> readings = channel.getReadings(Range.all());
                 channel.removeReadings(readings.subList(1, readings.size()));
-                meterActivationValidations = valDataModel.mapper(ChannelsContainerValidation.class).find("channelsContainer", meterActivation.getChannelsContainer());
-                channelValidation = meterActivationValidations.get(0).getChannelValidations().iterator().next();
+                channelsContainerValidations = valDataModel.mapper(ChannelsContainerValidation.class).find("channelsContainer", meterActivation.getChannelsContainer());
+                channelValidation = channelsContainerValidations.get(0).getChannelValidations().iterator().next();
                 assertThat(channelValidation.getLastChecked()).isEqualTo(date1.plusSeconds(900 * 1));
             }
         });

@@ -129,13 +129,19 @@ public enum TableSpecs {
             table.map(ChannelValidationImpl.class);
             Column idColumn = table.addAutoIdColumn();
             Column channelRef = table.column("CHANNELID").number().notNull().conversion(NUMBER2LONG).map("channelId").add();
-            Column meterActivationValidationColumn = table.column("MAV_ID").number().conversion(NUMBER2LONG).add();
+            Column channelsContainerValidationColumn = table.column("MAV_ID").number().conversion(NUMBER2LONG).add();
             table.column("LASTCHECKED").number().conversion(NUMBER2INSTANT).map("lastChecked").add();
             table.column("ACTIVERULES").bool().map("activeRules").add();
             table.primaryKey("VAL_PK_CH_VALIDATION").on(idColumn).add();
             table.foreignKey("VAL_FK_CH_VALIDATION_CH").references(Channel.class).onDelete(RESTRICT).on(channelRef).map("channel").add();
-            table.foreignKey("VAL_FK_CH_VALIDATION_MA_VAL").references(VAL_MA_VALIDATION.name()).onDelete(DeleteRule.CASCADE).map("meterActivationValidation").reverseMap("channelValidations")
-                    .composition().on(meterActivationValidationColumn).add();
+            table.foreignKey("VAL_FK_CH_VALIDATION_MA_VAL")
+                    .references(VAL_MA_VALIDATION.name())
+                    .onDelete(DeleteRule.CASCADE)
+                    .map("channelsContainerValidation")
+                    .reverseMap("channelValidations")
+                    .composition()
+                    .on(channelsContainerValidationColumn)
+                    .add();
         }
     },
     VAL_METER_VALIDATION {

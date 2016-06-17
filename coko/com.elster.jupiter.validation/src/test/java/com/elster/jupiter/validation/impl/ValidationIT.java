@@ -242,11 +242,12 @@ public class ValidationIT {
                 service.validate(meterActivation.getChannelsContainer());
 
                 DataModel valDataModel = injector.getInstance(OrmService.class).getDataModel(ValidationService.COMPONENTNAME).get();
-                List<ChannelsContainerValidation> meterActivationValidations = valDataModel.mapper(ChannelsContainerValidation.class).find("channelsContainer", meterActivation.getChannelsContainer());
-                assertThat(meterActivationValidations).hasSize(1);
-                assertThat(meterActivationValidations.get(0).getRuleSet().getName()).isEqualTo(MY_RULE_SET);
-                assertThat(meterActivationValidations.get(0).isObsolete()).isFalse();
-                assertThat(meterActivationValidations.get(0).getChannelValidations()).hasSize(2);
+                List<ChannelsContainerValidation> channelsContainerValidations = valDataModel.mapper(ChannelsContainerValidation.class)
+                        .find("channelsContainer", meterActivation.getChannelsContainer());
+                assertThat(channelsContainerValidations).hasSize(1);
+                assertThat(channelsContainerValidations.get(0).getRuleSet().getName()).isEqualTo(MY_RULE_SET);
+                assertThat(channelsContainerValidations.get(0).isObsolete()).isFalse();
+                assertThat(channelsContainerValidations.get(0).getChannelValidations()).hasSize(2);
 
             }
         });

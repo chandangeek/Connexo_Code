@@ -46,7 +46,7 @@ public class ChannelValidationImplTest extends EqualsContractTest {
     @Mock
     private Channel channel, channel1;
     @Mock
-    private ChannelsContainerValidation meterActivationValidation, meterActivationValidation1;
+    private ChannelsContainerValidation channelsContainerValidation, channelsContainerValidation1;
     @Mock
     private DataModel dataModel;
     @Mock
@@ -60,7 +60,7 @@ public class ChannelValidationImplTest extends EqualsContractTest {
     protected Object getInstanceA() {
         if (a == null) {
             setUp();
-            a = new ChannelValidationImpl().init(meterActivationValidation, channel);
+            a = new ChannelValidationImpl().init(channelsContainerValidation, channel);
         }
         return a;
     }
@@ -76,23 +76,23 @@ public class ChannelValidationImplTest extends EqualsContractTest {
         when(channel1.getChannelsContainer()).thenReturn(channelsContainer);
         when(channel.getId()).thenReturn(1L);
         when(channel1.getId()).thenReturn(2L);
-        when(meterActivationValidation.getChannelsContainer()).thenReturn(channelsContainer);
-        when(meterActivationValidation1.getChannelsContainer()).thenReturn(channelsContainer);
+        when(channelsContainerValidation.getChannelsContainer()).thenReturn(channelsContainer);
+        when(channelsContainerValidation1.getChannelsContainer()).thenReturn(channelsContainer);
         when(channelsContainer.getStart()).thenReturn(Year.of(2013).atMonth(Month.JANUARY).atDay(1).atTime(14, 0).atZone(ZoneId.systemDefault()).toInstant());
     }
 
     @Override
     protected Object getInstanceEqualToA() {
-        ChannelValidationImpl channelValidation = new ChannelValidationImpl().init(meterActivationValidation, channel);
+        ChannelValidationImpl channelValidation = new ChannelValidationImpl().init(channelsContainerValidation, channel);
         return channelValidation;
     }
 
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
         return Arrays.asList(
-                new ChannelValidationImpl().init(meterActivationValidation1, channel),
-                new ChannelValidationImpl().init(meterActivationValidation, channel1),
-                new ChannelValidationImpl().init(meterActivationValidation1, channel1)
+                new ChannelValidationImpl().init(channelsContainerValidation1, channel),
+                new ChannelValidationImpl().init(channelsContainerValidation, channel1),
+                new ChannelValidationImpl().init(channelsContainerValidation1, channel1)
         );
     }
 
@@ -111,10 +111,10 @@ public class ChannelValidationImplTest extends EqualsContractTest {
         when(channel.findReadingQualities(anySetOf(QualityCodeSystem.class), any(QualityCodeIndex.class), any(Range.class),
                 anyBoolean(), anyBoolean())).thenReturn(ImmutableList.of(readingQuality));
         ValidationRuleSet ruleSet = mock(ValidationRuleSet.class);
-        when(meterActivationValidation.getRuleSet()).thenReturn(ruleSet);
+        when(channelsContainerValidation.getRuleSet()).thenReturn(ruleSet);
         when(ruleSet.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDM);
         when(readingQuality.hasReasonabilityCategory()).thenReturn(true);
-        ChannelValidationImpl channelValidation = new ChannelValidationImpl().init(meterActivationValidation, channel);
+        ChannelValidationImpl channelValidation = new ChannelValidationImpl().init(channelsContainerValidation, channel);
         assertThat(channelValidation.getLastChecked()).isNotNull();
         assertThat(channelValidation.getLastChecked()).isEqualTo(channelsContainer.getStart());
         ZonedDateTime dateTime = Year.of(2014).atMonth(Month.JANUARY).atDay(1).atStartOfDay(ZoneId.systemDefault());

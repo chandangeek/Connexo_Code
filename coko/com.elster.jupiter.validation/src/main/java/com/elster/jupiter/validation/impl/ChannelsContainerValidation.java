@@ -13,6 +13,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+/**
+ * Manages validation for the channels container by concrete rule set.
+ */
 public interface ChannelsContainerValidation extends HasId {
 
     ValidationRuleSet getRuleSet();

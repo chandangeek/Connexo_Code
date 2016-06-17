@@ -59,10 +59,10 @@ public class ValidationEventHandler extends EventHandler<LocalEvent> {
     private void handleAdvanceEvent(EventType.MeterActivationAdvancedEvent advanceEvent) {
         validationService.getStoredChannelsContainerValidations(advanceEvent.getAdvanced().getChannelsContainer())
                 .stream()
-                .forEach(iMeterActivationValidation -> {
-                    iMeterActivationValidation.getChannelValidations()
-                            .forEach(iChannelValidation -> iChannelValidation.updateLastChecked(advanceEvent.getAdvanced().getStart()));
-                    iMeterActivationValidation.save();
+                .forEach(channelsContainerValidation -> {
+                    channelsContainerValidation.getChannelValidations()
+                            .forEach(channelValidation -> channelValidation.updateLastChecked(advanceEvent.getAdvanced().getStart()));
+                    channelsContainerValidation.save();
                 });
         if (advanceEvent.getShrunk() != null) {
             validationService.getStoredChannelsContainerValidations(advanceEvent.getShrunk().getChannelsContainer())
@@ -74,7 +74,6 @@ public class ValidationEventHandler extends EventHandler<LocalEvent> {
                                     if (channelValidation.getLastChecked() != null && end.isBefore(channelValidation.getLastChecked())) {
                                         channelValidation.updateLastChecked(end);
                                     }
-                                    ;
                                 });
                         channelsContainerValidation.save();
                     });

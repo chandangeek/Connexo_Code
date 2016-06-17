@@ -268,11 +268,11 @@ public class ValidationServiceImplTest {
     }
 
     private void setupValidationRuleSet(ChannelValidation channelValidation, Channel channel, boolean activeRules, ReadingQualityType... qualities) {
-        ChannelsContainerValidation meterActivationValidation = mock(ChannelsContainerValidation.class);
-        when(channelValidation.getChannelsContainerValidation()).thenReturn(meterActivationValidation);
+        ChannelsContainerValidation channelsContainerValidation = mock(ChannelsContainerValidation.class);
+        when(channelValidation.getChannelsContainerValidation()).thenReturn(channelsContainerValidation);
         ValidationRuleSet validationRuleSet = mock(ValidationRuleSet.class);
         when(validationRuleSet.getQualityCodeSystem()).thenReturn(SYSTEM);
-        when(meterActivationValidation.getRuleSet()).thenReturn(validationRuleSet);
+        when(channelsContainerValidation.getRuleSet()).thenReturn(validationRuleSet);
         when(channelValidation.getChannel()).thenReturn(channel);
 
         ReadingType readingType = channel.getMainReadingType();
@@ -354,10 +354,10 @@ public class ValidationServiceImplTest {
         when(meterValidationFactory.getOptional(ID)).thenReturn(Optional.of(meterValidation));
         when(meterValidation.getActivationStatus()).thenReturn(true);
         doAnswer((invocation) -> {
-            Object meterActivationValidation = invocation.getArguments()[0];
-            Field field = meterActivationValidation.getClass().getDeclaredField("id");
+            Object channelsContainerValidation = invocation.getArguments()[0];
+            Field field = channelsContainerValidation.getClass().getDeclaredField("id");
             field.setAccessible(true);
-            field.set(meterActivationValidation, 1L);
+            field.set(channelsContainerValidation, 1L);
             return null;
         }).when(dataModel).persist(any(ChannelsContainerValidation.class));
 
@@ -368,12 +368,12 @@ public class ValidationServiceImplTest {
         when(validationRuleSetResolver.resolve(eq(channelsContainer))).thenReturn(Arrays.asList(validationRuleSet));
         validationService.validate(channelsContainer);
 
-        ArgumentCaptor<ChannelsContainerValidation> meterActivationValidationCapture = ArgumentCaptor.forClass(ChannelsContainerValidation.class);
-        verify(dataModel).persist(meterActivationValidationCapture.capture());
+        ArgumentCaptor<ChannelsContainerValidation> channelsContainerValidationArgumentCaptor = ArgumentCaptor.forClass(ChannelsContainerValidation.class);
+        verify(dataModel).persist(channelsContainerValidationArgumentCaptor.capture());
 
-        final ChannelsContainerValidation meterActivationValidationCaptureValue = meterActivationValidationCapture.getValue();
-        final Set<ChannelValidation> channelValidations = meterActivationValidationCaptureValue.getChannelValidations();
-        assertThat(channelValidations.stream().allMatch(input -> input.getChannelsContainerValidation().equals(meterActivationValidationCaptureValue))).isTrue();
+        final ChannelsContainerValidation channelsContainerValidationCaptureValue = channelsContainerValidationArgumentCaptor.getValue();
+        final Set<ChannelValidation> channelValidations = channelsContainerValidationCaptureValue.getChannelValidations();
+        assertThat(channelValidations.stream().allMatch(input -> input.getChannelsContainerValidation().equals(channelsContainerValidationCaptureValue))).isTrue();
         assertThat(channelValidations.stream().map(ChannelValidation::getChannel).collect(Collectors.toSet())).contains(channel1);
     }
 
@@ -677,7 +677,7 @@ public class ValidationServiceImplTest {
         //Check that a MeterValidation object is made
         verify(dataModel).persist(any(MeterValidationImpl.class));
 
-        // verify that the MeterActivationValidations are managed for the current channelsContainer
+        // verify that the ChannelsContainerValidations are managed for the current channelsContainer
         verify(meter).getCurrentMeterActivation();
         verify(meterActivation).getChannelsContainer();
         verify(validationRuleSetResolver).resolve(channelsContainer);

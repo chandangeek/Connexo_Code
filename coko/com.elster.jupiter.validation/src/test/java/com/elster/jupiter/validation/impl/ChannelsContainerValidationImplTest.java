@@ -46,7 +46,7 @@ public class ChannelsContainerValidationImplTest {
     private static final long FIRST_CHANNEL_ID = 1001L;
     private static final long SECOND_CHANNEL_ID = 1002L;
 
-    ChannelsContainerValidationImpl meterActivationValidation;
+    ChannelsContainerValidationImpl channelsContainerValidation;
 
     @Mock
     private ChannelsContainer channelsContainer;
@@ -111,9 +111,9 @@ public class ChannelsContainerValidationImplTest {
         when(channelsContainer.getRange()).thenReturn(Range.atLeast(DATE1));
         when(channelsContainer.getStart()).thenReturn(DATE1);
 
-        meterActivationValidation = new ChannelsContainerValidationImpl(dataModel, clock).init(channelsContainer);
-        meterActivationValidation.setRuleSet(validationRuleSet);
-        meterActivationValidation.save();
+        channelsContainerValidation = new ChannelsContainerValidationImpl(dataModel, clock).init(channelsContainer);
+        channelsContainerValidation.setRuleSet(validationRuleSet);
+        channelsContainerValidation.save();
     }
 
     @After
@@ -124,16 +124,16 @@ public class ChannelsContainerValidationImplTest {
     public void testValidateWithoutChannels() throws Exception {
         when(channelsContainer.getChannels()).thenReturn(Collections.<Channel>emptyList());
 
-        meterActivationValidation.validate();
+        channelsContainerValidation.validate();
 
-        assertThat(meterActivationValidation.getLastRun()).isEqualTo(DATE3);
+        assertThat(channelsContainerValidation.getLastRun()).isEqualTo(DATE3);
     }
 
     @Test
     public void testValidateNoRulesApply() throws Exception {
-        meterActivationValidation.validate();
+        channelsContainerValidation.validate();
 
-        assertThat(meterActivationValidation.getChannelValidations()).isEmpty();
+        assertThat(channelsContainerValidation.getChannelValidations()).isEmpty();
     }
 
     @Test
@@ -146,10 +146,10 @@ public class ChannelsContainerValidationImplTest {
         when(intervalReadingRecord.getTimeStamp()).thenReturn(DATE4);
         when(validator.validate(any(IntervalReadingRecord.class))).thenReturn(ValidationResult.VALID);
 
-        meterActivationValidation.validate();
+        channelsContainerValidation.validate();
 
-        assertThat(meterActivationValidation.getChannelValidations()).hasSize(1);
-        ChannelValidation channelValidation = meterActivationValidation.getChannelValidations().iterator().next();
+        assertThat(channelsContainerValidation.getChannelValidations()).hasSize(1);
+        ChannelValidation channelValidation = channelsContainerValidation.getChannelValidations().iterator().next();
         assertThat(channelValidation.getChannel()).isEqualTo(channel1);
         assertThat(channelValidation.getLastChecked()).isEqualTo(DATE4);
 
@@ -162,10 +162,10 @@ public class ChannelsContainerValidationImplTest {
         when(channel1.getLastDateTime()).thenReturn(DATE4);
         when(channel2.getLastDateTime()).thenReturn(DATE4);
 
-        meterActivationValidation.validate();
+        channelsContainerValidation.validate();
 
-        assertThat(meterActivationValidation.getChannelValidations()).hasSize(2);
-        Iterator<ChannelValidation> iterator = meterActivationValidation.getChannelValidations().iterator();
+        assertThat(channelsContainerValidation.getChannelValidations()).hasSize(2);
+        Iterator<ChannelValidation> iterator = channelsContainerValidation.getChannelValidations().iterator();
         ChannelValidation channelValidation = iterator.next();
         assertThat(channelValidation.getLastChecked()).isEqualTo(DATE4);
         channelValidation = iterator.next();
@@ -173,12 +173,12 @@ public class ChannelsContainerValidationImplTest {
     }
 
     @Test
-    public void testSetMeterActivationValidationStatus() throws Exception {
-        assertThat(meterActivationValidation.isActive()).isEqualTo(true);
-        meterActivationValidation.deactivate();
-        assertThat(meterActivationValidation.isActive()).isEqualTo(false);
-        meterActivationValidation.activate();
-        assertThat(meterActivationValidation.isActive()).isEqualTo(true);
+    public void testSetChannelsContainerValidationStatus() throws Exception {
+        assertThat(channelsContainerValidation.isActive()).isEqualTo(true);
+        channelsContainerValidation.deactivate();
+        assertThat(channelsContainerValidation.isActive()).isEqualTo(false);
+        channelsContainerValidation.activate();
+        assertThat(channelsContainerValidation.isActive()).isEqualTo(true);
     }
 
 }

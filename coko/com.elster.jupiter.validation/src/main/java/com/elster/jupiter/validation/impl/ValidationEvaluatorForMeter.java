@@ -123,7 +123,7 @@ class ValidationEvaluatorForMeter extends AbstractValidationEvaluator {
 
     private ImmutableListMultimap<String, IValidationRule> initRulesPerQuality() {
         Set<IValidationRule> rules = getMapToValidation().values().stream()
-                .flatMap(meterActivationValidationContainer -> meterActivationValidationContainer.ruleSets().stream())
+                .flatMap(channelsContainerValidationList -> channelsContainerValidationList.ruleSets().stream())
                 .distinct()
                 .flatMap(ruleSet -> ruleSet.getRules().stream())
                 .map(IValidationRule.class::cast)
