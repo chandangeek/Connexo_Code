@@ -16,46 +16,35 @@ public class SpatialCoordinatesFactory {
     }
 
     public SpatialCoordinates valueFromDb(Object object) {
-        try {
-            if (object == null || ((Struct) object).getAttributes()!=null && ((Struct) object).getAttributes().length == 5
-                    && ((Struct) object).getAttributes()[2]==null) {
-                return null;
-            } else {
-                try {
-                    Struct struct = (Struct) object;
-                    Object[] attributes = struct.getAttributes();
-                    Struct point = (Struct) attributes[2];
-                    Object[] pointAttributes = point.getAttributes();
-                    BigDecimal latitude = (BigDecimal) pointAttributes[0];
-                    BigDecimal longitude = (BigDecimal) pointAttributes[1];
-                    BigDecimal elevation = (BigDecimal) pointAttributes[2];
-                    return new SpatialCoordinates(new Latitude(latitude), new Longitude(longitude), new Elevation(elevation));
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
-                }
+        if (object == null) {
+            return null;
+        } else {
+            try {
+                Struct struct = (Struct) object;
+                Object[] attributes = struct.getAttributes();
+                Struct point = (Struct) attributes[2];
+                Object[] pointAttributes = point.getAttributes();
+                BigDecimal latitude = (BigDecimal) pointAttributes[0];
+                BigDecimal longitude = (BigDecimal) pointAttributes[1];
+                BigDecimal elevation = (BigDecimal) pointAttributes[2];
+                return new SpatialCoordinates(new Latitude(latitude), new Longitude(longitude), new Elevation(elevation));
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
             }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
         }
     }
 
     public Object valueToDb(SpatialCoordinates object, Connection conn) {
         if (object == null) {
-            try {
-                Struct SDO_GEOMETRY = conn.createStruct("MDSYS.SDO_GEOMETRY", null);
-                return SDO_GEOMETRY;
-            } catch (SQLException e) {
-                throw new RuntimeException(e);//ApplicationException(e);
-            }
-
+            return null;
         } else {
             try {
 
                 NUMBER SDO_GTYPE = new NUMBER(2001);  //point = 2001
                 NUMBER SDO_SRID = new NUMBER(8307);   //datum = 8307
-                NUMBER x = new NUMBER((object.getLatitude()).getValue());  // latitude
-                NUMBER y = new NUMBER((object.getLongitude()).getValue());    //longitude
-                NUMBER z = new NUMBER((object.getElevation()).getValue());  // elevation
+                NUMBER x = new NUMBER((object.getLatitude()).getValue());  //latitude
+                NUMBER y = new NUMBER((object.getLongitude()).getValue()); //longitude
+                NUMBER z = new NUMBER((object.getElevation()).getValue()); //elevation
                 Object[] pointAttributes = {x, y, z};
                 Struct SDO_POINT = conn.createStruct("MDSYS.SDO_POINT_TYPE", pointAttributes);
 
@@ -115,7 +104,7 @@ public class SpatialCoordinatesFactory {
         BigDecimal numericLatitude = new BigDecimal(parts[0].contains(",") ? String.valueOf(parts[0].replace(",", ".")) : parts[0]);
         BigDecimal numericLongitude = new BigDecimal(parts[1].contains(",") ? String.valueOf(parts[1].replace(",", ".")) : parts[1]);
         BigDecimal numericElevation = new BigDecimal(0);
-        if (parts.length == 3 && !parts[2].equals("null")) {
+        if(parts.length == 3 && !parts[2].equals("null")){
             numericElevation = new BigDecimal(parts[2]);
         }
         if (numericLatitude.compareTo(BigDecimal.valueOf(-90)) < 0
