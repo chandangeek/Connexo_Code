@@ -25,6 +25,7 @@ public enum QualityCodeSystem {
     }
 
     public static QualityCodeSystem ofApplication(String applicationName) {
+        // TODO: bad architecture; somehow need to move such a mapper out of kore
         if(applicationName == null) {
             return NOTAPPLICABLE;
         }
