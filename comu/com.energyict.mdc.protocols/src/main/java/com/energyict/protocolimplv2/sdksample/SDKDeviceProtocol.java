@@ -352,6 +352,7 @@ public class SDKDeviceProtocol implements DeviceProtocol {
                 new SDKTimeProtocolDialect(this.thesaurus, this.propertySpecService),
                 new SDKTopologyTaskProtocolDialect(this.thesaurus, this.propertySpecService),
                 new SDKFirmwareProtocolDialect(this.thesaurus, this.propertySpecService),
+                new SDKCalendarProtocolDialect(this.thesaurus, this.propertySpecService),
                 new SDKBreakerProtocolDialect(this.thesaurus, this.propertySpecService)
         );
     }
@@ -481,8 +482,8 @@ public class SDKDeviceProtocol implements DeviceProtocol {
     @Override
     public CollectedCalendar getCollectedCalendar() {
         CollectedCalendar collectedCalendar = this.collectedDataFactory.createCalendarCollectedData(this.offlineDevice.getDeviceIdentifier());
-        collectedCalendar.setActiveCalendar((String) this.typedProperties.getProperty(SDKFirmwareDialectProperties.ActualFields.ACTIVE_CALENDAR_NAME.propertySpecName(), ""));
-        collectedCalendar.setPassiveCalendar((String) this.typedProperties.getProperty(SDKFirmwareDialectProperties.ActualFields.PASSIVE_CALENDAR_NAME.propertySpecName(), ""));
+        collectedCalendar.setActiveCalendar((String) this.typedProperties.getProperty(SDKCalendarDialectProperties.ActualFields.ACTIVE_CALENDAR_NAME.propertySpecName(), ""));
+        collectedCalendar.setPassiveCalendar((String) this.typedProperties.getProperty(SDKCalendarDialectProperties.ActualFields.PASSIVE_CALENDAR_NAME.propertySpecName(), ""));
         this.simulateRealCommunicationIfApplicable();
         return collectedCalendar;
     }
