@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.properties.PropertySpec;
@@ -221,8 +222,8 @@ public class DeviceConfigurationImplCloneTest extends PersistenceTest {
     public void cloneWithValidationRuleSetsTest() {
         DeviceType deviceType = createSimpleDeviceType();
         DeviceConfiguration configWithValidation = deviceType.newConfiguration("configWithValidation").add();
-        ValidationRuleSet validationRuleSet1 = inMemoryPersistence.getValidationService().createValidationRuleSet("MyValRul1", "MDC");
-        ValidationRuleSet validationRuleSet2 = inMemoryPersistence.getValidationService().createValidationRuleSet("MyValRul2", "MDC");
+        ValidationRuleSet validationRuleSet1 = inMemoryPersistence.getValidationService().createValidationRuleSet("MyValRul1", QualityCodeSystem.MDC);
+        ValidationRuleSet validationRuleSet2 = inMemoryPersistence.getValidationService().createValidationRuleSet("MyValRul2", QualityCodeSystem.MDC);
         configWithValidation.addValidationRuleSet(validationRuleSet1);
         configWithValidation.addValidationRuleSet(validationRuleSet2);
         configWithValidation.save();

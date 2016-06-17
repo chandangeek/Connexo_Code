@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.cbo.Accumulation;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
@@ -920,7 +921,7 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
     public void testCanRemoveDeviceConfigurationWithLinkedValidationAndEstimationRuleSets() {
         DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("first").description("this is it!").add();
 
-        ValidationRuleSet validationRuleSet = inMemoryPersistence.getValidationService().createValidationRuleSet("ValidationRuleSet", "MDC");
+        ValidationRuleSet validationRuleSet = inMemoryPersistence.getValidationService().createValidationRuleSet("ValidationRuleSet", QualityCodeSystem.MDC);
         validationRuleSet.save();
         deviceConfiguration.addValidationRuleSet(validationRuleSet);
 
