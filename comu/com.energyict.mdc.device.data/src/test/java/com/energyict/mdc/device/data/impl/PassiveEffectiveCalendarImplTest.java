@@ -2,16 +2,15 @@ package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.PassiveEffectiveCalendar;
 
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.MonthDay;
 import java.time.Year;
-import java.util.Collections;
 import java.util.TimeZone;
 
 import org.junit.Test;
@@ -21,16 +20,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class PassiveEffectiveCalendarImplTest extends PersistenceIntegrationTest {
 
     private Device createSimpleDeviceWithOneCalendar() {
-        Device device = inMemoryPersistence.getDeviceService()
-                .newDevice(deviceConfiguration, "DeviceName", "MyUniqueID");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceName", "MyUniqueID");
         Calendar calendar = createCalendar();
         DeviceType deviceType = device.getDeviceConfiguration().getDeviceType();
-        deviceType.addCalendar(calendar);
-        PassiveEffectiveCalendarImpl passiveEffectiveCalendar = new PassiveEffectiveCalendarImpl();
-        passiveEffectiveCalendar.setAllowedCalendar(deviceType.getAllowedCalendars().get(0));
-        passiveEffectiveCalendar.setDevice(device);
-        passiveEffectiveCalendar.setActivationDate(Instant.now());
-        device.setPassiveCalendars(Collections.singletonList(passiveEffectiveCalendar));
+        AllowedCalendar allowedCalendar = deviceType.addCalendar(calendar);
+        device.addPassiveCalendar(allowedCalendar);
         return device;
     }
 

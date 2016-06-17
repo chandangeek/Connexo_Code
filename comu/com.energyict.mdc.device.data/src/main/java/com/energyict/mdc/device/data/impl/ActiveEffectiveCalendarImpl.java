@@ -6,14 +6,12 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.AllowedCalendar;
-import com.energyict.mdc.device.data.ActiveEffectiveCalendar;
 import com.energyict.mdc.device.data.Device;
 
 import javax.inject.Inject;
 import java.time.Instant;
 
-public class ActiveEffectiveCalendarImpl implements ActiveEffectiveCalendar {
-
+public class ActiveEffectiveCalendarImpl implements ServerActiveEffectiveCalendar {
 
     public enum Fields {
         CALENDAR("allowedCalendar"),
@@ -47,12 +45,11 @@ public class ActiveEffectiveCalendarImpl implements ActiveEffectiveCalendar {
         this.dataModel = dataModel;
     }
 
-    public ActiveEffectiveCalendar initialize(Interval effectivityInterval, Device device, AllowedCalendar allowedCalendar, Instant lastVerified) {
+    public ServerActiveEffectiveCalendar initialize(Interval effectivityInterval, Device device, AllowedCalendar allowedCalendar, Instant lastVerified) {
         setDevice(device);
         setInterval(effectivityInterval);
         setAllowedCalendar(allowedCalendar);
         setLastVerifiedDate(lastVerified);
-
         return this;
     }
 
@@ -86,4 +83,14 @@ public class ActiveEffectiveCalendarImpl implements ActiveEffectiveCalendar {
     public void setDevice(Device device) {
         this.device.set(device);
     }
+
+    @Override
+    public void close(Instant closingDate) {
+        if (!isEffectiveAt(closingDate)) {
+            throw new IllegalArgumentException();
+        }
+        this.interval = this.interval.withEnd(closingDate);
+        this.dataModel.update(this);
+    }
+
 }

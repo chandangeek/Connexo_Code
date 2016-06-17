@@ -7,6 +7,7 @@ import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.PassiveEffectiveCalendar;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 
 import javax.inject.Inject;
 
@@ -20,7 +21,7 @@ public class PassiveEffectiveCalendarImpl implements PassiveEffectiveCalendar{
         CALENDAR("allowedCalendar"),
         ACTIVATIONDATE("activationDate"),
         DEVICE("device"),
-        COMTASKEXECUTION("comTaskExecution");
+        DEVICEMESSAGE("deviceMessage");
 
         private final String javaFieldName;
 
@@ -38,7 +39,7 @@ public class PassiveEffectiveCalendarImpl implements PassiveEffectiveCalendar{
     private Reference<AllowedCalendar> allowedCalendar = ValueReference.absent();
     private Reference<Device> device = ValueReference.absent();
     private Instant activationDate;
-    private Reference<ComTaskExecution> comTaskExecution = ValueReference.absent();
+    private Reference<DeviceMessage> deviceMessage = ValueReference.absent();
 
     @Override
     public AllowedCalendar getAllowedCalendar() {
@@ -68,7 +69,12 @@ public class PassiveEffectiveCalendarImpl implements PassiveEffectiveCalendar{
     }
 
     @Override
-    public Optional<ComTaskExecution> getComTaskExecution() {
-        return comTaskExecution.getOptional();
+    public Optional<DeviceMessage> getDeviceMessage() {
+        return deviceMessage.getOptional();
+    }
+
+    @Override
+    public void setDeviceMessage(DeviceMessage deviceMessage) {
+        this.deviceMessage.set(deviceMessage);
     }
 }
