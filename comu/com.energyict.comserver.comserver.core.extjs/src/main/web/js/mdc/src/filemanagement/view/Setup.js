@@ -36,6 +36,7 @@ Ext.define('Mdc.filemanagement.view.Setup', {
             items: [
                 {
                     xtype: 'tabpanel',
+                    itemId: 'files-tab-panel',
                     ui: 'large',
                     activeTab: me.fileManagementEnabled && !me.fromEditForm ? 1 : 0,
                     items: [
