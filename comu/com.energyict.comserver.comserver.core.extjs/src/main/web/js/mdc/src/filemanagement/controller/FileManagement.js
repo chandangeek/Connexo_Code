@@ -214,43 +214,53 @@ Ext.define('Mdc.filemanagement.controller.FileManagement', {
             setup = me.getSetup(),
             form,
             store = me.getStore('Mdc.filemanagement.store.Files'),
-            max_file_size = 2 * 1024 * 1024;
+            max_file_size = 2 * 1024 * 1024,
+            input,
+            file;
         if (fileField.up('#no-files')) {
             form = setup.down('files-devicetype-preview-container').down('#no-files').down('form');
         } else {
             form = setup.down('files-devicetype-preview-container').down('#files-grid').down('form');
         }
-        store.getProxy().setUrl(me.deviceTypeId);
-        setup.setLoading();
-        Ext.Ajax.request({
-            url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/files/upload',
-            method: 'POST',
-            form: form.getEl().dom,
-            params: {
-                fileName: me.getFileName(form.down('filefield').getValue())
-            },
-            headers: {'Content-type': 'multipart/form-data'},
-            isFormUpload: true,
-            callback: function (config, success, response) {
-                fileField.reset();
-                if (response.responseText) {
-                    var responseObject = JSON.parse(response.responseText);
-                    if (!responseObject.success) {
-                        me.getApplication().getController('Uni.controller.Error')
-                            .showError(Uni.I18n.translate('general.failed.to.upload.file', 'MDC', 'Failed to upload file'), responseObject.message);
-                    }
-                }
-                store.load({
-                    callback: function (records, operation, success) {
-                        if (success === true) {
-                            me.updateCounter(store.getCount());
-                            me.updateGridHeight();
+        input = form.down('filefield').button.fileInputEl.dom;
+        file = input.files[0];
+        if(file.size > max_file_size) {
+            me.getApplication().getController('Uni.controller.Error')
+                .showError(Uni.I18n.translate('general.failed.to.upload.file', 'MDC', 'Failed to upload file'), Uni.I18n.translate('filemanagement.fileSizShouldBeLessThan', 'MDC', 'File size should be less than 2 MB'));
+            fileField.reset();
+        } else {
+            store.getProxy().setUrl(me.deviceTypeId);
+            setup.setLoading();
+            Ext.Ajax.request({
+                url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/files/upload',
+                method: 'POST',
+                form: form.getEl().dom,
+                params: {
+                    fileName: me.getFileName(form.down('filefield').getValue())
+                },
+                headers: {'Content-type': 'multipart/form-data'},
+                isFormUpload: true,
+                callback: function (config, success, response) {
+                    fileField.reset();
+                    if (response.responseText) {
+                        var responseObject = JSON.parse(response.responseText);
+                        if (!responseObject.success) {
+                            me.getApplication().getController('Uni.controller.Error')
+                                .showError(Uni.I18n.translate('general.failed.to.upload.file', 'MDC', 'Failed to upload file'), responseObject.message);
                         }
                     }
-                });
-                setup.setLoading(false);
-            }
-        });
+                    store.load({
+                        callback: function (records, operation, success) {
+                            if (success === true) {
+                                me.updateCounter(store.getCount());
+                                me.updateGridHeight();
+                            }
+                        }
+                    });
+                    setup.setLoading(false);
+                }
+            });
+        }
     },
 
     getFileName: function (fullPath) {
