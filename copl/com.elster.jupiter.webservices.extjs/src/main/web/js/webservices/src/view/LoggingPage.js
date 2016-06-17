@@ -3,7 +3,9 @@ Ext.define('Wss.view.LoggingPage', {
     alias: 'widget.webservice-logging-page',
     requires: [
         'Wss.view.Menu',
-        'Wss.view.LoggingSetup'
+        'Uni.util.FormEmptyMessage',
+        'Wss.view.LoggingGrid',
+        'Uni.view.container.PreviewContainer'
     ],
 
     router: null,
@@ -27,12 +29,21 @@ Ext.define('Wss.view.LoggingPage', {
         ];
 
         me.content = {
-            ui: 'large',
             title: Uni.I18n.translate('general.Logging', 'WSS', 'Logging'),
-            items: {
-                xtype: 'wss-logging-setup',
-                router: me.router
-            }
+            xtype: 'panel',
+            ui: 'large',
+            items: [
+                {
+                    xtype: 'preview-container',
+                    grid: {
+                        xtype: 'wss-logging-grid'
+                    },
+                    emptyComponent: {
+                        xtype: 'uni-form-empty-message',
+                        text: Uni.I18n.translate('webservices.log.empty.list', 'WSS', 'There are no logs for this webservice endpoint')
+                    }
+                }
+            ]
 
         };
 
