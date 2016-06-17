@@ -248,8 +248,8 @@ public class LinearInterpolationTest {
 
     @Test
     public void testGetSupportedApplications() {
-        assertThat(new LinearInterpolation(thesaurus, propertySpecService).getSupportedApplications())
-                .containsOnly("INS", "MDC");
+        assertThat(new LinearInterpolation(thesaurus, propertySpecService).getSupportedQualityCodeSystems())
+                .containsOnly(QualityCodeSystem.MDC, QualityCodeSystem.MDM);
     }
 
     private EstimationRuleProperties estimationRuleProperty(final String name, final Object value) {

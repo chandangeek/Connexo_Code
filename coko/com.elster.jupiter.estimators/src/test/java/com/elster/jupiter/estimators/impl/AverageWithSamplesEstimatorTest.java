@@ -1,5 +1,6 @@
 package com.elster.jupiter.estimators.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.devtools.tests.assertions.JupiterAssertions;
 import com.elster.jupiter.devtools.tests.fakes.LogRecorder;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
@@ -753,8 +754,8 @@ public class AverageWithSamplesEstimatorTest {
 
     @Test
     public void testGetSupportedApplications() {
-        assertThat(new AverageWithSamplesEstimator(thesaurus, propertySpecService, validationService, meteringService, timeService).getSupportedApplications())
-                .containsOnly("INS", "MDC");
+        assertThat(new AverageWithSamplesEstimator(thesaurus, propertySpecService, validationService, meteringService, timeService).getSupportedQualityCodeSystems())
+                .containsOnly(QualityCodeSystem.MDC, QualityCodeSystem.MDM);
     }
 
     private static class EstimableImpl implements Estimatable {

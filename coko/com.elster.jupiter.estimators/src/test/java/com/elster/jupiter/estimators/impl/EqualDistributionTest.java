@@ -698,8 +698,8 @@ public class EqualDistributionTest {
 
     @Test
     public void testGetSupportedApplications() {
-        assertThat(new EqualDistribution(thesaurus, propertySpecService, meteringService).getSupportedApplications())
-                .containsOnly("INS", "MDC");
+        assertThat(new EqualDistribution(thesaurus, propertySpecService, meteringService).getSupportedQualityCodeSystems())
+                .containsOnly(QualityCodeSystem.MDC, QualityCodeSystem.MDM);
     }
 
     private EstimationRuleProperties estimationRuleProperty(final String name, final Object value) {

@@ -88,7 +88,7 @@ public class EqualDistribution extends AbstractEstimator implements Estimator {
 
     }
 
-    private static final Set<String> SUPPORTED_APPLICATIONS = ImmutableSet.of("MDC", "INS");
+    private static final Set<QualityCodeSystem> QUALITY_CODE_SYSTEMS = ImmutableSet.of(QualityCodeSystem.MDC, QualityCodeSystem.MDM);
     private final MeteringService meteringService;
     private AdvanceReadingsSettings advanceReadingsSettings;
     private long maxNumberOfConsecutiveSuspects;
@@ -117,8 +117,8 @@ public class EqualDistribution extends AbstractEstimator implements Estimator {
     }
 
     @Override
-    public Set<String> getSupportedApplications() {
-        return SUPPORTED_APPLICATIONS;
+    public Set<QualityCodeSystem> getSupportedQualityCodeSystems() {
+        return QUALITY_CODE_SYSTEMS;
     }
 
     @Override

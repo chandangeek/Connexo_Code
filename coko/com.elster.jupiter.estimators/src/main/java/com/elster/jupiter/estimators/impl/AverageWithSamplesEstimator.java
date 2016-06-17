@@ -139,7 +139,7 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
     private static final Long MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE = 10L;
     private static final Long MIN_NUMBER_OF_SAMPLES_DEFAULT_VALUE = 1L;
     private static final Long MAX_NUMBER_OF_SAMPLES_DEFAULT_VALUE = 10L;
-    private static final Set<String> SUPPORTED_APPLICATIONS = ImmutableSet.of("MDC", "INS");
+    private static final Set<QualityCodeSystem> QUALITY_CODE_SYSTEMS = ImmutableSet.of(QualityCodeSystem.MDC, QualityCodeSystem.MDM);
 
     private final ValidationService validationService;
     private final MeteringService meteringService;
@@ -239,8 +239,8 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
     }
 
     @Override
-    public Set<String> getSupportedApplications() {
-        return SUPPORTED_APPLICATIONS;
+    public Set<QualityCodeSystem> getSupportedQualityCodeSystems() {
+        return QUALITY_CODE_SYSTEMS;
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.elster.jupiter.estimators.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.devtools.tests.fakes.LogRecorder;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.estimation.Estimatable;
@@ -156,8 +157,8 @@ public class ValueFillEstimatorTest {
 
     @Test
     public void testGetSupportedApplications() {
-        assertThat(new ValueFillEstimator(thesaurus, propertySpecService).getSupportedApplications())
-                .containsOnly("INS", "MDC");
+        assertThat(new ValueFillEstimator(thesaurus, propertySpecService).getSupportedQualityCodeSystems())
+                .containsOnly(QualityCodeSystem.MDC, QualityCodeSystem.MDM);
     }
 
     private EstimationRuleProperties estimationRuleProperty(final String name, final Object value) {
