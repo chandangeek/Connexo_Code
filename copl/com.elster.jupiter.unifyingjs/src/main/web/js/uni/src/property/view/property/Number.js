@@ -54,7 +54,10 @@ Ext.define('Uni.property.view.property.Number', {
         return {
             xtype: 'displayfield',
             name: this.getName(),
-            itemId: this.key + 'displayfield'
+            itemId: this.key + 'displayfield',
+            renderer: function(value) {
+                return Ext.isEmpty(value) ? '-' : value;
+            }
         }
     },
 
@@ -66,11 +69,11 @@ Ext.define('Uni.property.view.property.Number', {
     },
 
     markInvalid: function (error) {
-        this.down('numberfield').markInvalid(error);
+        this.getField().markInvalid(error);
     },
 
     clearInvalid: function () {
-        this.down('numberfield').clearInvalid();
+        this.getField().clearInvalid();
     },
 
     getField: function () {
