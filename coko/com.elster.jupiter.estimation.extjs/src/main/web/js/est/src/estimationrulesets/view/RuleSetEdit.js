@@ -45,19 +45,27 @@ Ext.define('Est.estimationrulesets.view.RuleSetEdit', {
                         name: 'description',
                         itemId: 'description',
                         minHeight: 100
-                    }
-                ],
-                buttons: [
-                    {
-                        text: Uni.I18n.translate('general.add', 'EST', 'Add'),
-                        ui: 'action',
-                        itemId: 'save-button'
                     },
                     {
-                        text: Uni.I18n.translate('general.cancel', 'EST', 'Cancel'),
-                        ui: 'link',
-                        itemId: 'cancel-button',
-                        href: me.returnLink
+                        xtype: 'fieldcontainer',
+                        ui: 'actions',
+                        fieldLabel: '&nbsp',
+                        layout: 'hbox',
+                        items: [
+                            {
+                                xtype: 'button',
+                                text: Uni.I18n.translate('general.add', 'EST', 'Add'),
+                                ui: 'action',
+                                itemId: 'save-button'
+                            },
+                            {
+                                xtype: 'button',
+                                text: Uni.I18n.translate('general.cancel', 'EST', 'Cancel'),
+                                ui: 'link',
+                                itemId: 'cancel-button',
+                                href: me.returnLink
+                            }
+                        ]
                     }
                 ]
             }
