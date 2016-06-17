@@ -57,7 +57,9 @@ public class HeadEndController {
                     throw exceptionFactory.newException(MessageSeeds.UNKNOWN_STATUS);
             }
 
-            deviceCommand.setPropertyValue(getCommandArgumentSpec(deviceCommand, DeviceMessageConstants.contactorActivationDateAttributeName), Date.from(contactorInfo.activationDate));
+            deviceCommand.setPropertyValue(
+                    getCommandArgumentSpec(deviceCommand, DeviceMessageConstants.contactorActivationDateAttributeName),
+                    contactorInfo.activationDate != null ? Date.from(contactorInfo.activationDate) : Date.from(Instant.now()));
             headEndInterface.sendCommand(deviceCommand, contactorInfo.activationDate, serviceCall); // No need to do something with the CompletionOptions returned by the #sendCommand method
             // The parent service call is already notified of child process by AbstractContactorOperationServiceCallHandler#onChildStateChange
         }
@@ -66,11 +68,11 @@ public class HeadEndController {
     private PropertySpec getCommandArgumentSpec(EndDeviceCommand endDeviceCommand, String commandArgumentName) {
         return endDeviceCommand.getCommandArgumentSpecs().stream()
                 .filter(propertySpec -> propertySpec.getName().equals(commandArgumentName))
-                .findFirst().orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_HEAD_END_INTERFACE));
+                .findFirst()
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.COMMAND_ARGUMENT_SPEC_NOT_FOUND, commandArgumentName, endDeviceCommand.getEndDeviceControlType().getName()));
     }
 
-    private int performLoadLimitOperations(EndDevice endDevice, HeadEndInterface headEndInterface, ServiceCall serviceCall, ContactorInfo contactorInfo) {
-        int nrOfDeviceCommands = 0;
+    private void performLoadLimitOperations(EndDevice endDevice, HeadEndInterface headEndInterface, ServiceCall serviceCall, ContactorInfo contactorInfo) {
         if (shouldPerformLoadLimitOperations(contactorInfo)) {
             serviceCall.log(LogLevel.INFO, "Handling load limitation operations.");
             EndDeviceCommand deviceCommand;
@@ -88,7 +90,6 @@ public class HeadEndController {
             }
             headEndInterface.sendCommand(deviceCommand, Instant.now(), serviceCall);
         }
-        return nrOfDeviceCommands;
     }
 
     private boolean shouldPerformBreakerOperations(ContactorInfo contactorInfo) {

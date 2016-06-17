@@ -44,6 +44,14 @@ public class ContactorInfo {
         public BigDecimal limit;
         public String unit;
 
+        public LoadLimit() {
+        }
+
+        public LoadLimit(BigDecimal limit, String unit) {
+            this.limit = limit;
+            this.unit = unit;
+        }
+
         public BigDecimal getLimit() {
             return limit;
         }

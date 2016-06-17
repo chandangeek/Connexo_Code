@@ -21,7 +21,8 @@ public enum MessageSeeds implements MessageSeed {
     NO_COMTASK_FOR_STATUS_INFORMATION(1011, "A comtask to verify the status information could not be located"),
     NO_SUCH_DEVICE(1012, "No device with MRID {0}"),
     INCOMPLETE_CONTACTOR_INFO(1013, "Received incomplete request - please make sure to specify contactor status and/or load limit parameters"),
-    NO_HEAD_END_INTERFACE(1013, "Could not find the headend interface for end device with MRID {0}"),
+    NO_HEAD_END_INTERFACE(1013, "Could not find the head-end interface for end device with MRID {0}"),
+    COMMAND_ARGUMENT_SPEC_NOT_FOUND(1014, "Could not find the command argument spec {0} for command {1}"),
     ;
 
 
