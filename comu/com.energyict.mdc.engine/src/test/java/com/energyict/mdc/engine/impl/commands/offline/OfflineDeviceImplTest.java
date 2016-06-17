@@ -188,12 +188,13 @@ public class OfflineDeviceImplTest {
     @Before
     public void initBefore() {
         when(this.offlineDeviceServiceProvider.findProtocolCacheByDevice(any(Device.class))).thenReturn(Optional.empty());
+        when(this.offlineDeviceServiceProvider.thesaurus()).thenReturn(this.thesaurus);
         when(this.offlineDeviceServiceProvider.topologyService()).thenReturn(this.topologyService);
         when(this.offlineDeviceServiceProvider.identificationService()).thenReturn(this.identificationService);
         when(this.topologyService.getPhysicalGateway(any(Device.class))).thenReturn(Optional.empty());
         when(this.topologyService.getPhysicalGateway(any(Device.class), any(Instant.class))).thenReturn(Optional.empty());
         when(this.topologyService.findPhysicalConnectedDevices(any(Device.class))).thenReturn(Collections.<Device>emptyList());
-        when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
+        when(this.ormService.newDataModel(anyString(), anyString())).thenReturn(this.dataModel);
     }
 
     private int getTotalSizeOfProperties() {
@@ -491,8 +492,8 @@ public class OfflineDeviceImplTest {
         when(slaveWithoutNeedProxy.getMessagesByState(DeviceMessageStatus.PENDING)).thenReturn(Collections.singletonList(slaveDeviceMessage2));
 
         when(deviceMessageFactory.findByDeviceAndState(device, DeviceMessageStatus.PENDING)).thenReturn(Arrays.asList(deviceMessage1, deviceMessage2));
-        when(deviceMessageFactory.findByDeviceAndState(slaveWithNeedProxy, DeviceMessageStatus.PENDING)).thenReturn(Arrays.asList(slaveDeviceMessage1));
-        when(deviceMessageFactory.findByDeviceAndState(slaveWithoutNeedProxy, DeviceMessageStatus.PENDING)).thenReturn(Arrays.asList(slaveDeviceMessage2));
+        when(deviceMessageFactory.findByDeviceAndState(slaveWithNeedProxy, DeviceMessageStatus.PENDING)).thenReturn(Collections.singletonList(slaveDeviceMessage1));
+        when(deviceMessageFactory.findByDeviceAndState(slaveWithoutNeedProxy, DeviceMessageStatus.PENDING)).thenReturn(Collections.singletonList(slaveDeviceMessage2));
         when(this.topologyService.findPhysicalConnectedDevices(device)).thenReturn(Arrays.asList(slaveWithNeedProxy, slaveWithoutNeedProxy));
 
         OfflineDevice offlineDevice = new OfflineDeviceImpl(device, DeviceOffline.needsEverything, this.offlineDeviceServiceProvider);
