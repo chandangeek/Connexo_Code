@@ -10,11 +10,10 @@ import java.util.logging.LogRecord;
 
 public class SingleLineFormatter extends Formatter {
 
-    Date currentDate = new Date();
-    private final static String format = "{0,date} {0,time}";
+    private Date currentDate = new Date();
+    private static final String format = "{0,date} {0,time}";
     private MessageFormat formatter;
     private Object args[] = new Object[1];
-    private String lineSeparator = "\r\n";
 
     /**
      * Format the given LogRecord.
@@ -42,6 +41,7 @@ public class SingleLineFormatter extends Formatter {
             }
         });
         sb.append(message);
+        String lineSeparator = "\r\n";
         sb.append(lineSeparator);
         if (record.getThrown() != null) {
             try {
@@ -51,8 +51,10 @@ public class SingleLineFormatter extends Formatter {
                 pw.close();
                 sb.append(sw.toString());
             } catch (Exception ex) {
+                // Avoid that printing an exception stacktrace produces another stacktrace
             }
         }
         return sb.toString();
     }
+
 }
