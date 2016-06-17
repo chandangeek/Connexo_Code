@@ -1,5 +1,6 @@
 package com.elster.jupiter.validation.rest.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionBuilder;
@@ -106,9 +107,11 @@ public class ValidationResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION)
     public Response createValidationRuleSet(final ValidationRuleSetInfo info, @HeaderParam(APPLICATION_HEADER_PARAM) String applicationName) {
+        // TODO kore shouldn't know anything about applications, to be fixed
+        QualityCodeSystem qualityCodeSystem = "MDC".equals(applicationName) ? QualityCodeSystem.MDC : QualityCodeSystem.MDM;
         return Response.status(Response.Status.CREATED)
                 .entity(new ValidationRuleSetInfo(transactionService.execute(
-                        () -> validationService.createValidationRuleSet(info.name, applicationName, info.description)))).build();
+                        () -> validationService.createValidationRuleSet(info.name, qualityCodeSystem, info.description)))).build();
     }
 
     @PUT

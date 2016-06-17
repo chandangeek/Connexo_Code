@@ -1,5 +1,6 @@
 package com.elster.jupiter.validation.rest;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
@@ -51,7 +52,7 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        dataValidationTask1 = mockDataValidationTask(TASK_ID, MULTISENSE_KEY);
+        dataValidationTask1 = mockDataValidationTask(TASK_ID, QualityCodeSystem.MDC);
         taskBuilder = FakeBuilder.initBuilderStub(dataValidationTask1, DataValidationTaskBuilder.class);
         when(validationService.newTaskBuilder()).thenReturn(taskBuilder);
         when(validationService.findValidationTask(anyLong())).thenReturn(Optional.of(dataValidationTask1));
@@ -59,7 +60,7 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
 
     @Test
     public void getTasksTest() {
-        mockDataValidationTasks(mockDataValidationTask(13, MULTISENSE_KEY), mockDataValidationTask(15, INSIGHT_KEY));
+        mockDataValidationTasks(mockDataValidationTask(13, QualityCodeSystem.MDC), mockDataValidationTask(15, QualityCodeSystem.MDM));
 
         String jsonFromMultisense = target("/validationtasks").request().header(HEADER_NAME, MULTISENSE_KEY).get(String.class);
 
@@ -117,7 +118,7 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
     
     @Test
     public void updateTasksMetrologyContractTest() {
-        DataValidationTaskInfo info = new DataValidationTaskInfo(mockDataValidationTask(TASK_ID, INSIGHT_KEY), thesaurus, timeService);
+        DataValidationTaskInfo info = new DataValidationTaskInfo(mockDataValidationTask(TASK_ID, QualityCodeSystem.MDM), thesaurus, timeService);
         info.id = TASK_ID;
         info.deviceGroup = null;
         info.metrologyContract = new IdWithDisplayValueInfo();
@@ -224,7 +225,7 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
         when(validationService.findValidationTasks()).thenReturn(Arrays.asList(validationTasks));
     }
 
-    private DataValidationTask mockDataValidationTask(int id, String appName) {
+    private DataValidationTask mockDataValidationTask(int id, QualityCodeSystem qualityCodeSystem) {
         Long lid = Long.valueOf(id);
         DataValidationTask validationTask = mock(DataValidationTask.class);
         when(validationTask.getId()).thenReturn(lid);
@@ -232,7 +233,7 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
         when(validationTask.getName()).thenReturn("Name");
         when(validationTask.getLastRun()).thenReturn(Optional.<Instant> empty());
         when(validationTask.getEndDeviceGroup()).thenReturn(Optional.of(endDeviceGroup));
-        when(validationTask.getApplication()).thenReturn(appName);
+        when(validationTask.getQualityCodeSystem()).thenReturn(qualityCodeSystem);
         when(validationTask.getMetrologyContract()).thenReturn(Optional.empty());
         DataValidationOccurrenceFinder finder = mock(DataValidationOccurrenceFinder.class);
         when(finder.setLimit(anyInt())).thenReturn(finder);
