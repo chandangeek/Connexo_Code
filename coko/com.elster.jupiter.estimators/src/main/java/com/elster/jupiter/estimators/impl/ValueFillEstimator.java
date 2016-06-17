@@ -101,11 +101,11 @@ public class ValueFillEstimator extends AbstractEstimator {
     }
 
     @Override
-    public EstimationResult estimate(List<EstimationBlock> estimationBlocks) {
-        List<EstimationBlock> remain = new ArrayList<EstimationBlock>();
-        List<EstimationBlock> estimated = new ArrayList<EstimationBlock>();
+    public EstimationResult estimate(List<EstimationBlock> estimationBlocks, QualityCodeSystem system) {
+        List<EstimationBlock> remain = new ArrayList<>();
+        List<EstimationBlock> estimated = new ArrayList<>();
         for (EstimationBlock block : estimationBlocks) {
-            estimate (block, remain, estimated);
+            estimate(block, remain, estimated);
         }
         return SimpleEstimationResult.of(remain, estimated);
     }
@@ -114,7 +114,6 @@ public class ValueFillEstimator extends AbstractEstimator {
         try (LoggingContext context = initLoggingContext(block)) {
             if (canEstimate(block)) {
                 block.estimatables().forEach(this::estimate);
-
                 estimated.add(block);
             } else {
                 remain.add(block);

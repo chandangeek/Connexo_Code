@@ -100,7 +100,7 @@ public class ValueFillEstimatorTest {
         Estimator estimator = new ValueFillEstimator(thesaurus, propertySpecService, properties);
         estimator.init(LOGGER);
 
-        EstimationResult estimationResult = estimator.estimate(Collections.singletonList(estimationBlock));
+        EstimationResult estimationResult = estimator.estimate(Collections.singletonList(estimationBlock), QualityCodeSystem.NOTAPPLICABLE);
 
         assertThat(estimationResult.remainingToBeEstimated()).isEmpty();
         assertThat(estimationResult.estimated()).containsExactly(estimationBlock);
@@ -130,7 +130,7 @@ public class ValueFillEstimatorTest {
         Estimator estimator = new ValueFillEstimator(thesaurus, propertySpecService, properties);
         estimator.init(LOGGER);
 
-        EstimationResult estimationResult = estimator.estimate(Collections.singletonList(estimationBlock));
+        EstimationResult estimationResult = estimator.estimate(Collections.singletonList(estimationBlock), QualityCodeSystem.NOTAPPLICABLE);
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);

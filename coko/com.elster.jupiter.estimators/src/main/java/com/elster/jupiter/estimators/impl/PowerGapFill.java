@@ -87,7 +87,7 @@ public class PowerGapFill extends AbstractEstimator implements Estimator {
     }
 
     @Override
-    public EstimationResult estimate(List<EstimationBlock> estimationBlocks) {
+    public EstimationResult estimate(List<EstimationBlock> estimationBlocks, QualityCodeSystem system) {
         SimpleEstimationResult.EstimationResultBuilder builder = SimpleEstimationResult.builder();
         estimationBlocks.forEach(block -> {
             try (LoggingContext context = initLoggingContext(block)) {
