@@ -18,7 +18,7 @@ public class FieldResourceTest extends WebServicesApplicationTest {
     public void testLogLevels() throws Exception {
         Response response = target("/fields/logLevel").request().get();
         JsonModel jsonModel = JsonModel.model((InputStream) response.getEntity());
-        assertThat(jsonModel.<String>get("$.logLevels[0].logLevel")).isEqualTo("SEVERE");
+        assertThat(jsonModel.<String>get("$.logLevels[0].id")).isEqualTo("SEVERE");
         assertThat(jsonModel.<String>get("$.logLevels[0].localizedValue")).isEqualTo("Severe");
 
     }
@@ -27,7 +27,7 @@ public class FieldResourceTest extends WebServicesApplicationTest {
     public void testDirections() throws Exception {
         Response response = target("/fields/direction").request().get();
         JsonModel jsonModel = JsonModel.model((InputStream) response.getEntity());
-        assertThat(jsonModel.<String>get("$.directions[0].direction")).isEqualTo("INBOUND");
+        assertThat(jsonModel.<String>get("$.directions[0].id")).isEqualTo("INBOUND");
         assertThat(jsonModel.<String>get("$.directions[0].localizedValue")).isEqualTo("Inbound");
 
     }
@@ -36,7 +36,7 @@ public class FieldResourceTest extends WebServicesApplicationTest {
     public void testAuthenticationMethods() throws Exception {
         Response response = target("/fields/authenticationMethod").request().get();
         JsonModel jsonModel = JsonModel.model((InputStream) response.getEntity());
-        assertThat(jsonModel.<String>get("$.authenticationMethods[0].authenticationMethod")).isEqualTo("NONE");
+        assertThat(jsonModel.<String>get("$.authenticationMethods[0].id")).isEqualTo("NONE");
         assertThat(jsonModel.<String>get("$.authenticationMethods[0].localizedValue")).isEqualTo("No authentication");
 
     }

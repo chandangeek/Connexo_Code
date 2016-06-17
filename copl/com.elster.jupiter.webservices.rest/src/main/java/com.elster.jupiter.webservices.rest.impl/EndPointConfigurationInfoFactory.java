@@ -1,7 +1,7 @@
 package com.elster.jupiter.webservices.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
+import com.elster.jupiter.rest.util.IdWithLocalizedValueInfo;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
@@ -31,7 +31,7 @@ public class EndPointConfigurationInfoFactory {
         info.url = endPointConfiguration.getUrl();
         info.active = endPointConfiguration.isActive();
         info.webServiceName = endPointConfiguration.getWebServiceName();
-        info.logLevel = new IdWithDisplayValueInfo<>(endPointConfiguration.getLogLevel()
+        info.logLevel = new IdWithLocalizedValueInfo<>(endPointConfiguration.getLogLevel()
                 .name(), endPointConfiguration.getLogLevel()
                 .getDisplayName(thesaurus));
         info.httpCompression = endPointConfiguration.isHttpCompression();
@@ -39,14 +39,14 @@ public class EndPointConfigurationInfoFactory {
         info.traceFile = endPointConfiguration.getTraceFile();
         info.schemaValidation = endPointConfiguration.isSchemaValidation();
         if (InboundEndPointConfiguration.class.isAssignableFrom(endPointConfiguration.getClass())) {
-            info.direction = new IdWithDisplayValueInfo<>(WebServiceDirection.INBOUND, WebServiceDirection.INBOUND.getDisplayName(thesaurus));
-            info.authenticationMethod = new IdWithDisplayValueInfo<>(((InboundEndPointConfiguration) endPointConfiguration)
+            info.direction = new IdWithLocalizedValueInfo<>(WebServiceDirection.INBOUND, WebServiceDirection.INBOUND.getDisplayName(thesaurus));
+            info.authenticationMethod = new IdWithLocalizedValueInfo<>(((InboundEndPointConfiguration) endPointConfiguration)
                     .getAuthenticationMethod(),
                     ((InboundEndPointConfiguration) endPointConfiguration).getAuthenticationMethod()
                             .getDisplayName(thesaurus));
             ((InboundEndPointConfiguration) endPointConfiguration).getAuthenticationMethod();
         } else {
-            info.direction = new IdWithDisplayValueInfo<>(WebServiceDirection.OUTBOUND, WebServiceDirection.OUTBOUND.getDisplayName(thesaurus));
+            info.direction = new IdWithLocalizedValueInfo<>(WebServiceDirection.OUTBOUND, WebServiceDirection.OUTBOUND.getDisplayName(thesaurus));
             info.username = ((OutboundEndPointConfiguration) endPointConfiguration).getUsername();
             info.password = ((OutboundEndPointConfiguration) endPointConfiguration).getPassword();
         }
