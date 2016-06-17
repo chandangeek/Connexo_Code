@@ -573,18 +573,6 @@ public final class ChannelImpl implements ChannelContract {
         return version;
     }
 
-    @Override
-    public List<ReadingQualityRecord> findReadingQuality(Range<Instant> range) {
-        Condition condition = inRange(range).and(ofThisChannel());
-        return dataModel.mapper(ReadingQualityRecord.class).select(condition, ORDER_CHRONOLOGICAL);
-    }
-
-    @Override
-    public List<ReadingQualityRecord> findActualReadingQuality(Range<Instant> range) {
-        Condition condition = inRange(range).and(ofThisChannel()).and(isActual());
-        return dataModel.mapper(ReadingQualityRecord.class).select(condition, ORDER_CHRONOLOGICAL);
-    }
-
     private Condition isActual() {
         return where("actual").isEqualTo(true);
     }
@@ -625,22 +613,16 @@ public final class ChannelImpl implements ChannelContract {
         return where("readingTimestamp").isEqualTo(timestamp);
     }
 
-    @Override
-    public List<ReadingQualityRecord> findReadingQuality(ReadingQualityType type, Range<Instant> range) {
-        Condition ofTypeAndInInterval = ofThisChannel().and(inRange(range)).and(ofType(type));
-        return dataModel.mapper(ReadingQualityRecord.class).select(ofTypeAndInInterval, ORDER_CHRONOLOGICAL);
-    }
-
-    @Override
-    public List<ReadingQualityRecord> findActualReadingQuality(ReadingQualityType type, Range<Instant> interval) {
-        Condition ofTypeAndInInterval = ofThisChannel().and(inRange(interval)).and(ofType(type)).and(isActual());
-        return dataModel.mapper(ReadingQualityRecord.class).select(ofTypeAndInInterval, ORDER_CHRONOLOGICAL);
-    }
-
+    // TODO:
+    // will be replaced with a set of methods acting on the base of a specific builder;
+    // same for method in AbstractCimChannel
     @Override
     public List<ReadingQualityRecord> findReadingQualities(Set<QualityCodeSystem> qualityCodeSystems, QualityCodeIndex index,
                                                            Range<Instant> interval, boolean checkIfActual, boolean sort) {
-        Condition selectionCondition = ofThisChannel().and(inRange(interval));
+        Condition selectionCondition = ofThisChannel();
+        if (interval != null && !interval.equals(Range.all())) {
+            selectionCondition = selectionCondition.and(inRange(interval));
+        }
         boolean ignoreQualityCodeSystem = qualityCodeSystems == null || qualityCodeSystems.isEmpty();
         if (!ignoreQualityCodeSystem || index != null) {
             selectionCondition = selectionCondition.and(ignoreQualityCodeSystem ?

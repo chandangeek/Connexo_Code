@@ -326,7 +326,9 @@ public class MeterReadingStorer {
     }
 
     private ReadingQualityRecord buildReadingQualityRecord(Channel channel, BaseReading reading, ReadingQuality readingQuality) {
-        CimChannel cimChannel = channel.getCimChannel(channel.getMainReadingType()).orElseThrow(IllegalArgumentException::new);
+        CimChannel cimChannel = channel.getCimChannel(channel.getMainReadingType())
+                // should never happen normally
+                .orElseThrow(() -> new IllegalArgumentException("Channel " + channel.getId() + " has its main reading type but doesn't return a CimChannel for it"));
         if (reading instanceof Reading) {
             Optional<ReadingType> found = meteringService.getReadingType(((Reading) reading).getReadingTypeCode());
             if (found.isPresent()) {
