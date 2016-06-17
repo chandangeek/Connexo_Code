@@ -52,7 +52,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Component(name = "com.elster.jupiter.estimation.console",
-        service = EstimationConsoleCommands.class,
+        service = ConsoleCommands.class,
         property = {"osgi.command.scope=estimation",
                 "osgi.command.function=estimationBlocks",
                 "osgi.command.function=availableEstimators",
@@ -68,7 +68,7 @@ import java.util.stream.Stream;
                 "osgi.command.function=log"
         },
         immediate = true)
-public class EstimationConsoleCommands {
+public class ConsoleCommands {
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ISO_DATE_TIME;
 
@@ -277,7 +277,7 @@ public class EstimationConsoleCommands {
         for (ReadingType readingType : channel.getReadingTypes()) {
             System.out.println("Handling reading type " + readingType.getAliasName());
             List<EstimationBlock> blocks = estimationEngine.findBlocksToEstimate(meterActivation, Range.<Instant>all(), readingType);
-            estimator.init(Logger.getLogger(EstimationConsoleCommands.class.getName()));
+            estimator.init(Logger.getLogger(ConsoleCommands.class.getName()));
             EstimationResult result = estimator.estimate(blocks);
             List<EstimationBlock> estimated = result.estimated();
             List<EstimationBlock> remaining = result.remainingToBeEstimated();
@@ -300,61 +300,13 @@ public class EstimationConsoleCommands {
         }
     }
 
-    /*public void estimate(long meterId, String estimatorName) {
-        try {
-            EstimatorFactory estimatorFactory = new EstimatorFactoryImpl();
-            Estimator estimator = estimatorFactory.createTemplate(estimatorName);
-            EstimationEngine estimationEngine = new EstimationEngine();
-            Meter meter = meteringService.findMeter(meterId).orElseThrow(IllegalArgumentException::new);
-            Optional<? extends MeterActivation> meterActivationOptional = meter.getCurrentMeterActivation();
-            MeterActivation meterActivation = meter.getCurrentMeterActivation().orElseThrow(() -> new IllegalArgumentException("no meter activation present for meter " + meter.getName()));
-
-            meterActivation.getChannels().stream()
-                    .peek(channel -> System.out.println("Handling channel id " + channel.getId()))
-                    .flatMap(channel -> channel.getReadingTypes().stream())
-                    .peek(readingType -> System.out.println("Handling reading type " + readingType.getAliasName()))
-                    .map(readingType -> estimationEngine.findBlocksToEstimate(meterActivation, readingType))
-                    .peek(estimator::estimate)
-                    .flatMap(Collection::stream)
-                    .flatMap(block -> block.estimatables().stream())
-                    .map(estimatable -> "Estimated value " + estimatable.getEstimation() + " for " + estimatable.getTimestamp())
-                    .forEach(System.out::println);
-
-        } catch (IllegalArgumentException e) {
-            System.out.println("Estimator class '" + estimatorName + "' not found");
-        } catch (RuntimeException e) {
-            e.printStackTrace();
-        }
-    }*/
-
-    /*public void estimate(long meterId) {
-        Meter meter = meteringService.findMeter(meterId).orElseThrow(IllegalArgumentException::new);
-        meter.getCurrentMeterActivation()
-                .map(estimationService::estimate)
-                .map(EstimationReport::getResults)
-                .ifPresent(map -> {
-                    map.entrySet().stream()
-                            .peek(entry -> System.out.println("ReadingType : " + entry.getKey().getMRID()))
-                            .map(Map.Entry::getValue)
-                            .forEach(result -> {
-                                result.estimated().stream()
-                                        .flatMap(block -> block.estimatables().stream())
-                                        .map(estimatable -> "Estimated value " + estimatable.getEstimation() + " for " + estimatable.getTimestamp())
-                                        .forEach(System.out::println);
-                                result.remainingToBeEstimated().stream()
-                                        .flatMap(block -> block.estimatables().stream())
-                                        .map(estimatable -> "No estimated value for " + estimatable.getTimestamp())
-                                        .forEach(System.out::println);
-                            });
-                });
-    }*/
 
     public void createEstimationTask(String name, long nextExecution, String scheduleExpression, long groupId) {
         threadPrincipalService.set(() -> "console");
         try (TransactionContext context = transactionService.getContext()) {
             EstimationTask estimationTask = estimationService.newBuilder()
                     .setName(name)
-                    .setApplication("Admin")
+                    .setApplication("MDC")
                     .setNextExecution(Instant.ofEpochMilli(nextExecution))
                     .setEndDeviceGroup(endDeviceGroup(groupId))
                     .setScheduleExpression(parse(scheduleExpression)).create();
