@@ -1,8 +1,9 @@
 package com.elster.jupiter.util.collections;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.util.Counter;
 import com.elster.jupiter.util.Counters;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,7 +28,7 @@ public final class KPermutation {
      */
     public KPermutation(int... indices) {
         IntStream.of(indices).forEach(cantBeNegative());
-        this.indices = indices;
+        this.indices = Arrays.copyOf(indices, indices.length);
     }
 
     /**
@@ -125,8 +126,12 @@ public final class KPermutation {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         KPermutation that = (KPermutation) o;
 

@@ -1,6 +1,7 @@
 package com.elster.jupiter.util.conditions;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -21,7 +22,7 @@ public abstract class Composite implements Condition {
 	}
 	
 	public List<Condition> getConditions() {
-		return conditions;
+		return Collections.unmodifiableList(conditions);
 	}
 	
 	void add(Condition condition) {
