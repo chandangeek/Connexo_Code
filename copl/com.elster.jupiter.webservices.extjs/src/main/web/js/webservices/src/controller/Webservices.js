@@ -61,7 +61,6 @@ Ext.define('Wss.controller.Webservices', {
     },
 
     showEditPage: function (endpointId) {
-        debugger;
         var me = this,
             store = me.getStore('Wss.store.Webservices');
         var model = Ext.ModelManager.getModel('Wss.model.Endpoint');

@@ -72,7 +72,6 @@ Ext.define('Wss.view.Add', {
         if(this.action === 'edit'){
             this.first = true;
             this.addFormFields(this.record.get('direction').id,this.record.get('type'));
-            debugger;
             var form = this.down('#addForm');
          //   form.loadRecord(this.record);
             var values= this.record.data;
@@ -98,7 +97,6 @@ Ext.define('Wss.view.Add', {
             values.webServiceName = newValue;
             var record = combobox.findRecordByValue(newValue);
             this.addFormFields(record.get('direction').id, record.get('type'));
-            debugger;
             form.getForm().setValues(values);
         }
     },
@@ -196,7 +194,6 @@ Ext.define('Wss.view.Add', {
                 }
             }
         );
-        debugger;
         if(direction.toUpperCase() ==='INBOUND'){
             form.add(
                 {
