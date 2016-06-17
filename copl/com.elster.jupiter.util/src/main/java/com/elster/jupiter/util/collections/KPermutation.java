@@ -34,8 +34,9 @@ public final class KPermutation {
     /**
      * Builds the List that is the result of applying this k-permutation on the given List.
      * The algorithm allows for indices that are beyond the range of the given list and will fill nulls for those indices.
-     * @param original
-     * @param <T>
+     *
+     * @param original The original List
+     * @param <T> The type of elements in the original List
      * @return a new List instance containing the selected elements in order as determined by this k-permutation.
      */
     public <T> List<T> perform(List<T> original) {
