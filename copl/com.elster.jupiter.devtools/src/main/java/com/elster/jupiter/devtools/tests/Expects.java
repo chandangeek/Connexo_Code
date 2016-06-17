@@ -1,6 +1,5 @@
 package com.elster.jupiter.devtools.tests;
 
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -38,11 +37,6 @@ public enum Expects {
             this.timeOutExpectation = timeOutExpectation;
         }
 
-        public void andCancel() {
-            andCancelWith(() -> {
-            });
-        }
-
         public void andCancelWith(Runnable runnable) {
             if (!timeOutExpectation.timesOut(runnable)) {
                 fail("Expected to time out.");
@@ -55,15 +49,13 @@ public enum Expects {
         private final long count;
         private final TimeUnit timeUnit;
 
-        public TimeOutExpectation(Runnable runnableUnderTest, long count, TimeUnit timeUnit) {
+        TimeOutExpectation(Runnable runnableUnderTest, long count, TimeUnit timeUnit) {
             this.runnableUnderTest = runnableUnderTest;
             this.count = count;
             this.timeUnit = timeUnit;
         }
 
         private boolean timesOut(Runnable finisher) {
-            CountDownLatch startLatch = new CountDownLatch(1);
-            AtomicBoolean result = new AtomicBoolean(false);
             AtomicBoolean finished = new AtomicBoolean(false);
             ExecutorService executorService = Executors.newFixedThreadPool(2);
             Future<?> future = executorService.submit(() -> {
@@ -92,11 +84,6 @@ public enum Expects {
             }
             return false;
         }
-    }
-
-    public static void main(String[] args) {
-        expect(() -> System.out.println("")).toTimeOutAfter(1, TimeUnit.NANOSECONDS)
-                .andCancel();
     }
 
 }
