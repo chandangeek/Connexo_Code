@@ -44,6 +44,7 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     @NotEmpty(message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
     @Size(max = 80, message = "{" + MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
     private String name;
+    private String application;
 
     private final TaskService taskService;
     private Instant lastRun;

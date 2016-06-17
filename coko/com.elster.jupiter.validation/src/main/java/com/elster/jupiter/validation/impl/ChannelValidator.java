@@ -145,7 +145,6 @@ class ChannelValidator {
         }
     }
 
-
     private Optional<ReadingQualityRecord> getExistingReadingQualityForType(Instant timeStamp, ReadingType readingType) {
         return existingReadingQualities.get(timeStamp).stream()
                 .filter(readingQualityRecord -> readingQualityRecord.getReadingType().equals(readingType))
