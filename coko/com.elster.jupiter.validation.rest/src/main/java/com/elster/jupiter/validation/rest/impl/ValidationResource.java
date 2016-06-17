@@ -88,6 +88,11 @@ public class ValidationResource {
         this.conflictFactory = conflictFactory;
     }
 
+    private QualityCodeSystem getQualityCodeSystemFromApplicationName(@HeaderParam(APPLICATION_HEADER_PARAM) String applicationName) {
+        // TODO kore shouldn't know anything about applications, to be fixed
+        return "MDC".equals(applicationName) ? QualityCodeSystem.MDC : QualityCodeSystem.MDM;
+    }
+
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.VIEW_VALIDATION_CONFIGURATION,
@@ -107,8 +112,8 @@ public class ValidationResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION)
     public Response createValidationRuleSet(final ValidationRuleSetInfo info, @HeaderParam(APPLICATION_HEADER_PARAM) String applicationName) {
-        // TODO kore shouldn't know anything about applications, to be fixed
-        QualityCodeSystem qualityCodeSystem = "MDC".equals(applicationName) ? QualityCodeSystem.MDC : QualityCodeSystem.MDM;
+        QualityCodeSystem qualityCodeSystem = getQualityCodeSystemFromApplicationName(applicationName);
+
         return Response.status(Response.Status.CREATED)
                 .entity(new ValidationRuleSetInfo(transactionService.execute(
                         () -> validationService.createValidationRuleSet(info.name, qualityCodeSystem, info.description)))).build();
@@ -449,7 +454,9 @@ public class ValidationResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.VIEW_VALIDATION_CONFIGURATION})
     public PagedInfoList getAvailableValidators(@HeaderParam(APPLICATION_HEADER_PARAM) String applicationName, @BeanParam JsonQueryParameters parameters) {
-        List<ValidatorInfo> data = validationService.getAvailableValidators(applicationName).stream()
+        QualityCodeSystem qualityCodeSystem = getQualityCodeSystemFromApplicationName(applicationName);
+
+        List<ValidatorInfo> data = validationService.getAvailableValidators(qualityCodeSystem).stream()
                 .sorted(Compare.BY_DISPLAY_NAME)
                 .map(validator -> new ValidatorInfo(
                         validator.getClass().getName(),

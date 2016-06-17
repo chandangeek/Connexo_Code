@@ -206,9 +206,9 @@ public class ValidationResourceTest extends BaseValidationRestTest {
 
     @Test
     public void testGetValidatorsNoValidators() throws IOException {
-        when(validationService.getAvailableValidators("APP")).thenReturn(Collections.emptyList());
+        when(validationService.getAvailableValidators(QualityCodeSystem.MDC)).thenReturn(Collections.emptyList());
 
-        Response response = target("/validation/validators").request().header(APPLICATION_HEADER_PARAM, "APP").get();
+        Response response = target("/validation/validators").request().header(APPLICATION_HEADER_PARAM, "MDC").get();
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel body = JsonModel.create((ByteArrayInputStream)response.getEntity());
@@ -219,9 +219,9 @@ public class ValidationResourceTest extends BaseValidationRestTest {
     @Test
     public void testGetValidators() throws IOException {
         List<Validator> mockValidator = Arrays.asList(mockValidator("B Validator"), mockValidator("A Validator"));
-        when(validationService.getAvailableValidators("APP")).thenReturn(mockValidator);
+        when(validationService.getAvailableValidators(QualityCodeSystem.MDC)).thenReturn(mockValidator);
 
-        Response response = target("/validation/validators").request().header(APPLICATION_HEADER_PARAM, "APP").get();
+        Response response = target("/validation/validators").request().header(APPLICATION_HEADER_PARAM, "MDC").get();
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel body = JsonModel.create((ByteArrayInputStream)response.getEntity());
