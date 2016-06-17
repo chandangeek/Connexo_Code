@@ -1,6 +1,7 @@
 package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.tests.rules.Using;
@@ -240,7 +241,7 @@ public class MeterActivationValidationIT {
 
     private void createRuleSet(ReadingType readingType) {
         try (TransactionContext context = transactionService.getContext()) {
-            validationRuleSet = (IValidationRuleSet) validationService.createValidationRuleSet("forTest", "MDC");
+            validationRuleSet = (IValidationRuleSet) validationService.createValidationRuleSet("forTest", QualityCodeSystem.MDC);
             ValidationRuleSetVersion validationRuleSetVersion = validationRuleSet.addRuleSetVersion("First, Last and Always", Instant.EPOCH);
             ValidationRule validationRule = validationRuleSetVersion.addRule(ValidationAction.FAIL, "autoPass", "autoPass")
                     .withReadingType(readingType)

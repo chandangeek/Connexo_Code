@@ -1,6 +1,7 @@
 package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
@@ -202,7 +203,7 @@ public class ValidationOnStoreIT {
                 ValidationServiceImpl validationService = (ValidationServiceImpl) injector.getInstance(ValidationService.class);
                 validationService.addResource(validatorFactory);
 
-                final ValidationRuleSet validationRuleSet = validationService.createValidationRuleSet(MY_RULE_SET, "MDC");
+                final ValidationRuleSet validationRuleSet = validationService.createValidationRuleSet(MY_RULE_SET, QualityCodeSystem.MDC);
                 ValidationRuleSetVersion validationRuleSetVersion = validationRuleSet.addRuleSetVersion("description", Instant.EPOCH);
                 zeroesRule = validationRuleSetVersion.addRule(ValidationAction.WARN_ONLY, CONSECUTIVE_ZEROES, "consecutivezeros")
                         .withReadingType(deltaReadingType)

@@ -21,10 +21,6 @@ public interface ValidationRuleSet extends IdentifiedObject {
 
     void setName(String name);
 
-    void setApplicationName(String applicationName);
-
-    String getApplicationName();
-
     void setAliasName(String aliasName);
 
     void setDescription(String description);
@@ -44,6 +40,7 @@ public interface ValidationRuleSet extends IdentifiedObject {
     ValidationRuleSetVersion addRuleSetVersion(String description, Instant startDate);
 
     ValidationRuleSetVersion updateRuleSetVersion(long id, String description, Instant startDate);
+
     ValidationRuleSetVersion cloneRuleSetVersion(long ruleSetVersionId, String description, Instant startDate);
 
     void deleteRuleSetVersion(ValidationRuleSetVersion version);

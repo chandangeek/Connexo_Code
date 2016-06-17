@@ -1,5 +1,6 @@
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.messaging.DestinationSpec;
@@ -87,14 +88,14 @@ public class DataValidationTaskImplTest extends EqualsContractTest {
     @Override
     protected Object getInstanceA() {
         if (validationTask == null) {
-            validationTask = setId(newTask().init("taskname", Instant.now() , "MDC"), ID);
+            validationTask = setId(newTask().init("taskname", Instant.now(), QualityCodeSystem.MDC), ID);
         }
         return validationTask;
     }
 
     @Override
     protected Object getInstanceEqualToA() {
-        return setId(newTask().init("taskname", Instant.now(), "MDC"), ID);
+        return setId(newTask().init("taskname", Instant.now(), QualityCodeSystem.MDC), ID);
     }
 
     @Override
@@ -189,7 +190,7 @@ public class DataValidationTaskImplTest extends EqualsContractTest {
 
         DataMapper<DataValidationOccurrence> mapper = mock(DataMapper.class);
         when(dataModel.mapper(DataValidationOccurrence.class)).thenReturn(mapper);
-        when(mapper.find(any(String.class), any(DataValidationTaskImpl.class))).thenReturn(new ArrayList<DataValidationOccurrence>());
+        when(mapper.find(any(String.class), any(DataValidationTaskImpl.class))).thenReturn(new ArrayList<>());
         doNothing().when(mapper).remove(anyList());
         doNothing().when(recurrentTask).delete();
 

@@ -1,5 +1,6 @@
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
@@ -206,13 +207,13 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
     }
 
     @Override
-    public ValidationRuleSet createValidationRuleSet(String name, String applicationName) {
-        return createValidationRuleSet(name, applicationName, null);
+    public ValidationRuleSet createValidationRuleSet(String name, QualityCodeSystem qualityCodeSystem) {
+        return createValidationRuleSet(name, qualityCodeSystem, null);
     }
 
     @Override
-    public ValidationRuleSet createValidationRuleSet(String name, String applicationName, String description) {
-        ValidationRuleSet set = dataModel.getInstance(ValidationRuleSetImpl.class).init(name, applicationName, description);
+    public ValidationRuleSet createValidationRuleSet(String name, QualityCodeSystem qualityCodeSystem, String description) {
+        ValidationRuleSet set = dataModel.getInstance(ValidationRuleSetImpl.class).init(name, qualityCodeSystem, description);
         set.save();
         return set;
     }

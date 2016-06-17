@@ -27,9 +27,6 @@ import java.util.logging.Logger;
 
 public class DataValidationTaskExecutor implements TaskExecutor {
 
-    public static final String MULTISENSE_KEY = "MDC";
-    public static final String INSIGHT_KEY = "INS";
-
     private final TransactionService transactionService;
     private final Thesaurus thesaurus;
     private final ValidationService validationService;
@@ -105,8 +102,8 @@ public class DataValidationTaskExecutor implements TaskExecutor {
     private void doExecute(DataValidationOccurrence occurrence, Logger logger) {
         DataValidationTask task = occurrence.getTask();
 
-        switch(task.getApplication()){
-            case MULTISENSE_KEY :
+        switch (task.getQualityCodeSystem()) {
+            case MDC:
                 List<EndDevice> devices = task.getEndDeviceGroup().get().getMembers(Instant.now());
                 for (EndDevice device : devices) {
                     Optional<Meter> found = device.getAmrSystem().findMeter(device.getAmrId());
@@ -123,7 +120,7 @@ public class DataValidationTaskExecutor implements TaskExecutor {
                     }
                 }
                 break;
-            case INSIGHT_KEY :
+            case MDM:
                 MetrologyContract metrologyContract = task.getMetrologyContract().get();
                 // Validation should be added in scope of "Usage point validation".
                 break;

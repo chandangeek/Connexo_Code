@@ -6,6 +6,7 @@ import com.elster.jupiter.cbo.Commodity;
 import com.elster.jupiter.cbo.FlowDirection;
 import com.elster.jupiter.cbo.MeasurementKind;
 import com.elster.jupiter.cbo.MetricMultiplier;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
@@ -196,7 +197,7 @@ public class ValidationAddRemoveIT {
             ValidationServiceImpl validationService = (ValidationServiceImpl) injector.getInstance(ValidationService.class);
             validationService.addResource(validatorFactory);
 
-            final ValidationRuleSet validationRuleSet = validationService.createValidationRuleSet(MY_RULE_SET, "MDC");
+            final ValidationRuleSet validationRuleSet = validationService.createValidationRuleSet(MY_RULE_SET, QualityCodeSystem.MDC);
             ValidationRuleSetVersion validationRuleSetVersion = validationRuleSet.addRuleSetVersion("description", Instant.EPOCH);
             ValidationRule minMaxRule = validationRuleSetVersion.addRule(ValidationAction.WARN_ONLY, MIN_MAX, "minmax")
                     .withReadingType(readingType1)

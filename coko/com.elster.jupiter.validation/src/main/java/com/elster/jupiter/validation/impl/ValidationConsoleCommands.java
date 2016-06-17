@@ -1,10 +1,13 @@
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.validation.ValidationService;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+
+import java.util.stream.Stream;
 
 @Component(name = "com.elster.jupiter.validation.console",
         service = ValidationConsoleCommands.class,
@@ -43,12 +46,15 @@ public class ValidationConsoleCommands {
         System.out.println("Usage: createRuleSet <ruleSetName> <applicationName: INS, MDC>");
     }
 
-    public void createRuleSet(String name, String applicationName) {
+    public void createRuleSet(String name, String qualityCodeSystem) {
         try {
             transactionService.builder()
                     .principal(() -> "console")
                     .run(() -> {
-                        validationService.createValidationRuleSet(name, applicationName);
+                        validationService.createValidationRuleSet(name, Stream.of(QualityCodeSystem.values())
+                                .filter(system -> system.name().equals(qualityCodeSystem))
+                                .findAny()
+                                .orElse(QualityCodeSystem.NOTAPPLICABLE));
                     });
         } catch (Exception e) {
             e.printStackTrace();

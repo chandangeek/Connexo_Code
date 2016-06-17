@@ -1,6 +1,7 @@
 package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
@@ -173,7 +174,7 @@ public class ValidationRuleSetImplIT {
             @Override
             protected void doPerform() {
                 readingType = injector.getInstance(MeteringService.class).getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
-                ValidationRuleSet validationRuleSet = injector.getInstance(ValidationService.class).createValidationRuleSet("myRuleSet", "MDC");
+                ValidationRuleSet validationRuleSet = injector.getInstance(ValidationService.class).createValidationRuleSet("myRuleSet", QualityCodeSystem.MDC);
                 ValidationRuleSetVersion validationRuleSetVersion = validationRuleSet.addRuleSetVersion("description", Instant.EPOCH);
                 ValidationRule zeroesRule = validationRuleSetVersion.addRule(ValidationAction.FAIL, CONSEC_ZEROS_VALIDATOR_CLASS, "consecutiveZeroes")
                         .withReadingType(readingType)
@@ -200,7 +201,7 @@ public class ValidationRuleSetImplIT {
         ValidationRuleSet validationRuleSet;
         try (TransactionContext context = transactionService.getContext()) {
             readingType = injector.getInstance(MeteringService.class).getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
-            validationRuleSet = injector.getInstance(ValidationService.class).createValidationRuleSet("myRuleSet", "MDC");
+            validationRuleSet = injector.getInstance(ValidationService.class).createValidationRuleSet("myRuleSet", QualityCodeSystem.MDC);
             ValidationRuleSetVersion validationRuleSetVersion = validationRuleSet.addRuleSetVersion("description", Instant.EPOCH);
             ValidationRule zeroesRule = validationRuleSetVersion.addRule(ValidationAction.FAIL, CONSEC_ZEROS_VALIDATOR_CLASS, "consecutiveZeroes")
                     .withReadingType(readingType)
@@ -233,7 +234,7 @@ public class ValidationRuleSetImplIT {
         ValidationRuleSet validationRuleSet;
         try (TransactionContext context = transactionService.getContext()) {
             readingType = injector.getInstance(MeteringService.class).getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
-            validationRuleSet = injector.getInstance(ValidationService.class).createValidationRuleSet("myRuleSet", "MDC");
+            validationRuleSet = injector.getInstance(ValidationService.class).createValidationRuleSet("myRuleSet", QualityCodeSystem.MDC);
             ValidationRuleSetVersion validationRuleSetVersion = validationRuleSet.addRuleSetVersion("description", Instant.EPOCH);
             ValidationRule zeroesRule = validationRuleSetVersion.addRule(ValidationAction.FAIL, CONSEC_ZEROS_VALIDATOR_CLASS, "consecutiveZeroes")
                     .withReadingType(readingType)

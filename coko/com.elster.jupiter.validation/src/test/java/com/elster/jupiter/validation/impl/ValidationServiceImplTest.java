@@ -100,7 +100,6 @@ import static org.mockito.Mockito.when;
 public class ValidationServiceImplTest {
 
     private static final String NAME = "name";
-    private static final String APPLICATION = "MDC";
     private static final QualityCodeSystem SYSTEM = QualityCodeSystem.MDC;
     private static final long ID = 561651L;
     private ValidationServiceImpl validationService;
@@ -329,9 +328,8 @@ public class ValidationServiceImplTest {
 
     @Test
     public void testCreateRuleSet() {
-        ValidationRuleSet validationRuleSet = validationService.createValidationRuleSet(NAME, APPLICATION);
+        ValidationRuleSet validationRuleSet = validationService.createValidationRuleSet(NAME, SYSTEM);
         assertThat(validationRuleSet.getName()).isEqualTo(NAME);
-        assertThat(validationRuleSet.getApplicationName()).isEqualTo(APPLICATION);
         assertThat(validationRuleSet.getQualityCodeSystem()).isEqualTo(SYSTEM);
     }
 
@@ -433,7 +431,7 @@ public class ValidationServiceImplTest {
         when(meterValidationFactory.getOptional(ID)).thenReturn(Optional.of(meterValidation));
         when(meterValidation.getActivationStatus()).thenReturn(true);
 
-        ValidationRuleSet validationRuleSet = validationService.createValidationRuleSet(NAME, APPLICATION);
+        ValidationRuleSet validationRuleSet = validationService.createValidationRuleSet(NAME, SYSTEM);
         validationRuleSet.save();
 
         when(validationRuleSetResolver.resolve(eq(meterActivation))).thenReturn(Arrays.asList(validationRuleSet));
@@ -445,7 +443,7 @@ public class ValidationServiceImplTest {
         assertThat(meterActivationValidations.get(0).getRuleSet()).isEqualTo(validationRuleSet);
         IMeterActivationValidation activationRuleSet1 = meterActivationValidations.get(0);
 
-        ValidationRuleSet validationRuleSet2 = validationService.createValidationRuleSet(NAME, APPLICATION);
+        ValidationRuleSet validationRuleSet2 = validationService.createValidationRuleSet(NAME, SYSTEM);
         validationRuleSet2.save();
 
         when(validationRuleSetResolver.resolve(eq(meterActivation))).thenReturn(Arrays.asList(validationRuleSet, validationRuleSet2));
