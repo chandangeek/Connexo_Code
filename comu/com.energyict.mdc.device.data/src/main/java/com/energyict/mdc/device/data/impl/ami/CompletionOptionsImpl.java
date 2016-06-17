@@ -31,6 +31,5 @@ public class CompletionOptionsImpl implements CompletionOptions {
                     this.serviceCall.update(extension);
                 });
     */
-        destinationSpec.message(message.toString()).send();
     }
 }

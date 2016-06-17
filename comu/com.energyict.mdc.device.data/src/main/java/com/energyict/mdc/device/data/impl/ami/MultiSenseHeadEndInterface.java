@@ -23,8 +23,10 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.users.User;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
@@ -47,17 +49,20 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DEVICE;
 
 @Component(name = "com.energyict.mdc.device.data.impl.ami.MultiSenseHeadEndInterface",
         service = {HeadEndInterface.class, TranslationKeyProvider.class},
@@ -80,13 +85,14 @@ public class MultiSenseHeadEndInterface implements HeadEndInterface, Translation
     private volatile ServiceCallService serviceCallService;
     private volatile CustomPropertySetService customPropertySetService;
     private volatile PropertySpecService propertySpecService;
+    private volatile ThreadPrincipalService threadPrincipalService;
 
     //For OSGI purposes
     public MultiSenseHeadEndInterface() {
     }
 
     @Inject
-    public MultiSenseHeadEndInterface(Clock clock, DeviceService deviceService, MeteringService meteringService, DeviceMessageSpecificationService deviceMessageSpecificationService, DeviceConfigurationService deviceConfigurationService, MessageService messageService, NlsService nlsService, Thesaurus thesaurus, ServiceCallService serviceCallService, CustomPropertySetService customPropertySetService, PropertySpecService propertySpecService) {
+    public MultiSenseHeadEndInterface(Clock clock, DeviceService deviceService, MeteringService meteringService, DeviceMessageSpecificationService deviceMessageSpecificationService, DeviceConfigurationService deviceConfigurationService, MessageService messageService, NlsService nlsService, Thesaurus thesaurus, ServiceCallService serviceCallService, CustomPropertySetService customPropertySetService, PropertySpecService propertySpecService, ThreadPrincipalService threadPrincipalService) {
         this.clock = clock;
         this.deviceService = deviceService;
         this.meteringService = meteringService;
@@ -98,6 +104,7 @@ public class MultiSenseHeadEndInterface implements HeadEndInterface, Translation
         this.serviceCallService = serviceCallService;
         this.customPropertySetService = customPropertySetService;
         this.propertySpecService = propertySpecService;
+        this.threadPrincipalService = threadPrincipalService;
     }
 
     @Reference
@@ -119,6 +126,11 @@ public class MultiSenseHeadEndInterface implements HeadEndInterface, Translation
     @Reference
     public void setDeviceMessageSpecificationService(DeviceMessageSpecificationService deviceMessageSpecificationService) {
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
+    }
+
+    @Reference
+    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+        this.threadPrincipalService = threadPrincipalService;
     }
 
     @Reference
@@ -224,7 +236,7 @@ public class MultiSenseHeadEndInterface implements HeadEndInterface, Translation
                             deviceMessageBuilder.addProperty(propertySpec.getName(), endDeviceCommand.getAttributes()
                                     .get(propertySpec.getName()));
                          */
-                            deviceMessageBuilder.addProperty(propertySpec.getName(), propertySpec);
+                        deviceMessageBuilder.addProperty(propertySpec.getName(), propertySpec);
                     }
                     deviceMessages.add(deviceMessageBuilder.add());
                 }
@@ -265,18 +277,30 @@ public class MultiSenseHeadEndInterface implements HeadEndInterface, Translation
     }
 
     @Override
-    public Optional<URI> getURIForEndDevice(EndDevice endDevice) {
-        if (endDevice.getAmrSystem().is(KnownAmrSystem.MDC)) {
-            Device device = findDeviceForEndDevice(endDevice);
-            URI uri = null;
-            try {
-                uri = new URI("/devices/" + device.getmRID());
-            } catch (URISyntaxException e) {
-                LOGGER.log(Level.SEVERE, "Unable to parse [uri=" + uri.toString() + "]", e);
-            }
-            return Optional.of(uri);
-        } else {
+    public Optional<URL> getURLForEndDevice(EndDevice endDevice) {
+        if (!((User) threadPrincipalService.getPrincipal())
+                .hasPrivilege(KnownAmrSystem.MDC.getName(), VIEW_DEVICE)) {
             return Optional.empty();
+        } else {
+            if (endDevice.getAmrSystem().is(KnownAmrSystem.MDC)) {
+                Device device = findDeviceForEndDevice(endDevice);
+                URL url = null;
+                Map<KnownAmrSystem, String> urls = meteringService.getSupportedApplicationsUrls();
+                try {
+                    if (urls != null && !urls.isEmpty()) {
+                        url = new URL(urls
+                                .get(KnownAmrSystem.MDC).trim() + "/devices/" + device.getmRID());
+                    } else {
+                        throw new MalformedURLException();
+                    }
+
+                } catch (MalformedURLException e) {
+                    LOGGER.log(Level.SEVERE, "Unable to parse [url= " + urls.get(KnownAmrSystem.MDC) + " ]", e);
+                }
+                return Optional.of(url);
+            } else {
+                return Optional.empty();
+            }
         }
     }
 
@@ -327,7 +351,7 @@ public class MultiSenseHeadEndInterface implements HeadEndInterface, Translation
 
     @Override
     public CompletionOptions sendCommand(EndDeviceCommand endDeviceCommand, Instant instant) {
-      //ALL CODE RELATED TO SERVICECALLS TEMPORARILY MOVED TO demo bundle under amiscs
+        //ALL CODE RELATED TO SERVICECALLS TEMPORARILY MOVED TO demo bundle under amiscs
         /*  String commandName = endDeviceCommand.getName();
         RegisteredCustomPropertySet customPropertySet = customPropertySetService.findActiveCustomPropertySets(ServiceCall.class)
                 .stream()

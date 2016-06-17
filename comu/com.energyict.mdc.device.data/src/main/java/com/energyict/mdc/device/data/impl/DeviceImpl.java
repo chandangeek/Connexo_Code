@@ -109,6 +109,7 @@ import com.energyict.mdc.device.data.impl.configchange.ServerSecurityPropertySer
 import com.energyict.mdc.device.data.impl.constraintvalidators.DeviceConfigurationIsPresentAndActive;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueComTaskScheduling;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueMrid;
+import com.energyict.mdc.device.data.impl.constraintvalidators.ValidOverruledAttributes;
 import com.energyict.mdc.device.data.impl.constraintvalidators.ValidSecurityProperties;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.impl.security.ServerDeviceForValidation;
@@ -192,6 +193,7 @@ import static java.util.stream.Collectors.toList;
 @UniqueMrid(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_DEVICE_MRID + "}")
 @UniqueComTaskScheduling(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_COMTASK + "}")
 @ValidSecurityProperties(groups = {Save.Update.class})
+@ValidOverruledAttributes(groups = {Save.Update.class})
 public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDeviceForValidation {
 
     private static final BigDecimal maxMultiplier = BigDecimal.valueOf(Integer.MAX_VALUE);
@@ -387,13 +389,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         } else {
             Save.CREATE.save(dataModel, this);
             this.meter.set(this.createKoreMeter(getMdcAmrSystem()));
-            //Todo: to check after merge of master into CXO-219
-//            if (this.location.isPresent()) {
-//                meter.setLocation(location.get());
-//            }
-//            if (this.geoCoordinates.isPresent()) {
-//                meter.setGeoCoordinates(geoCoordinates.get());
-//            }
             dataModel.update(this);
             //All actions to take to sync with Kore once a Device is created
             syncsWithKore.add(new SynchNewDeviceWithKore(koreHelper.getInitialMeterActivationStartDate()));

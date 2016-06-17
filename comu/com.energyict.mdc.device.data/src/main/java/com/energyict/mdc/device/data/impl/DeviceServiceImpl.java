@@ -22,10 +22,13 @@ import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.time.Interval;
+import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.ActivatedBreakerStatus;
+import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceFields;
@@ -33,6 +36,8 @@ import com.energyict.mdc.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.DevicesForConfigChangeSearch;
 import com.energyict.mdc.device.data.ItemizeConfigChangeQueueMessage;
+import com.energyict.mdc.device.data.ReadingTypeObisCodeUsage;
+import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.exceptions.DeviceConfigurationChangeException;
 import com.energyict.mdc.device.data.exceptions.NoDestinationSpecFound;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeExecutor;
@@ -67,6 +72,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -154,20 +161,19 @@ public class DeviceServiceImpl implements ServerDeviceService {
             sqlBuilder.append(" and (todate is null or todate >");
             sqlBuilder.addLong(now.getEpochSecond());
             sqlBuilder.append("))");
-        }
-        else {
+        } else {
             sqlBuilder.append(" from dual where 1 = 0");
         }
     }
 
     private Optional<CustomPropertySet<DeviceProtocolDialectPropertyProvider, ? extends PersistentDomainExtension<DeviceProtocolDialectPropertyProvider>>> getCustomPropertySet(DeviceProtocol deviceProtocol, String name) {
         return deviceProtocol
-                    .getDeviceProtocolDialects()
-                    .stream()
-                    .filter(dialect -> dialect.getDeviceProtocolDialectName().equals(name))
-                    .map(DeviceProtocolDialect::getCustomPropertySet)
-                    .flatMap(Functions.asStream())
-                    .findAny();
+                .getDeviceProtocolDialects()
+                .stream()
+                .filter(dialect -> dialect.getDeviceProtocolDialectName().equals(name))
+                .map(DeviceProtocolDialect::getCustomPropertySet)
+                .flatMap(Functions.asStream())
+                .findAny();
     }
 
     private long count(SqlBuilder sqlBuilder) {
@@ -279,7 +285,10 @@ public class DeviceServiceImpl implements ServerDeviceService {
 
         Device modifiedDevice = null;
         try {
-            modifiedDevice = deviceDataModelService.getTransactionService().execute(() -> new DeviceConfigChangeExecutor(this, deviceDataModelService.clock()).execute((DeviceImpl) lockResult.getFirst(), deviceDataModelService.deviceConfigurationService().findDeviceConfiguration(destinationDeviceConfigId).get()));
+            modifiedDevice = deviceDataModelService.getTransactionService()
+                    .execute(() -> new DeviceConfigChangeExecutor(this, deviceDataModelService.clock()).execute((DeviceImpl) lockResult.getFirst(), deviceDataModelService.deviceConfigurationService()
+                            .findDeviceConfiguration(destinationDeviceConfigId)
+                            .get()));
         } finally {
             deviceDataModelService.getTransactionService().execute(VoidTransaction.of(lockResult.getLast()::notifyDeviceInActionIsRemoved));
         }
@@ -290,9 +299,12 @@ public class DeviceServiceImpl implements ServerDeviceService {
     public void changeDeviceConfigurationForDevices(DeviceConfiguration destinationDeviceConfiguration, DevicesForConfigChangeSearch devicesForConfigChangeSearch, String... deviceMRIDs) {
         final DeviceConfigChangeRequestImpl deviceConfigChangeRequest = deviceDataModelService.dataModel().getInstance(DeviceConfigChangeRequestImpl.class).init(destinationDeviceConfiguration);
         deviceConfigChangeRequest.save();
-        ItemizeConfigChangeQueueMessage itemizeConfigChangeQueueMessage = new ItemizeConfigChangeQueueMessage(destinationDeviceConfiguration.getId(), Arrays.asList(deviceMRIDs), devicesForConfigChangeSearch, deviceConfigChangeRequest.getId());
+        ItemizeConfigChangeQueueMessage itemizeConfigChangeQueueMessage = new ItemizeConfigChangeQueueMessage(destinationDeviceConfiguration.getId(), Arrays.asList(deviceMRIDs), devicesForConfigChangeSearch, deviceConfigChangeRequest
+                .getId());
 
-        DestinationSpec destinationSpec = deviceDataModelService.messageService().getDestinationSpec(ServerDeviceForConfigChange.CONFIG_CHANGE_BULK_QUEUE_DESTINATION).orElseThrow(new NoDestinationSpecFound(thesaurus, ServerDeviceForConfigChange.CONFIG_CHANGE_BULK_QUEUE_DESTINATION));
+        DestinationSpec destinationSpec = deviceDataModelService.messageService()
+                .getDestinationSpec(ServerDeviceForConfigChange.CONFIG_CHANGE_BULK_QUEUE_DESTINATION)
+                .orElseThrow(new NoDestinationSpecFound(thesaurus, ServerDeviceForConfigChange.CONFIG_CHANGE_BULK_QUEUE_DESTINATION));
         Map<String, Object> message = createConfigChangeQueueMessage(itemizeConfigChangeQueueMessage);
         destinationSpec.message(deviceDataModelService.jsonService().serialize(message)).send();
     }
@@ -335,4 +347,51 @@ public class DeviceServiceImpl implements ServerDeviceService {
     public ActivatedBreakerStatus newActivatedBreakerStatusFrom(Device device, BreakerStatus collectedBreakerStatus, Interval interval) {
         return ActivatedBreakerStatusImpl.from(deviceDataModelService.dataModel(), device, collectedBreakerStatus, interval);
     }
+
+    @Override
+    public List<Device> findDeviceWithOverruledObisCodeForOtherThanRegisterSpec(RegisterSpec registerSpec) {
+        Condition condition = where(DeviceFields.READINGTYPEOBISCODEUSAGES.fieldName() + "."
+                + ReadingTypeObisCodeUsageImpl.Fields.OBISCODESTRING.fieldName()).isEqualTo(registerSpec.getDeviceObisCode().getValue())
+                .and(where(DeviceFields.READINGTYPEOBISCODEUSAGES.fieldName() + "."
+                        + ReadingTypeObisCodeUsageImpl.Fields.READINGTYPE.fieldName()).isNotEqual(registerSpec.getReadingType()))
+                .and(where(DeviceFields.DEVICECONFIGURATION.fieldName()).isEqualTo(registerSpec.getDeviceConfiguration()));
+        return this.deviceDataModelService.dataModel().stream(Device.class).join(ReadingTypeObisCodeUsage.class)
+                .filter(condition)
+                .filter(onlyMatchRegisters(registerSpec))
+                .collect(Collectors.toList());
+
+    }
+
+    private Predicate<Device> onlyMatchRegisters(RegisterSpec registerSpec) {
+        return device -> device.getRegisters().stream()
+                .filter(register -> !register.getReadingType().getMRID().equals(registerSpec.getReadingType().getMRID()))
+                .map(Register::getDeviceObisCode)
+                .anyMatch(obisCode -> obisCode.equals(registerSpec.getDeviceObisCode()));
+    }
+
+    @Override
+    public List<Device> findDeviceWithOverruledObisCodeForOtherThanChannelSpec(ChannelSpec channelSpec) {
+        Condition condition = where(DeviceFields.READINGTYPEOBISCODEUSAGES.fieldName() + "."
+                + ReadingTypeObisCodeUsageImpl.Fields.OBISCODESTRING.fieldName()).isEqualTo(channelSpec.getDeviceObisCode().getValue())
+                .and(where(DeviceFields.READINGTYPEOBISCODEUSAGES.fieldName() + "."
+                        + ReadingTypeObisCodeUsageImpl.Fields.READINGTYPE.fieldName()).isNotEqual(channelSpec.getReadingType()))
+                .and(where(DeviceFields.DEVICECONFIGURATION.fieldName()).isEqualTo(channelSpec.getDeviceConfiguration()));
+        return this.deviceDataModelService.dataModel().stream(Device.class).join(ReadingTypeObisCodeUsage.class)
+                .filter(condition)
+                .filter(onlyMatchLoadProfileOfChannelSpec(channelSpec))
+                .collect(Collectors.toList());
+    }
+
+    private Predicate<Device> onlyMatchLoadProfileOfChannelSpec(ChannelSpec channelSpec) {
+        return device1 -> device1.getLoadProfiles()
+                .stream()
+                .filter(loadProfile -> loadProfile.getLoadProfileSpec().getId() == channelSpec.getLoadProfileSpec().getId())
+                .anyMatch(loadProfile1 -> loadProfile1.getChannels().stream().anyMatch(otherChannelsThenChannelFromSpec(channelSpec)));
+    }
+
+    private Predicate<Channel> otherChannelsThenChannelFromSpec(ChannelSpec channelSpec) {
+        return channel -> channel.getObisCode().equals(channelSpec.getDeviceObisCode()) && !channel.getReadingType()
+                .getMRID().equals(channelSpec.getReadingType().getMRID());
+    }
+
 }

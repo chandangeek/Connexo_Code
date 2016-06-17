@@ -111,7 +111,7 @@ public class DeviceGroupTest extends PersistenceIntegrationTest {
     @Expected(value = VetoDeleteDeviceGroupException.class)
     public void testVetoDeletionOfDeviceGroupInKpi() throws Exception {
         DataCollectionKpiService kpiService = inMemoryPersistence.getDataCollectionKpiService();
-        Thesaurus thesaurus = inMemoryPersistence.getThesaurus();
+        Thesaurus thesaurus = inMemoryPersistence.getThesaurusFromDeviceDataModel();
         MeteringGroupsService meteringGroupsService = inMemoryPersistence.getMeteringGroupsService();
         ((EventServiceImpl)inMemoryPersistence.getEventService()).addTopicHandler(new EndDeviceGroupDeletionVetoEventHandler(kpiService, thesaurus));
 

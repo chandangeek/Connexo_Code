@@ -30,6 +30,7 @@ import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.PassiveEffectiveCalendar;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
+import com.energyict.mdc.device.data.ReadingTypeObisCodeUsage;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeInAction;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeInActionImpl;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeRequest;
@@ -64,7 +65,6 @@ import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 
-import java.util.Calendar;
 import java.util.List;
 
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
@@ -843,7 +843,8 @@ public enum TableSpecs {
     DDC_OVERRULEDOBISCODE {
         @Override
         void addTo(DataModel dataModel) {
-            Table<ReadingTypeObisCodeUsageImpl> table = dataModel.addTable(name(), ReadingTypeObisCodeUsageImpl.class);
+            Table<ReadingTypeObisCodeUsage> table = dataModel.addTable(name(), ReadingTypeObisCodeUsage.class);
+            table.since(version(10, 2));
             table.map(ReadingTypeObisCodeUsageImpl.class);
             Column readingType = table.column("READINGTYPEMRID").varChar(NAME_LENGTH).notNull().add();
             Column device = table.column("DEVICEID").number().notNull().add();

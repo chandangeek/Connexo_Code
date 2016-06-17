@@ -49,8 +49,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Mockito.mock;
@@ -322,6 +324,9 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
         onlineComServer.schedulingInterPollDelay(TimeDuration.minutes(5));
         onlineComServer.communicationLogLevel(ComServer.LogLevel.DEBUG);
         onlineComServer.serverLogLevel(ComServer.LogLevel.DEBUG);
+        onlineComServer.serverName(name);
+        onlineComServer.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
+        onlineComServer.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
         return onlineComServer.create();
     }
 
