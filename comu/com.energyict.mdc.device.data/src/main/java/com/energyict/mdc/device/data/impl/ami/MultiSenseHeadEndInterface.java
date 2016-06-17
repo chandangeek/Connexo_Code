@@ -180,13 +180,13 @@ public class MultiSenseHeadEndInterface implements HeadEndInterface {
     }
 
     @Override
-    public CompletionOptions readMeter(Meter meter, List<ReadingType> redingTypes, ServiceCall serviceCall) {
+    public CompletionOptions readMeter(Meter meter, List<ReadingType> readingTypes, ServiceCall serviceCall) {
         return null;
     }
 
     @Override
-    public CompletionOptions sendCommand(EndDeviceCommand endDeviceCommand, Instant instant) {
-        return sendCommand(endDeviceCommand, instant, null);
+    public CompletionOptions sendCommand(EndDeviceCommand endDeviceCommand, Instant releaseDate) {
+        return sendCommand(endDeviceCommand, releaseDate, null);
     }
 
     @Override
