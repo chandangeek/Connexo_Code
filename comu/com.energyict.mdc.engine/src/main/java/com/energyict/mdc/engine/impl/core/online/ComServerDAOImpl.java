@@ -8,6 +8,7 @@ import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.sql.Fetcher;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.SecurityPropertySet;
@@ -57,6 +58,7 @@ import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdc.protocol.api.device.BaseRegister;
 import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
+import com.energyict.mdc.protocol.api.device.data.CollectedCalendar;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.data.G3TopologyDeviceAddressInformation;
 import com.energyict.mdc.protocol.api.device.data.TopologyNeighbour;
@@ -747,13 +749,11 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     private Optional<Device> getOptionalDeviceByIdentifier(DeviceIdentifier deviceIdentifier) {
-        Device device = null;
         try {
-            device = (Device) deviceIdentifier.findDevice();
+            return Optional.of((Device) deviceIdentifier.findDevice());
         } catch (CanNotFindForIdentifier e) {
-            // ignore
+            return Optional.empty();
         }
-        return Optional.ofNullable(device);
     }
 
     @Override
@@ -784,6 +784,48 @@ public class ComServerDAOImpl implements ComServerDAO {
         LoadProfile.LoadProfileUpdater loadProfileUpdater = device.getLoadProfileUpdaterFor(refreshedLoadProfile);
         loadProfileUpdater.setLastReadingIfLater(lastReading);
         loadProfileUpdater.update();
+    }
+
+    @Override
+    public void updateCalendars(CollectedCalendar collectedCalendar) {
+        Optional<Device> optionalDevice = getOptionalDeviceByIdentifier(collectedCalendar.getDeviceIdentifier());
+        optionalDevice.ifPresent(device -> this.updateCalendars(collectedCalendar, device));
+    }
+
+    private void updateCalendars(CollectedCalendar collectedCalendar, Device device) {
+        Instant now = this.now();
+        collectedCalendar.getActiveCalendar().ifPresent(activeCalendarName -> this.setActiveCalendar(device, activeCalendarName, now));
+        collectedCalendar.getPassiveCalendar().ifPresent(passiveCalendarName -> this.setPassiveCalendar(device, passiveCalendarName));
+    }
+
+    private void setActiveCalendar(Device device, String calendarName, Instant now) {
+        Optional<AllowedCalendar> allowedCalendar = this.getAllowedCalendar(device, calendarName);
+        if (allowedCalendar.isPresent()) {
+            device.setActiveCalendar(allowedCalendar.get(), now, now);
+        } else {
+            device.setActiveCalendar(
+                    device.getDeviceType().addGhostCalendar(calendarName),
+                    now,
+                    now);
+        }
+    }
+
+    private void setPassiveCalendar(Device device, String calendarName) {
+        Optional<AllowedCalendar> allowedCalendar = this.getAllowedCalendar(device, calendarName);
+        if (allowedCalendar.isPresent()) {
+            device.addPassiveCalendar(allowedCalendar.get());
+        } else {
+            device.addPassiveCalendar(device.getDeviceType().addGhostCalendar(calendarName));
+        }
+    }
+
+    private Optional<AllowedCalendar> getAllowedCalendar(Device device, String calendarName) {
+        return device
+            .getDeviceType()
+            .getAllowedCalendars()
+            .stream()
+            .filter(each -> each.getName().equals(calendarName))
+            .findFirst();
     }
 
     private Instant now() {

@@ -1,8 +1,10 @@
 package com.energyict.mdc.engine.impl.core.online;
 
+import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.ActivatedBreakerStatus;
 import com.energyict.mdc.device.data.Device;
@@ -28,6 +30,7 @@ import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.firmware.FirmwareVersionBuilder;
 import com.energyict.mdc.protocol.api.device.data.BreakerStatus;
 import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
+import com.energyict.mdc.protocol.api.device.data.CollectedCalendar;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 
@@ -37,6 +40,7 @@ import java.sql.SQLException;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -53,7 +57,9 @@ import static junit.framework.Assert.assertTrue;
 import static junit.framework.TestCase.assertEquals;
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -75,6 +81,8 @@ public class ComServerDAOImplTest {
     private static final long SCHEDULED_COMTASK_ID = 3;
     private static final String IP_ADDRESS = "192.168.2.100";
     private static final String IP_ADDRESS_PROPERTY_NAME = "ipAddress";
+    private static final String ACTIVE_CALENDAR_NAME = "Active";
+    private static final String PASSIVE_CALENDAR_NAME = "Passive";
 
     @Mock
     private OutboundCapableComServer comServer;
@@ -582,4 +590,69 @@ public class ComServerDAOImplTest {
         verify(activatedBreakerStatus).setLastChecked(any(Instant.class));
         verify(this.deviceDataModelService, never()).newActivatedBreakerStatusFrom(any(Device.class), any(BreakerStatus.class), any(Interval.class));
     }
+
+    @Test
+    public void updateCalendarsThatExistOnDeviceType() {
+        CollectedCalendar collectedCalendar = mock(CollectedCalendar.class);
+        when(collectedCalendar.isEmpty()).thenReturn(false);
+        when(collectedCalendar.getActiveCalendar()).thenReturn(Optional.of(ACTIVE_CALENDAR_NAME));
+        when(collectedCalendar.getPassiveCalendar()).thenReturn(Optional.of(PASSIVE_CALENDAR_NAME));
+        when(collectedCalendar.getDeviceIdentifier()).thenReturn(this.deviceIdentifier);
+        when(this.deviceIdentifier.findDevice()).thenReturn(this.device);
+        Calendar active = mock(Calendar.class);
+        when(active.getName()).thenReturn(ACTIVE_CALENDAR_NAME);
+        AllowedCalendar allowedCal1 = mock(AllowedCalendar.class);
+        when(allowedCal1.getName()).thenReturn(ACTIVE_CALENDAR_NAME);
+        when(allowedCal1.getCalendar()).thenReturn(Optional.of(active));
+        when(allowedCal1.isGhost()).thenReturn(false);
+        Calendar passive = mock(Calendar.class);
+        when(passive.getName()).thenReturn(PASSIVE_CALENDAR_NAME);
+        AllowedCalendar allowedCal2 = mock(AllowedCalendar.class);
+        when(allowedCal2.getName()).thenReturn(PASSIVE_CALENDAR_NAME);
+        when(allowedCal2.getCalendar()).thenReturn(Optional.of(passive));
+        when(allowedCal2.isGhost()).thenReturn(false);
+        when(this.deviceType.getAllowedCalendars()).thenReturn(Arrays.asList(allowedCal1, allowedCal2));
+        Instant now = Instant.ofEpochMilli(1464213600000L);
+        Clock clock = mock(Clock.class);
+        when(clock.instant()).thenReturn(now);
+        when(this.serviceProvider.clock()).thenReturn(clock);
+
+        // Business method
+        this.comServerDAO.updateCalendars(collectedCalendar);
+
+        // Asserts
+        verify(this.deviceType, atLeastOnce()).getAllowedCalendars();
+        verify(this.device).setActiveCalendar(eq(allowedCal1), eq(now), any(Instant.class));
+        verify(this.device).addPassiveCalendar(allowedCal2);
+    }
+
+    @Test
+    public void updateCalendarsThatDoNotExistOnDeviceType() {
+        CollectedCalendar collectedCalendar = mock(CollectedCalendar.class);
+        when(collectedCalendar.isEmpty()).thenReturn(false);
+        when(collectedCalendar.getActiveCalendar()).thenReturn(Optional.of(ACTIVE_CALENDAR_NAME));
+        when(collectedCalendar.getPassiveCalendar()).thenReturn(Optional.of(PASSIVE_CALENDAR_NAME));
+        when(collectedCalendar.getDeviceIdentifier()).thenReturn(this.deviceIdentifier);
+        when(this.deviceIdentifier.findDevice()).thenReturn(this.device);
+        when(this.deviceType.getAllowedCalendars()).thenReturn(Collections.emptyList());
+        AllowedCalendar activeGhost = mock(AllowedCalendar.class);
+        AllowedCalendar passiveGhost = mock(AllowedCalendar.class);
+        when(this.deviceType.addGhostCalendar(ACTIVE_CALENDAR_NAME)).thenReturn(activeGhost);
+        when(this.deviceType.addGhostCalendar(PASSIVE_CALENDAR_NAME)).thenReturn(passiveGhost);
+        Instant now = Instant.ofEpochMilli(1464213600000L);
+        Clock clock = mock(Clock.class);
+        when(clock.instant()).thenReturn(now);
+        when(this.serviceProvider.clock()).thenReturn(clock);
+
+        // Business method
+        this.comServerDAO.updateCalendars(collectedCalendar);
+
+        // Asserts
+        verify(this.deviceType, atLeastOnce()).getAllowedCalendars();
+        verify(this.deviceType).addGhostCalendar(ACTIVE_CALENDAR_NAME);
+        verify(this.deviceType).addGhostCalendar(PASSIVE_CALENDAR_NAME);
+        verify(this.device).setActiveCalendar(eq(activeGhost), eq(now), any(Instant.class));
+        verify(this.device).addPassiveCalendar(passiveGhost);
+    }
+
 }
