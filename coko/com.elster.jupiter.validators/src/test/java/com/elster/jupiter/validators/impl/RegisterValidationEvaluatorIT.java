@@ -161,14 +161,14 @@ public class RegisterValidationEvaluatorIT {
             meter.activate(date1);
             ValidationService validationService = injector.getInstance(ValidationService.class);
             validationService.addValidatorFactory(injector.getInstance(DefaultValidatorFactory.class));
-            ValidationRuleSet mdcValidationRuleSet = validationService.createValidationRuleSet(MY_RULE_SET, "MDC");
+            ValidationRuleSet mdcValidationRuleSet = validationService.createValidationRuleSet(MY_RULE_SET, QualityCodeSystem.MDC);
             mdcValidationRuleSet.addRuleSetVersion("Version 1", Instant.EPOCH)
                     .addRule(ValidationAction.FAIL, REGISTERINCREASE, "minmax")
                     .withReadingType(readingType1)
                     .havingProperty(FAILEQUALDATA).withValue(false)
                     .active(true)
                     .create();
-            ValidationRuleSet mdmValidationRuleSet = validationService.createValidationRuleSet(MDM_RULE_SET, "INS");
+            ValidationRuleSet mdmValidationRuleSet = validationService.createValidationRuleSet(MDM_RULE_SET, QualityCodeSystem.MDM);
             mdmValidationRuleSet.addRuleSetVersion("Version 1", Instant.EPOCH)
                     .addRule(ValidationAction.FAIL, REGISTERINCREASE, "minmax")
                     .withReadingType(readingType1)

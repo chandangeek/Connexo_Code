@@ -183,8 +183,8 @@ public class ValidationEvaluatorIT {
             //meterActivation.createChannel(readingType1);
             ValidationService validationService = injector.getInstance(ValidationService.class);
             validationService.addValidatorFactory(injector.getInstance(DefaultValidatorFactory.class));
-            final ValidationRuleSet mdcValidationRuleSet = validationService.createValidationRuleSet(MY_RULE_SET, "MDC");
-            final ValidationRuleSet mdmValidationRuleSet = validationService.createValidationRuleSet(MDM_RULE_SET, "INS");
+            final ValidationRuleSet mdcValidationRuleSet = validationService.createValidationRuleSet(MY_RULE_SET, QualityCodeSystem.MDC);
+            final ValidationRuleSet mdmValidationRuleSet = validationService.createValidationRuleSet(MDM_RULE_SET, QualityCodeSystem.MDM);
             ValidationRuleSetVersion mdcValidationRuleSetVersion = mdcValidationRuleSet.addRuleSetVersion("description", Instant.EPOCH);
             ValidationRuleSetVersion mdmValidationRuleSetVersion = mdmValidationRuleSet.addRuleSetVersion("description", Instant.EPOCH);
             mdcValidationRuleSetVersion.addRule(ValidationAction.FAIL, MIN_MAX, "maxValue")
