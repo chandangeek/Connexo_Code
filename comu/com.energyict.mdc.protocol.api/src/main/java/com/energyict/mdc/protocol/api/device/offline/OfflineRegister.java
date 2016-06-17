@@ -6,8 +6,6 @@ import com.energyict.mdc.common.Offline;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 
-import aQute.bnd.annotation.ProviderType;
-
 import java.math.BigDecimal;
 import java.util.Collection;
 
@@ -17,7 +15,6 @@ import java.util.Collection;
  * @author gna
  * @since 12/06/12 - 11:48
  */
-@ProviderType
 public interface OfflineRegister extends Offline {
 
     /**

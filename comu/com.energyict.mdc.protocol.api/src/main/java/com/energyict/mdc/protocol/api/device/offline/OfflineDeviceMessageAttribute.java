@@ -2,8 +2,6 @@ package com.energyict.mdc.protocol.api.device.offline;
 
 import com.elster.jupiter.properties.PropertySpec;
 
-import aQute.bnd.annotation.ProviderType;
-
 /**
  * Represents an Offline version of a DeviceMessageAttribute.
  * <p/>
@@ -11,7 +9,6 @@ import aQute.bnd.annotation.ProviderType;
  * Date: 18/02/13
  * Time: 16:34
  */
-@ProviderType
 public interface OfflineDeviceMessageAttribute {
 
     /**
