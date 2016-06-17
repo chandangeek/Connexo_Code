@@ -12,7 +12,7 @@ Ext.define('Wss.view.LoggingSetup', {
         me.content = {
             xtype: 'panel',
             ui: 'large',
-            title: Uni.I18n.translate('general.logging', 'Wss', 'Logging'),
+            title: Uni.I18n.translate('general.logging', 'WSS', 'Logging'),
             items: [
                 {
                     xtype: 'preview-container',

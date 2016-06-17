@@ -50,7 +50,7 @@ Ext.define('Wss.view.PreviewForm', {
                     fieldLabel: Uni.I18n.translate('general.logLevel', 'WSS', 'Log level'),
                     name: 'logLevel',
                     renderer: function (value) {
-                        return value.displayValue;
+                        return value.localizedValue;
                     }
 
                 },
@@ -63,7 +63,7 @@ Ext.define('Wss.view.PreviewForm', {
                 {
                     xtype: 'displayfield',
                     fieldLabel: Uni.I18n.translate('webservices.traceRequestsFileName', 'WSS', 'Trace requests file name'),
-                    name: '//TODO'
+                    name: 'traceFile'
                 },
                 {
                     xtype: 'displayfield',

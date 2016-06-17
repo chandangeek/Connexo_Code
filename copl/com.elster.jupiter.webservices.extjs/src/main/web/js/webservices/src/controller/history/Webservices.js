@@ -49,6 +49,20 @@ Ext.define('Wss.controller.history.Webservices', {
                                         }, {single: true});
                                         return this;
                                     }
+                                },
+                                edit: {
+                                    route: 'edit',
+                                    title: Uni.I18n.translate('general.Edit', 'WSS', 'Edit'),
+                                    //privileges: Apr.privileges.AppServer.view,
+                                    controller: 'Wss.controller.Webservices',
+                                    action: 'showEditPage',
+                                    callback: function (route) {
+                                        this.getApplication().on('endpointload', function (name) {
+                                            route.setTitle(Ext.String.format(Uni.I18n.translate('general.EditEndpoint', 'WSS', 'Edit {0}'),Ext.String.htmlEncode(name)));
+                                            return true;
+                                        }, {single: true});
+                                        return this;
+                                    }
                                 }
                             }
                         }

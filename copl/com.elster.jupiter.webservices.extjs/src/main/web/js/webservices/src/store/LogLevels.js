@@ -1,6 +1,6 @@
 Ext.define('Wss.store.LogLevels', {
     extend: 'Ext.data.Store',
-    fields: [{name:'logLevel'},{name:'localizedValue'}],
+    model: 'Wss.model.LogLevel',
     proxy: {
         type: 'rest',
         url: '/api/ws/fields/logLevel',

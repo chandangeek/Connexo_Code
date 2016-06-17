@@ -50,7 +50,7 @@ Ext.define('Wss.view.Add', {
                             {
                                 xtype: 'combobox',
                                 name: 'webServiceName',
-                                // itemId: 'deviceAddSerial',
+                                itemId: 'webServiceCombo',
                                 required: true,
                                 fieldLabel: Uni.I18n.translate('endPointAdd.Webservice', 'WSS', 'Webservice'),
                                 store: 'Wss.store.Webservices',
@@ -68,34 +68,84 @@ Ext.define('Wss.view.Add', {
                 ]
             }
         ];
-
         me.callParent(arguments);
+        if(this.action === 'edit'){
+            this.first = true;
+            this.addFormFields(this.record.get('direction').id,this.record.get('type'));
+            debugger;
+            var form = this.down('#addForm');
+         //   form.loadRecord(this.record);
+            var values= this.record.data;
+            values['logLevel'] = null;
+            values['authenticationMethod'] = null;
+            form.getForm().setValues(this.record.data);
+            form.down('#logLevelCombo').select(this.record.getLogLevel());
+            form.down('#authenticationCombo').select(this.record.getAuthenticationMethod());
+            //form.getForm().setValues({
+            //    logLevel: this.record.getLogLevel(),
+            //    authenticationMethod: this.record.getAuthenticationMethod()
+            //});
+        }
     },
 
     onSelectWebServiceType: function(combobox, newValue, oldValue){
         var me = this;
-        var record = combobox.findRecordByValue(newValue);
+        if(this.action === 'edit' && this.first === true){
+           this.first = false;
+        } else {
+            var form = this.down('#addForm');
+            var values = form.getValues();
+            values.webServiceName = newValue;
+            var record = combobox.findRecordByValue(newValue);
+            this.addFormFields(record.get('direction').id, record.get('type'));
+            debugger;
+            form.getForm().setValues(values);
+        }
+    },
+
+    onSelectAuthenticationType: function(combobox, newValue, oldValue) {
+        var value = newValue.localizedValue || newValue;
+        value = value.toUpperCase();
+       // var record = combobox.findRecordByValue(value),
+        var userRoleField = this.down('#userRoleField'),
+            userNameField = this.down('#userNameField'),
+            passwordField = this.down('#passwordField');
+       // if(record.get('authenticationMethod')==='NONE'){
+        if(value==='NONE'){
+            if(!!userRoleField){userRoleField.setVisible(false)}
+            if(!!userNameField){userNameField.setVisible(false)}
+            if(!!passwordField){passwordField.setVisible(false)}
+        //} else if (record.get('authenticationMethod')==='BASIC_AUTHENTICATION'){
+        } else if (value ==='BASIC_AUTHENTICATION'){
+            if(!!userRoleField){userRoleField.setVisible(true)}
+            if(!!userNameField){userNameField.setVisible(true)}
+            if(!!passwordField){passwordField.setVisible(true)}
+        }
+    },
+
+    addFormFields: function(direction,type){
         var form = this.down('#addForm');
+        var me = this;
         Ext.suspendLayouts();
         var remove = form.items.items.slice(3,form.items.items.length);
         Ext.each(remove, function(removeItem){
             form.remove(removeItem);
         });
-
         form.add(
             {
                 xtype: 'textfield',
                 name: 'url',
-                fieldLabel: record.get('direction')==='Inbound'?Uni.I18n.translate('endPointAdd.urlPath', 'WSS', 'Url Path'):Uni.I18n.translate('endPointAdd.url', 'WSS', 'Url'),
+                fieldLabel: direction.toUpperCase()==='INBOUND'?Uni.I18n.translate('endPointAdd.urlPath', 'WSS', 'Url Path'):Uni.I18n.translate('endPointAdd.url', 'WSS', 'Url'),
                 required: true
             },
             {
                 xtype: 'combobox',
                 itemId: 'logLevelCombo',
                 name: 'logLevel',
-                store: 'Wss.store.LogLevels',
+                store: this.logLevelsStore,
                 displayField: 'localizedValue',
-                valueField: 'localizedValue',
+                queryMode: 'local',
+                valueField: 'id',
                 fieldLabel: Uni.I18n.translate('endPointAdd.logLevel', 'WSS', 'Log level'),
                 required: true,
             },
@@ -107,7 +157,7 @@ Ext.define('Wss.view.Add', {
             },
             {
                 xtype: 'textfield',
-                name: 'tracingFileName',
+                name: 'traceFile',
                 fieldLabel: Uni.I18n.translate('endPointAdd.traceRequestFileName', 'WSS', 'Trace request file name'),
                 required: true
             },
@@ -118,7 +168,7 @@ Ext.define('Wss.view.Add', {
                 required: true
             }
         );
-        if(record.get('type')==='SOAP'){
+        if(type==='SOAP'){
             form.add(
                 {
                     xtype: 'checkbox',
@@ -131,33 +181,50 @@ Ext.define('Wss.view.Add', {
         form.add(
             {
                 xtype: 'combobox',
-                name: 'authenticated',
+                name: 'authenticationMethod',
+                itemId: 'authenticationCombo',
                 fieldLabel: Uni.I18n.translate('endPointAdd.authentication', 'WSS', 'Authentication'),
-                required: true
+                required: true,
+                store: this.authenticationMethodStore,
+                queryMode: 'local',
+                displayField: 'localizedValue',
+                valueField: 'id',
+                listeners: {
+                    change: function (combobox, newValue, oldValue) {
+                        me.onSelectAuthenticationType(combobox, newValue, oldValue);
+                    }
+                }
             }
         );
-        if(record.get('direction').id ==='INBOUND'){
+        debugger;
+        if(direction.toUpperCase() ==='INBOUND'){
             form.add(
                 {
                     xtype: 'combobox',
                     name: 'userRole',
+                    itemId: 'userRoleField',
                     fieldLabel: Uni.I18n.translate('endPointAdd.userRole', 'WSS', 'User role'),
-                    required: true
+                    required: true,
+                    hidden: true
                 }
             );
-        } else if (record.get('direction').id ==='OUTBOUND') {
+        } else if (direction.toUpperCase() ==='OUTBOUND') {
             form.add(
                 {
                     xtype: 'textfield',
                     name: 'username',
+                    itemId: 'userNameField',
                     fieldLabel: Uni.I18n.translate('endPointAdd.userName', 'WSS', 'User name'),
-                    required: true
+                    required: true,
+                    hidden: true
                 },
                 {
                     xtype: 'textfield',
                     name: 'password',
+                    itemId: 'passwordField',
                     fieldLabel: Uni.I18n.translate('endPointAdd.password', 'WSS', 'Password'),
-                    required: true
+                    required: true,
+                    hidden: true
                 }
             );
         }
@@ -186,7 +253,7 @@ Ext.define('Wss.view.Add', {
                     }
                 ]
             }
-        )
+        );
         Ext.resumeLayouts(true);
     }
 });

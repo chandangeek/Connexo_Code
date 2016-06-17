@@ -11,7 +11,8 @@ Ext.define('Wss.controller.Webservices', {
     stores: [
         'Wss.store.Endpoints',
         'Wss.store.Webservices',
-        'Wss.store.LogLevels'
+        'Wss.store.LogLevels',
+        'Wss.store.AuthenticationMethods'
     ],
     models: [
         'Wss.model.Endpoint',
@@ -27,6 +28,9 @@ Ext.define('Wss.controller.Webservices', {
         this.control({
             'endpoint-add button[action=add]': {
                 click: this.addEndpoint
+            },
+            'endpoint-add button[action=edit]': {
+                click: this.updateEndpoint
             },
             'webservices-setup webservices-grid': {
                 select: this.showPreview
@@ -48,40 +52,90 @@ Ext.define('Wss.controller.Webservices', {
         me.getApplication().fireEvent('changecontentevent', view);
     },
 
-    showAddWebserviceEndPoint: function(){
+    showAddWebserviceEndPoint: function () {
         var me = this,
-            view,
             store = me.getStore('Wss.store.Webservices');
-
-        view = Ext.widget('endpoint-add',{
-            action: 'add',
-            returnLink: me.getController('Uni.controller.history.Router').getRoute('administration/webserviceendpoints').buildUrl()
-        });
-        me.getApplication().fireEvent('changecontentevent', view);
-
+            me.showAddEditView(null,'add');
     },
 
-    addEndpoint: function(button){
+    showEditPage: function (endpointId) {
+        debugger;
+        var me = this,
+            store = me.getStore('Wss.store.Webservices');
+        var model = Ext.ModelManager.getModel('Wss.model.Endpoint');
+        model.load(endpointId, {
+            success: function (record) {
+                me.record = record;
+                me.showAddEditView(record,'edit');
+            }
+        });
+    },
+
+    showAddEditView: function(record,type){
         var me = this;
-        var form = button.up('form');
-        var record = Ext.create('Wss.model.Endpoint');
+        var authenticationMethodStore = me.getStore('Wss.store.AuthenticationMethods');
+        var logLevelsStore = me.getStore('Wss.store.LogLevels');
+        authenticationMethodStore.load({
+            callback: function () {
+                logLevelsStore.load({
+                    callback: function () {
+                        view = Ext.widget('endpoint-add', {
+                            action: type,
+                            record: record,
+                            returnLink: me.getController('Uni.controller.history.Router').getRoute('administration/webserviceendpoints').buildUrl(),
+                            authenticationMethodStore: authenticationMethodStore,
+                            logLevelsStore: logLevelsStore
+                        });
+                        me.getApplication().fireEvent('changecontentevent', view);
+                    }
+                });
+            }
+        })
+    },
+
+    addEndpoint: function (button) {
+        var me = this,
+            form = button.up('form'),
+            record = Ext.create('Wss.model.Endpoint');
+            this.saveEndPoint(button,record,Uni.I18n.translate('endPointAdd.endpointAdded', 'WSS', 'Webservice endpoint added'));
+    },
+
+    updateEndpoint: function (button) {
+        this.saveEndPoint(button,this.record,Uni.I18n.translate('endPointAdd.endpointSaved', 'WSS', 'Webservice endpoint saved'));
+    },
+
+    saveEndPoint: function(button,record, acknowledgement){
+        var form = button.up('form'),
+            me = this;
         record.set(form.getValues());
         var logLevel = form.down('#logLevelCombo').findRecordByValue(record.get('logLevel'));
-        record.set('logLevel',{id: logLevel.get('logLevel'), displayValue: logLevel.get('localizedValue')});
+        record.setLogLevel(logLevel);
+
+        var authenticationMethod = form.down('#authenticationCombo').findRecordByValue(record.get('authenticationMethod'));
+        record.setAuthenticationMethod(authenticationMethod);
+
+        record.set('direction', null);
+
         record.save({
             success: function (record) {
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('endPointAdd.endpointAdded', 'WSS', 'Webservice endpoint added'));
+                me.getApplication().fireEvent('acknowledge', acknowledgement);
+                me.getController('Uni.controller.history.Router').getRoute('administration/webserviceendpoints').forward();
             },
             failure: function (record, operation) {
                 var json = Ext.decode(operation.response.responseText);
                 if (json && json.errors) {
-                    debugger;
                     form.getForm().markInvalid(json.errors);
                     me.showErrorPanel();
                 }
             }
         });
     },
+
+    editEndpoint: function (record) {
+        var router = this.getController('Uni.controller.history.Router');
+        router.getRoute('administration/webserviceendpoints/view/edit').forward({endpointId: record.get('id')});
+    },
+
 
     showErrorPanel: function () {
         var me = this,
@@ -95,7 +149,7 @@ Ext.define('Wss.controller.Webservices', {
         formErrorsPlaceHolder.show();
     },
 
-    showPreview: function(selectionModel, record) {
+    showPreview: function (selectionModel, record) {
         var me = this,
             preview = me.getPreview(),
             previewForm = preview.down('webservices-preview-form'),
@@ -113,9 +167,11 @@ Ext.define('Wss.controller.Webservices', {
             case 'remove':
                 me.removeEndpoint(menu.record);
                 break;
-            case 'activate': {
+            case 'activate':
                 me.activateOrDeactivate(menu.record);
-            }
+                break;
+            case 'edit':
+                me.editEndpoint(menu.record);
         }
     },
 
@@ -150,7 +206,7 @@ Ext.define('Wss.controller.Webservices', {
         record.save({
                 success: function (record) {
                     me.getApplication().fireEvent('acknowledge', record.get('active') ?
-                        Uni.I18n.translate('general.xActivated', 'WSS', '{0} activated ', [record.get('name')])  :
+                        Uni.I18n.translate('general.xActivated', 'WSS', '{0} activated ', [record.get('name')]) :
                         Uni.I18n.translate('general.xDeactivated', 'WSS', '{0} deactivated ', [record.get('name')])
                     );
                 }
