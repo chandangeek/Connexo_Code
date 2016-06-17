@@ -8,7 +8,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 public class CompletionOptionsImplTest {
 
     @Test
-    public void whenFinishedSend(){
+    public void whenFinishedSend() {
         // to test when the service call development aspect is finalized
     }
 }

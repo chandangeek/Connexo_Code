@@ -442,7 +442,7 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
         TestableProtocolDialectProperties properties = new TestableProtocolDialectProperties(
                 inMemoryPersistence.getDataModel(),
                 inMemoryPersistence.getEventService(),
-                inMemoryPersistence.getThesaurus(),
+                inMemoryPersistence.getThesaurusFromDeviceDataModel(),
                 inMemoryPersistence.getClock(),
                 inMemoryPersistence.getProtocolPluggableService(),
                 inMemoryPersistence.getCustomPropertySetService());
