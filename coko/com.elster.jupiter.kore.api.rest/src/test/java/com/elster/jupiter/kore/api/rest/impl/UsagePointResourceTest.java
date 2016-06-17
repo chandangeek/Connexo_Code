@@ -11,7 +11,7 @@ import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointBuilder;
-import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.rest.util.hypermedia.LinkInfo;
 
 import com.jayway.jsonpath.JsonModel;
@@ -140,6 +140,7 @@ public class UsagePointResourceTest extends PlatformPublicApiJerseyTest {
         Response response = target("/usagepoints/11").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
+
     @Test
     public void testNoUpdateMetrologyWithIdenticalIds() throws Exception {
         UsagePointInfo info = new UsagePointInfo();
@@ -149,7 +150,7 @@ public class UsagePointResourceTest extends PlatformPublicApiJerseyTest {
         info.metrologyConfiguration.id = 234L;
         info.serviceKind = ServiceKind.ELECTRICITY;
 
-        MetrologyConfiguration metrologyConfiguration = mockMetrologyConfiguration(234L, "metro", 1);
+        UsagePointMetrologyConfiguration metrologyConfiguration = mockMetrologyConfiguration(234L, "metro", 1);
         UsagePoint usagePoint = mockUsagePoint(11L, "usage point", 2L, ServiceKind.ELECTRICITY);
         when(usagePoint.getMetrologyConfiguration()).thenReturn(Optional.of(metrologyConfiguration));
         ElectricityDetail electricityDetail = mock(ElectricityDetail.class);
@@ -171,8 +172,8 @@ public class UsagePointResourceTest extends PlatformPublicApiJerseyTest {
         info.metrologyConfiguration.id = 235L;
         info.serviceKind = ServiceKind.ELECTRICITY;
 
-        MetrologyConfiguration oldMetrologyConfiguration = mockMetrologyConfiguration(234L, "metro", 1);
-        MetrologyConfiguration newMetrologyConfiguration = mockMetrologyConfiguration(235L, "metro", 1);
+        UsagePointMetrologyConfiguration oldMetrologyConfiguration = mockMetrologyConfiguration(234L, "metro", 1);
+        UsagePointMetrologyConfiguration newMetrologyConfiguration = mockMetrologyConfiguration(235L, "metro", 1);
         UsagePoint usagePoint = mockUsagePoint(11L, "usage point", 2L, ServiceKind.ELECTRICITY);
         when(usagePoint.getMetrologyConfiguration()).thenReturn(Optional.of(oldMetrologyConfiguration));
         ElectricityDetail electricityDetail = mock(ElectricityDetail.class);
@@ -194,7 +195,7 @@ public class UsagePointResourceTest extends PlatformPublicApiJerseyTest {
         info.metrologyConfiguration.id = null;
         info.serviceKind = ServiceKind.ELECTRICITY;
 
-        MetrologyConfiguration oldMetrologyConfiguration = mockMetrologyConfiguration(234L, "metro", 1);
+        UsagePointMetrologyConfiguration oldMetrologyConfiguration = mockMetrologyConfiguration(234L, "metro", 1);
         UsagePoint usagePoint = mockUsagePoint(11L, "usage point", 2L, ServiceKind.ELECTRICITY);
         when(usagePoint.getMetrologyConfiguration()).thenReturn(Optional.of(oldMetrologyConfiguration));
         ElectricityDetail electricityDetail = mock(ElectricityDetail.class);
@@ -216,7 +217,7 @@ public class UsagePointResourceTest extends PlatformPublicApiJerseyTest {
         info.metrologyConfiguration.id = 235L;
         info.serviceKind = ServiceKind.ELECTRICITY;
 
-        MetrologyConfiguration newMetrologyConfiguration = mockMetrologyConfiguration(235L, "metro", 1);
+        UsagePointMetrologyConfiguration newMetrologyConfiguration = mockMetrologyConfiguration(235L, "metro", 1);
         UsagePoint usagePoint = mockUsagePoint(11L, "usage point", 2L, ServiceKind.ELECTRICITY);
         when(usagePoint.getMetrologyConfiguration()).thenReturn(Optional.empty());
         ElectricityDetail electricityDetail = mock(ElectricityDetail.class);
