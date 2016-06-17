@@ -84,6 +84,7 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpecEnum {
                             .timeDurationSpec()
                             .named(DeviceMessageAttributes.overThresholdDurationAttributeName)
                             .fromThesaurus(thesaurus)
+                            .markRequired()
                             .finish());
             Stream.of(DeviceMessageAttributes.emergencyProfileIdAttributeName, DeviceMessageAttributes.emergencyProfileActivationDateAttributeName, DeviceMessageAttributes.emergencyProfileDurationAttributeName)
                     .map(attributeName -> propertySpecService
