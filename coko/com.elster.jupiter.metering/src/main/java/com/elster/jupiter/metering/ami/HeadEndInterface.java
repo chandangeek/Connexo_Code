@@ -6,7 +6,6 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.servicecall.ServiceCall;
 
 import java.net.URI;
-import java.net.URL;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -25,11 +24,11 @@ public interface HeadEndInterface {
 
     CompletionOptions readMeter(Meter meter, List<ReadingType> readingTypes);
 
-    CompletionOptions readMeter(Meter meter, List<ReadingType> redingTypes, ServiceCall serviceCall);
+    CompletionOptions readMeter(Meter meter, List<ReadingType> readingTypes, ServiceCall serviceCall);
 
-    CompletionOptions sendCommand(EndDeviceCommand endDeviceCommand, Instant instant);
+    CompletionOptions sendCommand(EndDeviceCommand endDeviceCommand, Instant releaseDate);
 
-    CompletionOptions sendCommand(EndDeviceCommand endDeviceCommand, Instant instant, ServiceCall parentServiceCall);
+    CompletionOptions sendCommand(EndDeviceCommand endDeviceCommand, Instant releaseDate, ServiceCall parentServiceCall);
 
     String getAmrSystem();
 }
