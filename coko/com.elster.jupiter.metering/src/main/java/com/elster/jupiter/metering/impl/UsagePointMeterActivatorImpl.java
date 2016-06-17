@@ -73,7 +73,8 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         Optional<EffectiveMetrologyConfigurationOnUsagePoint> effectiveMetrologyConfiguration = this.usagePoint.getEffectiveMetrologyConfiguration(this.activationTime);
         if (effectiveMetrologyConfiguration.isPresent() && effectiveMetrologyConfiguration.get().isActive()
                 || !effectiveMetrologyConfiguration.isPresent() && this.usagePoint.getConnectionState() != ConnectionState.UNDER_CONSTRUCTION) {
-            throw UsagePointManageException.incorrectState(this.metrologyConfigurationService.getThesaurus(), this.usagePoint.getMRID());
+            throw UsagePointManageException.incorrectState(this.metrologyConfigurationService.getThesaurus(), this.usagePoint
+                    .getMRID());
         }
 
         // 2 Start validation
@@ -132,11 +133,17 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
                 result = false;
                 String errorMessage;
                 if (activation.getUsagePoint().isPresent() && activation.getMeterRole().isPresent()) {
-                    errorMessage = this.metrologyConfigurationService.getThesaurus().getFormat(MessageSeeds.METER_ALREADY_LINKED_TO_USAGEPOINT)
-                            .format(mappingEntry.getValue().getMRID(), activation.getUsagePoint().get().getMRID(), activation.getMeterRole().get().getDisplayName());
+                    errorMessage = this.metrologyConfigurationService.getThesaurus()
+                            .getFormat(MessageSeeds.METER_ALREADY_LINKED_TO_USAGEPOINT)
+                            .format(mappingEntry.getValue().getMRID(), activation.getUsagePoint()
+                                    .get()
+                                    .getMRID(), activation.getMeterRole().get().getDisplayName());
                 } else {
-                    errorMessage = this.metrologyConfigurationService.getThesaurus().getFormat(MessageSeeds.METER_ALREADY_ACTIVE)
-                            .format(mappingEntry.getValue().getMRID(), MeterAlreadyActive.formatted(this.activationTime, this.metrologyConfigurationService.getThesaurus()));
+                    errorMessage = this.metrologyConfigurationService.getThesaurus()
+                            .getFormat(MessageSeeds.METER_ALREADY_ACTIVE)
+                            .format(mappingEntry.getValue()
+                                    .getMRID(), MeterAlreadyActive.formatted(this.activationTime, this.metrologyConfigurationService
+                                    .getThesaurus()));
                 }
                 context.buildConstraintViolationWithTemplate(errorMessage)
                         .addPropertyNode(mappingEntry.getKey().getKey())
@@ -151,7 +158,9 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         boolean result = true;
         Optional<EffectiveMetrologyConfigurationOnUsagePoint> effectiveMetrologyConfiguration = this.usagePoint.getEffectiveMetrologyConfiguration(this.activationTime);
         if (effectiveMetrologyConfiguration.isPresent()) {
-            UsagePointMetrologyConfiguration metrologyConfiguration = (UsagePointMetrologyConfiguration) effectiveMetrologyConfiguration.get().getMetrologyConfiguration();
+            UsagePointMetrologyConfiguration metrologyConfiguration = (UsagePointMetrologyConfiguration) effectiveMetrologyConfiguration
+                    .get()
+                    .getMetrologyConfiguration();
             List<ReadingTypeRequirement> mandatoryReadingTypeRequirements = getMandatoryReadingTypeRequirements(metrologyConfiguration);
             for (Map.Entry<MeterRole, Meter> mappingEntry : this.meterRoleMapping.entrySet()) {
                 if (mappingEntry.getValue() == null) {
@@ -178,7 +187,8 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
                 continue;
             }
             try {
-                this.metrologyConfigurationService.validateUsagePointMeterActivation(mappingEntry.getKey(), mappingEntry.getValue(), this.usagePoint);
+                this.metrologyConfigurationService.validateUsagePointMeterActivation(mappingEntry.getKey(), mappingEntry
+                        .getValue(), this.usagePoint);
             } catch (CustomUsagePointMeterActivationValidationException ex) {
                 result = false;
                 context.buildConstraintViolationWithTemplate(ex.getLocalizedMessage())
@@ -216,11 +226,13 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         this.usagePoint.getMeterActivations()
                 .stream()
                 .filter(ma -> ma.isEffectiveAt(this.activationTime))
-                .filter(ma -> ma.getMeterRole().isPresent() && this.meterRoleMapping.containsKey(ma.getMeterRole().get()))
+                .filter(ma -> ma.getMeterRole().isPresent() && this.meterRoleMapping.containsKey(ma.getMeterRole()
+                        .get()))
                 .forEach(ma -> ma.endAt(ma.getStart()));
         for (Map.Entry<MeterRole, Meter> mappingEntry : this.meterRoleMapping.entrySet()) {
             if (mappingEntry.getValue() != null) {
-                MeterActivationImpl meterActivation = this.metrologyConfigurationService.getDataModel().getInstance(MeterActivationImpl.class)
+                MeterActivationImpl meterActivation = this.metrologyConfigurationService.getDataModel()
+                        .getInstance(MeterActivationImpl.class)
                         .init(mappingEntry.getValue(), mappingEntry.getKey(), this.usagePoint, this.activationTime);
                 meterActivation.save();
             }
