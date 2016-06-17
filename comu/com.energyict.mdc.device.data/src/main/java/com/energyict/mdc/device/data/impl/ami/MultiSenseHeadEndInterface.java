@@ -15,10 +15,12 @@ import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.users.User;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
@@ -29,6 +31,7 @@ import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandServiceCallDomainExtension;
 import com.energyict.mdc.device.data.impl.ami.servicecall.ServiceCallCommands;
+import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
@@ -42,13 +45,14 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
@@ -71,13 +75,14 @@ public class MultiSenseHeadEndInterface implements HeadEndInterface {
     private volatile ServiceCallService serviceCallService;
     private volatile CustomPropertySetService customPropertySetService;
     private volatile CommandFactory commandFactory;
+    private volatile ThreadPrincipalService threadPrincipalService;
 
     //For OSGI purposes
     public MultiSenseHeadEndInterface() {
     }
 
     @Inject
-    public MultiSenseHeadEndInterface(DeviceService deviceService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, Thesaurus thesaurus, ServiceCallService serviceCallService, CustomPropertySetService customPropertySetService, CommandFactory commandFactory) {
+    public MultiSenseHeadEndInterface(DeviceService deviceService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, Thesaurus thesaurus, ServiceCallService serviceCallService, CustomPropertySetService customPropertySetService, CommandFactory commandFactory, ThreadPrincipalService threadPrincipalService) {
         this.deviceService = deviceService;
         this.meteringService = meteringService;
         this.deviceConfigurationService = deviceConfigurationService;
@@ -85,6 +90,7 @@ public class MultiSenseHeadEndInterface implements HeadEndInterface {
         this.serviceCallService = serviceCallService;
         this.customPropertySetService = customPropertySetService;
         this.commandFactory = commandFactory;
+        this.threadPrincipalService = threadPrincipalService;
     }
 
     @Reference
@@ -101,6 +107,11 @@ public class MultiSenseHeadEndInterface implements HeadEndInterface {
     @Reference
     public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
         this.deviceConfigurationService = deviceConfigurationService;
+    }
+
+    @Reference
+    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+        this.threadPrincipalService = threadPrincipalService;
     }
 
     @Reference
@@ -133,17 +144,22 @@ public class MultiSenseHeadEndInterface implements HeadEndInterface {
     }
 
     @Override
-    public Optional<URI> getURIForEndDevice(EndDevice endDevice) {
-        if (endDevice.getAmrSystem().is(KnownAmrSystem.MDC)) {
-            Device device = findDeviceForEndDevice(endDevice);
-            URI uri = null;
-            try {
-                uri = new URI("/devices/" + device.getmRID());
-            } catch (URISyntaxException e) {
-                LOGGER.log(Level.SEVERE, "Unable to parse device URI", e);
-            }
-            return Optional.ofNullable(uri);
+    public Optional<URL> getURLForEndDevice(EndDevice endDevice) {
+        if (!((User) threadPrincipalService.getPrincipal()).hasPrivilege(KnownAmrSystem.MDC.getName(), Privileges.Constants.VIEW_DEVICE)) {
+            return Optional.empty();
         } else {
+            if (endDevice.getAmrSystem().is(KnownAmrSystem.MDC)) {
+                Device device = findDeviceForEndDevice(endDevice);
+                Map<KnownAmrSystem, String> urls = meteringService.getSupportedApplicationsUrls();
+                if (urls.containsKey(KnownAmrSystem.MDC)) {
+                    String urlText = urls.get(KnownAmrSystem.MDC).trim() + "/devices/" + device.getmRID();
+                    try {
+                        return Optional.of(new URL(urlText));
+                    } catch (MalformedURLException e) {
+                        LOGGER.log(Level.SEVERE, "Unable to parse [url= " + urlText + " ]", e);
+                    }
+                }
+            }
             return Optional.empty();
         }
     }

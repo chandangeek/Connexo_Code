@@ -15,21 +15,26 @@ import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.users.User;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
-import java.net.URI;
+import java.net.URL;
 import java.time.Clock;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -52,6 +57,7 @@ import static org.mockito.Mockito.when;
 public class MultisenseHeadEndInterfaceTest {
 
     private static final String DEVICE_MRID = "deviceMRID";
+    private final String url = "https://demo.eict.local:8080/apps/multisense/index.html#";
 
     @Mock
     private EndDevice endDevice;
@@ -78,19 +84,28 @@ public class MultisenseHeadEndInterfaceTest {
     @Mock
     private volatile PropertySpecService propertySpecService;
     @Mock
-    private volatile CommandFactory commandFactory;
+    private volatile ThreadPrincipalService threadPrincipalService;
+    @Mock
+    private CommandFactory commandFactory;
     @Mock
     private ReadingType readingType;
     @Mock
     private EndDeviceControlType contactorOpenEndDeviceControlType;
     @Mock
     private EndDeviceControlType contactoCloseEndDeviceControlType;
+    @Mock
+    User user;
 
     private HeadEndInterface headEndInterface;
 
     @Before
     public void setup() {
-        headEndInterface = new MultiSenseHeadEndInterface(deviceService, deviceConfigurationService, meteringService, thesaurus, serviceCallService, customPropertySetService, commandFactory);
+        when(threadPrincipalService.getPrincipal()).thenReturn(user);
+        when(user.hasPrivilege(KnownAmrSystem.MDC.getName(), Privileges.Constants.VIEW_DEVICE)).thenReturn(true);
+        Map<KnownAmrSystem, String> knownAmrSystemStringMap = new HashMap<>();
+        knownAmrSystemStringMap.put(KnownAmrSystem.MDC, url);
+        when(meteringService.getSupportedApplicationsUrls()).thenReturn(knownAmrSystemStringMap);
+        headEndInterface = new MultiSenseHeadEndInterface(deviceService, deviceConfigurationService, meteringService, thesaurus, serviceCallService, customPropertySetService, commandFactory, threadPrincipalService);
         endDevice.setMRID(DEVICE_MRID);
         AmrSystem amrSystem = mock(AmrSystem.class);
         when(endDevice.getAmrSystem()).thenReturn(amrSystem);
@@ -117,9 +132,9 @@ public class MultisenseHeadEndInterfaceTest {
 
     @Test
     public void getURLForEndDevice() {
-        Optional<URI> uri = headEndInterface.getURIForEndDevice(endDevice);
-        if (uri.isPresent()) {
-            assertTrue(uri.get().toString().equals("/devices/" + DEVICE_MRID));
+        Optional<URL> url = headEndInterface.getURLForEndDevice(endDevice);
+        if (url.isPresent()) {
+            assertTrue(url.get().toString().equals(this.url + "/devices/" + DEVICE_MRID));
         } else {
             throw new AssertionError("URL not found");
         }
