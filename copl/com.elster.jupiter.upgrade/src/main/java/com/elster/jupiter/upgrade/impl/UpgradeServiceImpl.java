@@ -28,7 +28,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
-@Component(name = "com.elster.jupiter.upgrade", immediate = true, service = UpgradeService.class)
+@Component(name = "com.elster.jupiter.upgrade", immediate = true, service = UpgradeService.class,
+        property = {"osgi.command.scope=upgrade", "osgi.command.function=init"})
 public class UpgradeServiceImpl implements UpgradeService {
 
     private volatile BootstrapService bootstrapService;
@@ -160,4 +161,15 @@ public class UpgradeServiceImpl implements UpgradeService {
         return new InjectOnly();
     }
 
+    public void init(String dataModelCode) {
+        DataModel dataModel = ormService.getDataModel(dataModelCode).orElseThrow(() -> new IllegalArgumentException("No such data model registered."));
+        DataModelUpgrader dataModelUpgrader = ormService.getDataModelUpgrader(logger);
+        dataModelUpgrader.upgrade(dataModel, Version.latest());
+    }
+
+    public void init(String dataModelCode, String version) {
+        DataModel dataModel = ormService.getDataModel(dataModelCode).orElseThrow(() -> new IllegalArgumentException("No such data model registered."));
+        DataModelUpgrader dataModelUpgrader = ormService.getDataModelUpgrader(logger);
+        dataModelUpgrader.upgrade(dataModel, Version.version(version));
+    }
 }
