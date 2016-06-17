@@ -71,6 +71,12 @@ public class ConnexoFlowSSOFilter extends ConnexoAbstractSSOFilter {
                     roles.add(defaultAdmin);
                 }
 
+                // Bug in jBPM 6.4.0 rest - only the default rest-all role is allowed to access all rest resources
+                RoleImpl defaultRest = new RoleImpl("rest-all");
+                if(!roles.contains(defaultRest)){
+                    roles.add(defaultRest);
+                }
+
                 ConnexoUberfireSubject subject = new ConnexoUberfireSubject(principal.getName(), groups, roles);
                 identityService.setSubject(subject);
 
