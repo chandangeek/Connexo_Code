@@ -108,6 +108,11 @@ class EstimationRuleSetImpl implements IEstimationRuleSet {
     }
 
     @Override
+    public String getApplicationName() {
+        return applicationName;
+    }
+
+    @Override
     public long getId() {
         return id;
     }
