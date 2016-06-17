@@ -61,7 +61,8 @@ public class WebServicesApplicationTest extends FelixRestApplicationJerseyTest {
         when(mock.getUrl()).thenReturn(url);
         when(mock.getVersion()).thenReturn(version);
         when(mock.getWebServiceName()).thenReturn(webServiceName);
-        when(mock.getLogs()).thenReturn(Collections.emptyList());
+        Finder logFinder = mockFinder(Collections.emptyList());
+        when(mock.getLogs()).thenReturn(logFinder);
         when(mock.getAuthenticationMethod()).thenReturn(EndPointAuthentication.NONE);
         when(mock.isActive()).thenReturn(true);
         when(mock.isHttpCompression()).thenReturn(true);
@@ -83,7 +84,8 @@ public class WebServicesApplicationTest extends FelixRestApplicationJerseyTest {
         when(mock.getUrl()).thenReturn(url);
         when(mock.getVersion()).thenReturn(version);
         when(mock.getWebServiceName()).thenReturn(webServiceName);
-        when(mock.getLogs()).thenReturn(Collections.emptyList());
+        Finder logFinder = mockFinder(Collections.emptyList());
+        when(mock.getLogs()).thenReturn(logFinder);
         when(mock.isActive()).thenReturn(true);
         when(mock.isHttpCompression()).thenReturn(true);
         when(mock.isSchemaValidation()).thenReturn(true);

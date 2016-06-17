@@ -35,13 +35,15 @@ public class EndPointConfigurationResource {
     private final EndPointConfigurationInfoFactory endPointConfigurationInfoFactory;
     private final ExceptionFactory exceptionFactory;
     private final WebServicesService webServicesService;
+    private final EndpointConfigurationLogInfoFactory endpointConfigurationLogInfoFactory;
 
     @Inject
-    public EndPointConfigurationResource(EndPointConfigurationService endPointConfigurationService, EndPointConfigurationInfoFactory endPointConfigurationInfoFactory, ExceptionFactory exceptionFactory, WebServicesService webServicesService) {
+    public EndPointConfigurationResource(EndPointConfigurationService endPointConfigurationService, EndPointConfigurationInfoFactory endPointConfigurationInfoFactory, ExceptionFactory exceptionFactory, WebServicesService webServicesService, EndpointConfigurationLogInfoFactory endpointConfigurationLogInfoFactory) {
         this.endPointConfigurationService = endPointConfigurationService;
         this.endPointConfigurationInfoFactory = endPointConfigurationInfoFactory;
         this.exceptionFactory = exceptionFactory;
         this.webServicesService = webServicesService;
+        this.endpointConfigurationLogInfoFactory = endpointConfigurationLogInfoFactory;
     }
 
     @GET
@@ -117,6 +119,22 @@ public class EndPointConfigurationResource {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_END_POINT_CONFIG));
         endPointConfigurationService.delete(endPointConfiguration);
         return Response.ok().build();
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Path("/{id}/logs")
+//    @RolesAllowed(Privileges.Constants.VIEW_SERVICE_CALLS)
+    public PagedInfoList getAllLogs(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters) {
+        EndPointConfiguration endPointConfiguration = endPointConfigurationService.getEndPointConfiguration(id)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_END_POINT_CONFIG));
+
+        List<EndpointConfigurationLogInfo> endpointConfigurationLogs = endPointConfiguration.getLogs()
+                .from(queryParameters)
+                .stream()
+                .map(endpointConfigurationLogInfoFactory::from)
+                .collect(toList());
+        return PagedInfoList.fromPagedList("logs", endpointConfigurationLogs, queryParameters);
     }
 
     private void validatePayload(EndPointConfigurationInfo info) {
