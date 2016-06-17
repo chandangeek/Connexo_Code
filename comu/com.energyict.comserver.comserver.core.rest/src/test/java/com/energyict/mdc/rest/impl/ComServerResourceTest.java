@@ -94,6 +94,10 @@ public class ComServerResourceTest extends ComserverCoreApplicationJerseyTest {
         when(mock.getServerLogLevel()).thenReturn(ComServer.LogLevel.INFO);
         when(mock.getSchedulingInterPollDelay()).thenReturn(new TimeDuration("7 minutes"));
         when(mock.getVersion()).thenReturn(OK_VERSION);
+        when(mock.getServerName()).thenReturn("serverName");
+        when(mock.getQueryApiPort()).thenReturn(ComServer.DEFAULT_QUERY_API_PORT_NUMBER);
+        when(mock.getEventRegistrationPort()).thenReturn(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
+        when(mock.getStatusPort()).thenReturn(ComServer.DEFAULT_STATUS_PORT_NUMBER);
 
         final Map<String, Object> response = target("/comservers").request().get(Map.class); // Using MAP instead of *Info to resemble JS
         assertThat(response).describedAs("Should contain field 'data'").containsKey("data").containsKey("total").hasSize(2);
@@ -103,8 +107,10 @@ public class ComServerResourceTest extends ComserverCoreApplicationJerseyTest {
         assertThat(comServer1)
                 .contains(MapEntry.entry("id", 1))
                 .contains(MapEntry.entry("name", "Test"))
-                .contains(MapEntry.entry("queryAPIPostUri", "/test"))
-                .contains(MapEntry.entry("eventRegistrationUri", "/event/registration/uri"))
+                .contains(MapEntry.entry("serverName", "serverName"))
+                .contains(MapEntry.entry("queryAPIPort", 8889))
+                .contains(MapEntry.entry("eventRegistrationPort", 8888))
+                .contains(MapEntry.entry("statusPort", 8080))
                 .contains(MapEntry.entry("numberOfStoreTaskThreads", 2))
                 .contains(MapEntry.entry("storeTaskQueueSize", 3))
                 .contains(MapEntry.entry("storeTaskThreadPriority", 4))
@@ -148,7 +154,6 @@ public class ComServerResourceTest extends ComserverCoreApplicationJerseyTest {
 
         OnlineComServerInfo onlineComServerInfo = new OnlineComServerInfo();
         onlineComServerInfo.name="new name";
-        onlineComServerInfo.eventRegistrationUri="/new/uri";
         onlineComServerInfo.schedulingInterPollDelay=new TimeDurationInfo();
         onlineComServerInfo.schedulingInterPollDelay.timeUnit="seconds";
         onlineComServerInfo.schedulingInterPollDelay.count=6;
@@ -160,7 +165,9 @@ public class ComServerResourceTest extends ComserverCoreApplicationJerseyTest {
         onlineComServerInfo.storeTaskThreadPriority= 8;
         onlineComServerInfo.numberOfStoreTaskThreads= 9;
         onlineComServerInfo.version = OK_VERSION;
-        onlineComServerInfo.statusUri = "/new/statusUri";
+        onlineComServerInfo.serverName = "new name";
+        onlineComServerInfo.statusPort = ComServer.DEFAULT_STATUS_PORT_NUMBER;
+        onlineComServerInfo.eventRegistrationPort = ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER;
 
         Entity<OnlineComServerInfo> json = Entity.json(onlineComServerInfo);
 
@@ -172,13 +179,13 @@ public class ComServerResourceTest extends ComserverCoreApplicationJerseyTest {
         verify(serverSideComServer).setName(onlineComServerArgumentCaptor.capture());
         assertThat(onlineComServerArgumentCaptor.getValue()).isEqualTo("new name");
 
-        ArgumentCaptor<String> uriCaptor = ArgumentCaptor.forClass(String.class);
-        verify(serverSideComServer).setEventRegistrationUri(uriCaptor.capture());
-        assertThat(uriCaptor.getValue()).isEqualTo("/new/uri");
+        ArgumentCaptor<Integer> portCaptor = ArgumentCaptor.forClass(Integer.class);
+        verify(serverSideComServer).setEventRegistrationPort(portCaptor.capture());
+        assertThat(portCaptor.getValue()).isEqualTo(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
 
-        ArgumentCaptor<String> statusUriCaptor = ArgumentCaptor.forClass(String.class);
-        verify(serverSideComServer).setStatusUri(statusUriCaptor.capture());
-        assertThat(statusUriCaptor.getValue()).isEqualTo("/new/statusUri");
+        ArgumentCaptor<Integer> statusPortCaptor = ArgumentCaptor.forClass(Integer.class);
+        verify(serverSideComServer).setStatusPort(statusPortCaptor.capture());
+        assertThat(statusPortCaptor.getValue()).isEqualTo(ComServer.DEFAULT_STATUS_PORT_NUMBER);
 
         ArgumentCaptor<TimeDuration> timeDurationCaptor = ArgumentCaptor.forClass(TimeDuration.class);
         verify(serverSideComServer).setSchedulingInterPollDelay(timeDurationCaptor.capture());

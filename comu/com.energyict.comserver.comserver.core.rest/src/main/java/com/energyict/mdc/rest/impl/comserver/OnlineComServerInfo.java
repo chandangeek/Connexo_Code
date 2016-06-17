@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
-import java.util.Optional;
 
 @XmlRootElement
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "comServerType")
@@ -34,28 +33,21 @@ public class OnlineComServerInfo extends ComServerInfo<OnlineComServer.OnlineCom
     }
 
     private void readFrom(OnlineComServer onlineComServer) {
-        this.queryAPIPostUri = onlineComServer.getQueryApiPostUri();
-        this.eventRegistrationUri = onlineComServer.getEventRegistrationUri();
+        this.serverName = onlineComServer.getServerName();
+        this.queryAPIPort = onlineComServer.getQueryApiPort();
+        this.eventRegistrationPort = onlineComServer.getEventRegistrationPort();
+        this.statusPort = onlineComServer.getStatusPort();
         this.storeTaskQueueSize = onlineComServer.getStoreTaskQueueSize();
         this.numberOfStoreTaskThreads = onlineComServer.getNumberOfStoreTaskThreads();
         this.storeTaskThreadPriority = onlineComServer.getStoreTaskThreadPriority();
-        this.statusUri = onlineComServer.getStatusUri();
     }
 
     public OnlineComServer.OnlineComServerBuilder writeTo(OnlineComServer.OnlineComServerBuilder comServerBuilder, EngineConfigurationService engineConfigurationService) {
         super.writeTo(comServerBuilder, engineConfigurationService);
-        Optional<String> queryAPIPostUri = Optional.ofNullable(this.queryAPIPostUri);
-        if (queryAPIPostUri.isPresent()) {
-            comServerBuilder.queryApiPostUri(queryAPIPostUri.get());
-        }
-        Optional<String> eventRegistrationUri = Optional.ofNullable(this.eventRegistrationUri);
-        if (eventRegistrationUri.isPresent()) {
-            comServerBuilder.eventRegistrationUri(eventRegistrationUri.get());
-        }
-        Optional<String> statusUri = Optional.ofNullable(this.statusUri);
-        if (statusUri.isPresent()) {
-            comServerBuilder.statusUri(statusUri.get());
-        }
+        comServerBuilder.serverName(this.serverName);
+        comServerBuilder.queryApiPort(this.queryAPIPort != null ? this.queryAPIPort : 0);
+        comServerBuilder.eventRegistrationPort(this.eventRegistrationPort != null ? this.eventRegistrationPort : 0);
+        comServerBuilder.statusPort(this.statusPort != null ? this.statusPort : 0);
         comServerBuilder.storeTaskQueueSize(this.storeTaskQueueSize != null ? this.storeTaskQueueSize : 0);
         comServerBuilder.storeTaskThreadPriority(this.storeTaskThreadPriority != null ? this.storeTaskThreadPriority : 0);
         comServerBuilder.numberOfStoreTaskThreads(this.numberOfStoreTaskThreads != null ? this.numberOfStoreTaskThreads : 0);
@@ -63,18 +55,10 @@ public class OnlineComServerInfo extends ComServerInfo<OnlineComServer.OnlineCom
     }
 
     public OnlineComServer updateTo(OnlineComServer onlineComServer, EngineConfigurationService engineConfigurationService) {
-        Optional<String> queryAPIPostUri = Optional.ofNullable(this.queryAPIPostUri);
-        if (queryAPIPostUri.isPresent()) {
-            onlineComServer.setQueryAPIPostUri(queryAPIPostUri.get());
-        }
-        Optional<String> eventRegistrationUri = Optional.ofNullable(this.eventRegistrationUri);
-        if (eventRegistrationUri.isPresent()) {
-            onlineComServer.setEventRegistrationUri(eventRegistrationUri.get());
-        }
-        Optional<String> statusUri = Optional.ofNullable(this.statusUri);
-        if (statusUri.isPresent()) {
-            onlineComServer.setStatusUri(statusUri.get());
-        }
+        onlineComServer.setServerName(this.serverName);
+        onlineComServer.setQueryApiPort(this.queryAPIPort != null ? this.queryAPIPort : 0);
+        onlineComServer.setEventRegistrationPort(this.eventRegistrationPort != null ? this.eventRegistrationPort : 0);
+        onlineComServer.setStatusPort(this.statusPort != null ? this.statusPort : 0);
         onlineComServer.setStoreTaskQueueSize(this.storeTaskQueueSize != null ? this.storeTaskQueueSize : 0);
         onlineComServer.setStoreTaskThreadPriority(this.storeTaskThreadPriority != null ? this.storeTaskThreadPriority : 0);
         onlineComServer.setNumberOfStoreTaskThreads(this.numberOfStoreTaskThreads != null ? this.numberOfStoreTaskThreads : 0);

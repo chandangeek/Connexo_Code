@@ -33,16 +33,17 @@ public class RemoteComServerInfo extends ComServerInfo<RemoteComServer.RemoteCom
     }
 
     private void readFrom(RemoteComServer remoteComServer) {
-        this.eventRegistrationUri = remoteComServer.getEventRegistrationUri();
+        this.serverName = remoteComServer.getServerName();
+        this.eventRegistrationPort = remoteComServer.getEventRegistrationPort();
+        this.statusPort = remoteComServer.getStatusPort();
         this.onlineComServerId = remoteComServer.getOnlineComServer() != null ? remoteComServer.getOnlineComServer().getId() : null;
     }
 
     public RemoteComServer.RemoteComServerBuilder writeTo(RemoteComServer.RemoteComServerBuilder comServerBuilder, EngineConfigurationService engineConfigurationService) {
         super.writeTo(comServerBuilder, engineConfigurationService);
-        Optional<String> eventRegistrationUri = Optional.ofNullable(this.eventRegistrationUri);
-        if (eventRegistrationUri.isPresent()) {
-            comServerBuilder.eventRegistrationUri(eventRegistrationUri.get());
-        }
+        comServerBuilder.serverName(this.serverName);
+        comServerBuilder.statusPort(this.statusPort != null ? this.statusPort : 0);
+        comServerBuilder.eventRegistrationPort(this.eventRegistrationPort != null ? this.eventRegistrationPort : 0);
         Optional<Long> onlineComServerId = Optional.ofNullable(this.onlineComServerId);
         if (onlineComServerId.isPresent()) {
             Optional<? extends ComServer> onlineComServer = engineConfigurationService.findComServer(onlineComServerId.get());
@@ -56,10 +57,9 @@ public class RemoteComServerInfo extends ComServerInfo<RemoteComServer.RemoteCom
 
     @Override
     public RemoteComServer updateTo(RemoteComServer remoteComServer, EngineConfigurationService engineConfigurationService) {
-        Optional<String> eventRegistrationUri = Optional.ofNullable(this.eventRegistrationUri);
-        if (eventRegistrationUri.isPresent()) {
-            remoteComServer.setEventRegistrationUri(eventRegistrationUri.get());
-        }
+        remoteComServer.setServerName(this.serverName);
+        remoteComServer.setStatusPort(this.statusPort != null ? this.statusPort : 0);
+        remoteComServer.setEventRegistrationPort(this.eventRegistrationPort != null ? this.eventRegistrationPort : 0);
         Optional<Long> onlineComServerId = Optional.ofNullable(this.onlineComServerId);
         if (onlineComServerId.isPresent()) {
             Optional<? extends ComServer> onlineComServer = engineConfigurationService.findComServer(onlineComServerId.get());
