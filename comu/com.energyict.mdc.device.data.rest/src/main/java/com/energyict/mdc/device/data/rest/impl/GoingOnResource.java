@@ -63,7 +63,7 @@ public class GoingOnResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    public Response getGoingOn(@PathParam("mRID") String mrid, @BeanParam JsonQueryParameters queryParameters, @Context SecurityContext securityContext, @HeaderParam("Authorization") String auth) {
+    public Response getGoingOn(@PathParam("mRID") String mrid, @BeanParam JsonQueryParameters queryParameters, @Context SecurityContext securityContext, @HeaderParam("Authorization") String auth, @HeaderParam("X-CONNEXO-APPLICATION-NAME") String appKey) {
 
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
 
@@ -86,7 +86,7 @@ public class GoingOnResource {
                 .map(goingOnInfoFactory::toGoingOnInfo)
                 .collect(Collectors.toList());
 
-        List<GoingOnInfo> processInstances = bpmService.getRunningProcesses(auth, filterFor(device))
+        List<GoingOnInfo> processInstances = bpmService.getRunningProcesses(auth, filterFor(device), appKey)
                 .processes
                 .stream()
                 .map(goingOnInfoFactory::toGoingOnInfo)
@@ -125,6 +125,7 @@ public class GoingOnResource {
         private GoingOnInfo toGoingOnInfo(Issue issue) {
             GoingOnInfo goingOnInfo = new GoingOnInfo();
             goingOnInfo.type = "issue";
+            goingOnInfo.issueType = issue.getReason().getIssueType().getKey();
             goingOnInfo.id = issue.getId();
             goingOnInfo.reference = null;
             goingOnInfo.description = issue.getReason().getName();
@@ -139,6 +140,7 @@ public class GoingOnResource {
         private GoingOnInfo toGoingOnInfo(ServiceCall serviceCall) {
             GoingOnInfo goingOnInfo = new GoingOnInfo();
             goingOnInfo.type = "servicecall";
+            goingOnInfo.issueType = null;
             goingOnInfo.id = serviceCall.getId();
             goingOnInfo.reference = serviceCall.getNumber();
             goingOnInfo.description = serviceCall.getType().getName();
@@ -156,6 +158,7 @@ public class GoingOnResource {
                     .min(Comparator.comparing(info -> Long.parseLong(info.dueDate)));
             GoingOnInfo goingOnInfo = new GoingOnInfo();
             goingOnInfo.type = "process";
+            goingOnInfo.issueType = null;
             goingOnInfo.id = userTaskInfo.map(info -> Long.parseLong(info.id)).orElse(0L);
             goingOnInfo.reference = null;
             goingOnInfo.description = processInstanceInfo.name;
