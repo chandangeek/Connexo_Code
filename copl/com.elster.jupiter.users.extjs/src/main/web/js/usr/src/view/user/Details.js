@@ -89,7 +89,7 @@ Ext.define('Usr.view.user.Details', {
                                                 return Uni.DateTime.formatDateTimeLong(createdOnDate);
                                             }
                                         } else {
-                                            return '';
+                                            return '-';
                                         }
                                     }
                                 },
@@ -104,7 +104,7 @@ Ext.define('Usr.view.user.Details', {
                                                 return Uni.DateTime.formatDateTimeLong(modifiedOnDate);
                                             }
                                         } else {
-                                            return '';
+                                            return '-';
                                         }
                                     }
                                 }
@@ -136,7 +136,7 @@ Ext.define('Usr.view.user.Details', {
                                             name: 'language',
                                             fieldLabel: Uni.I18n.translate('user.language', 'USR', 'Language'),
                                             renderer: function (value) {
-                                                return value && value.displayValue ? Ext.String.htmlEncode(value.displayValue) : '';
+                                                return value && value.displayValue ? Ext.String.htmlEncode(value.displayValue) : '-';
                                             }
                                         }
                                     ]
@@ -162,7 +162,7 @@ Ext.define('Usr.view.user.Details', {
                                                         return Uni.DateTime.formatDateTimeLong(lastSuccessfulLogin);
                                                     }
                                                 } else {
-                                                    return '';
+                                                    return '-';
                                                 }
                                             }
                                         },
@@ -177,7 +177,7 @@ Ext.define('Usr.view.user.Details', {
                                                         return Uni.DateTime.formatDateTimeLong(lastUnSuccessfulLogin);
                                                     }
                                                 } else {
-                                                    return '';
+                                                    return '-';
                                                 }
                                             }
                                         }
