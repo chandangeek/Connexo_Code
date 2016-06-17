@@ -1,7 +1,5 @@
 package com.elster.jupiter.fileimport.rest.impl;
 
-
-import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.FileImportOccurrenceFinderBuilder;
 import com.elster.jupiter.fileimport.FileImportService;
@@ -22,18 +20,19 @@ import com.elster.jupiter.transaction.CommitException;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.cron.CronExpressionParser;
+
 import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.Path;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
@@ -61,7 +60,7 @@ public class FileImportScheduleResource {
     private final ConcurrentModificationExceptionFactory conflictFactory;
 
     @Inject
-    public FileImportScheduleResource(FileImportService fileImportService, Thesaurus thesaurus, TransactionService transactionService, CronExpressionParser cronExpressionParser, PropertyUtils propertyUtils, FileSystem fileSystem, AppService appService, FileImportScheduleInfoFactory fileImportScheduleInfoFactory, ConcurrentModificationExceptionFactory conflictFactory) {
+    public FileImportScheduleResource(FileImportService fileImportService, Thesaurus thesaurus, TransactionService transactionService, CronExpressionParser cronExpressionParser, PropertyUtils propertyUtils, FileSystem fileSystem, FileImportScheduleInfoFactory fileImportScheduleInfoFactory, ConcurrentModificationExceptionFactory conflictFactory) {
         this.fileImportService = fileImportService;
         this.thesaurus = thesaurus;
         this.transactionService = transactionService;
@@ -123,7 +122,7 @@ public class FileImportScheduleResource {
                     .setSuccessDirectory(getPath(info.successDirectory))
                     .setProcessingDirectory(getPath(info.inProcessDirectory))
                     .setImporterName(info.importerInfo.name)
-                    .setScheduleExpression(ScanFrequency.toScheduleExpression(info.scanFrequency, cronExpressionParser));
+                    .setScheduleExpression(ScanFrequency.toScheduleExpression(info.scanFrequency));
 
         List<PropertySpec> propertiesSpecs = fileImportService.getPropertiesSpecsForImporter(info.importerInfo.name);
 
@@ -132,7 +131,7 @@ public class FileImportScheduleResource {
                     Object value = propertyUtils.findPropertyValue(spec, info.properties);
                     builder.addProperty(spec.getName()).withValue(value);
                 });
-        ImportSchedule importSchedule = null;
+        ImportSchedule importSchedule;
         try (TransactionContext context = transactionService.getContext()) {
             importSchedule = builder.create();
             context.commit();
@@ -183,7 +182,7 @@ public class FileImportScheduleResource {
             importSchedule.setProcessingDirectory(getPath(info.inProcessDirectory));
             importSchedule.setImporterName(info.importerInfo.name);
             importSchedule.setPathMatcher(info.pathMatcher);
-            importSchedule.setScheduleExpression(ScanFrequency.toScheduleExpression(info.scanFrequency, cronExpressionParser));
+            importSchedule.setScheduleExpression(ScanFrequency.toScheduleExpression(info.scanFrequency));
             updateProperties(info, importSchedule);
 
             importSchedule.update();
@@ -223,18 +222,20 @@ public class FileImportScheduleResource {
         FileImportOccurrenceFinderBuilder finderBuilder = fileImportService.getFileImportOccurrenceFinderBuilder(applicationName, importServiceId);
 
         if (filter.hasProperty("startedOnFrom")) {
-            if (filter.hasProperty("startedOnTo"))
+            if (filter.hasProperty("startedOnTo")) {
                 finderBuilder.withStartDateIn(Range.closed(filter.getInstant("startedOnFrom"), filter.getInstant("startedOnTo")));
-            else
+            } else {
                 finderBuilder.withStartDateIn(Range.greaterThan(filter.getInstant("startedOnFrom")));
+            }
         } else if (filter.hasProperty("startedOnTo")) {
             finderBuilder.withStartDateIn(Range.closed(Instant.EPOCH, filter.getInstant("startedOnTo")));
         }
         if (filter.hasProperty("finishedOnFrom")) {
-            if (filter.hasProperty("finishedOnTo"))
+            if (filter.hasProperty("finishedOnTo")) {
                 finderBuilder.withEndDateIn(Range.closed(filter.getInstant("finishedOnFrom"), filter.getInstant("finishedOnTo")));
-            else
+            } else {
                 finderBuilder.withEndDateIn(Range.greaterThan(filter.getInstant("finishedOnFrom")));
+            }
         } else if (filter.hasProperty("finishedOnTo")) {
             finderBuilder.withEndDateIn(Range.closed(Instant.EPOCH, filter.getInstant("finishedOnTo")));
         }
@@ -312,11 +313,11 @@ public class FileImportScheduleResource {
     }
 
     private java.nio.file.Path getPath(String value){
-        java.nio.file.Path path = null;
         try {
-            path = fileSystem.getPath(value);
-        }catch (InvalidPathException e ){
+            return fileSystem.getPath(value);
+        } catch (InvalidPathException e ){
+            throw new IllegalArgumentException(e);
         }
-        return path;
     }
+
 }

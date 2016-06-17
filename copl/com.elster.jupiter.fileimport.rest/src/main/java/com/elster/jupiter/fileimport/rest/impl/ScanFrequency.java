@@ -3,8 +3,6 @@ package com.elster.jupiter.fileimport.rest.impl;
 import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.rest.PeriodicalExpressionInfo;
-import com.elster.jupiter.util.cron.CronExpression;
-import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
@@ -14,13 +12,11 @@ import java.util.regex.Pattern;
 /**
  * Created by Lucian on 5/15/2015.
  */
-public class ScanFrequency {
+class ScanFrequency {
 
-    public static Integer toScanFrequency(ScheduleExpression scheduleExpression) {
-
+    static Integer toScanFrequency(ScheduleExpression scheduleExpression) {
         int frequency = 1;
         try {
-
             if (Never.NEVER.equals(scheduleExpression)) {
                 frequency = 1;
             } else {
@@ -31,7 +27,7 @@ public class ScanFrequency {
                    PeriodicalExpressionInfo schedule = PeriodicalExpressionInfo.from((PeriodicalScheduleExpression) scheduleExpression);
                     frequency = schedule.count;
                 }
-                else{
+                else {
                     Pattern everyMinutesPattern = Pattern.compile("[^ ]+ 0\\/(\\d+) ([^ ]+ ){4}");
                     Matcher matcher = everyMinutesPattern.matcher(scheduleExpression.encoded());
                     if (matcher.find()) {
@@ -39,14 +35,14 @@ public class ScanFrequency {
                     }
                 }
             }
-        }catch (Exception e){
-
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e);
         }
 
         return frequency;
     }
-    public static ScheduleExpression toScheduleExpression(Integer scanFrequency, CronExpressionParser cronExpressionParser){
 
+    static ScheduleExpression toScheduleExpression(Integer scanFrequency) {
         PeriodicalExpressionInfo schedule = new PeriodicalExpressionInfo();
         schedule.offsetSeconds = 0;
         schedule.offsetMinutes = 0;
@@ -58,7 +54,6 @@ public class ScanFrequency {
         schedule.count = scanFrequency;
         schedule.timeUnit = PeriodicalScheduleExpression.Period.MINUTE.getIdentifier();
         return schedule.toExpression();
-
-        //return cronExpressionParser.parse(String.format("0 0/%d * 1/1 * ? *", scanFrequency%60)).get();
     }
+
 }

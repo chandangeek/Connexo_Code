@@ -61,7 +61,7 @@ public class FileImportScheduleInfoFactory {
             }
         }
 
-        info.scheduled = appService.getImportScheduleAppServers(importSchedule.getId()).size() > 0;
+        info.scheduled = !appService.getImportScheduleAppServers(importSchedule.getId()).isEmpty();
         info.properties = propertyUtils.convertPropertySpecsToPropertyInfos(importSchedule.getPropertySpecs(), importSchedule.getProperties());
         info.version = importSchedule.getVersion();
         return info;

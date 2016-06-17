@@ -9,12 +9,10 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.rest.util.ConcurrentModificationInfo;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.util.time.ScheduleExpression;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Matchers;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
@@ -24,6 +22,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Matchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -235,7 +237,9 @@ public class FileImportScheduleResourceTest extends FileImportApplicationTest {
         when(schedule.getDestination()).thenReturn(mock(DestinationSpec.class));
         when(schedule.getImportDirectory()).thenReturn(testFolder);
         when(schedule.getPathMatcher()).thenReturn("*.csv");
-        when(schedule.getScheduleExpression()).thenReturn(mock(ScheduleExpression.class));
+        ScheduleExpression scheduleExpression = mock(ScheduleExpression.class);
+        when(scheduleExpression.encoded()).thenReturn("");
+        when(schedule.getScheduleExpression()).thenReturn(scheduleExpression);
         when(schedule.getFailureDirectory()).thenReturn(testFolder);
         when(schedule.getInProcessDirectory()).thenReturn(testFolder);
         when(schedule.getSuccessDirectory()).thenReturn(testFolder);
