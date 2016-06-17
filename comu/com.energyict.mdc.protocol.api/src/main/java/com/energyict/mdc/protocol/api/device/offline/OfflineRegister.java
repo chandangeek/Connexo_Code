@@ -20,16 +20,16 @@ public interface OfflineRegister extends Offline {
     /**
      * @return the ID of the Register
      */
-    public long getRegisterId ();
+    long getRegisterId();
 
     /**
      * Returns the ObisCode for this Register, known by the Device. The will be the overruled ObisCode,
-     * or if no overrule was defined, this will return the same ObisCode as {@link #getAmrRegisterObisCode()}<br/>
-     * (actually the ObisCode from the ChannelType)
+     * or if no overrule was defined, this will return the same ObisCode as {@link #getAmrRegisterObisCode()}
+     * (actually the ObisCode from the ChannelType).
      *
      * @return the ObisCode
      */
-    public ObisCode getObisCode();
+    ObisCode getObisCode();
 
 
     /**
@@ -39,7 +39,7 @@ public interface OfflineRegister extends Offline {
      * @param registerGroupId The register group id
      * @return A flag that indicates if this register is part of the group
      */
-    public boolean inGroup (long registerGroupId);
+    boolean inGroup(long registerGroupId);
 
     /**
      * Tests if this register is part of at least one of the RegisterGroups
@@ -48,60 +48,61 @@ public interface OfflineRegister extends Offline {
      * @param registerGroupIds The register group id
      * @return A flag that indicates if this register is part of at least one of the groups
      */
-    public boolean inAtLeastOneGroup (Collection<Long> registerGroupIds);
+    boolean inAtLeastOneGroup(Collection<Long> registerGroupIds);
 
     /**
-     * The {@link Unit} corresponding with this register
+     * The {@link Unit} corresponding with this register.
      *
      * @return the unit of this register
      */
-    public Unit getUnit();
+    Unit getUnit();
 
     /**
      * The master resource identifier of the {@link OfflineDevice} owning this OfflineRegister.
      *
      * @return the mRID
      */
-    public String getDeviceMRID();
+    String getDeviceMRID();
 
     /**
      * The serialNumber of the {@link OfflineDevice} owning this OfflineRegister.
      *
      * @return the serialNumber of the Device owning this Register
      */
-    public String getDeviceSerialNumber();
+    String getDeviceSerialNumber();
 
     /**
      * The ObisCode of the Register, known by the HeadEnd system.
      *
      * @return the obisCode of the Register, known by the HeadEnd system
      */
-    public ObisCode getAmrRegisterObisCode();
+    ObisCode getAmrRegisterObisCode();
 
     /**
-     * The identifier that uniquely identifies the device
+     * The identifier that uniquely identifies the device.
      *
      * @return the deviceIdentifier
      */
-    public DeviceIdentifier<?> getDeviceIdentifier();
+    DeviceIdentifier<?> getDeviceIdentifier();
 
     /**
-     * Returns the ReadingType of the Kore channel that will store the data
+     * Returns the ReadingType of the Kore channel that will store the data.
      *
      * @return the ReadingType
      */
-    public ReadingType getReadingType();
+    ReadingType getReadingType();
 
     /**
-     * The overflow value which is configured for this Register
+     * The overflow value which is configured for this Register.
      * @return the configured overFlowValue
      */
-    public BigDecimal getOverFlowValue();
+    BigDecimal getOverFlowValue();
 
     /**
      * Indicates whether this is a text register
      *
      * @return true if this is a Text register, false otherwise
      */
-    public boolean isText();
+    boolean isText();
+
 }
