@@ -121,7 +121,6 @@ class ReadingQualitiesValidator extends AbstractValidator {
                         .specForValuesOf(new ReadingQualityValueFactory())
                         .named(READING_QUALITIES, TranslationKeys.READING_QUALITIES_VALIDATOR)
                         .fromThesaurus(this.getThesaurus())
-                        .markRequired()
                         .addValues(getPossibleReadingQualityPropertyValues())
                         .markMultiValued()
                         .markRequired()
