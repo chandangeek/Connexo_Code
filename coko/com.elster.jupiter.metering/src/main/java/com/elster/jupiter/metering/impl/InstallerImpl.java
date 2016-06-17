@@ -1,12 +1,12 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.cbo.EndDeviceControlTypeCodeBuilder;
 import com.elster.jupiter.cbo.EndDeviceDomain;
 import com.elster.jupiter.cbo.EndDeviceEventOrAction;
 import com.elster.jupiter.cbo.EndDeviceEventTypeCodeBuilder;
 import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.cbo.EndDeviceType;
 import com.elster.jupiter.cbo.MarketRoleKind;
-import com.elster.jupiter.cbo.EndDeviceControlTypeCodeBuilder;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.Vault;
@@ -18,13 +18,22 @@ import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.ServiceKind;
+import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
+import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.SqlDialect;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.parties.PartyService;
+import com.elster.jupiter.upgrade.FullInstaller;
+import com.elster.jupiter.users.PrivilegesProvider;
+import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.streams.BufferedReaderIterable;
 
+import javax.inject.Inject;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,16 +45,13 @@ import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class InstallerImpl {
-
-    private static final Logger LOGGER = Logger.getLogger(InstallerImpl.class.getName());
+public class InstallerImpl implements FullInstaller, PrivilegesProvider {
 
     private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
     private static final int SLOT_COUNT = 8;
@@ -64,8 +70,12 @@ public class InstallerImpl {
     private final boolean createAllReadingTypes;
     private final String[] requiredReadingTypes;
     private final Clock clock;
+    private final DataModel dataModel;
+    private final MetrologyConfigurationServiceImpl metrologyConfigurationService;
 
-    public InstallerImpl(MeteringServiceImpl meteringService, IdsService idsService, PartyService partyService, UserService userService, EventService eventService, Thesaurus thesaurus, MessageService messageService, boolean createAllReadingTypes, String[] requiredReadingTypes, Clock clock) {
+    @Inject
+    public InstallerImpl(DataModel dataModel, MeteringServiceImpl meteringService, IdsService idsService, PartyService partyService, UserService userService, EventService eventService, Thesaurus thesaurus, MessageService messageService, Clock clock, MetrologyConfigurationServiceImpl metrologyConfigurationService) {
+        this.dataModel = dataModel;
         this.meteringService = meteringService;
         this.idsService = idsService;
         this.partyService = partyService;
@@ -73,38 +83,129 @@ public class InstallerImpl {
         this.eventService = eventService;
         this.thesaurus = thesaurus;
         this.messageService = messageService;
-        this.createAllReadingTypes = createAllReadingTypes;
-        this.requiredReadingTypes = requiredReadingTypes;
+        this.metrologyConfigurationService = metrologyConfigurationService;
+        this.createAllReadingTypes = meteringService.isCreateAllReadingTypes();
+        this.requiredReadingTypes = meteringService.getRequiredReadingTypes();
         this.clock = clock;
     }
 
-    void install() {
-        createVaults();
-        createRecordSpecs();
-        createServiceCategories();
-        createMultiplierTypes();
-        createReadingTypes();
-        createPartyRoles();
-        createAmrSystems();
-        createEndDeviceEventTypes();
-        createEventTypes();
-        createEndDeviceControlTypes();
-        createQueues();
-        createSqlAggregationComponents();
+    @Override
+    public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
+        dataModelUpgrader.upgrade(dataModel, Version.latest());
+
+        doTry(
+                "Create Vaults for MTR",
+                this::createVaults,
+                logger
+        );
+        doTry(
+                "Create Record Specs for MTR",
+                this::createRecordSpecs,
+                logger
+        );
+        doTry(
+                "Create default Service Categories",
+                this::createServiceCategories,
+                logger
+        );
+        doTry(
+                "Create default Multiplier Types",
+                this::createMultiplierTypes,
+                logger
+        );
+        doTry(
+                "Create Reading Types",
+                this::createReadingTypes,
+                logger
+        );
+        doTry(
+                "Create Party Roles",
+                this::createPartyRoles,
+                logger
+        );
+        doTry(
+                "Create AMR Systems",
+                this::createAmrSystems,
+                logger
+        );
+        doTry(
+                "Create default End Device Event Types",
+                () -> createEndDeviceEventTypes(logger),
+                logger
+        );
+        doTry(
+                "Create event types for MTR",
+                this::createEventTypes,
+                logger
+        );
+        doTry(
+                "Create End Device control types",
+                () -> createEndDeviceControlTypes(logger),
+                logger
+        );
+        doTry(
+                "Create Queues for MTR",
+                this::createQueues,
+                logger
+        );
+        doTry(
+                "Create SQL Aggregation Components",
+                this::createSqlAggregationComponents,
+                logger
+        );
+        metrologyConfigurationService.install(logger);
+
+        doTry(
+                "Create Location Member table",
+                () -> new CreateLocationMemberTableOperation(dataModel, meteringService.getLocationTemplate()).execute(),
+                logger
+        );
+
+        doTry(
+                "Create GeoCoordinates Spatial Meta Data table",
+                () -> new GeoCoordinatesSpatialMetaDataTableOperation(dataModel).execute(),
+                logger
+        );
+        doTry(
+                "Create location template",
+                meteringService::createLocationTemplate,
+                logger
+        );
+        userService.addModulePrivileges(this);
+    }
+
+    @Override
+    public String getModuleName() {
+        return MeteringService.COMPONENTNAME;
+    }
+
+    @Override
+    public List<ResourceDefinition> getModuleResources() {
+        List<ResourceDefinition> resources = new ArrayList<>();
+        resources.add(userService.createModuleResourceWithPrivileges(MeteringService.COMPONENTNAME, DefaultTranslationKey.RESOURCE_USAGE_POINT
+                        .getKey(), DefaultTranslationKey.RESOURCE_USAGE_POINT_DESCRIPTION.getKey(),
+                Arrays.asList(
+                        Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT,
+                        Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_OWN_USAGEPOINT,
+                        Privileges.Constants.ADMINISTER_USAGEPOINT_TIME_SLICED_CPS)));
+        resources.add(userService.createModuleResourceWithPrivileges(MeteringService.COMPONENTNAME, DefaultTranslationKey.RESOURCE_READING_TYPE
+                        .getKey(), DefaultTranslationKey.RESOURCE_READING_TYPE_DESCRIPTION.getKey(),
+                Arrays.asList(Privileges.Constants.ADMINISTER_READINGTYPE, Privileges.Constants.VIEW_READINGTYPE)));
+        resources.add(userService.createModuleResourceWithPrivileges(MeteringService.COMPONENTNAME, DefaultTranslationKey.RESOURCE_SERVICE_CATEGORY
+                        .getKey(), DefaultTranslationKey.RESOURCE_SERVICE_CATEGORY_DESCRIPTION.getKey(),
+                Arrays.asList(Privileges.Constants.VIEW_SERVICECATEGORY)));
+        return resources;
     }
 
     private void createEventTypes() {
         for (EventType eventType : EventType.values()) {
-            try {
-                eventType.install(eventService);
-            } catch (Exception e) {
-                LOGGER.log(Level.SEVERE, "Could not create event type : " + eventType.name(), e);
-            }
+            eventType.install(eventService);
         }
     }
 
-    private void createEndDeviceEventTypes() {
-        try (InputStream resourceAsStream = getClass().getClassLoader().getResourceAsStream(getClass().getPackage().getName().replace('.', '/') + '/' + IMPORT_FILE_NAME)) {
+    private void createEndDeviceEventTypes(Logger logger) {
+        try (InputStream resourceAsStream = getClass().getClassLoader()
+                .getResourceAsStream(getClass().getPackage().getName().replace('.', '/') + '/' + IMPORT_FILE_NAME)) {
             BufferedReader reader = new BufferedReader(new InputStreamReader(resourceAsStream));
             for (String line : new BufferedReaderIterable(reader)) {
                 String[] fields = line.split(",");
@@ -119,15 +220,11 @@ public class InstallerImpl {
                                         .subDomain(subDomain)
                                         .eventOrAction(eventOrAction)
                                         .toCode();
-                                try {
-                                    if (meteringService.getEndDeviceEventType(code).isPresent()) {
-                                        LOGGER.finer("Skipping code " + code + ": already exists");
-                                    } else {
-                                        LOGGER.finer("adding code " + code);
-                                        meteringService.createEndDeviceEventType(code);
-                                    }
-                                } catch (Exception e) {
-                                    LOGGER.log(Level.SEVERE, "Error creating EndDeviceType \'" + code + "\' : " + e.getMessage(), e);
+                                if (meteringService.getEndDeviceEventType(code).isPresent()) {
+                                    logger.finer("Skipping code " + code + ": already exists");
+                                } else {
+                                    logger.finer("adding code " + code);
+                                    meteringService.createEndDeviceEventType(code);
                                 }
                             }
                         }
@@ -140,7 +237,8 @@ public class InstallerImpl {
     }
 
     private Iterable<EndDeviceEventOrAction> eventOrActions(String field) {
-        return "*".equals(field) ? Arrays.asList(EndDeviceEventOrAction.values()) : NOT_APPLICABLE.equalsIgnoreCase(field) ? Arrays.asList(EndDeviceEventOrAction.NA) : Arrays.asList(EndDeviceEventOrAction
+        return "*".equals(field) ? Arrays.asList(EndDeviceEventOrAction.values()) : NOT_APPLICABLE.equalsIgnoreCase(field) ? Arrays
+                .asList(EndDeviceEventOrAction.NA) : Arrays.asList(EndDeviceEventOrAction
                 .valueOf(sanitized(field)));
     }
 
@@ -149,39 +247,34 @@ public class InstallerImpl {
     }
 
     private Iterable<EndDeviceSubDomain> subDomains(String field) {
-        Iterable<EndDeviceSubDomain> result = NOT_APPLICABLE.equalsIgnoreCase(field) ? Arrays.asList(EndDeviceSubDomain.NA) : Arrays.asList(EndDeviceSubDomain.valueOf(sanitized(field)));
+        Iterable<EndDeviceSubDomain> result = NOT_APPLICABLE.equalsIgnoreCase(field) ? Arrays.asList(EndDeviceSubDomain.NA) : Arrays
+                .asList(EndDeviceSubDomain.valueOf(sanitized(field)));
         return "*".equals(field) ? Arrays.asList(EndDeviceSubDomain.values()) : result;
     }
 
     private Iterable<EndDeviceDomain> domains(String field) {
-        return "*".equals(field) ? Arrays.asList(EndDeviceDomain.values()) : NOT_APPLICABLE.equalsIgnoreCase(field) ? Arrays.asList(EndDeviceDomain.NA) : Arrays.asList(EndDeviceDomain.valueOf(sanitized(field)));
+        return "*".equals(field) ? Arrays.asList(EndDeviceDomain.values()) : NOT_APPLICABLE.equalsIgnoreCase(field) ? Arrays
+                .asList(EndDeviceDomain.NA) : Arrays.asList(EndDeviceDomain.valueOf(sanitized(field)));
     }
 
     private Iterable<EndDeviceType> endDeviceTypes(String field) {
-        return "*".equals(field) ? Arrays.asList(EndDeviceType.values()) : NOT_APPLICABLE.equalsIgnoreCase(field) ? Arrays.asList(EndDeviceType.NA) : Arrays.asList(EndDeviceType.valueOf(sanitized(field)));
+        return "*".equals(field) ? Arrays.asList(EndDeviceType.values()) : NOT_APPLICABLE.equalsIgnoreCase(field) ? Arrays
+                .asList(EndDeviceType.NA) : Arrays.asList(EndDeviceType.valueOf(sanitized(field)));
     }
 
     private void createAmrSystems() {
-        try {
-            for (KnownAmrSystem amrSystem : KnownAmrSystem.values()) {
-                meteringService.createAmrSystem(amrSystem.getId(), amrSystem.getName());
-            }
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error creating AMR System : " + e.getMessage(), e);
+        for (KnownAmrSystem amrSystem : KnownAmrSystem.values()) {
+            meteringService.createAmrSystem(amrSystem.getId(), amrSystem.getName());
         }
     }
 
     private void createVaults() {
-        try {
-            Vault intervalVault = idsService.createVault(MeteringService.COMPONENTNAME, 1, "Interval Data Store", SLOT_COUNT, 0, true);
-            createPartitions(intervalVault);
-            Vault registerVault = idsService.createVault(MeteringService.COMPONENTNAME, 2, "Register Data Store", SLOT_COUNT, 1, false);
-            createPartitions(registerVault);
-            Vault dailyVault = idsService.createVault(MeteringService.COMPONENTNAME, 3, "Daily and Monthly Data Store", SLOT_COUNT, 0, true);
-            createPartitions(dailyVault);
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error creating vaults : " + e.getMessage(), e);
-        }
+        Vault intervalVault = idsService.createVault(MeteringService.COMPONENTNAME, 1, "Interval Data Store", SLOT_COUNT, 0, true);
+        createPartitions(intervalVault);
+        Vault registerVault = idsService.createVault(MeteringService.COMPONENTNAME, 2, "Register Data Store", SLOT_COUNT, 1, false);
+        createPartitions(registerVault);
+        Vault dailyVault = idsService.createVault(MeteringService.COMPONENTNAME, 3, "Daily and Monthly Data Store", SLOT_COUNT, 0, true);
+        createPartitions(dailyVault);
     }
 
     private void createPartitions(Vault vault) {
@@ -191,69 +284,48 @@ public class InstallerImpl {
     }
 
     private void createRecordSpecs() {
-        try {
-            RecordSpecs.createAll(idsService);
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error creating recordspecs : " + e.getMessage(), e);
-        }
+        RecordSpecs.createAll(idsService);
     }
 
     private List<ServiceCategoryImpl> createServiceCategories() {
         List<ServiceCategoryImpl> list = new ArrayList<>();
         ServiceCategoryImpl serviceCategory = null;
         for (ServiceKind kind : ServiceKind.values()) {
-            try {
-                switch (kind) {
-                    case ELECTRICITY:
-                    case GAS:
-                    case WATER:
-                    case HEAT:
-                        serviceCategory = meteringService.createServiceCategory(kind, true);
-                        break;
-                    default:
-                        serviceCategory = meteringService.createServiceCategory(kind, false);
-                        break;
-                }
-                list.add(serviceCategory);
-            } catch (Exception e) {
-                LOGGER.log(Level.SEVERE, "Error creating serviceCategory \'" + kind.name() + "\' : " + e.getMessage(), e);
+            switch (kind) {
+                case ELECTRICITY:
+                case GAS:
+                case WATER:
+                case HEAT:
+                    serviceCategory = meteringService.createServiceCategory(kind, true);
+                    break;
+                default:
+                    serviceCategory = meteringService.createServiceCategory(kind, false);
+                    break;
             }
+            list.add(serviceCategory);
         }
         return list;
     }
 
     private List<MultiplierType> createMultiplierTypes() {
-        try {
-            return Stream
-                    .of(MultiplierType.StandardType.values())
-                    .map(meteringService::createMultiplierType)
-                    .collect(Collectors.toList());
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error creating multiplier types : " + e.getMessage(), e);
-            return Collections.emptyList();
-        }
+        return Stream
+                .of(MultiplierType.StandardType.values())
+                .map(meteringService::createMultiplierType)
+                .collect(Collectors.toList());
     }
 
     private void createReadingTypes() {
-        try {
-            if (createAllReadingTypes) {
-                List<Pair<String, String>> readingTypes = ReadingTypeGenerator.generate();
-                this.meteringService.createAllReadingTypes(readingTypes);
-            } else if (requiredReadingTypes.length > 0) {
-                ReadingTypeGenerator.generateSelectedReadingTypes(meteringService, requiredReadingTypes);
-            }
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error creating readingtypes : " + e.getMessage(), e);
+        if (createAllReadingTypes) {
+            List<Pair<String, String>> readingTypes = ReadingTypeGenerator.generate();
+            this.meteringService.createAllReadingTypes(readingTypes);
+        } else if (requiredReadingTypes.length > 0) {
+            ReadingTypeGenerator.generateSelectedReadingTypes(meteringService, requiredReadingTypes);
         }
     }
 
     private void createPartyRoles() {
         for (MarketRoleKind role : MarketRoleKind.values()) {
-            try {
-                partyService.createRole(MeteringService.COMPONENTNAME, role.name(), role.getDisplayName(), null, null);
-            } catch (Exception e) {
-                LOGGER.log(Level.SEVERE, "Error creating PartyRole : \'" + role.name() + "\': " + e.getMessage(), e);
-            }
+            partyService.createRole(MeteringService.COMPONENTNAME, role.name(), role.getDisplayName(), null, null);
         }
     }
 
@@ -262,14 +334,10 @@ public class InstallerImpl {
     }
 
     private void createQueue(String queueDestination, String queueSubscriber) {
-        try {
-            QueueTableSpec defaultQueueTableSpec = this.messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
-            DestinationSpec destinationSpec = defaultQueueTableSpec.createDestinationSpec(queueDestination, DEFAULT_RETRY_DELAY_IN_SECONDS);
-            destinationSpec.activate();
-            destinationSpec.subscribe(queueSubscriber);
-        } catch (Exception e) {
-            LOGGER.log(Level.WARNING, e.getMessage(), e);
-        }
+        QueueTableSpec defaultQueueTableSpec = this.messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
+        DestinationSpec destinationSpec = defaultQueueTableSpec.createDestinationSpec(queueDestination, DEFAULT_RETRY_DELAY_IN_SECONDS);
+        destinationSpec.activate();
+        destinationSpec.subscribe(queueSubscriber);
     }
 
     private void createSqlAggregationComponents() {
@@ -282,16 +350,7 @@ public class InstallerImpl {
         }
     }
 
-    private void createLocationTemplate(){
-        meteringService.createLocationTemplate();
-    }
-
-    public void addDefaultData(){
-        createLocationTemplate();
-    }
-
-
-    private void createEndDeviceControlTypes() {
+    private void createEndDeviceControlTypes(Logger logger) {
         try (InputStream resourceAsStream = getClass().getClassLoader().getResourceAsStream(getClass().getPackage().getName().replace('.', '/') + '/' + IMPORT_CONTROL_TYPES)) {
             BufferedReader reader = new BufferedReader(new InputStreamReader(resourceAsStream));
             for (String line : new BufferedReaderIterable(reader)) {
@@ -309,13 +368,13 @@ public class InstallerImpl {
                                         .toCode();
                                 try {
                                     if (meteringService.getEndDeviceControlType(code).isPresent()) {
-                                        LOGGER.finer("Skipping code " + code + ": already exists");
+                                        logger.finer("Skipping code " + code + ": already exists");
                                     } else {
-                                        LOGGER.finer("adding code " + code);
+                                        logger.finer("adding code " + code);
                                         meteringService.createEndDeviceControlType(code);
                                     }
                                 } catch (Exception e) {
-                                    LOGGER.log(Level.SEVERE, "Error creating EndDeviceType \'" + code + "\' : " + e.getMessage(), e);
+                                    logger.log(Level.SEVERE, "Error creating EndDeviceType \'" + code + "\' : " + e.getMessage(), e);
                                 }
                             }
                         }

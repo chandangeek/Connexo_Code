@@ -53,6 +53,7 @@ public enum MessageSeeds implements MessageSeed {
     CAN_NOT_DELETE_READING_TYPE_DELIVERABLE_IN_USE(4020, Constants.CAN_NOT_DELETE_READING_TYPE_DELIVERABLE_IN_USE, "The ''{0}'' is in use and can not be deleted."),
     SEARCHABLE_PROPERTY_NOT_FOUND(4021, Constants.SEARCHABLE_PROPERTY_NOT_FOUND, "The ''{0}'' searchable property can not be used as usage point requirement."),
     BAD_USAGE_POINT_REQUIREMENT_VALUE(4022, Constants.BAD_USAGE_POINT_REQUIREMENT_VALUE, "Bad usage point requirement value: {0}."),
+    FAILED_TO_DEACTIVATE_METROLOGY_CONFIGURATION(4023, Constants.FAILED_TO_DEACTIVATE_METROLOGY_CONFIGURATION, "The metrology configuration is still used by at least one usage point. Use search to find the usage points with such metrology configuration."),
 
     INVALID_DIMENSION(5000, Constants.INVALID_DIMENSION, "Invalid dimension"),
     INVALID_ARGUMENTS_FOR_MULTIPLICATION(5001, Constants.INVALID_ARGUMENTS_FOR_MULTIPLICATION, "Dimensions from multiplication arguments do not result in a valid dimension."),
@@ -78,11 +79,12 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_READINGTYPE_IN_DELIVERABLE(6016, Constants.INVALID_READINGTYPE_IN_DELIVERABLE, "The readingtype for the deliverable is not valid, it should represent a numerical value."),
     INVALID_READINGTYPE_IN_REQUIREMENT(6017, Constants.INVALID_READINGTYPE_IN_REQUIREMENT, "The readingtype for a requirement is not valid, it should represent a numerical value."),
     INCOMPATIBLE_INTERVAL_LENGTHS(6018, Constants.INCOMPATIBLE_INTERVAL_LENGTHS, "''{0}'' values cannot be aggregated to ''{1}'' values."),
+    CHANNEL_DATA_PRESENT(6019, "ChannelDataIsPresent", "A meter activation could not be created: channel data is already present beyond the meter activation start time"),
 
     USAGE_POINT_INCORRECT_STATE(7001, Constants.USAGE_POINT_INCORRECT_STATE, "Usage point ''{0}'' should be in ''Under construction'' state to activate meters"),
     THE_SAME_METER_ACTIVATED_TWICE_ON_USAGE_POINT(7002, Constants.THE_SAME_METER_ACTIVATED_TWICE_ON_USAGE_POINT, "The same meter can''t be specified for different meter roles."),
-    UNSATISFIED_METROLOGY_REQUIREMENT(7003, Constants.UNSATISFIED_METROLOGY_REQUIREMENT, "This meter does not provide reading types matching to {0}."),
-    ;
+    UNSATISFIED_METROLOGY_REQUIREMENT(7003, Constants.UNSATISFIED_METROLOGY_REQUIREMENT, "This meter does not provide reading types matching to {0}.");
+
 
     private final int number;
     private final String key;
@@ -152,6 +154,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String NO_USAGE_POINT_FOR_MRID = "NoUsagePointForMRID";
         public static final String NO_SUCH_LOCATION = "no.such.location";
         public static final String DUPLICATE_LOCATION_ENTRY = "duplicate.address.entry";
+        public static final String FAILED_TO_DEACTIVATE_METROLOGY_CONFIGURATION = "failed.to.deactivate.metrology.configuration";
 
         public static final String INVALID_ARGUMENTS_FOR_MULTIPLICATION = "expression.node.invalid.arguments.multiplication";
         public static final String INVALID_ARGUMENTS_FOR_DIVISION = "expression.node.invalid.arguments.division";

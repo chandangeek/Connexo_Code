@@ -43,8 +43,11 @@ public class EffectiveMetrologyConfigurationOnUsagePointImplTest {
     @Transactional
     public void testLinkIsInactiveByDefault() {
         ServiceCategory serviceCategory = getServiceCategory();
-        UsagePointMetrologyConfiguration metrologyConfiguration = inMemoryBootstrapModule.getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("test", serviceCategory).create();
-        UsagePoint usagePoint = serviceCategory.newUsagePoint("test", inMemoryBootstrapModule.getClock().instant()).create();
+        UsagePointMetrologyConfiguration metrologyConfiguration = inMemoryBootstrapModule.getMetrologyConfigurationService()
+                .newUsagePointMetrologyConfiguration("test", serviceCategory)
+                .create();
+        UsagePoint usagePoint = serviceCategory.newUsagePoint("test", inMemoryBootstrapModule.getClock().instant())
+                .create();
         usagePoint.apply(metrologyConfiguration);
 
         EffectiveMetrologyConfigurationOnUsagePoint link = inMemoryBootstrapModule.getMeteringService().getDataModel()
@@ -59,8 +62,11 @@ public class EffectiveMetrologyConfigurationOnUsagePointImplTest {
     @Transactional
     public void testLinkCanBeActivated() {
         ServiceCategory serviceCategory = getServiceCategory();
-        UsagePointMetrologyConfiguration metrologyConfiguration = inMemoryBootstrapModule.getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("test", serviceCategory).create();
-        UsagePoint usagePoint = serviceCategory.newUsagePoint("test", inMemoryBootstrapModule.getClock().instant()).create();
+        UsagePointMetrologyConfiguration metrologyConfiguration = inMemoryBootstrapModule.getMetrologyConfigurationService()
+                .newUsagePointMetrologyConfiguration("test", serviceCategory)
+                .create();
+        UsagePoint usagePoint = serviceCategory.newUsagePoint("test", inMemoryBootstrapModule.getClock().instant())
+                .create();
         usagePoint.apply(metrologyConfiguration);
         inMemoryBootstrapModule.getMeteringService().getDataModel()
                 .query(EffectiveMetrologyConfigurationOnUsagePoint.class)

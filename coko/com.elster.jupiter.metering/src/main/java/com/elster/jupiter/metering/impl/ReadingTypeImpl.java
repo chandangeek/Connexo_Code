@@ -173,8 +173,8 @@ public final class ReadingTypeImpl implements PersistenceAware, IReadingType {
             multiplier = MetricMultiplier.with(parse(parts[MULTIPLIER]));
             unit = ReadingTypeUnit.get(parse(parts[UNIT]));
             currency = getCurrency(parse(parts[CURRENCY]), thesaurus);
-        } catch (IllegalEnumValueException | IllegalCurrencyCodeException e) {
-            throw new IllegalMRIDFormatException(mRID, e, thesaurus);
+		} catch (IllegalEnumValueException | IllegalCurrencyCodeException | NumberFormatException e) {
+			throw new IllegalMRIDFormatException(mRID, e, thesaurus);
         }
         equidistant = getIntervalLength().isPresent();
     }

@@ -12,7 +12,7 @@ import java.util.Optional;
 
 public interface HeadEndInterface {
 
-    Optional<URI> getURIForEndDevice(EndDevice endDevice);
+    Optional<URL> getURLForEndDevice(EndDevice endDevice);
 
     EndDeviceCapabilities getCapabilities(EndDevice endDevice);
 
