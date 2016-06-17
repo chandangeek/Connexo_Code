@@ -224,6 +224,9 @@ Ext.define('Mdc.filemanagement.controller.FileManagement', {
         }
         input = form.down('filefield').button.fileInputEl.dom;
         file = input.files[0];
+        if(file === undefined) {
+            return;
+        }
         if(file.size > max_file_size) {
             me.getApplication().getController('Uni.controller.Error')
                 .showError(Uni.I18n.translate('general.failed.to.upload.file', 'MDC', 'Failed to upload file'), Uni.I18n.translate('filemanagement.fileSizShouldBeLessThan', 'MDC', 'File size should be less than 2 MB'));
