@@ -12,7 +12,7 @@ Ext.define('Wss.controller.Webservices', {
         'Wss.store.Endpoints',
         'Wss.store.Webservices',
         'Wss.store.LogLevels',
-        'Wss.store.AuthenticationMethods'
+        'Wss.store.AuthenticationMethods',
         'Wss.store.Logs'
     ],
     models: [
