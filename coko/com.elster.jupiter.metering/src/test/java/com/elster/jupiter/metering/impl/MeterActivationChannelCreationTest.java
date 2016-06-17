@@ -126,10 +126,10 @@ public class MeterActivationChannelCreationTest {
         when(vault.createIrregularTimeSeries(eq(recordSpec), eq(ACTIVATION_TIME_BASE.getZone()))).thenReturn(timeSeries);
         when(timeSeries.getZoneId()).thenReturn(ACTIVATION_TIME_BASE.getZone());
         when(clock.getZone()).thenReturn(ACTIVATION_TIME_BASE.getZone());
+        when(clock.instant()).thenReturn(ACTIVATION_TIME);
         when(usagePoint.getConfiguration(any())).thenReturn(Optional.empty());
         when(dataModel.getInstance(ReadingTypeInChannel.class)).thenAnswer(invocation -> new ReadingTypeInChannel(dataModel, meteringService));
-
-
+        when(meteringService.getClock()).thenReturn(clock);
     }
 
     private MeterActivationImpl createMeterActivationOnMeter() {

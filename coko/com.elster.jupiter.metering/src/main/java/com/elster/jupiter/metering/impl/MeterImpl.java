@@ -97,7 +97,7 @@ class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter {
 
     private MeterActivation activate(UsagePoint usagePoint, MeterRole meterRole, Range<Instant> range) {
         checkOverlaps(range);
-        MeterActivationImpl result = meterActivationFactory.get().init(this, range);
+        MeterActivationImpl result = meterActivationFactory.get().init(this, meterRole, usagePoint, range);
         result.save();
         meterActivations.add(result);
         return result;
