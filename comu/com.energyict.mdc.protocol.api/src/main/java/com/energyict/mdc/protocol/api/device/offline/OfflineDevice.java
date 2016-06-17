@@ -149,4 +149,7 @@ public interface OfflineDevice extends Offline {
     DeviceIdentifier<?> getDeviceIdentifier();
 
     List<OfflineRegister> getAllRegistersForMRID(String mrid);
+
+    List<OfflineCalendar> getCalendars();
+
 }

@@ -6,6 +6,8 @@ import com.energyict.mdc.common.Offline;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -16,6 +18,7 @@ import java.util.Optional;
  * @author gna
  * @since 30/05/12 - 9:36
  */
+@ProviderType
 public interface OfflineLoadProfile extends Offline {
 
     /**
