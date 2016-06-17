@@ -24,8 +24,11 @@ Ext.define('Sam.view.componentslist.Overview', {
                     },
                     emptyComponent: {
                         itemId: 'components-no-items-found-panel',
-                        xtype: 'uni-form-empty-message',
-                        text: Uni.I18n.translate('components.empty', 'SAM', 'No components comply with the filter.')
+                        xtype: 'form',
+                        items: {
+                            xtype: 'uni-form-empty-message',
+                            text: Uni.I18n.translate('components.empty', 'SAM', 'No components comply with the filter.')
+                        }
                     }
                 }
             ]
