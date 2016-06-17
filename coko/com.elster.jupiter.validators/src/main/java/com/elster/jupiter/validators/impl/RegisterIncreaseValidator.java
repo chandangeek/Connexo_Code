@@ -1,5 +1,6 @@
 package com.elster.jupiter.validators.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
@@ -28,7 +29,7 @@ import java.util.Set;
 class RegisterIncreaseValidator extends AbstractValidator {
 
     static final String FAIL_EQUAL_DATA = "failEqualData";
-    private static final Set<String> SUPPORTED_APPLICATIONS = ImmutableSet.of("MDC", "INS");
+    private static final Set<QualityCodeSystem> QUALITY_CODE_SYSTEMS = ImmutableSet.of(QualityCodeSystem.MDC, QualityCodeSystem.MDM);
 
     private Channel channel;
     private boolean failEqualData = false;
@@ -98,7 +99,7 @@ class RegisterIncreaseValidator extends AbstractValidator {
     }
 
     @Override
-    public Set<String> getSupportedApplications() {
-        return SUPPORTED_APPLICATIONS;
+    public Set<QualityCodeSystem> getSupportedQualityCodeSystems() {
+        return QUALITY_CODE_SYSTEMS;
     }
 }

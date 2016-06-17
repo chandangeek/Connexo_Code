@@ -1,5 +1,6 @@
 package com.elster.jupiter.validators.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
@@ -161,6 +162,6 @@ public class RegisterIncreaseTest {
 
     @Test
     public void testGetSupportedApplications() {
-        assertThat(validator.getSupportedApplications()).containsOnly("INS", "MDC");
+        assertThat(validator.getSupportedQualityCodeSystems()).containsOnly(QualityCodeSystem.MDC, QualityCodeSystem.MDM);
     }
 }

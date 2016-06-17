@@ -1,6 +1,7 @@
 package com.elster.jupiter.validators.impl;
 
 import com.elster.jupiter.cbo.QualityCodeIndex;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingRecord;
@@ -30,7 +31,7 @@ import java.util.stream.Collectors;
 class MissingValuesValidator extends AbstractValidator {
 
     private static final String READING_QUALITY_TYPE_CODE = "3.5.259";
-    private static final Set<String> SUPPORTED_APPLICATIONS = ImmutableSet.of("MDC", "INS");
+    private static final Set<QualityCodeSystem> QUALITY_CODE_SYSTEMS = ImmutableSet.of(QualityCodeSystem.MDC, QualityCodeSystem.MDM);
 
     private Set<Instant> instants;
     private ReadingType readingType;
@@ -107,7 +108,7 @@ class MissingValuesValidator extends AbstractValidator {
     }
 
     @Override
-    public Set<String> getSupportedApplications() {
-        return SUPPORTED_APPLICATIONS;
+    public Set<QualityCodeSystem> getSupportedQualityCodeSystems() {
+        return QUALITY_CODE_SYSTEMS;
     }
 }

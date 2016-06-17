@@ -1,5 +1,6 @@
 package com.elster.jupiter.validators.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
@@ -31,7 +32,7 @@ class ThresholdValidator extends AbstractValidator {
 
     static final String MIN = "minimum";
     static final String MAX = "maximum";
-    private static final Set<String> SUPPORTED_APPLICATIONS = ImmutableSet.of("MDC", "INS");
+    private static final Set<QualityCodeSystem> QUALITY_CODE_SYSTEMS = ImmutableSet.of(QualityCodeSystem.MDC, QualityCodeSystem.MDM);
 
     private Quantity minimum;
     private Quantity maximum;
@@ -107,8 +108,8 @@ class ThresholdValidator extends AbstractValidator {
     }
 
     @Override
-    public Set<String> getSupportedApplications() {
-        return SUPPORTED_APPLICATIONS;
+    public Set<QualityCodeSystem> getSupportedQualityCodeSystems() {
+        return QUALITY_CODE_SYSTEMS;
     }
 
     private ValidationResult validateQuantity(Quantity toValidate) {

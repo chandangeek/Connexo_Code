@@ -1,5 +1,6 @@
 package com.elster.jupiter.validators.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingRecord;
@@ -38,7 +39,7 @@ import java.util.stream.Stream;
 class IntervalStateValidator extends AbstractValidator {
 
     static final String INTERVAL_FLAGS = "intervalFlags";
-    private static final Set<String> SUPPORTED_APPLICATIONS = ImmutableSet.of("MDC", "INS");
+    private static final Set<QualityCodeSystem> QUALITY_CODE_SYSTEMS = ImmutableSet.of(QualityCodeSystem.MDC, QualityCodeSystem.MDM);
 
     private Set<Flag> selectedFlags;
     private final IntervalFlag[] POSSIBLE_FLAGS = {
@@ -126,8 +127,8 @@ class IntervalStateValidator extends AbstractValidator {
     }
 
     @Override
-    public Set<String> getSupportedApplications() {
-        return SUPPORTED_APPLICATIONS;
+    public Set<QualityCodeSystem> getSupportedQualityCodeSystems() {
+        return QUALITY_CODE_SYSTEMS;
     }
 
     private class IntervalFlagValueFactory implements ValueFactory <IntervalFlag> {
