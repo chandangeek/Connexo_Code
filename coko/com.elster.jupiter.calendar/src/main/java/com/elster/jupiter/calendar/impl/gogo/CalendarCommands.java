@@ -6,7 +6,6 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -43,12 +42,6 @@ public class CalendarCommands {
     @Reference
     public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
         this.threadPrincipalService = threadPrincipalService;
-    }
-
-    @Activate
-    public void activate() {
-        System.out.println("Calendar gogo commands are ready for business");
-        this.help();
     }
 
     public void help() {
