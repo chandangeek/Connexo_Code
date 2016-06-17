@@ -233,6 +233,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>search</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>upgrade</artifactId>
+        </dependency>
 
         <!-- TESTS -->
         <dependency>
@@ -332,7 +336,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>servicecall</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
