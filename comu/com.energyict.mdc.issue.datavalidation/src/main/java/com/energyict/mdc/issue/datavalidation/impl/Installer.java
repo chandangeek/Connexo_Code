@@ -60,7 +60,7 @@ class Installer implements FullInstaller {
     }
 
     private void createIssueTypeAndReasons() {
-        IssueType type = issueService.createIssueType(IssueDataValidationService.ISSUE_TYPE_NAME, TranslationKeys.DATA_VALIDATION_ISSUE_TYPE);
+        IssueType type = issueService.createIssueType(IssueDataValidationService.ISSUE_TYPE_NAME, TranslationKeys.DATA_VALIDATION_ISSUE_TYPE, IssueDataValidationService.DATA_VALIDATION_ISSUE_PREFIX);
         issueService.createReason(IssueDataValidationService.DATA_VALIDATION_ISSUE_REASON, type,
                 TranslationKeys.DATA_VALIDATION_ISSUE_REASON, TranslationKeys.DATA_VALIDATION_ISSUE_REASON_DESCRIPTION);
     }
