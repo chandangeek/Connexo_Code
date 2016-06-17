@@ -157,7 +157,7 @@ Ext.define('Isu.view.issues.ActionMenu', {
             me.add(me.predefinedItems);
         }
 
-        if (Isu.privileges.Issue.canViewProcessMenu())
+        if (Isu.privileges.Issue.canViewProcessMenu() && issueType == 'datacollection')
         {
             me.add({
                 text: Uni.I18n.translate('issues.actionMenu.startProcess', 'ISU', 'Start process'),
