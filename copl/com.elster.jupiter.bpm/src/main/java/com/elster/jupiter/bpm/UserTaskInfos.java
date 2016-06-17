@@ -1,6 +1,5 @@
 package com.elster.jupiter.bpm;
 
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -18,6 +17,7 @@ public class UserTaskInfos {
     }
 
     public UserTaskInfos(JSONArray tasks, String currentUser) {
+        this();
         addAll(tasks, currentUser);
     }
 
@@ -52,4 +52,5 @@ public class UserTaskInfos {
         tasks.remove(tasks.size() - 1);
         total++;
     }
+
 }
