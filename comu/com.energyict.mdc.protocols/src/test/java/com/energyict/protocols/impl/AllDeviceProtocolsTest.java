@@ -11,6 +11,8 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.topology.TopologyService;
@@ -28,6 +30,7 @@ import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.protocols.mdc.InboundDeviceProtocolRule;
+import com.energyict.protocols.mdc.services.impl.Installer;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 
 import com.energyict.license.LicensedProtocolRule;
@@ -143,6 +146,7 @@ public class AllDeviceProtocolsTest {
         when(messageFormat.format(anyVararg())).thenReturn("Translation not supported in unit testing");
         when(this.thesaurus.getFormat(any(MessageSeed.class))).thenReturn(messageFormat);
         when(this.ormService.newDataModel(anyString(), anyString())).thenReturn(this.dataModel);
+        when(dataModel.getInstance(Installer.class)).thenAnswer(invocation -> new Installer(dataModel));
     }
 
     @After
@@ -184,7 +188,7 @@ public class AllDeviceProtocolsTest {
     }
 
     @Test
-    public void testAllInbboundProtocols() {
+    public void testAllInboundProtocols() {
         Stream.of(InboundDeviceProtocolRule.values()).forEach(this::testProtocolCreation);
         System.out.println("Successfully tested the creation of " + InboundDeviceProtocolRule.values().length + " inbound protocol(s)");
     }
@@ -226,6 +230,7 @@ public class AllDeviceProtocolsTest {
             bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
             bind(SerialComponentService.class).toInstance(serialComponentService);
             bind(DeviceMessageFileService.class).toInstance(deviceMessageFileService);
+            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }
 
