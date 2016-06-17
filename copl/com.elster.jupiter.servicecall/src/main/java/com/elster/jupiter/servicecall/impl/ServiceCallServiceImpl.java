@@ -17,7 +17,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.MissingHandlerNameException;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -29,8 +28,8 @@ import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.servicecall.ServiceCallTypeBuilder;
 import com.elster.jupiter.servicecall.security.Privileges;
-import com.elster.jupiter.users.PrivilegesProvider;
-import com.elster.jupiter.users.ResourceDefinition;
+import com.elster.jupiter.upgrade.InstallIdentifier;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Condition;
@@ -55,9 +54,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -72,11 +71,11 @@ import java.util.stream.Stream;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name = "com.elster.jupiter.servicecall",
-        service = {ServiceCallService.class, InstallService.class, MessageSeedProvider.class, TranslationKeyProvider.class, PrivilegesProvider.class},
+        service = {ServiceCallService.class, MessageSeedProvider.class, TranslationKeyProvider.class},
         property = "name=" + ServiceCallService.COMPONENT_NAME,
         immediate = true)
 @LiteralSql
-public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedProvider, TranslationKeyProvider, PrivilegesProvider, InstallService {
+public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedProvider, TranslationKeyProvider {
 
     static final String SERIVCE_CALLS_DESTINATION_NAME = "SerivceCalls";
     static final String SERIVCE_CALLS_SUBSCRIBER_NAME = "SerivceCalls";
@@ -88,13 +87,14 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
     private volatile JsonService jsonService;
     private final Map<String, ServiceCallHandler> handlerMap = new ConcurrentHashMap<>();
     private volatile UserService userService;
+    private volatile UpgradeService upgradeService;
 
     // OSGi
     public ServiceCallServiceImpl() {
     }
 
     @Inject
-    public ServiceCallServiceImpl(FiniteStateMachineService finiteStateMachineService, OrmService ormService, NlsService nlsService, UserService userService, CustomPropertySetService customPropertySetService, MessageService messageService, JsonService jsonService) {
+    public ServiceCallServiceImpl(FiniteStateMachineService finiteStateMachineService, OrmService ormService, NlsService nlsService, UserService userService, CustomPropertySetService customPropertySetService, MessageService messageService, JsonService jsonService, UpgradeService upgradeService) {
         setFiniteStateMachineService(finiteStateMachineService);
         setOrmService(ormService);
         setNlsService(nlsService);
@@ -102,8 +102,8 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
         setMessageService(messageService);
         setJsonService(jsonService);
         setCustomPropertySetService(customPropertySetService);
+        setUpgradeService(upgradeService);
         activate();
-        install();
     }
 
     @Reference
@@ -142,6 +142,11 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
     @Reference
     public void setJsonService(JsonService jsonService) {
         this.jsonService = jsonService;
+    }
+
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
@@ -185,41 +190,11 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
     }
 
     @Override
-    public String getModuleName() {
-        return ServiceCallService.COMPONENT_NAME;
-    }
-
-    @Override
-    public List<ResourceDefinition> getModuleResources() {
-        List<ResourceDefinition> resources = new ArrayList<>();
-        resources.add(userService.createModuleResourceWithPrivileges(getModuleName(),
-                Privileges.RESOURCE_SERVICE_CALL_TYPES.getKey(), Privileges.RESOURCE_SERVICE_CALL_TYPES_DESCRIPTION.getKey(),
-                Arrays.asList(Privileges.Constants.ADMINISTRATE_SERVICE_CALL_TYPES, Privileges.Constants.VIEW_SERVICE_CALL_TYPES)));
-        resources.add(userService.createModuleResourceWithPrivileges(getModuleName(),
-                Privileges.RESOURCE_SERVICE_CALL.getKey(), Privileges.RESOURCE_SERVICE_CALL_DESCRIPTION.getKey(),
-                Arrays.asList(Privileges.Constants.VIEW_SERVICE_CALLS, Privileges.Constants.CHANGE_SERVICE_CALL_STATE)));
-        return resources;
-    }
-
-    @Override
-    public void install() {
-        dataModel.getInstance(Installer.class).install();
-    }
-
-    @Override
     public Optional<ServiceCallHandler> findHandler(String handler) {
         if (Checks.is(handler).emptyOrOnlyWhiteSpace()) {
             return Optional.empty();
         }
         return Optional.ofNullable(handlerMap.get(handler));
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList(OrmService.COMPONENTNAME,
-                UserService.COMPONENTNAME,
-                FiniteStateMachineService.COMPONENT_NAME,
-                CustomPropertySetService.COMPONENT_NAME);
     }
 
     private Module getModule() {
@@ -235,13 +210,15 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
                 bind(IServiceCallService.class).toInstance(ServiceCallServiceImpl.this);
                 bind(JsonService.class).toInstance(jsonService);
                 bind(MessageService.class).toInstance(messageService);
+                bind(UserService.class).toInstance(userService);
             }
         };
     }
 
     @Activate
     public void activate() {
-        this.dataModel.register(this.getModule());
+        dataModel.register(getModule());
+        upgradeService.register(InstallIdentifier.identifier(COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
     }
 
     @Override
