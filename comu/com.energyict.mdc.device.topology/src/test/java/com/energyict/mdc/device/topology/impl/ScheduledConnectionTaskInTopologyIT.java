@@ -50,8 +50,10 @@ import java.util.Optional;
 import java.util.TimeZone;
 
 import org.assertj.core.api.Condition;
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -511,7 +513,8 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
 
     private OutboundComPort createOutboundComPort() {
         OnlineComServer.OnlineComServerBuilder<? extends OnlineComServer> onlineComServerBuilder = inMemoryPersistence.getEngineConfigurationService().newOnlineComServerBuilder();
-        onlineComServerBuilder.name("ComServer");
+        String name = "ComServer";
+        onlineComServerBuilder.name(name);
         onlineComServerBuilder.storeTaskQueueSize(1);
         onlineComServerBuilder.storeTaskThreadPriority(1);
         onlineComServerBuilder.changesInterPollDelay(TimeDuration.minutes(5));
@@ -519,6 +522,9 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
         onlineComServerBuilder.schedulingInterPollDelay(TimeDuration.minutes(1));
         onlineComServerBuilder.serverLogLevel(ComServer.LogLevel.DEBUG);
         onlineComServerBuilder.numberOfStoreTaskThreads(2);
+        onlineComServerBuilder.serverName(name);
+        onlineComServerBuilder.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
+        onlineComServerBuilder.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
         final OnlineComServer onlineComServer = onlineComServerBuilder.create();
         OutboundComPort.OutboundComPortBuilder outboundComPortBuilder = onlineComServer.newOutboundComPort("ComPort", 1);
         outboundComPortBuilder.comPortType(ComPortType.TCP);

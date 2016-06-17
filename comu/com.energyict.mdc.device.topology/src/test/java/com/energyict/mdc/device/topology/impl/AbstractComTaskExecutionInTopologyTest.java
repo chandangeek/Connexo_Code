@@ -29,7 +29,7 @@ import com.energyict.mdc.tasks.ComTask;
 
 import java.util.Optional;
 
-import org.junit.*;
+import org.junit.Before;
 
 import static org.assertj.core.api.Fail.fail;
 import static org.mockito.Mockito.mock;
@@ -77,7 +77,8 @@ public abstract class AbstractComTaskExecutionInTopologyTest extends Persistence
 
     protected OutboundComPort createOutboundComPort() {
         OnlineComServer.OnlineComServerBuilder<? extends OnlineComServer> onlineComServerBuilder = inMemoryPersistence.getEngineConfigurationService().newOnlineComServerBuilder();
-        onlineComServerBuilder.name("ComServer");
+        String name = "ComServer";
+        onlineComServerBuilder.name(name);
         onlineComServerBuilder.storeTaskQueueSize(1);
         onlineComServerBuilder.storeTaskThreadPriority(1);
         onlineComServerBuilder.changesInterPollDelay(TimeDuration.minutes(5));
@@ -85,6 +86,9 @@ public abstract class AbstractComTaskExecutionInTopologyTest extends Persistence
         onlineComServerBuilder.schedulingInterPollDelay(TimeDuration.minutes(1));
         onlineComServerBuilder.serverLogLevel(ComServer.LogLevel.DEBUG);
         onlineComServerBuilder.numberOfStoreTaskThreads(2);
+        onlineComServerBuilder.serverName(name);
+        onlineComServerBuilder.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
+        onlineComServerBuilder.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
         final OnlineComServer onlineComServer = onlineComServerBuilder.create();
         OutboundComPort.OutboundComPortBuilder outboundComPortBuilder = onlineComServer.newOutboundComPort("ComPort", 1);
         outboundComPortBuilder.comPortType(ComPortType.TCP);
