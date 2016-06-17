@@ -85,7 +85,17 @@ public interface Channel {
 
     Instant getPreviousDateTime(Instant instant);
 
-    MeterReading deleteReadings(Range<Instant> instant);
+    /**
+     * Deletes the readings for this channel that fall into the passed Range.
+     * The method returns all the readings that are deleted for all configured reading types on the channel.
+     * I.e. if the channel is regular channel with a bulk and a deltadelta reading type, the MeterReading will contain
+     * two IntervalBlocks, one for with the bulk reading type and one with the deltadelta reading type.
+     *
+     * @param period
+     * @return MeterReading containing the deleted readings, for all configured reading types on the channel
+     * @since 4.0
+     */
+    MeterReading deleteReadings(Range<Instant> period);
 
     List<Instant> toList(Range<Instant> range);
 
