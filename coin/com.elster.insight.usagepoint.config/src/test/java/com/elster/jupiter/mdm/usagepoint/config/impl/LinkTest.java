@@ -1,5 +1,6 @@
 package com.elster.jupiter.mdm.usagepoint.config.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
@@ -60,7 +61,7 @@ public class LinkTest {
             ServiceCategory serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
             ValidationService valService = getValidationService();
             mc = getMetrologyConfigurationService().newMetrologyConfiguration("MC1", serviceCategory).create();
-            vrs1 = valService.createValidationRuleSet("Rule #1", "INS");
+            vrs1 = valService.createValidationRuleSet("Rule #1", QualityCodeSystem.MDM);
             upcService.addValidationRuleSet(mc, vrs1);
             context.commit();
         }
@@ -74,7 +75,7 @@ public class LinkTest {
         try (TransactionContext context = getTransactionService().getContext()) {
             UsagePointConfigurationService upcService = getUsagePointConfigurationService();
             ValidationService valService = getValidationService();
-            vrs2 = valService.createValidationRuleSet("Rule #2", "INS");
+            vrs2 = valService.createValidationRuleSet("Rule #2", QualityCodeSystem.MDM);
             vrs2.save();
             upcService.addValidationRuleSet(mc, vrs2);
             Optional<MetrologyConfiguration> mc2 = getMetrologyConfigurationService().findMetrologyConfiguration(mc.getId());
