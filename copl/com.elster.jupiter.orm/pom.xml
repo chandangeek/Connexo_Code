@@ -79,11 +79,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>orm.schema.oracle</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>com.google.jimfs</groupId>
             <artifactId>jimfs</artifactId>
             <scope>test</scope>
