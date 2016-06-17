@@ -12,7 +12,7 @@ Ext.define('Wss.view.LoggingGrid', {
             {
                 header: Uni.I18n.translate('general.timestamp', 'WSS', 'Timestamp'),
                 dataIndex: 'timestampDisplay',
-                flex: 2
+                flex: 1.5
             },
             {
                 header: Uni.I18n.translate('general.logLevel', 'WSS', 'Log level'),
@@ -22,7 +22,7 @@ Ext.define('Wss.view.LoggingGrid', {
             {
                 header: Uni.I18n.translate('general.message', 'WSS', 'Message'),
                 dataIndex: 'message',
-                flex: 5
+                flex: 8
             }
         ];
 

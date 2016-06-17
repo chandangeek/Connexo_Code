@@ -13,10 +13,12 @@ Ext.define('Wss.controller.Webservices', {
         'Wss.store.Webservices',
         'Wss.store.LogLevels',
         'Wss.store.AuthenticationMethods'
+        'Wss.store.Logs'
     ],
     models: [
         'Wss.model.Endpoint',
-        'Wss.model.Webservice'
+        'Wss.model.Webservice',
+        'Wss.model.Log'
     ],
 
     refs: [
@@ -237,8 +239,10 @@ Ext.define('Wss.controller.Webservices', {
     showLoggingPage: function (endpointId) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
-            view;
+            view,
+            store = me.getStore('Wss.store.Logs');
 
+        store.getProxy().setUrl(endpointId);
 
         me.getModel('Wss.model.Endpoint').load(endpointId, {
             success: function (record) {
