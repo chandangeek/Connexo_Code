@@ -10,9 +10,16 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.servicecall.security.Privileges;
 import com.elster.jupiter.upgrade.FullInstaller;
+import com.elster.jupiter.users.PrivilegesProvider;
+import com.elster.jupiter.users.ResourceDefinition;
+import com.elster.jupiter.users.UserService;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
@@ -23,7 +30,7 @@ import java.util.stream.Stream;
 /**
  * Created by bvn on 3/7/16.
  */
-public class Installer implements FullInstaller {
+public class Installer implements FullInstaller, PrivilegesProvider {
     private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
     private static final Logger LOGGER = Logger.getLogger(Installer.class.getName());
 
@@ -31,13 +38,15 @@ public class Installer implements FullInstaller {
     private final ServiceCallService serviceCallService;
     private final FiniteStateMachineService finiteStateMachineService;
     private final DataModel dataModel;
+    private final UserService userService;
 
     @Inject
-    public Installer(MessageService messageService, ServiceCallService serviceCallService, FiniteStateMachineService finiteStateMachineService, DataModel dataModel) {
+    public Installer(MessageService messageService, ServiceCallService serviceCallService, FiniteStateMachineService finiteStateMachineService, DataModel dataModel, UserService userService) {
         this.messageService = messageService;
         this.serviceCallService = serviceCallService;
         this.finiteStateMachineService = finiteStateMachineService;
         this.dataModel = dataModel;
+        this.userService = userService;
     }
 
     @Override
@@ -50,6 +59,24 @@ public class Installer implements FullInstaller {
                 this::installDefaultLifeCycle,
                 logger
         );
+        userService.addModulePrivileges(this);
+    }
+
+    @Override
+    public String getModuleName() {
+        return ServiceCallService.COMPONENT_NAME;
+    }
+
+    @Override
+    public List<ResourceDefinition> getModuleResources() {
+        List<ResourceDefinition> resources = new ArrayList<>();
+        resources.add(userService.createModuleResourceWithPrivileges(getModuleName(),
+                Privileges.RESOURCE_SERVICE_CALL_TYPES.getKey(), Privileges.RESOURCE_SERVICE_CALL_TYPES_DESCRIPTION.getKey(),
+                Arrays.asList(Privileges.Constants.ADMINISTRATE_SERVICE_CALL_TYPES, Privileges.Constants.VIEW_SERVICE_CALL_TYPES)));
+        resources.add(userService.createModuleResourceWithPrivileges(getModuleName(),
+                Privileges.RESOURCE_SERVICE_CALL.getKey(), Privileges.RESOURCE_SERVICE_CALL_DESCRIPTION.getKey(),
+                Arrays.asList(Privileges.Constants.VIEW_SERVICE_CALLS, Privileges.Constants.CHANGE_SERVICE_CALL_STATE)));
+        return resources;
     }
 
     private void createMessageHandler(QueueTableSpec defaultQueueTableSpec, String destinationName, String subscriberName, Logger logger) {

@@ -30,8 +30,6 @@ import com.elster.jupiter.servicecall.ServiceCallTypeBuilder;
 import com.elster.jupiter.servicecall.security.Privileges;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.users.PrivilegesProvider;
-import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Condition;
@@ -56,7 +54,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -74,11 +71,11 @@ import java.util.stream.Stream;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name = "com.elster.jupiter.servicecall",
-        service = {ServiceCallService.class, MessageSeedProvider.class, TranslationKeyProvider.class, PrivilegesProvider.class},
+        service = {ServiceCallService.class, MessageSeedProvider.class, TranslationKeyProvider.class},
         property = "name=" + ServiceCallService.COMPONENT_NAME,
         immediate = true)
 @LiteralSql
-public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedProvider, TranslationKeyProvider, PrivilegesProvider {
+public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedProvider, TranslationKeyProvider {
 
     static final String SERIVCE_CALLS_DESTINATION_NAME = "SerivceCalls";
     static final String SERIVCE_CALLS_SUBSCRIBER_NAME = "SerivceCalls";
@@ -193,23 +190,6 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
     }
 
     @Override
-    public String getModuleName() {
-        return ServiceCallService.COMPONENT_NAME;
-    }
-
-    @Override
-    public List<ResourceDefinition> getModuleResources() {
-        List<ResourceDefinition> resources = new ArrayList<>();
-        resources.add(userService.createModuleResourceWithPrivileges(getModuleName(),
-                Privileges.RESOURCE_SERVICE_CALL_TYPES.getKey(), Privileges.RESOURCE_SERVICE_CALL_TYPES_DESCRIPTION.getKey(),
-                Arrays.asList(Privileges.Constants.ADMINISTRATE_SERVICE_CALL_TYPES, Privileges.Constants.VIEW_SERVICE_CALL_TYPES)));
-        resources.add(userService.createModuleResourceWithPrivileges(getModuleName(),
-                Privileges.RESOURCE_SERVICE_CALL.getKey(), Privileges.RESOURCE_SERVICE_CALL_DESCRIPTION.getKey(),
-                Arrays.asList(Privileges.Constants.VIEW_SERVICE_CALLS, Privileges.Constants.CHANGE_SERVICE_CALL_STATE)));
-        return resources;
-    }
-
-    @Override
     public Optional<ServiceCallHandler> findHandler(String handler) {
         if (Checks.is(handler).emptyOrOnlyWhiteSpace()) {
             return Optional.empty();
@@ -230,6 +210,7 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
                 bind(IServiceCallService.class).toInstance(ServiceCallServiceImpl.this);
                 bind(JsonService.class).toInstance(jsonService);
                 bind(MessageService.class).toInstance(messageService);
+                bind(UserService.class).toInstance(userService);
             }
         };
     }
