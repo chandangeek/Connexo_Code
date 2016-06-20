@@ -1,5 +1,6 @@
 package com.elster.jupiter.validators.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.devtools.tests.rules.MockitoRule;
 import com.elster.jupiter.devtools.tests.rules.Using;
@@ -281,7 +282,7 @@ public class MissingValuesValidatorTest {
 
         @Test
         public void testGetSupportedApplications() {
-            assertThat(validator.getSupportedApplications()).containsOnly("INS", "MDC");
+            assertThat(validator.getSupportedQualityCodeSystems()).containsOnly(QualityCodeSystem.MDC, QualityCodeSystem.MDM);
         }
     }
 }

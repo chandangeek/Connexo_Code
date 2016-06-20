@@ -1,6 +1,7 @@
 package com.elster.jupiter.validators.impl;
 
 import com.elster.jupiter.cbo.MetricMultiplier;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
@@ -226,6 +227,6 @@ public class ThresholdValidatorTest {
 
     @Test
     public void testGetSupportedApplications() {
-        assertThat(thresholdValidator.getSupportedApplications()).containsOnly("INS", "MDC");
+        assertThat(thresholdValidator.getSupportedQualityCodeSystems()).containsOnly(QualityCodeSystem.MDC, QualityCodeSystem.MDM);
     }
 }
