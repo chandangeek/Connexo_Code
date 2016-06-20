@@ -1,5 +1,6 @@
 package com.elster.jupiter.http.whiteboard;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -12,30 +13,29 @@ public final class DefaultStartPage implements StartPage {
     private final List<Script> scripts;
     private final List<String> translationComponents;
     private final List<String> styleSheets;
-    private final Map<String,String> dependencies;
+    private final Map<String, String> dependencies;
 
-
-    public DefaultStartPage(String name, String iconPath, String htmlPath, String mainController, List<Script> scripts, List<String> translationComponents, List<String> styleSheets, Map<String,String> dependencies){
+    public DefaultStartPage(String name, String iconPath, String htmlPath, String mainController, List<Script> scripts, List<String> translationComponents, List<String> styleSheets, Map<String, String> dependencies) {
         this.htmlPath = htmlPath;
         this.iconPath = iconPath;
         this.name = name;
         this.mainController = mainController;
-        this.scripts = scripts;
-        this.translationComponents = translationComponents;
-        this.styleSheets = styleSheets;
-        this.dependencies = dependencies;
+        this.scripts = Collections.unmodifiableList(scripts);
+        this.translationComponents = Collections.unmodifiableList(translationComponents);
+        this.styleSheets = Collections.unmodifiableList(styleSheets);
+        this.dependencies = Collections.unmodifiableMap(dependencies);
     }
 
-    public DefaultStartPage(String name, String iconPath, String htmlPath, String mainController, List<Script> scripts, List<String> translationComponents, List<String> styleSheets){
-        this(name, iconPath, htmlPath, mainController, scripts,translationComponents,styleSheets,null);
+    public DefaultStartPage(String name, String iconPath, String htmlPath, String mainController, List<Script> scripts, List<String> translationComponents, List<String> styleSheets) {
+        this(name, iconPath, htmlPath, mainController, scripts, translationComponents, styleSheets, null);
     }
 
     public DefaultStartPage(String name, String iconPath, String htmlPath, String mainController, List<Script> scripts, List<String> translationComponents) {
-        this(name, iconPath, htmlPath, mainController, scripts,translationComponents,null);
+        this(name, iconPath, htmlPath, mainController, scripts, translationComponents, null);
     }
 
     public DefaultStartPage(String name, String iconPath, String htmlPath, String mainController, List<Script> scripts) {
-        this(name, iconPath, htmlPath, mainController, scripts,null);
+        this(name, iconPath, htmlPath, mainController, scripts, null);
     }
 
     public DefaultStartPage(String name, String iconPath, String htmlPath, String mainController) {
@@ -90,7 +90,8 @@ public final class DefaultStartPage implements StartPage {
     }
 
     @Override
-    public Map<String,String> getDependencies() {
+    public Map<String, String> getDependencies() {
         return dependencies;
     }
+
 }
