@@ -7,8 +7,6 @@ import com.elster.jupiter.validation.ValidationService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import java.util.stream.Stream;
-
 @Component(name = "com.elster.jupiter.validation.console",
         service = ValidationConsoleCommands.class,
         property = {"osgi.command.scope=validation",
@@ -35,11 +33,7 @@ public class ValidationConsoleCommands {
     }
 
     public void availableValidators(String qualityCodeSystem) {
-        QualityCodeSystem system = Stream.of(QualityCodeSystem.values())
-                .filter(s -> s.name().equals(qualityCodeSystem))
-                .findAny()
-                .orElse(QualityCodeSystem.NOTAPPLICABLE);
-        validationService.getAvailableValidators(system).stream()
+        validationService.getAvailableValidators(QualityCodeSystem.of(qualityCodeSystem)).stream()
                 .peek(est -> System.out.println(est.getDefaultFormat()))
                 .flatMap(est -> est.getPropertySpecs().stream())
                 .map(spec -> spec.getName() + ' ' + spec.getValueFactory().getValueType().toString())
@@ -55,10 +49,7 @@ public class ValidationConsoleCommands {
             transactionService.builder()
                     .principal(() -> "console")
                     .run(() -> {
-                        validationService.createValidationRuleSet(name, Stream.of(QualityCodeSystem.values())
-                                .filter(system -> system.name().equals(qualityCodeSystem))
-                                .findAny()
-                                .orElse(QualityCodeSystem.OTHER));
+                        validationService.createValidationRuleSet(name, QualityCodeSystem.of(qualityCodeSystem));
                     });
         } catch (Exception e) {
             e.printStackTrace();
