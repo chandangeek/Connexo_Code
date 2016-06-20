@@ -72,33 +72,9 @@ public abstract class AbstractCimChannel implements CimChannel {
     }
 
     @Override
-    public List<ReadingQualityRecord> findReadingQuality(ReadingQualityType type, Range<Instant> interval) {
-        return readingQualities()
-                .filter(ofType(type))
-                .filter(inRange(interval))
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<ReadingQualityRecord> findActualReadingQuality(ReadingQualityType type, Range<Instant> interval) {
-        return readingQualities()
-                .filter(ofType(type))
-                .filter(isActual())
-                .filter(inRange(interval))
-                .collect(Collectors.toList());
-    }
-
-    @Override
     public List<ReadingQualityRecord> findReadingQualities(Instant timestamp) {
         return readingQualities()
                 .filter(withTimestamp(timestamp))
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<ReadingQualityRecord> findReadingQuality(Range<Instant> interval) {
-        return readingQualities()
-                .filter(inRange(interval))
                 .collect(Collectors.toList());
     }
 
@@ -108,19 +84,17 @@ public abstract class AbstractCimChannel implements CimChannel {
                 .filter(ofThisReadingType());
     }
 
-    @Override
-    public List<ReadingQualityRecord> findActualReadingQuality(Range<Instant> interval) {
-        return readingQualities()
-                .filter(isActual())
-                .filter(inRange(interval))
-                .collect(Collectors.toList());
-    }
-
+    // TODO:
+    // will be replaced with a set of methods acting on the base of a specific builder;
+    // same for method in ChannelImpl
     @Override
     public List<ReadingQualityRecord> findReadingQualities(Set<QualityCodeSystem> qualityCodeSystems, QualityCodeIndex index,
-                                                           Range<Instant> interval,
-                                                           boolean checkIfActual) {
-        QueryStream<ReadingQualityRecord> selection = readingQualities().filter(inRange(interval));
+                                                    Range<Instant> interval,
+                                                    boolean checkIfActual) {
+        QueryStream<ReadingQualityRecord> selection = readingQualities();
+        if (interval != null && !interval.equals(Range.all())) {
+            selection = selection.filter(inRange(interval));
+        }
         boolean ignoreQualityCodeSystem = qualityCodeSystems == null || qualityCodeSystems.isEmpty();
         if (!ignoreQualityCodeSystem || index != null) {
             selection = selection.filter(ignoreQualityCodeSystem ?
@@ -357,7 +331,7 @@ public abstract class AbstractCimChannel implements CimChannel {
     private Map<Instant, List<ReadingQualityRecord>> findReadingQualitiesByTimestamp(List<? extends BaseReading> readings) {
         Range<Instant> range = readings.stream().map(BaseReading::getTimeStamp).map(Range::singleton).reduce(Range::span).get();
         // TODO: refactor with custom QualityCodeSystem(s) in scope of data editing refactoring (CXO-1449)
-        return findReadingQuality(range).stream()
+        return findReadingQualities(null, null, range, false).stream()
                 .collect(Collectors.groupingBy(ReadingQualityRecord::getReadingTimestamp));
     }
 

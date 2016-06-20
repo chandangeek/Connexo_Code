@@ -195,18 +195,6 @@ public class AggregatedChannelImpl implements ChannelContract {
     }
 
     @Override
-    @Deprecated
-    public List<ReadingQualityRecord> findReadingQuality(ReadingQualityType type, Range<Instant> interval) {
-        return persistedChannel.findReadingQuality(type, interval);
-    }
-
-    @Override
-    @Deprecated
-    public List<ReadingQualityRecord> findActualReadingQuality(ReadingQualityType type, Range<Instant> interval) {
-        return persistedChannel.findActualReadingQuality(type, interval);
-    }
-
-    @Override
     public List<ReadingQualityRecord> findReadingQualities(Set<QualityCodeSystem> qualityCodeSystems, QualityCodeIndex index, Range<Instant> interval, boolean checkIfActual, boolean sort) {
         return persistedChannel.findReadingQualities(qualityCodeSystems, index, interval, checkIfActual, sort);
     }
@@ -214,18 +202,6 @@ public class AggregatedChannelImpl implements ChannelContract {
     @Override
     public List<ReadingQualityRecord> findReadingQualities(Instant timestamp) {
         return persistedChannel.findReadingQualities(timestamp);
-    }
-
-    @Override
-    @Deprecated
-    public List<ReadingQualityRecord> findReadingQuality(Range<Instant> interval) {
-        return persistedChannel.findReadingQuality(interval);
-    }
-
-    @Override
-    @Deprecated
-    public List<ReadingQualityRecord> findActualReadingQuality(Range<Instant> interval) {
-        return persistedChannel.findActualReadingQuality(interval);
     }
 
     @Override

@@ -62,31 +62,11 @@ public interface Channel {
     Optional<ReadingQualityRecord> findReadingQuality(ReadingQualityType type, Instant timestamp);
 
     /**
-     * @param type
-     * @param interval
-     * @return
-     * @deprecated marked for deletion
-     * use {@link #findReadingQualities(Set, QualityCodeIndex, Range, boolean, boolean)} with checkIfActual = false, sort = true
-     */
-    @Deprecated
-    List<ReadingQualityRecord> findReadingQuality(ReadingQualityType type, Range<Instant> interval);
-
-    /**
-     * @param type
-     * @param interval
-     * @return
-     * @deprecated marked for deletion
-     * use {@link #findReadingQualities(Set, QualityCodeIndex, Range, boolean, boolean)} with checkIfActual = true, sort = true
-     */
-    @Deprecated
-    List<ReadingQualityRecord> findActualReadingQuality(ReadingQualityType type, Range<Instant> interval);
-
-    /**
      * Looks for reading qualities of any of given {@param qualityCodeSystems} and of a given {@param index} present in a given {@param interval}
      *
      * @param qualityCodeSystems only systems to take into account when looking for qualities; <code>null</code> or empty set mean all systems
      * @param index quality index to find; <code>null</code> means any index
-     * @param interval interval to check for qualities
+     * @param interval interval to check for qualities; <code>null</code> acts the same way as {@link Range#all()}
      * @param checkIfActual whether or not to look for actual qualities only
      * @param sort whether or not to sort the result; the sorting is performed by reading timestamp in chronological manner
      * @return the list of found qualities
@@ -96,25 +76,6 @@ public interface Channel {
                                                     boolean checkIfActual, boolean sort);
 
     List<ReadingQualityRecord> findReadingQualities(Instant timestamp);
-
-    /**
-     * @param interval
-     * @return
-     * @deprecated marked for deletion
-     * use {@link #findReadingQualities(Set, QualityCodeIndex, Range, boolean, boolean)} with systems = null, index = null, checkIfActual = false, sort = true
-     */
-    @Deprecated
-    List<ReadingQualityRecord> findReadingQuality(Range<Instant> interval);
-
-
-    /**
-     * @param interval
-     * @return
-     * @deprecated marked for deletion
-     * use {@link #findReadingQualities(Set, QualityCodeIndex, Range, boolean, boolean)} with systems = null, index = null, checkIfActual = true, sort = true
-     */
-    @Deprecated
-    List<ReadingQualityRecord> findActualReadingQuality(Range<Instant> interval);
 
     boolean isRegular();
 
