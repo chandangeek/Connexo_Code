@@ -48,6 +48,7 @@ import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetIm
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.security.SecureRandom;
 import java.util.*;
 
 /**
@@ -116,10 +117,10 @@ public class AS330D extends AbstractDlmsProtocol implements SerialNumberSupport 
             if (frameCountersStructure != null && frameCountersStructure.nrOfDataTypes() >= 1) {
                 frameCounter = frameCountersStructure.getDataType(0).longValue();
             } else {
-                frameCounter = new Random().nextInt();
+                frameCounter = new SecureRandom().nextInt();
             }
         } catch (DataAccessResultException | ProtocolException e) {
-            frameCounter = new Random().nextInt();
+            frameCounter = new SecureRandom().nextInt();
         } catch (IOException e) {
             throw DLMSIOExceptionHandler.handle(e, publicDlmsSession.getProperties().getRetries() + 1);
         }
@@ -356,6 +357,6 @@ public class AS330D extends AbstractDlmsProtocol implements SerialNumberSupport 
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-02-25 18:10:25 +0100 (Thu, 25 Feb 2016)$";
+        return "$Date: 2016-06-20 13:47:38 +0200 (Mon, 20 Jun 2016)$";
     }
 }

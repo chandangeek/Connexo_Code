@@ -54,6 +54,7 @@ import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.security.SecureRandom;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -86,7 +87,7 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-02-25 18:10:25 +0100 (Thu, 25 Feb 2016)$";
+        return "$Date: 2016-06-20 13:47:38 +0200 (Mon, 20 Jun 2016)$";
     }
 
     public DlmsSession getDlmsSession() {
@@ -140,7 +141,7 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
         try {
             frameCounter = publicDlmsSession.getCosemObjectFactory().getData(FRAMECOUNTER_OBISCODE).getValueAttr().longValue();
         } catch (DataAccessResultException | ProtocolException e) {
-            frameCounter = new Random().nextInt();
+            frameCounter = new SecureRandom().nextInt();
         } catch (IOException e) {
             throw DLMSIOExceptionHandler.handle(e, publicDlmsSession.getProperties().getRetries()+ 1);
         }

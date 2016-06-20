@@ -83,7 +83,7 @@ public class Beacon3100SecurityProvider extends NTASecurityProvider implements G
     public byte[] getSessionKey() {
         if (sessionKey == null) {
             sessionKey = new byte[getKeyLength()];
-            Random rnd = new SecureRandom();
+            SecureRandom rnd = new SecureRandom();
             rnd.nextBytes(sessionKey);
         }
         return sessionKey;
@@ -270,7 +270,7 @@ public class Beacon3100SecurityProvider extends NTASecurityProvider implements G
     public byte[] getDedicatedKey() {
         if (dedicatedKey == null) {
             dedicatedKey = new byte[getKeyLength()];
-            Random rnd = new Random();
+            SecureRandom rnd = new SecureRandom();
             rnd.nextBytes(dedicatedKey);
         }
         return dedicatedKey;

@@ -51,6 +51,7 @@ import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
+import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -127,7 +128,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
         try {
             frameCounter = publicDlmsSession.getCosemObjectFactory().getData(FRAMECOUNTER_OBISCODE).getValueAttr().longValue();
         } catch (DataAccessResultException | ProtocolException e) {
-            frameCounter = new Random().nextInt();
+            frameCounter = new SecureRandom().nextInt();
         } catch (IOException e) {
             throw DLMSIOExceptionHandler.handle(e, publicDlmsSession.getProperties().getRetries() + 1);
         }
@@ -370,7 +371,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-04-15 12:17:11 +0200 (Fri, 15 Apr 2016)$";
+        return "$Date: 2016-06-20 13:47:38 +0200 (Mon, 20 Jun 2016)$";
     }
 
     @Override
