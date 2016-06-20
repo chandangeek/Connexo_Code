@@ -37,7 +37,6 @@ public class ValidationRuleSetTest extends EqualsContractTest {
     private static final long ID = 651L;
     private static final long OTHER_ID = 426294L;
     private static final String NAME = "name";
-    private static final String APPLICATION = "MDC";
     private ValidationRuleSetImpl validationRuleSet;
 
     @Mock
@@ -80,7 +79,7 @@ public class ValidationRuleSetTest extends EqualsContractTest {
         when(dataModel.query(IValidationRule.class, IValidationRuleSet.class, ValidationRuleProperties.class)).thenReturn(queryExecutor);
         when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
         when(dataModel.getValidatorFactory().getValidator()).thenReturn(validator);
-        validationRuleSet = new ValidationRuleSetImpl(dataModel, eventService, versionProvider).init(NAME, APPLICATION, null);
+        validationRuleSet = new ValidationRuleSetImpl(dataModel, eventService, versionProvider).init(NAME, QualityCodeSystem.MDC, null);
     }
     @After
     public void tearDown() {
@@ -89,7 +88,7 @@ public class ValidationRuleSetTest extends EqualsContractTest {
     @Override
     protected Object getInstanceA() {
         if (validationRuleSet == null) {
-            validationRuleSet = new ValidationRuleSetImpl(dataModel, eventService, versionProvider).init(NAME, APPLICATION, null);
+            validationRuleSet = new ValidationRuleSetImpl(dataModel, eventService, versionProvider).init(NAME, QualityCodeSystem.MDC, null);
             setId(validationRuleSet, ID);
         }
         return validationRuleSet;
@@ -101,14 +100,14 @@ public class ValidationRuleSetTest extends EqualsContractTest {
 
     @Override
     protected Object getInstanceEqualToA() {
-        ValidationRuleSetImpl set = new ValidationRuleSetImpl(dataModel, eventService, versionProvider).init(NAME, APPLICATION, null);
+        ValidationRuleSetImpl set = new ValidationRuleSetImpl(dataModel, eventService, versionProvider).init(NAME, QualityCodeSystem.MDC, null);
         setId(set, ID);
         return set;
     }
 
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
-        ValidationRuleSetImpl set = new ValidationRuleSetImpl(dataModel, eventService, versionProvider).init(NAME, APPLICATION, null);
+        ValidationRuleSetImpl set = new ValidationRuleSetImpl(dataModel, eventService, versionProvider).init(NAME, QualityCodeSystem.MDC, null);
         setId(set, OTHER_ID);
         return ImmutableList.of(set);
     }
@@ -130,11 +129,10 @@ public class ValidationRuleSetTest extends EqualsContractTest {
 
     @Test
     public void testGetApplicationNameGetQualityCodeSystem() {
-        assertThat(validationRuleSet.getApplicationName()).isEqualTo(APPLICATION);
         assertThat(validationRuleSet.getQualityCodeSystem()).isEqualTo(QualityCodeSystem.MDC);
-        assertThat(validationRuleSet.init(NAME, "INS", null).getQualityCodeSystem())
+        assertThat(validationRuleSet.init(NAME, QualityCodeSystem.MDM, null).getQualityCodeSystem())
                 .isEqualTo(QualityCodeSystem.MDM);
-        assertThat(validationRuleSet.init(NAME, "BOOTLEG", null).getQualityCodeSystem())
+        assertThat(validationRuleSet.init(NAME, QualityCodeSystem.NOTAPPLICABLE, null).getQualityCodeSystem())
                 .isEqualTo(QualityCodeSystem.NOTAPPLICABLE);
     }
 

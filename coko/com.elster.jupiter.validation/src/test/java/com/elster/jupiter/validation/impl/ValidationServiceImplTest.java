@@ -101,7 +101,6 @@ import static org.mockito.Mockito.when;
 public class ValidationServiceImplTest {
 
     private static final String NAME = "name";
-    private static final String APPLICATION = "MDC";
     private static final QualityCodeSystem SYSTEM = QualityCodeSystem.MDC;
     private static final long ID = 561651L;
     private ValidationServiceImpl validationService;
@@ -296,19 +295,19 @@ public class ValidationServiceImplTest {
 
     @Test
     public void testGetAvailableValidators() {
-        when(validator1.getSupportedApplications()).thenReturn(ImmutableSet.of("HERO", "BORING"));
-        when(validator2.getSupportedApplications()).thenReturn(Collections.singleton("HERO"));
+        when(validator1.getSupportedQualityCodeSystems()).thenReturn(ImmutableSet.of(QualityCodeSystem.ENDDEVICE, QualityCodeSystem.EXTERNAL));
+        when(validator2.getSupportedQualityCodeSystems()).thenReturn(Collections.singleton(QualityCodeSystem.ENDDEVICE));
         assertThat(validationService.getAvailableValidators())
                 .as("There must be 2 validators in sum")
                 .containsExactly(validator1, validator2);
-        assertThat(validationService.getAvailableValidators("HERO"))
-                .as("Application HERO must be supported by both validators")
+        assertThat(validationService.getAvailableValidators(QualityCodeSystem.ENDDEVICE))
+                .as("QualityCodeSystem ENDDEVICE must be supported by both validators")
                 .containsExactly(validator1, validator2);
-        assertThat(validationService.getAvailableValidators("BADDIE"))
-                .as("Application BADDIE is supported by some validator but must not be...")
+        assertThat(validationService.getAvailableValidators(QualityCodeSystem.OTHER))
+                .as("QualityCodeSystem OTHER is supported by some validator but must not be...")
                 .isEmpty();
-        assertThat(validationService.getAvailableValidators("BORING"))
-                .as("Application BORING must be supported by only one validator1")
+        assertThat(validationService.getAvailableValidators(QualityCodeSystem.EXTERNAL))
+                .as("QualityCodeSystem EXTERNAL must be supported by only one validator1")
                 .containsExactly(validator1);
     }
 
@@ -333,9 +332,8 @@ public class ValidationServiceImplTest {
 
     @Test
     public void testCreateRuleSet() {
-        ValidationRuleSet validationRuleSet = validationService.createValidationRuleSet(NAME, APPLICATION);
+        ValidationRuleSet validationRuleSet = validationService.createValidationRuleSet(NAME, SYSTEM);
         assertThat(validationRuleSet.getName()).isEqualTo(NAME);
-        assertThat(validationRuleSet.getApplicationName()).isEqualTo(APPLICATION);
         assertThat(validationRuleSet.getQualityCodeSystem()).isEqualTo(SYSTEM);
     }
 
@@ -427,7 +425,7 @@ public class ValidationServiceImplTest {
         when(meterValidationFactory.getOptional(ID)).thenReturn(Optional.of(meterValidation));
         when(meterValidation.getActivationStatus()).thenReturn(true);
 
-        ValidationRuleSet validationRuleSet = validationService.createValidationRuleSet(NAME, APPLICATION);
+        ValidationRuleSet validationRuleSet = validationService.createValidationRuleSet(NAME, SYSTEM);
         validationRuleSet.save();
 
         when(validationRuleSetResolver.resolve(eq(channelsContainer))).thenReturn(Arrays.asList(validationRuleSet));
@@ -439,7 +437,7 @@ public class ValidationServiceImplTest {
         assertThat(channelsContainerValidations.get(0).getRuleSet()).isEqualTo(validationRuleSet);
         ChannelsContainerValidation activationRuleSet1 = channelsContainerValidations.get(0);
 
-        ValidationRuleSet validationRuleSet2 = validationService.createValidationRuleSet(NAME, APPLICATION);
+        ValidationRuleSet validationRuleSet2 = validationService.createValidationRuleSet(NAME, SYSTEM);
         validationRuleSet2.save();
 
         when(validationRuleSetResolver.resolve(eq(channelsContainer))).thenReturn(Arrays.asList(validationRuleSet, validationRuleSet2));

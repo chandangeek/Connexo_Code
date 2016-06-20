@@ -1,5 +1,6 @@
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.messaging.DestinationSpec;
@@ -40,9 +41,10 @@ public final class DataValidationTaskImpl implements DataValidationTask {
 
     private long id;
 
-    @NotEmpty(message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY  + "}")
+    @NotEmpty(message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
     @Size(max = 80, message = "{" + MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
     private String name;
+    private String application;
 
     private final TaskService taskService;
     private Instant lastRun;
@@ -67,7 +69,7 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     private boolean scheduleImmediately;
     private ScheduleExpression scheduleExpression;
 
-    private String application;
+    private QualityCodeSystem qualityCodeSystem;
 
     @Inject
     DataValidationTaskImpl(DataModel dataModel, TaskService taskService, ValidationService dataValidationService, Thesaurus thesaurus, Provider<DestinationSpec> destinationSpecProvider) {
@@ -78,14 +80,14 @@ public final class DataValidationTaskImpl implements DataValidationTask {
         this.destinationSpecProvider = destinationSpecProvider;
     }
 
-    static DataValidationTaskImpl from(DataModel model, String name, Instant nextExecution, String application) {
-        return model.getInstance(DataValidationTaskImpl.class).init(name, nextExecution, application);
+    static DataValidationTaskImpl from(DataModel model, String name, Instant nextExecution, QualityCodeSystem qualityCodeSystem) {
+        return model.getInstance(DataValidationTaskImpl.class).init(name, nextExecution, qualityCodeSystem);
     }
 
-    DataValidationTaskImpl init(String name, Instant nextExecution, String application) {
+    DataValidationTaskImpl init(String name, Instant nextExecution, QualityCodeSystem qualityCodeSystem) {
         this.nextExecution = nextExecution;
         this.name = name.trim();
-        this.application = application;
+        this.qualityCodeSystem = qualityCodeSystem;
         return this;
     }
 
@@ -184,8 +186,8 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     }
 
     @Override
-    public String getApplication() {
-        return application;
+    public QualityCodeSystem getQualityCodeSystem() {
+        return this.qualityCodeSystem;
     }
 
     @Override
@@ -210,8 +212,8 @@ public final class DataValidationTaskImpl implements DataValidationTask {
 
     @Override
     public Optional<DataValidationOccurrence> getLastOccurrence() {
-        return dataModel.query(DataValidationOccurrence.class, TaskOccurrence.class).select(Operator.EQUAL.compare("dataValidationTask", this), new Order[] {Order.descending("taskocc")},
-                false, new String[] {}, 1, 1).stream().findAny();
+        return dataModel.query(DataValidationOccurrence.class, TaskOccurrence.class).select(Operator.EQUAL.compare("dataValidationTask", this), new Order[]{Order.descending("taskocc")},
+                false, new String[]{}, 1, 1).stream().findAny();
     }
 
     @Override
@@ -283,7 +285,7 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     private void doUpdate() {
         Save.UPDATE.save(dataModel, this);
         if (recurrentTaskDirty) {
-            if(recurrentTask.isPresent()) {
+            if (recurrentTask.isPresent()) {
                 if (!recurrentTask.get().getName().equals(this.name)) {
                     recurrentTask.get().setName(name);
                 }
@@ -302,7 +304,7 @@ public final class DataValidationTaskImpl implements DataValidationTask {
 
     private void persistRecurrentTask() {
         RecurrentTask task = taskService.newBuilder()
-                .setApplication(application)
+                .setApplication(qualityCodeSystem != null ? qualityCodeSystem.name() : null)
                 .setName(name)
                 .setScheduleExpression(scheduleExpression)
                 .setDestination(destinationSpecProvider.get())

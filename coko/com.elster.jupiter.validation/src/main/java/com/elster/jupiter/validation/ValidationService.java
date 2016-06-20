@@ -1,5 +1,6 @@
 package com.elster.jupiter.validation;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
@@ -26,9 +27,9 @@ public interface ValidationService {
      * Management of ruleSets and rules *
      */
 
-    ValidationRuleSet createValidationRuleSet(String name, String applicationName);
+    ValidationRuleSet createValidationRuleSet(String name, QualityCodeSystem qualityCodeSystem);
 
-    ValidationRuleSet createValidationRuleSet(String name, String applicationName, String description);
+    ValidationRuleSet createValidationRuleSet(String name, QualityCodeSystem qualityCodeSystem, String description);
 
     List<ValidationRuleSet> getValidationRuleSets();
 
@@ -49,11 +50,11 @@ public interface ValidationService {
     List<Validator> getAvailableValidators();
 
     /**
-     * Filters validators and returns ones supporting a given <code>targetApplication</code>.
-     * @param targetApplication a string representation of target application.
-     * @return the list of validators supporting a given <code>targetApplication</code>.
+     * Filters validators and returns ones supporting a given <code>qualityCodeSystem</code>.
+     * @param qualityCodeSystem a target QualityCodeSystem.
+     * @return the list of validators supporting a given <code>qualityCodeSystem</code>.
      */
-    List<Validator> getAvailableValidators(String targetApplication);
+    List<Validator> getAvailableValidators(QualityCodeSystem qualityCodeSystem);
 
     Validator getValidator(String implementation);
 

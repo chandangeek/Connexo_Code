@@ -10,9 +10,6 @@ import java.util.Optional;
 
 public class HasValidGroupTaskValidator implements ConstraintValidator<HasValidGroup, DataValidationTask> {
 
-    public static final String MULTISENSE_KEY = "MDC";
-    public static final String INSIGHT_KEY = "INS";
-
     public HasValidGroupTaskValidator() {
     }
 
@@ -24,19 +21,18 @@ public class HasValidGroupTaskValidator implements ConstraintValidator<HasValidG
     public boolean isValid(DataValidationTask validationTask, ConstraintValidatorContext context) {
         Optional<EndDeviceGroup> deviceGroup = validationTask.getEndDeviceGroup();
         Optional<MetrologyContract> metrologyContract = validationTask.getMetrologyContract();
-        String applicationName = validationTask.getApplication();
 
 
         context.disableDefaultConstraintViolation();
-        switch (applicationName) {
-            case MULTISENSE_KEY: {
+        switch (validationTask.getQualityCodeSystem()) {
+            case MDC: {
                 if (!deviceGroup.isPresent()) {
                     context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
                             .addPropertyNode("deviceGroup").addConstraintViolation();
                     return false;
                 } break;
             }
-            case INSIGHT_KEY: {
+            case MDM: {
                 if (!metrologyContract.isPresent()) {
                     context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
                             .addPropertyNode("metrologyContract").addConstraintViolation();

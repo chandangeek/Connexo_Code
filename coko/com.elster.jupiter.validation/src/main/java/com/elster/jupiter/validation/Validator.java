@@ -1,6 +1,7 @@
 package com.elster.jupiter.validation;
 
 import com.elster.jupiter.cbo.QualityCodeIndex;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingRecord;
@@ -41,10 +42,10 @@ public interface Validator extends HasDynamicProperties {
     String getDefaultFormat();
 
     /**
-     * Returns the set of target applications supported by this validator.
+     * Returns the set of target quality code systems supported by this validator.
      *
      * @return the set of target applications supported by this validator.
-     * @see ValidationService#getAvailableValidators(String)
+     * @see ValidationService#getAvailableValidators(QualityCodeSystem)
      */
-    Set<String> getSupportedApplications();
+    Set<QualityCodeSystem> getSupportedQualityCodeSystems();
 }
