@@ -62,6 +62,12 @@ public class EndPointLogImpl implements EndPointLog, HasId {
         return this;
     }
 
+    EndPointLogImpl init(EndPointConfiguration endPointConfiguration, String message, String stacetrace, LogLevel logLevel, Instant timestamp) {
+        init(endPointConfiguration, message, logLevel, timestamp);
+        this.stackTrace = stacetrace;
+        return this;
+    }
+
     @Override
     public long getId() {
         return id;

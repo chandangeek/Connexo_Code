@@ -1,11 +1,13 @@
 package com.elster.jupiter.soap.whiteboard.cxf.impl;
 
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointProvider;
-import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.SoapProviderSupportFactory;
 import com.elster.jupiter.soap.whiteboard.cxf.WebService;
@@ -23,6 +25,7 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -46,7 +49,7 @@ public class WebServicesServiceImpl implements WebServicesService {
     private volatile DataModel dataModel;
     private volatile UpgradeService upgradeService;
     private volatile EventService eventService;
-
+    private volatile Thesaurus thesaurus;
 
     // OSGi
     public WebServicesServiceImpl() {
@@ -77,6 +80,11 @@ public class WebServicesServiceImpl implements WebServicesService {
         for (TableSpecs tableSpecs : TableSpecs.values()) {
             tableSpecs.addTo(dataModel);
         }
+    }
+
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.DOMAIN);
     }
 
     @Reference
@@ -128,7 +136,7 @@ public class WebServicesServiceImpl implements WebServicesService {
                 managedEndpoint.publish();
                 endpoints.put(endPointConfiguration, managedEndpoint);
             } catch (Exception e) {
-                endPointConfiguration.log(LogLevel.SEVERE, "Failed to publish endpoint " + endPointConfiguration.getName());
+                endPointConfiguration.log("Failed to publish endpoint " + endPointConfiguration.getName(), e);
             }
         } else {
             logger.warning("Could not publish " + endPointConfiguration.getName() + ": the required web service '" + endPointConfiguration
@@ -213,6 +221,7 @@ public class WebServicesServiceImpl implements WebServicesService {
             @Override
             public void configure() {
                 bind(DataModel.class).toInstance(dataModel);
+                bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(BundleContext.class).toInstance(bundleContext);
                 bind(SoapProviderSupportFactory.class).toInstance(soapProviderSupportFactory);
                 bind(EventService.class).toInstance(eventService);

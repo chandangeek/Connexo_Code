@@ -227,7 +227,11 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
 
     @Override
     public void log(String message, Exception exception) {
-        log(LogLevel.SEVERE, stackTrace2String(exception));
+        if (this.logLevel.compareTo(logLevel) > -1) {
+            EndPointLogImpl log = dataModel.getInstance(EndPointLogImpl.class)
+                    .init(this, message, stackTrace2String(exception), logLevel, clock.instant());
+            log.save();
+        }
     }
 
     private String stackTrace2String(Exception e) {
