@@ -104,6 +104,7 @@ public class DeviceMessageFileImplIT {
         when(this.protocolPluggableService
                 .findDeviceProtocolPluggableClass(DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID))
             .thenReturn(Optional.of(this.deviceProtocolPluggableClass));
+        when(this.deviceProtocolPluggableClass.supportsFileManagement()).thenReturn(true);
         this.initializeFileRelatedMocks();
     }
 
