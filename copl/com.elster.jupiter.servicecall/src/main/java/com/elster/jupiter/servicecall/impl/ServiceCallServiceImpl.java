@@ -335,9 +335,6 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
 
     @Override
     public DestinationSpec getServiceCallQueue() {
-        if (!dataModel.isInstalled()) {
-            throw new IllegalStateException();
-        }
         return messageService.getDestinationSpec(SERIVCE_CALLS_DESTINATION_NAME).get();
     }
 
