@@ -1,6 +1,5 @@
 package com.elster.jupiter.bpm.rest;
 
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -24,42 +23,28 @@ public class TaskContentInfos {
     public String processName;
     public String processVersion;
 
-    public TaskContentInfos() {
-    }
-
-    public TaskContentInfos(JSONObject obj) {
+    public TaskContentInfos(JSONObject obj) throws JSONException {
         addAll(obj);
     }
 
-    void addAll(JSONObject obj) {
-        JSONArray contentProperties = null;
-        JSONObject content = null;
-        JSONObject outputContent = null;
-        try {
-            status = obj.getString("taskStatus");
-            contentProperties = obj.getJSONArray("fields");
-            content = obj.getJSONObject("content");
-            outputContent = obj.getJSONObject("outContent");
-            if(outputContent != null){
-                setOutputContent(outputContent);
-            }
-        } catch (JSONException e) {
+    private void addAll(JSONObject obj) throws JSONException {
+        status = obj.getString("taskStatus");
+        JSONArray contentProperties = obj.getJSONArray("fields");
+        JSONObject content = obj.getJSONObject("content");
+        JSONObject outputContent = obj.getJSONObject("outContent");
+        if (outputContent != null) {
+            setOutputContent(outputContent);
         }
-
         if (contentProperties != null) {
             for(int i = 0; i < contentProperties.length(); i++) {
-                try {
-                    JSONObject prop = contentProperties.getJSONObject(i);
-                    TaskContentInfo result = new TaskContentInfo(prop, content, outputContent, status);
-                    if(result.isVisible){
-                        properties.add(result);
-                    }
-                } catch (JSONException e) {
+                JSONObject prop = contentProperties.getJSONObject(i);
+                TaskContentInfo result = new TaskContentInfo(prop, content, outputContent, status);
+                if(result.isVisible){
+                    properties.add(result);
                 }
             }
         }
     }
-
 
     private void setOutputContent(JSONObject outputContent){
         Iterator<?> keys = outputContent.keys();

@@ -377,7 +377,7 @@ public class BpmResource {
                     .collect(Collectors.toList());
             processDefinitionInfos.total = processDefinitionInfos.processes.size();
             return processDefinitionInfos;
-        }else{
+        } else {
             List<BpmProcessDefinition> activeProcesses = bpmService.getAllBpmProcessDefinitions().stream()
                     .filter(p -> "ACTIVE".equalsIgnoreCase(p.getStatus())).collect(Collectors.toList());
             ProcessDefinitionInfos processDefinitionInfos = getBpmProcessDefinitions(auth);
@@ -515,7 +515,7 @@ public class BpmResource {
             err.add(new Errors("processPrivileges", MessageSeeds.FIELD_CAN_NOT_BE_EMPTY.getDefaultFormat()));
         }
         if (!err.isEmpty()) {
-            return Response.status(400).entity(new LocalizedFieldException(err)).build();
+            return Response.status(Response.Status.BAD_REQUEST).entity(new LocalizedFieldException(err)).build();
         }
 
         List<BpmProcessPrivilege> targetPrivileges = info.privileges.stream()
@@ -613,7 +613,7 @@ public class BpmResource {
                             bpmProcessDefinition.get().getProperties()));
                     processDefinitionInfo.setAppKey(foundProvider.get().getAppKey());
                 }
-            }else{
+            } else {
                 String association = queryParameters.get("association").get(0);
                 Optional<ProcessAssociationProvider> foundProvider = bpmService.getProcessAssociationProvider(association);
                 if (foundProvider.isPresent()) {
@@ -681,7 +681,7 @@ public class BpmResource {
                 .filter(s -> {
                     if (filterProperty != null) {
                         return activeProcesses.stream().anyMatch(a -> a.getProcessName().equals(s.name) && a.getVersion().equals(s.version) && a.getAssociation().toLowerCase().equals(filterProperty.toLowerCase()));
-                    }else{
+                    } else {
                         return activeProcesses.stream().anyMatch(a -> a.getProcessName().equals(s.name) && a.getVersion().equals(s.version));
                     }
                 })
@@ -790,7 +790,7 @@ public class BpmResource {
         runningProcessInfos.processes = runningProcessesList;
         if (total == Integer.valueOf(queryParameters.get("page").get(0)) * runningProcessInfos.total + 1) {
             runningProcessInfos.total = total;
-        }else{
+        } else {
             runningProcessInfos.total = Integer.valueOf(queryParameters.get("page").get(0)) * 10 - 10 + runningProcessesList.size();
         }
         return runningProcessInfos;
@@ -847,13 +847,14 @@ public class BpmResource {
                         s.tasksForm = null;
                     });
             ObjectMapper mapper = new ObjectMapper();
+            String stringJson;
             try {
-                String stringJson = mapper.writeValueAsString(taskGroupsInfos);
+                stringJson = mapper.writeValueAsString(taskGroupsInfos);
                 String rest = "/rest/tasks/managetasks";
                 String req = getQueryParam(queryParameters);
                 if (!"".equals(req)) {
                     rest += req+"&currentuser=" + securityContext.getUserPrincipal().getName() ;
-                }else{
+                } else {
                     rest += req+"?currentuser=" + securityContext.getUserPrincipal().getName() ;
                 }
                 result = bpmService.getBpmServer().doPost(rest, stringJson, auth, 0);
@@ -861,6 +862,7 @@ public class BpmResource {
                     obj = new JSONObject(result);
                 }
             } catch (JsonProcessingException e) {
+                throw new WebApplicationException(Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(this.errorInvalidMessage).build());
             } catch (JSONException e) {
                 throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorInvalidMessage).build());
             }
@@ -870,11 +872,11 @@ public class BpmResource {
                     .build());
         }
         if (obj == null) {
-            return Response.status(400).build();
+            return Response.status(Response.Status.BAD_REQUEST).build();
         }
         TaskBulkReportInfo taskBulkReportInfo = new TaskBulkReportInfo(obj);
         if (taskBulkReportInfo.failed > 0) {
-            return Response.status(400).entity(taskBulkReportInfo).build();
+            return Response.status(Response.Status.BAD_REQUEST).entity(taskBulkReportInfo).build();
         }
         return Response.ok().entity(taskBulkReportInfo).build();
     }
@@ -893,16 +895,18 @@ public class BpmResource {
                 String rest = "/rest/tasks/mandatory";
                 response = bpmService.getBpmServer().doPost(rest, stringJson, auth, 0);
             } catch (JsonProcessingException e) {
+                throw new WebApplicationException(Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(this.errorInvalidMessage).build());
             }
             if (response != null) {
                 if (!"Connection refused: connect".equals(response)) {
                     arr = (new JSONObject(response)).getJSONArray("taskGroups");
-                }else {
+                } else {
                     throw new NoBpmConnectionException(thesaurus);
                 }
             }
 
         } catch (JSONException e) {
+            throw new WebApplicationException(Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(this.errorInvalidMessage).build());
         }
         TaskGroupsInfos taskGroups = new TaskGroupsInfos(arr);
         taskGroups.taskGroups.stream()
@@ -954,18 +958,17 @@ public class BpmResource {
             if (!"".equals(jsonContent)) {
                 if (!"Connection refused: connect".equals(jsonContent)) {
                     obj = new JSONObject(jsonContent);
-                }else {
+                } else {
                     throw new NoBpmConnectionException(thesaurus);
                 }
             }
-
+            if (obj != null) {
+                taskContentInfos = new TaskContentInfos(obj);
+            }
+            return taskContentInfos;
         } catch (JSONException e) {
             throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorInvalidMessage).build());
         }
-        if (obj != null) {
-            taskContentInfos = new TaskContentInfos(obj);
-        }
-        return taskContentInfos;
     }
 
     @GET
@@ -977,31 +980,28 @@ public class BpmResource {
                                               @HeaderParam("Authorization") String auth) {
         String jsonContent;
         JSONObject obj = null;
-        TaskContentInfos taskContentInfos;
         try {
             String rest = "/rest/tasks/process/" + deploymentId + "/content/" + id;
             jsonContent = bpmService.getBpmServer().doGet(rest, auth);
             if (!"".equals(jsonContent)) {
                 obj = new JSONObject(jsonContent);
             }
-
+            if (obj != null) {
+                return new TaskContentInfos(obj);
+            } else {
+                throw conflictFactory.conflict()
+                        .withActualVersion(() -> {
+                            return 0L; // Not an actual version; process has been undeployed
+                        })
+                        .withMessageTitle(MessageSeeds.START_PROCESS_CONCURRENT_TITLE, id)
+                        .withMessageBody(MessageSeeds.START_PROCESS_CONCURRENT_BODY, id)
+                        .supplier().get();
+            }
         } catch (JSONException e) {
             throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorInvalidMessage).build());
         } catch (RuntimeException e) {
+            throw new WebApplicationException(Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(this.errorInvalidMessage).build());
         }
-        if (obj != null) {
-            taskContentInfos = new TaskContentInfos(obj);
-        } else {
-            throw conflictFactory.conflict()
-                    .withActualVersion(() -> {
-                        return 0L; // Not an actual version; process has been undeployed
-                    })
-                    .withMessageTitle(MessageSeeds.START_PROCESS_CONCURRENT_TITLE, id)
-                    .withMessageBody(MessageSeeds.START_PROCESS_CONCURRENT_BODY, id)
-                    .supplier().get();
-        }
-
-        return taskContentInfos;
     }
 
     @PUT
@@ -1037,7 +1037,7 @@ public class BpmResource {
                 });
         id = id.replace(taskContentInfos.deploymentId,"");
         if (!err.isEmpty()) {
-            return Response.status(400).entity(new LocalizedFieldException(err)).build();
+            return Response.status(Response.Status.BAD_REQUEST).entity(new LocalizedFieldException(err)).build();
         }
         if (taskContentInfos.deploymentId != null && taskContentInfos.businessObject.id != null && taskContentInfos.businessObject.value != null) {
             expectedParams.put(taskContentInfos.businessObject.id, taskContentInfos.businessObject.value);
@@ -1083,7 +1083,7 @@ public class BpmResource {
                     });
         }
         if (!err.isEmpty()) {
-          return  Response.status(400).entity(new LocalizedFieldException(err)).build();
+          return  Response.status(Response.Status.BAD_REQUEST).entity(new LocalizedFieldException(err)).build();
         }
         if ("startTask".equals(taskContentInfos.action)) {
             String rest = "/rest/tasks/" + id + "/contentstart/" + userName + "/";
@@ -1093,12 +1093,12 @@ public class BpmResource {
             Map<String, Object> outputBindingContents = getOutputContent(taskContentInfos, id, null, auth);
             TaskOutputContentInfo taskOutputContentInfo = new TaskOutputContentInfo(outputBindingContents);
             ObjectMapper mapper = new ObjectMapper();
-            String stringJson = null;
             try {
-                stringJson = mapper.writeValueAsString(taskOutputContentInfo);
+                String stringJson = mapper.writeValueAsString(taskOutputContentInfo);
                 String rest = "/rest/tasks/" + id + "/contentcomplete/" + userName + "/";
                 postResult = bpmService.getBpmServer().doPost(rest, stringJson, auth, 0);
             } catch (JsonProcessingException e) {
+                throw new WebApplicationException(Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(this.errorInvalidMessage).build());
             }
         }
         if ("saveTask".equals(taskContentInfos.action)) {
@@ -1110,10 +1110,11 @@ public class BpmResource {
                 String rest = "/rest/tasks/" + id + "/contentsave";
                 postResult = bpmService.getBpmServer().doPost(rest, stringJson, auth, 0);
             } catch (JsonProcessingException e) {
+                throw new WebApplicationException(Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(this.errorInvalidMessage).build());
             }
         }
         if (postResult == null) {
-            return Response.status(400).build();
+            return Response.status(Response.Status.BAD_REQUEST).build();
         }
         return Response.ok().build();
     }
@@ -1142,8 +1143,8 @@ public class BpmResource {
                     }
                 });
         if (!err.isEmpty()) {
-            return  Response.status(400).entity(new LocalizedFieldException(err)).build();
-        }else{
+            return  Response.status(Response.Status.BAD_REQUEST).entity(new LocalizedFieldException(err)).build();
+        } else {
             return Response.ok().entity(taskContentInfos).build();
         }
     }
@@ -1152,7 +1153,7 @@ public class BpmResource {
         TaskContentInfos taskContents;
         if (processId != null) {
             taskContents = getProcessContent(processId, taskContentInfos.deploymentId, auth);
-        }else{
+        } else {
             taskContents = getTaskContent(taskId, auth);
         }
         Map<String, Object> outputBindingContents = new HashMap<>();
@@ -1189,12 +1190,12 @@ public class BpmResource {
                                 } else {
                                     outputBindingContents.put(s.outputBinding, taskContentInfo.get().propertyValueInfo.value);
                                 }
-                            }else {
+                            } else {
                                 outputBindingContents.put(s.outputBinding, taskContentInfo.get().propertyValueInfo.value);
                             }
                         }
                     });
-        }catch (RuntimeException e) {
+        } catch (RuntimeException e) {
             System.out.println(e.getMessage());
         }
         return outputBindingContents;
@@ -1215,7 +1216,7 @@ public class BpmResource {
                 }
             }
         } catch (Exception e) {
-
+            throw new WebApplicationException(Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(this.errorInvalidMessage).build());
         }
         return privilegesList;
     }
@@ -1247,7 +1248,9 @@ public class BpmResource {
     private String getQueryParam(QueryParameters queryParam) {
         String req = "";
         int i = 0;
-        for (String theKey : queryParam.keySet()) {
+        Iterator<String> it = queryParam.keySet().iterator();
+        while (it.hasNext()) {
+            String theKey = it.next();
             if (i > 0) {
                 req += "&";
             } else {
