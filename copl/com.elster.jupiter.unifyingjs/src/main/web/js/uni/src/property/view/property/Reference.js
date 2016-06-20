@@ -49,7 +49,7 @@ Ext.define('Uni.property.view.property.Reference', {
                     result = Ext.isObject(result) ? result.name : Ext.String.htmlEncode(value);
                 }
 
-                return result || me.emptyText;
+                return result || (Ext.isEmpty(me.emptyText) ? '-' : me.emptyText);
             }
         }
     },
