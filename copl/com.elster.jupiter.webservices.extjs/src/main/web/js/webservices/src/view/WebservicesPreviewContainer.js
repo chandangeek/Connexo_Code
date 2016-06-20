@@ -3,15 +3,25 @@ Ext.define('Wss.view.WebservicesPreviewContainer', {
     alias: 'widget.webservices-preview-container',
 
     requires: [
-        'Uni.util.FormEmptyMessage',
+        'Uni.view.notifications.NoItemsFoundPanel',
         'Wss.view.Grid',
         'Wss.view.Preview'
     ],
 
     emptyComponent: {
-        xtype: 'uni-form-empty-message',
+        xtype: 'no-items-found-panel',
         itemId: 'no-webservices',
-        text: Uni.I18n.translate('webservices.mpty', 'WSS', 'No webservice endpoints have been defined yet.')
+        title: Uni.I18n.translate('webservices.empty.title', 'WSS', 'No webservice endpoints found'),
+        reasons: [
+            Uni.I18n.translate('webservices.mpty', 'WSS', 'No webservice endpoints have been defined yet.')
+        ],
+        stepItems: [
+            {
+                text: Uni.I18n.translate('general.addWebserviceEndpoint', 'WSS', 'Add webservice endpoint'),
+                //privileges: Apr.privileges.AppServer.admin,
+                itemId: 'wss-no-webservice-endpoints-add-btn',
+            }
+        ]
     },
 
     router: null,

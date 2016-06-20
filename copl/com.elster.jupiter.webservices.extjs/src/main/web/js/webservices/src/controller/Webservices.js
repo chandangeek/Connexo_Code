@@ -39,6 +39,9 @@ Ext.define('Wss.controller.Webservices', {
             },
             'webservices-action-menu': {
                 click: this.chooseAction
+            },
+            '#wss-no-webservice-endpoints-add-btn': {
+                click: this.goToAddView
             }
         });
     },
@@ -92,6 +95,11 @@ Ext.define('Wss.controller.Webservices', {
                 });
             }
         })
+    },
+
+    goToAddView: function() {
+        var router = this.getController('Uni.controller.history.Router');
+        router.getRoute('administration/webserviceendpoints/add').forward();
     },
 
     addEndpoint: function (button) {

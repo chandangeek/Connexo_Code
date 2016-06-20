@@ -77,7 +77,7 @@ Ext.define('Wss.view.Grid', {
                     {
                         xtype: 'button',
                         text: Uni.I18n.translate('general.addWebserviceEndpoint', 'WSS', 'Add webservice endpoint'),
-                        privileges: Apr.privileges.AppServer.admin,
+                        //privileges: Apr.privileges.AppServer.admin,
                         itemId: 'add-webservice-endpoint',
                         href: '#/administration/webserviceendpoints/add'
                     }
