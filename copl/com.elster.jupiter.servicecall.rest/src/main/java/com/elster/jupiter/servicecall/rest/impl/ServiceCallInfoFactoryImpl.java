@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 @Component(name = "com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory",
         immediate = true,
         service = ServiceCallInfoFactory.class)
-class ServiceCallInfoFactoryImpl implements ServiceCallInfoFactory {
+public class ServiceCallInfoFactoryImpl implements ServiceCallInfoFactory {
 
     private Thesaurus thesaurus;
     private PropertyUtils propertyUtils;
@@ -40,12 +40,12 @@ class ServiceCallInfoFactoryImpl implements ServiceCallInfoFactory {
 
     //osgi
     @SuppressWarnings("unused")
-    ServiceCallInfoFactoryImpl() {
+    public ServiceCallInfoFactoryImpl() {
         this(new PropertyUtils());
     }
 
     @Inject
-    ServiceCallInfoFactoryImpl(Thesaurus thesaurus, PropertyUtils propertyUtils, ReferenceResolver referenceResolver) {
+    public ServiceCallInfoFactoryImpl(Thesaurus thesaurus, PropertyUtils propertyUtils, ReferenceResolver referenceResolver) {
         this(propertyUtils);
         this.thesaurus = thesaurus;
         this.setReferenceResolver(referenceResolver);
