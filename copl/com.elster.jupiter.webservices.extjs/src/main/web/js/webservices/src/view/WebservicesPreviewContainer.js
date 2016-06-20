@@ -18,7 +18,7 @@ Ext.define('Wss.view.WebservicesPreviewContainer', {
         stepItems: [
             {
                 text: Uni.I18n.translate('general.addWebserviceEndpoint', 'WSS', 'Add webservice endpoint'),
-                //privileges: Apr.privileges.AppServer.admin,
+                privileges: Wss.privileges.Webservices.admin,
                 itemId: 'wss-no-webservice-endpoints-add-btn',
             }
         ]

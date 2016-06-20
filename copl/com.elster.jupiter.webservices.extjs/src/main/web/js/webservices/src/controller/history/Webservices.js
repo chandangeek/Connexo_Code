@@ -11,21 +11,22 @@ Ext.define('Wss.controller.history.Webservices', {
             items: {
                 webserviceendpoints: {
                     title: Uni.I18n.translate('webservices.webserviceEndpoints', 'WSS', 'Webservice endpoints'),
-                    //privileges: Cal.privileges.Calendar.admin,
+                    privileges: Wss.privileges.Webservices.view,
                     route: 'webserviceendpoints',
                     controller: 'Wss.controller.Webservices',
                     action: 'showWebservicesOverview',
                     items: {
                         add: {
                             title: Uni.I18n.translate('webservices.addWebServiceEndpoint', 'WSS', 'Add webservice endpoint'),
+                            privileges: Wss.privileges.Webservices.admin,
                             route: 'add',
                             controller: 'Wss.controller.Webservices',
                             action: 'showAddWebserviceEndPoint'
                         },
                         view: {
                             route: '{endpointId}',
+                            privileges: Wss.privileges.Webservices.view,
                             title: Uni.I18n.translate('webservices.webserviceEndpointOverview', 'WSS', 'Webservice endpoint overview'),
-                            //privileges: Apr.privileges.AppServer.view,
                             controller: 'Wss.controller.Webservices',
                             action: 'showEndpointOverview',
                             callback: function (route) {
@@ -37,9 +38,9 @@ Ext.define('Wss.controller.history.Webservices', {
                             },
                             items: {
                                 logs: {
+                                    privileges: Wss.privileges.Webservices.view,
                                     route: 'logs',
                                     title: Uni.I18n.translate('general.Logging', 'WSS', 'Logging'),
-                                    //privileges: Apr.privileges.AppServer.view,
                                     controller: 'Wss.controller.Webservices',
                                     action: 'showLoggingPage',
                                     callback: function (route) {
@@ -53,7 +54,7 @@ Ext.define('Wss.controller.history.Webservices', {
                                 edit: {
                                     route: 'edit',
                                     title: Uni.I18n.translate('general.Edit', 'WSS', 'Edit'),
-                                    //privileges: Apr.privileges.AppServer.view,
+                                    privileges: Wss.privileges.Webservices.admin,
                                     controller: 'Wss.controller.Webservices',
                                     action: 'showEditPage',
                                     callback: function (route) {

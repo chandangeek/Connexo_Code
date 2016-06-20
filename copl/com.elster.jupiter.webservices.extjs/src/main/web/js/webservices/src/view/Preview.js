@@ -15,6 +15,7 @@ Ext.define('Wss.view.Preview', {
                 text: Uni.I18n.translate('general.actions', 'WSS', 'Actions'),
                 iconCls: 'x-uni-action-iconD',
                 itemId: 'webservicePreviewMenuButton',
+                privileges: Wss.privileges.Webservices.admin,
                 menu: {
                     xtype: 'webservices-action-menu'
                 }

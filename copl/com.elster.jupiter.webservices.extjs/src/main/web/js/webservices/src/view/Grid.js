@@ -58,6 +58,7 @@ Ext.define('Wss.view.Grid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                privileges: Wss.privileges.Webservices.admin,
                 menu: {
                     xtype: 'webservices-action-menu'
                 },
@@ -77,7 +78,7 @@ Ext.define('Wss.view.Grid', {
                     {
                         xtype: 'button',
                         text: Uni.I18n.translate('general.addWebserviceEndpoint', 'WSS', 'Add webservice endpoint'),
-                        //privileges: Apr.privileges.AppServer.admin,
+                        privileges: Wss.privileges.Webservices.admin,
                         itemId: 'add-webservice-endpoint'
                     }
                 ]

@@ -8,16 +8,19 @@ Ext.define('Wss.view.ActionMenu', {
         {
             itemId: 'edit-webservice',
             text: Uni.I18n.translate('general.edit', 'WSS', 'Edit'),
-            action: 'edit'
+            action: 'edit',
+            privileges: Wss.privileges.Webservices.admin
         },
         {
             itemId: 'activate-webservice',
-            action: 'activate'
+            action: 'activate',
+            privileges: Wss.privileges.Webservices.admin
         },
         {
             itemId: 'remove-webservice',
             text: Uni.I18n.translate('general.remove', 'WSS', 'Remove'),
-            action: 'remove'
+            action: 'remove',
+            privileges: Wss.privileges.Webservices.admin
         }
     ],
     listeners: {

@@ -169,7 +169,9 @@ Ext.define('Wss.controller.Webservices', {
 
         form.loadRecord(record);
         preview.setTitle(Ext.String.htmlEncode(record.get('name')));
-        preview.down('webservices-action-menu').record = record;
+        if(preview.down('webservices-action-menu')) {
+            preview.down('webservices-action-menu').record = record;
+        }
     },
 
     chooseAction: function (menu, item) {

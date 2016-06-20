@@ -28,7 +28,7 @@ Ext.define('Wss.controller.Main', {
     },
 
     initMenu: function () {
-        //if (Cal.privileges.Calendar.canAdministrate()) {
+        if (Wss.privileges.Webservices.canView()) {
 
             var menuItem = Ext.create('Uni.model.MenuItem', {
                 text: Uni.I18n.translate('general.administration', 'WSS', 'Administration'),
@@ -45,7 +45,7 @@ Ext.define('Wss.controller.Main', {
                     {
                         text: Uni.I18n.translate('webservices.webserviceEndpoints', 'WSS', 'Webservice endpoints'),
                         href: '#/administration/webserviceendpoints',
-                        //hidden: !(Uni.Auth.hasPrivilege('privilege.administrate.touCalendars')),
+                        hidden: !(Uni.Auth.hasPrivilege('privilege.view.webservices')),
                         route: 'webserviceendpoints'
                     }
                 ]
@@ -55,5 +55,5 @@ Ext.define('Wss.controller.Main', {
                 calendarItem
             );
         }
-    //}
+    }
 });
