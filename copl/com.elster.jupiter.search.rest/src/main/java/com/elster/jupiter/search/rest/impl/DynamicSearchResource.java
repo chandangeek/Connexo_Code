@@ -3,6 +3,7 @@ package com.elster.jupiter.search.rest.impl;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -132,9 +133,10 @@ public class DynamicSearchResource {
                              @BeanParam JsonQueryParameters jsonQueryParameters,
                              @Context UriInfo uriInfo) throws InvalidValueException {
         SearchDomain searchDomain = findSearchDomainOrThrowException(domainId);
-        List<Object> searchResults = initSearchBuilder(searchDomain, jsonQueryFilter).toFinder().from(jsonQueryParameters).stream()
-                .map(o -> infoFactoryService.getInfoFactoryFor(searchDomain).from(o))
-                .collect(toList());
+        InfoFactory infoFactory = infoFactoryService.getInfoFactoryFor(searchDomain);
+        List<?> domainObjects = initSearchBuilder(searchDomain, jsonQueryFilter).toFinder().from(jsonQueryParameters).find();
+
+        List searchResults = infoFactory.from(domainObjects);
         return Response.ok().entity(PagedInfoList.fromPagedList("searchResults", searchResults, jsonQueryParameters)).build();
     }
 
