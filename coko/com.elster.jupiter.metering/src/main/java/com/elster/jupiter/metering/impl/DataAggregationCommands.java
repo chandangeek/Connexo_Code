@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MultiplierType;
+import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.aggregation.CalculatedMetrologyContractData;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
@@ -11,6 +12,7 @@ import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.impl.aggregation.ReadingQuality;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -126,7 +128,23 @@ public class DataAggregationCommands {
     }
 
     private void showReading(BaseReadingRecord readingRecord) {
-        System.out.println(readingRecord.getTimeStamp() + " : " + readingRecord.getValue());
+        List<? extends ReadingQualityRecord> qualities = readingRecord.getReadingQualities();
+        String quality = (qualities.isEmpty()) ?
+                "Valid (" + ReadingQuality.DERIVED_DETERMINISTIC  + ")" :
+                getQuality(qualities.get(0).getTypeCode());
+        System.out.println(readingRecord.getTimeStamp() + " : " + readingRecord.getValue() + " , " + quality);
+    }
+
+    private String getQuality(String code) {
+        if (code.equals(ReadingQuality.DERIVED_SUSPECT)) {
+            return "Suspect (" + code + ")";
+        } else if (code.equals(ReadingQuality.DERIVED_MISSING)) {
+            return "Missing (" + code + ")";
+        } else if (code.equals(ReadingQuality.DERIVED_INDETERMINISTIC)) {
+            return "Edited or estimated (" + code + ")";
+        } else {
+            return code;
+        }
     }
 
     private String getValue(BaseReadingRecord reading) {

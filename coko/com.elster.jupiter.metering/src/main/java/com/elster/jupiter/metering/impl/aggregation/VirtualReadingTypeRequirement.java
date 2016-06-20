@@ -67,6 +67,10 @@ public class VirtualReadingTypeRequirement {
         return "rid" + this.requirement.getId() + "_" + this.deliverable.getId() + "_" + this.meterActivationSequenceNumber;
     }
 
+    String tempSqlName () {
+        return "temp" + this.requirement.getId() + "_" + this.deliverable.getId() + "_" + this.meterActivationSequenceNumber;
+    }
+
     private String sqlComment() {
         return this.requirement.getName() + this.prettyPrintedReadingType() + " for " + this.deliverable.getName() + " in " + this.prettyPrintMeterActivationPeriod();
     }
@@ -121,14 +125,26 @@ public class VirtualReadingTypeRequirement {
 
     @SuppressWarnings("unchecked")
     private void appendDefinitionWithoutAggregation(SqlBuilder sqlBuilder) {
+
+        sqlBuilder.append("select ");
+
+        sqlBuilder.append("timeseriesid , utcstamp , versioncount , recordtime, (select max(case when type like '%.5.258' then 4 when type like '%.5.259' then 3 else 1 end) from mtr_readingquality where readingtype = '");
+        sqlBuilder.append(this.getPreferredChannel().getMainReadingType().getMRID());
+        sqlBuilder.append("' and readingtimestamp = UTCSTAMP and channelid = ");
+        sqlBuilder.append("" + this.getPreferredChannel().getId());
+        sqlBuilder.append(" and (type like '%.5.258' or type like '%.5.259' or type like '%.7.%' or type like '%.8.%')) AS processStatus, value, localdate");
+
+        sqlBuilder.append(" from(");
         sqlBuilder.add(
                 this.getPreferredChannel()
                         .getTimeSeries()
                         .getRawValuesSql(
                                 this.rawDataPeriod,
-                                this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.PROCESSSTATUS),
+                                //this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.PROCESSSTATUS),
                                 this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.VALUE),
                                 this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.LOCALDATE)));
+        sqlBuilder.append(") ");
+        sqlBuilder.append(tempSqlName());
     }
 
     private Pair<String, String> toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames columnName) {
@@ -144,13 +160,13 @@ public class VirtualReadingTypeRequirement {
 
     private Optional<ChannelContract> findPreferredChannel() {
         return new MatchingChannelSelector(this.matchingChannels, this.mode)
-                    .getPreferredChannel(this.targetReadingType)
-                    .map(ChannelContract.class::cast);
+                .getPreferredChannel(this.targetReadingType)
+                .map(ChannelContract.class::cast);
     }
 
     private boolean aggregationIsRequired() {
         return Formula.Mode.AUTO.equals(this.mode)
-            && IntervalLength.from(this.getPreferredChannel().getMainReadingType()) != this.targetReadingType.getIntervalLength();
+                && IntervalLength.from(this.getPreferredChannel().getMainReadingType()) != this.targetReadingType.getIntervalLength();
     }
 
     void appendSimpleReferenceTo(SqlBuilder sqlBuilder) {
@@ -160,10 +176,10 @@ public class VirtualReadingTypeRequirement {
     void appendReferenceTo(SqlBuilder sqlBuilder) {
         VirtualReadingType sourceReadingType = this.getSourceReadingType();
         sqlBuilder.append(
-            sourceReadingType.buildSqlUnitConversion(
-                    this.mode,
-                    this.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.VALUE.sqlName(),
-                    this.targetReadingType));
+                sourceReadingType.buildSqlUnitConversion(
+                        this.mode,
+                        this.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.VALUE.sqlName(),
+                        this.targetReadingType));
     }
 
     VirtualReadingType getSourceReadingType() {

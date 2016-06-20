@@ -1,9 +1,12 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ProcessStatus;
 import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.impl.IReadingType;
@@ -18,6 +21,8 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -33,6 +38,11 @@ import java.util.Optional;
  */
 class CalculatedReadingRecord implements BaseReadingRecord {
 
+
+    private static final int SUSPECT = 4;
+    private static final int MISSING = 3;
+    private static final int ESTIMATED_EDITED = 1;
+
     private String readingTypeMRID;
     private IReadingType readingType;
     private BigDecimal rawValue;
@@ -40,6 +50,7 @@ class CalculatedReadingRecord implements BaseReadingRecord {
     private Timestamp localDate;
     private Instant timestamp;
     private UsagePoint usagePoint;
+    private long readingQuality;
     private ProcessStatus processStatus;
     private long count;
 
@@ -62,7 +73,8 @@ class CalculatedReadingRecord implements BaseReadingRecord {
             merged.localDate = r1.localDate;
             merged.timestamp = mergedTimestamp;
             merged.usagePoint = r1.usagePoint;
-            merged.processStatus = r1.processStatus.or(r2.processStatus);
+            merged.readingQuality =  Math.max(r1.readingQuality, r2.readingQuality);
+            //merged.processStatus = r1.processStatus.or(r2.processStatus);
             merged.count = r1.count + r2.count;
             return merged;
         } else {
@@ -93,7 +105,8 @@ class CalculatedReadingRecord implements BaseReadingRecord {
             this.rawValue = resultSet.getBigDecimal(columnIndex++);
             this.localDate = resultSet.getTimestamp(columnIndex++);
             this.timestamp = Instant.ofEpochMilli(resultSet.getLong(columnIndex++));
-            this.processStatus = new ProcessStatus(resultSet.getLong(columnIndex++));
+            //this.processStatus = new ProcessStatus(resultSet.getLong(columnIndex++));
+            this.readingQuality = resultSet.getLong(columnIndex++);
             this.count = resultSet.getLong(columnIndex);
             return this;
         } catch (SQLException e) {
@@ -148,6 +161,10 @@ class CalculatedReadingRecord implements BaseReadingRecord {
         return this.processStatus;
     }
 
+    public long getReadingQuality() {
+        return this.readingQuality;
+    }
+
     @Override
     public void setProcessingFlags(ProcessStatus.Flag... flags) {
         throw new UnsupportedOperationException("Aggregated reading records do not support setting processing flags");
@@ -159,7 +176,18 @@ class CalculatedReadingRecord implements BaseReadingRecord {
 
     @Override
     public List<? extends ReadingQualityRecord> getReadingQualities() {
-        return Collections.emptyList();
+        List<ReadingQualityRecord> readingQualityRecords = new ArrayList();
+        ReadingQuality readingQualityValue = ReadingQuality.DERIVED_DETERMINISTIC;
+        if (readingQuality == SUSPECT) {
+            readingQualityValue = ReadingQuality.DERIVED_SUSPECT;
+        } else if (readingQuality == MISSING){
+            readingQualityValue = ReadingQuality.DERIVED_MISSING;
+        } else if (readingQuality == ESTIMATED_EDITED) {
+            readingQualityValue = ReadingQuality.DERIVED_INDETERMINISTIC;
+        }
+        readingQualityRecords.add(
+                    new AggregatedReadingQualityImpl(this.readingType, new ReadingQualityType(readingQualityValue.getCode()), this.timestamp));
+        return readingQualityRecords;
     }
 
     public Timestamp getLocalDate() {
@@ -229,5 +257,8 @@ class CalculatedReadingRecord implements BaseReadingRecord {
     public String getSource() {
         return null;
     }
+
+
+
 
 }
