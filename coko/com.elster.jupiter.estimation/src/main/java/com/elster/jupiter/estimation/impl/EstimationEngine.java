@@ -20,6 +20,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -27,26 +28,25 @@ import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 
 class EstimationEngine {
 
-    List<EstimationBlock> findBlocksToEstimate(MeterActivation meterActivation, Range<Instant> period, ReadingType readingType) {
+    List<EstimationBlock> findBlocksToEstimate(QualityCodeSystem system, MeterActivation meterActivation, Range<Instant> period, ReadingType readingType) {
         return meterActivation.getChannelsContainer().getChannels().stream()
                 .filter(Channel::isRegular)
                 .filter(channel -> channel.getReadingTypes().contains(readingType))
-                .flatMap(channel -> findBlocksToEstimate(channel, period, readingType))
+                .flatMap(channel -> findBlocksToEstimate(system, channel, period, readingType))
                 .collect(Collectors.toList());
     }
 
-    private static Stream<EstimationBlock> findBlocksToEstimate(Channel channel, Range<Instant> period, ReadingType readingType) {
-        return decorate(findSuspects(channel, period, readingType).stream())
+    private static Stream<EstimationBlock> findBlocksToEstimate(QualityCodeSystem system, Channel channel, Range<Instant> period, ReadingType readingType) {
+        return decorate(findSuspects(Collections.singleton(system), channel, period, readingType).stream())
                 .sorted(Comparator.comparing(ReadingQualityRecord::getReadingTimestamp))
                 .map(EstimationEngine::toEstimatable)
                 .partitionWhen((est1, est2) -> !channel.getNextDateTime(est1.getTimestamp()).equals(est2.getTimestamp()))
                 .map(estimableList -> SimpleEstimationBlock.of(channel, readingType, estimableList));
     }
 
-    private static List<ReadingQualityRecord> findSuspects(Channel channel, Range<Instant> period, ReadingType readingType) {
+    private static List<ReadingQualityRecord> findSuspects(Set<QualityCodeSystem> systems, Channel channel, Range<Instant> period, ReadingType readingType) {
         return channel.getCimChannel(readingType)
-                // TODO: estimation refactoring: decide here which system should be used (CXO-1443)
-                .map(cimChannel -> cimChannel.findReadingQualities(Collections.singleton(QualityCodeSystem.MDC), QualityCodeIndex.SUSPECT, period, false))
+                .map(cimChannel -> cimChannel.findReadingQualities(systems, QualityCodeIndex.SUSPECT, period, false))
                 .orElse(Collections.emptyList());
     }
 

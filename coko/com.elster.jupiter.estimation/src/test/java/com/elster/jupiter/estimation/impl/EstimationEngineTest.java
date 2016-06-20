@@ -3,6 +3,7 @@ package com.elster.jupiter.estimation.impl;
 import com.elster.jupiter.cbo.QualityCodeCategory;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
+import com.elster.jupiter.devtools.tests.MockitoExtension;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.estimation.Estimatable;
@@ -44,6 +45,7 @@ import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.ass
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -55,7 +57,7 @@ public class EstimationEngineTest {
     @Rule
     public TestRule mcMurdo = Using.timeZoneOfMcMurdo();
 
-    public static final Set<QualityCodeSystem> MDC = Collections.singleton(QualityCodeSystem.MDC);
+    public static final Set<QualityCodeSystem> MDC_SET = Collections.singleton(QualityCodeSystem.MDC);
     @Mock
     private MeterActivation meterActivation;
     @Mock
@@ -104,20 +106,21 @@ public class EstimationEngineTest {
 
     @Test
     public void testFindBlocksWhenThereAreNoSuspects() {
-        List<EstimationBlock> blocksToEstimate = new EstimationEngine().findBlocksToEstimate(meterActivation, Range.<Instant>all(), readingType);
-
+        List<EstimationBlock> blocksToEstimate = new EstimationEngine().findBlocksToEstimate(QualityCodeSystem.MDC, meterActivation, Range.all(), readingType);
         assertThat(blocksToEstimate).isEmpty();
+        verify(cimChannel1, MockitoExtension.and(atLeastOnce(), MockitoExtension.neverWithOtherArguments()))
+                .findReadingQualities(MDC_SET, QualityCodeIndex.SUSPECT, Range.all(), false);
     }
 
     @Test
     public void testFindBlocksWhenThereIsOneSuspectForMissing() {
-        when(channel1.findReadingQualities(eq(MDC), eq(QualityCodeIndex.SUSPECT), eq(Range.<Instant>all()), anyBoolean(), anyBoolean()))
+        when(channel1.findReadingQualities(eq(MDC_SET), eq(QualityCodeIndex.SUSPECT), eq(Range.all()), anyBoolean(), anyBoolean()))
                 .thenReturn(Collections.singletonList(readingQualityRecord2));
-        when(cimChannel1.findReadingQualities(eq(MDC), eq(QualityCodeIndex.SUSPECT), eq(Range.<Instant>all()), anyBoolean()))
+        when(cimChannel1.findReadingQualities(eq(MDC_SET), eq(QualityCodeIndex.SUSPECT), eq(Range.all()), anyBoolean()))
                 .thenReturn(Collections.singletonList(readingQualityRecord2));
-        when(readingQualityRecord2.getBaseReadingRecord()).thenReturn(Optional.<BaseReadingRecord>empty());
+        when(readingQualityRecord2.getBaseReadingRecord()).thenReturn(Optional.empty());
 
-        List<EstimationBlock> blocksToEstimate = new EstimationEngine().findBlocksToEstimate(meterActivation, Range.<Instant>all(), readingType);
+        List<EstimationBlock> blocksToEstimate = new EstimationEngine().findBlocksToEstimate(QualityCodeSystem.MDC, meterActivation, Range.all(), readingType);
 
         assertThat(blocksToEstimate).hasSize(1);
 
@@ -133,12 +136,12 @@ public class EstimationEngineTest {
 
     @Test
     public void testFindBlocksWhenThereIsOneSuspectForReading() {
-        when(channel1.findReadingQualities(eq(MDC), eq(QualityCodeIndex.SUSPECT), eq(Range.<Instant>all()), anyBoolean(), anyBoolean()))
+        when(channel1.findReadingQualities(eq(MDC_SET), eq(QualityCodeIndex.SUSPECT), eq(Range.all()), anyBoolean(), anyBoolean()))
                 .thenReturn(Collections.singletonList(readingQualityRecord2));
-        when(cimChannel1.findReadingQualities(eq(MDC), eq(QualityCodeIndex.SUSPECT), eq(Range.<Instant>all()), anyBoolean()))
+        when(cimChannel1.findReadingQualities(eq(MDC_SET), eq(QualityCodeIndex.SUSPECT), eq(Range.all()), anyBoolean()))
                 .thenReturn(Collections.singletonList(readingQualityRecord2));
 
-        List<EstimationBlock> blocksToEstimate = new EstimationEngine().findBlocksToEstimate(meterActivation, Range.<Instant>all(), readingType);
+        List<EstimationBlock> blocksToEstimate = new EstimationEngine().findBlocksToEstimate(QualityCodeSystem.MDC, meterActivation, Range.all(), readingType);
 
         assertThat(blocksToEstimate).hasSize(1);
 
@@ -154,12 +157,12 @@ public class EstimationEngineTest {
 
     @Test
     public void testFindBlocksWhenThereIsOneBlockOfSuspectForReading() {
-        when(channel1.findReadingQualities(eq(MDC), eq(QualityCodeIndex.SUSPECT), eq(Range.<Instant>all()), anyBoolean(), anyBoolean()))
+        when(channel1.findReadingQualities(eq(MDC_SET), eq(QualityCodeIndex.SUSPECT), eq(Range.all()), anyBoolean(), anyBoolean()))
                 .thenReturn(Arrays.asList(readingQualityRecord2, readingQualityRecord3, readingQualityRecord4));
-        when(cimChannel1.findReadingQualities(eq(MDC), eq(QualityCodeIndex.SUSPECT), eq(Range.<Instant>all()), anyBoolean()))
+        when(cimChannel1.findReadingQualities(eq(MDC_SET), eq(QualityCodeIndex.SUSPECT), eq(Range.all()), anyBoolean()))
                 .thenReturn(Arrays.asList(readingQualityRecord2, readingQualityRecord3, readingQualityRecord4));
 
-        List<EstimationBlock> blocksToEstimate = new EstimationEngine().findBlocksToEstimate(meterActivation, Range.<Instant>all(), readingType);
+        List<EstimationBlock> blocksToEstimate = new EstimationEngine().findBlocksToEstimate(QualityCodeSystem.MDC, meterActivation, Range.all(), readingType);
 
         assertThat(blocksToEstimate).hasSize(1);
 
