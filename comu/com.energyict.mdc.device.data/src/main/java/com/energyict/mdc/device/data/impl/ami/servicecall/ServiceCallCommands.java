@@ -91,7 +91,6 @@ public class ServiceCallCommands {
         serviceCallBuilder.targetObject(device);
         serviceCallBuilder.extendedWith(completionOptionsServiceCallDomainExtension);
         serviceCallBuilder.extendedWith(commandServiceCallDomainExtension);
-        serviceCallBuilder.targetObject(device);
         return serviceCallBuilder.create();
     }
 
