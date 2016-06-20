@@ -51,7 +51,7 @@ import java.util.regex.Pattern;
 
 @Component(name = "com.elster.jupiter.yellowfin", service = {YellowfinService.class, TranslationKeyProvider.class}, immediate = true, property = "name=" + YellowfinService.COMPONENTNAME)
 @SuppressWarnings("unused")
-class YellowfinServiceImpl implements YellowfinService, TranslationKeyProvider {
+public class YellowfinServiceImpl implements YellowfinService, TranslationKeyProvider {
     private static final String YELLOWFIN_URL = "com.elster.jupiter.yellowfin.url";
     private static final String YELLOWFIN_EXTERNAL_URL = "com.elster.jupiter.yellowfin.externalurl";
     private static final String YELLOWFIN_WEBSERVICES_USER = "com.elster.jupiter.yellowfin.user";
