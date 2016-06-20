@@ -5,9 +5,10 @@ import com.elster.jupiter.servicecall.ServiceCallFilter;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-public class ServiceCallFilterImpl implements ServiceCallFilter {
+class ServiceCallFilterImpl implements ServiceCallFilter {
 
     private String reference;
     private List<String> types = new ArrayList<>();
@@ -20,53 +21,13 @@ public class ServiceCallFilterImpl implements ServiceCallFilter {
     private Object targetObject;
 
     @Override
-    public void setReference(String reference) {
-        this.reference = reference;
-    }
-
-    @Override
-    public void setTypes(List<String> types) {
-        this.types = types;
-    }
-
-    @Override
-    public void setStates(List<String> states) {
-        this.states = states;
-    }
-
-    @Override
-    public void setReceivedDateFrom(Instant receivedDateFrom) {
-        this.receivedDateFrom = receivedDateFrom;
-    }
-
-    @Override
-    public void setReceivedDateTo(Instant receivedDateTo) {
-        this.receivedDateTo = receivedDateTo;
-    }
-
-    @Override
-    public void setModificationDateFrom(Instant modificationDateFrom) {
-        this.modificationDateFrom = modificationDateFrom;
-    }
-
-    @Override
-    public void setModificationDateTo(Instant modificationDateTo) {
-        this.modificationDateTo = modificationDateTo;
-    }
-
-    @Override
-    public void setParent(ServiceCall parent) {
-        this.parent = parent;
-    }
-
-    @Override
-    public void setTargetObject(Object object) {
-        this.targetObject = object;
-    }
-
-    @Override
     public String getReference() {
         return reference;
+    }
+
+    @Override
+    public void setReference(String reference) {
+        this.reference = reference;
     }
 
     @Override
@@ -75,8 +36,18 @@ public class ServiceCallFilterImpl implements ServiceCallFilter {
     }
 
     @Override
+    public void setTypes(List<String> types) {
+        this.types = Collections.unmodifiableList(types);
+    }
+
+    @Override
     public List<String> getStates() {
         return states;
+    }
+
+    @Override
+    public void setStates(List<String> states) {
+        this.states = Collections.unmodifiableList(states);
     }
 
     @Override
@@ -85,8 +56,18 @@ public class ServiceCallFilterImpl implements ServiceCallFilter {
     }
 
     @Override
+    public void setReceivedDateFrom(Instant receivedDateFrom) {
+        this.receivedDateFrom = receivedDateFrom;
+    }
+
+    @Override
     public Instant getReceivedDateTo() {
         return receivedDateTo;
+    }
+
+    @Override
+    public void setReceivedDateTo(Instant receivedDateTo) {
+        this.receivedDateTo = receivedDateTo;
     }
 
     @Override
@@ -95,8 +76,18 @@ public class ServiceCallFilterImpl implements ServiceCallFilter {
     }
 
     @Override
+    public void setModificationDateFrom(Instant modificationDateFrom) {
+        this.modificationDateFrom = modificationDateFrom;
+    }
+
+    @Override
     public Instant getModificationDateTo() {
         return modificationDateTo;
+    }
+
+    @Override
+    public void setModificationDateTo(Instant modificationDateTo) {
+        this.modificationDateTo = modificationDateTo;
     }
 
     @Override
@@ -105,8 +96,18 @@ public class ServiceCallFilterImpl implements ServiceCallFilter {
     }
 
     @Override
+    public void setParent(ServiceCall parent) {
+        this.parent = parent;
+    }
+
+    @Override
     public Object getTargetObject() {
         return targetObject;
+    }
+
+    @Override
+    public void setTargetObject(Object object) {
+        this.targetObject = object;
     }
 
 }

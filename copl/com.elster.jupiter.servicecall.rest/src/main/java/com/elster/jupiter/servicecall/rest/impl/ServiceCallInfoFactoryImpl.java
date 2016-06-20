@@ -32,22 +32,28 @@ import java.util.stream.Collectors;
 @Component(name = "com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory",
         immediate = true,
         service = ServiceCallInfoFactory.class)
-public class ServiceCallInfoFactoryImpl implements ServiceCallInfoFactory {
+class ServiceCallInfoFactoryImpl implements ServiceCallInfoFactory {
 
     private Thesaurus thesaurus;
     private PropertyUtils propertyUtils;
     private ReferenceResolver referenceResolver;
 
     //osgi
-    public ServiceCallInfoFactoryImpl() {
-        propertyUtils = new PropertyUtils();
+    @SuppressWarnings("unused")
+    ServiceCallInfoFactoryImpl() {
+        this(new PropertyUtils());
     }
 
     @Inject
-    public ServiceCallInfoFactoryImpl(Thesaurus thesaurus, PropertyUtils propertyUtils, ReferenceResolver referenceResolver) {
+    ServiceCallInfoFactoryImpl(Thesaurus thesaurus, PropertyUtils propertyUtils, ReferenceResolver referenceResolver) {
+        this(propertyUtils);
         this.thesaurus = thesaurus;
+        this.setReferenceResolver(referenceResolver);
+    }
+
+    private ServiceCallInfoFactoryImpl(PropertyUtils propertyUtils) {
+        super();
         this.propertyUtils = propertyUtils;
-        this.referenceResolver = referenceResolver;
     }
 
     @Reference
@@ -103,7 +109,7 @@ public class ServiceCallInfoFactoryImpl implements ServiceCallInfoFactory {
         if (filter.hasProperty("type")) {
             serviceCallFilter.setTypes(filter.getStringList("type"));
         }
-        if(filter.hasProperty("status")) {
+        if (filter.hasProperty("status")) {
             serviceCallFilter.setStates(filter.getStringList("status"));
         }
         if (filter.hasProperty("receivedDateFrom")) {
