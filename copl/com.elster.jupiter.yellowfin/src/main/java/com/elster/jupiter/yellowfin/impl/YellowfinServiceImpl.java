@@ -109,7 +109,6 @@ class YellowfinServiceImpl implements YellowfinService, TranslationKeyProvider {
         if (yellowfinUrl != null) {
             Pattern pattern = Pattern.compile("(https?://)([^:^/]*):?([0-9]\\d*)?(.*)?");
             Matcher matcher = pattern.matcher(yellowfinUrl);
-            matcher.find();
             if (matcher.matches()) {
                 yellowfinHost = matcher.group(2);
                 if (matcher.group(3) != null) {
