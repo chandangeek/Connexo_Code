@@ -9,7 +9,6 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointLog;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
-import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 
 import com.google.common.collect.ImmutableMap;
@@ -17,13 +16,12 @@ import com.google.common.collect.ImmutableMap;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintWriter;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
-import static com.elster.jupiter.util.conditions.Where.where;
 
 /**
  * Created by bvn on 4/29/16.
@@ -220,9 +218,24 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
 
     @Override
     public void log(LogLevel logLevel, String message) {
-        EndPointLogImpl log = dataModel.getInstance(EndPointLogImpl.class)
-                .init(this, message, logLevel, clock.instant());
-        log.save();
+        if (this.logLevel.compareTo(logLevel) > -1) {
+            EndPointLogImpl log = dataModel.getInstance(EndPointLogImpl.class)
+                    .init(this, message, logLevel, clock.instant());
+            log.save();
+        }
+    }
+
+    @Override
+    public void log(String message, Exception exception) {
+        log(LogLevel.SEVERE, stackTrace2String(exception));
+    }
+
+    private String stackTrace2String(Exception e) {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        try (PrintWriter printWriter = new PrintWriter(byteArrayOutputStream)) {
+            e.printStackTrace(printWriter);
+        }
+        return byteArrayOutputStream.toString();
     }
 
     @Override

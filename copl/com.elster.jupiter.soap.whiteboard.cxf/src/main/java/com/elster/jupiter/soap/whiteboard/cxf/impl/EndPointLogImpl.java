@@ -22,7 +22,8 @@ public class EndPointLogImpl implements EndPointLog, HasId {
         timestamp("timestamp"),
         logLevel("logLevel"),
         endPointConfiguration("endPointConfiguration"),
-        message("message");
+        message("message"),
+        stacetrace("stackTrace");
 
         private final String javaFieldName;
 
@@ -51,6 +52,7 @@ public class EndPointLogImpl implements EndPointLog, HasId {
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     private String message;
+    private String stackTrace;
 
     EndPointLogImpl init(EndPointConfiguration endPointConfiguration, String message, LogLevel logLevel, Instant timestamp) {
         this.timestamp = timestamp;
@@ -82,6 +84,11 @@ public class EndPointLogImpl implements EndPointLog, HasId {
     @Override
     public String getMessage() {
         return message;
+    }
+
+    @Override
+    public String getStackTrace() {
+        return stackTrace;
     }
 
     public void save() {

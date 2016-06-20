@@ -8,6 +8,7 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointLog;
 
+import static com.elster.jupiter.orm.ColumnConversion.CLOB2STRING;
 import static com.elster.jupiter.orm.Table.MAX_STRING_LENGTH;
 
 public enum TableSpecs {
@@ -85,6 +86,11 @@ public enum TableSpecs {
                     .number()
                     .varChar(MAX_STRING_LENGTH)
                     .map(EndPointLogImpl.Fields.message.fieldName())
+                    .add();
+            table.column("STACKTRACE")
+                    .type("CLOB")
+                    .conversion(CLOB2STRING)
+                    .map(EndPointLogImpl.Fields.stacetrace.fieldName())
                     .add();
             table.primaryKey("SCS_PK_ENDPOINT_LOG").on(idColumn).add();
 
