@@ -78,7 +78,6 @@ public final class InboundEndPoint implements ManagedEndpoint {
             endpoint = svrFactory.create();
         } catch (Exception ex) {
             endPointConfiguration.log(LogLevel.SEVERE, ex.getMessage());
-            ex.printStackTrace();
         }
     }
 
