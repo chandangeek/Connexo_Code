@@ -17,7 +17,7 @@ import java.util.Set;
 
 @Component(name = "com.elster.jupiter.nls.rest", service = Application.class, immediate = true, property = {"alias=/nls", "app=SYS", "name=" + NlsApplication.COMPONENT_NAME})
 @SuppressWarnings("unused")
-class NlsApplication extends Application implements BinderProvider {
+public class NlsApplication extends Application implements BinderProvider {
 
     static final String COMPONENT_NAME = "NLS";
 
