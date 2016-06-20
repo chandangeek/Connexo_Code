@@ -1,10 +1,11 @@
 package com.elster.jupiter.osgi.goodies;
 
+import org.osgi.framework.Bundle;
+import org.osgi.service.packageadmin.ExportedPackage;
+
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-
-import org.osgi.framework.Bundle;
-import org.osgi.service.packageadmin.*;
 
 @SuppressWarnings("deprecation")
 public class BundleInfo {
@@ -12,13 +13,18 @@ public class BundleInfo {
 	private final ExportedPackage[] exports;
 	private final Set<Bundle> dependents = new HashSet<>();
 	private final Set<ExportedPackage> importPackages = new HashSet<>();
-	
-	BundleInfo(Bundle bundle,ExportedPackage[] exports) {
+
+	BundleInfo(Bundle bundle, ExportedPackage[] exports) {
 		this.bundle = bundle;
-		this.exports = exports == null ? new ExportedPackage[0] : exports;
+		if (exports == null) {
+			this.exports = new ExportedPackage[0];
+		} else {
+			this.exports = new ExportedPackage[exports.length];
+			System.arraycopy(exports, 0, this.exports, 0, exports.length);
+		}
 		for (ExportedPackage each : this.exports) {
 			for (Bundle dependent : each.getImportingBundles()) {
-				if (!dependent.equals(bundle)) {		
+				if (!dependent.equals(bundle)) {
 					dependents.add(dependent);
 				}
 			}
@@ -32,19 +38,20 @@ public class BundleInfo {
 	public ExportedPackage[] getExports() {
 		return exports;
 	}
-	
+
 	public Set<ExportedPackage> getImports() {
-		return importPackages;
+		return Collections.unmodifiableSet(importPackages);
 	}
 	public Set<Bundle> getDependents() {
-		return dependents;
+		return Collections.unmodifiableSet(dependents);
 	}
-	
+
 	void addImportPackage(ExportedPackage importPackage) {
 		this.importPackages.add(importPackage);
 	}
-	
+
 	public String getNodeName() {
 		return "B" + getBundle().getBundleId();
 	}
+
 }
