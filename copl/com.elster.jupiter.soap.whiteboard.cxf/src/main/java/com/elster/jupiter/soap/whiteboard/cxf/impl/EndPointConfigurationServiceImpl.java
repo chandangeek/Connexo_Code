@@ -16,6 +16,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.EventType;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import com.google.inject.AbstractModule;
@@ -61,6 +62,11 @@ public class EndPointConfigurationServiceImpl implements EndPointConfigurationSe
     @Override
     public List<MessageSeed> getSeeds() {
         return Arrays.asList(MessageSeeds.values());
+    }
+
+    @Reference
+    public void setUserService(UserService userService) {
+        // Foreign key
     }
 
     @Reference

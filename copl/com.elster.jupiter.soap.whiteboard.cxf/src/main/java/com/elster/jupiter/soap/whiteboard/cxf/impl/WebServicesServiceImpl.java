@@ -56,11 +56,12 @@ public class WebServicesServiceImpl implements WebServicesService {
     }
 
     @Inject // For test purposes only
-    public WebServicesServiceImpl(SoapProviderSupportFactory soapProviderSupportFactory, OrmService ormService, UpgradeService upgradeService, BundleContext bundleContext, EventService eventService) {
+    public WebServicesServiceImpl(SoapProviderSupportFactory soapProviderSupportFactory, OrmService ormService, UpgradeService upgradeService, BundleContext bundleContext, EventService eventService, NlsService nlsService) {
         setSoapProviderSupportFactory(soapProviderSupportFactory);
         setOrmService(ormService);
         setUpgradeService(upgradeService);
         setEventService(eventService);
+        setNlsService(nlsService);
         start(bundleContext);
     }
 
