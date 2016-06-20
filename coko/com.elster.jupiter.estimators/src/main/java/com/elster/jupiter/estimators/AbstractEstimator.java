@@ -92,7 +92,7 @@ public abstract class AbstractEstimator implements Estimator {
     }
 
     protected final LoggingContext initLoggingContext(EstimationBlock block) {
-        return LoggingContext.get().with(ImmutableMap.of(
+        return LoggingContext.getCloseableContext().with(ImmutableMap.of(
                 "block", EstimationBlockFormatter.getInstance().format(block),
                 "readingType", block.getReadingType().getMRID()));
     }

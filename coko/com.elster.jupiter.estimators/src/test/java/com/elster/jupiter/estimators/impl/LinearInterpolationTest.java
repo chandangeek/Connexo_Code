@@ -99,12 +99,12 @@ public class LinearInterpolationTest {
 
         logRecorder = new LogRecorder(Level.ALL);
         LOGGER.addHandler(logRecorder);
-        LoggingContext.get().with("rule", "rule");
+        LoggingContext.getCloseableContext().with("rule", "rule");
     }
 
     @After
     public void tearDown() {
-        LoggingContext.get().close();
+        LoggingContext.getCloseableContext().close();
         LOGGER.removeHandler(logRecorder);
     }
 
