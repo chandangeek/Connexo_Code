@@ -97,7 +97,7 @@ public class EstimationTaskResourceTest extends EstimationApplicationJerseyTest 
         doReturn(Optional.of(estimationTask)).when(estimationService).findEstimationTask(TASK_ID);
         doReturn(Optional.of(estimationTask)).when(estimationService).findAndLockEstimationTask(TASK_ID, 1L);
         doReturn(Optional.empty()).when(estimationService).findAndLockEstimationTask(TASK_ID, 2L);
-        doReturn(Arrays.asList(estimationTask)).when(estimationService).findEstimationTasks(MULTISENSE_KEY);
+        doReturn(Arrays.asList(estimationTask)).when(estimationService).findEstimationTasks(QualityCodeSystem.MDC);
     }
 
     @After

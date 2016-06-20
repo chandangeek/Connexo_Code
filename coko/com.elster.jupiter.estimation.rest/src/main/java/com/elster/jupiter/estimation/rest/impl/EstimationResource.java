@@ -345,7 +345,7 @@ public class EstimationResource {
     public PagedInfoList getEstimationTasks(@Context UriInfo uriInfo,
                                             @HeaderParam(APPLICATION_HEADER_PARAM) String applicationName,
                                             @BeanParam JsonQueryParameters queryParameters) {
-        List<EstimationTaskInfo> infos = estimationService.findEstimationTasks(applicationName)
+        List<EstimationTaskInfo> infos = estimationService.findEstimationTasks(getQualityCodeSystemFromApplicationName(applicationName))
                 .stream()
                 .map(et -> new EstimationTaskInfo(et, thesaurus))
                 .collect(Collectors.toList());
@@ -586,7 +586,7 @@ public class EstimationResource {
     }
 
     private EstimationTask fetchEstimationTask(long id, QualityCodeSystem qualityCodeSystem) {
-        return findEstimationTaskInApplication(id, qualityCodeSystem).filter(task -> task.getQualityCodeSystem().equals(qualityCodeSystem))
+        return findEstimationTaskInApplication(id, qualityCodeSystem)
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
