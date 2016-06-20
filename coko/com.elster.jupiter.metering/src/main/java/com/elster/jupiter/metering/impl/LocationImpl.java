@@ -1,12 +1,19 @@
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.LocationMember;
+import com.elster.jupiter.metering.LocationTemplate;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.DataModel;
+
 import javax.inject.Inject;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class LocationImpl implements Location {
@@ -18,7 +25,7 @@ public class LocationImpl implements Location {
 
 
     @Inject
-    LocationImpl(DataModel dataModel,  MeteringService meteringService) {
+    LocationImpl(DataModel dataModel, MeteringService meteringService) {
         this.dataModel = dataModel;
         this.meteringService = meteringService;
     }
@@ -43,7 +50,7 @@ public class LocationImpl implements Location {
 
     @Override
     public Optional<LocationMember> getMember(String locale) {
-       return members.stream().filter(location -> location.getLocale().equalsIgnoreCase(locale))
+        return members.stream().filter(location -> location.getLocale().equalsIgnoreCase(locale))
                 .findFirst();
     }
 
@@ -61,21 +68,21 @@ public class LocationImpl implements Location {
 
     @Override
     public LocationMember setMember(String countryCode,
-                             String countryName,
-                             String administrativeArea,
-                             String locality,
-                             String subLocality,
-                             String streetType,
-                             String streetName,
-                             String streetNumber,
-                             String establishmentType,
-                             String establishmentName,
-                             String establishmentNumber,
-                             String addressDetail,
-                             String zipCode,
-                             boolean defaultLocation,
-                             String locale) {
-        LocationMemberImpl locationMember = LocationMemberImpl.from(dataModel, this.getId(), countryCode, countryName, administrativeArea, locality, subLocality,
+                                    String countryName,
+                                    String administrativeArea,
+                                    String locality,
+                                    String subLocality,
+                                    String streetType,
+                                    String streetName,
+                                    String streetNumber,
+                                    String establishmentType,
+                                    String establishmentName,
+                                    String establishmentNumber,
+                                    String addressDetail,
+                                    String zipCode,
+                                    boolean defaultLocation,
+                                    String locale) {
+        LocationMemberImpl locationMember = LocationMemberImpl.from(dataModel, this, countryCode, countryName, administrativeArea, locality, subLocality,
                 streetType, streetName, streetNumber, establishmentType, establishmentName, establishmentNumber, addressDetail, zipCode,
                 defaultLocation, locale);
         locationMember.doSave();
@@ -97,8 +104,12 @@ public class LocationImpl implements Location {
 
     @Override
     public final boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof LocationImpl)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof LocationImpl)) {
+            return false;
+        }
         LocationImpl kpi = (LocationImpl) o;
         return Objects.equals(id, kpi.id);
     }
@@ -109,10 +120,51 @@ public class LocationImpl implements Location {
     }
 
     @Override
-    public final String toString(){
-        return meteringService.getFormattedLocationMembers(getId()).stream()
-                .flatMap(List::stream).filter(Objects::nonNull).collect(Collectors.joining(", "));
+    public final String toString() {
+        if (!members.isEmpty()) {
+            LocationMember member = members.get(0);
+            Map<String, String> memberValues = new LinkedHashMap<>();
+            memberValues.put("countryCode", member.getCountryCode());
+            memberValues.put("countryName", member.getCountryName());
+            memberValues.put("administrativeArea", member.getAdministrativeArea());
+            memberValues.put("locality", member.getLocality());
+            memberValues.put("subLocality", member.getSubLocality());
+            memberValues.put("streetType", member.getStreetType());
+            memberValues.put("streetName", member.getStreetName());
+            memberValues.put("streetNumber", member.getStreetNumber());
+            memberValues.put("establishmentType", member.getEstablishmentType());
+            memberValues.put("establishmentName", member.getEstablishmentName());
+            memberValues.put("establishmentNumber", member.getEstablishmentNumber());
+            memberValues.put("addressDetail", member.getAddressDetail());
+            memberValues.put("zipCode", member.getZipCode());
 
+            LocationTemplate locationTemplate = meteringService.getLocationTemplate();
+            List<List<String>> formattedLocation = locationTemplate.getTemplateMembers()
+                    .stream()
+                    .sorted((m1, m2) -> Integer.compare(m1.getRanking(), m2.getRanking()))
+                    .filter(m -> !m.getName().equalsIgnoreCase("locale"))
+                    .collect(() -> {
+                                List<List<String>> list = new ArrayList<>();
+                                list.add(new ArrayList<>());
+                                return list;
+                            },
+                            (list, s) -> {
+                                if (locationTemplate.getSplitLineElements().contains(s.getAbbreviation())) {
+                                    list.add(new ArrayList<String>() {{
+                                        add(memberValues.get(s.getName()));
+                                    }});
+
+                                } else {
+                                    list.get(list.size() - 1).add(memberValues.get(s.getName()));
+                                }
+                            },
+                            (list1, list2) -> {
+                                list1.get(list1.size() - 1).addAll(list2.remove(0));
+                                list1.addAll(list2);
+                            });
+            return formattedLocation.stream().flatMap(List::stream).filter(Objects::nonNull).collect(Collectors.joining(", "));
+        }
+        return "Location " + getId();
     }
 }
 
