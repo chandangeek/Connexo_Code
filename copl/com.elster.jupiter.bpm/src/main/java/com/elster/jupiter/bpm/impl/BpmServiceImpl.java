@@ -301,11 +301,11 @@ class BpmServiceImpl implements BpmService, TranslationKeyProvider, MessageSeedP
 
     @Override
     public BpmProcessDefinitionBuilder newProcessBuilder() {
-        return new BpmProcessDefinitionBuilderImpl(dataModel, this);
+        return new BpmProcessDefinitionBuilderImpl(dataModel);
     }
 
     public List<ProcessAssociationProvider> getProcessAssociationProviders() {
-        return processAssociationProviders;
+        return Collections.unmodifiableList(processAssociationProviders);
     }
 
     @Override
