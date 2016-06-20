@@ -45,7 +45,7 @@ public class GarnetTcpDeviceProtocolDialectPropertyPersistenceSupport implements
 
     @Override
     public String componentName() {
-        return CustomPropertySetComponentName.P03.name();
+        return CustomPropertySetComponentName.P31.name();
     }
 
     @Override
@@ -70,5 +70,4 @@ public class GarnetTcpDeviceProtocolDialectPropertyPersistenceSupport implements
             .of(GarnetTcpDeviceProtocolDialectProperties.ActualFields.values())
             .forEach(field -> field.addTo(table));
     }
-
 }
