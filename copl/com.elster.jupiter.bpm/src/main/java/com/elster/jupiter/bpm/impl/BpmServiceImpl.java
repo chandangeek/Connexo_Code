@@ -62,7 +62,7 @@ import static com.elster.jupiter.upgrade.InstallIdentifier.identifier;
         name = "com.elster.jupiter.bpm",
         service = {BpmService.class, TranslationKeyProvider.class, MessageSeedProvider.class},
         property = {"name=" + BpmService.COMPONENTNAME}, immediate = true)
-public class BpmServiceImpl implements BpmService, TranslationKeyProvider, MessageSeedProvider {
+class BpmServiceImpl implements BpmService, TranslationKeyProvider, MessageSeedProvider {
 
     private volatile DataModel dataModel;
     private volatile MessageService messageService;
@@ -75,11 +75,11 @@ public class BpmServiceImpl implements BpmService, TranslationKeyProvider, Messa
     private volatile UpgradeService upgradeService;
     private List<ProcessAssociationProvider> processAssociationProviders = new CopyOnWriteArrayList<>();
 
-    public BpmServiceImpl() {
+    BpmServiceImpl() {
     }
 
     @Inject
-    public BpmServiceImpl(OrmService ormService, MessageService messageService, JsonService jsonService, NlsService nlsService, UserService userService, QueryService queryService, ThreadPrincipalService threadPrincipalService, UpgradeService upgradeService) {
+    BpmServiceImpl(OrmService ormService, MessageService messageService, JsonService jsonService, NlsService nlsService, UserService userService, QueryService queryService, ThreadPrincipalService threadPrincipalService, UpgradeService upgradeService) {
         this();
         setOrmService(ormService);
         setMessageService(messageService);
@@ -227,7 +227,7 @@ public class BpmServiceImpl implements BpmService, TranslationKeyProvider, Messa
         List<BpmProcessDefinition> bpmProcessDefinitions = dataModel.query(BpmProcessDefinition.class)
                 .select(nameCondition.and(versionCondition));
         if (bpmProcessDefinitions.isEmpty()) {
-            return BpmProcessDefinitionImpl.from(dataModel, processName, association, version, status, "MDC");
+            return BpmProcessDefinitionImpl.from(dataModel, processName, association, version, status, "MDC", Collections.emptyList());
         }
         bpmProcessDefinitions.get(0).setStatus(status);
         return bpmProcessDefinitions.get(0);

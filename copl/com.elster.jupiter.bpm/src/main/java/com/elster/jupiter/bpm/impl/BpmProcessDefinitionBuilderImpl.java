@@ -82,9 +82,8 @@ public class BpmProcessDefinitionBuilderImpl implements BpmProcessDefinitionBuil
 
     @Override
     public BpmProcessDefinition create() {
-        BpmProcessDefinitionImpl process = BpmProcessDefinitionImpl.from(dataModel, processName, association, version, status, appKey);
+        BpmProcessDefinitionImpl process = BpmProcessDefinitionImpl.from(dataModel, processName, association, version, status, appKey, processPrivileges);
         process.setProperties(properties);
-        process.setPrivileges(processPrivileges);
         process.save();
         return process;
     }
