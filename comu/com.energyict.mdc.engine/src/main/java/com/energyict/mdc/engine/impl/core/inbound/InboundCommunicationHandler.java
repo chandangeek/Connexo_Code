@@ -1,5 +1,9 @@
 package com.energyict.mdc.engine.impl.core.inbound;
 
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.time.StopWatch;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
@@ -39,7 +43,9 @@ import com.energyict.mdc.engine.impl.events.connection.UndiscoveredEstablishConn
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
 import com.energyict.mdc.engine.impl.logging.LoggerFactory;
-import com.energyict.mdc.engine.impl.monitor.*;
+import com.energyict.mdc.engine.impl.monitor.InboundComPortMonitorImpl;
+import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
+import com.energyict.mdc.engine.impl.monitor.ServerInboundComPortOperationalStatistics;
 import com.energyict.mdc.engine.impl.protocol.inbound.statistics.StatisticsMonitoringHttpServletRequest;
 import com.energyict.mdc.engine.impl.protocol.inbound.statistics.StatisticsMonitoringHttpServletResponse;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
@@ -60,11 +66,6 @@ import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.time.StopWatch;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -512,7 +513,9 @@ public class InboundCommunicationHandler {
                 // should already be logged
                 break;
             }
-            default: {
+            case DATA_ONLY_PARTIALLY_HANDLED: {
+                // should already be logged by com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler.CompositeComPortDiscoveryLogger.collectedDataWasFiltered()
+                break;
             }
         }
     }

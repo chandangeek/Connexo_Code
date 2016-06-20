@@ -16,6 +16,8 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.energyict.mdc.device.data.DeviceService;
@@ -48,9 +50,12 @@ import org.osgi.service.event.EventAdmin;
 import java.io.IOException;
 import java.sql.SQLException;
 
-import org.junit.*;
-import org.junit.rules.*;
-import org.junit.runner.*;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -268,6 +273,9 @@ public class WebSocketQueryApiServiceTest {
             onlineComServerBuilder.storeTaskQueueSize(ComServer.MINIMUM_STORE_TASK_QUEUE_SIZE);
             onlineComServerBuilder.numberOfStoreTaskThreads(ComServer.MINIMUM_NUMBER_OF_STORE_TASK_THREADS);
             onlineComServerBuilder.storeTaskThreadPriority(ComServer.MINIMUM_STORE_TASK_THREAD_PRIORITY);
+            onlineComServerBuilder.serverName(hostName);
+            onlineComServerBuilder.statusPort(ComServer.DEFAULT_QUERY_API_PORT_NUMBER);
+            onlineComServerBuilder.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
             final OnlineComServer onlineComServer = onlineComServerBuilder.create();
             ctx.commit();
             return onlineComServer;
@@ -291,6 +299,9 @@ public class WebSocketQueryApiServiceTest {
         remoteComServer.communicationLogLevel(ComServer.LogLevel.ERROR);
         remoteComServer.changesInterPollDelay(new TimeDuration(5, TimeDuration.TimeUnit.HOURS));
         remoteComServer.schedulingInterPollDelay(new TimeDuration(1, TimeDuration.TimeUnit.MINUTES));
+        remoteComServer.serverName(hostName);
+        remoteComServer.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
+        remoteComServer.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
         return remoteComServer.create();
     }
 
@@ -391,6 +402,7 @@ public class WebSocketQueryApiServiceTest {
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
             bind(DeviceService.class).toInstance(deviceService);
+            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }
 
