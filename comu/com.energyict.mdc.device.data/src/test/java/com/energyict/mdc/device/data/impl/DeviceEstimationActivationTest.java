@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.metering.Meter;
@@ -149,7 +150,7 @@ public class DeviceEstimationActivationTest extends PersistenceIntegrationTest {
     }
     
     private EstimationRuleSet createEstimationRuleSet(String name) {
-        EstimationRuleSet estimationRuleSet = inMemoryPersistence.getEstimationService().createEstimationRuleSet(name, "MDC");
+        EstimationRuleSet estimationRuleSet = inMemoryPersistence.getEstimationService().createEstimationRuleSet(name, QualityCodeSystem.MDC);
         estimationRuleSet.save();
         return estimationRuleSet;
     }
