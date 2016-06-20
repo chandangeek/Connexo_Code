@@ -85,7 +85,6 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
         assertThat(jsonModel.<Integer>get("endpoints[1].id")).isEqualTo(2);
         assertThat(jsonModel.<Integer>get("endpoints[1].version")).isEqualTo(902);
         assertThat(jsonModel.<String>get("endpoints[1].name")).isEqualTo("currency");
-        assertThat(jsonModel.<Boolean>get("endpoints[1].authenticationMethod")).isNull();
         assertThat(jsonModel.<Boolean>get("endpoints[1].tracing")).isTrue();
         assertThat(jsonModel.<String>get("endpoints[1].traceFile")).isEqualTo("webservices.log");
         assertThat(jsonModel.<String>get("endpoints[1].username")).isEqualTo("username");

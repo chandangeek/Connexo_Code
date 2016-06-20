@@ -86,6 +86,7 @@ public class WebServicesApplicationTest extends FelixRestApplicationJerseyTest {
         when(mock.getWebServiceName()).thenReturn(webServiceName);
         Finder logFinder = mockFinder(Collections.emptyList());
         when(mock.getLogs()).thenReturn(logFinder);
+        when(mock.getAuthenticationMethod()).thenReturn(EndPointAuthentication.NONE);
         when(mock.isActive()).thenReturn(true);
         when(mock.isHttpCompression()).thenReturn(true);
         when(mock.isSchemaValidation()).thenReturn(true);

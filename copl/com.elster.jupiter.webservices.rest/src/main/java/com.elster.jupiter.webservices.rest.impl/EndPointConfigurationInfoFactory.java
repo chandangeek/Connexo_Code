@@ -38,13 +38,12 @@ public class EndPointConfigurationInfoFactory {
         info.tracing = endPointConfiguration.isTracing();
         info.traceFile = endPointConfiguration.getTraceFile();
         info.schemaValidation = endPointConfiguration.isSchemaValidation();
+        info.authenticationMethod = new IdWithLocalizedValueInfo<>(endPointConfiguration
+                .getAuthenticationMethod(),
+                endPointConfiguration.getAuthenticationMethod()
+                        .getDisplayName(thesaurus));
         if (InboundEndPointConfiguration.class.isAssignableFrom(endPointConfiguration.getClass())) {
             info.direction = new IdWithLocalizedValueInfo<>(WebServiceDirection.INBOUND, WebServiceDirection.INBOUND.getDisplayName(thesaurus));
-            info.authenticationMethod = new IdWithLocalizedValueInfo<>(((InboundEndPointConfiguration) endPointConfiguration)
-                    .getAuthenticationMethod(),
-                    ((InboundEndPointConfiguration) endPointConfiguration).getAuthenticationMethod()
-                            .getDisplayName(thesaurus));
-            ((InboundEndPointConfiguration) endPointConfiguration).getAuthenticationMethod();
         } else {
             info.direction = new IdWithLocalizedValueInfo<>(WebServiceDirection.OUTBOUND, WebServiceDirection.OUTBOUND.getDisplayName(thesaurus));
             info.username = ((OutboundEndPointConfiguration) endPointConfiguration).getUsername();
@@ -99,6 +98,8 @@ public class EndPointConfigurationInfoFactory {
         if (info.password != null) {
             builder.username(info.password);
         }
+
+        builder.setAuthenticationMethod(info.authenticationMethod.id);
         builder.traceFile(info.traceFile);
         EndPointConfiguration endPointConfiguration = builder.create();
         if (Boolean.TRUE.equals(info.active)) {
