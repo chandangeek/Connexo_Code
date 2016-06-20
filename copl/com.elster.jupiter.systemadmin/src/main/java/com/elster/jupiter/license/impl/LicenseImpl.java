@@ -107,7 +107,7 @@ class LicenseImpl implements License {
                 throw new InvalidLicenseException(thesaurus, e);
             }
         }
-        return new Properties(properties);
+        return properties;
     }
 
     private Properties extractProperties(SignedObject object) throws NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException, IOException, SignatureException, ClassNotFoundException {
