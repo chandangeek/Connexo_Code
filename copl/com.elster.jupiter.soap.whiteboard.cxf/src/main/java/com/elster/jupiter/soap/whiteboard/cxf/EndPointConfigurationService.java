@@ -114,5 +114,7 @@ public interface EndPointConfigurationService {
         OutboundEndPointConfigBuilder logLevel(LogLevel logLevel);
 
         EndPointConfiguration create();
+
+        OutboundEndPointConfigBuilder setAuthenticationMethod(EndPointAuthentication id);
     }
 }
