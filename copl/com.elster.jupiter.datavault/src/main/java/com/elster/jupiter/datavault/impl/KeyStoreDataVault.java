@@ -3,6 +3,16 @@ package com.elster.jupiter.datavault.impl;
 import com.elster.jupiter.datavault.DataVault;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.util.Checks;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.KeyGenerator;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -16,15 +26,6 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.util.Arrays;
 import java.util.Random;
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.KeyGenerator;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
-import javax.inject.Inject;
 
 /**
  * KeyStore data vault provides data encryption by means of a set of AES128 keys store in a java KeyStore. This
@@ -38,11 +39,11 @@ import javax.inject.Inject;
  * -appending that key's id to the cipherText
  * -base64 encoding the encrypted value for easy storage as varchar
  */
-public class KeyStoreDataVault implements DataVault {
+class KeyStoreDataVault implements DataVault {
 
     private static final int IV_SIZE = 16;
     private static final String AES_CBC_PKCS5_PADDING = "AES/CBC/PKCS5Padding";
-    public static final String KEYSTORE_TYPE = "JCEKS"; // JCEKS allows storing AES symmetric keys
+    private static final String KEYSTORE_TYPE = "JCEKS"; // JCEKS allows storing AES symmetric keys
 
     private KeyStore keyStore;
     private final Random random;
@@ -51,7 +52,7 @@ public class KeyStoreDataVault implements DataVault {
     private final char[] chars = {'1','#','g','W','X','i','A','E','y','9','R','n','b','6','M','%','C','o','j','E'};
 
     @Inject
-    public KeyStoreDataVault(Random random, ExceptionFactory exceptionFactory)  {
+    KeyStoreDataVault(Random random, ExceptionFactory exceptionFactory)  {
         this.random = random;
         this.exceptionFactory = exceptionFactory;
     }
@@ -158,7 +159,7 @@ public class KeyStoreDataVault implements DataVault {
         return cipher;
     }
 
-    private SecretKeySpec createKeySpecForKey(String keyAlias) throws KeyStoreException, NoSuchAlgorithmException, UnrecoverableKeyException, IOException, CertificateException {
+    private SecretKeySpec createKeySpecForKey(String keyAlias) throws KeyStoreException, NoSuchAlgorithmException, UnrecoverableKeyException {
         final Key key = this.keyStore.getKey(keyAlias, getPassword());
         if (key==null) {
             throw exceptionFactory.newException(MessageSeeds.DECRYPTION_FAILED); // Not giving details about key for security reasons
@@ -175,4 +176,5 @@ public class KeyStoreDataVault implements DataVault {
     private char[] getPassword() {
         return chars;
     }
+
 }

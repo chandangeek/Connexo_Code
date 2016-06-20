@@ -2,8 +2,9 @@ package com.elster.jupiter.datavault.impl;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
-import java.io.ByteArrayOutputStream;
+
 import javax.inject.Inject;
+import java.io.ByteArrayOutputStream;
 
 /**
  * Copyrights EnergyICT
@@ -12,7 +13,7 @@ import javax.inject.Inject;
  *
  * @since 10/4/12 10:48 AM
  */
-public class OrmKeyStoreImpl {
+class OrmKeyStoreImpl {
 
     private final DataModel dataModel;
 
@@ -30,19 +31,20 @@ public class OrmKeyStoreImpl {
         }
     }
 
+    @SuppressWarnings("unused") // Managed by ORM
     private long id;
     private byte[] keyStore;
 
     @Inject
-    public OrmKeyStoreImpl(DataModel dataModel) {
+    OrmKeyStoreImpl(DataModel dataModel) {
         this.dataModel = dataModel;
     }
 
-    public void setKeyStore(ByteArrayOutputStream outputStream) {
+    void setKeyStore(ByteArrayOutputStream outputStream) {
         this.keyStore = outputStream.toByteArray();
     }
 
-    final public void save() {
+    public final void save() {
         Save.action(this.id).save(dataModel, this);
     }
 
@@ -50,8 +52,8 @@ public class OrmKeyStoreImpl {
         return id;
     }
 
-
-    public byte[] getKeyStoreBytes() {
+    byte[] getKeyStoreBytes() {
         return keyStore;
     }
+
 }
