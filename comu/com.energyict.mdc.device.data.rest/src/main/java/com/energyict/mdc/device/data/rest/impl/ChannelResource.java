@@ -471,7 +471,7 @@ public class ChannelResource {
                                                             EstimateChannelDataInfo estimateChannelDataInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(device, channelId);
-        return previewEstimate(QualityCodeSystem.ofApplication(applicationName), device, channel, estimateChannelDataInfo);
+        return previewEstimate(QualityCodeSystem.MDC, device, channel, estimateChannelDataInfo);
     }
 
     private List<ChannelDataInfo> previewEstimate(QualityCodeSystem system, Device device, Channel channel, EstimateChannelDataInfo estimateChannelDataInfo) {
