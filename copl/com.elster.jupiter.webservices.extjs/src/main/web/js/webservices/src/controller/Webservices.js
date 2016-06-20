@@ -42,6 +42,9 @@ Ext.define('Wss.controller.Webservices', {
             },
             '#wss-no-webservice-endpoints-add-btn': {
                 click: this.goToAddView
+            },
+            '#add-webservice-endpoint': {
+                click: this.goToAddView
             }
         });
     },

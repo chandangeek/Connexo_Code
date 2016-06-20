@@ -33,7 +33,13 @@ Ext.define('Wss.view.PreviewForm', {
                     xtype: 'displayfield',
                     fieldLabel: Uni.I18n.translate('general.type', 'WSS', 'Type'),
                     name: 'direction',
-                    hidden: !me.isLandingPage
+                    hidden: !me.isLandingPage,
+                    renderer: function(value) {
+                        if(Ext.isEmpty(value)) {
+                            return '-';
+                        }
+                        return value.localizedValue;
+                    }
                 },
                 {
                     xtype: 'displayfield',
