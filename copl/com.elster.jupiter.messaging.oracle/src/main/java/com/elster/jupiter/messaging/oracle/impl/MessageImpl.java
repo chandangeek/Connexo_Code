@@ -1,6 +1,7 @@
 package com.elster.jupiter.messaging.oracle.impl;
 
 import com.elster.jupiter.messaging.Message;
+
 import oracle.jdbc.aq.AQMessage;
 
 import java.sql.SQLException;
@@ -8,11 +9,11 @@ import java.sql.SQLException;
 /**
  * A Message implementation which is a simple wrapper around the payload.
  */
-public class MessageImpl implements Message {
+class MessageImpl implements Message {
 
     private final byte[] payload;
 
-    public MessageImpl(AQMessage aqMessage) throws SQLException {
+    MessageImpl(AQMessage aqMessage) throws SQLException {
         this.payload = aqMessage.getPayload();
     }
 
@@ -20,4 +21,5 @@ public class MessageImpl implements Message {
     public byte[] getPayload() {
         return payload;
     }
+
 }
