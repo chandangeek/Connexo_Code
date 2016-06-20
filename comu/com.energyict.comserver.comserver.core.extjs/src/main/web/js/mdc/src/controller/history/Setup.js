@@ -1139,6 +1139,20 @@ Ext.define('Mdc.controller.history.Setup', {
                             controller: 'Mdc.metrologyconfiguration.controller.AddView',
                             action: 'showForm',
                             privileges: Mdc.privileges.MetrologyConfiguration.canAdmin()
+                        },
+                        edit: {
+                            title: Uni.I18n.translate('metrologyconfiguration.editMetrologyConfiguration', 'MDC', 'Edit metrology configuration'),
+                            route: '{metrologyConfigurationId}/edit',
+                            controller: 'Mdc.metrologyconfiguration.controller.AddView',
+                            action: 'showForm',
+                            privileges: Mdc.privileges.MetrologyConfiguration.canAdmin(),
+                            callback: function (route) {
+                                this.getApplication().on('loadMetrologyConfiguration', function (metrologyConfigurationName) {
+                                    route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", [metrologyConfigurationName]));
+                                    return true;
+                                }, {single: true});
+                                return this;
+                            }
                         }
                     }
                 }

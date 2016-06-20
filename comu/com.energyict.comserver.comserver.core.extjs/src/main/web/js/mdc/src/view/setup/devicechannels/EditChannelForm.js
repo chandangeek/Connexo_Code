@@ -7,6 +7,10 @@ Ext.define('Mdc.view.setup.devicechannels.EditChannelForm', {
     ],
     alias: 'widget.device-channel-edit-form',
     returnLink: null,
+    layout: {
+        type: 'vbox',
+        align: 'stretch' // in order to completely see the error messages
+    },
 
     initComponent: function () {
         var me = this;
@@ -16,7 +20,7 @@ Ext.define('Mdc.view.setup.devicechannels.EditChannelForm', {
                 xtype: 'uni-form-error-message',
                 itemId: 'form-errors',
                 margin: '0 0 10 0',
-                width: 450,
+                maxWidth: 450,
                 hidden: true
             },
             {
