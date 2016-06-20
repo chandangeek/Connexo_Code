@@ -62,7 +62,7 @@ import static com.elster.jupiter.upgrade.InstallIdentifier.identifier;
         name = "com.elster.jupiter.bpm",
         service = {BpmService.class, TranslationKeyProvider.class, MessageSeedProvider.class},
         property = {"name=" + BpmService.COMPONENTNAME}, immediate = true)
-class BpmServiceImpl implements BpmService, TranslationKeyProvider, MessageSeedProvider {
+public class BpmServiceImpl implements BpmService, TranslationKeyProvider, MessageSeedProvider {
 
     private volatile DataModel dataModel;
     private volatile MessageService messageService;
@@ -75,7 +75,7 @@ class BpmServiceImpl implements BpmService, TranslationKeyProvider, MessageSeedP
     private volatile UpgradeService upgradeService;
     private List<ProcessAssociationProvider> processAssociationProviders = new CopyOnWriteArrayList<>();
 
-    BpmServiceImpl() {
+    public BpmServiceImpl() {
     }
 
     @Inject
