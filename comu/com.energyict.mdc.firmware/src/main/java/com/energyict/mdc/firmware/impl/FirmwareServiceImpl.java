@@ -16,10 +16,9 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryExecutor;
-import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.users.PrivilegesProvider;
-import com.elster.jupiter.users.ResourceDefinition;
+import com.elster.jupiter.upgrade.InstallIdentifier;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
@@ -29,7 +28,6 @@ import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
@@ -70,6 +68,7 @@ import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -83,13 +82,10 @@ import static com.elster.jupiter.util.conditions.Where.where;
 
 /**
  * Provides an implementation for the {@link FirmwareService} interface.
- * <p>
- * Copyrights EnergyICT
- * Date: 3/5/15
- * Time: 10:33 AM
+ *
  */
-@Component(name = "com.energyict.mdc.firmware", service = {FirmwareService.class, InstallService.class, MessageSeedProvider.class, TranslationKeyProvider.class, PrivilegesProvider.class}, property = "name=" + FirmwareService.COMPONENTNAME, immediate = true)
-public class FirmwareServiceImpl implements FirmwareService, InstallService, MessageSeedProvider, TranslationKeyProvider, PrivilegesProvider {
+@Component(name = "com.energyict.mdc.firmware", service = {FirmwareService.class, MessageSeedProvider.class, TranslationKeyProvider.class}, property = "name=" + FirmwareService.COMPONENTNAME, immediate = true)
+public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider, TranslationKeyProvider {
 
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
     private volatile DataModel dataModel;
@@ -103,6 +99,8 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Mes
     private volatile UserService userService;
     private volatile CommunicationTaskService communicationTaskService;
     private volatile PropertySpecService propertySpecService;
+    private volatile MeteringGroupsService meteringGroupsService;
+    private volatile UpgradeService upgradeService;
 
     // For OSGI
     public FirmwareServiceImpl() {
@@ -121,7 +119,8 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Mes
                                MessageService messageService,
                                UserService userService,
                                CommunicationTaskService communicationTaskService,
-                               PropertySpecService propertySpecService) {
+                               PropertySpecService propertySpecService,
+                               UpgradeService upgradeService) {
         this();
         setOrmService(ormService);
         setNlsService(nlsService);
@@ -135,9 +134,7 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Mes
         setUserService(userService);
         setCommunicationTaskService(communicationTaskService);
         setPropertySpecService(propertySpecService);
-        if (!dataModel.isInstalled()) {
-            install();
-        }
+        setUpgradeService(upgradeService);
         activate();
     }
 
@@ -154,6 +151,11 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Mes
     @Reference
     public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
+    }
+
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
     }
 
     @Override
@@ -482,6 +484,7 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Mes
                     bind(PropertySpecService.class).toInstance(propertySpecService);
                 }
             });
+            upgradeService.register(InstallIdentifier.identifier(FirmwareService.COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
         } catch (RuntimeException e) {
             e.printStackTrace();
             throw e;
@@ -540,25 +543,9 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Mes
         this.userService = userService;
     }
 
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList(OrmService.COMPONENTNAME,
-                NlsService.COMPONENTNAME,
-                DeviceConfigurationService.COMPONENTNAME,
-                DeviceMessageSpecificationService.COMPONENT_NAME,
-                DeviceDataServices.COMPONENT_NAME,
-                EventService.COMPONENTNAME,
-                TaskService.COMPONENT_NAME,
-                MessageService.COMPONENTNAME,
-                UserService.COMPONENTNAME,
-                MeteringGroupsService.COMPONENTNAME
-        );
-    }
-
-    @Override
-    public void install() {
-        Installer installer = new Installer(dataModel, eventService, messageService, userService);
-        installer.install();
+    @Reference
+    public void setMeteringGroupsService(MeteringGroupsService meteringGroupsService) {
+        this.meteringGroupsService = meteringGroupsService;
     }
 
     @Override
@@ -586,20 +573,6 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Mes
 
     public DataModel getDataModel() {
         return this.dataModel;
-    }
-
-    @Override
-    public String getModuleName() {
-        return FirmwareService.COMPONENTNAME;
-    }
-
-    @Override
-    public List<ResourceDefinition> getModuleResources() {
-        List<ResourceDefinition> resources = new ArrayList<>();
-        resources.add(userService.createModuleResourceWithPrivileges(FirmwareService.COMPONENTNAME, Privileges.RESOURCE_FIRMWARE_CAMPAIGNS.getKey(), Privileges.RESOURCE_FIRMWARE_CAMPAIGNS_DESCRIPTION.getKey(),
-                Arrays.asList(
-                        Privileges.Constants.VIEW_FIRMWARE_CAMPAIGN, Privileges.Constants.ADMINISTRATE_FIRMWARE_CAMPAIGN)));
-        return resources;
     }
 
     @Override

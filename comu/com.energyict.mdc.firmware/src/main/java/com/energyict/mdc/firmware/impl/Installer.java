@@ -4,16 +4,26 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.upgrade.FullInstaller;
+import com.elster.jupiter.users.PrivilegesProvider;
+import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.exception.ExceptionCatcher;
+
+import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.security.Privileges;
 
+import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class Installer {
+public class Installer implements FullInstaller, PrivilegesProvider {
 
     private final Logger logger = Logger.getLogger(Installer.class.getName());
 
@@ -22,6 +32,7 @@ public class Installer {
     private final MessageService messageService;
     private final UserService userService;
 
+    @Inject
     Installer(DataModel dataModel, EventService eventService, MessageService messageService, UserService userService) {
         this.dataModel = dataModel;
         this.eventService = eventService;
@@ -29,25 +40,36 @@ public class Installer {
         this.userService = userService;
     }
 
-    void install() {
-        ExceptionCatcher.executing(
-                this::installDataModel,
-
-                this::createJupiterEventsSubscriber
-        ).andHandleExceptionsWith(Throwable::printStackTrace)
-                .execute();
-        createEventTypesIfNotExist();
+    @Override
+    public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
+        dataModelUpgrader.upgrade(dataModel, Version.latest());
+        doTry(
+                "Create events subscriber",
+                this::createJupiterEventsSubscriber,
+                logger
+        );
+        doTry(
+                "Create event types for FRM",
+                this::createEventTypesIfNotExist,
+                logger
+        );
+        userService.addModulePrivileges(this);
     }
 
-    private void installDataModel() {
-        dataModel.install(true, true);
+    @Override
+    public String getModuleName() {
+        return FirmwareService.COMPONENTNAME;
     }
-/*
-    private void createPrivileges() {
-        userService.createResourceWithPrivileges("MDC", "firmware.campaigns", "firmware.campaigns.description", new String[]
-                {Privileges.VIEW_FIRMWARE_CAMPAIGN, Privileges.ADMINISTRATE_FIRMWARE_CAMPAIGN});
+
+    @Override
+    public List<ResourceDefinition> getModuleResources() {
+        List<ResourceDefinition> resources = new ArrayList<>();
+        resources.add(userService.createModuleResourceWithPrivileges(FirmwareService.COMPONENTNAME, Privileges.RESOURCE_FIRMWARE_CAMPAIGNS.getKey(), Privileges.RESOURCE_FIRMWARE_CAMPAIGNS_DESCRIPTION.getKey(),
+                Arrays.asList(
+                        Privileges.Constants.VIEW_FIRMWARE_CAMPAIGN, Privileges.Constants.ADMINISTRATE_FIRMWARE_CAMPAIGN)));
+        return resources;
     }
-*/
+
     private void createJupiterEventsSubscriber() {
         Optional<DestinationSpec> destinationSpec = this.messageService.getDestinationSpec(EventService.JUPITER_EVENTS);
         if (destinationSpec.isPresent()) {
