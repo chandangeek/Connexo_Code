@@ -14,9 +14,20 @@ public interface EndPointLog {
 
     EndPointConfiguration getEndPointConfiguration();
 
+    /**
+     * The timestamp of log creation
+     */
     Instant getTime();
 
+    /**
+     * The message entered for this log.
+     */
     String getMessage();
+
+    /**
+     * Retrieve the stacktrace, if one was logged. Null otherwise.
+     */
+    String getStackTrace();
 
     /**
      * Removes a log entry from the system

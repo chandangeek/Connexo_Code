@@ -12,20 +12,8 @@ import java.time.Clock;
  */
 public final class InboundEndPointConfigurationImpl extends EndPointConfigurationImpl implements InboundEndPointConfiguration {
 
-    private EndPointAuthentication authenticationMethod;
-
     @Inject
     public InboundEndPointConfigurationImpl(DataModel dataModel, Clock clock) {
         super(clock, dataModel);
-    }
-
-    @Override
-    public EndPointAuthentication getAuthenticationMethod() {
-        return authenticationMethod;
-    }
-
-    @Override
-    public void setAuthenticationMethod(EndPointAuthentication authenticated) {
-        this.authenticationMethod = authenticated;
     }
 }
