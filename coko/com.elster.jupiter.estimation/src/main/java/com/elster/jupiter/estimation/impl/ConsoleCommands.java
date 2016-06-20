@@ -108,11 +108,7 @@ public class ConsoleCommands {
     }
 
     public void availableEstimators(String qualityCodeSystem) {
-        QualityCodeSystem system = Stream.of(QualityCodeSystem.values())
-                .filter(s -> s.name().equals(qualityCodeSystem))
-                .findAny()
-                .orElse(QualityCodeSystem.OTHER);
-        estimationService.getAvailableEstimators(system).stream()
+        estimationService.getAvailableEstimators(QualityCodeSystem.of(qualityCodeSystem)).stream()
                 .peek(est -> System.out.println(est.getDefaultFormat()))
                 .flatMap(est -> est.getPropertySpecs().stream())
                 .map(spec -> spec.getName() + ' ' + spec.getValueFactory().getValueType().toString())
@@ -127,10 +123,7 @@ public class ConsoleCommands {
         threadPrincipalService.set(() -> "Console");
         try {
             transactionService.execute(VoidTransaction.of(() -> {
-                EstimationRuleSet estimationRuleSet = estimationService.createEstimationRuleSet(name, Stream.of(QualityCodeSystem.values())
-                        .filter(system -> system.name().equals(qualityCodeSystem))
-                        .findAny()
-                        .orElse(QualityCodeSystem.OTHER));
+                EstimationRuleSet estimationRuleSet = estimationService.createEstimationRuleSet(name, QualityCodeSystem.of(qualityCodeSystem));
                 estimationRuleSet.save();
                 System.out.println(print(estimationRuleSet));
             }));

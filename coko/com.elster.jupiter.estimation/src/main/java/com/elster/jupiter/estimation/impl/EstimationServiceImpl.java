@@ -418,10 +418,10 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
     }
 
     @Override
-    public List<? extends EstimationTask> findEstimationTasks(String application) {
+    public List<? extends EstimationTask> findEstimationTasks(QualityCodeSystem qualityCodeSystem) {
         return getEstimationTaskQuery().select(Condition.TRUE, Order.descending("lastRun").nullsLast())
                 .stream()
-                .filter(task -> task.getQualityCodeSystem().equals(application))
+                .filter(task -> task.getQualityCodeSystem().equals(qualityCodeSystem))
                 .collect(Collectors.toList());
     }
 

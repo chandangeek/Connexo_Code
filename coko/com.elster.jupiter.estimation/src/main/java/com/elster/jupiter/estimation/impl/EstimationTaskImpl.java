@@ -36,7 +36,6 @@ final class EstimationTaskImpl implements IEstimationTask {
     private long id;
 
     private String name;
-    private String application;
     private Reference<RecurrentTask> recurrentTask = ValueReference.absent();
     private Reference<EndDeviceGroup> endDeviceGroup = ValueReference.absent();
     private Reference<RelativePeriod> period = ValueReference.absent();
