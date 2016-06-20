@@ -30,7 +30,7 @@ import java.util.Properties;
  * Date: 2/04/2014
  * Time: 11:17
  */
-public class LicenseImpl implements License {
+class LicenseImpl implements License {
     private static final String LICENSE_APP_KEY = "license.application.key";
     private static final String LICENSE_CREATION_DATE_KEY = "license.creation.date";
     private static final String LICENSE_EXPIRATION_DATE_KEY = "license.expiration.date";
@@ -41,7 +41,7 @@ public class LicenseImpl implements License {
     private final Thesaurus thesaurus;
 
     @Inject
-    public LicenseImpl(Thesaurus thesaurus) {
+    LicenseImpl(Thesaurus thesaurus) {
         super();
         this.thesaurus = thesaurus;
     }
@@ -54,9 +54,11 @@ public class LicenseImpl implements License {
     private String info;
     @SuppressWarnings("unused")
     private Instant createTime;
+    @SuppressWarnings("unused")
     private Instant modTime;
     @SuppressWarnings("unused")
     private String userName;
+    @SuppressWarnings("unused")
     private long version;
 
     private SignedObject getSignedObject() throws IOException, ClassNotFoundException {
@@ -105,7 +107,7 @@ public class LicenseImpl implements License {
                 throw new InvalidLicenseException(thesaurus, e);
             }
         }
-        return properties;
+        return new Properties(properties);
     }
 
     private Properties extractProperties(SignedObject object) throws NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException, IOException, SignatureException, ClassNotFoundException {
