@@ -1,5 +1,6 @@
 package com.elster.jupiter.estimators.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.estimation.Estimatable;
 import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.estimation.EstimationResult;
@@ -69,7 +70,7 @@ public class ValueFillEstimator extends AbstractEstimator {
 
     }
 
-    private static final Set<String> SUPPORTED_APPLICATIONS = ImmutableSet.of("MDC", "INS");
+    private static final Set<QualityCodeSystem> QUALITY_CODE_SYSTEMS = ImmutableSet.of(QualityCodeSystem.MDC, QualityCodeSystem.MDM);
     private Long maxNumberOfConsecutiveSuspects;
     private BigDecimal fillValue;
 
@@ -95,16 +96,16 @@ public class ValueFillEstimator extends AbstractEstimator {
     }
 
     @Override
-    public Set<String> getSupportedApplications() {
-        return SUPPORTED_APPLICATIONS;
+    public Set<QualityCodeSystem> getSupportedQualityCodeSystems() {
+        return QUALITY_CODE_SYSTEMS;
     }
 
     @Override
-    public EstimationResult estimate(List<EstimationBlock> estimationBlocks) {
-        List<EstimationBlock> remain = new ArrayList<EstimationBlock>();
-        List<EstimationBlock> estimated = new ArrayList<EstimationBlock>();
+    public EstimationResult estimate(List<EstimationBlock> estimationBlocks, QualityCodeSystem system) {
+        List<EstimationBlock> remain = new ArrayList<>();
+        List<EstimationBlock> estimated = new ArrayList<>();
         for (EstimationBlock block : estimationBlocks) {
-            estimate (block, remain, estimated);
+            estimate(block, remain, estimated);
         }
         return SimpleEstimationResult.of(remain, estimated);
     }
@@ -113,7 +114,6 @@ public class ValueFillEstimator extends AbstractEstimator {
         try (LoggingContext context = initLoggingContext(block)) {
             if (canEstimate(block)) {
                 block.estimatables().forEach(this::estimate);
-
                 estimated.add(block);
             } else {
                 remain.add(block);

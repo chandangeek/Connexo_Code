@@ -122,7 +122,7 @@ public class LinearInterpolationTest {
         Estimator estimator = new LinearInterpolation(thesaurus, propertySpecService, properties);
         estimator.init(LOGGER);
 
-        EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
+        EstimationResult estimationResult = estimator.estimate(Collections.singletonList(estimationBlock), QualityCodeSystem.EXTERNAL);
 
         assertThat(estimationResult.remainingToBeEstimated()).isEmpty();
         assertThat(estimationResult.estimated()).containsExactly(estimationBlock);
@@ -141,7 +141,7 @@ public class LinearInterpolationTest {
         Estimator estimator = new LinearInterpolation(thesaurus, propertySpecService, properties);
         estimator.init(LOGGER);
 
-        EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
+        EstimationResult estimationResult = estimator.estimate(Collections.singletonList(estimationBlock), QualityCodeSystem.EXTERNAL);
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
@@ -158,7 +158,7 @@ public class LinearInterpolationTest {
         Estimator estimator = new LinearInterpolation(thesaurus, propertySpecService, properties);
         estimator.init(LOGGER);
 
-        EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
+        EstimationResult estimationResult = estimator.estimate(Collections.singletonList(estimationBlock), QualityCodeSystem.EXTERNAL);
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
@@ -175,7 +175,7 @@ public class LinearInterpolationTest {
         Estimator estimator = new LinearInterpolation(thesaurus, propertySpecService, properties);
         estimator.init(LOGGER);
 
-        EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
+        EstimationResult estimationResult = estimator.estimate(Collections.singletonList(estimationBlock), QualityCodeSystem.EXTERNAL);
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
@@ -192,7 +192,7 @@ public class LinearInterpolationTest {
         Estimator estimator = new LinearInterpolation(thesaurus, propertySpecService, properties);
         estimator.init(LOGGER);
 
-        EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
+        EstimationResult estimationResult = estimator.estimate(Collections.singletonList(estimationBlock), QualityCodeSystem.EXTERNAL);
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
@@ -209,7 +209,7 @@ public class LinearInterpolationTest {
         Estimator estimator = new LinearInterpolation(thesaurus, propertySpecService, properties);
         estimator.init(LOGGER);
 
-        EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
+        EstimationResult estimationResult = estimator.estimate(Collections.singletonList(estimationBlock), QualityCodeSystem.EXTERNAL);
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
@@ -226,7 +226,7 @@ public class LinearInterpolationTest {
         Estimator estimator = new LinearInterpolation(thesaurus, propertySpecService, properties);
         estimator.init(LOGGER);
 
-        EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
+        EstimationResult estimationResult = estimator.estimate(Collections.singletonList(estimationBlock), QualityCodeSystem.EXTERNAL);
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
@@ -253,8 +253,8 @@ public class LinearInterpolationTest {
 
     @Test
     public void testGetSupportedApplications() {
-        assertThat(new LinearInterpolation(thesaurus, propertySpecService).getSupportedApplications())
-                .containsOnly("INS", "MDC");
+        assertThat(new LinearInterpolation(thesaurus, propertySpecService).getSupportedQualityCodeSystems())
+                .containsOnly(QualityCodeSystem.MDC, QualityCodeSystem.MDM);
     }
 
     private EstimationRuleProperties estimationRuleProperty(final String name, final Object value) {

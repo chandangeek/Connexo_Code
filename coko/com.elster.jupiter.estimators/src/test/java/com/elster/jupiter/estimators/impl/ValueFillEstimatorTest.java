@@ -1,5 +1,6 @@
 package com.elster.jupiter.estimators.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.devtools.tests.fakes.LogRecorder;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.estimation.Estimatable;
@@ -104,7 +105,7 @@ public class ValueFillEstimatorTest {
         Estimator estimator = new ValueFillEstimator(thesaurus, propertySpecService, properties);
         estimator.init(LOGGER);
 
-        EstimationResult estimationResult = estimator.estimate(Collections.singletonList(estimationBlock));
+        EstimationResult estimationResult = estimator.estimate(Collections.singletonList(estimationBlock), QualityCodeSystem.NOTAPPLICABLE);
 
         assertThat(estimationResult.remainingToBeEstimated()).isEmpty();
         assertThat(estimationResult.estimated()).containsExactly(estimationBlock);
@@ -134,7 +135,7 @@ public class ValueFillEstimatorTest {
         Estimator estimator = new ValueFillEstimator(thesaurus, propertySpecService, properties);
         estimator.init(LOGGER);
 
-        EstimationResult estimationResult = estimator.estimate(Collections.singletonList(estimationBlock));
+        EstimationResult estimationResult = estimator.estimate(Collections.singletonList(estimationBlock), QualityCodeSystem.NOTAPPLICABLE);
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
@@ -161,8 +162,8 @@ public class ValueFillEstimatorTest {
 
     @Test
     public void testGetSupportedApplications() {
-        assertThat(new ValueFillEstimator(thesaurus, propertySpecService).getSupportedApplications())
-                .containsOnly("INS", "MDC");
+        assertThat(new ValueFillEstimator(thesaurus, propertySpecService).getSupportedQualityCodeSystems())
+                .containsOnly(QualityCodeSystem.MDC, QualityCodeSystem.MDM);
     }
 
     private EstimationRuleProperties estimationRuleProperty(final String name, final Object value) {
