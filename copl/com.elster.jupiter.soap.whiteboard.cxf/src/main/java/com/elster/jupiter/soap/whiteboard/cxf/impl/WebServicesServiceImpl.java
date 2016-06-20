@@ -1,6 +1,9 @@
 package com.elster.jupiter.soap.whiteboard.cxf.impl;
 
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
@@ -14,6 +17,7 @@ import com.elster.jupiter.upgrade.UpgradeService;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
+import com.google.inject.name.Names;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -21,6 +25,7 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +49,7 @@ public class WebServicesServiceImpl implements WebServicesService {
     private volatile DataModel dataModel;
     private volatile UpgradeService upgradeService;
     private volatile EventService eventService;
+    private volatile Thesaurus thesaurus;
 
     // OSGi
     public WebServicesServiceImpl() {
@@ -74,6 +80,11 @@ public class WebServicesServiceImpl implements WebServicesService {
         for (TableSpecs tableSpecs : TableSpecs.values()) {
             tableSpecs.addTo(dataModel);
         }
+    }
+
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.DOMAIN);
     }
 
     @Reference
@@ -119,10 +130,14 @@ public class WebServicesServiceImpl implements WebServicesService {
     @Override
     public void publishEndPoint(EndPointConfiguration endPointConfiguration) {
         if (webServices.containsKey(endPointConfiguration.getWebServiceName())) {
-            ManagedEndpoint managedEndpoint = webServices.get(endPointConfiguration.getWebServiceName())
-                    .createEndpoint(endPointConfiguration);
-            managedEndpoint.publish();
-            endpoints.put(endPointConfiguration, managedEndpoint);
+            try {
+                ManagedEndpoint managedEndpoint = webServices.get(endPointConfiguration.getWebServiceName())
+                        .createEndpoint(endPointConfiguration);
+                managedEndpoint.publish();
+                endpoints.put(endPointConfiguration, managedEndpoint);
+            } catch (Exception e) {
+                endPointConfiguration.log("Failed to publish endpoint " + endPointConfiguration.getName(), e);
+            }
         } else {
             logger.warning("Could not publish " + endPointConfiguration.getName() + ": the required web service '" + endPointConfiguration
                     .getWebServiceName() + "' is not registered");
@@ -187,7 +202,11 @@ public class WebServicesServiceImpl implements WebServicesService {
     @Activate
     public void start(BundleContext bundleContext) {
         this.bundleContext = bundleContext;
-        this.dataModel.register(this.getModule());
+        String logDirectory = this.bundleContext.getProperty("com.elster.jupiter.webservices.log.directory");
+        if (logDirectory == null) {
+            logDirectory = System.getProperty("java.io.tmpdir");
+        }
+        this.dataModel.register(this.getModule(logDirectory));
         upgradeService.register(InstallIdentifier.identifier(WebServicesService.COMPONENT_NAME), dataModel, Installer.class, Collections
                 .emptyMap());
     }
@@ -197,14 +216,16 @@ public class WebServicesServiceImpl implements WebServicesService {
         endpoints.values().stream().forEach(ManagedEndpoint::stop);
     }
 
-    private Module getModule() {
+    private Module getModule(String logDirectory) {
         return new AbstractModule() {
             @Override
             public void configure() {
                 bind(DataModel.class).toInstance(dataModel);
+                bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(BundleContext.class).toInstance(bundleContext);
                 bind(SoapProviderSupportFactory.class).toInstance(soapProviderSupportFactory);
                 bind(EventService.class).toInstance(eventService);
+                bind(String.class).annotatedWith(Names.named("LogDirectory")).toInstance(logDirectory);
             }
         };
     }
