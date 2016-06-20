@@ -487,7 +487,7 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
                 .sorted(Comparator.comparing(EstimationResolver::getPriority).reversed())
                 .flatMap(resolver -> resolver.resolve(meterActivation).stream())
                 .map(IEstimationRuleSet.class::cast)
-                .filter(set -> QualityCodeSystem.ofApplication(set.getApplicationName()) == system)
+                .filter(set -> set.getQualityCodeSystem() == system)
                 .distinct(EstimationRuleSet::getId)
                 .flatMap(set -> set.getRules().stream());
     }

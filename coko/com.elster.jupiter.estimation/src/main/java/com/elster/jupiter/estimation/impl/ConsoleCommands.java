@@ -85,12 +85,12 @@ public class ConsoleCommands {
         System.out.println("Usage: estimationBlocks <meterId> <applicationName: INS, MDC>");
     }
 
-    public void estimationBlocks(long meterId, String applicationName) {
+    public void estimationBlocks(long meterId, String qualityCodeSystem) {
         try {
             EstimationEngine estimationEngine = new EstimationEngine();
             Meter meter = meteringService.findMeter(meterId).orElseThrow(IllegalArgumentException::new);
             meter.getCurrentMeterActivation().ifPresent(meterActivation -> {
-                QualityCodeSystem system = QualityCodeSystem.ofApplication(applicationName);
+                QualityCodeSystem system = QualityCodeSystem.of(qualityCodeSystem);
                 meterActivation.getChannels().stream()
                         .flatMap(channel -> channel.getReadingTypes().stream())
                         .flatMap(readingType -> estimationEngine.findBlocksToEstimate(system, meterActivation,
@@ -256,10 +256,10 @@ public class ConsoleCommands {
     }
 
     public void estimate() {
-        System.out.println("Usage: estimate <meterId> <applicationName: INS, MDC> [<estimatorName>] [<properties>...]");
+        System.out.println("Usage: estimate <meterId> <qualityCodeSystem: MDM, MDC, OTHER> [<estimatorName>] [<properties>...]");
     }
 
-    public void estimate(long meterId, String applicationName, String estimatorName, String... properties) {
+    public void estimate(long meterId, String qualityCodeSystem, String estimatorName, String... properties) {
         try {
             Optional<Estimator> optionalEstimatorTemplate = estimationService.getEstimator(estimatorName);
             if (!optionalEstimatorTemplate.isPresent()) {
@@ -274,7 +274,7 @@ public class ConsoleCommands {
                 System.out.println("no meter activation present or meter " + meter.getName());
             } else {
                 MeterActivation meterActivation = meterActivationOptional.get();
-                QualityCodeSystem system = QualityCodeSystem.ofApplication(applicationName);
+                QualityCodeSystem system = QualityCodeSystem.of(qualityCodeSystem);
                 for (Channel channel : meterActivation.getChannels()) {
                     estimate(system, channel, estimator, meterActivation);
                 }
@@ -313,10 +313,10 @@ public class ConsoleCommands {
         }
     }
 
-    public void estimate(long meterId, String applicationName) {
+    public void estimate(long meterId, String qualityCodeSystem) {
         Meter meter = meteringService.findMeter(meterId).orElseThrow(IllegalArgumentException::new);
         meter.getCurrentMeterActivation()
-                .map(meterActivation -> estimationService.estimate(QualityCodeSystem.ofApplication(applicationName), meterActivation, Range.all()))
+                .map(meterActivation -> estimationService.estimate(QualityCodeSystem.of(qualityCodeSystem), meterActivation, Range.all()))
                 .map(EstimationReport::getResults)
                 .ifPresent(map -> {
                     map.entrySet().stream()

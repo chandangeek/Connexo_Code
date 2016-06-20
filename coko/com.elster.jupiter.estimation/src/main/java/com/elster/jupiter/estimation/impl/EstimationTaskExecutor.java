@@ -59,7 +59,7 @@ class EstimationTaskExecutor implements TaskExecutor {
     private void tryExecute(TaskOccurrence occurrence, Logger taskLogger) {
         EstimationTask estimationTask = getEstimationTask(occurrence);
         RelativePeriod relativePeriod = estimationTask.getPeriod().orElseGet(timeService::getAllRelativePeriod);
-        QualityCodeSystem system = QualityCodeSystem.ofApplication(estimationTask.getApplication());
+        QualityCodeSystem system = estimationTask.getQualityCodeSystem();
 
         estimationTask.getEndDeviceGroup().getMembers(occurrence.getTriggerTime()).stream()
                 .filter(device -> device instanceof Meter)

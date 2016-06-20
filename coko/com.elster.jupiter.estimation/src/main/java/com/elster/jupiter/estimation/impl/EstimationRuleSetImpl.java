@@ -108,11 +108,6 @@ class EstimationRuleSetImpl implements IEstimationRuleSet {
     }
 
     @Override
-    public String getApplicationName() {
-        return applicationName;
-    }
-
-    @Override
     public long getId() {
         return id;
     }
@@ -329,6 +324,11 @@ class EstimationRuleSetImpl implements IEstimationRuleSet {
     @Override
     public Instant getObsoleteDate() {
         return this.obsoleteTime;
+    }
+
+    @Override
+    public QualityCodeSystem getQualityCodeSystem() {
+        return this.qualityCodeSystem;
     }
 
     private void setObsoleteTime(Instant obsoleteTime) {
