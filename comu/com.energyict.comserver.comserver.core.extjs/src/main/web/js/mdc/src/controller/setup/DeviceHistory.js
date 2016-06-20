@@ -12,7 +12,8 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
         'Mdc.store.DeviceLifeCycleStatesHistory',
         'Mdc.store.DeviceFirmwareHistory',
         'Mdc.customattributesonvaluesobjects.store.DeviceCustomAttributeSets',
-        'Mdc.customattributesonvaluesobjects.store.CustomAttributeSetVersionsOnDevice'
+        'Mdc.customattributesonvaluesobjects.store.CustomAttributeSetVersionsOnDevice',
+        'Mdc.store.device.MeterActivations'
     ],
 
     models: [
@@ -42,7 +43,8 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
             success: function (device) {
                 view = Ext.widget('device-history-setup', {
                     router: me.getController('Uni.controller.history.Router'),
-                    device: device
+                    device: device,
+                    controller: me
                 });
                 me.getApplication().fireEvent('loadDevice', device);
                 me.getApplication().fireEvent('changecontentevent', view);
@@ -96,6 +98,15 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
         });
     },
 
+    showMeterActivations: function() {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            store = Ext.getStore('Mdc.store.device.MeterActivations');
+
+        store.getProxy().extraParams = {mRID: router.arguments.mRID};
+        store.load();
+    },
+
     showCustomAttributeSet: function(mRID) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
@@ -120,8 +131,11 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
                 }
             });
         }
+
         me.getTabPanel().on('tabchange', function(tabpanel, tabItem) {
-            if (tabItem.itemId !== 'device-history-firmware-tab' && tabItem.itemId !== 'device-history-life-cycle-tab') {
+            if (tabItem.itemId !== 'device-history-firmware-tab'
+                && tabItem.itemId !== 'device-history-life-cycle-tab'
+                && tabItem.itemId !== 'device-history-meter-activations-tab') {
                 router.queryParams = {};
                 if (tabItem.customAttributeSetId) {
                     router.queryParams.customAttributeSetId = tabItem.customAttributeSetId;
