@@ -20,10 +20,26 @@ public final class DefaultStartPage implements StartPage {
         this.iconPath = iconPath;
         this.name = name;
         this.mainController = mainController;
-        this.scripts = Collections.unmodifiableList(scripts);
-        this.translationComponents = Collections.unmodifiableList(translationComponents);
-        this.styleSheets = Collections.unmodifiableList(styleSheets);
-        this.dependencies = Collections.unmodifiableMap(dependencies);
+        this.scripts = unmodifiableList(scripts);
+        this.translationComponents = unmodifiableList(translationComponents);
+        this.styleSheets = unmodifiableList(styleSheets);
+        this.dependencies = unmodifiableMap(dependencies);
+    }
+
+    private static <T> List<T> unmodifiableList(List<T> list) {
+        if (list != null) {
+            return Collections.unmodifiableList(list);
+        } else {
+            return null;
+        }
+    }
+
+    private static <K, V> Map<K, V> unmodifiableMap(Map<K, V> map) {
+        if (map != null) {
+            return Collections.unmodifiableMap(map);
+        } else {
+            return null;
+        }
     }
 
     public DefaultStartPage(String name, String iconPath, String htmlPath, String mainController, List<Script> scripts, List<String> translationComponents, List<String> styleSheets) {
