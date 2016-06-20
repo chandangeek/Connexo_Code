@@ -16,7 +16,14 @@ import java.time.Clock;
 
 public class OrmModule extends AbstractModule {
 
+    private final SchemaInfoProvider schemaInfoProvider;
+
     public OrmModule() {
+        this(new H2SchemaInfo());
+    }
+
+    public OrmModule(SchemaInfoProvider schemaInfoProvider) {
+        this.schemaInfoProvider = schemaInfoProvider;
     }
 
     @Override
@@ -28,8 +35,7 @@ public class OrmModule extends AbstractModule {
         requireBinding(Publisher.class);
         requireBinding(ValidationProviderResolver.class);
         bind(OrmService.class).to(OrmServiceImpl.class).in(Scopes.SINGLETON);
-        bind(SchemaInfoProvider.class).to(H2SchemaInfo.class).in(Scopes.SINGLETON);
+        bind(SchemaInfoProvider.class).toInstance(this.schemaInfoProvider);
     }
 
-  
 }

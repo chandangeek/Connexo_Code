@@ -90,7 +90,9 @@ public interface DataModel {
 
     /*
      * Tests whether the dataModel is installed (DDL has been executed)
+     * @Deprecated use UpgradeService functionality instead
      */
+    @Deprecated
     boolean isInstalled();
 
     Connection getConnection(boolean transactionRequired) throws SQLException;

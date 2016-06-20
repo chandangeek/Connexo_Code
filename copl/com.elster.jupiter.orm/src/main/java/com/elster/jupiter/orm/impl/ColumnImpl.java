@@ -7,7 +7,6 @@ import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.fields.impl.ColumnConversionImpl;
-import com.elster.jupiter.orm.fields.impl.LazyLoadingBlob;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.streams.Functions;
 
@@ -35,6 +34,7 @@ import java.util.stream.Stream;
 import static com.elster.jupiter.util.Ranges.intersection;
 
 public class ColumnImpl implements Column {
+    private static final int MAX_ORACLE_VARCHAR_DATATYPE_SIZE = 4000;
     private static final Logger LOGGER = Logger.getLogger(ColumnImpl.class.getName());
 
     // persistent fields
@@ -238,7 +238,7 @@ public class ColumnImpl implements Column {
 
     @Override
     public String getName(String alias) {
-        return alias == null || alias.length() == 0 ? name : alias + "." + name;
+        return alias == null || alias.isEmpty() ? name : alias + "." + name;
     }
 
     @Override
@@ -261,7 +261,7 @@ public class ColumnImpl implements Column {
         return getTable().isPrimaryKeyColumn(this);
     }
 
-    public String getDbType() {
+    String getDbType() {
         return dbType;
     }
 
@@ -290,7 +290,7 @@ public class ColumnImpl implements Column {
         return insertValue;
     }
 
-    public String getInstallValue() {
+    String getInstallValue() {
         return installValue;
     }
 
@@ -299,7 +299,7 @@ public class ColumnImpl implements Column {
         return insertValue != null && !insertValue.isEmpty();
     }
 
-    public boolean mandatesRefreshAfterInsert() {
+    boolean mandatesRefreshAfterInsert() {
         return this.hasInsertValue() || this.conversion.equals(ColumnConversionImpl.BLOB2SQLBLOB);
     }
 
@@ -322,29 +322,16 @@ public class ColumnImpl implements Column {
         return updateValue != null && !updateValue.isEmpty();
     }
 
-    private ColumnConversionImpl.JsonConverter jsonConverter() {
+    public ColumnConversionImpl.JsonConverter jsonConverter() {
         return getTable().getDataModel().getInstance(ColumnConversionImpl.JsonConverter.class);
     }
 
     public Object convertToDb(Object value) {
-        if (conversion == ColumnConversionImpl.CHAR2JSON) {
-            return jsonConverter().convertToDb(value);
-        } else {
-            return conversion.convertToDb(this, value);
-        }
+        return conversion.convertToDb(this, value);
     }
 
     Object convertFromDb(ResultSet rs, int index) throws SQLException {
-        switch (conversion) {
-            case CHAR2JSON:
-                return jsonConverter().convertFromDb(rs, index);
-            case CHAR2ENUM:
-            case NUMBER2ENUM:
-            case NUMBER2ENUMPLUSONE:
-                return createEnum(conversion.convertFromDb(this, rs, index));
-            default:
-                return conversion.convertFromDb(this, rs, index);
-        }
+        return conversion.convertFromDb(this, rs, index);
     }
 
     private Class<?> getType() {
@@ -357,7 +344,7 @@ public class ColumnImpl implements Column {
         return primaryKeyColumn.getType();
     }
 
-    private Object createEnum(Object value) {
+    public Object createEnum(Object value) {
         if (value == null) {
             return null;
         }
@@ -377,7 +364,6 @@ public class ColumnImpl implements Column {
         }
         throw new IllegalArgumentException("" + value + " not appropriate for enum " + getType());
     }
-
 
     boolean isStandard() {
         return
@@ -401,25 +387,11 @@ public class ColumnImpl implements Column {
 
     @Override
     public boolean isEnum() {
-        switch (conversion) {
-            case NUMBER2ENUM:
-            case NUMBER2ENUMPLUSONE:
-            case CHAR2ENUM:
-                return true;
-
-            default:
-                return false;
-        }
+        return conversion.isEnumRelated();
     }
 
     public Object convert(String in) {
-        if (isEnum()) {
-            return createEnum(in);
-        } else if (conversion == ColumnConversionImpl.CHAR2JSON) {
-            return jsonConverter().convert(in);
-        } else {
-            return conversion.convert(this, in);
-        }
+        return conversion.convert(this, in);
     }
 
     @Override
@@ -436,15 +408,17 @@ public class ColumnImpl implements Column {
         return getForeignKeyConstraint() != null;
     }
 
-    ForeignKeyConstraintImpl getForeignKeyConstraint() {
-        for (ForeignKeyConstraintImpl constraint : getTable().getForeignKeyConstraints()) {
-            for (ColumnImpl column : constraint.getColumns()) {
-                if (this.equals(column)) {
-                    return constraint;
-                }
-            }
-        }
-        return null;
+    private ForeignKeyConstraintImpl getForeignKeyConstraint() {
+        return this.getTable()
+                .getForeignKeyConstraints()
+                .stream()
+                .filter(this::containsSelf)
+                .findFirst()
+                .orElse(null);
+    }
+
+    private boolean containsSelf(ForeignKeyConstraintImpl constraint) {
+        return constraint.getColumns().stream().anyMatch(this::equals);
     }
 
     private DomainMapper getDomainMapper() {
@@ -492,15 +466,7 @@ public class ColumnImpl implements Column {
     }
 
     Optional<IOResource> setObject(PreparedStatement statement, int index, Object target) throws SQLException {
-        Object dbValue = this.getDatabaseValue(target);
-        if (dbValue instanceof LazyLoadingBlob) {
-            LazyLoadingBlob lazyLoadingBlob = (LazyLoadingBlob) dbValue;
-            lazyLoadingBlob.bindTo(statement, index);
-            return Optional.of(lazyLoadingBlob);
-        } else {
-            statement.setObject(index, dbValue);
-            return Optional.empty();
-        }
+        return this.conversion.setObject(this, statement, index, this.domainValue(target));
     }
 
     String getFormula() {
@@ -683,8 +649,8 @@ public class ColumnImpl implements Column {
             if (length < 1) {
                 throw new IllegalArgumentException("Illegal length: " + length);
             }
-            if (length > 4000) {
-                // may need to adjust for non oracle or oracle 12
+            // may need to adjust for non oracle or oracle 12
+            if (length > MAX_ORACLE_VARCHAR_DATATYPE_SIZE) {
                 throw new IllegalArgumentException("" + length + " exceeds max varchar size");
             }
             return this.type("VARCHAR2(" + length + " CHAR)");
@@ -752,7 +718,7 @@ public class ColumnImpl implements Column {
         }
     }
 
-    static class VirtualBuilderImpl implements Column.VirtualBuilder {
+    private static class VirtualBuilderImpl implements Column.VirtualBuilder {
 
         private final BuilderImpl base;
 

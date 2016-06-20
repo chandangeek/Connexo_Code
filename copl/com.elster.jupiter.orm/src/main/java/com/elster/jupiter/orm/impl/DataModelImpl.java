@@ -228,21 +228,23 @@ public class DataModelImpl implements DataModel {
     }
 
     private long maxColumnValue(ColumnImpl sequenceColumn, Statement statement) throws SQLException {
-        ResultSet resultSet = statement.executeQuery("select nvl(max(" + sequenceColumn.getName() + ") ,0) from " + sequenceColumn.getTable().getName());
-        if (resultSet.next()) {
-            return resultSet.getLong(1);
-        } else {
-            return 0;
+        try (ResultSet resultSet = statement.executeQuery("select nvl(max(" + sequenceColumn.getName() + ") ,0) from " + sequenceColumn.getTable().getName())) {
+            if (resultSet.next()) {
+                return resultSet.getLong(1);
+            } else {
+                return 0;
+            }
         }
     }
 
     private long getLastSequenceValue(Statement statement, String sequenceName) throws SQLException {
-        ResultSet resultSet = statement.executeQuery("select last_number from user_sequences where sequence_name = '" + sequenceName + "'");
-        if (resultSet.next()) {
-            return resultSet.getLong(1);
-        } else {
-            // to indicate that the sequence is not there
-            return -1;
+        try (ResultSet resultSet = statement.executeQuery("select last_number from user_sequences where sequence_name = '" + sequenceName + "'")) {
+            if (resultSet.next()) {
+                return resultSet.getLong(1);
+            } else {
+                // to indicate that the sequence is not there
+                return -1;
+            }
         }
     }
 
