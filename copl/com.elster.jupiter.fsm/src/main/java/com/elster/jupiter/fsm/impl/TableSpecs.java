@@ -71,6 +71,7 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<State> table = dataModel.addTable(this.name(), State.class);
             table.map(StateImpl.class);
+            table.cache();
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
             Column name = table.column("NAME").varChar().notNull().map(StateImpl.Fields.NAME.fieldName()).add();
