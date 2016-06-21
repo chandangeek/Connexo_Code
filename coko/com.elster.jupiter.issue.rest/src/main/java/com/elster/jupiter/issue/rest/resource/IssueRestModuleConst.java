@@ -2,12 +2,14 @@ package com.elster.jupiter.issue.rest.resource;
 
 public class IssueRestModuleConst {
 
-    private IssueRestModuleConst() {}
+    private IssueRestModuleConst() {
+    }
 
     public static final long ISSUE_UNASSIGNED_ID = -1L;
     public static final String ISSUE_UNEXISTING_TYPE = "UnexistingType";
 
     // Filter fields
+    public static final String ID = "id";
     public static final String REASON = "reason";
     public static final String STATUS = "status";
     public static final String ISSUE_TYPE = "issueType";

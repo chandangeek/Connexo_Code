@@ -11,6 +11,7 @@ import com.elster.jupiter.metering.EndDevice;
 
 public class IssueInfo<T extends DeviceInfo, I extends Issue> {
     public long id;
+    public String issueId;
     public IssueReasonInfo reason;
     public IssueStatusInfo status;
     public long dueDate;
@@ -33,6 +34,7 @@ public class IssueInfo<T extends DeviceInfo, I extends Issue> {
     private final void init(Issue issue, Class<? extends DeviceInfo> deviceType){
         if (issue != null) {
             this.id = issue.getId();
+            this.issueId = issue.getIssueId();
             this.reason = new IssueReasonInfo(issue.getReason());
             this.status = new IssueStatusInfo(issue.getStatus());
             this.dueDate = issue.getDueDate() != null ? issue.getDueDate().toEpochMilli() : 0;
