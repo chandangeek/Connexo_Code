@@ -13,7 +13,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 class Installer implements FullInstaller {
-    private final Logger logger = Logger.getLogger(Installer.class.getName());
 
     private final DataModel dataModel;
 
@@ -26,11 +25,11 @@ class Installer implements FullInstaller {
     public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
         dataModelUpgrader.upgrade(dataModel, Version.latest());
         if (dataModel.mapper(OrmKeyStoreImpl.class).find().isEmpty()) {
-            generateKeyStore();
+            generateKeyStore(logger);
         }
     }
 
-    private void generateKeyStore() {
+    private void generateKeyStore(Logger logger) {
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
             DataVault dataVault = dataModel.getInstance(DataVaultProvider.class).get();
             dataVault.createVault(byteArrayOutputStream);
