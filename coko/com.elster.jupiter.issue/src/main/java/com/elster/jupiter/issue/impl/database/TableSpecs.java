@@ -99,6 +99,7 @@ import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_STATUS_
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_STATUS_COLUMN_TRANSLATION;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_STATUS_PK_NAME;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_TYPE_COLUMN_KEY;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_TYPE_COLUMN_PREFIX;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_TYPE_COLUMN_TRANSLATION;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_TYPE_PK_NAME;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.METERING_DEVICE_TABLE;
