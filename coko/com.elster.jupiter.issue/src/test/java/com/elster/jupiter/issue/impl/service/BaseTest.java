@@ -56,6 +56,8 @@ import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
@@ -112,6 +114,35 @@ public abstract class BaseTest {
     @Rule
     public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
 
+    private static class MockModule extends AbstractModule {
+        @Override
+        protected void configure() {
+            bind(BundleContext.class).toInstance(mock(BundleContext.class));
+            bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
+            bind(TimeService.class).toInstance(mock(TimeService.class));
+            bind(SearchService.class).toInstance(mock(SearchService.class));
+            bind(LicenseService.class).toInstance(mock(LicenseService.class));
+
+            TaskService taskService = mock(TaskService.class);
+            bind(TaskService.class).toInstance(taskService);
+
+            RecurrentTask recurrentTask = mock(RecurrentTask.class);
+            RecurrentTaskBuilder builder = FakeBuilder.initBuilderStub(recurrentTask, RecurrentTaskBuilder.class,
+                    RecurrentTaskBuilder.RecurrentTaskBuilderNameSetter.class,
+                    RecurrentTaskBuilder.RecurrentTaskBuilderDestinationSetter.class,
+                    RecurrentTaskBuilder.RecurrentTaskBuilderPayloadSetter.class,
+                    RecurrentTaskBuilder.RecurrentTaskBuilderScheduleSetter.class,
+                    RecurrentTaskBuilder.RecurrentTaskBuilderFinisher.class
+            );
+            when(taskService.newBuilder()).thenReturn(builder);
+
+            bind(KieResources.class).toInstance(mock(KieResources.class));
+            bind(KnowledgeBaseFactoryService.class).toInstance(mockKnowledgeBaseFactoryService());
+            bind(KnowledgeBuilderFactoryService.class).toInstance(mockKnowledgeBuilderFactoryService());
+            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
+        }
+    }
+
     @BeforeClass
     public static void setEnvironment(){
         injector = Guice.createInjector(
@@ -156,37 +187,6 @@ public abstract class BaseTest {
     @AfterClass
     public static void deactivateEnvironment(){
         inMemoryBootstrapModule.deactivate();
-    }
-
-    protected static KnowledgeBuilderFactoryService mockKnowledgeBuilderFactoryService() {
-        KnowledgeBuilderConfiguration config = mock(KnowledgeBuilderConfiguration.class);
-        KnowledgeBuilder builder = mock(KnowledgeBuilder.class);
-        KnowledgeBuilderFactoryService service = mock(KnowledgeBuilderFactoryService.class);
-        when(service.newKnowledgeBuilderConfiguration(Matchers.<java.util.Properties>any(), Matchers.<java.lang.ClassLoader[]>any()))
-                .thenReturn(config);
-        when(service.newKnowledgeBuilder(Matchers.<KnowledgeBuilderConfiguration>any())).thenReturn(builder);
-        return service;
-    }
-
-    protected static KnowledgeBaseFactoryService mockKnowledgeBaseFactoryService() {
-        KieBaseConfiguration config = mock(KieBaseConfiguration.class);
-        KnowledgeBase base = mockKnowledgeBase();
-        KnowledgeBaseFactoryService service = mock(KnowledgeBaseFactoryService.class);
-        when(service.newKnowledgeBaseConfiguration(Matchers.<java.util.Properties>any(), Matchers.<java.lang.ClassLoader[]>any()))
-                .thenReturn(config);
-        when(service.newKnowledgeBase(Matchers.<KieBaseConfiguration>any())).thenReturn(base);
-        return service;
-    }
-
-    protected static KnowledgeBase mockKnowledgeBase() {
-        StatefulKnowledgeSession ksession = mockStatefulKnowledgeSession();//mock(StatefulKnowledgeSession.class);
-        KnowledgeBase base = mock(KnowledgeBase.class);
-        when(base.newStatefulKnowledgeSession()).thenReturn(ksession);
-        return base;
-    }
-
-    protected static StatefulKnowledgeSession mockStatefulKnowledgeSession() {
-        return mock(StatefulKnowledgeSession.class);
     }
 
     @Before
@@ -266,6 +266,35 @@ public abstract class BaseTest {
         return ((IssueServiceImpl)issueService).getDataModel();
     }
 
+    protected static KnowledgeBuilderFactoryService mockKnowledgeBuilderFactoryService() {
+        KnowledgeBuilderConfiguration config = mock(KnowledgeBuilderConfiguration.class);
+        KnowledgeBuilder builder = mock(KnowledgeBuilder.class);
+        KnowledgeBuilderFactoryService service = mock(KnowledgeBuilderFactoryService.class);
+        when(service.newKnowledgeBuilderConfiguration(Matchers.<java.util.Properties>any(), Matchers.<java.lang.ClassLoader[]>any())).thenReturn(config);
+        when(service.newKnowledgeBuilder(Matchers.<KnowledgeBuilderConfiguration>any())).thenReturn(builder);
+        return service;
+    }
+
+    protected static KnowledgeBaseFactoryService mockKnowledgeBaseFactoryService() {
+        KieBaseConfiguration config = mock(KieBaseConfiguration.class);
+        KnowledgeBase base = mockKnowledgeBase();
+        KnowledgeBaseFactoryService service = mock(KnowledgeBaseFactoryService.class);
+        when(service.newKnowledgeBaseConfiguration(Matchers.<java.util.Properties>any(), Matchers.<java.lang.ClassLoader[]>any())).thenReturn(config);
+        when(service.newKnowledgeBase(Matchers.<KieBaseConfiguration>any())).thenReturn(base);
+        return service;
+    }
+
+    protected static KnowledgeBase mockKnowledgeBase() {
+        StatefulKnowledgeSession ksession = mockStatefulKnowledgeSession();//mock(StatefulKnowledgeSession.class);
+        KnowledgeBase base = mock(KnowledgeBase.class);
+        when(base.newStatefulKnowledgeSession()).thenReturn(ksession);
+        return base;
+    }
+
+    protected static StatefulKnowledgeSession mockStatefulKnowledgeSession() {
+        return mock(StatefulKnowledgeSession.class);
+    }
+
     protected IssueEvent getMockIssueEvent() {
         return mock(IssueEvent.class);
     }
@@ -284,34 +313,6 @@ public abstract class BaseTest {
     protected List<IssueComment> getIssueComments(Issue issue) {
         Query<IssueComment> query = getIssueService().query(IssueComment.class, User.class);
         return query.select(where("issueId").isEqualTo(issue.getId()), Order.ascending("createTime"));
-    }
-
-    private static class MockModule extends AbstractModule {
-        @Override
-        protected void configure() {
-            bind(BundleContext.class).toInstance(mock(BundleContext.class));
-            bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
-            bind(TimeService.class).toInstance(mock(TimeService.class));
-            bind(SearchService.class).toInstance(mock(SearchService.class));
-            bind(LicenseService.class).toInstance(mock(LicenseService.class));
-
-            TaskService taskService = mock(TaskService.class);
-            bind(TaskService.class).toInstance(taskService);
-
-            RecurrentTask recurrentTask = mock(RecurrentTask.class);
-            RecurrentTaskBuilder builder = FakeBuilder.initBuilderStub(recurrentTask, RecurrentTaskBuilder.class,
-                    RecurrentTaskBuilder.RecurrentTaskBuilderNameSetter.class,
-                    RecurrentTaskBuilder.RecurrentTaskBuilderDestinationSetter.class,
-                    RecurrentTaskBuilder.RecurrentTaskBuilderPayloadSetter.class,
-                    RecurrentTaskBuilder.RecurrentTaskBuilderScheduleSetter.class,
-                    RecurrentTaskBuilder.RecurrentTaskBuilderFinisher.class
-            );
-            when(taskService.newBuilder()).thenReturn(builder);
-
-            bind(KieResources.class).toInstance(mock(KieResources.class));
-            bind(KnowledgeBaseFactoryService.class).toInstance(mockKnowledgeBaseFactoryService());
-            bind(KnowledgeBuilderFactoryService.class).toInstance(mockKnowledgeBuilderFactoryService());
-        }
     }
 
     private static class DummyIssueProvider implements IssueProvider {
