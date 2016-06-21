@@ -8,20 +8,28 @@ import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.SimpleNlsKey;
 import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.users.Group;
+import com.elster.jupiter.users.PrivilegesProvider;
+import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.exception.ExceptionCatcher;
+import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.security.Privileges;
 
+import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class InstallerImpl {
+public class InstallerImpl implements FullInstaller, PrivilegesProvider {
     public static final String DESTINATION_NAME = ValidationServiceImpl.DESTINATION_NAME;
     public static final String SUBSCRIBER_NAME = ValidationServiceImpl.SUBSCRIBER_NAME;
-    private static final Logger LOGGER = Logger.getLogger(InstallerImpl.class.getName());
 
     private final DataModel dataModel;
     private final EventService eventService;
@@ -29,6 +37,7 @@ public class InstallerImpl {
     private DestinationSpec destinationSpec;
     private final UserService userService;
 
+    @Inject
     public InstallerImpl(DataModel dataModel, EventService eventService, MessageService messageService, UserService userService) {
         this.dataModel = dataModel;
         this.messageService = messageService;
@@ -40,18 +49,42 @@ public class InstallerImpl {
         return destinationSpec;
     }
 
-    public void install(boolean executeDdl, boolean updateOrm) {
-        try {
-            dataModel.install(executeDdl, updateOrm);
-        } catch (Exception ex) {
-            LOGGER.log(Level.SEVERE, "Could not install datamodel : " + ex.getMessage(), ex);
-        }
-        ExceptionCatcher.executing(
+    @Override
+    public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
+        dataModelUpgrader.upgrade(dataModel, Version.latest());
+
+        doTry(
+                "Create event types for VAL",
                 this::createEventTypes,
+                logger
+        );
+        doTry(
+                "Create validation queue",
                 this::createDestinationAndSubscriber,
-                this::createValidationUser
-        ).andHandleExceptionsWith(exception -> LOGGER.log(Level.SEVERE, exception.getMessage(), exception))
-                .execute();
+                logger
+        );
+        doTry(
+                "Create validation user",
+                this::createValidationUser,
+                logger
+        );
+        userService.addModulePrivileges(this);
+    }
+
+    @Override
+    public String getModuleName() {
+        return ValidationService.COMPONENTNAME;
+    }
+
+    @Override
+    public List<ResourceDefinition> getModuleResources() {
+        List<ResourceDefinition> resources = new ArrayList<>();
+        resources.add(userService.createModuleResourceWithPrivileges(ValidationService.COMPONENTNAME, Privileges.RESOURCE_VALIDATION.getKey(), Privileges.RESOURCE_VALIDATION_DESCRIPTION.getKey(),
+                Arrays.asList(
+                        Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.VIEW_VALIDATION_CONFIGURATION,
+                        Privileges.Constants.VALIDATE_MANUAL, Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE,
+                        Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION)));
+        return resources;
     }
 
     private void createValidationUser() {
@@ -59,32 +92,21 @@ public class InstallerImpl {
         Optional<Group> batchExecutorRole = userService.findGroup(UserService.BATCH_EXECUTOR_ROLE);
         if (batchExecutorRole.isPresent()) {
             validationUser.join(batchExecutorRole.get());
-        } else {
-            LOGGER.log(Level.SEVERE, "Could not add role to '" + ValidationServiceImpl.VALIDATION_USER + "' user because role '" + UserService.BATCH_EXECUTOR_ROLE + "' is not found");
         }
     }
 
     private void createEventTypes() {
         for (EventType eventType : EventType.values()) {
-            try {
-                eventType.install(eventService);
-            } catch (Exception ex) {
-                LOGGER.log(Level.SEVERE, "Could not install eventType '" + eventType.name() + "': " + ex.getMessage(), ex);
-            }
+            eventType.install(eventService);
         }
     }
 
     private void createDestinationAndSubscriber() {
-        try
-        {
-            QueueTableSpec queueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
-            destinationSpec = queueTableSpec.createDestinationSpec(DESTINATION_NAME, 60);
-            destinationSpec.save();
-            destinationSpec.activate();
-            destinationSpec.subscribe(SUBSCRIBER_NAME);
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-        }
+        QueueTableSpec queueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
+        destinationSpec = queueTableSpec.createDestinationSpec(DESTINATION_NAME, 60);
+        destinationSpec.save();
+        destinationSpec.activate();
+        destinationSpec.subscribe(SUBSCRIBER_NAME);
     }
 
     private Translation toTranslation(final SimpleNlsKey nlsKey, final Locale locale, final String translation) {

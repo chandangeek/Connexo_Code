@@ -22,13 +22,12 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
-import com.elster.jupiter.users.PrivilegesProvider;
-import com.elster.jupiter.users.ResourceDefinition;
+import com.elster.jupiter.upgrade.InstallIdentifier;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
@@ -48,7 +47,6 @@ import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.ValidatorFactory;
 import com.elster.jupiter.validation.ValidatorNotFoundException;
-import com.elster.jupiter.validation.security.Privileges;
 
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
@@ -63,8 +61,8 @@ import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -78,10 +76,10 @@ import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(
         name = "com.elster.jupiter.validation",
-        service = {InstallService.class, ValidationService.class, PrivilegesProvider.class, MessageSeedProvider.class, TranslationKeyProvider.class},
+        service = {ValidationService.class, MessageSeedProvider.class, TranslationKeyProvider.class},
         property = "name=" + ValidationService.COMPONENTNAME,
         immediate = true)
-public class ValidationServiceImpl implements ValidationService, InstallService, PrivilegesProvider, MessageSeedProvider, TranslationKeyProvider {
+public class ValidationServiceImpl implements ValidationService, MessageSeedProvider, TranslationKeyProvider {
 
     public static final String DESTINATION_NAME = "DataValidation";
     public static final String SUBSCRIBER_NAME = "DataValidation";
@@ -96,6 +94,7 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
     private volatile Thesaurus thesaurus;
     private volatile QueryService queryService;
     private volatile UserService userService;
+    private volatile UpgradeService upgradeService;
 
 
     private final List<ValidatorFactory> validatorFactories = new CopyOnWriteArrayList<>();
@@ -106,7 +105,7 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
     }
 
     @Inject
-    ValidationServiceImpl(Clock clock, MessageService messageService, EventService eventService, TaskService taskService, MeteringService meteringService, MeteringGroupsService meteringGroupsService, OrmService ormService, QueryService queryService, NlsService nlsService, UserService userService, Publisher publisher) {
+    ValidationServiceImpl(Clock clock, MessageService messageService, EventService eventService, TaskService taskService, MeteringService meteringService, MeteringGroupsService meteringGroupsService, OrmService ormService, QueryService queryService, NlsService nlsService, UserService userService, Publisher publisher, UpgradeService upgradeService) {
         this.clock = clock;
         this.messageService = messageService;
         setMessageService(messageService);
@@ -118,10 +117,9 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
         setOrmService(ormService);
         setNlsService(nlsService);
         setUserService(userService);
+        setUpgradeService(upgradeService);
         activate();
-        if (!dataModel.isInstalled()) {
-            install();
-        }
+
         // subscribe manually when not using OSGI
         ValidationEventHandler handler = new ValidationEventHandler();
         handler.setValidationService(this);
@@ -145,23 +143,14 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(UserService.class).toInstance(userService);
                 bind(DestinationSpec.class).toProvider(ValidationServiceImpl.this::getDestination);
+                bind(MessageService.class).toInstance(messageService);
             }
         });
+        upgradeService.register(InstallIdentifier.identifier(COMPONENTNAME), dataModel, InstallerImpl.class, Collections.emptyMap());
     }
 
     @Deactivate
     public void deactivate() {
-    }
-
-    @Override
-    public void install() {
-        new InstallerImpl(dataModel, eventService, messageService, userService).install(true, true);
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "USR", "NLS", "EVT", "MTR", "MTG", TaskService.COMPONENTNAME);
-
     }
 
     @Reference
@@ -210,6 +199,11 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
     @Reference
     public void setUserService(UserService userService) {
         this.userService = userService;
+    }
+
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
     }
 
     @Override
@@ -516,22 +510,6 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
     }
 
     @Override
-    public String getModuleName() {
-        return ValidationService.COMPONENTNAME;
-    }
-
-    @Override
-    public List<ResourceDefinition> getModuleResources() {
-        List<ResourceDefinition> resources = new ArrayList<>();
-        resources.add(userService.createModuleResourceWithPrivileges(ValidationService.COMPONENTNAME, Privileges.RESOURCE_VALIDATION.getKey(), Privileges.RESOURCE_VALIDATION_DESCRIPTION.getKey(),
-                Arrays.asList(
-                        Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.VIEW_VALIDATION_CONFIGURATION,
-                        Privileges.Constants.VALIDATE_MANUAL, Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE,
-                        Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION)));
-        return resources;
-    }
-
-    @Override
     public String getComponentName() {
         return ValidationService.COMPONENTNAME;
     }
@@ -674,6 +652,10 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
     @Override
     public Optional<DataValidationOccurrence> findDataValidationOccurrence(TaskOccurrence occurrence) {
         return dataModel.query(DataValidationOccurrence.class, DataValidationTask.class).select(EQUAL.compare("taskOccurrence", occurrence)).stream().findFirst();
+    }
+
+    public DataValidationOccurrence findAndLockDataValidationOccurrence(TaskOccurrence occurrence) {
+        return dataModel.mapper(DataValidationOccurrence.class).lock(occurrence.getId());
     }
 
     @Override
