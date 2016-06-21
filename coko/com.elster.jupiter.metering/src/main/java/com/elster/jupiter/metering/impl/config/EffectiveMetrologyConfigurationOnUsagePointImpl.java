@@ -1,8 +1,11 @@
 package com.elster.jupiter.metering.impl.config;
 
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+//import com.elster.jupiter.metering.impl.UniqueInterval;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -11,6 +14,7 @@ import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 import java.time.Instant;
 
 import static com.google.common.base.MoreObjects.toStringHelper;
@@ -18,6 +22,7 @@ import static com.google.common.base.MoreObjects.toStringHelper;
 /**
  * Provides an implementation for the {@link EffectiveMetrologyConfigurationOnUsagePoint} interface.
  */
+//@UniqueInterval(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_USAGEPOINT + "}")
 public class EffectiveMetrologyConfigurationOnUsagePointImpl implements EffectiveMetrologyConfigurationOnUsagePoint {
 
     private final DataModel dataModel;
@@ -52,6 +57,11 @@ public class EffectiveMetrologyConfigurationOnUsagePointImpl implements Effectiv
     public UsagePointMetrologyConfiguration getMetrologyConfiguration() {
         return metrologyConfiguration.get();
     }
+//
+//    @Override
+//    public UsagePoint getUsagePoint() {
+//        return usagePoint.get();
+//    }
 
     @Override
     public Interval getInterval() {

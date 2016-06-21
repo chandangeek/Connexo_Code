@@ -66,6 +66,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -466,16 +467,16 @@ public class UsagePointImpl implements UsagePoint {
         if (latest.isPresent()) {
             Instant startDate = latest.get().getStart();
             Instant endDate = latest.get().getEnd();
+            if(end!= null && end.isBefore(start)){
+                throw new UnsatisfiedMerologyConfigurationEndDate(thesaurus);
+            }
             if (endDate != null) {
-                if(end.isBefore(start)){
-                    throw new UnsatisfiedMerologyConfigurationEndDate(thesaurus);
-                }
                 if (start.isBefore(endDate)) {
                     throw new UnsatisfiedMerologyConfigurationStartDateRelativelyLatestEnd(thesaurus);
                 }
 
             } else{
-                if (start.isBefore(startDate)) {
+                if (start.isBefore(startDate) || start.equals(startDate)) {
                     throw new UnsatisfiedMerologyConfigurationStartDateRelativelyLatestStart(thesaurus);
                 }
                 latest.get().close(start);
