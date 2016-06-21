@@ -54,6 +54,45 @@ public class MetrologyConfigurationInstaller {
         waterConfigurationCI();
         residentialGas();
         unmeasuredAntennaInstallation();
+        residentialPrepay();
+    }
+
+    private void residentialPrepay() {
+        if (metrologyConfigurationService.findMetrologyConfiguration("Residential prepay").isPresent()) {
+            return;
+        }
+        ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY)
+                .orElseThrow(() -> new NoSuchElementException("Service category not found: " + ServiceKind.ELECTRICITY));
+        UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration("Residential prepay", serviceCategory)
+                .withDescription("Residential consumer with budget/prepayment meter").create();
+
+        config.addUsagePointRequirement(getUsagePointRequirement("SERVICEKIND", SearchablePropertyOperator.EQUAL, ServiceKind.ELECTRICITY.name()));
+        config.addUsagePointRequirement(getUsagePointRequirement("detail.phaseCode", SearchablePropertyOperator.EQUAL,
+                PhaseCode.S1N.name(),
+                PhaseCode.S2N.name(),
+                PhaseCode.S12N.name(),
+                PhaseCode.S1.name(),
+                PhaseCode.S2.name(),
+                PhaseCode.S12.name()));
+        config.addUsagePointRequirement(getUsagePointRequirement("type", SearchablePropertyOperator.EQUAL, UsagePointTypeInfo.UsagePointType.MEASURED_SDP.name()));
+        config.addUsagePointRequirement(getUsagePointRequirement("usage.point.cps.general.properties.general.prepay", SearchablePropertyOperator.EQUAL, "Y"));
+
+        MeterRole meterRole = metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey())
+                .orElseThrow(() -> new NoSuchElementException("Default meter role not found"));
+        config.addMeterRole(meterRole);
+
+        ReadingType readingType15minAplusWh = meteringService.findReadingTypes(Collections.singletonList("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0"))
+                .stream().findFirst().orElseGet(() -> meteringService.createReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "A+"));
+
+        MetrologyPurpose purposeInformation = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
+                .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
+
+        MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
+
+        ReadingTypeRequirement requirementAplus = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.A_PLUS.getNameTranslation().getDefaultFormat())
+                .withMeterRole(meterRole).withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.A_PLUS));
+
+        contractInformation.addDeliverable(buildFormulaSingleRequirement(config, readingType15minAplusWh, requirementAplus, "Active energy+"));
     }
 
     private void unmeasuredAntennaInstallation() {
