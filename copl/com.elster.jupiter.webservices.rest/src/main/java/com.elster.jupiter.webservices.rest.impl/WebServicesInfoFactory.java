@@ -2,6 +2,7 @@ package com.elster.jupiter.webservices.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
+import com.elster.jupiter.rest.util.IdWithLocalizedValueInfo;
 import com.elster.jupiter.soap.whiteboard.cxf.WebService;
 
 import javax.inject.Inject;
@@ -21,7 +22,7 @@ public class WebServicesInfoFactory {
         WebServicesInfo info = new WebServicesInfo();
         info.name = webService.getName();
         WebServiceDirection webServiceDirection = webService.isInbound() ? WebServiceDirection.INBOUND : WebServiceDirection.OUTBOUND;
-        info.direction = new IdWithDisplayValueInfo<>(webServiceDirection, webServiceDirection.getDisplayName(thesaurus));
+        info.direction = new IdWithLocalizedValueInfo<>(webServiceDirection, webServiceDirection.getDisplayName(thesaurus));
         info.type = WebServiceProtocol.SOAP;
         return info;
     }

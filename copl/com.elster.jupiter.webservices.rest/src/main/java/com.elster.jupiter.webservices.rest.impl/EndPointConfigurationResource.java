@@ -8,7 +8,9 @@ import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
+import com.elster.jupiter.soap.whiteboard.cxf.security.Privileges;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -35,18 +37,21 @@ public class EndPointConfigurationResource {
     private final EndPointConfigurationInfoFactory endPointConfigurationInfoFactory;
     private final ExceptionFactory exceptionFactory;
     private final WebServicesService webServicesService;
+    private final EndpointConfigurationLogInfoFactory endpointConfigurationLogInfoFactory;
 
     @Inject
-    public EndPointConfigurationResource(EndPointConfigurationService endPointConfigurationService, EndPointConfigurationInfoFactory endPointConfigurationInfoFactory, ExceptionFactory exceptionFactory, WebServicesService webServicesService) {
+    public EndPointConfigurationResource(EndPointConfigurationService endPointConfigurationService, EndPointConfigurationInfoFactory endPointConfigurationInfoFactory, ExceptionFactory exceptionFactory, WebServicesService webServicesService, EndpointConfigurationLogInfoFactory endpointConfigurationLogInfoFactory) {
         this.endPointConfigurationService = endPointConfigurationService;
         this.endPointConfigurationInfoFactory = endPointConfigurationInfoFactory;
         this.exceptionFactory = exceptionFactory;
         this.webServicesService = webServicesService;
+        this.endpointConfigurationLogInfoFactory = endpointConfigurationLogInfoFactory;
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
+    @RolesAllowed(Privileges.Constants.VIEW_WEB_SERVICES)
     public PagedInfoList getEndPointConfigurations(@BeanParam JsonQueryParameters queryParams) {
         List<EndPointConfigurationInfo> infoList = endPointConfigurationService.findEndPointConfigurations()
                 .from(queryParams)
@@ -61,6 +66,7 @@ public class EndPointConfigurationResource {
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/{id}")
     @Transactional
+    @RolesAllowed(Privileges.Constants.VIEW_WEB_SERVICES)
     public EndPointConfigurationInfo getEndPointConfiguration(@PathParam("id") long id) {
         return endPointConfigurationService.getEndPointConfiguration(id)
                 .map(endPointConfigurationInfoFactory::from)
@@ -71,6 +77,7 @@ public class EndPointConfigurationResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_WEB_SERVICES)
     public Response createEndPointConfiguration(EndPointConfigurationInfo info) {
         validatePayload(info);
         WebServiceDirection strategy = webServicesService.getWebService(info.webServiceName)
@@ -86,6 +93,7 @@ public class EndPointConfigurationResource {
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/{id}")
     @Transactional
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_WEB_SERVICES)
     public Response updateEndPointConfiguration(@PathParam("id") long id, EndPointConfigurationInfo info) {
         validatePayload(info);
         EndPointConfiguration endPointConfiguration = endPointConfigurationService.findAndLockEndPointConfigurationByIdAndVersion(id, info.version)
@@ -111,12 +119,29 @@ public class EndPointConfigurationResource {
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/{id}")
     @Transactional
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_WEB_SERVICES)
     public Response deleteEndPointConfiguration(@PathParam("id") long id, EndPointConfigurationInfo info) {
         validateBasicPayload(info);
         EndPointConfiguration endPointConfiguration = endPointConfigurationService.findAndLockEndPointConfigurationByIdAndVersion(id, info.version)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_END_POINT_CONFIG));
         endPointConfigurationService.delete(endPointConfiguration);
         return Response.ok().build();
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Path("/{id}/logs")
+    @RolesAllowed(Privileges.Constants.VIEW_WEB_SERVICES)
+    public PagedInfoList getAllLogs(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters) {
+        EndPointConfiguration endPointConfiguration = endPointConfigurationService.getEndPointConfiguration(id)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_END_POINT_CONFIG));
+
+        List<EndpointConfigurationLogInfo> endpointConfigurationLogs = endPointConfiguration.getLogs()
+                .from(queryParameters)
+                .stream()
+                .map(endpointConfigurationLogInfoFactory::from)
+                .collect(toList());
+        return PagedInfoList.fromPagedList("logs", endpointConfigurationLogs, queryParameters);
     }
 
     private void validatePayload(EndPointConfigurationInfo info) {

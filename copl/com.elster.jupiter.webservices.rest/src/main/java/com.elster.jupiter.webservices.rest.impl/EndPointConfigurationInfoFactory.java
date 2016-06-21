@@ -2,7 +2,7 @@ package com.elster.jupiter.webservices.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ExceptionFactory;
-import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
+import com.elster.jupiter.rest.util.IdWithLocalizedValueInfo;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
@@ -38,20 +38,22 @@ public class EndPointConfigurationInfoFactory {
         info.url = endPointConfiguration.getUrl();
         info.active = endPointConfiguration.isActive();
         info.webServiceName = endPointConfiguration.getWebServiceName();
-        info.logLevel = new IdWithDisplayValueInfo<>(endPointConfiguration.getLogLevel()
+        info.logLevel = new IdWithLocalizedValueInfo<>(endPointConfiguration.getLogLevel()
                 .name(), endPointConfiguration.getLogLevel()
                 .getDisplayName(thesaurus));
         info.httpCompression = endPointConfiguration.isHttpCompression();
         info.tracing = endPointConfiguration.isTracing();
         info.traceFile = endPointConfiguration.getTraceFile();
         info.schemaValidation = endPointConfiguration.isSchemaValidation();
-        info.authenticationMethod = new IdWithDisplayValueInfo<>(endPointConfiguration.getAuthenticationMethod(),
-                endPointConfiguration.getAuthenticationMethod().getDisplayName(thesaurus));
+        info.authenticationMethod = new IdWithLocalizedValueInfo<>(endPointConfiguration
+                .getAuthenticationMethod(),
+                endPointConfiguration.getAuthenticationMethod()
+                        .getDisplayName(thesaurus));
         if (InboundEndPointConfiguration.class.isAssignableFrom(endPointConfiguration.getClass())) {
-            info.direction = new IdWithDisplayValueInfo<>(WebServiceDirection.INBOUND, WebServiceDirection.INBOUND.getDisplayName(thesaurus));
+            info.direction = new IdWithLocalizedValueInfo<>(WebServiceDirection.INBOUND, WebServiceDirection.INBOUND.getDisplayName(thesaurus));
             ((InboundEndPointConfiguration) endPointConfiguration).getGroup().ifPresent(g -> info.group = g.getName());
         } else {
-            info.direction = new IdWithDisplayValueInfo<>(WebServiceDirection.OUTBOUND, WebServiceDirection.OUTBOUND.getDisplayName(thesaurus));
+            info.direction = new IdWithLocalizedValueInfo<>(WebServiceDirection.OUTBOUND, WebServiceDirection.OUTBOUND.getDisplayName(thesaurus));
             info.username = ((OutboundEndPointConfiguration) endPointConfiguration).getUsername();
             info.password = ((OutboundEndPointConfiguration) endPointConfiguration).getPassword();
         }
@@ -104,6 +106,8 @@ public class EndPointConfigurationInfoFactory {
         if (info.password != null) {
             builder.username(info.password);
         }
+
+        builder.setAuthenticationMethod(info.authenticationMethod.id);
         builder.traceFile(info.traceFile);
         EndPointConfiguration endPointConfiguration = builder.create();
         if (Boolean.TRUE.equals(info.active)) {

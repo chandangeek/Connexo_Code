@@ -1,6 +1,7 @@
 package com.elster.jupiter.webservices.rest.impl;
 
 import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
+import com.elster.jupiter.rest.util.IdWithLocalizedValueInfo;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
 
 /**
@@ -12,16 +13,16 @@ public class EndPointConfigurationInfo {
     public String name;
     public String webServiceName;
     public String url;
-    public IdWithDisplayValueInfo<String> logLevel;
+    public IdWithLocalizedValueInfo<String> logLevel;
     public Boolean tracing;
     public String traceFile;
     public Boolean httpCompression;
     public Boolean schemaValidation;
     public Boolean active;
-    public IdWithDisplayValueInfo<EndPointAuthentication> authenticationMethod;
+    public IdWithLocalizedValueInfo<EndPointAuthentication> authenticationMethod;
     public String group;
     public String username;
     public String password;
-    public IdWithDisplayValueInfo<WebServiceDirection> direction;
+    public IdWithLocalizedValueInfo<WebServiceDirection> direction;
     public String type = "SOAP";
 }

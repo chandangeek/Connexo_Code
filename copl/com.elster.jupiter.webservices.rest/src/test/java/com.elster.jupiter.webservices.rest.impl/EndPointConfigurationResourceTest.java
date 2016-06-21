@@ -3,6 +3,7 @@ package com.elster.jupiter.webservices.rest.impl;
 import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
+import com.elster.jupiter.rest.util.IdWithLocalizedValueInfo;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
@@ -84,7 +85,6 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
         assertThat(jsonModel.<Integer>get("endpoints[1].id")).isEqualTo(2);
         assertThat(jsonModel.<Integer>get("endpoints[1].version")).isEqualTo(902);
         assertThat(jsonModel.<String>get("endpoints[1].name")).isEqualTo("currency");
-        assertThat(jsonModel.<Boolean>get("endpoints[1].authenticationMethod")).isNull();
         assertThat(jsonModel.<Boolean>get("endpoints[1].tracing")).isTrue();
         assertThat(jsonModel.<String>get("endpoints[1].traceFile")).isEqualTo("webservices.log");
         assertThat(jsonModel.<String>get("endpoints[1].username")).isEqualTo("username");
@@ -110,7 +110,7 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
         assertThat(jsonModel.<String>get("webServiceName")).isEqualTo("CIM");
         assertThat(jsonModel.<String>get("url")).isEqualTo("/cim");
         assertThat(jsonModel.<String>get("logLevel.id")).isEqualTo("INFO");
-        assertThat(jsonModel.<String>get("logLevel.displayValue")).isEqualTo("Information");
+        assertThat(jsonModel.<String>get("logLevel.localizedValue")).isEqualTo("Information");
     }
 
     @Test
@@ -118,12 +118,12 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
         EndPointConfigurationInfo info = new EndPointConfigurationInfo();
         info.name = "new endpoint";
         info.webServiceName = "someInboundService";
-        info.logLevel = new IdWithDisplayValueInfo<>();
+        info.logLevel = new IdWithLocalizedValueInfo<>();
         info.logLevel.id = "FINEST";
         info.httpCompression = true;
         info.schemaValidation = true;
         info.tracing = false;
-        info.authenticationMethod = new IdWithDisplayValueInfo<>(EndPointAuthentication.NONE, null);
+        info.authenticationMethod = new IdWithLocalizedValueInfo<>(EndPointAuthentication.NONE, null);
         info.url = "/srv";
         info.active = false;
 
@@ -143,13 +143,13 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
         info.version = 901L;
         info.webServiceName = "someInboundService";
         info.name = "new endpoint";
-        info.logLevel = new IdWithDisplayValueInfo<>();
+        info.logLevel = new IdWithLocalizedValueInfo<>();
         info.logLevel.id = "SEVERE";
         info.httpCompression = true;
         info.schemaValidation = true;
         info.tracing = true;
         info.traceFile = "yyy";
-        info.authenticationMethod = new IdWithDisplayValueInfo<>(EndPointAuthentication.NONE, null);
+        info.authenticationMethod = new IdWithLocalizedValueInfo<>(EndPointAuthentication.NONE, null);
         info.active = false;
         info.url = "/srv";
 
@@ -175,7 +175,7 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
         info.version = 902L;
         info.webServiceName = "someOutboundService";
         info.name = "new endpoint";
-        info.logLevel = new IdWithDisplayValueInfo<>();
+        info.logLevel = new IdWithLocalizedValueInfo<>();
         info.logLevel.id = "SEVERE";
         info.httpCompression = true;
         info.schemaValidation = true;

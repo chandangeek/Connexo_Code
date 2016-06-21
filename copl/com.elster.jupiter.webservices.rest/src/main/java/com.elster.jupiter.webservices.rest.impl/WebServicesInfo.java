@@ -1,9 +1,9 @@
 package com.elster.jupiter.webservices.rest.impl;
 
-import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
+import com.elster.jupiter.rest.util.IdWithLocalizedValueInfo;
 
 public class WebServicesInfo {
     public String name;
-    public IdWithDisplayValueInfo<WebServiceDirection> direction;
+    public IdWithLocalizedValueInfo<WebServiceDirection> direction;
     public WebServiceProtocol type;
 }

@@ -32,7 +32,7 @@ public class WebServicesFieldResource extends FieldResource {
     @Path("/logLevel")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public Object getLogLevelValues() {
-        return asJsonArrayObjectWithTranslation("logLevels", "logLevel", Arrays.asList(LogLevel.values()), Stream.of(LogLevel
+        return asJsonArrayObjectWithTranslation("logLevels", "id", Arrays.asList(LogLevel.values()), Stream.of(LogLevel
                 .values())
                 .map(LogLevel::getTranslationKey)
                 .collect(toList()));
@@ -43,7 +43,7 @@ public class WebServicesFieldResource extends FieldResource {
     @Path("/direction")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public Object getDirectionValues() {
-        return asJsonArrayObjectWithTranslation("directions", "direction", Arrays.asList(WebServiceDirection.values()),
+        return asJsonArrayObjectWithTranslation("directions", "id", Arrays.asList(WebServiceDirection.values()),
                 Stream.of(WebServiceDirection.values())
                         .map(WebServiceDirection::getTranslationKey)
                         .collect(toList()));
@@ -54,7 +54,7 @@ public class WebServicesFieldResource extends FieldResource {
     @Path("/authenticationMethod")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public Object getAuthenticationMethods() {
-        return asJsonArrayObjectWithTranslation("authenticationMethods", "authenticationMethod", Arrays.asList(EndPointAuthentication
+        return asJsonArrayObjectWithTranslation("authenticationMethods", "id", Arrays.asList(EndPointAuthentication
                         .values()),
                 Stream.of(EndPointAuthentication.values())
                         .map(EndPointAuthentication::getTranslationKey)
