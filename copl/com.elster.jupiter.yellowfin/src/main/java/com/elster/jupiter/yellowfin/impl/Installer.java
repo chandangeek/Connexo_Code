@@ -31,6 +31,7 @@ class Installer implements FullInstaller, PrivilegesProvider {
 
     @Override
     public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
+        userService.addModulePrivileges(this);
         doTry(
                 "Create default roles for YFN",
                 this::createDefaultRoles,
