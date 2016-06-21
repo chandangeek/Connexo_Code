@@ -2,7 +2,6 @@ package com.energyict.protocolimplv2.messages.convertor;
 
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.protocol.api.DeviceMessageFile;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.exceptions.GeneralParseException;
@@ -10,7 +9,6 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 import com.energyict.protocols.messaging.DeviceMessageFileStringContentConsumer;
 
-import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.WebRTUFirmwareUpgradeWithUserFileActivationDateMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.WebRTUFirmwareUpgradeWithUserFileMessageEntry;
@@ -58,8 +56,7 @@ public class AS300MessageConverter extends AbstractMessageConverter {
             case DeviceMessageConstants.PricingInformationActivationDateAttributeName:
                 return europeanDateTimeFormat.format((Date) messageAttribute);
             case DeviceMessageConstants.firmwareUpdateFileAttributeName:
-                FirmwareVersion firmwareVersion = ((FirmwareVersion) messageAttribute);
-                return GenericMessaging.zipAndB64EncodeContent(firmwareVersion.getFirmwareFile());  //Bytes of the firmwareFile as string
+                return messageAttribute.toString();     //This is the path of the temp file representing the FirmwareVersion
             case DeviceMessageConstants.activityCalendarActivationDateAttributeName:
                 return String.valueOf(((Date) messageAttribute).getTime()); //Millis since 1970
             case activityCalendarAttributeName:

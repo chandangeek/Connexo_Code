@@ -4,12 +4,10 @@ import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
-
+import com.energyict.protocols.util.TempFileLoader;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-import com.energyict.protocols.mdc.services.impl.MessageSeeds;
-import com.energyict.protocols.util.ProtocolUtils;
-
 import com.energyict.protocolimplv2.elster.ctr.MTU155.CTRDeviceProtocolCache;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.GprsRequestFactory;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
@@ -18,8 +16,10 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.info.SealStatusBit;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRAbstractValue;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.Identify;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.Segment;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
+import com.energyict.protocols.util.ProtocolUtils;
 
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -64,7 +64,7 @@ public class FirmwareUpgradeMessage extends AbstractMTU155Message {
 
         // 1. Extract al info from the messageEntry
         extractMessageInfo(message);
-        loadUserFile(message);
+        loadFirmwareFile(message);
 
         // Check if this is the first time the message is executed.
         checkIfPendingUpgrade(message);
@@ -140,13 +140,17 @@ public class FirmwareUpgradeMessage extends AbstractMTU155Message {
         }
     }
 
-    private void loadUserFile(OfflineDeviceMessage message) {
+    private void loadFirmwareFile(OfflineDeviceMessage message) throws CTRException {
         super.getLogger().info("Loading the Firmware file.");
-        String base64Firmware = getDeviceMessageAttribute(message, DeviceMessageConstants.firmwareUpdateFileAttributeName).getDeviceMessageAttributeValue();
+        String path = getDeviceMessageAttribute(message, DeviceMessageConstants.firmwareUpdateFileAttributeName).getDeviceMessageAttributeValue();
 
 //        Base64EncoderDecoder decoder = new Base64EncoderDecoder();
 //        this.firmwareUpgradeFile = decoder.decode(base64Firmware);
-        this.firmwareUpgradeFile = base64Firmware.getBytes();
+        try {
+            this.firmwareUpgradeFile = TempFileLoader.loadTempFile(path);
+        } catch (IOException e) {
+            throw new CTRException(e);
+        }
         this.numberOfTotalSegments = (int) Math.ceil((double) firmwareUpgradeFile.length / (double) (useLongFrameFormat() ? GprsRequestFactory.LENGTH_CODE_PER_REQUEST_LONG_FRAMES : GprsRequestFactory.LENGTH_CODE_PER_REQUEST_SHORT_FRAMES));
     }
 
