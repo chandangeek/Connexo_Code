@@ -5,13 +5,19 @@ import com.elster.jupiter.rest.util.FieldResource;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
+import com.elster.jupiter.users.Group;
+import com.elster.jupiter.users.UserService;
 
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
@@ -22,9 +28,12 @@ import static java.util.stream.Collectors.toList;
 @Path("/fields")
 public class WebServicesFieldResource extends FieldResource {
 
+    private final UserService userService;
+
     @Inject
-    public WebServicesFieldResource(Thesaurus thesaurus) {
+    public WebServicesFieldResource(Thesaurus thesaurus, UserService userService) {
         super(thesaurus);
+        this.userService = userService;
     }
 
     @GET
@@ -59,6 +68,24 @@ public class WebServicesFieldResource extends FieldResource {
                 Stream.of(EndPointAuthentication.values())
                         .map(EndPointAuthentication::getTranslationKey)
                         .collect(toList()));
+    }
+
+    @GET
+    @Transactional
+    @Path("/roles")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public Object getUserRoles() {
+        List<Group> groups = userService.getGroups();
+        Map<String, Object> map = new HashMap<>();
+        List<Map<String, Object>> list = new ArrayList<>();
+        map.put("roles", list);
+        for (final Group value : groups) {
+            Map<String, Object> subMap = new HashMap<>();
+            subMap.put("id", value.getId());
+            subMap.put("name", value.getName());
+            list.add(subMap);
+        }
+        return map;
     }
 
 
