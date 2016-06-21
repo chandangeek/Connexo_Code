@@ -163,8 +163,8 @@ Ext.define('Mdc.view.setup.device.DeviceAttributesForm', {
                 itemId: 'fld-device-coordinates',
                 fieldLabel: Uni.I18n.translate('deviceGeneralInformation.coordinates', 'MDC', 'Coordinates'),
                 renderer: function (value) {
-                    if (!Ext.isEmpty(value) && !Ext.isEmpty(value.displayValue) && !Ext.isEmpty(value.displayValue.deviceCoordinatesDisplay)) {
-                        return Ext.String.htmlEncode(value.displayValue.deviceCoordinatesDisplay);
+                    if (!Ext.isEmpty(value) && !Ext.isEmpty(value.displayValue) && !Ext.isEmpty(value.displayValue.coordinatesDisplay)) {
+                        return Ext.String.htmlEncode(value.displayValue.coordinatesDisplay);
                     } else {
                         return '-'
                     }
