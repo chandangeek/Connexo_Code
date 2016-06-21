@@ -40,6 +40,10 @@ public interface DeviceMessageSupport {
      * (by default sorted on release date), so it is crucial to handle the messages in the same
      * order as they are specified in the list.
      *
+     * Note2: attributes of type FirmwareVersion will be modified by the ComServer framework!
+     * The contents of the FirmwareVersion will be written to a temp file and the messageAttribute
+     * will be changed to the path to this temp file!
+     *
      * @param pendingMessages the pending messages on a Device
      * @return Message results for the provided pending messages.
      */
@@ -76,6 +80,10 @@ public interface DeviceMessageSupport {
      * by the {@link DeviceProtocol deviceProtocol}.
      * When the framework will request to perform a certain message, then the formatted
      * values will be delivered to the DeviceProtocol.
+     *
+     * Note: attributes of type FirmwareVersion will be modified by the ComServer framework!
+     * The contents of the FirmwareVersion will be written to a temp file and the messageAttribute
+     * will be changed to the path to this temp file!
      *
      * @param propertySpec     the spec defining the type of the attribute
      * @param messageAttribute the messageAttribute value that needs to be formatted.
