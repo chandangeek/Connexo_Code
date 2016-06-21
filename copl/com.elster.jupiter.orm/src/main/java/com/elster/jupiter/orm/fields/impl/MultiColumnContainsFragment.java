@@ -1,9 +1,13 @@
 package com.elster.jupiter.orm.fields.impl;
 
+import com.elster.jupiter.util.conditions.Contains;
+
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Collection;
+import java.util.stream.Collectors;
 
-import com.elster.jupiter.util.conditions.Contains;
+import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 
 public class MultiColumnContainsFragment extends MultiColumnFragment {
 	
@@ -21,8 +25,13 @@ public class MultiColumnContainsFragment extends MultiColumnFragment {
 		}		
 		return position;
 	}
-	
+
+	@Override
 	public String getText() {
+		return decorate(contains.getCollection().stream()).partitionPer(1000).map(this::getSqlText).collect(Collectors.joining(" OR ", "(", ")"));
+	}
+
+	private String getSqlText(Collection collection) {
 		int keyParts = getFieldMapping().getColumns().size();
 		StringBuilder builder = new StringBuilder("(");
 		String separator = "";
@@ -35,7 +44,7 @@ public class MultiColumnContainsFragment extends MultiColumnFragment {
 		builder.append(contains.getOperator().getSymbol());
 		builder.append(" (");
 		String outerSeparator = "";
-		for (int i = 0 ; i < contains.getCollection().size() ; i++) {
+		for (int i = 0; i < collection.size(); i++) {
 			builder.append(outerSeparator);
 			String innerSeparator = "";
 			builder.append("(");
