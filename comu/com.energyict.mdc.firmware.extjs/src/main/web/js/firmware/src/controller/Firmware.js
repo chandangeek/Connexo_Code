@@ -266,12 +266,8 @@ Ext.define('Fwc.controller.Firmware', {
             var reader = new FileReader();
 
             form.setLoading();
-            reader.onload = function () {
-                record.set('fileSize', file.size);
-                record.doValidate(precallback);
-            };
-
-            reader.readAsArrayBuffer(file);
+            record.set('fileSize', file.size);
+            record.doValidate(precallback);
         } else {
             record.set('fileSize', null);
             record.doValidate(precallback);
@@ -330,12 +326,8 @@ Ext.define('Fwc.controller.Firmware', {
             var reader = new FileReader();
 
             form.setLoading();
-            reader.onload = function () {
-                record.set('fileSize', file.size);
-                record.doValidate(precallback);
-            };
-
-            reader.readAsBinaryString(file);
+            record.set('fileSize', file.size);
+            record.doValidate(precallback);
         } else {
             record.set('fileSize', null);
             record.doValidate(precallback);
@@ -363,7 +355,19 @@ Ext.define('Fwc.controller.Firmware', {
         form.down('uni-form-error-message').show();
         var json = Ext.decode(response.responseText);
         if (json && json.errors) {
-            form.getForm().markInvalid(json.errors);
+            var errorsToShow = [];
+            Ext.each(json.errors, function (item) {
+                switch (item.id) {
+                    case 'firmwareFileSize':
+                        item.id = 'firmwareFile';
+                        errorsToShow.push(item);
+                        break;
+                    default:
+                        errorsToShow.push(item);
+                        break;
+                }
+            });
+            form.getForm().markInvalid(errorsToShow);
         }
     },
 
@@ -418,10 +422,6 @@ Ext.define('Fwc.controller.Firmware', {
                         form = widget ? widget.down('form') : null;
                     if (form) {
                         form.loadRecord(optionsRecord);
-
-                        if (!optionsRecord.get('isAllowed')) {
-                            me.getContainer().down('uni-form-info-message[name=warning]').show();
-                        }
 
                         supportedFirmwareTypesStore.load({
                             scope: this,
