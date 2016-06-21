@@ -73,8 +73,10 @@ public class TimeOfUseInfoFactory {
         if(activeEffectiveCalendar.getAllowedCalendar().isGhost()) {
             return true;
         }
-        return !(passiveEffectiveCalendar.getAllowedCalendar().getName().equals(activeEffectiveCalendar.getAllowedCalendar().getName()) &&
-                (passiveEffectiveCalendar.getActivationDate() == null || passiveEffectiveCalendar.getActivationDate().isBefore(activeEffectiveCalendar.getLastVerifiedDate()))
+
+        return !(passiveEffectiveCalendar.getAllowedCalendar().getName().equals(activeEffectiveCalendar.getAllowedCalendar().getName())
+                && activeEffectiveCalendar.getAllowedCalendar().getCalendar().get().getVersion() == passiveEffectiveCalendar.getAllowedCalendar().getCalendar().get().getVersion()
+                && (passiveEffectiveCalendar.getActivationDate() == null || passiveEffectiveCalendar.getActivationDate().isBefore(activeEffectiveCalendar.getLastVerifiedDate()))
                 && passiveEffectiveCalendar.getDeviceMessage().get().getReleaseDate().isBefore(activeEffectiveCalendar.getLastVerifiedDate())
                 && passiveEffectiveCalendar.getDeviceMessage().get().getStatus().equals(DeviceMessageStatus.CONFIRMED));
     }
