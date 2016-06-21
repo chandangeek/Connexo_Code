@@ -24,13 +24,13 @@ import java.util.stream.Collectors;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-05-03 (15:02)
  */
-public class ApplyUnitConversion implements ServerExpressionNode.Visitor<ServerExpressionNode> {
+class ApplyUnitConversion implements ServerExpressionNode.Visitor<ServerExpressionNode> {
 
     private boolean applyingUnitConversion;
     private final Formula.Mode mode;
     private final VirtualReadingType targetReadingType;
 
-    public ApplyUnitConversion(Formula.Mode mode, VirtualReadingType targetReadingType) {
+    ApplyUnitConversion(Formula.Mode mode, VirtualReadingType targetReadingType) {
         this.mode = mode;
         this.targetReadingType = targetReadingType;
         this.applyingUnitConversion = false;

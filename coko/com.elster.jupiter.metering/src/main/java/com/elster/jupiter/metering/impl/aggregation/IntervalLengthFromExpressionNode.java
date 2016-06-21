@@ -16,7 +16,7 @@ import java.util.Objects;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-18 (13:28)
  */
-public class IntervalLengthFromExpressionNode implements ServerExpressionNode.Visitor<IntervalLength> {
+class IntervalLengthFromExpressionNode implements ServerExpressionNode.Visitor<IntervalLength> {
 
     @Override
     public IntervalLength visitConstant(NumericalConstantNode constant) {

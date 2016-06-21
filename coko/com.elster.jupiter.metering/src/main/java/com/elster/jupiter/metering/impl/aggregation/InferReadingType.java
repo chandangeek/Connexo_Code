@@ -21,16 +21,16 @@ import java.util.stream.Collectors;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-08 (12:13)
  */
-public class InferReadingType implements ServerExpressionNode.Visitor<VirtualReadingType> {
+class InferReadingType implements ServerExpressionNode.Visitor<VirtualReadingType> {
 
     private final VirtualReadingType requestedReadingType;
 
-    public InferReadingType(VirtualReadingType requestedReadingType) {
+    InferReadingType(VirtualReadingType requestedReadingType) {
         super();
         this.requestedReadingType = requestedReadingType;
     }
 
-    protected VirtualReadingType getRequestedReadingType() {
+    VirtualReadingType getRequestedReadingType() {
         return requestedReadingType;
     }
 

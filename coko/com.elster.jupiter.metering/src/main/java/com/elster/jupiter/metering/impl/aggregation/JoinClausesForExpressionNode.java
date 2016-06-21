@@ -17,19 +17,19 @@ import java.util.stream.Collectors;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-18 (13:28)
  */
-public class JoinClausesForExpressionNode implements ServerExpressionNode.Visitor<Void> {
+class JoinClausesForExpressionNode implements ServerExpressionNode.Visitor<Void> {
 
     private final String joinPrefix;
     private String sourceTableName;
     private Set<String> joinTableNames = new HashSet<>();
 
-    public JoinClausesForExpressionNode(String joinPrefix, String sourceTableName) {
+    JoinClausesForExpressionNode(String joinPrefix, String sourceTableName) {
         super();
         this.joinPrefix = joinPrefix;
         this.sourceTableName = sourceTableName;
     }
 
-    public List<String> joinClauses() {
+    List<String> joinClauses() {
         return this.joinTableNames
                 .stream()
                 .map(this::toJoinClause)

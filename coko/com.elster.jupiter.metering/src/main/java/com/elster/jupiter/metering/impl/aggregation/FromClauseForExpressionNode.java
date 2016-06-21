@@ -15,7 +15,7 @@ import java.util.Objects;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-18 (13:28)
  */
-public class FromClauseForExpressionNode implements ServerExpressionNode.Visitor<String> {
+class FromClauseForExpressionNode implements ServerExpressionNode.Visitor<String> {
 
     @Override
     public String visitConstant(NumericalConstantNode constant) {

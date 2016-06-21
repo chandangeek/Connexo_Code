@@ -32,7 +32,7 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-04 (15:24)
  */
-public class VirtualReadingTypeRequirement {
+class VirtualReadingTypeRequirement {
 
     private final Formula.Mode mode;
     private final ReadingTypeRequirement requirement;
@@ -43,7 +43,7 @@ public class VirtualReadingTypeRequirement {
     private final int meterActivationSequenceNumber;
     private Optional<ChannelContract> preferredChannel;   // Lazy from the list of matching channels and the targetIntervalLength
 
-    public VirtualReadingTypeRequirement(Formula.Mode mode, ReadingTypeRequirement requirement, ReadingTypeDeliverable deliverable, List<Channel> matchingChannels, VirtualReadingType targetReadingType, MeterActivation meterActivation, Range<Instant> requestedPeriod, int meterActivationSequenceNumber) {
+    VirtualReadingTypeRequirement(Formula.Mode mode, ReadingTypeRequirement requirement, ReadingTypeDeliverable deliverable, List<Channel> matchingChannels, VirtualReadingType targetReadingType, MeterActivation meterActivation, Range<Instant> requestedPeriod, int meterActivationSequenceNumber) {
         super();
         this.mode = mode;
         this.requirement = requirement;
