@@ -19,6 +19,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EventType;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.soap.whiteboard.cxf.security.Privileges;
+import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 
@@ -229,6 +230,12 @@ public class EndPointConfigurationServiceImpl implements EndPointConfigurationSe
         @Override
         public InboundEndPointConfigBuilder logLevel(LogLevel logLevel) {
             instance.setLogLevel(logLevel);
+            return this;
+        }
+
+        @Override
+        public InboundEndPointConfigBuilder group(Group group) {
+            instance.setGroup(group);
             return this;
         }
 

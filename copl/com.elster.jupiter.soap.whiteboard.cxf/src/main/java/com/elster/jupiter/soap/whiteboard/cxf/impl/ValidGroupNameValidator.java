@@ -23,7 +23,7 @@ public class ValidGroupNameValidator implements ConstraintValidator<ValidGroupNa
 
     @Override
     public boolean isValid(EndPointConfigurationImpl endPointConfiguration, ConstraintValidatorContext context) {
-        if (EndPointAuthentication.BASIC_AUTHENTICATION.equals(((InboundEndPointConfiguration) endPointConfiguration).getAuthenticationMethod())) {
+        if (EndPointAuthentication.BASIC_AUTHENTICATION.equals(endPointConfiguration.getAuthenticationMethod())) {
             if (!((InboundEndPointConfiguration) endPointConfiguration).getGroup().isPresent()) {
                 context.disableDefaultConstraintViolation();
                 context.buildConstraintViolationWithTemplate(context.getDefaultConstraintMessageTemplate())
