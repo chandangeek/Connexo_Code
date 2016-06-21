@@ -9,9 +9,9 @@ import com.elster.jupiter.users.UserDirectory;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
+
 import com.google.common.collect.ImmutableMap;
 
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.List;
@@ -38,7 +38,11 @@ public abstract class AbstractUserDirectoryImpl implements UserDirectory {
     @SuppressWarnings("unused")
     private String userName;
 
-    static final Map<String, Class<? extends UserDirectory>> IMPLEMENTERS = ImmutableMap.<String, Class<? extends UserDirectory>>of(InternalDirectoryImpl.TYPE_IDENTIFIER, InternalDirectoryImpl.class, ActiveDirectoryImpl.TYPE_IDENTIFIER, ActiveDirectoryImpl.class, ApacheDirectoryImpl.TYPE_IDENTIFIER, ApacheDirectoryImpl.class);
+    static final Map<String, Class<? extends UserDirectory>> IMPLEMENTERS = ImmutableMap.<String, Class<? extends UserDirectory>>of(
+            InternalDirectoryImpl.TYPE_IDENTIFIER, InternalDirectoryImpl.class,
+            ActiveDirectoryImpl.TYPE_IDENTIFIER, ActiveDirectoryImpl.class,
+            ApacheDirectoryImpl.TYPE_IDENTIFIER, ApacheDirectoryImpl.class
+    );
 
     public AbstractUserDirectoryImpl(DataModel dataModel, UserService userService) {
         this.userService = userService;

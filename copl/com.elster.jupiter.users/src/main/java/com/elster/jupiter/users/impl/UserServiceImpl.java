@@ -14,10 +14,10 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DoesNotExistException;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryExecutor;
-import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.ApplicationPrivilegesProvider;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.LdapUserDirectory;
@@ -66,15 +66,17 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.elster.jupiter.orm.Version.version;
+import static com.elster.jupiter.upgrade.InstallIdentifier.identifier;
 import static com.elster.jupiter.util.Checks.is;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(
         name = "com.elster.jupiter.users",
-        service = {UserService.class, InstallService.class, MessageSeedProvider.class, TranslationKeyProvider.class, PrivilegesProvider.class},
+        service = {UserService.class, MessageSeedProvider.class, TranslationKeyProvider.class},
         immediate = true,
         property = "name=" + UserService.COMPONENTNAME)
-public class UserServiceImpl implements UserService, InstallService, MessageSeedProvider, TranslationKeyProvider, PrivilegesProvider {
+public class UserServiceImpl implements UserService, MessageSeedProvider, TranslationKeyProvider {
 
     private volatile DataModel dataModel;
     private volatile TransactionService transactionService;
@@ -85,6 +87,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     private List<User> loggedInUsers = new CopyOnWriteArrayList<>();
     private volatile DataVaultService dataVaultService;
     private volatile BundleContext bundleContext;
+    private volatile UpgradeService upgradeService;
     private volatile Clock clock;
 
 
@@ -96,14 +99,16 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     private static final String JUPITER_REALM = "Local";
     private Logger userLogin = Logger.getLogger("userLog");
 
-    private class PrivilegeAssociation{
+    private class PrivilegeAssociation {
         public String group;
         public String application;
-        PrivilegeAssociation(String group, String application){
+
+        PrivilegeAssociation(String group, String application) {
             this.group = group;
             this.application = application;
         }
     }
+
     private final Map<String, List<PrivilegeAssociation>> privilegesNotYetRegistered = new HashMap<>();
 
     @GuardedBy("privilegeProviderRegistrationLock")
@@ -118,7 +123,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     private final Object privilegeProviderRegistrationLock = new Object();
 
     @Inject
-    public UserServiceImpl(OrmService ormService, TransactionService transactionService, QueryService queryService, NlsService nlsService, ThreadPrincipalService threadPrincipalService, DataVaultService dataVaultService) {
+    public UserServiceImpl(OrmService ormService, TransactionService transactionService, QueryService queryService, NlsService nlsService, ThreadPrincipalService threadPrincipalService, DataVaultService dataVaultService, UpgradeService upgradeService, BundleContext bundleContext) {
         this();
         setTransactionService(transactionService);
         setQueryService(queryService);
@@ -126,10 +131,8 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
         setNlsService(nlsService);
         setDataVaultService(dataVaultService);
         setThreadPrincipalService(threadPrincipalService);
-        activate(null);
-        if (!dataModel.isInstalled()) {
-            installDataModel(true);
-        }
+        setUpgradeService(upgradeService);
+        activate(bundleContext);
     }
 
     @Activate
@@ -148,9 +151,14 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(DataVaultService.class).toInstance(dataVaultService);
                 bind(UserService.class).toInstance(UserServiceImpl.this);
+                bind(BundleContext.class).toInstance(context);
             }
         });
         userPreferencesService = new UserPreferencesServiceImpl(dataModel);
+        synchronized (privilegeProviderRegistrationLock) {
+            upgradeService.register(identifier(COMPONENTNAME), dataModel, InstallerImpl.class, Collections.emptyMap());
+        }
+
     }
 
     public Optional<User> authenticate(String domain, String userName, String password, String ipAddr) {
@@ -168,7 +176,8 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     }
 
     private UserDirectory getUserDirectory(String domain, String userName, String ipAddr) {
-        List<UserDirectory> found = dataModel.query(UserDirectory.class).select(Operator.EQUALIGNORECASE.compare("name", domain));
+        List<UserDirectory> found = dataModel.query(UserDirectory.class)
+                .select(Operator.EQUALIGNORECASE.compare("name", domain));
         if (found.isEmpty()) {
             logMessage(UNSUCCESSFUL_LOGIN, userName, domain, ipAddr);
             throw new NoDomainFoundException(thesaurus, domain);
@@ -194,8 +203,6 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     @Override
     public List<UserDirectory> getUserDirectories() {
         return dataModel.mapper(UserDirectory.class).find();
-
-
     }
 
     @Override
@@ -205,7 +212,8 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
 
     @Override
     public UserDirectory findDefaultUserDirectory() {
-        List<UserDirectory> found = dataModel.query(UserDirectory.class).select(Operator.EQUAL.compare("isDefault", true));
+        List<UserDirectory> found = dataModel.query(UserDirectory.class)
+                .select(Operator.EQUAL.compare("isDefault", true));
         if (found.isEmpty()) {
             throw new NoDefaultDomainException(thesaurus);
         }
@@ -235,7 +243,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
         String[] names = plainText.split(":");
 
         if (names.length <= 1) {
-            if(names.length == 1) {
+            if (names.length == 1) {
                 logMessage(UNSUCCESSFUL_LOGIN, names[0], null, ipAddr);
             }
             return Optional.empty();
@@ -255,10 +263,10 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
             userName = items[1];
         }
         Optional<User> user = authenticate(domain, userName, names[1], ipAddr);
-        if(user.isPresent() && !user.get().getPrivileges().isEmpty()){
+        if (user.isPresent() && !user.get().getPrivileges().isEmpty()) {
             logMessage(SUCCESSFUL_LOGIN, userName, domain, ipAddr);
-        }else{
-            if(!userName.equals("")) {
+        } else {
+            if (!userName.equals("")) {
                 logMessage(UNSUCCESSFUL_LOGIN, userName, domain, ipAddr);
             }
         }
@@ -276,7 +284,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     @Override
     public User createApacheDirectoryUser(String name, String domain, boolean status) {
         ApacheDirectoryImpl directory = (ApacheDirectoryImpl) this.findUserDirectory(domain).orElse(null);
-        UserImpl result = directory.newUser(name, domain, false,status);
+        UserImpl result = directory.newUser(name, domain, false, status);
         result.update();
 
         return result;
@@ -314,7 +322,8 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
                         if(!privilegesNotYetRegistered.containsKey(privilege)){
                             privilegesNotYetRegistered.put(privilege, new ArrayList<>());
                         }
-                        privilegesNotYetRegistered.get(privilege).add(new PrivilegeAssociation(groupName, applicationName));
+                        privilegesNotYetRegistered.get(privilege)
+                                .add(new PrivilegeAssociation(groupName, applicationName));
                     }
                 }
             }
@@ -367,7 +376,8 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     public Optional<User> findUser(String authenticationName, String userDirectoryName) {
         Condition userCondition = Operator.EQUALIGNORECASE.compare("authenticationName", authenticationName);
         Condition userDirectoryCondition = Operator.EQUALIGNORECASE.compare("userDirectory.name", userDirectoryName);
-        List<User> users = dataModel.query(User.class, UserDirectory.class).select(userCondition.and(userDirectoryCondition));
+        List<User> users = dataModel.query(User.class, UserDirectory.class)
+                .select(userCondition.and(userDirectoryCondition));
         if (!users.isEmpty()) {
             if (users.get(0).getStatus()) {
                 return Optional.of(users.get(0));
@@ -440,13 +450,11 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
 
     @Override
     public Optional<Privilege> getPrivilege(String privilegeName) {
-        // check if dataModel is installed because this method can be/us called before the install is run
-        return dataModel.isInstalled() ? privilegeFactory().getOptional(privilegeName) : Optional.<Privilege>empty();
+        return privilegeFactory().getOptional(privilegeName);
     }
 
     public Optional<Resource> getResource(String resourceName) {
-        // check if dataModel is installed because this method can be/us called before the install is run
-        return dataModel.isInstalled() ? resourceFactory().getOptional(resourceName) : Optional.<Resource>empty();
+        return resourceFactory().getOptional(resourceName);
     }
 
     private DataMapper<Privilege> privilegeFactory() {
@@ -455,21 +463,16 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
 
     @Override
     public List<Privilege> getPrivileges(String applicationName) {
-        // check if dataModel is installed because this method can be/us called before the install is run
-        if (dataModel.isInstalled()) {
-            List<String> applicationPrivileges = applicationPrivilegesProviders
-                    .stream()
-                    .filter(ap -> ap.getApplicationName().equalsIgnoreCase(applicationName))
-                    .flatMap(ap -> ap.getApplicationPrivileges().stream())
-                    .collect(Collectors.toList());
-            return privilegeFactory()
-                    .find()
-                    .stream()
-                    .filter(p -> applicationPrivileges.contains(p.getName()))
-                    .collect(Collectors.toList());
-        } else {
-            return Collections.emptyList();
-        }
+        List<String> applicationPrivileges = applicationPrivilegesProviders
+                .stream()
+                .filter(ap -> ap.getApplicationName().equalsIgnoreCase(applicationName))
+                .flatMap(ap -> ap.getApplicationPrivileges().stream())
+                .collect(Collectors.toList());
+        return privilegeFactory()
+                .find()
+                .stream()
+                .filter(p -> applicationPrivileges.contains(p.getName()))
+                .collect(Collectors.toList());
     }
 
 
@@ -489,8 +492,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
 
     @Override
     public List<Resource> getResources(String component) {
-        // check if dataModel is installed because this method can be/us called before the install is run
-        return dataModel.isInstalled() ? resourceFactory().find("componentName", component) : Collections.emptyList();
+        return resourceFactory().find("componentName", component);
     }
 
     @Override
@@ -533,22 +535,6 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
         return getQueryService().wrap(dataModel.query(Resource.class));
     }
 
-    public void install() {
-        installDataModel(false);
-    }
-
-    private void installDataModel(boolean inTest) {
-        synchronized (privilegeProviderRegistrationLock) {
-            InstallerImpl installer = new InstallerImpl(dataModel, this);
-            installer.install(getRealm());
-            if (inTest) {
-                doInstallPrivileges(this);
-            }
-            installPrivileges();
-            installer.addDefaults(bundleContext != null ? bundleContext.getProperty("admin.password") : null);
-        }
-    }
-
     @Override
     public List<TranslationKey> getKeys() {
         return Stream.of(
@@ -571,11 +557,6 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     @Override
     public Layer getLayer() {
         return Layer.DOMAIN;
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Collections.singletonList("ORM");
     }
 
     @Override
@@ -610,7 +591,8 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
 
     @Override
     public Optional<UserDirectory> findUserDirectoryIgnoreCase(String domain) {
-        List<UserDirectory> found = dataModel.query(UserDirectory.class).select(Operator.EQUALIGNORECASE.compare("name", domain));
+        List<UserDirectory> found = dataModel.query(UserDirectory.class)
+                .select(Operator.EQUALIGNORECASE.compare("name", domain));
         if (found.isEmpty()) {
             return Optional.empty();
         }
@@ -660,22 +642,24 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
         this.clock = clock;
     }
 
-    @Reference(name = "ModulePrivilegesProvider", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    @SuppressWarnings("unused")
+    @Override
     public void addModulePrivileges(PrivilegesProvider privilegesProvider) {
         synchronized (privilegeProviderRegistrationLock) {
-            if (dataModel.isInstalled()) {
+            if (upgradeService.isInstalled(identifier(COMPONENTNAME), version(1, 0))) {
                 try {
-                    transactionService.builder().principal(() -> "Jupiter Installer").action("INSTALL-privilege").module(getModuleName()).run(() -> {
-                        doInstallPrivileges(privilegesProvider);
-                        doAssignPrivileges(privilegesProvider);
-                    });
+                    doInstallPrivileges(privilegesProvider);
+                    doAssignPrivileges(privilegesProvider);
                 } catch (Exception e) {
                     System.out.println(e.getMessage());
                 }
             }
             privilegesProviders.add(privilegesProvider);
         }
+    }
+
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
     }
 
     @SuppressWarnings("unused")
@@ -696,7 +680,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
         applicationPrivilegesProviders.remove(applicationPrivilegesProvider);
     }
 
-    private void installPrivileges() {
+    void installPrivileges() {
         for (PrivilegesProvider privilegesProvider : privilegesProviders) {
             try {
                 doInstallPrivileges(privilegesProvider);
@@ -729,13 +713,13 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     }
 
     private void doAssignPrivileges(PrivilegesProvider privilegesProvider) {
-        if(!privilegesNotYetRegistered.isEmpty()) {
+        if (!privilegesNotYetRegistered.isEmpty()) {
             privilegesProvider.getModuleResources().stream()
                     .map(resource -> resource.getPrivilegeNames())
                     .flatMap(privileges -> privileges.stream())
                     .filter(item -> privilegesNotYetRegistered.containsKey(item))
                     .forEach(privilege -> {
-                        for(PrivilegeAssociation association : privilegesNotYetRegistered.get(privilege)) {
+                        for (PrivilegeAssociation association : privilegesNotYetRegistered.get(privilege)) {
                             Optional<Group> group = findGroup(association.group);
                             if (group.isPresent()) {
                                 System.out.println("Granting " + privilege + " to " + association.group + "on " + association.application);
@@ -759,13 +743,13 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
                         .stream()
                         .anyMatch(p -> applicationPrivileges.contains(p.getName())))
                 .map(r -> ResourceDefinitionImpl.createApplicationResource(applicationName,
-                                applicationName,
-                                r.getName(),
-                                r.getDescription(),
-                                r.getPrivileges()
-                                        .stream()
-                                        .filter(p -> applicationPrivileges.contains(p.getName()))
-                                        .collect(Collectors.toList()))
+                        applicationName,
+                        r.getName(),
+                        r.getDescription(),
+                        r.getPrivileges()
+                                .stream()
+                                .filter(p -> applicationPrivileges.contains(p.getName()))
+                                .collect(Collectors.toList()))
                 ).collect(Collectors.toList());
     }
 
@@ -781,22 +765,6 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
 
     private DataMapper<User> userFactory() {
         return dataModel.mapper(User.class);
-    }
-
-    @Override
-    public String getModuleName() {
-        return UserService.COMPONENTNAME;
-    }
-
-    @Override
-    public List<ResourceDefinition> getModuleResources() {
-        List<ResourceDefinition> resources = new ArrayList<>();
-        resources.add(createModuleResourceWithPrivileges(
-                UserService.COMPONENTNAME,
-                Privileges.RESOURCE_USERS.getKey(), Privileges.RESOURCE_USERS_DESCRIPTION.getKey(),
-                Arrays.asList(Privileges.Constants.ADMINISTRATE_USER_ROLE, Privileges.Constants.VIEW_USER_ROLE)));
-
-        return resources;
     }
 
     @Override
@@ -822,7 +790,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     @Override
     public Optional<User> getLoggedInUser(long userId) {
         Optional<User> found = this.loggedInUsers.stream().filter(user -> (user.getId() == userId)).findFirst();
-        if(!found.isPresent()){
+        if (!found.isPresent()) {
             found = this.getUser(userId);
         }
 
@@ -842,23 +810,23 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
         this.loggedInUsers.remove(user);
     }
 
-    private void logMessage(String message, String userName, String domain, String ipAddr){
+    private void logMessage(String message, String userName, String domain, String ipAddr) {
         ipAddr = ipAddr.equals("0:0:0:0:0:0:0:1") ? "localhost" : ipAddr;
-        if(message.equals(SUCCESSFUL_LOGIN)){
-            String userNameFormatted = domain == null ? userName : domain+ "/" + userName;
-            userLogin.log(Level.INFO, message + "[" + userNameFormatted + "] " , ipAddr);
+        if (message.equals(SUCCESSFUL_LOGIN)) {
+            String userNameFormatted = domain == null ? userName : domain + "/" + userName;
+            userLogin.log(Level.INFO, message + "[" + userNameFormatted + "] ", ipAddr);
             this.findUserIgnoreStatus(userName).ifPresent(user -> {
-                try(TransactionContext context = transactionService.getContext()) {
+                try (TransactionContext context = transactionService.getContext()) {
                     user.setLastSuccessfulLogin(clock.instant());
                     user.update();
                     context.commit();
                 }
             });
         } else {
-            String userNameFormatted = domain == null ? userName : domain+ "/" + userName;
-            userLogin.log(Level.WARNING, message + "[" + userNameFormatted + "] " , ipAddr);
+            String userNameFormatted = domain == null ? userName : domain + "/" + userName;
+            userLogin.log(Level.WARNING, message + "[" + userNameFormatted + "] ", ipAddr);
             this.findUserIgnoreStatus(userName).ifPresent(user -> {
-                try(TransactionContext context = transactionService.getContext()) {
+                try (TransactionContext context = transactionService.getContext()) {
                     user.setLastUnSuccessfulLogin(clock.instant());
                     user.update();
                     context.commit();

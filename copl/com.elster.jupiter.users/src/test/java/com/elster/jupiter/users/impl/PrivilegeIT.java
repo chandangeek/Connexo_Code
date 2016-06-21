@@ -13,6 +13,8 @@ import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.Resource;
 import com.elster.jupiter.users.UserService;
@@ -63,6 +65,7 @@ public class PrivilegeIT extends EqualsContractTest {
         protected void configure() {
             bind(BundleContext.class).toInstance(bundleContext);
             bind(EventAdmin.class).toInstance(eventAdmin);
+            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }
 
@@ -71,6 +74,7 @@ public class PrivilegeIT extends EqualsContractTest {
         injector = Guice.createInjector(
                 new MockModule(),
                 inMemoryBootstrapModule,
+                new InMemoryMessagingModule(),
                 new DomainUtilModule(),
                 new OrmModule(),
                 new UtilModule(),
@@ -78,7 +82,6 @@ public class PrivilegeIT extends EqualsContractTest {
                 new PubSubModule(),
                 new TransactionModule(),
                 new UserModule(),
-                new InMemoryMessagingModule(),
                 new NlsModule(),
                 new DataVaultModule());
         injector.getInstance(TransactionService.class).execute(() -> {

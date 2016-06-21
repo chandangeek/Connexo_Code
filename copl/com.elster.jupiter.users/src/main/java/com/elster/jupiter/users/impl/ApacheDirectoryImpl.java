@@ -1,23 +1,40 @@
 package com.elster.jupiter.users.impl;
 
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.users.*;
+import com.elster.jupiter.users.Group;
+import com.elster.jupiter.users.LdapServerException;
+import com.elster.jupiter.users.LdapUser;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
 
 import javax.inject.Inject;
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.*;
-import javax.naming.ldap.*;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.InitialDirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
+import javax.naming.ldap.ExtendedRequest;
+import javax.naming.ldap.ExtendedResponse;
+import javax.naming.ldap.InitialLdapContext;
+import javax.naming.ldap.LdapContext;
+import javax.naming.ldap.StartTlsRequest;
+import javax.naming.ldap.StartTlsResponse;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Optional;
 
-public final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
+final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
     static String TYPE_IDENTIFIER = "APD";
-    StartTlsResponse tls = null;
+    private StartTlsResponse tls = null;
 
     @Inject
-    public ApacheDirectoryImpl(DataModel dataModel, UserService userService) {
+    ApacheDirectoryImpl(DataModel dataModel, UserService userService) {
         super(dataModel, userService);
         setType(TYPE_IDENTIFIER);
     }
@@ -137,7 +154,7 @@ public final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
                 try {
                     tls.close();
                 } catch (IOException e) {
-
+                    throw new UnderlyingIOException(e);
                 }
             }
         }
@@ -172,7 +189,6 @@ public final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
         Hashtable<String, Object> env = new Hashtable<>();
         List<LdapUser> ldapUsers = new ArrayList<>();
         env.putAll(commonEnvLDAP);
-        NamingEnumeration results = null;
         env.put(Context.PROVIDER_URL, urls.get(0));
         env.put(Context.SECURITY_PRINCIPAL, "uid=" + getDirectoryUser() + "," + getBaseUser());
         env.put(Context.SECURITY_CREDENTIALS, getPasswordDecrypt());
@@ -181,7 +197,7 @@ public final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
             DirContext ctx = new InitialDirContext(env);
             SearchControls controls = new SearchControls();
             controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-            results = ctx.search(getBaseUser(), "(objectclass=person)", controls);
+            NamingEnumeration results = ctx.search(getBaseUser(), "(objectclass=person)", controls);
             while (results.hasMore()) {
                 LdapUser ldapUser = new LdapUserImpl();
                 SearchResult searchResult = (SearchResult) results.next();
@@ -191,7 +207,7 @@ public final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
                     ldapUser.setUsername(userName);
                     ldapUser.setStatus(true);
                     if (attributes.get("pwdAccountLockedTime") != null) {
-                        if (attributes.get("pwdAccountLockedTime").get().toString().equals("000001010000Z")) {
+                        if ("000001010000Z".equals(attributes.get("pwdAccountLockedTime").get().toString())) {
                             ldapUser.setStatus(false);
                         }
                     }
@@ -216,7 +232,6 @@ public final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
         env.putAll(commonEnvLDAP);
         List<LdapUser> ldapUsers = new ArrayList<>();
         env.put(Context.PROVIDER_URL, urls.get(0));
-        NamingEnumeration results = null;
         env.put(Context.SECURITY_PRINCIPAL, "uid=" + getDirectoryUser() + "," + getBaseUser());
         env.put(Context.SECURITY_CREDENTIALS, getPasswordDecrypt());
         env.put(Context.SECURITY_PROTOCOL, "ssl");
@@ -225,7 +240,7 @@ public final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
             DirContext ctx = new InitialDirContext(env);
             SearchControls controls = new SearchControls();
             controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-            results = ctx.search(getBaseUser(), "(objectclass=person)", controls);
+            NamingEnumeration results = ctx.search(getBaseUser(), "(objectclass=person)", controls);
             while (results.hasMore()) {
                 LdapUser ldapUser = new LdapUserImpl();
                 SearchResult searchResult = (SearchResult) results.next();
@@ -235,7 +250,7 @@ public final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
                     ldapUser.setUsername(userName);
                     ldapUser.setStatus(true);
                     if (attributes.get("pwdAccountLockedTime") != null) {
-                        if (attributes.get("pwdAccountLockedTime").get().toString().equals("000001010000Z")) {
+                        if ("000001010000Z".equals(attributes.get("pwdAccountLockedTime").get().toString())) {
                             ldapUser.setStatus(false);
                         }
                     }
@@ -257,7 +272,6 @@ public final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
         Hashtable<String, Object> env = new Hashtable<>();
         List<LdapUser> ldapUsers = new ArrayList<>();
         env.putAll(commonEnvLDAP);
-        NamingEnumeration results = null;
         env.put(Context.PROVIDER_URL, urls.get(0));
         try {
             String userName;
@@ -270,7 +284,7 @@ public final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
             env.put(Context.SECURITY_CREDENTIALS, getPasswordDecrypt());
             SearchControls controls = new SearchControls();
             controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-            results = ctx.search(getBaseUser(), "(objectclass=person)", controls);
+            NamingEnumeration results = ctx.search(getBaseUser(), "(objectclass=person)", controls);
             while (results.hasMore()) {
                 LdapUser ldapUser = new LdapUserImpl();
                 SearchResult searchResult = (SearchResult) results.next();
@@ -280,7 +294,7 @@ public final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
                     ldapUser.setUsername(userName);
                     ldapUser.setStatus(true);
                     if (attributes.get("pwdAccountLockedTime") != null) {
-                        if (attributes.get("pwdAccountLockedTime").get().toString().equals("000001010000Z")) {
+                        if ("000001010000Z".equals(attributes.get("pwdAccountLockedTime").get().toString())) {
                             ldapUser.setStatus(false);
                         }
                     }
@@ -300,7 +314,7 @@ public final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
                 try {
                     tls.close();
                 } catch (IOException e) {
-
+                    throw new UnderlyingIOException(e);
                 }
             }
         }
@@ -310,7 +324,6 @@ public final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
     private boolean getLdapUserStatusSimple(String user, List<String> urls) {
         Hashtable<String, Object> env = new Hashtable<>();
         env.putAll(commonEnvLDAP);
-        NamingEnumeration results = null;
         env.put(Context.PROVIDER_URL, urls.get(0));
         env.put(Context.SECURITY_PRINCIPAL, "uid=" + getDirectoryUser() + "," + getBaseUser());
         env.put(Context.SECURITY_CREDENTIALS, getPasswordDecrypt());
@@ -318,18 +331,14 @@ public final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
             DirContext ctx = new InitialDirContext(env);
             SearchControls controls = new SearchControls();
             controls.setSearchScope(SearchControls.ONELEVEL_SCOPE);
-            results = ctx.search(getBaseUser(), "(uid=" + user + ")", controls);
+            NamingEnumeration results = ctx.search(getBaseUser(), "(uid=" + user + ")", controls);
             while (results.hasMore()) {
                 SearchResult searchResult = (SearchResult) results.next();
                 Attributes attributes = searchResult.getAttributes();
                 if(attributes.get("uid")!=null) {
                     if(attributes.get("uid").toString().equals("uid: "+user)) {
                         if (attributes.get("pwdAccountLockedTime") != null) {
-                            if (attributes.get("pwdAccountLockedTime").get().toString().equals("000001010000Z")) {
-                                return false;
-                            } else {
-                                return true;
-                            }
+                            return !"000001010000Z".equals(attributes.get("pwdAccountLockedTime").get().toString());
                         }
                     }else{
                         return false;
@@ -353,7 +362,6 @@ public final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
         Hashtable<String, Object> env = new Hashtable<>();
         env.putAll(commonEnvLDAP);
         env.put(Context.PROVIDER_URL, urls.get(0));
-        NamingEnumeration results = null;
         env.put(Context.SECURITY_PRINCIPAL, "uid=" + getDirectoryUser() + "," + getBaseUser());
         env.put(Context.SECURITY_CREDENTIALS, getPasswordDecrypt());
         env.put(Context.SECURITY_PROTOCOL, "ssl");
@@ -361,18 +369,14 @@ public final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
             DirContext ctx = new InitialDirContext(env);
             SearchControls controls = new SearchControls();
             controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-            results = ctx.search(getBaseUser(), "(uid=" + user + ")", controls);
+            NamingEnumeration results = ctx.search(getBaseUser(), "(uid=" + user + ")", controls);
             while (results.hasMore()) {
                 SearchResult searchResult = (SearchResult) results.next();
                 Attributes attributes = searchResult.getAttributes();
                 if(attributes.get("uid")!=null) {
                     if(attributes.get("uid").toString().equals("uid: "+user)) {
                         if (attributes.get("pwdAccountLockedTime") != null) {
-                            if (attributes.get("pwdAccountLockedTime").get().toString().equals("000001010000Z")) {
-                                return false;
-                            } else {
-                                return true;
-                            }
+                            return !"000001010000Z".equals(attributes.get("pwdAccountLockedTime").get().toString());
                         }
                     }else{
                         return false;
@@ -395,7 +399,6 @@ public final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
     private boolean getLdapUserStatusTLS(String user, List<String> urls) {
         Hashtable<String, Object> env = new Hashtable<>();
         env.putAll(commonEnvLDAP);
-        NamingEnumeration results = null;
         env.put(Context.PROVIDER_URL, urls.get(0));
         try {
             LdapContext ctx = new InitialLdapContext(env, null);
@@ -407,18 +410,14 @@ public final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
             env.put(Context.SECURITY_CREDENTIALS, getPasswordDecrypt());
             SearchControls controls = new SearchControls();
             controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-            results = ctx.search(getBaseUser(), "(uid=" + user + ")", controls);
+            NamingEnumeration results = ctx.search(getBaseUser(), "(uid=" + user + ")", controls);
             while (results.hasMore()) {
                 SearchResult searchResult = (SearchResult) results.next();
                 Attributes attributes = searchResult.getAttributes();
                 if(attributes.get("uid")!=null) {
                     if(attributes.get("uid").toString().equals("uid: "+user)) {
                         if (attributes.get("pwdAccountLockedTime") != null) {
-                            if (attributes.get("pwdAccountLockedTime").get().toString().equals("000001010000Z")) {
-                                return false;
-                            } else {
-                                return true;
-                            }
+                            return !"000001010000Z".equals(attributes.get("pwdAccountLockedTime").get().toString());
                         }
                     }else{
                         return false;
@@ -440,7 +439,7 @@ public final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
                 try {
                     tls.close();
                 } catch (IOException e) {
-
+                    throw new UnderlyingIOException(e);
                 }
             }
         }
