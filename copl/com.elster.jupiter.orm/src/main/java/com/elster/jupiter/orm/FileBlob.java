@@ -1,6 +1,7 @@
 package com.elster.jupiter.orm;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -23,12 +24,16 @@ public final class FileBlob implements Blob {
 
     public static FileBlob from(Path path) {
         try {
-            FileBlob blob = new FileBlob();
-            blob.in = new BufferedInputStream(Files.newInputStream(path));
-            return blob;
+            return from(Files.newInputStream(path));
         } catch (IOException e) {
             throw new UnderlyingIOException(e);
         }
+    }
+
+    public static FileBlob from(InputStream inputStream) {
+        FileBlob blob = new FileBlob();
+        blob.in = new BufferedInputStream(inputStream);
+        return blob;
     }
 
     private FileBlob() {
