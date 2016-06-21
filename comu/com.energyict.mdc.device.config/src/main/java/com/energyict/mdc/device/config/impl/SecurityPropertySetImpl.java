@@ -250,16 +250,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
 
     private DeviceProtocolPluggableClass getDeviceProtocolPluggableClass() {
         DeviceType deviceType = getDeviceConfiguration().getDeviceType();
-        DeviceProtocolPluggableClass protocolClass = deviceType.getDeviceProtocolPluggableClass();
-        if (protocolClass != null) {
-            return protocolClass;
-        } else { // DeviceType's Collection Method should be DeviceCollectionMethodType.HEADEND_SYSTEM, else we have a problem...
-//            if (deviceType.getDeviceCollectionMethodType() == DeviceCollectionMethodType.COMSERVER) {
-//                throw new ApplicationException(String.format("Protocol not defined for Device Type \"%s\"", deviceType.getName()));
-//            }
-            //throw CodingException.unsupportedMethod(this.getClass(), "getDeviceProtocolPluggableClass");
-            throw new UnsupportedOperationException();
-        }
+        return deviceType.getDeviceProtocolPluggableClass().orElseThrow(UnsupportedOperationException::new);
     }
 
     @Override

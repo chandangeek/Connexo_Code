@@ -102,6 +102,7 @@ import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -908,8 +909,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Override
     public Set<ProtocolSupportedCalendarOptions> getSupportedTimeOfUseOptionsFor(DeviceType deviceType, boolean checkForVerifyCalendar) {
         Set<ProtocolSupportedCalendarOptions> protocolSupportedCalendarOptions = deviceType.getDeviceProtocolPluggableClass()
-                .getDeviceProtocol()
-                .getSupportedMessages()
+                .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages()).orElse(Collections.emptySet())
                 .stream()
                 .map(this.deviceMessageSpecificationService::getProtocolSupportedCalendarOptionsFor)
                 .filter(Optional::isPresent)

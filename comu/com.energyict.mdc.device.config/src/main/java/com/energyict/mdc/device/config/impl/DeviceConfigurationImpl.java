@@ -65,6 +65,7 @@ import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
@@ -214,9 +215,10 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         if (!getDeviceType().isDataloggerSlave()) {
             this.getDeviceType()
                     .getDeviceProtocolPluggableClass()
-                    .getDeviceProtocol()
-                    .getDeviceProtocolDialects()
-                    .forEach(this::findOrCreateProtocolDialectConfigurationProperties);
+                    .ifPresent(deviceProtocolPluggableClass -> deviceProtocolPluggableClass
+                            .getDeviceProtocol()
+                            .getDeviceProtocolDialects()
+                            .forEach(this::findOrCreateProtocolDialectConfigurationProperties));
         }
         return this;
     }
@@ -1230,11 +1232,9 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         if (currentUser.isPresent()) {
             User user = currentUser.get();
             if (supportsAllProtocolMessages()) {
-                if (this.getDeviceType()
-                        .getDeviceProtocolPluggableClass()
-                        .getDeviceProtocol()
-                        .getSupportedMessages()
-                        .contains(deviceMessageId)) {
+                Optional<DeviceProtocolPluggableClass> deviceProtocolPluggableClass = this.getDeviceType().getDeviceProtocolPluggableClass();
+                if ((deviceProtocolPluggableClass.isPresent()
+                        && deviceProtocolPluggableClass.get().getDeviceProtocol().getSupportedMessages().contains(deviceMessageId))) {
                     return getAllProtocolMessagesUserActions().stream()
                             .anyMatch(deviceMessageUserAction -> isUserAuthorizedForAction(deviceMessageUserAction, user));
                 }
@@ -1269,22 +1269,21 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     public List<DeviceMessageSpec> getEnabledAndAuthorizedDeviceMessageSpecsIn(DeviceMessageCategory category) {
         Set<DeviceMessageId> supportedMessagesSpecs =
                 this.getDeviceType()
-                    .getDeviceProtocolPluggableClass()
-                    .getDeviceProtocol()
-                    .getSupportedMessages();
+                        .getDeviceProtocolPluggableClass()
+                        .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages()).orElse(Collections.emptySet());
 
         EnumSet<DeviceMessageId> enabledDeviceMessageIds = EnumSet.noneOf(DeviceMessageId.class);
         this.getDeviceMessageEnablements()
-            .stream()
-            .map(DeviceMessageEnablement::getDeviceMessageId)
-            .forEach(enabledDeviceMessageIds::add);
+                .stream()
+                .map(DeviceMessageEnablement::getDeviceMessageId)
+                .forEach(enabledDeviceMessageIds::add);
         return category.getMessageSpecifications()
-                        .stream()
-                        .filter(deviceMessageSpec -> supportedMessagesSpecs.contains(deviceMessageSpec.getId())) // limit to device message specs supported by the protocol
-                        .filter(deviceMessageSpec -> enabledDeviceMessageIds.contains(deviceMessageSpec.getId())) // limit to device message specs enabled on the config
-                        .filter(deviceMessageSpec -> this.isAuthorized(deviceMessageSpec.getId())) // limit to device message specs whom the user is authorized to
-                        .map(this::replaceDeviceMessageFileValueFactories)
-                        .collect(Collectors.toList());
+                .stream()
+                .filter(deviceMessageSpec -> supportedMessagesSpecs.contains(deviceMessageSpec.getId())) // limit to device message specs supported by the protocol
+                .filter(deviceMessageSpec -> enabledDeviceMessageIds.contains(deviceMessageSpec.getId())) // limit to device message specs enabled on the config
+                .filter(deviceMessageSpec -> this.isAuthorized(deviceMessageSpec.getId())) // limit to device message specs whom the user is authorized to
+                .map(this::replaceDeviceMessageFileValueFactories)
+                .collect(Collectors.toList());
     }
 
     private DeviceMessageSpec replaceDeviceMessageFileValueFactories(DeviceMessageSpec spec) {

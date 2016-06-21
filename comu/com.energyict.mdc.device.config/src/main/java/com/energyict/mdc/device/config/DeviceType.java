@@ -107,7 +107,7 @@ public interface DeviceType extends HasId, HasName {
      *
      * @return the DeviceProtocolPluggableClass
      */
-    DeviceProtocolPluggableClass getDeviceProtocolPluggableClass();
+    Optional<DeviceProtocolPluggableClass> getDeviceProtocolPluggableClass();
 
     void setDeviceProtocolPluggableClass(String deviceProtocolPluggableClassName);
 

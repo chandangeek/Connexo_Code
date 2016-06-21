@@ -1,13 +1,13 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.ValueFactory;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceProtocolConfigurationProperties;
 import com.energyict.mdc.device.config.exceptions.NoSuchPropertyException;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.ValueFactory;
-
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,12 +38,14 @@ public class DeviceProtocolConfigurationPropertiesImpl implements DeviceProtocol
     @Override
     public List<PropertySpec> getPropertySpecs() {
         if (this.propertySpecs == null) {
-            this.propertySpecs = this.getDeviceProtocolPluggableClass().getDeviceProtocol().getPropertySpecs();
+            this.propertySpecs = this.getDeviceProtocolPluggableClass()
+                    .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getPropertySpecs())
+                    .orElse(Collections.emptyList());
         }
         return this.propertySpecs;
     }
 
-    private DeviceProtocolPluggableClass getDeviceProtocolPluggableClass() {
+    private Optional<DeviceProtocolPluggableClass> getDeviceProtocolPluggableClass() {
         return this.deviceConfiguration.getDeviceType().getDeviceProtocolPluggableClass();
     }
 
@@ -65,7 +67,7 @@ public class DeviceProtocolConfigurationPropertiesImpl implements DeviceProtocol
     }
 
     private TypedProperties initializeProperties() {
-        TypedProperties defaultProperties = this.deviceConfiguration.getDeviceType().getDeviceProtocolPluggableClass().getProperties();
+        TypedProperties defaultProperties = this.deviceConfiguration.getDeviceType().getDeviceProtocolPluggableClass().map(DeviceProtocolPluggableClass::getProperties).orElse(TypedProperties.empty());
         TypedProperties properties = TypedProperties.inheritingFrom(defaultProperties);
         for (DeviceProtocolConfigurationProperty property : this.deviceConfiguration.getProtocolPropertyList()) {
             ValueFactory<?> valueFactory = this.getPropertySpec(property.getName()).get().getValueFactory();
@@ -91,7 +93,7 @@ public class DeviceProtocolConfigurationPropertiesImpl implements DeviceProtocol
                 this.addProperty(name, value, propertySpec.get());
             }
             else {
-                throw new NoSuchPropertyException(this.getDeviceProtocolPluggableClass(), name, this.deviceConfiguration.getThesaurus(), MessageSeeds.PROTOCOL_HAS_NO_SUCH_PROPERTY);
+                throw new NoSuchPropertyException(this.getDeviceProtocolPluggableClass().get(), name, this.deviceConfiguration.getThesaurus(), MessageSeeds.PROTOCOL_HAS_NO_SUCH_PROPERTY);
             }
         }
         else {
@@ -114,7 +116,9 @@ public class DeviceProtocolConfigurationPropertiesImpl implements DeviceProtocol
     }
 
     private void doRemoveProperty(String name) {
-        this.getPropertySpec(name).orElseThrow(() -> new NoSuchPropertyException(this.getDeviceProtocolPluggableClass(), name, this.deviceConfiguration.getThesaurus(), MessageSeeds.PROTOCOL_HAS_NO_SUCH_PROPERTY));
+        this.getPropertySpec(name)
+                .orElseThrow(() -> new NoSuchPropertyException(this.getDeviceProtocolPluggableClass()
+                        .get(), name, this.deviceConfiguration.getThesaurus(), MessageSeeds.PROTOCOL_HAS_NO_SUCH_PROPERTY));
         if (this.deviceConfiguration.removeProtocolProperty(name)) {
             this.properties.removeProperty(name);
         }
