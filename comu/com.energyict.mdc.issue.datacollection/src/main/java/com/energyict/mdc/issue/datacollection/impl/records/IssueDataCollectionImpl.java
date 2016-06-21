@@ -63,6 +63,11 @@ public class IssueDataCollectionImpl implements IssueDataCollection {
     }
 
     @Override
+    public String getIssueId() {
+        return getBaseIssue().getIssueId();
+    }
+
+    @Override
     public String getTitle() {
         return getBaseIssue().getTitle();
     }
@@ -191,12 +196,12 @@ public class IssueDataCollectionImpl implements IssueDataCollection {
     public void setDeviceMRID(String deviceMRID) {
         this.deviceMRID = deviceMRID;
     }
-    
+
     @Override
     public Optional<ComSession> getComSession() {
         return comSession.getOptional();
     }
-    
+
     @Override
     public void setComSession(ComSession comSession) {
         this.comSession.set(comSession);
@@ -251,7 +256,7 @@ public class IssueDataCollectionImpl implements IssueDataCollection {
         Save.UPDATE.save(dataModel, this);
     }
 
-    public void delete(){
+    public void delete() {
         dataModel.remove(this);
     }
 
