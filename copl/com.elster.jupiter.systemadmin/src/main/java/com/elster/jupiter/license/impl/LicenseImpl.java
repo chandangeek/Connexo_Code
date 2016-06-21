@@ -30,7 +30,7 @@ import java.util.Properties;
  * Date: 2/04/2014
  * Time: 11:17
  */
-class LicenseImpl implements License {
+public class LicenseImpl implements License {
     private static final String LICENSE_APP_KEY = "license.application.key";
     private static final String LICENSE_CREATION_DATE_KEY = "license.creation.date";
     private static final String LICENSE_EXPIRATION_DATE_KEY = "license.expiration.date";
@@ -41,7 +41,7 @@ class LicenseImpl implements License {
     private final Thesaurus thesaurus;
 
     @Inject
-    LicenseImpl(Thesaurus thesaurus) {
+   public LicenseImpl(Thesaurus thesaurus) {
         super();
         this.thesaurus = thesaurus;
     }
