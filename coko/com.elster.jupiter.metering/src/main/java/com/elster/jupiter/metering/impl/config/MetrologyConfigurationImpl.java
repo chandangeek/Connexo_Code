@@ -1,8 +1,6 @@
 package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
-import com.elster.jupiter.domain.util.DefaultFinder;
-import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
@@ -24,6 +22,7 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 
 import com.google.common.collect.ImmutableMap;
@@ -170,11 +169,8 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
     }
 
     private void checkLinkedUsagePoints() {
-        Finder<UsagePoint> finder = DefaultFinder
-                .of(UsagePoint.class, Where.where("metrologyConfiguration.metrologyConfiguration").isEqualTo(this), metrologyConfigurationService.getDataModel(),
-                        EffectiveMetrologyConfigurationOnUsagePoint.class, MetrologyConfiguration.class);
-
-        if (!finder.find().isEmpty()) {
+        if (!metrologyConfigurationService.getDataModel().query(UsagePoint.class, EffectiveMetrologyConfigurationOnUsagePoint.class, MetrologyConfiguration.class)
+                .select(Where.where("metrologyConfiguration.metrologyConfiguration").isEqualTo(this), Order.NOORDER, false, null, 1, 1).isEmpty()) {
             throw new CannotDeactivateMetrologyConfiguration(this.metrologyConfigurationService.getThesaurus());
         }
     }
@@ -192,6 +188,14 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
         if (MetrologyConfigurationStatus.ACTIVE == status) {
             checkLinkedUsagePoints();
             this.status = MetrologyConfigurationStatus.INACTIVE;
+            this.update();
+        }
+    }
+
+    @Override
+    public void deprecate() {
+        if (MetrologyConfigurationStatus.ACTIVE == status) {
+            this.status = MetrologyConfigurationStatus.DEPRECATED;
             this.update();
         }
     }

@@ -78,6 +78,7 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
 
     public void install(Logger logger) {
         new Installer(this.meteringService, this).install(null, logger);
+        userService.addModulePrivileges(this);
     }
 
     @Override
