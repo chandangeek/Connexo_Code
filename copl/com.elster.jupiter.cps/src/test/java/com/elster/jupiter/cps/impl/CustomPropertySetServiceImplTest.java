@@ -28,7 +28,6 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
@@ -711,17 +710,6 @@ public class CustomPropertySetServiceImplTest {
         // Asserts
         Optional<CustomPropertySet> expectedEmpty = service.findRegisteredCustomPropertySet(this.versionedCustomPropertySet.getId());
         assertThat(expectedEmpty).isEmpty();
-    }
-
-    @Test
-    public void getModuleResourcesDoesNotReturnNull() {
-        CustomPropertySetServiceImpl service = this.testInstance();
-
-        // Business method
-        List<ResourceDefinition> moduleResources = service.getModuleResources();
-
-        // Asserts
-        assertThat(moduleResources).isNotNull();
     }
 
     @Test
