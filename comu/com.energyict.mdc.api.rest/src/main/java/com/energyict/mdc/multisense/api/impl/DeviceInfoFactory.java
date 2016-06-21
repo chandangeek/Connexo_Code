@@ -4,6 +4,7 @@ import com.elster.jupiter.rest.util.hypermedia.LinkInfo;
 import com.elster.jupiter.rest.util.hypermedia.PropertyCopier;
 import com.elster.jupiter.rest.util.hypermedia.Relation;
 import com.elster.jupiter.rest.util.hypermedia.SelectableFieldFactory;
+import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.Device;
@@ -89,7 +90,10 @@ public class DeviceInfoFactory extends SelectableFieldFactory<DeviceInfo,Device>
         map.put("name", (deviceInfo, device, uriInfo) -> deviceInfo.name = device.getName());
         map.put("mRID", (deviceInfo, device, uriInfo) -> deviceInfo.mRID = device.getmRID());
         map.put("serialNumber", (deviceInfo, device, uriInfo) -> deviceInfo.serialNumber = device.getSerialNumber());
-        map.put("deviceProtocolPluggeableClassId", (deviceInfo, device, uriInfo) -> deviceInfo.deviceProtocolPluggeableClassId = device.getDeviceType().getDeviceProtocolPluggableClass().getId());
+        map.put("deviceProtocolPluggeableClassId", (deviceInfo, device, uriInfo) -> deviceInfo.deviceProtocolPluggeableClassId = device.getDeviceType()
+                .getDeviceProtocolPluggableClass()
+                .map(HasId::getId)
+                .orElse(-1L));
         map.put("yearOfCertification", (deviceInfo, device, uriInfo) -> deviceInfo.yearOfCertification = device.getYearOfCertification());
         map.put("batch", (deviceInfo, device, uriInfo) -> batchService.findBatch(device).ifPresent(batch -> deviceInfo.batch = batch.getName()));
         map.put("gatewayType", (deviceInfo, device, uriInfo) -> deviceInfo.gatewayType=device.getConfigurationGatewayType());
