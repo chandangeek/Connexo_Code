@@ -36,7 +36,7 @@ Ext.define('Cfg.controller.DataValidationKpi', {
                 click: this.addDataValidationKpi
             },
             'cfg-data-validation-kpi-add button[action=cancel-add-button]': {
-                click: this.showDataValidationKPIs
+                click: this.cancelDataValidationKpi
             },
             'cfg-data-validation-kpi-add #create-add-button': {
                 click: this.saveDataValidationKPI
@@ -113,6 +113,12 @@ Ext.define('Cfg.controller.DataValidationKpi', {
         var me = this;
 
         me.getController('Uni.controller.history.Router').getRoute('administration/datavalidationkpis/add').forward();
+    },
+
+    cancelDataValidationKpi: function () {
+        var me = this;
+
+        me.getController('Uni.controller.history.Router').getRoute('administration/datavalidationkpis').forward();
     },
 
     showAddDataValidationKpi: function () {
