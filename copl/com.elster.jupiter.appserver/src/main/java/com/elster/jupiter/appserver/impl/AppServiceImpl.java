@@ -613,10 +613,7 @@ public class AppServiceImpl implements IAppService, Subscriber, TranslationKeyPr
                     if (allServerDestination.isPresent()) {
                         allServerDestination.get().message(jsonService.serialize(new AppServerCommand(Command.CONFIG_CHANGED))).send();
                     } else {
-                        if (dataModel.isInstalled()) {
-                            LOGGER.log(Level.SEVERE, "Could not notify other servers of Config Change. AllServers queue does not exist!");
-                        }
-
+                        LOGGER.log(Level.SEVERE, "Could not notify other servers of Config Change. AllServers queue does not exist!");
                     }
                 });
     }
