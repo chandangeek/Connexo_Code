@@ -43,10 +43,6 @@ class QueryImpl<T> implements Query<T> {
         return queryExecutor.asSubquery(condition, fieldNames);
     }
 
-    public Subquery asSubquery(Condition condition, int from, int to, String... fieldNames) {
-        return queryExecutor.asSubquery(condition, from, to, fieldNames);
-    }
-
     @Override
     public boolean hasField(String key) {
         return queryExecutor.hasField(key);
