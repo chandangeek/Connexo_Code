@@ -179,6 +179,26 @@ public class ConsoleUser implements User {
         return Instant.now();
     }
 
+    @Override
+    public Instant getLastSuccessfulLogin() {
+        return Instant.now();
+    }
+
+    @Override
+    public void setLastSuccessfulLogin(Instant lastLogin) {
+
+    }
+
+    @Override
+    public Instant getLastUnSuccessfulLogin() {
+        return null;
+    }
+
+    @Override
+    public void setLastUnSuccessfulLogin(Instant lastLoginFail) {
+
+    }
+
     private static class CustomPropertySetPrivilege implements Privilege {
         private final String privilege;
 
