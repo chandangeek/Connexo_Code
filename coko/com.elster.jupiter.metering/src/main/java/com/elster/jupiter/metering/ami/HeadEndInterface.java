@@ -5,7 +5,6 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.servicecall.ServiceCall;
 
-import java.net.URI;
 import java.net.URL;
 import java.time.Instant;
 import java.util.List;

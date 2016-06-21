@@ -1,7 +1,5 @@
 package com.elster.jupiter.metering;
 
-import com.elster.jupiter.metering.events.EndDeviceEventType;
-
 import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
@@ -46,7 +44,7 @@ public enum EndDeviceControlTypeMapping {
     private final String endDeviceControlTypeMRID;
     private EndDeviceControlType controlType;
 
-    private EndDeviceControlTypeMapping(String endDeviceControlTypeMRID) {
+    EndDeviceControlTypeMapping(String endDeviceControlTypeMRID) {
         this.endDeviceControlTypeMRID = endDeviceControlTypeMRID;
     }
 
