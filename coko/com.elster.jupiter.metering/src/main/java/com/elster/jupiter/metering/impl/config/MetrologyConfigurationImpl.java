@@ -396,4 +396,14 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
         return !other.isPresent() || other.get().getId() == getId();
     }
 
+    @Override
+    public List<ReadingTypeRequirement> getMandatoryReadingTypeRequirements() {
+        ReadingTypeRequirementChecker requirementChecker = new ReadingTypeRequirementChecker();
+        this.getContracts()
+                .stream()
+                .filter(MetrologyContract::isMandatory)
+                .flatMap(contract -> contract.getDeliverables().stream())
+                .forEach(deliverable -> deliverable.getFormula().getExpressionNode().accept(requirementChecker));
+        return requirementChecker.getReadingTypeRequirements();
+    }
 }
