@@ -121,6 +121,15 @@ public class AbstractRegister {
 		}
     }
 
+    public ReadGeneralReferenceRequest getReadGeneralReferenceRequest(long referenceSpec) throws IOException {
+        try {
+            final ReadGeneralReferenceRequest request = getRegisterFactory().getFunctionCodeFactory().readGeneralReferenceRequest(referenceSpec);
+            return request;
+        } catch (IOException e) {
+            throw new NestedIOException(e, "IOException while reading general reference [" + referenceSpec + "] with range [" + getRange() + "]");
+        }
+    }
+
     public ReadInputRegistersRequest getReadInputRegistersRequest() throws IOException {
 		final int register = getReg()-(getRegisterFactory().isZeroBased()?1:0);
 		try {

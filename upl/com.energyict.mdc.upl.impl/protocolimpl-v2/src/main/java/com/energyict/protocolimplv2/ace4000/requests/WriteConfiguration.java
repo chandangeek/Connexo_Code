@@ -63,10 +63,12 @@ public class WriteConfiguration extends AbstractRequest<OfflineDeviceMessage, Co
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
             collectedMessage.setFailureInformation(ResultType.ConfigurationError, messageExecutor.createMessageFailedIssue(getInput(), "Config request returned NACK. " + getReasonDescription()));
             collectedMessage.setDeviceProtocolInformation("Config request returned NACK.");
+            setResult(collectedMessage);
         } else {
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
             collectedMessage.setFailureInformation(ResultType.ConfigurationError, messageExecutor.createMessageFailedIssue(getInput(), "Meter didn't respond to config request" + getReasonDescription()));
             collectedMessage.setDeviceProtocolInformation("Meter didn't respond to config request");
+            setResult(collectedMessage);
         }
     }
 }

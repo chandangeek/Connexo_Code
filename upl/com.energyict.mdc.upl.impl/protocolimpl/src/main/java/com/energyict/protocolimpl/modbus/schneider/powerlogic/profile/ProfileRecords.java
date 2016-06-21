@@ -11,11 +11,12 @@ public class ProfileRecords {
     public ProfileRecords() {
     }
 
-    public static ProfileRecords parse(int[] values, ProfileHeader profileHeader, int offset) {
+    public static ProfileRecords parse(List values, ProfileHeader profileHeader, int offset) {
+
         ProfileRecords profileRecords = new ProfileRecords();
         int ptr = offset;
         for (int i = 0; i < profileHeader.getRecordCount(); i++) {
-            ProfileRecord profileRecord = ProfileRecord.parse(values, ptr);
+            ProfileRecord profileRecord = ProfileRecord.parse(values);
             profileRecords.getProfileRecords().add(profileRecord);
             ptr += profileRecord.getWordLength();
 
