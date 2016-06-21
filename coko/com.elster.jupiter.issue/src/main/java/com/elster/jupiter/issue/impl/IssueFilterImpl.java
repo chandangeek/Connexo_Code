@@ -12,9 +12,11 @@ import com.elster.jupiter.users.User;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @ProviderType
 public class IssueFilterImpl implements IssueFilter {
+    private Optional<String> issueId = Optional.empty();
     private List<IssueStatus> statuses = new ArrayList<>();
     private List<IssueReason> reasons = new ArrayList<>();
     private List<EndDevice> devices = new ArrayList<>();
@@ -24,6 +26,16 @@ public class IssueFilterImpl implements IssueFilter {
     private boolean unassignedSelected = false;
 
     public IssueFilterImpl() {
+    }
+
+    @Override
+    public void setIssueId(String issueId) {
+        this.issueId = Optional.of(issueId);
+    }
+
+    @Override
+    public Optional<String> getIssueId() {
+        return this.issueId;
     }
 
     @Override

@@ -148,6 +148,7 @@ public enum TableSpecs {
             table.map(IssueTypeImpl.class);
 
             Column key = table.column(ISSUE_TYPE_COLUMN_KEY).map("key").varChar(NAME_LENGTH).notNull().add();
+            table.column(ISSUE_TYPE_COLUMN_PREFIX).map("prefix").varChar(3).notNull().add();
             table.column(ISSUE_TYPE_COLUMN_TRANSLATION).map("translationKey").varChar(NAME_LENGTH).notNull().add();
             table.addAuditColumns();
 

@@ -8,4 +8,6 @@ public interface IssueType extends Entity {
     String getKey();
 
     String getName();
+
+    String getPrefix();
 }

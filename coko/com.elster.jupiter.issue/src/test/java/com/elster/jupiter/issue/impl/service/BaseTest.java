@@ -99,6 +99,7 @@ import static org.mockito.Mockito.when;
 
 @SuppressWarnings("deprecation")
 public abstract class BaseTest {
+    public static final String ISSUE_DEFAULT_TYPE_PREFIX = "DCI";
     public static final String ISSUE_DEFAULT_TYPE_UUID = "datacollection";
     public static final String ISSUE_DEFAULT_REASON = "reason.default";
     public static final TranslationKey MESSAGE_SEED_DEFAULT_TRANSLATION = new SimpleTranslationKey("issue.entity.default.translation", "Default entity");
@@ -175,7 +176,7 @@ public abstract class BaseTest {
             injector.getInstance(DummyIssueProvider.class);
             injector.getInstance(ThreadPrincipalService.class).set(() -> "Test");
             // In OSGI container issue types will be set by separate bundle
-            IssueType type = issueService.createIssueType(ISSUE_DEFAULT_TYPE_UUID, MESSAGE_SEED_DEFAULT_TRANSLATION);
+            IssueType type = issueService.createIssueType(ISSUE_DEFAULT_TYPE_UUID, MESSAGE_SEED_DEFAULT_TRANSLATION, ISSUE_DEFAULT_TYPE_PREFIX);
             issueService.createReason(ISSUE_DEFAULT_REASON, type, MESSAGE_SEED_DEFAULT_TRANSLATION, MESSAGE_SEED_DEFAULT_TRANSLATION);
             ctx.commit();
         }
