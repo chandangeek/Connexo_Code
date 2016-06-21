@@ -64,8 +64,8 @@ Ext.define('Mdc.usagepointmanagement.view.history.MetrologyConfigurationHistoryP
         var me = this;
 
         me.down('#reading-types-area').removeAll();
-        for (var i = 0; i < record.get('readingTypes').length; i++) {
-            var readingType = record.get('readingTypes')[i];
+        for (var i = 0; i < record.get('metrologyConfiguration').readingTypes.length; i++) {
+            var readingType = record.get('metrologyConfiguration').readingTypes[i];
 
             this.down('#reading-types-area').add(
                 {

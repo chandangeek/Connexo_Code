@@ -1,6 +1,7 @@
 Ext.define('Mdc.usagepointmanagement.view.history.MetrologyConfigurationHistory', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.metrology-configuration-history-tab',
+    router: null,
 
     requires: [
         'Mdc.usagepointmanagement.view.history.MetrologyConfigurationHistoryGrid',
@@ -16,7 +17,8 @@ Ext.define('Mdc.usagepointmanagement.view.history.MetrologyConfigurationHistory'
                 xtype: 'preview-container',
                 grid: {
                     xtype: 'metrology-configuration-history-grid',
-                    itemId: 'metrology-configuration-history-grid-id'
+                    itemId: 'metrology-configuration-history-grid-id',
+                    router: me.router
                 },
                 emptyComponent: {
                     xtype: 'no-items-found-panel',
@@ -30,8 +32,9 @@ Ext.define('Mdc.usagepointmanagement.view.history.MetrologyConfigurationHistory'
                         {
                             text: Uni.I18n.translate('usagePoint.noMetrologyConfiguration.addVersions', 'MDC', 'Add version'),
                             action: 'addVersions',
-                            privileges: Mdc.privileges.UsagePoint.canAdmin(),
-                            disabled: true
+                            itemId: 'add-version-btn',
+                            href: me.router.getRoute('usagepoints/usagepoint/history/addmetrologyconfigurationversion').buildUrl(),
+                            privileges: Mdc.privileges.UsagePoint.canAdmin()
                         }
                     ]
                 },

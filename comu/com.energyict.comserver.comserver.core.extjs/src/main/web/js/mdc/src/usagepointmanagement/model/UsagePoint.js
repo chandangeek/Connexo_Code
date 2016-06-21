@@ -8,7 +8,7 @@ Ext.define('Mdc.usagepointmanagement.model.UsagePoint', {
         {name: 'serviceCategory', type: 'string', defaultValue: null, useNull: true},
         {name: 'version', type: 'number', useNull: true},
         {name: 'installationTime', type: 'int', defaultValue: null, useNull: true},
-        {name: 'metrologyConfiguration', type: 'auto', defaultValue: null, useNull: true},
+        {name: 'metrologyConfigurationVersion', type: 'auto', defaultValue: null, useNull: true},
         {name: 'meterActivation', type: 'auto', defaultValue: null, useNull: true}
     ],
     proxy: {
@@ -18,5 +18,6 @@ Ext.define('Mdc.usagepointmanagement.model.UsagePoint', {
         reader: {
             type: 'json'
         }
-    }
+    },
+    
 });

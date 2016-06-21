@@ -2190,7 +2190,16 @@ Ext.define('Mdc.controller.history.Setup', {
                                 route: 'history',
                                 controller: 'Mdc.usagepointmanagement.controller.History',
                                 action: 'showMetrologyConfigurationHistory',
-                                privileges: Mdc.privileges.UsagePoint.canView()
+                                privileges: Mdc.privileges.UsagePoint.canView(),
+                                items: {
+                                    addmetrologyconfigurationversion: {
+                                        route: 'addmetrologyconfigurationversion',
+                                        title: Uni.I18n.translate('general.addMcVersion', 'MDC', 'Add metrology configuration version'),
+                                        controller: 'Mdc.usagepointmanagement.controller.History',
+                                        action: 'showAddVersion',
+                                        privileges: Mdc.privileges.UsagePoint.canAdmin()
+                                    }
+                                }
                             },
                             'processes': {
                                 title: Uni.I18n.translate('processes.title', 'MDC', 'Processes'),

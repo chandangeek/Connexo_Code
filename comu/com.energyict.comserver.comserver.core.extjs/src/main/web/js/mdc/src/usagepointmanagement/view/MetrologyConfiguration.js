@@ -19,10 +19,12 @@ Ext.define('Mdc.usagepointmanagement.view.MetrologyConfiguration', {
                 },
                 items: [
                     {
-                        name: 'metrologyConfiguration',
+                        name: 'metrologyConfigurationVersion',
                         itemId: 'fld-up-metrology-configuration',
                         fieldLabel: Uni.I18n.translate('usagePoint.generalAttributes.metrologyConfiguration', 'MDC', 'Metrology configuration'),
                         renderer: function (value) {
+                            console.log(value);
+                            console.log(me.getRecord());
                             var result = '',
                                 record = me.getRecord(),
                                 startTime,
@@ -34,7 +36,7 @@ Ext.define('Mdc.usagepointmanagement.view.MetrologyConfiguration', {
                             if (value) {
                                 startTime = value.start;
                                 endTime = value.end;
-                                result += value.name;
+                                result += value.metrologyConfiguration.name;
                                 if (startTime) {
                                     result += '<br><span style="font-size: 90%">'
                                         + Uni.I18n.translate('general.fromDate.from', 'MDC', 'From {0}', [Uni.DateTime.formatDateTimeShort(new Date(startTime))], false);

@@ -2,6 +2,7 @@ Ext.define('Mdc.usagepointmanagement.view.history.MetrologyConfigurationHistoryG
     extend: 'Ext.grid.Panel',
     alias: 'widget.metrology-configuration-history-grid',
     // overflowY: 'auto',
+    router: null,
 
     requires: [
         'Uni.grid.column.Action',
@@ -27,9 +28,13 @@ Ext.define('Mdc.usagepointmanagement.view.history.MetrologyConfigurationHistoryG
                     '->',
                     {
                         xtype: 'button',
+                        style: {
+                            'background-color': '#71adc7'
+                        },
                         itemId: 'add-version-btn',
                         privileges: Mdc.privileges.UsagePoint.canAdmin(),
-                        disabled: true,
+                        href: me.router.getRoute('usagepoints/usagepoint/history/addmetrologyconfigurationversion').buildUrl(),
+
                         text: Uni.I18n.translate('usagePoint.generalAttributes.addVersion', 'MDC', 'Add version')
                     }
                 ]

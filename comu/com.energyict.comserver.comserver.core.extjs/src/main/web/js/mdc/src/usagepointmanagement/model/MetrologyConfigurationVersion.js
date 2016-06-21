@@ -2,11 +2,12 @@ Ext.define('Mdc.usagepointmanagement.model.MetrologyConfigurationVersion', {
     extend: 'Ext.data.Model',
     requires: [],
     fields: [
-        {name: 'id', type: 'number', useNull: true},
-        {name: 'name', type: 'string', useNull: true},
+        // {name: 'id', type: 'number', useNull: true},
+        // {name: 'name', type: 'string', useNull: true},
         {name: 'start', type: 'number', useNull: true},
         {name: 'end', type: 'number', useNull: true},
-        {name: 'readingTypes', type: 'auto'},
+        // {name: 'readingTypes', type: 'auto',  defaultValue: null, useNull: true},
+        {name: 'metrologyConfiguration', type: 'auto'},
         {
             name: 'period',
             type: 'string',
@@ -21,6 +22,14 @@ Ext.define('Mdc.usagepointmanagement.model.MetrologyConfigurationVersion', {
                     }
                 }
                 return result;
+            }
+        },
+        {
+            name: 'name',
+            type: 'string',
+            persist: false,
+            mapping: function (record) {
+                return record.metrologyConfiguration.name;
             }
         }
     ]

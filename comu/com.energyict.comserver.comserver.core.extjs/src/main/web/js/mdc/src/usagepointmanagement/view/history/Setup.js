@@ -1,6 +1,7 @@
 Ext.define('Mdc.usagepointmanagement.view.history.Setup', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.usage-point-history-setup',
+    router: null,
 
     requires: [
         'Mdc.usagepointmanagement.view.history.MetrologyConfigurationHistory'
@@ -24,7 +25,8 @@ Ext.define('Mdc.usagepointmanagement.view.history.Setup', {
                         {
                             title: Uni.I18n.translate('general.metrologyComfiguration', 'MDC', 'Metrology configuration'),
                             padding: '8 16 16 0',
-                            xtype: 'metrology-configuration-history-tab'
+                            xtype: 'metrology-configuration-history-tab',
+                            router: me.router
                         }
                     ]
                 }
