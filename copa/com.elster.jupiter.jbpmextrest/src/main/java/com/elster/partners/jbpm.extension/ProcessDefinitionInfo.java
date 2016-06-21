@@ -13,6 +13,8 @@ public class ProcessDefinitionInfo {
     public String type;
     public String displayType;
     public String deploymentId;
+    public String appKey;
+    public String versionDB;
     public List<?> privileges;
     public List<?> properties = Collections.emptyList();
 

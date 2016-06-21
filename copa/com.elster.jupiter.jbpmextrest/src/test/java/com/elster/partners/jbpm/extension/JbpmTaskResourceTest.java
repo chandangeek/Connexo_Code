@@ -111,10 +111,17 @@ public class JbpmTaskResourceTest {
         records.add(obj);
         when(query.getResultList()).thenReturn(records);
 
+        ProcessDefinitionInfo processDefinitionInfo = new ProcessDefinitionInfo("TestProcessId", "TestProcessId", "1.0", "Y", "device", "Device", "test:TestProcessId:1.0", new ArrayList<>(), new ArrayList<>());
+        ProcessDefinitionInfos processDefinitionInfos = new ProcessDefinitionInfos();
+        processDefinitionInfos.total = 1;
+        processDefinitionInfos.processes.add(processDefinitionInfo);
+
         ClientRequest request = new ClientRequest(baseUri + "/1");
+        request.body(MediaType.APPLICATION_JSON_TYPE, processDefinitionInfos);
+
         when(internalTaskService.getTaskById(1)).thenReturn(null);
 
-        ClientResponse<TaskSummary> response = request.get(TaskSummary.class);
+        ClientResponse<TaskSummary> response = request.post(TaskSummary.class);
 
         assertEquals(1L, response.getEntity().getId());
         assertEquals("TestTask", response.getEntity().getName());
@@ -145,10 +152,17 @@ public class JbpmTaskResourceTest {
         calendar.set(Calendar.DAY_OF_MONTH, 15);
         when(taskData.getExpirationTime()).thenReturn(calendar.getTime());
 
+        ProcessDefinitionInfo processDefinitionInfo = new ProcessDefinitionInfo("TestProcessId", "TestProcessId", "1.0", "Y", "device", "Device", "TestDeploymentId", new ArrayList<>(), new ArrayList<>());
+        ProcessDefinitionInfos processDefinitionInfos = new ProcessDefinitionInfos();
+        processDefinitionInfos.total = 1;
+        processDefinitionInfos.processes.add(processDefinitionInfo);
+
         ClientRequest request = new ClientRequest(baseUri + "/1");
+        request.body(MediaType.APPLICATION_JSON_TYPE, processDefinitionInfos);
+
         when(internalTaskService.getTaskById(1)).thenReturn(task);
 
-        ClientResponse<TaskSummary> response = request.get(TaskSummary.class);
+        ClientResponse<TaskSummary> response = request.post(TaskSummary.class);
 
         assertEquals(1L, response.getEntity().getId());
         assertEquals("TestTask", response.getEntity().getName());
@@ -437,7 +451,7 @@ public class JbpmTaskResourceTest {
         when(peopleAssignments.getBusinessAdministrators()).thenReturn(businessAdministrators);
         when(org.getId()).thenReturn("userName");
 
-        ClientRequest request = new ClientRequest(baseUri + "/1/assign");
+        ClientRequest request = new ClientRequest(baseUri + "/1/0/assign");
         request.queryParameter("username", "userName");
         request.queryParameter("currentuser", "currentUser");
 
@@ -446,10 +460,21 @@ public class JbpmTaskResourceTest {
     }
 
     @Test
+    public  void testAssignTaskDifferentOptLock() throws Exception{
+        Task task = mock(Task.class);
+        when(internalTaskService.getTaskById(anyLong())).thenReturn(task);
+
+        ClientRequest request = new ClientRequest(baseUri + "/1/99/assign");
+        ClientResponse<Response> response = request.post(Response.class);
+
+        assertEquals(409, response.getResponseStatus().getStatusCode());
+    }
+
+    @Test
     public  void testSetDueDate() throws Exception{
         Calendar calendar = new GregorianCalendar(2016, 1, 1, 10, 30, 0);
 
-        ClientRequest request = new ClientRequest(baseUri + "/1/set");
+        ClientRequest request = new ClientRequest(baseUri + "/1/0/assign");
         request.queryParameter("priority", "1");
         request.queryParameter("duedate", calendar.getTimeInMillis());
 

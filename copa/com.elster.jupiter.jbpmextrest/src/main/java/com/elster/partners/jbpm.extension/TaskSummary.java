@@ -1,13 +1,12 @@
 package com.elster.partners.jbpm.extension;
 
+import org.jbpm.services.task.impl.model.TaskImpl;
 import org.kie.api.task.model.Status;
 import org.kie.api.task.model.Task;
-
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.Date;
-import java.util.List;
 
 public class TaskSummary {
 
@@ -21,6 +20,7 @@ public class TaskSummary {
     private Status status;
     private String actualOwner;
     private long processInstanceId;
+    private long optLock = -1;
 
     public TaskSummary(){}
 
@@ -53,6 +53,7 @@ public class TaskSummary {
             this.actualOwner = "";
         }
         this.processInstanceId = task.getTaskData().getProcessInstanceId();
+        this.optLock = ((TaskImpl) task).getVersion();
 
     }
 
@@ -153,5 +154,13 @@ public class TaskSummary {
 
     public void setProcessInstanceId(long processInstanceId) {
         this.processInstanceId = processInstanceId;
+    }
+
+    public long getOptLock() {
+        return optLock;
+    }
+
+    public void setOptLock(int optLock) {
+        this.optLock = optLock;
     }
 }

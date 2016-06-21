@@ -57,6 +57,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Path("/tasks")
 public class JbpmTaskResource {
@@ -104,7 +105,7 @@ public class JbpmTaskResource {
             endIndex++;
         }catch (NumberFormatException e){
         }
-        if(deploymentIds != null && processIds != null) {
+        if(deploymentIds != null && processIds != null && !deploymentIds.isEmpty() && !processIds.isEmpty()) {
             if (emf != null) {
                 EntityManager em = emf.createEntityManager();
                 CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
@@ -140,11 +141,6 @@ public class JbpmTaskResource {
                                     predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get(theKey), Status.Obsolete));
                                 }
                             }
-                        }else{
-                            predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get("status"), Status.InProgress));
-                            predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get("status"), Status.Created));
-                            predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get("status"), Status.Ready));
-                            predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get("status"), Status.Reserved));
                         }
                         if (theKey.equals("user")) {
                             for (int i = 0; i < filterProperties.get("user").size(); i++) {
@@ -218,6 +214,11 @@ public class JbpmTaskResource {
                     if (!predicatesStatus.isEmpty()) {
                         p1 = criteriaBuilder.or(predicatesStatus.toArray(new Predicate[predicatesStatus.size()]));
                         predicateList.add(p1);
+                    } else {
+                        predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get("status"), Status.InProgress));
+                        predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get("status"), Status.Created));
+                        predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get("status"), Status.Ready));
+                        predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get("status"), Status.Reserved));
                     }
 
                     Predicate p2 = criteriaBuilder.disjunction();
@@ -338,44 +339,51 @@ public class JbpmTaskResource {
         return new TaskSummaryList(runtimeDataService, new ArrayList<>());
     }
 
-    @GET
+    @POST
     @Path("/{taskId: [0-9-]+}/")
     @Produces("application/json")
-    public TaskSummary getTask(@PathParam("taskId") long taskid){
-        Task task = taskService.getTaskById(taskid);
+    public TaskSummary getTask(ProcessDefinitionInfos processDefinitionInfos, @PathParam("taskId") long taskid){
+        Task task = internalTaskService.getTaskById(taskid);
         if(task == null){
             return new TaskSummary(getAuditTask(taskid));
         }else {
-            return new TaskSummary(task);
+            for(ProcessDefinitionInfo processDefinitionInfo : processDefinitionInfos.processes){
+                if(processDefinitionInfo.deploymentId.equals(task.getTaskData().getDeploymentId()) && processDefinitionInfo.processId.equals(task.getTaskData().getProcessId())){
+                    return new TaskSummary(task);
+                }
+            }
+            return new TaskSummary();
         }
     }
 
     @POST
-    @Path("/{taskId: [0-9-]+}/assign")
-    public Response assignTask(@Context UriInfo uriInfo,@PathParam("taskId") long taskId){
+    @Path("/{taskId: [0-9-]+}/{optLock: [0-9-]+}/assign")
+    public Response assignTask(@Context UriInfo uriInfo, @PathParam("taskId") long taskId, @PathParam("optLock") long optLock){
         String userName = getQueryValue(uriInfo, "username");
         String currentuser = getQueryValue(uriInfo, "currentuser");
-        boolean check = assignTaskToUser(userName, currentuser, taskId);
-        if(!check){
-            return Response.status(403).build();
-        }
-        return Response.ok().build();
-    }
-
-    @POST
-    @Path("/{taskId: [0-9-]+}/set")
-    public Response setDueDateAndPriority(@Context UriInfo uriInfo,@PathParam("taskId") long taskId){
         String priority = getQueryValue(uriInfo, "priority");
         String date = getQueryValue(uriInfo, "duedate");
-        if(priority != null || date != null){
-            if(priority != null && !priority.equals("")){
-                setPriority(Integer.valueOf(priority), taskId);
-
-            }
-            if(date != null && !date.equals("")){
-                Date millis = new Date();
-                millis.setTime(Long.valueOf(date));
-                setDueDate(millis, taskId);
+        Task task = internalTaskService.getTaskById(taskId);
+        if(task != null) {
+            if(((TaskImpl) task).getVersion() == optLock) {
+                if(userName != null && currentuser != null) {
+                    boolean check = assignTaskToUser(userName, currentuser, taskId);
+                    if (!check) {
+                        return Response.status(403).build();
+                    }
+                }
+                if(priority != null || date != null){
+                    if (priority != null && !priority.equals("")) {
+                        setPriority(Integer.valueOf(priority), taskId);
+                    }
+                    if (date != null && !date.equals("")) {
+                        Date millis = new Date();
+                        millis.setTime(Long.valueOf(date));
+                        setDueDate(millis, taskId);
+                    }
+                }
+            } else {
+                return Response.status(409).entity(task.getName()).build();
             }
         }
         return Response.ok().build();
@@ -508,21 +516,21 @@ public class JbpmTaskResource {
             } else {
                 processInstanceState = "Aborted";
             }
-            EntityManager em = emf.createEntityManager();
-            String queryString = "select * from(select n.NODENAME, n.NODETYPE, n.log_date,n.NODEINSTANCEID, n.NODEID, n.ID from NODEINSTANCELOG n " +
-                    "where n.PROCESSINSTANCEID = :processInstanceId and type= (select min(type) from NODEINSTANCELOG where processinstanceid = :processInstanceId and nodeid = n.nodeid))t1 " +
-                    "join(select p.NODEID as NODEIDNOTUSED, max(p.TYPE) from NODEINSTANCELOG p where processinstanceid = :processInstanceId group by p.NODEID)t2 on t1.nodeid = t2.NODEIDNOTUSED order by t1.ID desc";
-            Query query = em.createNativeQuery(queryString);
-            query.setParameter("processInstanceId", processInstanceId);
-            List<Object[]> nodes = query.getResultList();
-            queryString = "select * from variableinstancelog v WHERE v.PROCESSINSTANCEID = :processInstanceId ORDER BY v.VARIABLEID ASC";
-            query = em.createNativeQuery(queryString);
-            query.setParameter("processInstanceId", processInstanceId);
-            List<Object[]> processVariables = query.getResultList();
-            return new ProcessInstanceNodeInfos(nodes, processInstanceState, processVariables);
+        }else {
+            processInstanceState = "Undeployed";
         }
-
-        return null;
+        EntityManager em = emf.createEntityManager();
+        String queryString = "select * from(select n.NODENAME, n.NODETYPE, n.log_date,n.NODEINSTANCEID, n.NODEID, n.ID from NODEINSTANCELOG n " +
+                "where n.PROCESSINSTANCEID = :processInstanceId and type= (select min(type) from NODEINSTANCELOG where processinstanceid = :processInstanceId and nodeid = n.nodeid))t1 " +
+                "join(select p.NODEID as NODEIDNOTUSED, max(p.TYPE) from NODEINSTANCELOG p where processinstanceid = :processInstanceId group by p.NODEID)t2 on t1.nodeid = t2.NODEIDNOTUSED order by t1.ID desc";
+        Query query = em.createNativeQuery(queryString);
+        query.setParameter("processInstanceId", processInstanceId);
+        List<Object[]> nodes = query.getResultList();
+        queryString = "select * from variableinstancelog v WHERE v.PROCESSINSTANCEID = :processInstanceId ORDER BY v.VARIABLEID ASC";
+        query = em.createNativeQuery(queryString);
+        query.setParameter("processInstanceId", processInstanceId);
+        List<Object[]> processVariables = query.getResultList();
+        return new ProcessInstanceNodeInfos(nodes, processInstanceState, processVariables);
     }
 
     @GET
