@@ -1,0 +1,217 @@
+package com.elster.jupiter.demo.impl.commands.devices;
+
+import com.elster.jupiter.demo.impl.Builders;
+import com.elster.jupiter.demo.impl.UnableToCreate;
+import com.elster.jupiter.demo.impl.builders.DeviceBuilder;
+import com.elster.jupiter.demo.impl.builders.configuration.ChannelsOnDevConfPostBuilder;
+import com.elster.jupiter.demo.impl.builders.configuration.OutboundTCPConnectionMethodsDevConfPostBuilder;
+import com.elster.jupiter.demo.impl.builders.device.SetDeviceInActiveLifeCycleStatePostBuilder;
+import com.elster.jupiter.demo.impl.templates.ComTaskTpl;
+import com.elster.jupiter.demo.impl.templates.DeviceConfigurationTpl;
+import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
+import com.elster.jupiter.demo.impl.templates.OutboundTCPComPortPoolTpl;
+import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.ConnectionStrategy;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceSecurityUserAction;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
+import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.protocol.api.device.messages.DlmsAuthenticationLevelMessageValues;
+import com.energyict.mdc.protocol.api.device.messages.DlmsEncryptionLevelMessageValues;
+import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.tasks.ComTask;
+import com.energyict.protocols.naming.ConnectionTypePropertySpecName;
+import com.energyict.protocols.naming.SecurityPropertySpecName;
+
+import javax.inject.Inject;
+import javax.inject.Provider;
+import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Consumer;
+
+/**
+ * Device Type using WebRTUKP Protocol.
+ * 1 LoadProfile with 32 channels
+ * Device Configuration is 'DataLogger Enabled'
+ */
+public class CreateDataLoggerCommand {
+
+    private static final String SECURITY_SET_NAME = "High level MD5 authentication - No encryption";
+
+    static final String DATA_LOGGER_MRID = "DemoDataLogger";
+    static final String DATA_LOGGER_SERIAL = "660-05A043-1428";
+    static final String SECURITY_PROPERTY_SET_NAME = "High level authentication - No encryption";
+    static final String CONNECTION_TASK_PLUGGABLE_CLASS_NAME = "OutboundTcpIp";
+
+    private final DeviceService deviceService;
+    private final ProtocolPluggableService protocolPluggableService;
+    private final Provider<OutboundTCPConnectionMethodsDevConfPostBuilder> connectionMethodsProvider;
+    private final ConnectionTaskService connectionTaskService;
+    private final Provider<DeviceBuilder> deviceBuilderProvider;
+    private final Provider<SetDeviceInActiveLifeCycleStatePostBuilder> lifecyclePostBuilder;
+
+    private Map<ComTaskTpl, ComTask> comTasks;
+    private String mRID = DATA_LOGGER_MRID;
+    private String serialNumber = DATA_LOGGER_SERIAL;
+
+    @Inject
+    public CreateDataLoggerCommand(DeviceService deviceService,
+                                   ProtocolPluggableService protocolPluggableService,
+                                   ConnectionTaskService connectionTaskService,
+                                   Provider<DeviceBuilder> deviceBuilderProvider,
+                                   Provider<OutboundTCPConnectionMethodsDevConfPostBuilder> connectionMethodsProvider,
+                                   Provider<SetDeviceInActiveLifeCycleStatePostBuilder> lifecyclePostBuilder) {
+        this.deviceService = deviceService;
+        this.protocolPluggableService = protocolPluggableService;
+        this.connectionTaskService = connectionTaskService;
+        this.deviceBuilderProvider = deviceBuilderProvider;
+        this.connectionMethodsProvider = connectionMethodsProvider;
+        this.lifecyclePostBuilder = lifecyclePostBuilder;
+    }
+
+    public void setDataLoggerMrid(String mRID){
+        this.mRID = mRID;
+    }
+
+    public void setSerialNumber(String serialNumber) {
+        this.serialNumber = serialNumber;
+    }
+
+    public void run() {
+        // 1. Some basic checks
+        Optional<Device> device = deviceService.findByUniqueMrid(mRID);
+        if (device.isPresent()) {
+            System.out.println("Nothing was created since a device with MRID '" + DATA_LOGGER_MRID + "' already exists!");
+            return;
+        }
+        Optional<ConnectionTypePluggableClass> pluggableClass = protocolPluggableService.findConnectionTypePluggableClassByName(CONNECTION_TASK_PLUGGABLE_CLASS_NAME);
+        if (!pluggableClass.isPresent()) {
+            System.out.println("Nothing was created since the required pluggable class '" + CONNECTION_TASK_PLUGGABLE_CLASS_NAME + "' couldn't be found!");
+            return;
+        }
+
+        // 2. Find or create required objects
+        findOrCreateRequiredObjects();
+
+        // 3. Create the device type
+        DeviceType deviceType = (Builders.from(DeviceTypeTpl.DATA_LOGGER_32).get());
+
+        // 4. Create the configuration
+        DeviceConfiguration configuration = createDataLoggerDeviceConfiguration(deviceType);
+
+        // 5. Create the gateway device (and set it to the 'Active' life cycle state)
+        lifecyclePostBuilder.get().accept(createDataLoggerDevice(configuration));
+    }
+
+    private DeviceConfiguration createDataLoggerDeviceConfiguration(DeviceType deviceType) {
+        DeviceConfiguration config = Builders.from(DeviceConfigurationTpl.DATA_LOGGER).withDeviceType(deviceType)
+                .withCanActAsGateway(true)
+                .withDirectlyAddressable(true)
+                .withDataLoggerEnabled(true)
+                .withPostBuilder(this.connectionMethodsProvider.get().withRetryDelay(5))
+                .withPostBuilder(new ChannelsOnDevConfPostBuilder())
+                .withPostBuilder(new SecurityPropertySetPostBuilder())
+                .get();
+        if (!config.isActive()) {
+            config.activate();
+        }
+        return config;
+    }
+
+    private void findOrCreateRequiredObjects() {
+        comTasks = new HashMap<>();
+        findOrCreateComTask(ComTaskTpl.READ_LOAD_PROFILE_DATA);
+        findOrCreateComTask(ComTaskTpl.READ_REGISTER_DATA);
+    }
+
+    private ComTask findOrCreateComTask(ComTaskTpl comTaskTpl) {
+        return comTasks.put(comTaskTpl, Builders.from(comTaskTpl).get());
+    }
+
+    private Device createDataLoggerDevice(DeviceConfiguration configuration) {
+        Device device = deviceBuilderProvider.get()
+            .withMrid(mRID)
+            .withSerialNumber(serialNumber)
+            .withDeviceConfiguration(configuration)
+            .withYearOfCertification(2015)
+            .get();
+        addConnectionTasksToDevice(device);
+        addSecurityPropertiesToDevice(device);
+        device.setProtocolProperty("Short_MAC_address", BigDecimal.ZERO);
+        device.save();
+        return device;
+    }
+
+
+    private void addConnectionTasksToDevice(Device device) {
+        DeviceConfiguration configuration = device.getDeviceConfiguration();
+        PartialScheduledConnectionTask connectionTask = configuration.getPartialOutboundConnectionTasks().get(0);
+        ScheduledConnectionTask deviceConnectionTask = device.getScheduledConnectionTaskBuilder(connectionTask)
+            .setComPortPool(Builders.from(OutboundTCPComPortPoolTpl.ORANGE).get())
+            .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
+            .setNextExecutionSpecsFrom(null)
+            .setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
+            .setProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_HOST.propertySpecName(), "10.0.0.135")
+            .setProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_PORT_NUMBER.propertySpecName(), new BigDecimal(4059))
+            .setSimultaneousConnectionsAllowed(false)
+            .add();
+        connectionTaskService.setDefaultConnectionTask(deviceConnectionTask);
+    }
+
+    private void addComTaskToDevice(Device device, ComTaskTpl comTask) {
+        DeviceConfiguration configuration = device.getDeviceConfiguration();
+        ComTaskEnablement taskEnablement = configuration.getComTaskEnablementFor(comTasks.get(comTask)).get();
+        device.newManuallyScheduledComTaskExecution(taskEnablement, null).add();
+    }
+
+    private void addSecurityPropertiesToDevice(Device device) {
+        DeviceConfiguration configuration = device.getDeviceConfiguration();
+        SecurityPropertySet securityPropertySet =
+                configuration
+                        .getSecurityPropertySets()
+                        .stream()
+                        .filter(sps -> SECURITY_PROPERTY_SET_NAME.equals(sps.getName()))
+                        .findFirst()
+                        .orElseThrow(() -> new UnableToCreate("No securityPropertySet with name" + SECURITY_PROPERTY_SET_NAME + "."));
+        TypedProperties typedProperties = TypedProperties.empty();
+        typedProperties.setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.getKey(), BigDecimal.ONE);
+        securityPropertySet
+                .getPropertySpecs()
+                .stream()
+                .filter(ps -> SecurityPropertySpecName.AUTHENTICATION_KEY.getKey().equals(ps.getName()))
+                .findFirst()
+                .ifPresent(ps -> typedProperties.setProperty(ps.getName(), ps.getValueFactory().fromStringValue("00112233445566778899AABBCCDDEEFF")));
+        securityPropertySet
+                .getPropertySpecs()
+                .stream()
+                .filter(ps -> SecurityPropertySpecName.ENCRYPTION_KEY.getKey().equals(ps.getName()))
+                .findFirst()
+                .ifPresent(ps -> typedProperties.setProperty(ps.getName(), ps.getValueFactory().fromStringValue("11223344556677889900AABBCCDDEEFF")));
+        device.setSecurityProperties(securityPropertySet, typedProperties);
+    }
+
+    private static class SecurityPropertySetPostBuilder implements Consumer<DeviceConfiguration> {
+
+        @Override
+        public void accept(DeviceConfiguration configuration) {
+             configuration.createSecurityPropertySet(SECURITY_SET_NAME)
+                     .authenticationLevel(DlmsAuthenticationLevelMessageValues.HIGH_LEVEL_MD5.getValue())
+                     .encryptionLevel(DlmsEncryptionLevelMessageValues.NO_ENCRYPTION.getValue())
+                     .addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1)
+                     .addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2)
+                     .addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1)
+                     .addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2)
+                     .build();
+        }
+    }
+}

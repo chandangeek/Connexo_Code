@@ -63,7 +63,11 @@ public enum DeviceTypeTpl implements Template<DeviceType, DeviceTypeBuilder> {
     AS220 ("Elster AS220", "com.energyict.protocolimplv2.nta.dsmr50.elster.am540.AM540", 1, OutboundTCPComPortPoolTpl.ORANGE,
             Arrays.<RegisterTypeTpl>asList(RegisterTypeTpl.B_F_E_S_M_E, RegisterTypeTpl.B_R_E_S_M_E, RegisterTypeTpl.S_F_E_S_M_E_T1, RegisterTypeTpl.S_F_E_S_M_E_T2, RegisterTypeTpl.S_R_E_S_M_E_T1, RegisterTypeTpl.S_R_E_S_M_E_T2),
             Arrays.<LoadProfileTypeTpl>asList(com.elster.jupiter.demo.impl.templates.LoadProfileTypeTpl._15_MIN_ELECTRICITY, com.elster.jupiter.demo.impl.templates.LoadProfileTypeTpl.DAILY_ELECTRICITY, com.elster.jupiter.demo.impl.templates.LoadProfileTypeTpl.MONTHLY_ELECTRICITY),
-            Collections.singletonList(com.elster.jupiter.demo.impl.templates.LogBookTypeTpl.GENERIC))
+            Collections.singletonList(com.elster.jupiter.demo.impl.templates.LogBookTypeTpl.GENERIC)),
+    DATA_LOGGER_32 ("Data Logger 32 Channels", "com.energyict.protocolimplv2.nta.dsmr23.eict.WebRTUKP", 1, OutboundTCPComPortPoolTpl.ORANGE,
+            Arrays.<RegisterTypeTpl>asList(RegisterTypeTpl.B_F_E_S_M_E, RegisterTypeTpl.B_R_E_S_M_E, RegisterTypeTpl.S_F_E_S_M_E_T1, RegisterTypeTpl.S_F_E_S_M_E_T2, RegisterTypeTpl.S_R_E_S_M_E_T1, RegisterTypeTpl.S_R_E_S_M_E_T2),
+            Arrays.<LoadProfileTypeTpl>asList(com.elster.jupiter.demo.impl.templates.LoadProfileTypeTpl._15_MIN_ELECTRICITY, com.elster.jupiter.demo.impl.templates.LoadProfileTypeTpl.DAILY_ELECTRICITY, com.elster.jupiter.demo.impl.templates.LoadProfileTypeTpl.MONTHLY_ELECTRICITY),
+            Arrays.<LogBookTypeTpl>asList(com.elster.jupiter.demo.impl.templates.LogBookTypeTpl.STANDARD_EVENT_LOG, com.elster.jupiter.demo.impl.templates.LogBookTypeTpl.FRAUD_DETECTION_LOG, com.elster.jupiter.demo.impl.templates.LogBookTypeTpl.DISCONNECTOR_CONTROL_LOG)),
     ;
 
     private String longName;

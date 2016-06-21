@@ -35,7 +35,13 @@ public enum DeviceConfigurationTpl implements Template<DeviceConfiguration, Devi
         Collections.EMPTY_LIST,
         Collections.EMPTY_LIST,
         Collections.EMPTY_LIST,
-        Collections.singletonList(ComTaskTpl.TOPOLOGY_UPDATE))
+        Collections.singletonList(ComTaskTpl.TOPOLOGY_UPDATE)),
+    DATA_LOGGER("Default", GatewayType.HOME_AREA_NETWORK,
+        Arrays.<SecurityPropertySetTpl>asList(SecurityPropertySetTpl.NO_SECURITY, SecurityPropertySetTpl.HIGH_LEVEL),
+        Arrays.<RegisterTypeTpl>asList(com.elster.jupiter.demo.impl.templates.RegisterTypeTpl.B_F_E_S_M_E, com.elster.jupiter.demo.impl.templates.RegisterTypeTpl.B_R_E_S_M_E, com.elster.jupiter.demo.impl.templates.RegisterTypeTpl.S_F_E_S_M_E_T1, com.elster.jupiter.demo.impl.templates.RegisterTypeTpl.S_F_E_S_M_E_T2, com.elster.jupiter.demo.impl.templates.RegisterTypeTpl.S_R_E_S_M_E_T1, com.elster.jupiter.demo.impl.templates.RegisterTypeTpl.S_R_E_S_M_E_T2),
+        Arrays.<LoadProfileTypeTpl>asList(com.elster.jupiter.demo.impl.templates.LoadProfileTypeTpl._15_MIN_ELECTRICITY, com.elster.jupiter.demo.impl.templates.LoadProfileTypeTpl.DAILY_ELECTRICITY, com.elster.jupiter.demo.impl.templates.LoadProfileTypeTpl.MONTHLY_ELECTRICITY),
+        Collections.EMPTY_LIST,
+        Arrays.asList(ComTaskTpl.excludeTopologyTpls())),
     ;
 
     private String name;
