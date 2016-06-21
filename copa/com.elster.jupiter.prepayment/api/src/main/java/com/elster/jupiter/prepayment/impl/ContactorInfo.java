@@ -1,6 +1,6 @@
 package com.elster.jupiter.prepayment.impl;
 
-import com.elster.jupiter.util.units.Unit;
+import com.energyict.mdc.common.Unit;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.math.BigDecimal;

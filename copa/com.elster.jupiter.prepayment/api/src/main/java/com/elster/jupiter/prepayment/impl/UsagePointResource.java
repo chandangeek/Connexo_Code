@@ -24,6 +24,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -53,17 +55,20 @@ public class UsagePointResource {
     @Path("/contactor")
     public Response updateContactor(@PathParam("mrid") String mRID, ContactorInfo contactorInfo, @Context UriInfo uriInfo) {
         UsagePoint usagePoint = null;
-        EndDevice endDevice = null;
         ServiceCall serviceCall = null;
         try (TransactionContext context = transactionService.getContext()) {
             try {
                 usagePoint = findUsagePoint(mRID);
-                endDevice = findEndDeviceThroughUsagePoint(usagePoint);
+                List<EndDevice> endDevices = findEndDeviceThroughUsagePoint(usagePoint);
                 serviceCall = serviceCallCommands.createContactorOperationServiceCall(Optional.of(usagePoint), contactorInfo);
                 serviceCallCommands.requestTransition(serviceCall, DefaultState.PENDING);
                 serviceCallCommands.requestTransition(serviceCall, DefaultState.ONGOING);    // Immediately transit to 'ONGOING' state
                 validateContactorInfo(serviceCall, contactorInfo);
-                headEndController.performContactorOperations(endDevice, serviceCall, contactorInfo);
+                for (EndDevice endDevice : endDevices) {
+                    serviceCall.log(LogLevel.INFO, "Handling operations for end device with MRID " + endDevice.getMRID());
+                    headEndController.performContactorOperations(endDevice, serviceCall, contactorInfo);
+                }
+
                 serviceCallCommands.requestTransition(serviceCall, DefaultState.WAITING);
                 context.commit();
                 return Response.accepted().build();
@@ -110,8 +115,14 @@ public class UsagePointResource {
         return meteringService.findUsagePoint(mRID).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_USAGE_POINT));
     }
 
-    private EndDevice findEndDeviceThroughUsagePoint(UsagePoint usagePoint) {
-        MeterActivation meterActivation = usagePoint.getCurrentMeterActivation().orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_CURRENT_METER_ACTIVATION));
-        return meterActivation.getMeter().orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_METER_IN_ACTIVATION));
+    private List<EndDevice> findEndDeviceThroughUsagePoint(UsagePoint usagePoint) {
+        List<MeterActivation> meterActivations = usagePoint.getCurrentMeterActivations();
+        if (!meterActivations.isEmpty()) {
+            List<EndDevice> endDevices = new ArrayList<>();
+            meterActivations.stream().forEach(meterActivation -> endDevices.add(meterActivation.getMeter().orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_METER_IN_ACTIVATION))));
+            return endDevices;
+        } else {
+            throw exceptionFactory.newException(MessageSeeds.NO_CURRENT_METER_ACTIVATION);
+        }
     }
 }

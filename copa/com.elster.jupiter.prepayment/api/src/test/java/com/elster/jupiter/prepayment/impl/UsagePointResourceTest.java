@@ -1,7 +1,6 @@
 package com.elster.jupiter.prepayment.impl;
 
 import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
-import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
@@ -21,6 +20,9 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.math.BigDecimal;
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
@@ -63,8 +65,6 @@ public class UsagePointResourceTest {
     @Mock
     UsagePoint usagePoint;
     @Mock
-    EndDevice endDevice;
-    @Mock
     ServiceCall serviceCall;
     @Mock
     Thesaurus thesaurus;
@@ -86,7 +86,7 @@ public class UsagePointResourceTest {
         when(meteringService.findUsagePoint(INVALID_USAGE_POINT_MRID)).thenReturn(Optional.empty());
         when(meteringService.findUsagePoint(USAGE_POINT_MRID)).thenReturn(Optional.of(usagePoint));
         when(serviceCallCommands.createContactorOperationServiceCall(any(), any())).thenReturn(serviceCall);
-        when(usagePoint.getCurrentMeterActivation()).thenReturn(Optional.of(meterActivation));
+        when(usagePoint.getCurrentMeterActivations()).thenReturn(Collections.singletonList(meterActivation));
         when(meterActivation.getMeter()).thenReturn(Optional.of(meter));
     }
 
@@ -240,6 +240,33 @@ public class UsagePointResourceTest {
         verify(serviceCallCommands).requestTransition(serviceCall, DefaultState.PENDING);
         verify(serviceCallCommands).requestTransition(serviceCall, DefaultState.ONGOING);
         verify(serviceCallCommands).requestTransition(serviceCall, DefaultState.WAITING);
+        verify(headEndController).performContactorOperations(meter, serviceCall, contactorInfo);
+        assertEquals(Response.Status.ACCEPTED.getStatusCode(), response.getStatus());
+    }
+
+    @Test
+    public void testMultipleMeterActivations() throws Exception {
+        MeterActivation otherMeterActivation = mock(MeterActivation.class);
+        Meter otherMeter = mock(Meter.class);
+        when(otherMeterActivation.getMeter()).thenReturn(Optional.of(otherMeter));
+        List<MeterActivation> meterActivations = new ArrayList<>();
+        meterActivations.add(meterActivation);
+        meterActivations.add(otherMeterActivation);
+        when(usagePoint.getCurrentMeterActivations()).thenReturn(meterActivations);
+
+
+        ContactorInfo contactorInfo = new ContactorInfo();
+        contactorInfo.loadLimit = contactorInfo.new LoadLimit(BigDecimal.ZERO, null);
+
+        // Business method
+        Response response = usagePointResource.updateContactor(USAGE_POINT_MRID, contactorInfo, uriInfo);
+
+        // Asserts
+        verify(serviceCallCommands).requestTransition(serviceCall, DefaultState.PENDING);
+        verify(serviceCallCommands).requestTransition(serviceCall, DefaultState.ONGOING);
+        verify(serviceCallCommands).requestTransition(serviceCall, DefaultState.WAITING);
+        verify(headEndController).performContactorOperations(meter, serviceCall, contactorInfo);
+        verify(headEndController).performContactorOperations(otherMeter, serviceCall, contactorInfo);
         assertEquals(Response.Status.ACCEPTED.getStatusCode(), response.getStatus());
     }
 }
