@@ -236,8 +236,8 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
     }
 
     public Optional<DeviceMessageId> getFirmwareMessageId() {
-        if (deviceType.isPresent() && getFirmwareManagementOption() != null) {
-            return deviceType.get().getDeviceProtocolPluggableClass().getDeviceProtocol().getSupportedMessages()
+        if (deviceType.isPresent() && deviceType.get().getDeviceProtocolPluggableClass().isPresent() && getFirmwareManagementOption() != null) {
+            return deviceType.get().getDeviceProtocolPluggableClass().get().getDeviceProtocol().getSupportedMessages()
                     .stream()
                     .filter(firmwareMessageCandidate -> {
                         Optional<ProtocolSupportedFirmwareOptions> firmwareOptionForCandidate = deviceMessageSpecificationService.getProtocolSupportedFirmwareOptionFor(firmwareMessageCandidate);

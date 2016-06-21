@@ -69,7 +69,6 @@ import javax.validation.MessageInterpolator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
@@ -160,11 +159,11 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
 
     @Override
     public Set<ProtocolSupportedFirmwareOptions> getSupportedFirmwareOptionsFor(DeviceType deviceType) {
-        return deviceType.getDeviceProtocolPluggableClass().getDeviceProtocol().getSupportedMessages().stream().
+        return deviceType.getDeviceProtocolPluggableClass().map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages().stream().
                 map(this.deviceMessageSpecificationService::getProtocolSupportedFirmwareOptionFor)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
-                .collect(Collectors.toCollection(HashSet::new));
+                .collect(Collectors.toSet())).orElse(Collections.emptySet());
     }
 
     @Override
