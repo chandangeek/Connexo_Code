@@ -181,7 +181,7 @@ public class EstimationServiceImplTest {
 
         doReturn(Arrays.asList(readingType1, readingType2)).when(meterActivation).getReadingTypes();
         doReturn(Collections.singletonList(ruleSet)).when(resolver).resolve(meterActivation);
-        doReturn("MDC").when(ruleSet).getApplicationName();
+        doReturn(QualityCodeSystem.MDC).when(ruleSet).getQualityCodeSystem();
         doReturn(Priority.NORMAL).when(resolver).getPriority();
         doReturn(Arrays.asList(rule1, rule2)).when(ruleSet).getRules();
         doReturn(ImmutableSet.of(readingType1, readingType2)).when(rule1).getReadingTypes();
