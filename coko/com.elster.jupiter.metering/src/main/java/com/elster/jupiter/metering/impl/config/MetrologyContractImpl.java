@@ -184,7 +184,8 @@ public class MetrologyContractImpl implements MetrologyContract {
 
             boolean allMeterRolesHasMeters = true;
             for (MeterRole meterRole : meterRoles) {
-                MeterActivation meterActivation = !usagePoint.getMeterActivations(meterRole).isEmpty() ? usagePoint.getMeterActivations(meterRole)
+                MeterActivation meterActivation = !usagePoint.getMeterActivations(meterRole)
+                        .isEmpty() ? usagePoint.getMeterActivations(meterRole)
                         .stream()
                         .filter(meterActivationToCheck -> meterActivationToCheck.getEnd() == null)
                         .findFirst()

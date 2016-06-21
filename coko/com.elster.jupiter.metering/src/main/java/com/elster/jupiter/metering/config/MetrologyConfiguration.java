@@ -14,7 +14,7 @@ import java.util.List;
 @ProviderType
 public interface MetrologyConfiguration extends HasId, HasName {
 
-    void updateName(String name);
+    MetrologyConfigurationUpdater startUpdate();
 
     long getVersion();
 
@@ -35,6 +35,8 @@ public interface MetrologyConfiguration extends HasId, HasName {
     void activate();
 
     void deactivate();
+
+    void deprecate();
 
     List<RegisteredCustomPropertySet> getCustomPropertySets();
 

@@ -100,7 +100,7 @@ public class UsagePointImplTest {
     @Mock
     private ChannelBuilder channelBuilder;
     @Mock
-    private Provider<MeterActivationImpl> meterActivationProvider;
+    private Provider<IMeterActivation> meterActivationProvider;
     @Mock
     private Provider<UsagePointAccountabilityImpl> accountabilityProvider;
     @Mock
@@ -131,6 +131,7 @@ public class UsagePointImplTest {
         when(dataModel.mapper(Meter.class)).thenReturn(meterFactory);
         when(meterRole.getKey()).thenReturn(DefaultMeterRole.DEFAULT.getKey());
         when(meterFactory.getExisting(any())).thenReturn(meter);
+        when(meter.getHeadEndInterface()).thenReturn(Optional.empty());
         when(dataModel.getInstance(UsagePointAccountabilityImpl.class)).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {

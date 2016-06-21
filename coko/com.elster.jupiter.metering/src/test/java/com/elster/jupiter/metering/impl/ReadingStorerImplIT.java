@@ -22,13 +22,16 @@ import com.elster.jupiter.metering.readings.beans.ReadingImpl;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
-import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.Subscriber;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.units.Quantity;
@@ -72,8 +75,8 @@ public class ReadingStorerImplIT {
             bind(BundleContext.class).toInstance(bundleContext);
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(SearchService.class).toInstance(mock(SearchService.class));
-            bind(PropertySpecService.class).toInstance(mock(PropertySpecService.class));
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
+            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }
     public static final String SECONDARY_DELTA = "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
@@ -114,6 +117,8 @@ public class ReadingStorerImplIT {
                     new InMemoryMessagingModule(),
                     new IdsModule(),
                     new MeteringModule(SECONDARY_DELTA, SECONDARY_BULK, PRIMARY_DELTA, PRIMARY_BULK, SECONDARY_PULSE_DELTA, SECONDARY_BULK_REG, PRIMARY_BULK_REG),
+                    new BasicPropertiesModule(),
+                    new TimeModule(),
                     new PartyModule(),
                     new EventsModule(),
                     new DomainUtilModule(),
