@@ -139,7 +139,7 @@ public class MetrologyConfigurationResource {
 
         metrologyConfigurationUpdater.complete();
 
-        if (!info.status.id.toString().equals(metrologyConfiguration.getStatus().getId())) {
+        if (info.status != null && !metrologyConfiguration.getStatus().getId().equals(info.status.id)) {
             if (metrologyConfiguration.isActive()) {
                 metrologyConfiguration.deactivate();
             } else {
