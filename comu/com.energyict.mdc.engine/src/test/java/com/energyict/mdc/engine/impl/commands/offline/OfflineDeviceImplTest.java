@@ -538,6 +538,7 @@ public class OfflineDeviceImplTest {
         long slaveId = 664513;
         Device master = createMockDevice();
         Device slaveWithoutCapability = mock(Device.class);
+        when(slaveWithoutCapability.getDeviceProtocolPluggableClass()).thenReturn(Optional.empty());
         when(slaveWithoutCapability.getId()).thenReturn(slaveId);
         DeviceType deviceTypeSlave = mock(DeviceType.class);
         when(slaveWithoutCapability.getDeviceType()).thenReturn(deviceTypeSlave);
