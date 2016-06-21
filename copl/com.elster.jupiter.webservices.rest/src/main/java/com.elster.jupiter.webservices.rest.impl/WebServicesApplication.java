@@ -12,6 +12,7 @@ import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import com.google.common.collect.ImmutableSet;
@@ -36,6 +37,7 @@ public class WebServicesApplication extends Application implements MessageSeedPr
 
     private volatile WebServicesService webServicesService;
     private volatile Thesaurus thesaurus;
+    private volatile UserService userService;
     private volatile TransactionService transactionService;
     private volatile EndPointConfigurationService endPointConfigurationService;
 
@@ -79,6 +81,11 @@ public class WebServicesApplication extends Application implements MessageSeedPr
         this.endPointConfigurationService = endPointConfigurationService;
     }
 
+    @Reference
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
+
     @Override
     public String getComponentName() {
         return COMPONENT_NAME;
@@ -112,6 +119,7 @@ public class WebServicesApplication extends Application implements MessageSeedPr
             bind(transactionService).to(TransactionService.class);
             bind(thesaurus).to(Thesaurus.class);
             bind(endPointConfigurationService).to(EndPointConfigurationService.class);
+            bind(userService).to(UserService.class);
         }
     }
 }

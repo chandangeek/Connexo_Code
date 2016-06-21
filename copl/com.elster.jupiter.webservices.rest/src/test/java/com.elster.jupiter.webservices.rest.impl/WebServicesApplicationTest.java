@@ -9,6 +9,8 @@ import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
+import com.elster.jupiter.users.Group;
+import com.elster.jupiter.users.UserService;
 
 import javax.ws.rs.core.Application;
 import java.util.Collections;
@@ -31,6 +33,8 @@ public class WebServicesApplicationTest extends FelixRestApplicationJerseyTest {
     EndPointConfigurationService endPointConfigurationService;
     @Mock
     WebServicesService webServicesService;
+    @Mock
+    UserService userService;
 
     @Override
     protected Application getApplication() {
@@ -39,6 +43,7 @@ public class WebServicesApplicationTest extends FelixRestApplicationJerseyTest {
         webServicesApplication.setTransactionService(transactionService);
         webServicesApplication.setEndPointConfigurationService(endPointConfigurationService);
         webServicesApplication.setWebServicesService(webServicesService);
+        webServicesApplication.setUserService(userService);
         return webServicesApplication;
     }
 
@@ -67,6 +72,9 @@ public class WebServicesApplicationTest extends FelixRestApplicationJerseyTest {
         when(mock.isActive()).thenReturn(true);
         when(mock.isHttpCompression()).thenReturn(true);
         when(mock.isSchemaValidation()).thenReturn(true);
+        Group group = mock(Group.class);
+        when(group.getName()).thenReturn("Developer");
+        when(mock.getGroup()).thenReturn(Optional.of(group));
         when(mock.isTracing()).thenReturn(true);
         when(mock.getTraceFile()).thenReturn("webservices.log");
         when(endPointConfigurationService.getEndPointConfiguration(name)).thenReturn(Optional.of(mock));

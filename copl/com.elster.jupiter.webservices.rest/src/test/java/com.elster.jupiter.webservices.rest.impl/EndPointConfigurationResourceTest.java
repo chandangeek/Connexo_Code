@@ -2,8 +2,8 @@ package com.elster.jupiter.webservices.rest.impl;
 
 import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
 import com.elster.jupiter.rest.util.IdWithLocalizedValueInfo;
+import com.elster.jupiter.rest.util.LongIdWithNameInfo;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
@@ -11,6 +11,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.WebService;
+import com.elster.jupiter.users.Group;
 
 import com.jayway.jsonpath.JsonModel;
 
@@ -25,6 +26,7 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -168,6 +170,64 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
     }
 
     @Test
+    public void testUpdateInActiveWithGroupInboundEndPoint() throws Exception {
+        when(inboundEndPointConfiguration.isActive()).thenReturn(false);
+        Group group = mock(Group.class);
+        when(userService.getGroup(123L)).thenReturn(Optional.of(group));
+
+        EndPointConfigurationInfo info = new EndPointConfigurationInfo();
+        info.version = 901L;
+        info.webServiceName = "someInboundService";
+        info.group = new LongIdWithNameInfo(123L, null);
+        info.name = "new endpoint";
+        info.logLevel = new IdWithLocalizedValueInfo<>();
+        info.logLevel.id = "SEVERE";
+        info.httpCompression = true;
+        info.schemaValidation = true;
+        info.tracing = true;
+        info.traceFile = "yyy";
+        info.authenticationMethod = new IdWithLocalizedValueInfo<>(EndPointAuthentication.BASIC_AUTHENTICATION, null);
+        info.active = false;
+        info.url = "/srv";
+
+        Response response = target("/endpointconfigurations/1").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(inboundEndPointConfiguration).setAuthenticationMethod(EndPointAuthentication.BASIC_AUTHENTICATION);
+        verify(inboundEndPointConfiguration).setGroup(group);
+        verify(inboundEndPointConfiguration).setHttpCompression(true);
+        verify(inboundEndPointConfiguration).setSchemaValidation(true);
+        verify(inboundEndPointConfiguration).setTracing(true);
+        verify(inboundEndPointConfiguration).setTraceFile("yyy");
+        verify(inboundEndPointConfiguration).setName("new endpoint");
+        verify(inboundEndPointConfiguration).setLogLevel(LogLevel.SEVERE);
+        verify(inboundEndPointConfiguration).setUrl("/srv");
+        verify(inboundEndPointConfiguration).save();
+
+    }
+
+    @Test
+    public void testUpdateInActiveWithAuthenticationWithoutGroupInboundEndPoint() throws Exception {
+        when(inboundEndPointConfiguration.isActive()).thenReturn(false);
+
+        EndPointConfigurationInfo info = new EndPointConfigurationInfo();
+        info.version = 901L;
+        info.webServiceName = "someInboundService";
+        info.name = "new endpoint";
+        info.logLevel = new IdWithLocalizedValueInfo<>();
+        info.logLevel.id = "SEVERE";
+        info.httpCompression = true;
+        info.schemaValidation = true;
+        info.tracing = true;
+        info.traceFile = "yyy";
+        info.authenticationMethod = new IdWithLocalizedValueInfo<>(EndPointAuthentication.BASIC_AUTHENTICATION, null);
+        info.active = false;
+        info.url = "/srv";
+
+        Response response = target("/endpointconfigurations/1").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    @Test
     public void testUpdateInActiveOutboundEndPoint() throws Exception {
         when(outboundEndPointConfiguration.isActive()).thenReturn(false);
 
@@ -175,12 +235,12 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
         info.version = 902L;
         info.webServiceName = "someOutboundService";
         info.name = "new endpoint";
-        info.logLevel = new IdWithLocalizedValueInfo<>();
-        info.logLevel.id = "SEVERE";
+        info.logLevel = new IdWithLocalizedValueInfo<>("SEVERE", null);
         info.httpCompression = true;
         info.schemaValidation = true;
         info.tracing = true;
         info.traceFile = "xxx";
+        info.authenticationMethod = new IdWithLocalizedValueInfo<>(EndPointAuthentication.BASIC_AUTHENTICATION, null);
         info.username = "u";
         info.password = "p";
         info.active = false;

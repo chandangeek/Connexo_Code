@@ -1,8 +1,11 @@
 package com.elster.jupiter.webservices.rest.impl;
 
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.IdWithLocalizedValueInfo;
+import com.elster.jupiter.rest.util.LongIdWithNameInfo;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
@@ -12,6 +15,7 @@ import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.UserService;
 
 import javax.inject.Inject;
+import javax.ws.rs.core.Response;
 
 /**
  * Created by bvn on 6/8/16.
@@ -51,7 +55,8 @@ public class EndPointConfigurationInfoFactory {
                         .getDisplayName(thesaurus));
         if (InboundEndPointConfiguration.class.isAssignableFrom(endPointConfiguration.getClass())) {
             info.direction = new IdWithLocalizedValueInfo<>(WebServiceDirection.INBOUND, WebServiceDirection.INBOUND.getDisplayName(thesaurus));
-            ((InboundEndPointConfiguration) endPointConfiguration).getGroup().ifPresent(g -> info.group = g.getName());
+            ((InboundEndPointConfiguration) endPointConfiguration).getGroup()
+                    .ifPresent(g -> info.group = new LongIdWithNameInfo(g.getId(), g.getName()));
         } else {
             info.direction = new IdWithLocalizedValueInfo<>(WebServiceDirection.OUTBOUND, WebServiceDirection.OUTBOUND.getDisplayName(thesaurus));
             info.username = ((OutboundEndPointConfiguration) endPointConfiguration).getUsername();
@@ -76,6 +81,14 @@ public class EndPointConfigurationInfoFactory {
             builder.tracing();
         }
         builder.setAuthenticationMethod(info.authenticationMethod.id);
+        if (EndPointAuthentication.BASIC_AUTHENTICATION.equals(info.authenticationMethod.id)) {
+            if (info.group == null || info.group.id == null) {
+                throw new LocalizedFieldValidationException(MessageSeeds.FIELD_EXPECTED, "group");
+            }
+            Group group = userService.getGroup((Long) info.group.id)
+                    .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.BAD_REQUEST, MessageSeeds.NO_SUCH_GROUP));
+            builder.group(group);
+        }
         builder.traceFile(info.traceFile);
         EndPointConfiguration endPointConfiguration = builder.create();
         if (Boolean.TRUE.equals(info.active)) {
@@ -100,13 +113,8 @@ public class EndPointConfigurationInfoFactory {
         if (Boolean.TRUE.equals(info.tracing)) {
             builder.tracing();
         }
-        if (info.username != null) {
-            builder.username(info.username);
-        }
-        if (info.password != null) {
-            builder.username(info.password);
-        }
-
+        builder.username(info.username);
+        builder.username(info.password);
         builder.setAuthenticationMethod(info.authenticationMethod.id);
         builder.traceFile(info.traceFile);
         EndPointConfiguration endPointConfiguration = builder.create();
@@ -126,9 +134,14 @@ public class EndPointConfigurationInfoFactory {
 
     public EndPointConfiguration updateEndPointConfiguration(InboundEndPointConfiguration endPointConfiguration, EndPointConfigurationInfo info) {
         this.applyCommonChanges(endPointConfiguration, info);
-        Group group = userService.getGroup(info.group)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_GROUP));
-        endPointConfiguration.setGroup(group);
+        if (EndPointAuthentication.BASIC_AUTHENTICATION.equals(info.authenticationMethod.id)) {
+            if (info.group == null || info.group.id == null) {
+                throw new LocalizedFieldValidationException(MessageSeeds.FIELD_EXPECTED, "group");
+            }
+            Group group = userService.getGroup(info.group.id)
+                    .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_GROUP));
+            endPointConfiguration.setGroup(group);
+        }
         return endPointConfiguration;
     }
 

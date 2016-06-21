@@ -1,7 +1,6 @@
 package com.elster.jupiter.webservices.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
 import com.elster.jupiter.rest.util.IdWithLocalizedValueInfo;
 import com.elster.jupiter.soap.whiteboard.cxf.WebService;
 

@@ -1,7 +1,7 @@
 package com.elster.jupiter.webservices.rest.impl;
 
-import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
 import com.elster.jupiter.rest.util.IdWithLocalizedValueInfo;
+import com.elster.jupiter.rest.util.LongIdWithNameInfo;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
 
 /**
@@ -20,7 +20,7 @@ public class EndPointConfigurationInfo {
     public Boolean schemaValidation;
     public Boolean active;
     public IdWithLocalizedValueInfo<EndPointAuthentication> authenticationMethod;
-    public String group;
+    public LongIdWithNameInfo group;
     public String username;
     public String password;
     public IdWithLocalizedValueInfo<WebServiceDirection> direction;
