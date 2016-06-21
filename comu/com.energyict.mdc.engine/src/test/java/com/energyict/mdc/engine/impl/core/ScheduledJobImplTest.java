@@ -76,8 +76,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
 
 import org.assertj.core.api.Condition;
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 import org.mockito.Mock;
@@ -205,7 +206,7 @@ public class ScheduledJobImplTest {
     public void prepareDeviceProtocolTest() {
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         when(this.deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
-        when(this.deviceType.getDeviceProtocolPluggableClass()).thenReturn(this.deviceProtocolPluggableClass);
+        when(this.deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));
         createMockOfflineDevice();
         Device device = createMockDevice();
         OnlineComServer comServer = createMockOnlineComServer();
@@ -240,7 +241,7 @@ public class ScheduledJobImplTest {
     public void prepareWithMultipleTasks() {
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         when(this.deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
-        when(this.deviceType.getDeviceProtocolPluggableClass()).thenReturn(this.deviceProtocolPluggableClass);
+        when(this.deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));
         createMockOfflineDevice();
         Device device = createMockDevice();
         OnlineComServer comServer = createMockOnlineComServer();
@@ -338,7 +339,7 @@ public class ScheduledJobImplTest {
         when(collectedFirmwareVersion.getResultType()).thenReturn(ResultType.NotSupported);
         when(deviceProtocol.getFirmwareVersions()).thenReturn(collectedFirmwareVersion);
         when(this.deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
-        when(this.deviceType.getDeviceProtocolPluggableClass()).thenReturn(this.deviceProtocolPluggableClass);
+        when(this.deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));
         Runnable jobRunnable = () -> {
             jobExecutor.execute(job);
             startLatch.countDown();
@@ -402,7 +403,7 @@ public class ScheduledJobImplTest {
         when(collectedFirmwareVersion.getResultType()).thenReturn(ResultType.NotSupported);
         when(deviceProtocol.getFirmwareVersions()).thenReturn(collectedFirmwareVersion);
         when(this.deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
-        when(this.deviceType.getDeviceProtocolPluggableClass()).thenReturn(this.deviceProtocolPluggableClass);
+        when(this.deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));
         Thread jobThread = new Thread(() -> {
             jobExecutor.execute(job);
             startLatch.countDown();
@@ -465,7 +466,7 @@ public class ScheduledJobImplTest {
         when(collectedFirmwareVersion.getResultType()).thenReturn(ResultType.NotSupported);
         when(deviceProtocol.getFirmwareVersions()).thenReturn(collectedFirmwareVersion);
         when(this.deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
-        when(this.deviceType.getDeviceProtocolPluggableClass()).thenReturn(this.deviceProtocolPluggableClass);
+        when(this.deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));
         Thread jobThread = new Thread(() -> {
             jobExecutor.execute(job);
             startLatch.countDown();
@@ -547,7 +548,7 @@ public class ScheduledJobImplTest {
         when(device.getDeviceType()).thenReturn(this.deviceType);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(device.getDeviceProtocolProperties()).thenReturn(TypedProperties.empty());
-        when(device.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
+        when(device.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));
         when(device.getProtocolDialectProperties(anyString())).thenReturn(Optional.<ProtocolDialectProperties>empty());
         return device;
     }

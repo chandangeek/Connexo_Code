@@ -54,6 +54,7 @@ import com.energyict.mdc.engine.impl.core.MultiThreadedComJobFactory;
 import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
 import com.energyict.mdc.engine.impl.core.SingleThreadedComJobFactory;
 import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
@@ -91,7 +92,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Provides a default implementation for the {@link ComServerDAO} interface
@@ -325,11 +325,16 @@ public class ComServerDAOImpl implements ComServerDAO {
     @Override
     public Optional<OfflineDeviceMessage> findOfflineDeviceMessage(MessageIdentifier identifier) {
         DeviceMessage<Device> deviceMessage = identifier.getDeviceMessage();
-        return Optional.of(
-                new OfflineDeviceMessageImpl(
-                        deviceMessage,
-                        deviceMessage.getDevice().getDeviceType().getDeviceProtocolPluggableClass().getDeviceProtocol(),
-                        this.serviceProvider.identificationService()));
+        Optional<DeviceProtocolPluggableClass> deviceProtocolPluggableClass = deviceMessage.getDevice().getDeviceType().getDeviceProtocolPluggableClass();
+        if (deviceProtocolPluggableClass.isPresent()) {
+            return Optional.of(
+                    new OfflineDeviceMessageImpl(
+                            deviceMessage,
+                            deviceProtocolPluggableClass.get().getDeviceProtocol(),
+                            this.serviceProvider.identificationService()));
+        } else {
+            return Optional.empty();
+        }
     }
 
     @Override
@@ -526,11 +531,16 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     private List<OfflineDeviceMessage> convertToOfflineDeviceMessages(List<DeviceMessage<Device>> deviceMessages) {
-        return deviceMessages.stream()
-                .map(deviceMessage -> new OfflineDeviceMessageImpl(deviceMessage, deviceMessage.getDevice()
-                        .getDeviceProtocolPluggableClass()
-                        .getDeviceProtocol(), this.serviceProvider.identificationService()))
-                .collect(Collectors.toList());
+        List<OfflineDeviceMessage> offlineDeviceMessages = new ArrayList<>(deviceMessages.size());
+        deviceMessages.stream().forEach(deviceMessage -> {
+                    if (deviceMessage.getDevice().getDeviceProtocolPluggableClass().isPresent()) {
+                        offlineDeviceMessages.add(new OfflineDeviceMessageImpl(deviceMessage, deviceMessage.getDevice()
+                                .getDeviceProtocolPluggableClass().get()
+                                .getDeviceProtocol(), serviceProvider.identificationService()));
+                    }
+                }
+        );
+        return offlineDeviceMessages;
     }
 
     private List<DeviceMessage<Device>> doConfirmSentMessagesAndGetPending(DeviceIdentifier<Device> deviceIdentifier, int confirmationCount) {

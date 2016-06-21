@@ -52,15 +52,15 @@ import java.util.Optional;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyString;
@@ -163,7 +163,7 @@ public class OfflineDeviceImplTest {
 //        when(device.getProperties()).thenReturn(getDeviceProperties());
         when(device.getDeviceProtocolProperties()).thenReturn(getDeviceProtocolProperties());
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = createMockDeviceProtocolPluggableClass();
-        when(device.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
+        when(device.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(device.getId()).thenReturn(deviceId);
         when(device.getSerialNumber()).thenReturn(meterSerialNumber);
@@ -526,7 +526,7 @@ public class OfflineDeviceImplTest {
     public void deviceProtocolPluggableClassNullTest() {
         Device
                 device = createMockDevice();
-        when(device.getDeviceProtocolPluggableClass()).thenReturn(null);
+        when(device.getDeviceProtocolPluggableClass()).thenReturn(Optional.empty());
         OfflineDevice offlineDevice = new OfflineDeviceImpl(device, DeviceOffline.needsEverything, this.offlineDeviceServiceProvider);
 
         //asserts
