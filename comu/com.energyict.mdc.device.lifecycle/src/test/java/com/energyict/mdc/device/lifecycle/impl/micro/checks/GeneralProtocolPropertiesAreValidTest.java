@@ -1,5 +1,8 @@
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
@@ -9,16 +12,13 @@ import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
-
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -56,7 +56,7 @@ public class GeneralProtocolPropertiesAreValidTest {
         PropertySpec required = mockedPropertySpec(REQUIRED_PROPERTY_NAME, false);
         when(this.deviceProtocol.getPropertySpecs()).thenReturn(Arrays.asList(optional, required));
         when(this.deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(this.deviceProtocol);
-        when(this.deviceType.getDeviceProtocolPluggableClass()).thenReturn(this.deviceProtocolPluggableClass);
+        when(this.deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));
         when(this.deviceConfiguration.getDeviceType()).thenReturn(this.deviceType);
         when(this.device.getDeviceConfiguration()).thenReturn(this.deviceConfiguration);
         when(this.device.getDeviceType()).thenReturn(this.deviceType);

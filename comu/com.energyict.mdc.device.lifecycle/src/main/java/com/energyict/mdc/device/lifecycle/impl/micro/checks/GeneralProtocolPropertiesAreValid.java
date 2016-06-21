@@ -1,15 +1,15 @@
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.impl.MessageSeeds;
 import com.energyict.mdc.device.lifecycle.impl.ServerMicroCheck;
 
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.PropertySpec;
-
 import java.time.Instant;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -46,13 +46,13 @@ public class GeneralProtocolPropertiesAreValid extends ConsolidatedServerMicroCh
     private Set<String> requiredGeneralProtocolPropertyNames(Device device) {
         return device
                 .getDeviceType()
-                .getDeviceProtocolPluggableClass()
+                .getDeviceProtocolPluggableClass().map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass
                 .getDeviceProtocol()
                 .getPropertySpecs()
                 .stream()
                 .filter(PropertySpec::isRequired)
                 .map(PropertySpec::getName)
-                .collect(Collectors.toSet());
+                        .collect(Collectors.toSet())).orElse(Collections.emptySet());
     }
 
     private DeviceLifeCycleActionViolationImpl newViolation() {
