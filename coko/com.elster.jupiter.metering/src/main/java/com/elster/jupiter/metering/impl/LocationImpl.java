@@ -16,6 +16,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.elster.jupiter.util.streams.Predicates.not;
+
 public class LocationImpl implements Location {
 
     private long id;
@@ -139,32 +141,14 @@ public class LocationImpl implements Location {
             memberValues.put("zipCode", member.getZipCode());
 
             LocationTemplate locationTemplate = meteringService.getLocationTemplate();
-            List<List<String>> formattedLocation = locationTemplate.getTemplateMembers()
+            List<LocationTemplate.TemplateField> sortedTemplateMembers = locationTemplate.getTemplateMembers()
                     .stream()
+                    .filter(not(m -> "locale".equalsIgnoreCase(m.getName())))
                     .sorted((m1, m2) -> Integer.compare(m1.getRanking(), m2.getRanking()))
-                    .filter(m -> !m.getName().equalsIgnoreCase("locale"))
-                    .collect(() -> {
-                                List<List<String>> list = new ArrayList<>();
-                                list.add(new ArrayList<>());
-                                return list;
-                            },
-                            (list, s) -> {
-                                if (locationTemplate.getSplitLineElements().contains(s.getAbbreviation())) {
-                                    list.add(new ArrayList<String>() {{
-                                        add(memberValues.get(s.getName()));
-                                    }});
+                    .collect(Collectors.toList());
+            return sortedTemplateMembers.stream().map(tf -> memberValues.get(tf.getName())).filter(Objects::nonNull).collect(Collectors.joining(", "));
 
-                                } else {
-                                    list.get(list.size() - 1).add(memberValues.get(s.getName()));
-                                }
-                            },
-                            (list1, list2) -> {
-                                list1.get(list1.size() - 1).addAll(list2.remove(0));
-                                list1.addAll(list2);
-                            });
-            return formattedLocation.stream().flatMap(List::stream).filter(Objects::nonNull).collect(Collectors.joining(", "));
         }
         return "Location " + getId();
     }
 }
-
