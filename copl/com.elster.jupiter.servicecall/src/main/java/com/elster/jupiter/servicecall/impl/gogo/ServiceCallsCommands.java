@@ -101,19 +101,7 @@ public class ServiceCallsCommands {
     }
 
     public void createServiceCallType() {
-        System.out.println("Usage: createServiceCallType <name> <version name> [ <log level> <handler> [life cycle name] <cps ids> ]");
-    }
-
-    public void createServiceCallType(String name, String versionName) {
-        threadPrincipalService.set(() -> "Console");
-
-        try (TransactionContext context = transactionService.getContext()) {
-            serviceCallService.createServiceCallType(name, versionName)
-                    .customPropertySet(customPropertySetService.findActiveCustomPropertySets(ServiceCall.class)
-                            .get(0))
-                    .create();
-            context.commit();
-        }
+        System.out.println("Usage: createServiceCallType <name> <version name> <log level> <handler> [life cycle name] <cps ids> ]");
     }
 
     public void createServiceCallType(String name, String versionName, String logLevel, String handler, Long... cpsIds) {
