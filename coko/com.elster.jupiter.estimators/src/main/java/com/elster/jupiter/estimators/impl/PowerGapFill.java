@@ -31,7 +31,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 
-public class PowerGapFill extends AbstractEstimator implements Estimator {
+class PowerGapFill extends AbstractEstimator implements Estimator {
 
     public static final String MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS = TranslationKeys.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS.getKey();
     private static final long MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE = 10L;
@@ -71,11 +71,11 @@ public class PowerGapFill extends AbstractEstimator implements Estimator {
     private static final Set<String> SUPPORTED_APPLICATIONS = ImmutableSet.of("MDC", "INS");
     private long maxNumberOfConsecutiveSuspects;
 
-    public PowerGapFill(Thesaurus thesaurus, PropertySpecService propertySpecService, Map<String, Object> properties) {
+    PowerGapFill(Thesaurus thesaurus, PropertySpecService propertySpecService, Map<String, Object> properties) {
         super(thesaurus, propertySpecService, properties);
     }
 
-    public PowerGapFill(Thesaurus thesaurus, PropertySpecService propertySpecService) {
+    PowerGapFill(Thesaurus thesaurus, PropertySpecService propertySpecService) {
         super(thesaurus, propertySpecService);
     }
 
@@ -136,7 +136,7 @@ public class PowerGapFill extends AbstractEstimator implements Estimator {
     private boolean estimateBulk(Channel channel, ReadingType readingType, List<? extends Estimatable> estimatables) {
         Optional<CimChannel> cimChannel = channel.getCimChannel(readingType);
 
-        IntervalReadingRecord successiveReading = getSuccessiveReading(channel, cimChannel, lastOf(estimatables).getTimestamp());
+        IntervalReadingRecord successiveReading = getSuccessiveReading(channel, cimChannel.get(), lastOf(estimatables).getTimestamp());
         if (successiveReading == null) {
             return false;
         }
@@ -145,7 +145,7 @@ public class PowerGapFill extends AbstractEstimator implements Estimator {
             LoggingContext.get().info(getLogger(), message);
             return false;
         }
-        IntervalReadingRecord precedingReading = getPrecedingReading(cimChannel, channel.getPreviousDateTime(estimatables.get(0).getTimestamp()));
+        IntervalReadingRecord precedingReading = getPrecedingReading(cimChannel.get(), channel.getPreviousDateTime(estimatables.get(0).getTimestamp()));
         if (precedingReading == null) {
             return false;
         }
@@ -157,8 +157,8 @@ public class PowerGapFill extends AbstractEstimator implements Estimator {
         return doEstimateBulk(estimatables, precedingReading, successiveReading);
     }
 
-    private IntervalReadingRecord getPrecedingReading(Optional<CimChannel> cimChannel, Instant previousDateTime) {
-        return cimChannel.get().getReading(previousDateTime)
+    private IntervalReadingRecord getPrecedingReading(CimChannel cimChannel, Instant previousDateTime) {
+        return cimChannel.getReading(previousDateTime)
                     .map(IntervalReadingRecord.class::cast)
                     .orElseGet(() -> {
                         String message = "Failed estimation with {rule}: Block {block} since the preceding reading is missing.";
@@ -167,9 +167,9 @@ public class PowerGapFill extends AbstractEstimator implements Estimator {
                     });
     }
 
-    private IntervalReadingRecord getSuccessiveReading(Channel channel, Optional<CimChannel> cimChannel, Instant timestamp) {
+    private IntervalReadingRecord getSuccessiveReading(Channel channel, CimChannel cimChannel, Instant timestamp) {
         Instant nextDateTime = channel.getNextDateTime(timestamp);
-        return cimChannel.get().getReading(nextDateTime)
+        return cimChannel.getReading(nextDateTime)
                 .map(IntervalReadingRecord.class::cast)
                 .orElseGet(() -> {
                     String message = "Failed estimation with {rule}: Block {block} since the successive reading is missing.";
@@ -327,10 +327,8 @@ public class PowerGapFill extends AbstractEstimator implements Estimator {
 
         ImmutableMap<String, Consumer<Map.Entry<String, Object>>> propertyValidations = builder.build();
 
-        estimatorProperties.entrySet().forEach(property -> {
-            Optional.ofNullable(propertyValidations.get(property.getKey()))
-                    .ifPresent(validator -> validator.accept(property));
-        });
+        estimatorProperties.entrySet().forEach(property -> Optional.ofNullable(propertyValidations.get(property.getKey()))
+                .ifPresent(validator -> validator.accept(property)));
     }
 
 }

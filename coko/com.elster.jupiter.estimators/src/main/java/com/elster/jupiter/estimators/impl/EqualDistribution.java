@@ -48,9 +48,9 @@ import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.streams.Predicates.either;
 
-public class EqualDistribution extends AbstractEstimator implements Estimator {
+class EqualDistribution extends AbstractEstimator implements Estimator {
+    static final String ADVANCE_READINGS_SETTINGS = TranslationKeys.ADVANCE_READINGS_SETTINGS.getKey();
     public static final String MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS = TranslationKeys.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS.getKey();
-    public static final String ADVANCE_READINGS_SETTINGS = TranslationKeys.ADVANCE_READINGS_SETTINGS.getKey();
     private static final long MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE = 10L;
 
     /**
@@ -92,12 +92,12 @@ public class EqualDistribution extends AbstractEstimator implements Estimator {
     private AdvanceReadingsSettings advanceReadingsSettings;
     private long maxNumberOfConsecutiveSuspects;
 
-    public EqualDistribution(Thesaurus thesaurus, PropertySpecService propertySpecService, MeteringService meteringService) {
+    EqualDistribution(Thesaurus thesaurus, PropertySpecService propertySpecService, MeteringService meteringService) {
         super(thesaurus, propertySpecService);
         this.meteringService = meteringService;
     }
 
-    public EqualDistribution(Thesaurus thesaurus, PropertySpecService propertySpecService, MeteringService meteringService, Map<String, Object> properties) {
+    EqualDistribution(Thesaurus thesaurus, PropertySpecService propertySpecService, MeteringService meteringService, Map<String, Object> properties) {
         super(thesaurus, propertySpecService, properties);
         this.meteringService = meteringService;
     }
@@ -279,7 +279,7 @@ public class EqualDistribution extends AbstractEstimator implements Estimator {
 
         TemporalAmount intervalLength = cimChannel.getIntervalLength().get();
 
-        Map<Instant, BigDecimal> percentages = instants.stream().collect(Collectors.toMap(Function.<Instant>identity(), instant -> BigDecimal.ONE));
+        Map<Instant, BigDecimal> percentages = instants.stream().collect(Collectors.toMap(Function.identity(), instant -> BigDecimal.ONE));
         if (!instants.get(0).equals(from)) {
             Instant intervalEnd = instants.get(0);
             Instant intervalStart = ZonedDateTime.ofInstant(intervalEnd, cimChannel.getZoneId()).minus(intervalLength).toInstant();

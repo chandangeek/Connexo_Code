@@ -59,7 +59,7 @@ import static java.math.RoundingMode.HALF_UP;
 /**
  * Created by igh on 25/03/2015.
  */
-public class AverageWithSamplesEstimator extends AbstractEstimator {
+class AverageWithSamplesEstimator extends AbstractEstimator {
 
     /**
      * Contains {@link TranslationKey}s for all the
@@ -103,7 +103,7 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
 
     }
 
-    class SamplesComparator implements Comparator<BaseReadingRecord> {
+    private static class SamplesComparator implements Comparator<BaseReadingRecord> {
 
         private ZonedDateTime estimatableTime;
 
@@ -565,7 +565,7 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
     }
 
     private Map<Instant, BigDecimal> percentages(List<Instant> instants, Instant from, Instant to, ZoneId zoneId, TemporalAmount intervalLength) {
-        Map<Instant, BigDecimal> percentages = instants.stream().collect(Collectors.toMap(Function.<Instant>identity(), instant -> BigDecimal.ONE));
+        Map<Instant, BigDecimal> percentages = instants.stream().collect(Collectors.toMap(Function.identity(), instant -> BigDecimal.ONE));
         if (!instants.get(0).equals(from)) {
             Instant intervalEnd = instants.get(0);
             Instant intervalStart = ZonedDateTime.ofInstant(intervalEnd, zoneId).minus(intervalLength).toInstant();
