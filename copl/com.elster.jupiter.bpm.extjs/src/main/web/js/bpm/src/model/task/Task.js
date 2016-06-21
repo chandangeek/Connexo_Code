@@ -115,6 +115,11 @@ Ext.define('Bpm.model.task.Task', {
         {
             name: 'processInstancesId',
             type: 'string'
+        },
+
+        {
+            name: 'optLock',
+            type: 'number'
         }
     ],
     proxy: {

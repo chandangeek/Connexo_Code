@@ -55,6 +55,7 @@ Ext.define('Bpm.monitorissueprocesses.controller.MonitorIssueProcesses', {
 
         viewport.setLoading();
 
+
         widget = Ext.widget('bpm-issue-processes-main-view', {
             properties: {
                 route: router.getRoute()

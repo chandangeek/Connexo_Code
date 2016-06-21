@@ -28,6 +28,10 @@ Ext.define('Bpm.startprocess.model.AvailableProcess', {
         {
             name: 'version',
             type: 'string'
+        },
+        {
+            name: 'versionDB',
+            type: 'string'
         }
     ]
 });

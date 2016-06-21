@@ -80,6 +80,24 @@ Ext.define('Bpm.processes.view.ProcessPreviewForm', {
                                             return value;
                                     }
                                 }
+                            },
+                            {
+                                xtype: 'displayfield',
+                                fieldLabel: Uni.I18n.translate('bpm.process.application', 'BPM', 'Application'),
+                                name: 'appKey',
+                                itemId: 'bpm-preview-appKey',
+                                renderer: function (value) {
+                                    switch (value) {
+                                        case 'INS':
+                                            return Uni.I18n.translate('bpm.process.insight', 'BPM', 'Insight');
+                                            break;
+                                        case 'MDC':
+                                            return Uni.I18n.translate('bpm.process.mdc', 'BPM', 'MultiSense');
+                                            break;
+                                        default:
+                                            return value;
+                                    }
+                                }
                             }
                         ]
                     }
