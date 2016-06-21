@@ -1,5 +1,6 @@
 Ext.define('Mdc.view.setup.deviceregisterdata.MainPreview', {
     extend: 'Ext.tab.Panel',
+    itemId: 'mdc-register-data-tab-panel',
 
     requires: [
         'Mdc.view.setup.deviceregisterdata.ActionMenu',
