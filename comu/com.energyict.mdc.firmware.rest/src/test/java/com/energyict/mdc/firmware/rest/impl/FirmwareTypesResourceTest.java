@@ -3,13 +3,15 @@ package com.energyict.mdc.firmware.rest.impl;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
 
 import java.util.List;
 import java.util.Optional;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -31,7 +33,7 @@ public class FirmwareTypesResourceTest extends BaseFirmwareTest {
     @Before
     public void setup() {
         when(deviceConfigurationService.findDeviceType(1)).thenReturn(Optional.of(deviceType));
-        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
+        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
     }
 

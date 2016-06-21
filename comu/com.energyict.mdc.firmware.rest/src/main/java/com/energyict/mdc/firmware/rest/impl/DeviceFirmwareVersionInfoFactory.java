@@ -17,7 +17,13 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import javax.inject.Inject;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 public class DeviceFirmwareVersionInfoFactory {
     private final Thesaurus thesaurus;
@@ -103,7 +109,7 @@ public class DeviceFirmwareVersionInfoFactory {
 
     private Set<FirmwareType> getSupportedFirmwareTypesFor(Device device) {
         EnumSet<FirmwareType> firmwareTypes = EnumSet.of(FirmwareType.METER);
-        if (device.getDeviceProtocolPluggableClass().getDeviceProtocol().supportsCommunicationFirmwareVersion()) {
+        if (device.getDeviceProtocolPluggableClass().isPresent() && device.getDeviceProtocolPluggableClass().get().getDeviceProtocol().supportsCommunicationFirmwareVersion()) {
             firmwareTypes.add(FirmwareType.COMMUNICATION);
         }
         return firmwareTypes;

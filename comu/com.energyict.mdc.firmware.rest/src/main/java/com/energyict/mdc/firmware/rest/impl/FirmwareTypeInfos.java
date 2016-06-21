@@ -19,7 +19,7 @@ public class FirmwareTypeInfos {
     public FirmwareTypeInfos(DeviceType deviceType, Thesaurus thesaurus) {
         this.firmwareTypes = new ArrayList<>();
         this.firmwareTypes.add(new FirmwareTypeInfo(FirmwareType.METER, thesaurus));
-        if (deviceType.getDeviceProtocolPluggableClass().getDeviceProtocol().supportsCommunicationFirmwareVersion()) {
+        if (deviceType.getDeviceProtocolPluggableClass().isPresent() && deviceType.getDeviceProtocolPluggableClass().get().getDeviceProtocol().supportsCommunicationFirmwareVersion()) {
             this.firmwareTypes.add(new FirmwareTypeInfo(FirmwareType.COMMUNICATION, thesaurus));
         }
     }
