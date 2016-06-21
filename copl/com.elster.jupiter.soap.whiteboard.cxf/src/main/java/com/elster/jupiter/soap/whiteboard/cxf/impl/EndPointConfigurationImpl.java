@@ -6,6 +6,7 @@ import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointLog;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
@@ -50,7 +51,7 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
     private String traceFile;
     private boolean httpCompression;
     private boolean schemaValidation;
-
+    private EndPointAuthentication authenticationMethod;
     private boolean active;
     @SuppressWarnings("unused")
     private Instant createTime;
@@ -186,6 +187,16 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
     @Override
     public void setLogLevel(LogLevel logLevel) {
         this.logLevel = logLevel;
+    }
+
+    @Override
+    public EndPointAuthentication getAuthenticationMethod() {
+        return authenticationMethod;
+    }
+
+    @Override
+    public void setAuthenticationMethod(EndPointAuthentication authenticated) {
+        this.authenticationMethod = authenticated;
     }
 
     @Override

@@ -7,6 +7,8 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.TransactionRequired;
@@ -16,6 +18,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.EventType;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
+import com.elster.jupiter.soap.whiteboard.cxf.security.Privileges;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 
@@ -30,28 +33,38 @@ import javax.validation.MessageInterpolator;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Created by bvn on 5/4/16.
  */
-@Component(name = "com.elster.jupiter.soap.webservices.installer", service = {EndPointConfigurationService.class, MessageSeedProvider.class},
+@Component(name = "com.elster.jupiter.soap.webservices.installer", service = {EndPointConfigurationService.class, MessageSeedProvider.class, TranslationKeyProvider.class},
         property = "name=" + WebServicesService.COMPONENT_NAME,
         immediate = true)
-public class EndPointConfigurationServiceImpl implements EndPointConfigurationService, MessageSeedProvider {
+public class EndPointConfigurationServiceImpl implements EndPointConfigurationService, MessageSeedProvider, TranslationKeyProvider {
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
     private volatile EventService eventService;
+    private volatile UserService userService;
 
     // OSGi
     public EndPointConfigurationServiceImpl() {
     }
 
     @Inject // Test purposes only
-    public EndPointConfigurationServiceImpl(EventService eventService, NlsService nlsService, OrmService ormService) {
+    public EndPointConfigurationServiceImpl(EventService eventService, NlsService nlsService, OrmService ormService, UserService userService) {
         setEventService(eventService);
         setNlsService(nlsService);
         setOrmService(ormService);
+        setUserService(userService);
         activate();
+    }
+
+    @Override
+    public String getComponentName() {
+        return WebServicesService.COMPONENT_NAME;
     }
 
     @Override
@@ -60,13 +73,16 @@ public class EndPointConfigurationServiceImpl implements EndPointConfigurationSe
     }
 
     @Override
-    public List<MessageSeed> getSeeds() {
-        return Arrays.asList(MessageSeeds.values());
+    public List<TranslationKey> getKeys() {
+        return Stream.of(
+                Stream.of(Privileges.values()))
+                .flatMap(Function.identity())
+                .collect(Collectors.toList());
     }
 
-    @Reference
-    public void setUserService(UserService userService) {
-        // Foreign key
+    @Override
+    public List<MessageSeed> getSeeds() {
+        return Arrays.asList(MessageSeeds.values());
     }
 
     @Reference
@@ -83,6 +99,11 @@ public class EndPointConfigurationServiceImpl implements EndPointConfigurationSe
     }
 
     @Reference
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
+
+    @Reference
     public void setEventService(EventService eventService) {
         this.eventService = eventService;
     }
@@ -96,6 +117,7 @@ public class EndPointConfigurationServiceImpl implements EndPointConfigurationSe
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(EventService.class).toInstance(eventService);
                 bind(EndPointConfigurationService.class).toInstance(EndPointConfigurationServiceImpl.this);
+                bind(UserService.class).toInstance(userService);
             }
         };
     }
@@ -272,6 +294,12 @@ public class EndPointConfigurationServiceImpl implements EndPointConfigurationSe
         public EndPointConfiguration create() {
             instance.save();
             return instance;
+        }
+
+        @Override
+        public OutboundEndPointConfigBuilder setAuthenticationMethod(EndPointAuthentication id) {
+            instance.setAuthenticationMethod(id);
+            return this;
         }
     }
 }

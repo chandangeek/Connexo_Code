@@ -1,6 +1,7 @@
 package com.elster.jupiter.soap.whiteboard.cxf.impl;
 
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -14,6 +15,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.WebService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.users.UserService;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -50,18 +52,20 @@ public class WebServicesServiceImpl implements WebServicesService {
     private volatile UpgradeService upgradeService;
     private volatile EventService eventService;
     private volatile Thesaurus thesaurus;
+    private volatile UserService userService;
 
     // OSGi
     public WebServicesServiceImpl() {
     }
 
     @Inject // For test purposes only
-    public WebServicesServiceImpl(SoapProviderSupportFactory soapProviderSupportFactory, OrmService ormService, UpgradeService upgradeService, BundleContext bundleContext, EventService eventService, NlsService nlsService) {
+    public WebServicesServiceImpl(SoapProviderSupportFactory soapProviderSupportFactory, OrmService ormService, UpgradeService upgradeService, BundleContext bundleContext, EventService eventService, UserService userService, NlsService nlsService) {
         setSoapProviderSupportFactory(soapProviderSupportFactory);
         setOrmService(ormService);
         setUpgradeService(upgradeService);
         setEventService(eventService);
         setNlsService(nlsService);
+        setUserService(userService);
         start(bundleContext);
     }
 
@@ -91,6 +95,11 @@ public class WebServicesServiceImpl implements WebServicesService {
     @Reference
     public void setEventService(EventService eventService) {
         this.eventService = eventService;
+    }
+
+    @Reference
+    public void setUserService(UserService userService) {
+        this.userService = userService;
     }
 
     @Override
@@ -226,6 +235,7 @@ public class WebServicesServiceImpl implements WebServicesService {
                 bind(BundleContext.class).toInstance(bundleContext);
                 bind(SoapProviderSupportFactory.class).toInstance(soapProviderSupportFactory);
                 bind(EventService.class).toInstance(eventService);
+                bind(UserService.class).toInstance(userService);
                 bind(String.class).annotatedWith(Names.named("LogDirectory")).toInstance(logDirectory);
             }
         };

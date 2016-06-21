@@ -48,6 +48,10 @@ public interface EndPointConfiguration {
 
     void setLogLevel(LogLevel logLevel);
 
+    EndPointAuthentication getAuthenticationMethod();
+
+    void setAuthenticationMethod(EndPointAuthentication authenticated);
+
     /**
      * If tracing is on, detailed information for this end point will be logged to the trace file
      */
