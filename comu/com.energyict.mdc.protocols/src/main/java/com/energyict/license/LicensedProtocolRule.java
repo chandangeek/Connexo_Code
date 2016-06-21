@@ -221,6 +221,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     CX20009(200, "com.energyict.protocolimplv2.edp.CX20009", ProtocolFamily.EDP_DLMS),
     JANZ_B280(201, "com.energyict.protocolimplv2.edp.JanzB280", ProtocolFamily.EDP_DLMS),
     DSMR23_MBUS_EICT_V2(203, "com.energyict.protocolimplv2.nta.dsmr23.eict.MbusDevice", ProtocolFamily.EICT_NTA),
+    ELSTER_GARNET_CONCENTRATOR(216, "com.energyict.protocolimplv2.elster.garnet.GarnetConcentrator", ProtocolFamily.ELSTER_GARNET),
     ELSTER_AM540(219, "com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.AM540", ProtocolFamily.DSMR_NTA),
     AM540(224, "com.energyict.protocolimplv2.nta.dsmr50.elster.am540.AM540", ProtocolFamily.ELSTER_IDIS, ProtocolFamily.ELSTER_IDIS_P2),
     AM540_MBUS_DEVICE(229, "com.energyict.protocolimplv2.nta.dsmr50.elster.am540.MBusDevice", ProtocolFamily.ELSTER_IDIS, ProtocolFamily.ELSTER_IDIS_P2),

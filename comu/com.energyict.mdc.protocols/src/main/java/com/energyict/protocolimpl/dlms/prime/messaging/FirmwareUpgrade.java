@@ -47,17 +47,17 @@ public class FirmwareUpgrade extends PrimeMessageExecutor {
         getLogger().info("Received a firmware upgrade message, using firmware message builder...");
 
         try {
-            final FirmwareUpdateMessageBuilder builder = new FirmwareUpdateMessageBuilder(this.deviceMessageFileService);
+            final FirmwareUpdateMessageBuilder builder = new FirmwareUpdateMessageBuilder();
             builder.initFromXml(messageEntry.getContent());
 
-            if (builder.getDeviceMessageFile() == null) {
+            if (builder.getFirmwareBytes() == null) {
                 String message = "The message did not contain a user file to use for the upgrade, message fails...";
                 getLogger().severe(message);
                 throw new IOException(message);
             }
 
             getLogger().info("Pulling out user file and dispatching to the device...");
-            final byte[] base64Data = DeviceMessageFileByteContentConsumer.readFrom(builder.getDeviceMessageFile());
+            final byte[] base64Data = builder.getFirmwareBytes();
 
             getLogger().info("Decoding BASE64 content ...");
             final Base64EncoderDecoder b64 = new Base64EncoderDecoder();

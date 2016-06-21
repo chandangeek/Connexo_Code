@@ -45,7 +45,7 @@ public class GarnetSerialDeviceProtocolDialectPropertyPersistenceSupport impleme
 
     @Override
     public String componentName() {
-        return CustomPropertySetComponentName.P19.name();
+        return CustomPropertySetComponentName.P30.name();
     }
 
     @Override

@@ -17,12 +17,10 @@ import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.messages.RtuMessageKeyIdConstants;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.Base64;
 import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Stream;
 import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
@@ -863,7 +861,7 @@ public abstract class GenericMessaging implements Messaging {
         msgVal.setValue(" ");
         tagSpec.add(msgVal);
         MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(
-                RtuMessageConstant.FIRMWARE_CONTENT, true);
+                RtuMessageConstant.FIRMWARE_PATH, true);
         tagSpec.add(msgAttrSpec);
 
         /*
@@ -1085,44 +1083,5 @@ public abstract class GenericMessaging implements Messaging {
         builder.append("</");
         builder.append(tagName);
         builder.append(">");
-    }
-
-    /**
-     * Zips and b64 encodes the provided content. An UTF-8 string will be provided
-     *
-     * @param content content to zip and b64 encode
-     * @return zipped and b64 encoded string
-     */
-    public static String zipAndB64EncodeContent(byte[] content) {
-        byte[] output = new byte[content.length * 2];
-        Deflater deflater = new Deflater();
-        deflater.setInput(content);
-        deflater.finish();
-        int compressedDataLength = deflater.deflate(output);
-        byte[] dest = new byte[compressedDataLength];
-        System.arraycopy(output, 0, dest, 0, compressedDataLength);
-        return new String(Base64.getEncoder().encode(dest), zippedCharset);
-    }
-
-    /**
-     * B64 decodes and unzips the provided content. (UTF-8 CharSet is used)
-     *
-     * @param zippedB64Content the B64 encoded and zipped content
-     * @return B64 decoded and unzipped content
-     */
-    public static byte[] b64DecodeAndUnZipToOriginalContent(String zippedB64Content) {
-        try {
-            Inflater inflater = new Inflater();
-            byte[] zippedContentBytes = Base64.getDecoder().decode(zippedB64Content.getBytes(zippedCharset));
-            inflater.setInput(zippedContentBytes, 0, zippedContentBytes.length);
-            byte[] original = new byte[zippedContentBytes.length * 10];
-            int resultLength = inflater.inflate(original);
-            inflater.end();
-            byte[] dest = new byte[resultLength];
-            System.arraycopy(original, 0, dest, 0, resultLength);
-            return dest;
-        } catch (DataFormatException e) {
-            throw new GeneralParseException(MessageSeeds.GENERAL_PARSE_ERROR, e);
-        }
     }
 }
