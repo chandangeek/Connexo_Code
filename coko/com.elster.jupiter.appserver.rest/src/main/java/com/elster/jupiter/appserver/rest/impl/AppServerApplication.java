@@ -45,7 +45,7 @@ public class AppServerApplication extends Application implements MessageSeedProv
     private volatile FileSystem fileSystem;
     private volatile DataExportService dataExportService;
     private volatile EndPointConfigurationService endPointConfigurationService;
-    private volatile EndPointConfigurationInfoFactory endPointConfigurationInfoFactory;
+    private volatile EndPointConfigurationInfoFactory endPointConfigurationInfoFactory = new EndPointConfigurationInfoFactory();
 
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
@@ -94,10 +94,6 @@ public class AppServerApplication extends Application implements MessageSeedProv
     @Reference
     public void setFileSystem(FileSystem fileSystem) {
         this.fileSystem = fileSystem;
-    }
-
-    public void setEndPointConfigurationInfoFactory(EndPointConfigurationInfoFactory endPointConfigurationInfoFactory) {
-        this.endPointConfigurationInfoFactory = endPointConfigurationInfoFactory;
     }
 
     @Reference

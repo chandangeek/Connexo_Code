@@ -57,7 +57,7 @@ public class AppServerApplicationTest extends FelixRestApplicationJerseyTest {
         application.setDataExportService(dataExportService);
         application.setEndPointConfigurationService(endPointConfigurationService);
         application.setFileSystem(fileSystem);
-        application.setEndPointConfigurationInfoFactory(endPointConfigurationInfoFactory);
+//        application.setEndPointConfigurationInfoFactory(endPointConfigurationInfoFactory);
         return application;
     }
 }
