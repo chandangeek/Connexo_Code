@@ -40,6 +40,8 @@ public interface BpmService {
 
     List<BpmProcessDefinition> getActiveBpmProcessDefinitions();
 
+    List<BpmProcessDefinition> getActiveBpmProcessDefinitions(String appKey);
+
     BpmProcessPrivilege createBpmProcessPrivilege(String privilegeName, String application);
 
     @Deprecated
@@ -60,4 +62,6 @@ public interface BpmService {
     Optional<ProcessAssociationProvider> getProcessAssociationProvider(String type);
 
     ProcessInstanceInfos getRunningProcesses(String authorization, String filter);
+
+    ProcessInstanceInfos getRunningProcesses(String authorization, String filter, String appKey);
 }
