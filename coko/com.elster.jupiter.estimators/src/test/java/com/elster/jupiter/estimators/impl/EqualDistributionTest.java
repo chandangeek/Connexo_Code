@@ -219,7 +219,7 @@ public class EqualDistributionTest {
 
         logRecorder = new LogRecorder(Level.ALL);
         LOGGER.addHandler(logRecorder);
-        LoggingContext.get().with("rule", "rule");
+        LoggingContext.getCloseableContext().with("rule", "rule");
     }
 
     private ReadingQualityRecord mockReadingQuality(String code) {
@@ -233,7 +233,7 @@ public class EqualDistributionTest {
 
     @After
     public void tearDown() {
-        LoggingContext.get().close();
+        LoggingContext.getCloseableContext().close();
         LOGGER.removeHandler(logRecorder);
     }
 
