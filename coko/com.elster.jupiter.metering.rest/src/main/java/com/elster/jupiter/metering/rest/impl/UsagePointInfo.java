@@ -24,7 +24,7 @@ public class UsagePointInfo {
     public long modTime;
     public String location;
     public MeterActivationInfo meterActivation;
-    public EffectiveMetrologyConfigurationOnUsagePointInfo metrologyConfiguration;
+    public EffectiveMetrologyConfigurationOnUsagePointInfo metrologyConfigurationVersion;
 
     public UsagePointInfo() {
     }
@@ -43,7 +43,7 @@ public class UsagePointInfo {
         meterActivation = usagePoint.getCurrentMeterActivation()
                 .map(MeterActivationInfo::new)
                 .orElse(null);
-        metrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration()
+        metrologyConfigurationVersion = usagePoint.getCurrentEffectiveMetrologyConfiguration()
                 .map(EffectiveMetrologyConfigurationOnUsagePointInfo::new)
                 .orElse(null);
     }

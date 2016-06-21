@@ -277,7 +277,7 @@ public class UsagePointResource {
         List<EffectiveMetrologyConfigurationOnUsagePointInfo> infos = usagePoint.getEffectiveMetrologyConfigurations()
                 .stream()
                 .sorted(Comparator.comparing(EffectiveMetrologyConfigurationOnUsagePoint::getStart).reversed())
-                .map(EffectiveMetrologyConfigurationOnUsagePointInfo::new)
+                .map(metrologyConfigurationInfoFactory::asInfo)
                 .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("metrologyConfigurationVersions", infos, queryParameters);
     }
@@ -313,31 +313,31 @@ public class UsagePointResource {
     @Transactional
     public Response addMetrologyConfigurationVersion(UsagePointInfo info) {
         UsagePoint usagePoint = resourceHelper.findAndLockUsagePoint(info);
-        UsagePointMetrologyConfiguration metrologyConfiguration = resourceHelper.findMetrologyConfiguration(info.metrologyConfiguration.id);
-        Instant start = Instant.ofEpochMilli(info.metrologyConfiguration.start);
-        Instant end = info.metrologyConfiguration.end != null ? Instant.ofEpochMilli(info.metrologyConfiguration.end): null;
+        UsagePointMetrologyConfiguration metrologyConfiguration = resourceHelper.findMetrologyConfiguration(info.metrologyConfigurationVersion.metrologyConfiguration.id);
+        Instant start = Instant.ofEpochMilli(info.metrologyConfigurationVersion.start);
+        Instant end = info.metrologyConfigurationVersion.end != null ? Instant.ofEpochMilli(info.metrologyConfigurationVersion.end): null;
 
-        try {
+//        try {
             usagePoint.applyWithInterval(metrologyConfiguration, start, end);
 //            if (info.metrologyConfiguration.end != null) {
 //                usagePoint.removeMetrologyConfiguration(Instant.ofEpochMilli(info.metrologyConfiguration.end));
-//            }
-        } catch (UnsatisfiedReadingTypeRequirements ex) {
-            throw new UnsatisfiedReadingTypeRequirements(thesaurus, metrologyConfiguration);
-//            throw new FormValidationException().addException("metrologyConfiguration", ex);
-        } catch (UnsatisfiedMerologyConfigurationEndDate ex) {
-            throw new UnsatisfiedMerologyConfigurationEndDate(thesaurus);
+////            }
+//        } catch (UnsatisfiedReadingTypeRequirements ex) {
+////            throw new UnsatisfiedReadingTypeRequirements(thesaurus, metrologyConfiguration);
+////            throw new FormValidationException().addException("metrologyConfiguration", ex);
+//        } catch (UnsatisfiedMerologyConfigurationEndDate ex) {
+////            throw new UnsatisfiedMerologyConfigurationEndDate(thesaurus);
 //            throw new FormValidationException().addException("end", ex);
-        } catch (UnsatisfiedMerologyConfigurationStartDateRelativelyLatestStart ex) {
+//        } catch (UnsatisfiedMerologyConfigurationStartDateRelativelyLatestStart ex) {
 //            throw new FormValidationException().addException("start", ex);
-            throw new UnsatisfiedMerologyConfigurationStartDateRelativelyLatestStart(thesaurus);
-        } catch (UnsatisfiedMerologyConfigurationStartDateRelativelyLatestEnd ex) {
+//            throw new UnsatisfiedMerologyConfigurationStartDateRelativelyLatestStart(thesaurus);
+//        } catch (UnsatisfiedMerologyConfigurationStartDateRelativelyLatestEnd ex) {
 //            throw new FormValidationException().addException("start", ex);
-            throw new UnsatisfiedMerologyConfigurationStartDateRelativelyLatestEnd(thesaurus);
-        }
+//            throw new UnsatisfiedMerologyConfigurationStartDateRelativelyLatestEnd(thesaurus);
+//        }
 
         UsagePointInfo updatedInfo = usagePointInfoFactory.from(usagePoint);
-        updatedInfo.metrologyConfiguration = usagePoint.getEffectiveMetrologyConfiguration(start)
+        updatedInfo.metrologyConfigurationVersion = usagePoint.getEffectiveMetrologyConfiguration(start)
                 .map(EffectiveMetrologyConfigurationOnUsagePointInfo::new).orElse(null);
 
         return Response.status(Response.Status.OK).entity(updatedInfo).build();

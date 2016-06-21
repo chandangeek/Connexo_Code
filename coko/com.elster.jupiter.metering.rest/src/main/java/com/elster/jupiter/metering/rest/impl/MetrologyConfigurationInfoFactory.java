@@ -1,6 +1,8 @@
 package com.elster.jupiter.metering.rest.impl;
 
 import com.elster.jupiter.metering.ServiceCategory;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationStatus;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
@@ -53,5 +55,18 @@ public class MetrologyConfigurationInfoFactory {
         info.id = serviceCategory.getKind().name();
         info.name = serviceCategory.getName();
         return info;
+    }
+
+    public EffectiveMetrologyConfigurationOnUsagePointInfo asInfo(EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration) {
+        EffectiveMetrologyConfigurationOnUsagePointInfo info = new EffectiveMetrologyConfigurationOnUsagePointInfo();
+        UsagePointMetrologyConfiguration config = effectiveMetrologyConfiguration.getMetrologyConfiguration();
+        info.metrologyConfiguration = asInfo(config);
+        info.start = effectiveMetrologyConfiguration.getStart() == null
+                ? null
+                : effectiveMetrologyConfiguration.getStart().toEpochMilli();
+        info.end = effectiveMetrologyConfiguration.getEnd() == null
+                ? null
+                : effectiveMetrologyConfiguration.getEnd().toEpochMilli();
+       return info;
     }
 }
