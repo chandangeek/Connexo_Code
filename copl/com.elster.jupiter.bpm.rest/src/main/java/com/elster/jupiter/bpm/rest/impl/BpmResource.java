@@ -18,6 +18,7 @@ import com.elster.jupiter.bpm.rest.DeploymentInfos;
 import com.elster.jupiter.bpm.rest.Errors;
 import com.elster.jupiter.bpm.rest.LocalizedFieldException;
 import com.elster.jupiter.bpm.rest.NoBpmConnectionException;
+import com.elster.jupiter.bpm.rest.NoTaskWithIdException;
 import com.elster.jupiter.bpm.rest.NodeInfos;
 import com.elster.jupiter.bpm.rest.PagedInfoListCustomized;
 import com.elster.jupiter.bpm.rest.ProcessAssociationInfo;
@@ -42,6 +43,7 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -96,8 +98,8 @@ import static com.elster.jupiter.util.conditions.Where.where;
 @Path("/runtime")
 public class BpmResource {
 
-    public static final String ME = "me";
-    public static final String LIKE = "like";
+    private static final String ME = "me";
+    private static final String LIKE = "like";
 
     private final UserService userService;
     private final Thesaurus thesaurus;
@@ -106,13 +108,15 @@ public class BpmResource {
 
     private final String errorNotFoundMessage;
     private final String errorInvalidMessage;
+    private final ConcurrentModificationExceptionFactory conflictFactory;
 
     @Inject
-    public BpmResource(BpmService bpmService, UserService userService, Thesaurus thesaurus, PropertyUtils propertyUtils) {
+    public BpmResource(BpmService bpmService, UserService userService, Thesaurus thesaurus, PropertyUtils propertyUtils, ConcurrentModificationExceptionFactory conflictFactory) {
         this.bpmService = bpmService;
         this.userService = userService;
         this.thesaurus = thesaurus;
         this.propertyUtils = propertyUtils;
+        this.conflictFactory = conflictFactory;
 
         this.errorNotFoundMessage = thesaurus.getString("error.flow.unavailable", "Connexo Flow is not available.");
         this.errorInvalidMessage = thesaurus.getString("error.flow.invalid.response", "Invalid response received, please check your Flow version.");
@@ -261,7 +265,7 @@ public class BpmResource {
     @Path("/tasks")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_TASK, Privileges.Constants.ASSIGN_TASK, Privileges.Constants.EXECUTE_TASK})
-    public UserTaskInfos getTask(@Context UriInfo uriInfo, @BeanParam JsonQueryFilter filterX, @HeaderParam("Authorization") String auth) {
+    public UserTaskInfos getTask(@Context UriInfo uriInfo, @BeanParam JsonQueryFilter filterX, @HeaderParam("Authorization") String auth, @HeaderParam("X-CONNEXO-APPLICATION-NAME") String appKey) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters(false));
         String jsonContent;
         int total = -1;
@@ -271,10 +275,10 @@ public class BpmResource {
         try {
             String rest = "/rest/tasks";
             String req = getQueryParam(queryParameters);
-            if (!req.equals("")) {
+            if (!"".equals(req)) {
                 rest += req;
             }
-            payload = mapper.writeValueAsString(getAvailableProcesses(uriInfo, auth));
+            payload = mapper.writeValueAsString(getAvailableProcessesByAppKey(uriInfo, auth, appKey));
             jsonContent = bpmService.getBpmServer().doPost(rest, payload, auth, 0L);
             if (!"".equals(jsonContent)) {
                 JSONObject obj = new JSONObject(jsonContent);
@@ -291,7 +295,7 @@ public class BpmResource {
             e.printStackTrace();
         }
         UserTaskInfos infos = new UserTaskInfos(arr, "");
-        if(total > 0){
+        if (total > 0) {
             infos.total = total;
         }
         return infos;
@@ -301,13 +305,16 @@ public class BpmResource {
     @Path("/tasks/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_TASK, Privileges.Constants.ASSIGN_TASK, Privileges.Constants.EXECUTE_TASK})
-    public UserTaskInfo getTask(@PathParam("id") long id, @HeaderParam("Authorization") String auth) {
+    public UserTaskInfo getTask(@Context UriInfo uriInfo, @PathParam("id") long id, @HeaderParam("Authorization") String auth, @HeaderParam("X-CONNEXO-APPLICATION-NAME") String appKey) {
         String jsonContent;
         UserTaskInfo taskInfo = new UserTaskInfo();
+        ObjectMapper mapper = new ObjectMapper();
+        String payload;
         try {
             String rest = "/rest/tasks/";
             rest += String.valueOf(id);
-            jsonContent = bpmService.getBpmServer().doGet(rest, auth);
+            payload = mapper.writeValueAsString(getAvailableProcessesByAppKey(uriInfo, auth, appKey));
+            jsonContent = bpmService.getBpmServer().doPost(rest, payload, auth, 0L);
             if (!"".equals(jsonContent)) {
                 JSONObject obj = new JSONObject(jsonContent);
                 taskInfo = new UserTaskInfo(obj, "");
@@ -319,6 +326,11 @@ public class BpmResource {
             throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
                     .entity(this.errorNotFoundMessage)
                     .build());
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        if ("0".equals(taskInfo.id)) {
+            throw new NoTaskWithIdException(thesaurus, MessageSeeds.NO_TASK_WITH_ID , id);
         }
         return taskInfo;
     }
@@ -344,7 +356,7 @@ public class BpmResource {
                     .entity(this.errorNotFoundMessage)
                     .build());
         }
-        return new ProcessInstanceNodeInfos(jsnobject, thesaurus);
+        return jsnobject != null ? new ProcessInstanceNodeInfos(jsnobject, thesaurus) : new ProcessInstanceNodeInfos();
     }
 
     @GET
@@ -353,7 +365,7 @@ public class BpmResource {
     @RolesAllowed({Privileges.Constants.VIEW_TASK, Privileges.Constants.ASSIGN_TASK, Privileges.Constants.EXECUTE_TASK})
     public ProcessDefinitionInfos getProcesses(@Context UriInfo uriInfo, @HeaderParam("Authorization") String auth) {
         MultivaluedMap<String, String> filterProperties = uriInfo.getQueryParameters();
-        if(filterProperties.get("type") != null) {
+        if (filterProperties.get("type") != null) {
             List<BpmProcessDefinition> activeProcesses = bpmService.getAllBpmProcessDefinitions();
             ProcessDefinitionInfos processDefinitionInfos = getBpmProcessDefinitions(auth);
             processDefinitionInfos.processes = processDefinitionInfos.processes.stream()
@@ -365,9 +377,9 @@ public class BpmResource {
                     .collect(Collectors.toList());
             processDefinitionInfos.total = processDefinitionInfos.processes.size();
             return processDefinitionInfos;
-        }else{
+        } else {
             List<BpmProcessDefinition> activeProcesses = bpmService.getAllBpmProcessDefinitions().stream()
-                    .filter(p -> p.getStatus().equalsIgnoreCase("ACTIVE")).collect(Collectors.toList());
+                    .filter(p -> "ACTIVE".equalsIgnoreCase(p.getStatus())).collect(Collectors.toList());
             ProcessDefinitionInfos processDefinitionInfos = getBpmProcessDefinitions(auth);
             processDefinitionInfos.processes = processDefinitionInfos.processes.stream()
                     .filter(s -> activeProcesses.stream()
@@ -382,9 +394,9 @@ public class BpmResource {
     @Path("/availableactiveprocesses")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_TASK, Privileges.Constants.ASSIGN_TASK, Privileges.Constants.EXECUTE_TASK})
-    public ProcessDefinitionInfos getAvailableProcesses(@Context UriInfo uriInfo, @HeaderParam("Authorization") String auth) {
+    public ProcessDefinitionInfos getAvailableProcesses(@Context UriInfo uriInfo, @HeaderParam("Authorization") String auth, @HeaderParam("X-CONNEXO-APPLICATION-NAME") String appKey) {
         MultivaluedMap<String, String> filterProperties = uriInfo.getQueryParameters();
-        List<BpmProcessDefinition> activeProcesses = bpmService.getActiveBpmProcessDefinitions();
+        List<BpmProcessDefinition> activeProcesses = bpmService.getActiveBpmProcessDefinitions(appKey);
         return (filterProperties.get("type") != null) ? filterProcesses(activeProcesses, filterProperties.get("type").get(0), auth) : filterProcesses(activeProcesses, null, auth);
     }
 
@@ -406,23 +418,32 @@ public class BpmResource {
 
 
     @POST
-    @Path("tasks/{id}/assign")
+    @Path("tasks/{id}/{optLock}/assign")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ASSIGN_TASK)
-    public Response assignUser(@Context UriInfo uriInfo, @PathParam("id") long id, @Context SecurityContext securityContext, @HeaderParam("Authorization") String auth) {
+    public Response assignUser(@Context UriInfo uriInfo, @PathParam("id") long id, @PathParam("optLock") long optLock, @Context SecurityContext securityContext, @HeaderParam("Authorization") String auth) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters(false));
         String response;
         String userName = getQueryValue(uriInfo, "username");
+        String priority = getQueryValue(uriInfo, "priority");
+        String date = getQueryValue(uriInfo, "duedate");
         String rest = "/rest/tasks/";
-        rest += String.valueOf(id);
+        rest += String.valueOf(id) + "/";
+        rest += String.valueOf(optLock);
         String req = getQueryParam(queryParameters);
-        if (userName != null && !userName.isEmpty()) {
+        if (userName != null || date != null || priority != null) {
             rest += "/assign/" + req;
             rest += "&currentuser=" + securityContext.getUserPrincipal().getName();
             try {
                 response = bpmService.getBpmServer().doPost(rest, null, auth, 0);
             } catch (RuntimeException e) {
-                throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
+                throw e.getMessage().contains("409")
+                        ? conflictFactory.conflict()
+                        .withActualVersion(() -> optLock)
+                        .withMessageTitle(MessageSeeds.EDIT_TASK_CONCURRENT_TITLE, e.getMessage().replace("409", ""))
+                        .withMessageBody(MessageSeeds.EDIT_TASK_CONCURRENT_BODY, e.getMessage().replace("409", ""))
+                        .supplier().get()
+                        : new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
                         .entity(this.errorNotFoundMessage)
                         .build());
             }
@@ -460,36 +481,6 @@ public class BpmResource {
         return PagedInfoListCustomized.fromPagedList("data", assigneeFilterListInfo.getData(), queryParameters, params.getStart() == 0 ? 1 : 0);
     }
 
-    @POST
-    @Path("tasks/{id}")
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.ASSIGN_TASK)
-    public Response assignUser(@Context UriInfo uriInfo, @PathParam("id") long id, @HeaderParam("Authorization") String auth) {
-        String priority = getQueryValue(uriInfo, "priority");
-        String date = getQueryValue(uriInfo, "duedate");
-        String rest = "/rest/tasks/";
-        rest += String.valueOf(id) + "/set";
-        if (priority != null || date != null) {
-            if (priority != null) {
-                rest += "?priority=" + priority;
-                if (date != null) {
-                    rest += "&duedate=" + date;
-                }
-            } else {
-                rest += "?duedate=" + date;
-            }
-            try {
-                bpmService.getBpmServer().doPost(rest, null, auth);
-            } catch (RuntimeException e) {
-                throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
-                        .entity(this.errorNotFoundMessage)
-                        .build());
-            }
-            return Response.ok().build();
-        }
-        return Response.notModified().build();
-    }
-
     @GET
     @Path("/process/associations")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -510,7 +501,7 @@ public class BpmResource {
     public Response activateProcess(ProcessDefinitionInfo info) {
         Optional<ProcessAssociationProvider> foundProvider = bpmService.getProcessAssociationProvider(info.type);
         List<PropertySpec> propertySpecs = foundProvider.isPresent() ? foundProvider.get()
-                .getPropertySpecs() : Collections.<PropertySpec>emptyList();
+                .getPropertySpecs() : Collections.emptyList();
 
         // This section is only required for 10.1 backward compatibility, as backend validators would break this
         // When enabling backend validators, this section can be removed
@@ -524,7 +515,7 @@ public class BpmResource {
             err.add(new Errors("processPrivileges", MessageSeeds.FIELD_CAN_NOT_BE_EMPTY.getDefaultFormat()));
         }
         if (!err.isEmpty()) {
-            return Response.status(400).entity(new LocalizedFieldException(err)).build();
+            return Response.status(Response.Status.BAD_REQUEST).entity(new LocalizedFieldException(err)).build();
         }
 
         List<BpmProcessPrivilege> targetPrivileges = info.privileges.stream()
@@ -539,6 +530,7 @@ public class BpmResource {
                     .setAssociation(info.type.toLowerCase())
                     .setVersion(info.version)
                     .setStatus(info.active)
+                    .setAppKey(foundProvider.isPresent() ? foundProvider.get().getAppKey() : "")
                     .setProperties(propertyUtils.convertPropertyInfosToProperties(propertySpecs, info.properties))
                     .setPrivileges(targetPrivileges);
             process = processBuilder.create();
@@ -548,10 +540,18 @@ public class BpmResource {
             });
         } else {
             process = foundProcess.get();
+            if (process.getVersionDB() != info.versionDB) {
+                throw conflictFactory.conflict()
+                        .withActualVersion(process::getVersionDB)
+                        .withMessageTitle(MessageSeeds.EDIT_PROCESS_CONCURRENT_TITLE, info.name)
+                        .withMessageBody(MessageSeeds.EDIT_PROCESS_CONCURRENT_BODY, info.name)
+                        .supplier().get();
+            }
             List<BpmProcessPrivilege> oldPrivileges = process.getPrivileges();
 
             process.setAssociation(info.type.toLowerCase());
             process.setStatus(info.active);
+            process.setAppKey(foundProvider.isPresent() ? foundProvider.get().getAppKey() : "");
             process.setProperties(propertyUtils.convertPropertyInfosToProperties(propertySpecs, info.properties));
             process.setPrivileges(targetPrivileges);
             process.save();
@@ -570,11 +570,17 @@ public class BpmResource {
     public ProcessDefinitionInfo deactivateProcess(ProcessDefinitionInfo info) {
         Optional<BpmProcessDefinition> bpmProcessDefinition = bpmService.getBpmProcessDefinition(info.name, info.version);
         if (bpmProcessDefinition.isPresent()) {
+            if (bpmProcessDefinition.get().getVersionDB() != info.versionDB) {
+                throw conflictFactory.conflict()
+                        .withActualVersion(bpmProcessDefinition.get()::getVersionDB)
+                        .withMessageTitle(MessageSeeds.EDIT_PROCESS_CONCURRENT_TITLE, info.name)
+                        .withMessageBody(MessageSeeds.EDIT_PROCESS_CONCURRENT_BODY, info.name)
+                        .supplier().get();
+            }
             bpmProcessDefinition.get().setStatus(info.active);
             bpmProcessDefinition.get().save();
             return new ProcessDefinitionInfo(bpmProcessDefinition.get());
         }
-
         throw new BpmProcessNotAvailable(thesaurus, info.name + ":" + info.version);
     }
 
@@ -605,15 +611,17 @@ public class BpmResource {
                     processDefinitionInfo.setProperties(propertyUtils.convertPropertySpecsToPropertyInfos(foundProvider.get()
                                     .getPropertySpecs(),
                             bpmProcessDefinition.get().getProperties()));
+                    processDefinitionInfo.setAppKey(foundProvider.get().getAppKey());
                 }
-            }else{
+            } else {
                 String association = queryParameters.get("association").get(0);
                 Optional<ProcessAssociationProvider> foundProvider = bpmService.getProcessAssociationProvider(association);
                 if (foundProvider.isPresent()) {
-                    processDefinitionInfo.setProperties(propertyUtils.convertPropertySpecsToPropertyInfos(foundProvider.get()
-                                    .getPropertySpecs(),
-                            bpmProcessDefinition.isPresent() ? bpmProcessDefinition.get()
-                                    .getProperties() : new HashMap<String, Object>()));
+                    processDefinitionInfo.setProperties(
+                            propertyUtils.convertPropertySpecsToPropertyInfos(
+                                    foundProvider.get().getPropertySpecs(),
+                                    bpmProcessDefinition.isPresent() ? bpmProcessDefinition.get().getProperties() : new HashMap<>()));
+                    processDefinitionInfo.setAppKey(foundProvider.get().getAppKey());
                 }
             }
         }
@@ -626,7 +634,7 @@ public class BpmResource {
     @RolesAllowed({Privileges.Constants.VIEW_BPM, Privileges.Constants.ADMINISTRATE_BPM})
     public PagedInfoList getActiveBpmProcessesDefinitions(@Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters, @HeaderParam("Authorization") String auth) {
         MultivaluedMap<String, String> filterProperties = uriInfo.getQueryParameters();
-        if(filterProperties.get("type") != null) {
+        if (filterProperties.get("type") != null) {
             if (filterProperties.get("privileges") != null) {
                 List<String> privileges = getPropertyList(filterProperties.get("privileges").get(0), "privilege");
                 ProcessDefinitionInfos bpmProcessDefinition = getBpmProcessDefinitions(auth);
@@ -653,6 +661,13 @@ public class BpmResource {
                                 .anyMatch(x -> x.getProcessName().equals(s.name) && x.getVersion()
                                         .equals(s.version)))
                         .collect(Collectors.toList());
+                for(ProcessDefinitionInfo bpmDefinition : bpmProcesses) {
+                    for(BpmProcessDefinition connexoDefinition : filtredConnexoProcesses) {
+                        if (connexoDefinition.getProcessName().equals(bpmDefinition.name) && connexoDefinition.getVersion().equals(bpmDefinition.version)) {
+                            bpmDefinition.versionDB = connexoDefinition.getVersionDB();
+                        }
+                    }
+                }
                 return PagedInfoList.fromCompleteList("processes", bpmProcesses, queryParameters);
             }
         }
@@ -660,13 +675,13 @@ public class BpmResource {
         return PagedInfoList.fromCompleteList("processes", new ArrayList<>(), queryParameters);
     }
 
-    private ProcessDefinitionInfos filterProcesses(List<BpmProcessDefinition> activeProcesses, String filterProperty, String auth){
+    private ProcessDefinitionInfos filterProcesses(List<BpmProcessDefinition> activeProcesses, String filterProperty, String auth) {
         ProcessDefinitionInfos processDefinitionInfos = getBpmProcessDefinitions(auth);
         processDefinitionInfos.processes = processDefinitionInfos.processes.stream()
                 .filter(s -> {
-                    if(filterProperty != null) {
+                    if (filterProperty != null) {
                         return activeProcesses.stream().anyMatch(a -> a.getProcessName().equals(s.name) && a.getVersion().equals(s.version) && a.getAssociation().toLowerCase().equals(filterProperty.toLowerCase()));
-                    }else{
+                    } else {
                         return activeProcesses.stream().anyMatch(a -> a.getProcessName().equals(s.name) && a.getVersion().equals(s.version));
                     }
                 })
@@ -703,7 +718,7 @@ public class BpmResource {
         List<BpmProcessDefinition> connexoProcesses = bpmService.getBpmProcessDefinitions();
         ProcessDefinitionInfos bpmProcessDefinition = getBpmProcessDefinitions(auth);
         for (BpmProcessDefinition eachConnexo : connexoProcesses) {
-            boolean found = false;
+            boolean notFound = true;
             for (ProcessDefinitionInfo eachBpm : bpmProcessDefinition.processes) {
                 if (eachConnexo.getProcessName().equals(eachBpm.name) && eachConnexo.getVersion()
                         .equals(eachBpm.version)) {
@@ -712,10 +727,13 @@ public class BpmResource {
                             .isPresent() ? eachConnexo.getAssociationProvider().get().getType() : "";
                     eachBpm.displayType = eachConnexo.getAssociationProvider()
                             .isPresent() ? eachConnexo.getAssociationProvider().get().getName() : "";
-                    found = true;
+                    eachBpm.appKey = eachConnexo.getAssociationProvider()
+                            .isPresent() ? eachConnexo.getAssociationProvider().get().getAppKey() : "";
+                    eachBpm.versionDB = eachConnexo.getVersionDB();
+                    notFound = false;
                 }
             }
-            if (!found && !bpmProcessDefinition.processes.isEmpty()) {
+            if (notFound && !bpmProcessDefinition.processes.isEmpty()) {
                 eachConnexo.setStatus("UNDEPLOYED");
                 eachConnexo.save();
             }
@@ -739,7 +757,7 @@ public class BpmResource {
     @Path("/runningprocesses")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_BPM, Privileges.Constants.ADMINISTRATE_BPM})
-    public ProcessInstanceInfos getRunningProcesses(@Context UriInfo uriInfo, @HeaderParam("Authorization") String auth) {
+    public ProcessInstanceInfos getRunningProcesses(@Context UriInfo uriInfo, @HeaderParam("Authorization") String auth,  @HeaderParam("X-CONNEXO-APPLICATION-NAME") String appKey) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters(false));
         String jsonContent;
         int total = -1;
@@ -747,7 +765,7 @@ public class BpmResource {
         try {
             String rest = "/rest/tasks/runningprocesses";
             String req = getQueryParam(queryParameters);
-            if (!req.equals("")) {
+            if (!"".equals(req)) {
                 rest += req;
             }
             jsonContent = bpmService.getBpmServer().doGet(rest, auth);
@@ -764,7 +782,7 @@ public class BpmResource {
                     .entity(this.errorNotFoundMessage)
                     .build());
         }
-        List<BpmProcessDefinition> activeProcesses = bpmService.getActiveBpmProcessDefinitions();
+        List<BpmProcessDefinition> activeProcesses = bpmService.getActiveBpmProcessDefinitions(appKey);
         ProcessInstanceInfos runningProcessInfos = new ProcessInstanceInfos(arr, "");
         List<ProcessInstanceInfo> runningProcessesList = runningProcessInfos.processes.stream()
                 .filter(s -> activeProcesses.stream().anyMatch(a -> s.name.equals(a.getProcessName()) && s.version.equals(a.getVersion())))
@@ -772,7 +790,7 @@ public class BpmResource {
         runningProcessInfos.processes = runningProcessesList;
         if (total == Integer.valueOf(queryParameters.get("page").get(0)) * runningProcessInfos.total + 1) {
             runningProcessInfos.total = total;
-        }else{
+        } else {
             runningProcessInfos.total = Integer.valueOf(queryParameters.get("page").get(0)) * 10 - 10 + runningProcessesList.size();
         }
         return runningProcessInfos;
@@ -790,7 +808,7 @@ public class BpmResource {
         try {
             String rest = "/rest/tasks/process/history";
             String req = getQueryParam(queryParameters);
-            if (!req.equals("")) {
+            if (!"".equals(req)) {
                 rest += req;
             }
             jsonContent = bpmService.getBpmServer().doGet(rest, auth);
@@ -829,14 +847,14 @@ public class BpmResource {
                         s.tasksForm = null;
                     });
             ObjectMapper mapper = new ObjectMapper();
-            String stringJson = null;
+            String stringJson;
             try {
                 stringJson = mapper.writeValueAsString(taskGroupsInfos);
                 String rest = "/rest/tasks/managetasks";
                 String req = getQueryParam(queryParameters);
-                if (!req.equals("")) {
+                if (!"".equals(req)) {
                     rest += req+"&currentuser=" + securityContext.getUserPrincipal().getName() ;
-                }else{
+                } else {
                     rest += req+"?currentuser=" + securityContext.getUserPrincipal().getName() ;
                 }
                 result = bpmService.getBpmServer().doPost(rest, stringJson, auth, 0);
@@ -844,6 +862,7 @@ public class BpmResource {
                     obj = new JSONObject(result);
                 }
             } catch (JsonProcessingException e) {
+                throw new WebApplicationException(Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(this.errorInvalidMessage).build());
             } catch (JSONException e) {
                 throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorInvalidMessage).build());
             }
@@ -852,12 +871,12 @@ public class BpmResource {
                     .entity(this.errorNotFoundMessage)
                     .build());
         }
-        if(obj == null){
-            return Response.status(400).build();
+        if (obj == null) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
         }
         TaskBulkReportInfo taskBulkReportInfo = new TaskBulkReportInfo(obj);
-        if(taskBulkReportInfo.failed > 0){
-            return Response.status(400).entity(taskBulkReportInfo).build();
+        if (taskBulkReportInfo.failed > 0) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(taskBulkReportInfo).build();
         }
         return Response.ok().entity(taskBulkReportInfo).build();
     }
@@ -867,34 +886,34 @@ public class BpmResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_BPM, Privileges.Constants.EXECUTE_TASK, Privileges.Constants.ASSIGN_TASK})
     public TaskGroupsInfos getTaskContent(TaskGroupsInfos taskGroupsInfos, @HeaderParam("Authorization") String auth, @Context UriInfo uriInfo) {
-        QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters(false));
         String response = null;
         JSONArray arr = null;
         try {
             ObjectMapper mapper = new ObjectMapper();
-            String stringJson = null;
             try {
-                stringJson = mapper.writeValueAsString(taskGroupsInfos);
+                String stringJson = mapper.writeValueAsString(taskGroupsInfos);
                 String rest = "/rest/tasks/mandatory";
                 response = bpmService.getBpmServer().doPost(rest, stringJson, auth, 0);
             } catch (JsonProcessingException e) {
+                throw new WebApplicationException(Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(this.errorInvalidMessage).build());
             }
             if (response != null) {
-                if (!response.equals("Connection refused: connect")) {
+                if (!"Connection refused: connect".equals(response)) {
                     arr = (new JSONObject(response)).getJSONArray("taskGroups");
-                }else {
+                } else {
                     throw new NoBpmConnectionException(thesaurus);
                 }
             }
 
         } catch (JSONException e) {
+            throw new WebApplicationException(Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(this.errorInvalidMessage).build());
         }
         TaskGroupsInfos taskGroups = new TaskGroupsInfos(arr);
         taskGroups.taskGroups.stream()
                 .forEach(s-> {
             s.tasksForm.outputContent = null;
             s.tasksForm.properties.stream().forEach(f -> {
-                if(f.propertyValueInfo != null) {
+                if (f.propertyValueInfo != null) {
                     f.propertyValueInfo.defaultValue = "";
                 }
             });
@@ -916,7 +935,7 @@ public class BpmResource {
                 .filter(s -> s.getName()
                         .equals(Privileges.PROCESS_EXECUTION_LEVELS.getKey()))
                 .findFirst();
-        if(resource.isPresent()){
+        if (resource.isPresent()) {
             List<Group> groups = this.userService.getGroups();
             proc = resource.get().getPrivileges().stream()
                     .map(s -> new ProcessesPrivilegesInfo(s.getName(), Privileges.getDescriptionForKey(s.getName()), resource.get().getComponentName(), groups))
@@ -937,20 +956,19 @@ public class BpmResource {
             String rest = "/rest/tasks/" + id + "/content";
             jsonContent = bpmService.getBpmServer().doGet(rest, auth);
             if (!"".equals(jsonContent)) {
-                if(!jsonContent.equals("Connection refused: connect")){
+                if (!"Connection refused: connect".equals(jsonContent)) {
                     obj = new JSONObject(jsonContent);
-                }else {
+                } else {
                     throw new NoBpmConnectionException(thesaurus);
                 }
             }
-
+            if (obj != null) {
+                taskContentInfos = new TaskContentInfos(obj);
+            }
+            return taskContentInfos;
         } catch (JSONException e) {
             throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorInvalidMessage).build());
         }
-        if(obj != null) {
-            taskContentInfos = new TaskContentInfos(obj);
-        }
-        return taskContentInfos;
     }
 
     @GET
@@ -962,22 +980,28 @@ public class BpmResource {
                                               @HeaderParam("Authorization") String auth) {
         String jsonContent;
         JSONObject obj = null;
-        TaskContentInfos taskContentInfos = null;
         try {
             String rest = "/rest/tasks/process/" + deploymentId + "/content/" + id;
             jsonContent = bpmService.getBpmServer().doGet(rest, auth);
             if (!"".equals(jsonContent)) {
                 obj = new JSONObject(jsonContent);
             }
-
+            if (obj != null) {
+                return new TaskContentInfos(obj);
+            } else {
+                throw conflictFactory.conflict()
+                        .withActualVersion(() -> {
+                            return 0L; // Not an actual version; process has been undeployed
+                        })
+                        .withMessageTitle(MessageSeeds.START_PROCESS_CONCURRENT_TITLE, id)
+                        .withMessageBody(MessageSeeds.START_PROCESS_CONCURRENT_BODY, id)
+                        .supplier().get();
+            }
         } catch (JSONException e) {
             throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorInvalidMessage).build());
         } catch (RuntimeException e) {
+            throw new WebApplicationException(Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(this.errorInvalidMessage).build());
         }
-        if(obj != null) {
-            taskContentInfos = new TaskContentInfos(obj);
-        }
-        return taskContentInfos;
     }
 
     @PUT
@@ -986,12 +1010,21 @@ public class BpmResource {
     @RolesAllowed({Privileges.Constants.VIEW_BPM, Privileges.Constants.ADMINISTRATE_BPM})
     public Response startProcessContent(TaskContentInfos taskContentInfos, @PathParam("id") String id,
                                         @PathParam("deploymentId") String deploymentId, @HeaderParam("Authorization") String auth) {
+        bpmService.getActiveBpmProcessDefinitions().stream()
+                .filter(p -> p.getVersion().equals(taskContentInfos.processVersion) && p.getProcessName().equals(taskContentInfos.processName) && p.getVersionDB() == Long.valueOf(taskContentInfos.versionDB))
+                .findAny()
+                .orElseThrow(conflictFactory.conflict()
+                        .withActualVersion(() -> Long.valueOf(taskContentInfos.versionDB))
+                        .withMessageTitle(MessageSeeds.START_PROCESS_CONCURRENT_TITLE, taskContentInfos.processName)
+                        .withMessageBody(MessageSeeds.START_PROCESS_CONCURRENT_BODY, taskContentInfos.processName)
+                        .supplier());
+
         Map<String, Object> expectedParams = getOutputContent(taskContentInfos, -1, id, auth);
         List<Errors> err = new ArrayList<>();
         TaskContentInfos taskContents = getProcessContent(id,deploymentId, auth);
         taskContentInfos.properties.stream()
                 .forEach(s -> {
-                    if (s.propertyValueInfo.value == null  || s.propertyValueInfo.value.equals("")) {
+                    if (s.propertyValueInfo.value == null  || "".equals(s.propertyValueInfo.value)) {
                         Optional<TaskContentInfo> taskContentInfo = taskContents.properties.stream()
                                 .filter(x -> x.key.equals(s.key))
                                 .findFirst();
@@ -1003,10 +1036,10 @@ public class BpmResource {
                     }
                 });
         id = id.replace(taskContentInfos.deploymentId,"");
-        if(!err.isEmpty()){
-            return Response.status(400).entity(new LocalizedFieldException(err)).build();
+        if (!err.isEmpty()) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(new LocalizedFieldException(err)).build();
         }
-        if(taskContentInfos.deploymentId != null && taskContentInfos.businessObject.id != null && taskContentInfos.businessObject.value != null) {
+        if (taskContentInfos.deploymentId != null && taskContentInfos.businessObject.id != null && taskContentInfos.businessObject.value != null) {
             expectedParams.put(taskContentInfos.businessObject.id, taskContentInfos.businessObject.value);
             bpmService.startProcess(taskContentInfos.deploymentId, id, expectedParams, auth);
         }
@@ -1024,7 +1057,7 @@ public class BpmResource {
         String postResult = null;
         List<Errors> err = new ArrayList<>();
         String userName = securityContext.getUserPrincipal().getName();
-        if(!taskContentInfos.action.equals("startTask")) {
+        if (!"startTask".equals(taskContentInfos.action)) {
             TaskContentInfos taskContents = getTaskContent(id, auth);
             taskContentInfos.properties.stream()
                     .forEach(s -> {
@@ -1037,7 +1070,7 @@ public class BpmResource {
                                     err.add(new Errors("properties." + s.key, MessageSeeds.FIELD_CAN_NOT_BE_EMPTY.getDefaultFormat()));
                                 }
                             }
-                        } else if (s.propertyValueInfo.value.equals("")) {
+                        } else if ("".equals(s.propertyValueInfo.value)) {
                             Optional<TaskContentInfo> taskContentInfo = taskContents.properties.stream()
                                     .filter(x -> x.key.equals(s.key))
                                     .findFirst();
@@ -1049,40 +1082,39 @@ public class BpmResource {
                         }
                     });
         }
-        if(!err.isEmpty()){
-          return  Response.status(400).entity(new LocalizedFieldException(err)).build();
+        if (!err.isEmpty()) {
+          return  Response.status(Response.Status.BAD_REQUEST).entity(new LocalizedFieldException(err)).build();
         }
-        JSONObject obj = null;
-        if(taskContentInfos.action.equals("startTask")){
+        if ("startTask".equals(taskContentInfos.action)) {
             String rest = "/rest/tasks/" + id + "/contentstart/" + userName + "/";
             postResult = bpmService.getBpmServer().doPost(rest, null, auth, 0);
         }
-        if(taskContentInfos.action.equals("completeTask")){
+        if ("completeTask".equals(taskContentInfos.action)) {
             Map<String, Object> outputBindingContents = getOutputContent(taskContentInfos, id, null, auth);
             TaskOutputContentInfo taskOutputContentInfo = new TaskOutputContentInfo(outputBindingContents);
             ObjectMapper mapper = new ObjectMapper();
-            String stringJson = null;
             try {
-                stringJson = mapper.writeValueAsString(taskOutputContentInfo);
+                String stringJson = mapper.writeValueAsString(taskOutputContentInfo);
                 String rest = "/rest/tasks/" + id + "/contentcomplete/" + userName + "/";
                 postResult = bpmService.getBpmServer().doPost(rest, stringJson, auth, 0);
             } catch (JsonProcessingException e) {
+                throw new WebApplicationException(Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(this.errorInvalidMessage).build());
             }
         }
-        if(taskContentInfos.action.equals("saveTask")){
+        if ("saveTask".equals(taskContentInfos.action)) {
             Map<String, Object> outputBindingContents = getOutputContent(taskContentInfos, id, null, auth);
             TaskOutputContentInfo taskOutputContentInfo = new TaskOutputContentInfo(outputBindingContents);
             ObjectMapper mapper = new ObjectMapper();
-            String stringJson = null;
             try {
-                stringJson = mapper.writeValueAsString(taskOutputContentInfo);
+                String stringJson = mapper.writeValueAsString(taskOutputContentInfo);
                 String rest = "/rest/tasks/" + id + "/contentsave";
                 postResult = bpmService.getBpmServer().doPost(rest, stringJson, auth, 0);
             } catch (JsonProcessingException e) {
+                throw new WebApplicationException(Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(this.errorInvalidMessage).build());
             }
         }
         if (postResult == null) {
-            return Response.status(400).build();
+            return Response.status(Response.Status.BAD_REQUEST).build();
         }
         return Response.ok().build();
     }
@@ -1099,7 +1131,7 @@ public class BpmResource {
         TaskContentInfos taskContents = getTaskContent(id, auth);
         taskContentInfos.properties.stream()
                 .forEach(s -> {
-                    if (s.propertyValueInfo.value == null || s.propertyValueInfo.value.equals("")) {
+                    if (s.propertyValueInfo.value == null || "".equals(s.propertyValueInfo.value)) {
                         Optional<TaskContentInfo> taskContentInfo = taskContents.properties.stream()
                                 .filter(x -> x.key.equals(s.key))
                                 .findFirst();
@@ -1110,18 +1142,18 @@ public class BpmResource {
                         }
                     }
                 });
-        if(!err.isEmpty()){
-            return  Response.status(400).entity(new LocalizedFieldException(err)).build();
-        }else{
+        if (!err.isEmpty()) {
+            return  Response.status(Response.Status.BAD_REQUEST).entity(new LocalizedFieldException(err)).build();
+        } else {
             return Response.ok().entity(taskContentInfos).build();
         }
     }
 
-    private Map<String, Object> getOutputContent(TaskContentInfos taskContentInfos, long taskId, String processId, String auth){
+    private Map<String, Object> getOutputContent(TaskContentInfos taskContentInfos, long taskId, String processId, String auth) {
         TaskContentInfos taskContents;
-        if(processId != null) {
+        if (processId != null) {
             taskContents = getProcessContent(processId, taskContentInfos.deploymentId, auth);
-        }else{
+        } else {
             taskContents = getTaskContent(taskId, auth);
         }
         Map<String, Object> outputBindingContents = new HashMap<>();
@@ -1134,23 +1166,23 @@ public class BpmResource {
                                 .filter(p -> p.key.equals(s.key))
                                 .findFirst();
                         if (taskContentInfo.isPresent()) {
-                            if (taskContentInfo.get().propertyTypeInfo.simplePropertyType.equals("TIMESTAMP")) {
+                            if ("TIMESTAMP".equals(taskContentInfo.get().propertyTypeInfo.simplePropertyType)) {
                                 Date date = new Date();
-                                if(taskContentInfo.get().propertyValueInfo.value != null) {
+                                if (taskContentInfo.get().propertyValueInfo.value != null) {
                                     date.setTime(Long.valueOf(taskContentInfo.get().propertyValueInfo.value));
                                     outputBindingContents.put(s.outputBinding, date);
                                 }
-                            } else if (taskContentInfo.get().propertyTypeInfo.simplePropertyType.equals("DATE")) {
+                            } else if ("DATE".equals(taskContentInfo.get().propertyTypeInfo.simplePropertyType)) {
                                 Date date = new Date();
-                                if(taskContentInfo.get().propertyValueInfo.value != null) {
+                                if (taskContentInfo.get().propertyValueInfo.value != null) {
                                     date.setTime(Long.valueOf(taskContentInfo.get().propertyValueInfo.value));
                                     outputBindingContents.put(s.outputBinding, date);
                                 }
-                            } else if(taskContentInfo.get().propertyTypeInfo.predefinedPropertyValuesInfo != null){
-                                if(taskContentInfo.get().propertyTypeInfo.predefinedPropertyValuesInfo.selectionMode.equals("COMBOBOX")) {
+                            } else if (taskContentInfo.get().propertyTypeInfo.predefinedPropertyValuesInfo != null) {
+                                if ("COMBOBOX".equals(taskContentInfo.get().propertyTypeInfo.predefinedPropertyValuesInfo.selectionMode)) {
                                     Iterator<String> it = s.propertyTypeInfo.predefinedPropertyValuesInfo.comboKeys.keySet().iterator();
                                     while (it.hasNext()) {
-                                        String theKey = (String) it.next();
+                                        String theKey = it.next();
                                         if (s.propertyTypeInfo.predefinedPropertyValuesInfo.comboKeys.get(theKey).equals(taskContentInfo.get().propertyValueInfo.value)) {
                                             outputBindingContents.put(s.outputBinding, theKey);
                                         }
@@ -1158,18 +1190,18 @@ public class BpmResource {
                                 } else {
                                     outputBindingContents.put(s.outputBinding, taskContentInfo.get().propertyValueInfo.value);
                                 }
-                            }else {
+                            } else {
                                 outputBindingContents.put(s.outputBinding, taskContentInfo.get().propertyValueInfo.value);
                             }
                         }
                     });
-        }catch (RuntimeException e) {
+        } catch (RuntimeException e) {
             System.out.println(e.getMessage());
         }
         return outputBindingContents;
     }
 
-    private List<String> getPropertyList(String source, String propertyValue){
+    private List<String> getPropertyList(String source, String propertyValue) {
         List<String> privilegesList = new ArrayList<>();
         try {
             if (source != null) {
@@ -1177,13 +1209,14 @@ public class BpmResource {
                 if (node != null && node.isArray()) {
                     for (JsonNode singleFilter : node) {
                         JsonNode property = singleFilter.get(propertyValue);
-                        if (property != null && property.textValue() != null)
+                        if (property != null && property.textValue() != null) {
                             privilegesList.add(property.textValue());
+                        }
                     }
                 }
             }
-        }catch (Exception e){
-
+        } catch (Exception e) {
+            throw new WebApplicationException(Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(this.errorInvalidMessage).build());
         }
         return privilegesList;
     }
@@ -1217,7 +1250,7 @@ public class BpmResource {
         int i = 0;
         Iterator<String> it = queryParam.keySet().iterator();
         while (it.hasNext()) {
-            String theKey = (String) it.next();
+            String theKey = it.next();
             if (i > 0) {
                 req += "&";
             } else {
@@ -1227,6 +1260,12 @@ public class BpmResource {
             i++;
         }
         return req;
+    }
+
+    private ProcessDefinitionInfos getAvailableProcessesByAppKey(UriInfo uriInfo, String auth, String appKey) {
+        MultivaluedMap<String, String> filterProperties = uriInfo.getQueryParameters();
+        List<BpmProcessDefinition> activeProcesses = bpmService.getActiveBpmProcessDefinitions(appKey);
+        return (filterProperties.get("type") != null) ? filterProcesses(activeProcesses, filterProperties.get("type").get(0), auth) : filterProcesses(activeProcesses, null, auth);
     }
 
 }
