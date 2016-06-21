@@ -126,7 +126,7 @@ public class ConsoleCommands {
 
     public void pingDb(int times) {
         Format format = new DecimalFormat("##0.00");
-        double NANOSECONDS_IN_MS = 1000000.0;
+        double NANOSECONDS_IN_MS = 1_000_000.0d;
         List<Long> stats = new ArrayList<>(times);
         try (Connection connection = dataSource.getConnection()) {
             String jdbcUrl = connection.getMetaData().getURL();

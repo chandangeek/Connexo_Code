@@ -50,7 +50,7 @@ final class JoinExecutor<T> {
 		appendSelectClause(selectColumns);
 		appendWhereClause(builder, condition , " where ");
 		appendOrderByClause(builder, null);
-		return from == 0 ? builder : builder.asPageBuilder(fieldNames, from, to);
+		return from == 0 ? builder : builder.asPageBuilder(from, to, fieldNames);
 	}
 	
 	private void appendSql(Condition condition , Order[] orderBy) {
