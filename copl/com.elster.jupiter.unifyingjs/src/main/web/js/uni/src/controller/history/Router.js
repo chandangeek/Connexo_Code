@@ -111,7 +111,7 @@ Ext.define('Uni.controller.history.Router', {
      */
     filter: null,
 
-    state: {returnLink: location.href.split('#/')[1]?location.href.split('#/')[1].split('/')[0]:''},
+    state: {returnLink: location.href.split('#/')[1] ? location.href.split('#/')[1].split('/')[0] : ''},
 
     /**
      * Add router configuration
@@ -232,7 +232,8 @@ Ext.define('Uni.controller.history.Router', {
                     if (typeof routeArguments[key] === 'string') {
                         try {
                             routeArguments[key] = decodeURIComponent(routeArguments[key]);
-                        } catch (e) {}
+                        } catch (e) {
+                        }
                     }
                 });
 
@@ -258,7 +259,7 @@ Ext.define('Uni.controller.history.Router', {
                     // fire the controller action with this route params as arguments
                     var controller = me.getController(config.controller);
 
-                    var applyAction = function() {
+                    var applyAction = function () {
                         me.fireEvent('routematch', me);
                         controller[action].apply(controller, routeArguments);
                     };
@@ -266,8 +267,8 @@ Ext.define('Uni.controller.history.Router', {
                     var dispatch = function () {
                         if (!Uni.Auth.checkPrivileges(config.privileges)) {
                             crossroads.parse("/error/notfound");
-                        } else if (config.dynamicPrivilegeStores){
-                            Uni.DynamicPrivileges.loadPage(config.dynamicPrivilegeStores, config.dynamicPrivilege, applyAction, me);
+                        } else if(me.checkForDynamicPrivileges(config, applyAction)) {
+                            //do nothing
                         } else {
                             applyAction();
                         }
@@ -296,6 +297,28 @@ Ext.define('Uni.controller.history.Router', {
                 me.initRoute(path, item, route);
             });
         }
+    },
+
+    checkForDynamicPrivileges: function (config, applyAction) {
+        var me = this,
+            path = config.key,
+            route,
+            index;
+
+        while (path.lastIndexOf('/') > -1) {
+            route = me.getRoute(path);
+            if(route !== me.routes["notfound"]) {
+                if (route.dynamicPrivilegeStores) {
+                    Uni.DynamicPrivileges.loadPage(route.dynamicPrivilegeStores, config.dynamicPrivilege, applyAction, me);
+                    return true;
+                }
+            }
+            index = path.lastIndexOf('/');
+            if (index !== -1) {
+                path = path.substring(0, index);
+            }
+        }
+        return false;
     },
 
     /**
@@ -328,7 +351,7 @@ Ext.define('Uni.controller.history.Router', {
      */
     getRoute: function (path, state) {
         var me = this;
-        if(state){
+        if (state) {
             this.state = state;
         }
         if (!Ext.isDefined(path)) {
@@ -339,7 +362,8 @@ Ext.define('Uni.controller.history.Router', {
     },
 
     getRouteConfig: function (path) {
-        var route = me.routeConfig;
+        var me = this,
+            route = me.config;
         path = path.split('/');
 
         do {
@@ -351,11 +375,11 @@ Ext.define('Uni.controller.history.Router', {
         return route;
     },
 
-    setState: function(state){
+    setState: function (state) {
         this.state = state;
     },
 
-    getState: function(state){
+    getState: function (state) {
         return this.state;
     }
 });

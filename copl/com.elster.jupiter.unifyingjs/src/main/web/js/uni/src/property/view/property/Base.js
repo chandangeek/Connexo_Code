@@ -307,7 +307,10 @@ Ext.define('Uni.property.view.property.Base', {
         return {
             xtype: 'displayfield',
             name: this.getName(),
-            itemId: this.key + 'displayfield'
+            itemId: this.key + 'displayfield',
+            renderer: function(value) {
+                return Ext.isEmpty(value) ? '-' : value;
+            }
         }
     },
 
