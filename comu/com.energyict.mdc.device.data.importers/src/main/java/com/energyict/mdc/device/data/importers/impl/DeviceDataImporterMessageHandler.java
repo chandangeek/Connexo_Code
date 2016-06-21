@@ -1,33 +1,35 @@
 package com.energyict.mdc.device.data.importers.impl;
 
 import com.elster.jupiter.fileimport.FileImportService;
-import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.util.exception.ExceptionCatcher;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.upgrade.InstallIdentifier;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.util.exception.MessageSeed;
+
+import com.google.inject.AbstractModule;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @Component(name = "com.energyict.mdc.device.data.importers.DeviceDataImporterMessageHandler",
-        service = {MessageHandlerFactory.class, TranslationKeyProvider.class, MessageSeedProvider.class, InstallService.class},
+        service = {MessageHandlerFactory.class, TranslationKeyProvider.class, MessageSeedProvider.class},
         property = {"name=" + DeviceDataImporterMessageHandler.COMPONENT,
                     "subscriber=" + DeviceDataImporterMessageHandler.SUBSCRIBER_NAME,
                     "destination=" + DeviceDataImporterMessageHandler.DESTINATION_NAME},
         immediate = true)
-public class DeviceDataImporterMessageHandler implements MessageHandlerFactory, TranslationKeyProvider, MessageSeedProvider, InstallService {
+public class DeviceDataImporterMessageHandler implements MessageHandlerFactory, TranslationKeyProvider, MessageSeedProvider {
 
     public static final String COMPONENT = "DDI";
 
@@ -36,14 +38,16 @@ public class DeviceDataImporterMessageHandler implements MessageHandlerFactory, 
 
     private volatile MessageService messageService;
     private volatile FileImportService fileImportService;
+    private volatile UpgradeService upgradeService;
 
     public DeviceDataImporterMessageHandler() {}
 
     @Inject
-    public DeviceDataImporterMessageHandler(MessageService messageService, FileImportService fileImportService) {
+    public DeviceDataImporterMessageHandler(MessageService messageService, FileImportService fileImportService, UpgradeService upgradeService) {
         this();
         setMessageService(messageService);
         setFileImportService(fileImportService);
+        setUpgradeService(upgradeService);
     }
 
     @Override
@@ -66,25 +70,16 @@ public class DeviceDataImporterMessageHandler implements MessageHandlerFactory, 
         return Arrays.asList(MessageSeeds.values());
     }
 
-    @Override
-    public void install() {
-        ExceptionCatcher.executing(
-                this::createDestinationAndSubscriber
-        ).andHandleExceptionsWith(Throwable::printStackTrace)
-                .execute();
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList(OrmService.COMPONENTNAME, MessageService.COMPONENTNAME, FileImportService.COMPONENT_NAME);
-    }
-
-    private void createDestinationAndSubscriber() {
-        QueueTableSpec queueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
-        DestinationSpec destinationSpec = queueTableSpec.createDestinationSpec(DESTINATION_NAME, 60);
-        destinationSpec.save();
-        destinationSpec.activate();
-        destinationSpec.subscribe(SUBSCRIBER_NAME);
+    @Activate
+    public void activate() {
+        DataModel dataModel = upgradeService.newNonOrmDataModel();
+        dataModel.register(new AbstractModule() {
+            @Override
+            protected void configure() {
+                bind(MessageService.class).toInstance(messageService);
+            }
+        });
+        upgradeService.register(InstallIdentifier.identifier(DeviceDataImporterMessageHandler.COMPONENT), dataModel, Installer.class, Collections.emptyMap());
     }
 
     @Reference
@@ -95,6 +90,11 @@ public class DeviceDataImporterMessageHandler implements MessageHandlerFactory, 
     @Reference
     public final void setFileImportService(FileImportService fileImportService) {
         this.fileImportService = fileImportService;
+    }
+
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
     }
 
     @Override
