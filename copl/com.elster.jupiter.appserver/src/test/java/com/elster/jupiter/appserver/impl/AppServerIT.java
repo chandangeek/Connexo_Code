@@ -32,6 +32,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
+import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.cron.CronExpressionParser;
@@ -63,6 +64,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -81,6 +83,8 @@ public class AppServerIT {
     private EventAdmin eventAdmin;
     @Mock
     private FileImporterFactory fileImporterFactory;
+    @Mock
+    private Group group;
 
 
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
@@ -107,6 +111,7 @@ public class AppServerIT {
         when(fileImporterFactory.getName()).thenReturn(IMPORTER_NAME);
         when(fileImporterFactory.getDestinationName()).thenReturn(DESTINATION);
         when(fileImporterFactory.getApplicationName()).thenReturn("AppName");
+        when(userService.findGroup(anyString())).thenReturn(Optional.of(group));
 
         try {
             injector = Guice.createInjector(
