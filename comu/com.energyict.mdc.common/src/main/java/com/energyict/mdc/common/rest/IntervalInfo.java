@@ -1,6 +1,5 @@
 package com.energyict.mdc.common.rest;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -9,9 +8,7 @@ import java.time.Instant;
  * Created by bvn on 8/6/14.
  */
 public class IntervalInfo {
-    @JsonProperty("start")
     public Long start;
-    @JsonProperty("end")
     public Long end;
 
     public IntervalInfo() {
