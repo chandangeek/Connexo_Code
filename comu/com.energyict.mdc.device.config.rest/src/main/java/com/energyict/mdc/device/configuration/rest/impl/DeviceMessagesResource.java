@@ -64,7 +64,8 @@ public class DeviceMessagesResource {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationByIdOrThrowException(deviceConfigurationId);
 
-        Set<DeviceMessageId> supportedMessages = deviceType.getDeviceProtocolPluggableClass().getDeviceProtocol().getSupportedMessages();
+        Set<DeviceMessageId> supportedMessages = deviceType.getDeviceProtocolPluggableClass()
+                .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages()).orElse(Collections.emptySet());
         if (supportedMessages.isEmpty()) {
             return PagedInfoList.fromPagedList("categories", Collections.emptyList(), queryParameters);
         }
