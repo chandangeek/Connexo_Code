@@ -10,6 +10,7 @@ import com.elster.jupiter.orm.associations.Effectivity;
 import com.elster.jupiter.util.collections.ArrayDiffList;
 import com.elster.jupiter.util.collections.DiffList;
 import com.elster.jupiter.util.time.Interval;
+
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
@@ -19,12 +20,13 @@ import com.google.common.collect.Range;
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-public class EnumeratedUsagePointGroupImpl extends AbstractUsagePointGroup implements EnumeratedUsagePointGroup {
+class EnumeratedUsagePointGroupImpl extends AbstractUsagePointGroup implements EnumeratedUsagePointGroup {
 
     private List<EntryImpl> entries;
 
@@ -36,19 +38,15 @@ public class EnumeratedUsagePointGroupImpl extends AbstractUsagePointGroup imple
     EnumeratedUsagePointGroupImpl(DataModel dataModel) {
         this.dataModel = dataModel;
     }
-    
+
     @Override
-    public List<EntryImpl> getEntries() {
-        return doGetEntries();
+    public List<Entry> getEntries() {
+        return Collections.unmodifiableList(this.doGetEntries());
     }
 
     private List<EntryImpl> doGetEntries() {
         if (entries == null) {
-            List<Entry> entryList = dataModel.mapper(Entry.class).find("usagePointGroup", this);
-            entries = new ArrayList<>(entryList.size());
-            for (Entry entry : entryList) {
-                entries.add((EntryImpl) entry);
-            }
+            this.entries = new ArrayList<>(dataModel.mapper(EntryImpl.class).find("usagePointGroup", this));
             buildMemberships();
         }
         return entries;
@@ -65,12 +63,11 @@ public class EnumeratedUsagePointGroupImpl extends AbstractUsagePointGroup imple
             UsagePointMembershipImpl membership = map.get(entry.getUsagePoint());
             membership.addRange(entry.getInterval().toClosedOpenRange());
         }
-
     }
 
     private List<UsagePointMembershipImpl> getMemberships() {
         if (entries == null) {
-            getEntries();
+            doGetEntries();
         }
         return memberships;
     }
@@ -121,7 +118,7 @@ public class EnumeratedUsagePointGroupImpl extends AbstractUsagePointGroup imple
         public EnumeratedUsagePointGroup getUsagePointGroup() {
             if (usagePointGroup == null) {
                 usagePointGroup = dataModel.mapper(EnumeratedUsagePointGroup.class).getOptional(groupId).get();
-        }
+            }
             return usagePointGroup;
         }
 
@@ -155,7 +152,7 @@ public class EnumeratedUsagePointGroupImpl extends AbstractUsagePointGroup imple
         }
         membership.addRange(range);
         EntryImpl entry = EntryImpl.from(dataModel, this, usagePoint, membership.resultingRange(range));
-        getEntries().add(entry);
+        doGetEntries().add(entry);
         return entry;
     }
 
@@ -175,18 +172,12 @@ public class EnumeratedUsagePointGroupImpl extends AbstractUsagePointGroup imple
     public void save() {
         if (getId() == 0) {
             factory().persist(this);
-            for (EntryImpl entry : getEntries()) {
-                entry.groupId = getId();
-            }
-            ArrayList<Entry> result = new ArrayList<>();
-            for (EntryImpl entry : getEntries()) {
-                result.add(entry);
-            }
-            entryFactory().persist(result);
+            this.doGetEntries().stream().forEach(entry -> entry.groupId = this.getId());
+            entryFactory().persist(this.doGetEntries());
         } else {
             factory().update(this);
-            List<Entry> existingEntries = entryFactory().find("usagePointGroup", this);
-            DiffList<Entry> entryDiff = ArrayDiffList.fromOriginal(existingEntries);
+            List<EntryImpl> existingEntries = entryFactory().find("usagePointGroup", this);
+            DiffList<EntryImpl> entryDiff = ArrayDiffList.fromOriginal(existingEntries);
             entryDiff.clear();
             for (UsagePointMembership membership : memberships) {
                 for (Range<Instant> range : membership.getRanges().asRanges()) {
@@ -197,15 +188,14 @@ public class EnumeratedUsagePointGroupImpl extends AbstractUsagePointGroup imple
             entryFactory().update(FluentIterable.from(entryDiff.getRemaining()).toList());
             entryFactory().persist(FluentIterable.from(entryDiff.getAdditions()).toList());
         }
-
     }
 
     private DataMapper<EnumeratedUsagePointGroup> factory() {
         return dataModel.mapper(EnumeratedUsagePointGroup.class);
     }
 
-    private DataMapper<Entry> entryFactory() {
-        return dataModel.mapper(Entry.class);
+    private DataMapper<EntryImpl> entryFactory() {
+        return dataModel.mapper(EntryImpl.class);
     }
 
     @Override
@@ -217,7 +207,7 @@ public class EnumeratedUsagePointGroupImpl extends AbstractUsagePointGroup imple
     }
 
     @Override
-    public List<UsagePointMembership> getMembers(Range<Instant> range) {        
+    public List<UsagePointMembership> getMembers(Range<Instant> range) {
         return FluentIterable.from(getMemberships())
                 .filter(Active.during(range))
                 .transform(new Function<UsagePointMembershipImpl, UsagePointMembership>() {
@@ -252,7 +242,7 @@ public class EnumeratedUsagePointGroupImpl extends AbstractUsagePointGroup imple
                 .first().orNull();
     }
 
-    private static abstract class Active implements Predicate<UsagePointMembershipImpl> {
+    private abstract static class Active implements Predicate<UsagePointMembershipImpl> {
 
         public static Active at(Instant instant) {
             return new ActiveAt(instant);

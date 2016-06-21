@@ -8,7 +8,7 @@ import java.time.Instant;
 import java.util.List;
 
 /**
- * Responsible for converting actual content of the group into a list of EndDevices
+ * Responsible for converting actual content of the group into a list of EndDevices.
  */
 public interface EndDeviceQueryProvider {
 

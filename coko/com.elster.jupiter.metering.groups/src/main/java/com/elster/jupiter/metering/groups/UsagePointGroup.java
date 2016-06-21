@@ -2,11 +2,14 @@ package com.elster.jupiter.metering.groups;
 
 import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.metering.UsagePoint;
+
+import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.List;
 
+@ProviderType
 public interface UsagePointGroup extends IdentifiedObject {
 
     long getId();
@@ -32,6 +35,6 @@ public interface UsagePointGroup extends IdentifiedObject {
     void setAliasName(String aliasName);
 
     void save();
-    
+
     boolean isDynamic();
 }
