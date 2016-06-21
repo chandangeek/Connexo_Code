@@ -57,7 +57,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Path("/tasks")
 public class JbpmTaskResource {
@@ -343,7 +342,7 @@ public class JbpmTaskResource {
     @Path("/{taskId: [0-9-]+}/")
     @Produces("application/json")
     public TaskSummary getTask(ProcessDefinitionInfos processDefinitionInfos, @PathParam("taskId") long taskid){
-        Task task = internalTaskService.getTaskById(taskid);
+        Task task = taskService.getTaskById(taskid);
         if(task == null){
             return new TaskSummary(getAuditTask(taskid));
         }else {
@@ -363,7 +362,7 @@ public class JbpmTaskResource {
         String currentuser = getQueryValue(uriInfo, "currentuser");
         String priority = getQueryValue(uriInfo, "priority");
         String date = getQueryValue(uriInfo, "duedate");
-        Task task = internalTaskService.getTaskById(taskId);
+        Task task = taskService.getTaskById(taskId);
         if(task != null) {
             if(((TaskImpl) task).getVersion() == optLock) {
                 if(userName != null && currentuser != null) {

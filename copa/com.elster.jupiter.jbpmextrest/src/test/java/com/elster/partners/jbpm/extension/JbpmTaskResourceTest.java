@@ -10,6 +10,7 @@ import org.jbpm.kie.services.impl.FormManagerService;
 import org.jbpm.kie.services.impl.model.ProcessInstanceDesc;
 import org.jbpm.services.api.RuntimeDataService;
 import org.jbpm.services.api.model.ProcessDefinition;
+import org.jbpm.services.task.impl.model.TaskImpl;
 import org.jbpm.services.task.impl.model.UserImpl;
 import org.kie.api.runtime.query.QueryContext;
 import org.kie.api.task.model.OrganizationalEntity;
@@ -133,7 +134,7 @@ public class JbpmTaskResourceTest {
 
     @Test
     public void testGetExistingTask() throws Exception {
-        Task task = mock(Task.class);
+        Task task = mock(TaskImpl.class);
         when(task.getId()).thenReturn(1L);
         when(task.getName()).thenReturn("TestTask");
         when(task.getPriority()).thenReturn(5);
@@ -435,7 +436,7 @@ public class JbpmTaskResourceTest {
 
     @Test
     public  void testAssignTask() throws Exception{
-        Task task = mock(Task.class);
+        Task task = mock(TaskImpl.class);
         TaskData taskData = mock(TaskData.class);
         PeopleAssignments peopleAssignments = mock(PeopleAssignments.class);
         List<OrganizationalEntity> businessAdministrators = new ArrayList<>();
@@ -461,7 +462,7 @@ public class JbpmTaskResourceTest {
 
     @Test
     public  void testAssignTaskDifferentOptLock() throws Exception{
-        Task task = mock(Task.class);
+        Task task = mock(TaskImpl.class);
         when(internalTaskService.getTaskById(anyLong())).thenReturn(task);
 
         ClientRequest request = new ClientRequest(baseUri + "/1/99/assign");
