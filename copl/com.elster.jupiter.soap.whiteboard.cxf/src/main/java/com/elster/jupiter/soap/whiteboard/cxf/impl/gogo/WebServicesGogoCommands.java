@@ -1,6 +1,7 @@
 package com.elster.jupiter.soap.whiteboard.cxf.impl.gogo;
 
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
@@ -89,10 +90,14 @@ public class WebServicesGogoCommands {
             if (webServicesService.isInbound(webServiceName)) {
                 endPointConfigurationService.newInboundEndPointConfiguration(name, webServiceName, url)
                         .logLevel(LogLevel.valueOf(logLevel))
+                        .setAuthenticationMethod(EndPointAuthentication.NONE)
+                        .traceFile(webServiceName + "TraceFile.txt")
                         .create();
             } else {
                 endPointConfigurationService.newOutboundEndPointConfiguration(name, webServiceName, url)
                         .logLevel(LogLevel.valueOf(logLevel))
+                        .setAuthenticationMethod(EndPointAuthentication.NONE)
+                        .traceFile(webServiceName + "TraceFile.txt")
                         .create();
             }
             context.commit();
