@@ -7,6 +7,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.PassiveEffectiveCalendar;
 import com.energyict.mdc.device.data.rest.DeviceMessageStatusTranslationKeys;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 
 import javax.inject.Inject;
 import java.time.Instant;
@@ -54,7 +55,7 @@ public class TimeOfUseInfoFactory {
                     .sorted(this::compareCreationDate)
                     .findFirst();
 
-            if(nextInLine.isPresent()) {
+            if(nextInLine.isPresent() && activeCalendar.isPresent() && nextInLineDifferentFromActive(nextInLine.get(), activeCalendar.get())) {
                 PassiveEffectiveCalendar next = nextInLine.get();
                 Instant activationDate = next.getActivationDate();
                 boolean willBePickedUpByPlannedComtask = deviceMessageService.willDeviceMessageBePickedUpByPlannedComTask(device, next.getDeviceMessage().get());
@@ -66,6 +67,16 @@ public class TimeOfUseInfoFactory {
         }
 
         return info;
+    }
+
+    private boolean nextInLineDifferentFromActive(PassiveEffectiveCalendar passiveEffectiveCalendar, ActiveEffectiveCalendar activeEffectiveCalendar) {
+        if(activeEffectiveCalendar.getAllowedCalendar().isGhost()) {
+            return true;
+        }
+        return !(passiveEffectiveCalendar.getAllowedCalendar().getName().equals(activeEffectiveCalendar.getAllowedCalendar().getName()) &&
+                (passiveEffectiveCalendar.getActivationDate() == null || passiveEffectiveCalendar.getActivationDate().isBefore(activeEffectiveCalendar.getLastVerifiedDate()))
+                && passiveEffectiveCalendar.getDeviceMessage().get().getReleaseDate().isBefore(activeEffectiveCalendar.getLastVerifiedDate())
+                && passiveEffectiveCalendar.getDeviceMessage().get().getStatus().equals(DeviceMessageStatus.CONFIRMED));
     }
 
     private int compareCreationDate(PassiveEffectiveCalendar p1, PassiveEffectiveCalendar p2) {
