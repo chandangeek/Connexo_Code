@@ -29,6 +29,7 @@ public class AllDataLoggerChannelsAvailableValidator implements ConstraintValida
 
     @Override
     public boolean isValid(DataLoggerReferenceImpl dataLoggerReference, ConstraintValidatorContext constraintValidatorContext) {
+        constraintValidatorContext.disableDefaultConstraintViolation();
         List<DataLoggerChannelUsage> currentUsages =  dataLoggerReference.getDataLoggerChannelUsages();
         Set<Channel> dataLoggerChannels = currentUsages.stream().map(DataLoggerChannelUsage::getDataLoggerChannel).collect(Collectors.toSet());
         return currentUsages.isEmpty() ||
