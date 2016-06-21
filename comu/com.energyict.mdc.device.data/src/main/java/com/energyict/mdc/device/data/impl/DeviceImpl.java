@@ -110,6 +110,7 @@ import com.energyict.mdc.device.data.impl.configchange.ServerSecurityPropertySer
 import com.energyict.mdc.device.data.impl.constraintvalidators.DeviceConfigurationIsPresentAndActive;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueComTaskScheduling;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueMrid;
+import com.energyict.mdc.device.data.impl.constraintvalidators.ValidOverruledAttributes;
 import com.energyict.mdc.device.data.impl.constraintvalidators.ValidSecurityProperties;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.impl.security.ServerDeviceForValidation;
@@ -192,6 +193,7 @@ import static java.util.stream.Collectors.toList;
 @UniqueMrid(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_DEVICE_MRID + "}")
 @UniqueComTaskScheduling(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_COMTASK + "}")
 @ValidSecurityProperties(groups = {Save.Update.class})
+@ValidOverruledAttributes(groups = {Save.Update.class})
 public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDeviceForValidation {
 
     private static final BigDecimal maxMultiplier = BigDecimal.valueOf(Integer.MAX_VALUE);
@@ -1347,7 +1349,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 dataModel.touch(this);
             }
         } else {
-            throw DeviceProtocolPropertyException.propertyDoesNotExistForDeviceProtocol(name, this.getDeviceProtocolPluggableClass().getDeviceProtocol(), this, thesaurus, MessageSeeds.DEVICE_PROPERTY_NOT_ON_DEVICE_PROTOCOL);
+            throw DeviceProtocolPropertyException.propertyDoesNotExistForDeviceProtocol(name, this.getDeviceProtocolPluggableClass()
+                    .getDeviceProtocol(), this, thesaurus, MessageSeeds.DEVICE_PROPERTY_NOT_ON_DEVICE_PROTOCOL);
         }
     }
 
@@ -1644,12 +1647,12 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 meterActivation.setMultiplier(getDefaultMultiplierType(), getMultiplier());
                 if (usagePoint != null) {
                     usagePoint.getLocation().ifPresent(loc -> {
-                        if(!location.isPresent()){
+                        if (!location.isPresent()) {
                             setLocation(loc);
                         }
                     });
                     usagePoint.getGeoCoordinates().ifPresent(geo -> {
-                        if(!geoCoordinates.isPresent()) {
+                        if (!geoCoordinates.isPresent()) {
                             setGeoCoordinates(geo);
                         }
                     });
@@ -1951,7 +1954,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         Interval effectivityInterval = Interval.of(Range.atLeast(effective));
         this.activeCalendar.add(
                 this.dataModel.getInstance(ActiveEffectiveCalendarImpl.class)
-                    .initialize(effectivityInterval, this, allowedCalendar, lastVerified)
+                        .initialize(effectivityInterval, this, allowedCalendar, lastVerified)
         );
     }
 
@@ -2434,7 +2437,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                         } else {
                             Meter.MeterConfigurationBuilder newMeterConfigBuilder = koreMeter.startingConfigurationOn(updateInstant);
                             getDeviceConfiguration().getRegisterSpecs().stream().filter(spec -> spec instanceof NumericalRegisterSpec)
-                                    .map(numeriaclSpec -> ((NumericalRegisterSpec) numeriaclSpec)).forEach(registerSpec -> {
+                                    .map(numericalRegisterSpec -> ((NumericalRegisterSpec) numericalRegisterSpec)).forEach(registerSpec -> {
                                 Meter.MeterReadingTypeConfigurationBuilder meterReadingTypeConfigurationBuilder = newMeterConfigBuilder.configureReadingType(registerSpec.getReadingType());
                                 if (registerWeNeedToUpdate(registerSpec) && overruledOverflowValue != null) {
                                     meterReadingTypeConfigurationBuilder.withOverflowValue(overruledOverflowValue);
@@ -2471,7 +2474,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             if (currentOverruledObisCodeIsNotTheCorrectOne || currentlyNoOverruledObisCodeAlthoughRequested) {
                 DeviceImpl.this.addReadingTypeObisCodeUsage(register.getReadingType(), overruledObisCode);
             }
-            DeviceImpl.this.save(); //just to make sure we increase the version
+
+            DeviceImpl.this.save(); //do validation and make sure the version increases
         }
 
         private boolean registerWeNeedToUpdate(RegisterSpec registerSpec) {
@@ -2583,7 +2587,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             if (currentOverruledObisCodeIsNotTheCorrectOne || currentlyNoOverruledObisCodeAlthoughRequested) {
                 DeviceImpl.this.addReadingTypeObisCodeUsage(channel.getReadingType(), overruledObisCode);
             }
-            DeviceImpl.this.save(); //just to make sure we increase the version
+            DeviceImpl.this.save(); //do validation and make sure version increases
         }
 
         private boolean channelWeNeedToUpdate(ChannelSpec channelSpec) {
@@ -2812,7 +2816,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
 
-
     @Override
     public List<ScheduledConnectionTask> getScheduledConnectionTasks() {
         return this.getConnectionTaskImpls()
@@ -2838,7 +2841,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
 
-
     @Override
     public void removeConnectionTask(ConnectionTask<?, ?> connectionTask) {
         this.connectionTasks
@@ -2850,12 +2852,10 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
 
-
     @Override
     public List<ComTaskExecution> getComTaskExecutions() {
         return comTaskExecutions.stream().filter(((Predicate<ComTaskExecution>) ComTaskExecution::isObsolete).negate()).collect(Collectors.toList());
     }
-
 
 
     @Override
@@ -2924,12 +2924,10 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
 
-
     @Override
     public boolean hasSecurityProperties(SecurityPropertySet securityPropertySet) {
         return this.hasSecurityProperties(clock.instant(), securityPropertySet);
     }
-
 
 
     @Override
@@ -2994,9 +2992,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
 
-
-
-
     @Override
     public State getState() {
         return this.getState(this.clock.instant()).get();
@@ -3048,9 +3043,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
 
-
-
-
     @Override
     public long getVersion() {
         return version;
@@ -3060,30 +3052,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     public Instant getCreateTime() {
         return createTime;
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 }

@@ -40,6 +40,8 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.beans.BeanService;
@@ -61,7 +63,7 @@ import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiScore;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
-import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.config.impl.EngineModelModule;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.masterdata.MasterDataService;
@@ -160,7 +162,6 @@ public class DataCollectionKpiImplTest {
             bind(LicenseService.class).toInstance(licenseService);
             bind(IssueService.class).toInstance(mock(IssueService.class));
             bind(com.elster.jupiter.issue.share.service.IssueService.class).toInstance(mock(com.elster.jupiter.issue.share.service.IssueService.class, RETURNS_DEEP_STUBS));
-            bind(PropertySpecService.class).toInstance(mock(PropertySpecService.class));
             bind(ConnectionTypeService.class).toInstance(mock(ConnectionTypeService.class));
             bind(DeviceCacheMarshallingService.class).toInstance(mock(DeviceCacheMarshallingService.class));
             bind(DeviceProtocolMessageService.class).toInstance(mock(DeviceProtocolMessageService.class));
@@ -174,6 +175,7 @@ public class DataCollectionKpiImplTest {
             bind(JsonService.class).to(JsonServiceImpl.class).in(Scopes.SINGLETON);
             bind(BeanService.class).to(BeanServiceImpl.class).in(Scopes.SINGLETON);
             bind(ExecutionTimerService.class).to(ExecutionTimerServiceImpl.class).in(Scopes.SINGLETON);
+            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }
 
@@ -211,6 +213,7 @@ public class DataCollectionKpiImplTest {
                 new EventsModule(),
                 new ValidationModule(),
                 new EstimationModule(),
+                new BasicPropertiesModule(),
                 new TimeModule(),
                 new SchedulingModule(),
                 new ProtocolPluggableModule(),
@@ -228,7 +231,8 @@ public class DataCollectionKpiImplTest {
                 new SearchModule(),
                 new DeviceDataModule(),
                 new MockModule(),
-                new CalendarModule()
+                new CalendarModule(),
+                new MdcDynamicModule()
         );
         transactionService = injector.getInstance(TransactionService.class);
         endDeviceGroup = transactionService.execute(() -> {

@@ -15,6 +15,22 @@ import java.util.Objects;
 
 public class ReadingTypeObisCodeUsageImpl implements ReadingTypeObisCodeUsage {
 
+    enum Fields {
+        READINGTYPE("readingType"),
+        device("device"),
+        OBISCODESTRING("obisCodeString"),;
+
+        private final String javaFieldName;
+
+        Fields(String javaFieldName) {
+            this.javaFieldName = javaFieldName;
+        }
+
+        String fieldName() {
+            return javaFieldName;
+        }
+    }
+
     @IsPresent
     private Reference<ReadingType> readingType = ValueReference.absent();
     @IsPresent

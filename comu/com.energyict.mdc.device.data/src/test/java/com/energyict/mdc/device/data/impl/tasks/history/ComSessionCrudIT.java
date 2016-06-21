@@ -37,6 +37,8 @@ import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.impl.ValidationModule;
@@ -213,6 +215,7 @@ public class ComSessionCrudIT {
             bind(LogService.class).toInstance(mock(LogService.class));
             bind(IssueService.class).toInstance(mock(IssueService.class, RETURNS_DEEP_STUBS));
             bind(Thesaurus.class).toInstance(thesaurus);
+            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
 
     }
@@ -328,7 +331,8 @@ public class ComSessionCrudIT {
                     .add();
 
             OnlineComServer.OnlineComServerBuilder<? extends OnlineComServer> onlineComServerBuilder = engineConfigurationService.newOnlineComServerBuilder();
-            onlineComServerBuilder.name("ComServer");
+            String name = "ComServer";
+            onlineComServerBuilder.name(name);
             onlineComServerBuilder.storeTaskQueueSize(1);
             onlineComServerBuilder.storeTaskThreadPriority(1);
             onlineComServerBuilder.changesInterPollDelay(TimeDuration.minutes(5));
@@ -336,6 +340,9 @@ public class ComSessionCrudIT {
             onlineComServerBuilder.schedulingInterPollDelay(TimeDuration.minutes(1));
             onlineComServerBuilder.serverLogLevel(ComServer.LogLevel.DEBUG);
             onlineComServerBuilder.numberOfStoreTaskThreads(2);
+            onlineComServerBuilder.serverName(name);
+            onlineComServerBuilder.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
+            onlineComServerBuilder.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
             final OnlineComServer onlineComServer = onlineComServerBuilder.create();
             comport = onlineComServer.newOutboundComPort("comport", 1)
                     .comPortType(ComPortType.TCP).add();
