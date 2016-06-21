@@ -257,10 +257,9 @@ class ReadingTypeDeliverableForMeterActivation {
     }
 
     private void appendAggregatedProcessStatus(SqlBuilder sqlBuilder) {
-        AggregationFunction.AGGREGATE_FLAGS
-                .appendTo(
-                    sqlBuilder, Collections.singletonList(
-                    new TextFragment(this.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.PROCESSSTATUS.sqlName())));
+        sqlBuilder.append("MAX(");
+        sqlBuilder.append(this.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.PROCESSSTATUS.sqlName());
+        sqlBuilder.append(")");
     }
 
     private void appendGroupByClauseIfApplicable(SqlBuilder sqlBuilder) {
