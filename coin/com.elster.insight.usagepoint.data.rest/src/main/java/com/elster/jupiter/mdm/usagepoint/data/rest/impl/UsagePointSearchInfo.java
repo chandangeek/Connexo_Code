@@ -3,7 +3,7 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 /**
  * Created by bbl on 18/06/2016.
  */
-public class UsageSearchPointInfo {
+public class UsagePointSearchInfo {
     public long id;
     public String mRID;
     public String displayServiceCategory;

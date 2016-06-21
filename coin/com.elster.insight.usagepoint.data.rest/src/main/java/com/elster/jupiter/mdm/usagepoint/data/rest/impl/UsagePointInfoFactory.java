@@ -140,8 +140,8 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
 
     @Override
     // for search only - so only populate fields that will be used/shown !!!
-    public UsageSearchPointInfo from(UsagePoint usagePoint) {
-        UsageSearchPointInfo info = new UsageSearchPointInfo();
+    public UsagePointSearchInfo from(UsagePoint usagePoint) {
+        UsagePointSearchInfo info = new UsagePointSearchInfo();
         info.id = usagePoint.getId();
         info.mRID = usagePoint.getMRID();
         info.displayServiceCategory = usagePoint.getServiceCategory().getDisplayName();
