@@ -51,7 +51,6 @@ class CalculatedReadingRecord implements BaseReadingRecord {
     private Instant timestamp;
     private UsagePoint usagePoint;
     private long readingQuality;
-    private ProcessStatus processStatus;
     private long count;
 
     static CalculatedReadingRecord merge(CalculatedReadingRecord r1, CalculatedReadingRecord r2, Instant mergedTimestamp) {
@@ -74,7 +73,6 @@ class CalculatedReadingRecord implements BaseReadingRecord {
             merged.timestamp = mergedTimestamp;
             merged.usagePoint = r1.usagePoint;
             merged.readingQuality =  Math.max(r1.readingQuality, r2.readingQuality);
-            //merged.processStatus = r1.processStatus.or(r2.processStatus);
             merged.count = r1.count + r2.count;
             return merged;
         } else {
@@ -105,7 +103,6 @@ class CalculatedReadingRecord implements BaseReadingRecord {
             this.rawValue = resultSet.getBigDecimal(columnIndex++);
             this.localDate = resultSet.getTimestamp(columnIndex++);
             this.timestamp = Instant.ofEpochMilli(resultSet.getLong(columnIndex++));
-            //this.processStatus = new ProcessStatus(resultSet.getLong(columnIndex++));
             this.readingQuality = resultSet.getLong(columnIndex++);
             this.count = resultSet.getLong(columnIndex);
             return this;
@@ -158,7 +155,14 @@ class CalculatedReadingRecord implements BaseReadingRecord {
 
     @Override
     public ProcessStatus getProcesStatus() {
-        return this.processStatus;
+        List<ReadingQualityRecord> readingQualityRecords = new ArrayList();
+        ProcessStatus processStatus = new ProcessStatus(0);
+        if (readingQuality == SUSPECT) {
+            return processStatus.with(ProcessStatus.Flag.SUSPECT);
+        } else if (readingQuality == ESTIMATED_EDITED) {
+            return processStatus.with(ProcessStatus.Flag.EDITED, ProcessStatus.Flag.ESTIMATED);
+        }
+        return processStatus;
     }
 
     public long getReadingQuality() {

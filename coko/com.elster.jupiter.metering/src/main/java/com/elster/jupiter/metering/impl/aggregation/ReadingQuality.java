@@ -20,6 +20,23 @@ public enum ReadingQuality {
         return code;
     }
 
+    public String toString() {
+        return super.toString() + " (" + code + ")";
+    }
+
+    public static ReadingQuality getReadingQuality(String code) {
+        if (code.equals(ReadingQuality.DERIVED_SUSPECT.getCode())) {
+            return DERIVED_SUSPECT;
+        } else if (code.equals(ReadingQuality.DERIVED_MISSING.getCode())) {
+            return DERIVED_MISSING;
+        } else if (code.equals(ReadingQuality.DERIVED_INDETERMINISTIC.getCode())) {
+            return DERIVED_INDETERMINISTIC;
+        } else {
+            return DERIVED_DETERMINISTIC;
+        }
+    }
+
+
 
 
 }

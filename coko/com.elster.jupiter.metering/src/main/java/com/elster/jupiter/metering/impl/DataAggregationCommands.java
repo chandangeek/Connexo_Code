@@ -129,23 +129,15 @@ public class DataAggregationCommands {
 
     private void showReading(BaseReadingRecord readingRecord) {
         List<? extends ReadingQualityRecord> qualities = readingRecord.getReadingQualities();
-        String quality = (qualities.isEmpty()) ?
-                "Valid (" + ReadingQuality.DERIVED_DETERMINISTIC  + ")" :
-                getQuality(qualities.get(0).getTypeCode());
-        System.out.println(readingRecord.getTimeStamp() + " : " + readingRecord.getValue() + " , " + quality);
-    }
-
-    private String getQuality(String code) {
-        if (code.equals(ReadingQuality.DERIVED_SUSPECT)) {
-            return "Suspect (" + code + ")";
-        } else if (code.equals(ReadingQuality.DERIVED_MISSING)) {
-            return "Missing (" + code + ")";
-        } else if (code.equals(ReadingQuality.DERIVED_INDETERMINISTIC)) {
-            return "Edited or estimated (" + code + ")";
+        if (qualities.isEmpty()) {
+            System.out.println(readingRecord.getTimeStamp() + " : " + readingRecord.getValue());
         } else {
-            return code;
+            System.out.println(readingRecord.getTimeStamp() + " : " + readingRecord.getValue() + " , "
+                    + ReadingQuality.getReadingQuality(qualities.get(0).getType().getCode()).toString());
         }
     }
+
+
 
     private String getValue(BaseReadingRecord reading) {
         Quantity quantity = reading.getQuantity(reading.getReadingType());
