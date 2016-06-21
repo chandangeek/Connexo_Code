@@ -29,6 +29,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Clock;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
@@ -40,6 +41,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -99,7 +101,7 @@ public class MultisenseHeadEndInterfaceTest {
     @Before
     public void setup() throws MalformedURLException {
         MeteringService meteringService = mock(MeteringService.class, Mockito.RETURNS_DEEP_STUBS);
-        headEndInterface = new MultiSenseHeadEndInterface(clock, deviceService, meteringService, deviceMessageSpecificationService, deviceConfigurationService, messageService, nlsService, thesaurus, serviceCallService, customPropertySetService, propertySpecService, threadPrincipalService);
+        headEndInterface = new MultiSenseHeadEndInterface(deviceService, meteringService, deviceMessageSpecificationService, deviceConfigurationService, nlsService, thesaurus, propertySpecService, threadPrincipalService);
         endDevice.setMRID(mRid);
         AmrSystem amrSystem = mock(AmrSystem.class);
         when(endDevice.getAmrSystem()).thenReturn(amrSystem);
@@ -108,7 +110,7 @@ public class MultisenseHeadEndInterfaceTest {
         when(amrSystem.is(KnownAmrSystem.MDC)).thenReturn(true);
         when(deviceService.findByUniqueMrid(anyString())).thenReturn(Optional.of(device));
         when(device.getmRID()).thenReturn(mRid);
-        when(deviceConfigurationService.getReadingTypesRelatedToConfiguration(any(DeviceConfiguration.class))).thenReturn(Arrays.asList(readingType));
+        when(deviceConfigurationService.getReadingTypesRelatedToConfiguration(any(DeviceConfiguration.class))).thenReturn(Collections.singletonList(readingType));
         when(device.getDeviceConfiguration().getDeviceType().getId()).thenReturn(3L);
         EndDeviceControlType endDeviceControlType = mock(EndDeviceControlType.class);
         when(meteringService.getEndDeviceControlType(anyString())).thenReturn(Optional.of(endDeviceControlType));
@@ -139,8 +141,8 @@ public class MultisenseHeadEndInterfaceTest {
             }
         });
 
-        assertTrue(endDeviceCapabilities.getSupportedControlTypes().size() == count.get());
-        assertTrue(endDeviceCapabilities.getConfiguredReadingTypes().size() == 1);
+        assertThat(endDeviceCapabilities.getSupportedControlTypes()).isEmpty();
+        assertThat(endDeviceCapabilities.getConfiguredReadingTypes()).hasSize(1);
         assertTrue(endDeviceCapabilities.getConfiguredReadingTypes().get(0).equals(readingType));
     }
 }

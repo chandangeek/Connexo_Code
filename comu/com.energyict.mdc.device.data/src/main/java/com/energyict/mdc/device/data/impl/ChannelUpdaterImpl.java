@@ -1,14 +1,9 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.metering.MeterReadingTypeConfiguration;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.device.data.ReadingTypeObisCodeUsage;
-import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 
 import java.math.BigDecimal;
@@ -74,12 +69,15 @@ public class ChannelUpdaterImpl implements Channel.ChannelUpdater {
      @Override
      public void update() {
          DeviceImpl device = (DeviceImpl) channel.getDevice();
+         KoreMeterConfigurationUpdater koreMeterConfigurationUpdater = null;
          if (this.overruledNbrOfFractionDigits != null || this.overruledOverflowValue != null){
              device.syncWithKore(new KoreMeterConfigurationUpdater(this.meteringService, this.readingTypeUtilService, this.clock).withChannelUpdater(this));
+             device.executeSyncs();
          }
          if (this.overruledObisCode != null){
            new DeviceObisCodeUsageUpdater().update(device, getReadingType(), overruledObisCode);
          }
-         device.save();
+         device.validateForUpdate();
+         device.postSave();
      }
 }

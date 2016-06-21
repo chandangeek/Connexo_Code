@@ -1,12 +1,7 @@
 package com.energyict.mdc.device.data.impl.ami;
 
-import com.elster.jupiter.cbo.EndDeviceType;
-import com.elster.jupiter.cps.CustomPropertySetService;
-import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.metering.EndDeviceControlType;
-import com.elster.jupiter.metering.EndDeviceControlTypeMapping;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
@@ -21,27 +16,16 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCall;
-import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.users.User;
-import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
-import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
-import com.energyict.mdc.protocol.api.TrackingCategory;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-import com.energyict.mdc.tasks.MessagesTask;
-import com.energyict.mdc.tasks.StatusInformationTask;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -54,13 +38,12 @@ import java.net.URL;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DEVICE;
 
@@ -69,21 +52,15 @@ import static com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_D
         property = "name=MultiSenseHeadEndInterface", immediate = true)
 public class MultiSenseHeadEndInterface implements HeadEndInterface, TranslationKeyProvider {
 
-
-    private static final String UNDEFINED = "undefined";
     private static final String AMR_SYSTEM = KnownAmrSystem.MDC.getName();
     private static final Logger LOGGER = Logger.getLogger(MultiSenseHeadEndInterface.class.getName());
 
-    private volatile Clock clock;
     private volatile DeviceService deviceService;
     private volatile MeteringService meteringService;
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
     private volatile DeviceConfigurationService deviceConfigurationService;
-    private volatile MessageService messageService;
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
-    private volatile ServiceCallService serviceCallService;
-    private volatile CustomPropertySetService customPropertySetService;
     private volatile PropertySpecService propertySpecService;
     private volatile ThreadPrincipalService threadPrincipalService;
 
@@ -92,31 +69,21 @@ public class MultiSenseHeadEndInterface implements HeadEndInterface, Translation
     }
 
     @Inject
-    public MultiSenseHeadEndInterface(Clock clock, DeviceService deviceService, MeteringService meteringService, DeviceMessageSpecificationService deviceMessageSpecificationService, DeviceConfigurationService deviceConfigurationService, MessageService messageService, NlsService nlsService, Thesaurus thesaurus, ServiceCallService serviceCallService, CustomPropertySetService customPropertySetService, PropertySpecService propertySpecService, ThreadPrincipalService threadPrincipalService) {
-        this.clock = clock;
+    public MultiSenseHeadEndInterface(DeviceService deviceService, MeteringService meteringService, DeviceMessageSpecificationService deviceMessageSpecificationService, DeviceConfigurationService deviceConfigurationService, NlsService nlsService, Thesaurus thesaurus, PropertySpecService propertySpecService, ThreadPrincipalService threadPrincipalService) {
         this.deviceService = deviceService;
         this.meteringService = meteringService;
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
         this.deviceConfigurationService = deviceConfigurationService;
-        this.messageService = messageService;
         this.nlsService = nlsService;
         this.thesaurus = thesaurus;
-        this.serviceCallService = serviceCallService;
-        this.customPropertySetService = customPropertySetService;
         this.propertySpecService = propertySpecService;
         this.threadPrincipalService = threadPrincipalService;
-    }
-
-    @Reference
-    public void setClock(Clock clock) {
-        this.clock = clock;
     }
 
     @Reference
     public void setDeviceService(DeviceService deviceService) {
         this.deviceService = deviceService;
     }
-
 
     @Reference
     public void setMeteringService(MeteringService meteringService) {
@@ -139,24 +106,9 @@ public class MultiSenseHeadEndInterface implements HeadEndInterface, Translation
     }
 
     @Reference
-    public void setMessageService(MessageService messageService) {
-        this.messageService = messageService;
-    }
-
-    @Reference
     public final void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(DeviceDataServices.COMPONENT_NAME, Layer.DOMAIN);
-    }
-
-    @Reference
-    public void setServiceCallService(ServiceCallService serviceCallService) {
-        this.serviceCallService = serviceCallService;
-    }
-
-    @Reference
-    public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
-        this.customPropertySetService = customPropertySetService;
     }
 
     @Reference
@@ -172,102 +124,6 @@ public class MultiSenseHeadEndInterface implements HeadEndInterface, Translation
 
     @Deactivate
     public void deactivate() {
-    }
-
-    private void scheduleDeviceCommandsComTaskEnablement(EndDeviceCommand endDeviceCmd) {
-        Device device = findDeviceForEndDevice(endDeviceCmd.getEndDevice());
-        List<DeviceMessageId> deviceMessageIds = new ArrayList<>();
-        endDeviceCmd.getDeviceMessageIds().forEach(id -> deviceMessageIds.add(DeviceMessageId.havingId(id)));
-        getComTaskEnablementsForDeviceMessages(device, deviceMessageIds).forEach(comTaskEnablement -> {
-            Optional<ComTaskExecution> existingComTaskExecution = device.getComTaskExecutions().stream()
-                    .filter(cte -> cte.getComTasks().stream()
-                            .anyMatch(comTask -> comTask.getId() == comTaskEnablement.getComTask().getId()))
-                    .findFirst();
-            existingComTaskExecution.orElseGet(() -> createAdHocComTaskExecution(device, comTaskEnablement)).runNow();
-        });
-    }
-
-    private ManuallyScheduledComTaskExecution createAdHocComTaskExecution(Device device, ComTaskEnablement comTaskEnablement) {
-        ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement);
-        if (comTaskEnablement.hasPartialConnectionTask()) {
-            device.getConnectionTasks().stream()
-                    .filter(connectionTask -> connectionTask.getPartialConnectionTask()
-                            .getId() == comTaskEnablement.getPartialConnectionTask().get().getId())
-                    .findFirst()
-                    .ifPresent(comTaskExecutionBuilder::connectionTask);
-        }
-        ManuallyScheduledComTaskExecution manuallyScheduledComTaskExecution = comTaskExecutionBuilder.add();
-        device.save();
-        return manuallyScheduledComTaskExecution;
-    }
-
-    private Stream<ComTaskEnablement> getComTaskEnablementsForDeviceMessages(Device device, List<DeviceMessageId> deviceMessageIds) {
-        List<ComTaskEnablement> comTaskEnablements = new ArrayList<>();
-        deviceMessageIds.stream()
-                .forEach(deviceMessageId -> comTaskEnablements.add(device.getDeviceConfiguration()
-                        .getComTaskEnablements()
-                        .stream()
-                        .filter(cte -> cte.getComTask().getProtocolTasks().stream().
-                                filter(task -> task instanceof MessagesTask).
-                                flatMap(task -> ((MessagesTask) task).getDeviceMessageCategories().stream()).
-                                flatMap(category -> category.getMessageSpecifications().stream()).
-                                filter(dms -> dms.getId().equals(deviceMessageId)).
-                                findFirst().
-                                isPresent())
-                        .findAny()
-                        .orElseThrow(() -> new IllegalStateException(MessageSeeds.NO_COMTASK_FOR_COMMAND.getDefaultFormat()))));
-
-
-        return comTaskEnablements.stream().distinct();
-    }
-
-    /**
-     * @throws javax.validation.ConstraintViolationException in case not all DeviceMessageAttributes have a value
-     */
-    private List<DeviceMessage<Device>> createDeviceMessagesOnDevice(EndDeviceCommand endDeviceCommand, ServiceCall serviceCall) {
-        List<DeviceMessage<Device>> deviceMessages = new ArrayList<>();
-        endDeviceCommand.getDeviceMessageIds().forEach(msgId -> {
-                    Device.DeviceMessageBuilder deviceMessageBuilder = findDeviceForEndDevice(endDeviceCommand.getEndDevice()).newDeviceMessage(DeviceMessageId
-                            .havingId(msgId), TrackingCategory.serviceCall)
-                            .setTrackingId("" + serviceCall.getId())
-                            .setReleaseDate(clock.instant());
-                    for (PropertySpec propertySpec : endDeviceCommand.getCommandArgumentSpecs()) {
-                       /* if (endDeviceCommand.getAttributes().containsKey(propertySpec.getName())) {
-                            deviceMessageBuilder.addProperty(propertySpec.getName(), endDeviceCommand.getAttributes()
-                                    .get(propertySpec.getName()));
-                         */
-                        deviceMessageBuilder.addProperty(propertySpec.getName(), propertySpec);
-                    }
-                    deviceMessages.add(deviceMessageBuilder.add());
-                }
-
-        );
-
-        return deviceMessages;
-    }
-
-
-    private void scheduleStatusInformationTask(EndDevice endDevice, Instant scheduleTime) {
-        Device device = findDeviceForEndDevice(endDevice);
-        ComTaskEnablement comTaskEnablement = getStatusInformationComTaskEnablement(device);
-        Optional<ComTaskExecution> existingComTaskExecution = device.getComTaskExecutions().stream()
-                .filter(cte -> cte.getComTasks()
-                        .stream()
-                        .anyMatch(comTask -> comTask.getId() == comTaskEnablement.getComTask().getId())).findFirst();
-        existingComTaskExecution.orElseGet(() -> createAdHocComTaskExecution(device, comTaskEnablement))
-                .schedule(scheduleTime);
-    }
-
-    private ComTaskEnablement getStatusInformationComTaskEnablement(Device device) {
-        return device.getDeviceConfiguration()
-                .getComTaskEnablements()
-                .stream()
-                .filter(cte -> cte.getComTask().getProtocolTasks().stream().
-                        filter(task -> task instanceof StatusInformationTask).
-                        findFirst().
-                        isPresent())
-                .findAny()
-                .orElseThrow(() -> new IllegalStateException(MessageSeeds.NO_COMTASK_FOR_STATUS_INFORMATION.getDefaultFormat()));
     }
 
     private Device findDeviceForEndDevice(EndDevice endDevice) {
@@ -306,22 +162,8 @@ public class MultiSenseHeadEndInterface implements HeadEndInterface, Translation
 
     @Override
     public EndDeviceCapabilities getCapabilities(EndDevice endDevice) {
-        Device device = findDeviceForEndDevice(endDevice);
-        List<ReadingType> readingTypes = deviceConfigurationService.getReadingTypesRelatedToConfiguration(findDeviceForEndDevice(endDevice)
-                .getDeviceConfiguration());
-        int endDeviceType = EndDeviceType.get(Math.toIntExact(device.getDeviceConfiguration().getDeviceType().getId()))
-                .getValue();
-        List<EndDeviceControlType> controlTypes = new ArrayList<>();
-        Stream.of(EndDeviceControlTypeMapping.values()).forEach(type -> {
-            if (type.getEndDeviceControlTypeMRID().startsWith(String.valueOf(endDeviceType) + ".")
-                    || type.getEndDeviceControlTypeMRID().startsWith("0.")
-                    || type.getEndDeviceControlTypeMRID().startsWith("*.")) {
-                meteringService.getEndDeviceControlType(type.getEndDeviceControlTypeMRID())
-                        .ifPresent(found -> controlTypes.add(found));
-            }
-        });
-
-        return new EndDeviceCapabilities(readingTypes, controlTypes);
+        return new EndDeviceCapabilities(deviceConfigurationService.getReadingTypesRelatedToConfiguration(findDeviceForEndDevice(endDevice)
+                        .getDeviceConfiguration()), Collections.emptyList());
     }
 
     @Override
@@ -445,21 +287,7 @@ public class MultiSenseHeadEndInterface implements HeadEndInterface, Translation
     }
 
 
-    private Optional<DestinationSpec> getDestinationSpec(String name) {
-        return messageService.getDestinationSpec(name);
-    }
-
-    private String getFormattedDeviceMessages(List<DeviceMessage<Device>> deviceMessages) {
-        List<String> msgList = new ArrayList<>();
-        deviceMessages.stream()
-                .forEach(msg -> msg.getAttributes()
-                        .stream()
-                        .forEach(element -> msgList.add(element.getName() + " - " + String.valueOf(element.getValue()))));
-        return msgList.stream().collect(Collectors.joining(","));
-
-    }
-
-    @Override
+   @Override
     public String getAmrSystem() {
         return AMR_SYSTEM;
     }
@@ -476,8 +304,6 @@ public class MultiSenseHeadEndInterface implements HeadEndInterface, Translation
 
     @Override
     public List<TranslationKey> getKeys() {
-        //TBD
-        List<TranslationKey> keys = new ArrayList<>();
-        return keys;
+        return Collections.emptyList();
     }
 }

@@ -70,7 +70,6 @@ public class KoreMeterConfigurationUpdater extends AbstractSyncDeviceWithKoreMet
             meterConfigurationBuilder.configureReadingType(this.readingType)
                     .withNumberOfFractionDigits(overruledNbrOfFractionDigits).create();
         }
-
     }
 
     private Meter.MeterConfigurationBuilder meterconfigurationBuilderForRegisters(){

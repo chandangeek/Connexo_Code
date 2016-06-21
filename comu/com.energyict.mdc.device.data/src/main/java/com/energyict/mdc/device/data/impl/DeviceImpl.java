@@ -373,19 +373,23 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         }
     }
 
+    void postSave(){
+        if (this.meter.isPresent()) {
+            this.meter.get().setMRID(getmRID());
+            this.meter.get().update();
+        }
+        this.saveDirtySecurityProperties();
+        this.saveDirtyConnectionProperties();
+        this.saveNewAndDirtyDialectProperties();
+        this.notifyUpdated();
+    }
+
     @Override
     public void save() {
         boolean alreadyPersistent = this.id > 0;
         if (alreadyPersistent) {
             Save.UPDATE.save(dataModel, this);
-            if (this.meter.isPresent()) {
-                this.meter.get().setMRID(getmRID());
-                this.meter.get().update();
-            }
-            this.saveDirtySecurityProperties();
-            this.saveDirtyConnectionProperties();
-            this.saveNewAndDirtyDialectProperties();
-            this.notifyUpdated();
+            postSave();
         } else {
             Save.CREATE.save(dataModel, this);
             this.meter.set(this.createKoreMeter(getMdcAmrSystem()));
@@ -398,6 +402,14 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
             this.notifyCreated();
         }
+        executeSyncs();
+    }
+
+    void validateForUpdate(){
+        Save.UPDATE.save(dataModel, this);
+    }
+
+    void executeSyncs(){
         // We order the synchronisation actions: first those which create a meter activation, followed
         // by those which reuse the last created meter activation (and just update it).
         syncsWithKore.stream().sorted(new CanUpdateMeterActivationLast()).forEach((x) -> x.syncWithKore(DeviceImpl.this));

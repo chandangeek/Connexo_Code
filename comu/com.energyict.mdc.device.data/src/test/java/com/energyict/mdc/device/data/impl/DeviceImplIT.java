@@ -1718,7 +1718,6 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         deviceConfiguration.activate();
 
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "OverruleTest", "OverruleTest", inMemoryPersistence.getClock().instant());
-        device.save();
 
         // business logic to check
         String channelReadingType = getForwardBulkSecondaryEnergyReadingTypeCodeBuilder().period(MacroPeriod.MONTHLY).code();
@@ -1898,7 +1897,6 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         deviceConfiguration.activate();
 
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "OverruleTest", "OverruleTest",  inMemoryPersistence.getClock().instant());
-        device.save();
 
         // business logic to check
         String channelReadingType = getForwardBulkSecondaryEnergyReadingTypeCodeBuilder().period(MacroPeriod.MONTHLY).code();
@@ -1954,7 +1952,6 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         deviceConfiguration.activate();
 
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "OverruleTest", "OverruleTest",  inMemoryPersistence.getClock().instant());
-        device.save();
 
         // business logic to check
         String registerReadingType = forwardBulkSecondaryEnergyReadingType.getMRID();

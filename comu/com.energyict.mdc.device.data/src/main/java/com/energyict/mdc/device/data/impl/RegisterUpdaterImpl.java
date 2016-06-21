@@ -70,15 +70,17 @@ public class RegisterUpdaterImpl implements Register.RegisterUpdater {
     @Override
     public void update() {
         DeviceImpl device = (DeviceImpl) register.getDevice();
+        KoreMeterConfigurationUpdater koreMeterConfigurationUpdater = null;
         if (register.getRegisterSpec() instanceof NumericalRegisterSpec) { //textRegisters don't have fraction digits and overflow values
             if (this.overruledNbrOfFractionDigits != null || this.overruledOverflowValue != null){
-               device.syncWithKore(new KoreMeterConfigurationUpdater(this.meteringService, this.readingTypeUtilService, this.clock).withRegisterUpdater(this));
+               device.syncWithKore(koreMeterConfigurationUpdater = new KoreMeterConfigurationUpdater(this.meteringService, this.readingTypeUtilService, this.clock).withRegisterUpdater(this));
+               device.executeSyncs();
             }
         }
         if (this.overruledObisCode != null){
-          new DeviceObisCodeUsageUpdater().update(device, register.getReadingType(), overruledObisCode);
+          new DeviceObisCodeUsageUpdater().update(device, getReadingType(), overruledObisCode);
         }
-        device.save();
+        device.validateForUpdate();
+        device.postSave();
     }
-
 }
