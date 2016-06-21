@@ -5,7 +5,8 @@ Ext.define('Mdc.controller.Main', {
         'Uni.controller.Navigation',
         'Uni.store.MenuItems',
         'Mdc.dynamicprivileges.DeviceState',
-        'Mdc.dynamicprivileges.Stores'
+        'Mdc.dynamicprivileges.Stores',
+        'Mdc.dynamicprivileges.DeviceTypeCapability'
     ],
 
     controllers: [
@@ -106,6 +107,7 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.timeofuse.controller.TimeOfUse',
         'Mdc.controller.setup.ServiceCalls',
         'Mdc.timeofuseondevice.controller.TimeOfUse',
+        'Mdc.filemanagement.controller.FileManagement',
         'Mdc.metrologyconfiguration.controller.ListView',
         'Mdc.metrologyconfiguration.controller.AddView'
     ],
@@ -115,7 +117,8 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.store.ChannelsOfLoadProfilesOfDevice',
         'Mdc.store.LoadProfilesOfDevice',
         'Mdc.store.DeviceStatePrivileges',
-        'Mdc.store.DeviceCommandPrivileges'
+        'Mdc.store.DeviceCommandPrivileges',
+        'Mdc.store.DeviceTypeCapabilities'
     ],
 
     refs: [

@@ -14,10 +14,13 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.GraphView', {
             itemId: 'graphContainer'
         },
         {
-            xtype: 'uni-form-empty-message',
-            hidden: true,
-            itemId: 'emptyGraphMessage',
-            text: Uni.I18n.translate('deviceloadprofiles.data.empty', 'MDC', 'No readings have been defined yet.')
+            xtype: 'form',
+            items: {
+                xtype: 'uni-form-empty-message',
+                hidden: true,
+                itemId: 'emptyGraphMessage',
+                text: Uni.I18n.translate('deviceloadprofiles.data.empty', 'MDC', 'No readings have been defined yet.')
+            }
         }
     ],
 

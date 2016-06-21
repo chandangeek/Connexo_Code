@@ -25,6 +25,7 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandAdd', {
                         name: 'form-errors',
                         itemId: 'form-errors',
                         margin: '0 0 10 0',
+                        maxWidth: 600,
                         hidden: true
                     },
                     {
@@ -40,21 +41,31 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandAdd', {
                         itemId: 'device-command-add-property-form',
                         xtype: 'property-form',
                         margins: '16 0 0 0'
-                    }
-                ],
-                buttons: [
-                    {
-                        text: Uni.I18n.translate('general.add','MDC','Add'),
-                        ui: 'action',
-                        margins: '0 0 0 164',
-                        action: 'add',
-                        mRID: me.device.get('mRID')
                     },
                     {
-                        text: Uni.I18n.translate('general.cancel','MDC','Cancel'),
-                        ui: 'link',
-                        action: 'cancel',
-                        mRID: me.device.get('mRID')
+                        xtype: 'fieldcontainer',
+                        ui: 'actions',
+                        fieldLabel: '&nbsp',
+                        labelWidth: 250,
+                        layout: {
+                            type: 'hbox'
+                        },
+                        items: [
+                            {
+                                xtype: 'button',
+                                text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
+                                ui: 'action',
+                                action: 'add',
+                                mRID: me.device.get('mRID')
+                            },
+                            {
+                                xtype: 'button',
+                                text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
+                                ui: 'link',
+                                action: 'cancel',
+                                mRID: me.device.get('mRID')
+                            }
+                        ]
                     }
                 ]
             }
