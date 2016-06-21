@@ -2,6 +2,7 @@ package com.energyict.mdc.pluggable.rest.impl.properties;
 
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.rest.util.properties.PropertyType;
@@ -58,6 +59,7 @@ public enum SimplePropertyType implements PropertyType {
     TEXT(StringFactory.class),
     FIRMWAREVERSION(BaseFirmwareVersion.class, true),
     TIMESTAMP(Instant.class),
+    USAGEPOINT(UsagePoint.class, true)
     ;
 
     private Class discriminatorClass;

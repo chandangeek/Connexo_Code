@@ -1,6 +1,7 @@
 package com.energyict.mdc.pluggable.rest.impl.properties;
 
 import com.elster.jupiter.calendar.Calendar;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.time.TimeDuration;
@@ -25,6 +26,7 @@ import com.energyict.mdc.pluggable.rest.impl.TimeZoneInUseInfo;
 import com.energyict.mdc.protocol.api.DeviceMessageFile;
 import com.energyict.mdc.protocol.api.timezones.TimeZoneInUse;
 
+import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 
@@ -69,17 +71,14 @@ public class MdcPropertyReferenceInfoFactory {
             } else if (LogBook.class.isAssignableFrom(property.getClass())) {
                 info = new LogBookInfo((LogBook) property);
             } else if (FirmwareVersion.class.isAssignableFrom(property.getClass())){
-                info = asInfoObject((FirmwareVersion) property);
+                FirmwareVersion firmwareVersion = (FirmwareVersion) property;
+                info = new IdWithNameInfo(firmwareVersion.getId(), firmwareVersion.getFirmwareVersion());
+            } else if (UsagePoint.class.isAssignableFrom(property.getClass())) {
+                UsagePoint usagePoint = (UsagePoint) property;
+                info = new IdWithNameInfo(usagePoint.getId(), usagePoint.getMRID());
             }
         }
         return info;
-    }
-
-    public static Object asInfoObject(FirmwareVersion property) {
-        IdWithNameInfo response = new IdWithNameInfo();
-        response.id = property.getId();
-        response.name = property.getFirmwareVersion();
-        return response;
     }
 
     /**
@@ -126,6 +125,9 @@ public class MdcPropertyReferenceInfoFactory {
 //            uri = uriInfo.getBaseUriBuilder().path(DeviceMessageFileReferenceResource.class).path("/").build();
         } else if (LoadProfileType.class.isAssignableFrom(propertyClassType)) {
             uri = uriInfo.getBaseUriBuilder().path(LoadProfileTypeResource.class).path("/").build();
+        } else if (UsagePoint.class.isAssignableFrom(propertyClassType)) {
+            //TODO use uriInfo
+            uri = UriBuilder.fromPath("http://localhost:8080/api/mtr/usagepoints").build();//uriInfo.getBaseUriBuilder().path("mtr/usagepoints").build();
         }
         return uri;
     }

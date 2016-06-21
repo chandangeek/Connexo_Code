@@ -1,5 +1,7 @@
 package com.energyict.mdc.pluggable.rest;
 
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.properties.BoundedBigDecimalPropertySpec;
 import com.elster.jupiter.properties.PropertySelectionMode;
@@ -24,10 +26,12 @@ import java.math.BigDecimal;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import static com.energyict.mdc.pluggable.rest.MdcPropertyUtils.PrivilegePresence.WITHOUT_PRIVILEGES;
 import static com.energyict.mdc.pluggable.rest.MdcPropertyUtils.ValueVisibility.HIDE_VALUES;
@@ -80,6 +84,11 @@ public class MdcPropertyUtils {
                     PropertySpecPossibleValues possibleValuesFromSpec = propertySpec.getPossibleValues();
                     if (possibleValuesFromSpec != null) {
                         possibleValues = possibleValuesFromSpec.getAllValues();
+                    }
+                } else if (SimplePropertyType.USAGEPOINT.equals(simplePropertyType)) {
+                    Optional<UsagePoint> usagePoint = device.getCurrentMeterActivation().flatMap(MeterActivation::getUsagePoint);
+                    if (usagePoint.isPresent()) {
+                        possibleValues = Collections.singletonList(usagePoint.get());
                     }
                 }
             }
