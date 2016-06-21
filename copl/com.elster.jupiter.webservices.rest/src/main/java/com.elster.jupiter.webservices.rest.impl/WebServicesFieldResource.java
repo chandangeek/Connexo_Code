@@ -7,7 +7,9 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.soap.whiteboard.cxf.security.Privileges;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -40,6 +42,7 @@ public class WebServicesFieldResource extends FieldResource {
     @Transactional
     @Path("/logLevel")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.VIEW_WEB_SERVICES)
     public Object getLogLevelValues() {
         return asJsonArrayObjectWithTranslation("logLevels", "id", Arrays.asList(LogLevel.values()), Stream.of(LogLevel
                 .values())
@@ -51,6 +54,7 @@ public class WebServicesFieldResource extends FieldResource {
     @Transactional
     @Path("/direction")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.VIEW_WEB_SERVICES)
     public Object getDirectionValues() {
         return asJsonArrayObjectWithTranslation("directions", "id", Arrays.asList(WebServiceDirection.values()),
                 Stream.of(WebServiceDirection.values())
@@ -62,6 +66,7 @@ public class WebServicesFieldResource extends FieldResource {
     @Transactional
     @Path("/authenticationMethod")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.VIEW_WEB_SERVICES)
     public Object getAuthenticationMethods() {
         return asJsonArrayObjectWithTranslation("authenticationMethods", "id", Arrays.asList(EndPointAuthentication
                         .values()),
