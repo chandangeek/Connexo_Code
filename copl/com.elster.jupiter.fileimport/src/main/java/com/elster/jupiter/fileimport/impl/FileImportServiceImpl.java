@@ -29,8 +29,6 @@ import com.elster.jupiter.time.TemporalExpressionParser;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.users.PrivilegesProvider;
-import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
@@ -56,7 +54,6 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Clock;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -73,10 +70,10 @@ import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(
         name = "com.elster.jupiter.fileimport",
-        service = {FileImportService.class, PrivilegesProvider.class, MessageSeedProvider.class, TranslationKeyProvider.class},
+        service = {FileImportService.class, MessageSeedProvider.class, TranslationKeyProvider.class},
         property = {"name=" + FileImportService.COMPONENT_NAME},
         immediate = true)
-public class FileImportServiceImpl implements FileImportService, PrivilegesProvider, MessageSeedProvider, TranslationKeyProvider {
+public class FileImportServiceImpl implements FileImportService, MessageSeedProvider, TranslationKeyProvider {
 
     private static final Logger LOGGER = Logger.getLogger(FileImportServiceImpl.class.getName());
     private static final String COMPONENTNAME = "FIS";
@@ -242,6 +239,7 @@ public class FileImportServiceImpl implements FileImportService, PrivilegesProvi
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(FileImportService.class).toInstance(FileImportServiceImpl.this);
+                bind(UserService.class).toInstance(userService);
             }
         });
 
@@ -398,20 +396,6 @@ public class FileImportServiceImpl implements FileImportService, PrivilegesProvi
             this.basePath = fileSystem.getPath("/");
         }
         return this.basePath;
-    }
-
-    @Override
-    public String getModuleName() {
-        return FileImportService.COMPONENT_NAME;
-    }
-
-    @Override
-    public List<ResourceDefinition> getModuleResources() {
-        List<ResourceDefinition> resources = new ArrayList<>();
-        resources.add(userService.createModuleResourceWithPrivileges(getModuleName(),
-                Privileges.RESOURCE_IMPORT_SERVICES.getKey(), Privileges.RESOURCE_IMPORT_SERVICES_DESCRIPTION.getKey(),
-                Arrays.asList(Privileges.Constants.ADMINISTRATE_IMPORT_SERVICES, Privileges.Constants.VIEW_IMPORT_SERVICES)));
-        return resources;
     }
 
     @Override

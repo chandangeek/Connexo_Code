@@ -7,4 +7,6 @@ public interface FileImportLogHandler {
 
     Handler asHandler();
 
+    void saveLogEntries();
+
 }

@@ -220,6 +220,7 @@ final class FileImportOccurrenceImpl implements ServerFileImportOccurrence {
 
     @Override
     public void save() {
+        saveLogEntries();
         flushLogEntries();
         if (id == 0) {
             fileImportFactory().persist(this);
@@ -227,6 +228,12 @@ final class FileImportOccurrenceImpl implements ServerFileImportOccurrence {
             fileImportFactory().update(this);
         }
     }
+
+    private void saveLogEntries() {
+        Arrays.stream(getLogger().getHandlers()).filter(FileImportLogHandler.class::isInstance).forEach(handler -> ((FileImportLogHandler) handler).saveLogEntries());
+    }
+
+
 
     private void flushLogEntries() {
         Arrays.stream(getLogger().getHandlers()).filter(FileImportLogHandler.class::isInstance).forEach(Handler::flush);
