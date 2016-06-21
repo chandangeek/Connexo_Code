@@ -35,7 +35,7 @@ public class Contains extends Leaf {
 
     @Override
     public String toString() {
-        return decorate(collection.stream()).partitionPer(1000).map(this::getSqlString).collect(Collectors.joining(" OR ", "(", ")"));
+        return collection.isEmpty() ? getSqlString(collection) : decorate(collection.stream()).partitionPer(1000).map(this::getSqlString).collect(Collectors.joining(" OR ", "(", ")"));
     }
 
     private String getSqlString(Collection<?> collection) {
