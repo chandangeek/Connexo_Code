@@ -34,7 +34,7 @@ public class ReadingTypeDeliverableBuilderImpl implements ReadingTypeDeliverable
     private final ReadingType readingType;
     private final CustomPropertySetService customPropertySetService;
 
-    public ReadingTypeDeliverableBuilderImpl(ServerMetrologyConfiguration metrologyConfiguration, String name, ReadingType readingType, Formula.Mode mode, CustomPropertySetService customPropertySetService, DataModel dataModel, Thesaurus thesaurus) {
+    ReadingTypeDeliverableBuilderImpl(ServerMetrologyConfiguration metrologyConfiguration, String name, ReadingType readingType, Formula.Mode mode, CustomPropertySetService customPropertySetService, DataModel dataModel, Thesaurus thesaurus) {
         this.formulaBuilder = new FormulaBuilderImpl(mode, dataModel, thesaurus);
         this.name = name;
         this.metrologyConfiguration = metrologyConfiguration;
@@ -91,6 +91,9 @@ public class ReadingTypeDeliverableBuilderImpl implements ReadingTypeDeliverable
         if (!registeredCustomPropertySet.get().getCustomPropertySet().isVersioned()) {
             throw InvalidNodeException.customPropertySetNotVersioned(this.formulaBuilder.getThesaurus(), customPropertySet);
         }
+        if (!this.isNumerical(propertySpec)) {
+            throw InvalidNodeException.customPropertyMustBeNumerical(this.formulaBuilder.getThesaurus(), customPropertySet, propertySpec);
+        }
         return new FormulaAndExpressionNodeBuilder(this.formulaBuilder.property(registeredCustomPropertySet.get(), propertySpec));
     }
 
@@ -99,6 +102,10 @@ public class ReadingTypeDeliverableBuilderImpl implements ReadingTypeDeliverable
                 .getCustomPropertySets()
                 .stream()
                 .anyMatch(each -> each.getCustomPropertySet().getId().equals(customPropertySet.getId()));
+    }
+
+    private boolean isNumerical(PropertySpec propertySpec) {
+        return Number.class.isAssignableFrom(propertySpec.getValueFactory().getValueType());
     }
 
     @Override

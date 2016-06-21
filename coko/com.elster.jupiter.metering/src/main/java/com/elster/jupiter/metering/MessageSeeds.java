@@ -81,11 +81,12 @@ public enum MessageSeeds implements MessageSeed {
     CUSTOM_PROPERTY_SET_NOT_CONFIGURED_ON_METROLOGY_CONFIGURATION(6019, Constants.CUSTOM_PROPERTY_SET_NOT_CONFIGURED_ON_METROLOGY_CONFIGURATION, "The property ''{0}'' cannot be used because the custom property set ''{1}'' is not configured on this metrology configuration."),
     CUSTOM_PROPERTY_SET_NO_LONGER_ACTIVE(6020, Constants.CUSTOM_PROPERTY_SET_NO_LONGER_ACTIVE, "The custom property set ''{0}'' is no longer active."),
     CUSTOM_PROPERTY_SET_NOT_VERSIONED(6021, Constants.CUSTOM_PROPERTY_SET_NOT_VERSIONED, "The custom property set ''{0}'' is not versioned, only versioned sets are supported."),
-    CHANNEL_DATA_PRESENT(6022, "ChannelDataIsPresent", "A meter activation could not be created: channel data is already present beyond the meter activation start time"),
+    CUSTOM_PROPERTY_MUST_BE_NUMERICAL(6022, Constants.CUSTOM_PROPERTY_MUST_BE_NUMERICAL, "The property ''{0}'' of custom property set ''{1}'' must be numerical."),
 
     USAGE_POINT_INCORRECT_STATE(7001, Constants.USAGE_POINT_INCORRECT_STATE, "Usage point ''{0}'' should be in ''Under construction'' state to activate meters"),
     THE_SAME_METER_ACTIVATED_TWICE_ON_USAGE_POINT(7002, Constants.THE_SAME_METER_ACTIVATED_TWICE_ON_USAGE_POINT, "The same meter can''t be specified for different meter roles."),
-    UNSATISFIED_METROLOGY_REQUIREMENT(7003, Constants.UNSATISFIED_METROLOGY_REQUIREMENT, "This meter does not provide reading types matching to {0}.");
+    UNSATISFIED_METROLOGY_REQUIREMENT(7003, Constants.UNSATISFIED_METROLOGY_REQUIREMENT, "This meter does not provide reading types matching to {0}."),
+    CHANNEL_DATA_PRESENT(7004, "ChannelDataIsPresent", "A meter activation could not be created: channel data is already present beyond the meter activation start time");
 
 
     private final int number;
@@ -197,6 +198,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String CUSTOM_PROPERTY_SET_NOT_CONFIGURED_ON_METROLOGY_CONFIGURATION = "cps.not.configured.on.metrologyconfiguration";
         public static final String CUSTOM_PROPERTY_SET_NO_LONGER_ACTIVE = "cps.no.longer.active";
         public static final String CUSTOM_PROPERTY_SET_NOT_VERSIONED = "cps.not.versioned";
+        public static final String CUSTOM_PROPERTY_MUST_BE_NUMERICAL = "cps.property.not.numerical";
         public static final String USAGE_POINT_INCORRECT_STATE = "usage.point.incorrect.state";
         public static final String THE_SAME_METER_ACTIVATED_TWICE_ON_USAGE_POINT = "the.same.meter.activated.twice.on.usage.point";
         public static final String UNSATISFIED_METROLOGY_REQUIREMENT = "unsatisfied.metrology.requirement";

@@ -40,8 +40,10 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.util.time.Interval;
 
 import javax.validation.ConstraintViolationException;
 import javax.validation.constraints.NotNull;
@@ -2110,6 +2112,7 @@ public class FormulaCrudTest {
     public void customPropertySetNoLongerActive() {
         PropertySpec propertySpec = mock(PropertySpec.class);
         when(propertySpec.getName()).thenReturn("dummy");
+        when(propertySpec.getValueFactory()).thenReturn(new StringFactory());
         PersistenceSupport persistenceSupport = mock(PersistenceSupport.class);
         when(persistenceSupport.componentName()).thenReturn("MTR_TST");
         when(persistenceSupport.addCustomPropertyPrimaryKeyColumnsTo(any(Table.class))).thenReturn(Collections.emptyList());
@@ -2119,7 +2122,6 @@ public class FormulaCrudTest {
         when(persistenceSupport.domainForeignKeyName()).thenReturn("MTR_TST_FK_USAGEPOINT");
         when(persistenceSupport.module()).thenReturn(Optional.empty());
         when(persistenceSupport.persistenceClass()).thenReturn(UsagePointCPS.class);
-        when(propertySpec.getValueFactory()).thenReturn(new StringFactory());
         CustomPropertySet customPropertySet = mock(CustomPropertySet.class);
         when(customPropertySet.getId()).thenReturn("customPropertySetNoLongerActive");
         when(customPropertySet.isVersioned()).thenReturn(true);
@@ -2168,7 +2170,7 @@ public class FormulaCrudTest {
         when(persistenceSupport.persistenceClass()).thenReturn(UsagePointCPS.class);
         when(propertySpec.getValueFactory()).thenReturn(new StringFactory());
         CustomPropertySet customPropertySet = mock(CustomPropertySet.class);
-        when(customPropertySet.getId()).thenReturn("customPropertySetNoLongerActive");
+        when(customPropertySet.getId()).thenReturn("customPropertySetNotVersioned");
         when(customPropertySet.isVersioned()).thenReturn(false);
         when(customPropertySet.getPropertySpecs()).thenReturn(Collections.singletonList(propertySpec));
         when(customPropertySet.getDomainClass()).thenReturn(UsagePoint.class);
@@ -2201,6 +2203,7 @@ public class FormulaCrudTest {
     public void customProperty() {
         PropertySpec propertySpec = mock(PropertySpec.class);
         when(propertySpec.getName()).thenReturn("dummy");
+        when(propertySpec.getValueFactory()).thenReturn(new BigDecimalFactory());
         PersistenceSupport persistenceSupport = mock(PersistenceSupport.class);
         when(persistenceSupport.componentName()).thenReturn("MTR_TST");
         when(persistenceSupport.addCustomPropertyPrimaryKeyColumnsTo(any(Table.class))).thenReturn(Collections.emptyList());
@@ -2210,9 +2213,8 @@ public class FormulaCrudTest {
         when(persistenceSupport.domainForeignKeyName()).thenReturn("MTR_TST_FK_USAGEPOINT");
         when(persistenceSupport.module()).thenReturn(Optional.empty());
         when(persistenceSupport.persistenceClass()).thenReturn(UsagePointCPS.class);
-        when(propertySpec.getValueFactory()).thenReturn(new StringFactory());
         CustomPropertySet customPropertySet = mock(CustomPropertySet.class);
-        when(customPropertySet.getId()).thenReturn("customPropertySetNoLongerActive");
+        when(customPropertySet.getId()).thenReturn("customProperty");
         when(customPropertySet.isVersioned()).thenReturn(true);
         when(customPropertySet.getPropertySpecs()).thenReturn(Collections.singletonList(propertySpec));
         when(customPropertySet.getDomainClass()).thenReturn(UsagePoint.class);
@@ -2239,6 +2241,51 @@ public class FormulaCrudTest {
         assertThat(deliverable).isNotNull();
     }
 
+    @Test(expected = InvalidNodeException.class)
+    @Transactional
+    public void nonNumericalCustomProperty() {
+        PropertySpec propertySpec = mock(PropertySpec.class);
+        when(propertySpec.getName()).thenReturn("dummy");
+        when(propertySpec.getValueFactory()).thenReturn(new StringFactory());
+        PersistenceSupport persistenceSupport = mock(PersistenceSupport.class);
+        when(persistenceSupport.componentName()).thenReturn("MTR_TST");
+        when(persistenceSupport.addCustomPropertyPrimaryKeyColumnsTo(any(Table.class))).thenReturn(Collections.emptyList());
+        when(persistenceSupport.tableName()).thenReturn("MTR_TST_CPS_FORMULA_CRUD");
+        when(persistenceSupport.domainColumnName()).thenReturn("usagepoint");
+        when(persistenceSupport.domainFieldName()).thenReturn("usagePoint");
+        when(persistenceSupport.domainForeignKeyName()).thenReturn("MTR_TST_FK_USAGEPOINT");
+        when(persistenceSupport.module()).thenReturn(Optional.empty());
+        when(persistenceSupport.persistenceClass()).thenReturn(UsagePointCPSWithStringProperty.class);
+        CustomPropertySet customPropertySet = mock(CustomPropertySet.class);
+        when(customPropertySet.getId()).thenReturn("customPropertySetNoLongerActive");
+        when(customPropertySet.isVersioned()).thenReturn(true);
+        when(customPropertySet.getPropertySpecs()).thenReturn(Collections.singletonList(propertySpec));
+        when(customPropertySet.getDomainClass()).thenReturn(UsagePoint.class);
+        when(customPropertySet.getPersistenceSupport()).thenReturn(persistenceSupport);
+        CustomPropertySetService customPropertySetService = inMemoryBootstrapModule.getCustomPropertySetService();
+        customPropertySetService.addCustomPropertySet(customPropertySet);
+        RegisteredCustomPropertySet registeredCustomPropertySet = customPropertySetService.findActiveCustomPropertySet(customPropertySet.getId()).get();
+
+        Optional<ServiceCategory> serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
+        ServerMetrologyConfigurationService service = this.getMetrologyConfigurationService();
+        MetrologyConfigurationBuilder metrologyConfigurationBuilder = service.newMetrologyConfiguration("config12", serviceCategory.get());
+        MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        config.addCustomPropertySet(registeredCustomPropertySet);
+        assertThat(config).isNotNull();
+        ReadingType AplusRT = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "AplusRT");
+        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Del1", AplusRT, Formula.Mode.AUTO);
+
+        try {
+            // Business method
+            FormulaBuilder property = builder.property(customPropertySet, propertySpec);
+            ReadingTypeDeliverable deliverable = builder.build(property);
+        } catch (InvalidNodeException e) {
+            // Asserts
+            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.CUSTOM_PROPERTY_MUST_BE_NUMERICAL);
+            throw e;
+        }
+    }
+
     private static class UsagePointCPS implements PersistentDomainExtension<UsagePoint> {
         @NotNull
         @SuppressWarnings("unused")
@@ -2246,7 +2293,31 @@ public class FormulaCrudTest {
         @NotNull
         @SuppressWarnings("unused")
         private Reference<UsagePoint> usagePoint = ValueReference.absent();
-        @Size(max=121)
+        private Interval interval;
+        private BigDecimal dummy;
+
+        @Override
+        public void copyFrom(UsagePoint domainInstance, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
+        }
+
+        @Override
+        public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
+        }
+
+        @Override
+        public void validateDelete() {
+        }
+    }
+
+    private static class UsagePointCPSWithStringProperty implements PersistentDomainExtension<UsagePoint> {
+        @NotNull
+        @SuppressWarnings("unused")
+        private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = ValueReference.absent();
+        @NotNull
+        @SuppressWarnings("unused")
+        private Reference<UsagePoint> usagePoint = ValueReference.absent();
+        private Interval interval;
+        @Size(max = 125)
         private String dummy;
 
         @Override
