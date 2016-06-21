@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-
 public class ListPager<T> {
 
     private final List<T> elements = new ArrayList<>();
@@ -55,8 +54,8 @@ public class ListPager<T> {
             }
             return elements.subList(this.start, toIndex);
         } else {
-            return elements;
+            return Collections.unmodifiableList(elements);
         }
     }
-}
 
+}
