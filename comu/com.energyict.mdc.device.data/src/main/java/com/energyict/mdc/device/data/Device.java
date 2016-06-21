@@ -246,7 +246,23 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
     boolean hasData();
 
+    /**
+     * Activate the device. Either end the current MeterActivation and create a new one based on previous MeterActivation, or just create a new one.
+     *
+     * @param start start of the meterActivation
+     * @return the new meterActivation
+     */
     MeterActivation activate(Instant start);
+
+    /**
+     * Activate the device on the Usage Point. Either end the current MeterActivation and create a new one
+     * based on previous MeterActivation but with the target Usage Point, or just create a new MeterActivation.
+     *
+     * @param start start of the meterActivation
+     * @param usagePoint the Usage Point to be linked to the device
+     * @return the new meterActivation
+     */
+    MeterActivation activate(Instant start, UsagePoint usagePoint);
 
     /**
      * Terminates the current MeterActivation on this Device.

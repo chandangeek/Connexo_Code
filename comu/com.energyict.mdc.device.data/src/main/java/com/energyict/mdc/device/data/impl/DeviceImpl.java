@@ -39,6 +39,13 @@ import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.ami.EndDeviceCapabilities;
+import com.elster.jupiter.metering.ami.HeadEndInterface;
+import com.elster.jupiter.metering.config.DefaultMeterRole;
+import com.elster.jupiter.metering.config.MeterRole;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -55,7 +62,12 @@ import com.elster.jupiter.orm.associations.TemporalReference;
 import com.elster.jupiter.orm.associations.Temporals;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.users.FormatKey;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserPreference;
+import com.elster.jupiter.users.UserPreferencesService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.streams.Predicates;
@@ -63,6 +75,7 @@ import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.ComWindow;
+import com.energyict.mdc.common.DateTimeFormatGenerator;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.AllowedCalendar;
@@ -106,6 +119,8 @@ import com.energyict.mdc.device.data.exceptions.DeviceProtocolPropertyException;
 import com.energyict.mdc.device.data.exceptions.MultiplierConfigurationException;
 import com.energyict.mdc.device.data.exceptions.NoMeterActivationAt;
 import com.energyict.mdc.device.data.exceptions.ProtocolDialectConfigurationPropertiesIsRequiredException;
+import com.energyict.mdc.device.data.exceptions.UnsatisfiedReadingTypeRequirementsOfUsagePointException;
+import com.energyict.mdc.device.data.exceptions.UsagePointAlreadyLinkedToAnotherDeviceException;
 import com.energyict.mdc.device.data.impl.configchange.ServerDeviceForConfigChange;
 import com.energyict.mdc.device.data.impl.configchange.ServerSecurityPropertyServiceForConfigChange;
 import com.energyict.mdc.device.data.impl.constraintvalidators.DeviceConfigurationIsPresentAndActive;
@@ -157,12 +172,15 @@ import javax.inject.Provider;
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
 import java.math.BigDecimal;
+import java.security.Principal;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.Period;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAmount;
@@ -174,6 +192,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -205,11 +224,14 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private final Thesaurus thesaurus;
     private final Clock clock;
     private final MeteringService meteringService;
+    private final MetrologyConfigurationService metrologyConfigurationService;
     private final ValidationService validationService;
     private final SecurityPropertyService securityPropertyService;
     private final MeteringGroupsService meteringGroupsService;
     private final CustomPropertySetService customPropertySetService;
     private final MdcReadingTypeUtilService readingTypeUtilService;
+    private final ThreadPrincipalService threadPrincipalService;
+    private final UserPreferencesService userPreferencesService;
     private final List<LoadProfile> loadProfiles = new ArrayList<>();
     private final List<LogBook> logBooks = new ArrayList<>();
     private List<ReadingTypeObisCodeUsageImpl> readingTypeObisCodeUsages = new ArrayList<>();
@@ -281,6 +303,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             Thesaurus thesaurus,
             Clock clock,
             MeteringService meteringService,
+            MetrologyConfigurationService metrologyConfigurationService,
             ValidationService validationService,
             SecurityPropertyService securityPropertyService,
             Provider<ScheduledConnectionTaskImpl> scheduledConnectionTaskProvider,
@@ -291,13 +314,16 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             Provider<FirmwareComTaskExecutionImpl> firmwareComTaskExecutionProvider,
             MeteringGroupsService meteringGroupsService,
             CustomPropertySetService customPropertySetService,
-            MdcReadingTypeUtilService readingTypeUtilService) {
+            MdcReadingTypeUtilService readingTypeUtilService,
+            ThreadPrincipalService threadPrincipalService,
+            UserPreferencesService userPreferencesService) {
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.issueService = issueService;
         this.thesaurus = thesaurus;
         this.clock = clock;
         this.meteringService = meteringService;
+        this.metrologyConfigurationService = metrologyConfigurationService;
         this.validationService = validationService;
         this.securityPropertyService = securityPropertyService;
         this.scheduledConnectionTaskProvider = scheduledConnectionTaskProvider;
@@ -309,6 +335,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         this.meteringGroupsService = meteringGroupsService;
         this.customPropertySetService = customPropertySetService;
         this.readingTypeUtilService = readingTypeUtilService;
+        this.threadPrincipalService = threadPrincipalService;
+        this.userPreferencesService = userPreferencesService;
     }
 
     DeviceImpl initialize(DeviceConfiguration deviceConfiguration, String name, String mRID) {
@@ -1657,18 +1685,22 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 MeterActivation meterActivation = activator.get();
                 meterActivation.setMultiplier(getDefaultMultiplierType(), getMultiplier());
                 if (usagePoint != null) {
-                    usagePoint.getLocation().ifPresent(loc -> {
-                        if (!location.isPresent()) {
-                            setLocation(loc);
-                        }
-                    });
-                    usagePoint.getGeoCoordinates().ifPresent(geo -> {
-                        if (!geoCoordinates.isPresent()) {
-                            setGeoCoordinates(geo);
-                        }
-                    });
+                    copyLocationAndGeoCoordinates(usagePoint);
                 }
             });
+        });
+    }
+
+    private void copyLocationAndGeoCoordinates(UsagePoint usagePoint) {
+        usagePoint.getLocation().ifPresent(loc -> {
+            if (!location.isPresent()) {
+                setLocation(loc);
+            }
+        });
+        usagePoint.getGeoCoordinates().ifPresent(geo -> {
+            if (!geoCoordinates.isPresent()) {
+                setGeoCoordinates(geo);
+            }
         });
     }
 
@@ -1699,8 +1731,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         AmrSystem amrSystem = getMdcAmrSystem();
         Meter meter = this.findOrCreateKoreMeter(amrSystem);
         if (currentMeterActivation.isPresent()) {
-            this.currentMeterActivation = Optional.of(endMeterActivationAndCreateNewWithCurrentAsTemplate(start, meter, currentMeterActivation
-                    .get(), copyMultiplier));
+            this.currentMeterActivation = Optional.of(endMeterActivationAndCreateNewWithCurrentAsTemplate(start, meter, currentMeterActivation.get(), copyMultiplier));
         } else {
             this.currentMeterActivation = Optional.of(meter.activate(start));
         }
@@ -2422,7 +2453,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                             Meter.MeterConfigurationBuilder newMeterConfigBuilder = koreMeter.startingConfigurationOn(updateInstant);
                             NumericalRegisterSpec registerSpec = (NumericalRegisterSpec) register.getRegisterSpec();
                             meterConfiguration.getReadingTypeConfigs().stream().forEach(meterReadingTypeConfiguration -> {
-                                Meter.MeterReadingTypeConfigurationBuilder meterReadingTypeConfigurationBuilder = newMeterConfigBuilder.configureReadingType(meterReadingTypeConfiguration.getMeasured());
+                                Meter.MeterReadingTypeConfigurationBuilder meterReadingTypeConfigurationBuilder = newMeterConfigBuilder.configureReadingType(meterReadingTypeConfiguration
+                                        .getMeasured());
                                 if (registerWeNeedToUpdate(meterReadingTypeConfiguration)) {
                                     if (overruledOverflowValue == null) {
                                         meterReadingTypeConfigurationBuilder.withOverflowValue(registerSpec.getOverflowValue().orElse(null));
@@ -2461,7 +2493,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                                     meterReadingTypeConfigurationBuilder.withNumberOfFractionDigits(registerSpec.getNumberOfFractionDigits());
                                 }
                                 if (getMultiplier().compareTo(BigDecimal.ONE) == 1 && registerSpec.isUseMultiplier()) {
-                                    meterReadingTypeConfigurationBuilder.withMultiplierOfType(getDefaultMultiplierType()).calculating((registerSpec.getCalculatedReadingType().get()));
+                                    meterReadingTypeConfigurationBuilder.withMultiplierOfType(getDefaultMultiplierType())
+                                            .calculating((registerSpec.getCalculatedReadingType().get()));
                                 }
                             });
                             newMeterConfigBuilder.create();
@@ -2538,7 +2571,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                         meterConfiguration.endAt(updateInstant);
                         Meter.MeterConfigurationBuilder newMeterConfigBuilder = koreMeter.startingConfigurationOn(updateInstant);
                         meterConfiguration.getReadingTypeConfigs().stream().forEach(meterReadingTypeConfiguration -> {
-                            Meter.MeterReadingTypeConfigurationBuilder meterReadingTypeConfigurationBuilder = newMeterConfigBuilder.configureReadingType(meterReadingTypeConfiguration.getMeasured());
+                            Meter.MeterReadingTypeConfigurationBuilder meterReadingTypeConfigurationBuilder = newMeterConfigBuilder.configureReadingType(meterReadingTypeConfiguration
+                                    .getMeasured());
                             if (channelWeNeedToUpdate(meterReadingTypeConfiguration)) {
                                 if (overruledOverflowValue == null) {
                                     meterReadingTypeConfigurationBuilder.withOverflowValue(channel.getChannelSpec().getOverflow().orElse(null));
@@ -2576,7 +2610,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                                 meterReadingTypeConfigurationBuilder.withNumberOfFractionDigits(channelSpec.getNbrOfFractionDigits());
                             }
                             if (getMultiplier().compareTo(BigDecimal.ONE) == 1 && channelSpec.isUseMultiplier()) {
-                                meterReadingTypeConfigurationBuilder.withMultiplierOfType(getDefaultMultiplierType()).calculating(getMultipliedReadingTypeForChannelSpec(channelSpec));
+                                meterReadingTypeConfigurationBuilder.withMultiplierOfType(getDefaultMultiplierType())
+                                        .calculating(getMultipliedReadingTypeForChannelSpec(channelSpec));
                             }
                         });
                         newMeterConfigBuilder.create();
@@ -3064,5 +3099,103 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return createTime;
     }
 
+    @Override
+    public MeterActivation activate(Instant start, UsagePoint usagePoint) {
+        Optional<MeterActivation> meterMeterActivation = getMeterActivation(start);
+        Optional<BigDecimal> multiplier = Optional.empty();
+        Optional<MeterActivation> usagePointMeterActivation = usagePoint.getMeterActivations(start).stream().findFirst();//for MultiSense we expect the only one MeterActivation
 
+        if (meterMeterActivation.isPresent()) {
+            if (meterMeterActivation.get().getEnd() != null) {
+                throw new RuntimeException("Meter already active");
+            }
+            multiplier = meterMeterActivation.flatMap(ma -> ma.getMultiplier(getDefaultMultiplierType()));
+            meterMeterActivation.get().endAt(start);
+        }
+        Meter meter = findOrCreateKoreMeter(getMdcAmrSystem());
+        if (usagePointMeterActivation.isPresent()) {
+            Optional<Meter> meterLinkedToUsagePoint = usagePointMeterActivation.get().getMeter();
+            if (meterLinkedToUsagePoint.isPresent() && !meterLinkedToUsagePoint.get().equals(meter)) {
+                throw new UsagePointAlreadyLinkedToAnotherDeviceException(thesaurus, getLongDateFormatForCurrentUser(), usagePointMeterActivation.get());
+            }
+            if (usagePointMeterActivation.get().getEnd() != null) {
+                throw new RuntimeException("Overlaps detected");//Should never happen?
+            }
+            usagePointMeterActivation.get().endAt(start);
+        }
+        validateReadingTypeRequirements(meter, usagePoint, start);
+        MeterActivation newMeterActivation = meter.activate(usagePoint, getDefaultMeterRole(), start);
+        //copy multiplier
+        multiplier.ifPresent(m -> newMeterActivation.setMultiplier(getDefaultMultiplierType(), m));
+        //copy location
+        copyLocationAndGeoCoordinates(usagePoint);
+        meter.update();
+        return newMeterActivation;
+    }
+
+    private MeterRole getDefaultMeterRole() {
+        return metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey()).orElseThrow(defaultMeterRoleDoesNotExist());
+    }
+
+    private Supplier<RuntimeException> defaultMeterRoleDoesNotExist() {
+        return () -> new RuntimeException("Default meter role does not exist");
+    }
+
+    private void validateReadingTypeRequirements(Meter meter, UsagePoint usagePoint, Instant from) {
+        Map<MetrologyConfiguration, List<ReadingTypeRequirement>> unsatisfiedRequirements = getUnsatisfiedRequirements(meter, usagePoint, from);
+        if (!unsatisfiedRequirements.isEmpty()) {
+            throw new UnsatisfiedReadingTypeRequirementsOfUsagePointException(thesaurus, unsatisfiedRequirements);
+        }
+    }
+
+    private Map<MetrologyConfiguration, List<ReadingTypeRequirement>> getUnsatisfiedRequirements(Meter meter, UsagePoint usagePoint, Instant from) {
+        List<MetrologyConfiguration> effectiveMetrologyConfigurations = usagePoint.getMetrologyConfigurations(Range.atLeast(from));
+        if (effectiveMetrologyConfigurations.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        List<ReadingType> supportedReadingTypes = getDeviceCapabilities(meter);
+        Map<MetrologyConfiguration, List<ReadingTypeRequirement>> unsatisfiedRequirements = new HashMap<>();
+        for (MetrologyConfiguration metrologyConfiguration : effectiveMetrologyConfigurations) {
+            List<ReadingTypeRequirement> unsatisfied = metrologyConfiguration.getMandatoryReadingTypeRequirements()
+                    .stream()
+                    .filter(requirement -> supportedReadingTypes.stream().noneMatch(requirement::matches))
+                    .collect(Collectors.toList());
+            if (!unsatisfied.isEmpty()) {
+                unsatisfiedRequirements.put(metrologyConfiguration, unsatisfied);
+            }
+        }
+        return unsatisfiedRequirements;
+    }
+
+    private List<ReadingType> getDeviceCapabilities(Meter meter) {
+        //Or may be just use deviceConfigurationService.getReadingTypesRelatedToConfiguration(findDeviceForEndDevice(endDevice).getDeviceConfiguration()); ?
+        HeadEndInterface headEndInterface = meter.getHeadEndInterface().orElseThrow(() -> new RuntimeException("Multisense HeadEndInterface is not found"));
+        EndDeviceCapabilities capabilities = headEndInterface.getCapabilities(meter);
+        return capabilities.getConfiguredReadingTypes();
+    }
+
+    //copied from com.energyict.mdc.device.lifecycle.impl.DeviceLifeCycleServiceImpl.getLongDateFormatForCurrentUser()
+    //TODO reuse?
+    private DateTimeFormatter getLongDateFormatForCurrentUser() {
+        Principal principal = threadPrincipalService.getPrincipal();
+        String dateTimeFormat = "HH:mm:ss EEE dd MMM ''yy"; // default backend date format
+        Locale locale = Locale.ENGLISH;
+        if (principal instanceof User) {
+            Optional<UserPreference> dateFormatPref = userPreferencesService.getPreferenceByKey((User) principal, FormatKey.LONG_DATE);
+            Optional<UserPreference> timeFormatPref = userPreferencesService.getPreferenceByKey((User) principal, FormatKey.LONG_TIME);
+            Optional<UserPreference> orderFormatPref = userPreferencesService.getPreferenceByKey((User) principal, FormatKey.DATETIME_ORDER);
+            Optional<UserPreference> separatorFormatPref = userPreferencesService.getPreferenceByKey((User) principal, FormatKey.DATETIME_SEPARATOR);
+            if (dateFormatPref.isPresent() && timeFormatPref.isPresent() && orderFormatPref.isPresent() && separatorFormatPref.isPresent()) {
+                dateTimeFormat = DateTimeFormatGenerator.getDateTimeFormat(
+                        dateFormatPref.get().getFormatBE(),
+                        timeFormatPref.get().getFormatBE(),
+                        orderFormatPref.get().getFormatBE(),
+                        separatorFormatPref.get().getFormatBE()
+                );
+            }
+            locale = ((User) principal).getLocale().orElse(locale);
+        }
+        DateTimeFormatterBuilder formatterBuilder = new DateTimeFormatterBuilder();
+        return formatterBuilder.appendPattern(dateTimeFormat).toFormatter(locale);
+    }
 }

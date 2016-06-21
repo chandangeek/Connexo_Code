@@ -8,6 +8,7 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -20,9 +21,11 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.users.UserPreferencesService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
@@ -132,6 +135,9 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     private volatile TransactionService transactionService;
     private volatile JsonService jsonService;
     private volatile UpgradeService upgradeService;
+    private volatile MetrologyConfigurationService metrologyConfigurationService;
+    private volatile UserPreferencesService userPreferencesService;
+    private volatile ThreadPrincipalService threadPrincipalService;
 
     private ServerConnectionTaskService connectionTaskService;
     private ConnectionTaskReportService connectionTaskReportService;
@@ -448,6 +454,21 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         this.readingTypeUtilService = readingTypeUtilService;
     }
 
+    @Reference
+    public void setMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
+        this.metrologyConfigurationService = metrologyConfigurationService;
+    }
+
+    @Reference
+    public void setUserPreferencesService(UserService userService) {
+        this.userPreferencesService = userService.getUserPreferencesService();
+    }
+
+    @Reference
+    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+        this.threadPrincipalService = threadPrincipalService;
+    }
+
     private Module getModule() {
         return new AbstractModule() {
             @Override
@@ -496,6 +517,9 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
                 bind(TransactionService.class).toInstance(transactionService);
                 bind(JsonService.class).toInstance(jsonService);
                 bind(com.energyict.mdc.issues.IssueService.class).toInstance(mdcIssueService);
+                bind(MetrologyConfigurationService.class).toInstance(metrologyConfigurationService);
+                bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
+                bind(UserPreferencesService.class).toInstance(userPreferencesService);
             }
         };
     }

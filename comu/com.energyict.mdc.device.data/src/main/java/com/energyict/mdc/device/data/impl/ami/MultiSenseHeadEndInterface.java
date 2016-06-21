@@ -1,12 +1,10 @@
 package com.energyict.mdc.device.data.impl.ami;
 
-import com.elster.jupiter.cbo.EndDeviceType;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceControlType;
-import com.elster.jupiter.metering.EndDeviceControlTypeMapping;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
@@ -309,17 +307,18 @@ public class MultiSenseHeadEndInterface implements HeadEndInterface, Translation
         Device device = findDeviceForEndDevice(endDevice);
         List<ReadingType> readingTypes = deviceConfigurationService.getReadingTypesRelatedToConfiguration(findDeviceForEndDevice(endDevice)
                 .getDeviceConfiguration());
-        int endDeviceType = EndDeviceType.get(Math.toIntExact(device.getDeviceConfiguration().getDeviceType().getId()))
-                .getValue();
+
+//        int endDeviceType = EndDeviceType.get(Math.toIntExact(device.getDeviceConfiguration().getDeviceType().getId()))
+//                .getValue();
         List<EndDeviceControlType> controlTypes = new ArrayList<>();
-        Stream.of(EndDeviceControlTypeMapping.values()).forEach(type -> {
-            if (type.getEndDeviceControlTypeMRID().startsWith(String.valueOf(endDeviceType) + ".")
-                    || type.getEndDeviceControlTypeMRID().startsWith("0.")
-                    || type.getEndDeviceControlTypeMRID().startsWith("*.")) {
-                meteringService.getEndDeviceControlType(type.getEndDeviceControlTypeMRID())
-                        .ifPresent(found -> controlTypes.add(found));
-            }
-        });
+//        Stream.of(EndDeviceControlTypeMapping.values()).forEach(type -> {
+//            if (type.getEndDeviceControlTypeMRID().startsWith(String.valueOf(endDeviceType) + ".")
+//                    || type.getEndDeviceControlTypeMRID().startsWith("0.")
+//                    || type.getEndDeviceControlTypeMRID().startsWith("*.")) {
+//                meteringService.getEndDeviceControlType(type.getEndDeviceControlTypeMRID())
+//                        .ifPresent(found -> controlTypes.add(found));
+//            }
+//        });
 
         return new EndDeviceCapabilities(readingTypes, controlTypes);
     }
