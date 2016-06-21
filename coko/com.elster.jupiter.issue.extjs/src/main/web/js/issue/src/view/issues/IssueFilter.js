@@ -12,6 +12,7 @@ Ext.define('Isu.view.issues.IssueFilter', {
                 type: 'text',
                 itemId: 'issue-id',
                 dataIndex: 'id',
+                emptyText: Uni.I18n.translate('general.inputIssueId', 'ISU', 'Input issue ID...'),
             },
             {
                 type: 'combobox',

@@ -23,16 +23,15 @@ Ext.define('Isu.controller.IssueDetail', {
             processStore = me.getStore('Bpm.monitorissueprocesses.store.IssueProcesses'),
             widgetXtype,
             issueModel,
-            widget,
-            customIssueId;
+            widget;
 
-        customIssueId = id.split("-")[1];
-        processStore.getProxy().setUrl(customIssueId);
+
+        processStore.getProxy().setUrl(id);
         processStore.load(function (records) {
         });
 
         if (store.getCount()) {
-            var issueActualType = store.getById(parseInt(customIssueId)).get('issueType').uid;
+            var issueActualType = store.getById(parseInt(id)).get('issueType').uid;
             if (issueActualType != issueType) {
                 queryString.issueType = issueActualType;
                 window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
@@ -57,7 +56,7 @@ Ext.define('Isu.controller.IssueDetail', {
         me.issueModel = issueModel;
         widget.setLoading(true);
 
-        me.getModel(issueModel).load(customIssueId, {
+        me.getModel(issueModel).load(id, {
             callback: function () {
                 widget.setLoading(false);
             },

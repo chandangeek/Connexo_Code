@@ -47,6 +47,11 @@ Ext.define('Isu.view.issues.Preview', {
                 },
                 items: [
                     {
+                        itemId: 'issue-id',
+                        fieldLabel: Uni.I18n.translate('general.title.issueId', 'ISU', 'Id'),
+                        name: 'issueId'
+                    },
+                    {
                         xtype: 'filter-display',
                         itemId: 'issue-preview-reason',
                         fieldLabel: Uni.I18n.translate('general.title.reason', 'ISU', 'Reason'),
