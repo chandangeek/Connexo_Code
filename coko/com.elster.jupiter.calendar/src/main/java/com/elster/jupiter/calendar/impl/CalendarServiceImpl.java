@@ -8,7 +8,6 @@ import com.elster.jupiter.calendar.MessageSeeds;
 import com.elster.jupiter.calendar.security.Privileges;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.events.impl.EventServiceImpl;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -19,8 +18,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.users.PrivilegesProvider;
-import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 
@@ -35,7 +32,6 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.time.Year;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -52,10 +48,10 @@ import java.util.stream.Stream;
 
 
 @Component(name = "com.elster.jupiter.calendar",
-        service = {CalendarService.class, MessageSeedProvider.class, TranslationKeyProvider.class, PrivilegesProvider.class},
+        service = {CalendarService.class, MessageSeedProvider.class, TranslationKeyProvider.class},
         property = "name=" + CalendarService.COMPONENTNAME,
         immediate = true)
-public class CalendarServiceImpl implements ServerCalendarService, MessageSeedProvider, TranslationKeyProvider, PrivilegesProvider {
+public class CalendarServiceImpl implements ServerCalendarService, MessageSeedProvider, TranslationKeyProvider {
 
     static final String TIME_OF_USE_CATEGORY_NAME = "Time of use";
 
@@ -124,6 +120,7 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
                 bind(CalendarService.class).toInstance(CalendarServiceImpl.this);
                 bind(EventService.class).toInstance(eventService);
                 bind(ServerCalendarService.class).toInstance(CalendarServiceImpl.this);
+                bind(UserService.class).toInstance(userService);
             }
         };
     }
@@ -150,20 +147,6 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
     @Override
     public List<MessageSeed> getSeeds() {
         return Arrays.asList(MessageSeeds.values());
-    }
-
-    @Override
-    public String getModuleName() {
-        return CalendarService.COMPONENTNAME;
-    }
-
-    @Override
-    public List<ResourceDefinition> getModuleResources() {
-        List<ResourceDefinition> resources = new ArrayList<>();
-        resources.add(userService.createModuleResourceWithPrivileges(getModuleName(),
-                Privileges.RESOURCE_TOU_CALENDARS.getKey(), Privileges.RESOURCE_TOU_CALENDARS_DESCRIPTION.getKey(),
-                Arrays.asList(Privileges.Constants.MANAGE_TOU_CALENDARS)));
-        return resources;
     }
 
     @Override
