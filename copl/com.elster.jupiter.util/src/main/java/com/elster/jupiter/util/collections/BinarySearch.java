@@ -40,10 +40,8 @@ public class BinarySearch<K extends Comparable<? super K>, T> {
             }
         }
         found = found || keyOf.getKey(list.get(upper)).compareTo(key) == 0;
-        if (!found) {
-            while (upper < list.size() && keyOf.getKey(list.get(upper)).compareTo(key) < 0) {
-                upper++;
-            }
+        while (!found && upper < list.size() && keyOf.getKey(list.get(upper)).compareTo(key) < 0) {
+            upper++;
         }
         return found ? upper : -upper - 1;
     }
@@ -65,7 +63,7 @@ public class BinarySearch<K extends Comparable<? super K>, T> {
         }
     }
 
-    public static interface Key<K, T> {
+    public interface Key<K, T> {
 
         K getKey(T t);
     }
@@ -98,10 +96,8 @@ public class BinarySearch<K extends Comparable<? super K>, T> {
             }
         }
         found = found || keyOf.getKey(list.get(lower)).compareTo(key) == 0;
-        if (!found) {
-            while (lower < list.size() && keyOf.getKey(list.get(lower)).compareTo(key) < 0) {
-                lower++;
-            }
+        while (!found && lower < list.size() && keyOf.getKey(list.get(lower)).compareTo(key) < 0) {
+            lower++;
         }
         return found ? lower : -lower - 1;
     }
