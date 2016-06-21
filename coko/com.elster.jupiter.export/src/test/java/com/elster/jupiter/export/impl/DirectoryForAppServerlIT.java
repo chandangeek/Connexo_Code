@@ -37,6 +37,8 @@ import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
@@ -79,6 +81,8 @@ import static org.mockito.Mockito.when;
 public class DirectoryForAppServerlIT {
 
     private AppServer appServer;
+    @Mock
+    private Group group;
 
     private class MockModule extends AbstractModule {
 
@@ -90,6 +94,7 @@ public class DirectoryForAppServerlIT {
             bind(LogService.class).toInstance(logService);
 
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
+            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }
 
@@ -166,7 +171,7 @@ public class DirectoryForAppServerlIT {
         }
         when(userService.createUser(any(), any())).thenReturn(user);
         when(userService.createGroup(anyString(), anyString())).thenReturn(mock(Group.class));
-        when(userService.findGroup(anyString())).thenReturn(Optional.empty());
+        when(userService.findGroup(anyString())).thenReturn(Optional.of(group));
         transactionService = injector.getInstance(TransactionService.class);
         transactionService.execute(() -> {
             injector.getInstance(FiniteStateMachineService.class);
