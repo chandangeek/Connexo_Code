@@ -112,7 +112,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      *
      * @return the used {@link DeviceProtocolPluggableClass}
      */
-    DeviceProtocolPluggableClass getDeviceProtocolPluggableClass();
+    Optional<DeviceProtocolPluggableClass> getDeviceProtocolPluggableClass();
 
     /**
      * Gets the device configuration of a device.

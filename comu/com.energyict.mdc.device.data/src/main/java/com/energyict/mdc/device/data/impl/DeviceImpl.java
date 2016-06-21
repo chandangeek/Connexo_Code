@@ -870,7 +870,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     @Override
-    public DeviceProtocolPluggableClass getDeviceProtocolPluggableClass() {
+    public Optional<DeviceProtocolPluggableClass> getDeviceProtocolPluggableClass() {
         return getDeviceType().getDeviceProtocolPluggableClass();
     }
 
@@ -1060,7 +1060,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 dataModel.touch(this);
             }
         } else {
-            throw DeviceProtocolPropertyException.propertyDoesNotExistForDeviceProtocol(name, this.getDeviceProtocolPluggableClass()
+            throw DeviceProtocolPropertyException.propertyDoesNotExistForDeviceProtocol(name, this.getDeviceProtocolPluggableClass().get()
                     .getDeviceProtocol(), this, thesaurus, MessageSeeds.DEVICE_PROPERTY_NOT_ON_DEVICE_PROTOCOL);
         }
     }
@@ -1104,14 +1104,19 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public TypedProperties getDeviceProtocolProperties() {
-        TypedProperties properties = TypedProperties.inheritingFrom(this.getDeviceConfiguration().getDeviceProtocolProperties().getTypedProperties());
-        this.addLocalProperties(properties, this.getDeviceProtocolPluggableClass().getDeviceProtocol().getPropertySpecs());
-        return properties;
+        if (this.getDeviceProtocolPluggableClass().isPresent()) {
+            TypedProperties properties = TypedProperties.inheritingFrom(this.getDeviceConfiguration().getDeviceProtocolProperties().getTypedProperties());
+            this.addLocalProperties(properties, this.getDeviceProtocolPluggableClass().get().getDeviceProtocol().getPropertySpecs());
+            return properties;
+        } else {
+            return TypedProperties.empty();
+        }
     }
 
 
     private Optional<PropertySpec> getPropertySpecForProperty(String name) {
-        return this.getDeviceProtocolPluggableClass().getDeviceProtocol().getPropertySpecs().stream().filter(spec -> spec.getName().equals(name)).findFirst();
+        return this.getDeviceProtocolPluggableClass().map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass
+                .getDeviceProtocol().getPropertySpecs().stream().filter(spec -> spec.getName().equals(name)).findFirst()).orElse(Optional.empty());
     }
 
     private void addLocalProperties(TypedProperties properties, List<PropertySpec> propertySpecs) {

@@ -31,8 +31,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -241,7 +242,7 @@ public class ProtocolDialectSearchablePropertyTest {
         DeviceProtocolPluggableClass pluggableClass = mock(DeviceProtocolPluggableClass.class);
         when(pluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         DeviceType deviceType = mock(DeviceType.class);
-        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(pluggableClass);
+        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(pluggableClass));
 
         ProtocolDialectSearchableProperty property = this.getTestInstance();
         SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.withValues(this.deviceTypeSearchableProperty, deviceType);
@@ -269,7 +270,7 @@ public class ProtocolDialectSearchablePropertyTest {
         DeviceProtocolPluggableClass pluggableClass1 = mock(DeviceProtocolPluggableClass.class);
         when(pluggableClass1.getDeviceProtocol()).thenReturn(deviceProtocol1);
         DeviceType deviceType1 = mock(DeviceType.class);
-        when(deviceType1.getDeviceProtocolPluggableClass()).thenReturn(pluggableClass1);
+        when(deviceType1.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(pluggableClass1));
 
         DeviceProtocolDialect protocolDialect2 = mock(DeviceProtocolDialect.class);
         when(protocolDialect2.getDisplayName()).thenReturn("Dialect 2");
@@ -279,7 +280,7 @@ public class ProtocolDialectSearchablePropertyTest {
         DeviceProtocolPluggableClass pluggableClass2 = mock(DeviceProtocolPluggableClass.class);
         when(pluggableClass2.getDeviceProtocol()).thenReturn(deviceProtocol2);
         DeviceType deviceType2 = mock(DeviceType.class);
-        when(deviceType2.getDeviceProtocolPluggableClass()).thenReturn(pluggableClass2);
+        when(deviceType2.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(pluggableClass2));
 
         ProtocolDialectSearchableProperty property = this.getTestInstance();
         SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.withValues(this.deviceTypeSearchableProperty, deviceType1, deviceType2);
