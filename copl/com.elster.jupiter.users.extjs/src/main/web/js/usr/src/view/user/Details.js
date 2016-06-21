@@ -79,24 +79,34 @@ Ext.define('Usr.view.user.Details', {
                                     htmlEncode: false
                                 },
                                 {
-                                    xtype: 'fieldcontainer',
-                                    fieldLabel: '<h3>' + Uni.I18n.translate('user.preferences', 'USR', 'User preferences') + '</h3>',
-                                    labelAlign: 'top',
-                                    layout: 'vbox',
-                                    defaults: {
-                                        xtype: 'displayfield',
-                                        labelWidth: 250
-                                    },
-                                    items: [
-                                        {
-                                            xtype: 'displayfield',
-                                            name: 'language',
-                                            fieldLabel: Uni.I18n.translate('user.language', 'USR', 'Language'),
-                                            renderer: function (value) {
-                                                return value && value.displayValue ? Ext.String.htmlEncode(value.displayValue) : '';
+                                    xtype: 'displayfield',
+                                    name: 'createdOn',
+                                    fieldLabel: Uni.I18n.translate('general.createdOn', 'USR', 'Created on'),
+                                    renderer: function (value) {
+                                        if (value) {
+                                            var createdOnDate = moment(value).toDate();
+                                            if (createdOnDate instanceof Date && !isNaN(createdOnDate.valueOf())) {
+                                                return Uni.DateTime.formatDateTimeLong(createdOnDate);
                                             }
+                                        } else {
+                                            return '-';
                                         }
-                                    ]
+                                    }
+                                },
+                                {
+                                    xtype: 'displayfield',
+                                    name: 'modifiedOn',
+                                    fieldLabel: Uni.I18n.translate('general.modifiedOn', 'USR', 'Modified on'),
+                                    renderer: function (value) {
+                                        if (value) {
+                                            var modifiedOnDate = moment(value).toDate();
+                                            if (modifiedOnDate instanceof Date && !isNaN(modifiedOnDate.valueOf())) {
+                                                return Uni.DateTime.formatDateTimeLong(modifiedOnDate);
+                                            }
+                                        } else {
+                                            return '-';
+                                        }
+                                    }
                                 }
                             ]
                         },
@@ -112,34 +122,66 @@ Ext.define('Usr.view.user.Details', {
                             },
                             items: [
                                 {
-                                    xtype: 'displayfield',
-                                    name: 'createdOn',
-                                    fieldLabel: Uni.I18n.translate('general.createdOn', 'USR', 'Created on'),
-                                    renderer: function (value) {
-                                        if (value) {
-                                            var createdOnDate = moment(value).toDate();
-                                            if (createdOnDate instanceof Date && !isNaN(createdOnDate.valueOf())) {
-                                                return Uni.DateTime.formatDateTimeLong(createdOnDate);
+                                    xtype: 'fieldcontainer',
+                                    fieldLabel: '<h3>' + Uni.I18n.translate('user.preferences', 'USR', 'User preferences') + '</h3>',
+                                    labelAlign: 'top',
+                                    layout: 'vbox',
+                                    defaults: {
+                                        xtype: 'displayfield',
+                                        labelWidth: 250
+                                    },
+                                    items: [
+                                        {
+                                            xtype: 'displayfield',
+                                            name: 'language',
+                                            fieldLabel: Uni.I18n.translate('user.language', 'USR', 'Language'),
+                                            renderer: function (value) {
+                                                return value && value.displayValue ? Ext.String.htmlEncode(value.displayValue) : '-';
                                             }
-                                        } else {
-                                            return '';
                                         }
-                                    }
+                                    ]
                                 },
                                 {
-                                    xtype: 'displayfield',
-                                    name: 'modifiedOn',
-                                    fieldLabel: Uni.I18n.translate('general.modifiedOn', 'USR', 'Modified on'),
-                                    renderer: function (value) {
-                                        if (value) {
-                                            var modifiedOnDate = moment(value).toDate();
-                                            if (modifiedOnDate instanceof Date && !isNaN(modifiedOnDate.valueOf())) {
-                                                return Uni.DateTime.formatDateTimeLong(modifiedOnDate);
+                                    xtype: 'fieldcontainer',
+                                    fieldLabel: '<h3>' + Uni.I18n.translate('user.activity.section', 'USR', 'Recent activity') + '</h3>',
+                                    labelAlign: 'top',
+                                    layout: 'vbox',
+                                    defaults: {
+                                        xtype: 'displayfield',
+                                        labelWidth: 250
+                                    },
+                                    items: [
+                                        {
+                                            xtype: 'displayfield',
+                                            name: 'lastSuccessfulLogin',
+                                            fieldLabel: Uni.I18n.translate('general.lastSuccessfulLogin', 'USR', 'Last successful login'),
+                                            renderer: function (value) {
+                                                if (value) {
+                                                    var lastSuccessfulLogin = moment(value).toDate();
+                                                    if (lastSuccessfulLogin instanceof Date && !isNaN(lastSuccessfulLogin.valueOf())) {
+                                                        return Uni.DateTime.formatDateTimeLong(lastSuccessfulLogin);
+                                                    }
+                                                } else {
+                                                    return '-';
+                                                }
                                             }
-                                        } else {
-                                            return '';
+                                        },
+                                        {
+                                            xtype: 'displayfield',
+                                            name: 'lastUnSuccessfulLogin',
+                                            fieldLabel: Uni.I18n.translate('general.lastUnSuccessfulLogin', 'USR', 'Last unsuccessful login'),
+                                            renderer: function (value) {
+                                                if (value) {
+                                                    var lastUnSuccessfulLogin = moment(value).toDate();
+                                                    if (lastUnSuccessfulLogin instanceof Date && !isNaN(lastUnSuccessfulLogin.valueOf())) {
+                                                        return Uni.DateTime.formatDateTimeLong(lastUnSuccessfulLogin);
+                                                    }
+                                                } else {
+                                                    return '-';
+                                                }
+                                            }
                                         }
-                                    }
+                                    ]
                                 }
                             ]
                         }

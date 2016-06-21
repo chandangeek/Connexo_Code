@@ -20,7 +20,9 @@ Ext.define('Usr.model.User', {
         },
         {name: 'language', type: 'auto', defaultValue: {}},
         'createdOn',
-        'modifiedOn'
+        'modifiedOn',
+        'lastSuccessfulLogin',
+        'lastUnSuccessfulLogin'
     ],
     associations: [
         {
