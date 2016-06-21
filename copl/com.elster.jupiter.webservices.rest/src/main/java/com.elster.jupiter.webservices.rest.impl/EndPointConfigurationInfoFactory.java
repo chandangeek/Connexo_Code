@@ -1,12 +1,15 @@
 package com.elster.jupiter.webservices.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointConfiguration;
+import com.elster.jupiter.users.Group;
+import com.elster.jupiter.users.UserService;
 
 import javax.inject.Inject;
 
@@ -16,11 +19,15 @@ import javax.inject.Inject;
 public class EndPointConfigurationInfoFactory {
     private final Thesaurus thesaurus;
     private final EndPointConfigurationService endPointConfigurationService;
+    private final UserService userService;
+    private final ExceptionFactory exceptionFactory;
 
     @Inject
-    public EndPointConfigurationInfoFactory(Thesaurus thesaurus, EndPointConfigurationService endPointConfigurationService) {
+    public EndPointConfigurationInfoFactory(Thesaurus thesaurus, EndPointConfigurationService endPointConfigurationService, UserService userService, ExceptionFactory exceptionFactory) {
         this.thesaurus = thesaurus;
         this.endPointConfigurationService = endPointConfigurationService;
+        this.userService = userService;
+        this.exceptionFactory = exceptionFactory;
     }
 
     public EndPointConfigurationInfo from(EndPointConfiguration endPointConfiguration) {
@@ -38,13 +45,11 @@ public class EndPointConfigurationInfoFactory {
         info.tracing = endPointConfiguration.isTracing();
         info.traceFile = endPointConfiguration.getTraceFile();
         info.schemaValidation = endPointConfiguration.isSchemaValidation();
+        info.authenticationMethod = new IdWithDisplayValueInfo<>(endPointConfiguration.getAuthenticationMethod(),
+                endPointConfiguration.getAuthenticationMethod().getDisplayName(thesaurus));
         if (InboundEndPointConfiguration.class.isAssignableFrom(endPointConfiguration.getClass())) {
             info.direction = new IdWithDisplayValueInfo<>(WebServiceDirection.INBOUND, WebServiceDirection.INBOUND.getDisplayName(thesaurus));
-            info.authenticationMethod = new IdWithDisplayValueInfo<>(((InboundEndPointConfiguration) endPointConfiguration)
-                    .getAuthenticationMethod(),
-                    ((InboundEndPointConfiguration) endPointConfiguration).getAuthenticationMethod()
-                            .getDisplayName(thesaurus));
-            ((InboundEndPointConfiguration) endPointConfiguration).getAuthenticationMethod();
+            ((InboundEndPointConfiguration) endPointConfiguration).getGroup().ifPresent(g -> info.group = g.getName());
         } else {
             info.direction = new IdWithDisplayValueInfo<>(WebServiceDirection.OUTBOUND, WebServiceDirection.OUTBOUND.getDisplayName(thesaurus));
             info.username = ((OutboundEndPointConfiguration) endPointConfiguration).getUsername();
@@ -117,12 +122,15 @@ public class EndPointConfigurationInfoFactory {
 
     public EndPointConfiguration updateEndPointConfiguration(InboundEndPointConfiguration endPointConfiguration, EndPointConfigurationInfo info) {
         this.applyCommonChanges(endPointConfiguration, info);
-        endPointConfiguration.setAuthenticationMethod(info.authenticationMethod.id);
+        Group group = userService.getGroup(info.group)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_GROUP));
+        endPointConfiguration.setGroup(group);
         return endPointConfiguration;
     }
 
     private void applyCommonChanges(EndPointConfiguration endPointConfiguration, EndPointConfigurationInfo info) {
         endPointConfiguration.setName(info.name);
+        endPointConfiguration.setAuthenticationMethod(info.authenticationMethod.id);
         endPointConfiguration.setUrl(info.url);
         endPointConfiguration.setWebServiceName(info.webServiceName);
         endPointConfiguration.setSchemaValidation(info.schemaValidation);

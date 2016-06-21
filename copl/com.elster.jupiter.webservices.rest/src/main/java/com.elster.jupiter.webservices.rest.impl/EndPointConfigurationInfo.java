@@ -19,6 +19,7 @@ public class EndPointConfigurationInfo {
     public Boolean schemaValidation;
     public Boolean active;
     public IdWithDisplayValueInfo<EndPointAuthentication> authenticationMethod;
+    public String group;
     public String username;
     public String password;
     public IdWithDisplayValueInfo<WebServiceDirection> direction;

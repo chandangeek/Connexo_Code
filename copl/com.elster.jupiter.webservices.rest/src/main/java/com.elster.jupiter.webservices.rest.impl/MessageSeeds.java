@@ -8,7 +8,8 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_END_POINT_CONFIG(1, "NoSuchEndPointConfig", "No such end point configurations exists"),
     PAYLOAD_EXPECTED(2, "PayloadExpected", "This method requires a payload"),
     FIELD_EXPECTED(3, "FieldIsRequired", "This field is required"),
-    NO_SUCH_WEB_SERVICE(4, "NoSuchWebService", "No such web service was registered");
+    NO_SUCH_WEB_SERVICE(4, "NoSuchWebService", "No such web service was registered"),
+    NO_SUCH_GROUP(5, "NoSuchGroup", "No such role");
 
     private final int number;
     private final String key;

@@ -78,6 +78,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>rest.whiteboard</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>users</artifactId>
+        </dependency>
 
         <!-- Testing -->
         <dependency>
