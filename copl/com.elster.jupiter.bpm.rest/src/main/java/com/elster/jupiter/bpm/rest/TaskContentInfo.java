@@ -6,6 +6,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
 
@@ -18,6 +19,7 @@ public class TaskContentInfo {
     public boolean isReadOnly;
     public PropertyTypeInfo propertyTypeInfo;
     public PropertyValueInfo propertyValueInfo;
+    public boolean isVisible = true;
 
     public TaskContentInfo(){
 
@@ -66,15 +68,21 @@ public class TaskContentInfo {
                     }
                     if(prop.getString("name").equals("outputBinding")){
                         if(!prop.getString("value").equals("")) {
-                            if(outputContent != null) {
-                                setDefaultValueBinding(prop.getString("value"), outputContent, field);
+                            if(Arrays.asList("deviceid", "usagepointid", "issueid").contains(prop.getString("value").toLowerCase())){
+                                isVisible = false;
+                            }else {
+                                if (outputContent != null) {
+                                    setDefaultValueBinding(prop.getString("value"), outputContent, field);
+                                }
+                                outputBinding = prop.getString("value");
                             }
-                            outputBinding = prop.getString("value");
                         }
                     }
                 }
             }
-            propertyTypeInfo = new PropertyTypeInfo(field, this);
+            if(isVisible) {
+                propertyTypeInfo = new PropertyTypeInfo(field, this);
+            }
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }

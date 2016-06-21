@@ -1,10 +1,11 @@
 package com.elster.jupiter.bpm.rest;
 
-
 import com.elster.jupiter.domain.util.QueryParameters;
+
 import com.google.common.collect.ImmutableList;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class PagedInfoListCustomized {
@@ -12,17 +13,18 @@ public class PagedInfoListCustomized {
     private List<?> data = new ArrayList<>();
     private final int total;
 
+    public PagedInfoListCustomized(String jsonListName, List<?> data, int total) {
+        this.jsonListName = jsonListName;
+        this.data = Collections.unmodifiableList(data);
+        this.total = total;
+    }
+
     public int getTotal() {
         return total;
     }
 
     public List<?> getData() {
         return ImmutableList.copyOf(data);
-    }
-    public PagedInfoListCustomized(String jsonListName, List<?> data, int total) {
-        this.jsonListName = jsonListName;
-        this.data = data;
-        this.total = total;
     }
 
     public static PagedInfoListCustomized fromPagedList(String jsonListName, List<?> infos, QueryParameters queryParameters, int totalIncrease) {
@@ -40,4 +42,5 @@ public class PagedInfoListCustomized {
 
         return new PagedInfoListCustomized(jsonListName, infos, total);
     }
+
 }
