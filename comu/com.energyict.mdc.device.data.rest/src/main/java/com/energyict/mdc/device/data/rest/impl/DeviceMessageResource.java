@@ -81,7 +81,7 @@ public class DeviceMessageResource {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         List<DeviceMessageInfo> infos = device.getMessages().stream().
                 // we do the explicit filtering because some categories should be hidden for the user
-                filter(deviceMessage -> deviceMessageSpecificationService.filteredCategoriesForUserSelection().contains(deviceMessage.getSpecification().getCategory())).
+                filter(deviceMessage -> deviceMessageSpecificationService.filteredCategoriesForComTaskDefinition().contains(deviceMessage.getSpecification().getCategory())).
                 sorted(comparing(DeviceMessage::getReleaseDate, nullsLast(Comparator.<Instant>naturalOrder().reversed()))).
                 map(deviceMessage -> deviceMessageInfoFactory.asInfo(deviceMessage, uriInfo)).
                 collect(toList());
