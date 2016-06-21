@@ -75,10 +75,7 @@ public class DeviceSearchInfo {
         Optional<DefaultState> defaultState = DefaultState.from(state);
         String name;
         if (defaultState.isPresent()) {
-            name = thesaurus.getString(defaultState.get().getKey(), null);
-            if (name == null) {
-                name = thesaurus.getStringBeyondComponent(defaultState.get().getKey(), defaultState.get().getKey());
-            }
+            name = thesaurus.getString(defaultState.get().getKey(), defaultState.get().getKey());
         } else {
             name = state.getName();
         }

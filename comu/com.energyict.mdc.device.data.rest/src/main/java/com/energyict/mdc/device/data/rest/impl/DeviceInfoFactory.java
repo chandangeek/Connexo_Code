@@ -54,7 +54,8 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
 
     @Reference
     public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(DeviceApplication.COMPONENT_NAME, Layer.REST);
+        this.thesaurus = nlsService.getThesaurus(DeviceApplication.COMPONENT_NAME, Layer.REST)
+                .join(nlsService.getThesaurus("DLR", Layer.REST));
     }
 
     @Reference
