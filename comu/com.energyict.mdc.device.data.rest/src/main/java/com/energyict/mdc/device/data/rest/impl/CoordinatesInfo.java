@@ -4,8 +4,8 @@ import com.energyict.mdc.device.data.Device;
 
 public class CoordinatesInfo {
 
-    public String deviceCoordinatesDisplay;
-    public String deviceSpatialCoordinates;
+    public String coordinatesDisplay;
+    public String spatialCoordinates;
     public boolean isInherited = false;
     public String usagePointCoordinatesDisplay;
     public String usagePointSpatialCoordinates;
@@ -16,14 +16,14 @@ public class CoordinatesInfo {
 
     public CoordinatesInfo(Device device) {
         device.getSpatialCoordinates().ifPresent(deviceGeoCoordinates -> {
-            deviceCoordinatesDisplay = deviceGeoCoordinates.toString();
-            deviceSpatialCoordinates = String.format("%s:%s:%s", deviceGeoCoordinates.getLatitude().getValue().toString(),
+            coordinatesDisplay = deviceGeoCoordinates.toString();
+            spatialCoordinates = String.format("%s:%s:%s", deviceGeoCoordinates.getLatitude().getValue().toString(),
                     deviceGeoCoordinates.getLongitude().getValue().toString(),
                     deviceGeoCoordinates.getElevation().getValue().toString());
         });
         device.getUsagePoint().ifPresent(usagePoint -> {
             usagePoint.getSpatialCooridnates().ifPresent(usagePointGeoCoordinates -> {
-                if((deviceSpatialCoordinates != null) && (usagePointGeoCoordinates.equals(device.getSpatialCoordinates()))){
+                if((spatialCoordinates != null) && (usagePointGeoCoordinates.equals(device.getSpatialCoordinates()))){
                     isInherited = true;
                 }
                 usagePointCoordinatesDisplay = usagePointGeoCoordinates.toString();

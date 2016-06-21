@@ -204,7 +204,7 @@ public class DeviceAttributesInfoFactory {
     }
 
     private void validateGeoCoordinates(RestValidationBuilder validationBuilder, String fieldName, DeviceAttributeInfo<CoordinatesInfo> geoCoordinates) {
-        String spatialCoordinates = geoCoordinates.displayValue.deviceSpatialCoordinates;
+        String spatialCoordinates = geoCoordinates.displayValue.spatialCoordinates;
         if (spatialCoordinates == null || spatialCoordinates.length() == 0 || spatialCoordinates.indexOf(":") == -1) {
             return;
         }
@@ -292,8 +292,8 @@ public class DeviceAttributesInfoFactory {
                     device.setSpatialCoordinates(usagePointSpatialCoordinates);
                 }
             } else {
-                if (info.geoCoordinates.displayValue.deviceSpatialCoordinates != null) {
-                    SpatialCoordinates deviceSpatialCoordinates = new SpatialCoordinatesFactory().fromStringValue(info.geoCoordinates.displayValue.deviceSpatialCoordinates);
+                if (info.geoCoordinates.displayValue.spatialCoordinates != null) {
+                    SpatialCoordinates deviceSpatialCoordinates = new SpatialCoordinatesFactory().fromStringValue(info.geoCoordinates.displayValue.spatialCoordinates);
                     device.setSpatialCoordinates(deviceSpatialCoordinates);
                 }
             }
