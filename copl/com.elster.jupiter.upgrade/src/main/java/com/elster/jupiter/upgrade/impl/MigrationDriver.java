@@ -40,10 +40,18 @@ final class MigrationDriver implements Migration {
     @Override
     public void migrate(Connection connection) {
         if (!iveBeenInstalled) {
+            if (transactionService.isInTransaction()) {
+                doMigrate().run();
+                return;
+            }
             transactionService.builder()
                     .principal(() -> "Installer")
-                    .run(() -> upgrader.get().migrate(dataModelUpgrader));
+                    .run(doMigrate());
         }
+    }
+
+    private Runnable doMigrate() {
+        return () -> upgrader.get().migrate(dataModelUpgrader);
     }
 
     @Override

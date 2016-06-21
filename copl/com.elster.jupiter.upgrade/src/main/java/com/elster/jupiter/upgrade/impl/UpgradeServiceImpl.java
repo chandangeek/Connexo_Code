@@ -19,10 +19,16 @@ import org.flywaydb.core.api.MigrationVersion;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.sql.DataSource;
+import java.io.IOException;
+import java.nio.file.FileSystem;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,6 +36,8 @@ import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
+import java.util.logging.StreamHandler;
 
 @Component(name = "com.elster.jupiter.upgrade", immediate = true, service = UpgradeService.class,
         property = {"osgi.command.scope=upgrade", "osgi.command.function=init"})
@@ -39,36 +47,27 @@ public class UpgradeServiceImpl implements UpgradeService {
     private volatile TransactionService transactionService;
     private volatile DataModelUpgrader dataModelUpgrader;
     private volatile OrmService ormService;
-    private boolean doUpgrade;
+    private volatile FileSystem fileSystem;
+    private State state;
     private Map<InstallIdentifier, UpgradeClasses> registered = new HashMap<>();
     private final Logger logger = Logger.getLogger("com.elster.jupiter.upgrade");
+    private UserInterface userInterface = new ConsoleUserInterface();
 
     public UpgradeServiceImpl() {
         Logger flywayLogger = Logger.getLogger("org.flywaydb");
         flywayLogger.setUseParentHandlers(false);
         Arrays.stream(flywayLogger.getHandlers())
                 .forEach(flywayLogger::removeHandler);
-        flywayLogger.addHandler(new Handler() {
-            @Override
-            public void publish(LogRecord record) {
-                logger.log(record);
-            }
-
-            @Override
-            public void flush() {
-            }
-
-            @Override
-            public void close() throws SecurityException {
-            }
-        });
+        flywayLogger.addHandler(new ForwardingHandler(logger));
+        logger.setUseParentHandlers(false);
     }
 
     @Inject
-    public UpgradeServiceImpl(BootstrapService bootstrapService, TransactionService transactionService, OrmService ormService, BundleContext bundleContext) {
+    public UpgradeServiceImpl(BootstrapService bootstrapService, TransactionService transactionService, OrmService ormService, BundleContext bundleContext, FileSystem fileSystem) {
         setBootstrapService(bootstrapService);
         setOrmService(ormService);
         setTransactionService(transactionService);
+        setFileSystem(fileSystem);
 
         activate(bundleContext);
     }
@@ -76,7 +75,14 @@ public class UpgradeServiceImpl implements UpgradeService {
     @Activate
     public void activate(BundleContext bundleContext) {
         String upgradeProperty = bundleContext.getProperty("upgrade");
-        doUpgrade = upgradeProperty != null && Boolean.parseBoolean(upgradeProperty);
+        boolean doUpgrade = upgradeProperty != null && Boolean.parseBoolean(upgradeProperty);
+        state = doUpgrade ? new UpgraderState() : new CheckState();
+        state.addHandler();
+    }
+
+    @Deactivate
+    public void deactivate() {
+        state.removeHandler();
     }
 
     @Override
@@ -95,22 +101,11 @@ public class UpgradeServiceImpl implements UpgradeService {
         flyway.setResolvers(new MigrationResolverImpl(dataModel, dataModelUpgrader, transactionService, installerClass, upgraders, logger));
 
         try {
-            if (doUpgrade) {
-                flyway.migrate();
-            } else {
-                MigrationInfoService migrationInfoService = flyway.info();
-                if (migrationInfoService.pending().length != 0) {
-                    String message = "Upgrade needed for " + installIdentifier;
-                    logger.log(Level.SEVERE, message);
-                    System.out.println(message);
-                    System.exit(4);
-                }
-            }
+            state.perform(flyway, installIdentifier);
         } catch (RuntimeException e) {
             String message = "Upgrade of " + installIdentifier + " failed with an exception.";
             logger.log(Level.SEVERE, message, e);
-            e.printStackTrace();
-            System.out.println(message);
+            userInterface.notifyUser(message, e);
             System.exit(5);
             throw e;
         }
@@ -153,6 +148,11 @@ public class UpgradeServiceImpl implements UpgradeService {
         this.ormService = ormService;
     }
 
+    @Reference
+    public void setFileSystem(FileSystem fileSystem) {
+        this.fileSystem = fileSystem;
+    }
+
     private static final class UpgradeClasses {
         private Class<? extends FullInstaller> fullInstallerClass;
         private Map<Version, Class<? extends Upgrader>> upgraderClasses;
@@ -191,14 +191,126 @@ public class UpgradeServiceImpl implements UpgradeService {
     }
 
     public void init(String dataModelCode) {
-        DataModel dataModel = ormService.getDataModel(dataModelCode).orElseThrow(() -> new IllegalArgumentException("No such data model registered."));
+        DataModel dataModel = ormService.getDataModel(dataModelCode)
+                .orElseThrow(() -> new IllegalArgumentException("No such data model registered."));
         DataModelUpgrader dataModelUpgrader = ormService.getDataModelUpgrader(logger);
         dataModelUpgrader.upgrade(dataModel, Version.latest());
     }
 
     public void init(String dataModelCode, String version) {
-        DataModel dataModel = ormService.getDataModel(dataModelCode).orElseThrow(() -> new IllegalArgumentException("No such data model registered."));
+        DataModel dataModel = ormService.getDataModel(dataModelCode)
+                .orElseThrow(() -> new IllegalArgumentException("No such data model registered."));
         DataModelUpgrader dataModelUpgrader = ormService.getDataModelUpgrader(logger);
         dataModelUpgrader.upgrade(dataModel, Version.version(version));
+    }
+
+    private interface State {
+        void perform(Flyway flyway, InstallIdentifier installIdentifier);
+
+        void addHandler();
+
+        void removeHandler();
+    }
+
+    private class UpgraderState implements State {
+        private Handler handler;
+
+        @Override
+        public void addHandler() {
+            if (handler == null) {
+                try {
+                    Path path = fileSystem.getPath("./Upgrade.log");
+                    handler = new FileHandler(path);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                logger.addHandler(handler);
+            }
+        }
+
+        @Override
+        public void removeHandler() {
+            if (handler != null) {
+                logger.removeHandler(handler);
+                handler.close();
+                handler = null;
+            }
+        }
+
+        @Override
+        public void perform(Flyway flyway, InstallIdentifier installIdentifier) {
+            String message = "Upgrading " + installIdentifier;
+            userInterface.notifyUser(message);
+            flyway.migrate();
+        }
+    }
+
+    private class CheckState implements State {
+        @Override
+        public void addHandler() {
+        }
+
+        @Override
+        public void removeHandler() {
+        }
+
+        @Override
+        public void perform(Flyway flyway, InstallIdentifier installIdentifier) {
+            MigrationInfoService migrationInfoService = flyway.info();
+            if (migrationInfoService.pending().length != 0) {
+                String message = "Upgrade needed for " + installIdentifier;
+                logger.log(Level.SEVERE, message);
+                userInterface.notifyUser(message);
+                System.exit(4);
+            }
+        }
+    }
+
+    private interface UserInterface {
+        void notifyUser(String message);
+
+        void notifyUser(String message, Exception e);
+    }
+
+    private static class ConsoleUserInterface implements UserInterface {
+        @Override
+        public void notifyUser(String message) {
+            System.out.println(message);
+        }
+
+        @Override
+        public void notifyUser(String message, Exception e) {
+            e.printStackTrace();
+            System.out.println(message);
+        }
+    }
+
+    private static class ForwardingHandler extends Handler {
+
+        private final Logger forwardingTarget;
+
+        private ForwardingHandler(Logger forwardingTarget) {
+            this.forwardingTarget = forwardingTarget;
+        }
+
+        @Override
+        public void publish(LogRecord record) {
+            forwardingTarget.log(record);
+        }
+
+        @Override
+        public void flush() {
+        }
+
+        @Override
+        public void close() throws SecurityException {
+        }
+    }
+
+    private static class FileHandler extends StreamHandler {
+
+        private FileHandler(Path path) throws IOException {
+            super(Files.newOutputStream(path, StandardOpenOption.CREATE), new SimpleFormatter());
+        }
     }
 }

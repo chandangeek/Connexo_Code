@@ -27,6 +27,7 @@ import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
 
 import javax.validation.MessageInterpolator;
+import java.nio.file.FileSystems;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -159,7 +160,7 @@ public class UpgradeServiceImplIT {
     @Test
     public void testUpgradeOverTime() {
         BootstrapService bootstrapService = injector.getInstance(BootstrapService.class);
-        UpgradeServiceImpl upgradeService = new UpgradeServiceImpl(bootstrapService, transactionService, ormService, bundleContext);
+        UpgradeServiceImpl upgradeService = new UpgradeServiceImpl(bootstrapService, transactionService, ormService, bundleContext, FileSystems.getDefault());
 
         DataModel dataModel = ormService.newDataModel("TST", "");
         dataModel.register(new AbstractModule() {
@@ -184,7 +185,7 @@ public class UpgradeServiceImplIT {
         // assume a normal system restart (no Installer /Upgrader should be instantiated
 
         when(bundleContext.getProperty("upgrade")).thenReturn(null);
-        upgradeService = new UpgradeServiceImpl(bootstrapService, transactionService, ormService, bundleContext);
+        upgradeService = new UpgradeServiceImpl(bootstrapService, transactionService, ormService, bundleContext, FileSystems.getDefault());
         upgradeService.register(identifier("TST"), dataModel, Installer.class, ImmutableMap.of(version(2, 0), UpgraderV2.class));
 
         assertThat(Installer.instances).isEqualTo(1);
@@ -197,7 +198,7 @@ public class UpgradeServiceImplIT {
         // assume an upgrade (only the Upgrader should run)
 
         when(bundleContext.getProperty("upgrade")).thenReturn("true");
-        upgradeService = new UpgradeServiceImpl(bootstrapService, transactionService, ormService, bundleContext);
+        upgradeService = new UpgradeServiceImpl(bootstrapService, transactionService, ormService, bundleContext, FileSystems.getDefault());
         upgradeService.register(identifier("TST"), dataModel, Installer.class, ImmutableMap.of(version(2, 0), UpgraderV2.class, version(3, 0), UpgraderV3.class));
 
         assertThat(Installer.instances).isEqualTo(2);

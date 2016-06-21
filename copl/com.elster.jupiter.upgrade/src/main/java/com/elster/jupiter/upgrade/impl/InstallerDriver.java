@@ -38,13 +38,20 @@ final class InstallerDriver implements Migration {
 
     @Override
     public void migrate(Connection connection) throws Exception {
+        if (transactionService.isInTransaction()) {
+            doInstall().run();
+            return;
+        }
         transactionService.builder()
                 .principal(() -> "Installer")
-                .run(() -> {
-                            installer.get().install(dataModelUpgrader, logger);
-                            installAwareMigrationResolver.installed();
-                        }
-                );
+                .run(doInstall());
+    }
+
+    private Runnable doInstall() {
+        return () -> {
+                    installer.get().install(dataModelUpgrader, logger);
+                    installAwareMigrationResolver.installed();
+                };
     }
 
     @Override
