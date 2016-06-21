@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.energyict.mdc.device.data.impl.configchange.ServerProtocolDialectForConfigChange;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.CustomPropertySetValues;
@@ -20,6 +19,7 @@ import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.exceptions.DuplicateNameException;
+import com.energyict.mdc.device.data.impl.configchange.ServerProtocolDialectForConfigChange;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialectProperty;
@@ -27,6 +27,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectUsagePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
@@ -99,7 +100,8 @@ public class ProtocolDialectPropertiesImpl
     }
 
     private DeviceProtocolPluggableClass getDeviceProtocolPluggableClass(ProtocolDialectConfigurationProperties configurationProperties) {
-        return configurationProperties.getDeviceConfiguration().getDeviceType().getDeviceProtocolPluggableClass();
+        // if we have this object then we can assume that the pluggableclass is present so it's more or less safe to call the get
+        return configurationProperties.getDeviceConfiguration().getDeviceType().getDeviceProtocolPluggableClass().get();
     }
 
     DeviceProtocol getDeviceProtocol () {
