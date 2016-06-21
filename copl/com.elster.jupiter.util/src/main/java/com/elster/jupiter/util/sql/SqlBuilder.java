@@ -163,10 +163,10 @@ public final class SqlBuilder implements SqlFragment {
     }
 
     public SqlBuilder asPageBuilder(String field, int from, int to) {
-        return asPageBuilder(new String[]{field}, from, to);
+        return asPageBuilder(from, to, field);
     }
 
-    public SqlBuilder asPageBuilder(String[] fields, int from, int to) {
+    public SqlBuilder asPageBuilder(int from, int to, String... fields) {
         SqlBuilder result = new SqlBuilder("select ");
         for (int i = 0; i < fields.length; i++) {
             result.append(fields[i]);
