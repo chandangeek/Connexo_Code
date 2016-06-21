@@ -121,6 +121,11 @@ public enum MicroAction {
      * Removes the location configured on the device
      */
     REMOVE_LOCATION(MicroCategory.DECOMISSION),
+
+    /**
+     * Link the device to the usage point
+     */
+    LINK_TO_USAGE_POINT(MicroCategory.INSTALLATION)
     ;
 
     private MicroCategory category;
