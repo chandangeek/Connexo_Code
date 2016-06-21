@@ -15,16 +15,12 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.users.PrivilegesProvider;
-import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.proxy.LazyLoader;
 import com.elster.jupiter.util.streams.DecoratedStream;
 import com.elster.jupiter.util.streams.Predicates;
-import com.elster.jupiter.upgrade.InstallIdentifier;
-import com.elster.jupiter.upgrade.UpgradeService;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComPortPool;
@@ -60,7 +56,6 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -77,8 +72,8 @@ import static com.energyict.mdc.engine.config.impl.ComServerImpl.OFFLINE_COMSERV
 import static com.energyict.mdc.engine.config.impl.ComServerImpl.ONLINE_COMSERVER_DISCRIMINATOR;
 import static com.energyict.mdc.engine.config.impl.ComServerImpl.REMOTE_COMSERVER_DISCRIMINATOR;
 
-@Component(name = "com.energyict.mdc.engine.config", service = {EngineConfigurationService.class, MessageSeedProvider.class, TranslationKeyProvider.class, PrivilegesProvider.class}, property = "name=" + EngineConfigurationService.COMPONENT_NAME)
-public class EngineConfigurationServiceImpl implements EngineConfigurationService, MessageSeedProvider, TranslationKeyProvider, OrmClient, PrivilegesProvider {
+@Component(name = "com.energyict.mdc.engine.config", service = {EngineConfigurationService.class, MessageSeedProvider.class, TranslationKeyProvider.class}, property = "name=" + EngineConfigurationService.COMPONENT_NAME)
+public class EngineConfigurationServiceImpl implements EngineConfigurationService, MessageSeedProvider, TranslationKeyProvider, OrmClient {
 
     private volatile DataModel dataModel;
     private volatile EventService eventService;
@@ -546,22 +541,6 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
 
     private TranslatableApplicationException notUniqueException() {
         return new TranslatableApplicationException(thesaurus, MessageSeeds.NOT_UNIQUE);
-    }
-
-    @Override
-    public String getModuleName() {
-        return EngineConfigurationService.COMPONENT_NAME;
-    }
-
-    @Override
-    public List<ResourceDefinition> getModuleResources() {
-        List<ResourceDefinition> resources = new ArrayList<>();
-        resources.add(userService.createModuleResourceWithPrivileges(EngineConfigurationService.COMPONENT_NAME,
-                Privileges.RESOURCE_COMMUNICATION.getKey(), Privileges.RESOURCE_COMMUNICATION_DESCRIPTION.getKey(),
-                Arrays.asList(Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION,
-                        Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION,
-                        Privileges.Constants.VIEW_STATUS_COMMUNICATION_INFRASTRUCTURE)));
-        return resources;
     }
 
     private class ComServerLazyLoader implements LazyLoader<ComServer> {
