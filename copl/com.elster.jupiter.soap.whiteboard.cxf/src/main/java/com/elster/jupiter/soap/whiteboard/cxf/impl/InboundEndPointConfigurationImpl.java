@@ -16,7 +16,7 @@ import java.util.Optional;
 @ValidGroupName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
 public final class InboundEndPointConfigurationImpl extends EndPointConfigurationImpl implements InboundEndPointConfiguration {
 
-    private Reference<Group> group;
+    private Reference<Group> group = Reference.empty();
 
     @Inject
     public InboundEndPointConfigurationImpl(DataModel dataModel, Clock clock) {
