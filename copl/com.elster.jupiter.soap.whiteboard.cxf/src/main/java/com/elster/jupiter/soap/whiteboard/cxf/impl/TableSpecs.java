@@ -45,7 +45,6 @@ public enum TableSpecs {
             table.column("tracing").bool().map(EndPointConfigurationImpl.Fields.TRACING.fieldName()).add();
             table.column("tracefile")
                     .varChar()
-                    .notNull()
                     .map(EndPointConfigurationImpl.Fields.TRACEFILE.fieldName())
                     .add();
             table.column("logLevel")
