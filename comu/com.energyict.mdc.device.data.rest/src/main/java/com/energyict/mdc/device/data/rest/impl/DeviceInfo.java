@@ -11,10 +11,9 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.VersionInfo;
+import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.GatewayType;
-import com.energyict.mdc.device.config.TimeOfUseOptions;
 import com.energyict.mdc.device.configuration.rest.GatewayTypeAdapter;
 import com.energyict.mdc.device.data.Batch;
 import com.energyict.mdc.device.data.BatchService;
@@ -24,17 +23,13 @@ import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.issue.datavalidation.DataValidationIssueFilter;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
-import com.energyict.mdc.protocol.api.calendars.ProtocolSupportedCalendarOptions;
-
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @XmlRootElement
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -84,8 +79,7 @@ public class DeviceInfo extends DeviceVersionInfo {
         deviceInfo.deviceTypeName = device.getDeviceType().getName();
         deviceInfo.deviceConfigurationId = deviceConfiguration.getId();
         deviceInfo.deviceConfigurationName = deviceConfiguration.getName();
-        deviceInfo.deviceProtocolPluggeableClassId = device.getDeviceType().getDeviceProtocolPluggableClass()!=null
-            ? device.getDeviceType().getDeviceProtocolPluggableClass().getId() : 0;
+        deviceInfo.deviceProtocolPluggeableClassId = device.getDeviceType().getDeviceProtocolPluggableClass().map(HasId::getId).orElse(0L);
         deviceInfo.yearOfCertification = device.getYearOfCertification();
         deviceInfo.batch = batchService.findBatch(device).map(Batch::getName).orElse(null);
 
@@ -121,10 +115,10 @@ public class DeviceInfo extends DeviceVersionInfo {
         deviceInfo.version = device.getVersion();
         deviceInfo.parent = new VersionInfo<>(deviceConfiguration.getId(), deviceConfiguration.getVersion());
         deviceInfo.dataLoggerSlaveDevices = dataLoggerSlaveDeviceInfoFactory.from(device);
-        if(geoCoordinates !=null){
+        if (geoCoordinates != null) {
             deviceInfo.geoCoordinates = geoCoordinates;
         }
-        if(location!=null){
+        if (location != null) {
             deviceInfo.location = location;
         }
         return deviceInfo;

@@ -16,9 +16,7 @@ import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.GeoCoordinates;
 import com.elster.jupiter.metering.KnownAmrSystem;
-import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
@@ -275,7 +273,7 @@ public class DeviceInfoFactoryTest {
 
         when(dataLoggerDeviceType.getId()).thenReturn(DATA_LOGGER_DEVICE_TYPE_ID);
         when(dataLoggerDeviceType.getName()).thenReturn(DATA_LOGGER_DEVICE_TYPE_NAME);
-        when(dataLoggerDeviceType.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
+        when(dataLoggerDeviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));
         when(dataLoggerDeviceType.isDataloggerSlave()).thenReturn(false);
 
         when(dateLoggerDeviceConfiguration.getId()).thenReturn(DATALOGGER_DEVICE_CONFIGURATION_ID);

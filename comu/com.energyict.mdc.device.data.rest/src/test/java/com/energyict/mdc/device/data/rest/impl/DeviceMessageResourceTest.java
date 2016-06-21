@@ -139,7 +139,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         when(deviceProtocol.getSupportedMessages()).thenReturn(EnumSet.of(DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT, DeviceMessageId.CONTACTOR_CLOSE_WITH_OUTPUT, DeviceMessageId.CONTACTOR_ARM, DeviceMessageId.CONTACTOR_CLOSE, DeviceMessageId.CONTACTOR_OPEN));
         when(pluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
-        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(pluggableClass);
+        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(pluggableClass));
         when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
         when(device.getDeviceType()).thenReturn(deviceType);
 
@@ -190,7 +190,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         when(deviceProtocol.getSupportedMessages()).thenReturn(EnumSet.of(DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT, DeviceMessageId.CONTACTOR_CLOSE_WITH_OUTPUT, DeviceMessageId.CONTACTOR_ARM, DeviceMessageId.CONTACTOR_CLOSE, DeviceMessageId.CONTACTOR_OPEN));
         when(pluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
-        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(pluggableClass);
+        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(pluggableClass));
         when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
         when(device.getDeviceType()).thenReturn(deviceType);
 
@@ -231,7 +231,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         when(deviceProtocol.getSupportedMessages()).thenReturn(EnumSet.of(DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT, DeviceMessageId.CONTACTOR_CLOSE_WITH_OUTPUT, DeviceMessageId.CONTACTOR_ARM, DeviceMessageId.CONTACTOR_CLOSE, DeviceMessageId.CONTACTOR_OPEN));
         when(pluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
-        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(pluggableClass);
+        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(pluggableClass));
         when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
         when(device.getDeviceType()).thenReturn(deviceType);
 
@@ -266,7 +266,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         when(deviceProtocol.getSupportedMessages()).thenReturn(EnumSet.of(DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT, DeviceMessageId.CONTACTOR_CLOSE_WITH_OUTPUT, DeviceMessageId.CONTACTOR_ARM, DeviceMessageId.CONTACTOR_CLOSE, DeviceMessageId.CONTACTOR_OPEN));
         when(pluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
-        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(pluggableClass);
+        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(pluggableClass));
         when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
         when(device.getDeviceType()).thenReturn(deviceType);
 
@@ -301,7 +301,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         when(deviceProtocol.getSupportedMessages()).thenReturn(EnumSet.of(DeviceMessageId.CLOCK_SET_TIME, DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT, DeviceMessageId.CONTACTOR_CLOSE_WITH_OUTPUT, DeviceMessageId.CONTACTOR_ARM, DeviceMessageId.CONTACTOR_CLOSE, DeviceMessageId.CONTACTOR_OPEN));
         when(pluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
-        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(pluggableClass);
+        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(pluggableClass));
         when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
         when(device.getDeviceType()).thenReturn(deviceType);
 
@@ -353,7 +353,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         when(deviceProtocol.getSupportedMessages()).thenReturn(EnumSet.of(DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT, DeviceMessageId.CONTACTOR_CLOSE_WITH_OUTPUT, DeviceMessageId.CONTACTOR_ARM, DeviceMessageId.CONTACTOR_CLOSE, DeviceMessageId.CONTACTOR_OPEN));
         when(pluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
-        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(pluggableClass);
+        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(pluggableClass));
         when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
         when(device.getDeviceType()).thenReturn(deviceType);
 
@@ -398,7 +398,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         DeviceType deviceType = mock(DeviceType.class);
         DeviceProtocolPluggableClass pluggableClass = mock(DeviceProtocolPluggableClass.class);
         when(pluggableClass.getDeviceProtocol()).thenReturn(new MessageTestDeviceProtocol());
-        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(pluggableClass);
+        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(pluggableClass));
         when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
         when(device.getDeviceType()).thenReturn(deviceType);
 
@@ -449,7 +449,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         when(deviceProtocol.getSupportedMessages()).thenReturn(EnumSet.of(DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT, DeviceMessageId.CONTACTOR_CLOSE_WITH_OUTPUT, DeviceMessageId.CONTACTOR_ARM, DeviceMessageId.CONTACTOR_CLOSE, DeviceMessageId.CONTACTOR_OPEN));
         when(pluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
-        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(pluggableClass);
+        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(pluggableClass));
         when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
         when(device.getDeviceType()).thenReturn(deviceType);
 

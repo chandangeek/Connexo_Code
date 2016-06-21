@@ -19,9 +19,8 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.ProtocolTask;
+
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Before;
-import org.junit.Test;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -32,6 +31,9 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import org.junit.Before;
+import org.junit.Test;
 
 import static com.energyict.mdc.device.data.rest.impl.DeviceMessagePreferredComTaskTest.Progress.OnHold;
 import static com.energyict.mdc.device.data.rest.impl.DeviceMessagePreferredComTaskTest.Progress.Planned;
@@ -83,7 +85,7 @@ public class DeviceMessagePreferredComTaskTest extends DeviceDataRestApplication
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         when(deviceProtocol.getSupportedMessages()).thenReturn(EnumSet.of(DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT, DeviceMessageId.CONTACTOR_CLOSE_WITH_OUTPUT, DeviceMessageId.CONTACTOR_ARM, DeviceMessageId.CONTACTOR_CLOSE, DeviceMessageId.CONTACTOR_OPEN));
         when(pluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
-        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(pluggableClass);
+        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(pluggableClass));
         when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
         when(device.getDeviceType()).thenReturn(deviceType);
 

@@ -25,7 +25,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
 import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -62,7 +63,7 @@ public class DeviceProtocolPropertiesResourceTest extends DeviceDataRestApplicat
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(deviceProtocolPluggableClass.getId()).thenReturn(17L);
         when(deviceProtocolPluggableClass.getName()).thenReturn("some protocol");
-        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
+        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));
         when(protocolPluggableService.findDeviceProtocolPluggableClass(deviceProtocolPluggableClass.getId())).thenReturn(Optional.of(deviceProtocolPluggableClass));
         when(protocolPluggableService.findAndLockDeviceProtocolPluggableClassByIdAndVersion(deviceProtocolPluggableClass.getId(), 1L)).thenReturn(Optional.of(deviceProtocolPluggableClass));
         when(properties.getDeviceConfiguration()).thenReturn(deviceConfiguration);
