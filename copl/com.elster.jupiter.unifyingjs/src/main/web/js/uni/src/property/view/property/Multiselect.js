@@ -73,7 +73,7 @@ Ext.define('Uni.property.view.property.Multiselect', {
                     flag && (result += Ext.String.htmlEncode(flag.get('name')) + '<br>');
                 });
 
-                return result;
+                return (Ext.isEmpty(result) ? '-' : result);
             }
         }
     },

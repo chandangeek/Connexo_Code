@@ -35,7 +35,7 @@ Ext.define('Uni.grid.filtertop.ClosableCombobox', {
             {
                 xtype: 'button',
                 margin: '0 0 0 2',
-                iconCls: ' icon-close2',
+                iconCls: 'icon-cancel-circle2',
                 action: 'remove',
                 listeners: {
                     click: function () {
