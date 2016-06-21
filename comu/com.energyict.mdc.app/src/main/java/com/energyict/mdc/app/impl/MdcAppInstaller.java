@@ -21,14 +21,16 @@ import com.energyict.mdc.engine.monitor.app.MdcMonitorAppService;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.scheduling.SchedulingService;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-import java.util.Collections;
 import java.util.logging.Logger;
+
+import static com.elster.jupiter.orm.Version.version;
 
 @Component(name = "com.energyict.mdc.app.install", service = {MdcAppInstaller.class}, property = "name=" + MdcAppService.COMPONENTNAME, immediate = true)
 @SuppressWarnings("unused")
@@ -63,7 +65,7 @@ public class MdcAppInstaller {
                 bind(UserService.class).toInstance(userService);
             }
         });
-        upgradeService.register(InstallIdentifier.identifier("MDA"), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier("MDA"), dataModel, Installer.class, ImmutableMap.of(version(10, 2), UpgraderV10_2.class));
     }
 
     public static class Installer implements FullInstaller {
@@ -103,14 +105,14 @@ public class MdcAppInstaller {
             userService.grantGroupWithPrivilege(UserService.BATCH_EXECUTOR_ROLE, MdcAppService.APPLICATION_KEY, privilegesMeterExpert);
             userService.grantGroupWithPrivilege(MdcAppService.Roles.REPORT_VIEWER.value(), MdcAppService.APPLICATION_KEY, getPrivilegesReportViewer());
             //TODO: workaround: attached Meter expert to user admin !!! to remove this line when the user can be created/added to system
-            userService.getUser(1)
+            userService.findUser("admin")
                     .ifPresent(u -> u.join(userService.getGroups()
                             .stream()
                             .filter(e -> e.getName().equals(MdcAppService.Roles.METER_EXPERT.value()))
                             .findFirst()
                             .get()));
             //TODO: workaround: attached Report viewer to user admin !!! to remove this line when the user can be created/added to system
-            userService.getUser(1)
+            userService.findUser("admin")
                     .ifPresent(u -> u.join(userService.getGroups()
                             .stream()
                             .filter(e -> e.getName().equals(MdcAppService.Roles.REPORT_VIEWER.value()))
@@ -142,6 +144,7 @@ public class MdcAppInstaller {
 
                     //Communication
                     com.energyict.mdc.engine.config.security.Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION,
+                    com.energyict.mdc.engine.config.security.Privileges.Constants.VIEW_STATUS_COMMUNICATION_INFRASTRUCTURE,
 
                     //Data collection KPI
                     com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DATA_COLLECTION_KPI,
