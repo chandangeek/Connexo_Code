@@ -23,7 +23,7 @@ public final class SearchablePropertyConstriction {
     }
 
     public static SearchablePropertyConstriction withValues(SearchableProperty constrainingProperty, Object... constrainingValues) {
-        return new SearchablePropertyConstriction(constrainingProperty, Arrays.asList(constrainingValues));
+        return withValues(constrainingProperty, Arrays.asList(constrainingValues));
     }
 
     public static SearchablePropertyConstriction withValues(SearchableProperty constrainingProperty, List<Object> constrainingValues) {
