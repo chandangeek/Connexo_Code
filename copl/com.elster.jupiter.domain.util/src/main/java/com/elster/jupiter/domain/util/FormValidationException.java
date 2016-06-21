@@ -6,12 +6,13 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class FormValidationException extends RuntimeException {
 
-    private Map<String, List<String>> exceptions;
+    private Map<String, List<String>> exceptions = new HashMap<>();
 
     public FormValidationException addException(String fieldName, String message) {
         List<String> messages = exceptions.get(fieldName);
