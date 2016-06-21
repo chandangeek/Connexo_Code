@@ -66,7 +66,12 @@ public class ConcurrentModificationException extends LocalizedException {
     }
 
     void setParentId(Object[] parentId) {
-        this.parentId = parentId;
+        if (parentId != null) {
+            this.parentId = new Object[parentId.length];
+            System.arraycopy(parentId, 0, this.parentId, 0, parentId.length);
+        } else {
+            this.parentId = null;
+        }
     }
 
     void setParentVersion(Supplier<Long> parentVersion) {
