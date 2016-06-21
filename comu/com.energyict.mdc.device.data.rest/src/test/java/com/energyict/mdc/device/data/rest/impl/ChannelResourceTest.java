@@ -285,12 +285,12 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         assertThat(jsonModel.<String>get("$.readingQualities[0].cimCode")).isEqualTo("3.2.32");
         assertThat(jsonModel.<String>get("$.readingQualities[0].indexName")).isEqualTo("Power fail");
-        assertThat(jsonModel.<String>get("$.readingQualities[0].systemName")).isEqualTo("MDM");
+        assertThat(jsonModel.<String>get("$.readingQualities[0].systemName")).isEqualTo("Insight");
         assertThat(jsonModel.<String>get("$.readingQualities[0].categoryName")).isEqualTo("Power quality");
 
         assertThat(jsonModel.<String>get("$.readingQualities[1].cimCode")).isEqualTo("3.0.0");
         assertThat(jsonModel.<String>get("$.readingQualities[1].indexName")).isEqualTo("Data valid");
-        assertThat(jsonModel.<String>get("$.readingQualities[1].systemName")).isEqualTo("MDM");
+        assertThat(jsonModel.<String>get("$.readingQualities[1].systemName")).isEqualTo("Insight");
         assertThat(jsonModel.<String>get("$.readingQualities[1].categoryName")).isEqualTo("Valid");
     }
 

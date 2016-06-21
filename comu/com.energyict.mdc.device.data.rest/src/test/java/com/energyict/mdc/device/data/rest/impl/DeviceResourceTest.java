@@ -666,11 +666,11 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         List<String> readingQualitiesChannel1 = readingQualitiesPerChannel.get(String.valueOf(channel1.getId()));
         assertThat(readingQualitiesChannel1).hasSize(1);
-        assertThat(readingQualitiesChannel1.get(0)).isEqualTo("RAM Checksum Error");
+        assertThat(readingQualitiesChannel1.get(0)).isEqualTo("RAM checksum error");
 
         List<String> readingQualitiesChannel2 = readingQualitiesPerChannel.get(String.valueOf(channel2.getId()));
         assertThat(readingQualitiesChannel2).hasSize(1);
-        assertThat(readingQualitiesChannel2.get(0)).isEqualTo("RAM Checksum Error");
+        assertThat(readingQualitiesChannel2.get(0)).isEqualTo("RAM checksum error");
 
         Map<String, Long> interval = (Map<String, Long>) ((Map) data.get(0)).get("interval");
         assertThat(interval.get("start")).isEqualTo(startTime);
@@ -721,7 +721,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
                 .containsKey("value")
                 .containsKey("readingTime")
                 .containsKey("readingQualities");
-        assertThat(((List<String>) ((Map) data.get(0)).get("readingQualities")).get(0)).isEqualTo("RAM Checksum Error");
+        assertThat(((List<String>) ((Map) data.get(0)).get("readingQualities")).get(0)).isEqualTo("RAM checksum error");
         Map<String, Long> interval = (Map<String, Long>) ((Map) data.get(0)).get("interval");
         assertThat(interval.get("start")).isEqualTo(startTime);
         assertThat(interval.get("end")).isEqualTo(startTime + 900);
