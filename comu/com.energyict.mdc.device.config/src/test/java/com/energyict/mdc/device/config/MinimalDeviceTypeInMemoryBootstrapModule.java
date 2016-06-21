@@ -92,7 +92,8 @@ public class MinimalDeviceTypeInMemoryBootstrapModule {
                 new FiniteStateMachineModule(),
                 new PluggableModule(),
                 new DeviceLifeCycleConfigurationModule(),
-                new DeviceConfigurationModule());
+                new DeviceConfigurationModule(),
+                new CalendarModule());
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             injector.getInstance(ThreadPrincipalService.class);
             injector.getInstance(PluggableService.class);
