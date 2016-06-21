@@ -29,8 +29,6 @@ import com.elster.jupiter.time.TemporalExpressionParser;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.users.PrivilegesProvider;
-import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.cron.CronExpressionParser;
@@ -51,7 +49,6 @@ import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -64,9 +61,9 @@ import java.util.stream.Stream;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name = "com.elster.jupiter.tasks",
-           service = { TaskService.class, TranslationKeyProvider.class, MessageSeedProvider.class, PrivilegesProvider.class },
+           service = { TaskService.class, TranslationKeyProvider.class, MessageSeedProvider.class },
            property = "name=" + TaskService.COMPONENTNAME, immediate = true)
-public class TaskServiceImpl implements TaskService, TranslationKeyProvider, MessageSeedProvider, PrivilegesProvider {
+public class TaskServiceImpl implements TaskService, TranslationKeyProvider, MessageSeedProvider {
 
     private DueTaskFetcher dueTaskFetcher;
     private volatile Clock clock;
@@ -121,6 +118,7 @@ public class TaskServiceImpl implements TaskService, TranslationKeyProvider, Mes
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
+                bind(UserService.class).toInstance(userService);
             }
         });
         upgradeService.register(InstallIdentifier.identifier(COMPONENTNAME), dataModel, InstallerImpl.class, Collections.emptyMap());
@@ -318,17 +316,4 @@ public class TaskServiceImpl implements TaskService, TranslationKeyProvider, Mes
         return Arrays.asList(MessageSeeds.values());
     }
 
-    @Override
-    public String getModuleName() {
-        return TaskService.COMPONENTNAME;
-    }
-
-    @Override
-    public List<ResourceDefinition> getModuleResources() {
-        List<ResourceDefinition> resources = new ArrayList<>();
-        resources.add(userService.createModuleResourceWithPrivileges(TaskService.COMPONENTNAME, Privileges.RESOURCE_TASKS.getKey(), Privileges.RESOURCE_TASKS_DESCRIPTION.getKey(),
-                Arrays.asList(
-                        Privileges.Constants.VIEW_TASK_OVERVIEW)));
-        return resources;
-    }
 }
