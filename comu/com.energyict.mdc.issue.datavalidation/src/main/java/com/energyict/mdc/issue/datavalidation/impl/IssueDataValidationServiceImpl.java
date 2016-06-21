@@ -1,17 +1,9 @@
 package com.energyict.mdc.issue.datavalidation.impl;
 
-import com.elster.jupiter.issue.share.IssueEvent;
-import com.energyict.mdc.issue.datavalidation.DataValidationIssueFilter;
-import com.energyict.mdc.issue.datavalidation.HistoricalIssueDataValidation;
-import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
-import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
-import com.energyict.mdc.issue.datavalidation.OpenIssueDataValidation;
-import com.energyict.mdc.issue.datavalidation.impl.entity.IssueDataValidationImpl;
-import com.energyict.mdc.issue.datavalidation.impl.entity.OpenIssueDataValidationImpl;
-
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.IssueProvider;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
 import com.elster.jupiter.issue.share.entity.Issue;
@@ -22,6 +14,7 @@ import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -30,11 +23,20 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.upgrade.InstallIdentifier;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.issue.datavalidation.DataValidationIssueFilter;
+import com.energyict.mdc.issue.datavalidation.HistoricalIssueDataValidation;
+import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
+import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
+import com.energyict.mdc.issue.datavalidation.OpenIssueDataValidation;
+import com.energyict.mdc.issue.datavalidation.impl.entity.IssueDataValidationImpl;
+import com.energyict.mdc.issue.datavalidation.impl.entity.OpenIssueDataValidationImpl;
+
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -43,21 +45,25 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name = "com.energyict.mdc.issue.datavalidation",
-           service = { InstallService.class, TranslationKeyProvider.class, MessageSeedProvider.class, IssueDataValidationService.class, IssueProvider.class },
+           service = { TranslationKeyProvider.class, MessageSeedProvider.class, IssueDataValidationService.class, IssueProvider.class },
            property = "name=" + IssueDataValidationService.COMPONENT_NAME,
            immediate = true)
-public class IssueDataValidationServiceImpl implements IssueDataValidationService, TranslationKeyProvider, MessageSeedProvider, InstallService, IssueProvider {
+public class IssueDataValidationServiceImpl implements IssueDataValidationService, TranslationKeyProvider, MessageSeedProvider, IssueProvider {
 
     private volatile IssueService issueService;
     private volatile Thesaurus thesaurus;
     private volatile EventService eventService;
     private volatile MessageService messageService;
+    private volatile UpgradeService upgradeService;
+    private volatile MeteringService meteringService;
+
 
     private volatile DataModel dataModel;
 
@@ -66,17 +72,15 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
     }
 
     @Inject
-    public IssueDataValidationServiceImpl(OrmService ormService, IssueService issueService, NlsService nlsService, EventService eventService, MessageService messageService) {
+    public IssueDataValidationServiceImpl(OrmService ormService, IssueService issueService, NlsService nlsService, EventService eventService, MessageService messageService, UpgradeService upgradeService) {
         this();
         setOrmService(ormService);
         setIssueService(issueService);
         setNlsService(nlsService);
         setEventService(eventService);
         setMessageService(messageService);
+        setUpgradeService(upgradeService);
         activate();
-        if(!dataModel.isInstalled()) {
-            install();
-        }
     }
 
     @Activate
@@ -92,16 +96,7 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
                 bind(MessageService.class).toInstance(messageService);
             }
         });
-    }
-
-    @Override
-    public void install() {
-        dataModel.getInstance(Installer.class).install();
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "NLS", "MSG", "EVT", "MTR", "ISU", "EST");
+        upgradeService.register(InstallIdentifier.identifier(IssueDataValidationService.COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
     }
 
     @Override
@@ -193,6 +188,16 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
     @Reference
     public void setMessageService(MessageService messageService) {
         this.messageService = messageService;
+    }
+
+    @Reference
+    public void setMeteringService(MeteringService meteringService) {
+        this.meteringService = meteringService;
+    }
+
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
     }
 
     @Override
