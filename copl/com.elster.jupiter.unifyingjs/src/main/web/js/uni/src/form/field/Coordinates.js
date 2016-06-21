@@ -223,7 +223,7 @@ Ext.define('Uni.form.field.Coordinates', {
             else if (field.itemId == 'txt-coordinate-elev') {
                 elevField.setValue(Ext.String.format('{0} {1}', field.getValue(), Uni.I18n.translate('coordinates.elevationUnit', 'UNI', 'm '))); // Intentionally added space in translation
             }                                                                                                                                     // as I18nAnalyzer has problems with single character translations
-            // defaultButton.setDisabled(me.getValue().deviceSpatialCoordinates == me.displayValue.usagePointSpatialCoordinates);
+            // defaultButton.setDisabled(me.getValue().spatialCoordinates == me.displayValue.usagePointSpatialCoordinates);
         }
         else {
             if (field.itemId == 'txt-coordinate-lat') {
@@ -249,7 +249,7 @@ Ext.define('Uni.form.field.Coordinates', {
 
         me.displayValue = value;
 
-        if ((value == null) || (value.deviceSpatialCoordinates == null) || (value.deviceSpatialCoordinates.length == 0)) {
+        if ((value == null) || (value.spatialCoordinates == null) || (value.spatialCoordinates.length == 0)) {
             me.down('#ctn-coordinate').setVisible(false);
             me.down('#no-coordinate').setVisible(true);
             defaultButton.setDisabled(true);
@@ -259,7 +259,7 @@ Ext.define('Uni.form.field.Coordinates', {
             me.down('#ctn-coordinate').setVisible(true);
             me.down('#no-coordinate').setVisible(false);
         }
-        values = value.deviceSpatialCoordinates.split(':');
+        values = value.spatialCoordinates.split(':');
         if (values.length > 0) {
             latTextField.setValue(values[0]);
         }
@@ -283,16 +283,16 @@ Ext.define('Uni.form.field.Coordinates', {
             defaultButton = me.down('#uni-coordinate-default-button');
 
         return me.displayResetButton ? {
-            deviceSpatialCoordinates: (latTextField.getValue() == null && longTextField.getValue() == null && elevTextField.getValue() == null) ? null :
+            spatialCoordinates: (latTextField.getValue() == null && longTextField.getValue() == null && elevTextField.getValue() == null) ? null :
                 Ext.String.format('{0}:{1}:{2}', latTextField.getValue(), longTextField.getValue(), elevTextField.getValue()),
-            deviceCoordinatesDisplay: null,
+            coordinatesDisplay: null,
             isInherited: (me.displayValue && me.displayValue.usagePointSpatialCoordinates == undefined) ? false : defaultButton.disabled,
             usagePointSpatialCoordinates: me.displayValue ? me.displayValue.usagePointSpatialCoordinates : 0
         } :
         {
-            deviceSpatialCoordinates: (latTextField.getValue() == null && longTextField.getValue() == null && elevTextField.getValue() == null) ? null :
+            spatialCoordinates: (latTextField.getValue() == null && longTextField.getValue() == null && elevTextField.getValue() == null) ? null :
                 Ext.String.format('{0}:{1}:{2}', latTextField.getValue(), longTextField.getValue(), elevTextField.getValue()),
-            deviceCoordinatesDisplay: null
+            coordinatesDisplay: null
         };
     },
 
