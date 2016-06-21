@@ -19,11 +19,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-* Provides a mock implementation for the {@link OnlineComServer} interface.
-*
-* @author Rudi Vankeirsbilck (rudi)
-* @since 2012-04-03 (12:04)
-*/
+ * Provides a mock implementation for the {@link OnlineComServer} interface.
+ *
+ * @author Rudi Vankeirsbilck (rudi)
+ * @since 2012-04-03 (12:04)
+ */
 public class MockOnlineComServer implements Cloneable, OnlineComServer {
 
     private static final long SEQUENCE_START = 97;
@@ -44,15 +44,13 @@ public class MockOnlineComServer implements Cloneable, OnlineComServer {
     private int storeTaskQueueSize = ComServer.MINIMUM_STORE_TASK_QUEUE_SIZE;
     private int numberOfStoreTaskThreads = ComServer.MINIMUM_NUMBER_OF_STORE_TASK_THREADS;
     private int storeTaskThreadPriority = ComServer.MINIMUM_STORE_TASK_THREAD_PRIORITY;
-    private boolean usesDefaultEventRegistrationUri = false;
-    private String eventRegistrationUri;
-    private String queryAPIPostUri;
-    private boolean usesDefaultQueryApiPostUri = false;
-    private String statusUri;
-    private boolean usesDefaultStatusUri = false;
+    private String serverName;
+    private int eventRegistrationPort;
+    private int queryApiPort;
+    private int statusPort;
     private long version;
 
-    public MockOnlineComServer (String name) {
+    public MockOnlineComServer(String name) {
         super();
         this.id = NEXT_ID++;
         this.name = name;
@@ -73,22 +71,22 @@ public class MockOnlineComServer implements Cloneable, OnlineComServer {
         this.name = name;
     }
 
-    private long nextComPortId () {
+    private long nextComPortId() {
         return NEXT_COMPORT_ID++;
     }
 
     @Override
-    public boolean isOffline () {
+    public boolean isOffline() {
         return false;
     }
 
     @Override
-    public boolean isRemote () {
+    public boolean isRemote() {
         return false;
     }
 
     @Override
-    public boolean isOnline () {
+    public boolean isOnline() {
         return true;
     }
 
@@ -103,100 +101,119 @@ public class MockOnlineComServer implements Cloneable, OnlineComServer {
     }
 
     @Override
-    public boolean isActive () {
+    public boolean isActive() {
         return active;
     }
 
     @Override
-    public void setActive (boolean active) {
+    public void setActive(boolean active) {
         this.active = active;
     }
 
     @Override
-    public LogLevel getServerLogLevel () {
+    public LogLevel getServerLogLevel() {
         return serverLogLevel;
     }
 
     @Override
-    public void setServerLogLevel (LogLevel serverLogLevel) {
+    public void setServerLogLevel(LogLevel serverLogLevel) {
         this.serverLogLevel = serverLogLevel;
     }
 
     @Override
-    public LogLevel getCommunicationLogLevel () {
+    public LogLevel getCommunicationLogLevel() {
         return communicationLogLevel;
     }
 
     @Override
-    public void setCommunicationLogLevel (LogLevel communicationLogLevel) {
+    public void setCommunicationLogLevel(LogLevel communicationLogLevel) {
         this.communicationLogLevel = communicationLogLevel;
     }
 
     @Override
-    public TimeDuration getChangesInterPollDelay () {
+    public TimeDuration getChangesInterPollDelay() {
         return changesInterPollDelay;
     }
 
     @Override
-    public void setChangesInterPollDelay (TimeDuration changesInterPollDelay) {
+    public void setChangesInterPollDelay(TimeDuration changesInterPollDelay) {
         this.changesInterPollDelay = changesInterPollDelay;
         this.becomeDirty();
     }
 
     @Override
-    public TimeDuration getSchedulingInterPollDelay () {
+    public TimeDuration getSchedulingInterPollDelay() {
         return schedulingInterPollDelay;
     }
 
     @Override
-    public void setSchedulingInterPollDelay (TimeDuration schedulingInterPollDelay) {
+    public void setSchedulingInterPollDelay(TimeDuration schedulingInterPollDelay) {
         this.schedulingInterPollDelay = schedulingInterPollDelay;
         this.becomeDirty();
     }
 
     @Override
-    public boolean usesDefaultQueryApiPostUri() {
-        return this.usesDefaultQueryApiPostUri;
+    public String getServerName() {
+        return serverName;
     }
 
     @Override
-    public void setUsesDefaultQueryAPIPostUri(boolean usesDefaultQueryAPIPostUri) {
-        this.usesDefaultQueryApiPostUri = usesDefaultQueryAPIPostUri;
+    public void setServerName(String serverName) {
+        this.serverName = serverName;
+        becomeDirty();
     }
 
     @Override
-    public String getQueryApiPostUri () {
-        return queryAPIPostUri;
+    public String getQueryApiPostUri() {
+        return null;
     }
 
     @Override
-    public void setQueryAPIPostUri (String queryAPIPostUri) {
-        this.queryAPIPostUri = queryAPIPostUri;
+    public int getQueryApiPort() {
+        return queryApiPort;
+    }
+
+    @Override
+    public void setQueryApiPort(int queryApiPort) {
+        this.queryApiPort = queryApiPort;
+        becomeDirty();
+    }
+
+    @Override
+    public String getEventRegistrationUri() {
+        return null;
+    }
+
+    @Override
+    public int getEventRegistrationPort() {
+        return eventRegistrationPort;
+    }
+
+    @Override
+    public void setEventRegistrationPort(int eventRegistrationPort) {
+        this.eventRegistrationPort = eventRegistrationPort;
+        becomeDirty();
     }
 
     @Override
     public String getStatusUri() {
-        return this.statusUri;
+        return null;
     }
 
     @Override
-    public void setStatusUri(String statusUri) {
-        this.statusUri = statusUri;
+    public int getStatusPort() {
+        return statusPort;
     }
 
     @Override
-    public int getStoreTaskQueueSize () {
+    public void setStatusPort(int statusPort) {
+        this.statusPort = statusPort;
+        becomeDirty();
+    }
+
+    @Override
+    public int getStoreTaskQueueSize() {
         return this.storeTaskQueueSize;
-    }
-
-    @Override
-    public boolean usesDefaultStatusUri() {
-        return this.usesDefaultStatusUri;
-    }
-
-    @Override
-    public void setUsesDefaultStatusUri(boolean usesDefaultStatusUri) {
-        this.usesDefaultStatusUri = usesDefaultStatusUri;
     }
 
     @Override
@@ -206,7 +223,7 @@ public class MockOnlineComServer implements Cloneable, OnlineComServer {
     }
 
     @Override
-    public int getNumberOfStoreTaskThreads () {
+    public int getNumberOfStoreTaskThreads() {
         return this.numberOfStoreTaskThreads;
     }
 
@@ -217,7 +234,7 @@ public class MockOnlineComServer implements Cloneable, OnlineComServer {
     }
 
     @Override
-    public int getStoreTaskThreadPriority () {
+    public int getStoreTaskThreadPriority() {
         return this.storeTaskThreadPriority;
     }
 
@@ -227,27 +244,7 @@ public class MockOnlineComServer implements Cloneable, OnlineComServer {
     }
 
     @Override
-    public boolean usesDefaultEventRegistrationUri () {
-        return this.usesDefaultEventRegistrationUri;
-    }
-
-    @Override
-    public void setUsesDefaultEventRegistrationUri(boolean usesDefaultEventRegistrationUri) {
-        this.usesDefaultEventRegistrationUri = usesDefaultEventRegistrationUri;
-    }
-
-    @Override
-    public String getEventRegistrationUri () {
-        return eventRegistrationUri;
-    }
-
-    @Override
-    public void setEventRegistrationUri(String eventRegistrationUri) {
-        this.eventRegistrationUri = eventRegistrationUri;
-    }
-
-    @Override
-    public List<ComPort> getComPorts () {
+    public List<ComPort> getComPorts() {
         List<ComPort> allComPorts = new ArrayList<>();
         allComPorts.addAll(this.getInboundComPorts());
         allComPorts.addAll(this.getOutboundComPorts());
@@ -255,26 +252,26 @@ public class MockOnlineComServer implements Cloneable, OnlineComServer {
     }
 
     @Override
-    public List<InboundComPort> getInboundComPorts () {
+    public List<InboundComPort> getInboundComPorts() {
         return new ArrayList<InboundComPort>(this.inboundComPorts);
     }
 
-    public MockTCPInboundComPort getInboundComPort (int portNumber) {
+    public MockTCPInboundComPort getInboundComPort(int portNumber) {
         return this.inboundComPorts.get(portNumber - 1);
     }
 
     @Override
-    public List<OutboundComPort> getOutboundComPorts () {
+    public List<OutboundComPort> getOutboundComPorts() {
         return new ArrayList<OutboundComPort>(this.outboundComPorts);
     }
 
-    public MockOutboundComPort getOutboundComPort (int portNumber) {
+    public MockOutboundComPort getOutboundComPort(int portNumber) {
         return this.outboundComPorts.get(portNumber - 1);
     }
 
 
-    public TCPBasedInboundComPort createTCPBasedInbound (String name, boolean active, int portNumber, int numberOfSimultaneousConnections)
-        throws
+    public TCPBasedInboundComPort createTCPBasedInbound(String name, boolean active, int portNumber, int numberOfSimultaneousConnections)
+            throws
             SQLException {
         MockTCPInboundComPort comPort = new MockTCPInboundComPort(this, this.nextComPortId(), name);
         comPort.setActive(active);
@@ -286,7 +283,7 @@ public class MockOnlineComServer implements Cloneable, OnlineComServer {
         return comPort;
     }
 
-    public MockOutboundComPort createOutbound (String name, boolean active, int numberOfSimultaneousConnections) throws SQLException {
+    public MockOutboundComPort createOutbound(String name, boolean active, int numberOfSimultaneousConnections) throws SQLException {
         MockOutboundComPort comPort = new MockOutboundComPort(this, this.nextComPortId(), name);
         comPort.setActive(active);
         comPort.setComPortType(ComPortType.TCP);
@@ -299,66 +296,66 @@ public class MockOnlineComServer implements Cloneable, OnlineComServer {
 
 
     @Override
-    public boolean isObsolete () {
+    public boolean isObsolete() {
         return false;
     }
 
     @Override
-    public void makeObsolete () {
+    public void makeObsolete() {
 
     }
 
     @Override
-    public Instant getObsoleteDate () {
+    public Instant getObsoleteDate() {
         return null;
     }
 
-    public MockTCPInboundComPort activateInbound (int portNumber) {
+    public MockTCPInboundComPort activateInbound(int portNumber) {
         MockTCPInboundComPort comPort = this.inboundComPorts.get(portNumber - 1);
         comPort.setActive(true);
         this.becomeDirty();
         return comPort;
     }
 
-    public MockOutboundComPort activateOutbound (int portNumber) {
+    public MockOutboundComPort activateOutbound(int portNumber) {
         MockOutboundComPort comPort = this.outboundComPorts.get(portNumber - 1);
         comPort.setActive(true);
         this.becomeDirty();
         return comPort;
     }
 
-    public MockTCPInboundComPort deactivateInbound (int portNumber) {
+    public MockTCPInboundComPort deactivateInbound(int portNumber) {
         MockTCPInboundComPort comPort = this.inboundComPorts.get(portNumber - 1);
         comPort.setActive(false);
         this.becomeDirty();
         return comPort;
     }
 
-    public MockOutboundComPort deactivateOutbound (int portNumber) {
+    public MockOutboundComPort deactivateOutbound(int portNumber) {
         MockOutboundComPort comPort = this.outboundComPorts.get(portNumber - 1);
         comPort.setActive(false);
         this.becomeDirty();
         return comPort;
     }
 
-    public void deleteInbound (int portNumber) {
+    public void deleteInbound(int portNumber) {
         this.inboundComPorts.remove(portNumber - 1);
         this.becomeDirty();
     }
 
-    public void deleteOutbound (int portNumber) {
+    public void deleteOutbound(int portNumber) {
         this.outboundComPorts.remove(portNumber - 1);
         this.becomeDirty();
     }
 
-    public MockTCPInboundComPort setNumberOfSimultaneousInboundConnections (int portNumber, int numberOfSimultaneousConnections) {
+    public MockTCPInboundComPort setNumberOfSimultaneousInboundConnections(int portNumber, int numberOfSimultaneousConnections) {
         MockTCPInboundComPort comPort = this.inboundComPorts.get(portNumber - 1);
         comPort.setNumberOfSimultaneousConnections(numberOfSimultaneousConnections);
         this.becomeDirty();
         return comPort;
     }
 
-    public MockOutboundComPort setNumberOfSimultaneousOutboundConnections (int portNumber, int numberOfSimultaneousConnections) {
+    public MockOutboundComPort setNumberOfSimultaneousOutboundConnections(int portNumber, int numberOfSimultaneousConnections) {
         MockOutboundComPort comPort = this.outboundComPorts.get(portNumber - 1);
         comPort.setNumberOfSimultaneousConnections(numberOfSimultaneousConnections);
         this.becomeDirty();
@@ -373,16 +370,16 @@ public class MockOnlineComServer implements Cloneable, OnlineComServer {
         this.dirty = dirty;
     }
 
-    protected void becomeDirty () {
+    protected void becomeDirty() {
         this.setDirty(true);
     }
 
-    protected void becomeClean () {
+    protected void becomeClean() {
         this.setDirty(false);
     }
 
     @Override
-    public Object clone () throws CloneNotSupportedException {
+    public Object clone() throws CloneNotSupportedException {
         MockOnlineComServer clone = (MockOnlineComServer) super.clone();
         clone.inboundComPorts = new ArrayList<>(this.inboundComPorts.size());
         for (MockTCPInboundComPort comPort : this.inboundComPorts) {
@@ -396,12 +393,12 @@ public class MockOnlineComServer implements Cloneable, OnlineComServer {
     }
 
     @Override
-    public String getEventRegistrationUriIfSupported () {
+    public String getEventRegistrationUriIfSupported() {
         throw new UnsupportedOperationException("Event registration is not supported by mock online comservers");
     }
 
     @Override
-    public String getQueryApiPostUriIfSupported () {
+    public String getQueryApiPostUriIfSupported() {
         throw new UnsupportedOperationException("Query API is not supported by mock online comservers");
     }
 

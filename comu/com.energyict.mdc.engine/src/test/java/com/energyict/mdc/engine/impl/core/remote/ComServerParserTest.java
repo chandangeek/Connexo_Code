@@ -1,19 +1,10 @@
 package com.energyict.mdc.engine.impl.core.remote;
 
-import com.elster.jupiter.datavault.impl.DataVaultModule;
-import com.elster.jupiter.domain.util.impl.DomainUtilModule;
-import com.elster.jupiter.users.impl.UserModule;
-import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.engine.config.OnlineComServer;
-import com.energyict.mdc.engine.config.RemoteComServer;
-import com.energyict.mdc.engine.config.impl.EngineModelModule;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
+import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.nls.NlsService;
@@ -21,10 +12,21 @@ import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.users.impl.UserModule;
+import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.util.UtilModule;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.OnlineComServer;
+import com.energyict.mdc.engine.config.RemoteComServer;
+import com.energyict.mdc.engine.config.impl.EngineModelModule;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -33,8 +35,11 @@ import org.json.JSONObject;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
-import org.junit.*;
-import org.junit.rules.*;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -48,8 +53,8 @@ import static org.mockito.Mockito.verify;
  */
 public class ComServerParserTest {
 
-    private static final String ONLINE_COMSERVER_AS_QUERY_RESULT = "{\"query-id\":\"testGetThisComServer\",\"single-value\":{\"name\":\"online.comserver.energyict.com\",\"type\":\"OnlineComServerImpl\",\"active\":true,\"serverLogLevel\":\"ERROR\",\"communicationLogLevel\":\"DEBUG\",\"changesInterPollDelay\":{\"seconds\":18000},\"schedulingInterPollDelay\":{\"seconds\":60},\"eventRegistrationUri\":\"ws://online.comserver.energyict.com/events/registration\",\"storeTaskQueueSize\":50,\"numberOfStoreTaskThreads\":1,\"storeTaskThreadPriority\":5}}";
-    private static final String REMOTE_COMSERVER_AS_QUERY_RESULT = "{\"query-id\":\"testGetThisComServer\",\"single-value\":{\"name\":\"remote.comserver.energyict.com\",\"active\":true,\"serverLogLevel\":\"DEBUG\",\"communicationLogLevel\":\"ERROR\",\"changesInterPollDelay\":{\"seconds\":1800},\"schedulingInterPollDelay\":{\"seconds\":600},\"eventRegistrationUri\":\"ws://remote.comserver.energyict.com/events/registration\",\"type\":\"RemoteComServerImpl\"}}";
+    private static final String ONLINE_COMSERVER_AS_QUERY_RESULT = "{\"query-id\":\"testGetThisComServer\",\"single-value\":{\"name\":\"online.comserver.energyict.com\",\"type\":\"OnlineComServerImpl\",\"active\":true,\"serverLogLevel\":\"ERROR\",\"communicationLogLevel\":\"DEBUG\",\"changesInterPollDelay\":{\"seconds\":18000},\"schedulingInterPollDelay\":{\"seconds\":60},\"eventRegistrationPort\":8888,\"storeTaskQueueSize\":50,\"numberOfStoreTaskThreads\":1,\"storeTaskThreadPriority\":5}}";
+    private static final String REMOTE_COMSERVER_AS_QUERY_RESULT = "{\"query-id\":\"testGetThisComServer\",\"single-value\":{\"name\":\"remote.comserver.energyict.com\",\"active\":true,\"serverLogLevel\":\"DEBUG\",\"communicationLogLevel\":\"ERROR\",\"changesInterPollDelay\":{\"seconds\":1800},\"schedulingInterPollDelay\":{\"seconds\":600},\"eventRegistrationPort\":8888,\"type\":\"RemoteComServerImpl\"}}";
 
     @Rule
     public TestRule transactionalRule = new TransactionalRule(getTransactionService());
@@ -126,8 +131,8 @@ public class ComServerParserTest {
         assertThat(onlineComServer.getCommunicationLogLevel()).isEqualTo(ComServer.LogLevel.DEBUG);
         assertThat(onlineComServer.getChangesInterPollDelay()).isEqualTo(TimeDuration.seconds(18000));
         assertThat(onlineComServer.getSchedulingInterPollDelay()).isEqualTo(TimeDuration.seconds(60));
+        assertThat(onlineComServer.getEventRegistrationPort()).isEqualTo(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
         assertThat(onlineComServer.getEventRegistrationUri()).isEqualTo("ws://online.comserver.energyict.com:" + ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER + "/events/registration");
-        assertThat(onlineComServer.getQueryApiPostUri()).isEqualTo("ws://online.comserver.energyict.com:" + ComServer.DEFAULT_QUERY_API_PORT_NUMBER + "/remote/queries");
         assertThat(onlineComServer.getStoreTaskQueueSize()).isEqualTo(50);
         assertThat(onlineComServer.getNumberOfStoreTaskThreads()).isEqualTo(1);
         assertThat(onlineComServer.getStoreTaskThreadPriority()).isEqualTo(5);
@@ -152,6 +157,7 @@ public class ComServerParserTest {
         assertThat(remoteComServer.getCommunicationLogLevel()).isEqualTo(ComServer.LogLevel.ERROR);
         assertThat(remoteComServer.getChangesInterPollDelay()).isEqualTo(TimeDuration.seconds(1800));
         assertThat(remoteComServer.getSchedulingInterPollDelay()).isEqualTo(TimeDuration.seconds(600));
+        assertThat(remoteComServer.getEventRegistrationPort()).isEqualTo(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
         assertThat(remoteComServer.getEventRegistrationUri()).isEqualTo("ws://remote.comserver.energyict.com:" + ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER + "/events/registration");
     }
 
@@ -167,6 +173,9 @@ public class ComServerParserTest {
         onlineComServer.storeTaskQueueSize(50);
         onlineComServer.storeTaskThreadPriority(Thread.NORM_PRIORITY);
         onlineComServer.numberOfStoreTaskThreads(1);
+        onlineComServer.serverName(name);
+        onlineComServer.statusPort(ComServer.DEFAULT_QUERY_API_PORT_NUMBER);
+        onlineComServer.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
         return onlineComServer.create();
     }
 
@@ -181,6 +190,9 @@ public class ComServerParserTest {
         remoteComServer.changesInterPollDelay(TimeDuration.seconds(1800));
         remoteComServer.schedulingInterPollDelay(TimeDuration.seconds(600));
         remoteComServer.onlineComServer(onlineComServer);
+        remoteComServer.serverName(name);
+        remoteComServer.statusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
+        remoteComServer.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
         return remoteComServer.create();
     }
 
@@ -201,6 +213,7 @@ public class ComServerParserTest {
             bind(BundleContext.class).toInstance(this.bundleContext);
             bind(EventAdmin.class).toInstance(this.eventAdmin);
             bind(ProtocolPluggableService.class).toInstance(this.protocolPluggableService);
+            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }
 

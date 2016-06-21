@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.web;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.ModemBasedInboundComPort;
 import com.energyict.mdc.engine.config.OfflineComServer;
@@ -14,17 +15,14 @@ import com.energyict.mdc.engine.config.UDPBasedInboundComPort;
 import com.energyict.mdc.engine.config.impl.OfflineComServerImpl;
 import com.energyict.mdc.engine.config.impl.OnlineComServerImpl;
 import com.energyict.mdc.engine.config.impl.RemoteComServerImpl;
-import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.core.RunningOnlineComServer;
 import com.energyict.mdc.engine.impl.web.events.WebSocketEventPublisherFactory;
 
 import com.google.inject.Provider;
-import org.fest.assertions.api.Assertions;
 
-import java.net.URISyntaxException;
-
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -95,42 +93,23 @@ public class EmbeddedWebServerFactoryTest {
     }
 
 
-    private OnlineComServer createOnlineComServer(String eventRegistrationUri) {
+    private OnlineComServer createOnlineComServer() {
+        return createOnlineComServer(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
+    }
+
+    private OnlineComServer createOnlineComServer(int eventRegistrationPort) {
         final OnlineComServerImpl onlineComServer = new OnlineComServerImpl(dataModel, engineConfigurationService, outboundComPortProvider, servletBasedInboundComPortProvider, modemBasedInboundComPortProvider, tcpBasedInboundComPortProvider, udpBasedInboundComPortProvider, thesaurus);
-        onlineComServer.setEventRegistrationUri(eventRegistrationUri);
+        onlineComServer.setName("onlineComServerServerName");
+        onlineComServer.setServerName("onlineComServerServerName");
+        onlineComServer.setEventRegistrationPort(eventRegistrationPort);
+        onlineComServer.setStatusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
+        onlineComServer.setQueryApiPort(ComServer.DEFAULT_QUERY_API_PORT_NUMBER);
         return onlineComServer;
     }
 
     @Test
-    public void testEventsWithOnlineComServerThatDoesNotSupportEventRegistration () {
-        OnlineComServer comServer = createOnlineComServer(null);
-        comServer.setUsesDefaultEventRegistrationUri(false);
-
-        // Business method
-        embeddedWebServer = this.factory.findOrCreateEventWebServer(comServer);
-
-        // Asserts
-        assertThat(embeddedWebServer).isNotNull();
-        assertThat(embeddedWebServer.getClass().getSimpleName()).startsWith("Void");
-    }
-
-    @Test(expected = CodingException.class)
-    public void testEventsWithOnlineComServerWithInvalidEventRegistrationURI () {
-        OnlineComServer comServer = createOnlineComServer(INVALID_URI);
-
-        // Business method
-        try {
-            this.factory.findOrCreateEventWebServer(comServer);
-        }
-        catch (CodingException e) {
-            Assertions.assertThat(e.getCause()).isInstanceOf(URISyntaxException.class);
-            throw e;
-        }
-    }
-
-    @Test
-    public void testEventsWithOnlineComServer () {
-        OnlineComServer comServer = createOnlineComServer(EVENT_REGISTRATION_URL);
+    public void testEventsWithOnlineComServer() {
+        OnlineComServer comServer = createOnlineComServer();
 
         // Business method
         embeddedWebServer = this.factory.findOrCreateEventWebServer(comServer);
@@ -139,42 +118,21 @@ public class EmbeddedWebServerFactoryTest {
         assertThat(embeddedWebServer).isNotNull();
     }
 
-    private RemoteComServer createRemoteComServerWithRegistrationUri(String eventRegistrationUri) {
+    private RemoteComServer createRemoteComServerWithRegistrationPort() {
+        return createRemoteComServerWithRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
+    }
+
+    private RemoteComServer createRemoteComServerWithRegistrationPort(int eventRegistrationPort) {
         final RemoteComServerImpl remoteComServer = new RemoteComServerImpl(dataModel, outboundComPortProvider, servletBasedInboundComPortProvider, modemBasedInboundComPortProvider, tcpBasedInboundComPortProvider, udpBasedInboundComPortProvider, thesaurus);
-        remoteComServer.setEventRegistrationUri(eventRegistrationUri);
+        remoteComServer.setServerName("RemoteServerName");
+        remoteComServer.setStatusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
+        remoteComServer.setEventRegistrationPort(eventRegistrationPort);
         return remoteComServer;
     }
 
     @Test
-    public void testEventsWithRemoteComServerThatDoesNotSupportEventRegistration () {
-        RemoteComServer comServer = createRemoteComServerWithRegistrationUri(null);
-        comServer.setUsesDefaultEventRegistrationUri(false);
-
-        // Business method
-        embeddedWebServer = this.factory.findOrCreateEventWebServer(comServer);
-
-        // Asserts
-        assertThat(embeddedWebServer).isNotNull();
-        assertThat(embeddedWebServer.getClass().getSimpleName()).startsWith("Void");
-    }
-
-    @Test(expected = CodingException.class)
-    public void testEventsWithRemoteComServerWithInvalidEventRegistrationURL () {
-        RemoteComServer comServer = createRemoteComServerWithRegistrationUri(INVALID_URI);
-
-        // Business method
-        try {
-            this.factory.findOrCreateEventWebServer(comServer);
-        }
-        catch (CodingException e) {
-            Assertions.assertThat(e.getCause()).isInstanceOf(URISyntaxException.class);
-            throw e;
-        }
-    }
-
-    @Test
     public void testEventsWithRemoteComServer () {
-        RemoteComServer comServer = createRemoteComServerWithRegistrationUri(EVENT_REGISTRATION_URL);
+        RemoteComServer comServer = createRemoteComServerWithRegistrationPort();
 
         // Business method
         embeddedWebServer = this.factory.findOrCreateEventWebServer(comServer);
@@ -185,8 +143,7 @@ public class EmbeddedWebServerFactoryTest {
 
     @Test
     public void testQueriesWithOnlineComServer () {
-        OnlineComServer comServer = createOnlineComServer(null);
-        comServer.setQueryAPIPostUri("http://localhost/remote/query-api");
+        OnlineComServer comServer = createOnlineComServer();
         RunningOnlineComServer runningOnlineComServer = mock(RunningOnlineComServer.class);
         when(runningOnlineComServer.getComServer()).thenReturn(comServer);
 
@@ -196,23 +153,6 @@ public class EmbeddedWebServerFactoryTest {
         // Asserts
         assertThat(embeddedWebServer).isNotNull();
         assertThat(embeddedWebServer.getClass().getSimpleName()).doesNotMatch("Void.*");
-    }
-
-    @Test(expected = CodingException.class)
-    public void testQueriesWithURISyntaxError () {
-        OnlineComServer comServer = createOnlineComServer(null);
-        comServer.setQueryAPIPostUri(INVALID_URI);
-        RunningOnlineComServer runningOnlineComServer = mock(RunningOnlineComServer.class);
-        when(runningOnlineComServer.getComServer()).thenReturn(comServer);
-
-        // Business method
-        try {
-            embeddedWebServer = this.factory.findOrCreateRemoteQueryWebServer(runningOnlineComServer);
-        }
-        catch (CodingException e) {
-            Assertions.assertThat(e.getCause()).isInstanceOf(URISyntaxException.class);
-            throw e;
-        }
     }
 
     @Test
@@ -229,5 +169,4 @@ public class EmbeddedWebServerFactoryTest {
         assertThat(embeddedWebServer).isNotNull();
         assertThat(embeddedWebServer.getClass().getSimpleName()).startsWith("Void");
     }
-
 }

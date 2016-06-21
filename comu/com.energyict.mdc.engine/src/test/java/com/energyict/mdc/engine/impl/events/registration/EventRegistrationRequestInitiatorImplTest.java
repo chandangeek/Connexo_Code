@@ -18,10 +18,11 @@ import com.energyict.mdc.engine.config.impl.RemoteComServerImpl;
 
 import com.google.inject.Provider;
 
+import java.text.MessageFormat;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -36,8 +37,6 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class EventRegistrationRequestInitiatorImplTest {
-
-    private static final String EVENT_REGISTRATION_URI = "ws://comserver.energyict.com/events/registration";
 
     @Mock
     EngineConfigurationService engineConfigurationService;
@@ -95,19 +94,18 @@ public class EventRegistrationRequestInitiatorImplTest {
 
     @Test
     public void testOnlineComServer() {
-        OnlineComServer comServer = createOnlineComServer(EVENT_REGISTRATION_URI);
+        OnlineComServer comServer = createOnlineComServer();
 
         // Business method
         String url = new EventRegistrationRequestInitiatorImpl(this.engineConfigurationService).getRegistrationURL(comServer);
 
         // Asserts
-        assertThat(url).isEqualTo(EVENT_REGISTRATION_URI);
+        assertThat(url).isEqualTo(MessageFormat.format(ComServer.EVENT_REGISTRATION_URI_PATTERN, comServer.getServerName(), Integer.toString(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER)));
     }
 
     @Test(expected = UnsupportedOperationException.class)
     public void testOnlineComServerWithoutEventRegistrationUri() {
-        OnlineComServer comServer = createOnlineComServer(null);
-        comServer.setUsesDefaultEventRegistrationUri(false);
+        OnlineComServer comServer = createOnlineComServer(0);
 
         // Business method
         new EventRegistrationRequestInitiatorImpl(this.engineConfigurationService).getRegistrationURL(comServer);
@@ -118,37 +116,43 @@ public class EventRegistrationRequestInitiatorImplTest {
     @Test
     public void testOnlineComServerByName() {
         String comServerName = "Online";
-        OnlineComServer comServer = createOnlineComServer(EVENT_REGISTRATION_URI);
+        OnlineComServer comServer = createOnlineComServer();
         when(this.engineConfigurationService.findComServer(comServerName)).thenReturn(Optional.<ComServer>of(comServer));
 
         // Business method
         String url = new EventRegistrationRequestInitiatorImpl(this.engineConfigurationService).getRegistrationURL(comServerName);
 
         // Asserts
-        assertThat(url).isEqualTo(EVENT_REGISTRATION_URI);
+        assertThat(url).isEqualTo(MessageFormat.format(ComServer.EVENT_REGISTRATION_URI_PATTERN, comServer.getServerName(), Integer.toString(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER)));
     }
 
-    private OnlineComServer createOnlineComServer(String eventRegistrationUri) {
+    private OnlineComServer createOnlineComServer() {
+        return createOnlineComServer(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
+    }
+
+    private OnlineComServer createOnlineComServer(int eventRegistrationPort) {
         final OnlineComServerImpl onlineComServer = new OnlineComServerImpl(dataModel, engineConfigurationService, outboundComPortProvider, servletBasedInboundComPortProvider, modemBasedInboundComPortProvider, tcpBasedInboundComPortProvider, udpBasedInboundComPortProvider, thesaurus);
-        onlineComServer.setEventRegistrationUri(eventRegistrationUri);
+        onlineComServer.setServerName("onlineComServerServerName");
+        onlineComServer.setEventRegistrationPort(eventRegistrationPort);
+        onlineComServer.setStatusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
+        onlineComServer.setQueryApiPort(ComServer.DEFAULT_QUERY_API_PORT_NUMBER);
         return onlineComServer;
     }
 
     @Test
     public void testRemoteComServer() {
-        RemoteComServer comServer = createRemoteComServerWithRegistrationUri(EVENT_REGISTRATION_URI);
+        RemoteComServer comServer = createRemoteComServer();
 
         // Business method
         String url = new EventRegistrationRequestInitiatorImpl(this.engineConfigurationService).getRegistrationURL(comServer);
 
         // Asserts
-        assertThat(url).isEqualTo(EVENT_REGISTRATION_URI);
+        assertThat(url).isEqualTo(MessageFormat.format(ComServer.EVENT_REGISTRATION_URI_PATTERN, comServer.getServerName(), Integer.toString(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER)));
     }
 
     @Test(expected = UnsupportedOperationException.class)
     public void testRemoteComServerWithoutEventRegistrationUri() {
-        RemoteComServer comServer = createRemoteComServerWithRegistrationUri(null);
-        comServer.setUsesDefaultEventRegistrationUri(false);
+        RemoteComServer comServer = createRemoteComServerWithRegistrationPort(0);
 
         // Business method
         new EventRegistrationRequestInitiatorImpl(this.engineConfigurationService).getRegistrationURL(comServer);
@@ -159,20 +163,26 @@ public class EventRegistrationRequestInitiatorImplTest {
     @Test
     public void testRemoteComServerByName() {
         String comServerName = "Remote";
-        RemoteComServer comServer = createRemoteComServerWithRegistrationUri(EVENT_REGISTRATION_URI);
+        RemoteComServer comServer = createRemoteComServer();
         when(this.engineConfigurationService.findComServer(comServerName)).thenReturn(Optional.<ComServer>of(comServer));
 
         // Business method
         String url = new EventRegistrationRequestInitiatorImpl(this.engineConfigurationService).getRegistrationURL(comServerName);
 
         // Asserts
-        assertThat(url).isEqualTo(EVENT_REGISTRATION_URI);
+        assertThat(url).isEqualTo(MessageFormat.format(ComServer.EVENT_REGISTRATION_URI_PATTERN, comServer.getServerName(), Integer.toString(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER)));
     }
 
-    private RemoteComServer createRemoteComServerWithRegistrationUri(String eventRegistrationUri) {
+    private RemoteComServer createRemoteComServer() {
+        return createRemoteComServerWithRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
+    }
+
+    private RemoteComServer createRemoteComServerWithRegistrationPort(int eventRegistrationPort) {
         final RemoteComServerImpl remoteComServer = new RemoteComServerImpl(dataModel, outboundComPortProvider, servletBasedInboundComPortProvider, modemBasedInboundComPortProvider, tcpBasedInboundComPortProvider, udpBasedInboundComPortProvider, thesaurus);
-        remoteComServer.setEventRegistrationUri(eventRegistrationUri);
+        remoteComServer.setServerName("remoteComServerServerName");
+        remoteComServer.setEventRegistrationPort(eventRegistrationPort);
+        remoteComServer.setStatusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
+
         return remoteComServer;
     }
-
 }

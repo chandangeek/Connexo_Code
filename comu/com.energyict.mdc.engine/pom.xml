@@ -17,6 +17,10 @@
         Contains the full ComServer engine
     </description>
 
+    <properties>
+        <argLine>-Xmx2g -Xms512m</argLine>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
@@ -133,6 +137,10 @@
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.pluggable</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>upgrade</artifactId>
         </dependency>
 
         <dependency>
@@ -298,26 +306,11 @@
             <artifactId>calendar</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>fileimport</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <version>2.6</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>integration-test</goal>
-                            <goal>verify</goal>
-                        </goals>
-                        <configuration>
-                            <argLine>-Xmx2g -XX:PermSize=512m</argLine>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
 
 </project>

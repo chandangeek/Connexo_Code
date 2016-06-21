@@ -1,5 +1,21 @@
 package com.energyict.mdc.engine.impl;
 
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.upgrade.InstallIdentifier;
+import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
@@ -39,21 +55,6 @@ import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolDeploymentListenerRegistration;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.MessageSeedProvider;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.framework.BundleContext;
@@ -69,6 +70,7 @@ import javax.validation.MessageInterpolator;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -82,7 +84,7 @@ import static com.elster.jupiter.appserver.AppService.SERVER_NAME_PROPERTY_NAME;
  * Time: 13:17
  */
 @Component(name = "com.energyict.mdc.engine",
-        service = {EngineService.class, InstallService.class, TranslationKeyProvider.class, MessageSeedProvider.class},
+        service = {EngineService.class, TranslationKeyProvider.class, MessageSeedProvider.class},
         property = {"name=" + EngineService.COMPONENTNAME,
                 "osgi.command.scope=mdc",
                 "osgi.command.function=become",
@@ -91,7 +93,7 @@ import static com.elster.jupiter.appserver.AppService.SERVER_NAME_PROPERTY_NAME;
                 "osgi.command.function=lcs",
                 "osgi.command.function=scs"},
         immediate = true)
-public class EngineServiceImpl implements EngineService, InstallService, TranslationKeyProvider, MessageSeedProvider {
+public class EngineServiceImpl implements EngineService, TranslationKeyProvider, MessageSeedProvider {
 
     public static final String COMSERVER_USER = "comserver";
     private volatile DataModel dataModel;
@@ -120,6 +122,7 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
     private volatile SocketService socketService;
     private volatile SerialComponentService serialATComponentService;
     private volatile FirmwareService firmwareService;
+    private volatile UpgradeService upgradeService;
     private volatile List<DeactivationNotificationListener> deactivationNotificationListeners = new CopyOnWriteArrayList<>();
 
     private OptionalIdentificationService identificationService = new OptionalIdentificationService();
@@ -141,34 +144,35 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
             SocketService socketService,
             SerialComponentService serialATComponentService,
             IdentificationService identificationService,
-            FirmwareService firmwareService) {
+            FirmwareService firmwareService,
+            UpgradeService upgradeService) {
         this();
-        this.setOrmService(ormService);
-        this.setEventService(eventService);
-        this.setNlsService(nlsService);
-        this.setTransactionService(transactionService);
-        this.setClock(clock);
-        this.setHexService(hexService);
-        this.setEngineConfigurationService(engineConfigurationService);
-        this.setThreadPrincipalService(threadPrincipalService);
-        this.setIssueService(issueService);
-        this.setDeviceService(deviceService);
-        this.setTopologyService(topologyService);
-        this.setConnectionTaskService(connectionTaskService);
-        this.setCommunicationTaskService(communicationTaskService);
-        this.setLogBookService(logBookService);
-        this.setMdcReadingTypeUtilService(mdcReadingTypeUtilService);
-        this.setUserService(userService);
-        this.setDeviceConfigurationService(deviceConfigurationService);
-        this.setProtocolPluggableService(protocolPluggableService);
-        this.setSocketService(socketService);
-        this.setSerialATComponentService(serialATComponentService);
-        this.setStatusService(statusService);
-        this.setManagementBeanFactory(managementBeanFactory);
-        this.addIdentificationService(identificationService);
-        this.setFirmwareService(firmwareService);
-        this.install();
-        this.activate(bundleContext);
+        setOrmService(ormService);
+        setEventService(eventService);
+        setNlsService(nlsService);
+        setTransactionService(transactionService);
+        setClock(clock);
+        setHexService(hexService);
+        setEngineConfigurationService(engineConfigurationService);
+        setThreadPrincipalService(threadPrincipalService);
+        setIssueService(issueService);
+        setDeviceService(deviceService);
+        setTopologyService(topologyService);
+        setConnectionTaskService(connectionTaskService);
+        setCommunicationTaskService(communicationTaskService);
+        setLogBookService(logBookService);
+        setMdcReadingTypeUtilService(mdcReadingTypeUtilService);
+        setUserService(userService);
+        setDeviceConfigurationService(deviceConfigurationService);
+        setProtocolPluggableService(protocolPluggableService);
+        setSocketService(socketService);
+        setSerialATComponentService(serialATComponentService);
+        setStatusService(statusService);
+        setManagementBeanFactory(managementBeanFactory);
+        addIdentificationService(identificationService);
+        setFirmwareService(firmwareService);
+        setUpgradeService(upgradeService);
+        activate(bundleContext);
     }
 
     @Override
@@ -331,6 +335,11 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
         this.serialATComponentService = serialATComponentService;
     }
 
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
+    }
+
     @Override
     public IdentificationService identificationService() {
         return this.identificationService;
@@ -366,6 +375,7 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
                 bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
                 bind(StatusService.class).toInstance(statusService);
                 bind(ManagementBeanFactory.class).toInstance(managementBeanFactory);
+                bind(UserService.class).toInstance(userService);
             }
         };
     }
@@ -374,9 +384,10 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
     public void activate(BundleContext bundleContext) {
         this.dataModel.register(this.getModule());
         this.setHostNameIfOverruled(bundleContext);
-        if (this.dataModel.isInstalled()) {
-            this.tryStartComServer();
-        }
+
+        upgradeService.register(InstallIdentifier.identifier(EngineService.COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
+
+        this.tryStartComServer();
     }
 
     private void setHostNameIfOverruled(BundleContext context) {
@@ -411,16 +422,6 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
     @Override
     public void unregister(DeactivationNotificationListener deactivationNotificationListener) {
         this.deactivationNotificationListeners.remove(deactivationNotificationListener);
-    }
-
-    @Override
-    public void install() {
-        new Installer(this.dataModel, this.eventService, userService).install(true);
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "EVT", "NLS", "DDC", "MIO");
     }
 
     @SuppressWarnings("unused")
