@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data;
 
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
+import com.energyict.mdc.tasks.ComTask;
 
 import aQute.bnd.annotation.ProviderType;
 
@@ -30,5 +31,14 @@ public interface DeviceMessageService {
      * @return true if it will be picked up, false if it will not be picked up by a ComTask
      */
     boolean willDeviceMessageBePickedUpByComTask(Device device, DeviceMessage deviceMessage);
+
+    /**
+     * Gets the preferred ComTask for a DeviceMessage
+     *
+     * @param device The device for wich to check the preferred ComTask
+     * @param deviceMessage The deviceMessage that needs to be checked
+     * @return A ComTask if one is found, else null
+     */
+    ComTask getPreferredComTask(Device device, DeviceMessage<?> deviceMessage);
 
 }
