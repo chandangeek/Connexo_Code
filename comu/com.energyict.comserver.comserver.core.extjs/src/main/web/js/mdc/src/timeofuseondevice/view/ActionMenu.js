@@ -30,7 +30,7 @@ Ext.define('Mdc.timeofuseondevice.view.ActionMenu', {
         },
         {
             itemId: 'verify-calendars-tou',
-            text: Uni.I18n.translate('timeofuse.verifyCalendars', 'MDC', 'Verify calendars'),
+            text: Uni.I18n.translate('timeofuse.ccheckTimeOfUseCalendar', 'MDC', 'Check time of use calendar'),
             privileges: Mdc.privileges.DeviceCommands.executeCommands,
             action: 'verifycalendars',
         },
