@@ -73,9 +73,10 @@ public class AppServerResource {
     private final DataExportService dataExportService;
     private final FileSystem fileSystem;
     private final EndPointConfigurationService endPointConfigurationService;
+    private final EndPointConfigurationInfoFactory endPointConfigurationInfoFactory;
 
     @Inject
-    public AppServerResource(RestQueryService queryService, AppService appService, MessageService messageService, FileImportService fileImportService, TransactionService transactionService, CronExpressionParser cronExpressionParser, Thesaurus thesaurus, DataExportService dataExportService, FileSystem fileSystem, ConcurrentModificationExceptionFactory conflictFactory, EndPointConfigurationService endPointConfigurationService) {
+    public AppServerResource(RestQueryService queryService, AppService appService, MessageService messageService, FileImportService fileImportService, TransactionService transactionService, CronExpressionParser cronExpressionParser, Thesaurus thesaurus, DataExportService dataExportService, FileSystem fileSystem, ConcurrentModificationExceptionFactory conflictFactory, EndPointConfigurationService endPointConfigurationService, EndPointConfigurationInfoFactory endPointConfigurationInfoFactory) {
         this.queryService = queryService;
         this.appService = appService;
         this.messageService = messageService;
@@ -87,6 +88,7 @@ public class AppServerResource {
         this.dataExportService = dataExportService;
         this.fileSystem = fileSystem;
         this.endPointConfigurationService = endPointConfigurationService;
+        this.endPointConfigurationInfoFactory = endPointConfigurationInfoFactory;
     }
 
     private AppServer fetchAppServer(String appServerName) {
@@ -462,17 +464,21 @@ public class AppServerResource {
         return importScheduleInfos;
     }
 
-//    @GET
-//    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-//    @Path("/{appserverName}/endpoints")
-//    @RolesAllowed({Privileges.Constants.VIEW_APPSEVER, Privileges.Constants.ADMINISTRATE_APPSEVER})
-//    public Response getEndPointsOnAppServer(@PathParam("appserverName") String appServerName) {
-//        return fetchAppServer(appServerName)
-//                .supportedEndPoints()
-//                .stream()
-//                .map()
-//
-//    }
+    @GET
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Path("/{appserverName}/unusedendpoints")
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_APPSEVER)
+    public Response getEndPointsOnAppServer(@PathParam("appserverName") String appServerName) {
+
+        AppServer appServer = fetchAppServer(appServerName);
+        List<EndPointConfiguration> available = endPointConfigurationService.findEndPointConfigurations().find();
+        available.removeAll(appServer.supportedEndPoints());
+        List<EndPointConfigurationInfo> unused = available.stream()
+                .map(endPointConfigurationInfoFactory::from)
+                .collect(Collectors.toList());
+
+        return Response.ok(unused).build();
+    }
 
 
     private List<AppServer> queryAppServers(QueryParameters queryParameters) {
