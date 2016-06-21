@@ -4,6 +4,9 @@
 Ext.define('Uni.override.ColumnOverride', {
     override: 'Ext.grid.column.Column',
     renderer: function(value){
+        if(Ext.isEmpty(value)) {
+            return '-';
+        }
         return Ext.String.htmlEncode(value);
     }
 });
