@@ -17,6 +17,8 @@ import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
+import com.energyict.protocol.exceptions.ProtocolExceptionReference;
+import com.energyict.protocol.exceptions.ProtocolRuntimeException;
 import com.energyict.protocolimpl.dlms.as220.ProfileLimiter;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
@@ -290,13 +292,13 @@ public class IDISProfileDataReader {
                     result.put(channelObisCode, new ScalerUnit(composedCosemObject.getAttribute(dlmsAttribute)).getEisUnit());
                 } catch (IOException e) {
                     if (DLMSIOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSessionProperties().getRetries() + 1)) {
-                        result.put(channelObisCode, Unit.get(BaseUnit.UNITLESS));
+                        throw DLMSIOExceptionHandler.handle(e, protocol.getDlmsSessionProperties().getRetries() + 1);
                     } //Else: throw ConnectionCommunicationException
                 } catch (ApplicationException e) {
-                    result.put(channelObisCode, Unit.get(BaseUnit.UNITLESS));
+                    throw new ProtocolRuntimeException(ProtocolExceptionReference.UNEXPECTED_RESPONSE);
                 }
             } else {
-                result.put(channelObisCode, Unit.get(BaseUnit.UNITLESS));
+                throw new ProtocolException("DLMSAttribute for "+channelObisCode+" was not found");
             }
         }
         return result;
