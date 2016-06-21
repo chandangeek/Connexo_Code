@@ -13,7 +13,8 @@ Ext.define('Wss.controller.Webservices', {
         'Wss.store.Webservices',
         'Wss.store.LogLevels',
         'Wss.store.AuthenticationMethods',
-        'Wss.store.Logs'
+        'Wss.store.Logs',
+        'Wss.store.Roles'
     ],
     models: [
         'Wss.model.Endpoint',
@@ -63,7 +64,7 @@ Ext.define('Wss.controller.Webservices', {
     showAddWebserviceEndPoint: function () {
         var me = this,
             store = me.getStore('Wss.store.Webservices');
-            me.showAddEditView(null,'add');
+        me.showAddEditView(null, 'add');
     },
 
     showEditPage: function (endpointId) {
@@ -73,34 +74,40 @@ Ext.define('Wss.controller.Webservices', {
         model.load(endpointId, {
             success: function (record) {
                 me.record = record;
-                me.showAddEditView(record,'edit');
+                me.showAddEditView(record, 'edit');
             }
         });
     },
 
-    showAddEditView: function(record,type){
+    showAddEditView: function (record, type) {
         var me = this;
         var authenticationMethodStore = me.getStore('Wss.store.AuthenticationMethods');
         var logLevelsStore = me.getStore('Wss.store.LogLevels');
+        var rolesStore = me.getStore('Wss.store.Roles');
         authenticationMethodStore.load({
             callback: function () {
                 logLevelsStore.load({
                     callback: function () {
-                        view = Ext.widget('endpoint-add', {
-                            action: type,
-                            record: record,
-                            returnLink: me.getController('Uni.controller.history.Router').getRoute('administration/webserviceendpoints').buildUrl(),
-                            authenticationMethodStore: authenticationMethodStore,
-                            logLevelsStore: logLevelsStore
+                        rolesStore.load({
+                            callback: function () {
+                                view = Ext.widget('endpoint-add', {
+                                    action: type,
+                                    record: record,
+                                    returnLink: me.getController('Uni.controller.history.Router').getRoute('administration/webserviceendpoints').buildUrl(),
+                                    authenticationMethodStore: authenticationMethodStore,
+                                    rolesStore: rolesStore,
+                                    logLevelsStore: logLevelsStore
+                                });
+                                me.getApplication().fireEvent('changecontentevent', view);
+                            }
                         });
-                        me.getApplication().fireEvent('changecontentevent', view);
                     }
                 });
             }
-        })
+        });
     },
 
-    goToAddView: function() {
+    goToAddView: function () {
         var router = this.getController('Uni.controller.history.Router');
         router.getRoute('administration/webserviceendpoints/add').forward();
     },
@@ -109,22 +116,27 @@ Ext.define('Wss.controller.Webservices', {
         var me = this,
             form = button.up('form'),
             record = Ext.create('Wss.model.Endpoint');
-            this.saveEndPoint(button,record,Uni.I18n.translate('endPointAdd.endpointAdded', 'WSS', 'Webservice endpoint added'));
+        this.saveEndPoint(button, record, Uni.I18n.translate('endPointAdd.endpointAdded', 'WSS', 'Webservice endpoint added'));
     },
 
     updateEndpoint: function (button) {
-        this.saveEndPoint(button,this.record,Uni.I18n.translate('endPointAdd.endpointSaved', 'WSS', 'Webservice endpoint saved'));
+        this.saveEndPoint(button, this.record, Uni.I18n.translate('endPointAdd.endpointSaved', 'WSS', 'Webservice endpoint saved'));
     },
 
-    saveEndPoint: function(button,record, acknowledgement){
+    saveEndPoint: function (button, record, acknowledgement) {
         var form = button.up('form'),
             me = this;
         record.set(form.getValues());
+
         var logLevel = form.down('#logLevelCombo').findRecordByValue(record.get('logLevel'));
-        record.setLogLevel(logLevel);
+        logLevel?record.setLogLevel(logLevel):record.set('logLevel',null);
 
         var authenticationMethod = form.down('#authenticationCombo').findRecordByValue(record.get('authenticationMethod'));
-        record.setAuthenticationMethod(authenticationMethod);
+        authenticationMethod?record.setAuthenticationMethod(authenticationMethod):record.set('authenticationMethod',null);
+
+        var userGroup = form.down('#userRoleField').findRecordByValue(record.get('group'));
+        userGroup?record.setGroup(userGroup):record.set('group',null);
+
 
         record.set('direction', null);
 
@@ -136,6 +148,7 @@ Ext.define('Wss.controller.Webservices', {
             failure: function (record, operation) {
                 var json = Ext.decode(operation.response.responseText);
                 if (json && json.errors) {
+                    form.getForm().clearInvalid();
                     form.getForm().markInvalid(json.errors);
                     me.showErrorPanel();
                 }
@@ -169,7 +182,7 @@ Ext.define('Wss.controller.Webservices', {
 
         form.loadRecord(record);
         preview.setTitle(Ext.String.htmlEncode(record.get('name')));
-        if(preview.down('webservices-action-menu')) {
+        if (preview.down('webservices-action-menu')) {
             preview.down('webservices-action-menu').record = record;
         }
     },

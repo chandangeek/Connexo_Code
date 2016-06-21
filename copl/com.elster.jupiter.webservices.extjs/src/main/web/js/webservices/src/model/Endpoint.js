@@ -2,7 +2,8 @@ Ext.define('Wss.model.Endpoint', {
     extend: 'Uni.model.Version',
     requires: [
         'Wss.model.LogLevel',
-        'Wss.model.AuthenticationMethod'
+        'Wss.model.AuthenticationMethod',
+        'Wss.model.Role'
     ],
     fields: [
        // {name: 'id', type: 'number'},
@@ -10,7 +11,7 @@ Ext.define('Wss.model.Endpoint', {
         {name: 'name', type: 'string'},
         {name: 'webServiceName', type: 'string'},
         {name: 'url', type: 'string'},
-        {name: 'logLevel'},
+        {name: 'logLevel', type: 'auto'},
         {name: 'tracing', type: 'boolean'},
         {name: 'traceFile', type: 'string'},
         {name: 'httpCompression', type: 'boolean'},
@@ -20,7 +21,8 @@ Ext.define('Wss.model.Endpoint', {
         {name: 'username', type: 'string'},
         {name: 'password', type: 'string'},
         {name: 'type', type: 'string'},
-        {name: 'direction', type: 'auto'}
+        {name: 'direction', type: 'auto'},
+        {name: 'group', type: 'auto'}
     ],
 
     hasOne: [
@@ -37,6 +39,13 @@ Ext.define('Wss.model.Endpoint', {
             name: 'authenticationMethod',
             getterName: 'getAuthenticationMethod',
             setterName: 'setAuthenticationMethod'
+        },
+        {
+            model: 'Wss.model.Role',
+            associationKey: 'group',
+            name: 'group',
+            getterName: 'getGroup',
+            setterName: 'setGroup'
         }
     ],
 

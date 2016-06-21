@@ -13,7 +13,7 @@ Ext.define('Wss.view.Add', {
                 xtype: 'panel',
                 ui: 'large',
                 layout: 'vbox',
-                title: Uni.I18n.translate('endPointAdd.title', 'WSS', 'Add webservice endpoint'),
+                title: this.action === 'edit'?Uni.I18n.translate('endPointAdd.editTitle', 'WSS', 'Edit webservice endpoint'):Uni.I18n.translate('endPointAdd.addTitle', 'WSS', 'Add webservice endpoint'),
                 items: [
                     {
                         xtype: 'form',
@@ -44,6 +44,7 @@ Ext.define('Wss.view.Add', {
                             {
                                 xtype: 'textfield',
                                 name: 'name',
+                                itemId: 'endPointName',
                                 fieldLabel: Uni.I18n.translate('endPointAdd.name', 'WSS', 'Name'),
                                 required: true
                             },
@@ -80,6 +81,32 @@ Ext.define('Wss.view.Add', {
             form.getForm().setValues(this.record.data);
             form.down('#logLevelCombo').select(this.record.getLogLevel());
             form.down('#authenticationCombo').select(this.record.getAuthenticationMethod());
+            form.down('#userRoleField').select(this.record.getGroup());
+            form.down('#webServiceCombo').disable();
+            if(this.record.get('active')===true){
+                formErrorsPlaceHolder = form.down('#addEndPointFormErrors');
+                formErrorsPlaceHolder.hide();
+                formErrorsPlaceHolder.removeAll();
+                formErrorsPlaceHolder.add({
+                    html: Uni.I18n.translate('general.formErrorEndPointActive', 'WSS', 'Some attributes can only be changed when the status of the webservice endpoint is inactive.')
+                });
+                formErrorsPlaceHolder.show();
+                Ext.Array.each(form.getForm().getFields().items,function(field){
+                    switch(field.itemId){
+                        case 'logLevelCombo':
+                            field.enable();
+                            break;
+                        case 'traceCheck':
+                            field.enable();
+                            break;
+                        case 'traceFile':
+                            field.enable();
+                             break;
+                        default:
+                            field.disable();
+                    }
+                })
+            }
             //form.getForm().setValues({
             //    logLevel: this.record.getLogLevel(),
             //    authenticationMethod: this.record.getAuthenticationMethod()
@@ -102,22 +129,36 @@ Ext.define('Wss.view.Add', {
     },
 
     onSelectAuthenticationType: function(combobox, newValue, oldValue) {
-        var value = newValue.localizedValue || newValue;
-        value = value.toUpperCase();
-       // var record = combobox.findRecordByValue(value),
-        var userRoleField = this.down('#userRoleField'),
-            userNameField = this.down('#userNameField'),
-            passwordField = this.down('#passwordField');
-       // if(record.get('authenticationMethod')==='NONE'){
-        if(value==='NONE'){
-            if(!!userRoleField){userRoleField.setVisible(false)}
-            if(!!userNameField){userNameField.setVisible(false)}
-            if(!!passwordField){passwordField.setVisible(false)}
-        //} else if (record.get('authenticationMethod')==='BASIC_AUTHENTICATION'){
-        } else if (value ==='BASIC_AUTHENTICATION'){
-            if(!!userRoleField){userRoleField.setVisible(true)}
-            if(!!userNameField){userNameField.setVisible(true)}
-            if(!!passwordField){passwordField.setVisible(true)}
+        if(newValue !== null) {
+            var value = newValue.localizedValue || newValue;
+            value = value.toUpperCase();
+            // var record = combobox.findRecordByValue(value),
+            var userRoleField = this.down('#userRoleField'),
+                userNameField = this.down('#userNameField'),
+                passwordField = this.down('#passwordField');
+            // if(record.get('authenticationMethod')==='NONE'){
+            if (value === 'NONE') {
+                if (!!userRoleField) {
+                    userRoleField.setVisible(false)
+                }
+                if (!!userNameField) {
+                    userNameField.setVisible(false)
+                }
+                if (!!passwordField) {
+                    passwordField.setVisible(false)
+                }
+                //} else if (record.get('authenticationMethod')==='BASIC_AUTHENTICATION'){
+            } else if (value === 'BASIC_AUTHENTICATION') {
+                if (!!userRoleField) {
+                    userRoleField.setVisible(true)
+                }
+                if (!!userNameField) {
+                    userNameField.setVisible(true)
+                }
+                if (!!passwordField) {
+                    passwordField.setVisible(true)
+                }
+            }
         }
     },
 
@@ -134,7 +175,8 @@ Ext.define('Wss.view.Add', {
                 xtype: 'textfield',
                 name: 'url',
                 fieldLabel: direction.toUpperCase()==='INBOUND'?Uni.I18n.translate('endPointAdd.urlPath', 'WSS', 'Url Path'):Uni.I18n.translate('endPointAdd.url', 'WSS', 'Url'),
-                required: true
+                required: true,
+                emptyText:  direction.toUpperCase()==='INBOUND'?Uni.I18n.translate('endPointAdd.urlPathEmptyText', 'WSS', 'Provide the path e.g. https://<applicationserver>:<port>/<path>'):Uni.I18n.translate('endPointAdd.urlEmptyText', 'WSS', 'Provide the format as https://<host>:<port>/<path>')
             },
             {
                 xtype: 'combobox',
@@ -145,18 +187,30 @@ Ext.define('Wss.view.Add', {
                 queryMode: 'local',
                 valueField: 'id',
                 fieldLabel: Uni.I18n.translate('endPointAdd.logLevel', 'WSS', 'Log level'),
-                required: true,
+                required: true
             },
             {
                 xtype: 'checkbox',
                 name: 'tracing',
                 fieldLabel: Uni.I18n.translate('endPointAdd.traceRequests', 'WSS', 'Trace requests'),
-                required: true
+                itemId: 'traceCheck',
+                required: true,
+                listeners: {
+                    change: function (checkbox, newValue, oldValue) {
+                        var traceFileField = checkbox.up('form').down('#traceFile');
+                        traceFileField.setVisible(newValue);
+                        if(newValue === true && traceFileField.getValue() === ''){
+                            traceFileField.setValue(checkbox.up('form').down('#endPointName').getValue());
+                        }
+                    }
+                }
             },
             {
                 xtype: 'textfield',
                 name: 'traceFile',
+                itemId: 'traceFile',
                 fieldLabel: Uni.I18n.translate('endPointAdd.traceRequestFileName', 'WSS', 'Trace request file name'),
+                hidden: true,
                 required: true
             },
             {
@@ -187,6 +241,7 @@ Ext.define('Wss.view.Add', {
                 queryMode: 'local',
                 displayField: 'localizedValue',
                 valueField: 'id',
+                value:'NONE',
                 listeners: {
                     change: function (combobox, newValue, oldValue) {
                         me.onSelectAuthenticationType(combobox, newValue, oldValue);
@@ -198,10 +253,14 @@ Ext.define('Wss.view.Add', {
             form.add(
                 {
                     xtype: 'combobox',
-                    name: 'userRole',
+                    name: 'group',
                     itemId: 'userRoleField',
+                    store: this.rolesStore,
                     fieldLabel: Uni.I18n.translate('endPointAdd.userRole', 'WSS', 'User role'),
                     required: true,
+                    displayField: 'name',
+                    queryMode: 'local',
+                    valueField: 'id',
                     hidden: true
                 }
             );
@@ -236,7 +295,7 @@ Ext.define('Wss.view.Add', {
                     {
                         xtype: 'button',
                         itemId: 'btn-add-webservice-endpoint',
-                        text: Uni.I18n.translate('general.add', 'WSS', 'Add'),
+                        text: this.action === 'edit'?Uni.I18n.translate('general.save', 'WSS', 'Save'):Uni.I18n.translate('general.add', 'WSS', 'Add'),
                         ui: 'action',
                         action: me.action
                     },

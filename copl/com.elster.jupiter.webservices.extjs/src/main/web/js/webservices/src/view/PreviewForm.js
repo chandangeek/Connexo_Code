@@ -92,7 +92,34 @@ Ext.define('Wss.view.PreviewForm', {
                 {
                     xtype: 'displayfield',
                     fieldLabel: Uni.I18n.translate('general.userRole', 'WSS', 'User role'),
-                    name: '//TODO'
+                    name: 'group',
+                    renderer: function(value){
+                        if(Ext.isEmpty(value)){
+                            this.hide();
+                            return value;
+                        } else {
+                            this.show();
+                            return value.name;
+                        }
+                    }
+                },
+                {
+                    xtype: 'displayfield',
+                    fieldLabel: Uni.I18n.translate('general.userName', 'WSS', 'Username'),
+                    name: 'username',
+                    renderer: function(value){
+                        Ext.isEmpty(value)?this.hide():this.show();
+                        return value;
+                    }
+                },
+                {
+                    xtype: 'displayfield',
+                    fieldLabel: Uni.I18n.translate('general.password', 'WSS', 'Password'),
+                    name: 'password',
+                    renderer: function(value){
+                        Ext.isEmpty(value)?this.hide():this.show();
+                        return value;
+                    }
                 }
             ]
         };

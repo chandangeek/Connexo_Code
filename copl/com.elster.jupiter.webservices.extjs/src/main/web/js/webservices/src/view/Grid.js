@@ -52,7 +52,6 @@ Ext.define('Wss.view.Grid', {
                 dataIndex: 'logLevel',
                 flex: 1,
                 renderer: function (value) {
-                    //debugger;
                     return value.localizedValue;
                 }
             },
