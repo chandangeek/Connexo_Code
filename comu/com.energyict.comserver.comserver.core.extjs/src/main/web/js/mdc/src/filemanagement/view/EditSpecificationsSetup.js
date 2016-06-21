@@ -1,12 +1,12 @@
-Ext.define('Mdc.timeofuse.view.EditSpecificationsSetup', {
+Ext.define('Mdc.filemanagement.view.EditSpecificationsSetup', {
     extend: 'Uni.view.container.ContentContainer',
-    alias: 'widget.tou-devicetype-edit-specs-setup',
+    alias: 'widget.files-devicetype-edit-specs-setup',
     overflowY: true,
     deviceTypeId: null,
 
     requires: [
         'Mdc.view.setup.devicetype.SideMenu',
-        'Mdc.timeofuse.view.EditSpecificationsForm'
+        'Mdc.filemanagement.view.EditSpecificationsForm'
     ],
 
     initComponent: function () {
@@ -16,15 +16,14 @@ Ext.define('Mdc.timeofuse.view.EditSpecificationsSetup', {
             {
                 xtype: 'panel',
                 ui: 'large',
-                title: Uni.I18n.translate('timeofuse.editToUSpecifications', 'MDC', 'Edit time of use specifications'),
+                title: Uni.I18n.translate('timeofuse.editFileManagementSpecifications', 'MDC', 'Edit file management specifications'),
                 layout: {
                     type: 'vbox',
                     align: 'stretch'
                 },
                 items: [
                     {
-                        xtype: 'tou-devicetype-edit-specs-form',
-                        itemId: 'tou-devicetype-edit-specs-form',
+                        xtype: 'files-devicetype-edit-specs-form',
                         deviceTypeId: me.deviceTypeId
                     }
                 ]
