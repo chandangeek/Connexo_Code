@@ -44,7 +44,7 @@ Ext.define('Mdc.timeofuse.view.PreviewContainer', {
                     disabled: !me.timeOfUseAllowed
                 },
                 {
-                    text: Uni.I18n.translate('timeofuse.activate', 'MDC', 'Activate time of use'),
+                    text: Uni.I18n.translate('timeofuse.allowTimeOfUse', 'MDC', 'Allow time of use'),
                     privileges: Mdc.privileges.DeviceType.admin,
                     itemId: 'tou-no-cal-activate-btn',
                     disabled: me.timeOfUseAllowed || !me.timeOfUseSupported

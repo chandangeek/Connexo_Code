@@ -72,6 +72,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             title: Uni.I18n.translate('general.Overview', 'MDC', 'Overview'),
                             route: '{deviceTypeId}',
                             privileges: Mdc.privileges.DeviceType.view,
+                            dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceTypeCapabilitiesStore,
                             controller: 'Mdc.controller.setup.DeviceTypes',
                             action: 'showDeviceTypeDetailsView',
                             callback: function (route) {
@@ -630,6 +631,24 @@ Ext.define('Mdc.controller.history.Setup', {
                                             }
                                         }
                                     }
+                                },
+                                filemanagement: {
+                                    title: Uni.I18n.translate('general.fileManagement', 'MDC', 'File management'),
+                                    route: 'filemanagement',
+                                    privileges: Mdc.privileges.DeviceType.view,
+                                    controller: 'Mdc.filemanagement.controller.FileManagement',
+                                    action: 'showFileManagementOverview',
+                                    dynamicPrivilege: Mdc.dynamicprivileges.DeviceTypeCapability.supportsFileManagement,
+                                    items: {
+                                        edit: {
+                                            title: Uni.I18n.translate('timeofuse.editFileManagementSpecifications', 'MDC', 'Edit file management specifications'),
+                                            route: 'edit',
+                                            privileges: Mdc.privileges.DeviceType.admin,
+                                            dynamicPrivilege: Mdc.dynamicprivileges.DeviceTypeCapability.supportsFileManagement,
+                                            controller: 'Mdc.filemanagement.controller.FileManagement',
+                                            action: 'showEditSpecifications'
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -1120,6 +1139,20 @@ Ext.define('Mdc.controller.history.Setup', {
                             controller: 'Mdc.metrologyconfiguration.controller.AddView',
                             action: 'showForm',
                             privileges: Mdc.privileges.MetrologyConfiguration.canAdmin()
+                        },
+                        edit: {
+                            title: Uni.I18n.translate('metrologyconfiguration.editMetrologyConfiguration', 'MDC', 'Edit metrology configuration'),
+                            route: '{metrologyConfigurationId}/edit',
+                            controller: 'Mdc.metrologyconfiguration.controller.AddView',
+                            action: 'showForm',
+                            privileges: Mdc.privileges.MetrologyConfiguration.canAdmin(),
+                            callback: function (route) {
+                                this.getApplication().on('loadMetrologyConfiguration', function (metrologyConfigurationName) {
+                                    route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", [metrologyConfigurationName]));
+                                    return true;
+                                }, {single: true});
+                                return this;
+                            }
                         }
                     }
                 }
@@ -1367,7 +1400,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                 }
                             }
                         },
-                        servicecalls:  {
+                        servicecalls: {
                             title: Uni.I18n.translate('devicemenu.serviceCalls', 'MDC', 'Service calls'),
                             route: 'servicecalls',
                             controller: 'Mdc.controller.setup.ServiceCalls',
@@ -2074,7 +2107,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             controller: 'Mdc.controller.setup.MonitorProcesses',
                             privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
                             action: 'showDeviceProcesses',
-                            items:{
+                            items: {
                                 'processstart': {
                                     title: Uni.I18n.translate('processes.startProcess', 'MDC', 'Start process'),
                                     route: 'start',
@@ -2209,6 +2242,7 @@ Ext.define('Mdc.controller.history.Setup', {
                 }
             }
         });
+        router.addConfig(this.routeConfig);
     },
 
     tokenizePreviousTokens: function () {
