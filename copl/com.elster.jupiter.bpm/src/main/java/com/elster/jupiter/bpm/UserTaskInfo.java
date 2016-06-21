@@ -1,6 +1,5 @@
 package com.elster.jupiter.bpm;
 
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -15,16 +14,17 @@ public class UserTaskInfo {
     public String createdOn;
     public String actualOwner = "";
     public String processInstancesId;
+    public String optLock;
     public boolean isAssignedToCurrentUser;
 
     public UserTaskInfo() {
     }
 
     public UserTaskInfo(JSONObject jsonObject, String currentUser) {
+        this();
         try {
             this.id = jsonObject.getString("id");
-            this.processInstancesId = jsonObject.getString("processInstanceId")
-                    .equals("-1") ? "" : jsonObject.getString("processInstanceId");
+            this.processInstancesId = "-1".equals(jsonObject.getString("processInstanceId")) ? "" : jsonObject.getString("processInstanceId");
             this.name = jsonObject.isNull("name") ? "" : jsonObject.getString("name");
             this.processName = jsonObject.isNull("processName") ? "" : jsonObject.getString("processName");
             this.deploymentId = jsonObject.isNull("deploymentId") ? "" : jsonObject.getString("deploymentId");
@@ -34,7 +34,9 @@ public class UserTaskInfo {
             this.createdOn = jsonObject.isNull("createdOn") ? "" : jsonObject.getString("createdOn");
             this.actualOwner = jsonObject.isNull("actualOwner") ? "" : jsonObject.getString("actualOwner");
             this.isAssignedToCurrentUser = (!currentUser.isEmpty() && this.actualOwner.equals(currentUser));
+            this.optLock = "-1".equals(jsonObject.getString("optLock")) ? "" : jsonObject.getString("optLock");
         } catch (JSONException e) {
+            throw new IllegalArgumentException(e);
         }
     }
 

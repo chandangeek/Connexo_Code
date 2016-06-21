@@ -25,16 +25,15 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.users.PrivilegesProvider;
-import com.elster.jupiter.users.ResourceDefinition;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
@@ -55,12 +54,15 @@ import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
+import static com.elster.jupiter.orm.Version.version;
+import static com.elster.jupiter.upgrade.InstallIdentifier.identifier;
+
 
 @Component(
         name = "com.elster.jupiter.bpm",
-        service = {BpmService.class, InstallService.class, PrivilegesProvider.class, TranslationKeyProvider.class, MessageSeedProvider.class},
+        service = {BpmService.class, TranslationKeyProvider.class, MessageSeedProvider.class},
         property = {"name=" + BpmService.COMPONENTNAME}, immediate = true)
-public class BpmServiceImpl implements BpmService, InstallService, PrivilegesProvider, TranslationKeyProvider, MessageSeedProvider {
+public class BpmServiceImpl implements BpmService, TranslationKeyProvider, MessageSeedProvider {
 
     private volatile DataModel dataModel;
     private volatile MessageService messageService;
@@ -70,13 +72,14 @@ public class BpmServiceImpl implements BpmService, InstallService, PrivilegesPro
     private volatile BpmServerImpl bpmServer;
     private volatile QueryService queryService;
     private volatile ThreadPrincipalService threadPrincipalService;
+    private volatile UpgradeService upgradeService;
     private List<ProcessAssociationProvider> processAssociationProviders = new CopyOnWriteArrayList<>();
 
     public BpmServiceImpl() {
     }
 
     @Inject
-    public BpmServiceImpl(OrmService ormService, MessageService messageService, JsonService jsonService, NlsService nlsService, UserService userService, QueryService queryService, ThreadPrincipalService threadPrincipalService) {
+    BpmServiceImpl(OrmService ormService, MessageService messageService, JsonService jsonService, NlsService nlsService, UserService userService, QueryService queryService, ThreadPrincipalService threadPrincipalService, UpgradeService upgradeService) {
         this();
         setOrmService(ormService);
         setMessageService(messageService);
@@ -85,10 +88,8 @@ public class BpmServiceImpl implements BpmService, InstallService, PrivilegesPro
         setNlsService(nlsService);
         setQueryService(queryService);
         setThreadPrincipalService(threadPrincipalService);
+        setUpgradeService(upgradeService);
         activate(null);
-        if (!dataModel.isInstalled()) {
-            install();
-        }
     }
 
     @Activate
@@ -107,21 +108,14 @@ public class BpmServiceImpl implements BpmService, InstallService, PrivilegesPro
             }
         });
         bpmServer = new BpmServerImpl(context, threadPrincipalService);
+        upgradeService.register(identifier(COMPONENTNAME), dataModel, InstallerImpl.class, ImmutableMap.of(
+                version(10, 2), UpgraderV10_2.class
+        ));
     }
 
     @Deactivate
     public void deactivate() {
         bpmServer = null;
-    }
-
-    @Override
-    public void install() {
-        new InstallerImpl(dataModel).install(messageService);
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList("USR", "MSG", "LIC");
     }
 
     @Reference
@@ -165,6 +159,11 @@ public class BpmServiceImpl implements BpmService, InstallService, PrivilegesPro
     @Reference
     public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
         this.threadPrincipalService = threadPrincipalService;
+    }
+
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
     }
 
     @Override
@@ -228,7 +227,7 @@ public class BpmServiceImpl implements BpmService, InstallService, PrivilegesPro
         List<BpmProcessDefinition> bpmProcessDefinitions = dataModel.query(BpmProcessDefinition.class)
                 .select(nameCondition.and(versionCondition));
         if (bpmProcessDefinitions.isEmpty()) {
-            return BpmProcessDefinitionImpl.from(dataModel, processName, association, version, status);
+            return BpmProcessDefinitionImpl.from(dataModel, processName, association, version, status, "MDC", Collections.emptyList());
         }
         bpmProcessDefinitions.get(0).setStatus(status);
         return bpmProcessDefinitions.get(0);
@@ -247,6 +246,13 @@ public class BpmServiceImpl implements BpmService, InstallService, PrivilegesPro
     @Override
     public List<BpmProcessDefinition> getActiveBpmProcessDefinitions() {
         return dataModel.query(BpmProcessDefinition.class).select(Operator.EQUALIGNORECASE.compare("status", "ACTIVE"));
+    }
+
+    @Override
+    public List<BpmProcessDefinition> getActiveBpmProcessDefinitions(String appKey) {
+        Condition statusCondition = Operator.EQUALIGNORECASE.compare("status", "ACTIVE");
+        Condition appKeyCondition = Operator.EQUALIGNORECASE.compare("appKey", appKey);
+        return dataModel.query(BpmProcessDefinition.class).select(statusCondition.and(appKeyCondition));
     }
 
     @Override
@@ -295,11 +301,11 @@ public class BpmServiceImpl implements BpmService, InstallService, PrivilegesPro
 
     @Override
     public BpmProcessDefinitionBuilder newProcessBuilder() {
-        return new BpmProcessDefinitionBuilderImpl(dataModel, this);
+        return new BpmProcessDefinitionBuilderImpl(dataModel);
     }
 
     public List<ProcessAssociationProvider> getProcessAssociationProviders() {
-        return processAssociationProviders;
+        return Collections.unmodifiableList(processAssociationProviders);
     }
 
     @Override
@@ -310,9 +316,14 @@ public class BpmServiceImpl implements BpmService, InstallService, PrivilegesPro
 
     @Override
     public ProcessInstanceInfos getRunningProcesses(String authorization, String filter) {
+        return getRunningProcesses(authorization, filter, null);
+    }
+
+    @Override
+    public ProcessInstanceInfos getRunningProcesses(String authorization, String filter, String appKey) {
         ProcessInstanceInfos runningProcesses = this.getBpmServer().getRunningProcesses(authorization, filter);
 
-        List<BpmProcessDefinition> activeProcesses = this.getActiveBpmProcessDefinitions();
+        List<BpmProcessDefinition> activeProcesses = appKey != null ? this.getActiveBpmProcessDefinitions(appKey) : this.getActiveBpmProcessDefinitions();
         List<ProcessInstanceInfo> filteredRunningProcesses = runningProcesses.processes.stream()
                 .filter(process -> activeProcesses.stream()
                         .anyMatch(activeProcess -> process.name.equals(activeProcess.getProcessName()) && process.version
@@ -320,31 +331,6 @@ public class BpmServiceImpl implements BpmService, InstallService, PrivilegesPro
                 .collect(Collectors.toList());
 
         return new ProcessInstanceInfos(filteredRunningProcesses);
-    }
-
-    @Override
-    public String getModuleName() {
-        return BpmService.COMPONENTNAME;
-    }
-
-    @Override
-    public List<ResourceDefinition> getModuleResources() {
-        List<ResourceDefinition> resources = new ArrayList<>();
-        resources.add(userService.createModuleResourceWithPrivileges(BpmService.COMPONENTNAME, Privileges.RESOURCE_BPM_PROCESSES
-                        .getKey(), Privileges.RESOURCE_BPM_PROCESSES_DESCRIPTION.getKey(),
-                Arrays.asList(
-                        Privileges.Constants.VIEW_BPM, Privileges.Constants.DESIGN_BPM, Privileges.Constants.ADMINISTRATE_BPM)));
-        resources.add(userService.createModuleResourceWithPrivileges(BpmService.COMPONENTNAME, Privileges.RESOURCE_BPM_TASKS
-                        .getKey(), Privileges.RESOURCE_BPM_TASKS_DESCRIPTION.getKey(),
-                Arrays.asList(
-                        Privileges.Constants.ASSIGN_TASK, Privileges.Constants.VIEW_TASK, Privileges.Constants.EXECUTE_TASK)));
-        resources.add(userService.createModuleResourceWithPrivileges(BpmService.COMPONENTNAME, Privileges.PROCESS_EXECUTION_LEVELS
-                        .getKey(), Privileges.PROCESS_EXECUTION_LEVELS_DESCRIPTION.getKey(),
-                Arrays.asList(
-                        Privileges.Constants.EXECUTE_PROCESSES_LVL_1, Privileges.Constants.EXECUTE_PROCESSES_LVL_2,
-                        Privileges.Constants.EXECUTE_PROCESSES_LVL_3, Privileges.Constants.EXECUTE_PROCESSES_LVL_4)));
-
-        return resources;
     }
 
     @Override
