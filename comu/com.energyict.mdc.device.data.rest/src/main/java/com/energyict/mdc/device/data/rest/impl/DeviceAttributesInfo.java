@@ -94,7 +94,12 @@ public class DeviceAttributesInfo {
             }
         },
         BATCH,
-        USAGE_POINT,
+        USAGE_POINT {
+            @Override
+            public List<DefaultState> attributeIsEditableForStates() {
+                return Collections.emptyList();
+            }
+        },
         SERVICE_CATEGORY {
             @Override
             public List<DefaultState> attributeIsEditableForStates() {
@@ -109,7 +114,7 @@ public class DeviceAttributesInfo {
         SHIPMENT_DATE {
             @Override
             public List<DefaultState> attributeIsEditableForStates() {
-                return Arrays.asList(DefaultState.IN_STOCK);
+                return Collections.singletonList(DefaultState.IN_STOCK);
             }
         },
         INSTALLATION_DATE {
@@ -146,12 +151,12 @@ public class DeviceAttributesInfo {
         DECOMMISSIONING_DATE {
             @Override
             public List<DefaultState> attributeIsEditableForStates() {
-                return Arrays.asList(DefaultState.DECOMMISSIONED);
+                return Collections.singletonList(DefaultState.DECOMMISSIONED);
             }
 
             @Override
             public List<DefaultState> attributeIsAllowedForStates() {
-                return Arrays.asList(DefaultState.DECOMMISSIONED);
+                return Collections.singletonList(DefaultState.DECOMMISSIONED);
             }
         },
         LOCATION {
