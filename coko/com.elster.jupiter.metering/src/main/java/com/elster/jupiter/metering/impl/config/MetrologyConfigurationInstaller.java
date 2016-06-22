@@ -2,9 +2,7 @@ package com.elster.jupiter.metering.impl.config;
 
 
 import com.elster.jupiter.cbo.PhaseCode;
-import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
-import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
@@ -13,7 +11,6 @@ import com.elster.jupiter.metering.UsagePointTypeInfo;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.Formula;
-import com.elster.jupiter.metering.config.FormulaBuilder;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
@@ -23,13 +20,11 @@ import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeTemplate;
 import com.elster.jupiter.metering.config.ReadingTypeTemplateAttributeName;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
-import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.search.SearchablePropertyOperator;
 import com.elster.jupiter.search.SearchablePropertyValue;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import java.util.NoSuchElementException;
 
 public class MetrologyConfigurationInstaller {
@@ -53,7 +48,6 @@ public class MetrologyConfigurationInstaller {
         residentialConsumerWith4ToU();
         waterConfigurationCI();
         residentialGas();
-        unmeasuredAntennaInstallation();
         residentialPrepay();
     }
 
@@ -93,42 +87,6 @@ public class MetrologyConfigurationInstaller {
                 .withMeterRole(meterRole).withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.A_PLUS));
 
         contractInformation.addDeliverable(buildFormulaSingleRequirement(config, readingType15minAplusWh, requirementAplus, "Active energy+"));
-    }
-
-    private void unmeasuredAntennaInstallation() {
-        if (metrologyConfigurationService.findMetrologyConfiguration("Unmeasured antenna installation").isPresent()) {
-            return;
-        }
-        ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY)
-                .orElseThrow(() -> new NoSuchElementException("Service category not found: " + ServiceKind.ELECTRICITY));
-        UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration("Unmeasured antenna installation", serviceCategory)
-                .withDescription("Unmeasured installations which use attributes-based calculations").create();
-
-        config.addUsagePointRequirement(getUsagePointRequirement("SERVICEKIND", SearchablePropertyOperator.EQUAL, ServiceKind.ELECTRICITY.name()));
-        config.addUsagePointRequirement(getUsagePointRequirement("type", SearchablePropertyOperator.EQUAL, UsagePointTypeInfo.UsagePointType.UNMEASURED_NON_SDP.name()));
-
-        ReadingType readingTypeMonthlyAplusWh = meteringService.findReadingTypes(Collections.singletonList("13.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0"))
-                .stream().findFirst().orElseGet(() -> meteringService.createReadingType("13.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "A+"));
-
-        MetrologyPurpose purposeBilling = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.BILLING)
-                .orElseThrow(() -> new NoSuchElementException("Billing metrology purpose not found"));
-        MetrologyContract contractBilling = config.addMandatoryMetrologyContract(purposeBilling);
-
-        RegisteredCustomPropertySet registeredExampleCPS = customPropertySetService.findActiveCustomPropertySet("com.elster.jupiter.metering.cps.ExampleCPS")
-                .orElseThrow(() -> new NoSuchElementException("ExampleCPS custom property set not found"));
-        config.addCustomPropertySet(registeredExampleCPS);
-
-        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Monthly A+ kWh", readingTypeMonthlyAplusWh, Formula.Mode.EXPERT);
-        CustomPropertySet exampleCPS = registeredExampleCPS.getCustomPropertySet();
-        List<PropertySpec> propertySpecs = exampleCPS.getPropertySpecs();
-        FormulaBuilder antennaPower = builder.property(exampleCPS, propertySpecs.stream().filter("antennaPower"::equals).findFirst()
-                .orElseThrow(() -> new NoSuchElementException("antennaPower property spec not found")));
-        FormulaBuilder antennaCount = builder.property(exampleCPS, propertySpecs.stream().filter("antennaCount"::equals).findFirst()
-                .orElseThrow(() -> new NoSuchElementException("antennaCount property spec not found")));
-        FormulaBuilder compositionCPS = builder.multiply(antennaPower, antennaCount);
-        FormulaBuilder monthlyConstant = builder.multiply(builder.constant(24), builder.constant(30));
-
-        contractBilling.addDeliverable(builder.build(builder.multiply(compositionCPS, monthlyConstant)));
     }
 
     private void residentialProsumerWith1Meter() {
