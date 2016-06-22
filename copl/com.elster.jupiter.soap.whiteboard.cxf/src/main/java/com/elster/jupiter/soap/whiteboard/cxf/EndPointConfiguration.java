@@ -31,6 +31,8 @@ public interface EndPointConfiguration {
 
     boolean isHttpCompression();
 
+    boolean isInbound();
+
     boolean isSchemaValidation();
 
     boolean isActive();

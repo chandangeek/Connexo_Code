@@ -32,4 +32,9 @@ public final class InboundEndPointConfigurationImpl extends EndPointConfiguratio
     public void setGroup(Group group) {
         this.group.set(group);
     }
+
+    @Override
+    public boolean isInbound() {
+        return true;
+    }
 }
