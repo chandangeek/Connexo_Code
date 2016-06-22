@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 /**
  * Validates that the DataChannelUsage's data logger channel only is referred once.
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 3/14/14
  * Time: 3:57 PM
@@ -29,14 +29,18 @@ public class AllDataLoggerChannelsAvailableValidator implements ConstraintValida
 
     @Override
     public boolean isValid(DataLoggerReferenceImpl dataLoggerReference, ConstraintValidatorContext constraintValidatorContext) {
-        constraintValidatorContext.disableDefaultConstraintViolation();
-        List<DataLoggerChannelUsage> currentUsages =  dataLoggerReference.getDataLoggerChannelUsages();
+
+        List<DataLoggerChannelUsage> currentUsages = dataLoggerReference.getDataLoggerChannelUsages();
         Set<Channel> dataLoggerChannels = currentUsages.stream().map(DataLoggerChannelUsage::getDataLoggerChannel).collect(Collectors.toSet());
-        return currentUsages.isEmpty() ||
-               (dataLoggerChannels.size() == currentUsages.size() && dataLoggerChannels.stream().filter(this::isAvailable).findAny().isPresent());
+        boolean isValid = currentUsages.isEmpty() || (dataLoggerChannels.size() == currentUsages.size() && dataLoggerChannels.stream().filter(this::isAvailable).findAny().isPresent());
+        if (!isValid) {
+            constraintValidatorContext.disableDefaultConstraintViolation();
+            constraintValidatorContext.buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.DATA_LOGGER_CHANNEL_ALREADY_REFERENCED + "}").addConstraintViolation();
+        }
+        return isValid;
     }
 
-    public boolean isAvailable(Channel dataloggerChannel){
-        return !((TopologyServiceImpl)this.topologyService).isReferenced(dataloggerChannel);
+    public boolean isAvailable(Channel dataloggerChannel) {
+        return !((TopologyServiceImpl) this.topologyService).isReferenced(dataloggerChannel);
     }
 }
