@@ -11,16 +11,14 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolationException;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
-import com.energyict.mdc.device.lifecycle.RequiredMicroActionPropertiesException;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
-import com.energyict.mdc.device.lifecycle.impl.MessageSeeds;
 import com.energyict.mdc.device.lifecycle.impl.ServerMicroAction;
 import com.energyict.mdc.device.lifecycle.impl.micro.i18n.MicroActionTranslationKey;
 
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Provides an implementation for the {@link ServerMicroAction} interface
@@ -51,18 +49,42 @@ public class LinkToUsagePoint extends TranslatableServerMicroAction {
 
     @Override
     public void execute(Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) {
-        UsagePoint usagePoint = getUsagePointValue(properties);
-        try {
-            device.activate(effectiveTimestamp, usagePoint);
-        } catch (LocalizedException e) {
-            throw new DeviceLifeCycleActionViolationException() {
-                @Override
-                public String getLocalizedMessage() {
-                    return e.getLocalizedMessage();
-                }
-            };
+        Optional<UsagePoint> usagePoint = getUsagePointValue2(properties);
+        if (usagePoint.isPresent()) {
+            try {
+                device.activate(effectiveTimestamp, usagePoint.get());
+            } catch (LocalizedException e) {
+                throw new DeviceLifeCycleActionViolationException() {
+                    @Override
+                    public String getLocalizedMessage() {
+                        return e.getLocalizedMessage();
+                    }
+                };
+            }
         }
     }
+
+    private PropertySpec usagePointPropertySpec(PropertySpecService service) {
+        return service.referenceSpec(UsagePoint.class)//supported by com.energyict.mdc.pluggable.rest.impl.properties.SimplePropertyType#USAGEPOINT
+                .named(MicroActionTranslationKey.MICRO_ACTION_NAME_LINK_TO_USAGE_POINT)
+                .describedAs(MicroActionTranslationKey.MICRO_ACTION_DESCRIPTION_LINK_TO_USAGE_POINT)
+                .fromThesaurus(thesaurus)
+                .finish();
+    }
+
+    private Optional<UsagePoint> getUsagePointValue2(List<ExecutableActionProperty> properties) {
+        return properties.stream()
+                .filter(executableActionProperty -> executableActionProperty.getPropertySpec()
+                        .getName()
+                        .equals(MicroActionTranslationKey.MICRO_ACTION_NAME_LINK_TO_USAGE_POINT.getKey()))
+                .findFirst()
+                .map(ExecutableActionProperty::getValue)
+                .map(UsagePoint.class::cast);
+    }
+
+    /**
+     * TO BE REMOVED START
+     **/
 
     private final static TranslationKey TEMPORAL_KEY = new TranslationKey() {
         @Override
@@ -86,27 +108,16 @@ public class LinkToUsagePoint extends TranslatableServerMicroAction {
                 .finish();
     }
 
-    private PropertySpec usagePointPropertySpec(PropertySpecService service) {
-        return service.referenceSpec(UsagePoint.class)//supported by com.energyict.mdc.pluggable.rest.impl.properties.SimplePropertyType#USAGEPOINT
-                .named(MicroActionTranslationKey.MICRO_ACTION_NAME_LINK_TO_USAGE_POINT)
-                .describedAs(MicroActionTranslationKey.MICRO_ACTION_DESCRIPTION_LINK_TO_USAGE_POINT)
-                .fromThesaurus(thesaurus)
-                .finish();
-    }
-
-    private UsagePoint getUsagePointValue(List<ExecutableActionProperty> properties) {
+    private Optional<UsagePoint> getUsagePointValue(List<ExecutableActionProperty> properties) {
         return properties.stream()
                 .filter(executableActionProperty -> executableActionProperty.getPropertySpec()
                         .getName()
                         .equals(TEMPORAL_KEY.getKey()))
-                .findAny()
+                .findFirst()
                 .map(ExecutableActionProperty::getValue)
                 .map(String.class::cast)
-                .flatMap(meteringService::findUsagePoint)
-                .orElseThrow(() -> new RequiredMicroActionPropertiesException(this.thesaurus,
-                        MessageSeeds.MISSING_REQUIRED_PROPERTY_VALUES,
-                        Collections.singleton(MicroActionTranslationKey.MICRO_ACTION_NAME_LINK_TO_USAGE_POINT.getKey()))
-                );
-//                .map(UsagePoint.class::cast);
+                .flatMap(meteringService::findUsagePoint);
     }
+
+    /** TO BE REMOVED END **/
 }

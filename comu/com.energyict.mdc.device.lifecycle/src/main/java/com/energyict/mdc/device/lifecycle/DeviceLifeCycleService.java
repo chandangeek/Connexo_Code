@@ -13,9 +13,9 @@ import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
+import com.energyict.mdc.device.lifecycle.impl.micro.i18n.MicroActionTranslationKey;
 
 import aQute.bnd.annotation.ProviderType;
-import com.energyict.mdc.device.lifecycle.impl.micro.i18n.MicroActionTranslationKey;
 
 import java.time.Instant;
 import java.util.List;
@@ -43,7 +43,8 @@ public interface DeviceLifeCycleService {
      */
     enum MicroActionPropertyName {
         LAST_CHECKED(Keys.LAST_CHECKED_TIMESTAMP_PROPERTY_NAME),
-        MULTIPLIER(MicroActionTranslationKey.Keys.MICRO_ACTION_NAME_TRANSLATE_KEY + MicroAction.SET_MULTIPLIER);
+        MULTIPLIER(MicroActionTranslationKey.Keys.MICRO_ACTION_NAME_TRANSLATE_KEY + MicroAction.SET_MULTIPLIER),
+        USAGE_POINT(MicroActionTranslationKey.Keys.MICRO_ACTION_NAME_TRANSLATE_KEY + MicroAction.LINK_TO_USAGE_POINT),;
 
         private String key;
         MicroActionPropertyName(String key) {
