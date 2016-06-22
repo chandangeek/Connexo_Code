@@ -131,7 +131,7 @@ public class AverageWithSamplesEstimatorTest {
         doReturn(readingType).when(block).getReadingType();
         doReturn(channel).when(block).getChannel();
         doReturn(deltaCimChannel).when(block).getCimChannel();
-        doReturn(channelsContainer).when(channel).getMeterActivation();
+        doReturn(channelsContainer).when(channel).getChannelsContainer();
 
         doReturn(Optional.of(meter)).when(channelsContainer).getMeter();
         doReturn(asList(channel, otherChannel)).when(channelsContainer).getChannels();
@@ -886,8 +886,8 @@ public class AverageWithSamplesEstimatorTest {
         doReturn(Unit.WATT_HOUR.amount(BigDecimal.valueOf(14))).when(preAdvanceReading).getQuantity(advanceReadingType);
         BaseReadingRecord postAdvanceReading = mock(BaseReadingRecord.class);
         doReturn(Unit.WATT_HOUR.amount(BigDecimal.valueOf(32))).when(postAdvanceReading).getQuantity(advanceReadingType);
-        doReturn(singletonList(preAdvanceReading)).when(meterActivation).getReadingsBefore(ESTIMABLE_TIME.toInstant(), advanceReadingType, 1);
-        doReturn(singletonList(postAdvanceReading)).when(meterActivation).getReadings(Range.atLeast(ESTIMABLE_TIME.plusMinutes(15).toInstant()), advanceReadingType);
+        doReturn(singletonList(preAdvanceReading)).when(channelsContainer).getReadingsBefore(ESTIMABLE_TIME.toInstant(), advanceReadingType, 1);
+        doReturn(singletonList(postAdvanceReading)).when(channelsContainer).getReadings(Range.atLeast(ESTIMABLE_TIME.plusMinutes(15).toInstant()), advanceReadingType);
         doReturn(ESTIMABLE_TIME.minusMinutes(35).toInstant()).when(preAdvanceReading).getTimeStamp();
         doReturn(ESTIMABLE_TIME.plusMinutes(35).toInstant()).when(postAdvanceReading).getTimeStamp();
         BaseReadingRecord pre1Reading = mock(BaseReadingRecord.class);
