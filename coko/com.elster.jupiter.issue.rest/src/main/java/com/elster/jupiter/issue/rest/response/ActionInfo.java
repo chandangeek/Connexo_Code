@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.Map;
 
 public class ActionInfo {
-    private List<IssueShortInfo> success;
-    private Map<String, ActionFailInfo> fails;
+    private final List<IssueShortInfo> success;
+    private final Map<String, ActionFailInfo> fails;
 
     public ActionInfo(){
         success = new ArrayList<>();
