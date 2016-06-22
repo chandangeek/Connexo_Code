@@ -132,6 +132,10 @@ Ext.define('Apr.controller.AppServers', {
             selector: 'appserver-import-services'
         },
         {
+            ref: 'webServicesPage',
+            selector: 'appserver-webservices'
+        },
+        {
             ref: 'messageServicesOverview',
             selector: 'appserver-message-services'
         },
@@ -256,6 +260,9 @@ Ext.define('Apr.controller.AppServers', {
             },
             'preview-container apr-import-services-grid': {
                 select: this.showImportServicesPreview
+            },
+            'preview-container apr-web-service-endpoints-grid': {
+                select: this.showWebServicesPreview
             },
             '#save-import-services-settings-button': {
                 click: this.saveImportSettings
@@ -583,6 +590,7 @@ Ext.define('Apr.controller.AppServers', {
                                     servedWebserviceEndpointsStore.load(function (servedWebserviceEndpoints) {
                                         me.getModel('Apr.model.AppServer').load(appServerName, {
                                             success: function (rec) {
+
                                                 view = Ext.widget('appservers-add', {
                                                     edit: me.edit,
                                                     store: servedMessageServicesStore,
@@ -630,6 +638,7 @@ Ext.define('Apr.controller.AppServers', {
                 unservedMessageServicesStore.load(function (messageServices) {
                     unservedImportStore.load(function (importServices) {
                         unservedWebserviceEndpointsStore.load(function (webServices) {
+                            debugger;
                             Ext.each(messageServices, function (messageService) {
                                 var model = Ext.create('Apr.model.ServedMessageService', {
                                     numberOfThreads: 1,
@@ -930,6 +939,20 @@ Ext.define('Apr.controller.AppServers', {
         if (preview.down('apr-import-services-action-menu')) {
             preview.down('apr-import-services-action-menu').record = record;
             me.setupMenuItems(record);
+        }
+    },
+
+    showWebServicesPreview: function (selectionModel, record) {
+        var me = this,
+            page = me.getWebServicesPage(),
+            preview = page.down('webservice-preview'),
+            webServiceName = record.get('name'),
+            previewForm = page.down('webservice-preview-form');
+
+        preview.setTitle(webServiceName);
+        previewForm.updateWebservicePreview(record);
+        if (preview.down('apr-webservices-action-menu')) {
+            preview.down('apr-webservices-action-menu').record = record;
         }
     },
 

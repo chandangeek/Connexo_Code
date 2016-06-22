@@ -3,7 +3,8 @@ Ext.define('Apr.view.appservers.AppServerWebserviceEndpoints', {
     alias: 'widget.appserver-webservices',
     requires: [
         'Apr.view.appservers.Menu',
-        'Apr.view.appservers.AddWebserviceEndpointsGrid'
+        'Apr.view.appservers.AddWebserviceEndpointsGrid',
+        'Apr.view.appservers.WebserviceEndpointPreview'
     ],
 
     router: null,
@@ -84,11 +85,11 @@ Ext.define('Apr.view.appservers.AppServerWebserviceEndpoints', {
                             }
                         ]
                     },
-                    //previewComponent: {
-                    //    xtype: 'webservice-preview',
-                    //    itemId: 'pnl-import-service-preview',
-                    //    router: me.router,
-                    //}
+                    previewComponent: {
+                        xtype: 'webservice-preview',
+                        itemId: 'pnl-import-service-preview',
+                        router: me.router,
+                    }
 
                 }
             ]
