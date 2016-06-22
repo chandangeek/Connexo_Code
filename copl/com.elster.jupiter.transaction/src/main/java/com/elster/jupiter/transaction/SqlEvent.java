@@ -5,6 +5,7 @@ import com.elster.jupiter.util.time.StopWatch;
 import com.google.common.collect.ImmutableMap;
 import org.osgi.service.event.Event;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -12,7 +13,7 @@ public final class SqlEvent {
 
     private static final long NANOS_PER_MICRO = 1000L;
     private final String text;
-    private final List<Object> parameters;
+    private final List<Object> parameters = new ArrayList<>();
     private final int fetchCount;
     private final int batchCount;
     private final int rowCount;
@@ -21,7 +22,7 @@ public final class SqlEvent {
     public SqlEvent(StopWatch stopWatch, String text, List<Object> parameters, int fetchCount, int rowCount, int batchCount) {
         this.stopWatch = stopWatch;
         this.text = text;
-        this.parameters = Collections.unmodifiableList(parameters);
+        this.parameters.addAll(parameters);
         this.fetchCount = fetchCount;
         this.batchCount = batchCount;
         this.rowCount = rowCount;
@@ -75,7 +76,7 @@ public final class SqlEvent {
     }
 
     public List<Object> getParameters() {
-        return parameters;
+        return Collections.unmodifiableList(parameters);
     }
 
     public int getFetchCount() {
@@ -101,7 +102,7 @@ public final class SqlEvent {
     public Event toOsgiEvent() {
         ImmutableMap.Builder<String, Object> builder = new ImmutableMap.Builder<>();
         builder.put("text", text).put("elapsed", stopWatch.getElapsed() / NANOS_PER_MICRO).put("statement_id", getStatementId());
-        if (parameters != null && !parameters.isEmpty()) {
+        if (!parameters.isEmpty()) {
             builder.put("parameters", parameters.toString());
         }
         if (fetchCount >= 0) {
