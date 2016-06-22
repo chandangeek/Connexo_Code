@@ -27,7 +27,7 @@ public enum MessageSeeds implements MessageSeed {
     DATA_LOGGER_LINK_EXCEPTION_NO_FREE_DATALOGGER_CHANNEL(1001, DataLoggerLinkException.NO_FREE_DATA_LOGGER_CHANNEL, "All channels of the data Logger {0} are used"),
     DATA_LOGGER_LINK_EXCEPTION_NO_DATA_LOGGER_CHANNEL_FOR_READING_TYPE_X(1002, DataLoggerLinkException.NO_DATA_LOGGER_CHANNEL_FOR_READING_TYPE_X, "No channel with reading type {0} found for Data logger {1}"),
     DATA_LOGGER_LINK_EXCEPTION_DEVICE_NOT_LINKED(1003, DataLoggerLinkException.DEVICE_NOT_LINKED, "Device {0} was not linked"),
-    DATA_LOGGER_LINK_EXCEPTION_NO_MAPPING_FOR_ALL_SLAVE_CHANNELS(1004, DataLoggerLinkException.NO_MAPPING_FOR_ALL_SLAVE_CHANNELS, "All slave channels should be included in the mapping"),
+    DATA_LOGGER_LINK_EXCEPTION_NO_MAPPING_FOR_ALL_SLAVE_CHANNELS(1004, DataLoggerLinkException.NO_MAPPING_FOR_ALL_SLAVE_CHANNELS, "All channels and registers of the slave should be included in the mapping"),
     DATA_LOGGER_LINK_EXCEPTION_DATALOGGER_CHANNEL_ALREADY_REFERENCED(1005, Keys.DATA_LOGGER_CHANNEL_ALREADY_REFERENCED, "The channel {0} is referenced by another slave channel"),
     DATA_LOGGER_LINK_EXCEPTION_NO_PHYSICAL_CHANNEL_FOR_READING_TYPE_X(1006,DataLoggerLinkException.NO_PHYSICAL_CHANNEL_FOR_READING_TYPE_X, "No physical channel found for reading type {0}");
     ;
