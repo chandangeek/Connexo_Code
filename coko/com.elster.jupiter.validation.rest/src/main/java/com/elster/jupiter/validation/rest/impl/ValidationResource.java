@@ -99,7 +99,7 @@ public class ValidationResource {
             Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE, Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
     public Response getValidationRuleSets(@HeaderParam(APPLICATION_HEADER_PARAM) String applicationName, @Context UriInfo uriInfo) {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
-        List<ValidationRuleSet> list = queryRuleSets(params, applicationName);
+        List<ValidationRuleSet> list = queryRuleSets(params, getQualityCodeSystemFromApplicationName(applicationName));
 
         ValidationRuleSetInfos infos = new ValidationRuleSetInfos(params.clipToLimit(list));
         infos.total = params.determineTotal(list.size());
@@ -163,9 +163,9 @@ public class ValidationResource {
         return Response.status(Response.Status.NO_CONTENT).build();
     }
 
-    private List<ValidationRuleSet> queryRuleSets(QueryParameters queryParameters, String applicationName) {
+    private List<ValidationRuleSet> queryRuleSets(QueryParameters queryParameters, QualityCodeSystem qualityCodeSystem) {
         Query<ValidationRuleSet> query = validationService.getRuleSetQuery();
-        query.setRestriction(where("applicationName").isEqualTo(applicationName));
+        query.setRestriction(where("qualityCodeSystem").isEqualTo(qualityCodeSystem));
         RestQuery<ValidationRuleSet> restQuery = queryService.wrap(query);
         return restQuery.select(queryParameters, Order.ascending("upper(name)"));
     }
