@@ -1,6 +1,7 @@
 package com.elster.jupiter.soap.whiteboard.cxf.impl;
 
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointProvider;
 
 import org.osgi.framework.BundleContext;
@@ -29,7 +30,7 @@ public final class OutboundEndPoint implements ManagedEndpoint {
         this.bundleContext = bundleContext;
     }
 
-    OutboundEndPoint init(OutboundEndPointProvider endPointProvider, EndPointConfiguration endPointConfiguration) {
+    OutboundEndPoint init(OutboundEndPointProvider endPointProvider, OutboundEndPointConfiguration endPointConfiguration) {
         this.endPointProvider = endPointProvider;
         this.endPointConfiguration = endPointConfiguration;
         return this;

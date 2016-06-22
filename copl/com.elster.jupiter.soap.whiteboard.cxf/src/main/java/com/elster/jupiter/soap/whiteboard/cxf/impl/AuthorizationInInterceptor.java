@@ -1,0 +1,116 @@
+package com.elster.jupiter.soap.whiteboard.cxf.impl;
+
+import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
+
+import org.apache.cxf.common.util.Base64Utility;
+import org.apache.cxf.configuration.security.AuthorizationPolicy;
+import org.apache.cxf.interceptor.Fault;
+import org.apache.cxf.interceptor.Interceptor;
+import org.apache.cxf.message.Message;
+import org.apache.cxf.phase.AbstractPhaseInterceptor;
+import org.apache.cxf.phase.Phase;
+
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.util.Optional;
+
+/**
+ * Authentication interceptor for Apache CXF. Will verify credentials and assert the user has the role as configured on the endpoint.
+ * Credentials are stored in the http session.
+ * <p>
+ * Created by bvn on 6/21/16.
+ */
+public class AuthorizationInInterceptor extends AbstractPhaseInterceptor<Message> {
+
+    static final String USER_NAME = "userName";
+    static final String PASSWORD = "password";
+
+    public static final String ANONYMOUS_USER = "anonymous";
+    private final UserService userService;
+    private InboundEndPointConfiguration endPointConfiguration;
+    private final TransactionService transactionService;
+
+    @Inject
+    public AuthorizationInInterceptor(UserService userService, TransactionService transactionService) {
+        super(Phase.PRE_INVOKE);
+        this.userService = userService;
+        this.transactionService = transactionService;
+    }
+
+    public void handleMessage(Message message) throws Fault {
+        if (!endPointConfiguration.getGroup().isPresent()) {
+            return; // why was this interceptor added anyway?
+        }
+        HttpServletRequest request = (HttpServletRequest) message.get("HTTP.REQUEST");
+        HttpSession httpSession = request.getSession();
+        boolean newSession = false;
+
+        String userName = (String) httpSession.getAttribute(USER_NAME);
+        String password = null;
+
+        if (userName != null) {
+            password = (String) httpSession.getAttribute(PASSWORD);
+        } else {
+            AuthorizationPolicy policy = message.get(AuthorizationPolicy.class);
+            if (policy != null) {
+                userName = policy.getUserName();
+                password = policy.getPassword();
+                newSession = true;
+            }
+        }
+        if (userName == null) {
+            userName = ANONYMOUS_USER;
+        }
+        try {
+            Optional<User> user = userService.authenticateBase64(Base64Utility.encode((userName + ":" + password).getBytes()), request
+                    .getRemoteAddr());
+            if (!user.isPresent()) {
+                logInTransaction(LogLevel.WARNING, "User " + userName + " denied access: invalid credentials");
+                throw new SecurityException("Not authorized");
+            }
+            if (!user.get().isMemberOf(endPointConfiguration.getGroup().get())) {
+                logInTransaction(LogLevel.WARNING, "User " + userName + " denied access: not in role");
+                throw new SecurityException("Not authorized");
+            }
+            if (newSession) {
+                httpSession.setAttribute(USER_NAME, userName);
+                if (password != null) {
+                    httpSession.setAttribute(PASSWORD, password);
+                }
+            }
+        } catch (Exception e) {
+            logInTransaction("Exception while logging in " + userName + ":", e);
+            throw new SecurityException("Not authorized");
+        }
+    }
+
+    private void logInTransaction(LogLevel logLevel, String message) {
+        try (TransactionContext context = transactionService.getContext()) {
+            endPointConfiguration.log(logLevel, message);
+            context.commit();
+        }
+    }
+
+    private void logInTransaction(String message, Exception exception) {
+        try (TransactionContext context = transactionService.getContext()) {
+            endPointConfiguration.log(message, exception);
+            context.commit();
+        }
+    }
+
+    /**
+     * Initialization of this particular interceptor
+     *
+     * @param endPointConfiguration The endpoint from which this interceptor will get the required configuration parameters
+     */
+    Interceptor<? extends Message> init(InboundEndPointConfiguration endPointConfiguration) {
+        this.endPointConfiguration = endPointConfiguration;
+        return this;
+    }
+}

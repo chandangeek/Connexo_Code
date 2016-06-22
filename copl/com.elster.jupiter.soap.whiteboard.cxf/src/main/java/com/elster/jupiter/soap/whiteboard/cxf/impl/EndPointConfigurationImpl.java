@@ -93,7 +93,8 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
         HTTP_COMPRESSION("httpCompression"),
         SCHEMA_VALIDATION("schemaValidation"),
         AUTHENTICATED("authenticationMethod"),
-        ACTIVE("active");
+        ACTIVE("active"),
+        GROUP("group");
 
         private final String javaFieldName;
 

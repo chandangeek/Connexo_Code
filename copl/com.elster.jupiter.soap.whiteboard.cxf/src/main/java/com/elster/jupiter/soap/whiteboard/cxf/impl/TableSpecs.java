@@ -7,6 +7,7 @@ import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointLog;
+import com.elster.jupiter.users.Group;
 
 import static com.elster.jupiter.orm.ColumnConversion.CLOB2STRING;
 import static com.elster.jupiter.orm.Table.MAX_STRING_LENGTH;
@@ -44,13 +45,20 @@ public enum TableSpecs {
             table.column("tracing").bool().map(EndPointConfigurationImpl.Fields.TRACING.fieldName()).add();
             table.column("tracefile")
                     .varChar()
-                    .notNull()
                     .map(EndPointConfigurationImpl.Fields.TRACEFILE.fieldName())
                     .add();
             table.column("logLevel")
                     .number()
                     .conversion(ColumnConversion.NUMBER2ENUM)
                     .map(EndPointConfigurationImpl.Fields.LOG_LEVEL.fieldName())
+                    .add();
+            Column group = table.column("groupref")
+                    .number()
+                    .add();
+            table.foreignKey("FK_USR_GROUP")
+                    .references(Group.class)
+                    .on(group)
+                    .map(EndPointConfigurationImpl.Fields.GROUP.fieldName())
                     .add();
             table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
 

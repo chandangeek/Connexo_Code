@@ -1,6 +1,7 @@
 package com.elster.jupiter.soap.whiteboard.cxf;
 
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.users.Group;
 
 import java.util.Optional;
 
@@ -90,6 +91,8 @@ public interface EndPointConfigurationService {
         InboundEndPointConfigBuilder httpCompression();
 
         InboundEndPointConfigBuilder setAuthenticationMethod(EndPointAuthentication authenticationMethod);
+
+        InboundEndPointConfigBuilder group(Group group);
 
         InboundEndPointConfigBuilder schemaValidation();
 

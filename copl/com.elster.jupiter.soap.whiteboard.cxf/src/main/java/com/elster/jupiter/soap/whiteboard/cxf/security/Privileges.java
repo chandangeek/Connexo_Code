@@ -12,7 +12,6 @@ public enum Privileges implements TranslationKey {
     RESOURCE_WEB_SERVICES_DESCRIPTION("webservices.webservices.description", "Manage webservices"),
 
 
-
     //Privileges
     VIEW_WEB_SERVICES(Constants.VIEW_WEB_SERVICES, "View"),
     ADMINISTRATE_WEB_SERVICES(Constants.ADMINISTRATE_WEB_SERVICES, "Administrate");
