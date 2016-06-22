@@ -6,10 +6,12 @@ Ext.define('Apr.controller.AppServers', {
         'Apr.view.appservers.AppServerOverview',
         'Apr.view.appservers.AppServerMessageServices',
         'Apr.view.appservers.AppServerImportServices',
+        'Apr.view.appservers.AppServerWebserviceEndpoints',
         'Apr.view.appservers.AddMessageServicesGrid',
         'Apr.view.appservers.AddImportServicesGrid',
         'Apr.view.appservers.AddMessageServicesSetup',
         'Apr.view.appservers.AddImportServicesSetup',
+        'Apr.view.appservers.AddWebserviceEndpointsSetup',
         'Apr.view.appservers.ImportServicePreview'
     ],
     stores: [
@@ -21,7 +23,7 @@ Ext.define('Apr.controller.AppServers', {
         'Apr.store.UnservedImportServices',
         'Apr.store.ActiveService',
         'Apr.store.UnservedWebserviceEndpoints',
-        'Apr.store.ServedWebserviceEndpoints',
+        'Apr.store.ServedWebserviceEndpoints'
     ],
     models: [
         'Apr.model.AppServer',
@@ -48,6 +50,10 @@ Ext.define('Apr.controller.AppServers', {
         {
             ref: 'addImportServicesGrid',
             selector: 'add-import-services-grid'
+        },
+        {
+            ref: 'addWebserviceEndpointsGrid',
+            selector: 'add-webservices-grid'
         },
         {
             ref: 'addAppServerForm',
@@ -102,12 +108,24 @@ Ext.define('Apr.controller.AppServers', {
             selector: '#add-import-services-button-from-detail'
         },
         {
+            ref: 'addWebServicesButtonFromDetails',
+            selector: '#add-webservices-button-from-detail'
+        },
+        {
             ref: 'saveImportServicesButton',
             selector: '#save-import-services-settings-button'
         },
         {
+            ref: 'saveWebServicesButton',
+            selector: '#save-webservices-settings-button'
+        },
+        {
             ref: 'undoImportServicesButton',
             selector: '#undo-import-services-button'
+        },
+        {
+            ref: 'undoWebServicesButton',
+            selector: '#undo-webservices-button'
         },
         {
             ref: 'importServicesPage',
@@ -128,6 +146,18 @@ Ext.define('Apr.controller.AppServers', {
         {
             ref: 'noImportServicesAddButton',
             selector: '#add-import-services-button-from-detail-empty'
+        },
+        {
+            ref: 'noWebServicesSaveSettingsButton',
+            selector: '#apr-no-webservices-save-settings-btn'
+        },
+        {
+            ref: 'noWebServicesUndoSettingsButton',
+            selector: '#apr-no-webservices-undo-btn'
+        },
+        {
+            ref: 'noWebServicesAddButton',
+            selector: '#add-webservices-button-from-detail-empty'
         }
     ],
     appServer: null,
@@ -158,6 +188,15 @@ Ext.define('Apr.controller.AppServers', {
             },
             '#add-import-services-button-from-detail-empty': {
                 click: this.showAddImportServiceView
+            },
+            '#add-webservices-button': {
+                click: this.showAddWebserviceView
+            },
+            '#add-webservices-button-from-detail': {
+                click: this.showAddWebserviceView
+            },
+            '#add-webservices-button-from-detail-empty': {
+                click: this.showAddWebserviceView
             },
             'message-services-action-menu': {
                 click: this.removeMessageServiceViaMenu
@@ -192,6 +231,12 @@ Ext.define('Apr.controller.AppServers', {
             '#btn-add-import-services': {
                 click: this.addImportServices
             },
+            '#lnk-cancel-add-webservices': {
+                click: this.cancelAddWebserviceEndpoints
+            },
+            '#btn-add-webservices': {
+                click: this.addWebserviceEndpoints
+            },
             '#save-message-services-settings': {
                 click: this.saveMessageServerSettings
             },
@@ -209,19 +254,32 @@ Ext.define('Apr.controller.AppServers', {
                 select: this.showMessageServicePreview,
                 msgServiceRemoveEvent: this.onRemoveMessageService
             },
+            'preview-container apr-import-services-grid': {
+                select: this.showImportServicesPreview
+            },
             '#save-import-services-settings-button': {
                 click: this.saveImportSettings
             },
-            'preview-container apr-import-services-grid': {
-                select: this.showImportServicesPreview
-            }, '#apr-no-imp-services-save-settings-btn': {
+            '#apr-no-imp-services-save-settings-btn': {
                 click: this.saveImportSettings
+            },
+            '#save-webservices-settings-button': {
+                click: this.saveWebserviceSettings
+            },
+            '#apr-no-webservices-save-settings-btn': {
+                click: this.saveWebserviceSettings
             },
             '#apr-no-imp-services-undo-btn': {
                 click: this.undoImportServiceChanges
             },
             '#undo-import-services-button': {
                 click: this.undoImportServiceChanges
+            },
+            '#apr-no-webservices-undo-btn': {
+                click: this.undoWebserviceEndpointChanges
+            },
+            '#undo-webservices-button': {
+                click: this.undoWebserviceEndpointChanges
             }
 
         });
@@ -344,7 +402,7 @@ Ext.define('Apr.controller.AppServers', {
                             var disabled = unservedImportStore.getCount() === 0;
                             me.updateImportServiceCounter();
                             me.importServicesDataChanged();
-                            view.down('preview-container').updateOnChange(!servedImportStore.getCount())
+                            view.down('preview-container').updateOnChange(!servedImportStore.getCount());
                             if (me.getAddImportServicesButtonFromDetails()) {
                                 me.getAddImportServicesButtonFromDetails().setDisabled(disabled);
                             }
@@ -360,9 +418,45 @@ Ext.define('Apr.controller.AppServers', {
 
     },
 
+    showWebServiceEndpoints: function (appServerName) {
+        if (!Uni.util.History.isSuspended()) {
+            var me = this,
+                view,
+                servedWebserviceEnpointsStore = me.getStore('Apr.store.ServedWebserviceEndpoints'),
+                unservedWebserviceEndpointsStore = me.getStore('Apr.store.UnservedWebserviceEndpoints');
+            servedWebserviceEnpointsStore.getProxy().setUrl(appServerName);
+            unservedWebserviceEndpointsStore.getProxy().setUrl(appServerName);
+            unservedWebserviceEndpointsStore.load(function () {
+                servedWebserviceEnpointsStore.load(function () {
+                    me.getModel('Apr.model.AppServer').load(appServerName, {
+                        success: function (record) {
+                            me.appServer = record;
+                            view = Ext.widget('appserver-webservices', {
+                                router: me.getController('Uni.controller.history.Router'),
+                                appServerName: appServerName,
+                                store: servedWebserviceEnpointsStore
+                            });
+                            me.getApplication().fireEvent('appserverload', appServerName);
+                            me.getApplication().fireEvent('changecontentevent', view);
+                            var disabled = unservedWebserviceEndpointsStore.getCount() === 0;
+                            me.webservicesEndpointsDataChanged();
+                            view.down('preview-container').updateOnChange(!servedWebserviceEnpointsStore.getCount());
+                            if (me.getAddWebServicesButtonFromDetails()) {
+                                me.getAddWebServicesButtonFromDetails().setDisabled(disabled);
+                            }
+                            if (me.getNoWebServicesAddButton()) {
+                                me.getNoWebServicesAddButton().setDisabled(disabled);
+                            }
+
+                        }
+                    });
+                });
+            });
+        }
+    },
+
     setupMenuItems: function (record) {
-        var me = this,
-            suspended = record.data.active,
+        var suspended = record.data.active,
             menuText = suspended
                 ? Uni.I18n.translate('general.deactivate', 'APR', 'Deactivate')
                 : Uni.I18n.translate('general.activate', 'APR', 'Activate'),
@@ -417,7 +511,7 @@ Ext.define('Apr.controller.AppServers', {
                 me.getApplication().fireEvent('acknowledge', messageText);
                 router.getState().forward(); // navigate to the previously stored url
             },
-            failure: function (response, request) {
+            failure: function (response) {
                 if (response.status == 400) {
                     var errorText = Uni.I18n.translate('appServers.error.unknown', 'APR', 'Unknown error occurred');
                     if (!Ext.isEmpty(response.statusText)) {
@@ -558,7 +652,7 @@ Ext.define('Apr.controller.AppServers', {
                                 edit: me.edit,
                                 store: servedMessageServicesStore,
                                 importStore: servedImportStore,
-                                webserviceStore: servedWebserviceEndpointsStore,
+                                webserviceStore: servedWebserviceEndpointsStore
                             });
                             var rec = Ext.create('Apr.model.AppServer');
                             view.down('#add-appserver-form').loadRecord(rec);
@@ -613,9 +707,8 @@ Ext.define('Apr.controller.AppServers', {
         if (!me.appServer) {
             router.getRoute(me.removeLastPartOfUrl(router.currentRoute)).forward();
         } else {
-
             me.fromDetail = true;
-            var view = Ext.widget('add-message-services-setup');
+            view = Ext.widget('add-message-services-setup');
             this.getApplication().fireEvent('changecontentevent', view);
             view.down('#lnk-cancel-add-message-services').action = 'detail';
         }
@@ -641,10 +734,12 @@ Ext.define('Apr.controller.AppServers', {
         var me = this,
             servedMessageServicesStore = me.getStore('Apr.store.ServedMessageServices'),
             servedImportStore = me.getStore('Apr.store.ServedImportServices'),
+            servedWebserviceEndpointsStore = me.getStore('Apr.store.ServedWebserviceEndpoints'),
             view = Ext.widget('appservers-add', {
                 edit: me.edit,
                 store: servedMessageServicesStore,
-                importStore: servedImportStore
+                importStore: servedImportStore,
+                webserviceStore: servedWebserviceEndpointsStore
             }),
             router = me.getController('Uni.controller.history.Router'),
             route;
@@ -653,11 +748,16 @@ Ext.define('Apr.controller.AppServers', {
         me.getAddMessageServicesButton().setDisabled(unservedMessageServicesStore.getCount() === 0);
         var unservedImportStore = me.getStore('Apr.store.UnservedImportServices');
         me.getAddImportServicesButton().setDisabled(unservedImportStore.getCount() === 0);
+        var unservedWebserviceEndpointsStore = me.getStore('Apr.store.UnservedWebserviceEndpoints');
+        me.getAddWebserviceEndpointsButton().setDisabled(unservedWebserviceEndpointsStore.getCount() === 0);
         if (Ext.isEmpty(servedMessageServicesStore.getRange())) {
             me.changeMessageGridVisibility(false);
         }
         if (Ext.isEmpty(servedImportStore.getRange())) {
             me.changeImportGridVisibility(false);
+        }
+        if (Ext.isEmpty(servedWebserviceEndpointsStore.getRange())) {
+            me.changeWebservicesGridVisibility(false);
         }
         route = router.getRoute(me.removeLastPartOfUrl(router.currentRoute));
         Uni.util.History.suspendEventsForNextCall();
@@ -716,6 +816,17 @@ Ext.define('Apr.controller.AppServers', {
         route.forward();
     },
 
+    showAddWebserviceView: function () {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            addDestinationRoute = router.currentRoute + '/addwebserviceendpoints',
+            route;
+
+        route = router.getRoute(addDestinationRoute);
+        Uni.util.History.suspendEventsForNextCall();
+        route.forward();
+    },
+
     showAddImportServices: function () {
 
         var me = this,
@@ -742,13 +853,48 @@ Ext.define('Apr.controller.AppServers', {
     },
 
     cancelAddImportServices: function () {
+        debugger;
         var me = this;
         if (me.fromDetail) {
             me.returnToImportServiceDetailView();
+            me.importServicesDataChanged();
         } else {
             me.returnToAddEditViewWithFakeRouter();
         }
-        me.importServicesDataChanged();
+    },
+
+    showAddWebserviceEndpointsView: function () {
+        var me = this,
+            view = Ext.widget('add-webservices-setup');
+        me.fromDetail = false;
+        me.storeCurrentValues();
+        me.getApplication().fireEvent('changecontentevent', view);
+    },
+
+    addWebserviceEndpoints: function () {
+        var me = this,
+            grid = this.getAddWebserviceEndpointsGrid();
+        Ext.each(grid.getSelectionModel().getSelection(), function (webserviceToAdd) {
+            grid.getStore().remove(webserviceToAdd);
+            me.getStore('Apr.store.ServedWebserviceEndpoints').add(webserviceToAdd);
+            webserviceToAdd.phantom = true;
+        });
+        if (me.fromDetail) {
+            me.returnToWebserviceEndpointsDetailView();
+            me.webservicesEndpointsDataChanged();
+        } else {
+            me.returnToAddEditViewWithFakeRouter();
+        }
+    },
+
+    cancelAddWebserviceEndpoints: function () {
+        var me = this;
+        if (me.fromDetail) {
+            me.returnToWebserviceEndpointsDetailView();
+            me.webservicesEndpointsDataChanged();
+        } else {
+            me.returnToAddEditViewWithFakeRouter();
+        }
     },
 
     returnToImportServiceDetailView: function () {
@@ -786,6 +932,28 @@ Ext.define('Apr.controller.AppServers', {
             me.setupMenuItems(record);
         }
     },
+
+    returnToWebserviceEndpointsDetailView: function () {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            servedWebserviceEndpoints = this.getStore('Apr.store.ServedWebserviceEndpoints'),
+            view,
+            route;
+        route = router.getRoute(me.removeLastPartOfUrl(router.currentRoute));
+        Uni.util.History.suspendEventsForNextCall();
+        route.forward();
+        view = Ext.widget('appserver-webservices', {
+            router: router,
+            appServerName: me.appServer.get('name'),
+            store: servedWebserviceEndpoints
+        });
+        me.getApplication().fireEvent('appserverload', me.appServer.get('name'));
+        me.getApplication().fireEvent('changecontentevent', view);
+        var disabled = me.getStore('Apr.store.UnservedWebserviceEndpoints').getCount() === 0;
+        me.getAddWebServicesButtonFromDetails().setDisabled(disabled);
+        view.down('preview-container').updateOnChange(!servedWebserviceEndpoints.getCount());
+    },
+
 
     onRemoveMessageService: function (event) {
         this.doRemoveMessageService(event);
@@ -918,13 +1086,13 @@ Ext.define('Apr.controller.AppServers', {
                 me.changeWebservicesGridVisibility(false);
             }
         }
-        //if (me.getAddImportServicesButtonFromDetails()) {
-        //    me.importServicesDataChanged();
-        //    me.getAddImportServicesButtonFromDetails().setDisabled(disable);
-        //}
-        //if (me.getNoImportServicesAddButton()) {
-        //    me.getNoImportServicesAddButton().setDisabled(disable);
-        //}
+        if (me.getAddWebServicesButtonFromDetails()) {
+            me.webservicesEndpointsDataChanged();
+            me.getAddWebServicesButtonFromDetails().setDisabled(disable);
+        }
+        if (me.getNoWebServicesAddButton()) {
+            me.getNoWebServicesAddButton().setDisabled(disable);
+        }
     },
 
     saveImportSettings: function () {
@@ -973,7 +1141,59 @@ Ext.define('Apr.controller.AppServers', {
             failure: function (record, operation) {
                 ref.setLoading(false);
                 var errorText = Uni.I18n.translate('appServers.error.unknown', 'APR', 'Unknown error occurred');
-                var titleText = Uni.I18n.translate('appServers.save.operation.failed', 'APR', 'Save operation failed')
+                var titleText = Uni.I18n.translate('appServers.save.operation.failed', 'APR', 'Save operation failed');
+                me.getApplication().getController('Uni.controller.Error').showError(titleText, errorText);
+            }
+        });
+    },
+
+    saveWebserviceSettings: function () {
+        var me = this,
+            servedWebservicesStore = me.getStore('Apr.store.ServedWebserviceEndpoints'),
+            servedWebservices = servedWebservicesStore.getRange(),
+            unservedWebserviceStore = me.getStore('Apr.store.UnservedWebserviceEndpoints'),
+            webServices = [],
+            record = me.appServer,
+            ref = me.getWebservicesGrid();
+
+        Ext.Array.each(servedWebservices, function (item) {
+            var webService = {};
+            if (!item.get('name')) {
+                webService.id = item.data.id;
+                webService.name = item.data.name;
+            } else {
+                webService.id = item.get('id');
+                webService.name = item.get('name');
+            }
+            webServices.push(webService);
+        });
+        record.beginEdit();
+        record.set('endPointConfigurations', webServices);
+        record.endEdit();
+        if (!ref.up('preview-container').down('no-items-found-panel').isHidden()) {
+            ref = ref.up('appserver-webservices');
+        }
+        ref.setLoading();
+        record.save({
+            success: function () {
+                unservedWebserviceStore.load(function () {
+                    servedWebservicesStore.load({
+                        callback: function (records, operation, success) {
+                            if (success === true) {
+                                me.webservicesEndpointsDataChanged();
+                                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('appServers.configureWebServicesSuccess', 'APR', 'Webservice endpoits saved'));
+                            }
+                            ref.setLoading(false);
+                        }
+                    });
+                });
+                me.appServer = record;
+                me.webservicesEndpointsDataChanged();
+            },
+            failure: function (record, operation) {
+                ref.setLoading(false);
+                var errorText = Uni.I18n.translate('appServers.error.unknown', 'APR', 'Unknown error occurred');
+                var titleText = Uni.I18n.translate('appServers.save.operation.failed', 'APR', 'Save operation failed');
                 me.getApplication().getController('Uni.controller.Error').showError(titleText, errorText);
             }
         });
@@ -1173,6 +1393,27 @@ Ext.define('Apr.controller.AppServers', {
         me.updateImportServiceCounter();
     },
 
+    webservicesEndpointsDataChanged: function () {
+        var me = this,
+            store = me.getWebservicesGrid().getStore(),
+            itemsAdded = store.getNewRecords().length > 0,
+            itemsRemoved = store.getRemovedRecords().length > 0,
+            disable = !(itemsAdded || itemsRemoved);
+        if (me.getSaveWebServicesButton()) {
+            me.getSaveWebServicesButton().setDisabled(disable);
+        }
+        if (me.getNoWebServicesUndoSettingsButton()) {
+            me.getNoWebServicesUndoSettingsButton().setDisabled(disable);
+        }
+        if (me.getNoWebServicesSaveSettingsButton()) {
+            me.getNoWebServicesSaveSettingsButton().setDisabled(disable);
+        }
+        if (me.getUndoWebServicesButton()) {
+            me.getUndoWebServicesButton().setDisabled(disable);
+        }
+        me.updateWebserviceCounter();
+    },
+
     updateMessageServiceCounter: function () {
         var me = this;
         me.getMessageServicesGrid().down('pagingtoolbartop #displayItem').setText(
@@ -1184,6 +1425,13 @@ Ext.define('Apr.controller.AppServers', {
         var me = this;
         me.getImportServicesGrid().down('pagingtoolbartop #displayItem').setText(
             Uni.I18n.translatePlural('general.importServicesCount', me.getImportServicesGrid().getStore().getCount(), 'APR', 'No import services', '{0} import service', '{0} import services')
+        );
+    },
+
+    updateWebserviceCounter: function () {
+        var me = this;
+        me.getWebservicesGrid().down('pagingtoolbartop #displayItem').setText(
+            Uni.I18n.translatePlural('general.webserviceEndpointsCount', me.getWebservicesGrid().getStore().getCount(), 'APR', 'No webservice endpoints', '{0} webservice endpoints', '{0} webservice endpoints')
         );
     },
 
@@ -1201,7 +1449,29 @@ Ext.define('Apr.controller.AppServers', {
                         me.getAddImportServicesButtonFromDetails().setDisabled(disabled);
                     } else {
                         var errorText = Uni.I18n.translate('appServers.error.unknown', 'APR', 'Unknown error occurred');
-                        var titleText = Uni.I18n.translate('appServers.undo.operation.failed', 'APR', 'Undo operation failed')
+                        var titleText = Uni.I18n.translate('appServers.undo.operation.failed', 'APR', 'Undo operation failed');
+                        me.getApplication().getController('Uni.controller.Error').showError(titleText, errorText);
+                    }
+                }
+            });
+        });
+    },
+
+    undoWebserviceEndpointChanges: function () {
+        var me = this,
+            servedWebservicesStore = me.getStore('Apr.store.ServedWebserviceEndpoints'),
+            unservedWebservicesStore = me.getStore('Apr.store.UnservedWebserviceEndpoints');
+
+        unservedWebservicesStore.load(function () {
+            servedWebservicesStore.load({
+                callback: function (records, operation, success) {
+                    if (success === true) {
+                        me.webservicesEndpointsDataChanged();
+                        var disabled = unservedWebservicesStore.getCount() === 0;
+                        me.getAddWebServicesButtonFromDetails().setDisabled(disabled);
+                    } else {
+                        var errorText = Uni.I18n.translate('appServers.error.unknown', 'APR', 'Unknown error occurred');
+                        var titleText = Uni.I18n.translate('appServers.undo.operation.failed', 'APR', 'Undo operation failed');
                         me.getApplication().getController('Uni.controller.Error').showError(titleText, errorText);
                     }
                 }
@@ -1217,6 +1487,22 @@ Ext.define('Apr.controller.AppServers', {
             router.getRoute(me.removeLastPartOfUrl(router.currentRoute)).forward();
         } else {
             view = Ext.widget('add-import-services-setup', {
+                router: router,
+                appServerName: me.appServer.get('name')
+            });
+            me.fromDetail = true;
+            me.getApplication().fireEvent('changecontentevent', view);
+        }
+    },
+
+    returnToShowWebserviceEndpointsIfRefresh: function () {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            view;
+        if (!me.appServer) {
+            router.getRoute(me.removeLastPartOfUrl(router.currentRoute)).forward();
+        } else {
+            view = Ext.widget('add-webservices-setup', {
                 router: router,
                 appServerName: me.appServer.get('name')
             });

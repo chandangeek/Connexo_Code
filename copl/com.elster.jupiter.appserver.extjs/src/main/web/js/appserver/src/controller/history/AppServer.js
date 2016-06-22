@@ -36,6 +36,13 @@ Ext.define('Apr.controller.history.AppServer', {
                                     title: Uni.I18n.translate('general.addMessageServices', 'APR', 'Add message services'),
                                     controller: 'Apr.controller.AppServers',
                                     action: 'showAddMessageServiceView'
+                                },
+                                addwebserviceendpoints: {
+                                    route: 'addwebserviceendpoints',
+                                    privileges: Apr.privileges.AppServer.admin,
+                                    title: Uni.I18n.translate('general.addWebserviceEndpoints', 'APR', 'Add webservice endpoints'),
+                                    controller: 'Apr.controller.AppServers',
+                                    action: 'showAddWebserviceEndpointsView'
                                 }
                             }
                         },
@@ -66,6 +73,13 @@ Ext.define('Apr.controller.history.AppServer', {
                                     title: Uni.I18n.translate('general.addMessageServices', 'APR', 'Add message services'),
                                     controller: 'Apr.controller.AppServers',
                                     action: 'showAddMessageServiceView'
+                                },
+                                addwebserviceendpoints: {
+                                    route: 'addwebserviceendpoints',
+                                    privileges: Apr.privileges.AppServer.admin,
+                                    title: Uni.I18n.translate('general.addWebserviceEndpoints', 'APR', 'Add webservice endpoints'),
+                                    controller: 'Apr.controller.AppServers',
+                                    action: 'showAddWebserviceEndpointsView'
                                 }
                             }
                         },
@@ -112,6 +126,22 @@ Ext.define('Apr.controller.history.AppServer', {
                                             title: Uni.I18n.translate('general.addImportServices', 'APR', 'Add import services'),
                                             controller: 'Apr.controller.AppServers',
                                             action: 'returnToShowImportServicesIfRefresh'
+                                        }
+                                    }
+                                },
+                                webserviceendpoints: {
+                                    route: 'webserviceendpoints',
+                                    privileges: Apr.privileges.AppServer.view,
+                                    title: Uni.I18n.translate('general.webserviceEndpoints', 'APR', 'Webservice endpoints'),
+                                    controller: 'Apr.controller.AppServers',
+                                    action: 'showWebServiceEndpoints',
+                                    items: {
+                                        addwebserviceendpoints: {
+                                            route: 'addwebserviceendpoints',
+                                            privileges: Apr.privileges.AppServer.admin,
+                                            title: Uni.I18n.translate('general.addWebserviceEndpoints', 'APR', 'Add webservice endpoints'),
+                                            controller: 'Apr.controller.AppServers',
+                                            action: 'returnToShowWebserviceEndpointsIfRefresh'
                                         }
                                     }
                                 }
