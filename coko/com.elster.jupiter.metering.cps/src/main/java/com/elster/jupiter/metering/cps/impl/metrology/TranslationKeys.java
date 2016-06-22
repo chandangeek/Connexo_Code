@@ -139,7 +139,11 @@ public enum TranslationKeys implements TranslationKey {
     CPS_PROPERTIES_ENHANCED_SUPPORT("usage.point.cps.properties.enhanced.support", "Enhanced support"),
     CPS_PROPERTIES_ENHANCED_SUPPORT_DESCRIPTION("usage.point.cps.properties.enhanced.support.descr", "Cool enhanced support"),
     CPS_PROPERTIES_COMBOBOX("usage.point.cps.properties.combobox", "Combobox"),
-    CPS_PROPERTIES_COMBOBOX_DESCRIPTION("usage.point.cps.properties.combobox.descr", "Combobox for CAS");
+    CPS_PROPERTIES_COMBOBOX_DESCRIPTION("usage.point.cps.properties.combobox.descr", "Combobox for CAS"),
+
+    CPS_ANTENNA_NAME("usage.point.cps.antenna.name", "Antenna"),
+    CPS_ANTENNA_POWER_NAME("usage.point.cps.antenna.power.name", "Antenna power"),
+    CPS_ANTENNA_COUNT_NAME("usage.point.cps.antenna.count.name", "Number of antennas");
 
     private String key;
     private String defaultFormat;

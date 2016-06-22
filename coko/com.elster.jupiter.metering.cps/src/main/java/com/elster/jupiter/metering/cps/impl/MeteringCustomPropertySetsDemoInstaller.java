@@ -4,9 +4,21 @@ import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
+import com.elster.jupiter.metering.UsagePointTypeInfo;
+import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
+import com.elster.jupiter.metering.config.Formula;
+import com.elster.jupiter.metering.config.FormulaBuilder;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverableBuilder;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.cps.impl.metrology.TranslationKeys;
+import com.elster.jupiter.metering.cps.impl.metrology.UsagePointAntennaCPS;
+import com.elster.jupiter.metering.cps.impl.metrology.UsagePointAntennaDomExt;
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointContCustomPropertySet;
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointContDomainExtension;
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointDecentProdCustomPropertySet;
@@ -28,7 +40,10 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.search.SearchablePropertyOperator;
+import com.elster.jupiter.search.SearchablePropertyValue;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
 
@@ -38,10 +53,12 @@ import org.osgi.service.component.annotations.Reference;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.function.Consumer;
 
 @Component(name = "com.elster.jupiter.metering.cps", service = {InstallService.class, TranslationKeyProvider.class, MessageSeedProvider.class}, property = "name=CPM")
@@ -55,6 +72,7 @@ public class MeteringCustomPropertySetsDemoInstaller implements InstallService, 
     private volatile NlsService nlsService;
     private volatile PropertySpecService propertySpecService;
     private volatile Thesaurus thesaurus;
+    private MetrologyConfigurationService metrologyConfigurationService;
     private List<CustomPropertySet> customPropertySets;
     private Map<String, CustomPropertySet> customPropertySetsMap;
 
@@ -63,6 +81,11 @@ public class MeteringCustomPropertySetsDemoInstaller implements InstallService, 
     private ServiceCategory water;
     private ServiceCategory internet;
     private ServiceCategory thermal;
+
+    @Reference
+    public void setmetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
+        this.metrologyConfigurationService = metrologyConfigurationService;
+    }
 
     @Reference
     public void setNlsService(NlsService nlsService) {
@@ -156,6 +179,7 @@ public class MeteringCustomPropertySetsDemoInstaller implements InstallService, 
         assign(UsagePointTechnicalWGTDomExt.class.getName(), this::addThermalSets);
 //        customPropertySetService.findActiveCustomPropertySet(UsagePointMeterTechInfGTWDomExt.class.getName())
 //                .ifPresent(this::addThermalSets);
+        unmeasuredAntennaInstallation();
     }
 
     private void assign(String cps, Consumer<RegisteredCustomPropertySet> action) {
@@ -220,6 +244,7 @@ public class MeteringCustomPropertySetsDemoInstaller implements InstallService, 
         customPropertySetsMap.put(UsagePointTechInstAllDomExt.class.getName(), new UsagePointTechInstAllCustomPropertySet(propertySpecService, thesaurus));
         customPropertySetsMap.put(UsagePointTechInstEGDomExt.class.getName(), new UsagePointTechInstEGCustomPropertySet(propertySpecService, thesaurus));
         customPropertySetsMap.put(UsagePointTechInstElectrDE.class.getName(), new UsagePointTechInstElectrCPS(propertySpecService, thesaurus));
+        customPropertySetsMap.put(UsagePointAntennaDomExt.class.getName(), new UsagePointAntennaCPS(propertySpecService, thesaurus));
 
         return new ArrayList<>(customPropertySetsMap.values());
 //        return Arrays.asList(
@@ -260,6 +285,50 @@ public class MeteringCustomPropertySetsDemoInstaller implements InstallService, 
     @Override
     public List<MessageSeed> getSeeds() {
         return Arrays.asList(MessageSeeds.values());
+    }
+
+    private void unmeasuredAntennaInstallation() {
+        if (metrologyConfigurationService.findMetrologyConfiguration("Unmeasured antenna installation").isPresent()) {
+            return;
+        }
+        ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY)
+                .orElseThrow(() -> new NoSuchElementException("Service category not found: " + ServiceKind.ELECTRICITY));
+        UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration("Unmeasured antenna installation", serviceCategory)
+                .withDescription("Unmeasured installations which use attributes-based calculations").create();
+
+        config.addUsagePointRequirement(getUsagePointRequirement("SERVICEKIND", SearchablePropertyOperator.EQUAL, ServiceKind.ELECTRICITY.name()));
+        config.addUsagePointRequirement(getUsagePointRequirement("type", SearchablePropertyOperator.EQUAL, UsagePointTypeInfo.UsagePointType.UNMEASURED_NON_SDP.name()));
+
+        ReadingType readingTypeMonthlyAplusWh = meteringService.findReadingTypes(Collections.singletonList("13.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0"))
+                .stream().findFirst().orElseGet(() -> meteringService.createReadingType("13.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "A+"));
+
+        MetrologyPurpose purposeBilling = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.BILLING)
+                .orElseThrow(() -> new NoSuchElementException("Billing metrology purpose not found"));
+        MetrologyContract contractBilling = config.addMandatoryMetrologyContract(purposeBilling);
+
+        RegisteredCustomPropertySet registeredAntennaCPS = customPropertySetService.findActiveCustomPropertySet("com.elster.jupiter.metering.cps.impl.metrology.UsagePointAntennaCPS")
+                .orElseThrow(() -> new NoSuchElementException("ExampleCPS custom property set not found"));
+        config.addCustomPropertySet(registeredAntennaCPS);
+
+        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Monthly A+ kWh", readingTypeMonthlyAplusWh, Formula.Mode.EXPERT);
+        CustomPropertySet antennaCPS = registeredAntennaCPS.getCustomPropertySet();
+        List<PropertySpec> propertySpecs = antennaCPS.getPropertySpecs();
+        FormulaBuilder antennaPower = builder.property(antennaCPS, propertySpecs.stream().filter("antennaPower"::equals).findFirst()
+                .orElseThrow(() -> new NoSuchElementException("antennaPower property spec not found")));
+        FormulaBuilder antennaCount = builder.property(antennaCPS, propertySpecs.stream().filter("antennaCount"::equals).findFirst()
+                .orElseThrow(() -> new NoSuchElementException("antennaCount property spec not found")));
+        FormulaBuilder compositionCPS = builder.multiply(antennaPower, antennaCount);
+        FormulaBuilder monthlyConstant = builder.multiply(builder.constant(24), builder.constant(30));
+
+        contractBilling.addDeliverable(builder.build(builder.multiply(compositionCPS, monthlyConstant)));
+    }
+
+    private SearchablePropertyValue.ValueBean getUsagePointRequirement(String property, SearchablePropertyOperator operator, String... values) {
+        SearchablePropertyValue.ValueBean valueBean = new SearchablePropertyValue.ValueBean();
+        valueBean.propertyName = property;
+        valueBean.operator = operator;
+        valueBean.values = Arrays.asList(values);
+        return valueBean;
     }
 }
 
