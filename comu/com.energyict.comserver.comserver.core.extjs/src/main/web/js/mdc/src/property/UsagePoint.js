@@ -20,7 +20,7 @@ Ext.define('Mdc.property.UsagePoint', {
             minChars: 0,
             queryMode: 'remote',
             displayField: 'mRID',
-            valueField: 'mRID',
+            valueField: 'id',
             queryParam: 'like',
             width: me.width,
             forceSelection: me.getProperty().getExhaustive(),
