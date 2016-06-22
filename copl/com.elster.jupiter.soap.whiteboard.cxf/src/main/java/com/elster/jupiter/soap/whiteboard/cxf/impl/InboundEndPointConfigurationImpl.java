@@ -16,4 +16,9 @@ public final class InboundEndPointConfigurationImpl extends EndPointConfiguratio
     public InboundEndPointConfigurationImpl(DataModel dataModel, Clock clock) {
         super(clock, dataModel);
     }
+
+    @Override
+    public boolean isInbound() {
+        return true;
+    }
 }

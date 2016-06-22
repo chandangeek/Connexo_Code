@@ -38,4 +38,9 @@ public final class OutboundEndPointConfigurationImpl extends EndPointConfigurati
     public void setPassword(String password) {
         this.password = password;
     }
+
+    @Override
+    public boolean isInbound() {
+        return false;
+    }
 }
