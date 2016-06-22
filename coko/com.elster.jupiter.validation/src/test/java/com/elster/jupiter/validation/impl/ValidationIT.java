@@ -60,6 +60,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -240,7 +241,7 @@ public class ValidationIT {
             @Override
             protected void doPerform() {
                 ValidationService service = injector.getInstance(ValidationService.class);
-                service.validate(meterActivation.getChannelsContainer());
+                service.validate(Collections.emptySet(), meterActivation.getChannelsContainer());
 
                 DataModel valDataModel = injector.getInstance(OrmService.class).getDataModel(ValidationService.COMPONENTNAME).get();
                 List<ChannelsContainerValidation> channelsContainerValidations = valDataModel.mapper(ChannelsContainerValidation.class)

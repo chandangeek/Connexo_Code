@@ -32,7 +32,8 @@ class ValidationEvaluatorImpl extends AbstractValidationEvaluator {
 
     @Override
     public boolean isAllDataValidated(ChannelsContainer channelsContainer) {
-        return validationService.getStoredChannelsContainerValidations(channelsContainer).stream()
+        return validationService.getPersistedChannelsContainerValidations(channelsContainer)
+                .stream()
                 .allMatch(ChannelsContainerValidation::isAllDataValidated);
     }
 
@@ -48,8 +49,9 @@ class ValidationEvaluatorImpl extends AbstractValidationEvaluator {
 
     @Override
     public boolean isValidationEnabled(Channel channel) {
-        return validationService.getChannelsContainerValidations(channel.getChannelsContainer()).stream()
-                .map(m -> m.getChannelValidation(channel))
+        return validationService.getChannelsContainerValidations(channel.getChannelsContainer())
+                .stream()
+                .map(channelsContainerValidation -> channelsContainerValidation.getChannelValidation(channel))
                 .flatMap(asStream())
                 .anyMatch(ChannelValidation::hasActiveRules);
 
@@ -57,10 +59,10 @@ class ValidationEvaluatorImpl extends AbstractValidationEvaluator {
 
     @Override
     public boolean isValidationEnabled(ReadingContainer meter, ReadingType readingType) {
-        return (meter.getChannelsContainers().stream()
-                .flatMap(m -> m.getChannels().stream())
-                .filter(k -> k.getReadingTypes().contains(readingType))
-                .filter(validationService::isValidationActive)).count() > 0;
+        return meter.getChannelsContainers().stream()
+                .flatMap(channelsContainer -> channelsContainer.getChannels().stream())
+                .filter(channel -> channel.getReadingTypes().contains(readingType))
+                .anyMatch(validationService::isValidationActive);
     }
 
     @Override

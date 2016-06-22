@@ -22,6 +22,7 @@ import com.elster.jupiter.validation.DataValidationTaskStatus;
 import com.elster.jupiter.validation.ValidationService;
 
 import java.time.Instant;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -113,7 +114,7 @@ public class DataValidationTaskExecutor implements TaskExecutor {
                         List<ChannelsContainer> channelsContainers = found.get().getChannelsContainers();
                         for (ChannelsContainer channelsContainer : channelsContainers) {
                             try (TransactionContext transactionContext = transactionService.getContext()) {
-                                validationService.validate(channelsContainer);
+                                validationService.validate(EnumSet.of(task.getQualityCodeSystem()), channelsContainer);
                                 transactionContext.commit();
                             }
                             transactionService.execute(VoidTransaction.of(() -> MessageSeeds.DEVICE_TASK_VALIDATED_SUCCESFULLY.log(logger, thesaurus, device.getMRID(), occurrence.getStartDate()
@@ -138,14 +139,14 @@ public class DataValidationTaskExecutor implements TaskExecutor {
                                     .map(MeterActivation::getChannelsContainer)
                                     .forEach(channelsContainer -> {
                                         try (TransactionContext transactionContext = transactionService.getContext()) {
-                                            validationService.validate(channelsContainer);
+                                            validationService.validate(EnumSet.of(task.getQualityCodeSystem()), channelsContainer);
                                             transactionContext.commit();
                                         }
                                     });
                             // Validate outputs
                             effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract).ifPresent(channelsContainer -> {
                                 try (TransactionContext transactionContext = transactionService.getContext()) {
-                                    validationService.validate(channelsContainer);
+                                    validationService.validate(EnumSet.of(task.getQualityCodeSystem()), channelsContainer);
                                     transactionContext.commit();
                                 }
                             });

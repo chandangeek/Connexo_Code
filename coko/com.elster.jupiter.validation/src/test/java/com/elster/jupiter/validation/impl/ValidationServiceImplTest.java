@@ -67,6 +67,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -364,7 +365,7 @@ public class ValidationServiceImplTest {
         doReturn(Collections.singleton(readingType)).when(validationRule).getReadingTypes();
         doReturn(Arrays.asList(validationRule)).when(validationRuleSet).getRules(anyList());
         when(validationRuleSetResolver.resolve(eq(channelsContainer))).thenReturn(Arrays.asList(validationRuleSet));
-        validationService.validate(channelsContainer);
+        validationService.validate(Collections.emptySet(), channelsContainer);
 
         ArgumentCaptor<ChannelsContainerValidation> channelsContainerValidationArgumentCaptor = ArgumentCaptor.forClass(ChannelsContainerValidation.class);
         verify(dataModel).persist(channelsContainerValidationArgumentCaptor.capture());
@@ -429,9 +430,9 @@ public class ValidationServiceImplTest {
         validationRuleSet.save();
 
         when(validationRuleSetResolver.resolve(eq(channelsContainer))).thenReturn(Arrays.asList(validationRuleSet));
-        validationService.validate(channelsContainer);
+        validationService.validate(Collections.emptySet(), channelsContainer);
 
-        List<ChannelsContainerValidation> channelsContainerValidations = validationService.getUpdatedChannelsContainerValidations(channelsContainer);
+        List<ChannelsContainerValidation> channelsContainerValidations = validationService.getUpdatedChannelsContainerValidations(channelsContainer, EnumSet.of(QualityCodeSystem.MDC, QualityCodeSystem.MDM));
         assertThat(channelsContainerValidations).hasSize(1);
         assertThat(channelsContainerValidations.get(0).getChannelsContainer()).isEqualTo(channelsContainer);
         assertThat(channelsContainerValidations.get(0).getRuleSet()).isEqualTo(validationRuleSet);
@@ -441,16 +442,16 @@ public class ValidationServiceImplTest {
         validationRuleSet2.save();
 
         when(validationRuleSetResolver.resolve(eq(channelsContainer))).thenReturn(Arrays.asList(validationRuleSet, validationRuleSet2));
-        validationService.validate(channelsContainer);
-        channelsContainerValidations = validationService.getUpdatedChannelsContainerValidations(channelsContainer);
+        validationService.validate(Collections.emptySet(), channelsContainer);
+        channelsContainerValidations = validationService.getUpdatedChannelsContainerValidations(channelsContainer, EnumSet.of(QualityCodeSystem.MDC, QualityCodeSystem.MDM));
         assertThat(channelsContainerValidations).hasSize(2);
         assertThat(channelsContainerValidations.get(0).getChannelsContainer()).isEqualTo(channelsContainer);
         assertThat(channelsContainerValidations.get(1).getChannelsContainer()).isEqualTo(channelsContainer);
         assertThat(FluentIterable.from(channelsContainerValidations).transform(ChannelsContainerValidation::getRuleSet).toSet()).contains(validationRuleSet, validationRuleSet2);
 
         when(validationRuleSetResolver.resolve(eq(channelsContainer))).thenReturn(Arrays.asList(validationRuleSet2));
-        validationService.validate(channelsContainer);
-        channelsContainerValidations = validationService.getUpdatedChannelsContainerValidations(channelsContainer);
+        validationService.validate(Collections.emptySet(), channelsContainer);
+        channelsContainerValidations = validationService.getUpdatedChannelsContainerValidations(channelsContainer, EnumSet.of(QualityCodeSystem.MDC, QualityCodeSystem.MDM));
         assertThat(channelsContainerValidations).hasSize(1);
         assertThat(channelsContainerValidations.get(0).getChannelsContainer()).isEqualTo(channelsContainer);
         assertThat(channelsContainerValidations.get(0).getRuleSet()).isEqualTo(validationRuleSet2);

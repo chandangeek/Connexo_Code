@@ -17,6 +17,7 @@ import com.google.common.collect.Range;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @ProviderType
 public interface ValidationService {
@@ -51,6 +52,7 @@ public interface ValidationService {
 
     /**
      * Filters validators and returns ones supporting a given <code>qualityCodeSystem</code>.
+     *
      * @param qualityCodeSystem a target QualityCodeSystem.
      * @return the list of validators supporting a given <code>qualityCodeSystem</code>.
      */
@@ -63,9 +65,11 @@ public interface ValidationService {
      */
 
     void activateValidation(Meter meter);
+
     void deactivateValidation(Meter meter);
 
     void enableValidationOnStorage(Meter meter);
+
     void disableValidationOnStorage(Meter meter);
 
     void activate(ChannelsContainer channelsContainer, ValidationRuleSet ruleSet);
@@ -86,9 +90,24 @@ public interface ValidationService {
 
     void updateLastChecked(Channel channel, Instant date);
 
-    void validate(ChannelsContainer channelsContainer);
+    /**
+     * Validates all channels in the given <code>channelsContainer</code>.
+     *
+     * @param targetQualityCodeSystems set of desired QualityCodeSystems (only rulesets with these QualityCodeSystems will be applied).
+     * It can be empty (in that case engine will use rulesets with any QualityCodeSystem).
+     * @param channelsContainer
+     */
+    void validate(Set<QualityCodeSystem> targetQualityCodeSystems, ChannelsContainer channelsContainer);
 
-    void validate(ChannelsContainer channelsContainer, ReadingType readingType);
+    /**
+     * Validates channel with specific <code>readingType</code> in the given <code>channelsContainer</code>.
+     *
+     * @param targetQualityCodeSystems set of desired QualityCodeSystems (only rulesets with these QualityCodeSystems will be applied).
+     * It can be empty (in that case engine will use rulesets with any QualityCodeSystem).
+     * @param channelsContainer
+     * @param readingType channel's reading type
+     */
+    void validate(Set<QualityCodeSystem> targetQualityCodeSystems, ChannelsContainer channelsContainer, ReadingType readingType);
 
     ValidationEvaluator getEvaluator();
 
@@ -99,6 +118,7 @@ public interface ValidationService {
      */
 
     void addValidatorFactory(ValidatorFactory validatorfactory);
+
     void addValidationRuleSetResolver(ValidationRuleSetResolver resolver);
 
     DataValidationTaskBuilder newTaskBuilder();

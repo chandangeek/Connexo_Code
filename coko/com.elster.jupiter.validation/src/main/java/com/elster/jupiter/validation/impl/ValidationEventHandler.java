@@ -57,7 +57,7 @@ public class ValidationEventHandler extends EventHandler<LocalEvent> {
     }
 
     private void handleAdvanceEvent(EventType.MeterActivationAdvancedEvent advanceEvent) {
-        validationService.getStoredChannelsContainerValidations(advanceEvent.getAdvanced().getChannelsContainer())
+        validationService.getPersistedChannelsContainerValidations(advanceEvent.getAdvanced().getChannelsContainer())
                 .stream()
                 .forEach(channelsContainerValidation -> {
                     channelsContainerValidation.getChannelValidations()
@@ -65,7 +65,7 @@ public class ValidationEventHandler extends EventHandler<LocalEvent> {
                     channelsContainerValidation.save();
                 });
         if (advanceEvent.getShrunk() != null) {
-            validationService.getStoredChannelsContainerValidations(advanceEvent.getShrunk().getChannelsContainer())
+            validationService.getPersistedChannelsContainerValidations(advanceEvent.getShrunk().getChannelsContainer())
                     .stream()
                     .forEach(channelsContainerValidation -> {
                         channelsContainerValidation.getChannelValidations()

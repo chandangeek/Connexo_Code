@@ -13,6 +13,7 @@ import com.google.common.collect.Multimaps;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -70,7 +71,7 @@ class ValidationEvaluatorForMeter extends AbstractValidationEvaluator {
     }
 
     @Override
-    public boolean isValidationEnabled(ReadingContainer meter, ReadingType readingType){
+    public boolean isValidationEnabled(ReadingContainer meter, ReadingType readingType) {
         return (meter.getChannelsContainers()
                 .stream()
                 .flatMap(m -> m.getChannels().stream())
@@ -107,7 +108,7 @@ class ValidationEvaluatorForMeter extends AbstractValidationEvaluator {
     private ImmutableMap<Long, ChannelsContainerValidationList> initChannelContainerMap(ValidationServiceImpl validationService, Meter meter) {
         ImmutableMap.Builder<Long, ChannelsContainerValidationList> validationMapBuilder = ImmutableMap.builder();
         for (ChannelsContainer channelsContainer : meter.getChannelsContainers()) {
-            ChannelsContainerValidationList container = validationService.updatedChannelsContainerValidationsFor(channelsContainer);
+            ChannelsContainerValidationList container = validationService.updatedChannelsContainerValidationsFor(channelsContainer, Collections.emptySet());
             validationMapBuilder.put(channelsContainer.getId(), container);
         }
         return validationMapBuilder.build();

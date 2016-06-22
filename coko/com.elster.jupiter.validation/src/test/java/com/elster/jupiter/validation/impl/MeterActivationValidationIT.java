@@ -217,8 +217,8 @@ public class MeterActivationValidationIT {
             meterReading.addIntervalBlock(intervalBlock);
             meter.store(meterReading);
             validationService.activateValidation(meter);
-            validationService.validate(meterActivation.getChannelsContainer());
-            validationService.validate(currentActivation.getChannelsContainer());
+            validationService.validate(Collections.emptySet(), meterActivation.getChannelsContainer());
+            validationService.validate(Collections.emptySet(), currentActivation.getChannelsContainer());
 
             currentActivation.advanceStartDate(newCutOff.toInstant());
 
@@ -228,11 +228,11 @@ public class MeterActivationValidationIT {
             assertThat(first.getRange()).isEqualTo(Range.closedOpen(startTime.toInstant(), newCutOff.toInstant()));
             assertThat(second.getRange()).isEqualTo(Range.atLeast(newCutOff.toInstant()));
 
-            Instant lastCheckedOfPrior = validationService.getStoredChannelsContainerValidations(meterActivation.getChannelsContainer()).get(0)
+            Instant lastCheckedOfPrior = validationService.getPersistedChannelsContainerValidations(meterActivation.getChannelsContainer()).get(0)
                     .getChannelValidation(meterActivation.getChannelsContainer().getChannels().get(0)).get()
                     .getLastChecked();
             assertThat(lastCheckedOfPrior).isEqualTo(newCutOff.toInstant());
-            Instant lastCheckedOfCurrent = validationService.getStoredChannelsContainerValidations(currentActivation.getChannelsContainer()).get(0)
+            Instant lastCheckedOfCurrent = validationService.getPersistedChannelsContainerValidations(currentActivation.getChannelsContainer()).get(0)
                     .getChannelValidation(currentActivation.getChannelsContainer().getChannels().get(0)).get()
                     .getLastChecked();
             assertThat(lastCheckedOfCurrent).isEqualTo(newCutOff.toInstant());
