@@ -9,17 +9,10 @@ Ext.define('Idv.controller.Main', {
         'Uni.model.PortalItem',
         'Uni.store.PortalItems',
         'Uni.store.MenuItems',
-        'Isu.privileges.Issue',
-
-        'Cfg.privileges.Validation',
-        'Ddv.controller.ValidationOverview',
-        'Ddv.controller.Main',
-        'Ddv.model.ValidationOverviewFilter'
-
+        'Isu.privileges.Issue'
     ],
 
     controllers: [
-        'Idv.controller.history.Workspace',
         'Idv.controller.MainOverview',
         'Idv.controller.Detail',
         'Isu.controller.MessageWindow'
@@ -49,8 +42,7 @@ Ext.define('Idv.controller.Main', {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             dataCollection = null,
-            items = [],
-            historian = me.getController('Idv.controller.history.Workspace'); // Forces route registration.
+            items = [];
 
         if (Isu.privileges.Issue.canViewAdminDevice()) {
             Uni.store.MenuItems.add(Ext.create('Uni.model.MenuItem', {
@@ -61,7 +53,7 @@ Ext.define('Idv.controller.Main', {
             }));
         }
 
-        if (Isu.privileges.Issue.canViewAdminDevice() || Cfg.privileges.Validation.canView()) {
+        if (Isu.privileges.Issue.canViewAdminDevice()) {
 
             if (Isu.privileges.Issue.canViewAdminDevice()) {
                 items.push({
@@ -72,13 +64,6 @@ Ext.define('Idv.controller.Main', {
                     text: Uni.I18n.translate('datavalidation.myOpenIssues','IDV','My open issues'),
                     itemId: 'datavalidation-my-open-issues',
                     href: router.getRoute('workspace/issues').buildUrl({}, {issueType: ['datavalidation'], myopenissues: true})
-                });
-            }
-
-            if (Cfg.privileges.Validation.canView()) {
-                items.push( {
-                    text: Uni.I18n.translate('validation.validationOverview.title', 'IDV', 'Validation overview'),
-                    href: '#/workspace/datavalidationoverview'
                 });
             }
 
