@@ -7,6 +7,7 @@ import com.energyict.mdc.device.topology.TopologyService;
 
 import javax.inject.Inject;
 import java.time.Clock;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -47,7 +48,8 @@ public class DataLoggerSlaveDeviceInfoFactory {
     }
 
     private List<DataLoggerSlaveDeviceInfo> addDataLoggerChannelInfo(Channel dataLoggerChannel, List<DataLoggerSlaveDeviceInfo> slaveDeviceInfos){
-        Optional<Channel> slaveChannel = topologyService.getSlaveChannel(dataLoggerChannel, clock.instant());
+        Instant checkPoint = clock.instant();
+        Optional<Channel> slaveChannel = topologyService.getSlaveChannel(dataLoggerChannel,checkPoint);
         Optional<DataLoggerSlaveDeviceInfo> existingSlaveDeviceInfo;
         DataLoggerSlaveChannelInfo slaveChannelInfo =  slaveChannelInfoFactory.from(ChannelInfo.from(dataLoggerChannel, clock), slaveChannel.map((channel) -> ChannelInfo.from(channel, clock)));
         if (slaveChannel.isPresent()){
@@ -63,6 +65,7 @@ public class DataLoggerSlaveDeviceInfoFactory {
             if (!slaveDeviceInfos.contains(slaveDeviceInfoForUnlinkedDataLoggerElements)){
                 slaveDeviceInfos.add(slaveDeviceInfoForUnlinkedDataLoggerElements);
             }
+            topologyService.availabilityDate(dataLoggerChannel).ifPresent((when) -> slaveChannelInfo.availabilityDate = when.toEpochMilli());
             existingSlaveDeviceInfo = Optional.of(slaveDeviceInfoForUnlinkedDataLoggerElements);
         }
         existingSlaveDeviceInfo.get().addDataLoggerSlaveChannelInfo(slaveChannelInfo);
@@ -86,6 +89,7 @@ public class DataLoggerSlaveDeviceInfoFactory {
             if (!slaveDeviceInfos.contains(slaveDeviceInfoForUnlinkedDataLoggerElements)){
                 slaveDeviceInfos.add(slaveDeviceInfoForUnlinkedDataLoggerElements);
             }
+            topologyService.availabilityDate(dataLoggerRegister).ifPresent((when) -> slaveRegisterInfo.availabilityDate = when.toEpochMilli());
             existingSlaveDeviceInfo = Optional.of(slaveDeviceInfoForUnlinkedDataLoggerElements);
         }
         existingSlaveDeviceInfo.get().addDataLoggerSlaveRegisterInfo(slaveRegisterInfo);
