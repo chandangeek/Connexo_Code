@@ -146,6 +146,25 @@ public class AuthenticationInInterceptorTest {
     }
 
     @Test
+    public void testAuthenticationNoRoleWrongPassword() throws Exception {
+        when(endPointConfiguration.getGroup()).thenReturn(Optional.empty());
+
+        when(httpSession.getAttribute("userName")).thenReturn(null);
+        when(httpSession.getAttribute("password")).thenReturn(null);
+        when(authorizationPolicy.getUserName()).thenReturn("admin");
+        when(authorizationPolicy.getPassword()).thenReturn("wrong");
+
+        try {
+            authorizationInInterceptor.handleMessage(message);
+            fail("Expected security exception");
+        } catch (SecurityException se) {
+            // This page left blank intentionally
+        }
+        verify(endPointConfiguration).log(LogLevel.WARNING, "User admin denied access: invalid credentials");
+        verify(context, atLeastOnce()).commit();
+    }
+
+    @Test
     public void testAuthenticationExceptionOccurs() throws Exception {
         RuntimeException toBeThrown = new RuntimeException();
         doThrow(toBeThrown).when(userService).authenticateBase64(anyString(), anyString());

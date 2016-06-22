@@ -44,9 +44,6 @@ public class AuthorizationInInterceptor extends AbstractPhaseInterceptor<Message
     }
 
     public void handleMessage(Message message) throws Fault {
-        if (!endPointConfiguration.getGroup().isPresent()) {
-            return; // why was this interceptor added anyway?
-        }
         HttpServletRequest request = (HttpServletRequest) message.get("HTTP.REQUEST");
         HttpSession httpSession = request.getSession();
         boolean newSession = false;
@@ -74,10 +71,13 @@ public class AuthorizationInInterceptor extends AbstractPhaseInterceptor<Message
                 logInTransaction(LogLevel.WARNING, "User " + userName + " denied access: invalid credentials");
                 throw new SecurityException("Not authorized");
             }
-            if (!user.get().isMemberOf(endPointConfiguration.getGroup().get())) {
-                logInTransaction(LogLevel.WARNING, "User " + userName + " denied access: not in role");
-                throw new SecurityException("Not authorized");
+            if (endPointConfiguration.getGroup().isPresent()) {
+                if (!user.get().isMemberOf(endPointConfiguration.getGroup().get())) {
+                    logInTransaction(LogLevel.WARNING, "User " + userName + " denied access: not in role");
+                    throw new SecurityException("Not authorized");
+                }
             }
+
             if (newSession) {
                 httpSession.setAttribute(USER_NAME, userName);
                 if (password != null) {
