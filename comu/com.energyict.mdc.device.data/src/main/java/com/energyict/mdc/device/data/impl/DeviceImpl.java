@@ -39,8 +39,6 @@ import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.ami.EndDeviceCapabilities;
-import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
@@ -64,9 +62,6 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TemporalExpression;
-import com.elster.jupiter.users.FormatKey;
-import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.UserPreference;
 import com.elster.jupiter.users.UserPreferencesService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Ranges;
@@ -84,6 +79,7 @@ import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
 import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
@@ -116,6 +112,7 @@ import com.energyict.mdc.device.data.exceptions.CannotChangeDeviceConfigStillUnr
 import com.energyict.mdc.device.data.exceptions.CannotDeleteComScheduleFromDevice;
 import com.energyict.mdc.device.data.exceptions.DeviceConfigurationChangeException;
 import com.energyict.mdc.device.data.exceptions.DeviceProtocolPropertyException;
+import com.energyict.mdc.device.data.exceptions.MeterActivationTimestampNotAfterLastActivationException;
 import com.energyict.mdc.device.data.exceptions.MultiplierConfigurationException;
 import com.energyict.mdc.device.data.exceptions.NoMeterActivationAt;
 import com.energyict.mdc.device.data.exceptions.ProtocolDialectConfigurationPropertiesIsRequiredException;
@@ -172,7 +169,6 @@ import javax.inject.Provider;
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
 import java.math.BigDecimal;
-import java.security.Principal;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
@@ -180,7 +176,6 @@ import java.time.Period;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAmount;
@@ -192,7 +187,6 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -232,6 +226,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private final MdcReadingTypeUtilService readingTypeUtilService;
     private final ThreadPrincipalService threadPrincipalService;
     private final UserPreferencesService userPreferencesService;
+    private final DeviceConfigurationService deviceConfigurationService;
     private final List<LoadProfile> loadProfiles = new ArrayList<>();
     private final List<LogBook> logBooks = new ArrayList<>();
     private List<ReadingTypeObisCodeUsageImpl> readingTypeObisCodeUsages = new ArrayList<>();
@@ -316,7 +311,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             CustomPropertySetService customPropertySetService,
             MdcReadingTypeUtilService readingTypeUtilService,
             ThreadPrincipalService threadPrincipalService,
-            UserPreferencesService userPreferencesService) {
+            UserPreferencesService userPreferencesService,
+            DeviceConfigurationService deviceConfigurationService) {
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.issueService = issueService;
@@ -337,6 +333,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         this.readingTypeUtilService = readingTypeUtilService;
         this.threadPrincipalService = threadPrincipalService;
         this.userPreferencesService = userPreferencesService;
+        this.deviceConfigurationService = deviceConfigurationService;
     }
 
     DeviceImpl initialize(DeviceConfiguration deviceConfiguration, String name, String mRID) {
@@ -1148,12 +1145,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     private Optional<UsagePoint> getUsagePointFromMeterActivation(Meter meter) {
-        Optional<? extends MeterActivation> currentMeterActivation = meter.getCurrentMeterActivation();
-        if (currentMeterActivation.isPresent()) {
-            return currentMeterActivation.get().getUsagePoint();
-        } else {
-            return Optional.empty();
-        }
+        return meter.getCurrentMeterActivation().flatMap(MeterActivation::getUsagePoint);
     }
 
     Optional<Meter> findKoreMeter(AmrSystem amrSystem) {
@@ -1667,43 +1659,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         }
     }
 
-    @Override
-    public void setUsagePoint(UsagePoint usagePoint) {
-        findKoreMeter(getMdcAmrSystem()).ifPresent(meter -> {
-            Optional<UsagePoint> currentUsagePoint = getUsagePoint();
-            Optional<Provider<MeterActivation>> activateOperation = Optional.empty();
-            Instant startTime = this.clock.instant();
-            if (usagePoint == null) {
-                // remove the old usage point
-                activateOperation = Optional.of(() -> meter.activate(startTime));
-            } else if (!currentUsagePoint.isPresent() || usagePoint.getId() != currentUsagePoint.get().getId()) {
-                // set the new usage point
-                activateOperation = Optional.of(() -> meter.activate(usagePoint, startTime));
-            }
-            activateOperation.ifPresent(activator -> {
-                getCurrentMeterActivation().ifPresent(ma -> ma.endAt(startTime));
-                MeterActivation meterActivation = activator.get();
-                meterActivation.setMultiplier(getDefaultMultiplierType(), getMultiplier());
-                if (usagePoint != null) {
-                    copyLocationAndGeoCoordinates(usagePoint);
-                }
-            });
-        });
-    }
-
-    private void copyLocationAndGeoCoordinates(UsagePoint usagePoint) {
-        usagePoint.getLocation().ifPresent(loc -> {
-            if (!location.isPresent()) {
-                setLocation(loc);
-            }
-        });
-        usagePoint.getGeoCoordinates().ifPresent(geo -> {
-            if (!geoCoordinates.isPresent()) {
-                setGeoCoordinates(geo);
-            }
-        });
-    }
-
     boolean hasData(Channel channel) {
         return this.hasData(this.findKoreChannels(channel));
     }
@@ -1908,6 +1863,11 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     @Override
     public boolean hasData() {
         return this.getOptionalMeterAspect(this::hasData).get();
+    }
+
+    @Override
+    public void setUsagePoint(UsagePoint usagePoint) {
+        throw new UnsupportedOperationException();
     }
 
     public DataMapper<DeviceImpl> getDataMapper() {
@@ -3101,62 +3061,71 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public MeterActivation activate(Instant start, UsagePoint usagePoint) {
-        Optional<MeterActivation> meterMeterActivation = getMeterActivation(start);
-        Optional<BigDecimal> multiplier = Optional.empty();
-        Optional<MeterActivation> usagePointMeterActivation = usagePoint.getMeterActivations(start).stream().findFirst();//for MultiSense we expect the only one MeterActivation
-
         //end meter's MeterActivation if exists
-        if (meterMeterActivation.isPresent()) {
-            if (meterMeterActivation.get().getEnd() != null) {
-                throw new RuntimeException("Meter already active");
+        Optional<MeterActivation> effectiveMeterActivation = getMeterActivation(start);
+        if (effectiveMeterActivation.isPresent()) {
+            if (effectiveMeterActivation.get().getEnd() != null) {
+                throw new MeterActivationTimestampNotAfterLastActivationException(thesaurus, getLongDateFormatForCurrentUser(), start,
+                        getMeterActivationsMostRecentFirst().get(0).getStart());
             }
-            multiplier = meterMeterActivation.flatMap(ma -> ma.getMultiplier(getDefaultMultiplierType()));
-            meterMeterActivation.get().endAt(start);
+            effectiveMeterActivation.get().endAt(start);
         }
-
-        //end usage point's MeterActivation if exists
-        Meter meter = findOrCreateKoreMeter(getMdcAmrSystem());
-        if (usagePointMeterActivation.isPresent()) {
-            Optional<Meter> meterLinkedToUsagePoint = usagePointMeterActivation.get().getMeter();
-            if (meterLinkedToUsagePoint.isPresent() && !meterLinkedToUsagePoint.get().equals(meter)) {
-                throw new UsagePointAlreadyLinkedToAnotherDeviceException(thesaurus, getLongDateFormatForCurrentUser(), usagePointMeterActivation.get());
-            }
-            if (usagePointMeterActivation.get().getEnd() != null) {
-                throw new RuntimeException("Overlaps detected");//Should never happen?
-            }
-            usagePointMeterActivation.get().endAt(start);
-        }
-        validateReadingTypeRequirements(meter, usagePoint, start);
-        MeterActivation newMeterActivation = meter.activate(usagePoint, getDefaultMeterRole(), start);
+        //validate business constraints
+        validateUsagePointIsNotLinkedAlready(usagePoint, start);
+        validateReadingTypeRequirements(usagePoint, start);
+        //activate kore meter
+        MeterActivation newMeterActivation = findKoreMeter(getMdcAmrSystem()).get().activate(usagePoint, getDefaultMeterRole(), start);
         //copy multiplier
-        multiplier.ifPresent(m -> newMeterActivation.setMultiplier(getDefaultMultiplierType(), m));
+        effectiveMeterActivation.flatMap(ma -> ma.getMultiplier(getDefaultMultiplierType()))
+                .ifPresent(m -> newMeterActivation.setMultiplier(getDefaultMultiplierType(), m));
         //copy location
         copyLocationAndGeoCoordinates(usagePoint);
-        meter.update();
+        save();
         return newMeterActivation;
     }
 
+    private void copyLocationAndGeoCoordinates(UsagePoint usagePoint) {
+        usagePoint.getLocation().ifPresent(loc -> {
+            if (!location.isPresent()) {
+                setLocation(loc);
+            }
+        });
+        usagePoint.getGeoCoordinates().ifPresent(geo -> {
+            if (!geoCoordinates.isPresent()) {
+                setGeoCoordinates(geo);
+            }
+        });
+    }
+
     private MeterRole getDefaultMeterRole() {
-        return metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey()).orElseThrow(defaultMeterRoleDoesNotExist());
+        return metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey())
+                .orElseThrow(() -> new RuntimeException("Default meter role does not exist"));
     }
 
-    private Supplier<RuntimeException> defaultMeterRoleDoesNotExist() {
-        return () -> new RuntimeException("Default meter role does not exist");
-    }
-
-    private void validateReadingTypeRequirements(Meter meter, UsagePoint usagePoint, Instant from) {
-        Map<MetrologyConfiguration, List<ReadingTypeRequirement>> unsatisfiedRequirements = getUnsatisfiedRequirements(meter, usagePoint, from);
-        if (!unsatisfiedRequirements.isEmpty()) {
-            throw new UnsatisfiedReadingTypeRequirementsOfUsagePointException(thesaurus, unsatisfiedRequirements);
+    private void validateUsagePointIsNotLinkedAlready(UsagePoint usagePoint, Instant from) {
+        Optional<MeterActivation> usagePointMeterActivation = usagePoint.getMeterActivations(from).stream().findFirst();//for MultiSense we expect the only one MeterActivation
+        if (usagePointMeterActivation.isPresent()) {
+            Meter currentMeter = findKoreMeter(getMdcAmrSystem()).get();
+            Optional<Meter> meterLinkedToUsagePoint = usagePointMeterActivation.get().getMeter();
+            if (meterLinkedToUsagePoint.isPresent() && !meterLinkedToUsagePoint.get().equals(currentMeter)) {
+                throw new UsagePointAlreadyLinkedToAnotherDeviceException(this.thesaurus, getLongDateFormatForCurrentUser(), usagePointMeterActivation.get());
+            }
         }
     }
 
-    private Map<MetrologyConfiguration, List<ReadingTypeRequirement>> getUnsatisfiedRequirements(Meter meter, UsagePoint usagePoint, Instant from) {
+    private void validateReadingTypeRequirements(UsagePoint usagePoint, Instant from) {
+        Map<MetrologyConfiguration, List<ReadingTypeRequirement>> unsatisfiedRequirements = getUnsatisfiedRequirements(usagePoint, from);
+        if (!unsatisfiedRequirements.isEmpty()) {
+            throw new UnsatisfiedReadingTypeRequirementsOfUsagePointException(this.thesaurus, unsatisfiedRequirements);
+        }
+    }
+
+    private Map<MetrologyConfiguration, List<ReadingTypeRequirement>> getUnsatisfiedRequirements(UsagePoint usagePoint, Instant from) {
         List<MetrologyConfiguration> effectiveMetrologyConfigurations = usagePoint.getMetrologyConfigurations(Range.atLeast(from));
         if (effectiveMetrologyConfigurations.isEmpty()) {
             return Collections.emptyMap();
         }
-        List<ReadingType> supportedReadingTypes = getDeviceCapabilities(meter);
+        List<ReadingType> supportedReadingTypes = getDeviceCapabilities();
         Map<MetrologyConfiguration, List<ReadingTypeRequirement>> unsatisfiedRequirements = new HashMap<>();
         for (MetrologyConfiguration metrologyConfiguration : effectiveMetrologyConfigurations) {
             List<ReadingTypeRequirement> unsatisfied = metrologyConfiguration.getMandatoryReadingTypeRequirements()
@@ -3170,35 +3139,15 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return unsatisfiedRequirements;
     }
 
-    private List<ReadingType> getDeviceCapabilities(Meter meter) {
-        //Or may be just use deviceConfigurationService.getReadingTypesRelatedToConfiguration(findDeviceForEndDevice(endDevice).getDeviceConfiguration()); ?
-        HeadEndInterface headEndInterface = meter.getHeadEndInterface().orElseThrow(() -> new RuntimeException("Multisense HeadEndInterface is not found"));
-        EndDeviceCapabilities capabilities = headEndInterface.getCapabilities(meter);
-        return capabilities.getConfiguredReadingTypes();
+    private List<ReadingType> getDeviceCapabilities() {
+        return deviceConfigurationService.getReadingTypesRelatedToConfiguration(getDeviceConfiguration());
     }
 
-    //copied from com.energyict.mdc.device.lifecycle.impl.DeviceLifeCycleServiceImpl.getLongDateFormatForCurrentUser()
-    //TODO reuse?
     private DateTimeFormatter getLongDateFormatForCurrentUser() {
-        Principal principal = threadPrincipalService.getPrincipal();
-        String dateTimeFormat = "HH:mm:ss EEE dd MMM ''yy"; // default backend date format
-        Locale locale = Locale.ENGLISH;
-        if (principal instanceof User) {
-            Optional<UserPreference> dateFormatPref = userPreferencesService.getPreferenceByKey((User) principal, FormatKey.LONG_DATE);
-            Optional<UserPreference> timeFormatPref = userPreferencesService.getPreferenceByKey((User) principal, FormatKey.LONG_TIME);
-            Optional<UserPreference> orderFormatPref = userPreferencesService.getPreferenceByKey((User) principal, FormatKey.DATETIME_ORDER);
-            Optional<UserPreference> separatorFormatPref = userPreferencesService.getPreferenceByKey((User) principal, FormatKey.DATETIME_SEPARATOR);
-            if (dateFormatPref.isPresent() && timeFormatPref.isPresent() && orderFormatPref.isPresent() && separatorFormatPref.isPresent()) {
-                dateTimeFormat = DateTimeFormatGenerator.getDateTimeFormat(
-                        dateFormatPref.get().getFormatBE(),
-                        timeFormatPref.get().getFormatBE(),
-                        orderFormatPref.get().getFormatBE(),
-                        separatorFormatPref.get().getFormatBE()
-                );
-            }
-            locale = ((User) principal).getLocale().orElse(locale);
-        }
-        DateTimeFormatterBuilder formatterBuilder = new DateTimeFormatterBuilder();
-        return formatterBuilder.appendPattern(dateTimeFormat).toFormatter(locale);
+        return DateTimeFormatGenerator.getDateFormatForUser(
+                DateTimeFormatGenerator.Mode.LONG,
+                DateTimeFormatGenerator.Mode.LONG,
+                this.userPreferencesService,
+                this.threadPrincipalService.getPrincipal());
     }
 }
