@@ -22,6 +22,7 @@ import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 
 /**
@@ -67,7 +68,7 @@ public class ForceValidationAndEstimation extends TranslatableServerMicroAction 
 
     private void validateAndEstimate(MeterActivation meterActivation) {
         ChannelsContainer channelsContainer = meterActivation.getChannelsContainer();
-        validationService.validate(channelsContainer);
+        validationService.validate(EnumSet.of(QualityCodeSystem.MDC), channelsContainer);
         estimationService.estimate(QualityCodeSystem.MDC, meterActivation, meterActivation.getRange());
         boolean hasSuspects = !channelsContainer.getChannels().stream()
                 .allMatch(channel ->

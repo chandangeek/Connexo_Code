@@ -28,6 +28,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -93,19 +94,19 @@ public class ForceValidationAndEstimationTest {
     }
 
     @Test
-    public void executeForceValidationAndEstimationForDeviceForWhichValidationIsNotSet(){
+    public void executeForceValidationAndEstimationForDeviceForWhichValidationIsNotSet() {
         ForceValidationAndEstimation forceValidationAndEstimation = this.getTestInstance();
         DeviceValidation deviceValidation = mock(DeviceValidation.class);
         when(deviceValidation.isValidationActive()).thenReturn(false);
         when(this.device.forValidation()).thenReturn(deviceValidation);
         forceValidationAndEstimation.execute(this.device, Instant.now(), Collections.emptyList());
 
-        verify(validationService, never()).validate(any(ChannelsContainer.class));
+        verify(validationService, never()).validate(any(Set.class), any(ChannelsContainer.class));
         verify(estimationService, never()).estimate(eq(QualityCodeSystem.MDC), any(MeterActivation.class), any(Range.class));
     }
 
     @Test
-    public void executeForceValidationAndEstimationForDeviceForWhichEstimationIsNotSet(){
+    public void executeForceValidationAndEstimationForDeviceForWhichEstimationIsNotSet() {
         ForceValidationAndEstimation forceValidationAndEstimation = this.getTestInstance();
         DeviceValidation deviceValidation = mock(DeviceValidation.class);
         when(deviceValidation.isValidationActive()).thenReturn(true);
@@ -115,7 +116,7 @@ public class ForceValidationAndEstimationTest {
         when(this.device.forEstimation()).thenReturn(deviceEstimation);
         forceValidationAndEstimation.execute(this.device, Instant.now(), Collections.emptyList());
 
-        verify(validationService, never()).validate(any(ChannelsContainer.class));
+        verify(validationService, never()).validate(any(Set.class), any(ChannelsContainer.class));
         verify(estimationService, never()).estimate(eq(QualityCodeSystem.MDC), any(MeterActivation.class), any(Range.class));
     }
 
@@ -155,8 +156,8 @@ public class ForceValidationAndEstimationTest {
         forceValidationAndEstimation.execute(this.device, now, Collections.emptyList());
 
         // Asserts
-        verify(validationService).validate(channelsContainer);
-        verify(estimationService).estimate(eq(QualityCodeSystem.MDC), meterActivation, meterActivation.getRange());
+        verify(validationService).validate(anySetOf(QualityCodeSystem.class), eq(channelsContainer));
+        verify(estimationService).estimate(QualityCodeSystem.MDC, meterActivation, meterActivation.getRange());
     }
 
     @Test(expected = ForceValidationAndEstimation.ForceValidationAndEstimationException.class)
