@@ -279,6 +279,24 @@ public interface TopologyService {
     boolean isReferenced(Channel dataLoggerChannel);
 
     /**
+     * Returns the date for which the (data logger) channel is free to be used to link with any slave channel
+     * @param dataLoggerChannel to check the 'availability' of
+     * @param when check point at which the data logger channel should be available
+     * @return (Optional.of) time at which the data logger channel is free to use (is available for linking). When the data logger channel was never linked (Optional.of) Instant.EPOCH is returned.
+     * If the data logger channel is linked yet Optional.empty() will be returned
+     */
+    Optional<Instant> availabilityDate(Channel dataLoggerChannel);
+
+    /**
+     * Returns the date for which the (data logger) channel is free to be used to link with any slave channel
+     * @param dataLoggerChannel to check the 'availability' of
+     * @param when check point at which the data logger channel should be available
+     * @return (Optional.of) time at which the data logger channel is free to use (is available for linking). When the data logger channel was never linked (Optional.of) Instant.EPOCH is returned.
+     * If the data logger channel is linked yet Optional.empty() will be returned
+     */
+    Optional<Instant> availabilityDate(Register dataLoggerRegister);
+
+    /**
      * Retrieve all DataLoggerChannelUsages for given dataLoggerChannel for given period
      * @param dataLoggerChannel channel to inspect
      * @param referencePeriod period to inspect

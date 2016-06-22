@@ -18,7 +18,6 @@ import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -44,22 +43,7 @@ import com.energyict.mdc.device.topology.TopologyTimeslice;
 
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.MessageSeedProvider;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.util.exception.MessageSeed;
-import com.elster.jupiter.util.sql.SqlBuilder;
-import com.elster.jupiter.util.streams.Functions;
-import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -75,6 +59,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -99,7 +84,6 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     private volatile ConnectionTaskService connectionTaskService;
     private volatile CommunicationTaskService communicationTaskService;
     private volatile UpgradeService upgradeService;
-    private volatile DeviceService deviceService;
 
     // For OSGi framework only
     public TopologyServiceImpl() {
@@ -108,7 +92,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
 
     // For unit testing purposes only
     @Inject
-    public TopologyServiceImpl(OrmService ormService, NlsService nlsService, Clock clock, ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService, UpgradeService upgradeService, DeviceService deviceService) {
+    public TopologyServiceImpl(OrmService ormService, NlsService nlsService, Clock clock, ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService, UpgradeService upgradeService) {
         this();
         setOrmService(ormService);
         setNlsService(nlsService);
@@ -116,7 +100,6 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
         setConnectionTaskService(connectionTaskService);
         setCommunicationTaskService(communicationTaskService);
         setUpgradeService(upgradeService);
-        setDeviceDataService(deviceService);
         activate();
     }
 
@@ -342,7 +325,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
 
     private PhysicalGatewayReferenceImpl newPhysicalGatewayReference(Device slave, Device gateway, Instant start){
         PhysicalGatewayReferenceImpl physicalGatewayReference =
-                this.dataModel.getInstance(PhysicalGatewayReferenceImpl.class).createFor(slave, gateway, Interval.startAt(start));
+                this.dataModel.getInstance(PhysicalGatewayReferenceImpl.class).createFor(slave, gateway, Interval.of(Range.atLeast(start)));
         Save.CREATE.validate(this.dataModel, physicalGatewayReference);
         this.dataModel.persist(physicalGatewayReference);
         return physicalGatewayReference;
@@ -436,10 +419,39 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
         return findDataLoggerChannelUsages(getMeteringChannel(dataLoggerChannel),referencePeriod);
     }
 
+    @Override
+    public Optional<Instant> availabilityDate(Channel dataLoggerChannel) {
+        return availabilityDate(getMeteringChannel(dataLoggerChannel));
+    }
+
+    @Override
+    public Optional<Instant> availabilityDate(Register dataLoggerRegister) {
+         return availabilityDate(getMeteringChannel(dataLoggerRegister));
+    }
+
+    private Optional<Instant> availabilityDate(com.elster.jupiter.metering.Channel dataLoggerChannel) {
+        List<DataLoggerChannelUsage> usages = this.findDataLoggerChannelUsages((dataLoggerChannel));
+        if (usages.isEmpty()){
+            return Optional.of(Instant.EPOCH);
+        }else{
+            usages.sort(Comparator.<DataLoggerChannelUsage>comparingLong((usage) -> usage.getRange().hasUpperBound() ? usage.getRange().upperEndpoint().toEpochMilli() : Long.MAX_VALUE).reversed());
+            if (usages.get(0).getRange().hasUpperBound()) {
+                return Optional.of(usages.get(0).getRange().upperEndpoint());
+            }else{
+                return Optional.empty();
+            }
+        }
+    }
+
     private  List<DataLoggerChannelUsage> findDataLoggerChannelUsages(com.elster.jupiter.metering.Channel dataLoggerChannel, Range<Instant> referencePeriod){
         Condition gateway =  where(DataLoggerChannelUsageImpl.Field.GATEWAY_CHANNEL.fieldName()).isEqualTo(dataLoggerChannel);
         Condition effective = where(DataLoggerChannelUsageImpl.Field.PHYSICALGATEWAYREF.fieldName() + "." + AbstractPhysicalGatewayReferenceImpl.Field.INTERVAL.fieldName()).isEffective(referencePeriod);
         return dataModel.query(DataLoggerChannelUsage.class, PhysicalGatewayReference.class).select(gateway.and(effective));
+    }
+
+    private  List<DataLoggerChannelUsage> findDataLoggerChannelUsages(com.elster.jupiter.metering.Channel dataLoggerChannel){
+        Condition gateway =  where(DataLoggerChannelUsageImpl.Field.GATEWAY_CHANNEL.fieldName()).isEqualTo(dataLoggerChannel);
+        return dataModel.query(DataLoggerChannelUsage.class, PhysicalGatewayReference.class).select(gateway);
     }
 
     private Condition getDevicesInTopologyCondition(Device device) {
@@ -447,7 +459,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     }
 
     private DataLoggerReferenceImpl newDataLoggerReference(Device slave, Device gateway, Instant start ){
-        return this.dataModel.getInstance(DataLoggerReferenceImpl.class).createFor(slave, gateway, Interval.startAt(start));
+        return this.dataModel.getInstance(DataLoggerReferenceImpl.class).createFor(slave, gateway, Interval.of(Range.atLeast(start)));
     }
 
     public void clearDataLogger(Device slave, Instant when){
@@ -562,12 +574,12 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
         if (intermediateHop.isPresent()) {
             segment = this.dataModel
                     .getInstance(G3CommunicationPathSegmentImpl.class)
-                    .createIntermediate(source, target, Interval.startAt(now), intermediateHop.get(), timeToLive.getSeconds(), cost);
+                    .createIntermediate(source, target, Interval.of(Range.atLeast(now)), intermediateHop.get(), timeToLive.getSeconds(), cost);
         }
         else {
             segment = this.dataModel
                     .getInstance(G3CommunicationPathSegmentImpl.class)
-                    .createFinal(source, target, Interval.startAt(now), timeToLive.getSeconds(), cost);
+                    .createFinal(source, target, Interval.of(Range.atLeast(now)), timeToLive.getSeconds(), cost);
         }
         Save.CREATE.validate(this.dataModel, segment);
         mapper.persist(segment);
@@ -805,11 +817,6 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     @Reference
     public void setCommunicationTaskService(CommunicationTaskService communicationTaskService) {
         this.communicationTaskService = communicationTaskService;
-    }
-
-    @Reference
-    public void setDeviceDataService(DeviceService deviceDataModelService) {
-        this.deviceService = deviceService;
     }
 
     @Reference
