@@ -7,14 +7,14 @@ import com.elster.jupiter.pubsub.Publisher;
 import java.util.HashMap;
 import java.util.Map;
 
-public interface TableCache<T> {
+interface TableCache<T> {
 	T get(KeyValue key);
 	void put(KeyValue key , T value);
 	void remove(T entity);
 	void renew();
-	 
+
 	class NoCache<T> implements TableCache<T> {
-	
+
 		@Override
 		public T get(KeyValue key) {
 			return null;
@@ -22,33 +22,36 @@ public interface TableCache<T> {
 
 		@Override
 		public void put(KeyValue key, T value) {
+			// NoCache means no cache
 		}
 
 		@Override
 		public void remove(T entity) {
+            // NoCache means no cache
 		}
-		
+
 		@Override
 		public void renew() {
+            // NoCache means no cache
 		}
-	
+
 	}
-	
+
 	class TupleCache<T> implements TableCache<T> {
-		
+
 		private final TableImpl<T> table;
 		private Map<KeyValue, T> cache = new HashMap<>();
-		
-		public TupleCache(TableImpl<T> table) {
+
+		TupleCache(TableImpl<T> table) {
 			this.table = table;
 		}
-		
+
 		private void cacheChange() {
 			Publisher publisher = table.getDataModel().getOrmService().getPublisher();
 			publisher.publish(new InvalidateCacheRequest(table.getComponentName(), table.getName()));
 		}
-		
-		synchronized public void renew() {
+
+		public synchronized void renew() {
 			this.cache = new HashMap<>();
 			cacheCleared();
 		}
@@ -61,7 +64,7 @@ public interface TableCache<T> {
 		private KeyValue getKey(T entity) {
 			return table.getPrimaryKey(entity);
 		}
-			
+
 		@Override
         public synchronized T get(KeyValue key) {
 			return cache.get(key);
@@ -69,7 +72,7 @@ public interface TableCache<T> {
 
 		@Override
         public synchronized void put(KeyValue key, T value) {
-			cache.put(key,value);			
+			cache.put(key,value);
 		}
 
 		@Override
@@ -78,8 +81,8 @@ public interface TableCache<T> {
 				cache.remove(getKey(entity));
 			}
 			cacheChange();
-		}  		
+		}
 	}
-	
+
 }
 
