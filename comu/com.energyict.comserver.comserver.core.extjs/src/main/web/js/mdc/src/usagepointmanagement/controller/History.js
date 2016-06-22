@@ -133,7 +133,7 @@ Ext.define('Mdc.usagepointmanagement.controller.History', {
             configCombo = versionForm.down('#mc-combo'),
             metrologyConfig = configCombo.findRecordByValue(configCombo.getValue());
         versionForm.down('#form-errors').hide();
-        versionForm.down('#mc-combo').clearInvalid();
+        versionForm.getForm().clearInvalid();
         versionForm.updateRecord(versionRecord);
         if(metrologyConfig){
             versionRecord.set('metrologyConfiguration', metrologyConfig.getData());
@@ -142,9 +142,20 @@ Ext.define('Mdc.usagepointmanagement.controller.History', {
                 url: Ext.String.format("/api/mtr/usagepoints/{0}/metrologyconfigurations",me.usagePoint.get('mRID')),
                 method: 'PUT',
                 jsonData: me.usagePoint.getRecordData(),
-                success: function (record) {
+                success: function () {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('usagePointManagement.version.added', 'MDC', "Metrology configuration version added"));
                     router.getRoute('usagepoints/usagepoint/history').forward();
+                },
+                failure: function (response, request) {
+                    if (response.status == 400) {
+                        if (!Ext.isEmpty(response.responseText)) {
+                            var json = Ext.decode(response.responseText, true);
+                            if (json && json.errors) {
+                                versionForm.down('#form-errors').show();
+                                versionForm.getForm().markInvalid(json.errors);
+                            }
+                        }
+                    }
                 }
             })
         } else {
