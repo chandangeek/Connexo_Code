@@ -1,11 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.metering.Location;
-import com.elster.jupiter.metering.LocationBuilder;
-import com.elster.jupiter.metering.LocationTemplate;
-import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.*;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.RestValidationBuilder;
@@ -35,13 +31,15 @@ public class DeviceAttributesInfoFactory {
     private final MeteringService meteringService;
     private final Thesaurus thesaurus;
     private final ThreadPrincipalService threadPrincipalService;
+    private final LocationService locationService;
 
     @Inject
-    public DeviceAttributesInfoFactory(BatchService batchService, MeteringService meteringService, Thesaurus thesaurus, ThreadPrincipalService threadPrincipalService) {
+    public DeviceAttributesInfoFactory(BatchService batchService, MeteringService meteringService, Thesaurus thesaurus, ThreadPrincipalService threadPrincipalService, LocationService locationService) {
         this.batchService = batchService;
         this.meteringService = meteringService;
         this.thesaurus = thesaurus;
         this.threadPrincipalService = threadPrincipalService;
+        this.locationService = locationService;
     }
 
     public static String getStateName(Thesaurus thesaurus, State state) {
@@ -75,7 +73,7 @@ public class DeviceAttributesInfoFactory {
         info.geoCoordinates.displayValue = coordinatesInfo;
         fillAvailableAndEditable(info.geoCoordinates, DeviceAttribute.GEOCOORDINATES, state);
 
-        EditLocationInfo editLocationInfo = new EditLocationInfo(meteringService, thesaurus, device);
+        EditLocationInfo editLocationInfo = new EditLocationInfo(meteringService,locationService, thesaurus, device);
         info.location = new DeviceAttributeInfo();
         info.location.displayValue = editLocationInfo;
         fillAvailableAndEditable(info.location, DeviceAttribute.LOCATION, state);
@@ -306,8 +304,8 @@ public class DeviceAttributesInfoFactory {
                 List<String> locationData = propertyInfoList.stream()
                         .map(d -> d.propertyValueInfo.value.toString())
                         .collect(Collectors.toList());
-                String amrId = meteringService.findEndDevice(device.getmRID()).get().getAmrId();
-                LocationBuilder builder = meteringService.findAmrSystem(Long.parseLong(amrId)).get().newMeter(amrId).newLocationBuilder();
+                EndDevice endDevice = meteringService.findEndDevice(device.getmRID()).get();
+                LocationBuilder builder = endDevice.getAmrSystem().newMeter(endDevice.getAmrId()).newLocationBuilder();
                 Map<String, Integer> ranking = meteringService
                         .getLocationTemplate()
                         .getTemplateMembers()
@@ -323,8 +321,6 @@ public class DeviceAttributesInfoFactory {
                 device.setLocation(builder.create());
 
             } else if ((info.location.displayValue.isInherited) && (info.location.displayValue.usagePointLocationId != null)) {
-                String amrId = meteringService.findEndDevice(device.getmRID()).get().getAmrId();
-                Optional<EndDevice> endDevice = meteringService.findEndDevice(device.getmRID());
                 device.updateLocation(info.location.displayValue.usagePointLocationId);
             } else if ((info.location.displayValue.locationId != null) && (info.location.displayValue.locationId > 0) && (!info.location.displayValue.isInherited)) {
                 device.updateLocation(info.location.displayValue.locationId);

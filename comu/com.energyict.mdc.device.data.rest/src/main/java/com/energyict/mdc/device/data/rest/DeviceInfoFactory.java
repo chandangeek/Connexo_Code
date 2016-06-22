@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.rest;
 
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.Location;
+import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -38,6 +39,7 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
     private IssueDataValidationService issueDataValidationService;
     private MeteringService meteringService;
     private DeviceConfigurationService deviceConfigurationService;
+    private LocationService locationService;
 
     public DeviceInfoFactory() {
     }
@@ -51,6 +53,7 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
         this.issueDataValidationService = issueDataValidationService;
         this.meteringService = meteringService;
         this.deviceConfigurationService = deviceConfigurationService;
+        this.locationService = locationService;
     }
 
     @Reference
@@ -81,6 +84,11 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
     @Reference
     public void setIssueDataValidationService(IssueDataValidationService issueDataValidationService) {
         this.issueDataValidationService = issueDataValidationService;
+    }
+
+    @Reference
+    public void setLocationService(LocationService locationService) {
+        this.locationService = locationService;
     }
 
     public List<DeviceInfo> from(List<Device> devices) {

@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.metering.Location;
+import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
@@ -30,14 +31,14 @@ public class EditLocationInfo {
     public EditLocationInfo() {
     }
 
-    public EditLocationInfo(MeteringService meteringService, Thesaurus thesaurus, Device device) {
+    public EditLocationInfo(MeteringService meteringService, LocationService locationService, Thesaurus thesaurus, Device device) {
         device.getLocation().ifPresent(deviceLocation -> {
-            createLocationInfo(meteringService, thesaurus, deviceLocation.getId(), device);
+            createLocationInfo(meteringService, locationService, thesaurus, deviceLocation.getId(), device);
         });
     }
 
-    public void createLocationInfo(MeteringService meteringService, Thesaurus thesaurus, Long locationId, Device device) {
-        createLocationInfo(meteringService, thesaurus, locationId);
+    public void createLocationInfo(MeteringService meteringService,LocationService locationService, Thesaurus thesaurus, Long locationId, Device device) {
+        createLocationInfo(meteringService, locationService, thesaurus, locationId);
         device.getUsagePoint().ifPresent(usagePoint -> {
             usagePoint.getLocation().ifPresent(usagePointLocation -> {
                 if (usagePointLocation.getId() == locationId) {
@@ -48,11 +49,11 @@ public class EditLocationInfo {
         });
     }
 
-    public void createLocationInfo(MeteringService meteringService, Thesaurus thesaurus, Long locationId) {
+    public void createLocationInfo(MeteringService meteringService, LocationService locationService, Thesaurus thesaurus, Long locationId) {
         this.locationId = locationId;
 
         List<String> unformattedList = new ArrayList<>();
-        Optional<Location> location = meteringService.findLocation(locationId);
+        Optional<Location> location = locationService.findLocationById(locationId);
         if (location.isPresent()) {
             List<List<String>> locationMembers = location.get().format();
             locationMembers.stream()
