@@ -31,7 +31,7 @@ public class IssueInfo<T extends DeviceInfo, I extends Issue> {
         init(issue, deviceType);
     }
 
-    private final void init(Issue issue, Class<? extends DeviceInfo> deviceType){
+    private void init(Issue issue, Class<? extends DeviceInfo> deviceType) {
         if (issue != null) {
             this.id = issue.getId();
             this.issueId = issue.getIssueId();
@@ -42,6 +42,7 @@ public class IssueInfo<T extends DeviceInfo, I extends Issue> {
             try {
                 this.device = issue.getDevice() != null ? deviceType.getConstructor(EndDevice.class).newInstance(issue.getDevice()) : null;
             } catch (ReflectiveOperationException e) {
+                throw new RuntimeException("Coding exception: ", e);
             }
             this.title = issue.getTitle();
             this.issueType = new IssueTypeInfo(issue.getReason().getIssueType());
@@ -50,4 +51,5 @@ public class IssueInfo<T extends DeviceInfo, I extends Issue> {
             this.version = issue.getVersion();
         }
     }
+
 }
