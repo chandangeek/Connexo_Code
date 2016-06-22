@@ -40,6 +40,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
     private volatile Clock clock;
     private volatile Thesaurus thesaurus;
     private volatile MeteringService meteringService;
+    private volatile LocationService locationService;
     private volatile ServiceCallService serviceCallService;
     private volatile BpmService bpmService;
     private volatile IssueService issueService;
@@ -57,11 +58,13 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                                  ServiceCallService serviceCallService,
                                  BpmService bpmService,
                                  IssueService issueService,
-                                 ThreadPrincipalService threadPrincipalService) {
+                                 ThreadPrincipalService threadPrincipalService,
+                                 LocationService locationService) {
         this();
         this.setClock(clock);
         this.setNlsService(nlsService);
         this.setMeteringService(meteringService);
+        this.setLocationService(locationService);
         this.setThreadPrincipalService(threadPrincipalService);
         this.setServiceCallService(serviceCallService);
         this.setBpmService(bpmService);
@@ -107,6 +110,11 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(UsagePointApplication.COMPONENT_NAME, Layer.REST);
+    }
+
+    @Reference
+    public void setLocationService(LocationService locationService) {
+        this.locationService = locationService;
     }
 
     @Reference(
@@ -180,7 +188,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
 
     private void addLocationInfo(UsagePointInfo info, UsagePoint usagePoint) {
         info.extendedGeoCoordinates = new CoordinatesInfo(meteringService, usagePoint.getMRID());
-        info.extendedLocation = new LocationInfo(meteringService, thesaurus, usagePoint.getMRID());
+        info.extendedLocation = new LocationInfo(meteringService, locationService, thesaurus, usagePoint.getMRID());
 
         info.geoCoordinates = info.extendedGeoCoordinates.coordinatesDisplay;
         info.location = info.extendedLocation.locationValue;
@@ -287,7 +295,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
             }
             return builder.create();
         } else if ((usagePointInfo.extendedLocation.locationId != null) && (usagePointInfo.extendedLocation.locationId > 0)) {
-            return meteringService.findLocation(usagePointInfo.extendedLocation.locationId).get();
+            return locationService.findLocationById(usagePointInfo.extendedLocation.locationId).get();
         }
         return null;
     }

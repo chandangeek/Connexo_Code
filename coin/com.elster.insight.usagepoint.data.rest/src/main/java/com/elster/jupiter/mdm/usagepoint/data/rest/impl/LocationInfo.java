@@ -1,6 +1,7 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.metering.Location;
+import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.Thesaurus;
@@ -26,19 +27,19 @@ public class LocationInfo {
     public LocationInfo() {
     }
 
-    public LocationInfo(MeteringService meteringService, Thesaurus thesaurus, String mRID) {
+    public LocationInfo(MeteringService meteringService, LocationService locationService, Thesaurus thesaurus, String mRID) {
         Optional<UsagePoint> usagePoint = meteringService.findUsagePoint(mRID);
         if (usagePoint.isPresent()) {
             Optional<Location> location = usagePoint.get().getLocation();
-            location.ifPresent(loc -> createLocationInfo(meteringService, thesaurus, loc.getId()));
+            location.ifPresent(loc -> createLocationInfo(meteringService, locationService, thesaurus, loc.getId()));
         }
 
     }
 
-    public void createLocationInfo(MeteringService meteringService, Thesaurus thesaurus, Long locationId) {
+    public void createLocationInfo(MeteringService meteringService, LocationService locationService, Thesaurus thesaurus, Long locationId) {
         this.locationId = locationId;
         List<String> unformattedList = new ArrayList<>();
-        Optional<Location> location = meteringService.findLocation(locationId);
+        Optional<Location> location = locationService.findLocationById(locationId);
         if (location.isPresent()) {
             List<List<String>> locationMembers = location.get().format();
             locationMembers.stream()
