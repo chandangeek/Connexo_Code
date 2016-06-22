@@ -36,14 +36,34 @@ public class OperationHandler implements ServiceCallHandler {
 
     @Override
     public boolean allowStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
-        return true; // TODO: should we prevent CANCEl operation in some cases?
+        if (newState.equals(DefaultState.CANCELLED)) {
+            switch (oldState) {
+                case WAITING:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+        return true;
     }
 
     @Override
     public void onStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
         serviceCall.log(LogLevel.FINE, "Now entering state " + newState.getDefaultFormat());
+        if (newState.equals(DefaultState.CANCELLED)) {
+            cancelServiceCallIncludingItsChildren(serviceCall);
+        }
+    }
 
-        //TODO: in case of cancel, also cancel child service calls?
+    private void cancelServiceCallIncludingItsChildren(ServiceCall serviceCall) {
+        serviceCall.findChildren().stream().forEach(child -> {
+            if (child.canTransitionTo(DefaultState.CANCELLED)) {
+                serviceCall.log(LogLevel.INFO, MessageFormat.format("Cancelling child service call with id ", child.getId()));
+                child.requestTransition(DefaultState.CANCELLED);
+            } else {
+                serviceCall.log(LogLevel.INFO, MessageFormat.format("Could not cancel child service call with id ", child.getId()));
+            }
+        });
     }
 
     @Override
@@ -64,8 +84,7 @@ public class OperationHandler implements ServiceCallHandler {
                 break;
             case CANCELLED:
                 parent.log(LogLevel.SEVERE, MessageFormat.format("Child service call {0} (type={1}) has been cancelled", serviceCall.getId(), serviceCall.getType().getName()));
-                serviceCall.findChildren().stream().forEach(serviceCall1 -> serviceCall.cancel());
-                requestTransitionTo(parent, DefaultState.FAILED);
+                requestTransitionTo(parent, DefaultState.CANCELLED);
                 break;
             default:
                 break;
