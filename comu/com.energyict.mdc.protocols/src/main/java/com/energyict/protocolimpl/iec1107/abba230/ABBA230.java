@@ -38,6 +38,7 @@ import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
 import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
+import com.energyict.protocols.util.TempFileLoader;
 import com.energyict.mdc.protocol.api.inbound.DiscoverInfo;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
@@ -1285,7 +1286,9 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
                 this.logger.info("*************************** FIRMWARE UPGRADE ***************************");
                 int start = messageEntry.getContent().indexOf(FIRMWAREPROGRAM) + FIRMWAREPROGRAM.length() + 1;
                 int end = messageEntry.getContent().lastIndexOf(FIRMWAREPROGRAM) - 2;
-                String firmwareXMLData = messageEntry.getContent().substring(start, end);
+                String path = messageEntry.getContent().substring(start, end);
+                String firmwareXMLData = new String(TempFileLoader.loadTempFile(path));
+
                 blankCheck();
 
                 //	    		File file = new File("C:/Documents and Settings/kvds/My Documents/projecten/ESB/sphasefw.xml");

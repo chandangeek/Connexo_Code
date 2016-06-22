@@ -13,7 +13,7 @@ import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
 
 /**
- * Creates a MessageEntry consisting of a tag with the content of a UserFile included as value, as is used for the IEC1107 ABBA230 protocol
+ * Creates a MessageEntry consisting of a tag with a path to a temp file, as is used for the IEC1107 ABBA230 protocol
  * <p/>
  * Copyrights EnergyICT
  * Date: 12/03/13
@@ -38,10 +38,10 @@ public class ABBA230UserFileMessageEntry implements MessageEntryCreator {
         }
 
         OfflineDeviceMessageAttribute userFileAttribute = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, userFileAttributeName);
-        String fileContent = userFileAttribute.getDeviceMessageAttributeValue();
+        String path = userFileAttribute.getDeviceMessageAttributeValue();
 
         MessageTag messageTag = new MessageTag(tag);
-        messageTag.add(new MessageValue(fileContent));
+        messageTag.add(new MessageValue(path));
         return new MessageEntry(messagingProtocol.writeTag(messageTag), offlineDeviceMessage.getTrackingId());
     }
 

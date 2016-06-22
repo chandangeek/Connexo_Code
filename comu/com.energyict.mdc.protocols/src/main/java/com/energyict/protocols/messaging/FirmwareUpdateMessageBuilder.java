@@ -1,10 +1,10 @@
 package com.energyict.protocols.messaging;
 
-import com.energyict.mdc.protocol.api.DeviceMessageFile;
-import com.energyict.mdc.protocol.api.DeviceMessageFileService;
-
+import com.energyict.protocols.util.TempFileLoader;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
+
+import java.io.IOException;
 
 /**
  * Message builder class responsible of generating and parsing FirmwareUpdate messages.
@@ -20,40 +20,22 @@ public class FirmwareUpdateMessageBuilder extends AbstractMessageBuilder {
 
     private static final String MESSAGETAG = "FirmwareUpdate";
     private static final String TAG_URL = "Url";
-    private static final String TAG_USERFILE = "UserFileId";
 
-    /**
-     * The tag that is used for an include file.
-     */
-    private static final String INCLUDE_USERFILE_TAG = "includeFile";
-
-    /**
-     * This is an attribute to aforementioned tag indicating the ID of the user file. See RtuMessageContentParser for more details.
-     */
-    private static final String INCLUDE_USERFILE_ID_ATTRIBUTE = "fileId";
-
-    private final DeviceMessageFileService deviceMessageFileService;
     private String url;
-    private DeviceMessageFile deviceMessageFile;
-    private long deviceMessageFileId = 0;
+    private String path;
 
-    /**
-     * Indicates whether to inline the user files or not.
-     */
-    private boolean inlineUserFiles;
-
-    public FirmwareUpdateMessageBuilder(DeviceMessageFileService deviceMessageFileService) {
+    public FirmwareUpdateMessageBuilder() {
         super();
-        this.deviceMessageFileService = deviceMessageFileService;
     }
 
-    /**
-     * Tell the builder whether to inline the user files or not.
-     *
-     * @param inlineUserFiles If <code>true</code>, user files will be inlined. If <code>false</code> just a reference to the file ID will be passed.
-     */
-    public final void setInlineUserFiles(final boolean inlineUserFiles) {
-        this.inlineUserFiles = inlineUserFiles;
+    protected static String getMessageNodeTag() {
+        return MESSAGETAG;
+    }
+
+    public static MessageBuilder fromXml(String xmlString) throws SAXException, IOException {
+        MessageBuilder builder = new FirmwareUpdateMessageBuilder();
+        builder.initFromXml(xmlString);
+        return builder;
     }
 
     public String getUrl() {
@@ -64,71 +46,27 @@ public class FirmwareUpdateMessageBuilder extends AbstractMessageBuilder {
         this.url = url;
     }
 
-    /**
-     * Sets the user file.
-     *
-     * @param deviceMessageFile The user file.
-     */
-    public final void setDeviceMessageFile(DeviceMessageFile deviceMessageFile) {
-        if (deviceMessageFile != null) {
-            this.deviceMessageFileId = deviceMessageFile.getId();
-            this.deviceMessageFile = deviceMessageFile;
-        } else {
-            this.deviceMessageFileId = 0;
-        }
+    public byte[] getFirmwareBytes() throws IOException {
+        return TempFileLoader.loadTempFile(getPath());
     }
 
-    public void setDeviceMessageFileId(int deviceMessageFileId) {
-        this.deviceMessageFileId = deviceMessageFileId;
+    public String getPath() {
+        return path;
     }
 
-    public DeviceMessageFile getDeviceMessageFile() {
-        if (deviceMessageFile == null) {
-            deviceMessageFile = this.findUserFile(deviceMessageFileId);
-        }
-        return deviceMessageFile;
-    }
-
-    private DeviceMessageFile findUserFile(long deviceMessageFileId) {
-        return this.deviceMessageFileService.findDeviceMessageFile(deviceMessageFileId).orElse(null);
-    }
-
-    protected static String getMessageNodeTag() {
-        return MESSAGETAG;
+    public void setPath(String path) {
+        this.path = path;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-	protected String getMessageContent() {
-        if ((url == null) && (this.getDeviceMessageFile() == null)) {
-            throw new IllegalArgumentException("URL or user file needed");
-        }
-
-        final StringBuilder builder = new StringBuilder("<").append(MESSAGETAG).append(">");
-
-        if (this.url != null) {
-            addChildTag(builder, TAG_URL, this.url);
-        }
-
-        if (this.getDeviceMessageFile() != null) {
-            if (this.inlineUserFiles) {
-                builder.append("<").append(INCLUDED_USERFILE_TAG).append(">");
-
-                // This will generate a message that will make the RtuMessageContentParser inline the file.
-                builder.append("<").append(INCLUDE_USERFILE_TAG).append(" ").append(INCLUDE_USERFILE_ID_ATTRIBUTE).append("=\"").append(this.deviceMessageFileId).append("\"/>");
-
-                builder.append("</").append(INCLUDED_USERFILE_TAG).append(">");
-            } else {
-                addChildTag(builder, TAG_USERFILE, this.deviceMessageFileId);
-            }
-        }
-
-        builder.append("</").append(MESSAGETAG).append(">");
-
-        return builder.toString();
+    protected String getMessageContent() {
+        return null;
     }
+
+    // Parsing the message use SAX
 
     public String getDescription() {
         StringBuilder builder = new StringBuilder(MESSAGETAG);
@@ -136,13 +74,11 @@ public class FirmwareUpdateMessageBuilder extends AbstractMessageBuilder {
         if (url != null) {
             builder.append("Url='").append(url).append("', ");
         }
-        if (deviceMessageFile != null) {
-            builder.append("UserFile='").append(getDeviceMessageFile().getName()).append("', ");
+        if (path != null) {
+            builder.append("Path='").append(getPath()).append("', ");
         }
         return builder.toString();
     }
-
-    // Parsing the message use SAX
 
     public AdvancedMessageHandler getMessageHandler(MessageBuilder builder) {
         return new FirmwareUpdateMessageHandler((FirmwareUpdateMessageBuilder) builder, getMessageNodeTag());
@@ -170,20 +106,11 @@ public class FirmwareUpdateMessageBuilder extends AbstractMessageBuilder {
             if (TAG_URL.equals(localName)) {
                 msgBuilder.setUrl((String) getCurrentValue());
             }
-            if (TAG_USERFILE.equals(localName)) {
-                String userFileId = (String) getCurrentValue();
-                if (userFileId != null) {
-                    int id = Integer.parseInt(userFileId);
-                    msgBuilder.setDeviceMessageFileId(id);
-                }
-            }
 
-            // We have an included file...
+            // We have an included path to a temporary file
             if (INCLUDED_USERFILE_TAG.equals(localName)) {
-                this.msgBuilder.setDeviceMessageFile(new IncludedDeviceMessageFile((String) this.getCurrentValue()));
+                this.msgBuilder.setPath((String) this.getCurrentValue());
             }
         }
-
     }
-
 }
