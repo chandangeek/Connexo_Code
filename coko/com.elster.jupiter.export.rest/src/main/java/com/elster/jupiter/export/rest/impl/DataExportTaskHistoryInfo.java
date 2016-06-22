@@ -97,13 +97,11 @@ public class DataExportTaskHistoryInfo {
         setStatusOnDate(dataExportOccurrence, thesaurus);
         task = new DataExportTaskInfo();
         task.populate(version, thesaurus, timeService, propertyUtils);
-        if (version != null) {
-            populateForReadingTypeDataExportTask(version, dataExportOccurrence, thesaurus);
-            version.getDestinations(dataExportOccurrence.getStartDate().get()).stream()
-                    .sorted((d1, d2) -> d1.getCreateTime().compareTo(d2.getCreateTime()))
-                    .forEach(destination -> task.destinations.add(typeOf(destination).toInfo(destination)));
-            task.dataProcessor.properties = propertyUtils.convertPropertySpecsToPropertyInfos(version.getDataProcessorPropertySpecs(), version.getProperties());
-        }
+        populateForReadingTypeDataExportTask(version, dataExportOccurrence, thesaurus);
+        version.getDestinations(dataExportOccurrence.getStartDate().get()).stream()
+                .sorted((d1, d2) -> d1.getCreateTime().compareTo(d2.getCreateTime()))
+                .forEach(destination -> task.destinations.add(typeOf(destination).toInfo(destination)));
+        task.dataProcessor.properties = propertyUtils.convertPropertySpecsToPropertyInfos(version.getDataProcessorPropertySpecs(), version.getProperties());
         Optional<ScheduleExpression> foundSchedule = version.getScheduleExpression(dataExportOccurrence.getStartDate().get());
         if (!foundSchedule.isPresent() || Never.NEVER.equals(foundSchedule.get())) {
             task.schedule = null;
