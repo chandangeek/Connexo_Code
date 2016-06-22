@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Set;
 
 @Component(name = "com.elster.jupiter.servicecall.rest",
-        service = {Application.class, MessageSeedProvider.class}, immediate = true,
+        service = {Application.class, MessageSeedProvider.class, TranslationKeyProvider.class}, immediate = true,
         property = {"alias=/ws", "app=" + WebServicesApplication.APP_KEY, "name=" + WebServicesApplication.COMPONENT_NAME})
 public class WebServicesApplication extends Application implements MessageSeedProvider, TranslationKeyProvider {
 
