@@ -17,6 +17,8 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 
 import org.osgi.service.component.annotations.Activate;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.List;
@@ -131,9 +133,29 @@ public abstract class AbstractOperationServiceCallHandler implements ServiceCall
         interruptCandidates.stream()
                 .filter(msg -> deviceMsgIds.contains(Long.toString(msg.getId())))
                 .forEach(msg -> {
-                    msg.revoke();
-                    msg.save();
-                });    //TODO: can we bump into concurrency issues (suppose comserver was updating the same message)?
+                    tryToRevokeDeviceMessage(msg, serviceCall);
+                });
+    }
+
+    /**
+     * Try to revoke the DeviceMessage<br/>
+     * Remark: all ConstraintViolationExceptions are caught and logged on the ServiceCall, these should not be thrown to outside this method
+     * ( as we should be able to continue the flow)
+     */
+    private void tryToRevokeDeviceMessage(DeviceMessage<Device> msg, ServiceCall serviceCall) {
+        try {
+            msg.revoke();
+            msg.save();
+        } catch (ConstraintViolationException e) {
+            serviceCall.log(
+                    LogLevel.SEVERE,
+                    MessageFormat.format(
+                            "Could not revoke device message with id {0}: {1}",
+                            msg.getId(),
+                            ((ConstraintViolation) e.getConstraintViolations().toArray()[0]).getMessage()
+                    )
+            );
+        }
     }
 
     @Override

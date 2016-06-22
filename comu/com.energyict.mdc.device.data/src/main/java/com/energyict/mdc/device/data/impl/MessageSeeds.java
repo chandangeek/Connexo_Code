@@ -148,6 +148,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_END_DEVICE_CONTROL_TYPE(2122, "NoSuchEndDeviceControlType", "No end device control type with MRID {0}"),
     NO_SUCH_DEVICE_MESSAGE_SPEC(2123, "NoSuchDeviceMessageSpec", "No such device message spec: {0}"),
     NO_STATUS_INFORMATION_COMTASK(2124, Keys.NO_STATUS_INFORMATION_COMTASK, "A comtask to read out the status information could not be located"),
+    DEVICE_MESSAGE_REVOKE_PICKED_UP_BY_COMSERVER(2125, Keys.DEVICE_MESSAGE_REVOKE_PICKED_UP_BY_COMSERVER, "A comserver is currently executing this command, therefore it cannot be revoked"),
     ;
 
     private final int number;
@@ -267,6 +268,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String DEVICE_MESSAGE_DONT_UPDATE_RELEASE_DATE_AFTER_SENT = "deviceMessage.releaseDate.update.sent";
         public static final String DEVICE_MESSAGE_STATUS_INVALID_MOVE = "deviceMessage.status.invalid.move";
         public static final String DEVICE_MESSAGE_INVALID_REVOKE = "deviceMessage.revoke.invalid.status";
+        public static final String DEVICE_MESSAGE_REVOKE_PICKED_UP_BY_COMSERVER = "deviceMessage.revoke.picked.up.by.comserver";
         public static final String DEVICE_MESSAGE_RELEASE_DATE_IS_REQUIRED = "releaseDateIsRequired.deviceMessage";
         public static final String DUPLICATE_FOUND = "duplicateFound";
         public static final String CAN_NOT_FIND_FOR_DEVICE_IDENTIFIER = "deviceIdentifier.not.found";

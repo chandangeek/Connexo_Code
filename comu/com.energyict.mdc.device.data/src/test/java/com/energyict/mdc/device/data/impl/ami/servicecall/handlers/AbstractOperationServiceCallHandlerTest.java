@@ -6,6 +6,7 @@ import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
@@ -19,6 +20,8 @@ import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsServi
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,6 +39,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -54,6 +58,7 @@ public class AbstractOperationServiceCallHandlerTest {
     private static final long DEVICE_MESSAGE_ID_1 = 1L;
     private static final long DEVICE_MESSAGE_ID_2 = 2L;
     private static final long DEVICE_MESSAGE_ID_3 = 3L;
+    private static final String CONSTRAINT_VIOLATION_MESSAGE = "constraintViolation message";
 
     @Mock
     Thesaurus thesaurus;
@@ -195,5 +200,40 @@ public class AbstractOperationServiceCallHandlerTest {
         verify(deviceMessage1).revoke();
         verify(deviceMessage2).revoke();
         verify(deviceMessage3, never()).revoke(); // deviceMessage3 was pending, but not part of the service call - therefore it should not be revoked!
+    }
+
+    @Test
+    public void testStateChangeFromWaitingToCancelledRevokeOfDeviceMessageFailed() throws Exception {
+        Device device = mock(Device.class);
+        DeviceMessage<Device> deviceMessage1 = mock(DeviceMessage.class);
+        DeviceMessage<Device> deviceMessage2 = mock(DeviceMessage.class);
+        DeviceMessage<Device> deviceMessage3 = mock(DeviceMessage.class);
+        when(deviceMessage1.getId()).thenReturn(DEVICE_MESSAGE_ID_1);
+        when(deviceMessage2.getId()).thenReturn(DEVICE_MESSAGE_ID_2);
+        when(deviceMessage3.getId()).thenReturn(DEVICE_MESSAGE_ID_3);
+        ConstraintViolation constraintViolation = mock(ConstraintViolation.class);
+        ConstraintViolationException constraintViolationException = mock(ConstraintViolationException.class);
+        when(constraintViolation.getMessage()).thenReturn(CONSTRAINT_VIOLATION_MESSAGE);
+        doReturn(Collections.singleton(constraintViolation)).when(constraintViolationException).getConstraintViolations();
+        doThrow(constraintViolationException).when(deviceMessage1).revoke();
+        when(device.getMessagesByState(DeviceMessageStatus.PENDING)).thenReturn(new ArrayList<>(Arrays.asList(deviceMessage1, deviceMessage3)));
+        when(device.getMessagesByState(DeviceMessageStatus.WAITING)).thenReturn(new ArrayList<>(Collections.singletonList(deviceMessage2)));
+        doReturn(Optional.of(device)).when(serviceCall).getTargetObject();
+
+        AbstractOperationServiceCallHandler serviceCallHandler = new EnableLoadLimitServiceCallHandler(messageService, thesaurus);
+        CommandServiceCallDomainExtension domainExtension = new CommandServiceCallDomainExtension();
+        domainExtension.setCommandOperationStatus(CommandOperationStatus.SEND_OUT_DEVICE_MESSAGES);
+        domainExtension.setNrOfUnconfirmedDeviceCommands(2);
+        domainExtension.setDeviceMessages(Arrays.asList(deviceMessage1, deviceMessage2));
+        when(serviceCall.getExtensionFor(any(CommandCustomPropertySet.class))).thenReturn(Optional.of(domainExtension));
+
+        // Business method
+        serviceCallHandler.onStateChange(serviceCall, DefaultState.WAITING, DefaultState.CANCELLED);
+
+        // Asserts
+        verify(deviceMessage1).revoke();
+        verify(deviceMessage2).revoke();
+        verify(deviceMessage3, never()).revoke(); // deviceMessage3 was pending, but not part of the service call - therefore it should not be revoked!
+        verify(serviceCall).log(LogLevel.SEVERE, MessageFormat.format("Could not revoke device message with id {0}: {1}", deviceMessage1.getId(), CONSTRAINT_VIOLATION_MESSAGE));
     }
 }

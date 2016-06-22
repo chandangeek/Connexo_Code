@@ -20,12 +20,19 @@ public class IsRevokeAllowedValidator implements ConstraintValidator<IsRevokeAll
 
     @Override
     public boolean isValid(DeviceMessageImpl.RevokeChecker revokeChecker, ConstraintValidatorContext context) {
-        if(revokeChecker != null && !revokeChecker.isRevokeAllowed()){
-            context.disableDefaultConstraintViolation();
-            context.
-                    buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.DEVICE_MESSAGE_INVALID_REVOKE + "}").
-                    addConstraintViolation();
-            return false;
+        if (revokeChecker != null) {
+            String messageSeedsKey = null;
+            if (!revokeChecker.isRevokeStatusChangeAllowed()) {
+                messageSeedsKey = MessageSeeds.Keys.DEVICE_MESSAGE_INVALID_REVOKE;
+            } else if (revokeChecker.comServerHasPickedUpDeviceMessage()) {
+                messageSeedsKey = MessageSeeds.Keys.DEVICE_MESSAGE_REVOKE_PICKED_UP_BY_COMSERVER;
+            }
+
+            if (messageSeedsKey != null) {
+                context.disableDefaultConstraintViolation();
+                context.buildConstraintViolationWithTemplate("{" + messageSeedsKey + "}").addConstraintViolation();
+                return false;
+            }
         }
         return true;
     }
