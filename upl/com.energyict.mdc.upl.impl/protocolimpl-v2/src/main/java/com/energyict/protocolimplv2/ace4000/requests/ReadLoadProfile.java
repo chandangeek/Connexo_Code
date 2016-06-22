@@ -20,9 +20,18 @@ import java.util.List;
  */
 public class ReadLoadProfile extends AbstractRequest<LoadProfileReader, List<CollectedLoadProfile>> {
 
+    private Date from;
+    private Date to;
+
     public ReadLoadProfile(ACE4000Outbound ace4000) {
+        this(ace4000, null, null);
+    }
+
+    public ReadLoadProfile(ACE4000Outbound ace4000, Date from, Date to) {
         super(ace4000);
         multiFramedAnswer = true;
+        this.from = from;
+        this.to = to;
     }
 
     protected void doBefore() {
@@ -30,8 +39,8 @@ public class ReadLoadProfile extends AbstractRequest<LoadProfileReader, List<Col
 
     @Override
     protected void doRequest() {
-        Date fromDate = getInput().getStartReadingTime();
-        Date toDate = getInput().getEndReadingTime();
+        Date fromDate = from != null ? from : getInput().getStartReadingTime();
+        Date toDate = to != null ? to : getInput().getEndReadingTime();
 
         List<IntervalData> intervalDatas = getAce4000().getObjectFactory().getLoadProfile().getProfileData().getIntervalDatas();
         if (intervalDatas.size() > 1) {
@@ -47,7 +56,7 @@ public class ReadLoadProfile extends AbstractRequest<LoadProfileReader, List<Col
     }
 
     @Override
-    protected void parseResult() {
+         protected void parseResult() {
         if (isSuccessfulRequest(RequestType.LoadProfile)) {
             setResult(getAce4000().getObjectFactory().createCollectedLoadProfiles(getInput().getProfileObisCode()));
         } else if (isFailedRequest(RequestType.LoadProfile)) {
@@ -57,4 +66,5 @@ public class ReadLoadProfile extends AbstractRequest<LoadProfileReader, List<Col
             setResult(collectedLoadProfiles);
         }
     }
+
 }

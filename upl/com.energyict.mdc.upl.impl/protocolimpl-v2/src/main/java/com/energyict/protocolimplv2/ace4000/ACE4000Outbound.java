@@ -21,6 +21,7 @@ import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
+import com.energyict.mdw.offline.OfflineLoadProfile;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
@@ -63,7 +64,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
     }
 
     public String getVersion() {
-        return "$Date: 2016-06-16 18:17:52 +0200 (Thu, 16 Jun 2016)$";
+        return "$Date: 2016-06-22 16:41:52 +0300 (Wed, 22 Jun 2016)$";
     }
 
     @Override
@@ -81,7 +82,19 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
                 if (!profileObisCode.equals(DeviceLoadProfileSupport.GENERIC_LOAD_PROFILE_OBISCODE)) {                        //Only one LP is supported
                     config.setSupportedByMeter(false);
                 } else {
-                    config.setChannelInfos(loadProfileReader.getChannelInfos());
+                    List<OfflineLoadProfile> offlineLoadProfiles = getOfflineDevice().getAllOfflineLoadProfiles();
+                    if(offlineLoadProfiles != null && offlineLoadProfiles.size() > 0){
+                        long profileInterval = offlineLoadProfiles.get(0).getInterval().getMilliSeconds();
+                        Date toDate = new Date();
+                        Date fromDate = new Date(toDate.getTime() - profileInterval); // get the last interval from date
+                        ReadLoadProfile readLoadProfileRequest = new ReadLoadProfile(this, fromDate, toDate);
+                        List<CollectedLoadProfile> collectedLoadProfiles = readLoadProfileRequest.request(loadProfileReader);
+                        if(collectedLoadProfiles != null && collectedLoadProfiles.size() > 0){
+                            config.setChannelInfos(collectedLoadProfiles.get(0).getChannelInfo());
+                        } else { // if we are not able to read the channelInfos from device then return the ones configured in EIMaster and skip validation of channelInfos
+                            config.setChannelInfos(loadProfileReader.getChannelInfos());
+                        }
+                    }
                 }
                 result.add(config);
             } else {                                                                                    //Slave doesn't support
