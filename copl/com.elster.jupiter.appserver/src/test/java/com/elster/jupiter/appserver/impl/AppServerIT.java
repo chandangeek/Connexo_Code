@@ -7,6 +7,7 @@ import com.elster.jupiter.appserver.Command;
 import com.elster.jupiter.appserver.ImportScheduleOnAppServer;
 import com.elster.jupiter.appserver.SubscriberExecutionSpec;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.tests.Expects;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
@@ -36,7 +37,7 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.Group;
-import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
@@ -62,12 +63,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -80,8 +79,6 @@ public class AppServerIT {
 
     @Mock
     private BundleContext bundleContext;
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    private UserService userService;
     @Mock
     private EventAdmin eventAdmin;
     @Mock
@@ -104,7 +101,6 @@ public class AppServerIT {
 
         @Override
         protected void configure() {
-            bind(UserService.class).toInstance(userService);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
@@ -116,7 +112,6 @@ public class AppServerIT {
         when(fileImporterFactory.getName()).thenReturn(IMPORTER_NAME);
         when(fileImporterFactory.getDestinationName()).thenReturn(DESTINATION);
         when(fileImporterFactory.getApplicationName()).thenReturn("AppName");
-        when(userService.findGroup(anyString())).thenReturn(Optional.of(group));
 
         try {
             injector = Guice.createInjector(
@@ -134,6 +129,8 @@ public class AppServerIT {
                     new FileImportModule(),
                     new TaskModule(),
                     new EventsModule(),
+                    new DataVaultModule(),
+                    new UserModule(),
                     new WebServicesModule()
             );
         } catch (Exception e) {

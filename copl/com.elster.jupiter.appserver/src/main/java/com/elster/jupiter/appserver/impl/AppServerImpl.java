@@ -272,11 +272,13 @@ public class AppServerImpl implements AppServer {
     @Override
     public void supportEndPoint(EndPointConfiguration endPointConfiguration) {
         Objects.nonNull(endPointConfiguration);
-        EndPointForAppServerImpl link = webServiceForAppServerProvider.get().init(this, endPointConfiguration);
-        link.save();
-        if (this.isActive() && endPointConfiguration.isActive()) {
-            webServicesService.publishEndPoint(endPointConfiguration);
-            endPointConfiguration.log(LogLevel.INFO, String.format("Endpoint was published on appserver %s", this.getName()));
+        if (!supportedEndPoints().contains(endPointConfiguration)) {
+            EndPointForAppServerImpl link = webServiceForAppServerProvider.get().init(this, endPointConfiguration);
+            link.save();
+            if (this.isActive() && endPointConfiguration.isActive()) {
+                webServicesService.publishEndPoint(endPointConfiguration);
+                endPointConfiguration.log(LogLevel.INFO, String.format("Endpoint was published on appserver %s", this.getName()));
+            }
         }
     }
 
