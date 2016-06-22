@@ -89,7 +89,7 @@ class PowerGapFill extends AbstractEstimator implements Estimator {
     public EstimationResult estimate(List<EstimationBlock> estimationBlocks) {
         SimpleEstimationResult.EstimationResultBuilder builder = SimpleEstimationResult.builder();
         estimationBlocks.forEach(block -> {
-            try (LoggingContext context = initLoggingContext(block)) {
+            try (LoggingContexts contexts = initLoggingContext(block)) {
                 if (estimate(block)) {
                     builder.addEstimated(block);
                 } else {

@@ -172,7 +172,7 @@ class AverageWithSamplesEstimator extends AbstractEstimator {
         List<EstimationBlock> estimated = new ArrayList<>();
         for (EstimationBlock block : estimationBlocks) {
 
-            try (LoggingContext context = initLoggingContext(block)) {
+            try (LoggingContexts contexts = initLoggingContext(block)) {
                 if (!isEstimatable(block)) {
                     remain.add(block);
                 } else {

@@ -102,7 +102,7 @@ class LinearInterpolation extends AbstractEstimator {
         List<EstimationBlock> remain = new ArrayList<>();
         List<EstimationBlock> estimated = new ArrayList<>();
         for (EstimationBlock block : estimationBlocks) {
-            try (LoggingContext context = initLoggingContext(block)) {
+            try (LoggingContexts contexts = initLoggingContext(block)) {
                 if (canEstimate(block)) {
                     estimate(block, remain, estimated);
                 } else {

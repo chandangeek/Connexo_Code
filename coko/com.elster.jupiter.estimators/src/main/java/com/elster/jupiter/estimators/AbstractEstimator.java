@@ -91,10 +91,25 @@ public abstract class AbstractEstimator implements Estimator {
         return EstimationBlockFormatter.getInstance().format(block);
     }
 
-    protected final LoggingContext initLoggingContext(EstimationBlock block) {
-        return LoggingContext.getCloseableContext().with(ImmutableMap.of(
-                "block", EstimationBlockFormatter.getInstance().format(block),
-                "readingType", block.getReadingType().getMRID()));
+    protected final LoggingContexts initLoggingContext(EstimationBlock block) {
+        LoggingContexts contexts = new LoggingContexts();
+        contexts.parent = LoggingContext.getCloseableContext();
+        contexts.actual = contexts.parent.with(
+                ImmutableMap.of(
+                        "block", EstimationBlockFormatter.getInstance().format(block),
+                        "readingType", block.getReadingType().getMRID()));
+        return contexts;
+    }
+
+    protected static final class LoggingContexts implements AutoCloseable {
+        LoggingContext parent;
+        LoggingContext actual;
+
+        @Override
+        public void close() {
+            this.actual.close();
+            this.parent.close();
+        }
     }
 
 }
