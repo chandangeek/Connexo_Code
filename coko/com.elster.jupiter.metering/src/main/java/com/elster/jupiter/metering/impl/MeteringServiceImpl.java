@@ -125,7 +125,7 @@ public class MeteringServiceImpl implements ServerMeteringService, TranslationKe
     public MeteringServiceImpl(
             Clock clock, OrmService ormService, IdsService idsService, EventService eventService, PartyService partyService, QueryService queryService, UserService userService, NlsService nlsService, MessageService messageService, JsonService jsonService,
             FiniteStateMachineService finiteStateMachineService, @Named("createReadingTypes") boolean createAllReadingTypes, @Named("requiredReadingTypes") String requiredReadingTypes, CustomPropertySetService customPropertySetService,
-            PropertySpecService propertySpecService, SearchService searchService, LicenseService licenseService, MeterActivationValidatorsWhiteboard meterActivationValidatorsWhiteboard, UpgradeService upgradeService, LocationService locationService) {
+            PropertySpecService propertySpecService, SearchService searchService, LicenseService licenseService, MeterActivationValidatorsWhiteboard meterActivationValidatorsWhiteboard, UpgradeService upgradeService) {
         this.clock = clock;
         this.createAllReadingTypes = createAllReadingTypes;
         this.requiredReadingTypes = requiredReadingTypes.split(";");
