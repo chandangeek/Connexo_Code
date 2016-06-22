@@ -39,13 +39,11 @@ public class AppServerApplicationTest extends FelixRestApplicationJerseyTest {
     static SecurityContext securityContext;
     @Mock
     EndPointConfigurationService endPointConfigurationService;
-    EndPointConfigurationInfoFactory endPointConfigurationInfoFactory;
 
     @Override
     protected Application getApplication() {
         when(thesaurus.join(any(Thesaurus.class))).thenReturn(thesaurus);
 
-        endPointConfigurationInfoFactory = new EndPointConfigurationInfoFactory();
         AppServerApplication application = new AppServerApplication();
         application.setAppService(appService);
         application.setFileImportService(fileImportService);
@@ -57,7 +55,6 @@ public class AppServerApplicationTest extends FelixRestApplicationJerseyTest {
         application.setDataExportService(dataExportService);
         application.setEndPointConfigurationService(endPointConfigurationService);
         application.setFileSystem(fileSystem);
-//        application.setEndPointConfigurationInfoFactory(endPointConfigurationInfoFactory);
         return application;
     }
 }

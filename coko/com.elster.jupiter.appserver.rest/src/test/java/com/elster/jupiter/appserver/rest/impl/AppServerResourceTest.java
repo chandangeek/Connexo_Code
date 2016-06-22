@@ -11,7 +11,9 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.cron.CronExpression;
@@ -19,6 +21,7 @@ import com.elster.jupiter.util.cron.CronExpression;
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
+import javax.xml.ws.Endpoint;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -34,6 +37,7 @@ import org.mockito.stubbing.Answer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
@@ -323,16 +327,13 @@ public class AppServerResourceTest extends AppServerApplicationTest {
         info.importServices = Collections.emptyList();
         EndPointConfigurationInfo endPointConfigurationInfo = new EndPointConfigurationInfo();
         endPointConfigurationInfo.name = "cim";
-        EndPointConfiguration epc1 = mock(EndPointConfiguration.class);
-        when(epc1.getName()).thenReturn("cim");
+        EndPointConfiguration epc1 = mockEndpointConfiguration("cim");
         when(endPointConfigurationService.getEndPointConfiguration("cim")).thenReturn(Optional.of(epc1));
         EndPointConfigurationInfo endPointConfigurationInfo2 = new EndPointConfigurationInfo();
         endPointConfigurationInfo2.name = "cim2";
-        EndPointConfiguration epc2 = mock(EndPointConfiguration.class);
-        when(epc2.getName()).thenReturn("cim2");
+        EndPointConfiguration epc2 = mockEndpointConfiguration("cim2");
         when(endPointConfigurationService.getEndPointConfiguration("cim2")).thenReturn(Optional.of(epc2));
-        EndPointConfiguration epc3 = mock(EndPointConfiguration.class);
-        when(epc3.getName()).thenReturn("cim3");
+        EndPointConfiguration epc3 = mockEndpointConfiguration("cim3");
         when(endPointConfigurationService.getEndPointConfiguration("cim3")).thenReturn(Optional.of(epc3));
         when(updatedAppServer.supportedEndPoints()).thenReturn(Arrays.asList(epc3, epc2));
         info.endPointConfigurations = Arrays.asList(endPointConfigurationInfo, endPointConfigurationInfo2);
@@ -343,6 +344,16 @@ public class AppServerResourceTest extends AppServerApplicationTest {
         verify(updatedAppServer, never()).supportEndPoint(epc2);
         verify(updatedAppServer).dropEndPointSupport(epc3);
         verify(updatedAppServer, never()).dropEndPointSupport(epc2);
+    }
+
+    private EndPointConfiguration mockEndpointConfiguration(String endpointConfigurationName) {
+        EndPointConfiguration endPointConfiguration = mock(EndPointConfiguration.class);
+        when(endPointConfiguration.getName()).thenReturn(endpointConfigurationName);
+        when(endPointConfiguration.getLogLevel()).thenReturn(LogLevel.CONFIG);
+        EndPointAuthentication endPointAuthentication = EndPointAuthentication.NONE;
+        when(endPointConfiguration.getAuthenticationMethod()).thenReturn(endPointAuthentication);
+
+        return endPointConfiguration;
     }
 
     @SuppressWarnings("unchecked")

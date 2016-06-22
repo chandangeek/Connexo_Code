@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 public class AppServerInfo {
 
-    private final EndPointConfigurationInfoFactory endPointConfigurationInfoFactory = new EndPointConfigurationInfoFactory();
+    private EndPointConfigurationInfoFactory endPointConfigurationInfoFactory;
     public String name;
     public boolean active;
     public List<SubscriberExecutionSpecInfo> executionSpecs;
@@ -28,6 +28,7 @@ public class AppServerInfo {
     }
 
     public AppServerInfo(AppServer appServer, String importPath, String exportPath, Thesaurus thesaurus) {
+        endPointConfigurationInfoFactory = new EndPointConfigurationInfoFactory(thesaurus);
         name = appServer.getName();
         active = appServer.isActive();
         version = appServer.getVersion();

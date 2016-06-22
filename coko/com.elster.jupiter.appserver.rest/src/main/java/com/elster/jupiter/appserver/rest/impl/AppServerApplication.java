@@ -45,7 +45,6 @@ public class AppServerApplication extends Application implements MessageSeedProv
     private volatile FileSystem fileSystem;
     private volatile DataExportService dataExportService;
     private volatile EndPointConfigurationService endPointConfigurationService;
-    private volatile EndPointConfigurationInfoFactory endPointConfigurationInfoFactory = new EndPointConfigurationInfoFactory();
 
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
@@ -128,7 +127,7 @@ public class AppServerApplication extends Application implements MessageSeedProv
                 bind(fileSystem).to(FileSystem.class);
                 bind(dataExportService).to(DataExportService.class);
                 bind(endPointConfigurationService).to(EndPointConfigurationService.class);
-                bind(endPointConfigurationInfoFactory).to(EndPointConfigurationInfoFactory.class);
+                bind(EndPointConfigurationInfoFactory.class).to(EndPointConfigurationInfoFactory.class);
             }
         });
         return Collections.unmodifiableSet(hashSet);
