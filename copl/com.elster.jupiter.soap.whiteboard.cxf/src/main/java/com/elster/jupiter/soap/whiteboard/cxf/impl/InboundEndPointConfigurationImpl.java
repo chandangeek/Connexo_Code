@@ -1,6 +1,5 @@
 package com.elster.jupiter.soap.whiteboard.cxf.impl;
 
-import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
@@ -13,7 +12,6 @@ import java.util.Optional;
 /**
  * Created by bvn on 5/4/16.
  */
-@ValidGroupName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
 public final class InboundEndPointConfigurationImpl extends EndPointConfigurationImpl implements InboundEndPointConfiguration {
 
     private Reference<Group> group = Reference.empty();
