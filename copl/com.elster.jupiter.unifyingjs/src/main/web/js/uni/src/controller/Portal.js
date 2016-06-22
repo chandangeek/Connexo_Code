@@ -121,7 +121,8 @@ Ext.define('Uni.controller.Portal', {
         store.clearFilter();
         store.filter('portal', portal);
         var portalItemsToDisplay = {};
-        store.each(function (portalItem) {
+        for (var item = store.count() - 1; item >= 0; item--) {
+            var portalItem = store.getAt(item);
             if (portalItemsToDisplay.hasOwnProperty(portalItem.get('title'))) {
                 Ext.each(portalItem.get('items'), function (item) {
                     portalItemsToDisplay[portalItem.get('title')].get('items').push(item);
@@ -139,7 +140,8 @@ Ext.define('Uni.controller.Portal', {
                     return 0;
                 }
             });
-        });
+        }
+        ;
 
         var sortArrayForPortalItems = [];
         for (portalItemToDisplay in portalItemsToDisplay) {
