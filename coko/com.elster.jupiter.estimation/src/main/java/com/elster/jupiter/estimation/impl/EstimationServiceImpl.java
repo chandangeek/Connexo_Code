@@ -485,6 +485,7 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
     private Stream<IEstimationRule> determineEstimationRules(QualityCodeSystem system, MeterActivation meterActivation) {
         return decorate(resolvers.stream())
                 .sorted(Comparator.comparing(EstimationResolver::getPriority).reversed())
+                .flatMap(resolver -> resolver.resolve(meterActivation).stream())
                 .map(IEstimationRuleSet.class::cast)
                 .filter(set -> set.getQualityCodeSystem() == system)
                 .distinct(EstimationRuleSet::getId)
