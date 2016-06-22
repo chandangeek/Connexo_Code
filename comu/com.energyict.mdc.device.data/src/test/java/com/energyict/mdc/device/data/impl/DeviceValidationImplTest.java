@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.ChannelsContainer;
@@ -16,6 +17,7 @@ import org.joda.time.DateTime;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.Optional;
 
 import org.junit.After;
@@ -151,8 +153,8 @@ public class DeviceValidationImplTest {
 
         deviceValidation.validateChannel(channel);
 
-        verify(validationService).validate(channelsContainer1, readingType);
-        verify(validationService).validate(channelsContainer2, readingType);
+        verify(validationService).validate(EnumSet.of(QualityCodeSystem.MDC), channelsContainer1, readingType);
+        verify(validationService).validate(EnumSet.of(QualityCodeSystem.MDC), channelsContainer2, readingType);
     }
 
     @Test
@@ -179,8 +181,8 @@ public class DeviceValidationImplTest {
 
         deviceValidation.validateChannel(channel);
 
-        verify(validationService).validate(channelsContainer1, readingType);
-        verify(validationService).validate(channelsContainer2, readingType);
+        verify(validationService).validate(EnumSet.of(QualityCodeSystem.MDC), channelsContainer1, readingType);
+        verify(validationService).validate(EnumSet.of(QualityCodeSystem.MDC), channelsContainer2, readingType);
     }
 
 }
