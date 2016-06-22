@@ -3,6 +3,7 @@ package com.elster.jupiter.osgi.goodies;
 
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.associations.RefAny;
+
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.packageadmin.PackageAdmin;
@@ -24,7 +25,7 @@ import java.util.Map;
 @SuppressWarnings("deprecation")
 @Path("/bundles")
 public class OsgiInfoResource {
-	
+
 	@Inject
 	private PackageAdmin admin;
 	@Inject
@@ -37,11 +38,10 @@ public class OsgiInfoResource {
     @Produces("image/svg+xml")
     public byte[] getViz(@PathParam("bundleId") int bundleId) {
     	Analyzer analyzer = new Analyzer();
-		analyzer.build(context,admin);
+		analyzer.build(context, admin);
 		String result = analyzer.generate(bundleId);
 		return new GraphvizInterface().toSvg(result);
     }
-
 
     private enum OutputType {
         SVG {
@@ -57,7 +57,7 @@ public class OsgiInfoResource {
             }
         };
 
-        abstract public byte[] produce(String input);
+        public abstract byte[] produce(String input);
     }
 
     @GET
@@ -126,5 +126,5 @@ public class OsgiInfoResource {
     	builder.append("}\n");
     	return new GraphvizInterface().toSvg(builder.toString());
     }
-    
+
 }

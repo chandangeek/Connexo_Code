@@ -19,10 +19,10 @@ public class Analyzer {
 	private String[] includeFilters;
 	private String[] excludeFilters;
 
-	void build(BundleContext context , PackageAdmin admin) {
+	void build(BundleContext context, PackageAdmin admin) {
 		for (Bundle bundle : context.getBundles()) {
 			ExportedPackage[] exports = admin.getExportedPackages(bundle);
-			BundleInfo bundleInfo = new BundleInfo(bundle,exports);
+			BundleInfo bundleInfo = new BundleInfo(bundle, exports);
 			bundleInfos.put(bundle.getBundleId(),bundleInfo);
 		}
 		for (BundleInfo info : bundleInfos.values()) {
