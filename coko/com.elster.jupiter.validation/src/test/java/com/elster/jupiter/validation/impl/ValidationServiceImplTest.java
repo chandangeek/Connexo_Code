@@ -95,6 +95,7 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -259,6 +260,7 @@ public class ValidationServiceImplTest {
         when(dataModel.getInstance(ValidationRuleSetImpl.class)).thenAnswer(invocationOnMock -> new ValidationRuleSetImpl(dataModel, eventService, versionProvider));
         when(dataModel.getInstance(ValidationRuleSetVersionImpl.class)).thenAnswer(invocationOnMock -> new ValidationRuleSetVersionImpl(dataModel, eventService, ruleProvider));
         when(dataModel.getInstance(DataValidationTaskImpl.class)).thenAnswer(invocationOnMock -> newDataValidationTask);
+        when(dataModel.getInstance(ChannelsContainerValidationImpl.class)).thenReturn(new ChannelsContainerValidationImpl(dataModel, clock));
         when(dataModel.query(ChannelsContainerValidation.class, ChannelValidation.class)).thenReturn(queryExecutor);
         when(queryExecutor.select(any())).thenReturn(Collections.emptyList());
         when(thesaurus.getFormat(any(MessageSeeds.class))).thenReturn(nlsMessageFormat);
@@ -845,5 +847,47 @@ public class ValidationServiceImplTest {
             when(readingQualityRecord.isSuspect()).thenReturn(true);
         }
         return readingQualityRecord;
+    }
+
+    @Test
+    public void testOnlyRuleSetsWithSpecificQualitySystemsAreExecuted() {
+        ChannelsContainer channelsContainer = mock(ChannelsContainer.class);
+        when(channelsContainer.getMeter()).thenReturn(Optional.empty());
+        IValidationRuleSet mdcValidationRuleSet = mock(IValidationRuleSet.class);
+        when(mdcValidationRuleSet.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDC);
+        IValidationRuleSet mdmValidationRuleSet = mock(IValidationRuleSet.class);
+        when(mdmValidationRuleSet.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDM);
+        when(validationRuleSetResolver.resolve(channelsContainer)).thenReturn(Arrays.asList(mdcValidationRuleSet, mdmValidationRuleSet));
+        ChannelsContainerValidationImpl channelsContainerValidation = mock(ChannelsContainerValidationImpl.class);
+        when(dataModel.getInstance(ChannelsContainerValidationImpl.class)).thenReturn(channelsContainerValidation);
+        when(channelsContainerValidation.init(any(ChannelsContainer.class))).thenReturn(channelsContainerValidation);
+        when(channelsContainerValidation.getChannelsContainer()).thenReturn(channelsContainer);
+        when(channelsContainerValidation.getRuleSet()).thenReturn(mdcValidationRuleSet);
+
+        validationService.validate(EnumSet.of(QualityCodeSystem.MDC), channelsContainer);
+
+        verify(validationRuleSetResolver).resolve(channelsContainer);
+        verify(channelsContainerValidation).init(channelsContainer);
+    }
+
+    @Test
+    public void testRuleSetsWithAnyQualitySystemsAreExecuted() {
+        ChannelsContainer channelsContainer = mock(ChannelsContainer.class);
+        when(channelsContainer.getMeter()).thenReturn(Optional.empty());
+        IValidationRuleSet mdcValidationRuleSet = mock(IValidationRuleSet.class);
+        when(mdcValidationRuleSet.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDC);
+        IValidationRuleSet mdmValidationRuleSet = mock(IValidationRuleSet.class);
+        when(mdmValidationRuleSet.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDM);
+        when(validationRuleSetResolver.resolve(channelsContainer)).thenReturn(Arrays.asList(mdcValidationRuleSet, mdmValidationRuleSet));
+        ChannelsContainerValidationImpl channelsContainerValidation = mock(ChannelsContainerValidationImpl.class);
+        when(dataModel.getInstance(ChannelsContainerValidationImpl.class)).thenReturn(channelsContainerValidation);
+        when(channelsContainerValidation.init(any(ChannelsContainer.class))).thenReturn(channelsContainerValidation);
+        when(channelsContainerValidation.getChannelsContainer()).thenReturn(channelsContainer);
+        when(channelsContainerValidation.getRuleSet()).thenReturn(mdcValidationRuleSet);
+
+        validationService.validate(Collections.emptySet(), channelsContainer);
+
+        verify(validationRuleSetResolver).resolve(channelsContainer);
+        verify(channelsContainerValidation, times(2)).init(channelsContainer);
     }
 }

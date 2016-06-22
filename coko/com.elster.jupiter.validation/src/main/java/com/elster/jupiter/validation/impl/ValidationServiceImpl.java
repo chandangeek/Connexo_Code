@@ -449,7 +449,7 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
     }
 
     private ChannelsContainerValidation applyRuleSet(ValidationRuleSet ruleSet, ChannelsContainer channelsContainer) {
-        ChannelsContainerValidation channelsContainerValidation = new ChannelsContainerValidationImpl(dataModel, clock).init(channelsContainer);
+        ChannelsContainerValidation channelsContainerValidation = dataModel.getInstance(ChannelsContainerValidationImpl.class).init(channelsContainer);
         channelsContainerValidation.setRuleSet(ruleSet);
         channelsContainer.getChannels().stream()
                 .filter(c -> !ruleSet.getRules(c.getReadingTypes()).isEmpty())
