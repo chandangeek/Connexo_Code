@@ -1,6 +1,8 @@
 package com.elster.jupiter.http.whiteboard;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,23 +22,23 @@ public final class DefaultStartPage implements StartPage {
         this.iconPath = iconPath;
         this.name = name;
         this.mainController = mainController;
-        this.scripts = unmodifiableList(scripts);
-        this.translationComponents = unmodifiableList(translationComponents);
-        this.styleSheets = unmodifiableList(styleSheets);
-        this.dependencies = unmodifiableMap(dependencies);
+        this.scripts = copyList(scripts);
+        this.translationComponents = copyList(translationComponents);
+        this.styleSheets = copyList(styleSheets);
+        this.dependencies = copyMap(dependencies);
     }
 
-    private static <T> List<T> unmodifiableList(List<T> list) {
+    private static <T> List<T> copyList(List<T> list) {
         if (list != null) {
-            return Collections.unmodifiableList(list);
+            return new ArrayList<>(list);
         } else {
             return null;
         }
     }
 
-    private static <K, V> Map<K, V> unmodifiableMap(Map<K, V> map) {
+    private static <K, V> Map<K, V> copyMap(Map<K, V> map) {
         if (map != null) {
-            return Collections.unmodifiableMap(map);
+            return new HashMap<>(map);
         } else {
             return null;
         }
@@ -92,22 +94,22 @@ public final class DefaultStartPage implements StartPage {
 
     @Override
     public List<Script> getScripts() {
-        return scripts;
+        return Collections.unmodifiableList(scripts);
     }
 
     @Override
     public List<String> getTranslationComponents() {
-        return translationComponents;
+        return Collections.unmodifiableList(translationComponents);
     }
 
     @Override
     public List<String> getStyleSheets() {
-        return styleSheets;
+        return Collections.unmodifiableList(styleSheets);
     }
 
     @Override
     public Map<String, String> getDependencies() {
-        return dependencies;
+        return Collections.unmodifiableMap(dependencies);
     }
 
 }
