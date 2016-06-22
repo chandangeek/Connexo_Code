@@ -1,9 +1,12 @@
 package com.elster.jupiter.soap.whiteboard.cxf.impl;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointConfiguration;
 
 import javax.inject.Inject;
+import javax.validation.constraints.Size;
 import java.time.Clock;
 
 /**
@@ -11,7 +14,9 @@ import java.time.Clock;
  */
 public final class OutboundEndPointConfigurationImpl extends EndPointConfigurationImpl implements OutboundEndPointConfiguration {
 
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String username;
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String password;
 
     @Inject
@@ -19,22 +24,18 @@ public final class OutboundEndPointConfigurationImpl extends EndPointConfigurati
         super(clock, dataModel);
     }
 
-    @Override
     public String getUsername() {
         return username;
     }
 
-    @Override
     public void setUsername(String username) {
         this.username = username;
     }
 
-    @Override
     public String getPassword() {
         return password;
     }
 
-    @Override
     public void setPassword(String password) {
         this.password = password;
     }

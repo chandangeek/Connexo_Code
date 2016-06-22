@@ -55,6 +55,14 @@ public enum TableSpecs {
             Column group = table.column("groupref")
                     .number()
                     .add();
+            table.column("usrname")
+                    .varChar()
+                    .map(EndPointConfigurationImpl.Fields.USERNAME.fieldName())
+                    .add();
+            table.column("passwd")
+                    .varChar()
+                    .map(EndPointConfigurationImpl.Fields.PASSWD.fieldName())
+                    .add();
             table.foreignKey("FK_USR_GROUP")
                     .references(Group.class)
                     .on(group)

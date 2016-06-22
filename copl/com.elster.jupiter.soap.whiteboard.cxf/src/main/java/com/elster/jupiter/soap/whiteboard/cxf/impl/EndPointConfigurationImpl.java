@@ -53,12 +53,13 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
     private boolean schemaValidation;
     private EndPointAuthentication authenticationMethod;
     private boolean active;
+
     @SuppressWarnings("unused")
     private Instant createTime;
     @SuppressWarnings("unused")
     private Instant modTime;
     @SuppressWarnings("unused")
-    private String userName;
+    private String userName; // for auditing
 
     @SuppressWarnings("unused")
     private long version;
@@ -94,6 +95,8 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
         SCHEMA_VALIDATION("schemaValidation"),
         AUTHENTICATED("authenticationMethod"),
         ACTIVE("active"),
+        USERNAME("username"),
+        PASSWD("password"),
         GROUP("group");
 
         private final String javaFieldName;
