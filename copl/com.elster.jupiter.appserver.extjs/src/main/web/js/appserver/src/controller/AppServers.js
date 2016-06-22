@@ -638,7 +638,6 @@ Ext.define('Apr.controller.AppServers', {
                 unservedMessageServicesStore.load(function (messageServices) {
                     unservedImportStore.load(function (importServices) {
                         unservedWebserviceEndpointsStore.load(function (webServices) {
-                            debugger;
                             Ext.each(messageServices, function (messageService) {
                                 var model = Ext.create('Apr.model.ServedMessageService', {
                                     numberOfThreads: 1,
@@ -862,7 +861,6 @@ Ext.define('Apr.controller.AppServers', {
     },
 
     cancelAddImportServices: function () {
-        debugger;
         var me = this;
         if (me.fromDetail) {
             me.returnToImportServiceDetailView();
