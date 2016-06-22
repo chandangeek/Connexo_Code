@@ -7,9 +7,12 @@ import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.users.User;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.util.List;
 import java.util.Optional;
 
+@ProviderType
 public interface IssueFilter {
 
     Optional<String> getIssueId();
@@ -43,4 +46,5 @@ public interface IssueFilter {
     List<IssueType> getIssueTypes();
 
     void addIssueType(IssueType issueType);
+
 }
