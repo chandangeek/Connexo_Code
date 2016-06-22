@@ -81,7 +81,7 @@ Ext.define('Mdc.timeofuseondevice.view.Setup', {
                             mRID: me.device.get('mRID')
                         },
                         {
-                            text: Uni.I18n.translate('timeofuse.verifyCalendars', 'MDC', 'Verify calendars'),
+                            text: Uni.I18n.translate('timeofuse.checkTimeOfUseCalendar', 'MDC', 'Check time of use calendar'),
                             itemId: 'empty-comp-verify-calendars-tou',
                             privileges: Mdc.privileges.DeviceCommands.executeCommands,
                             mRID: me.device.get('mRID')
