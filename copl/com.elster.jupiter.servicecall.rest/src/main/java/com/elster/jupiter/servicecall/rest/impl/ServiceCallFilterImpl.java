@@ -32,22 +32,22 @@ class ServiceCallFilterImpl implements ServiceCallFilter {
 
     @Override
     public List<String> getTypes() {
-        return types;
+        return Collections.unmodifiableList(types);
     }
 
     @Override
     public void setTypes(List<String> types) {
-        this.types = Collections.unmodifiableList(types);
+        this.types = new ArrayList<>(types);
     }
 
     @Override
     public List<String> getStates() {
-        return states;
+        return Collections.unmodifiableList(states);
     }
 
     @Override
     public void setStates(List<String> states) {
-        this.states = Collections.unmodifiableList(states);
+        this.states = new ArrayList<>(states);
     }
 
     @Override
