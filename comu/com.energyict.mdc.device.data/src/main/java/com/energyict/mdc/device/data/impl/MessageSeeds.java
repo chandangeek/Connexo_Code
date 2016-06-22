@@ -147,7 +147,7 @@ public enum MessageSeeds implements MessageSeed {
     VETO_CANNOT_CHANGE_OBISCODE_CONFIG_ALREADY_OVERRIDDEN_DEVICE(2121, Keys.VETO_CANNOT_CHANGE_OBISCODE_CONFIG_ALREADY_OVERRIDDEN_DEVICE, "You can not change the OBIS code, you already have devices with an overridden value for this OBIS code: {0}"),
     NO_SUCH_END_DEVICE_CONTROL_TYPE(2122, "NoSuchEndDeviceControlType", "No end device control type with MRID {0}"),
     NO_SUCH_DEVICE_MESSAGE_SPEC(2123, "NoSuchDeviceMessageSpec", "No such device message spec: {0}"),
-    NO_ACTIVE_BREAKER_STATUS(2124, "NoActiveBreakerStatus", "No active breaker status found for device with MRID {0}"),
+    NO_STATUS_INFORMATION_COMTASK(2124, Keys.NO_STATUS_INFORMATION_COMTASK, "A comtask to read out the status information could not be located"),
     ;
 
     private final int number;
@@ -323,5 +323,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String DUPLICATE_CHANNEL_OBISCODE = "duplicate.channel.obiscode";
         public static final String OVERFLOW_INCREASED = "overflow.increased";
         public static final String VETO_CANNOT_CHANGE_OBISCODE_CONFIG_ALREADY_OVERRIDDEN_DEVICE = "cannot.change.obiscode.config.already.overriden.device";
+        public static final String NO_STATUS_INFORMATION_COMTASK = "no.status.information.comtask";
     }
 }

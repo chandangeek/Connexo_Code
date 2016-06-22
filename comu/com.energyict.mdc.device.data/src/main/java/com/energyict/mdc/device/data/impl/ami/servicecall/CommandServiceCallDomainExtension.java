@@ -22,6 +22,8 @@ import java.util.stream.Collectors;
  */
 public class CommandServiceCallDomainExtension implements PersistentDomainExtension<ServiceCall> {
 
+    public static final String DEVICE_MSG_DELIMITER = ", ";
+
     public enum FieldNames {
         DOMAIN("serviceCall", "serviceCall"),
         RELEASE_DATE("releaseDate", "release_date"),
@@ -85,7 +87,7 @@ public class CommandServiceCallDomainExtension implements PersistentDomainExtens
     }
 
     public void setDeviceMessages(List<DeviceMessage<Device>> deviceMessages) {
-        this.deviceMessages = deviceMessages.stream().map(deviceMessage -> Long.toString(deviceMessage.getId())).collect(Collectors.joining(", "));
+        this.deviceMessages = deviceMessages.stream().map(deviceMessage -> Long.toString(deviceMessage.getId())).collect(Collectors.joining(DEVICE_MSG_DELIMITER));
     }
 
     public int getNrOfUnconfirmedDeviceCommands() {

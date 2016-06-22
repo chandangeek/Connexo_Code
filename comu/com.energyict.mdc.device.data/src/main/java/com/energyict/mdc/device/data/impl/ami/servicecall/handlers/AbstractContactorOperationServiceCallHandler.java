@@ -9,7 +9,6 @@ import com.energyict.mdc.device.data.ActivatedBreakerStatus;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
-import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandOperationStatus;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandServiceCallDomainExtension;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -40,32 +39,9 @@ public abstract class AbstractContactorOperationServiceCallHandler extends Abstr
     }
 
     @Override
-    public void onStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
-        serviceCall.log(LogLevel.FINE, "Now entering state " + newState.getDefaultFormat());
-        switch (newState) {
-            case ONGOING:
-                if (oldState != DefaultState.PENDING) {
-                    CommandServiceCallDomainExtension domainExtension = serviceCall.getExtensionFor(new CommandCustomPropertySet()).get();
-                    if (CommandOperationStatus.SEND_OUT_DEVICE_MESSAGES.equals(domainExtension.getCommandOperationStatus())) {
-                        if (domainExtension.getNrOfUnconfirmedDeviceCommands() == 0) {
-                            serviceCall.log(LogLevel.INFO, "All device commands have been executed successfully.");
-                            triggerStatusInformationTask(serviceCall, domainExtension);
-                            serviceCall.requestTransition(DefaultState.WAITING);
-                        } else {
-                            // Still awaiting confirmation on other messages
-                            serviceCall.requestTransition(DefaultState.WAITING);
-                        }
-                    } else if (domainExtension.getCommandOperationStatus().equals(CommandOperationStatus.READ_STATUS_INFORMATION)) {
-                        verifyBreakerStatus(serviceCall);
-                    }
-                }
-                break;
-            case SUCCESSFUL:
-                sendFinishedMessageToDestinationSpec(serviceCall);
-            default:
-                // No specific action required for these states
-                break;
-        }
+    protected void handleAllDeviceCommandsExecutedSuccessfully(ServiceCall serviceCall, CommandServiceCallDomainExtension domainExtension) {
+        triggerStatusInformationTask(serviceCall, domainExtension);
+        serviceCall.requestTransition(DefaultState.WAITING);
     }
 
     private void triggerStatusInformationTask(ServiceCall serviceCall, CommandServiceCallDomainExtension domainExtension) {
@@ -74,7 +50,7 @@ public abstract class AbstractContactorOperationServiceCallHandler extends Abstr
         domainExtension.setCommandOperationStatus(CommandOperationStatus.READ_STATUS_INFORMATION);
         serviceCall.update(domainExtension);
 
-        ComTaskEnablement comTaskEnablement = getStatusInformationComTaskEnablement(device);
+        ComTaskEnablement comTaskEnablement = getStatusInformationComTaskEnablement(device, serviceCall);
         Optional<ComTaskExecution> existingComTaskExecution = device.getComTaskExecutions().stream()
                 .filter(cte -> cte.getComTasks().stream().anyMatch(comTask -> comTask.getId() == comTaskEnablement.getComTask().getId()))
                 .findFirst();
@@ -94,29 +70,42 @@ public abstract class AbstractContactorOperationServiceCallHandler extends Abstr
         return manuallyScheduledComTaskExecution;
     }
 
-    private ComTaskEnablement getStatusInformationComTaskEnablement(Device device) {
-        return device.getDeviceConfiguration()
+    private ComTaskEnablement getStatusInformationComTaskEnablement(Device device, ServiceCall serviceCall) {
+        Optional<ComTaskEnablement> enablementOptional = device.getDeviceConfiguration()
                 .getComTaskEnablements()
                 .stream()
                 .filter(cte -> cte.getComTask().getProtocolTasks().stream().
                         filter(task -> task instanceof StatusInformationTask).
                         findFirst().
                         isPresent())
-                .findAny()
-                .orElseThrow(() -> new IllegalStateException(getThesaurus().getFormat(MessageSeeds.NO_COMTASK_FOR_COMMAND).format()));
+                .findAny();
+        if (enablementOptional.isPresent()) {
+            return enablementOptional.get();
+        } else {
+            serviceCall.log(LogLevel.SEVERE, MessageSeeds.NO_STATUS_INFORMATION_COMTASK.getDefaultFormat());
+            serviceCall.requestTransition(DefaultState.FAILED);
+            throw new IllegalStateException(getThesaurus().getFormat(MessageSeeds.NO_STATUS_INFORMATION_COMTASK).format());
+        }
     }
 
-    private void verifyBreakerStatus(ServiceCall serviceCall) {
+    @Override
+    protected void verifyDeviceStatus(ServiceCall serviceCall) {
         Device device = (Device) serviceCall.getTargetObject().get();
-        ActivatedBreakerStatus breakerStatus = deviceService.getActiveBreakerStatus(device)
-                .orElseThrow(() -> new IllegalStateException(getThesaurus().getFormat(MessageSeeds.NO_ACTIVE_BREAKER_STATUS).format(device.getmRID())));
-
-        if (breakerStatus.getBreakerStatus().equals(getDesiredBreakerStatus())) {
-            serviceCall.log(LogLevel.INFO, MessageFormat.format("Confirmed device breaker status: {0}", breakerStatus.getBreakerStatus()));
-            serviceCall.requestTransition(DefaultState.SUCCESSFUL);
+        Optional<ActivatedBreakerStatus> breakerStatus = deviceService.getActiveBreakerStatus(device);
+        if (breakerStatus.isPresent()) {
+            if (breakerStatus.get().getBreakerStatus().equals(getDesiredBreakerStatus())) {
+                serviceCall.log(LogLevel.INFO, MessageFormat.format("Confirmed device breaker status: {0}", breakerStatus.get().getBreakerStatus()));
+                serviceCall.requestTransition(DefaultState.SUCCESSFUL);
+            } else {
+                serviceCall.log(LogLevel.SEVERE, MessageFormat.format("Device breaker status {0} doesn''t match expected status {1}",
+                        breakerStatus.get().getBreakerStatus(),
+                        getDesiredBreakerStatus())
+                );
+                serviceCall.requestTransition(DefaultState.FAILED);
+            }
         } else {
-            serviceCall.log(LogLevel.SEVERE, MessageFormat.format("Device breaker status {0} doesn''t match expected status {1}", breakerStatus.getBreakerStatus(), getDesiredBreakerStatus()));
-            serviceCall.requestTransition(DefaultState.FAILED);
+            //Else in case no active breaker status is present, put the ServiceCall again in waiting state
+            serviceCall.requestTransition(DefaultState.WAITING);
         }
     }
 

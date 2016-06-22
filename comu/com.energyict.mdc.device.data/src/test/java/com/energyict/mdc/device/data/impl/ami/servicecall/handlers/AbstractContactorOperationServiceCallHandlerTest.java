@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.data.impl.ami.servicecall.handlers;
 
-import com.elster.jupiter.devtools.tests.rules.Expected;
 import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
@@ -194,7 +193,6 @@ public class AbstractContactorOperationServiceCallHandlerTest {
     }
 
     @Test
-    @Expected(value = IllegalStateException.class)
     public void testStateChangeFromWaitingToOngoingStatusInformationReadBreakerStatusNotFound() throws Exception {
         AbstractOperationServiceCallHandler serviceCallHandler = new DisconnectServiceCallHandler(messageService, deviceService, thesaurus);
         CommandServiceCallDomainExtension domainExtension = new CommandServiceCallDomainExtension();
@@ -205,6 +203,11 @@ public class AbstractContactorOperationServiceCallHandlerTest {
 
         // Business method
         serviceCallHandler.onStateChange(serviceCall, DefaultState.WAITING, DefaultState.ONGOING);
+
+        // Asserts
+        verify(serviceCall).requestTransition(DefaultState.WAITING);
+        verify(serviceCall, never()).requestTransition(DefaultState.SUCCESSFUL);
+        verify(serviceCall, never()).requestTransition(DefaultState.FAILED);
     }
 
     @Test

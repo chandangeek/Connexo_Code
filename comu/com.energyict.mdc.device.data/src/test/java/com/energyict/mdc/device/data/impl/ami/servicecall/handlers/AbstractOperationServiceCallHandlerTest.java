@@ -10,12 +10,19 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
+import com.energyict.mdc.device.data.impl.ami.servicecall.CommandOperationStatus;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandServiceCallDomainExtension;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsServiceCallDomainExtension;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Locale;
 import java.util.Optional;
 
@@ -28,6 +35,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -42,6 +51,9 @@ public class AbstractOperationServiceCallHandlerTest {
     private static final long SERVICE_CALL_ID = 1;
     private static final String DESTINATION_SPEC = "destination spec";
     private static final String DESTIONATION_MSG = "destination msg";
+    private static final long DEVICE_MESSAGE_ID_1 = 1L;
+    private static final long DEVICE_MESSAGE_ID_2 = 2L;
+    private static final long DEVICE_MESSAGE_ID_3 = 3L;
 
     @Mock
     Thesaurus thesaurus;
@@ -90,6 +102,7 @@ public class AbstractOperationServiceCallHandlerTest {
         when(serviceCall.getType()).thenReturn(serviceCallType);
         when(serviceCall.canTransitionTo(any(DefaultState.class))).thenReturn(true);
         CommandServiceCallDomainExtension commandServiceCallDomainExtension = new CommandServiceCallDomainExtension();
+        commandServiceCallDomainExtension.setCommandOperationStatus(CommandOperationStatus.SEND_OUT_DEVICE_MESSAGES);
         commandServiceCallDomainExtension.setNrOfUnconfirmedDeviceCommands(1);
         when(serviceCall.getExtensionFor(any(CommandCustomPropertySet.class))).thenReturn(Optional.of(commandServiceCallDomainExtension));
         when(serviceCallService.getServiceCall(SERVICE_CALL_ID)).thenReturn(Optional.of(serviceCall));
@@ -111,6 +124,7 @@ public class AbstractOperationServiceCallHandlerTest {
     public void testStateChangeFromWaitingToOngoingNotAllMessagesConfirmed() throws Exception {
         AbstractOperationServiceCallHandler serviceCallHandler = new EnableLoadLimitServiceCallHandler(messageService, thesaurus);
         CommandServiceCallDomainExtension domainExtension = new CommandServiceCallDomainExtension();
+        domainExtension.setCommandOperationStatus(CommandOperationStatus.SEND_OUT_DEVICE_MESSAGES);
         domainExtension.setNrOfUnconfirmedDeviceCommands(10);
         when(serviceCall.getExtensionFor(any(CommandCustomPropertySet.class))).thenReturn(Optional.of(domainExtension));
 
@@ -125,6 +139,7 @@ public class AbstractOperationServiceCallHandlerTest {
     public void testStateChangeFromWaitingToOngoingAllMessagesConfirmed() throws Exception {
         AbstractOperationServiceCallHandler serviceCallHandler = new EnableLoadLimitServiceCallHandler(messageService, thesaurus);
         CommandServiceCallDomainExtension domainExtension = new CommandServiceCallDomainExtension();
+        domainExtension.setCommandOperationStatus(CommandOperationStatus.SEND_OUT_DEVICE_MESSAGES);
         domainExtension.setNrOfUnconfirmedDeviceCommands(0);
         when(serviceCall.getExtensionFor(any(CommandCustomPropertySet.class))).thenReturn(Optional.of(domainExtension));
 
@@ -151,5 +166,34 @@ public class AbstractOperationServiceCallHandlerTest {
         ArgumentCaptor<String> messageCaptor = ArgumentCaptor.forClass(String.class);
         verify(destinationSpec).message(messageCaptor.capture());
         assertEquals(DESTIONATION_MSG, messageCaptor.getValue());
+    }
+
+    @Test
+    public void testStateChangeFromWaitingToCancelled() throws Exception {
+        Device device = mock(Device.class);
+        DeviceMessage<Device> deviceMessage1 = mock(DeviceMessage.class);
+        DeviceMessage<Device> deviceMessage2 = mock(DeviceMessage.class);
+        DeviceMessage<Device> deviceMessage3 = mock(DeviceMessage.class);
+        when(deviceMessage1.getId()).thenReturn(DEVICE_MESSAGE_ID_1);
+        when(deviceMessage2.getId()).thenReturn(DEVICE_MESSAGE_ID_2);
+        when(deviceMessage3.getId()).thenReturn(DEVICE_MESSAGE_ID_3);
+        when(device.getMessagesByState(DeviceMessageStatus.PENDING)).thenReturn(new ArrayList<>(Arrays.asList(deviceMessage1, deviceMessage3)));
+        when(device.getMessagesByState(DeviceMessageStatus.WAITING)).thenReturn(new ArrayList<>(Collections.singletonList(deviceMessage2)));
+        doReturn(Optional.of(device)).when(serviceCall).getTargetObject();
+
+        AbstractOperationServiceCallHandler serviceCallHandler = new EnableLoadLimitServiceCallHandler(messageService, thesaurus);
+        CommandServiceCallDomainExtension domainExtension = new CommandServiceCallDomainExtension();
+        domainExtension.setCommandOperationStatus(CommandOperationStatus.SEND_OUT_DEVICE_MESSAGES);
+        domainExtension.setNrOfUnconfirmedDeviceCommands(2);
+        domainExtension.setDeviceMessages(Arrays.asList(deviceMessage1, deviceMessage2));
+        when(serviceCall.getExtensionFor(any(CommandCustomPropertySet.class))).thenReturn(Optional.of(domainExtension));
+
+        // Business method
+        serviceCallHandler.onStateChange(serviceCall, DefaultState.WAITING, DefaultState.CANCELLED);
+
+        // Asserts
+        verify(deviceMessage1).revoke();
+        verify(deviceMessage2).revoke();
+        verify(deviceMessage3, never()).revoke(); // deviceMessage3 was pending, but not part of the service call - therefore it should not be revoked!
     }
 }
