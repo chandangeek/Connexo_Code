@@ -3,7 +3,6 @@ package com.elster.jupiter.soap.whiteboard.cxf.impl;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointProvider;
-import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.SoapProviderSupportFactory;
 import com.elster.jupiter.util.osgi.ContextClassLoaderResource;
 
@@ -12,16 +11,12 @@ import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.feature.Feature;
 import org.apache.cxf.feature.LoggingFeature;
 import org.apache.cxf.feature.validation.SchemaValidationFeature;
-import org.apache.cxf.interceptor.LoggingInInterceptor;
-import org.apache.cxf.interceptor.LoggingOutInterceptor;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.apache.cxf.transport.common.gzip.GZIPFeature;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;
-import java.io.FileOutputStream;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -71,13 +66,8 @@ public final class InboundEndPoint implements ManagedEndpoint {
             svrFactory.getFeatures().add(new LoggingFeature());
             svrFactory.setFeatures(features);
             if (endPointConfiguration.isTracing()) {
-                // TODO use LoggingFeature
-                svrFactory.getInInterceptors()
-                        .add(new LoggingInInterceptor(new PrintWriter(new FileOutputStream(logDirectory + "/" + endPointConfiguration
-                                .getTraceFile(), true))));
-                svrFactory.getOutInterceptors()
-                        .add(new LoggingOutInterceptor(new PrintWriter(new FileOutputStream(logDirectory + "/" + endPointConfiguration
-                                .getTraceFile(), true))));
+                String logFile = logDirectory + "/" + endPointConfiguration.getTraceFile();
+                svrFactory.getFeatures().add(new LoggingFeature(logFile, logFile));
             }
             if (EndPointAuthentication.BASIC_AUTHENTICATION.equals(endPointConfiguration.getAuthenticationMethod())) {
                 svrFactory.getInInterceptors()
@@ -85,7 +75,7 @@ public final class InboundEndPoint implements ManagedEndpoint {
             }
             endpoint = svrFactory.create();
         } catch (Exception ex) {
-            endPointConfiguration.log(LogLevel.SEVERE, ex.getMessage());
+            endPointConfiguration.log("Failed to publish the endpoint", ex);
         }
     }
 

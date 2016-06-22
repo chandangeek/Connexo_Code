@@ -84,6 +84,8 @@ public class AuthorizationInInterceptor extends AbstractPhaseInterceptor<Message
                     httpSession.setAttribute(PASSWORD, password);
                 }
             }
+        } catch (SecurityException e) {
+            throw e;
         } catch (Exception e) {
             logInTransaction("Exception while logging in " + userName + ":", e);
             throw new SecurityException("Not authorized");
