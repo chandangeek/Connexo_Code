@@ -92,13 +92,13 @@ Ext.define('Uni.DateTime', {
             separatorFormat = Uni.util.Preferences.lookup(me.dateTimeSeparatorKey, me.dateTimeSeparatorDefault);
 
         date = date || new Date();
-        if (orderFormat.startsWith('T')) {
+        if (Ext.String.startsWith(orderFormat, 'T'))  {
             dateTimeFormat = timeFormat;
         } else {
             dateTimeFormat = dateFormat;
         }
         dateTimeFormat += (' ' + separatorFormat.trim() + ' ');
-        if (orderFormat.startsWith('T')) {
+        if (Ext.String.startsWith(orderFormat, 'T')) {
             dateTimeFormat += dateFormat;
         } else {
             dateTimeFormat += timeFormat;

@@ -311,7 +311,11 @@ Ext.define('Uni.service.Search', {
                 Ext.Ajax.resumeEvent('requestexception');
             }
             searchResults.addFilter(me.getFilters(), false);
-            searchResults.loadPage(1,{callback: me.fireEvent('applyFilters', me, filters) });
+            searchResults.loadPage(1, {
+                callback: function () {
+                    me.fireEvent('applyFilters', me, filters);
+                }
+            });
         } else {
             searchResults.removeAll();
             searchResults.fireEvent('load', searchResults, [], true);

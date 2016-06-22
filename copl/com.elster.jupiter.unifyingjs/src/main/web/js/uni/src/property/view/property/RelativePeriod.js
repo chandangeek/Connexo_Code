@@ -107,7 +107,10 @@ Ext.define('Uni.property.view.property.RelativePeriod', {
             name: this.getName(),
             itemId: me.key + 'displayfield',
             width: me.width,
-            msgTarget: 'under'
+            msgTarget: 'under',
+            renderer: function(value) {
+                return Ext.isEmpty(value) ? '-' : value;
+            }
         }
     },
 
