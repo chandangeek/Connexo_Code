@@ -39,6 +39,7 @@ import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
+import javax.inject.Provider;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -317,24 +318,15 @@ public class UsagePointResource {
         Instant start = Instant.ofEpochMilli(info.metrologyConfigurationVersion.start);
         Instant end = info.metrologyConfigurationVersion.end != null ? Instant.ofEpochMilli(info.metrologyConfigurationVersion.end): null;
 
-//        try {
+        try {
             usagePoint.applyWithInterval(metrologyConfiguration, start, end);
-//            if (info.metrologyConfiguration.end != null) {
-//                usagePoint.removeMetrologyConfiguration(Instant.ofEpochMilli(info.metrologyConfiguration.end));
-////            }
-//        } catch (UnsatisfiedReadingTypeRequirements ex) {
-////            throw new UnsatisfiedReadingTypeRequirements(thesaurus, metrologyConfiguration);
-////            throw new FormValidationException().addException("metrologyConfiguration", ex);
-//        } catch (UnsatisfiedMerologyConfigurationEndDate ex) {
-////            throw new UnsatisfiedMerologyConfigurationEndDate(thesaurus);
-//            throw new FormValidationException().addException("end", ex);
-//        } catch (UnsatisfiedMerologyConfigurationStartDateRelativelyLatestStart ex) {
-//            throw new FormValidationException().addException("start", ex);
-//            throw new UnsatisfiedMerologyConfigurationStartDateRelativelyLatestStart(thesaurus);
-//        } catch (UnsatisfiedMerologyConfigurationStartDateRelativelyLatestEnd ex) {
-//            throw new FormValidationException().addException("start", ex);
-//            throw new UnsatisfiedMerologyConfigurationStartDateRelativelyLatestEnd(thesaurus);
-//        }
+        } catch (UnsatisfiedReadingTypeRequirements ex) {
+            throw new FormValidationException().addException("metrologyConfiguration", ex.getMessage());
+        } catch (UnsatisfiedMerologyConfigurationEndDate ex) {
+            throw new FormValidationException().addException("end", ex.getMessage());
+        } catch (UnsatisfiedMerologyConfigurationStartDateRelativelyLatestStart | UnsatisfiedMerologyConfigurationStartDateRelativelyLatestEnd ex){
+            throw new FormValidationException().addException("start", ex.getMessage());
+        }
 
         UsagePointInfo updatedInfo = usagePointInfoFactory.from(usagePoint);
         updatedInfo.metrologyConfigurationVersion = usagePoint.getEffectiveMetrologyConfiguration(start)

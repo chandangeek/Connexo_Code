@@ -11,7 +11,9 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.MetrologyConfigurationStatus;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.users.User;
 
 import com.jayway.jsonpath.JsonModel;
@@ -80,8 +82,10 @@ public class UsagePointResourceTest extends MeteringApplicationJerseyTest {
         when(usagePoint.getModificationDate()).thenReturn(Instant.EPOCH);
         when(usagePoint.getLocation()).thenReturn(Optional.empty());
         when(usagePoint.getGeoCoordinates()).thenReturn(Optional.empty());
-        when(usagePoint.getMetrologyConfiguration()).thenReturn(Optional.empty());
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint =  mockEffectiveMetrologyConfiguration();
+        List<EffectiveMetrologyConfigurationOnUsagePoint> configs = Collections.singletonList(effectiveMetrologyConfigurationOnUsagePoint);
+        when(usagePoint.getEffectiveMetrologyConfigurations()).thenReturn(configs);
+        when(usagePoint.getEffectiveMetrologyConfiguration(Instant.EPOCH)).thenReturn(Optional.of(effectiveMetrologyConfigurationOnUsagePoint));
         when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfigurationOnUsagePoint));
         when(usagePoint.getCurrentMeterActivation()).thenReturn(Optional.of(meterActivation));
         when(meterActivation.getMeter()).thenReturn(Optional.of(meter));
@@ -91,21 +95,29 @@ public class UsagePointResourceTest extends MeteringApplicationJerseyTest {
     }
 
     private EffectiveMetrologyConfigurationOnUsagePoint mockEffectiveMetrologyConfiguration() {
-        MetrologyConfiguration config = mockMetrologyConfiguration(1L, "MC-1", "13.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
+        UsagePointMetrologyConfiguration config = mockMetrologyConfiguration(1L, "MC-1", "13.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
         EffectiveMetrologyConfigurationOnUsagePoint mock = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
         when(mock.getMetrologyConfiguration()).thenReturn(config);
+        when(mock.getStart()).thenReturn(Instant.EPOCH);
+        when(mock.getEnd()).thenReturn(Instant.EPOCH);
         return mock;
     }
 
-    private MetrologyConfiguration mockMetrologyConfiguration(long id, String name, String readingTypeMRID) {
-        MetrologyConfiguration mock = mock(MetrologyConfiguration.class);
+    private UsagePointMetrologyConfiguration mockMetrologyConfiguration(long id, String name, String readingTypeMRID) {
+        UsagePointMetrologyConfiguration mock = mock(UsagePointMetrologyConfiguration.class);
         when(mock.getId()).thenReturn(id);
+        when(mock.getVersion()).thenReturn(1L);
         when(mock.getName()).thenReturn(name);
         when(mock.getDescription()).thenReturn("some description");
         ReadingType readingType = mockReadingType(readingTypeMRID);
         ReadingTypeDeliverable deliverable = mock(ReadingTypeDeliverable.class);
         when(deliverable.getReadingType()).thenReturn(readingType);
         when(mock.getDeliverables()).thenReturn(Collections.singletonList(deliverable));
+        when(mock.getStatus()).thenReturn(MetrologyConfigurationStatus.ACTIVE);
+        ServiceCategory serviceCategory = mock(ServiceCategory.class);
+        when(serviceCategory.getKind()).thenReturn(ServiceKind.ELECTRICITY);
+        when(serviceCategory.getName()).thenReturn("Electricity");
+        when(mock.getServiceCategory()).thenReturn(serviceCategory);
         return mock;
     }
 
@@ -150,18 +162,47 @@ public class UsagePointResourceTest extends MeteringApplicationJerseyTest {
 
     @Test
     public void testGetUsagePointMetrologyConfigurationHistory() {
-        when(meteringService.findUsagePoint(1L)).thenReturn(Optional.of(usagePoint));
-        List<EffectiveMetrologyConfigurationOnUsagePoint> configs = Collections.singletonList(mockEffectiveMetrologyConfiguration());
+        when(meteringService.findUsagePoint("MRID")).thenReturn(Optional.of(usagePoint));
 
-        when(usagePoint.getEffectiveMetrologyConfigurations()).thenReturn(configs);
 
-        String json = target("usagepoints/1/history/metrologyconfiguration").request().get(String.class);
+        String json = target("usagepoints/MRID/history/metrologyconfiguration").request().get(String.class);
 
         //Asserts
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<Number>get("$.total")).isEqualTo(1);
-        assertThat(jsonModel.<Number>get("$.metrologyConfigurationVersions[0].id")).isEqualTo(1);
-        assertThat(jsonModel.<String>get("$.metrologyConfigurationVersions[0].name")).isEqualTo("MC-1");
+        assertThat(jsonModel.<Number>get("$.metrologyConfigurationVersions[0].metrologyConfiguration.id")).isEqualTo(1);
+        assertThat(jsonModel.<String>get("$.metrologyConfigurationVersions[0].metrologyConfiguration.name")).isEqualTo("MC-1");
+    }
+
+    @Test
+    public void testAddMetrologyConfigurationVersion() {
+        UsagePointMetrologyConfiguration config = mockMetrologyConfiguration(1L, "MC-1", "13.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
+        when(meteringService.findAndLockUsagePointByIdAndVersion(1L, 1L)).thenReturn(Optional.of(usagePoint));
+        when(metrologyConfigurationService.findMetrologyConfiguration(1L)).thenReturn(Optional.of(config));
+
+        MetrologyConfigurationInfo metrologyConfigurationInfo = new MetrologyConfigurationInfo();
+        metrologyConfigurationInfo.id = 1L;
+        metrologyConfigurationInfo.name = "MC-1";
+
+        EffectiveMetrologyConfigurationOnUsagePointInfo effectiveMCInfo = new EffectiveMetrologyConfigurationOnUsagePointInfo();
+        effectiveMCInfo.metrologyConfiguration = metrologyConfigurationInfo;
+        effectiveMCInfo.start = Instant.EPOCH.toEpochMilli();
+        effectiveMCInfo.end = Instant.EPOCH.toEpochMilli();
+
+        UsagePointInfo info = new UsagePointInfo();
+        info.id = 1L;
+        info.mRID = "upd";
+        info.name = "upd";
+        info.installationTime = Instant.EPOCH.toEpochMilli();
+        info.version = 1L;
+        info.metrologyConfigurationVersion = effectiveMCInfo;
+
+        Response response = target("usagepoints/upd/metrologyconfigurations").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(200);
+//        verify(usagePoint, never()).setMRID(anyString());
+//        verify(usagePoint, times(1)).setName("upd");
+//        verify(usagePoint, times(1)).setInstallationTime(any(Instant.class));
+        verify(usagePoint, times(1)).applyWithInterval(config, Instant.EPOCH, Instant.EPOCH);
     }
 
 }
