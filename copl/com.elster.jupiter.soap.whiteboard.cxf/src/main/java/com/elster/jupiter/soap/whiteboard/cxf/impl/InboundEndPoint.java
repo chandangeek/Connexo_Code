@@ -63,7 +63,6 @@ public final class InboundEndPoint implements ManagedEndpoint {
             JaxWsServerFactoryBean svrFactory = new JaxWsServerFactoryBean();
             svrFactory.setAddress(endPointConfiguration.getUrl());
             svrFactory.setServiceBean(implementor);
-            svrFactory.getFeatures().add(new LoggingFeature());
             svrFactory.setFeatures(features);
             if (endPointConfiguration.isTracing()) {
                 String logFile = logDirectory + "/" + endPointConfiguration.getTraceFile();
