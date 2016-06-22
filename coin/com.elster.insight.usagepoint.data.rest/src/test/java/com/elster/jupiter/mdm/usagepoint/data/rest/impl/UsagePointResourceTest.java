@@ -446,6 +446,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
     public void testUsagePointMetrologyConfigurationDetails() {
         UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = this.mockMetrologyConfiguration(1, "MetrologyConfiguration");
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
+        when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfigurationOnUsagePoint));
         when(effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()).thenReturn(usagePointMetrologyConfiguration);
         MetrologyContract metrologyContract = usagePointMetrologyConfiguration.getContracts().stream().findFirst().get();
         MetrologyContract.Status status = mock(MetrologyContract.Status.class);
@@ -505,6 +506,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = this.mockMetrologyConfiguration(1, "1test");
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
         when(effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()).thenReturn(usagePointMetrologyConfiguration);
+        when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfigurationOnUsagePoint));
         MetrologyContract metrologyContract = usagePointMetrologyConfiguration.getContracts().stream().findFirst().get();
         MetrologyContract.Status status = mock(MetrologyContract.Status.class);
         when(metrologyContract.getStatus(usagePoint)).thenReturn(status);
@@ -525,6 +527,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = this.mockMetrologyConfiguration(1, "1test");
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
         when(effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()).thenReturn(usagePointMetrologyConfiguration);
+        when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfigurationOnUsagePoint));
         String json = target("/usagepoints/MRID/purposes/1/outputs").request().get(String.class);
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<Number>get("$.total")).isEqualTo(1);
