@@ -16,5 +16,18 @@ Ext.define('Dlc.devicelifecycletransitions.store.DeviceLifeCycleTransitionAutoAc
             this.url = this.urlTpl.replace('{id}', params.deviceLifeCycleId);
             this.extraParams = {fromState: {id: fromState}, toState: {id: toState}};
         }
+    },
+    remoteFilter: false,
+    listeners: {
+        load: function() {
+            var me = this,
+                insRules = ['LINK_TO_USAGE_POINT'];
+
+            if (Uni.store.Apps.checkApp('Insight')) {
+                me.filterBy(function(r){
+                    return _.indexOf(insRules, r.get('key')) < 0
+                })
+            }
+        }
     }
 });
