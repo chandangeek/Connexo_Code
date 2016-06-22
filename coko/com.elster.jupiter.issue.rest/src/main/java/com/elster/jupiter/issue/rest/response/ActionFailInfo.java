@@ -22,6 +22,10 @@ public class ActionFailInfo {
         return Collections.unmodifiableList(issues);
     }
 
+    public void add(IssueShortInfo issue) {
+        this.issues.add(issue);
+    }
+
     public void setIssues(List<IssueShortInfo> issues) {
         this.issues.clear();
         this.issues.addAll(issues);

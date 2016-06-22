@@ -3,6 +3,7 @@ package com.elster.jupiter.issue.rest.response;
 import com.elster.jupiter.issue.rest.response.issue.IssueShortInfo;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,15 +29,16 @@ public class ActionInfo {
                 failsWithSameReason.setReason(reason);
                 fails.put(reason, failsWithSameReason);
             }
-            failsWithSameReason.getIssues().add(new IssueShortInfo(id, title));
+            failsWithSameReason.add(new IssueShortInfo(id, title));
         }
     }
 
     public List<IssueShortInfo> getSuccess() {
-        return success;
+        return Collections.unmodifiableList(success);
     }
 
     public List<ActionFailInfo> getFailure() {
         return new ArrayList<>(fails.values());
     }
+
 }
