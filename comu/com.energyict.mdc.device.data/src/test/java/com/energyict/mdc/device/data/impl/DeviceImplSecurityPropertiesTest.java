@@ -14,6 +14,8 @@ import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.users.UserPreferencesService;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -123,7 +125,10 @@ public class DeviceImplSecurityPropertiesTest {
     private Meter meter;
     @Mock
     private LifecycleDates lifeCycleDates;
-
+    @Mock
+    private ThreadPrincipalService threadPrincipalService;
+    @Mock
+    private UserPreferencesService userPreferencesService;
 
     @Before
     public void setup() {
@@ -235,7 +240,8 @@ public class DeviceImplSecurityPropertiesTest {
                 this.metrologyConfigurationService, this.validationService, this.securityPropertyService,
                 this.scheduledConnectionTaskProvider, this.inboundConnectionTaskProvider, this.connectionInitiationTaskProvider,
                 this.scheduledComTaskExecutionProvider, this.manuallyScheduledComTaskExecutionProvider,
-                this.firmwareComTaskExecutionProvider, this.meteringGroupsService, customPropertySetService, readingTypeUtilService, threadPrincipalService, userPreferencesService);
+                this.firmwareComTaskExecutionProvider, this.meteringGroupsService, this.customPropertySetService, this.readingTypeUtilService,
+                this.threadPrincipalService, this.userPreferencesService);
         device.initialize(this.deviceConfiguration, "Not persistent", "with all mocked services");
         return device;
     }

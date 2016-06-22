@@ -3105,6 +3105,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         Optional<BigDecimal> multiplier = Optional.empty();
         Optional<MeterActivation> usagePointMeterActivation = usagePoint.getMeterActivations(start).stream().findFirst();//for MultiSense we expect the only one MeterActivation
 
+        //end meter's MeterActivation if exists
         if (meterMeterActivation.isPresent()) {
             if (meterMeterActivation.get().getEnd() != null) {
                 throw new RuntimeException("Meter already active");
@@ -3112,6 +3113,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             multiplier = meterMeterActivation.flatMap(ma -> ma.getMultiplier(getDefaultMultiplierType()));
             meterMeterActivation.get().endAt(start);
         }
+
+        //end usage point's MeterActivation if exists
         Meter meter = findOrCreateKoreMeter(getMdcAmrSystem());
         if (usagePointMeterActivation.isPresent()) {
             Optional<Meter> meterLinkedToUsagePoint = usagePointMeterActivation.get().getMeter();

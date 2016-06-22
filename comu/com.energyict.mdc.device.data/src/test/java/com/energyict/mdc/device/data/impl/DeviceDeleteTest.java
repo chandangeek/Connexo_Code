@@ -20,6 +20,8 @@ import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.users.UserPreferencesService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -153,6 +155,10 @@ public class DeviceDeleteTest {
     private DeviceType deviceType;
     @Mock
     private DeviceConfiguration deviceConfiguration;
+    @Mock
+    private ThreadPrincipalService threadPrincipalService;
+    @Mock
+    private UserPreferencesService userPreferencesService;
 
 
     @Before
@@ -287,5 +293,4 @@ public class DeviceDeleteTest {
         device.initialize(this.deviceConfiguration, "For testing purposes", "mRID");
         return device;
     }
-
 }

@@ -14,7 +14,9 @@ import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserPreferencesService;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
@@ -116,6 +118,10 @@ public class DeviceLifeCycleChangeEventsTest {
     private Meter meter;
     @Mock
     private StateTimeline stateTimeline;
+    @Mock
+    private ThreadPrincipalService threadPrincipalService;
+    @Mock
+    private UserPreferencesService userPreferencesService;
 
     @Before
     public void initializeMocks() {
@@ -296,7 +302,9 @@ public class DeviceLifeCycleChangeEventsTest {
                 this.firmwareComTaskExecutionProvider,
                 this.meteringGroupsService,
                 customPropertySetService,
-                this.readingTypeUtilService, threadPrincipalService, userPreferencesService)
+                this.readingTypeUtilService,
+                this.threadPrincipalService,
+                this.userPreferencesService)
             .initialize(this.deviceConfiguration, "Hello world", "mRID");
     }
 
