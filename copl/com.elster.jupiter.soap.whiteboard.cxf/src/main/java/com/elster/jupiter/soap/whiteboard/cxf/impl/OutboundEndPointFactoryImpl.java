@@ -1,6 +1,7 @@
 package com.elster.jupiter.soap.whiteboard.cxf.impl;
 
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointProvider;
 
 import javax.inject.Inject;
@@ -20,7 +21,8 @@ public class OutboundEndPointFactoryImpl extends EndPointFactoryImpl<OutboundEnd
 
     @Override
     public ManagedEndpoint createEndpoint(EndPointConfiguration endPointConfiguration) {
-        return outboundEndPointProvider.get().init(super.getEndPointProvider(), endPointConfiguration);
+        return outboundEndPointProvider.get()
+                .init(super.getEndPointProvider(), (OutboundEndPointConfiguration) endPointConfiguration);
     }
 
     @Override

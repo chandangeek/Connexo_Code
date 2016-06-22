@@ -24,7 +24,6 @@ import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
-import com.elster.jupiter.util.json.JsonService;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -76,8 +75,6 @@ public class WebServicesServiceImplIT {
     private DataVaultService dataVaultService;
 
     private Clock clock;
-    private EventService eventService;
-    private JsonService jsonService;
     @Mock
     private Thesaurus thesaurus;
 
@@ -127,7 +124,6 @@ public class WebServicesServiceImplIT {
             public Void perform() {
                 nlsService = injector.getInstance(NlsService.class);
                 thesaurus = nlsService.getThesaurus(WebServicesServiceImpl.COMPONENT_NAME, Layer.DOMAIN);
-                jsonService = injector.getInstance(JsonService.class);
                 eventService = injector.getInstance(EventService.class);
                 injector.getInstance(UserService.class);
                 webServicesService = injector.getInstance(WebServicesService.class);
