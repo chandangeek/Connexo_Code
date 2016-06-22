@@ -42,7 +42,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>repository.org.jboss.resteasy</groupId>
+            <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-test-tjws</artifactId>
             <version>${resteasy.version}</version>
             <scope>test</scope>
