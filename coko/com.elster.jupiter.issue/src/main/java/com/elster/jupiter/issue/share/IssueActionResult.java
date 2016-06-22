@@ -1,17 +1,16 @@
 package com.elster.jupiter.issue.share;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import aQute.bnd.annotation.ConsumerType;
-import aQute.bnd.annotation.ProviderType;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 @ConsumerType
 public interface IssueActionResult {
-    
+
     boolean isSuccess();
 
-    @ProviderType
     class DefaultActionResult implements IssueActionResult {
         public static class Action {
             private String title;
@@ -40,7 +39,7 @@ public interface IssueActionResult {
         }
 
         public List<Action> getActions() {
-            return actions;
+            return Collections.unmodifiableList(actions);
         }
 
         public void nextAction(String title) {
@@ -70,10 +69,11 @@ public interface IssueActionResult {
             current.success = false;
             current.message = msg;
         }
-        
+
         @Override
         public boolean isSuccess() {
             return actions.stream().allMatch(Action::isSuccess);
         }
     }
+
 }
