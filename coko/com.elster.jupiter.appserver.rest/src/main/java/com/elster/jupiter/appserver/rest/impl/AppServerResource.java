@@ -19,6 +19,7 @@ import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.Pair;
@@ -469,15 +470,15 @@ public class AppServerResource {
     @Path("/{appserverName}/unusedendpoints")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_APPSEVER)
     public Response getEndPointsOnAppServer(@PathParam("appserverName") String appServerName) {
-
-        AppServer appServer = fetchAppServer(appServerName);
-        List<EndPointConfiguration> available = endPointConfigurationService.findEndPointConfigurations().find();
-        available.removeAll(appServer.supportedEndPoints());
-        List<EndPointConfigurationInfo> unused = available.stream()
+        List<EndPointConfiguration> available = endPointConfigurationService.findEndPointConfigurations().stream()
+                .filter(EndPointConfiguration::isInbound)
+                .collect(Collectors.toList());
+        available.removeAll(getEndpointsOnAppServer(appServerName));
+        List<EndPointConfigurationInfo> infos = available.stream()
                 .map(endPointConfigurationInfoFactory::from)
                 .collect(Collectors.toList());
 
-        return Response.ok(unused).build();
+        return Response.ok(infos).build();
     }
 
 
@@ -494,6 +495,14 @@ public class AppServerResource {
                 .stream()
                 .map(ImportScheduleOnAppServer::getImportSchedule)
                 .flatMap(Functions.asStream())
+                .collect(toList());
+    }
+
+    private List<EndPointConfiguration> getEndpointsOnAppServer(String appServerName){
+        return appService.findAppServer(appServerName)
+                .map(AppServer::supportedEndPoints)
+                .orElseGet(Collections::emptyList)
+                .stream()
                 .collect(toList());
     }
 
