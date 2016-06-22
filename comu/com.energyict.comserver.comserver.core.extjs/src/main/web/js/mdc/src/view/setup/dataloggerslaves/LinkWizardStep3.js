@@ -53,78 +53,79 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizardStep3', {
             form;
 
         me.down('#mdc-dataloggerslave-link-wizard-step3-container').removeAll();
-        Ext.Array.forEach(registerConfigRecords, function(registerConfigRecord) {
-            counter++;
-            Ext.suspendLayouts();
-            me.down('#mdc-dataloggerslave-link-wizard-step3-container').add({
-                xtype: 'container',
-                width: 700,
-                margin: '20 0 0 0',
-                itemId: 'mdc-step3-form-' + counter,
-                layout: {
-                    type: 'vbox',
-                    align: 'stretch'
-                },
-                defaults: {
-                    labelWidth: 300
-                },
-                items: [
-                    {
-                        xtype: 'combobox',
-                        listConfig: {
-                            loadingText: null,
-                            loadMask: false
-                        },
-                        editable: false,
-                        forceSelection: true,
-                        multiSelect: false,
-                        queryMode: 'local',
-                        fieldLabel: registerConfigRecord.get('registerTypeName'),
-                        store: me.createRegisterStore(dataLoggerRegisterRecords),
-                        emptyText: Uni.I18n.translate('general.registerCombo.emptyText', 'MDC', 'Select a register...'),
-                        displayField: 'registerTypeName',
-                        valueField: 'id',
-                        msgTarget: 'under',
-                        maxWidth: 700,
-                        itemId: 'mdc-step3-register-combo-' + counter
-                    }
-                ]
-            });
-
-            Ext.resumeLayouts(true);
-            me.doLayout();
-            form = me.down('#mdc-step3-form-' + counter);
-
-            if (registerConfigRecord.get('useMultiplier')) {
-                form.add(
-                    {
-                        xtype: 'numberfield',
-                        minValue: 1,
-                        maxValue: 2147483647,
-                        fieldLabel: Uni.I18n.translate('general.multiplier', 'MDC', 'Multiplier'),
-                        value: 1,
-                        maxWidth: 375
-                    }
-                );
-            } else {
-                form.add(
-                    {
-                        xtype: 'displayfield',
-                        fieldLabel: Uni.I18n.translate('general.multiplier', 'MDC', 'Multiplier'),
-                        value: Uni.I18n.translate('general.registerDoesntUseMultiplier', 'MDC', "Register doesn't use multiplier")
-                    }
-                );
-            }
-
-        }, me);
         if (Ext.isEmpty(registerConfigRecords)) {
             Ext.suspendLayouts();
             me.down('#mdc-dataloggerslave-link-wizard-step3-container').add({
                 xtype: 'uni-form-empty-message',
-                text: Uni.I18n.translate('general.noRegistersToMap', 'MDC', 'No registers to map')
+                text: Uni.I18n.translate('general.dataLoggerSlave.noRegisters', 'MDC', 'There are no registers on the data logger slave.')
             });
             Ext.resumeLayouts(true);
             me.doLayout();
+        } else {
+            Ext.Array.forEach(registerConfigRecords, function (registerConfigRecord) {
+                counter++;
+                Ext.suspendLayouts();
+                me.down('#mdc-dataloggerslave-link-wizard-step3-container').add({
+                    xtype: 'container',
+                    width: 700,
+                    margin: '20 0 0 0',
+                    itemId: 'mdc-step3-form-' + counter,
+                    layout: {
+                        type: 'vbox',
+                        align: 'stretch'
+                    },
+                    defaults: {
+                        labelWidth: 300
+                    },
+                    items: [
+                        {
+                            xtype: 'combobox',
+                            listConfig: {
+                                loadingText: null,
+                                loadMask: false
+                            },
+                            editable: false,
+                            forceSelection: true,
+                            multiSelect: false,
+                            queryMode: 'local',
+                            fieldLabel: registerConfigRecord.get('registerTypeName'),
+                            store: me.createRegisterStore(dataLoggerRegisterRecords),
+                            emptyText: Uni.I18n.translate('general.registerCombo.emptyText', 'MDC', 'Select a register...'),
+                            displayField: 'registerTypeName',
+                            valueField: 'id',
+                            msgTarget: 'under',
+                            maxWidth: 700,
+                            itemId: 'mdc-step3-register-combo-' + counter
+                        }
+                    ]
+                });
+
+                Ext.resumeLayouts(true);
+                me.doLayout();
+                form = me.down('#mdc-step3-form-' + counter);
+
+                if (registerConfigRecord.get('useMultiplier')) {
+                    form.add(
+                        {
+                            xtype: 'numberfield',
+                            minValue: 1,
+                            maxValue: 2147483647,
+                            fieldLabel: Uni.I18n.translate('general.multiplier', 'MDC', 'Multiplier'),
+                            value: 1,
+                            maxWidth: 375
+                        }
+                    );
+                } else {
+                    form.add(
+                        {
+                            xtype: 'displayfield',
+                            fieldLabel: Uni.I18n.translate('general.multiplier', 'MDC', 'Multiplier'),
+                            value: Uni.I18n.translate('general.registerDoesntUseMultiplier', 'MDC', "Register doesn't use multiplier")
+                        }
+                    );
+                }
+
+            }, me);
         }
 
         // 1. (Pre)select combo items according to previously made choices

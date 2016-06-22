@@ -9,6 +9,7 @@ Ext.define('Mdc.view.setup.device.DeviceAdd', {
     ],
     labelWidth: 250,
     formWidth: 650,
+    deviceTypeStore: undefined,
 
     initComponent: function () {
         var me = this;
@@ -86,7 +87,7 @@ Ext.define('Mdc.view.setup.device.DeviceAdd', {
                                 emptyText: Uni.I18n.translate('deviceAdd.type.value', 'MDC', 'Select a device type...'),
                                 displayField: 'name',
                                 valueField: 'id',
-                                store: 'AvailableDeviceTypes',
+                                store: me.deviceTypeStore || 'AvailableDeviceTypes',
                                 validateOnBlur: false,
                                 validateOnChange: false,
                                 listConfig:

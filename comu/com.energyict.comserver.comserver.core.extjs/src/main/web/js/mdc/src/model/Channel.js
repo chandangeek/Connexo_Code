@@ -13,7 +13,10 @@ Ext.define('Mdc.model.Channel', {
             name: 'measurementType',
             persist: false
         },
-        {name: 'readingType', type: 'auto'},
+        {   name: 'readingType',
+            persist: false,
+            mapping: 'measurementType.readingType'
+        },
         'collectedReadingType',
         'calculatedReadingType',
         'multipliedCalculatedReadingType',
@@ -26,9 +29,7 @@ Ext.define('Mdc.model.Channel', {
             name: 'registerTypeName',
             type: 'string',
             persist: false,
-            convert: function registerTypeName(valueAsReadByReader, record){
-                return record.get('readingType').fullAliasName;
-            }
+            mapping: 'measurementType.readingType.fullAliasName'
         },
         {
             name: 'extendedChannelName',

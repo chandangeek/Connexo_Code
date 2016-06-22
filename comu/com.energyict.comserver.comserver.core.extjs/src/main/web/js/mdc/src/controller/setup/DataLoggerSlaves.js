@@ -5,12 +5,15 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
         'Mdc.model.Device',
         'Mdc.model.DataLoggerSlaveDevice',
         'Mdc.model.DataLoggerSlaveChannel',
-        'Mdc.model.Channel'
+        'Mdc.model.DataLoggerSlaveRegister',
+        'Mdc.model.Channel',
+        'Mdc.model.Register'
     ],
 
     stores: [
         'Mdc.store.DataLoggerSlaves',
         'Mdc.store.AvailableDataLoggerSlaves',
+        'Mdc.store.AvailableDataLoggerSlaveDeviceTypes',
         'Mdc.store.Devices',
         'Mdc.store.LoadProfileConfigurationsOnDeviceConfiguration',
         'Mdc.store.RegisterConfigsOfDevice',
@@ -142,18 +145,22 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
         } else { // use a new (to be created) data logger slave
             slaveCombo.setDisabled(true);
             if (Ext.isEmpty(addDevicePanel)) {
-                addDevicePanel = Ext.widget('deviceAdd', { labelWidth: 145, formWidth: 545 });
-                addDevicePanel.down('panel').title = '';
-                addDevicePanel.down('#deviceAddArrival').hide();
-                addDevicePanel.down('#deviceAddMRID').allowBlank = false;
-                addDevicePanel.down('#deviceAddType').allowBlank = false;
-                addDevicePanel.down('#deviceAddConfig').allowBlank = false;
-                addDevicePanel.down('form').items.remove(addDevicePanel.down('#mdc-deviceAdd-btnContainer'));
-                addDevicePanel.down('form').loadRecord(Ext.create('Mdc.model.Device'));
-                step1Panel.add(addDevicePanel);
-                mainView.setLoading();
-                addDevicePanel.down('#deviceAddType').getStore().load(function () {
-                    mainView.setLoading(false);
+                var deviceTypeStore = me.getStore('Mdc.store.AvailableDataLoggerSlaveDeviceTypes');
+                deviceTypeStore.load(function(records){
+                    addDevicePanel = Ext.widget('deviceAdd', { labelWidth: 145, formWidth: 545, deviceTypeStore:deviceTypeStore });
+                    addDevicePanel.down('panel').title = '';
+                    addDevicePanel.down('#deviceAddBatch').hide();
+                    addDevicePanel.down('#deviceAddArrival').hide();
+                    addDevicePanel.down('#deviceAddMRID').allowBlank = false;
+                    addDevicePanel.down('#deviceAddType').allowBlank = false;
+                    addDevicePanel.down('#deviceAddConfig').allowBlank = false;
+                    addDevicePanel.down('form').items.remove(addDevicePanel.down('#mdc-deviceAdd-btnContainer'));
+                    addDevicePanel.down('form').loadRecord(Ext.create('Mdc.model.Device'));
+                    step1Panel.add(addDevicePanel);
+                    mainView.setLoading();
+                    addDevicePanel.down('#deviceAddType').getStore().load(function () {
+                        mainView.setLoading(false);
+                    });
                 });
             } else {
                 addDevicePanel.down('#deviceAddMRID').clearInvalid();
@@ -414,7 +421,7 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
                     if (dataLoggerSlaveDeviceRecord.id === 0) { // the container of the unlinked channels
                         if (dataLoggerSlaveDeviceRecord.dataLoggerSlaveChannelInfos){
                             Ext.Array.forEach(dataLoggerSlaveDeviceRecord.dataLoggerSlaveChannelInfos, function(dataLoggerSlaveChannelInfoRecord){
-                                      channelRecords.push(dataLoggerSlaveChannelInfoRecord.dataLoggerChannel);
+                                channelRecords.push(dataLoggerSlaveChannelInfoRecord.dataLoggerChannel);
                             }, me);
                         }
                     }
@@ -481,13 +488,11 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
 
             var slaveDeviceModel = me.wizardInformation.dataLogger.get('dataLoggerSlaveDevices')[me.wizardInformation.dataLogger.get('dataLoggerSlaveDevices').length-1];
             slaveDeviceModel.dataLoggerSlaveChannelInfos = [];
-
             counter = 0;
             Ext.Array.forEach(me.wizardInformation.loadProfileConfigRecords, function(record) {
-                Ext.Array.forEach(record.get('channels'), function(channel) {
+                Ext.Array.forEach(record.get('channels'), function(channelSpec) {
                     var slaveChannelModel = Ext.create('Mdc.model.DataLoggerSlaveChannel');
-                    slaveChannelModel.slaveChannel = channel;
-
+                    slaveChannelModel.slaveChannel = channelSpec;
                     counter++;
                     channelCombo = wizard.down('#mdc-step2-channel-combo-' + counter);
                     var selectedChannelRecord = channelCombo.findRecordByValue(channelCombo.getValue());
@@ -501,7 +506,6 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
                     slaveDeviceModel.dataLoggerSlaveChannelInfos.push(slaveChannelModel);
                 }, me);
             }, me);
-
             endMethod();
         }
     },
@@ -509,25 +513,31 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
     prepareStep3: function() {
         var me = this,
             wizard = me.getWizard(),
-            registerConfigStore = me.getStore('Mdc.store.RegisterConfigsOfDeviceConfig'),
-            dataLoggerRegistersStore = me.getStore('Mdc.store.RegisterConfigsOfDevice');
+            registerConfigStore = me.getStore('Mdc.store.RegisterConfigsOfDeviceConfig');
 
         wizard.setLoading();
         registerConfigStore.getProxy().setExtraParam('deviceType', me.wizardInformation.slaveDeviceTypeId);
         registerConfigStore.getProxy().setExtraParam('deviceConfig', me.wizardInformation.slaveDeviceConfigurationId);
         registerConfigStore.load({
             callback: function (registerConfigRecords) {
-                dataLoggerRegistersStore.getProxy().setExtraParam('mRID', me.wizardInformation.dataLogger.get('mRID'));
-                dataLoggerRegistersStore.load({
-                    callback: function (dataLoggerRegisterRecords) {
-                        wizard.setLoading(false);
-                        wizard.down('dataloggerslave-link-wizard-step3').initialize(
-                            registerConfigRecords,
-                            dataLoggerRegisterRecords,
-                            me.wizardInformation ? me.wizardInformation.mappedRegisters : undefined
-                        );
+                var registerRecords = [];
+                Ext.Array.forEach(me.wizardInformation.dataLogger.get('dataLoggerSlaveDevices'), function(dataLoggerSlaveDeviceRecord){
+                    if (dataLoggerSlaveDeviceRecord.id === 0) { // the container of the unlinked registers
+                        if (dataLoggerSlaveDeviceRecord.dataLoggerSlaveRegisterInfos){
+                            Ext.Array.forEach(dataLoggerSlaveDeviceRecord.dataLoggerSlaveRegisterInfos, function(dataLoggerSlaveRegisterInfoRecord){
+                                registerRecords.push(dataLoggerSlaveRegisterInfoRecord.dataLoggerRegister);
+                            }, me);
+                        }
                     }
-                });
+                }, me);
+                me.wizardInformation.registerConfigRecords = registerConfigRecords;
+                me.wizardInformation.dataLoggerRegisters = registerRecords;
+                wizard.setLoading(false);
+                wizard.down('dataloggerslave-link-wizard-step3').initialize(
+                    registerConfigRecords,
+                    registerRecords,
+                    me.wizardInformation ? me.wizardInformation.mappedRegisters : undefined
+                );
             }
         });
     },
@@ -579,6 +589,26 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
 
         if (!errorsFound) {
             me.wizardInformation.mappedRegisters = mappedRegisters;
+            var slaveDeviceModel = me.wizardInformation.dataLogger.get('dataLoggerSlaveDevices')[me.wizardInformation.dataLogger.get('dataLoggerSlaveDevices').length-1];
+            slaveDeviceModel.dataLoggerSlaveRegisterInfos = [];
+            counter = 0;
+            Ext.Array.forEach(me.wizardInformation.registerConfigRecords, function(registerConfigRecord) {
+                var slaveRegisterModel = Ext.create('Mdc.model.DataLoggerSlaveRegister');
+                slaveRegisterModel.slaveRegister = {};
+                slaveRegisterModel.slaveRegister.id = registerConfigRecord.get('id');
+
+                counter++;
+                var registerCombo = wizard.down('#mdc-step3-register-combo-' + counter),
+                    selectedRegisterRecord = registerCombo.findRecordByValue(registerCombo.getValue());
+
+                Ext.Array.forEach(me.wizardInformation.dataLoggerRegisters, function(dataLoggerRegister) {
+                    if (dataLoggerRegister.id === selectedRegisterRecord.get('id')) {
+                        slaveRegisterModel.dataLoggerRegister = dataLoggerRegister;
+                        slaveRegisterModel.slaveRegister.type = dataLoggerRegister.type;
+                    }
+                }, me);
+                slaveDeviceModel.dataLoggerSlaveRegisterInfos.push(slaveRegisterModel);
+            });
             endMethod();
         }
     },
@@ -608,7 +638,7 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
 
         me.wizardInformation.arrivalDate = dateField.getValue();
         Ext.Array.forEach(me.wizardInformation.dataLogger.get('dataLoggerSlaveDevices'), function(dataLoggerSlaveDeviceRecord){
-            dataLoggerSlaveDeviceRecord["arrivalTimeStamp"] =   me.wizardInformation.arrivalDate.getTime()/1000;
+            dataLoggerSlaveDeviceRecord["arrivalTimeStamp"] = me.wizardInformation.arrivalDate.getTime()/1000;
         }, me);
 
         endMethod();
@@ -634,20 +664,7 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
         var me = this,
             wizard = me.getWizard(),
             progressbar = wizard.down('#mdc-dataloggerslave-link-wizard-step6-progressbar'),
-            doLink = function() {
-                me.doLinkTheSlave();
-                Ext.suspendLayouts();
-                wizard.down('dataloggerslave-link-wizard-step6').update(
-                    Ext.String.format(
-                        Uni.I18n.translate('general.slaveXLinkedToDataLoggerY', 'MDC', "Slave '{0}' has been linked to data logger '{1}'."),
-                        me.getSlaveMRID(),
-                        me.wizardInformation.dataLogger.get('mRID')
-                    )
-                );
-                finishBtn.show();
-                progressbar.hide();
-                Ext.resumeLayouts(true);
-            };
+            infoMessagePanel = wizard.down('dataloggerslave-link-wizard-step6');
 
         Ext.suspendLayouts();
         progressbar.show();
@@ -655,25 +672,46 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
             interval: 50,
             increment: 20
         });
-        wizard.down('dataloggerslave-link-wizard-step6').update(
-            Uni.I18n.translate('linkSlave.wizard.waitMsg', 'MDC', 'Busy linking the slave. Please wait...')
-        );
+        infoMessagePanel.update(Uni.I18n.translate('linkSlave.wizard.waitMsg', 'MDC', 'Busy linking the slave. Please wait...'));
         Ext.resumeLayouts(true);
 
-        setTimeout(doLink, 1500);
-    },
-
-    doLinkTheSlave: function() {
-        // The rest call to do the linking should come here
-        var me = this;
         me.wizardInformation.dataLogger.save({
             success: function (record) {
+                Ext.suspendLayouts();
+                infoMessagePanel.update(
+                    Ext.String.format(
+                        Uni.I18n.translate('general.slaveXLinkedToDataLoggerY.success', 'MDC', "Slave '{0}' has been linked to data logger '{1}'."),
+                        me.getSlaveMRID(),
+                        me.wizardInformation.dataLogger.get('mRID')
+                    )
+                );
+                finishBtn.show();
+                progressbar.hide();
+                Ext.resumeLayouts(true);
             },
             failure: function (record, operation) {
-                var json = Ext.decode(operation.response.responseText);
-                if (json && json.errors) {
-                    form.markInvalid(json.errors);
-                }
+                Ext.suspendLayouts();
+                infoMessagePanel.update('');
+                infoMessagePanel.add({
+                    xtype: 'displayfield',
+                    value: Uni.I18n.translate('general.slaveXLinkedToDataLoggerY.noSuccess', 'MDC', "Linking was unsuccessful.")
+                });
+                finishBtn.show();
+                progressbar.hide();
+                Ext.resumeLayouts(true);
+            }
+        });
+    },
+
+    doUnlinkTheSlave: function() {
+        var me = this;
+
+        me.wizardInformation.dataLogger.save({
+            success: function (record) {
+                // Nothing to do here
+            },
+            failure: function (record, operation) {
+                // What to do in this case?
             }
         });
     },
@@ -733,7 +771,7 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
                     }
                 }, me);
 
-                me.doLinkTheSlave();
+                me.doUnlinkTheSlave();
 
                 // Update grid:
                 me.getSlavesGrid().getStore().removeAt(

@@ -51,97 +51,106 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizardStep2', {
         var me = this,
             loadProfileCounter = 0,
             channelCounter = 0,
-            form;
+            form,
+            slaveChannelsFound = false;
+
+        // Check the existence of slave channels
+        if (!Ext.isEmpty(loadProfileConfigurationRecords)) {
+            Ext.Array.forEach(loadProfileConfigurationRecords, function (record) {
+                slaveChannelsFound |= !Ext.isEmpty(record.get('channels'));
+            }, me);
+        }
 
         me.down('#mdc-dataloggerslave-link-wizard-step2-container').removeAll();
-        Ext.Array.forEach(loadProfileConfigurationRecords, function(record) {
-            loadProfileCounter++;
-
-            Ext.suspendLayouts();
-            me.down('#mdc-dataloggerslave-link-wizard-step2-container').add({
-                xtype: 'container',
-                layout: {
-                    type: 'vbox'
-                },
-                items: [
-                    {
-                        xtype: 'label',
-                        html: '<b>' + record.get('name') + '</b>'
-                    },
-                    {
-                        xtype: 'container',
-                        width: 700,
-                        margin: '20 0 0 0',
-                        itemId: 'mdc-step2-form-' + loadProfileCounter,
-                        layout: {
-                            type: 'vbox',
-                            align: 'stretch'
-                        },
-                        defaults: {
-                            labelWidth: 300
-                        },
-                        items: []
-                    }
-                ]
-            });
-            Ext.resumeLayouts(true);
-            me.doLayout();
-            form = me.down('#mdc-step2-form-' + loadProfileCounter);
-
-            Ext.Array.forEach(record.get('channels'), function(channel) {
-                channelCounter++;
-                form.add(
-                    {
-                        xtype: 'combobox',
-                        listConfig: {
-                            loadingText: null,
-                            loadMask: false
-                        },
-                        editable: false,
-                        forceSelection: true,
-                        multiSelect: false,
-                        queryMode: 'local',
-                        fieldLabel: channel.name,
-                        store: me.createChannelStore(record, dataLoggerChannelRecords),
-                        emptyText: Uni.I18n.translate('general.channelCombo.emptyText', 'MDC', 'Select a channel...'),
-                        displayField: 'extendedChannelName',
-                        valueField: 'id',
-                        msgTarget: 'under',
-                        itemId: 'mdc-step2-channel-combo-' + channelCounter
-                    }
-                );
-
-                if (channel.useMultiplier) {
-                    form.add(
-                        {
-                            xtype: 'numberfield',
-                            minValue: 1,
-                            maxValue: 2147483647,
-                            fieldLabel: Uni.I18n.translate('general.multiplier', 'MDC', 'Multiplier'),
-                            value: 1,
-                            maxWidth: 375
-                        }
-                    );
-                } else {
-                    form.add(
-                        {
-                            xtype: 'displayfield',
-                            fieldLabel: Uni.I18n.translate('general.multiplier', 'MDC', 'Multiplier'),
-                            value: Uni.I18n.translate('general.channelDoesntUseMultiplier', 'MDC', "Channel doesn't use multiplier")
-                        }
-                    );
-                }
-            }, me);
-
-        }, me);
-        if (Ext.isEmpty(loadProfileConfigurationRecords)) {
+        if (!slaveChannelsFound) {
             Ext.suspendLayouts();
             me.down('#mdc-dataloggerslave-link-wizard-step2-container').add({
                 xtype: 'uni-form-empty-message',
-                text: Uni.I18n.translate('general.noChannelsToMap', 'MDC', 'No channels to map')
+                text: Uni.I18n.translate('general.dataLoggerSlave.noChannels', 'MDC', 'There are no channels on the data logger slave.')
             });
             Ext.resumeLayouts(true);
             me.doLayout();
+        } else {
+            Ext.Array.forEach(loadProfileConfigurationRecords, function (record) {
+                loadProfileCounter++;
+
+                Ext.suspendLayouts();
+                me.down('#mdc-dataloggerslave-link-wizard-step2-container').add({
+                    xtype: 'container',
+                    layout: {
+                        type: 'vbox'
+                    },
+                    items: [
+                        {
+                            xtype: 'label',
+                            html: '<b>' + record.get('name') + '</b>'
+                        },
+                        {
+                            xtype: 'container',
+                            width: 700,
+                            margin: '20 0 0 0',
+                            itemId: 'mdc-step2-form-' + loadProfileCounter,
+                            layout: {
+                                type: 'vbox',
+                                align: 'stretch'
+                            },
+                            defaults: {
+                                labelWidth: 300
+                            },
+                            items: []
+                        }
+                    ]
+                });
+                Ext.resumeLayouts(true);
+                me.doLayout();
+                form = me.down('#mdc-step2-form-' + loadProfileCounter);
+
+                Ext.Array.forEach(record.get('channels'), function (channel) {
+                    channelCounter++;
+                    form.add(
+                        {
+                            xtype: 'combobox',
+                            listConfig: {
+                                loadingText: null,
+                                loadMask: false
+                            },
+                            editable: false,
+                            forceSelection: true,
+                            multiSelect: false,
+                            queryMode: 'local',
+                            fieldLabel: channel.name,
+                            store: me.createChannelStore(record, dataLoggerChannelRecords),
+                            emptyText: Uni.I18n.translate('general.channelCombo.emptyText', 'MDC', 'Select a channel...'),
+                            displayField: 'extendedChannelName',
+                            valueField: 'id',
+                            msgTarget: 'under',
+                            itemId: 'mdc-step2-channel-combo-' + channelCounter
+                        }
+                    );
+
+                    if (channel.useMultiplier) {
+                        form.add(
+                            {
+                                xtype: 'numberfield',
+                                minValue: 1,
+                                maxValue: 2147483647,
+                                fieldLabel: Uni.I18n.translate('general.multiplier', 'MDC', 'Multiplier'),
+                                value: 1,
+                                maxWidth: 375
+                            }
+                        );
+                    } else {
+                        form.add(
+                            {
+                                xtype: 'displayfield',
+                                fieldLabel: Uni.I18n.translate('general.multiplier', 'MDC', 'Multiplier'),
+                                value: Uni.I18n.translate('general.channelDoesntUseMultiplier', 'MDC', "Channel doesn't use multiplier")
+                            }
+                        );
+                    }
+                }, me);
+
+            }, me);
         }
 
         // 1. (Pre)select combo items according to previously made choices
