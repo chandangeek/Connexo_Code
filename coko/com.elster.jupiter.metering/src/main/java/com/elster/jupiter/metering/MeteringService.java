@@ -138,8 +138,6 @@ public interface MeteringService {
 
     Finder<ReadingType> getReadingTypesByMridFilter(@NotNull ReadingTypeMridFilter filter);
 
-    Optional<Location> findLocation(long id);
-
     /**
      * Creates a new {@link MultiplierType} with the specified name.
      *
