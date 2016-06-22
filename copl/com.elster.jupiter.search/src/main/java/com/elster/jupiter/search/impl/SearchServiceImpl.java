@@ -117,7 +117,7 @@ public class SearchServiceImpl implements SearchService, MessageSeedProvider {
 
     @Override
     public Optional<SearchDomain> pollDomain(String id, Duration timeout) throws InterruptedException {
-        return searchProviders.get(isEqual(id), timeout);
+        return searchProviders.get(isEqual(id), timeout).map(searchDomain -> new ExtendedSearchDomain(ormService, this, searchDomain));
     }
 
     private Predicate<SearchDomain> isEqual(String id) {
