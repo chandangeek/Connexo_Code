@@ -220,11 +220,13 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
         info.tracing = true;
         info.traceFile = "yyy";
         info.authenticationMethod = new IdWithLocalizedValueInfo<>(EndPointAuthentication.BASIC_AUTHENTICATION, null);
+        info.group = null;
         info.active = false;
         info.url = "/srv";
 
         Response response = target("/endpointconfigurations/1").request().put(Entity.json(info));
-        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(inboundEndPointConfiguration).setGroup(null);
     }
 
     @Test

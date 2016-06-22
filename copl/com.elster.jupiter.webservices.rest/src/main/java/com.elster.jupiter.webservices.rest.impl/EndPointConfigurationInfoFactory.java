@@ -1,6 +1,5 @@
 package com.elster.jupiter.webservices.rest.impl;
 
-import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.IdWithLocalizedValueInfo;
@@ -82,12 +81,11 @@ public class EndPointConfigurationInfoFactory {
         }
         builder.setAuthenticationMethod(info.authenticationMethod.id);
         if (EndPointAuthentication.BASIC_AUTHENTICATION.equals(info.authenticationMethod.id)) {
-            if (info.group == null || info.group.id == null) {
-                throw new LocalizedFieldValidationException(MessageSeeds.FIELD_EXPECTED, "group");
+            if (info.group != null && info.group.id == null) {
+                Group group = userService.getGroup(info.group.id)
+                        .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.BAD_REQUEST, MessageSeeds.NO_SUCH_GROUP));
+                builder.group(group);
             }
-            Group group = userService.getGroup((Long) info.group.id)
-                    .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.BAD_REQUEST, MessageSeeds.NO_SUCH_GROUP));
-            builder.group(group);
         }
         builder.traceFile(info.traceFile);
         EndPointConfiguration endPointConfiguration = builder.create();
@@ -136,11 +134,12 @@ public class EndPointConfigurationInfoFactory {
         this.applyCommonChanges(endPointConfiguration, info);
         if (EndPointAuthentication.BASIC_AUTHENTICATION.equals(info.authenticationMethod.id)) {
             if (info.group == null || info.group.id == null) {
-                throw new LocalizedFieldValidationException(MessageSeeds.FIELD_EXPECTED, "group");
+                endPointConfiguration.setGroup(null);
+            } else {
+                Group group = userService.getGroup(info.group.id)
+                        .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_GROUP));
+                endPointConfiguration.setGroup(group);
             }
-            Group group = userService.getGroup(info.group.id)
-                    .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_GROUP));
-            endPointConfiguration.setGroup(group);
         }
         return endPointConfiguration;
     }
