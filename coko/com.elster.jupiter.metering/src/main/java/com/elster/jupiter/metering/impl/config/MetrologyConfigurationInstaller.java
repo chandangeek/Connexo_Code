@@ -2,7 +2,6 @@ package com.elster.jupiter.metering.impl.config;
 
 
 import com.elster.jupiter.cbo.PhaseCode;
-import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
@@ -31,12 +30,10 @@ public class MetrologyConfigurationInstaller {
 
     private ServerMetrologyConfigurationService metrologyConfigurationService;
     private MeteringService meteringService;
-    private CustomPropertySetService customPropertySetService;
 
-    public MetrologyConfigurationInstaller(ServerMetrologyConfigurationService metrologyConfigurationService, MeteringService meteringService, CustomPropertySetService customPropertySetService) {
+    public MetrologyConfigurationInstaller(ServerMetrologyConfigurationService metrologyConfigurationService, MeteringService meteringService) {
         this.metrologyConfigurationService = metrologyConfigurationService;
         this.meteringService = meteringService;
-        this.customPropertySetService = customPropertySetService;
     }
 
     public void install() {
