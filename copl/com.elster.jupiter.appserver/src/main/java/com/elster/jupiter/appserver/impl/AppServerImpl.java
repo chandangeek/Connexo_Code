@@ -11,6 +11,7 @@ import com.elster.jupiter.appserver.ServerMessageQueueMissing;
 import com.elster.jupiter.appserver.SubscriberExecutionSpec;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.domain.util.UniqueCaseInsensitive;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.messaging.DestinationSpec;
@@ -21,7 +22,8 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
-import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.EventType;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.cron.CronExpression;
@@ -61,6 +63,8 @@ public class AppServerImpl implements AppServer {
     private final ThreadPrincipalService threadPrincipalService;
     private final WebServicesService webServicesService;
     private final Provider<EndPointForAppServerImpl> webServiceForAppServerProvider;
+    private final EventService eventService;
+    private final EndPointConfigurationService endPointConfigurationService;
 
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     @Size(max = APP_SERVER_NAME_SIZE, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_14 + "}")
@@ -84,7 +88,7 @@ public class AppServerImpl implements AppServer {
                   MessageService messageService, JsonService jsonService, Thesaurus thesaurus,
                   TransactionService transactionService, ThreadPrincipalService threadPrincipalService,
                   Provider<EndPointForAppServerImpl> webServiceForAppServerProvider,
-                  WebServicesService webServicesService) {
+                  WebServicesService webServicesService, EventService eventService, EndPointConfigurationService endPointConfigurationService) {
         this.dataModel = dataModel;
         this.cronExpressionParser = cronExpressionParser;
         this.fileImportService = fileImportService;
@@ -95,6 +99,8 @@ public class AppServerImpl implements AppServer {
         this.threadPrincipalService = threadPrincipalService;
         this.webServiceForAppServerProvider = webServiceForAppServerProvider;
         this.webServicesService = webServicesService;
+        this.eventService = eventService;
+        this.endPointConfigurationService = endPointConfigurationService;
     }
 
     static AppServerImpl from(DataModel dataModel, String name, CronExpression scheduleFrequency) {
@@ -275,10 +281,7 @@ public class AppServerImpl implements AppServer {
         if (!supportedEndPoints().contains(endPointConfiguration)) {
             EndPointForAppServerImpl link = webServiceForAppServerProvider.get().init(this, endPointConfiguration);
             link.save();
-            if (this.isActive() && endPointConfiguration.isActive()) {
-                webServicesService.publishEndPoint(endPointConfiguration);
-                endPointConfiguration.log(LogLevel.INFO, String.format("Endpoint was published on appserver %s", this.getName()));
-            }
+            eventService.postEvent(EventType.WEB_SERVICE_CHANGED.topic(), endPointConfiguration);
         }
     }
 
@@ -294,10 +297,7 @@ public class AppServerImpl implements AppServer {
         if (!links.isEmpty()) {
             dataModel.mapper(WebServiceForAppServer.class).remove(links.get(0)); // there can only be one anyway
         }
-        if (this.isActive() && webServicesService.isPublished(endPointConfiguration)) {
-            webServicesService.removeEndPoint(endPointConfiguration);
-            endPointConfiguration.log(LogLevel.INFO, String.format("Endpoint was revoked on appserver %s", this.getName()));
-        }
+        eventService.postEvent(EventType.WEB_SERVICE_CHANGED.topic(), endPointConfiguration);
     }
 
     @Override
@@ -306,7 +306,14 @@ public class AppServerImpl implements AppServer {
                 dataModel
                         .query(WebServiceForAppServer.class)
                         .select(where(EndPointForAppServerImpl.Fields.AppServer.fieldName()).isEqualTo(this));
-        return links.stream().map(WebServiceForAppServer::getEndPointConfiguration).collect(toList());
+        List<EndPointConfiguration> endPointConfigurations = links.stream()
+                .map(WebServiceForAppServer::getEndPointConfiguration)
+                .collect(toList());
+        endPointConfigurationService.findEndPointConfigurations()
+                .stream()
+                .filter(epc -> !epc.isInbound())
+                .forEach(endPointConfigurations::add);
+        return endPointConfigurations;
     }
 
     private SubscriberExecutionSpecImpl getSubscriberExecutionSpec(SubscriberExecutionSpec subscriberExecutionSpec) {

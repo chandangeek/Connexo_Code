@@ -8,6 +8,7 @@ import com.elster.jupiter.appserver.ImportFolderForAppServer;
 import com.elster.jupiter.appserver.ImportScheduleOnAppServer;
 import com.elster.jupiter.appserver.SubscriberExecutionSpec;
 import com.elster.jupiter.domain.util.QueryService;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.messaging.DestinationSpec;
@@ -25,6 +26,7 @@ import com.elster.jupiter.orm.InvalidateCacheRequest;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.Transaction;
@@ -147,6 +149,10 @@ public class AppServiceImplTest {
     private ThreadPrincipalService threadPrincipalService;
     @Mock
     private WebServicesService webServicesService;
+    @Mock
+    private EndPointConfigurationService endPointConfigurationService;
+    @Mock
+    private EventService eventService;
 
     @SuppressWarnings("unchecked")
 	@Before
@@ -183,7 +189,9 @@ public class AppServiceImplTest {
         setupBlockingCancellableSubscriberSpec();
         setupFakeTransactionService();
 
-        appService = new AppServiceImpl(ormService, nlsService, transactionService, messageService, new DefaultCronExpressionParser(), jsonService, fileImportService, taskService, userService, queryService, bundleContext, threadPrincipalService, webServicesService, upgradeService);
+        appService = new AppServiceImpl(ormService, nlsService, transactionService, messageService, new DefaultCronExpressionParser(),
+                jsonService, fileImportService, taskService, userService, queryService, bundleContext, threadPrincipalService,
+                webServicesService, upgradeService, endPointConfigurationService, eventService);
     }
 
     @SuppressWarnings("unchecked")
