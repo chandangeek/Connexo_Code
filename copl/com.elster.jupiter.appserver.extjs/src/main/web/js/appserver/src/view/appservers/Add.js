@@ -5,10 +5,12 @@ Ext.define('Apr.view.appservers.Add', {
         'Uni.util.FormErrorMessage',
         'Apr.view.appservers.MessageServicesGrid',
         'Apr.view.appservers.ImportServicesGrid',
+        'Apr.view.appservers.WebserviceEndpointsGrid',
         'Ext.toolbar.Spacer'
     ],
     edit: false,
     returnLink: null,
+    webserviceStore: null,
     setEdit: function (edit) {
         if (edit) {
             this.edit = edit;
@@ -170,6 +172,52 @@ Ext.define('Apr.view.appservers.Add', {
                                 xtype: 'apr-import-services-grid',
                                 itemId: 'apr-import-services-grid',
                                 store: me.importStore
+                            }
+                        ]
+                    },
+                    {
+                        xtype: 'fieldcontainer',
+                        fieldLabel: Uni.I18n.translate('general.webserviceEnpoints', 'APR', 'Webservice endpoints'),
+                        itemId: 'webserviceEndpointsContainer',
+                        layout: 'vbox',
+                        items: [
+                            {
+                                xtype: 'container',
+                                width: '100%',
+                                layout: {
+                                    type: 'hbox',
+                                    align: 'stretch'
+                                },
+                                items: [
+                                    {
+                                        xtype: 'component',
+                                        itemId: 'webservice-empty-text-grid',
+                                        html: Uni.I18n.translate('appServers.noWebServiceEndpoints', 'APR', "No webservice endpoints have been added"),
+                                        style: {
+                                            'font': 'italic 13px/17px Lato',
+                                            'color': '#686868',
+                                            'margin-top': '6px',
+                                            'margin-right': '10px'
+                                        },
+                                        hidden: true
+                                    },
+                                    {
+                                        xtype: 'component',
+                                        itemId: 'apr-add-webservices-push-to-right-component',
+                                        flex: 1
+                                    },
+                                    {
+                                        itemId: 'add-webservices-button',
+                                        xtype: 'button',
+                                        margin: '0 0 10 0',
+                                        text: Uni.I18n.translate('general.addWebserviceEndpoints', 'APR', 'Add webservice endpoints'),
+                                    }
+                                ]
+                            },
+                            {
+                                xtype: 'apr-web-service-endpoints-grid',
+                                itemId: 'apr-webservice-endpoints-grid',
+                                store: me.webserviceStore
                             }
                         ]
                     },
