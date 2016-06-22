@@ -33,8 +33,7 @@ public class MetrologyConfigurationValidationRuleSetResolver implements Validati
                     .findMetrologyConfigurationForUsagePoint(channelsContainer.getUsagePoint().get())
                     .map(metrologyConfiguration -> this.usagePointConfigurationService.getValidationRuleSets(metrologyConfiguration))
                     .orElse(Collections.emptyList());
-        }
-        else {
+        } else {
             return Collections.emptyList();
         }
     }
