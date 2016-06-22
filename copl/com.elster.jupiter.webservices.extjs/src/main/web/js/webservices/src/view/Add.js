@@ -19,7 +19,6 @@ Ext.define('Wss.view.Add', {
                         xtype: 'form',
                         width: 650,
                         itemId: 'addForm',
-                        //hydrator: 'Uni.util.Hydrator',
                         buttonAlign: 'left',
                         layout: {
                             type: 'vbox',
@@ -81,8 +80,13 @@ Ext.define('Wss.view.Add', {
             form.getForm().setValues(this.record.data);
             form.down('#logLevelCombo').select(this.record.getLogLevel());
             form.down('#authenticationCombo').select(this.record.getAuthenticationMethod());
-            form.down('#userRoleField').select(this.record.getGroup());
+
             form.down('#webServiceCombo').disable();
+            if(this.record.getAuthenticationMethod().get('id')!== 'none' && Ext.isEmpty(this.record.getGroup())){
+                form.down('#userRoleField').select('all');
+            } else {
+                form.down('#userRoleField').select(this.record.getGroup());
+            }
             if(this.record.get('active')===true){
                 formErrorsPlaceHolder = form.down('#addEndPointFormErrors');
                 formErrorsPlaceHolder.hide();
@@ -107,10 +111,6 @@ Ext.define('Wss.view.Add', {
                     }
                 })
             }
-            //form.getForm().setValues({
-            //    logLevel: this.record.getLogLevel(),
-            //    authenticationMethod: this.record.getAuthenticationMethod()
-            //});
         }
     },
 
@@ -132,11 +132,9 @@ Ext.define('Wss.view.Add', {
         if(newValue !== null) {
             var value = newValue.localizedValue || newValue;
             value = value.toUpperCase();
-            // var record = combobox.findRecordByValue(value),
             var userRoleField = this.down('#userRoleField'),
                 userNameField = this.down('#userNameField'),
                 passwordField = this.down('#passwordField');
-            // if(record.get('authenticationMethod')==='NONE'){
             if (value === 'NONE') {
                 if (!!userRoleField) {
                     userRoleField.setVisible(false)
@@ -147,7 +145,6 @@ Ext.define('Wss.view.Add', {
                 if (!!passwordField) {
                     passwordField.setVisible(false)
                 }
-                //} else if (record.get('authenticationMethod')==='BASIC_AUTHENTICATION'){
             } else if (value === 'BASIC_AUTHENTICATION') {
                 if (!!userRoleField) {
                     userRoleField.setVisible(true)
@@ -176,7 +173,11 @@ Ext.define('Wss.view.Add', {
                 name: 'url',
                 fieldLabel: direction.toUpperCase()==='INBOUND'?Uni.I18n.translate('endPointAdd.urlPath', 'WSS', 'Url Path'):Uni.I18n.translate('endPointAdd.url', 'WSS', 'Url'),
                 required: true,
-                emptyText:  direction.toUpperCase()==='INBOUND'?Uni.I18n.translate('endPointAdd.urlPathEmptyText', 'WSS', 'Provide the path e.g. https://<applicationserver>:<port>/<path>'):Uni.I18n.translate('endPointAdd.urlEmptyText', 'WSS', 'Provide the format as https://<host>:<port>/<path>')
+                afterBodyEl: [
+                    '<div class="x-form-display-field" style="padding-right:10px;color:#686868"><i>',
+                    direction.toUpperCase()==='INBOUND'?Uni.I18n.translate('endPointAdd.urlPathEmptyText', 'WSS', 'Provide the path e.g. https://applicationserver:port/&lt;path&gt;'):Uni.I18n.translate('endPointAdd.urlEmptyText', 'WSS', 'Provide the format as https://<host>:<port>/<path>'),
+                    '</i></div>'
+                ]
             },
             {
                 xtype: 'combobox',

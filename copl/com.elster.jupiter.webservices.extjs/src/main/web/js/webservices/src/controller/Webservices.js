@@ -90,6 +90,10 @@ Ext.define('Wss.controller.Webservices', {
                     callback: function () {
                         rolesStore.load({
                             callback: function () {
+                                rolesStore.insert(0,{
+                                    id: 'all',
+                                    name: Uni.I18n.translate('endPointAdd.all', 'WSS', 'All')
+                                });
                                 view = Ext.widget('endpoint-add', {
                                     action: type,
                                     record: record,
@@ -127,19 +131,22 @@ Ext.define('Wss.controller.Webservices', {
         var form = button.up('form'),
             me = this;
         record.set(form.getValues());
-
         var logLevel = form.down('#logLevelCombo').findRecordByValue(record.get('logLevel'));
         logLevel?record.setLogLevel(logLevel):record.set('logLevel',null);
-
         var authenticationMethod = form.down('#authenticationCombo').findRecordByValue(record.get('authenticationMethod'));
         authenticationMethod?record.setAuthenticationMethod(authenticationMethod):record.set('authenticationMethod',null);
-
-        var userGroup = form.down('#userRoleField').findRecordByValue(record.get('group'));
-        userGroup?record.setGroup(userGroup):record.set('group',null);
-
-
+        if(form.down('#userRoleField')) {
+            var userGroup = form.down('#userRoleField').findRecordByValue(record.get('group'));
+            if(userGroup.get('id')==='all'){;
+                record.setGroup(null);
+                record.set('group', null);
+            } else {
+                userGroup ? record.setGroup(userGroup) : record.set('group', null);
+            }
+        } else {
+            record.set('group', null);
+        }
         record.set('direction', null);
-
         record.save({
             success: function (record) {
                 me.getApplication().fireEvent('acknowledge', acknowledgement);

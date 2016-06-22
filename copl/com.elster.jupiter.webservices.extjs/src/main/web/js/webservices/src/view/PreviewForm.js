@@ -85,16 +85,22 @@ Ext.define('Wss.view.PreviewForm', {
                 },
                 {
                     xtype: 'displayfield',
-                    fieldLabel: Uni.I18n.translate('webservices.authenticationRequired', 'WSS', 'Authentication required'),
-                    name: 'authenticated',
-                    renderer: me.renderYesOrNo
+                    fieldLabel: Uni.I18n.translate('webservices.authenticationRequired', 'WSS', 'Authentication'),
+                    name: 'authenticationMethod',
+                    renderer: function(value){
+                        return !Ext.isEmpty(value)?value.localizedValue:'';
+                    }
                 },
                 {
                     xtype: 'displayfield',
                     fieldLabel: Uni.I18n.translate('general.userRole', 'WSS', 'User role'),
                     name: 'group',
-                    renderer: function(value){
-                        if(Ext.isEmpty(value)){
+                    renderer: function(value,field){
+                        if(field.up('form').down('[name=authenticationMethod]').getValue().id === "BASIC_AUTHENTICATION" && Ext.isEmpty(value)){
+                            this.show();
+                            return Uni.I18n.translate('endPointAdd.all', 'WSS', 'All');
+                        }
+                        else if(Ext.isEmpty(value)){
                             this.hide();
                             return value;
                         } else {
@@ -108,6 +114,7 @@ Ext.define('Wss.view.PreviewForm', {
                     fieldLabel: Uni.I18n.translate('general.userName', 'WSS', 'Username'),
                     name: 'username',
                     renderer: function(value){
+
                         Ext.isEmpty(value)?this.hide():this.show();
                         return value;
                     }
