@@ -270,8 +270,7 @@ public interface UsagePoint extends HasId, IdentifiedObject {
     @Deprecated
     ZoneId getZoneId(); // dependency in data aggregation
 
-    @Deprecated
-    List<? extends MeterActivation> getMeterActivations();
-
     // TODO delete end ===============================================================================================
+
+    List<? extends MeterActivation> getMeterActivations();
 }
