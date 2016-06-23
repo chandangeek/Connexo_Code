@@ -1,15 +1,16 @@
 package com.elster.jupiter.metering.groups.impl;
 
-import java.time.Instant;
-
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.groups.UsagePointMembership;
+
 import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
 
-public class UsagePointMembershipImpl implements UsagePointMembership {
+import java.time.Instant;
+
+class UsagePointMembershipImpl implements UsagePointMembership {
     private final UsagePoint usagePoint;
     private RangeSet<Instant> ranges;
 
@@ -28,11 +29,11 @@ public class UsagePointMembershipImpl implements UsagePointMembership {
         return usagePoint;
     }
 
-    public void addRange(Range<Instant> range) {
+    void addRange(Range<Instant> range) {
         ranges.add(range);
     }
 
-    public void removeRange(Range<Instant> range) {
+    void removeRange(Range<Instant> range) {
         ranges.remove(range);
     }
 
@@ -40,7 +41,8 @@ public class UsagePointMembershipImpl implements UsagePointMembership {
         return ranges.rangeContaining(range.hasLowerBound() ? range.lowerEndpoint() : Instant.MIN);
     }
 
-    public UsagePointMembershipImpl withRanges(RangeSet<Instant> newRanges) {
+    UsagePointMembershipImpl withRanges(RangeSet<Instant> newRanges) {
         return new UsagePointMembershipImpl(usagePoint, newRanges);
     }
+
 }

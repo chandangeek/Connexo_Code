@@ -5,9 +5,11 @@ import com.elster.jupiter.search.SearchablePropertyCondition;
 import com.elster.jupiter.search.SearchablePropertyValue;
 import com.elster.jupiter.util.sql.SqlFragment;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.util.List;
 
-
+@ProviderType
 public interface QueryEndDeviceGroup extends EndDeviceGroup {
 
     String TYPE_IDENTIFIER = "QEG";

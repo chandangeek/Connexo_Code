@@ -4,8 +4,11 @@ import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchablePropertyValue;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.time.Instant;
 
+@ProviderType
 public interface EndDeviceGroupBuilder {
 
     EnumeratedEndDeviceGroupBuilder containing(EndDevice... moreDevices);

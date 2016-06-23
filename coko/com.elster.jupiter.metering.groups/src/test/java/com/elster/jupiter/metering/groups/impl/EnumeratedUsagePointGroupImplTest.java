@@ -2,27 +2,23 @@ package com.elster.jupiter.metering.groups.impl;
 
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.groups.EnumeratedUsagePointGroup;
 import com.elster.jupiter.metering.groups.UsagePointMembership;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.RangeSets;
+
 import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.Range;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -35,24 +31,14 @@ public class EnumeratedUsagePointGroupImplTest {
     @Mock
     private UsagePoint usagePoint;
     @Mock
-    private DataMapper<EnumeratedUsagePointGroup.Entry> entryMapper;
+    private DataMapper<EnumeratedUsagePointGroupImpl.EntryImpl> entryMapper;
     @Mock
     private MeteringService meteringService;
 
     @Before
     public void setUp() {
-        when(dataModel.mapper(EnumeratedUsagePointGroup.Entry.class)).thenReturn(entryMapper);
-        when(dataModel.getInstance(EnumeratedUsagePointGroupImpl.EntryImpl.class)).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new EnumeratedUsagePointGroupImpl.EntryImpl(dataModel, meteringService);
-            }
-        });
-    }
-
-    @After
-    public void tearDown() {
-
+        when(dataModel.mapper(EnumeratedUsagePointGroupImpl.EntryImpl.class)).thenReturn(entryMapper);
+        when(dataModel.getInstance(EnumeratedUsagePointGroupImpl.EntryImpl.class)).thenAnswer(invocationOnMock -> new EnumeratedUsagePointGroupImpl.EntryImpl(dataModel, meteringService));
     }
 
     @Test

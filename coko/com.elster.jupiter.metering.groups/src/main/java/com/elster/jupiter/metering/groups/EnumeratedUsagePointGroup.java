@@ -1,12 +1,15 @@
 package com.elster.jupiter.metering.groups;
 
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.orm.associations.Effectivity;
+
+import aQute.bnd.annotation.ProviderType;
+import com.google.common.collect.Range;
+
 import java.time.Instant;
 import java.util.List;
 
-import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.orm.associations.Effectivity;
-import com.google.common.collect.Range;
-
+@ProviderType
 public interface EnumeratedUsagePointGroup extends UsagePointGroup {
 
     String TYPE_IDENTIFIER = "EEG";
@@ -20,7 +23,7 @@ public interface EnumeratedUsagePointGroup extends UsagePointGroup {
     Entry add(UsagePoint usagePoint, Range<Instant> range);
 
     void remove(Entry entry);
-    
+
     List<? extends Entry> getEntries();
 
 }
