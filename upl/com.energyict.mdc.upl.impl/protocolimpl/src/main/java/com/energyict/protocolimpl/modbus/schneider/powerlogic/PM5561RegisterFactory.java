@@ -39,7 +39,7 @@ public class PM5561RegisterFactory extends AbstractRegisterFactory{
     public static final String LOAD_PROFILE_RECORD_ITEM1 = "Load Profile Configuration";
     public static final String LOAD_PROFILE_FIRST_RECORD = "Load Profile Configuration - First Record Sequence Number";
     public static final String LOAD_PROFILE_LAST_RECORD = "Load Profile Configuration - Last Record Sequence Number";
-    private static final String LOAD_PROFILE_NUMBER_OF_RECORDS = "Number of records in file";
+    public static final String LOAD_PROFILE_NUMBER_OF_RECORDS = "Number of records in file";
 
     public PM5561RegisterFactory(Modbus modBus) {
         super(modBus);

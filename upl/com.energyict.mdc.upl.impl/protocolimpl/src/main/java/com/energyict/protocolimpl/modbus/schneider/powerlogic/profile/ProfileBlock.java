@@ -9,12 +9,11 @@ import java.util.*;
 
 public class ProfileBlock {
 
-    private static final String CHANNEL_OBIS = "0.1.128.0.0.255";
     private ProfileHeader profileHeader;
     private ProfileRecords profileRecords;
 
-    public ProfileBlock(List values) {
-        this.profileHeader = ProfileHeader.parse(values);
+    public ProfileBlock(byte[] values, int recordCount) {
+        this.profileHeader = ProfileHeader.parse(recordCount);
         this.profileRecords = ProfileRecords.parse(values, this.profileHeader, this.profileHeader.getWordLength());
     }
 
@@ -34,16 +33,24 @@ public class ProfileBlock {
     }
 
     private List<ChannelInfo> buildChannelInfos() {
-        List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
-        channelInfos.add(new ChannelInfo(channelInfos.size(), CHANNEL_OBIS, Unit.get(BaseUnit.VOLTAMPEREREACTIVE)));
+        List<ChannelInfo> channelInfos = new ArrayList<>();
+        channelInfos.add(new ChannelInfo(channelInfos.size(), "Active Energy Delivered", Unit.get(BaseUnit.WATTHOUR)));
+        channelInfos.add(new ChannelInfo(channelInfos.size(), "Active Energy Received", Unit.get(BaseUnit.WATTHOUR)));
+        channelInfos.add(new ChannelInfo(channelInfos.size(), "Active Power A", Unit.get(BaseUnit.WATT)));
+        channelInfos.add(new ChannelInfo(channelInfos.size(), "Active Power B", Unit.get(BaseUnit.WATT)));
+        channelInfos.add(new ChannelInfo(channelInfos.size(), "Active Power C", Unit.get(BaseUnit.WATT)));
+        channelInfos.add(new ChannelInfo(channelInfos.size(), "Active Power Total", Unit.get(BaseUnit.WATT)));
+        channelInfos.add(new ChannelInfo(channelInfos.size(), "Apparent Energy Delivered", Unit.get(BaseUnit.WATTHOUR)));
+        channelInfos.add(new ChannelInfo(channelInfos.size(), "Apparent Energy Received", Unit.get(BaseUnit.WATTHOUR)));
+        channelInfos.add(new ChannelInfo(channelInfos.size(), "Reactive Energy Delivered", Unit.get(BaseUnit.WATTHOUR)));
+        channelInfos.add(new ChannelInfo(channelInfos.size(), "Reactive Energy Received", Unit.get(BaseUnit.WATTHOUR)));
         return channelInfos;
     }
 
     private List<IntervalData> buildIntervalDatas() {
-        List<IntervalData> intervalDatas = new ArrayList<IntervalData>();
+        List<IntervalData> intervalDatas = new ArrayList<>();
         for (ProfileRecord profileRecord : getProfileRecords().getProfileRecords()) {
-            List<IntervalValue> intervalValues = new ArrayList<IntervalValue>();
-            //double value = (Long)profileRecord.getValue() * (Long)getProfileHeader().getNumeratorRate() / getProfileHeader().getDenominatorRate();
+            List<IntervalValue> intervalValues = new ArrayList<>();
 
             for(Object value: profileRecord.getValues()){
                 intervalValues.add(new IntervalValue(
@@ -53,16 +60,16 @@ public class ProfileBlock {
                 ));
             }
 
+            intervalDatas.add(
+                    new IntervalData(
+                            profileRecord.getDate(),
+                            IntervalStateBits.OK,
+                            profileRecord.isIncompleteIntegrationPeriod() ? 1 : 0,
+                            IntervalStateBits.POWERDOWN,
+                            intervalValues
+                    )
+            );
 
-//            intervalDatas.add(
-//                    new IntervalData(
-//                            profileRecord.getDate(),
-//                            IntervalStateBits.OK,
-//                            0,
-//                            IntervalStateBits.POWERDOWN,
-//                            intervalValues
-//                    )
-//            );
         }
 
         sortIntervalData(intervalDatas);
@@ -77,6 +84,7 @@ public class ProfileBlock {
                     }
                 });
     }
+
 
     public Date getOldestProfileRecordDate() {
         Date oldestDate = null;
