@@ -10,6 +10,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.google.common.collect.ImmutableMap;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -22,18 +23,18 @@ public abstract class AbstractNode implements ServerExpressionNode {
     // ORM inheritance map
     public static final Map<String, Class<? extends ExpressionNode>> IMPLEMENTERS = getImplementers();
 
-    // Managed by ORM layer
-    @SuppressWarnings("unused")
+    @SuppressWarnings("unused") // Managed by ORM
     private long id;
     private Reference<AbstractNode> parent = ValueReference.absent();
     private List<ServerExpressionNode> children = new ArrayList<>();
+    @SuppressWarnings("unused") // Needs for sorting when ORM fetches children
     private long argumentIndex;
 
-    public AbstractNode() {
+    AbstractNode() {
         super();
     }
 
-    public AbstractNode(List<? extends ServerExpressionNode> children) {
+    AbstractNode(List<? extends ServerExpressionNode> children) {
         this();
         this.children.addAll(children);
         int argumentIndex = 1;
@@ -44,11 +45,6 @@ public abstract class AbstractNode implements ServerExpressionNode {
         }
     }
 
-    public AbstractNode(List<AbstractNode> children, AbstractNode parentNode) {
-        this(children);
-        this.parent.set(parentNode);
-    }
-
     @Override
     public ExpressionNode getParent() {
         return parent.orNull();
@@ -56,7 +52,7 @@ public abstract class AbstractNode implements ServerExpressionNode {
 
     @Override
     public List<ServerExpressionNode> getChildren() {
-        return children;
+        return Collections.unmodifiableList(children);
     }
 
     public void setParent(AbstractNode parent) {
@@ -102,7 +98,7 @@ public abstract class AbstractNode implements ServerExpressionNode {
         }
     }
 
-    void doSave(DataModel dataModel) {
+    private void doSave(DataModel dataModel) {
         if (id == 0) {
             persist(dataModel);
         } else {
