@@ -1,6 +1,5 @@
 package com.elster.jupiter.issue.share.service;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
@@ -22,13 +21,15 @@ import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.nls.TranslationKey;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 @ProviderType
 public interface IssueService {
-    
+
     String COMPONENT_NAME = "ISU";
 
     Optional<? extends Issue> findIssue(long id);
@@ -51,6 +52,7 @@ public interface IssueService {
 
     /**
      * Creates new status
+     *
      * @param key unique string id
      * @param isHistorical if it is {@code true} then this status can be used for closing an open issue
      * @param translationKey TranslationKey which contains translation for this status. It will be saved automatically as a part of the {@value IssueService#COMPONENT_NAME} component
@@ -60,6 +62,7 @@ public interface IssueService {
 
     /**
      * Creates new reason
+     *
      * @param key unique string id
      * @param type for which issue types this reason can be applied (data collection, data validation and so on)
      * @param name TranslationKey which contains name for this reason. It will be saved automatically as a part of the {@value IssueService#COMPONENT_NAME} component
@@ -70,6 +73,7 @@ public interface IssueService {
 
     /**
      * Creates new issue type (For example: data collection or data validation)
+     *
      * @param key unique string id
      * @param translationKey TraslationKey which contains translation for this issue type. It will be saved automatically as a part of the {@value IssueService#COMPONENT_NAME} component
      * @return instance of issue type (it is already saved into database)
@@ -80,20 +84,22 @@ public interface IssueService {
 
     List<IssueGroup> getIssueGroupList(IssueGroupFilter builder);
 
-    int countOpenDataCollectionIssues(String mRID);
+    Finder<OpenIssue> findOpenIssuesForDevices(List<String> mRID);
+
+    Finder<OpenIssue> findOpenIssuesForDevice(String mRID);
 
     List<IssueProvider> getIssueProviders();
 
     List<IssueCreationValidator> getIssueCreationValidators();
-    
+
     IssueActionService getIssueActionService();
-    
+
     IssueAssignmentService getIssueAssignmentService();
-    
+
     IssueCreationService getIssueCreationService();
-    
+
     Map<String, CreationRuleTemplate> getCreationRuleTemplates();
-    
+
     Map<String, IssueActionFactory> getIssueActionFactories();
 
     Finder<? extends Issue> findIssues(IssueFilter filter, Class<?>... eagers);
@@ -103,5 +109,5 @@ public interface IssueService {
     IssueFilter newIssueFilter();
 
     IssueGroupFilter newIssueGroupFilter();
-    
+
 }

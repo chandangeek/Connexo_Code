@@ -57,7 +57,7 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Where;
+import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import com.google.inject.AbstractModule;
@@ -404,7 +404,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     }
 
     private <T extends Entity> Optional<T> find(Class<T> clazz, Object... key) {
-        return queryService.wrap(dataModel.query(clazz)).get(key);
+        return dataModel.mapper(clazz).getOptional(key);
     }
 
     @Override
@@ -421,17 +421,15 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     }
 
     @Override
-    public int countOpenDataCollectionIssues(String mRID) {
-        Optional<IssueType> issueType = findIssueType("datacollection");
-        if (issueType.isPresent()) {
-            Condition condition = Where.where("reason.issueType").isEqualTo(issueType.get())
-                    .and(where("device.mRID").isEqualTo(mRID));
-            List<OpenIssue> issues = dataModel.query(OpenIssue.class, IssueReason.class, EndDevice.class)
-                    .select(condition);
-            return issues.size();
-        } else {
-            return 0;
-        }
+    public Finder<OpenIssue> findOpenIssuesForDevices(List<String> mRID) {
+        Condition condition = ListOperator.IN.contains("device.mRID", mRID);
+        return DefaultFinder.of(OpenIssue.class, condition, dataModel, IssueReason.class, EndDevice.class);
+    }
+
+    @Override
+    public Finder<OpenIssue> findOpenIssuesForDevice(String mRID) {
+        Condition condition = where("device.mRID").isEqualTo(mRID);
+        return DefaultFinder.of(OpenIssue.class, condition, dataModel, IssueReason.class, EndDevice.class);
     }
 
     @Override
