@@ -26,7 +26,6 @@ import com.energyict.mdc.pluggable.rest.impl.TimeZoneInUseInfo;
 import com.energyict.mdc.protocol.api.DeviceMessageFile;
 import com.energyict.mdc.protocol.api.timezones.TimeZoneInUse;
 
-import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 
@@ -125,9 +124,6 @@ public class MdcPropertyReferenceInfoFactory {
 //            uri = uriInfo.getBaseUriBuilder().path(DeviceMessageFileReferenceResource.class).path("/").build();
         } else if (LoadProfileType.class.isAssignableFrom(propertyClassType)) {
             uri = uriInfo.getBaseUriBuilder().path(LoadProfileTypeResource.class).path("/").build();
-        } else if (UsagePoint.class.isAssignableFrom(propertyClassType)) {
-            //TODO use uriInfo
-            uri = UriBuilder.fromPath("http://localhost:8080/api/mtr/usagepoints").build();//uriInfo.getBaseUriBuilder().path("mtr/usagepoints").build();
         }
         return uri;
     }
