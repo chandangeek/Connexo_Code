@@ -160,7 +160,9 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
         usagePoint.setServiceLocationString(serviceLocationString);
         usagePoint.setGeoCoordinates(geoCoordinates);
         usagePoint.setLocation(locationId);
-        usagePoint.apply(metrologyConfiguration);
+        if (metrologyConfiguration != null) {
+            usagePoint.apply(metrologyConfiguration);
+        }
         return usagePoint;
     }
 }
