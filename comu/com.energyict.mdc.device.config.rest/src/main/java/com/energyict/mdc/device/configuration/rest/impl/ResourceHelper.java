@@ -568,6 +568,15 @@ public class ResourceHelper {
         return meteringService.getReadingType(mRID);
     }
 
+    public long findTimeOfUseOptionsId(DeviceType deviceType) {
+        Optional<TimeOfUseOptions> timeOfUseOptions = deviceConfigurationService.findTimeOfUseOptions(deviceType);
+        if(timeOfUseOptions.isPresent()) {
+            return timeOfUseOptions.get().getVersion();
+        } else {
+            return 0;
+        }
+    }
+
     public Optional<TimeOfUseOptions> findAndLockTimeOfUseOptionsByIdAndVersion(DeviceType deviceType, long version) {
         return deviceConfigurationService.findAndLockTimeOfUseOptionsByIdAndVersion(deviceType, version);
     }

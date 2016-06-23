@@ -8,6 +8,7 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -32,6 +33,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleInfo;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateInfo;
+import com.energyict.mdc.firmware.FirmwareManagementOptions;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterType;
@@ -81,6 +83,7 @@ public class DeviceTypeResource {
     private final Provider<DeviceConfigConflictMappingResource> deviceConflictMappingResourceProvider;
     private final Provider<LoadProfileTypeResource> loadProfileTypeResourceProvider;
     private final ProtocolPluggableService protocolPluggableService;
+    private final ConcurrentModificationExceptionFactory conflictFactory;
     private final CalendarInfoFactory calendarInfoFactory;
     private final CalendarService calendarService;
     private final Thesaurus thesaurus;
@@ -94,7 +97,7 @@ public class DeviceTypeResource {
             ProtocolPluggableService protocolPluggableService,
             Provider<DeviceConfigurationResource> deviceConfigurationResourceProvider,
             Provider<LoadProfileTypeResource> loadProfileTypeResourceProvider,
-            CalendarInfoFactory calendarInfoFactory,
+            ConcurrentModificationExceptionFactory conflictFactory, CalendarInfoFactory calendarInfoFactory,
             CalendarService calendarService,
             Thesaurus thesaurus) {
         this.resourceHelper = resourceHelper;
@@ -104,6 +107,7 @@ public class DeviceTypeResource {
         this.loadProfileTypeResourceProvider = loadProfileTypeResourceProvider;
         this.deviceConfigurationResourceProvider = deviceConfigurationResourceProvider;
         this.deviceConflictMappingResourceProvider = deviceConflictMappingResourceProvider;
+        this.conflictFactory = conflictFactory;
         this.calendarInfoFactory = calendarInfoFactory;
         this.calendarService = calendarService;
         this.thesaurus = thesaurus;
@@ -619,6 +623,12 @@ public class DeviceTypeResource {
     public Response changeTimeOfUseOptions(@PathParam("id") long id, @PathParam("dummyid") long dummyID, TimeOfUseOptionsInfo info) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         Optional<TimeOfUseOptions> timeOfUseOptions = resourceHelper.findAndLockTimeOfUseOptionsByIdAndVersion(deviceType, info.version);
+        if (!timeOfUseOptions.isPresent() && resourceHelper.findTimeOfUseOptionsId(deviceType) != 0) {
+            throw conflictFactory.contextDependentConflictOn(deviceType.getName())
+                    .withActualVersion(() -> resourceHelper.findTimeOfUseOptionsId(deviceType))
+                    .build();
+        }
+
         if (info.isAllowed && info.allowedOptions != null){
             Set<ProtocolSupportedCalendarOptions> supportedCalendarOptions = deviceConfigurationService.getSupportedTimeOfUseOptionsFor(deviceType, false);
             Set<ProtocolSupportedCalendarOptions> newAllowedOptions = info.allowedOptions.stream()
