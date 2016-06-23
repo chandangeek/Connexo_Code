@@ -25,6 +25,7 @@ import com.elster.jupiter.users.UserPreferencesService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
@@ -159,7 +160,8 @@ public class DeviceDeleteTest {
     private ThreadPrincipalService threadPrincipalService;
     @Mock
     private UserPreferencesService userPreferencesService;
-
+    @Mock
+    private DeviceConfigurationService deviceConfigurationService;
 
     @Before
     public void setup() {
@@ -289,7 +291,7 @@ public class DeviceDeleteTest {
         DeviceImpl device = new DeviceImpl(dataModel, eventService, issueService, thesaurus, clock, meteringService, metrologyConfigurationService, validationService,
                 securityPropertyService, scheduledConnectionTaskProvider, inboundConnectionTaskProvider,
                 connectionInitiationProvider, scheduledComTaskExecutionProvider, manuallyScheduledComTaskExecutionProvider, firmwareComTaskExecutionProvider,
-                meteringGroupsService, customPropertySetService, readingTypeUtilService, threadPrincipalService, userPreferencesService);
+                meteringGroupsService, customPropertySetService, readingTypeUtilService, threadPrincipalService, userPreferencesService, deviceConfigurationService);
         device.initialize(this.deviceConfiguration, "For testing purposes", "mRID");
         return device;
     }

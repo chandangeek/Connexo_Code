@@ -19,6 +19,7 @@ import com.elster.jupiter.users.UserPreferencesService;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
@@ -129,6 +130,8 @@ public class DeviceImplSecurityPropertiesTest {
     private ThreadPrincipalService threadPrincipalService;
     @Mock
     private UserPreferencesService userPreferencesService;
+    @Mock
+    private DeviceConfigurationService deviceConfigurationService;
 
     @Before
     public void setup() {
@@ -241,7 +244,7 @@ public class DeviceImplSecurityPropertiesTest {
                 this.scheduledConnectionTaskProvider, this.inboundConnectionTaskProvider, this.connectionInitiationTaskProvider,
                 this.scheduledComTaskExecutionProvider, this.manuallyScheduledComTaskExecutionProvider,
                 this.firmwareComTaskExecutionProvider, this.meteringGroupsService, this.customPropertySetService, this.readingTypeUtilService,
-                this.threadPrincipalService, this.userPreferencesService);
+                this.threadPrincipalService, this.userPreferencesService, this.deviceConfigurationService);
         device.initialize(this.deviceConfiguration, "Not persistent", "with all mocked services");
         return device;
     }

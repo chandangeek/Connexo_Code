@@ -19,6 +19,7 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserPreferencesService;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.DeviceLifeCycleChangeEvent;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
@@ -122,6 +123,8 @@ public class DeviceLifeCycleChangeEventsTest {
     private ThreadPrincipalService threadPrincipalService;
     @Mock
     private UserPreferencesService userPreferencesService;
+    @Mock
+    private DeviceConfigurationService deviceConfigurationService;
 
     @Before
     public void initializeMocks() {
@@ -304,7 +307,8 @@ public class DeviceLifeCycleChangeEventsTest {
                 customPropertySetService,
                 this.readingTypeUtilService,
                 this.threadPrincipalService,
-                this.userPreferencesService)
+                this.userPreferencesService,
+                this.deviceConfigurationService)
             .initialize(this.deviceConfiguration, "Hello world", "mRID");
     }
 
