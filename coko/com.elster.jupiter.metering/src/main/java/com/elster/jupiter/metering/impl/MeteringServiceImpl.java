@@ -347,6 +347,7 @@ public class MeteringServiceImpl implements ServerMeteringService, TranslationKe
         return queryService.wrap(
                 dataModel.query(
                         UsagePoint.class,
+                        Location.class, LocationMember.class,
                         UsagePointDetail.class,
                         ServiceLocation.class,
                         MeterActivation.class,
@@ -368,11 +369,7 @@ public class MeteringServiceImpl implements ServerMeteringService, TranslationKe
 
     @Override
     public Query<Meter> getMeterQuery() {
-        QueryExecutor<?> executor = dataModel.query(EndDevice.class,
-                MeterActivation.class,
-                UsagePoint.class,
-                ServiceLocation.class,
-                Channel.class);
+        QueryExecutor<?> executor = dataModel.query(EndDevice.class, Location.class, LocationMember.class, EndDeviceLifeCycleStatus.class);
         executor.setRestriction(Operator.EQUAL.compare("class", Meter.TYPE_IDENTIFIER));
         return queryService.wrap((QueryExecutor<Meter>) executor);
     }
@@ -877,7 +874,7 @@ public class MeteringServiceImpl implements ServerMeteringService, TranslationKe
     @Override
     public List<List<String>> getFormattedLocationMembers(long id) {
         List<LocationMember> members = dataModel.query(LocationMember.class)
-                .select(Operator.EQUAL.compare("locationId", id));
+                .select(Operator.EQUAL.compare("location", id));
         List<List<String>> formattedLocation = new LinkedList<>();
         if (!members.isEmpty()) {
             LocationMember member = members.get(0);
