@@ -61,7 +61,17 @@ public class UsagePointImportRecord extends FileImportRecordWithCustomProperties
 
     private boolean allowUpdate;
 
+    public Number metrologyConfiguration;
+
     public UsagePointImportRecord() {
+    }
+
+    public Optional<Number> getMetrologyConfiguration() {
+        return Optional.ofNullable(metrologyConfiguration);
+    }
+
+    public void setMetrologyConfiguration(Number metrologyConfiguration) {
+        this.metrologyConfiguration = metrologyConfiguration;
     }
 
     public UsagePointImportRecord(long lineNumber) {

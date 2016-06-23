@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.imports.impl.usagepoint;
 
 import com.elster.jupiter.fileimport.FileImporter;
 import com.elster.jupiter.fileimport.FileImporterFactory;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.imports.impl.AbstractFileImporterFactory;
 import com.elster.jupiter.metering.imports.impl.CsvImporter;
 import com.elster.jupiter.metering.imports.impl.DataImporterProperty;
@@ -35,6 +36,7 @@ public class UsagePointsImporterFactory extends AbstractFileImporterFactory {
     public static final String NAME = "UsagePointFileImporterFactory";
 
     private volatile MeteringDataImporterContext context;
+    private volatile MetrologyConfigurationService metrologyConfigurationService;
 
     @Activate
     public void activate() {
@@ -44,8 +46,9 @@ public class UsagePointsImporterFactory extends AbstractFileImporterFactory {
     }
 
     @Inject
-    public UsagePointsImporterFactory(MeteringDataImporterContext context) {
+    public UsagePointsImporterFactory(MeteringDataImporterContext context, MetrologyConfigurationService metrologyConfigurationService) {
         setMeteringDataImporterContext(context);
+        setMetrologyConfigurationService(metrologyConfigurationService);
     }
 
     @Override
@@ -60,7 +63,7 @@ public class UsagePointsImporterFactory extends AbstractFileImporterFactory {
                 new UsagePointImportDescription(dateFormat, timeZone, numberFormat, context), context);
 
         FileImportProcessor<UsagePointImportRecord> processor = context.getLicenseService().getLicenseForApplication("INS").isPresent()
-                ? new UsagePointsImportProcessor(getContext())
+                ? new UsagePointsImportProcessor(getContext(), metrologyConfigurationService)
                 : new UsagePointsImportProcessorForMultisense(getContext());
 
         FileImportLogger logger = new UsagePointsImportLogger(getContext());
@@ -97,4 +100,12 @@ public class UsagePointsImporterFactory extends AbstractFileImporterFactory {
     public void setMeteringDataImporterContext(MeteringDataImporterContext context) {
         this.context = context;
     }
+
+    @Override
+    @Reference
+    public void setMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
+        this.metrologyConfigurationService = metrologyConfigurationService;
+    }
+
+
 }

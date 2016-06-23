@@ -20,6 +20,8 @@ import com.elster.jupiter.metering.UsagePointPropertySet;
 import com.elster.jupiter.metering.UsagePointVersionedPropertySet;
 import com.elster.jupiter.metering.WaterDetail;
 import com.elster.jupiter.metering.WaterDetailBuilder;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.imports.impl.CustomPropertySetRecord;
 import com.elster.jupiter.metering.imports.impl.FileImportLogger;
 import com.elster.jupiter.metering.imports.impl.FileImportProcessor;
@@ -42,10 +44,11 @@ import java.util.stream.Collectors;
 public class UsagePointsImportProcessor implements FileImportProcessor<UsagePointImportRecord> {
 
     private final MeteringDataImporterContext context;
+    private final MetrologyConfigurationService metrologyConfigurationService;
 
-
-    UsagePointsImportProcessor(MeteringDataImporterContext context) {
+    UsagePointsImportProcessor(MeteringDataImporterContext context, MetrologyConfigurationService metrologyConfigurationService) {
         this.context = context;
+        this.metrologyConfigurationService = metrologyConfigurationService;
     }
 
     @Override
@@ -221,7 +224,24 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
         usagePointBuilder.withReadRoute(data.getReadRoute().orElse(null));
         usagePointBuilder.withServicePriority(data.getServicePriority().orElse(null));
         usagePointBuilder.withServiceDeliveryRemark(data.getServiceDeliveryRemark().orElse(null));
+        data.getMetrologyConfiguration().ifPresent(mc ->
+                usagePointBuilder.withMetrologyConfiguration(findMetrologyConfiguration(mc.longValue()))
+        );
         return usagePointBuilder.create();
+    }
+
+    private UsagePointMetrologyConfiguration findMetrologyConfiguration(Long id) {
+
+        UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = metrologyConfigurationService
+                .findMetrologyConfiguration(id)
+                .filter(metrologyConfiguration -> metrologyConfiguration instanceof UsagePointMetrologyConfiguration)
+                .map(UsagePointMetrologyConfiguration.class::cast)
+                .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_NO_METROLOGYCONFIG_FOR_ID, id)
+                );
+        if (!usagePointMetrologyConfiguration.isActive()) {
+            throw new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_INACTIVE_METROLOGY_CONFIGURATION, usagePointMetrologyConfiguration.getName());
+        }
+        return usagePointMetrologyConfiguration;
     }
 
     private UsagePoint updateUsagePoint(UsagePoint usagePoint, UsagePointImportRecord data, FileImportLogger logger) {
