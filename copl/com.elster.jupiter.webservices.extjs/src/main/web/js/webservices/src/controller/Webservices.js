@@ -236,6 +236,10 @@ Ext.define('Wss.controller.Webservices', {
             toState = !record.get('active');
         record.beginEdit();
         record.set('active', toState);
+        if(record.get('group')===''){
+            record.setGroup(null);
+            record.set('group', null);
+        }
         record.endEdit();
         record.save({
                 success: function (record) {

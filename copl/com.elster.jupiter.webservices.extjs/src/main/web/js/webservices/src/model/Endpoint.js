@@ -7,7 +7,7 @@ Ext.define('Wss.model.Endpoint', {
     ],
     fields: [
        // {name: 'id', type: 'number'},
-        {name: 'version', type: 'number'},
+       // {name: 'version', type: 'number'},
         {name: 'name', type: 'string'},
         {name: 'webServiceName', type: 'string'},
         {name: 'url', type: 'string'},
