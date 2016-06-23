@@ -1698,7 +1698,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         meterActivation.endAt(start);
         MeterActivation newMeterActivation;
         if (usagePoint.isPresent()) {
-            newMeterActivation = meter.activate(usagePoint.get(), start);
+            newMeterActivation = meter.activate(usagePoint.get(), getDefaultMeterRole(), start);
         } else {
             newMeterActivation = meter.activate(start);
         }
@@ -3061,7 +3061,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public MeterActivation activate(Instant start, UsagePoint usagePoint) {
-        //end meter's MeterActivation if exists
+        //end effective MeterActivation if exists
         Optional<MeterActivation> effectiveMeterActivation = getMeterActivation(start);
         if (effectiveMeterActivation.isPresent()) {
             if (effectiveMeterActivation.get().getEnd() != null) {
