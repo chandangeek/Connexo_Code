@@ -45,10 +45,7 @@ Ext.define('Mdc.property.UsagePoint', {
                         bindStore: function(store) {
                             store.on('load', list.refresh.bind(list));
                         },
-                        style: {
-                            fontSize: '12px',
-                            color: 'grey'
-                        },
+                        cls: Ext.baseCSSPrefix + 'boundlist-item combo-limit-notification',
                         html: Uni.I18n.translate('general.combobox.narrow', 'MDC', 'Keep typing to narrow down'),
                         ownerCt: list,
                         ownerLayout: list.getComponentLayout()
