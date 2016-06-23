@@ -25,9 +25,11 @@ Ext.define('Isu.controller.IssueDetail', {
             issueModel,
             widget;
 
-        processStore.getProxy().setUrl(id);
-        processStore.load(function (records) {
-        });
+        if (issueType == 'datacollection') {
+            processStore.getProxy().setUrl(id);
+            processStore.load(function (records) {
+            });
+        }
 
         if (store.getCount()) {
             var issueActualType = store.getById(parseInt(id)).get('issueType').uid;
