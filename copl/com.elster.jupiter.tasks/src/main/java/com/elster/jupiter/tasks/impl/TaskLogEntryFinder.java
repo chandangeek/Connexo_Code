@@ -8,16 +8,14 @@ import com.elster.jupiter.util.logging.LogEntryFinder;
 
 import java.util.List;
 
-public class TaskLogEntryFinder implements LogEntryFinder {
+class TaskLogEntryFinder implements LogEntryFinder {
     private QueryExecutor<TaskLogEntry> queryExecutor;
     private Condition condition;
     private Order[] orders;
     private Integer start;
     private Integer limit;
 
-    public TaskLogEntryFinder() {}
-
-    public TaskLogEntryFinder(QueryExecutor<TaskLogEntry> queryExecutor, Condition condition, Order[] orders) {
+    TaskLogEntryFinder(QueryExecutor<TaskLogEntry> queryExecutor, Condition condition, Order[] orders) {
         this.queryExecutor = queryExecutor;
         this.condition = condition;
         this.orders = orders;
@@ -41,4 +39,5 @@ public class TaskLogEntryFinder implements LogEntryFinder {
     public List<? extends TaskLogEntry> find() {
         return queryExecutor.select(condition, orders, true, null, start+1, start+limit+1);
     }
+
 }
