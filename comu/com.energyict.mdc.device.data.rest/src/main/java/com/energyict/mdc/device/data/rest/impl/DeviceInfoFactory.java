@@ -10,12 +10,6 @@ import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.rest.impl.DataLoggerSlaveDeviceInfoFactory;
-import com.energyict.mdc.device.data.rest.impl.DeviceApplication;
-import com.energyict.mdc.device.data.rest.impl.DeviceInfo;
-import com.energyict.mdc.device.data.rest.impl.DeviceSearchInfo;
-import com.energyict.mdc.device.data.rest.impl.DeviceSearchModelTranslationKeys;
-import com.energyict.mdc.device.data.rest.impl.DeviceTopologyInfo;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.topology.TopologyService;
 
@@ -39,24 +33,18 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
     private volatile TopologyService topologyService;
     private volatile IssueService issueService;
     private volatile DeviceService deviceService;
-    private volatile IssueDataValidationService issueDataValidationService;
-    private volatile MeteringService meteringService;
-    private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory;
 
 
     public DeviceInfoFactory() {}
 
     @Inject
-    public DeviceInfoFactory(Thesaurus thesaurus, BatchService batchService, TopologyService topologyService, IssueService issueService, IssueDataValidationService issueDataValidationService, MeteringService meteringService, DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory, DeviceConfigurationService deviceConfigurationService, DeviceService deviceService) {
+    public DeviceInfoFactory(Thesaurus thesaurus, BatchService batchService, TopologyService topologyService, IssueService issueService, DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory, DeviceService deviceService) {
         this.thesaurus = thesaurus;
         this.batchService = batchService;
         this.topologyService = topologyService;
         this.issueService = issueService;
-        this.issueDataValidationService = issueDataValidationService;
-        this.meteringService = meteringService;
         this.dataLoggerSlaveDeviceInfoFactory = dataLoggerSlaveDeviceInfoFactory;
-        this.deviceConfigurationService = deviceConfigurationService;
         this.deviceService = deviceService;
     }
 
