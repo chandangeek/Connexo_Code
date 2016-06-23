@@ -306,9 +306,10 @@ public class SearchBuilderImpl<T> implements SearchBuilder<T> {
         public List<T> find() {
             try {
                 return this.searchMonitor.searchTimer(searchDomain).time(actualFinder::find);
+            } catch (RuntimeException e) {
+                throw e;
             } catch (Exception e) {
-                // actual Caller implementation is not throwing any exception
-                return Collections.emptyList();
+                throw new RuntimeException(e);
             }
         }
 
