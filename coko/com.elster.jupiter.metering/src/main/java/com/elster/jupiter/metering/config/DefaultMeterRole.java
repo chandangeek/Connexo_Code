@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.config;
 
+import com.elster.jupiter.metering.impl.MeteringDataModelService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.SimpleNlsKey;
@@ -34,7 +35,7 @@ public enum DefaultMeterRole {
     }
 
     public NlsKey getNlsKey() {
-        return SimpleNlsKey.key(MetrologyConfigurationService.COMPONENT_NAME, Layer.DOMAIN, getKey())
+        return SimpleNlsKey.key(MeteringDataModelService.COMPONENT_NAME, Layer.DOMAIN, getKey())
                 .defaultMessage(this.defaultFormat);
     }
 

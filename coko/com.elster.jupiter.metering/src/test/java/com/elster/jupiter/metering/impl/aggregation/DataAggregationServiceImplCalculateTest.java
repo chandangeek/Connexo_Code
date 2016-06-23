@@ -22,13 +22,14 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.ChannelContract;
+import com.elster.jupiter.metering.impl.MeteringDataModelService;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
-import com.elster.jupiter.metering.impl.config.MeterActivationValidatorsWhiteboard;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
 import com.elster.jupiter.metering.impl.config.ServerFormula;
 import com.elster.jupiter.metering.impl.config.ServerFormulaBuilder;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.users.UserService;
@@ -90,6 +91,8 @@ public class DataAggregationServiceImplCalculateTest {
     @Mock
     private DataModel dataModel;
     @Mock
+    private Thesaurus thesaurus;
+    @Mock
     private QueryExecutor<EffectiveMetrologyConfigurationOnUsagePoint> queryExecutor;
     @Mock
     private EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration;
@@ -114,7 +117,7 @@ public class DataAggregationServiceImplCalculateTest {
     @Mock
     private UsagePointMetrologyConfiguration metrologyConfiguration;
     @Mock
-    private MeterActivationValidatorsWhiteboard meterActivationValidatorsWhiteboard;
+    private MeteringDataModelService meteringDataModelService;
     @Mock
     private NlsService nlsService;
 
@@ -140,7 +143,7 @@ public class DataAggregationServiceImplCalculateTest {
         when(this.connection.prepareStatement(anyString())).thenReturn(this.preparedStatement);
         when(this.preparedStatement.executeQuery()).thenReturn(this.resultSet);
         when(this.dataModel.getInstance(CalculatedReadingRecordFactory.class)).thenReturn(new CalculatedReadingRecordFactoryImpl(this.dataModel, meteringService));
-        this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this.meteringService, this.userService, this.meterActivationValidatorsWhiteboard);
+        this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(meteringDataModelService, dataModel, thesaurus);
         when(this.metrologyConfiguration.getContracts()).thenReturn(Collections.singletonList(this.contract));
         when(this.dataModel.query(eq(EffectiveMetrologyConfigurationOnUsagePoint.class), anyVararg())).thenReturn(this.queryExecutor);
         when(queryExecutor.select(any(Condition.class))).thenReturn(Collections.singletonList(this.effectiveMetrologyConfiguration));
@@ -268,13 +271,13 @@ public class DataAggregationServiceImplCalculateTest {
         when(netConsumptionForMeterActivation.sqlName()).thenReturn("vrt-netConsumption");
         when(this.readingTypeDeliverableForMeterActivationFactory
                 .from(
-                    eq(Formula.Mode.AUTO),
-                    eq(netConsumption),
-                    eq(meterActivation),
-                    eq(aggregationPeriod),
-                    anyInt(),
-                    any(ServerExpressionNode.class),
-                    any(VirtualReadingType.class)))
+                        eq(Formula.Mode.AUTO),
+                        eq(netConsumption),
+                        eq(meterActivation),
+                        eq(aggregationPeriod),
+                        anyInt(),
+                        any(ServerExpressionNode.class),
+                        any(VirtualReadingType.class)))
                 .thenReturn(netConsumptionForMeterActivation);
 
         // Business method
@@ -318,6 +321,7 @@ public class DataAggregationServiceImplCalculateTest {
      *           A+ -> 15 min kWh
      * In other words, simple sum of 2 requirements that are provided
      * by exactly one matching channel with a single meter activation.
+     *
      * @see #simplestNetConsumptionOfProsumer()
      */
     @Test
@@ -383,13 +387,13 @@ public class DataAggregationServiceImplCalculateTest {
         when(netConsumptionForMeterActivation.sqlName()).thenReturn("vrt-netConsumption");
         when(this.readingTypeDeliverableForMeterActivationFactory
                 .from(
-                    eq(Formula.Mode.AUTO),
-                    eq(netConsumption),
-                    eq(meterActivation),
-                    eq(aggregationPeriod),
-                    anyInt(),
-                    any(ServerExpressionNode.class),
-                    any(VirtualReadingType.class)))
+                        eq(Formula.Mode.AUTO),
+                        eq(netConsumption),
+                        eq(meterActivation),
+                        eq(aggregationPeriod),
+                        anyInt(),
+                        any(ServerExpressionNode.class),
+                        any(VirtualReadingType.class)))
                 .thenReturn(netConsumptionForMeterActivation);
 
         // Business method
@@ -518,25 +522,25 @@ public class DataAggregationServiceImplCalculateTest {
         when(netConsumptionForJan.sqlName()).thenReturn("vrt-netConsumption-jan");
         when(this.readingTypeDeliverableForMeterActivationFactory
                 .from(
-                    eq(Formula.Mode.AUTO),
-                    eq(netConsumption),
-                    eq(meterActivation1),
-                    eq(aggregationPeriod),
-                    anyInt(),
-                    any(ServerExpressionNode.class),
-                    any(VirtualReadingType.class)))
+                        eq(Formula.Mode.AUTO),
+                        eq(netConsumption),
+                        eq(meterActivation1),
+                        eq(aggregationPeriod),
+                        anyInt(),
+                        any(ServerExpressionNode.class),
+                        any(VirtualReadingType.class)))
                 .thenReturn(netConsumptionForJan);
         ReadingTypeDeliverableForMeterActivation netConsumptionForFeb = mock(ReadingTypeDeliverableForMeterActivation.class);
         when(netConsumptionForJan.sqlName()).thenReturn("vrt-netConsumption-feb");
         when(this.readingTypeDeliverableForMeterActivationFactory
                 .from(
-                    eq(Formula.Mode.AUTO),
-                    eq(netConsumption),
-                    eq(meterActivation2),
-                    eq(aggregationPeriod),
-                    anyInt(),
-                    any(ServerExpressionNode.class),
-                    any(VirtualReadingType.class)))
+                        eq(Formula.Mode.AUTO),
+                        eq(netConsumption),
+                        eq(meterActivation2),
+                        eq(aggregationPeriod),
+                        anyInt(),
+                        any(ServerExpressionNode.class),
+                        any(VirtualReadingType.class)))
                 .thenReturn(netConsumptionForFeb);
 
         // Business method

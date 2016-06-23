@@ -11,7 +11,6 @@ import com.elster.jupiter.metering.config.ReadingTypeTemplate;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 
-import java.time.Clock;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,8 +26,6 @@ public interface ServerMetrologyConfigurationService extends MetrologyConfigurat
     DataModel getDataModel();
 
     Thesaurus getThesaurus();
-
-    Clock getClock();
 
     MetrologyPurpose createMetrologyPurpose(DefaultMetrologyPurpose defaultMetrologyPurpose);
 
