@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.lifecycle.impl.micro.actions;
 
 import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
@@ -40,11 +39,9 @@ public class LinkToUsagePointTest {
     private PropertySpecService propertySpecService;
     @Mock
     private Thesaurus thesaurus;
-    @Mock
-    private MeteringService meteringService;
 
     public LinkToUsagePoint getTestInstance() {
-        return new LinkToUsagePoint(thesaurus, meteringService);
+        return new LinkToUsagePoint(thesaurus);
     }
 
     @Test
@@ -56,7 +53,7 @@ public class LinkToUsagePointTest {
         when(property.getPropertySpec()).thenReturn(propertySpec);
         when(property.getValue()).thenReturn(usagePoint);
 
-        // Business method
+        //Business method
         Instant now = Instant.now();
         getTestInstance().execute(device, now, Collections.singletonList(property));
 
@@ -66,7 +63,7 @@ public class LinkToUsagePointTest {
 
     @Test
     public void testLinkToUsagePointWithoutUsagePoint() {
-        // Business method
+        //Business method
         Instant now = Instant.now();
         getTestInstance().execute(device, now, Collections.emptyList());
 
@@ -86,7 +83,7 @@ public class LinkToUsagePointTest {
         LocalizedException exception = mock(LocalizedException.class);
         when(device.activate(now, usagePoint)).thenThrow(exception);
 
-        // Business method
+        //Business method
         getTestInstance().execute(device, now, Collections.singletonList(property));
 
         //Asserts

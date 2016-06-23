@@ -165,12 +165,11 @@ public class MicroActionFactoryImpl implements ServerMicroActionFactory {
                 return new RemoveLocation(thesaurus);
             }
             case LINK_TO_USAGE_POINT: {
-                return new LinkToUsagePoint(thesaurus, meteringService);
+                return new LinkToUsagePoint(thesaurus);
             }
             default: {
                 throw new IllegalArgumentException("Unknown or unsupported MicroAction " + microAction.name());
             }
         }
     }
-
 }
