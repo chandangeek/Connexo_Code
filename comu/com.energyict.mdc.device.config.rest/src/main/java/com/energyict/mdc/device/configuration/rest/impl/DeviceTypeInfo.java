@@ -37,6 +37,7 @@ public class DeviceTypeInfo {
     public String deviceLifeCycleName;
     public long version;
     public String deviceTypePurpose;
+    public boolean fileManagementEnabled;
 
     public DeviceTypeInfo() {
     }
@@ -73,6 +74,7 @@ public class DeviceTypeInfo {
         deviceTypeInfo.version = deviceType.getVersion();
         deviceTypeInfo.deviceTypePurpose = deviceType.isDataloggerSlave() ? DeviceTypePurpose.DATALOGGER_SLAVE.name() : DeviceTypePurpose.REGULAR
                 .name();
+        deviceTypeInfo.fileManagementEnabled = deviceType.isFileManagementEnabled();
         return deviceTypeInfo;
     }
 
