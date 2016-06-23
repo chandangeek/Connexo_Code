@@ -12,9 +12,9 @@ public class ProfileBlock {
     private ProfileHeader profileHeader;
     private ProfileRecords profileRecords;
 
-    public ProfileBlock(byte[] values, int recordCount) {
+    public ProfileBlock(byte[] values, int recordCount) throws ProtocolException {
         this.profileHeader = ProfileHeader.parse(recordCount);
-        this.profileRecords = ProfileRecords.parse(values, this.profileHeader, this.profileHeader.getWordLength());
+        this.profileRecords = ProfileRecords.parse(values);
     }
 
     public ProfileHeader getProfileHeader() {

@@ -17,8 +17,7 @@ public class ProfileRecord {
 
     public static ProfileRecord parse(List values) {
         ProfileRecord profileRecord = new ProfileRecord();
-        long secondsSinceFistJan2000 = ((long)values.get(0)) << 16 | ((long)values.get(0));
-        profileRecord.setDate(new Date((EPOCH_FIRST_JAN_2000 + secondsSinceFistJan2000) * 1000));
+        profileRecord.setDate((Date) values.get(0));
         profileRecord.setIncompleteIntegrationPeriod(values.get(0) != 0);
         profileRecord.setValues(values.subList(1, values.size()));
         return profileRecord;

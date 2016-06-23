@@ -7,7 +7,7 @@ import com.energyict.protocolimpl.modbus.core.connection.ResponseData;
 import java.io.IOException;
 
 public class ReadGeneralReferenceRequest extends AbstractRequest{
-    private static final int DEFAULT_OFFSET = 4;
+    private static final int DEFAULT_OFFSET = 7;
 
     private byte[] values = null;
 
