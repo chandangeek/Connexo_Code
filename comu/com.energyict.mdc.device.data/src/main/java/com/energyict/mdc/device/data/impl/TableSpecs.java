@@ -108,7 +108,7 @@ public enum TableSpecs {
             table.foreignKey("FK_DDC_DEVICE_DEVICECONFIG").
                     on(configuration).
                     references(DeviceConfiguration.class).
-                    map(DeviceFields.DEVICECONFIGURATION.fieldName()).
+                    map(DeviceFields.DEVICECONFIGURATION.fieldName(), DeviceType.class).
                     add();
             table.foreignKey("FK_DDC_DEVICE_DEVICETYPE").
                     on(deviceType).

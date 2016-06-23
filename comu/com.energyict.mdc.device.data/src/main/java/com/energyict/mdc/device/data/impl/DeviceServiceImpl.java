@@ -7,6 +7,7 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -17,6 +18,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.sql.SqlBuilder;
@@ -31,6 +33,7 @@ import com.energyict.mdc.device.data.ActivatedBreakerStatus;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataServices;
+import com.energyict.mdc.device.data.DeviceEstimation;
 import com.energyict.mdc.device.data.DeviceFields;
 import com.energyict.mdc.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.device.data.DeviceService;
@@ -395,4 +398,19 @@ public class DeviceServiceImpl implements ServerDeviceService {
                 .getMRID().equals(channelSpec.getReadingType().getMRID());
     }
 
+    @Override
+    public Finder<DeviceEstimation> findDeviceEstimations(List<Device> deviceList) {
+        Condition condition = ListOperator.IN.contains(DeviceEstimationImpl.Fields.DEVICE.fieldName(), deviceList);
+        return DefaultFinder.of(DeviceEstimation.class, condition, deviceDataModelService.dataModel(), Device.class);
+    }
+
+    @Override
+    public List<Device> findActiveValidatedDevices(List<Device> domainObjects) {
+        List<Meter> enabledMeters = deviceDataModelService.validationService().validationEnabledMetersIn(domainObjects.stream()
+                .map(Device::getmRID)
+                .collect(Collectors.toList()));
+        return domainObjects.stream()
+                .filter(device -> enabledMeters.stream().anyMatch(meter -> meter.getMRID().equals(device.getmRID())))
+                .collect(Collectors.toList());
+    }
 }

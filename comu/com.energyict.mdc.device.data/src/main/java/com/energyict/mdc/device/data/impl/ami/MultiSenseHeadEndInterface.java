@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.data.impl.ami;
 
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.KnownAmrSystem;
