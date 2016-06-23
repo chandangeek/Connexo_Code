@@ -71,7 +71,7 @@ public class WhiteBoardImpl extends Application implements BinderProvider, Trans
     }
 
     @Inject
-    public WhiteBoardImpl(TransactionService transactionService, QueryService queryService, HttpAuthenticationService httpAuthenticationService) {
+    WhiteBoardImpl(TransactionService transactionService, QueryService queryService, HttpAuthenticationService httpAuthenticationService) {
         this();
         setTransactionService(transactionService);
         setQueryService(queryService);
@@ -219,4 +219,4 @@ public class WhiteBoardImpl extends Application implements BinderProvider, Trans
 
 }
 
-	
+
