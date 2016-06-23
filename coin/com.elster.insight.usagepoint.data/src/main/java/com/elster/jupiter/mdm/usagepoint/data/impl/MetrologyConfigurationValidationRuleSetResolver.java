@@ -16,7 +16,7 @@ import java.util.List;
  * Date: 24/06/2014
  * Time: 17:56
  */
-@Component(name = "com.elster.insight.udagepoint.data.validationruleSetResolver", service = ValidationRuleSetResolver.class)
+@Component(name = "com.elster.insight.udagepoint.data.validationruleSetResolver", service = ValidationRuleSetResolver.class, immediate = true)
 public class MetrologyConfigurationValidationRuleSetResolver implements ValidationRuleSetResolver {
 
     private volatile UsagePointConfigurationService usagePointConfigurationService;
