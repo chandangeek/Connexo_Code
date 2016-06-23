@@ -46,8 +46,6 @@ public class DeviceMessageUpdateEventHandler implements TopicHandler {
 
     private volatile ServiceCallService serviceCallService;
 
-    private ServiceCall serviceCall;
-
     public DeviceMessageUpdateEventHandler() {
         super();
     }
@@ -70,19 +68,20 @@ public class DeviceMessageUpdateEventHandler implements TopicHandler {
     @Override
     public void handle(LocalEvent event) {
         DeviceMessage deviceMessage = (DeviceMessage) event.getSource();
-        if (trackingInfoContainsServiceCall(deviceMessage) && serviceCallRelatedToHeadEndInterface(deviceMessage) && validateDeviceMessageStatusChanged(deviceMessage, event)) {
+        ServiceCall serviceCall;
+        if (trackingInfoContainsServiceCall(deviceMessage) && ((serviceCall = getServiceCallIfRelatedToHeadEndInterface(deviceMessage)) != null) && validateDeviceMessageStatusChanged(deviceMessage, event)) {
             switch (deviceMessage.getStatus()) {
                 case CONFIRMED:
-                    getServiceCall().log(LogLevel.INFO, MessageFormat.format("Device command {0} has been confirmed", deviceMessage.getId()));
-                    deviceMessageConfirmed(deviceMessage);
+                    serviceCall.log(LogLevel.INFO, MessageFormat.format("Device command {0} has been confirmed", deviceMessage.getId()));
+                    deviceMessageConfirmed(deviceMessage, serviceCall);
                     break;
                 case FAILED:
-                    getServiceCall().log(LogLevel.INFO, MessageFormat.format("Execution of device command {0} failed", deviceMessage.getId()));
-                    deviceMessageFailed(deviceMessage);
+                    serviceCall.log(LogLevel.INFO, MessageFormat.format("Execution of device command {0} failed", deviceMessage.getId()));
+                    deviceMessageFailed(deviceMessage, serviceCall);
                     break;
                 case REVOKED:
-                    getServiceCall().log(LogLevel.INFO, MessageFormat.format("Device command {0} has been revoked", deviceMessage.getId()));
-                    deviceMessageFailed(deviceMessage);
+                    serviceCall.log(LogLevel.INFO, MessageFormat.format("Device command {0} has been revoked", deviceMessage.getId()));
+                    deviceMessageFailed(deviceMessage, serviceCall);
                     break;
                 case WAITING:
                     // Intentional fall-through
@@ -99,27 +98,27 @@ public class DeviceMessageUpdateEventHandler implements TopicHandler {
         }
     }
 
-    private void deviceMessageConfirmed(DeviceMessage deviceMessage) {
-        CommandServiceCallDomainExtension domainExtension = getServiceCall().getExtensionFor(new CommandCustomPropertySet()).get();
+    private void deviceMessageConfirmed(DeviceMessage deviceMessage, ServiceCall serviceCall) {
+        CommandServiceCallDomainExtension domainExtension = serviceCall.getExtensionFor(new CommandCustomPropertySet()).get();
         domainExtension.setNrOfUnconfirmedDeviceCommands(domainExtension.getNrOfUnconfirmedDeviceCommands() - 1);
-        getServiceCall().update(domainExtension);
-        if (getServiceCall().canTransitionTo(DefaultState.ONGOING)) {
-            getServiceCall().requestTransition(DefaultState.ONGOING);
+        serviceCall.update(domainExtension);
+        if (serviceCall.canTransitionTo(DefaultState.ONGOING)) {
+            serviceCall.requestTransition(DefaultState.ONGOING);
         } // Else the ServiceCall is probably already in Ongoing state (or is already marked as Failed / Cancelled)
     }
 
-    private void deviceMessageFailed(DeviceMessage deviceMessage) {
-        logProtocolInfoOfDeviceMessage(deviceMessage);
-        if (getServiceCall().canTransitionTo(DefaultState.ONGOING)) {
-            getServiceCall().requestTransition(DefaultState.ONGOING);
-            getServiceCall().requestTransition(DefaultState.FAILED);
+    private void deviceMessageFailed(DeviceMessage deviceMessage, ServiceCall serviceCall) {
+        logProtocolInfoOfDeviceMessage(deviceMessage, serviceCall);
+        if (serviceCall.canTransitionTo(DefaultState.ONGOING)) {
+            serviceCall.requestTransition(DefaultState.ONGOING);
+            serviceCall.requestTransition(DefaultState.FAILED);
         }
         // else the ServiceCall is probably already in Failed state
     }
 
-    private void logProtocolInfoOfDeviceMessage(DeviceMessage deviceMessage) {
+    private void logProtocolInfoOfDeviceMessage(DeviceMessage deviceMessage, ServiceCall serviceCall) {
         if (deviceMessage.getProtocolInfo() != null && !deviceMessage.getProtocolInfo().isEmpty()) {
-            getServiceCall().log(LogLevel.INFO, MessageFormat.format("Device command {0} protocol information: {1}", deviceMessage.getId(), deviceMessage.getProtocolInfo()));
+            serviceCall.log(LogLevel.INFO, MessageFormat.format("Device command {0} protocol information: {1}", deviceMessage.getId(), deviceMessage.getProtocolInfo()));
         }
     }
 
@@ -127,29 +126,20 @@ public class DeviceMessageUpdateEventHandler implements TopicHandler {
         return TrackingCategory.serviceCall.equals(deviceMessage.getTrackingCategory());
     }
 
-    private boolean serviceCallRelatedToHeadEndInterface(DeviceMessage deviceMessage) {
+    private ServiceCall getServiceCallIfRelatedToHeadEndInterface(DeviceMessage deviceMessage) {
         Optional<ServiceCall> serviceCallOptional = serviceCallService.getServiceCall(Long.parseLong(deviceMessage.getTrackingId()));
         if (serviceCallOptional.isPresent()) {
-            setServiceCall(serviceCallOptional.get());
             for (ServiceCallCommands.ServiceCallTypeMapping serviceCallTypeMapping : ServiceCallCommands.ServiceCallTypeMapping.values()) {
-                if (serviceCallTypeMapping.getTypeName().equals(getServiceCall().getType().getName())) {
-                    return true;
+                if (serviceCallTypeMapping.getTypeName().equals(serviceCallOptional.get().getType().getName())) {
+                    return serviceCallOptional.get();
                 }
             }
         }
-        return false;
+        return null;
     }
 
     private boolean validateDeviceMessageStatusChanged(DeviceMessage deviceMessage, LocalEvent localEvent) {
         DeviceMessageStatus oldDeviceMessageStatus = DeviceMessageStatus.fromDb((Integer) localEvent.toOsgiEvent().getProperty(OLD_OBIS_CODE_PROPERTY_NAME));
         return !Checks.is(deviceMessage.getStatus()).equalTo(oldDeviceMessageStatus);
-    }
-
-    public ServiceCall getServiceCall() {
-        return serviceCall;
-    }
-
-    public void setServiceCall(ServiceCall serviceCall) {
-        this.serviceCall = serviceCall;
     }
 }
