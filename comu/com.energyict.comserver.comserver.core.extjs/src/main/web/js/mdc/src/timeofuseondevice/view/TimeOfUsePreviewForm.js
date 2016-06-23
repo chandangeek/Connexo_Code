@@ -56,7 +56,7 @@ Ext.define('Mdc.timeofuseondevice.view.TimeOfUsePreviewForm', {
                     xtype: 'fieldcontainer',
                     fieldLabel: Uni.I18n.translate('timeofuse.passiveCalendars', 'MDC', 'Passive calendar(s)'),
                     itemId: 'passiveField',
-                    dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.supportsPassive,
+                    //dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.supportsPassive,
                     value: '-'
                 }
             ]
