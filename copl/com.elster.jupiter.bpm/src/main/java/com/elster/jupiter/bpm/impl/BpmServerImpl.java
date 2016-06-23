@@ -112,7 +112,7 @@ public class BpmServerImpl implements BpmServer {
             }
 
             int responseCode = httpConnection.getResponseCode();
-            if (responseCode != 200) {
+            if (responseCode < 200 || responseCode >= 300) {
                 if(responseCode == 409){
                     BufferedReader br = new BufferedReader(new InputStreamReader(
                             (httpConnection.getErrorStream())));

@@ -3,19 +3,18 @@ package com.elster.jupiter.bpm.impl;
 import com.elster.jupiter.bpm.BpmProcessDefinition;
 import com.elster.jupiter.bpm.BpmProcessDefinitionBuilder;
 import com.elster.jupiter.bpm.BpmProcessPrivilege;
-import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.orm.DataModel;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class BpmProcessDefinitionBuilderImpl implements BpmProcessDefinitionBuilder {
-
+class BpmProcessDefinitionBuilderImpl implements BpmProcessDefinitionBuilder {
 
     private final DataModel dataModel;
-    private final BpmService bpmService;
+    @SuppressWarnings("unused") // Managed by ORM
     private String id;
     private String processName;
     private String association;
@@ -25,12 +24,9 @@ public class BpmProcessDefinitionBuilderImpl implements BpmProcessDefinitionBuil
     private List<BpmProcessPrivilege> processPrivileges = new ArrayList<>();
     private Map<String, Object> properties = new HashMap<>();
 
-
-    public BpmProcessDefinitionBuilderImpl(DataModel dataModel, BpmService bpmService) {
+    BpmProcessDefinitionBuilderImpl(DataModel dataModel) {
         this.dataModel = dataModel;
-        this.bpmService = bpmService;
     }
-
 
     @Override
     public BpmProcessDefinitionBuilder setId(String id) {
@@ -76,16 +72,16 @@ public class BpmProcessDefinitionBuilderImpl implements BpmProcessDefinitionBuil
 
     @Override
     public BpmProcessDefinitionBuilder setPrivileges(List<BpmProcessPrivilege> privileges) {
-        this.processPrivileges = privileges;
+        this.processPrivileges = Collections.unmodifiableList(privileges);
         return this;
     }
 
     @Override
     public BpmProcessDefinition create() {
-        BpmProcessDefinitionImpl process = BpmProcessDefinitionImpl.from(dataModel, processName, association, version, status, appKey);
+        BpmProcessDefinitionImpl process = BpmProcessDefinitionImpl.from(dataModel, processName, association, version, status, appKey, processPrivileges);
         process.setProperties(properties);
-        process.setPrivileges(processPrivileges);
         process.save();
         return process;
     }
+
 }
