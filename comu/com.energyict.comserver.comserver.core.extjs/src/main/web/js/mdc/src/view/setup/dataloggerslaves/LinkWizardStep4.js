@@ -33,6 +33,7 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizardStep4', {
                         itemId: 'mdc-step4-arrival-date',
                         required: true,
                         margin: '20 0 20 0',
+                        msgTarget: 'under',
                         fieldLabel: Uni.I18n.translate('general.arrivalDate', 'MDC', 'Arrival date')
                     }
                 ]
@@ -42,14 +43,21 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizardStep4', {
         me.callParent(arguments);
     },
 
-    initialize: function(arrivalDateToSuggest) {
+    initialize: function(minimalArrivalDateInMillis, arrivalDateToSuggest) {
         var me = this;
         if (me.rendered) {
-            me.down('#mdc-step4-arrival-date').setValue(arrivalDateToSuggest);
+            me.doConfigureArrivalDate(minimalArrivalDateInMillis, arrivalDateToSuggest);
         } else {
             me.on('afterrender', function() {
-                me.down('#mdc-step4-arrival-date').setValue(arrivalDateToSuggest);
+                me.doConfigureArrivalDate(minimalArrivalDateInMillis, arrivalDateToSuggest);
             }, me, {single:true});
         }
+    },
+
+    doConfigureArrivalDate: function(minimalArrivalDateInMillis, arrivalDateToSuggest) {
+        var me = this;
+
+        me.down('#mdc-step4-arrival-date').setMinValue(minimalArrivalDateInMillis);
+        me.down('#mdc-step4-arrival-date').setValue(arrivalDateToSuggest);
     }
 });

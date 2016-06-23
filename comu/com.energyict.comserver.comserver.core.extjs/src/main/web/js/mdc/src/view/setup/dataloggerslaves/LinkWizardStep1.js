@@ -80,7 +80,7 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizardStep1', {
                             },
                             {
                                 xtype: 'displayfield',
-                                value: ''
+                                value: '&nbsp;'
                             }
                         ]
                     }

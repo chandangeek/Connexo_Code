@@ -34,7 +34,6 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
         {ref: 'wizard', selector: '#mdc-dataloggerslave-link-wizard'},
         {ref: 'navigationMenu', selector: '#mdc-link-dataloggerslave-navigation-menu'},
         {ref: 'step1Panel', selector: '#mdc-dataloggerslave-link-wizard-step1'},
-        {ref: 'step2Panel', selector: '#mdc-dataloggerslave-link-wizard-step2'},
         {ref: 'step1FormErrorMessage', selector: '#mdc-dataloggerslave-link-wizard-step1-errors'},
         {ref: 'mRIDField', selector: '#deviceAddMRID'},
         {ref: 'deviceTypeCombo', selector: '#deviceAddType'},
@@ -84,6 +83,7 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
         Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
             success: function (device) {
                 me.wizardInformation = {};
+                me.wizardInformation.minimalArrivalDate = 0;  // TODO: shipment date of data logger?
                 me.wizardInformation.dataLogger = device;
                 me.getApplication().fireEvent('loadDevice', device);
                 slavesStore.getProxy().setUrl(device.get('mRID'));
@@ -422,6 +422,12 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
                         if (dataLoggerSlaveDeviceRecord.dataLoggerSlaveChannelInfos){
                             Ext.Array.forEach(dataLoggerSlaveDeviceRecord.dataLoggerSlaveChannelInfos, function(dataLoggerSlaveChannelInfoRecord){
                                 channelRecords.push(dataLoggerSlaveChannelInfoRecord.dataLoggerChannel);
+                                if ( !Ext.isEmpty(dataLoggerSlaveChannelInfoRecord.availabilityDate) && dataLoggerSlaveChannelInfoRecord.availabilityDate !== 0) {
+                                    if ( Ext.isEmpty(me.wizardInformation.minimalArrivalDate) ||
+                                         me.wizardInformation.minimalArrivalDate < dataLoggerSlaveChannelInfoRecord.availabilityDate ) {
+                                        me.wizardInformation.minimalArrivalDate = dataLoggerSlaveChannelInfoRecord.availabilityDate;
+                                    }
+                                }
                             }, me);
                         }
                     }
@@ -526,6 +532,12 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
                         if (dataLoggerSlaveDeviceRecord.dataLoggerSlaveRegisterInfos){
                             Ext.Array.forEach(dataLoggerSlaveDeviceRecord.dataLoggerSlaveRegisterInfos, function(dataLoggerSlaveRegisterInfoRecord){
                                 registerRecords.push(dataLoggerSlaveRegisterInfoRecord.dataLoggerRegister);
+                                if ( !Ext.isEmpty(dataLoggerSlaveRegisterInfoRecord.availabilityDate) && dataLoggerSlaveRegisterInfoRecord.availabilityDate !== 0) {
+                                    if ( Ext.isEmpty(me.wizardInformation.minimalArrivalDate) ||
+                                         me.wizardInformation.minimalArrivalDate < dataLoggerSlaveRegisterInfoRecord.availabilityDate ) {
+                                        me.wizardInformation.minimalArrivalDate = dataLoggerSlaveRegisterInfoRecord.availabilityDate;
+                                    }
+                                }
                             }, me);
                         }
                     }
@@ -614,15 +626,29 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
     },
 
     prepareStep4: function() {
-        // Determine the arrival date to suggest
+        // a. Determine the minimal arrival date
         var me = this,
-            wizard = me.getWizard();
+            wizard = me.getWizard(),
+            minimalArrivalDateMidnight = 0,
+            arrivalDateToSuggest = new Date();
 
-        if (me.wizardInformation && me.wizardInformation.arrivalDate) {
-            wizard.down('dataloggerslave-link-wizard-step4').initialize(me.wizardInformation.arrivalDate);
-        } else {
-            wizard.down('dataloggerslave-link-wizard-step4').initialize(new Date());
+        if ( !Ext.isEmpty(me.wizardInformation.minimalArrivalDate) && me.wizardInformation.minimalArrivalDate!==0 ) {
+            // To avoid the disabling of certain hours we pass midnight:
+            var momentOfDate = moment(me.wizardInformation.minimalArrivalDate);
+            momentOfDate.startOf('day');
+            minimalArrivalDateMidnight = momentOfDate.unix() * 1000;
         }
+
+        // b. Determine the arrival date to suggest
+        if (me.wizardInformation) {
+            if (me.wizardInformation.arrivalDate) {
+                arrivalDateToSuggest = me.wizardInformation.arrivalDate;
+            } else if (me.wizardInformation.useExisting) {
+                // TODO arrivalDateToSuggest = ???? arrival date of slave?
+            }
+        }
+
+        wizard.down('dataloggerslave-link-wizard-step4').initialize(minimalArrivalDateMidnight, arrivalDateToSuggest);
     },
 
     validateStep4: function(callback) {
@@ -634,14 +660,22 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
                 }
             };
 
-        // TODO: Validate the given arrival date
-
         me.wizardInformation.arrivalDate = dateField.getValue();
-        Ext.Array.forEach(me.wizardInformation.dataLogger.get('dataLoggerSlaveDevices'), function(dataLoggerSlaveDeviceRecord){
-            dataLoggerSlaveDeviceRecord["arrivalTimeStamp"] = me.wizardInformation.arrivalDate.getTime()/1000;
-        }, me);
 
-        endMethod();
+        if (me.wizardInformation.arrivalDate < me.wizardInformation.minimalArrivalDate) {
+            me.getStep4FormErrorMessage().show();
+            me.getWizard().down('#mdc-step4-arrival-date').markInvalid(
+                Uni.I18n.translate('general.arrivalDateShouldBeAfterX', 'MDC',
+                    'Arival date should be after {0}',
+                    Uni.DateTime.formatDateTime(new Date(me.wizardInformation.minimalArrivalDate), Uni.DateTime.LONG, Uni.DateTime.SHORT)
+                )
+            );
+        } else {
+            Ext.Array.forEach(me.wizardInformation.dataLogger.get('dataLoggerSlaveDevices'), function(dataLoggerSlaveDeviceRecord){
+                dataLoggerSlaveDeviceRecord["arrivalTimeStamp"] = me.wizardInformation.arrivalDate.getTime()/1000;
+            }, me);
+            endMethod();
+        }
     },
 
     prepareStep5: function() {
@@ -711,7 +745,7 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
                 // Nothing to do here
             },
             failure: function (record, operation) {
-                // What to do in this case?
+                // According to the specs this can't occur
             }
         });
     },
@@ -757,6 +791,7 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
         this.wizardInformation.mappedChannels = undefined;
         this.wizardInformation.mappedRegisters = undefined;
         this.wizardInformation.arrivalDate = undefined;
+        this.wizardInformation.minimalArrivalDate = 0;
     },
 
     onUnlinkDataLoggerSlave: function() {
