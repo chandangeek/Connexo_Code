@@ -51,6 +51,8 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.search.SearchablePropertyOperator;
 import com.elster.jupiter.search.SearchablePropertyValue;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
 
@@ -68,7 +70,12 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.function.Consumer;
 
-@Component(name = "com.elster.jupiter.metering.cps", service = {InstallService.class, TranslationKeyProvider.class, MessageSeedProvider.class}, property = "name=CPM")
+@Component(name = "com.elster.jupiter.metering.cps", service = {InstallService.class, TranslationKeyProvider.class, MessageSeedProvider.class}, property = {
+        "name=CPM",
+        "osgi.command.scope=cpm",
+        "osgi.command.function=link",
+        "osgi.command.function=mc"
+})
 public class MeteringCustomPropertySetsDemoInstaller implements InstallService, TranslationKeyProvider, MessageSeedProvider {
 
     public static final String COMPONENT_NAME = "CPM";
@@ -76,6 +83,7 @@ public class MeteringCustomPropertySetsDemoInstaller implements InstallService, 
     private volatile MeteringService meteringService;
     private volatile CustomPropertySetService customPropertySetService;
     private volatile TransactionService transactionService;
+    private volatile ThreadPrincipalService threadPrincipalService;
     private volatile NlsService nlsService;
     private volatile PropertySpecService propertySpecService;
     private volatile Thesaurus thesaurus;
@@ -88,6 +96,11 @@ public class MeteringCustomPropertySetsDemoInstaller implements InstallService, 
     private ServiceCategory water;
     private ServiceCategory internet;
     private ServiceCategory thermal;
+
+    @Reference
+    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+        this.threadPrincipalService = threadPrincipalService;
+    }
 
     @Reference
     public void setmetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
@@ -125,9 +138,25 @@ public class MeteringCustomPropertySetsDemoInstaller implements InstallService, 
         this.registerCustomPropertySets();
     }
 
+    public void link() {
+        try (TransactionContext context = transactionService.getContext()) {
+            install();
+            context.commit();
+        }
+    }
+
+    public void mc() {
+        try (TransactionContext context = transactionService.getContext()) {
+            threadPrincipalService.set(() -> "Console");
+            unmeasuredAntennaInstallation();
+            residentialPrepay();
+            context.commit();
+        }
+    }
+
     @Override
     public void install() {
-        this.registerCustomPropertySets();
+//        this.registerCustomPropertySets();
         assign(UsagePointGeneralDomainExtension.class.getName(), this::addAllSets);
 //        customPropertySetService.findActiveCustomPropertySet(UsagePointMetrologyGeneralDomExt.class.getName())
 //                .ifPresent(this::addAllSets);
@@ -186,8 +215,7 @@ public class MeteringCustomPropertySetsDemoInstaller implements InstallService, 
         assign(UsagePointTechnicalWGTDomExt.class.getName(), this::addThermalSets);
 //        customPropertySetService.findActiveCustomPropertySet(UsagePointMeterTechInfGTWDomExt.class.getName())
 //                .ifPresent(this::addThermalSets);
-        unmeasuredAntennaInstallation();
-        residentialPrepay();
+
     }
 
     private void assign(String cps, Consumer<RegisteredCustomPropertySet> action) {
@@ -315,16 +343,18 @@ public class MeteringCustomPropertySetsDemoInstaller implements InstallService, 
                 .orElseThrow(() -> new NoSuchElementException("Billing metrology purpose not found"));
         MetrologyContract contractBilling = config.addMandatoryMetrologyContract(purposeBilling);
 
-        RegisteredCustomPropertySet registeredAntennaCPS = customPropertySetService.findActiveCustomPropertySet("com.elster.jupiter.metering.cps.impl.metrology.UsagePointAntennaCPS")
+        RegisteredCustomPropertySet registeredAntennaCPS = customPropertySetService.findActiveCustomPropertySet("com.elster.jupiter.metering.cps.impl.metrology.UsagePointAntennaDomExt")
                 .orElseThrow(() -> new NoSuchElementException("Antenna custom property set not found"));
         config.addCustomPropertySet(registeredAntennaCPS);
 
         ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Monthly A+ kWh", readingTypeMonthlyAplusWh, Formula.Mode.EXPERT);
         CustomPropertySet antennaCPS = registeredAntennaCPS.getCustomPropertySet();
         List<PropertySpec> propertySpecs = antennaCPS.getPropertySpecs();
-        FormulaBuilder antennaPower = builder.property(antennaCPS, propertySpecs.stream().filter("antennaPower"::equals).findFirst()
+        FormulaBuilder antennaPower = builder.property(antennaCPS, propertySpecs.stream()
+                .filter(propertySpec -> "antennaPower".equals(propertySpec.getName())).findFirst()
                 .orElseThrow(() -> new NoSuchElementException("antennaPower property spec not found")));
-        FormulaBuilder antennaCount = builder.property(antennaCPS, propertySpecs.stream().filter("antennaCount"::equals).findFirst()
+        FormulaBuilder antennaCount = builder.property(antennaCPS, propertySpecs.stream()
+                .filter(propertySpec -> "antennaCount".equals(propertySpec.getName())).findFirst()
                 .orElseThrow(() -> new NoSuchElementException("antennaCount property spec not found")));
         FormulaBuilder compositionCPS = builder.multiply(antennaPower, antennaCount);
         FormulaBuilder monthlyConstant = builder.multiply(builder.constant(24), builder.constant(30));
@@ -341,7 +371,7 @@ public class MeteringCustomPropertySetsDemoInstaller implements InstallService, 
         UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration("Residential prepay", serviceCategory)
                 .withDescription("Residential consumer with budget/prepayment meter").create();
 
-        RegisteredCustomPropertySet registeredPrepayCPS = customPropertySetService.findActiveCustomPropertySet("usage.point.cps.general.properties.general.prepay")
+        RegisteredCustomPropertySet registeredPrepayCPS = customPropertySetService.findActiveCustomPropertySet("com.elster.jupiter.metering.cps.impl.UsagePointGeneralDomainExtension")
                 .orElseThrow(() -> new NoSuchElementException("Prepay custom property set not found"));
         config.addCustomPropertySet(registeredPrepayCPS);
 
@@ -354,7 +384,7 @@ public class MeteringCustomPropertySetsDemoInstaller implements InstallService, 
                 PhaseCode.S2.name(),
                 PhaseCode.S12.name()));
         config.addUsagePointRequirement(getUsagePointRequirement("type", SearchablePropertyOperator.EQUAL, UsagePointTypeInfo.UsagePointType.MEASURED_SDP.name()));
-        config.addUsagePointRequirement(getUsagePointRequirement("usage.point.cps.general.properties.general.prepay", SearchablePropertyOperator.EQUAL, "Y"));
+        config.addUsagePointRequirement(getUsagePointRequirement("com.elster.jupiter.metering.cps.impl.UsagePointGeneralDomainExtension.prepay", SearchablePropertyOperator.EQUAL, "Y"));
 
         MeterRole meterRole = metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey())
                 .orElseThrow(() -> new NoSuchElementException("Default meter role not found"));
@@ -383,7 +413,8 @@ public class MeteringCustomPropertySetsDemoInstaller implements InstallService, 
     }
 
     private ReadingTypeTemplate getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate defaultReadingTypeTemplate) {
-        return metrologyConfigurationService.findReadingTypeTemplate(defaultReadingTypeTemplate.name())
+        return metrologyConfigurationService.findReadingTypeTemplate(defaultReadingTypeTemplate.getNameTranslation()
+                .getDefaultFormat())
                 .orElseThrow(() -> new NoSuchElementException("Default reading type template not found"));
     }
 
