@@ -1,10 +1,14 @@
 package com.energyict.mdc.favorites.impl;
 
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.users.User;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.favorites.DeviceLabel;
 import com.energyict.mdc.favorites.FavoriteDeviceGroup;
 import com.energyict.mdc.favorites.LabelCategory;
@@ -21,8 +25,9 @@ public enum TableSpecs {
             Column deviceGroupColumn = table.column("ENDDEVICEGROUP").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
 
             table.primaryKey("FAV_PK_FAVDEVICEGROUP").on(userColumn, deviceGroupColumn).add();
-            table.foreignKey("FAV_FK_FAVDEVICEGROUP_USER").on(userColumn).references("USR", "USR_USER").map("user").add();
-            table.foreignKey("FAV_FK_FAVDEVICEGROUP_GROUP").on(deviceGroupColumn).references("MTG", "MTG_ED_GROUP").map("endDeviceGroup").onDelete(DeleteRule.CASCADE).add();
+            table.foreignKey("FAV_FK_FAVDEVICEGROUP_USER").on(userColumn).references("USR", "USR_USER").map("user").upTo(Version.version(10, 2)).add();
+            table.foreignKey("FAV_FK_FAVDEVICEGROUP_USER").on(userColumn).references(User.class).map("user").onDelete(DeleteRule.CASCADE).since(Version.version(10, 2)).add();
+            table.foreignKey("FAV_FK_FAVDEVICEGROUP_GROUP").on(deviceGroupColumn).references(EndDeviceGroup.class).map("endDeviceGroup").onDelete(DeleteRule.CASCADE).add();
         }
     },
 
@@ -52,8 +57,9 @@ public enum TableSpecs {
             table.column("LABELCOMMENT").type("CLOB").map("comment").conversion(ColumnConversion.CLOB2STRING).add();
 
             table.primaryKey("FAV_PK_DEVICELABEL").on(userColumn, deviceColumn, categoryColumn).add();
-            table.foreignKey("FAV_FK_DEVICELABEL_USER").on(userColumn).references("USR", "USR_USER").map("user").add();
-            table.foreignKey("FAV_FK_DEVICELABEL_DEVICE").on(deviceColumn).references("DDC", "DDC_DEVICE").map("device").onDelete(DeleteRule.CASCADE).add();
+            table.foreignKey("FAV_FK_DEVICELABEL_USER").on(userColumn).references("USR", "USR_USER").map("user").upTo(Version.version(10, 2)).add();
+            table.foreignKey("FAV_FK_DEVICELABEL_USER").on(userColumn).references(User.class).map("user").onDelete(DeleteRule.CASCADE).since(Version.version(10, 2)).add();
+            table.foreignKey("FAV_FK_DEVICELABEL_DEVICE").on(deviceColumn).references(Device.class).map("device").onDelete(DeleteRule.CASCADE).add();
             table.foreignKey("FAV_FK_DEVICELABEL_CATEGORY").on(categoryColumn).references(TableSpecs.FAV_LABELCATEGORY.name()).map("labelCategory").add();
         }
     };
