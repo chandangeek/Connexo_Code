@@ -9,7 +9,7 @@ Ext.define('Apr.view.appservers.AppServerWebserviceEndpoints', {
 
     router: null,
     appServerName: null,
-
+    needLink: false,
 
 
     initComponent: function () {
@@ -23,6 +23,8 @@ Ext.define('Apr.view.appservers.AppServerWebserviceEndpoints', {
                     grid: {
                         xtype: 'apr-web-service-endpoints-grid',
                         itemId: 'apr-web-service-endpoints-grid',
+                        router: me.router,
+                        needLink: me.needLink,
                         viewConfig: {
                             markDirty: true
                         },

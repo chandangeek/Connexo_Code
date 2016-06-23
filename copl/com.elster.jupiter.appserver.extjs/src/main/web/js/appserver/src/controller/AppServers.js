@@ -208,6 +208,9 @@ Ext.define('Apr.controller.AppServers', {
             'apr-import-services-action-menu': {
                 click: this.removeImportServiceFromActionMenu
             },
+            'apr-webservices-action-menu': {
+                click: this.removeWebserviceFromActionMenu
+            },
             'apr-import-services-grid actioncolumn': {
                 removeEvent: this.removeImportServiceFromGrid
             },
@@ -441,7 +444,8 @@ Ext.define('Apr.controller.AppServers', {
                             view = Ext.widget('appserver-webservices', {
                                 router: me.getController('Uni.controller.history.Router'),
                                 appServerName: appServerName,
-                                store: servedWebserviceEnpointsStore
+                                store: servedWebserviceEnpointsStore,
+                                needLink: true
                             });
                             me.getApplication().fireEvent('appserverload', appServerName);
                             me.getApplication().fireEvent('changecontentevent', view);
@@ -1058,6 +1062,11 @@ Ext.define('Apr.controller.AppServers', {
         me.removeImportService(menu.record);
     },
 
+    removeWebserviceFromActionMenu: function (menu) {
+        var me = this;
+        me.removeWebserviceEndpoint(menu.record);
+    },
+
     removeImportServiceFromGrid: function (record) {
         var me = this;
 
@@ -1202,7 +1211,7 @@ Ext.define('Apr.controller.AppServers', {
                         callback: function (records, operation, success) {
                             if (success === true) {
                                 me.webservicesEndpointsDataChanged();
-                                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('appServers.configureWebServicesSuccess', 'APR', 'Webservice endpoits saved'));
+                                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('appServers.configureWebServicesSuccess', 'APR', 'Webservice endpoints saved'));
                             }
                             ref.setLoading(false);
                         }

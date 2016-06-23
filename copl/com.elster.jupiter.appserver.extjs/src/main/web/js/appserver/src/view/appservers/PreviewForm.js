@@ -41,8 +41,8 @@ Ext.define('Apr.view.appservers.PreviewForm', {
                 name: 'messageServicesCount',
                 renderer: function (value) {
                     var result;
-                    if(value===''){
-                        result = value;
+                    if (value === '') {
+                        result = '-';
                     }
                     else {
                         result = Uni.I18n.translatePlural('general.messageServicesCount', value, 'APR', 'No message services', '{0} message service', '{0} message services');
@@ -59,8 +59,8 @@ Ext.define('Apr.view.appservers.PreviewForm', {
                 name: 'importServicesCount',
                 renderer: function (value) {
                     var result;
-                    if (value===''){
-                        result = value;
+                    if (value === '') {
+                        result = '-';
                     } else {
                         result = Uni.I18n.translatePlural('general.importServicesCount', value, 'APR', 'No import services', '{0} import service', '{0} import services');
                         var url = me.router.getRoute('administration/appservers/overview/importservices').buildUrl({appServerName: me.appServerName});
@@ -68,26 +68,44 @@ Ext.define('Apr.view.appservers.PreviewForm', {
                     }
                     return result;
                 }
+            },
+            {
+                xtype: 'displayfield',
+                fieldLabel: Uni.I18n.translate('general.webserviceEndpoints', 'APR', 'Webservice endpoints'),
+                itemId: 'endPointConfigurations',
+                name: 'webserviceEndpointsCount',
+                renderer: function (value) {
+                    var result;
+                    if (value === '') {
+                        result = '-';
+                    } else {
+                        result = Uni.I18n.translatePlural('general.webserviceEndpointsCount', value, 'APR', 'No webservice endpoints', '{0} webservice endpoint', '{0} webservice endpoints');
+                        var url = me.router.getRoute('administration/appservers/overview/webserviceendpoints').buildUrl({appServerName: me.appServerName});
+                        result = '<a href="' + url + '">' + Ext.String.htmlEncode(result) + '</a>';
+                    }
+                    return result;
+                }
+
             }
         ];
         me.callParent(arguments);
     },
 
-    updateAppServerPreview: function (appServerRecord) {
-        var me = this;
-        me.appServerName = appServerRecord.get('name');
+        updateAppServerPreview: function (appServerRecord) {
+            var me = this;
+            me.appServerName = appServerRecord.get('name');
 
-        if (!Ext.isDefined(appServerRecord)) {
-            return;
-        }
-        if (me.rendered) {
-            Ext.suspendLayouts();
+            if (!Ext.isDefined(appServerRecord)) {
+                return;
+            }
+            if (me.rendered) {
+                Ext.suspendLayouts();
+            }
+
+            me.loadRecord(appServerRecord);
+            if (me.rendered) {
+                Ext.resumeLayouts(true);
+            }
         }
 
-        me.loadRecord(appServerRecord);
-        if (me.rendered) {
-            Ext.resumeLayouts(true);
-        }
-    }
-
-});
+    });

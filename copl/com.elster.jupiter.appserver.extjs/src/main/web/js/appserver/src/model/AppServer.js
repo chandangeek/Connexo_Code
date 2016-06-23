@@ -37,7 +37,7 @@ Ext.define('Apr.model.AppServer', {
                 if (data.importServices !== undefined || data.importServices != null) {
                     return data.importServices.length;
                 } else {
-                    return '-';
+                    return '';
                 }
             }
         },
@@ -48,7 +48,7 @@ Ext.define('Apr.model.AppServer', {
                 if (data.executionSpecs !== undefined || data.executionSpecs != null) {
                     return data.executionSpecs.length;
                 } else {
-                    return '-';
+                    return '';
                 }
             }
         },
@@ -59,7 +59,7 @@ Ext.define('Apr.model.AppServer', {
                 if (data.endPointConfigurations !== undefined || data.endPointConfigurations != null) {
                     return data.endPointConfigurations.length;
                 } else {
-                    return '-';
+                    return '';
                 }
             }
         }
