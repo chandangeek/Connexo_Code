@@ -3061,14 +3061,13 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public MeterActivation activate(Instant start, UsagePoint usagePoint) {
-        //end effective MeterActivation if exists
-        Optional<MeterActivation> effectiveMeterActivation = getMeterActivation(start);
-        if (effectiveMeterActivation.isPresent()) {
-            if (effectiveMeterActivation.get().getEnd() != null) {
-                throw new MeterActivationTimestampNotAfterLastActivationException(thesaurus, getLongDateFormatForCurrentUser(), start,
-                        getMeterActivationsMostRecentFirst().get(0).getStart());
+        //end current MeterActivation if exists
+        Optional<MeterActivation> currentMeterActivation = getCurrentMeterActivation();
+        if (currentMeterActivation.isPresent()) {
+            if (start.isBefore(currentMeterActivation.get().getStart())) {
+                throw new MeterActivationTimestampNotAfterLastActivationException(thesaurus, getLongDateFormatForCurrentUser(), start, currentMeterActivation.get().getStart());
             }
-            effectiveMeterActivation.get().endAt(start);
+            currentMeterActivation.get().endAt(start);
         }
         //validate business constraints
         validateUsagePointIsNotLinkedAlready(usagePoint, start);
@@ -3076,7 +3075,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         //activate kore meter
         MeterActivation newMeterActivation = findKoreMeter(getMdcAmrSystem()).get().activate(usagePoint, getDefaultMeterRole(), start);
         //copy multiplier
-        effectiveMeterActivation.flatMap(ma -> ma.getMultiplier(getDefaultMultiplierType()))
+        currentMeterActivation.flatMap(ma -> ma.getMultiplier(getDefaultMultiplierType()))
                 .ifPresent(m -> newMeterActivation.setMultiplier(getDefaultMultiplierType(), m));
         //copy location
         copyLocationAndGeoCoordinates(usagePoint);
@@ -3120,7 +3119,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         }
     }
 
-    private Map<MetrologyConfiguration, List<ReadingTypeRequirement>> getUnsatisfiedRequirements(UsagePoint usagePoint, Instant from) {
+    Map<MetrologyConfiguration, List<ReadingTypeRequirement>> getUnsatisfiedRequirements(UsagePoint usagePoint, Instant from) {
         List<MetrologyConfiguration> effectiveMetrologyConfigurations = usagePoint.getMetrologyConfigurations(Range.atLeast(from));
         if (effectiveMetrologyConfigurations.isEmpty()) {
             return Collections.emptyMap();

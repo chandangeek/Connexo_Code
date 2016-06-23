@@ -25,6 +25,7 @@ import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
@@ -155,6 +156,7 @@ public class InMemoryIntegrationPersistence {
     private MasterDataService masterDataService;
     private DeviceConfigurationService deviceConfigurationService;
     private MeteringService meteringService;
+    private MetrologyConfigurationService metrologyConfigurationService;
     private DataModel dataModel;
     private ProtocolPluggableService protocolPluggableService;
     private MdcReadingTypeUtilService readingTypeUtilService;
@@ -275,6 +277,7 @@ public class InMemoryIntegrationPersistence {
             this.nlsService = injector.getInstance(NlsService.class);
             injector.getInstance(FiniteStateMachineService.class);
             this.meteringService = injector.getInstance(MeteringService.class);
+            this.metrologyConfigurationService = injector.getInstance(MetrologyConfigurationService.class);
             this.meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
             this.readingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
             this.masterDataService = injector.getInstance(MasterDataService.class);
@@ -326,6 +329,7 @@ public class InMemoryIntegrationPersistence {
         this.principal = mock(User.class);
         when(this.principal.getName()).thenReturn(testName);
         when(this.principal.hasPrivilege(any(), anyString())).thenReturn(true);
+        when(this.principal.getLocale()).thenReturn(Optional.empty());
         Privilege ePrivilege1 = mockPrivilege(EditPrivilege.LEVEL_1);
         Privilege vPrivilege1 = mockPrivilege(ViewPrivilege.LEVEL_1);
         Set<Privilege> privileges = new HashSet<>();
@@ -365,6 +369,10 @@ public class InMemoryIntegrationPersistence {
 
     public MeteringService getMeteringService() {
         return meteringService;
+    }
+
+    public MetrologyConfigurationService getMetrologyConfigurationService() {
+        return metrologyConfigurationService;
     }
 
     public MasterDataService getMasterDataService() {

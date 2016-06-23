@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.data.exceptions;
 
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.nls.LocalizedException;
@@ -25,7 +27,11 @@ public class UnsatisfiedReadingTypeRequirementsOfUsagePointException extends Loc
     private static String buildDetailsForMetrologyConfiguration(MetrologyConfiguration metrologyConfiguration, List<ReadingTypeRequirement> requirements) {
         StringBuilder builder = new StringBuilder();
         builder.append("'").append(metrologyConfiguration.getName()).append("' (");
-        builder.append(requirements.stream().map(ReadingTypeRequirement::getName).collect(Collectors.joining(", ")));
+        builder.append(requirements.stream()
+                .filter(readingTypeRequirement -> readingTypeRequirement instanceof FullySpecifiedReadingTypeRequirement)
+                .map(FullySpecifiedReadingTypeRequirement.class::cast)//in MultiSense only fully specified requirements are expected
+                .map(FullySpecifiedReadingTypeRequirement::getReadingType)
+                .map(ReadingType::getName).collect(Collectors.joining(", ")));
         builder.append(")");
         return builder.toString();
     }
