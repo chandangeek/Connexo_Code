@@ -133,6 +133,7 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
             case 'activatecalendar':
                 break;
             case 'cleartariff':
+                me.clearPassiveCalendar(menu.device.get('mRID'));
                 break;
             case 'sendcalendar':
                 me.goToSendCalendarForm(menu.device.get('mRID'));
@@ -151,6 +152,19 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
         Ext.Ajax.request(
             {
                 url: '/api/ddr/devices/' + mRID + '/timeofuse/verify',
+                method: 'PUT',
+                success: function (response, opt) {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('tou.verifyCalendarTaskPlannedMessage', 'MDC', 'The task has been planned. Actual calendar information will be available as soon as the task has completed.'));
+                }
+            }
+        );
+    },
+
+    clearPassiveCalendar: function(mRID) {
+        var me = this;
+        Ext.Ajax.request(
+            {
+                url: '/api/ddr/devices/' + mRID + '/timeofuse/clearpassive',
                 method: 'PUT',
                 success: function (response, opt) {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('tou.verifyCalendarTaskPlannedMessage', 'MDC', 'The task has been planned. Actual calendar information will be available as soon as the task has completed.'));

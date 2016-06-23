@@ -14,13 +14,13 @@ Ext.define('Mdc.timeofuseondevice.view.ActionMenu', {
         //    action: 'activatecalendar',
         //    dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.activatePassive
         //},
-        //{
-        //    itemId: 'clear-tariff-tou',
-        //    text: Uni.I18n.translate('timeofuse.clearPassiveCalendar', 'MDC', 'Clear passive calendar'),
-        //    privileges: Mdc.privileges.DeviceCommands.executeCommands,
-        //    action: 'cleartariff',
-        //    dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.clearAndDisable
-        //},
+        {
+            itemId: 'clear-tariff-tou',
+            text: Uni.I18n.translate('timeofuse.clearPassiveCalendar', 'MDC', 'Clear passive calendar'),
+            privileges: Mdc.privileges.DeviceCommands.executeCommands,
+            action: 'cleartariff',
+            dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.clearAndDisable
+        },
         {
             itemId: 'send-calendar-tou',
             text: Uni.I18n.translate('timeofuse.sendCalendar', 'MDC', 'Send calendar'),
