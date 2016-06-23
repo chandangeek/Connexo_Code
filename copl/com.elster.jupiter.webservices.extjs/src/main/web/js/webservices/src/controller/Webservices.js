@@ -137,7 +137,7 @@ Ext.define('Wss.controller.Webservices', {
         authenticationMethod?record.setAuthenticationMethod(authenticationMethod):record.set('authenticationMethod',null);
         if(form.down('#userRoleField')) {
             var userGroup = form.down('#userRoleField').findRecordByValue(record.get('group'));
-            if(userGroup.get('id')==='all'){;
+            if(userGroup && userGroup.get('id')==='all'){;
                 record.setGroup(null);
                 record.set('group', null);
             } else {
@@ -220,6 +220,10 @@ Ext.define('Wss.controller.Webservices', {
                 msg: Uni.I18n.translate('webservices.remove.msg', 'WSS', 'This webservice endpoint will be removed and no longer be available.'),
                 fn: function (state) {
                     if (state === 'confirm') {
+                        if(record.get('group')===''){
+                            record.setGroup(null);
+                            record.set('group', null);
+                        }
                         record.destroy({
                             success: function () {
                                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('webservices.remove.success.msg', 'WSS', 'Webservice endpoint removed'));
