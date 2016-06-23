@@ -181,8 +181,8 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
     }
 
     private UsagePoint createUsagePoint(UsagePointBuilder usagePointBuilder, UsagePointImportRecord data, FileImportLogger logger) {
-        usagePointBuilder.withIsSdp(false);
-        boolean isVirtual = true;
+        usagePointBuilder.withIsSdp(data.isSdp());
+        boolean isVirtual = data.isVirtual();
         List<String> locationData = data.getLocation();
         List<String> geoCoordinatesData = data.getGeoCoordinates();
 
@@ -225,23 +225,17 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
         usagePointBuilder.withServicePriority(data.getServicePriority().orElse(null));
         usagePointBuilder.withServiceDeliveryRemark(data.getServiceDeliveryRemark().orElse(null));
         data.getMetrologyConfiguration().ifPresent(mc ->
-                usagePointBuilder.withMetrologyConfiguration(findMetrologyConfiguration(mc.longValue()))
+                usagePointBuilder.withMetrologyConfiguration(findMetrologyConfiguration(mc.longValue(), usagePointBuilder.validate()))
         );
         return usagePointBuilder.create();
     }
 
-    private UsagePointMetrologyConfiguration findMetrologyConfiguration(Long id) {
-
-        UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = metrologyConfigurationService
-                .findMetrologyConfiguration(id)
-                .filter(metrologyConfiguration -> metrologyConfiguration instanceof UsagePointMetrologyConfiguration)
-                .map(UsagePointMetrologyConfiguration.class::cast)
-                .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_NO_METROLOGYCONFIG_FOR_ID, id)
-                );
-        if (!usagePointMetrologyConfiguration.isActive()) {
-            throw new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_INACTIVE_METROLOGY_CONFIGURATION, usagePointMetrologyConfiguration.getName());
-        }
-        return usagePointMetrologyConfiguration;
+    private UsagePointMetrologyConfiguration findMetrologyConfiguration(Long id, UsagePoint usagePoint) {
+        return metrologyConfigurationService.findLinkableMetrologyConfigurations(usagePoint)
+                .stream()
+                .filter(mc -> id == mc.getId())
+                .findFirst()
+                .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_NO_METROLOGYCONFIG_FOR_ID, id, usagePoint.getMRID()));
     }
 
     private UsagePoint updateUsagePoint(UsagePoint usagePoint, UsagePointImportRecord data, FileImportLogger logger) {
@@ -283,6 +277,15 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
         usagePoint.setReadRoute(data.getReadRoute().orElse(null));
         usagePoint.setServicePriority(data.getServicePriority().orElse(null));
         usagePoint.setServiceDeliveryRemark(data.getServiceDeliveryRemark().orElse(null));
+        usagePoint.setVirtual(data.isVirtual());
+        usagePoint.setSdp(data.isSdp());
+        data.getMetrologyConfiguration().ifPresent(mc -> {
+                    usagePoint.getMetrologyConfiguration().ifPresent(mconf -> {
+                        throw new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_METROLOGY_CONFIGURATION_ALREADY_SET, usagePoint.getMRID());
+                    });
+                    usagePoint.apply(findMetrologyConfiguration(mc.longValue(), usagePoint));
+                }
+        );
         usagePoint.update();
         return usagePoint;
     }

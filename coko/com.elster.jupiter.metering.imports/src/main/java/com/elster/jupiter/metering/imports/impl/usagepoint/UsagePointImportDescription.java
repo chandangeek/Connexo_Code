@@ -64,6 +64,18 @@ public class UsagePointImportDescription extends CustomPropertySetDescription im
                 .withName("serviceKind")
                 .markMandatory()
                 .build());
+        fields.put("metrologyConfiguration", CommonField.withParser(numberParser)
+                .withSetter(record::setMetrologyConfiguration)
+                .withName("metrologyConfiguration")
+                .build());
+        fields.put("isSdp", CommonField.withParser(booleanParser)
+                .withSetter(record::setSdp)
+                .withName("isSdp")
+                .build());
+        fields.put("isVirtual", CommonField.withParser(booleanParser)
+                .withSetter(record::setVirtual)
+                .withName("isVirtual")
+                .build());
         fields.put("latitude", CommonField.withParser(stringParser)
                 .withSetter(record::setLatitude)
                 .withName("latitude")
