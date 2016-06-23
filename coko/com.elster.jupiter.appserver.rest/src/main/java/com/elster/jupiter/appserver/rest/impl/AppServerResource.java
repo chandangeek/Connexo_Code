@@ -475,7 +475,7 @@ public class AppServerResource {
                 .collect(Collectors.toList());
         available.removeAll(getEndpointsOnAppServer(appServerName));
         List<EndPointConfigurationInfo> infos = available.stream()
-                .map(endPointConfigurationInfoFactory::summary)
+                .map(endPointConfigurationInfoFactory::from)
                 .collect(Collectors.toList());
 
         return Response.ok(infos).build();
