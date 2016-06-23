@@ -7,6 +7,7 @@ import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointBuilder;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.orm.DataModel;
 
 import java.time.Instant;
@@ -32,6 +33,7 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
 
     private ServiceCategory serviceCategory;
     private ServiceLocation serviceLocation;
+    private MetrologyConfiguration metrologyConfiguration;
 
     public UsagePointBuilderImpl(DataModel dataModel, String mRID, Instant installationTime, ServiceCategory serviceCategory) {
         this.serviceCategory = serviceCategory;
@@ -125,6 +127,12 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
     }
 
     @Override
+    public UsagePointBuilder withMetrologyConfiguration(MetrologyConfiguration metrologyConfiguration) {
+        this.metrologyConfiguration = metrologyConfiguration;
+        return this;
+    }
+
+    @Override
     public UsagePoint create() {
         UsagePointImpl usagePoint = this.build();
         usagePoint.doSave();
@@ -152,6 +160,7 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
         usagePoint.setServiceLocationString(serviceLocationString);
         usagePoint.setGeoCoordinates(geoCoordinates);
         usagePoint.setLocation(locationId);
+        usagePoint.apply(metrologyConfiguration);
         return usagePoint;
     }
 }
