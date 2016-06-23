@@ -1,6 +1,7 @@
 package com.elster.jupiter.webservices.rest.impl;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -38,14 +39,16 @@ public class EndPointConfigurationResource {
     private final ExceptionFactory exceptionFactory;
     private final WebServicesService webServicesService;
     private final EndpointConfigurationLogInfoFactory endpointConfigurationLogInfoFactory;
+    private final ConcurrentModificationExceptionFactory concurrentModificationExceptionFactory;
 
     @Inject
-    public EndPointConfigurationResource(EndPointConfigurationService endPointConfigurationService, EndPointConfigurationInfoFactory endPointConfigurationInfoFactory, ExceptionFactory exceptionFactory, WebServicesService webServicesService, EndpointConfigurationLogInfoFactory endpointConfigurationLogInfoFactory) {
+    public EndPointConfigurationResource(EndPointConfigurationService endPointConfigurationService, EndPointConfigurationInfoFactory endPointConfigurationInfoFactory, ExceptionFactory exceptionFactory, WebServicesService webServicesService, EndpointConfigurationLogInfoFactory endpointConfigurationLogInfoFactory,ConcurrentModificationExceptionFactory concurrentModificationExceptionFactory) {
         this.endPointConfigurationService = endPointConfigurationService;
         this.endPointConfigurationInfoFactory = endPointConfigurationInfoFactory;
         this.exceptionFactory = exceptionFactory;
         this.webServicesService = webServicesService;
         this.endpointConfigurationLogInfoFactory = endpointConfigurationLogInfoFactory;
+        this.concurrentModificationExceptionFactory = concurrentModificationExceptionFactory;
     }
 
     @GET
@@ -97,7 +100,9 @@ public class EndPointConfigurationResource {
     public Response updateEndPointConfiguration(@PathParam("id") long id, EndPointConfigurationInfo info) {
         validatePayload(info);
         EndPointConfiguration endPointConfiguration = endPointConfigurationService.findAndLockEndPointConfigurationByIdAndVersion(id, info.version)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_END_POINT_CONFIG));
+                .orElseThrow(concurrentModificationExceptionFactory.contextDependentConflictOn(info.name)
+                        .withActualVersion(() -> endPointConfigurationService.getEndPointConfiguration(info.id).map(EndPointConfiguration::getVersion).orElse(null))
+                        .supplier());
         if (!info.active) { // Changes will be ignored if EndPointConfig is active, all but the actual active-state
             WebServiceDirection webServiceDirection = webServicesService.getWebService(info.webServiceName)
                     .get()
