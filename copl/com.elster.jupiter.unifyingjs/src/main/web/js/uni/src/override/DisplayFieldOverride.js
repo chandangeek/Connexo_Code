@@ -7,7 +7,7 @@ Ext.define('Uni.override.DisplayFieldOverride', {
         if(Ext.isEmpty(value)) {
             return '-'
         }
-        return value;
+        return Ext.String.htmlEncode(value); // htmlEncoding is needed here, since...
     },
-    htmlEncode: true
+    htmlEncode: true  // ... this setting is only applied when you have no renderer defined
 });
