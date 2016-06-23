@@ -27,6 +27,7 @@ public class ReadRegisters extends AbstractRequest<List<OfflineRegister>, List<C
 
     public ReadRegisters(ACE4000Outbound ace4000) {
         super(ace4000);
+        multiFramedAnswer = true;
     }
 
     protected void doBefore() {

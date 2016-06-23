@@ -26,7 +26,6 @@ public class BillingData extends AbstractActarisObject {
     private int enabled = -1;
     private int interval = -1;
     private int numOfRecs = -1;
-    private MeterReadingData mrd = new MeterReadingData();
     private boolean isComplexBillingData = false;
 
     public BillingData(ObjectFactory of) {

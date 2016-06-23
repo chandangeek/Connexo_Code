@@ -64,7 +64,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
     }
 
     public String getVersion() {
-        return "$Date: 2016-06-22 16:41:52 +0300 (Wed, 22 Jun 2016)$";
+        return "$Date: 2016-06-23 15:38:48 +0200 (Thu, 23 Jun 2016)$";
     }
 
     @Override
@@ -83,17 +83,19 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
                     config.setSupportedByMeter(false);
                 } else {
                     List<OfflineLoadProfile> offlineLoadProfiles = getOfflineDevice().getAllOfflineLoadProfiles();
-                    if(offlineLoadProfiles != null && offlineLoadProfiles.size() > 0){
-                        long profileInterval = offlineLoadProfiles.get(0).getInterval().getMilliSeconds();
+                    if (offlineLoadProfiles != null && offlineLoadProfiles.size() > 0) {
+                        OfflineLoadProfile offlineLoadProfile = getOfflineLoadProfile(offlineLoadProfiles, DeviceLoadProfileSupport.GENERIC_LOAD_PROFILE_OBISCODE);
+                        long profileInterval = offlineLoadProfile.getInterval().getMilliSeconds();
                         Date toDate = new Date();
-                        Date fromDate = new Date(toDate.getTime() - profileInterval); // get the last interval from date
+                        Date fromDate = new Date(toDate.getTime() - (2 * profileInterval)); // get the last interval from date
                         ReadLoadProfile readLoadProfileRequest = new ReadLoadProfile(this, fromDate, toDate);
                         List<CollectedLoadProfile> collectedLoadProfiles = readLoadProfileRequest.request(loadProfileReader);
-                        if(collectedLoadProfiles != null && collectedLoadProfiles.size() > 0){
+                        if (collectedLoadProfiles != null && collectedLoadProfiles.size() > 0) {
                             config.setChannelInfos(collectedLoadProfiles.get(0).getChannelInfo());
                         } else { // if we are not able to read the channelInfos from device then return the ones configured in EIMaster and skip validation of channelInfos
                             config.setChannelInfos(loadProfileReader.getChannelInfos());
                         }
+                        getObjectFactory().resetLoadProfile();
                     }
                 }
                 result.add(config);
@@ -104,6 +106,15 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
             }
         }
         return result;
+    }
+
+    private OfflineLoadProfile getOfflineLoadProfile(List<OfflineLoadProfile> offlineLoadProfiles, ObisCode genericLoadProfileObiscode) {
+        for (OfflineLoadProfile offlineLoadProfile : offlineLoadProfiles) {
+            if (offlineLoadProfile.getObisCode().equals(genericLoadProfileObiscode)) {
+                return offlineLoadProfile;
+            }
+        }
+        return null;
     }
 
     @Override
@@ -258,7 +269,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
         if (logger == null) {
             logger = Logger.getLogger(this.getClass().getName());
         }
-        return logger; //TODO temporary, replace with provided logger
+        return logger;
     }
 
     @Override
@@ -321,10 +332,13 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
     public void terminate() {
     }
 
+    /**
+     * GPRS communication has no security.
+     * The security set can contain a password, this is to be used for SMS communication.
+     */
     @Override
     public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
         securityProperties = deviceProtocolSecurityPropertySet;
-        //TODO use the password property for SMS communication
     }
 
     @Override

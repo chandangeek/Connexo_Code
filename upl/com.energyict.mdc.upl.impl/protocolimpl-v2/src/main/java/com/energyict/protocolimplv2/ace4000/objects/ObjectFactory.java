@@ -5,7 +5,6 @@ import com.energyict.mdc.meterdata.CollectedLogBook;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
-import com.energyict.mdc.protocol.tasks.support.DeviceLoadProfileSupport;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.RegisterValue;
@@ -137,12 +136,12 @@ public class ObjectFactory {
         }
     }
 
-    public void setInbound(boolean inbound) {
-        this.inbound = inbound;
-    }
-
     public boolean isInbound() {
         return inbound;
+    }
+
+    public void setInbound(boolean inbound) {
+        this.inbound = inbound;
     }
 
     public boolean isClockWasSet() {
@@ -272,6 +271,10 @@ public class ObjectFactory {
         return loadProfile;
     }
 
+    public void resetLoadProfile() {
+        this.loadProfile = null;
+    }
+
     public MBusBillingData getMBusBillingData() {
         if (mBusBillingData == null) {
             mBusBillingData = new MBusBillingData(this);
@@ -367,12 +370,12 @@ public class ObjectFactory {
         return requestAttemptNumber;  //Used for logging in all ObjectFactory requests
     }
 
-    public void increaseRequestAttemptNumber() {
-        requestAttemptNumber++;
-    }
-
     public void setRequestAttemptNumber(int attemptNumber) {
         this.requestAttemptNumber = attemptNumber;
+    }
+
+    public void increaseRequestAttemptNumber() {
+        requestAttemptNumber++;
     }
 
     private String getRetryDescription() {
@@ -826,7 +829,9 @@ public class ObjectFactory {
                         getInstantVoltAndCurrent().parse(mdElement);
                         for (RegisterValue registerValue : getInstantVoltAndCurrent().getMrd().getRegisterValues()) {
                             getAce4000().getCollectedInstantRegisters().add(createCommonRegister(registerValue));
+                            getAce4000().addReceivedRegisterObisCode(registerValue.getObisCode());
                         }
+                        getInstantVoltAndCurrent().resetMrd();
                         updateRequestSuccess(new Tracker(RequestType.InstantRegisters));
                     } else if (mdElement.getNodeName().equalsIgnoreCase(XMLTags.CURREADING)) {
                         log(Level.INFO, "Received current readings from meter.");
@@ -835,30 +840,38 @@ public class ObjectFactory {
                             getAce4000().getCollectedCurrentRegisters().add(createCommonRegister(registerValue));
                             getAce4000().addReceivedRegisterObisCode(registerValue.getObisCode());
                         }
+                        getCurrentReadings().resetMrd();
                         updateRequestSuccess(new Tracker(RequestType.CurrentRegisters));
                     } else if (mdElement.getNodeName().equalsIgnoreCase(XMLTags.BILLDATA)) {
                         log(Level.INFO, "Received billing data from meter.");
                         getBillingData().parse(mdElement);
                         for (RegisterValue registerValue : getBillingData().getMrd().getRegisterValues()) {
-                            getAce4000().getCollectedBillingRegisters().add(createBillingRegister(registerValue));
-                            getAce4000().addReceivedRegisterObisCode(registerValue.getObisCode());
+                            if (!getAce4000().getReceivedRegisterObisCodeList().contains(registerValue.getObisCode())) {
+                                getAce4000().getCollectedBillingRegisters().add(createBillingRegister(registerValue));
+                                getAce4000().addReceivedRegisterObisCode(registerValue.getObisCode());
+                            }
                         }
+                        getBillingData().resetMrd();
                         updateRequestSuccess(new Tracker(RequestType.BillingRegisters));
                     } else if (mdElement.getNodeName().equalsIgnoreCase(XMLTags.MAXDEMAND)) {
                         log(Level.INFO, "Received maximum demand registers.");
                         getMaximumDemandRegisters().parse(mdElement);
-                        for (RegisterValue registerValue : getMaximumDemandRegisters().getMdr().getRegisterValues()) {
+                        for (RegisterValue registerValue : getMaximumDemandRegisters().getMrd().getRegisterValues()) {
                             getAce4000().getCollectedMaxDemandRegisters().add(createCommonRegister(registerValue));
                             getAce4000().addReceivedRegisterObisCode(registerValue.getObisCode());
                         }
+                        getMaximumDemandRegisters().resetMrd();
                     } else if (mdElement.getNodeName().equalsIgnoreCase(XMLTags.MBUSBILLINGDATA)) {
                         log(Level.INFO, "Received MBus billing data.");
                         setCurrentSlaveSerialNumber(currentSerialNumber);
                         getMBusBillingData().parse(mdElement);
                         for (RegisterValue registerValue : getMBusBillingData().getMrd().getRegisterValues()) {
-                            getAce4000().getCollectedMBusBillingRegisters().add(createCommonRegister(registerValue, new DialHomeIdDeviceIdentifier(currentSerialNumber)));
-                            getAce4000().addReceivedRegisterObisCode(registerValue.getObisCode());
+                            if (!getAce4000().getReceivedRegisterObisCodeList().contains(registerValue.getObisCode())) {
+                                getAce4000().getCollectedMBusBillingRegisters().add(createCommonRegister(registerValue, new DialHomeIdDeviceIdentifier(currentSerialNumber)));
+                                getAce4000().addReceivedRegisterObisCode(registerValue.getObisCode());
+                            }
                         }
+                        getMBusBillingData().resetMrd();
                         updateRequestSuccess(new Tracker(RequestType.MBusBillingRegister));
                     } else if (mdElement.getNodeName().equalsIgnoreCase(XMLTags.MBUSCREADING)) {
                         log(Level.INFO, "Received current readings from MBus meter.");
@@ -868,6 +881,7 @@ public class ObjectFactory {
                             getAce4000().getCollectedMBusCurrentRegisters().add(createCommonRegister(registerValue, new DialHomeIdDeviceIdentifier(currentSerialNumber)));
                             getAce4000().addReceivedRegisterObisCode(registerValue.getObisCode());
                         }
+                        getMBusCurrentReadings().resetMrd();
                         updateRequestSuccess(new Tracker(RequestType.MBusCurrentRegister));
                     } else if (mdElement.getNodeName().equalsIgnoreCase(XMLTags.RESFIRMWARE)) {
                         log(Level.INFO, "Received firmware versions.");
@@ -893,16 +907,16 @@ public class ObjectFactory {
         }
     }
 
+    public String getCurrentSlaveSerialNumber() {
+        return currentSlaveSerialNumber;
+    }
+
     private void setCurrentSlaveSerialNumber(String pushedSerialNumber) {
         this.currentSlaveSerialNumber = pushedSerialNumber;
         if (!getAllSlaveSerialNumbers().contains(pushedSerialNumber)) {
             //Add to the list of slave devices
             getAllSlaveSerialNumbers().add(pushedSerialNumber);
         }
-    }
-
-    public String getCurrentSlaveSerialNumber() {
-        return currentSlaveSerialNumber;
     }
 
     public List<String> getAllSlaveSerialNumbers() {
@@ -917,7 +931,6 @@ public class ObjectFactory {
     }
 
     private CollectedRegister createCommonRegister(RegisterValue registerValue, DeviceIdentifier deviceIdentifier) {
-        //TODO should this be max demand register?
         CollectedRegister deviceRegister = MdcManager.getCollectedDataFactory().createMaximumDemandCollectedRegister(new RegisterDataIdentifierByObisCodeAndDevice(registerValue.getObisCode(), deviceIdentifier));
         deviceRegister.setCollectedData(registerValue.getQuantity(), registerValue.getText());
         deviceRegister.setCollectedTimeStamps(registerValue.getReadTime(), registerValue.getFromTime(), registerValue.getToTime(), registerValue.getEventTime());
@@ -947,16 +960,16 @@ public class ObjectFactory {
         return trackingID;
     }
 
+    protected void setTrackingID(int trackingID) {
+        this.trackingID = trackingID;
+    }
+
     protected int getIncreasedTrackingID() {
         trackingID++;
         if (trackingID > 4096) {
             trackingID = 0;
         }
         return trackingID;
-    }
-
-    protected void setTrackingID(int trackingID) {
-        this.trackingID = trackingID;
     }
 
     public Date getCurrentMeterTime() {

@@ -27,7 +27,6 @@ import java.util.logging.Level;
 public class MBusCurrentReadings extends AbstractActarisObject {
 
     private Date timeStamp = null;
-    private MeterReadingData mrd = new MeterReadingData();
 
     public MBusCurrentReadings(ObjectFactory of) {
         super(of);

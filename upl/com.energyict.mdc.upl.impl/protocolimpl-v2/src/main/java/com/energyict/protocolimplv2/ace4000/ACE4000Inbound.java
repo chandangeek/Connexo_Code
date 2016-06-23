@@ -85,18 +85,16 @@ public class ACE4000Inbound extends ACE4000 implements BinaryInboundDeviceProtoc
     }
 
     public String getVersion() {
-        return "$Date: 2016-06-16 18:17:52 +0200 (Thu, 16 Jun 2016)$";
+        return "$Date: 2016-06-23 15:38:48 +0200 (Thu, 23 Jun 2016)$";
     }
 
     /**
-     * Send an ack for the received frames, if the device has been found in EiServer
+     * Send an ack for the received data, if it was successfully stored in EIServer
      */
     @Override
     public void provideResponse(DiscoverResponseType responseType) {
-        if (responseType == DiscoverResponseType.SUCCESS || responseType == DiscoverResponseType.DATA_ONLY_PARTIALLY_HANDLED) {
+        if (responseType == DiscoverResponseType.SUCCESS) {
             getObjectFactory().provideReponseAfterInbound();
-        } else {
-            //TODO ?
         }
     }
 

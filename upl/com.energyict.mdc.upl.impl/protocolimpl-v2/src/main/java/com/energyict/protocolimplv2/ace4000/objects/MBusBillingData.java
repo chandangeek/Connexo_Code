@@ -32,7 +32,6 @@ public class MBusBillingData extends AbstractActarisObject {
 
     private Date from;
     private Map<String, List<Date>> billingPointDates = new HashMap<String, List<Date>>();
-    private MeterReadingData mrd = new MeterReadingData();
     private Map<String, MeterReadingData> mrdPerSlave = new HashMap<String, MeterReadingData>();
 
     public MeterReadingData getMrdPerSlave(String serialNumber) {

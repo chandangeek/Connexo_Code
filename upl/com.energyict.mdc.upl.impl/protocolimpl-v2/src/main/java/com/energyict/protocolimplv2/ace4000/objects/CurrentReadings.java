@@ -19,7 +19,6 @@ public class CurrentReadings extends AbstractActarisObject {
 
     private String includedRegisters = null;
     private Date timeStamp = null;
-    private MeterReadingData mrd = new MeterReadingData();
 
     public CurrentReadings(ObjectFactory of) {
         super(of);

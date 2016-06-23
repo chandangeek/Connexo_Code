@@ -14,7 +14,6 @@ import java.util.Date;
  */
 public class InstantVoltAndCurrent extends AbstractActarisObject {
 
-    private MeterReadingData mrd = new MeterReadingData();
     private Date timeStamp = null;
 
     public InstantVoltAndCurrent(ObjectFactory of) {
