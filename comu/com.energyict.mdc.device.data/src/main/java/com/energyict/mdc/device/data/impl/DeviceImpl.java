@@ -1867,7 +1867,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public void setUsagePoint(UsagePoint usagePoint) {
-        throw new UnsupportedOperationException();
+        this.activate(clock.instant(), usagePoint);
     }
 
     public DataMapper<DeviceImpl> getDataMapper() {

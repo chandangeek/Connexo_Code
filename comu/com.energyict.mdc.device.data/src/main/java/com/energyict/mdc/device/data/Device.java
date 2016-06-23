@@ -247,7 +247,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     boolean hasData();
 
     /**
-     * Activate the device. Either end the current MeterActivation and create a new one based on previous MeterActivation, or just create a new one.
+     * Activates the device. Either end the current MeterActivation and create a new one based on previous MeterActivation, or just create a new one.
      *
      * @param start start of the meterActivation
      * @return the new meterActivation
@@ -255,7 +255,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     MeterActivation activate(Instant start);
 
     /**
-     * Activate the device on the Usage Point. Either end the current MeterActivation and create a new one
+     * Activates the device on a usage point. Either end the current MeterActivation and create a new one
      * based on previous MeterActivation but with the target Usage Point, or just create a new MeterActivation.
      * Activation can fail if:
      * <ul>
@@ -387,7 +387,11 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
     Optional<UsagePoint> getUsagePoint();
 
-    @Deprecated
+    /**
+     * Activates the device on a usage point now. Use {@link Device#activate(Instant, UsagePoint)} instead if activation time need to be specified
+     *
+     * @param usagePoint target usage point to link device with
+     */
     void setUsagePoint(UsagePoint usagePoint);
 
     GatewayType getConfigurationGatewayType();
