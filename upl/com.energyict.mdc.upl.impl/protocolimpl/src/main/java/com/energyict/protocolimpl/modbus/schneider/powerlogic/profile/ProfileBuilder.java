@@ -18,6 +18,7 @@ public class ProfileBuilder {
 
     private static final int SECONDS_PER_MINUTE = 60;
     private static final int REGULAR_NUMBER_OF_PROFILE_RECORDS_PER_PROFILE_BLOCK = 1;
+    private static final int REGULAR_NUMBER_OF_CHANNELS = 10;
     private PM5561 protocol;
     private ProfileBlock lastProfileBlock;
     private double ratio = 1;
@@ -32,7 +33,7 @@ public class ProfileBuilder {
     }
 
     public int getNumberOfChannels() throws IOException {
-        return getLastProfileBlock().getProfileData().getChannelInfos().size();
+        return getChannelInfos().size();
     }
 
     public int getProfileInterval() throws IOException {
@@ -48,8 +49,8 @@ public class ProfileBuilder {
                 profileBlock.getProfileRecords().getProfileRecords().size() == REGULAR_NUMBER_OF_PROFILE_RECORDS_PER_PROFILE_BLOCK) { // If a ProfileRecord contains less entries, then it was the last/oldest one available > you should stop readout
             BigDecimal referenceNo  = (BigDecimal) protocol.getRegisterFactory().findRegister(PM5561RegisterFactory.LOAD_PROFILE_FIRST_RECORD).value();
             ReadGeneralReferenceRequest readGeneralReferenceRequest = protocol.getRegisterFactory().findRegister(PM5561RegisterFactory.LOAD_PROFILE_RECORD_ITEM1).getReadGeneralReferenceRequest(referenceNo.longValue());
-            List deviceObjects = readGeneralReferenceRequest.getValues();
-            profileBlock = new ProfileBlock(deviceObjects);
+            BigDecimal numberOfRecords = (BigDecimal) protocol.getRegisterFactory().findRegister(PM5561RegisterFactory.LOAD_PROFILE_NUMBER_OF_RECORDS).value();
+            profileBlock = new ProfileBlock(readGeneralReferenceRequest.getValues(), numberOfRecords.intValue());
             profileDataBlocks.add(profileBlock);
         }
 
@@ -75,8 +76,7 @@ public class ProfileBuilder {
         if (this.lastProfileBlock == null) {
             BigDecimal lastRecord = (BigDecimal) protocol.getRegisterFactory().findRegister(PM5561RegisterFactory.LOAD_PROFILE_LAST_RECORD).value();
             ReadGeneralReferenceRequest readGeneralReferenceRequest = protocol.getRegisterFactory().findRegister(PM5561RegisterFactory.LOAD_PROFILE_RECORD_ITEM1).getReadGeneralReferenceRequest(lastRecord.longValue());
-            List deviceObjects = readGeneralReferenceRequest.getValues();
-            this.lastProfileBlock = new ProfileBlock(deviceObjects);
+            this.lastProfileBlock = new ProfileBlock(readGeneralReferenceRequest.getValues(), REGULAR_NUMBER_OF_CHANNELS);
         }
         return this.lastProfileBlock;
     }

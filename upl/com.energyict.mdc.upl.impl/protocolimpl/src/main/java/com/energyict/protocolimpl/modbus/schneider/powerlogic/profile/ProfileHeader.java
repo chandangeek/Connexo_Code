@@ -1,20 +1,18 @@
 package com.energyict.protocolimpl.modbus.schneider.powerlogic.profile;
 
-import java.util.List;
 
 public class ProfileHeader {
 
     private int recordCount;
+    private int recordSize;
     private int integrationPeriod;
-    private Object numeratorRate;
-    private int denominatorRate;
 
     public ProfileHeader() {
     }
 
-    public static ProfileHeader parse(List values) {
+    public static ProfileHeader parse(int recordCount) {
         ProfileHeader profileHeader = new ProfileHeader();
-        profileHeader.setRecordCount(values.size());
+        profileHeader.setRecordCount(recordCount);
 
         return profileHeader;
     }
@@ -23,7 +21,7 @@ public class ProfileHeader {
         return 6;
     }
 
-   public int getRecordCount() {
+    public int getRecordCount() {
         return recordCount;
     }
 
@@ -31,19 +29,17 @@ public class ProfileHeader {
         this.recordCount = recordCount;
     }
 
+    public int getRecordSize() {
+        return recordSize;
+    }
+
+    public void setRecordSize(int recordSize) {
+        this.recordSize = recordSize;
+    }
+
+
     public int getIntegrationPeriod() {
         return integrationPeriod;
     }
-
-    public void setIntegrationPeriod(int integrationPeriod) {
-        this.integrationPeriod = integrationPeriod;
-    }
-
-    public Object getNumeratorRate() {
-        return numeratorRate;
-    }
-
-    public int getDenominatorRate() {
-        return denominatorRate;
-    }
 }
+

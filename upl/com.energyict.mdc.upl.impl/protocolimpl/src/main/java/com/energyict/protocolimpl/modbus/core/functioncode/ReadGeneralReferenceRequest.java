@@ -5,15 +5,11 @@ import com.energyict.protocolimpl.modbus.core.connection.RequestData;
 import com.energyict.protocolimpl.modbus.core.connection.ResponseData;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class ReadGeneralReferenceRequest extends AbstractRequest{
-    private static final int NO_OBJECTS = 11;
-    private static final int objectSize[] = {8, 8, 8, 4, 4, 4, 4, 8, 8, 8, 8};
     private static final int DEFAULT_OFFSET = 4;
 
-    private List values = null;
+    private byte[] values = null;
 
     private RequestData requestData = new RequestData(FunctionCode.READ_GENERAL_REFERENCE.getFunctionCode());
 
@@ -21,8 +17,8 @@ public class ReadGeneralReferenceRequest extends AbstractRequest{
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("ReadGeneralReferenceRequest:\n");
         if(getValues() != null) {
-            for (int i = 0; i < getValues().size(); i++) {
-                strBuff.append("register" + i + "=0x" + getValues().get(i) + " ");
+            for (int i = 0; i < getValues().length; i++) {
+                strBuff.append("register" + i + "=0x" + getValues()[i] + " ");
             }
         }
         return strBuff.toString();
@@ -31,13 +27,7 @@ public class ReadGeneralReferenceRequest extends AbstractRequest{
     @Override
     protected void parse(ResponseData responseData) throws IOException {
         int offset = DEFAULT_OFFSET;
-        if(values == null){
-            values = new ArrayList();
-        }
-        for (int i = 0; i < NO_OBJECTS; i++){
-            values.add(ProtocolUtils.getLong(ProtocolUtils.getSubArray2(responseData.getData(),offset,objectSize[i]), 0, objectSize[i]));
-            offset+= objectSize[i];
-        }
+        values = ProtocolUtils.getSubArray2(responseData.getData(),offset, responseData.getData().length -offset - 1);
     }
 
     @Override
@@ -49,7 +39,7 @@ public class ReadGeneralReferenceRequest extends AbstractRequest{
         super(functionCodeFactory);
     }
 
-    public List getValues() {
+    public byte[] getValues() {
         return values;
     }
 
