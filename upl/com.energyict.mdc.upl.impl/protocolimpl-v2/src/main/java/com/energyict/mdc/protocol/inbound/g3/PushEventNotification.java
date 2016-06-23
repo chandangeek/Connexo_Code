@@ -9,6 +9,7 @@ import com.energyict.mdc.protocol.inbound.BinaryInboundDeviceProtocol;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
 import com.energyict.protocol.MeterProtocolEvent;
+import com.energyict.protocol.exceptions.CommunicationException;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -61,7 +62,12 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
             G3GatewayPSKProvider pskProvider = getPskProvider();
             String joiningMacAddress = getMeterProtocolEvent().getMessage();
             pskProvider.addJoiningMacAddress(joiningMacAddress);
-            pskProvider.providePSK(joiningMacAddress, getEventPushNotificationParser().getSecurityPropertySet());
+            try {
+                pskProvider.providePSK(joiningMacAddress, getEventPushNotificationParser().getSecurityPropertySet());
+            } catch (CommunicationException e) {
+                context.logOnAllLoggerHandlers(e.getMessage(), Level.WARNING);
+                pskProvider.provideError(joiningMacAddress);
+            }
         }
 
         return DiscoverResultType.DATA;
