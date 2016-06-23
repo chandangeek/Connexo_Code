@@ -3,8 +3,11 @@
  */
 Ext.define('Uni.override.DisplayFieldOverride', {
     override: 'Ext.form.field.Display',
-    //renderer: function(value){
-    //    return Ext.String.htmlEncode(value);
-    //}
+    renderer: function(value){
+        if(Ext.isEmpty(value)) {
+            return '-'
+        }
+        return value;
+    },
     htmlEncode: true
 });
