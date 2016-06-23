@@ -419,7 +419,7 @@ public class ObjectFactory {
         getFirmwareUpgrade().setJadSize(jadSize);
         getFirmwareUpgrade().request();
         addRequestToOverview(RequestType.Firmware);
-        return getTrackingID();
+        return getFirmwareUpgrade().getTrackingID();
     }
 
     /**
@@ -444,10 +444,10 @@ public class ObjectFactory {
         }
         log(Level.INFO, "Sending a contactor control command " + commandDescription + getRetryDescription());
         addRequestToOverview(RequestType.Contactor);
-        return getTrackingID();
+        return getContactorControlCommand().getTrackingID();
     }
 
-    public void sendDisplayMessage(int mode, String message) {
+    public int sendDisplayMessage(int mode, String message) {
         if ((message != null) && !"".equals(message)) {
             log(Level.INFO, "Sending a display message [" + message + "]" + getRetryDescription());
         } else {
@@ -457,27 +457,30 @@ public class ObjectFactory {
         getDisplayMessage().setMessage(message);
         getDisplayMessage().request();
         addRequestToOverview(RequestType.Config);
+        return getDisplayMessage().getTrackingID();
     }
 
-    public void sendDisplayConfigurationRequest(int resolution, String sequence, String originalSequence, int interval) {
+    public int sendDisplayConfigurationRequest(int resolution, String sequence, String originalSequence, int interval) {
         log(Level.INFO, "Configuring the display settings, sequence = [" + originalSequence + "]" + getRetryDescription());
         getDisplayConfiguration().setResolutionCode(resolution);
         getDisplayConfiguration().setSequence(sequence);
         getDisplayConfiguration().setInterval(interval);
         getDisplayConfiguration().request();
         addRequestToOverview(RequestType.Config);
+        return getDisplayConfiguration().getTrackingID();
     }
 
-    public void sendLoadProfileConfiguration(int enable, int intervalCode, int maxNumberOfRecords) {
+    public int sendLoadProfileConfiguration(int enable, int intervalCode, int maxNumberOfRecords) {
         log(Level.INFO, "Sending request to configure the load profile data recording" + getRetryDescription());
         getLoadProfileConfiguration().setEnable(enable);
         getLoadProfileConfiguration().setInterval(intervalCode);
         getLoadProfileConfiguration().setMaxNumberOfRecords(maxNumberOfRecords);
         getLoadProfileConfiguration().request();
         addRequestToOverview(RequestType.Config);
+        return getLoadProfileConfiguration().getTrackingID();
     }
 
-    public void sendSDMConfiguration(int billingEnable, int billingInterval, int billingNumber, int loadProfileEnable, int loadProfileInterval, int loadProfileNumber, int duration, Date date) {
+    public int sendSDMConfiguration(int billingEnable, int billingInterval, int billingNumber, int loadProfileEnable, int loadProfileInterval, int loadProfileNumber, int duration, Date date) {
         log(Level.INFO, "Sending request to configure the special data mode" + getRetryDescription());
         getSpecialDataModeConfiguration().setBillingEnable(billingEnable);
         getSpecialDataModeConfiguration().setBillingInterval(billingInterval);
@@ -489,18 +492,20 @@ public class ObjectFactory {
         getSpecialDataModeConfiguration().setActivationDate(date);
         getSpecialDataModeConfiguration().request();
         addRequestToOverview(RequestType.Config);
+        return getSpecialDataModeConfiguration().getTrackingID();
     }
 
-    public void sendMaxDemandConfiguration(int register, int numberOfSubIntervals, int subIntervalDuration) {
+    public int sendMaxDemandConfiguration(int register, int numberOfSubIntervals, int subIntervalDuration) {
         log(Level.INFO, "Sending request to configure maximum demand settings" + getRetryDescription());
         getMaxDemandConfiguration().setNumberOfSubIntervals(numberOfSubIntervals);
         getMaxDemandConfiguration().setSubIntervalDuration(subIntervalDuration);
         getMaxDemandConfiguration().setRegister(register);
         getMaxDemandConfiguration().request();
         addRequestToOverview(RequestType.Config);
+        return getMaxDemandConfiguration().getTrackingID();
     }
 
-    public void sendConsumptionLimitationConfigurationRequest(Date date, int numberOfSubIntervals, int subIntervalDuration, int ovlRate, int thresholdTolerance, int thresholdSelection, List<String> switchingMomentsDP0, List<Integer> thresholdsDP0, List<Integer> unitsDP0, List<String> actionsDP0, List<String> switchingMomentsDP1, List<Integer> thresholdsDP1, List<Integer> unitsDP1, List<String> actionsDP1, List<Integer> weekProfile) {
+    public int sendConsumptionLimitationConfigurationRequest(Date date, int numberOfSubIntervals, int subIntervalDuration, int ovlRate, int thresholdTolerance, int thresholdSelection, List<String> switchingMomentsDP0, List<Integer> thresholdsDP0, List<Integer> unitsDP0, List<String> actionsDP0, List<String> switchingMomentsDP1, List<Integer> thresholdsDP1, List<Integer> unitsDP1, List<String> actionsDP1, List<Integer> weekProfile) {
         log(Level.INFO, "Sending request to configure consumption limitations" + getRetryDescription());
         getConsumptionLimitationConfiguration().setDate(date);
         getConsumptionLimitationConfiguration().setNumberOfSubIntervals(numberOfSubIntervals);
@@ -519,9 +524,10 @@ public class ObjectFactory {
         getConsumptionLimitationConfiguration().setWeekProfile(weekProfile);
         getConsumptionLimitationConfiguration().request();
         addRequestToOverview(RequestType.Config);
+        return getConsumptionLimitationConfiguration().getTrackingID();
     }
 
-    public void sendEmergencyConsumptionLimitationConfigurationRequest(int duration, int threshold, int unit, int overrideRate) {
+    public int sendEmergencyConsumptionLimitationConfigurationRequest(int duration, int threshold, int unit, int overrideRate) {
         log(Level.INFO, "Sending request to configure emergency consumption limitations" + getRetryDescription());
         getEmergencyConsumptionLimitationConfiguration().setDuration(duration);
         getEmergencyConsumptionLimitationConfiguration().setThreshold(threshold);
@@ -529,15 +535,17 @@ public class ObjectFactory {
         getEmergencyConsumptionLimitationConfiguration().setOvlRate(overrideRate);
         getEmergencyConsumptionLimitationConfiguration().request();
         addRequestToOverview(RequestType.Config);
+        return getEmergencyConsumptionLimitationConfiguration().getTrackingID();
     }
 
-    public void sendTariffConfiguration(int number, int numberOfRates, CodeObject codeTable) {
+    public int sendTariffConfiguration(int number, int numberOfRates, CodeObject codeTable) {
         log(Level.INFO, "Sending request to configure tariff settings" + getRetryDescription());
         getTariffConfiguration().setTariffNumber(number);
         getTariffConfiguration().setNumberOfRates(numberOfRates);
         getTariffConfiguration().setCodeTable(codeTable);
         getTariffConfiguration().request();
         addRequestToOverview(RequestType.Config);
+        return getTariffConfiguration().getTrackingID();
     }
 
     /**

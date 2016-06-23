@@ -50,10 +50,13 @@ public class ACE4000Messaging implements DeviceMessageSupport {
             //Load Profile messages
             supportedMessages.add(LoadProfileMessage.READ_PROFILE_DATA);
 
+            //Events message
+            supportedMessages.add(LoadProfileMessage.READ_PROFILE_DATA);
+
             //Configuration messages
             supportedMessages.add(ConfigurationChangeDeviceMessage.SendShortDisplayMessage);
             supportedMessages.add(ConfigurationChangeDeviceMessage.SendLongDisplayMessage);
-            supportedMessages.add(ConfigurationChangeDeviceMessage.DisplayMessage);
+            supportedMessages.add(ConfigurationChangeDeviceMessage.ResetDisplayMessage);
             supportedMessages.add(ConfigurationChangeDeviceMessage.ConfigureLCDDisplay);
             supportedMessages.add(ConfigurationChangeDeviceMessage.ConfigureLoadProfileDataRecording);
             supportedMessages.add(ConfigurationChangeDeviceMessage.ConfigureSpecialDataMode);

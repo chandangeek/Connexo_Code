@@ -214,7 +214,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.fixedLengthStringPropertySpec(DeviceMessageConstants.SHORT_DISPLAY_MESSAGE, 8)),
     SendLongDisplayMessage(70,
             PropertySpecFactory.fixedLengthStringPropertySpec(DeviceMessageConstants.LONG_DISPLAY_MESSAGE, 1024)),
-    DisplayMessage(71),
+    ResetDisplayMessage(71),
     ConfigureLCDDisplay(72,
             PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.NUMBER_OF_DIGITS_BEFORE_COMMA,
                     new BigDecimal(5),
@@ -351,12 +351,11 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.boundedDecimalPropertySpec(DeviceMessageConstants.NUMBER_OF_TARIFF_RATES, new BigDecimal(0), new BigDecimal(4)),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.CODE_TABLE_ID)
     );
-    ;
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
     private final int id;
 
-    private ConfigurationChangeDeviceMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
+    ConfigurationChangeDeviceMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
         this.id = id;
         this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
     }

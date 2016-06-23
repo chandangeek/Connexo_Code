@@ -685,7 +685,7 @@ public class DeviceMessageConstants {
     public static final String THRESHOLDS_MOMENTS = "ACE4000ConfigurationMessages.THRESHOLDS_MOMENTS";
     public static final String ACTIONS_IN_HEX_DAILY_PROFILE0 = "ACE4000ConfigurationMessages.ACTIONS_IN_HEX_DAILY_PROFILE0";
     public static final String SWITCHING_MOMENTS_DAILY_PROFILE1 = "ACE4000ConfigurationMessages.SWITCHING_MOMENTS_DAILY_PROFILE1";
-    public static final String THRESHOLDS_MOMENTS_DAILY_PROFILE1 = "zorro";
+    public static final String THRESHOLDS_MOMENTS_DAILY_PROFILE1 = "ACE4000ConfigurationMessages.THRESHOLDS_MOMENTS_DAILY_PROFILE1";
     public static final String ACTIONS_IN_HEX_DAILY_PROFILE1 = "ACE4000ConfigurationMessages.ACTIONS_IN_HEX_DAILY_PROFILE1";
     public static final String DAY_PROFILES = "ACE4000ConfigurationMessages.DAY_PROFILES";
     public static final String ACTIVATION_DATE = "ACE4000ConfigurationMessages.ACTIVATION_DATE";

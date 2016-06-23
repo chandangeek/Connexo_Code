@@ -87,7 +87,7 @@ abstract public class AbstractActarisObject {
      */
     protected int getTrackingID() {
         if (trackingId == -1) {
-            return getObjectFactory().getIncreasedTrackingID();
+            trackingId = getObjectFactory().getIncreasedTrackingID();
         }
         return trackingId;
     }
