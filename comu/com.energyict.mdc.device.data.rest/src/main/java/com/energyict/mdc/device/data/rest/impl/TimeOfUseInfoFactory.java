@@ -55,7 +55,7 @@ public class TimeOfUseInfoFactory {
                     .sorted(this::compareCreationDate)
                     .findFirst();
 
-            if(nextInLine.isPresent() && activeCalendar.isPresent() && nextInLineDifferentFromActive(nextInLine.get(), activeCalendar.get())) {
+            if(nextInLine.isPresent() && nextInLineDifferentFromActive(nextInLine.get(), activeCalendar)) {
                 PassiveEffectiveCalendar next = nextInLine.get();
                 Instant activationDate = next.getActivationDate();
                 boolean willBePickedUpByPlannedComtask = deviceMessageService.willDeviceMessageBePickedUpByPlannedComTask(device, next.getDeviceMessage().get());
@@ -69,7 +69,11 @@ public class TimeOfUseInfoFactory {
         return info;
     }
 
-    private boolean nextInLineDifferentFromActive(PassiveEffectiveCalendar passiveEffectiveCalendar, ActiveEffectiveCalendar activeEffectiveCalendar) {
+    private boolean nextInLineDifferentFromActive(PassiveEffectiveCalendar passiveEffectiveCalendar, Optional<ActiveEffectiveCalendar> optionalActiveEffectiveCalendar) {
+        if(!optionalActiveEffectiveCalendar.isPresent()) {
+            return true;
+        }
+        ActiveEffectiveCalendar activeEffectiveCalendar = optionalActiveEffectiveCalendar.get();
         if(activeEffectiveCalendar.getAllowedCalendar().isGhost()) {
             return true;
         }
