@@ -95,7 +95,8 @@ public enum MessageSeeds implements MessageSeed {
     NO_ALLOWED_CALENDAR_DEVICE_MESSAGE(278, "NoAllowedCalendarMessage", "Unable to find an allowed calendar command with the given information"),
     NO_ACTIVE_CALENDAR(279, "NoActiveCalendar", "This device doesn't have an active calendar"),
     ACTIVE_CALENDAR_IS_GHOST(280, "ActiveCalendarIsGhost", "The active calendar on this device is a ghost calendar and can not be previewed"),
-    CALENDAR_NOT_ACTIVE_ON_DEVICE(281, "CalendarNotActiveOnDevice", "The requested calendar is not an active calendar on this device");
+    CALENDAR_NOT_ACTIVE_ON_DEVICE(281, "CalendarNotActiveOnDevice", "The requested calendar is not an active calendar on this device"),
+    COMMAND_NOT_ALLOWED_OR_SUPPORTED(282, "CommandNotAllowedOrSupported", "The command you want to run is not supported or allowed on the device type");
     private final int number;
     private final String key;
     private final String format;

@@ -820,8 +820,7 @@ public class DeviceResource {
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public Response sendCalendar(@PathParam("mRID") String mRID, SendCalendarInfo sendCalendarInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
-        Optional<TimeOfUseOptions> timeOfUseOptions = deviceConfigurationService.findTimeOfUseOptions(device.getDeviceConfiguration().getDeviceType());
-        Set<ProtocolSupportedCalendarOptions> allowedOptions = timeOfUseOptions.map(TimeOfUseOptions::getOptions).orElse(Collections.emptySet());
+        Set<ProtocolSupportedCalendarOptions> allowedOptions = getAllowedTimeOfUseOptions(device);
         AllowedCalendar calendar = device.getDeviceType().getAllowedCalendars().stream()
                 .filter(allowedCalendar -> !allowedCalendar.isGhost() && allowedCalendar.getId() == sendCalendarInfo.allowedCalendarId)
                 .findFirst().orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.UNABLE_TO_FIND_CALENDAR));
@@ -831,6 +830,7 @@ public class DeviceResource {
         device.addPassiveCalendar(calendar, sendCalendarInfo.activationDate, deviceMessage);
         return Response.ok().build();
     }
+
 
     @GET
     @Path("/{mRID}/timeofuse/{calendarId}")
@@ -882,6 +882,20 @@ public class DeviceResource {
         } catch (NoStatusInformationTaskException e) {
             throw exceptionFactory.newException(MessageSeeds.VERIFY_CALENDAR_TASK_IS_NOT_ACTIVE);
         }
+        return Response.status(Response.Status.ACCEPTED).build();
+    }
+
+    @PUT
+    @Path("/{mRID}/timeofuse/clearpassive")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Transactional
+    public Response clearPassiveCalendar(@PathParam("mRID") String mRID) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+        Set<ProtocolSupportedCalendarOptions> allowedOptions = getAllowedTimeOfUseOptions(device);
+        if(!allowedOptions.contains(ProtocolSupportedCalendarOptions.CLEAR_AND_DISABLE_PASSIVE_TARIFF)) {
+            throw exceptionFactory.newException(MessageSeeds.COMMAND_NOT_ALLOWED_OR_SUPPORTED);
+        }
+        device.newDeviceMessage(DeviceMessageId.ACTIVITY_CALENDAR_CLEAR_AND_DISABLE_PASSIVE_TARIFF);
         return Response.status(Response.Status.ACCEPTED).build();
     }
 
@@ -964,6 +978,12 @@ public class DeviceResource {
                     sendCalendarInfo.contract);
         }
         return messageBuilder.add();
+    }
+
+
+    private Set<ProtocolSupportedCalendarOptions> getAllowedTimeOfUseOptions(Device device) {
+        Optional<TimeOfUseOptions> timeOfUseOptions = deviceConfigurationService.findTimeOfUseOptions(device.getDeviceConfiguration().getDeviceType());
+        return timeOfUseOptions.map(TimeOfUseOptions::getOptions).orElse(Collections.emptySet());
     }
 
     private Predicate<Device> getFilterForCommunicationTopology(JsonQueryFilter filter) {
