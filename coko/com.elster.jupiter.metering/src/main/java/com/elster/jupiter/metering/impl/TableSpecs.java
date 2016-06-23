@@ -69,6 +69,7 @@ import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
 
@@ -1560,7 +1561,8 @@ public enum TableSpecs {
             Table<Channel> table = dataModel.addTable(name(), Channel.class);
             table.map(ChannelImpl.class);
             Column idColumn = table.addAutoIdColumn();
-            Column channelContainerId = table.column("CHANNEL_CONTAINER").type("number").conversion(NUMBER2LONG).add();
+            Column meterActivationIdColumn = table.column("METERACTIVATIONID").type("number").notNull().conversion(NUMBER2LONG).upTo(version(10, 2)).add();
+            Column channelsContainerId = table.column("CHANNEL_CONTAINER").type("number").conversion(NUMBER2LONG).previously(meterActivationIdColumn).since(Version.version(10, 2)).add();
             Column timeSeriesIdColumn = table.column("TIMESERIESID").type("number").notNull().conversion(NUMBER2LONG).add();
             Column mainReadingTypeMRIDColumn = table.column("MAINREADINGTYPEMRID").varChar(NAME_LENGTH).notNull().add();
             table.column("MAINDERIVATIONRULE").number().conversion(ColumnConversion.NUMBER2ENUM).map("mainDerivationRule").notNull().add();
@@ -1568,13 +1570,20 @@ public enum TableSpecs {
             table.column("BULKDERIVATIONRULE").number().conversion(ColumnConversion.NUMBER2ENUM).map("bulkDerivationRule").add();
             table.addAuditColumns();
             table.primaryKey("MTR_PK_CHANNEL").on(idColumn).add();
-            table.foreignKey("MTR_FK_CHANNELACTIVATION")
+//            table.foreignKey("MTR_FK_CHANNELACTIVATION")
+//                    .references(MeterActivation.class)
+//                    .on(meterActivationIdColumn)
+//                    .onDelete(RESTRICT)
+//                    .upTo(version(10, 2))
+//                    .add();
+            table.foreignKey("MTR_FK_CHANNEL_CONTAINER")
                     .references(ChannelsContainer.class)
                     .onDelete(RESTRICT)
                     .map("channelsContainer")
                     .reverseMap("channels", TimeSeries.class, ReadingTypeInChannel.class)
-                    .on(channelContainerId)
+                    .on(channelsContainerId)
                     .composition()
+                    .since(version(10, 2))
                     .add();
             table.foreignKey("MTR_FK_CHANNELMAINTYPE")
                     .references(ReadingType.class)

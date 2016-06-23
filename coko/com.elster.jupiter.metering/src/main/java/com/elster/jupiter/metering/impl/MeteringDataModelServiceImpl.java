@@ -164,7 +164,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
     private void createServices(BundleContext bundleContext) {
         this.meteringService = new MeteringServiceImpl(this, getDataModel(), getThesaurus(), getClock(), this.idsService,
                 this.eventService, this.queryService, this.messageService, this.jsonService, this.upgradeService);
-        this.meteringService.activate(bundleContext); // This call has effect on resulting table spec!
+        this.meteringService.defineLocationTemplates(bundleContext); // This call has effect on resulting table spec!
         this.dataAggregationService = new DataAggregationServiceImpl(this.meteringService);
         this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this, this.dataModel, this.thesaurus);
         this.usagePointRequirementsSearchDomain = new UsagePointRequirementsSearchDomain(this.propertySpecService, this.meteringService, this.metrologyConfigurationService, this.clock, this.licenseService);
@@ -207,6 +207,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
         this.upgradeService.register(identifier(COMPONENT_NAME), dataModel, InstallerImpl.class, ImmutableMap.of(
                 version(10, 2), UpgraderV10_2.class
         ));
+        this.meteringService.readLocationTemplatesFromDatabase();
     }
 
     private void registerServices(BundleContext bundleContext) {

@@ -311,7 +311,12 @@ public class MeteringServiceImpl implements ServerMeteringService {
         return dataModel.mapper(ServiceLocation.class).getJournal(id);
     }
 
-    public final void activate(BundleContext bundleContext) {
+    /**
+     * This method has an effect on resulting tableSpec, it must be called before adding TableSpecs
+     *
+     * @param bundleContext
+     */
+    public final void defineLocationTemplates(BundleContext bundleContext) {
         if (bundleContext != null) {
             supportedApplicationsUrls.put(KnownAmrSystem.MDC, bundleContext.getProperty(MDC_URL));
             supportedApplicationsUrls.put(KnownAmrSystem.ENERGY_AXIS, bundleContext.getProperty(ENERGY_AXIS_URL));
@@ -322,7 +327,12 @@ public class MeteringServiceImpl implements ServerMeteringService {
             createDefaultLocationTemplate();
             createLocationTemplateDefaultData();
         }
+    }
 
+    /**
+     * This method highly depends on dataModel, so call it after database installation
+     */
+    public final void readLocationTemplatesFromDatabase() {
         if (upgradeService.isInstalled(identifier(MeteringDataModelService.COMPONENT_NAME), version(10, 2))) {
             getLocationTemplateFromDB().ifPresent(template -> {
                 locationTemplate = template;
