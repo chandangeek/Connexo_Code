@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.meterdata;
 
+import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.store.CollectedCalendarDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
@@ -13,14 +14,14 @@ import java.util.Optional;
 /**
  * Provides an implementation for the {@link CollectedCalendar} interface.
  */
-public class DeviceCalendar extends CollectedDeviceData implements CollectedCalendar {
+class DeviceCalendar extends CollectedDeviceData implements CollectedCalendar {
 
     private final DeviceIdentifier<?> deviceIdentifier;
-    private Optional<String> activeCalendarName = Optional.empty();
-    private Optional<String> passiveCalendarName = Optional.empty();
+    private String activeCalendarName;
+    private String passiveCalendarName;
     private ComTaskExecution comTaskExecution;
 
-    public DeviceCalendar(DeviceIdentifier deviceIdentifier) {
+    DeviceCalendar(DeviceIdentifier deviceIdentifier) {
         this.deviceIdentifier = deviceIdentifier;
     }
 
@@ -36,27 +37,35 @@ public class DeviceCalendar extends CollectedDeviceData implements CollectedCale
 
     @Override
     public boolean isEmpty() {
-        return !this.activeCalendarName.isPresent() && !this.passiveCalendarName.isPresent();
+        return this.activeCalendarName == null || this.passiveCalendarName == null;
     }
 
     @Override
     public Optional<String> getActiveCalendar() {
-        return this.activeCalendarName;
+        return Optional.ofNullable(this.activeCalendarName);
     }
 
     @Override
     public void setActiveCalendar(String calendarName) {
-        this.activeCalendarName = Optional.ofNullable(calendarName);
+        if (Checks.is(calendarName).empty()) {
+            this.activeCalendarName = null;
+        } else {
+            this.activeCalendarName = calendarName;
+        }
     }
 
     @Override
     public Optional<String> getPassiveCalendar() {
-        return this.passiveCalendarName;
+        return Optional.ofNullable(this.passiveCalendarName);
     }
 
     @Override
     public void setPassiveCalendar(String calendarName) {
-        this.passiveCalendarName = Optional.ofNullable(calendarName);
+        if (Checks.is(calendarName).empty()) {
+            this.passiveCalendarName = null;
+        } else {
+            this.passiveCalendarName = calendarName;
+        }
     }
 
     @Override
