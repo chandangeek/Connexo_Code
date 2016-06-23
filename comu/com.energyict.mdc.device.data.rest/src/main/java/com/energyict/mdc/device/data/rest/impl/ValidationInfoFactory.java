@@ -262,7 +262,7 @@ public class ValidationInfoFactory {
         veeReadingInfo.action = decorate(dataValidationStatus.getReadingQualities()
                 .stream())
                 .filter(quality -> quality.getType().hasValidationCategory() || quality.getType().isSuspect())
-                .map(this::getReadingQualityValidationAction)
+                .map(readingQuality -> getReadingQualityValidationAction(readingQuality, veeReadingInfo))
                 .sorted(Comparator.<ValidationAction>reverseOrder())
                 .findFirst()
                 .orElse(null);
@@ -281,7 +281,7 @@ public class ValidationInfoFactory {
             veeReadingInfo.action = decorate(dataValidationStatus.getBulkReadingQualities()
                     .stream())
                     .filter(quality -> quality.getType().hasValidationCategory() || quality.getType().isSuspect())
-                    .map(this::getReadingQualityValidationAction)
+                    .map(readingQuality -> getReadingQualityValidationAction(readingQuality, veeReadingInfo))
                     .sorted(Comparator.<ValidationAction>reverseOrder())
                     .findFirst()
                     .orElse(null);
@@ -293,9 +293,10 @@ public class ValidationInfoFactory {
         return null;
     }
 
-    private ValidationAction getReadingQualityValidationAction(ReadingQuality readingQuality) {
+    private ValidationAction getReadingQualityValidationAction(ReadingQuality readingQuality, MinimalVeeReadingValueInfo veeReadingValueInfo) {
         if (readingQuality.getType().system().isPresent()) {
             if (readingQuality.getType().system().get() == QualityCodeSystem.MDM) {
+                veeReadingValueInfo.validationResult = ValidationStatus.OK;
                 return ValidationAction.WARN_ONLY;
             }
         }
