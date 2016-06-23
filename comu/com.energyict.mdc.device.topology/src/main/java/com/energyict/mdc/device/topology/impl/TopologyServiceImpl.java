@@ -11,6 +11,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.sql.SqlBuilder;
@@ -75,7 +76,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-12-05 (10:40)
  */
-@Component(name="com.energyict.mdc.device.topology", service = {TopologyService.class, ServerTopologyService.class, MessageSeedProvider.class}, property = "name=" + TopologyService.COMPONENT_NAME)
+@Component(name = "com.energyict.mdc.device.topology", service = {TopologyService.class, ServerTopologyService.class, MessageSeedProvider.class}, property = "name=" + TopologyService.COMPONENT_NAME)
 public class TopologyServiceImpl implements ServerTopologyService, MessageSeedProvider {
 
     private volatile DataModel dataModel;
@@ -174,15 +175,13 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
         Optional<ConnectionTask> connectionTask = this.connectionTaskService.findDefaultConnectionTaskForDevice(device);
         if (connectionTask.isPresent()) {
             return connectionTask;
-        }
-        else {
+        } else {
             /* No default ConnectionTask on the device,
              * let's try the physical gateway if there is one. */
             Optional<Device> physicalGateway = this.getPhysicalGateway(device);
             if (physicalGateway.isPresent()) {
                 return this.findDefaultConnectionTaskForTopology(physicalGateway.get());
-            }
-            else {
+            } else {
                 return Optional.empty();
             }
         }
@@ -232,21 +231,19 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
                         .collect(Collectors.toList());
         if (timeslicePeriodEndPoints.isEmpty()) {
             return Range.all();
-        }
-        else {
+        } else {
             return Range.encloseAll(timeslicePeriodEndPoints);
         }
     }
 
-    private Stream<Instant> periodEndPoints (Range<Instant> period) {
+    private Stream<Instant> periodEndPoints(Range<Instant> period) {
         return Stream.of(this.lowerEndpoint(period), this.upperEndpoint(period));
     }
 
     private Instant lowerEndpoint(Range<Instant> period) {
         if (period.hasLowerBound()) {
             return period.lowerEndpoint();
-        }
-        else {
+        } else {
             return Instant.MIN;
         }
     }
@@ -254,8 +251,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     private Instant upperEndpoint(Range<Instant> period) {
         if (period.hasUpperBound()) {
             return period.upperEndpoint();
-        }
-        else {
+        } else {
             return Instant.MAX;
         }
     }
@@ -280,7 +276,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
         return this.findUniqueReferencingDevices(new ArrayList<>(physicalGatewayReferences));
     }
 
-    private List<Device> findUniqueReferencingDevices (List<PhysicalGatewayReference> gatewayReferences) {
+    private List<Device> findUniqueReferencingDevices(List<PhysicalGatewayReference> gatewayReferences) {
         Map<Long, Device> devicesById = new HashMap<>();
         for (PhysicalGatewayReference reference : gatewayReferences) {
             devicesById.put(reference.getOrigin().getId(), reference.getOrigin());
@@ -302,17 +298,27 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
         DataMapper<PhysicalGatewayReference> mapper = this.dataModel.mapper(PhysicalGatewayReference.class);
         List<PhysicalGatewayReference> allEffective =
                 mapper.select(where(PhysicalGatewayReferenceImpl.Field.ORIGIN.fieldName()).isEqualTo(slave)
-                         .and(where("interval").isEffective(when)),
+                                .and(where("interval").isEffective(when)),
                         Order.ascending("interval.start"));
         if (allEffective.size() > 1) {
             throw new IllegalStateException("More than one effective physical gateway for device " + slave.getId());
-        }
-        else if (allEffective.isEmpty()) {
+        } else if (allEffective.isEmpty()) {
             return Optional.empty();
-        }
-        else {
+        } else {
             return Optional.of(allEffective.get(0));
         }
+    }
+
+    @Override
+    public Map<Device, Device> getPhycicalGateways(List<Device> deviceList) {
+        if (deviceList.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        DataMapper<PhysicalGatewayReference> mapper = this.dataModel.mapper(PhysicalGatewayReference.class);
+        List<PhysicalGatewayReference> allEffective =
+                mapper.select(ListOperator.IN.contains(PhysicalGatewayReferenceImpl.Field.ORIGIN.fieldName(), deviceList)
+                        .and(where("interval").isEffective(this.clock.instant())), Order.ascending("interval.start"));
+        return allEffective.stream().collect(Collectors.toMap(PhysicalGatewayReference::getOrigin, PhysicalGatewayReference::getGateway));
     }
 
     @Override
@@ -499,8 +505,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
         List<ComTaskExecution> comTasksForDefaultConnectionTask = this.communicationTaskService.findComTasksByDefaultConnectionTask(slave);
         if (gateway.isPresent()) {
             this.updateComTasksToUseNewDefaultConnectionTask(slave, comTasksForDefaultConnectionTask);
-        }
-        else {
+        } else {
             this.updateComTasksToUseNonExistingDefaultConnectionTask(comTasksForDefaultConnectionTask);
         }
     }
@@ -561,8 +566,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
         Optional<Device> nextHop;
         if (intermediateHop == null || intermediateHop.getId() == target.getId()) {
             nextHop = Optional.empty();
-        }
-        else {
+        } else {
             nextHop = Optional.of(intermediateHop);
         }
         return this.addCommunicationSegment(now, source, target, nextHop, timeToLive, cost);
@@ -616,8 +620,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
              * so there is no way to count the number of slave devices
              * that had a connection setup failure. */
             return 0;
-        }
-        else {
+        } else {
             int numberOfDevices = 0;
             List<TopologyTimeslice> communicationTopologies = this.getPhysicalTopology(device, interval.toClosedRange()).timelined().getSlices();
             for (TopologyTimeslice topologyTimeslice : communicationTopologies) {
@@ -755,11 +758,9 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     private Optional<G3DeviceAddressInformation> atMostOne(List<G3DeviceAddressInformation> addressInformations, Device device) {
         if (addressInformations.isEmpty()) {
             return Optional.empty();
-        }
-        else if (addressInformations.size() > 1) {
+        } else if (addressInformations.size() > 1) {
             throw new IllegalStateException("Expecting at most 1 effective G3DeviceAddressInformation entity for device with mRID " + device.getmRID());
-        }
-        else {
+        } else {
             return Optional.of(addressInformations.get(0));
         }
     }
@@ -774,12 +775,10 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
                 candidate.terminate(newAddressInformation.getEffectiveStart());
                 candidate.save();
                 return newAddressInformation;
-            }
-            else {
+            } else {
                 return candidate;
             }
-        }
-        else {
+        } else {
             return this.createG3DeviceAddressInformation(device, ipv6Address, ipv6ShortAddress, logicalDeviceId);
         }
     }
@@ -839,10 +838,10 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
              * client code explicitly adds them again. */
             this.deviceId2NeighborBuilderMap =
                     neighbors
-                        .stream()
-                        .collect(Collectors.toMap(
-                                n -> n.getNeighbor().getId(),
-                                this::terminator));
+                            .stream()
+                            .collect(Collectors.toMap(
+                                    n -> n.getNeighbor().getId(),
+                                    this::terminator));
         }
 
         private G3NeighborBuilderImpl creator(G3NeighborImpl neighborTableEntry) {
@@ -893,15 +892,14 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
 
         private boolean different(ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo) {
             return !modulationScheme.equals(this.neighborTableEntry.getModulationScheme())
-                || !modulation.equals(this.neighborTableEntry.getModulation())
-                || !phaseInfo.equals(this.neighborTableEntry.getPhaseInfo());
+                    || !modulation.equals(this.neighborTableEntry.getModulation())
+                    || !phaseInfo.equals(this.neighborTableEntry.getPhaseInfo());
         }
 
         void prepareForUpdateOrTerminateOldAndStartNew(ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo) {
             if (this.different(modulationScheme, modulation, phaseInfo)) {
                 this.terminateOldAndStartNew(modulationScheme, modulation, phaseInfo);
-            }
-            else {
+            } else {
                 this.prepareForUdate();
             }
         }

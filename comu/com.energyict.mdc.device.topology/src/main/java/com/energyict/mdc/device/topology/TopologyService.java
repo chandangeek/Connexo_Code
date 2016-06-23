@@ -36,6 +36,8 @@ public interface TopologyService {
 
     Optional<Device> getPhysicalGateway(Device slave, Instant when);
 
+    Map<Device, Device> getPhycicalGateways(List<Device> deviceList);
+
     /**
      * Sets the physical gateway of the slave {@link Device} to the specified Device.
      *
