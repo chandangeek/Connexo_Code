@@ -1,4 +1,4 @@
-package com.elster.jupiter.kore.api.impl;
+package com.elster.jupiter.kore.api.impl.servicecall;
 
 /**
  * Created by antfom on 08.06.2016.

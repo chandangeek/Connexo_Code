@@ -91,17 +91,17 @@ public class UsagePointCommandCustomPropertySet implements CustomPropertySet<Ser
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
                 this.propertySpecService
-                        .longSpec()
+                        .bigDecimalSpec()
                         .named(UsagePointCommandDomainExtension.FieldNames.COMMANDS_EXPECTED.javaName(), UsagePointCommandDomainExtension.FieldNames.COMMANDS_EXPECTED.javaName())
                         .describedAs(UsagePointCommandDomainExtension.FieldNames.COMMANDS_EXPECTED.javaName())
                         .finish(),
                 this.propertySpecService
-                        .longSpec()
+                        .bigDecimalSpec()
                         .named(UsagePointCommandDomainExtension.FieldNames.COMMANDS_SUCCESS.javaName(), UsagePointCommandDomainExtension.FieldNames.COMMANDS_SUCCESS.javaName())
                         .describedAs(UsagePointCommandDomainExtension.FieldNames.COMMANDS_SUCCESS.javaName())
                         .finish(),
                 this.propertySpecService
-                        .longSpec()
+                        .bigDecimalSpec()
                         .named(UsagePointCommandDomainExtension.FieldNames.COMMANDS_FAILED.javaName(), UsagePointCommandDomainExtension.FieldNames.COMMANDS_FAILED.javaName())
                         .describedAs(UsagePointCommandDomainExtension.FieldNames.COMMANDS_FAILED.javaName())
                         .finish(),

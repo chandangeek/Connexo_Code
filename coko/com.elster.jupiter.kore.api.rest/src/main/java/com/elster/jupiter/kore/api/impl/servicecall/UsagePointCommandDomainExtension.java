@@ -6,6 +6,9 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.servicecall.ServiceCall;
 
+import java.math.BigDecimal;
+import java.util.Optional;
+
 public class UsagePointCommandDomainExtension implements PersistentDomainExtension<ServiceCall> {
 
     public enum FieldNames {
@@ -38,9 +41,9 @@ public class UsagePointCommandDomainExtension implements PersistentDomainExtensi
     private Reference<ServiceCall> serviceCall = Reference.empty();
     private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
 
-    private int expectedNumberOfCommands;
-    private int actualNumberOfSuccessfulCommands;
-    private int actualNumberOfFailedCommands;
+    private BigDecimal expectedNumberOfCommands;
+    private BigDecimal actualNumberOfSuccessfulCommands;
+    private BigDecimal actualNumberOfFailedCommands;
     private String callbackHttpMethod;
     private String callbackSuccessURL;
     private String callbackPartialSuccessURL;
@@ -58,27 +61,27 @@ public class UsagePointCommandDomainExtension implements PersistentDomainExtensi
         this.callbackFailureURL = callbackFailureURL;
     }
 
-    public int getExpectedNumberOfCommands() {
+    public BigDecimal getExpectedNumberOfCommands() {
         return expectedNumberOfCommands;
     }
 
-    public void setExpectedNumberOfCommands(int expectedNumberOfCommands) {
+    public void setExpectedNumberOfCommands(BigDecimal expectedNumberOfCommands) {
         this.expectedNumberOfCommands = expectedNumberOfCommands;
     }
 
-    public int getActualNumberOfSuccessfulCommands() {
+    public BigDecimal getActualNumberOfSuccessfulCommands() {
         return actualNumberOfSuccessfulCommands;
     }
 
-    public void setActualNumberOfSuccessfulCommands(int actualNumberOfSuccessfulCommands) {
+    public void setActualNumberOfSuccessfulCommands(BigDecimal actualNumberOfSuccessfulCommands) {
         this.actualNumberOfSuccessfulCommands = actualNumberOfSuccessfulCommands;
     }
 
-    public int getActualNumberOfFailedCommands() {
+    public BigDecimal getActualNumberOfFailedCommands() {
         return actualNumberOfFailedCommands;
     }
 
-    public void setActualNumberOfFailedCommands(int actualNumberOfFailedCommands) {
+    public void setActualNumberOfFailedCommands(BigDecimal actualNumberOfFailedCommands) {
         this.actualNumberOfFailedCommands = actualNumberOfFailedCommands;
     }
 
@@ -109,9 +112,9 @@ public class UsagePointCommandDomainExtension implements PersistentDomainExtensi
     @Override
     public void copyFrom(ServiceCall serviceCall, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.serviceCall.set(serviceCall);
-        this.setExpectedNumberOfCommands((int) propertyValues.getProperty(FieldNames.COMMANDS_EXPECTED.javaName()));
-        this.setActualNumberOfSuccessfulCommands((int) propertyValues.getProperty(FieldNames.COMMANDS_SUCCESS.javaName()));
-        this.setActualNumberOfFailedCommands((int) propertyValues.getProperty(FieldNames.COMMANDS_FAILED.javaName()));
+        this.setExpectedNumberOfCommands(new BigDecimal(Optional.ofNullable(propertyValues.getProperty(FieldNames.COMMANDS_EXPECTED.javaName())).orElse(0).toString()));
+        this.setActualNumberOfSuccessfulCommands(new BigDecimal(Optional.ofNullable(propertyValues.getProperty(FieldNames.COMMANDS_SUCCESS.javaName())).orElse(0).toString()));
+        this.setActualNumberOfFailedCommands(new BigDecimal(Optional.ofNullable(propertyValues.getProperty(FieldNames.COMMANDS_FAILED.javaName())).orElse(0).toString()));
         this.setCallbackHttpMethod((String) propertyValues.getProperty(FieldNames.CALLBACK_METHOD.javaName()));
         this.setCallbackSuccessURL((String) propertyValues.getProperty(FieldNames.CALLBACK_SUCCESS.javaName()));
         this.setCallbackPartialSuccessURL((String) propertyValues.getProperty(FieldNames.CALLBACK_PART_SUCCESS.javaName()));

@@ -1,6 +1,10 @@
 package com.elster.jupiter.kore.api.impl;
 
 import com.elster.jupiter.kore.api.impl.security.Privileges;
+import com.elster.jupiter.kore.api.impl.servicecall.CommandRunStatusInfo;
+import com.elster.jupiter.kore.api.impl.servicecall.CommandStatus;
+import com.elster.jupiter.kore.api.impl.servicecall.UsagePointCommandHelper;
+import com.elster.jupiter.kore.api.impl.servicecall.UsagePointCommandInfo;
 import com.elster.jupiter.kore.api.impl.utils.MessageSeeds;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
@@ -34,7 +38,6 @@ import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 import java.time.Instant;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
@@ -257,25 +260,55 @@ public class UsagePointResource {
     @Path("/{usagePointId}/command")
 //    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     @Transactional
-    public UsagePointInfo runCommandOnUsagePoint(@PathParam("usagePointId") long usagePointId,
-                                           UsagePointCommandInfo usagePointCommandInfo,
-                                           @Context UriInfo uriInfo) {
+    public CommandRunStatusInfo runCommandOnUsagePoint(@PathParam("usagePointId") long usagePointId,
+                                                       UsagePointCommandInfo usagePointCommandInfo,
+                                                       @Context UriInfo uriInfo) {
 
         UsagePoint usagePoint = meteringService.findUsagePoint(usagePointId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_USAGE_POINT));
 
+        CommandRunStatusInfo result = usagePointCommandHelper.checkHeadEndSupport(usagePoint, usagePointCommandInfo);
 
-        ServiceCall serviceCall = usagePointCommandHelper.getServiceCall(usagePointCommandInfo.httpCallBack);
-
-        for (CompletionOptions options : usagePoint.disconnect(Instant.ofEpochMilli(usagePointCommandInfo.effectiveTimestamp), serviceCall)) {
-           if(options!=null) {
-               options.whenFinishedSend(new CompletionMessageInfo("success", serviceCall.getId(), true), usagePointCommandHelper.getDestinationSpec());
-           }
+        if(CommandStatus.FAILED.equals(result.status)){
+            return result;
         }
 
-        //mock
-        usagePointCommandHelper.getDestinationSpec().message("{\"id\":"+serviceCall.getId()+"}").send();
+        ServiceCall serviceCall = usagePointCommandHelper.getServiceCall(usagePoint, usagePointCommandInfo);
 
-        return usagePointInfoFactory.from(usagePoint, uriInfo, Collections.emptyList());
+        //sendCommand not implemented yet
+        if("connect".equalsIgnoreCase(usagePointCommandInfo.command)) {
+            for (CompletionOptions options : usagePoint.connect(Instant.ofEpochMilli(usagePointCommandInfo.effectiveTimestamp), serviceCall)) {
+                if (options != null) {
+                    options.whenFinishedSend(new CompletionMessageInfo("success", serviceCall.getId(), true), usagePointCommandHelper
+                            .getDestinationSpec());
+                }
+            }
+        } else if ("disconnect".equalsIgnoreCase(usagePointCommandInfo.command)) {
+            for (CompletionOptions options : usagePoint.disconnect(Instant.ofEpochMilli(usagePointCommandInfo.effectiveTimestamp), serviceCall)) {
+                if (options != null) {
+                    options.whenFinishedSend(new CompletionMessageInfo("success", serviceCall.getId(), true), usagePointCommandHelper
+                            .getDestinationSpec());
+                }
+            }
+        } else if ("enableLoadLimit".equalsIgnoreCase(usagePointCommandInfo.command)) {
+            for (CompletionOptions options : usagePoint.enableLoadLimit(Instant.ofEpochMilli(usagePointCommandInfo.effectiveTimestamp), usagePointCommandInfo.loadLimit, serviceCall)) {
+                if (options != null) {
+                    options.whenFinishedSend(new CompletionMessageInfo("success", serviceCall.getId(), true), usagePointCommandHelper
+                            .getDestinationSpec());
+                }
+            }
+        } else if ("disableLoadLimit".equalsIgnoreCase(usagePointCommandInfo.command)) {
+            for (CompletionOptions options : usagePoint.disableLoadLimit(Instant.ofEpochMilli(usagePointCommandInfo.effectiveTimestamp), serviceCall)) {
+                if (options != null) {
+                    options.whenFinishedSend(new CompletionMessageInfo("success", serviceCall.getId(), true), usagePointCommandHelper
+                            .getDestinationSpec());
+                }
+            }
+        }
+
+        //callback mock
+        usagePointCommandHelper.getDestinationSpec().message("{\"id\":"+serviceCall.getId()+" , \"success\":true}").send();
+
+        return result;
     }
 }

@@ -3,6 +3,7 @@ package com.elster.jupiter.kore.api.impl;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.cps.rest.impl.CustomPropertySetApplication;
+import com.elster.jupiter.kore.api.impl.servicecall.UsagePointCommandHelper;
 import com.elster.jupiter.kore.api.impl.utils.MessageSeeds;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
