@@ -14,7 +14,6 @@ public class MeterActivationInfo {
     public Long end;
     public long version;
     public boolean active;
-    public IdWithNameInfo deviceConfiguration;
     public IdWithNameInfo usagePoint;
     public Long multiplier;
 
@@ -30,7 +29,6 @@ public class MeterActivationInfo {
         this.end = meterActivation.getEnd() == null ? null : meterActivation.getEnd().toEpochMilli();
         this.version = meterActivation.getVersion();
         this.active = meterActivation.isCurrent();
-        this.deviceConfiguration = new IdWithNameInfo(device.getDeviceConfiguration().getId(), device.getDeviceConfiguration().getName());
         this.usagePoint = meterActivation.getUsagePoint().isPresent() ?
                 new IdWithNameInfo(meterActivation.getUsagePoint().get().getId(), meterActivation.getUsagePoint().get().getName()) : null;
     }
