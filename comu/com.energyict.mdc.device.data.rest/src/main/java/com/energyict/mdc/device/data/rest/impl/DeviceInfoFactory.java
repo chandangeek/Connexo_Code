@@ -1,15 +1,13 @@
-package com.energyict.mdc.device.data.rest;
+package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.GeoCoordinates;
 import com.elster.jupiter.metering.Location;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.rest.impl.DataLoggerSlaveDeviceInfoFactory;
@@ -18,33 +16,39 @@ import com.energyict.mdc.device.data.rest.impl.DeviceInfo;
 import com.energyict.mdc.device.data.rest.impl.DeviceSearchInfo;
 import com.energyict.mdc.device.data.rest.impl.DeviceSearchModelTranslationKeys;
 import com.energyict.mdc.device.data.rest.impl.DeviceTopologyInfo;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.topology.TopologyService;
-import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component(name = "device.info.factory", service = {InfoFactory.class}, immediate = true)
 public class DeviceInfoFactory implements InfoFactory<Device> {
 
-    private Thesaurus thesaurus;
-    private BatchService batchService;
-    private TopologyService topologyService;
-    private IssueService issueService;
-    private IssueDataValidationService issueDataValidationService;
-    private MeteringService meteringService;
-    private DeviceConfigurationService deviceConfigurationService;
-    private DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory;
+    private volatile Thesaurus thesaurus;
+    private volatile BatchService batchService;
+    private volatile TopologyService topologyService;
+    private volatile IssueService issueService;
+    private volatile DeviceService deviceService;
+    private volatile IssueDataValidationService issueDataValidationService;
+    private volatile MeteringService meteringService;
+    private volatile DeviceConfigurationService deviceConfigurationService;
+    private volatile DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory;
+
 
     public DeviceInfoFactory() {}
 
     @Inject
-    public DeviceInfoFactory(Thesaurus thesaurus, BatchService batchService, TopologyService topologyService, IssueService issueService, IssueDataValidationService issueDataValidationService, MeteringService meteringService, DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory, DeviceConfigurationService deviceConfigurationService) {
+    public DeviceInfoFactory(Thesaurus thesaurus, BatchService batchService, TopologyService topologyService, IssueService issueService, IssueDataValidationService issueDataValidationService, MeteringService meteringService, DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory, DeviceConfigurationService deviceConfigurationService, DeviceService deviceService) {
         this.thesaurus = thesaurus;
         this.batchService = batchService;
         this.topologyService = topologyService;
@@ -53,6 +57,7 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
         this.meteringService = meteringService;
         this.dataLoggerSlaveDeviceInfoFactory = dataLoggerSlaveDeviceInfoFactory;
         this.deviceConfigurationService = deviceConfigurationService;
+        this.deviceService = deviceService;
     }
 
     @Reference
@@ -62,7 +67,8 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
 
     @Reference
     public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(DeviceApplication.COMPONENT_NAME, Layer.REST);
+        this.thesaurus = nlsService.getThesaurus(DeviceApplication.COMPONENT_NAME, Layer.REST)
+                .join(nlsService.getThesaurus("DLR", Layer.REST));
     }
 
     @Reference
@@ -76,16 +82,11 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
     }
 
     @Reference
-    public void setMeteringService(MeteringService meteringService) {
-        this.meteringService = meteringService;
+    public void setDeviceService(DeviceService deviceService) {
+        this.deviceService = deviceService;
     }
 
-    @Reference
-    public void setIssueDataValidationService(IssueDataValidationService issueDataValidationService) {
-        this.issueDataValidationService = issueDataValidationService;
-    }
-
-    public List<DeviceInfo> from(List<Device> devices) {
+    public List<DeviceInfo> fromDevices(List<Device> devices) {
         return devices.stream().map(this::deviceInfo).collect(Collectors.toList());
     }
 
@@ -95,24 +96,28 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
 
     @Override
     public DeviceSearchInfo from(Device device) {
-        return DeviceSearchInfo.from(device, batchService, topologyService, issueService, issueDataValidationService, meteringService, thesaurus);
+        return DeviceSearchInfo.from(device, new BatchRetriever(batchService), new GatewayRetriever(topologyService), new IssueRetriever(issueService),
+                thesaurus, new DeviceEstimationRetriever(deviceService), new DeviceValidationRetriever(deviceService));
+    }
+
+    @Override
+    public List<Object> from(List<Device> domainObjects) {
+        BatchRetriever batchService = new BatchRetriever(this.batchService, domainObjects);
+        GatewayRetriever topologyService = new GatewayRetriever(this.topologyService, domainObjects);
+        IssueRetriever issueRetriever = new IssueRetriever(issueService, domainObjects);
+        DeviceEstimationRetriever estimationRetrievers = new DeviceEstimationRetriever(deviceService, domainObjects);
+        DeviceValidationRetriever validationRetriever = new DeviceValidationRetriever(deviceService, domainObjects);
+        return domainObjects.stream()
+                .map(device -> DeviceSearchInfo.from(device, batchService, topologyService, issueRetriever, thesaurus, estimationRetrievers, validationRetriever))
+                .collect(Collectors.toList());
     }
 
     public DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices) {
-        Optional<Location> location = meteringService.findDeviceLocation(device.getmRID());
-        Optional<GeoCoordinates> geoCoordinates = meteringService.findDeviceGeoCoordinates(device.getmRID());
-        String formattedLocation = "";
-        if (location.isPresent()) {
-            List<List<String>> formattedLocationMembers = meteringService.getFormattedLocationMembers(location.get()
-                    .getId());
-            formattedLocationMembers.stream().skip(1).forEach(list ->
-                    list.stream().filter(Objects::nonNull).findFirst().ifPresent(member -> list.set(0, "\\r\\n" + member)));
-            formattedLocation = formattedLocationMembers.stream()
-                    .flatMap(List::stream).filter(Objects::nonNull)
-                    .collect(Collectors.joining(", "));
-        }
-        return DeviceInfo.from(device, slaveDevices, batchService, topologyService, issueService, issueDataValidationService, meteringService, thesaurus, dataLoggerSlaveDeviceInfoFactory, formattedLocation, geoCoordinates
-                .isPresent() ? geoCoordinates.get().getCoordinates().toString() : null);
+        Optional<Location> location = device.getLocation();
+        Optional<GeoCoordinates> geoCoordinates = device.getGeoCoordinates();
+        String formattedLocation = location.map(Location::toString).orElse("");
+        return DeviceInfo.from(device, slaveDevices, batchService, topologyService, new IssueRetriever(issueService), thesaurus,
+                dataLoggerSlaveDeviceInfoFactory, formattedLocation, geoCoordinates.map(coord -> coord.getCoordinates().toString()).orElse(null));
     }
 
     @Override
@@ -142,8 +147,7 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
 
         // Default columns in proper order
         infos.add(0, createDescription("location", String.class));
-        infos.add(0, new PropertyDescriptionInfo("state.name", String.class, thesaurus.getFormat(DeviceSearchModelTranslationKeys.STATE)
-                .format()));
+        infos.add(0, new PropertyDescriptionInfo("state", String.class, thesaurus.getFormat(DeviceSearchModelTranslationKeys.STATE).format()));
         infos.add(0, createDescription("deviceConfigurationName", String.class));
         infos.add(0, createDescription("deviceTypeName", String.class));
         infos.add(0, createDescription("serialNumber", String.class));

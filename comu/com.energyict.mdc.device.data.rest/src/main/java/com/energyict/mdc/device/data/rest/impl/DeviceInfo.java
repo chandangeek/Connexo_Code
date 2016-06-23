@@ -1,14 +1,8 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.issue.share.entity.Issue;
-import com.elster.jupiter.issue.share.entity.IssueStatus;
-import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.KnownAmrSystem;
-import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.issue.share.entity.Entity;
 import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.util.HasId;
@@ -91,8 +85,8 @@ public class DeviceInfo extends DeviceVersionInfo {
 
         deviceInfo.gatewayType = device.getConfigurationGatewayType();
         deviceInfo.slaveDevices = slaveDevices;
-        deviceInfo.nbrOfDataCollectionIssues = issueService.countOpenDataCollectionIssues(device.getmRID());
-        deviceInfo.openDataValidationIssue = getOpenDataValidationIssue(device, meteringService, issueService, issueDataValidationService).map(Issue::getId).orElse(null);
+        deviceInfo.nbrOfDataCollectionIssues = issueRetriever.numberOfDataCollectionIssues(device);
+        deviceInfo.openDataValidationIssue = issueRetriever.getOpenDataValidationIssue(device).map(Entity::getId).orElse(null);
         deviceInfo.hasLoadProfiles = !device.getLoadProfiles().isEmpty();
         deviceInfo.hasLogBooks = !device.getLogBooks().isEmpty();
         deviceInfo.hasRegisters = !device.getRegisters().isEmpty();
@@ -122,15 +116,6 @@ public class DeviceInfo extends DeviceVersionInfo {
             deviceInfo.location = location;
         }
         return deviceInfo;
-    }
-
-    static Optional<? extends IssueDataValidation> getOpenDataValidationIssue(Device device, MeteringService meteringService, IssueService issueService, IssueDataValidationService issueDataValidationService) {
-        Optional<AmrSystem> amrSystem = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId());
-        Optional<Meter> meter = amrSystem.get().findMeter(String.valueOf(device.getId()));
-        DataValidationIssueFilter filter = new DataValidationIssueFilter();
-        filter.setDevice(meter.get());
-        filter.addStatus(issueService.findStatus(IssueStatus.OPEN).get());
-        return issueDataValidationService.findAllDataValidationIssues(filter).stream().findFirst();
     }
 
     public static DeviceInfo from(Device device, String location, String geoCoordinates) {

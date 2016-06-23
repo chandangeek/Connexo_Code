@@ -24,15 +24,12 @@ import com.elster.jupiter.cps.ValuesRangeConflictType;
 import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageBuilder;
-import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
 import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.LocationTemplate;
-import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
@@ -1261,8 +1258,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(batchService.findBatch(device)).thenReturn(Optional.empty());
         Device oldGateway = mockDeviceForTopologyTest("oldGateway");
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.of(oldGateway));
-        when(meteringService.findDeviceLocation(device.getmRID())).thenReturn(Optional.empty());
-        when(meteringService.findDeviceGeoCoordinates(device.getmRID())).thenReturn(Optional.empty());
+        when(device.getLocation()).thenReturn(Optional.empty());
+        when(device.getGeoCoordinates()).thenReturn(Optional.empty());
         when(deviceConfigurationService.findTimeOfUseOptions(any())).thenReturn(Optional.empty());
 
         DeviceInfo info = new DeviceInfo();
@@ -1306,8 +1303,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.of(deviceConfiguration));
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(eq(1L), anyLong())).thenReturn(Optional.of(deviceConfiguration));
-        when(meteringService.findDeviceLocation(device.getmRID())).thenReturn(Optional.empty());
-        when(meteringService.findDeviceGeoCoordinates(device.getmRID())).thenReturn(Optional.empty());
+        when(device.getLocation()).thenReturn(Optional.empty());
+        when(device.getGeoCoordinates()).thenReturn(Optional.empty());
         when(deviceConfigurationService.findTimeOfUseOptions(any())).thenReturn(Optional.empty());
 
         when(batchService.findBatch(device)).thenReturn(Optional.empty());
@@ -2289,15 +2286,10 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     }
 
     private void mockGetOpenDataValidationIssue() {
-        AmrSystem amrSystem = mock(AmrSystem.class);
-        when(meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())).thenReturn(Optional.of(amrSystem));
-        Meter meter = mock(Meter.class);
-        when(amrSystem.findMeter(Matchers.anyString())).thenReturn(Optional.of(meter));
-        IssueStatus status = mock(IssueStatus.class);
-        when(issueService.findStatus(Matchers.anyString())).thenReturn(Optional.of(status));
         Finder finder = mock(Finder.class);
-        when(issueDataValidationService.findAllDataValidationIssues(Matchers.any())).thenReturn(finder);
         when(finder.stream()).thenAnswer(invocationOnMock -> Stream.empty());
+        when(issueService.findOpenIssuesForDevice(anyString())).thenReturn(finder);
+        when(issueService.findIssueType(anyString())).thenReturn(Optional.of(mock(IssueType.class)));
     }
 
     @Test
