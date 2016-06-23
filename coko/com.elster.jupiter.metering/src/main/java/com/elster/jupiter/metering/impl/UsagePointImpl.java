@@ -514,7 +514,7 @@ public class UsagePointImpl implements UsagePoint {
 
     @Override
     public List<CompletionOptions> connect(Instant when, ServiceCall serviceCall) {
-        return this.getMeterActivations()
+        return this.getMeterActivations(when)
                 .stream()
                 .flatMap(meterActivation -> meterActivation.getMeter()
                         .isPresent() ? Stream.of(meterActivation.getMeter().get()) : Stream.empty())
@@ -528,7 +528,7 @@ public class UsagePointImpl implements UsagePoint {
 
     @Override
     public List<CompletionOptions> disconnect(Instant when, ServiceCall serviceCall) {
-        return this.getMeterActivations()
+        return this.getMeterActivations(when)
                 .stream()
                 .flatMap(meterActivation -> meterActivation.getMeter()
                         .isPresent() ? Stream.of(meterActivation.getMeter().get()) : Stream.empty())
@@ -542,14 +542,30 @@ public class UsagePointImpl implements UsagePoint {
 
     @Override
     public List<CompletionOptions> enableLoadLimit(Instant when, Quantity loadLimit, ServiceCall serviceCall) {
-        //not implemented yet
-        return null;
+        return this.getMeterActivations(when)
+                .stream()
+                .flatMap(meterActivation -> meterActivation.getMeter()
+                        .isPresent() ? Stream.of(meterActivation.getMeter().get()) : Stream.empty())
+                .map(meter -> meter.getHeadEndInterface()
+                        .map(headEndInterface -> headEndInterface.sendCommand(headEndInterface.getCommandFactory()
+                                .createEnableLoadLimitCommand(meter, loadLimit), when, serviceCall)))
+                .flatMap(completionOptions -> completionOptions.isPresent() ? Stream.of(completionOptions.get()) : Stream
+                        .empty())
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<CompletionOptions> disableLoadLimit(Instant when, ServiceCall serviceCall) {
-        //not implemented yet
-        return null;
+        return this.getMeterActivations(when)
+                .stream()
+                .flatMap(meterActivation -> meterActivation.getMeter()
+                        .isPresent() ? Stream.of(meterActivation.getMeter().get()) : Stream.empty())
+                .map(meter -> meter.getHeadEndInterface()
+                        .map(headEndInterface -> headEndInterface.sendCommand(headEndInterface.getCommandFactory()
+                                .createDisableLoadLimitCommand(meter), when, serviceCall)))
+                .flatMap(completionOptions -> completionOptions.isPresent() ? Stream.of(completionOptions.get()) : Stream
+                        .empty())
+                .collect(Collectors.toList());
     }
 
     @Override
