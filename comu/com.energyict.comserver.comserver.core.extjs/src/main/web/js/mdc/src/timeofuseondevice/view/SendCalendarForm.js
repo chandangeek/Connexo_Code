@@ -53,8 +53,7 @@ Ext.define('Mdc.timeofuseondevice.view.SendCalendarForm', {
                     {
                         xtype: 'fieldcontainer',
                         fieldLabel: Uni.I18n.translate('timeofuse.releaseDateCommand', 'MDC', 'Release date (command)'),
-                        required: Mdc.dynamicprivileges.DeviceState.releaseDateSupported(),
-                        hidden: !Mdc.dynamicprivileges.DeviceState.releaseDateSupported() ,
+                        required: true,
                         itemId: 'release-date-container',
                         layout: 'hbox',
                         items: [
