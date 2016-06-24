@@ -10,7 +10,8 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
     views: [
         'Mdc.timeofuseondevice.view.Setup',
         'Mdc.timeofuseondevice.view.ViewCalendarSetup',
-        'Mdc.timeofuseondevice.view.SendCalendarSetup'
+        'Mdc.timeofuseondevice.view.SendCalendarSetup',
+        'Mdc.timeofuseondevice.view.ActivatePassiveCalendarWindow'
     ],
 
     models: [
@@ -34,6 +35,10 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
         {
             ref: 'commandWillNotBePickedUp',
             selector: '#commandWillNotBePickedUp'
+        },
+        {
+            ref: 'activatePassiveCalendarWindow',
+            selector: 'activate-passive-calendar-window'
         }
     ],
 
@@ -51,7 +56,10 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
             },
             '#empty-comp-verify-calendars-tou': {
                 click: me.verifyCalendarFromEmptyComponent
-            }
+            },
+            '#activate-passive-calendar-button': {
+                click: this.activatePassiveCalendar
+            },
         });
     },
 
@@ -135,6 +143,7 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
         var me = this;
         switch (item.action) {
             case 'activatecalendar':
+                me.showActivatePassiveCalendarWindow(menu.device.get('mRID'));
                 break;
             case 'cleartariff':
                 me.clearPassiveCalendar(menu.device.get('mRID'));
@@ -185,6 +194,49 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
                 }
             }
         );
+    },
+
+    showActivatePassiveCalendarWindow: function (mRID) {
+        Ext.widget('activate-passive-calendar-window', {
+            mRID: mRID
+        }).show();
+    },
+
+    activatePassiveCalendar: function () {
+        var me = this,
+            activateWindow = me.getActivatePassiveCalendarWindow(),
+            form = activateWindow.down('#activate-passive-window-form'),
+            activationDate;
+
+        if (form && form.down('#on-activation-passive-date').checked) {
+            activationDate = form.down('#activation-date-values').down('#activation-on').getValue().getTime();
+        } else {
+            activationDate = new Date().getTime()
+        }
+
+        Ext.Ajax.request(
+            {
+                params: {
+                    activationDate: activationDate
+                },
+                url: '/api/ddr/devices/' + form.mRID + '/timeofuse/activatepassive',
+                method: 'PUT',
+                success: function (response, opt) {
+                    var json = Ext.decode(response.responseText, true);
+                    if (json.willBePickedUpByPlannedComtask && json.willBePickedUpByComtask) {
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.commandAdded', 'MDC', 'Command added'));
+                    } else {
+                        if (!json.willBePickedUpByPlannedComtask && json.willBePickedUpByComtask) {
+                            me.getCommandWillNotBePickedUp().setText(Uni.I18n.translate('tou.activatePassiveWillNotBePickedUp', 'MDC', 'The \'Activate passive calendar\' command is part of a  communication task that is not planned and will not be picked up'));
+                        } else if (!json.willBePickedUpByComtask) {
+                            me.getCommandWillNotBePickedUp().setText(Uni.I18n.translate('tou.activatePassiveNotPartOfTask', 'MDC', 'The \'Activate passive calendar\' command is not part of a communication task on this device'));
+                        }
+                        me.getCommandWillNotBePickedUp().show();
+                    }
+                }
+            }
+        );
+        activateWindow.close();
     },
 
     redirectToPreview: function (calendarId) {
