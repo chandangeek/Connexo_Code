@@ -64,10 +64,12 @@ public class ProfileBuilder {
         if(loadProfileRecordItem1 == null) {
             loadProfileRecordItem1 = protocol.getRegisterFactory().findRegister(PM5561RegisterFactory.LOAD_PROFILE_RECORD_ITEM1);
         }
-       for (int index = firstRecord.intValue(); index < lastRecord.intValue(); index++) {
+        int index = firstRecord.intValue();
+        while (from.before(profileBlock.getOldestProfileRecordDate()) && index < lastRecord.intValue()) {
             ReadGeneralReferenceRequest readGeneralReferenceRequest = loadProfileRecordItem1.getReadGeneralReferenceRequest(referenceNo.intValue() + index++);
             profileBlock = new ProfileBlock(readGeneralReferenceRequest.getValues(), REGULAR_NUMBER_OF_CHANNELS);
             profileDataBlocks.add(profileBlock);
+            index++;
         }
 
         return mergeProfileDataBlocks(profileDataBlocks, from, to);
