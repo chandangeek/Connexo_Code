@@ -13,6 +13,8 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.aggregation.CalculatedMetrologyContractData;
+import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
@@ -25,30 +27,25 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableBuilder;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
-import com.elster.jupiter.metering.readings.IntervalReading;
-import com.elster.jupiter.metering.readings.ProfileStatus;
-import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
-import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
-import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 
-import java.math.BigDecimal;
-import java.time.ZonedDateTime;
-import java.time.temporal.ChronoField;
-import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class MetrologyContractChannelsContainerImplTestIT {
 
     private static final String MAIN_READING_TYPE_MRID = "0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
+    private static DataAggregationService dataAggregationService;
     private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = new MeteringInMemoryBootstrapModule(MAIN_READING_TYPE_MRID);
     private static MeterRole meterRole;
     private static MetrologyPurpose metrologyPurpose;
@@ -62,7 +59,8 @@ public class MetrologyContractChannelsContainerImplTestIT {
 
     @BeforeClass
     public static void setUp() {
-        inMemoryBootstrapModule.activate();
+        dataAggregationService = mock(DataAggregationService.class);
+        inMemoryBootstrapModule.withDataAggregationService(dataAggregationService).activate();
         serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
         meterRole = inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.MAIN);
         metrologyPurpose = inMemoryBootstrapModule.getMetrologyConfigurationService().findMetrologyPurpose(DefaultMetrologyPurpose.BILLING).get();
@@ -158,7 +156,6 @@ public class MetrologyContractChannelsContainerImplTestIT {
 
     @Test
     @Transactional
-    @Ignore
     public void testGetReadingsFromMetrologyConfigurationChannelsContainer() {
         UsagePointMetrologyConfiguration metrologyConfiguration = inMemoryBootstrapModule.getMetrologyConfigurationService()
                 .newUsagePointMetrologyConfiguration("MC", serviceCategory).create();
@@ -174,24 +171,16 @@ public class MetrologyContractChannelsContainerImplTestIT {
         UsagePoint usagePoint = serviceCategory.newUsagePoint("UP", inMemoryBootstrapModule.getClock().instant()).create();
         usagePoint.apply(metrologyConfiguration);
 
-        AmrSystem amrSystem = inMemoryBootstrapModule.getMeteringService().findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-        Meter meter = amrSystem.newMeter("").setMRID("meter1").create();
-        usagePoint.linkMeters().activate(meter, meterRole).complete();
-        meter = inMemoryBootstrapModule.getMeteringService().findMeter(meter.getId()).get();
-
-        ZonedDateTime readingTime = ZonedDateTime.ofInstant(inMemoryBootstrapModule.getClock().instant(), meter.getZoneId());
-        IntervalReading reading = IntervalReadingImpl.of(readingTime.plus(1, ChronoUnit.DAYS).with(ChronoField.MILLI_OF_DAY, 0).toInstant(), new BigDecimal(870000L), ProfileStatus.of());
-        IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(readingType2.getMRID());
-        intervalBlock.addIntervalReading(reading);
-        MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
-        meterReading.addIntervalBlock(intervalBlock);
-        meter.store(meterReading);
-
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = inMemoryBootstrapModule.getMetrologyConfigurationService()
                 .getDataModel()
                 .query(EffectiveMetrologyConfigurationOnUsagePoint.class)
                 .select(where("metrologyConfiguration").isEqualTo(metrologyConfiguration).and(where("usagePoint").isEqualTo(usagePoint)))
                 .get(0);
+
+        BaseReadingRecord baseReading = mock(BaseReadingRecord.class);
+        CalculatedMetrologyContractData calculatedMetrologyContractData = mock(CalculatedMetrologyContractData.class);
+        doReturn(Collections.singletonList(baseReading)).when(calculatedMetrologyContractData).getCalculatedDataFor(readingTypeDeliverable);
+        when(dataAggregationService.calculate(usagePoint, metrologyContract, effectiveMetrologyConfiguration.getRange())).thenReturn(calculatedMetrologyContractData);
 
         Channel channel = effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract).get()
                 .getChannel(readingType).get();

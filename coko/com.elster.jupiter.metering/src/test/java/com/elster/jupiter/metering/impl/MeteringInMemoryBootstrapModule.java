@@ -14,6 +14,7 @@ import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.impl.config.MetrologyPurposeDeletionVetoEventHandler;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
@@ -51,6 +52,7 @@ import static org.mockito.Mockito.mock;
 public class MeteringInMemoryBootstrapModule {
     private final Clock clock;
     private final String[] readingTypeRequirements;
+    private DataAggregationService dataAggregationService;
 
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private Injector injector;
@@ -72,6 +74,10 @@ public class MeteringInMemoryBootstrapModule {
         this.readingTypeRequirements = requiredReadingTypes;
     }
 
+    public MeteringInMemoryBootstrapModule withDataAggregationService(DataAggregationService dataAggregation) {
+        this.dataAggregationService = dataAggregation;
+        return this;
+    }
 
     public void activate() {
         injector = Guice.createInjector(
@@ -79,7 +85,7 @@ public class MeteringInMemoryBootstrapModule {
                 new MockModule(),
                 inMemoryBootstrapModule,
                 new IdsModule(),
-                this.readingTypeRequirements != null ? new MeteringModule(readingTypeRequirements) : new MeteringModule(),
+                (this.readingTypeRequirements != null ? new MeteringModule(readingTypeRequirements) : new MeteringModule()).withDataAggregationService(dataAggregationService),
                 new PartyModule(),
                 new FiniteStateMachineModule(),
                 new UserModule(),

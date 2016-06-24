@@ -35,6 +35,7 @@ public class MeteringModule extends AbstractModule {
 
     private boolean createReadingTypes;
     private final String readingTypes;
+    private DataAggregationService dataAggregationMock;
 
     public MeteringModule() {
         this.createReadingTypes = false;
@@ -51,6 +52,11 @@ public class MeteringModule extends AbstractModule {
     public MeteringModule(String... requiredReadingTypes) {
         this.readingTypes = Stream.of(requiredReadingTypes).collect(Collectors.joining(";"));
         this.createReadingTypes = false;
+    }
+
+    public MeteringModule withDataAggregationService(DataAggregationService dataAggregationService) {
+        this.dataAggregationMock = dataAggregationService;
+        return this;
     }
 
     @Override
@@ -77,6 +83,7 @@ public class MeteringModule extends AbstractModule {
         bind(VirtualFactory.class).to(VirtualFactoryImpl.class).in(Scopes.SINGLETON);
         bind(SqlBuilderFactory.class).to(SqlBuilderFactoryImpl.class).in(Scopes.SINGLETON);
         bind(ReadingTypeDeliverableForMeterActivationFactory.class).to(ReadingTypeDeliverableForMeterActivationFactoryImpl.class).in(Scopes.SINGLETON);
+        bind(DataAggregationService.class).annotatedWith(Names.named("dataAggregationMock")).toProvider(() -> dataAggregationMock);
         bind(DataAggregationService.class).toProvider(DataAggregationServiceProvider.class);
     }
 

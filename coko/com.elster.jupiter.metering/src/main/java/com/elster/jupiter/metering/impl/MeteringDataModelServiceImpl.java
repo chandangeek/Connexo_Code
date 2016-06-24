@@ -64,6 +64,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.inject.Provider;
 import javax.inject.Singleton;
 import javax.validation.MessageInterpolator;
 import java.time.Clock;
@@ -106,7 +107,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
 
     private MeteringServiceImpl meteringService;
-    private DataAggregationServiceImpl dataAggregationService;
+    private DataAggregationService dataAggregationService;
     private UsagePointRequirementsSearchDomain usagePointRequirementsSearchDomain;
     private MetrologyConfigurationServiceImpl metrologyConfigurationService;
 
@@ -118,10 +119,11 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
         this.createAllReadingTypes = true;
     }
 
-    @Inject
+    @Inject // Tests only!
     public MeteringDataModelServiceImpl(@Named("createReadingTypes") boolean createAllReadingTypes, @Named("requiredReadingTypes") String requiredReadingTypes,
-                                        IdsService idsService, QueryService queryService, PartyService partyService, Clock clock, UserService userService,
-                                        EventService eventService, NlsService nlsService, MessageService messageService, JsonService jsonService, FiniteStateMachineService finiteStateMachineService,
+                                        @Named("dataAggregationMock") Provider<DataAggregationService> dataAggregationMockProvider, IdsService idsService, QueryService queryService,
+                                        PartyService partyService, Clock clock, UserService userService, EventService eventService, NlsService nlsService,
+                                        MessageService messageService, JsonService jsonService, FiniteStateMachineService finiteStateMachineService,
                                         CustomPropertySetService customPropertySetService, SearchService searchService, PropertySpecService propertySpecService,
                                         LicenseService licenseService, UpgradeService upgradeService, OrmService ormService) {
         setIdsService(idsService);
@@ -143,6 +145,9 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
 
         this.createAllReadingTypes = createAllReadingTypes;
         this.requiredReadingTypes = requiredReadingTypes.split(";");
+        if (dataAggregationMockProvider.get() != null) {
+            this.dataAggregationService = dataAggregationMockProvider.get();
+        }
         activate(null);
     }
 
@@ -165,7 +170,9 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
         this.meteringService = new MeteringServiceImpl(this, getDataModel(), getThesaurus(), getClock(), this.idsService,
                 this.eventService, this.queryService, this.messageService, this.jsonService, this.upgradeService);
         this.meteringService.defineLocationTemplates(bundleContext); // This call has effect on resulting table spec!
-        this.dataAggregationService = new DataAggregationServiceImpl(this.meteringService);
+        if (this.dataAggregationService == null) { // It is possible that service was already set to mocked instance.
+            this.dataAggregationService = new DataAggregationServiceImpl(this.meteringService);
+        }
         this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this, this.dataModel, this.thesaurus);
         this.usagePointRequirementsSearchDomain = new UsagePointRequirementsSearchDomain(this.propertySpecService, this.meteringService, this.metrologyConfigurationService, this.clock, this.licenseService);
     }
@@ -445,7 +452,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
         return this.meteringService;
     }
 
-    public DataAggregationServiceImpl getDataAggregationService() {
+    public DataAggregationService getDataAggregationService() {
         return this.dataAggregationService;
     }
 
