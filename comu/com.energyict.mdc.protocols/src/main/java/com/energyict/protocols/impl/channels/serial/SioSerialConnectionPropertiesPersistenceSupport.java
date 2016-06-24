@@ -22,6 +22,10 @@ import java.util.stream.Stream;
  * @since 2015-11-05 (09:46)
  */
 public class SioSerialConnectionPropertiesPersistenceSupport implements PersistenceSupport<ConnectionProvider, SioSerialConnectionProperties> {
+    @Override
+    public String application() {
+        return "MultiSense";
+    }
 
     @Override
     public String componentName() {
