@@ -30,6 +30,10 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
         {
             ref: 'sendCalendarContainer',
             selector: 'tou-device-send-cal-form'
+        },
+        {
+            ref: 'commandWillNotBePickedUp',
+            selector: '#commandWillNotBePickedUp'
         }
     ],
 
@@ -81,14 +85,14 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
                             if (resultSet.records[0].getActiveCalendar() === null && resultSet.records[0].get('passiveCalendars') === null) {
                                 view.showEmptyComponent();
                                 view.down('tou-device-action-menu').showPreview = false;
-                                view.down('#tou-device-actions-button' ).hide();
+                                view.down('#tou-device-actions-button').hide();
                             } else {
 
                                 if (view.down('device-tou-preview-form')) {
-                                    if (!(Object.keys(result).length === 0 && result.constructor === Object)  && resultSet.records[0].getActiveCalendar() !== null) {
+                                    if (!(Object.keys(result).length === 0 && result.constructor === Object) && resultSet.records[0].getActiveCalendar() !== null) {
                                         view.down('device-tou-preview-form').fillFieldContainers(resultSet.records[0]);
                                         view.down('device-tou-preview-form').show();
-                                        if(resultSet.records[0].get('activeIsGhost') === true) {
+                                        if (resultSet.records[0].get('activeIsGhost') === true) {
                                             view.down('tou-device-action-menu').showPreview = false;
                                         }
                                         view.down('tou-device-action-menu').record = resultSet.records[0].getActiveCalendar();
@@ -147,7 +151,7 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
         }
     },
 
-    verifyCalendars: function(mRID) {
+    verifyCalendars: function (mRID) {
         var me = this;
         Ext.Ajax.request(
             {
@@ -160,14 +164,24 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
         );
     },
 
-    clearPassiveCalendar: function(mRID) {
+    clearPassiveCalendar: function (mRID) {
         var me = this;
         Ext.Ajax.request(
             {
                 url: '/api/ddr/devices/' + mRID + '/timeofuse/clearpassive',
                 method: 'PUT',
                 success: function (response, opt) {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('tou.verifyCalendarTaskPlannedMessage', 'MDC', 'The task has been planned. Actual calendar information will be available as soon as the task has completed.'));
+                    var json = Ext.decode(response.responseText, true);
+                    if (json.willBePickedUpByPlannedComtask && json.willBePickedUpByComtask) {
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.commandAdded', 'MDC', 'Command added'));
+                    } else {
+                        if (!json.willBePickedUpByPlannedComtask) {
+                            me.getCommandWillNotBePickedUp().setText(Uni.I18n.translate('tou.clearPassiveWillNotBePickedUp', 'MDC', 'The \'Clear passive calendar\' command is part of a communication task that is not planned and will not be picked up'));
+                        } else if (!json.willBePickedUpByComtask) {
+                            me.getCommandWillNotBePickedUp().setText(Uni.I18n.translate('tou.clearPassiveNotPartOfTask', 'MDC', 'The \'Clear passive calendar\' command is not part of a communication task on this device'));
+                        }
+                        me.getCommandWillNotBePickedUp().show();
+                    }
                 }
             }
         );
@@ -191,7 +205,7 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
             success: function (record) {
                 me.getApplication().fireEvent('loadDevice', record);
                 view = Ext.widget('tou-device-view-calendar-setup', {
-                    url: '/api/ddr/devices/'+ mRID + '/timeofuse',
+                    url: '/api/ddr/devices/' + mRID + '/timeofuse',
                     calendarId: calendarId,
                     device: record
                 });
@@ -230,7 +244,7 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
         route.forward();
     },
 
-    showSendCalendarView: function(mRID) {
+    showSendCalendarView: function (mRID) {
         var me = this,
             deviceModel = me.getModel('Mdc.model.Device'),
             view,
@@ -247,7 +261,7 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
             }
         });
     },
-    
+
     saveCommand: function () {
         var me = this,
             form = me.getSendCalendarForm(),
@@ -260,21 +274,21 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
         if (!form.isValid()) {
             formErrorsPanel.show();
         } else {
-            if(form.down('#calendarComboBox').down('combo')) {
+            if (form.down('#calendarComboBox').down('combo')) {
                 json.allowedCalendarId = form.down('#calendarComboBox').down('combo').value;
             }
-            if(form.down('#on-release-date').checked) {
+            if (form.down('#on-release-date').checked) {
                 json.releaseDate = form.down('#release-date-values').down('#release-on').getValue().getTime();
             } else {
                 json.releaseDate = new Date().getTime()
             }
-            if(form.down('#typeCombo').isVisible()) {
+            if (form.down('#typeCombo').isVisible()) {
                 json.type = form.down('#typeCombo').value;
             }
-            if(form.down('#contractCombo').isVisible()) {
+            if (form.down('#contractCombo').isVisible()) {
                 json.contract = form.down('#contractCombo').value;
             }
-            if(form.down('#activate-calendar-container').isVisible()) {
+            if (form.down('#activate-calendar-container').isVisible()) {
                 if (form.down('#immediate-activation-date').checked) {
                     json.activationDate = new Date().getTime();
                 } else if (form.down('#on-activation-date').checked) {
@@ -282,9 +296,9 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
                 }
             }
 
-            if(form.down('#update-calendar').isVisible()) {
+            if (form.down('#update-calendar').isVisible()) {
                 json.calendarUpdateOption = form.down('#update-calendar').getValue().updateCalendar;
-            } else if (Mdc.dynamicprivileges.DeviceState.supportsSpecialDays() && ! Mdc.dynamicprivileges.DeviceState.supportsNormalSend()) {
+            } else if (Mdc.dynamicprivileges.DeviceState.supportsSpecialDays() && !Mdc.dynamicprivileges.DeviceState.supportsNormalSend()) {
                 json.calendarUpdateOption = form.down('#only-special-days').inputValue
             } else if (!Mdc.dynamicprivileges.DeviceState.supportsSpecialDays() && Mdc.dynamicprivileges.DeviceState.supportsNormalSend()) {
                 json.calendarUpdateOption = form.down('#full-calendar').inputValue
@@ -294,9 +308,9 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
         }
     },
 
-    sendCalendar: function(mRID, payload) {
+    sendCalendar: function (mRID, payload) {
         var me = this,
-            url = '/api/ddr/devices/'+ mRID + '/timeofuse/send';
+            url = '/api/ddr/devices/' + mRID + '/timeofuse/send';
 
 
         me.getSendCalendarContainer().setLoading(true);

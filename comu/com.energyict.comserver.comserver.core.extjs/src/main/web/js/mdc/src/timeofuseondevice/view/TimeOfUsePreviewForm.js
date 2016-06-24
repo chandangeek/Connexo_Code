@@ -5,6 +5,9 @@ Ext.define('Mdc.timeofuseondevice.view.TimeOfUsePreviewForm', {
     layout: {
         type: 'column'
     },
+    requires: [
+        'Uni.util.FormEmptyMessage'
+    ],
 
     initComponent: function () {
         var me = this;
@@ -15,6 +18,12 @@ Ext.define('Mdc.timeofuseondevice.view.TimeOfUsePreviewForm', {
                 labelWidth: 250
             },
             items: [
+                {
+                    xtype: 'uni-form-empty-message',
+                    itemId: 'commandWillNotBePickedUp',
+                    hidden: true,
+                    margin: '5 0 5 0'
+                },
                 {
                     xtype: 'displayfield',
                     fieldLabel: Uni.I18n.translate('timeofuse.timeOfUseCalendar', 'MDC', 'Time of use calendar'),
