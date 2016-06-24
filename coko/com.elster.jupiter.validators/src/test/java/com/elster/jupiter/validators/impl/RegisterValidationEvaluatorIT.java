@@ -254,21 +254,21 @@ public class RegisterValidationEvaluatorIT {
                 .collect(Collectors.toList());
         assertThat(validationResults).isEqualTo(ImmutableList.of(VALID, VALID, SUSPECT));
         validationStates = evaluator.getValidationStatus(Collections.singleton(QualityCodeSystem.MDM),
-                channel, channel.getReadings(Range.all()), Range.all());
+                channel, channel.getReadings(Range.all()));
         assertThat(validationStates).hasSize(3);
         validationResults = validationStates.stream()
                 .map(DataValidationStatus::getValidationResult)
                 .collect(Collectors.toList());
         assertThat(validationResults).isEqualTo(ImmutableList.of(VALID, SUSPECT, SUSPECT));
-        validationStates = evaluator.getValidationStatus(null,
-                channel, channel.getReadings(Range.all()), Range.all());
+        validationStates = evaluator.getValidationStatus(Collections.emptySet(),
+                channel, channel.getReadings(Range.all()));
         assertThat(validationStates).hasSize(3);
         validationResults = validationStates.stream()
                 .map(DataValidationStatus::getValidationResult)
                 .collect(Collectors.toList());
         assertThat(validationResults).isEqualTo(ImmutableList.of(VALID, SUSPECT, SUSPECT));
         validationStates = evaluator.getValidationStatus(Collections.singleton(QualityCodeSystem.ENDDEVICE),
-                channel, channel.getReadings(Range.all()), Range.all());
+                channel, channel.getReadings(Range.all()));
         assertThat(validationStates).hasSize(3);
         validationResults = validationStates.stream()
                 .map(DataValidationStatus::getValidationResult)
