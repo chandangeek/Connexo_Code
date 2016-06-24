@@ -91,7 +91,8 @@ Ext.define('Imt.processes.controller.MonitorProcesses', {
                             }
                         ],
                         successLink: router.getRoute('usagepoints/view/processes').buildUrl({usagePointId: mRID}),
-                        cancelLink: router.getRoute('usagepoints/view').buildUrl({usagePointId: mRID})
+                        cancelLink: router.getRoute('usagepoints/view').buildUrl({usagePointId: mRID}),
+                        context: usagePoint.metrologyConfiguration
                     }
                 });
                 me.getApplication().fireEvent('changecontentevent', widget);
