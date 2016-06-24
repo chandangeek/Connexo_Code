@@ -873,11 +873,10 @@ public class MeteringServiceImpl implements ServerMeteringService, TranslationKe
 
     @Override
     public List<List<String>> getFormattedLocationMembers(long id) {
-        List<LocationMember> members = dataModel.query(LocationMember.class)
-                .select(Operator.EQUAL.compare("location", id));
+        Optional<Location> optional = dataModel.mapper(Location.class).getOptional(id);
         List<List<String>> formattedLocation = new LinkedList<>();
-        if (!members.isEmpty()) {
-            LocationMember member = members.get(0);
+        if (optional.isPresent() && !optional.get().getMembers().isEmpty()) {
+            LocationMember member = optional.get().getMembers().get(0);
             Map<String, String> memberValues = new LinkedHashMap<>();
             memberValues.put("countryCode", member.getCountryCode());
             memberValues.put("countryName", member.getCountryName());
