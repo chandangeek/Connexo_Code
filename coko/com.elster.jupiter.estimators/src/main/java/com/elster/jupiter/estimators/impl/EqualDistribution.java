@@ -1,5 +1,6 @@
 package com.elster.jupiter.estimators.impl;
 
+import com.elster.jupiter.cbo.QualityCodeCategory;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.estimation.AdvanceReadingsSettings;
@@ -16,7 +17,6 @@ import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
-import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
@@ -45,8 +45,6 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import static com.elster.jupiter.util.streams.Predicates.either;
 
 class EqualDistribution extends AbstractEstimator implements Estimator {
     static final String MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS = TranslationKeys.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS.getKey();
@@ -259,17 +257,15 @@ class EqualDistribution extends AbstractEstimator implements Estimator {
     }
 
     private static boolean isValidReading(CimChannel advanceCimChannel, BaseReadingRecord readingToEvaluate, Set<QualityCodeSystem> systems) {
-        return advanceCimChannel.findReadingQualities(readingToEvaluate.getTimeStamp()).stream()
-                .filter(ReadingQualityRecord::isActual)
-                .map(ReadingQualityRecord::getType)
-                .filter(readingQualityType -> systems.stream()
-                        .anyMatch(qcs -> qcs.ordinal() == readingQualityType.getSystemCode()))
-                .noneMatch(
-                        either(ReadingQualityType::isSuspect)
-                                .or(ReadingQualityType::hasEstimatedCategory)
-                                .or(readingQualityType -> readingQualityType.qualityIndex()
-                                        .filter(QualityCodeIndex.OVERFLOWCONDITIONDETECTED::equals).isPresent())
-                );
+        return !advanceCimChannel.findReadingQualities()
+                .atTimestamp(readingToEvaluate.getTimeStamp())
+                .actual()
+                .ofQualitySystems(systems)
+                .ofQualityIndices(ImmutableSet.of(QualityCodeIndex.SUSPECT, QualityCodeIndex.OVERFLOWCONDITIONDETECTED))
+                .orOfAnotherTypeInSameSystems()
+                .ofAnyQualityIndexInCategory(QualityCodeCategory.ESTIMATED)
+                .findFirst()
+                .isPresent();
     }
 
     private Optional<BigDecimal> calculateConsumption(EstimationBlock block,
@@ -282,8 +278,15 @@ class EqualDistribution extends AbstractEstimator implements Estimator {
             instants.add(cimChannel.getNextDateTime(lastOf(instants)));
         }
         Map<Instant, List<ReadingQualityRecord>> invalidsByTimestamp =
-                cimChannel.findReadingQualities(systems, null, Range.closed(instants.get(0), lastOf(instants)), true).stream()
-                        .filter(either(ReadingQualityRecord::isSuspect).or(ReadingQualityRecord::hasEstimatedCategory))
+                cimChannel.findReadingQualities()
+                        .inTimeInterval(Range.closed(instants.get(0), lastOf(instants)))
+                        .actual()
+                        .ofQualitySystems(systems)
+                        .ofQualityIndex(QualityCodeIndex.SUSPECT)
+                        .orOfAnotherTypeInSameSystems()
+                        .ofAnyQualityIndexInCategory(QualityCodeCategory.ESTIMATED)
+                        .collect()
+                        .stream()
                         .collect(Collectors.groupingBy(ReadingQualityRecord::getReadingTimestamp));
 
         TemporalAmount intervalLength = cimChannel.getIntervalLength().get();
@@ -396,13 +399,13 @@ class EqualDistribution extends AbstractEstimator implements Estimator {
 
     private static Optional<BigDecimal> getValueAt(CimChannel bulkCimChannel, Instant timestamp, Set<QualityCodeSystem> systems) {
         return bulkCimChannel.getReading(timestamp)
-                .filter(baseReadingRecord -> bulkCimChannel.findReadingQualities(timestamp).stream()
-                        .filter(ReadingQualityRecord::isActual)
-                        .map(ReadingQualityRecord::getType)
-                        .filter(readingQualityType -> systems.stream()
-                                .anyMatch(qcs -> qcs.ordinal() == readingQualityType.getSystemCode()))
-                        .noneMatch(readingQualityType -> readingQualityType.qualityIndex()
-                                .filter(QualityCodeIndex.OVERFLOWCONDITIONDETECTED::equals).isPresent()))
+                .filter(baseReadingRecord -> !bulkCimChannel.findReadingQualities()
+                        .atTimestamp(timestamp)
+                        .actual()
+                        .ofQualitySystems(systems)
+                        .ofQualityIndex(QualityCodeIndex.OVERFLOWCONDITIONDETECTED)
+                        .findFirst()
+                        .isPresent())
                 .flatMap(baseReadingRecord -> Optional.ofNullable(baseReadingRecord.getValue()));
     }
 
