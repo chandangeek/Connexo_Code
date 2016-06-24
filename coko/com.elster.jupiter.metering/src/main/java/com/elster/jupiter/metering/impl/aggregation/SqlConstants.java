@@ -148,16 +148,20 @@ final class SqlConstants {
                 String value = expressionNode.accept(new ProcessStatusFromExpressionNode());
                 if (value == null) {
                     sqlBuilder.append("0");
-                } else if (expertIntervalLength.isPresent()) {
+                } else {
+                    sqlBuilder.append("GREATEST(" + value + ")");
+                } /*else if (expertIntervalLength.isPresent()) {
                     AggregationFunction.AGGREGATE_FLAGS.appendTo(sqlBuilder, Collections.singletonList(new TextFragment(value)));
                 } else {
                     sqlBuilder.append(value);
                 }
+                }*/
             }
 
             @Override
             AggregationFunction aggregationFunctionFor(VirtualReadingType readingType) {
-                return AggregationFunction.AGGREGATE_FLAGS;
+                return AggregationFunction.MAX;
+                //return AggregationFunction.AGGREGATE_FLAGS;
             }
         },
 

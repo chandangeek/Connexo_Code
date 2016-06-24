@@ -5,6 +5,7 @@ import com.elster.jupiter.metering.config.ExpressionNode;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * Provides an implementation for the {@link ServerExpressionNode.Visitor} interface
@@ -55,14 +56,22 @@ public class ProcessStatusFromExpressionNode implements ServerExpressionNode.Vis
 
     @Override
     public String visitOperation(OperationNode operationNode) {
-        return this.findFirst(Arrays.asList(
+        return this.findAll(Arrays.asList(
                         operationNode.getLeftOperand(),
                         operationNode.getRightOperand()));
     }
 
     @Override
     public String visitFunctionCall(FunctionCallNode functionCall) {
-        return this.findFirst(functionCall.getArguments());
+        return this.findAll(functionCall.getArguments());
+    }
+
+    private String findAll(List<ServerExpressionNode> children) {
+        return children
+                .stream()
+                .map(child -> child.accept(this))
+                .filter(Objects::nonNull)
+                .collect(Collectors.joining(","));
     }
 
     private String findFirst(List<ServerExpressionNode> children) {
