@@ -92,7 +92,7 @@ class ChannelValidator {
     }
 
     private final ListMultimap<Instant, ReadingQualityRecord> getExistingReadingQualities() {
-        List<ReadingQualityRecord> readingQualities = channel.findReadingQualities(null, null, range, false, false);
+        List<ReadingQualityRecord> readingQualities = channel.findReadingQualities().inTimeInterval(range).collect();
         return ArrayListMultimap.create(Multimaps.index(readingQualities, ReadingQualityRecord::getReadingTimestamp));
     }
 

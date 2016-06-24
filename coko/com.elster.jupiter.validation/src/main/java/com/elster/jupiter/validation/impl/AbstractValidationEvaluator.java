@@ -40,8 +40,14 @@ public abstract class AbstractValidationEvaluator implements ValidationEvaluator
 
     @Override
     public boolean areSuspectsPresent(Set<QualityCodeSystem> qualityCodeSystems, MeterActivation meterActivation) {
-        return !meterActivation.getChannels().stream()
-                .allMatch(channel -> channel.findReadingQualities(qualityCodeSystems, QualityCodeIndex.SUSPECT, meterActivation.getRange(), true, false).isEmpty());
+        return meterActivation.getChannels().stream()
+                .anyMatch(channel -> channel.findReadingQualities()
+                        .ofQualitySystems(qualityCodeSystems)
+                        .ofQualityIndex(QualityCodeIndex.SUSPECT)
+                        .inTimeInterval(meterActivation.getRange())
+                        .actual()
+                        .findFirst()
+                        .isPresent());
     }
 
     /**
@@ -143,7 +149,11 @@ public abstract class AbstractValidationEvaluator implements ValidationEvaluator
 
     private static ListMultimap<Instant, ReadingQualityRecord> getActualReadingQualities(CimChannel channel, Range<Instant> interval,
                                                                                          Set<QualityCodeSystem> qualityCodeSystems) {
-        return Multimaps.index(channel.findReadingQualities(qualityCodeSystems, null, interval, true), ReadingQualityRecord::getReadingTimestamp);
+        return Multimaps.index(channel.findReadingQualities()
+                .ofQualitySystems(qualityCodeSystems)
+                .inTimeInterval(interval)
+                .actual()
+                .collect(), ReadingQualityRecord::getReadingTimestamp);
     }
 
     private static List<IValidationRule> filterDuplicates(Collection<IValidationRule> iValidationRules) {
