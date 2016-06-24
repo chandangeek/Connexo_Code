@@ -139,7 +139,7 @@ public class BasicAuthentication implements HttpAuthenticationService {
         tokenRefreshMaxCount = getIntParameter(TOKEN_REFRESH_MAX_COUNT, context, 100);
         tokenExpTime = getIntParameter(TOKEN_EXPIRATION_TIME, context, 300);
         installDir = context.getProperty("install.dir");
-        upgradeService.register(InstallIdentifier.identifier("HTP"), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier("Pulse", "HTP"), dataModel, Installer.class, Collections.emptyMap());
         initSecurityTokenImpl();
     }
 
