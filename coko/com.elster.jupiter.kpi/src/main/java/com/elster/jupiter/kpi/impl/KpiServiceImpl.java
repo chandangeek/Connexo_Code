@@ -58,7 +58,7 @@ public class KpiServiceImpl implements IKpiService {
                 bind(IKpiService.class).toInstance(KpiServiceImpl.this);
             }
         });
-        upgradeService.register(identifier(COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(identifier("Pulse", COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
         initVaultAndRecordSpec();
     }
 
