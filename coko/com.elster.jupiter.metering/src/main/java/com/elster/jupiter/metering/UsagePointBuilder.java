@@ -1,7 +1,5 @@
 package com.elster.jupiter.metering;
 
-import com.elster.jupiter.metering.config.MetrologyConfiguration;
-
 public interface UsagePointBuilder {
 
     UsagePointBuilder withAliasName(String aliasName);
@@ -31,8 +29,6 @@ public interface UsagePointBuilder {
     UsagePointBuilder withServiceLocation(ServiceLocation location);
 
     UsagePointBuilder withServiceLocationString(String serviceLocationString);
-
-    UsagePointBuilder withMetrologyConfiguration(MetrologyConfiguration metrologyConfiguration);
 
     UsagePoint create();
 
