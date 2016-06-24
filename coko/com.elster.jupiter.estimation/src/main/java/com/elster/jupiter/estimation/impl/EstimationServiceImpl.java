@@ -144,7 +144,7 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
                     bind(UserService.class).toInstance(userService);
                 }
             });
-            upgradeService.register(InstallIdentifier.identifier(COMPONENTNAME), dataModel, InstallerImpl.class, Collections.emptyMap());
+            upgradeService.register(InstallIdentifier.identifier("Pulse", COMPONENTNAME), dataModel, InstallerImpl.class, Collections.emptyMap());
         } catch (Exception e) {
             e.printStackTrace();
         }
