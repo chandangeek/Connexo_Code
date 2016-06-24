@@ -39,7 +39,7 @@ public interface ValidationEvaluator {
 
     /**
      * checks if there's at least one suspect put to {@link MeterActivation} by one of the <code>qualityCodeSystems</code>
-     * @param qualityCodeSystems systems to take into account when checking for suspects; <code>null</code> or empty set mean all systems
+     * @param qualityCodeSystems systems to take into account when checking for suspects; empty set means all systems
      * @param meterActivation {@link MeterActivation} to check
      * @return <code>true</code> if there's at least a suspect, <code>false</code> otherwise
      */
@@ -47,7 +47,7 @@ public interface ValidationEvaluator {
 
     /**
      * gets validation status taking into account qualities of systems among <code>qualityCodeSystems</code>
-     * @param qualityCodeSystems only systems to take into account for computation of validation status; <code>null</code> or empty set mean all systems
+     * @param qualityCodeSystems only systems to take into account for computation of validation status; empty set means all systems
      * @param channel the channel to check
      * @param readings provided list of readings
      * @return list of {@link DataValidationStatus}
@@ -63,7 +63,7 @@ public interface ValidationEvaluator {
 
     /**
      * gets validation status taking into account qualities of systems among <code>qualityCodeSystems</code>
-     * @param qualityCodeSystems only systems to take into account for computation of validation status; <code>null</code> or empty set mean all systems
+     * @param qualityCodeSystems only systems to take into account for computation of validation status; empty set means all systems
      * @param channel the channel to check
      * @param readings provided list of readings
      * @param interval specific interval to check
@@ -79,7 +79,7 @@ public interface ValidationEvaluator {
 
     /**
      * gets validation status taking into account qualities of systems among <code>qualityCodeSystems</code>
-     * @param qualityCodeSystems only systems to take into account for computation of validation status; <code>null</code> or empty set mean all systems
+     * @param qualityCodeSystems only systems to take into account for computation of validation status; empty set means all systems
      * @param channels a list of one or two (1st main + 2nd bulk) channels. other cases are not supported by implementation and may lead to unexpected errors!
      * @param readings provided list of readings
      * @param interval specific interval to check

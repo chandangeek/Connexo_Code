@@ -158,7 +158,7 @@ public abstract class AbstractValidationEvaluator implements ValidationEvaluator
 
     private static List<IValidationRule> filterDuplicates(Collection<IValidationRule> iValidationRules) {
         Map<String, IValidationRule> collect = iValidationRules.stream()
-                .collect(Collectors.toMap(IValidationRule::getImplementation, Function.<IValidationRule>identity(), (a, b) -> a.isObsolete() ? b : a));
+                .collect(Collectors.toMap(IValidationRule::getImplementation, Function.identity(), (a, b) -> a.isObsolete() ? b : a));
         return new ArrayList<>(collect.values());
     }
 
