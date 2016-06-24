@@ -80,7 +80,7 @@ public class MessageServiceImpl implements MessageService {
                 bind(MessageService.class).toInstance(MessageServiceImpl.this);
             }
         });
-        upgradeService.register(identifier(COMPONENTNAME), dataModel, InstallerImpl.class, Collections.emptyMap());
+        upgradeService.register(identifier("Pulse", COMPONENTNAME), dataModel, InstallerImpl.class, Collections.emptyMap());
     }
 
     @Deactivate
