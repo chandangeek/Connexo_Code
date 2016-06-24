@@ -39,9 +39,11 @@ import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
+import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfileService;
+import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.rest.DeviceStateAccessFeature;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
@@ -181,6 +183,8 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         when(taskService.findComTask(firmwareComTaskId)).thenReturn(Optional.of(firmwareComTask));
         when(firmwareComTask.isSystemComTask()).thenReturn(true);
         when(firmwareComTask.isUserComTask()).thenReturn(false);
+        when(topologyService.availabilityDate(any(Channel.class))).thenReturn(Optional.empty());
+        when(topologyService.availabilityDate(any(Register.class))).thenReturn(Optional.empty());
     }
 
     protected boolean disableDeviceConstraintsBasedOnDeviceState() {

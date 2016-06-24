@@ -13,7 +13,10 @@ import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.KnownAmrSystem;
@@ -38,9 +41,12 @@ import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceEstimation;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
+import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datavalidation.DataValidationIssueFilter;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
@@ -164,7 +170,7 @@ public class DeviceInfoFactoryTest {
     @Mock
     private ChannelSpec channelSpec;
     @Mock
-    private ReadingType readingTypeForChannel1, readingTypeForChannel2, readingTypeForChannel3, readingTypeForChannel4 ,readingTypeForChannel5, readingTypeForChannel6;
+    private ReadingType readingTypeForChannel1, readingTypeForChannel2, readingTypeForChannel3, readingTypeForChannel4, readingTypeForChannel5, readingTypeForChannel6;
     @Mock
     private Device slave1, slave2;
     @Mock
@@ -183,9 +189,11 @@ public class DeviceInfoFactoryTest {
     private DeviceEstimation deviceEstimation;
     @Mock
     private State state;
+    @Mock
+    private DeviceService deviceService;
 
     @Before
-    public void initMocks(){
+    public void initMocks() {
 
         when(readingTypeForChannel1.getMRID()).thenReturn(READING_TYPE_MRID_1);
         when(readingTypeForChannel2.getMRID()).thenReturn(READING_TYPE_MRID_2);
@@ -209,16 +217,26 @@ public class DeviceInfoFactoryTest {
         prepareMockedReadingType(readingTypeForChannel6);
 
         when(thesaurus.getString(STATE_NAME, null)).thenReturn(STATE_TRANSLATION);
-        when(issueService.countOpenDataCollectionIssues(DATALOGGER_MRID)).thenReturn(ISSUE_COUNT);
+        IssueType dataValidationIssueType = mock(IssueType.class);
+        IssueType dataCollectionIssueType = mock(IssueType.class);
+        Finder<OpenIssue> issueFinder = mock(Finder.class);
+        OpenIssue dataCollectionIssue1 = mockIssue(dataCollectionIssueType);
+        OpenIssue dataCollectionIssue2 = mockIssue(dataCollectionIssueType);
+        OpenIssue dataValidationIssue = mockIssue(dataValidationIssueType);
+        when(dataValidationIssue.getId()).thenReturn(ISSUE_DATA_VALIDATION_ID);
+        when(issueFinder.find()).thenReturn(Arrays.asList(dataCollectionIssue1, dataCollectionIssue2, dataValidationIssue));
+        when(issueService.findOpenIssuesForDevice(DATALOGGER_MRID)).thenReturn(issueFinder);
         when(issueService.findStatus(IssueStatus.OPEN)).thenReturn(Optional.of(issueStatusOpen));
+        when(issueService.findIssueType(IssueDataValidationService.ISSUE_TYPE_NAME)).thenReturn(Optional.of(dataValidationIssueType));
+        when(issueService.findIssueType(IssueDataCollectionService.DATA_COLLECTION_ISSUE)).thenReturn(Optional.of(dataCollectionIssueType));
 
         IssueDataValidation issueDataValidation = mock(IssueDataValidation.class);
         when(issueDataValidation.getId()).thenReturn(ISSUE_DATA_VALIDATION_ID);
-        Finder<? extends IssueDataValidation> issueDataValidationFinder = mock(Finder.class) ;
-        doReturn(Stream.of(new IssueDataValidation[] {issueDataValidation})).when(issueDataValidationFinder).stream();
+        Finder<? extends IssueDataValidation> issueDataValidationFinder = mock(Finder.class);
+        doReturn(Stream.of(new IssueDataValidation[]{issueDataValidation})).when(issueDataValidationFinder).stream();
         doReturn(issueDataValidationFinder).when(issueDataValidationService).findAllDataValidationIssues(any(DataValidationIssueFilter.class));
         when(meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())).thenReturn(Optional.of(amrSystem));
-        when(amrSystem.findMeter(""+DATALOGGER_ID)).thenReturn(Optional.of(meter));
+        when(amrSystem.findMeter("" + DATALOGGER_ID)).thenReturn(Optional.of(meter));
         doReturn(Optional.of(meterActivation)).when(meter).getCurrentMeterActivation();
 
         when(topologyService.getPhysicalGateway(dataLogger)).thenReturn(Optional.empty());
@@ -228,6 +246,8 @@ public class DeviceInfoFactoryTest {
         when(topologyService.getSlaveChannel(eq(dataLoggerChn4), any(Instant.class))).thenReturn(Optional.empty());
         when(topologyService.getSlaveChannel(eq(dataLoggerChn5), any(Instant.class))).thenReturn(Optional.empty());
         when(topologyService.getSlaveChannel(eq(dataLoggerChn6), any(Instant.class))).thenReturn(Optional.empty());
+        when(topologyService.availabilityDate(any(Channel.class))).thenReturn(Optional.empty());
+        when(topologyService.availabilityDate(any(Register.class))).thenReturn(Optional.empty());
 
         when(meteringService.findDeviceLocation(any(String.class))).thenReturn(Optional.empty());
         when(meteringService.findDeviceGeoCoordinates(any(String.class))).thenReturn(Optional.empty());
@@ -306,12 +326,12 @@ public class DeviceInfoFactoryTest {
         when(dataLoggerChn5.getReadingType()).thenReturn(readingTypeForChannel5);
         when(dataLoggerChn6.getReadingType()).thenReturn(readingTypeForChannel6);
 
-        when(dataLoggerChn1.getObisCode()).thenReturn(new ObisCode(1,0,1,8,0,255));
-        when(dataLoggerChn2.getObisCode()).thenReturn(new ObisCode(1,0,2,8,0,255));
-        when(dataLoggerChn3.getObisCode()).thenReturn(new ObisCode(1,0,1,8,1,255));
-        when(dataLoggerChn4.getObisCode()).thenReturn(new ObisCode(1,0,2,8,2,255));
-        when(dataLoggerChn5.getObisCode()).thenReturn(new ObisCode(1,0,2,8,1,255));
-        when(dataLoggerChn6.getObisCode()).thenReturn(new ObisCode(1,0,2,8,2,255));
+        when(dataLoggerChn1.getObisCode()).thenReturn(new ObisCode(1, 0, 1, 8, 0, 255));
+        when(dataLoggerChn2.getObisCode()).thenReturn(new ObisCode(1, 0, 2, 8, 0, 255));
+        when(dataLoggerChn3.getObisCode()).thenReturn(new ObisCode(1, 0, 1, 8, 1, 255));
+        when(dataLoggerChn4.getObisCode()).thenReturn(new ObisCode(1, 0, 2, 8, 2, 255));
+        when(dataLoggerChn5.getObisCode()).thenReturn(new ObisCode(1, 0, 2, 8, 1, 255));
+        when(dataLoggerChn6.getObisCode()).thenReturn(new ObisCode(1, 0, 2, 8, 2, 255));
 
         when(dataLoggerChn1.getLoadProfile()).thenReturn(loadProfile1);
         when(dataLoggerChn2.getLoadProfile()).thenReturn(loadProfile1);
@@ -327,12 +347,12 @@ public class DeviceInfoFactoryTest {
         when(dataLoggerChn5.getId()).thenReturn(5L);
         when(dataLoggerChn6.getId()).thenReturn(6L);
 
-        when(dataLoggerChn1.getName()).thenReturn("dataLoggerChn"+1);
-        when(dataLoggerChn2.getName()).thenReturn("dataLoggerChn"+2);
-        when(dataLoggerChn3.getName()).thenReturn("dataLoggerChn"+3);
-        when(dataLoggerChn4.getName()).thenReturn("dataLoggerChn"+4);
-        when(dataLoggerChn5.getName()).thenReturn("dataLoggerChn"+5);
-        when(dataLoggerChn6.getName()).thenReturn("dataLoggerChn"+6);
+        when(dataLoggerChn1.getName()).thenReturn("dataLoggerChn" + 1);
+        when(dataLoggerChn2.getName()).thenReturn("dataLoggerChn" + 2);
+        when(dataLoggerChn3.getName()).thenReturn("dataLoggerChn" + 3);
+        when(dataLoggerChn4.getName()).thenReturn("dataLoggerChn" + 4);
+        when(dataLoggerChn5.getName()).thenReturn("dataLoggerChn" + 5);
+        when(dataLoggerChn6.getName()).thenReturn("dataLoggerChn" + 6);
 
         prepareMockedChannel(dataLoggerChn1);
         prepareMockedChannel(dataLoggerChn2);
@@ -377,9 +397,19 @@ public class DeviceInfoFactoryTest {
         when(dataLogger.getVersion()).thenReturn(DATALOGGER_VERSION);
         when(dataLogger.forEstimation()).thenReturn(deviceEstimation);
         when(dataLogger.getChannels()).thenReturn(Arrays.asList(dataLoggerChn1, dataLoggerChn2, dataLoggerChn3, dataLoggerChn4, dataLoggerChn5, dataLoggerChn6));
+        when(dataLogger.getLocation()).thenReturn(Optional.empty());
+        when(dataLogger.getGeoCoordinates()).thenReturn(Optional.empty());
     }
 
-    private void prepareMockedReadingType(ReadingType readingType){
+    private OpenIssue mockIssue(IssueType dataCollectionIssueType) {
+        OpenIssue issue = mock(OpenIssue.class);
+        IssueReason issueReason = mock(IssueReason.class);
+        when(issueReason.getIssueType()).thenReturn(dataCollectionIssueType);
+        when(issue.getReason()).thenReturn(issueReason);
+        return issue;
+    }
+
+    private void prepareMockedReadingType(ReadingType readingType) {
         when(readingType.getName()).thenReturn("readingTypeName");
         when(readingType.isActive()).thenReturn(true);
         when(readingType.isCumulative()).thenReturn(true);
@@ -390,19 +420,19 @@ public class DeviceInfoFactoryTest {
         when(readingType.getFlowDirection()).thenReturn(FlowDirection.NOTAPPLICABLE);
         when(readingType.getCommodity()).thenReturn(Commodity.DEVICE);
         when(readingType.getMeasurementKind()).thenReturn(MeasurementKind.CURRENT);
-        when(readingType.getInterharmonic()).thenReturn(new RationalNumber(0,1));
-        when(readingType.getArgument()).thenReturn(new RationalNumber(0,1));
+        when(readingType.getInterharmonic()).thenReturn(new RationalNumber(0, 1));
+        when(readingType.getArgument()).thenReturn(new RationalNumber(0, 1));
         when(readingType.getTou()).thenReturn(0);
         when(readingType.getCpp()).thenReturn(0);
-    	when(readingType.getConsumptionTier()).thenReturn(0);
-    	when(readingType.getPhases()).thenReturn(Phase.PHASES1);
-    	when(readingType.getMultiplier()).thenReturn(MetricMultiplier.KILO);
-    	when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
-    	when(readingType.getCurrency()).thenReturn(Currency.getInstance("EUR"));
+        when(readingType.getConsumptionTier()).thenReturn(0);
+        when(readingType.getPhases()).thenReturn(Phase.PHASES1);
+        when(readingType.getMultiplier()).thenReturn(MetricMultiplier.KILO);
+        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
+        when(readingType.getCurrency()).thenReturn(Currency.getInstance("EUR"));
         when(readingType.getVersion()).thenReturn(1L);
     }
 
-    private void prepareMockedChannel(Channel mockedChannel){
+    private void prepareMockedChannel(Channel mockedChannel) {
         when(mockedChannel.getInterval()).thenReturn(TimeDuration.minutes(15));
         when(mockedChannel.getLastReading()).thenReturn(Optional.empty());
         when(mockedChannel.getLastDateTime()).thenReturn(Optional.empty());
@@ -416,11 +446,11 @@ public class DeviceInfoFactoryTest {
     }
 
     @Test
-    public void fromDataLoggerTest(){
+    public void fromDataLoggerTest() {
         DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory = new DataLoggerSlaveDeviceInfoFactory(Clock.systemUTC(), topologyService);
 
-        DeviceInfoFactory deviceInfoFactory = new DeviceInfoFactory(thesaurus, batchService, topologyService, issueService, meteringService, deviceConfigurationService);
-        DeviceInfo info  = deviceInfoFactory.deviceInfo(dataLogger);
+        DeviceInfoFactory deviceInfoFactory = new DeviceInfoFactory(thesaurus, batchService, topologyService, issueService, dataLoggerSlaveDeviceInfoFactory, deviceService);
+        DeviceInfo info = deviceInfoFactory.deviceInfo(dataLogger);
 
         assertThat(info.id).isEqualTo(DATALOGGER_ID);
         assertThat(info.mRID).isEqualTo(DATALOGGER_MRID);
