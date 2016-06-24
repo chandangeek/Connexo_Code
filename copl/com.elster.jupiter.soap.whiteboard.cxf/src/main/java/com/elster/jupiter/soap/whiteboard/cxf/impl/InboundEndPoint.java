@@ -8,7 +8,6 @@ import com.elster.jupiter.util.osgi.ContextClassLoaderResource;
 
 import org.apache.cxf.annotations.SchemaValidation;
 import org.apache.cxf.endpoint.Server;
-import org.apache.cxf.feature.Feature;
 import org.apache.cxf.feature.LoggingFeature;
 import org.apache.cxf.feature.validation.SchemaValidationFeature;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
@@ -17,8 +16,6 @@ import org.apache.cxf.transport.common.gzip.GZIPFeature;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * This endpoint manager knows how to set up and tear down an inbound SOAP endpoint
@@ -29,14 +26,18 @@ public final class InboundEndPoint implements ManagedEndpoint {
     private final SoapProviderSupportFactory soapProviderSupportFactory;
     private final String logDirectory;
     private final Provider<AuthorizationInInterceptor> authorizationInInterceptorProvider;
+    private final Provider<AccessLogFeature> accessLogFeatureProvider;
 
     private Server endpoint;
 
     @Inject
-    public InboundEndPoint(SoapProviderSupportFactory soapProviderSupportFactory, @Named("LogDirectory") String logDirectory, Provider<AuthorizationInInterceptor> authorizationInInterceptorProvider) {
+    public InboundEndPoint(SoapProviderSupportFactory soapProviderSupportFactory, @Named("LogDirectory") String logDirectory,
+                           Provider<AuthorizationInInterceptor> authorizationInInterceptorProvider,
+                           Provider<AccessLogFeature> accessLogFeatureProvider) {
         this.soapProviderSupportFactory = soapProviderSupportFactory;
         this.logDirectory = logDirectory;
         this.authorizationInInterceptorProvider = authorizationInInterceptorProvider;
+        this.accessLogFeatureProvider = accessLogFeatureProvider;
     }
 
     InboundEndPoint init(InboundEndPointProvider endPointProvider, InboundEndPointConfiguration endPointConfiguration) {
@@ -51,19 +52,18 @@ public final class InboundEndPoint implements ManagedEndpoint {
             throw new IllegalStateException("Service already published");
         }
         try (ContextClassLoaderResource ctx = soapProviderSupportFactory.create()) {
-            List<Feature> features = new ArrayList<>();
-            if (endPointConfiguration.isHttpCompression()) {
-                features.add(new GZIPFeature());
-            }
-            if (endPointConfiguration.isSchemaValidation()) {
-                features.add(new SchemaValidationFeature(operationInfo -> SchemaValidation.SchemaValidationType.IN));
-            }
-
             Object implementor = endPointProvider.get();
             JaxWsServerFactoryBean svrFactory = new JaxWsServerFactoryBean();
+            if (endPointConfiguration.isHttpCompression()) {
+                svrFactory.getFeatures().add(new GZIPFeature());
+            }
+            if (endPointConfiguration.isSchemaValidation()) {
+                svrFactory.getFeatures()
+                        .add(new SchemaValidationFeature(operationInfo -> SchemaValidation.SchemaValidationType.IN));
+            }
+            svrFactory.getFeatures().add(accessLogFeatureProvider.get().init(endPointConfiguration));
             svrFactory.setAddress(endPointConfiguration.getUrl());
             svrFactory.setServiceBean(implementor);
-            svrFactory.setFeatures(features);
             if (endPointConfiguration.isTracing()) {
                 String logFile = logDirectory + "/" + endPointConfiguration.getTraceFile();
                 svrFactory.getFeatures().add(new LoggingFeature(logFile, logFile));
