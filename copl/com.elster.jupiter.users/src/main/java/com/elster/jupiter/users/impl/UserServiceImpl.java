@@ -156,7 +156,7 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
         });
         userPreferencesService = new UserPreferencesServiceImpl(dataModel);
         synchronized (privilegeProviderRegistrationLock) {
-            upgradeService.register(identifier(COMPONENTNAME), dataModel, InstallerImpl.class, Collections.emptyMap());
+            upgradeService.register(identifier("Pulse", COMPONENTNAME), dataModel, InstallerImpl.class, Collections.emptyMap());
         }
 
     }
@@ -643,7 +643,7 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
     @Override
     public void addModulePrivileges(PrivilegesProvider privilegesProvider) {
         synchronized (privilegeProviderRegistrationLock) {
-            if (upgradeService.isInstalled(identifier(COMPONENTNAME), version(1, 0))) {
+            if (upgradeService.isInstalled(identifier("Pulse", COMPONENTNAME), version(1, 0))) {
                 try {
                     doInstallPrivileges(privilegesProvider);
                     doAssignPrivileges(privilegesProvider);
