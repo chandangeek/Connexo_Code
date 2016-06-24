@@ -46,7 +46,11 @@ class EstimationEngine {
 
     private static List<ReadingQualityRecord> findSuspects(Set<QualityCodeSystem> systems, Channel channel, Range<Instant> period, ReadingType readingType) {
         return channel.getCimChannel(readingType)
-                .map(cimChannel -> cimChannel.findReadingQualities(systems, QualityCodeIndex.SUSPECT, period, false))
+                .map(cimChannel -> cimChannel.findReadingQualities()
+                        .ofQualitySystems(systems)
+                        .ofQualityIndex(QualityCodeIndex.SUSPECT)
+                        .inTimeInterval(period)
+                        .collect())
                 .orElse(Collections.emptyList());
     }
 

@@ -28,6 +28,7 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
+import com.elster.jupiter.metering.ReadingQualityWithTypeFilter;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.NlsService;
@@ -66,7 +67,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
@@ -144,6 +144,10 @@ public class EstimationServiceImplTest {
     private RelativePeriod relativePeriod;
     @Mock
     private UpgradeService upgradeService;
+    @Mock
+    private ReadingQualityWithTypeFilter filter;
+    @Mock
+    private ReadingQualityWithTypeFilter emptyFilter;
 
     private LogRecorder logRecorder;
 
@@ -190,11 +194,19 @@ public class EstimationServiceImplTest {
         doReturn(Arrays.asList(readingType1, readingType2)).when(channel).getReadingTypes();
         doReturn(true).when(channel).isRegular();
         List<ReadingQualityRecord> readingQualityRecords = readingQualities();
-        doReturn(readingQualityRecords).when(channel).findReadingQualities(eq(MDC_SET), eq(QualityCodeIndex.SUSPECT), eq(Range.all()), anyBoolean(), anyBoolean());
+        doReturn(filter).when(channel).findReadingQualities();
+        doReturn(filter).when(filter).ofQualitySystems(Collections.singleton(QualityCodeSystem.MDC));
+        doReturn(emptyFilter).when(filter).ofQualitySystems(Collections.singleton(QualityCodeSystem.MDM));
+        doReturn(filter).when(filter).ofQualityIndex(any(QualityCodeIndex.class));
+        doReturn(emptyFilter).when(emptyFilter).ofQualityIndex(any(QualityCodeIndex.class));
+        doReturn(filter).when(filter).inTimeInterval(Range.all());
+        doReturn(emptyFilter).when(emptyFilter).inTimeInterval(Range.all());
+        doReturn(readingQualityRecords).when(filter).collect();
+        doReturn(Collections.emptyList()).when(emptyFilter).collect();
         doReturn(Optional.of(cimChannel1)).when(channel).getCimChannel(readingType1);
         doReturn(Optional.of(cimChannel2)).when(channel).getCimChannel(readingType2);
-        doReturn(readingQualityRecords).when(cimChannel1).findReadingQualities(eq(MDC_SET), eq(QualityCodeIndex.SUSPECT), eq(Range.all()), anyBoolean());
-        doReturn(readingQualityRecords).when(cimChannel2).findReadingQualities(eq(MDC_SET), eq(QualityCodeIndex.SUSPECT), eq(Range.all()), anyBoolean());
+        doReturn(filter).when(cimChannel1).findReadingQualities();
+        doReturn(filter).when(cimChannel2).findReadingQualities();
         doAnswer(invocation -> ((Instant) invocation.getArguments()[0]).plus(Duration.ofMinutes(15))).when(channel).getNextDateTime(any());
         doReturn(estimator1).when(rule1).createNewEstimator();
         doReturn(estimator2).when(rule2).createNewEstimator();
