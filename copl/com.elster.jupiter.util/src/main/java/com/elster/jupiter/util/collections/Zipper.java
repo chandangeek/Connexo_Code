@@ -34,7 +34,7 @@ public class Zipper<A, B> {
         return pairs;
     }
 
-    private class LeftOvers {
+    private final class LeftOvers {
         private final List<? extends B> leftOvers;
 
         private LeftOvers(Collection<? extends B> leftOvers) {

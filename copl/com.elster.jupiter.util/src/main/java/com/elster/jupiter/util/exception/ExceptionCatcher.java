@@ -1,5 +1,7 @@
 package com.elster.jupiter.util.exception;
 
+import com.google.common.collect.ImmutableList;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
@@ -10,7 +12,7 @@ public class ExceptionCatcher {
     private Consumer<Exception> exceptionHandler;
 
     public ExceptionCatcher(List<Runnable> runnables) {
-        this.runnables = runnables;
+        this.runnables = ImmutableList.copyOf(runnables);
     }
 
     public static <F> ExceptionCatcher.Intermediate executing(Runnable... runnables) {
