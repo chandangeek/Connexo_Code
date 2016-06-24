@@ -3,6 +3,8 @@ package com.energyict.mdc.protocol.api.device.data;
 import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 
+import java.time.Instant;
+
 /**
  * A collectedMessages identifies a DeviceMessage executed by the device and the
  * result from the execution
@@ -30,8 +32,8 @@ public interface CollectedMessage extends CollectedData {
     public DeviceMessageStatus getNewDeviceMessageStatus();
 
     /**
-     * Set the {@link DeviceMessageStatus status} the DeviceMessage
-     * should have after it has been forwarded to the device
+     * Set the {@link DeviceMessageStatus status} the DeviceMessage should have after it has been forwarded to the device<br/>
+     * Note that at the same time the current time will be used as 'sent date' for the CollectedMessage
      */
     public void setNewDeviceMessageStatus(DeviceMessageStatus deviceMessageStatus);
 
@@ -52,5 +54,20 @@ public interface CollectedMessage extends CollectedData {
     public void setDeviceProtocolInformation(String deviceProtocolInformation);
 
     public void setDataCollectionConfiguration (DataCollectionConfiguration configuration);
+
+    /**
+     * Gets the date the DeviceMessage has been send out to the device by the ComServer
+     *
+     * @return the sent date
+     */
+    public Instant getSentDate();
+
+    /**
+     * Sets the time the DeviceMessage has been send out the device by the ComServer <br/>
+     * Note that the sent date is also updated as part of {@link #setNewDeviceMessageStatus(DeviceMessageStatus)}
+     *
+     * @param sentDate the sent date
+     */
+    public void setSentDate(Instant sentDate);
 
 }
