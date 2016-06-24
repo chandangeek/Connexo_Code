@@ -152,26 +152,26 @@ public class DeviceInstallationImportProcessor extends DeviceTransitionImportPro
         try {
             device.activate(data.getTransitionDate().orElse(getContext().getClock().instant()), usagePoint);
         } catch (UsagePointAlreadyLinkedToAnotherDeviceException e) {
-            rethrowAsProcessorException(e, usagePoint);
+            rethrowAsProcessorException(e, data, usagePoint);
         } catch (UnsatisfiedReadingTypeRequirementsOfUsagePointException e) {
-            rethrowAsProcessorException(e, device, usagePoint);
+            rethrowAsProcessorException(e, data, device, usagePoint);
         }
     }
 
-    private void rethrowAsProcessorException(UsagePointAlreadyLinkedToAnotherDeviceException cause, UsagePoint usagePoint) {
+    private void rethrowAsProcessorException(UsagePointAlreadyLinkedToAnotherDeviceException cause, DeviceInstallationImportRecord data, UsagePoint usagePoint) {
         Instant start = cause.getMeterActivation().getStart();
         Instant end = cause.getMeterActivation().getEnd();
         if (end == null) {
             throw new ProcessorException(MessageSeeds.USAGE_POINT_ALREADY_LINKED_TO_ANOTHER_DEVICE,
-                    usagePoint.getMRID(), cause.getMeterActivation().getMeter().get().getMRID(), getFormattedInstant(start));
+                    data.getLineNumber(), usagePoint.getMRID(), cause.getMeterActivation().getMeter().get().getMRID(), getFormattedInstant(start));
         } else {
             throw new ProcessorException(MessageSeeds.USAGE_POINT_ALREADY_LINKED_TO_ANOTHER_DEVICE_UNTIL,
-                    usagePoint.getMRID(), cause.getMeterActivation().getMeter().get().getMRID(), getFormattedInstant(start), getFormattedInstant(end));
+                    data.getLineNumber(), usagePoint.getMRID(), cause.getMeterActivation().getMeter().get().getMRID(), getFormattedInstant(start), getFormattedInstant(end));
         }
     }
 
-    private void rethrowAsProcessorException(UnsatisfiedReadingTypeRequirementsOfUsagePointException ex, Device device, UsagePoint usagePoint) {
-        throw new ProcessorException(MessageSeeds.UNSATISFIED_READING_TYPE_REQUIREMENTS_OF_USAGE_POINT, device.getmRID(), usagePoint.getMRID(),
+    private void rethrowAsProcessorException(UnsatisfiedReadingTypeRequirementsOfUsagePointException ex, DeviceInstallationImportRecord data, Device device, UsagePoint usagePoint) {
+        throw new ProcessorException(MessageSeeds.UNSATISFIED_READING_TYPE_REQUIREMENTS_OF_USAGE_POINT, data.getLineNumber(), device.getmRID(), usagePoint.getMRID(),
                 UnsatisfiedReadingTypeRequirementsOfUsagePointException.buildRequirementsString(ex.getUnsatisfiedRequirements()));
     }
 

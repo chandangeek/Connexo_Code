@@ -788,7 +788,7 @@ public class DeviceInstallationImporterFactoryTest {
         verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, times(1)).warning(thesaurus.getFormat(MessageSeeds.USAGE_POINT_ALREADY_LINKED_TO_ANOTHER_DEVICE)
-                .format("Usage MRID", "VPB0003", DeviceInstallationImportProcessor.getFormattedInstant(installationTime)));
+                .format(2, "Usage MRID", "VPB0003", DeviceInstallationImportProcessor.getFormattedInstant(installationTime)));
         verify(logger, never()).severe(Matchers.anyString());
         verify(topologyService, times(1)).setPhysicalGateway(device, masterDevice);
     }
@@ -832,7 +832,7 @@ public class DeviceInstallationImporterFactoryTest {
 
         verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
         verify(logger, never()).info(Matchers.anyString());
-        verify(logger, times(1)).warning(thesaurus.getFormat(MessageSeeds.UNSATISFIED_READING_TYPE_REQUIREMENTS_OF_USAGE_POINT).format("VPB0002", "Usage MRID", ""));
+        verify(logger, times(1)).warning(thesaurus.getFormat(MessageSeeds.UNSATISFIED_READING_TYPE_REQUIREMENTS_OF_USAGE_POINT).format(2, "VPB0002", "Usage MRID", ""));
         verify(logger, never()).severe(Matchers.anyString());
         verify(topologyService, times(1)).setPhysicalGateway(device, masterDevice);
     }
