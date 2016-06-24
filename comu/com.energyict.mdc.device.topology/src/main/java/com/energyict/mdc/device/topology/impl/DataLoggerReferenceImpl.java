@@ -83,15 +83,17 @@ public class DataLoggerReferenceImpl extends AbstractPhysicalGatewayReferenceImp
         if (dataloggerChannel.hasData()) {
             ReadingType dataLoggerCollectedReadingType = dataloggerChannel.getBulkQuantityReadingType().orElse(dataloggerChannel.getMainReadingType());
             ReadingType slaveCollectedReadingType = slaveChannel.getBulkQuantityReadingType().orElse(slaveChannel.getMainReadingType());
-            MeterReading meterReading = new FilteredMeterReading(dataloggerChannel.deleteReadings(getInterval().toOpenClosedRange()),
+            FilteredMeterReading meterReading = new FilteredMeterReading(dataloggerChannel.deleteReadings(getInterval().toOpenClosedRange()),
                     block -> block.getReadingTypeCode().equals(dataLoggerCollectedReadingType.getMRID()),
                     reading -> reading.getReadingTypeCode().equals(dataLoggerCollectedReadingType.getMRID()),
                     rq -> rq.getType().system().map(QualityCodeSystem.ENDDEVICE::equals).orElse(false),
                     ImmutableMap.of(dataLoggerCollectedReadingType, slaveCollectedReadingType)
             );
-            this.getOrigin().store(meterReading);
-            if (dataloggerChannel.isRegular()) {
-                updateLastReadingIfApplicable(topologyService, slaveChannel);
+            if (!meterReading.isEmpty()) {
+                this.getOrigin().store(meterReading);
+                if (dataloggerChannel.isRegular()) {
+                    updateLastReadingIfApplicable(topologyService, slaveChannel);
+                }
             }
         }
     }
@@ -110,14 +112,15 @@ public class DataLoggerReferenceImpl extends AbstractPhysicalGatewayReferenceImp
         if (slaveChannel.hasData()) {
             ReadingType dataLoggerCollectedReadingType = dataloggerChannel.getBulkQuantityReadingType().orElse(dataloggerChannel.getMainReadingType());
             ReadingType slaveCollectedReadingType = slaveChannel.getBulkQuantityReadingType().orElse(slaveChannel.getMainReadingType());
-            MeterReading meterReading = new FilteredMeterReading(slaveChannel.deleteReadings(Range.atLeast(start)),
+            FilteredMeterReading meterReading = new FilteredMeterReading(slaveChannel.deleteReadings(Range.atLeast(start)),
                     block -> block.getReadingTypeCode().equals(slaveCollectedReadingType.getMRID()),
                     reading -> reading.getReadingTypeCode().equals(slaveCollectedReadingType.getMRID()),
                     rq -> rq.getType().system().map(QualityCodeSystem.ENDDEVICE::equals).orElse(false),
                     ImmutableMap.of(slaveCollectedReadingType, dataLoggerCollectedReadingType)
             );
-
-            this.getGateway().store(meterReading);
+            if (!meterReading.isEmpty()) {
+                this.getGateway().store(meterReading);
+            }
         }
     }
 
@@ -136,6 +139,16 @@ public class DataLoggerReferenceImpl extends AbstractPhysicalGatewayReferenceImp
             this.readingQualityPredicate = readingQualityPredicate;
             this.readingTypeMap = new HashMap<>();
             readingTypeReplacement.entrySet().forEach(entry -> readingTypeMap.put(entry.getKey().getMRID(), entry.getValue().getMRID()));
+        }
+
+        public boolean isEmpty(){
+            return getReadings().isEmpty() &&
+                   getEvents().isEmpty() &&
+                   noIntervals();
+        }
+
+        private boolean noIntervals(){
+            return getIntervalBlocks().stream().filter((block) -> block.getIntervals().isEmpty()).findAny().isPresent();
         }
 
         @Override
