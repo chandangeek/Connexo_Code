@@ -175,7 +175,7 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
                     if (json.willBePickedUpByPlannedComtask && json.willBePickedUpByComtask) {
                         me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.commandAdded', 'MDC', 'Command added'));
                     } else {
-                        if (!json.willBePickedUpByPlannedComtask) {
+                        if (!json.willBePickedUpByPlannedComtask && json.willBePickedUpByComtask) {
                             me.getCommandWillNotBePickedUp().setText(Uni.I18n.translate('tou.clearPassiveWillNotBePickedUp', 'MDC', 'The \'Clear passive calendar\' command is part of a communication task that is not planned and will not be picked up'));
                         } else if (!json.willBePickedUpByComtask) {
                             me.getCommandWillNotBePickedUp().setText(Uni.I18n.translate('tou.clearPassiveNotPartOfTask', 'MDC', 'The \'Clear passive calendar\' command is not part of a communication task on this device'));
