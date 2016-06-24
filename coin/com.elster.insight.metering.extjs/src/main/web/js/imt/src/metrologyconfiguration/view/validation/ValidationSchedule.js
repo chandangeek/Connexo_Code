@@ -31,7 +31,7 @@ Ext.define('Imt.metrologyconfiguration.view.validation.ValidationSchedule', {
                     {
                         itemId: 'metrology-config-manage-validation-schedule-btn',
                         text: Uni.I18n.translate('validation.tasks.manage', 'IMT', 'Manage validation tasks'),
-                        //privileges: Imt.privileges.MetrologyConfig.adminValidation,
+                        privileges: Imt.privileges.MetrologyConfig.adminValidation,
                         disabled: me.metrologyConfig.get('status').id == 'deprecated',
                         href: me.router.getRoute('administration/validationtasks').buildUrl()
                     }
