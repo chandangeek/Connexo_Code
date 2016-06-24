@@ -484,7 +484,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
                     bind(PropertySpecService.class).toInstance(propertySpecService);
                 }
             });
-            upgradeService.register(InstallIdentifier.identifier(FirmwareService.COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
+            upgradeService.register(InstallIdentifier.identifier("MultiSense", FirmwareService.COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
         } catch (RuntimeException e) {
             e.printStackTrace();
             throw e;
