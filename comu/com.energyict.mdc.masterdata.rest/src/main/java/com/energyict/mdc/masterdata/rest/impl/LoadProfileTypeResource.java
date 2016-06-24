@@ -1,12 +1,13 @@
 package com.energyict.mdc.masterdata.rest.impl;
 
 import com.elster.jupiter.cbo.Commodity;
+import com.elster.jupiter.cbo.MeasurementKind;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.security.Privileges;
@@ -62,9 +63,10 @@ public class LoadProfileTypeResource {
         this.resourceHelper = resourceHelper;
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/intervals")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_MASTER_DATA, Privileges.Constants.VIEW_MASTER_DATA})
     public Response getIntervals(@BeanParam JsonQueryParameters queryParameters) {
         List<LocalizedTimeDuration.TimeDurationInfo> infos = new ArrayList<>(LocalizedTimeDuration.intervals.size());
@@ -77,8 +79,9 @@ public class LoadProfileTypeResource {
         return Response.ok(infos).build();
     }
 
-    @GET @Transactional
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @GET
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_MASTER_DATA, Privileges.Constants.VIEW_MASTER_DATA})
     public Response getAllProfileTypes(@BeanParam JsonQueryParameters queryParameters) {
         List<LoadProfileType> allProfileTypes = masterDataService.findAllLoadProfileTypes();
@@ -87,17 +90,19 @@ public class LoadProfileTypeResource {
         return Response.ok(PagedInfoList.fromPagedList("data", LoadProfileTypeInfo.from(allProfileTypes), queryParameters)).build();
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_MASTER_DATA, Privileges.Constants.VIEW_MASTER_DATA})
     public Response getLoadProfileType(@PathParam("id") long loadProfileId) {
         LoadProfileType loadProfileType = resourceHelper.findLoadProfileTypeOrThrowException(loadProfileId);
         return Response.ok(LoadProfileTypeInfo.from(loadProfileType, isLoadProfileTypeAlreadyInUse(loadProfileType))).build();
     }
 
-    @POST @Transactional
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @POST
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_MASTER_DATA)
     public Response addNewLoadProfileType(LoadProfileTypeInfo request, @Context UriInfo uriInfo) {
@@ -122,9 +127,10 @@ public class LoadProfileTypeResource {
         return Response.ok(LoadProfileTypeInfo.from(loadProfileType, false)).build();
     }
 
-    @PUT @Transactional
+    @PUT
+    @Transactional
     @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_MASTER_DATA)
     public Response editLoadProfileType(@PathParam("id") long loadProfileId, LoadProfileTypeInfo request, @Context UriInfo uriInfo) {
@@ -146,16 +152,18 @@ public class LoadProfileTypeResource {
     }
 
 
-    @DELETE @Transactional
+    @DELETE
+    @Transactional
     @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_MASTER_DATA)
     public Response deleteProfileType(@PathParam("id") long loadProfileId, LoadProfileTypeInfo request) {
         resourceHelper.lockLoadProfileTypeOrThrowException(request).delete();
         return Response.ok().build();
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/measurementtypes")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_MASTER_DATA)
@@ -174,7 +182,8 @@ public class LoadProfileTypeResource {
         return PagedInfoList.fromPagedList("registerTypes", registerTypeInfos, queryParameters);
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("{id}/measurementtypes")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_MASTER_DATA)
@@ -206,7 +215,12 @@ public class LoadProfileTypeResource {
     }
 
     private Predicate<? super RegisterType> filterOnCommodity() {
-        return registerType -> (loadProfileCompatibleCommodities().contains(registerType.getReadingType().getCommodity()));
+        return registerType -> isItADataLoggerPulseReadingType(registerType) ||
+                loadProfileCompatibleCommodities().contains(registerType.getReadingType().getCommodity());
+    }
+
+    private boolean isItADataLoggerPulseReadingType(RegisterType registerType) {
+        return registerType.getReadingType().getMeasurementKind().equals(MeasurementKind.RELAYCYCLE);
     }
 
     private Set<Commodity> loadProfileCompatibleCommodities() {
