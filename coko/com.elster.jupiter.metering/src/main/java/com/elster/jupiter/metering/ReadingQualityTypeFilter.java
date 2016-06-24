@@ -14,7 +14,8 @@ public interface ReadingQualityTypeFilter extends ReadingQualityIndexFilter {
      * during the search.
      * Pls use exclusively with {@link #ofQualitySystems(Set)} because call of each one
      * overrides previously defined criterion.
-     * None of these 2 methods called means any {@link QualityCodeSystem} matching.
+     * None of these 2 methods called is equivalent to calling {@link #ofQualitySystems(Set)} on <code>Collections.emptySet()</code>
+     * and means any {@link QualityCodeSystem} matching.
      *
      * @param system {@link QualityCodeSystem} to stick to when filtering by {@link ReadingQualityType}
      * during the search.
@@ -27,7 +28,8 @@ public interface ReadingQualityTypeFilter extends ReadingQualityIndexFilter {
      * during the search.
      * Pls use exclusively with {@link #ofQualitySystem(QualityCodeSystem)} because call of each one
      * overrides previously defined criterion.
-     * None of these 2 methods called means any {@link QualityCodeSystem} matching.
+     * None of these 2 methods called is equivalent to setting <code>systems = Collections.emptySet()</code>
+     * and means any {@link QualityCodeSystem} matching.
      *
      * @param systems a set of {@link QualityCodeSystem QualityCodeSystems} to stick to when filtering by {@link ReadingQualityType}
      * during the search.
