@@ -114,7 +114,7 @@ public class SchedulingServiceImpl implements ServerSchedulingService, MessageSe
     @Activate
     public void activate() {
         this.dataModel.register(this.getModule());
-        upgradeService.register(InstallIdentifier.identifier(SchedulingService.COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier("MultiSense", SchedulingService.COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
     }
 
     @Override
