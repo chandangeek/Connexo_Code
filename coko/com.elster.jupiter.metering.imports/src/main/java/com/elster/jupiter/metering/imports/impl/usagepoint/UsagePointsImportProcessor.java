@@ -58,13 +58,23 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
 
             UsagePoint usagePoint = getUsagePoint(data, logger);
 
+            addCustomPropertySetValues(usagePoint, data, logger);
+
             if (usagePoint.getDetail(context.getClock().instant()).isPresent()) {
                 updateDetails(usagePoint, data, logger).create();
             } else {
                 createDetails(usagePoint, data, logger).create();
+                data.getMetrologyConfiguration().ifPresent(mc -> {
+                            try {
+                                usagePoint.apply(findMetrologyConfiguration(mc.longValue(), usagePoint));
+                            } catch (Exception e) {
+                                usagePoint.delete();
+                                throw e;
+                            }
+                        }
+                );
             }
 
-            addCustomPropertySetValues(usagePoint, data, logger);
 
         } catch (ConstraintViolationException e) {
             for (ConstraintViolation<?> violation : e.getConstraintViolations()) {
@@ -224,9 +234,6 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
         usagePointBuilder.withReadRoute(data.getReadRoute().orElse(null));
         usagePointBuilder.withServicePriority(data.getServicePriority().orElse(null));
         usagePointBuilder.withServiceDeliveryRemark(data.getServiceDeliveryRemark().orElse(null));
-        data.getMetrologyConfiguration().ifPresent(mc ->
-                usagePointBuilder.withMetrologyConfiguration(findMetrologyConfiguration(mc.longValue(), usagePointBuilder.validate()))
-        );
         return usagePointBuilder.create();
     }
 
@@ -277,15 +284,6 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
         usagePoint.setReadRoute(data.getReadRoute().orElse(null));
         usagePoint.setServicePriority(data.getServicePriority().orElse(null));
         usagePoint.setServiceDeliveryRemark(data.getServiceDeliveryRemark().orElse(null));
-        usagePoint.setVirtual(data.isVirtual());
-        usagePoint.setSdp(data.isSdp());
-        data.getMetrologyConfiguration().ifPresent(mc -> {
-                    usagePoint.getMetrologyConfiguration().ifPresent(mconf -> {
-                        throw new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_METROLOGY_CONFIGURATION_ALREADY_SET, usagePoint.getMRID());
-                    });
-                    usagePoint.apply(findMetrologyConfiguration(mc.longValue(), usagePoint));
-                }
-        );
         usagePoint.update();
         return usagePoint;
     }
