@@ -162,7 +162,7 @@ public class AppServiceImpl implements IAppService, Subscriber, TranslationKeyPr
                 }
             });
 
-            upgradeService.register(identifier(COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
+            upgradeService.register(identifier("Pulse", COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
 
             tryActivate(context);
 
@@ -449,7 +449,7 @@ public class AppServiceImpl implements IAppService, Subscriber, TranslationKeyPr
                 if (allServerDestination.isPresent()) {
                     allServerDestination.get().message(jsonService.serialize(command)).send();
                 } else {
-                    if (upgradeService.isInstalled(identifier(COMPONENT_NAME), version(1, 0))) {
+                    if (upgradeService.isInstalled(identifier("Pulse", COMPONENT_NAME), version(1, 0))) {
                         LOGGER.log(Level.SEVERE, "Could not notify other servers of InvalidateCacheRequest. AllServers queue does not exist!");
                     }
                 }
