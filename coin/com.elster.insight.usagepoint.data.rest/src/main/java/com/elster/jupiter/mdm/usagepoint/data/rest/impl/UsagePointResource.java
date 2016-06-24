@@ -150,7 +150,7 @@ public class UsagePointResource {
         List<UsagePointInfo> usagePointInfos = ListPager.of(list)
                 .from(queryParameters).find()
                 .stream()
-                .map(usagePointInfoFactory::from)
+                .map(usagePointInfoFactory::fullInfoFrom)
                 .collect(Collectors.toList());
 
         return PagedInfoList.fromPagedList("usagePoints", usagePointInfos, queryParameters);
@@ -195,7 +195,7 @@ public class UsagePointResource {
                             .getCustomPropertySetValues(customPropertySetInfo, propertySet.getCustomPropertySet().getPropertySpecs()));
                 });
 
-        return usagePointInfoFactory.from(usagePoint);
+        return usagePointInfoFactory.fullInfoFrom(usagePoint);
     }
 
     @GET
@@ -204,7 +204,7 @@ public class UsagePointResource {
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT,
             Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     public UsagePointInfo getUsagePoint(@PathParam("mrid") String mRid, @Context SecurityContext securityContext) {
-        return usagePointInfoFactory.from(resourceHelper.findUsagePointByMrIdOrThrowException(mRid));
+        return usagePointInfoFactory.fullInfoFrom(resourceHelper.findUsagePointByMrIdOrThrowException(mRid));
     }
 
     @GET
@@ -263,7 +263,7 @@ public class UsagePointResource {
                     });
             linker.complete();
         }
-        return Response.ok().entity(usagePointInfoFactory.from(usagePoint)).build();
+        return Response.ok().entity(usagePointInfoFactory.fullInfoFrom(usagePoint)).build();
     }
 
     @PUT
@@ -317,7 +317,7 @@ public class UsagePointResource {
                     propertySet.getCustomPropertySet().getPropertySpecs()));
         }
         usagePoint.update();
-        return Response.ok().entity(usagePointInfoFactory.from(usagePoint)).build();
+        return Response.ok().entity(usagePointInfoFactory.fullInfoFrom(usagePoint)).build();
     }
 
     @GET
@@ -413,7 +413,7 @@ public class UsagePointResource {
             propertySet.setValues(customPropertySetInfoFactory.getCustomPropertySetValues(customPropertySetInfo,
                     propertySet.getCustomPropertySet().getPropertySpecs()));
         }
-        return Response.status(Response.Status.CREATED).entity(usagePointInfoFactory.from(usagePoint)).build();
+        return Response.status(Response.Status.CREATED).entity(usagePointInfoFactory.fullInfoFrom(usagePoint)).build();
     }
 
     private void validateSeviceKind(String serviceKindString) {
