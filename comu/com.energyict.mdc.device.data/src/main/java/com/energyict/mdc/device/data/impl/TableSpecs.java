@@ -594,6 +594,7 @@ public enum TableSpecs {
             table.column("PROTOCOLINFO").varChar(Table.DESCRIPTION_LENGTH).map(DeviceMessageImpl.Fields.PROTOCOLINFO.fieldName()).add();
             table.column("RELEASEDATE").number().map(DeviceMessageImpl.Fields.RELEASEDATE.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).add();
             table.column("SENTDATE").number().map(DeviceMessageImpl.Fields.SENTDATE.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).add();
+            table.column("CREATEUSERNAME").varChar(80).notNull().map(DeviceMessageImpl.Fields.CREATEDBYUSER.fieldName()).since(version(10, 2)).add();
             table.primaryKey("PK_DDC_DEVICEMESSAGE").on(id).add();
             table.foreignKey("FK_DDC_DEVMESSAGE_DEV")
                     .on(device).references(DDC_DEVICE.name())
