@@ -161,7 +161,7 @@ public class StandardCsvDataFormatterTest {
         doReturn(Arrays.asList(readingType, readingType1)).when(channel).getReadingTypes();
         when(readingQuality.isMissing()).thenReturn(true);
         when(readingQuality1.isMissing()).thenReturn(false);
-        when(validationEvaluator.getValidationStatus(null, channel, listReadings))
+        when(validationEvaluator.getValidationStatus(Collections.emptySet(), channel, listReadings))
                 .thenReturn(Arrays.asList(dataValidationStatus, dataValidationStatus1, dataValidationStatus2, dataValidationStatus3));
         when(dataValidationStatus.getValidationResult()).thenReturn(ValidationResult.SUSPECT);
         when(dataValidationStatus.getReadingTimestamp()).thenReturn(Instant.ofEpochMilli(EPOCH_MILLI));
