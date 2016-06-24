@@ -109,6 +109,11 @@ public class ServiceCallOneCustomPropertySet implements CustomPropertySet<Servic
         private final String FK_CPS_EXAMPLE_CPS = "FK_CPS_EXAMPLE_CPS";
 
         @Override
+        public String application() {
+            return "Example";
+        }
+
+        @Override
         public String componentName() {
             return "OMFG.1";
         }
