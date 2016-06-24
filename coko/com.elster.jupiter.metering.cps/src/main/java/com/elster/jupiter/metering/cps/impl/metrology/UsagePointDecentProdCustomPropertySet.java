@@ -142,6 +142,11 @@ public class UsagePointDecentProdCustomPropertySet implements CustomPropertySet<
     private static class UsagePointDecentrProdPS implements PersistenceSupport<UsagePoint, UsagePointDecentProdDomExt> {
         private Thesaurus thesaurus;
 
+        @Override
+        public String application() {
+            return "Example";
+        }
+
         public UsagePointDecentrProdPS(Thesaurus thesaurus) {
             this.thesaurus = thesaurus;
         }

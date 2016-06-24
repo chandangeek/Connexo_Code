@@ -115,6 +115,10 @@ public class UsagePointMeterGnrCustomPropertySet implements CustomPropertySet<Us
     private static class UsagePointMtrGeneralPersistSupp implements PersistenceSupport<UsagePoint, UsagePointMeterGnrDomainExtension> {
         private Thesaurus thesaurus;
 
+        @Override
+        public String application() {
+            return "Example";
+        }
 
         public UsagePointMtrGeneralPersistSupp(Thesaurus thesaurus) {
             this.thesaurus = thesaurus;

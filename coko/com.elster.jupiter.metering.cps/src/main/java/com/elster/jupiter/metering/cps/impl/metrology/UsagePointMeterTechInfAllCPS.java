@@ -110,6 +110,10 @@ public class UsagePointMeterTechInfAllCPS implements CustomPropertySet<UsagePoin
     }
 
     private static class UsagePointMeterTechInfAllPersSupp implements PersistenceSupport<UsagePoint, UsagePointMeterTechInfAllDomExt> {
+        @Override
+        public String application() {
+            return "Example";
+        }
 
         private Thesaurus thesaurus;
 

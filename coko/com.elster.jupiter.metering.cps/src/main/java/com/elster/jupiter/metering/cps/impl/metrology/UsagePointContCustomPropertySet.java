@@ -105,6 +105,11 @@ public class UsagePointContCustomPropertySet implements CustomPropertySet<UsageP
 
         private Thesaurus thesaurus;
 
+        @Override
+        public String application() {
+            return "Example";
+        }
+
         public UsagePointConPersistenceSupport(Thesaurus thesaurus) {
             this.thesaurus = thesaurus;
         }

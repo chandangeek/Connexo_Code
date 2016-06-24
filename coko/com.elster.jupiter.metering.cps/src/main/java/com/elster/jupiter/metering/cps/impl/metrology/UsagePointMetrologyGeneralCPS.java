@@ -112,6 +112,11 @@ public class UsagePointMetrologyGeneralCPS implements CustomPropertySet<UsagePoi
 
         private Thesaurus thesaurus;
 
+        @Override
+        public String application() {
+            return "Example";
+        }
+
         public UsagePointMetrologyGeneralPersSupp(Thesaurus thesaurus) {
             this.thesaurus = thesaurus;
         }

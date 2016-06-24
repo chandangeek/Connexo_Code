@@ -106,6 +106,11 @@ public class UsagePointTechInstEGCustomPropertySet implements CustomPropertySet<
     private static class UsagePointTechInstEGPerSupp implements PersistenceSupport<UsagePoint, UsagePointTechInstEGDomExt> {
         private Thesaurus thesaurus;
 
+        @Override
+        public String application() {
+            return "Example";
+        }
+
         public UsagePointTechInstEGPerSupp(Thesaurus thesaurus) {
             this.thesaurus = thesaurus;
         }

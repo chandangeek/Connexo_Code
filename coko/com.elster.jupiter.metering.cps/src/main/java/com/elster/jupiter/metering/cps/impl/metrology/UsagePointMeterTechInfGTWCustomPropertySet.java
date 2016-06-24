@@ -126,6 +126,11 @@ public class UsagePointMeterTechInfGTWCustomPropertySet implements CustomPropert
 
         private Thesaurus thesaurus;
 
+        @Override
+        public String application() {
+            return "Example";
+        }
+
         public UsagePointMeterTechInfGTWPersSupp(Thesaurus thesaurus) {
             this.thesaurus = thesaurus;
         }

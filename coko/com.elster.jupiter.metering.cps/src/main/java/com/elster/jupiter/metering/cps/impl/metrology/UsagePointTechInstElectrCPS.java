@@ -122,6 +122,11 @@ public class UsagePointTechInstElectrCPS implements CustomPropertySet<UsagePoint
 
         private Thesaurus thesaurus;
 
+        @Override
+        public String application() {
+            return "Example";
+        }
+
         public UsagePointTechInstElectyPerSupp(Thesaurus thesaurus) {
             this.thesaurus = thesaurus;
         }

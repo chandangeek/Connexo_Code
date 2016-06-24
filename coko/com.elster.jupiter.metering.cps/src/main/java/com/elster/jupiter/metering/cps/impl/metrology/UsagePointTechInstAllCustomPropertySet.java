@@ -101,6 +101,11 @@ public class UsagePointTechInstAllCustomPropertySet implements CustomPropertySet
 
         private Thesaurus thesaurus;
 
+        @Override
+        public String application() {
+            return "Example";
+        }
+
         public UsagePointTechInstAllPersSupp(Thesaurus thesaurus) {
             this.thesaurus = thesaurus;
         }
