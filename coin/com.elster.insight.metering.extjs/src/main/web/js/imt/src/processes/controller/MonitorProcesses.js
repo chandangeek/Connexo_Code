@@ -39,7 +39,8 @@ Ext.define('Imt.processes.controller.MonitorProcesses', {
                         variableId: 'usagePointId',
                         name: 'usagePoint',
                         value:  usagePoint.get('id'),
-                        route: Dbp.privileges.DeviceProcesses.canAssignOrExecute()? 'workspace/tasks/performTask': null
+                        route: Dbp.privileges.DeviceProcesses.canAssignOrExecute() ? 'workspace/tasks/performTask' : null,
+                        context: usagePoint.metrologyConfiguration
                     }
                 });
                 me.getApplication().fireEvent('changecontentevent', widget);
