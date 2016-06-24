@@ -2,31 +2,42 @@ Ext.define('Uni.property.view.property.MetrologyConfigurationOutputs', {
     extend: 'Uni.property.view.property.Base',
 
     msgTarget: 'under',
-    getEditCmp: function () {
-        var me = this,
-            store = Ext.create('Ext.data.Store', {
-                model: 'Uni.model.ReadingType',
-                proxy: {
-                    proxy: {
-                        type: 'rest',
-                        url: '/api/ucr/metrologyconfigurations/' + me.up('property-form').context.id + 'deliverables',
-                        reader: {
-                            type: 'json',
-                            root: 'deliverables'
-                        }
-                    }
-                }
-            });
 
-        store.load(function () {
-            me.getField().getSelectionModel().selectAll();
-        });
+    deliverablesStore: Ext.create('Ext.data.Store', {
+        fields: ['name', 'readingType'],
+        proxy: {
+            proxy: {
+                type: 'rest',
+                url: '/api/ucr/metrologyconfigurations/' + me.up('property-form').context.id + 'deliverables',
+                reader: {
+                    type: 'json',
+                    root: 'deliverables'
+                }
+            }
+        }
+    }),
+
+    listeners: {
+        afterrender: {
+            fn: function () {
+                var me = this;
+
+                me.deliverablesStore.getProxy().url = '/api/ucr/metrologyconfigurations/' + me.up('property-form').context.id + 'deliverables';
+                me.deliverablesStore.load(function () {
+                    me.getField().getSelectionModel().selectAll();
+                });
+            }
+        }
+    },
+
+    getEditCmp: function () {
+        var me = this;
 
         return [
             {
                 xtype: 'grid',
                 itemId: 'metrology-configuration-outputs-grid',
-                store: store,
+                store: me.deliverablesStore,
                 width: me.width,
                 selModel: {
                     mode: 'MULTI',
