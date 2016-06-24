@@ -83,9 +83,9 @@ Ext.define('Wss.view.Add', {
 
             form.down('#webServiceCombo').disable();
             if(this.record.getAuthenticationMethod().get('id')!== 'none' && Ext.isEmpty(this.record.getGroup())){
-                form.down('#userRoleField').select('all');
+                if(form.down('#userRoleField'))form.down('#userRoleField').select('all');
             } else {
-                form.down('#userRoleField').select(this.record.getGroup());
+                if(form.down('#userRoleField'))form.down('#userRoleField').select(this.record.getGroup());
             }
             if(this.record.get('active')===true){
                 formErrorsPlaceHolder = form.down('#addEndPointFormErrors');
