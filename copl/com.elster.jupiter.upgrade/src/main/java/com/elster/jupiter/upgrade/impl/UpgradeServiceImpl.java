@@ -103,11 +103,13 @@ public class UpgradeServiceImpl implements UpgradeService, EventHandler {
         boolean doUpgrade = upgradeProperty != null && Boolean.parseBoolean(upgradeProperty);
         state = doUpgrade ? new UpgraderState() : new CheckState();
         state.addHandler();
+        startupFinishedListeners.add(new ReportingFinishedListener());
     }
 
     @Deactivate
     public void deactivate() {
         state.removeHandler();
+        startupFinishedListeners.clear();
     }
 
     @Override
@@ -416,6 +418,13 @@ public class UpgradeServiceImpl implements UpgradeService, EventHandler {
 
         private FileHandler(Path path) throws IOException {
             super(Files.newOutputStream(path, StandardOpenOption.CREATE), new SimpleFormatter());
+        }
+    }
+
+    private class ReportingFinishedListener implements StartupFinishedListener {
+        @Override
+        public void onStartupComplete() {
+            userInterface.notifyUser("All components have been installed.");
         }
     }
 }
