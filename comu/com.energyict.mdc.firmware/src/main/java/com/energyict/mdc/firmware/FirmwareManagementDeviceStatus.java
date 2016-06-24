@@ -39,7 +39,7 @@ public enum FirmwareManagementDeviceStatus {
         private boolean checkReleaseDate(DeviceMessage<Device> message, FirmwareManagementDeviceUtils helper) {
             boolean firmwareUploadInFuture = message.getReleaseDate().isAfter(helper.getCurrentInstant());
             return firmwareUploadInFuture
-                    || !firmwareUploadInFuture && !helper.firmwareUploadTaskIsBusy();
+                    || !helper.firmwareUploadTaskIsBusy();
         }
     },
 
