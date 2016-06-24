@@ -26,9 +26,9 @@ public class ServiceCallCommands {
     private enum ServiceCallTypes {
         disconnect("redkneeDisconnectHandler", "v1.0"),
         connectWithLoadLimit("redkneeConnectWithLoadLimitHandler", "v1.0"),
-        connectWithoutLoadLimit("redkneeConnectWithoutLoadLimitHandler", "v1.0"),
+        connectWithoutLoadLimit("redkneeConnectHandler", "v1.0"),
         armWithLoadLimit("redkneeArmWithLoadLimitHandler", "v1.0"),
-        armWithoutLoadLimit("redkneeArmWithoutLoadLimitHandler", "v1.0"),;
+        armWithoutLoadLimit("redkneeArmHandler", "v1.0"),;
 
         private final String typeName;
         private final String typeVersion;
