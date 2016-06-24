@@ -91,7 +91,7 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     public void activate() {
         dataModel.register(getModule());
 
-        upgradeService.register(InstallIdentifier.identifier(UsagePointConfigurationService.COMPONENTNAME), dataModel, Installer.class, ImmutableMap.of(
+        upgradeService.register(InstallIdentifier.identifier("Insight", UsagePointConfigurationService.COMPONENTNAME), dataModel, Installer.class, ImmutableMap.of(
                 version(10, 2), UpgraderV10_2.class
         ));
     }
