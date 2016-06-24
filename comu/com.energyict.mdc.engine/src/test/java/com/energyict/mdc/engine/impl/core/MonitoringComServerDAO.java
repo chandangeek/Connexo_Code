@@ -561,7 +561,7 @@ public class MonitoringComServerDAO implements ComServerDAO {
         }
 
         @Override
-        public void updateDeviceMessageInformation(MessageIdentifier messageIdentifier, DeviceMessageStatus newDeviceMessageStatus, String protocolInformation) {
+        public void updateDeviceMessageInformation(MessageIdentifier messageIdentifier, DeviceMessageStatus newDeviceMessageStatus, Instant sentDate, String protocolInformation) {
             // nothing to update
         }
 
@@ -663,7 +663,7 @@ public class MonitoringComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public void updateDeviceMessageInformation(MessageIdentifier messageIdentifier, DeviceMessageStatus newDeviceMessageStatus, String protocolInformation) {
+    public void updateDeviceMessageInformation(MessageIdentifier messageIdentifier, DeviceMessageStatus newDeviceMessageStatus, Instant sentDate, String protocolInformation) {
         // nothing to update
     }
 
