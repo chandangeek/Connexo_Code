@@ -20,6 +20,10 @@ import java.util.stream.Stream;
  * @since 2015-11-30 (12:36)
  */
 class SDKTopologyTaskDialectPropertyPersistenceSupport implements PersistenceSupport<DeviceProtocolDialectPropertyProvider, SDKTopologyTaskDialectProperties> {
+    @Override
+    public String application() {
+        return "Example";
+    }
 
     @Override
     public String domainFieldName() {
