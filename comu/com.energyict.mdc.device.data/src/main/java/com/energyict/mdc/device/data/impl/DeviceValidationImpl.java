@@ -18,15 +18,14 @@ import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.exceptions.InvalidLastCheckedException;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Range;
 
 import java.time.Clock;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.TreeSet;
@@ -184,7 +183,7 @@ public class DeviceValidationImpl implements DeviceValidation {
         return koreChannels
                 .filter(k -> does(k.getMeterActivation().getRange()).overlap(interval))
                 // TODO: the place for refactoring of CXO-1437/CXO-1438
-                .flatMap(k -> getEvaluator().getValidationStatus(new HashSet<>(Arrays.asList(QualityCodeSystem.MDC, QualityCodeSystem.MDM)), k, readings,
+                .flatMap(k -> getEvaluator().getValidationStatus(ImmutableSet.of(QualityCodeSystem.MDC, QualityCodeSystem.MDM), k, readings,
                         k.getMeterActivation().getRange().intersection(interval)).stream())
                 .collect(Collectors.toList());
     }
@@ -194,7 +193,7 @@ public class DeviceValidationImpl implements DeviceValidation {
         return ((DeviceImpl) register.getDevice()).findKoreChannels(register).stream()
                 .filter(k -> does(k.getMeterActivation().getRange()).overlap(interval))
                 // TODO: the place for refactoring of CXO-1437/CXO-1438
-                .flatMap(k -> getEvaluator().getValidationStatus(new HashSet<>(Arrays.asList(QualityCodeSystem.MDC, QualityCodeSystem.MDM)), k, readings,
+                .flatMap(k -> getEvaluator().getValidationStatus(ImmutableSet.of(QualityCodeSystem.MDC, QualityCodeSystem.MDM), k, readings,
                         k.getMeterActivation().getRange().intersection(interval)).stream())
                 .collect(Collectors.toList());
     }
