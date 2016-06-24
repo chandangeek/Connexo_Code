@@ -18,7 +18,9 @@ Ext.define('Uni.property.view.property.MetrologyConfigurationOutputs', {
                 }
             });
 
-        store.load();
+        store.load(function () {
+            me.getField().getSelectionModel().selectAll();
+        });
 
         return [
             {
@@ -50,7 +52,7 @@ Ext.define('Uni.property.view.property.MetrologyConfigurationOutputs', {
     },
 
     getField: function () {
-        return this.down('numberfield');
+        return this.down('grid');
     },
 
     setValue: function (value) {
@@ -59,7 +61,7 @@ Ext.define('Uni.property.view.property.MetrologyConfigurationOutputs', {
     getValue: function () {
         var me = this;
 
-        return _.map(me.down('grid').getSelectionModel().getSelection(), function (record) {
+        return _.map(me.getField().getSelectionModel().getSelection(), function (record) {
             return record.getId();
         });
     },
