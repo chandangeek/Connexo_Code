@@ -10,6 +10,7 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.upgrade.InstallIdentifier;
+import com.elster.jupiter.upgrade.UpgradeCheckList;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.util.exception.MessageSeed;
 
@@ -79,7 +80,7 @@ public class DeviceDataImporterMessageHandler implements MessageHandlerFactory, 
                 bind(MessageService.class).toInstance(messageService);
             }
         });
-        upgradeService.register(InstallIdentifier.identifier(DeviceDataImporterMessageHandler.COMPONENT), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier("MultiSense", DeviceDataImporterMessageHandler.COMPONENT), dataModel, Installer.class, Collections.emptyMap());
     }
 
     @Reference
@@ -95,6 +96,11 @@ public class DeviceDataImporterMessageHandler implements MessageHandlerFactory, 
     @Reference
     public void setUpgradeService(UpgradeService upgradeService) {
         this.upgradeService = upgradeService;
+    }
+
+    @Reference(target = "(com.elster.jupiter.checklist=MultiSense)")
+    public void setCheckList(UpgradeCheckList upgradeCheckList) {
+        // just explicitly depend
     }
 
     @Override
