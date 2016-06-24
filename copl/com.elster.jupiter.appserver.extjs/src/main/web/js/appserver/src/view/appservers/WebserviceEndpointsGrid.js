@@ -34,7 +34,7 @@ Ext.define('Apr.view.appservers.WebserviceEndpointsGrid', {
             },
             {
                 header: Uni.I18n.translate('general.status', 'APR', 'Status'),
-                dataIndex: 'isActive',
+                dataIndex: 'active',
                 flex: 1,
                 renderer: function (value) {
                     if (value) {
