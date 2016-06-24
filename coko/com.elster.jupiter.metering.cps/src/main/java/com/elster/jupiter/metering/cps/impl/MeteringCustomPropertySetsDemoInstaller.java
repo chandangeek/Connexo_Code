@@ -106,7 +106,7 @@ public class MeteringCustomPropertySetsDemoInstaller implements TranslationKeyPr
             }
         });
 
-        upgradeService.register(InstallIdentifier.identifier("CPM"), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier("Example", "CPM"), dataModel, Installer.class, Collections.emptyMap());
     }
 
     Map<String, CustomPropertySet>  registerCustomPropertySets() {
