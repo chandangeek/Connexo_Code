@@ -43,7 +43,9 @@ Ext.define('Mdc.property.UsagePoint', {
                     return Ext.widget('container', {
                         id: list.id + '-paging-toolbar',
                         bindStore: function(store) {
-                            store.on('load', list.refresh.bind(list));
+                            if (store) {
+                                store.on('load', list.refresh.bind(list));
+                            }
                         },
                         cls: Ext.baseCSSPrefix + 'boundlist-item combo-limit-notification',
                         html: Uni.I18n.translate('general.combobox.narrow', 'MDC', 'Keep typing to narrow down'),

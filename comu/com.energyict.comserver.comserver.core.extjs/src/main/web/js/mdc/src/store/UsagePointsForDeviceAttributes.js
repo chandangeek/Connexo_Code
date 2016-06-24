@@ -1,7 +1,10 @@
 Ext.define('Mdc.store.UsagePointsForDeviceAttributes',{
     extend: 'Ext.data.Store',
     autoLoad: false,
-    fields: ['id', 'mRID'],
+    fields: [
+        {name: 'id', type: 'int', useNull: true},
+        {name: 'mRID', type: 'string'}
+    ],
     pageSize: 50,
 
     proxy: {
