@@ -173,7 +173,7 @@ public class TimeServiceImpl implements TimeService, TranslationKeyProvider, Mes
     @Activate
     public void activate() {
         dataModel.register(getModule());
-        upgradeService.register(InstallIdentifier.identifier(COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier("Pulse", COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
     }
 
     @Override
