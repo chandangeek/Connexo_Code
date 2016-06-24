@@ -9,6 +9,7 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.Optional;
 
 public class TaskContentInfo {
 
@@ -25,7 +26,7 @@ public class TaskContentInfo {
 
     }
 
-    public TaskContentInfo(JSONObject field,JSONObject content, JSONObject outputContent, String status){
+    public TaskContentInfo(JSONObject field, Optional<JSONObject> content, Optional<JSONObject> outputContent, String status) {
         try {
             key = field.getString("type") + field.getString("id");
             JSONArray arr = field.getJSONArray("properties");
@@ -62,8 +63,8 @@ public class TaskContentInfo {
                         }
                     }
                     if(prop.getString("name").equals("inputBinding")){
-                        if(!prop.getString("value").equals("")) {
-                            setDefaultValueBinding(prop.getString("value"), content, field);
+                        if (!prop.getString("value").equals("") && content.isPresent()) {
+                            setDefaultValueBinding(prop.getString("value"), content.get(), field);
                         }
                     }
                     if(prop.getString("name").equals("outputBinding")){
@@ -71,8 +72,8 @@ public class TaskContentInfo {
                             if(Arrays.asList("deviceid", "usagepointid", "issueid").contains(prop.getString("value").toLowerCase())){
                                 isVisible = false;
                             }else {
-                                if (outputContent != null) {
-                                    setDefaultValueBinding(prop.getString("value"), outputContent, field);
+                                if (outputContent.isPresent()) {
+                                    setDefaultValueBinding(prop.getString("value"), outputContent.get(), field);
                                 }
                                 outputBinding = prop.getString("value");
                             }

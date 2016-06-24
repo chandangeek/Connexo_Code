@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class TaskContentInfos {
 
@@ -23,22 +24,25 @@ public class TaskContentInfos {
     public String processName;
     public String processVersion;
 
+    public TaskContentInfos() {
+    }
+
     public TaskContentInfos(JSONObject obj) throws JSONException {
         addAll(obj);
     }
 
     private void addAll(JSONObject obj) throws JSONException {
         status = obj.getString("taskStatus");
-        JSONArray contentProperties = obj.getJSONArray("fields");
-        JSONObject content = obj.getJSONObject("content");
-        JSONObject outputContent = obj.getJSONObject("outContent");
-        if (outputContent != null) {
-            setOutputContent(outputContent);
+        Optional<JSONArray> fields = obj.isNull("fields") ? Optional.empty() : Optional.of(obj.getJSONArray("fields"));
+        Optional<JSONObject> content = obj.isNull("content") ? Optional.empty() : Optional.of(obj.getJSONObject("content"));
+        Optional<JSONObject> outContent = obj.isNull("outContent") ? Optional.empty() : Optional.of(obj.getJSONObject("outContent"));
+        if (outContent.isPresent()) {
+            setOutputContent(outContent.get());
         }
-        if (contentProperties != null) {
-            for(int i = 0; i < contentProperties.length(); i++) {
-                JSONObject prop = contentProperties.getJSONObject(i);
-                TaskContentInfo result = new TaskContentInfo(prop, content, outputContent, status);
+        if (fields.isPresent()) {
+            for (int i = 0; i < fields.get().length(); i++) {
+                JSONObject field = fields.get().getJSONObject(i);
+                TaskContentInfo result = new TaskContentInfo(field, content, outContent, status);
                 if(result.isVisible){
                     properties.add(result);
                 }
@@ -46,12 +50,12 @@ public class TaskContentInfos {
         }
     }
 
-    private void setOutputContent(JSONObject outputContent){
-        Iterator<?> keys = outputContent.keys();
+    private void setOutputContent(JSONObject outContent) {
+        Iterator<?> keys = outContent.keys();
         while( keys.hasNext() ) {
             String key = (String)keys.next();
             try {
-                this.outputContent.put(key, outputContent.get(key));
+                this.outputContent.put(key, outContent.get(key));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
