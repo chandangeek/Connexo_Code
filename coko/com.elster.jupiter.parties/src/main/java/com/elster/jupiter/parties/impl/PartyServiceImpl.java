@@ -81,7 +81,7 @@ public class PartyServiceImpl implements PartyService {
     public void activate() {
         dataModel.register(getModule());
 
-        upgradeService.register(identifier(COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(identifier("Pulse", COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
     }
 
     @Override
