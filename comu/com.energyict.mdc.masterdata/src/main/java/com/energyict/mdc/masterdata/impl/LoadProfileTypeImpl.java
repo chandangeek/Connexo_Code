@@ -1,6 +1,7 @@
 package com.energyict.mdc.masterdata.impl;
 
 import com.elster.jupiter.cbo.Commodity;
+import com.elster.jupiter.cbo.MeasurementKind;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
@@ -117,11 +118,15 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
     }
 
     private boolean commodityIsCompatible(RegisterType registerType) {
-        return loadProfileCompatibleCommodities().contains(registerType.getReadingType().getCommodity());
+        return isItADataLoggerPulseReadingType(registerType) || loadProfileCompatibleCommodities().contains(registerType.getReadingType().getCommodity());
     }
 
     private Set<Commodity> loadProfileCompatibleCommodities() {
         return EnumSet.complementOf(EnumSet.of(Commodity.NOTAPPLICABLE, Commodity.COMMUNICATION, Commodity.DEVICE));
+    }
+
+    private boolean isItADataLoggerPulseReadingType(RegisterType registerType) {
+        return registerType.getReadingType().getMeasurementKind().equals(MeasurementKind.RELAYCYCLE);
     }
 
     static LoadProfileTypeImpl from(DataModel dataModel, String name, ObisCode obisCode, TimeDuration interval, Collection<RegisterType> registerTypes) {
