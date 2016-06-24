@@ -123,6 +123,11 @@ public class DisconnectRequestCustomPropertySet implements CustomPropertySet<Ser
         private final String FK = "FK_SCS_CPS_DR";
 
         @Override
+        public String application() {
+            return "MultiSense";
+        }
+
+        @Override
         public String componentName() {
             return "SCExamples2";
         }

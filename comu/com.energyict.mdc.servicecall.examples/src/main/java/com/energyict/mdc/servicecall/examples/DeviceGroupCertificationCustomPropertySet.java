@@ -111,6 +111,11 @@ public class DeviceGroupCertificationCustomPropertySet implements CustomProperty
         private final String FK = "FK_SCS_CPS_DEVGRP_CER";
 
         @Override
+        public String application() {
+            return "MultiSense";
+        }
+
+        @Override
         public String componentName() {
             return "DeviceGroupCertification";
         }

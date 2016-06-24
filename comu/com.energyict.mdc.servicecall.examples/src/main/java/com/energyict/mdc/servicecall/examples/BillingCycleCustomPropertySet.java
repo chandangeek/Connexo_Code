@@ -106,6 +106,11 @@ public class BillingCycleCustomPropertySet implements CustomPropertySet<ServiceC
         private final String FK = "FK_SCS_CPS_BC";
 
         @Override
+        public String application() {
+            return "MultiSense";
+        }
+
+        @Override
         public String componentName() {
             return "SCExamples1";
         }

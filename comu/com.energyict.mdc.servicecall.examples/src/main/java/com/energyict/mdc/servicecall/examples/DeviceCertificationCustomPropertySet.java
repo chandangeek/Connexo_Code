@@ -111,6 +111,11 @@ public class DeviceCertificationCustomPropertySet implements CustomPropertySet<S
         private final String FK = "FK_SCS_CPS_DEV_CER";
 
         @Override
+        public String application() {
+            return "MultiSense";
+        }
+
+        @Override
         public String componentName() {
             return "DeviceCertification";
         }
