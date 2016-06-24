@@ -780,7 +780,9 @@ public final class ChannelImpl implements ChannelContract {
         timeSeries.get().removeEntries(Ranges.copy(instant).withOpenLowerBound());
         dataModel.mapper(ReadingQualityRecord.class).remove(qualities.values().stream().flatMap(Collection::stream).collect(Collectors.toList()));
         qualities.values().stream().flatMap(Collection::stream).map(ReadingQualityRecordImpl.class::cast).forEach(ReadingQualityRecordImpl::notifyDeleted);
-        eventService.postEvent(EventType.READINGS_DELETED.topic(), new ReadingsDeletedEventImpl(this, readingTimes));
+        if (!readingTimes.isEmpty()) {
+            eventService.postEvent(EventType.READINGS_DELETED.topic(), new ReadingsDeletedEventImpl(this, readingTimes));
+        }
         return meterReading;
     }
 
