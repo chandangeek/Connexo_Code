@@ -144,7 +144,7 @@ public class TaskServiceImpl implements ServerTaskService, MessageSeedProvider {
     public void activate() {
         dataModel.register(getModule());
 
-        upgradeService.register(InstallIdentifier.identifier(TaskService.COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier("MultiSense", TaskService.COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
     }
 
     @Override
