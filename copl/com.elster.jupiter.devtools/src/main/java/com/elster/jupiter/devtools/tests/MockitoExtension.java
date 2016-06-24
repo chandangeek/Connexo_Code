@@ -30,9 +30,11 @@ public class MockitoExtension {
             InvocationMatcher matcher = verificationData.getWanted();
             Object verifiedMock = matcher.getInvocation().getMock();
             Method verifiedMethod = matcher.getMethod();
+            ArgumentsComparator comparator = new ArgumentsComparator();
             String badInvocations = verificationData.getAllInvocations().stream()
                     .filter(invocation -> invocation.getMethod().equals(verifiedMethod)
-                            && verifiedMock.equals(invocation.getMock()) && !new ArgumentsComparator().argumentsMatch(matcher, invocation))
+                            && invocation.getMock().equals(verifiedMock)
+                            && !comparator.argumentsMatch(matcher, invocation))
                     .map(Invocation::getLocation)
                     .map(Location::toString)
                     .collect(Collectors.joining(separator));
