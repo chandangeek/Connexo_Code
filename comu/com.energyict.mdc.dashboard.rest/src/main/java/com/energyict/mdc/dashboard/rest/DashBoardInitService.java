@@ -34,7 +34,7 @@ public class DashBoardInitService {
                 bind(UserService.class).toInstance(userService);
             }
         });
-        upgradeService.register(InstallIdentifier.identifier("DSI"), dataModel, DashboardApplicationInstaller.class, ImmutableMap.of(version(10, 2), UpgraderV10_2.class));
+        upgradeService.register(InstallIdentifier.identifier("MultiSense", "DSI"), dataModel, DashboardApplicationInstaller.class, ImmutableMap.of(version(10, 2), UpgraderV10_2.class));
     }
 
 
