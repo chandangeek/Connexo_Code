@@ -30,6 +30,7 @@ import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
 import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 import static com.elster.jupiter.orm.Table.SHORT_DESCRIPTION_LENGTH;
+import static com.elster.jupiter.orm.Version.version;
 
 public enum TableSpecs {
 
@@ -111,7 +112,8 @@ public enum TableSpecs {
             table.map(ChannelsContainerValidationImpl.class);
             Column idColumn = table.addAutoIdColumn();
             Column ruleSetColumn = table.column("RULESETID").number().conversion(NUMBER2LONG).add();
-            Column channelContainer = table.column("CHANNEL_CONTAINER").number().conversion(NUMBER2LONG).add();
+            Column meterActivationColumn = table.column("METERACTIVATIONID").number().conversion(NUMBER2LONG).upTo(version(10, 2)).add();
+            Column channelContainer = table.column("CHANNEL_CONTAINER").number().conversion(NUMBER2LONG).since(version(10, 2)).previously(meterActivationColumn).add();
             table.column("LASTRUN").number().conversion(NUMBER2INSTANT).map("lastRun").add();
             table.column("ACTIVE").bool().map("active").add();
             Column obsoleteColumn = table.column("OBSOLETETIME").number().conversion(NUMBER2INSTANT).map("obsoleteTime").add();
@@ -154,12 +156,12 @@ public enum TableSpecs {
             table.column("VALIDATEONSTORAGE").bool().map("validateOnStorage").add();
             table.primaryKey("VAL_PK_MA_METER_VALIDATION").on(meterId).add();
             table
-                .foreignKey("VAL_FK_MA_METER_VALIDATION")
-                .references(EndDevice.class)
-                .onDelete(RESTRICT)
-                .map("meter")
-                .on(meterId)
-                .add();
+                    .foreignKey("VAL_FK_MA_METER_VALIDATION")
+                    .references(EndDevice.class)
+                    .onDelete(RESTRICT)
+                    .map("meter")
+                    .on(meterId)
+                    .add();
         }
     },
 
@@ -174,11 +176,11 @@ public enum TableSpecs {
             table.foreignKey("VAL_FK_RTYPEINVALRULE_RULE").references(VAL_VALIDATIONRULE.name()).onDelete(DeleteRule.CASCADE).map("rule").reverseMap("readingTypesInRule").composition()
                     .on(ruleIdColumn).add();
             table
-                .foreignKey("VAL_FK_RTYPEINVALRULE_RTYPE")
-                .references(ReadingType.class)
-                .onDelete(RESTRICT)
-                .map("readingType")
-                .on(readingTypeMRIDColumn).add();
+                    .foreignKey("VAL_FK_RTYPEINVALRULE_RTYPE")
+                    .references(ReadingType.class)
+                    .onDelete(RESTRICT)
+                    .map("readingType")
+                    .on(readingTypeMRIDColumn).add();
         }
     },
     VAL_DATAVALIDATIONTASK {
@@ -238,6 +240,7 @@ public enum TableSpecs {
 
         }
     };
+
     abstract void addTo(DataModel component);
 
 }

@@ -363,6 +363,7 @@ public class ValidationServiceImplTest {
         }).when(dataModel).persist(any(ChannelsContainerValidation.class));
 
         ValidationRuleSet validationRuleSet = mock(IValidationRuleSet.class);
+        when(validationRuleSet.getQualityCodeSystem()).thenReturn(QualityCodeSystem.OTHER);
         ValidationRule validationRule = mock(IValidationRule.class);
         doReturn(Collections.singleton(readingType)).when(validationRule).getReadingTypes();
         doReturn(Arrays.asList(validationRule)).when(validationRuleSet).getRules(anyList());
@@ -434,7 +435,7 @@ public class ValidationServiceImplTest {
         when(validationRuleSetResolver.resolve(eq(channelsContainer))).thenReturn(Arrays.asList(validationRuleSet));
         validationService.validate(Collections.emptySet(), channelsContainer);
 
-        List<ChannelsContainerValidation> channelsContainerValidations = validationService.getUpdatedChannelsContainerValidations(channelsContainer, EnumSet.of(QualityCodeSystem.MDC, QualityCodeSystem.MDM));
+        List<ChannelsContainerValidation> channelsContainerValidations = validationService.getUpdatedChannelsContainerValidations(EnumSet.of(QualityCodeSystem.MDC, QualityCodeSystem.MDM), channelsContainer);
         assertThat(channelsContainerValidations).hasSize(1);
         assertThat(channelsContainerValidations.get(0).getChannelsContainer()).isEqualTo(channelsContainer);
         assertThat(channelsContainerValidations.get(0).getRuleSet()).isEqualTo(validationRuleSet);
@@ -445,7 +446,7 @@ public class ValidationServiceImplTest {
 
         when(validationRuleSetResolver.resolve(eq(channelsContainer))).thenReturn(Arrays.asList(validationRuleSet, validationRuleSet2));
         validationService.validate(Collections.emptySet(), channelsContainer);
-        channelsContainerValidations = validationService.getUpdatedChannelsContainerValidations(channelsContainer, EnumSet.of(QualityCodeSystem.MDC, QualityCodeSystem.MDM));
+        channelsContainerValidations = validationService.getUpdatedChannelsContainerValidations(EnumSet.of(QualityCodeSystem.MDC, QualityCodeSystem.MDM), channelsContainer);
         assertThat(channelsContainerValidations).hasSize(2);
         assertThat(channelsContainerValidations.get(0).getChannelsContainer()).isEqualTo(channelsContainer);
         assertThat(channelsContainerValidations.get(1).getChannelsContainer()).isEqualTo(channelsContainer);
@@ -453,7 +454,7 @@ public class ValidationServiceImplTest {
 
         when(validationRuleSetResolver.resolve(eq(channelsContainer))).thenReturn(Arrays.asList(validationRuleSet2));
         validationService.validate(Collections.emptySet(), channelsContainer);
-        channelsContainerValidations = validationService.getUpdatedChannelsContainerValidations(channelsContainer, EnumSet.of(QualityCodeSystem.MDC, QualityCodeSystem.MDM));
+        channelsContainerValidations = validationService.getUpdatedChannelsContainerValidations(EnumSet.of(QualityCodeSystem.MDC, QualityCodeSystem.MDM), channelsContainer);
         assertThat(channelsContainerValidations).hasSize(1);
         assertThat(channelsContainerValidations.get(0).getChannelsContainer()).isEqualTo(channelsContainer);
         assertThat(channelsContainerValidations.get(0).getRuleSet()).isEqualTo(validationRuleSet2);

@@ -108,7 +108,7 @@ class ValidationEvaluatorForMeter extends AbstractValidationEvaluator {
     private ImmutableMap<Long, ChannelsContainerValidationList> initChannelContainerMap(ValidationServiceImpl validationService, Meter meter) {
         ImmutableMap.Builder<Long, ChannelsContainerValidationList> validationMapBuilder = ImmutableMap.builder();
         for (ChannelsContainer channelsContainer : meter.getChannelsContainers()) {
-            ChannelsContainerValidationList container = validationService.updatedChannelsContainerValidationsFor(channelsContainer, Collections.emptySet());
+            ChannelsContainerValidationList container = validationService.updatedChannelsContainerValidationsFor(Collections.emptySet(), channelsContainer);
             validationMapBuilder.put(channelsContainer.getId(), container);
         }
         return validationMapBuilder.build();
