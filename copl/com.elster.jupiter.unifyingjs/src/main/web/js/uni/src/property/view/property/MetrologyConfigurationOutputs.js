@@ -3,19 +3,6 @@ Ext.define('Uni.property.view.property.MetrologyConfigurationOutputs', {
 
     msgTarget: 'under',
 
-    deliverablesStore: Ext.create('Ext.data.Store', {
-        fields: ['name', 'readingType'],
-        proxy: {
-            proxy: {
-                type: 'rest',
-                reader: {
-                    type: 'json',
-                    root: 'deliverables'
-                }
-            }
-        }
-    }),
-
     listeners: {
         afterrender: {
             fn: function () {
@@ -27,6 +14,24 @@ Ext.define('Uni.property.view.property.MetrologyConfigurationOutputs', {
                 });
             }
         }
+    },
+
+    initComponent: function () {
+        var me = this;
+
+        me.callParent(arguments);
+        me.deliverablesStore = Ext.create('Ext.data.Store', {
+            fields: ['name', 'readingType'],
+            proxy: {
+                proxy: {
+                    type: 'rest',
+                    reader: {
+                        type: 'json',
+                        root: 'deliverables'
+                    }
+                }
+            }
+        });
     },
 
     getEditCmp: function () {
