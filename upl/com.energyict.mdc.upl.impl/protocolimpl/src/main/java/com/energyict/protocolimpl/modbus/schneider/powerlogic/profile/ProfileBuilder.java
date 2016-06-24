@@ -27,6 +27,7 @@ public class ProfileBuilder {
     BigDecimal numberOfRecords = null;
     BigDecimal referenceNo = null;
     BigDecimal lastRecord = null;
+    BigDecimal firstRecord = null;
     AbstractRegister loadProfileRecordItem1 = null;
 
     public ProfileBuilder(PM5561 protocol) {
@@ -47,6 +48,9 @@ public class ProfileBuilder {
     }
 
     public ProfileData getProfileData(Date from, Date to, boolean generateEvents) throws IOException {
+        if(firstRecord == null) {
+            firstRecord = (BigDecimal) protocol.getRegisterFactory().findRegister(PM5561RegisterFactory.LOAD_PROFILE_FIRST_RECORD).value();
+        }
         List<ProfileBlock> profileDataBlocks = new ArrayList<ProfileBlock>();
 
         profileDataBlocks.add(getLastProfileBlock());
@@ -60,9 +64,8 @@ public class ProfileBuilder {
         if(loadProfileRecordItem1 == null) {
             loadProfileRecordItem1 = protocol.getRegisterFactory().findRegister(PM5561RegisterFactory.LOAD_PROFILE_RECORD_ITEM1);
         }
-        int index = 0;
-        while (from.before(profileBlock.getOldestProfileRecordDate()) && index < 50) {
-            ReadGeneralReferenceRequest readGeneralReferenceRequest = loadProfileRecordItem1.getReadGeneralReferenceRequest(referenceNo.longValue() + index++);
+       for (int index = firstRecord.intValue(); index < lastRecord.intValue(); index++) {
+            ReadGeneralReferenceRequest readGeneralReferenceRequest = loadProfileRecordItem1.getReadGeneralReferenceRequest(referenceNo.intValue() + index++);
             profileBlock = new ProfileBlock(readGeneralReferenceRequest.getValues(), REGULAR_NUMBER_OF_CHANNELS);
             profileDataBlocks.add(profileBlock);
         }
@@ -86,11 +89,11 @@ public class ProfileBuilder {
     }
 
     private ProfileBlock getLastProfileBlock() throws IOException {
+        if(lastRecord == null) {
+            lastRecord = (BigDecimal) protocol.getRegisterFactory().findRegister(PM5561RegisterFactory.LOAD_PROFILE_LAST_RECORD).value();
+        }
         if (this.lastProfileBlock == null) {
-            if(lastRecord == null) {
-                lastRecord = (BigDecimal) protocol.getRegisterFactory().findRegister(PM5561RegisterFactory.LOAD_PROFILE_LAST_RECORD).value();
-            }
-            ReadGeneralReferenceRequest readGeneralReferenceRequest = protocol.getRegisterFactory().findRegister(PM5561RegisterFactory.LOAD_PROFILE_RECORD_ITEM1).getReadGeneralReferenceRequest(lastRecord.longValue());
+            ReadGeneralReferenceRequest readGeneralReferenceRequest = protocol.getRegisterFactory().findRegister(PM5561RegisterFactory.LOAD_PROFILE_RECORD_ITEM1).getReadGeneralReferenceRequest(lastRecord.intValue());
             this.lastProfileBlock = new ProfileBlock(readGeneralReferenceRequest.getValues(), REGULAR_NUMBER_OF_CHANNELS);
         }
         return this.lastProfileBlock;

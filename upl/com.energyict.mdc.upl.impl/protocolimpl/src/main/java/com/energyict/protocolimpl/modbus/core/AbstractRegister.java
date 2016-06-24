@@ -121,7 +121,7 @@ public class AbstractRegister {
 		}
     }
 
-    public ReadGeneralReferenceRequest getReadGeneralReferenceRequest(long referenceSpec) throws IOException {
+    public ReadGeneralReferenceRequest getReadGeneralReferenceRequest(int referenceSpec) throws IOException {
         try {
             final ReadGeneralReferenceRequest request = getRegisterFactory().getFunctionCodeFactory().readGeneralReferenceRequest(referenceSpec);
             return request;
