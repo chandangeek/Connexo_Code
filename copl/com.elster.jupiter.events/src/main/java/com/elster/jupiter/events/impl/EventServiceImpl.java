@@ -177,6 +177,7 @@ public class EventServiceImpl implements EventService, MessageSeedProvider {
 
     @Override
     public List<EventType> getEventTypes() {
+        // check if dataModel is installed because this method can be/us called before the install is run
         return eventTypeFactory().find();
     }
 
