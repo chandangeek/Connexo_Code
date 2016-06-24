@@ -39,8 +39,7 @@ Ext.define('Imt.processes.controller.MonitorProcesses', {
                         variableId: 'usagePointId',
                         name: 'usagePoint',
                         value:  usagePoint.get('id'),
-                        route: Dbp.privileges.DeviceProcesses.canAssignOrExecute() ? 'workspace/tasks/performTask' : null,
-                        context: usagePoint.metrologyConfiguration
+                        route: Dbp.privileges.DeviceProcesses.canAssignOrExecute() ? 'workspace/tasks/performTask' : null
                     }
                 });
                 me.getApplication().fireEvent('changecontentevent', widget);
@@ -92,7 +91,7 @@ Ext.define('Imt.processes.controller.MonitorProcesses', {
                         ],
                         successLink: router.getRoute('usagepoints/view/processes').buildUrl({usagePointId: mRID}),
                         cancelLink: router.getRoute('usagepoints/view').buildUrl({usagePointId: mRID}),
-                        context: usagePoint.metrologyConfiguration
+                        context: usagePoint.get('metrologyConfiguration')
                     }
                 });
                 me.getApplication().fireEvent('changecontentevent', widget);
