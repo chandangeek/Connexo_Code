@@ -46,21 +46,16 @@ Ext.define('Mdc.view.setup.messages.MessagesGrid', {
                     new Ext.button.Button({
                         renderTo: Ext.query('#' + id)[0],
                         name: 'messageInfoIcon',
-                        iconCls: 'icon-info-small',
-                        cls: 'uni-btn-transparent',
-                        record: record,
-                        style: {
-                            width: '16px',
-                            display: 'inline-block',
-                            textDecoration: 'none !important'
-                        }
+                        text: '<span class="icon-info" style="display:inline-block; color:#A9A9A9; font-size:16px;"></span>',
+                        ui: 'blank',
+                        record: record
                     });
                 }, 10);
 
-                result = result.length > 0 ?
-                    result + Ext.String.format('<span style="margin: 0 0 0 20px; padding: 0;" id="{0}"></span>', id) : result;
-
-                return result;
+                if (result.length > 0) {
+                    result += Ext.String.format('<span style="margin-left:7px; padding:0;" id="{0}"></span>', id);
+                }
+                return Ext.isEmpty(result) ? '-' : result;
             }
         },
         {
