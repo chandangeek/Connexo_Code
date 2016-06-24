@@ -14,6 +14,7 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointDetailBuilder;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.imports.impl.properties.SupportedNumberFormat;
 import com.elster.jupiter.metering.imports.impl.usagepoint.UsagePointsImporterFactory;
 import com.elster.jupiter.nls.NlsMessageFormat;
@@ -79,6 +80,9 @@ public class UsagePointProcessorForMultisenseTest {
 
     @Mock
     MeteringService meteringService;
+
+    @Mock
+    MetrologyConfigurationService metrologyConfigurationService;
 
     @Mock
     CustomPropertySetService customPropertySetService;
@@ -283,7 +287,7 @@ public class UsagePointProcessorForMultisenseTest {
 
 
     private FileImporter createUsagePointImporter() {
-        UsagePointsImporterFactory factory = new UsagePointsImporterFactory(context);
+        UsagePointsImporterFactory factory = new UsagePointsImporterFactory(context, metrologyConfigurationService);
         Map<String, Object> properties = new HashMap<>();
         properties.put(DataImporterProperty.DELIMITER.getPropertyKey(), ";");
         properties.put(DataImporterProperty.DATE_FORMAT.getPropertyKey(), "dd/MM/yyyy HH:mm");
