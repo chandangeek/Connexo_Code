@@ -86,7 +86,7 @@ Ext.define('Mdc.view.setup.devicechannels.PreviewForm', {
                                     fieldLabel: Uni.I18n.translate('deviceloadprofiles.loadProfile', 'MDC', 'Load profile'),
                                     name: 'loadProfileId',
                                     renderer: function (value) {
-                                        var res = '',
+                                        var res = '-',
                                             device;
                                         if (value instanceof Mdc.model.LoadProfileOfDevice) {
                                             var url = me.router.getRoute('devices/device/loadprofiles/loadprofiledata').buildUrl({

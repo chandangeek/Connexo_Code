@@ -18,14 +18,20 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
     initComponent: function () {
         var me = this;
         me.columns = [
-            { header: Uni.I18n.translate('validation.validationRule', 'MDC', 'Validation rule'), dataIndex: 'name', flex: 1,
+            {
+                header: Uni.I18n.translate('validation.validationRule', 'MDC', 'Validation rule'),
+                dataIndex: 'name',
+                flex: 1,
                 renderer: function (value, b, record) {					
 					return '<a href="#/administration/validation/rulesets/' + record.get('ruleSetId') 
                         + '/versions/' + record.get('ruleSetVersionId') 
                         + '/rules/' + record.getId() + '">' +  Ext.String.htmlEncode(value) + '</a>';
                 }
             },
-            { header: Uni.I18n.translate('general.status', 'MDC', 'Status'), dataIndex: 'active', flex: 1,
+            {
+                header: Uni.I18n.translate('general.status', 'MDC', 'Status'),
+                dataIndex: 'active',
+                flex: 1,
                 renderer: function (value) {
                     if (value) {
                         return Uni.I18n.translate('general.active', 'MDC', 'Active')
@@ -46,8 +52,7 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
 							return '<a href="#/administration/validation/rulesets/' + ruleSet.id + '">' + Ext.String.htmlEncode(ruleSet.name) + '</a>';
 						}
 					}
-                    
-                    return '';
+                    return '-';
                 },
                 flex: 1
             },

@@ -50,11 +50,7 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.IndividualCommunicationSc
                     flex: 1,
                     dataIndex: 'plannedDate',
                     renderer: function (value) {
-                        if (value !== null) {
-                            return Uni.DateTime.formatDateTimeShort(new Date(value));
-                        } else {
-                            return '';
-                        }
+                        return Ext.isEmpty(value) ? '-' : Uni.DateTime.formatDateTimeShort(new Date(value));
                     }
                 },
                 {
@@ -86,28 +82,10 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.IndividualCommunicationSc
         }
     ],
     initComponent: function () {
-        var me = this;
-//        this.columns = [
-//            {
-//                header: Uni.I18n.translate('general.name', 'MDC', 'Name'),
-//                dataIndex: 'name',
-//                flex: 3
-//            },
-//            {
-//                header: Uni.I18n.translate('deviceCommunicationSchedules.status', 'MDC', 'Version'),
-//                dataIndex: 'deviceProtocolVersion',
-//                flex: 2
-//            },
-//
-//            {
-//                xtype: 'uni-actioncolumn'
-////                items:'Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtocolActionMenu'
-//            }
-
-//        ];
-          var store = Ext.create('Ext.data.Store',{
-                    model: 'Mdc.model.DeviceSchedule',
-                    data: this.individual
+        var me = this,
+            store = Ext.create('Ext.data.Store', {
+                model: 'Mdc.model.DeviceSchedule',
+                data: this.individual
             });
         this.callParent();
         this.down('#individualComtaskGrid').reconfigure(store);
