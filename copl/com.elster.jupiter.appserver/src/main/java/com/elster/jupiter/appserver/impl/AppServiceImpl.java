@@ -299,14 +299,14 @@ public class AppServiceImpl implements IAppService, Subscriber, TranslationKeyPr
                     String msg = "Stopping WebService " + endPointConfiguration.getWebServiceName() + " with config " + endPointConfiguration
                             .getName() + " on application server " + appServer.get().getName();
                     LOGGER.info(msg);
-                    webServicesService.removeEndPoint(endPointConfiguration);
                     endPointConfiguration.log(LogLevel.FINE, msg);
+                    webServicesService.removeEndPoint(endPointConfiguration);
                 } else if (!published && shouldBePublished) {
                     String msg = "Publishing WebService " + endPointConfiguration.getWebServiceName() + " with config " + endPointConfiguration
                             .getName() + " on application server " + appServer.get().getName();
                     LOGGER.info(msg);
-                    webServicesService.publishEndPoint(endPointConfiguration);
                     endPointConfiguration.log(LogLevel.FINE, msg);
+                    webServicesService.publishEndPoint(endPointConfiguration);
                 }
             }
         }
