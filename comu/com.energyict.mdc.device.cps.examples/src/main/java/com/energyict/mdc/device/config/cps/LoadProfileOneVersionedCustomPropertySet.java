@@ -124,6 +124,11 @@ public class LoadProfileOneVersionedCustomPropertySet implements CustomPropertyS
 
     private static class LoadProfileOneVersionedPeristenceSupport implements PersistenceSupport<ChannelSpec, LoadProfileOneVersionedDomainExtension> {
         @Override
+        public String application() {
+            return "Example";
+        }
+
+        @Override
         public String componentName() {
             return "RVK6";
         }

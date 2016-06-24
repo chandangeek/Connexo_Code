@@ -123,6 +123,11 @@ public class RegisterTypeFiveCustomPropertySet implements CustomPropertySet<Regi
 
     private static class RegisterTypeFivePeristenceSupport implements PersistenceSupport<RegisterSpec, RegisterTypeFiveDomainExtension> {
         @Override
+        public String application() {
+            return "Example";
+        }
+
+        @Override
         public String componentName() {
             return "RVK10";
         }

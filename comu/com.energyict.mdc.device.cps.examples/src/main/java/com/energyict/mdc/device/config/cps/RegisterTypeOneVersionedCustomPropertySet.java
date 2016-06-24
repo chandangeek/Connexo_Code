@@ -137,6 +137,11 @@ public class RegisterTypeOneVersionedCustomPropertySet implements CustomProperty
 
     private static class RegisterTypeOneVersionedPeristenceSupport implements PersistenceSupport<RegisterSpec, RegisterTypeOneVersionedDomainExtension> {
         @Override
+        public String application() {
+            return "Example";
+        }
+
+        @Override
         public String componentName() {
             return "RVK12";
         }

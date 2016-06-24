@@ -124,6 +124,11 @@ public class LoadProfileTwoVersionedCustomPropertySet implements CustomPropertyS
 
     private static class LoadProfileTwoVersionedPeristenceSupport implements PersistenceSupport<ChannelSpec, LoadProfileTwoVersionedDomainExtension> {
         @Override
+        public String application() {
+            return "Example";
+        }
+
+        @Override
         public String componentName() {
             return "RVK7";
         }

@@ -125,6 +125,11 @@ public class DeviceTypeTwoCustomPropertySet implements CustomPropertySet<Device,
 
     private static class DeviceTwoPeristenceSupport implements PersistenceSupport<Device, DeviceTypeTwoDomainExtension> {
         @Override
+        public String application() {
+            return "Example";
+        }
+
+        @Override
         public String componentName() {
             return "RVK4";
         }

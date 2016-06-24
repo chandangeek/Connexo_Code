@@ -137,6 +137,11 @@ public class RegisterTypeTwoVersionedCustomPropertySet implements CustomProperty
 
     private static class RegisterTypeTwoVersionedPeristenceSupport implements PersistenceSupport<RegisterSpec, RegisterTypeTwoVersionedDomainExtension> {
         @Override
+        public String application() {
+            return "Example";
+        }
+
+        @Override
         public String componentName() {
             return "RVK13";
         }

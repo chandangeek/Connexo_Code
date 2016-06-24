@@ -137,6 +137,11 @@ public class DeviceTypeOneCustomPropertySet implements CustomPropertySet<Device,
 
     private static class DeviceOnePeristenceSupport implements PersistenceSupport<Device, DeviceTypeOneDomainExtension> {
         @Override
+        public String application() {
+            return "Example";
+        }
+
+        @Override
         public String componentName() {
             return "RVK1";
         }

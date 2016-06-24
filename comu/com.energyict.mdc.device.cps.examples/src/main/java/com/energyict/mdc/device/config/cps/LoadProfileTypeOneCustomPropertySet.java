@@ -124,6 +124,11 @@ public class LoadProfileTypeOneCustomPropertySet implements CustomPropertySet<Ch
 
     private static class LoadProfileTypeOnePeristenceSupport implements PersistenceSupport<ChannelSpec, LoadProfileTypeOneDomainExtension> {
         @Override
+        public String application() {
+            return "Example";
+        }
+
+        @Override
         public String componentName() {
             return "RVK8";
         }
