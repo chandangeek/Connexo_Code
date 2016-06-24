@@ -545,6 +545,11 @@ public class ServiceCallTransitionIT {
         public PersistenceSupport<ServiceCall, MyExtension> getPersistenceSupport() {
             return new PersistenceSupport<ServiceCall, MyExtension>() {
                 @Override
+                public String application() {
+                    return "Example";
+                }
+
+                @Override
                 public String componentName() {
                     return "CST";
                 }
