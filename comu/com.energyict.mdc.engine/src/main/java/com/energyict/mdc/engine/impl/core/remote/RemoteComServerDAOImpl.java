@@ -639,7 +639,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
             lock.lock();
             try {
                 boolean timedOut = false;
-                while (!done || timedOut) {
+                while (!done || !timedOut) {
                     timedOut = !condition.await(timeout, unit);
                 }
                 return this.getValue();
