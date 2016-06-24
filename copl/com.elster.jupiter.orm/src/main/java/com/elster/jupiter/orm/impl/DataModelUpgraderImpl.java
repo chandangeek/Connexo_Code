@@ -25,11 +25,35 @@ public class DataModelUpgraderImpl implements DataModelUpgrader {
     private final SchemaInfoProvider schemaInfoProvider;
     private final OrmServiceImpl ormService;
     private final Logger logger;
+    private final State state;
 
-    public DataModelUpgraderImpl(SchemaInfoProvider schemaInfoProvider, OrmServiceImpl ormService, Logger logger) {
+    private interface State {
+        void handleSqlStatements(Statement statement, List<String> sqlStatements);
+
+    }
+
+    private static class PerformCautiousUpgrade implements State {
+        @Override
+        public void handleSqlStatements(Statement statement, List<String> sqlStatements) {
+            for (String each : sqlStatements) {
+                try {
+                    statement.execute(each);
+                } catch (SQLException sqe) {
+                    throw new UnderlyingSQLFailedException(sqe);
+                }
+            }
+        }
+    }
+
+    public static DataModelUpgrader forUpgrade(SchemaInfoProvider schemaInfoProvider, OrmServiceImpl ormService, Logger logger) {
+        return new DataModelUpgraderImpl(schemaInfoProvider, ormService, logger, new PerformCautiousUpgrade());
+    }
+
+    private DataModelUpgraderImpl(SchemaInfoProvider schemaInfoProvider, OrmServiceImpl ormService, Logger logger, State state) {
         this.schemaInfoProvider = schemaInfoProvider;
         this.ormService = ormService;
         this.logger = logger;
+        this.state = state;
     }
 
     @Override
@@ -164,14 +188,8 @@ public class DataModelUpgraderImpl implements DataModelUpgrader {
         }
     }
 
-    private void executeSqlStatements(Statement statement, List<String> sqlStatements) throws SQLException {
-        for (String each : sqlStatements) {
-            try {
-                statement.execute(each);
-            } catch (SQLException sqe) {
-                throw new SQLException("SQL error while executing '" + each + "' : " + sqe.getMessage(), sqe);
-            }
-        }
+    private void executeSqlStatements(Statement statement, List<String> sqlStatements) {
+        state.handleSqlStatements(statement, sqlStatements);
     }
 
 }
