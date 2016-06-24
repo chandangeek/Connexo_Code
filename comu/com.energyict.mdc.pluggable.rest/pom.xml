@@ -113,10 +113,6 @@
             <artifactId>org.osgi.compendium</artifactId>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>orm</artifactId>
-        </dependency>
 
         <!--INTEGRATION TESTS-->
         <dependency>
@@ -181,6 +177,11 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>estimation</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>orm</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
