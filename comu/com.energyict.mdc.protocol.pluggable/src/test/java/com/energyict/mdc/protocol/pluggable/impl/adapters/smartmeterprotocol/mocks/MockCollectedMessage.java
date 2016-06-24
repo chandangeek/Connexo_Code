@@ -7,6 +7,7 @@ import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +20,7 @@ import java.util.List;
 public class MockCollectedMessage implements CollectedMessage {
 
     private MessageIdentifier messageIdentifier;
+    private Instant sentDate;
     private DeviceMessageStatus deviceMessageStatus;
     private String deviceProtocolInformation;
     private ResultType resultType = ResultType.Supported;
@@ -35,6 +37,15 @@ public class MockCollectedMessage implements CollectedMessage {
     }
 
     @Override
+    public Instant getSentDate() {
+        return sentDate;
+    }
+
+    public void setSentDate(Instant sentDate) {
+        this.sentDate = sentDate;
+    }
+
+    @Override
     public DeviceMessageStatus getNewDeviceMessageStatus() {
         return deviceMessageStatus;
     }
@@ -42,6 +53,7 @@ public class MockCollectedMessage implements CollectedMessage {
     @Override
     public void setNewDeviceMessageStatus(DeviceMessageStatus deviceMessageStatus) {
         this.deviceMessageStatus = deviceMessageStatus;
+        this.sentDate = Instant.now();
     }
 
     @Override
