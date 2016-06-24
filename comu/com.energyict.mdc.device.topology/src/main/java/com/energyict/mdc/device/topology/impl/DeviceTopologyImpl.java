@@ -1,8 +1,8 @@
 package com.energyict.mdc.device.topology.impl;
 
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.topology.TopologyTimeline;
 import com.energyict.mdc.device.topology.DeviceTopology;
+import com.energyict.mdc.device.topology.TopologyTimeline;
 
 import com.google.common.collect.Range;
 
@@ -115,21 +115,18 @@ public final class DeviceTopologyImpl implements DeviceTopology {
     @Override
     public boolean equals(Object other) {
         if (other instanceof DeviceTopologyImpl) {
-            return this.equals((DeviceTopologyImpl) other);
-        }
-        else {
+            return this.doEquals((DeviceTopologyImpl) other);
+        } else {
             return false;
         }
     }
 
-    public boolean equals(DeviceTopologyImpl other) {
+    private boolean doEquals(DeviceTopologyImpl other) {
         if (this == other) {
             return true;
-        }
-        else if (other == null) {
+        } else if (other == null) {
             return false;
-        }
-        else {
+        } else {
             return this.root.getId() == other.root.getId() && this.period.equals(other.period);
         }
 

@@ -1,10 +1,10 @@
 package com.energyict.mdc.device.topology.impl;
 
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.topology.TopologyTimeslice;
 
-import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -72,13 +72,13 @@ public final class SimpleTopologyTimesliceImpl implements ServerTopologyTimeslic
     @Override
     public boolean equals(Object other) {
         if (other instanceof SimpleTopologyTimesliceImpl) {
-            return this.equals((SimpleTopologyTimesliceImpl) other);
+            return this.doEquals((SimpleTopologyTimesliceImpl) other);
         } else {
             return false;
         }
     }
 
-    public boolean equals(SimpleTopologyTimesliceImpl other) {
+    private boolean doEquals(SimpleTopologyTimesliceImpl other) {
         if (this == other) {
             return true;
         } else if (other == null) {
