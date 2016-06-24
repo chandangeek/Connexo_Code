@@ -111,7 +111,7 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Transla
                     bind(ExecutionTimer.class).toInstance(endDeviceGroupMemberCountTimer);
                 }
             });
-            upgradeService.register(InstallIdentifier.identifier(COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
+            upgradeService.register(InstallIdentifier.identifier("Pulse", COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
