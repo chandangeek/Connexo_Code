@@ -4,6 +4,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.upgrade.InstallIdentifier;
+import com.elster.jupiter.upgrade.StartupFinishedListener;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.Upgrader;
 
@@ -42,6 +43,10 @@ public class UpgradeModule extends AbstractModule {
         @Override
         public boolean isInstalled(InstallIdentifier installIdentifier, Version version) {
             return installed.contains(installIdentifier);
+        }
+
+        @Override
+        public void addStartupFinishedListener(StartupFinishedListener startupFinishedListener) {
         }
 
         @Override

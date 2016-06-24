@@ -14,5 +14,7 @@ public interface UpgradeService {
 
     boolean isInstalled(InstallIdentifier installIdentifier, Version version);
 
+    void addStartupFinishedListener(StartupFinishedListener startupFinishedListener);
+
     DataModel newNonOrmDataModel();
 }

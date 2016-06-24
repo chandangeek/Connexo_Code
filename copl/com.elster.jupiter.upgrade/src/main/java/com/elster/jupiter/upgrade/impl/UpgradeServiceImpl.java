@@ -8,8 +8,12 @@ import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.upgrade.InstallIdentifier;
+import com.elster.jupiter.upgrade.StartupFinishedListener;
+import com.elster.jupiter.upgrade.UpgradeCheckList;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.Upgrader;
+import com.elster.jupiter.util.concurrent.CopyOnWriteServiceContainer;
+import com.elster.jupiter.util.concurrent.OptionalServiceContainer;
 
 import com.google.common.collect.ImmutableMap;
 import org.flywaydb.core.Flyway;
@@ -21,6 +25,11 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.EventHandler;
 
 import javax.inject.Inject;
 import javax.sql.DataSource;
@@ -29,19 +38,31 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.time.Duration;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 import java.util.logging.StreamHandler;
+import java.util.stream.Collectors;
 
-@Component(name = "com.elster.jupiter.upgrade", immediate = true, service = UpgradeService.class,
-        property = {"osgi.command.scope=upgrade", "osgi.command.function=init"})
-public class UpgradeServiceImpl implements UpgradeService {
+import static com.elster.jupiter.util.streams.Currying.test;
+import static com.elster.jupiter.util.streams.Predicates.not;
+
+@Component(name = "com.elster.jupiter.upgrade", immediate = true, service = {UpgradeService.class, EventHandler.class},
+        property = {"osgi.command.scope=upgrade", "osgi.command.function=init", EventConstants.EVENT_TOPIC + "=org/osgi/framework/FrameworkEvent/STARTED"})
+public class UpgradeServiceImpl implements UpgradeService, EventHandler {
 
     private volatile BootstrapService bootstrapService;
     private volatile TransactionService transactionService;
@@ -52,6 +73,10 @@ public class UpgradeServiceImpl implements UpgradeService {
     private Map<InstallIdentifier, UpgradeClasses> registered = new HashMap<>();
     private final Logger logger = Logger.getLogger("com.elster.jupiter.upgrade");
     private UserInterface userInterface = new ConsoleUserInterface();
+    private OptionalServiceContainer<UpgradeCheckList> checkLists = new CopyOnWriteServiceContainer<>();
+    private Set<InstallIdentifier> checked = Collections.newSetFromMap(new ConcurrentHashMap<>());
+    private Queue<StartupFinishedListener> startupFinishedListeners = new ConcurrentLinkedQueue<>();
+    private volatile boolean complete;
 
     public UpgradeServiceImpl() {
         Logger flywayLogger = Logger.getLogger("org.flywaydb");
@@ -101,7 +126,9 @@ public class UpgradeServiceImpl implements UpgradeService {
         flyway.setResolvers(new MigrationResolverImpl(dataModel, dataModelUpgrader, transactionService, installerClass, upgraders, logger));
 
         try {
+            verifyExpected(installIdentifier);
             state.perform(flyway, installIdentifier);
+            verifyComplete();
         } catch (RuntimeException e) {
             String message = "Upgrade of " + installIdentifier + " failed with an exception.";
             logger.log(Level.SEVERE, message, e);
@@ -111,12 +138,27 @@ public class UpgradeServiceImpl implements UpgradeService {
         }
     }
 
+    @Override
+    public void handleEvent(Event event) {
+        if (!complete) {
+            String uninstalled = checkLists.getServices()
+                    .stream()
+                    .map(UpgradeCheckList::componentsToInstall)
+                    .flatMap(Collection::stream)
+                    .filter(not(checked::contains))
+                    .sorted(Comparator.comparing(InstallIdentifier::application).thenComparing(InstallIdentifier::name))
+                    .map(InstallIdentifier::toString)
+                    .collect(Collectors.joining("\n"));
+            userInterface.notifyUser("Container startup completed with missing components " + uninstalled);
+        }
+    }
+
     private Flyway createFlyway(InstallIdentifier installIdentifier) {
         Flyway flyway = new Flyway();
         flyway.setSkipDefaultResolvers(true);
         DataSource dataSource = bootstrapService.createDataSource();
         flyway.setDataSource(dataSource);
-        flyway.setTable("FLYWAYMETA." + installIdentifier);
+        flyway.setTable("FLYWAYMETA." + installIdentifier.name());
         flyway.setBaselineVersionAsString("0.0");
         flyway.setBaselineOnMigrate(true);
         return flyway;
@@ -151,6 +193,69 @@ public class UpgradeServiceImpl implements UpgradeService {
     @Reference
     public void setFileSystem(FileSystem fileSystem) {
         this.fileSystem = fileSystem;
+    }
+
+    @Reference(policy = ReferencePolicy.DYNAMIC, cardinality = ReferenceCardinality.MULTIPLE)
+    public void addCheckList(UpgradeCheckList upgradeCheckList) {
+        checkLists.register(upgradeCheckList);
+    }
+
+    public void removeCheckList(UpgradeCheckList upgradeCheckList) {
+        checkLists.unregister(upgradeCheckList);
+    }
+
+    private void verifyExpected(InstallIdentifier installIdentifier) {
+        checked.add(installIdentifier);
+        try {
+            checkLists.get(test(this::matchApplication).with(installIdentifier), Duration.ofMinutes(1))
+                    .map(upgradeCheckList -> (Runnable) () -> {
+                        if (!expected(upgradeCheckList, installIdentifier)) {
+                            //TODO end startup, but first CXO-2089 needs to be addressed, for now just log a warning
+                            logger.severe("Unexpected component installed : " + installIdentifier);
+                        }
+                    }).orElse(() -> {
+                logger.severe("Unexpected component installed : " + installIdentifier);
+            }).run();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    @Override
+    public void addStartupFinishedListener(StartupFinishedListener startupFinishedListener) {
+        if (complete) {
+            startupFinishedListener.onStartupComplete();
+            return;
+        }
+        startupFinishedListeners.add(startupFinishedListener);
+    }
+
+    private void verifyComplete() {
+        complete = checkLists.getServices()
+                .stream()
+                .map(UpgradeCheckList::componentsToInstall)
+                .flatMap(Collection::stream)
+                .allMatch(checked::contains);
+        if (complete) {
+            startupFinishedListeners
+                    .forEach(StartupFinishedListener::onStartupComplete);
+        }
+        String remaining = checkLists.getServices()
+                .stream()
+                .map(UpgradeCheckList::componentsToInstall)
+                .flatMap(Collection::stream)
+                .filter(not(checked::contains))
+                .map(InstallIdentifier::name)
+                .collect(Collectors.joining("\t"));
+        System.out.println("Remaining : " + remaining);
+    }
+
+    private boolean matchApplication(UpgradeCheckList upgradeCheckList, InstallIdentifier installIdentifier) {
+        return upgradeCheckList.application().equals(installIdentifier.application());
+    }
+
+    private boolean expected(UpgradeCheckList upgradeCheckList, InstallIdentifier installIdentifier) {
+        return upgradeCheckList.componentsToInstall().contains(installIdentifier);
     }
 
     private static final class UpgradeClasses {
@@ -239,7 +344,7 @@ public class UpgradeServiceImpl implements UpgradeService {
 
         @Override
         public void perform(Flyway flyway, InstallIdentifier installIdentifier) {
-            String message = "Upgrading " + installIdentifier;
+            String message = "Upgrading " + installIdentifier.name();
             userInterface.notifyUser(message);
             flyway.migrate();
         }
