@@ -150,26 +150,58 @@ public class ReadingEditTest {
             ctx.commit();
         }
         Channel channel = meter.getCurrentMeterActivation().get().getChannels().get(0);
-        assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC,QualityCodeIndex.SUSPECT),existDate).isPresent()).isTrue();
-        assertThat(channel.findReadingQuality(new ReadingQualityType("2.6.1"),existDate).get().isActual()).isTrue();
+        assertThat(channel.findReadingQualities()
+                .atTimestamp(existDate)
+                .ofQualitySystem(QualityCodeSystem.MDC)
+                .ofQualityIndex(QualityCodeIndex.SUSPECT)
+                .collect()).hasSize(1);
+        assertThat(channel.findReadingQualities()
+                .atTimestamp(existDate)
+                .ofQualitySystem(QualityCodeSystem.MDC)
+                .ofQualityIndex(QualityCodeIndex.ZEROUSAGE)
+                .collect().get(0).isActual()).isTrue();
         // make sure that editing a value adds an editing rq, removes the suspect rq, and updates the validation rq
         // added a value adds an added rq
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
         	ReadingImpl reading1 = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(2), existDate);
         	ReadingImpl reading2 = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(2), newDate);
             channel.editReadings(ImmutableList.of(reading1,reading2));
-            assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC,QualityCodeIndex.EDITGENERIC),existDate).isPresent()).isTrue();
-            assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC,QualityCodeIndex.SUSPECT),existDate).isPresent()).isFalse();
-            assertThat(channel.findReadingQuality(new ReadingQualityType("2.6.1"),existDate).get().isActual()).isFalse();
-            assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC,QualityCodeIndex.ADDED),newDate).isPresent()).isTrue();
+            assertThat(channel.findReadingQualities()
+                    .ofQualitySystem(QualityCodeSystem.MDC)
+                    .ofQualityIndex(QualityCodeIndex.EDITGENERIC)
+                    .atTimestamp(existDate)
+                    .collect()).hasSize(1);
+            assertThat(channel.findReadingQualities()
+                    .ofQualitySystem(QualityCodeSystem.MDC)
+                    .ofQualityIndex(QualityCodeIndex.SUSPECT)
+                    .atTimestamp(existDate)
+                    .collect()).isEmpty();
+            assertThat(channel.findReadingQualities()
+                    .atTimestamp(existDate)
+                    .ofQualitySystem(QualityCodeSystem.MDC)
+                    .ofQualityIndex(QualityCodeIndex.ZEROUSAGE)
+                    .collect().get(0).isActual()).isFalse();
+            assertThat(channel.findReadingQualities()
+                    .ofQualitySystem(QualityCodeSystem.MDC)
+                    .ofQualityIndex(QualityCodeIndex.ADDED)
+                    .atTimestamp(newDate)
+                    .collect()).hasSize(1);
             ctx.commit();
         }
         // make sure if you edit an added reading the reading quality remains added
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
         	ReadingImpl reading2 = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(3), newDate);
             channel.editReadings(ImmutableList.of(reading2));
-            assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC,QualityCodeIndex.EDITGENERIC),newDate).isPresent()).isFalse();
-            assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC,QualityCodeIndex.ADDED),newDate).isPresent()).isTrue();
+            assertThat(channel.findReadingQualities()
+                    .ofQualitySystem(QualityCodeSystem.MDC)
+                    .ofQualityIndex(QualityCodeIndex.EDITGENERIC)
+                    .atTimestamp(newDate)
+                    .collect()).isEmpty();
+            assertThat(channel.findReadingQualities()
+                    .ofQualitySystem(QualityCodeSystem.MDC)
+                    .ofQualityIndex(QualityCodeIndex.ADDED)
+                    .atTimestamp(newDate)
+                    .collect()).hasSize(1);
             ctx.commit();
         }
     }

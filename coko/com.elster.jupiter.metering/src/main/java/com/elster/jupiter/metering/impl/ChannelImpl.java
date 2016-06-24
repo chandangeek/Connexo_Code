@@ -22,6 +22,7 @@ import com.elster.jupiter.metering.MeterReadingTypeConfiguration;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MultiplierUsage;
 import com.elster.jupiter.metering.ProcessStatus;
+import com.elster.jupiter.metering.ReadingQualityFilter;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
@@ -30,18 +31,14 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointConfiguration;
 import com.elster.jupiter.metering.UsagePointReadingTypeConfiguration;
 import com.elster.jupiter.metering.readings.BaseReading;
-import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DoesNotExistException;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.Pair;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.streams.ExtraCollectors;
 import com.elster.jupiter.util.streams.Functions;
 
-import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
@@ -68,7 +65,6 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.Checks.is;
-import static com.elster.jupiter.util.conditions.Where.where;
 import static com.elster.jupiter.util.streams.Currying.use;
 import static com.elster.jupiter.util.streams.Predicates.on;
 import static com.elster.jupiter.util.streams.Predicates.self;
@@ -78,7 +74,6 @@ public final class ChannelImpl implements ChannelContract {
     static final int INTERVALVAULTID = 1;
     static final int IRREGULARVAULTID = 2;
     static final int DAILYVAULTID = 3;
-    private static final Order ORDER_CHRONOLOGICAL = Order.ascending("readingTimestamp");
 
     // persistent fields
     private long id;
@@ -573,75 +568,9 @@ public final class ChannelImpl implements ChannelContract {
         return version;
     }
 
-    private Condition isActual() {
-        return where("actual").isEqualTo(true);
-    }
-
-    private Condition inRange(Range<Instant> range) {
-        return where("readingTimestamp").in(range);
-    }
-
-    private Condition ofThisChannel() {
-        return where("channel").isEqualTo(this);
-    }
-
-    private Condition ofType(ReadingQualityType type) {
-        return where("typeCode").isEqualTo(type.getCode());
-    }
-
-    private Condition ofOneOfTypes(Stream<ReadingQualityType> types) {
-        return where("typeCode").in(types.map(ReadingQualityType::getCode).collect(Collectors.toList()));
-    }
-
-    private Condition ofIndex(QualityCodeIndex index) {
-        return where("typeCode").like(Joiner.on('.').join('*', index.category().ordinal(), index.index()));
-    }
-
-    private Condition ofOneOfSystems(Stream<QualityCodeSystem> systems) {
-        return where("typeCode").matches("^(" + systems
-                .map(system -> Integer.toString(system.ordinal()))
-                .collect(Collectors.joining("|")) + ")\\.\\d+\\.\\d+$", "");
-    }
-
     @Override
-    public Optional<ReadingQualityRecord> findReadingQuality(ReadingQualityType type, Instant timestamp) {
-        Condition condition = ofThisChannel().and(withTimestamp(timestamp)).and(ofType(type));
-        return dataModel.mapper(ReadingQualityRecord.class).select(condition).stream().findFirst();
-    }
-
-    private Condition withTimestamp(Instant timestamp) {
-        return where("readingTimestamp").isEqualTo(timestamp);
-    }
-
-    // TODO:
-    // will be replaced with a set of methods acting on the base of a specific builder;
-    // same for method in AbstractCimChannel
-    @Override
-    public List<ReadingQualityRecord> findReadingQualities(Set<QualityCodeSystem> qualityCodeSystems, QualityCodeIndex index,
-                                                           Range<Instant> interval, boolean checkIfActual, boolean sort) {
-        Condition selectionCondition = ofThisChannel();
-        if (interval != null && !interval.equals(Range.all())) {
-            selectionCondition = selectionCondition.and(inRange(interval));
-        }
-        boolean ignoreQualityCodeSystem = qualityCodeSystems == null || qualityCodeSystems.isEmpty();
-        if (!ignoreQualityCodeSystem || index != null) {
-            selectionCondition = selectionCondition.and(ignoreQualityCodeSystem ?
-                    ofIndex(index) :
-                    index == null ?
-                            ofOneOfSystems(qualityCodeSystems.stream()) :
-                            ofOneOfTypes(qualityCodeSystems.stream().map(system -> ReadingQualityType.of(system, index))));
-        }
-        if (checkIfActual) {
-            selectionCondition = selectionCondition.and(isActual());
-        }
-        DataMapper<ReadingQualityRecord> mapper = dataModel.mapper(ReadingQualityRecord.class);
-        return sort ? mapper.select(selectionCondition, ORDER_CHRONOLOGICAL) : mapper.select(selectionCondition);
-    }
-
-    @Override
-    public List<ReadingQualityRecord> findReadingQualities(Instant timestamp) {
-        Condition atTimestamp = ofThisChannel().and(withTimestamp(timestamp));
-        return dataModel.mapper(ReadingQualityRecord.class).select(atTimestamp, ORDER_CHRONOLOGICAL);
+    public ReadingQualityFilter findReadingQualities() {
+        return new ReadingQualityFilterImpl(dataModel, this);
     }
 
     @Override
@@ -712,7 +641,7 @@ public final class ChannelImpl implements ChannelContract {
         if (!readings.isEmpty()) {
             Set<Instant> readingTimes = readings.stream().map(BaseReading::getTimeStamp).collect(Collectors.toSet());
             readingTimes.forEach(instant -> timeSeries.get().removeEntry(instant));
-            findReadingQualities(null, null, Range.encloseAll(readingTimes), false, false).stream()
+            findReadingQualities().inTimeInterval(Range.encloseAll(readingTimes)).collect().stream()
                     .filter(quality -> readingTimes.contains(quality.getReadingTimestamp()))
                     .forEach(ReadingQualityRecord::delete);
             // TODO: refactor with custom QualityCodeSystem(s) in scope of data editing refactoring (CXO-1449)

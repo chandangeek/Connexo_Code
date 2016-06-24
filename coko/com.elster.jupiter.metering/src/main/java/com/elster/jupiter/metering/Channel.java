@@ -1,7 +1,5 @@
 package com.elster.jupiter.metering;
 
-import com.elster.jupiter.cbo.QualityCodeIndex;
-import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.readings.BaseReading;
 
 import aQute.bnd.annotation.ProviderType;
@@ -51,28 +49,12 @@ public interface Channel {
     ReadingQualityRecord createReadingQuality(ReadingQualityType type, ReadingType readingType, Instant timestamp);
 
     /**
-     * @deprecated unused in production and likely unneeded due to {@link #findReadingQualities(Instant)}
-     * @param type
-     * @param timestamp
-     * @return
+     * Initializes a new search of {@link ReadingQualityRecord ReadingQualityRecords}
+     *
+     * @return the {@link ReadingQualityFilter} that will help to define the desired criteria
+     * for search of {@link ReadingQualityRecord ReadingQualityRecords}
      */
-    @Deprecated
-    Optional<ReadingQualityRecord> findReadingQuality(ReadingQualityType type, Instant timestamp);
-
-    /**
-     * Looks for reading qualities of any of given {@param qualityCodeSystems} and of a given {@param index} present in a given {@param interval}
-     * @param qualityCodeSystems only systems to take into account when looking for qualities; <code>null</code> or empty set mean all systems
-     * @param index quality index to find; <code>null</code> means any index
-     * @param interval interval to check for qualities; <code>null</code> acts the same way as {@link Range#all()}
-     * @param checkIfActual whether or not to look for actual qualities only
-     * @param sort whether or not to sort the result; the sorting is performed by reading timestamp in chronological manner
-     * @return the list of found qualities
-     */
-    List<ReadingQualityRecord> findReadingQualities(Set<QualityCodeSystem> qualityCodeSystems, QualityCodeIndex index,
-                                                    Range<Instant> interval,
-                                                    boolean checkIfActual, boolean sort);
-
-    List<ReadingQualityRecord> findReadingQualities(Instant timestamp);
+    ReadingQualityFilter findReadingQualities();
 
     boolean isRegular();
 
@@ -117,6 +99,4 @@ public interface Channel {
             return Range.encloseAll(getReadingTimeStamps());
         }
     }
-
-
 }

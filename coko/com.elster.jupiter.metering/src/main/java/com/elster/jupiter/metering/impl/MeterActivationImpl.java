@@ -457,7 +457,7 @@ public final class MeterActivationImpl implements IMeterActivation {
     }
 
     private void moveReadingQualities(Channel sourceChannel, ChannelImpl targetChannel, Range<Instant> range) {
-        List<ReadingQualityRecord> sourceQualities = sourceChannel.findReadingQualities(null, null, range, false, false);
+        List<ReadingQualityRecord> sourceQualities = sourceChannel.findReadingQualities().inTimeInterval(range).collect();
         sourceQualities.forEach(targetChannel::copyReadingQuality);
         dataModel.mapper(ReadingQualityRecord.class).remove(sourceQualities);
     }
@@ -506,7 +506,12 @@ public final class MeterActivationImpl implements IMeterActivation {
                                                           ReadingType readingType, Range<Instant> interval) {
         return getChannel(readingType)
                 .flatMap(channel -> channel.getCimChannel(readingType))
-                .map(cimChannel -> cimChannel.findReadingQualities(qualityCodeSystems, qualityCodeIndex, interval, true))
+                .map(cimChannel -> cimChannel.findReadingQualities()
+                        .ofQualitySystems(qualityCodeSystems)
+                        .ofQualityIndex(qualityCodeIndex)
+                        .inTimeInterval(interval)
+                        .actual()
+                        .collect())
                 .orElse(Collections.emptyList());
     }
 
