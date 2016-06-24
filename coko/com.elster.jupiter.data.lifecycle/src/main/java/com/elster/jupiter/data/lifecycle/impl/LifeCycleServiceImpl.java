@@ -103,7 +103,7 @@ public class LifeCycleServiceImpl implements LifeCycleService, TranslationKeyPro
 				bind(UserService.class).toInstance(userService);
 			}
 		});
-        upgradeService.register(identifier(COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(identifier("Pulse", COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
 	}
 	@Reference
 	public void setNlsService(NlsService nlsService) {
