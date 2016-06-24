@@ -11,6 +11,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
+import com.elster.jupiter.upgrade.UpgradeCheckList;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
@@ -137,6 +138,11 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(COMPONENTNAME, Layer.DOMAIN);
+    }
+
+    @Reference(target ="(com.elster.jupiter.checklist=Insight)")
+    public void setCheckList(UpgradeCheckList upgradeCheckList) {
+        // just explicitly depend
     }
 
     DataModel getDataModel() {
