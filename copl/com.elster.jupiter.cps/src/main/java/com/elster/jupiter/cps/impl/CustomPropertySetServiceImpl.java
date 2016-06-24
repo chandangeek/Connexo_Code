@@ -208,7 +208,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     @Activate
     public void activate() {
         this.dataModel.register(this.getModule());
-        upgradeService.register(InstallIdentifier.identifier(COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier("Pulse", COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
         this.installed = true;
         this.registerAllCustomPropertySets();
     }
@@ -358,7 +358,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
                 .stream()
                 .collect(Collectors.toMap(Function.identity(), version -> Installer.class));
 
-        upgradeService.register(InstallIdentifier.identifier(persistenceSupport.componentName()), dataModel, Installer.class, versionClassMap);
+        upgradeService.register(InstallIdentifier.identifier(persistenceSupport.application(), persistenceSupport.componentName()), dataModel, Installer.class, versionClassMap);
         return dataModel;
     }
 

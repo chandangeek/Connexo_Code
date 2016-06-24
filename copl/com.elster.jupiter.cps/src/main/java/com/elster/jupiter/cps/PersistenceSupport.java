@@ -123,4 +123,5 @@ public interface PersistenceSupport<D, T extends PersistentDomainExtension<D>> {
      */
     void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns);
 
+    String application();
 }

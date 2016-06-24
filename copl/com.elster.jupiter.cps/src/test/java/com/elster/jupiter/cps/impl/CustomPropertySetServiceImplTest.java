@@ -274,7 +274,7 @@ public class CustomPropertySetServiceImplTest {
         verify(this.table).primaryKey(startsWith("PK_CPS_"));
         verify(this.primaryKeyConstraintBuilder).add();
         verify(this.customPropertySetDataModel).register(anyVararg());
-        verify(this.upgradeService).register(eq(InstallIdentifier.identifier(CUSTOM_PROPERTY_SET_COMPONENT_ID)), eq(customPropertySetDataModel), any(), any());
+        verify(this.upgradeService).register(eq(InstallIdentifier.identifier("Example", CUSTOM_PROPERTY_SET_COMPONENT_ID)), eq(customPropertySetDataModel), any(), any());
     }
 
     @Test
@@ -326,7 +326,7 @@ public class CustomPropertySetServiceImplTest {
         verify(this.table).primaryKey(startsWith("PK_CPS_"));
         verify(this.primaryKeyConstraintBuilder).add();
         verify(this.customPropertySetDataModel).register(anyVararg());
-        verify(this.upgradeService).register(eq(InstallIdentifier.identifier(CUSTOM_PROPERTY_SET_COMPONENT_ID)), eq(customPropertySetDataModel), any(), any());
+        verify(this.upgradeService).register(eq(InstallIdentifier.identifier("Example", CUSTOM_PROPERTY_SET_COMPONENT_ID)), eq(customPropertySetDataModel), any(), any());
     }
 
     @Test
@@ -360,7 +360,7 @@ public class CustomPropertySetServiceImplTest {
         verify(this.primaryKeyConstraintBuilder).add();
         verify(this.versionedTable).addIntervalColumns(HardCodedFieldNames.INTERVAL.javaName());
         verify(this.versionedCustomPropertySetDataModel).register(anyVararg());
-        verify(this.upgradeService).register(eq(InstallIdentifier.identifier(VERSIONED_CUSTOM_PROPERTY_SET_COMPONENT_ID)), eq(versionedCustomPropertySetDataModel), any(), any());
+        verify(this.upgradeService).register(eq(InstallIdentifier.identifier("Example", VERSIONED_CUSTOM_PROPERTY_SET_COMPONENT_ID)), eq(versionedCustomPropertySetDataModel), any(), any());
     }
 
     @Test
@@ -400,7 +400,7 @@ public class CustomPropertySetServiceImplTest {
         verify(this.primaryKeyConstraintBuilder).add();
         verify(this.versionedTable).addIntervalColumns(HardCodedFieldNames.INTERVAL.javaName());
         verify(this.versionedCustomPropertySetDataModel).register(anyVararg());
-        verify(this.upgradeService).register(eq(InstallIdentifier.identifier(VERSIONED_CUSTOM_PROPERTY_SET_COMPONENT_ID)), eq(versionedCustomPropertySetDataModel), any(), any());
+        verify(this.upgradeService).register(eq(InstallIdentifier.identifier("Example", VERSIONED_CUSTOM_PROPERTY_SET_COMPONENT_ID)), eq(versionedCustomPropertySetDataModel), any(), any());
     }
 
     @Test
