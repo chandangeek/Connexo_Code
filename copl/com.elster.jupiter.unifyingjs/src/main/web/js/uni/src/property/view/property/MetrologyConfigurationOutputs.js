@@ -8,7 +8,7 @@ Ext.define('Uni.property.view.property.MetrologyConfigurationOutputs', {
             fn: function () {
                 var me = this;
 
-                me.deliverablesStore.getProxy().url = '/api/ucr/metrologyconfigurations/' + me.up('property-form').context.id + 'deliverables';
+                me.deliverablesStore.getProxy().url = '/api/ucr/metrologyconfigurations/' + me.up('property-form').context.id + '/deliverables';
                 me.deliverablesStore.load(function () {
                     me.getField().getSelectionModel().selectAll();
                 });
