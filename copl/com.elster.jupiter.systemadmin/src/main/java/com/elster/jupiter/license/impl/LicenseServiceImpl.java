@@ -123,7 +123,7 @@ public class LicenseServiceImpl implements LicenseService, MessageSeedProvider, 
         dataModel.register(getModule());
 
         this.context = context;
-        upgradeService.register(identifier(COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(identifier("Pulse", COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
 
         dailyCheck.scheduleAtFixedRate(new LicenseCheckTask(), 0, 24 * 60 * 60 * 1000);
     }
