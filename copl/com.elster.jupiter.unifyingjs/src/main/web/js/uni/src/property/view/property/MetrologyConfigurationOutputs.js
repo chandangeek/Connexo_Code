@@ -9,10 +9,10 @@ Ext.define('Uni.property.view.property.MetrologyConfigurationOutputs', {
                 proxy: {
                     proxy: {
                         type: 'rest',
-                        url: '/api/mtr/metrologyconfigurations/' + me.up('property-form').context.id + 'readingtypes',
+                        url: '/api/ucr/metrologyconfigurations/' + me.up('property-form').context.id + 'deliverables',
                         reader: {
                             type: 'json',
-                            root: 'readingTypes'
+                            root: 'deliverables'
                         }
                     }
                 }
