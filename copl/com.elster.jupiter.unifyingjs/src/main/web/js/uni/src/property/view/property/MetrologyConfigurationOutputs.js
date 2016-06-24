@@ -16,26 +16,19 @@ Ext.define('Uni.property.view.property.MetrologyConfigurationOutputs', {
         }
     },
 
-    initComponent: function () {
+    getEditCmp: function () {
         var me = this;
 
-        me.callParent(arguments);
         me.deliverablesStore = Ext.create('Ext.data.Store', {
             fields: ['name', 'readingType'],
             proxy: {
-                proxy: {
-                    type: 'rest',
-                    reader: {
-                        type: 'json',
-                        root: 'deliverables'
-                    }
+                type: 'rest',
+                reader: {
+                    type: 'json',
+                    root: 'deliverables'
                 }
             }
         });
-    },
-
-    getEditCmp: function () {
-        var me = this;
 
         return [
             {
