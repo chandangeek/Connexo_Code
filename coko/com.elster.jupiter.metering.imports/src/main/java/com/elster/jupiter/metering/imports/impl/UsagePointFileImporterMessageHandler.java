@@ -45,7 +45,7 @@ public class UsagePointFileImporterMessageHandler implements MessageHandlerFacto
 
             }
         });
-        upgradeService.register(InstallIdentifier.identifier(UsagePointFileImporterMessageHandler.APP_NAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier("Pulse", UsagePointFileImporterMessageHandler.APP_NAME), dataModel, Installer.class, Collections.emptyMap());
     }
 
     @Reference
