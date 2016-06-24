@@ -159,7 +159,7 @@ public class PluggableServiceImpl implements PluggableService, MessageSeedProvid
     public void activate() {
         this.dataModel.register(this.getModule());
 
-        upgradeService.register(InstallIdentifier.identifier(PluggableService.COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier("MultiSense", PluggableService.COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
     }
 
 }
