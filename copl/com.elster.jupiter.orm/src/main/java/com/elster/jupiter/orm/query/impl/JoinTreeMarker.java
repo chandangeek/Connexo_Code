@@ -17,61 +17,62 @@ import com.elster.jupiter.util.conditions.Visitor;
 import java.util.List;
 
 public class JoinTreeMarker implements Visitor {
-	
+
 	private final JoinTreeNode<?> root;
-	
+
 	private JoinTreeMarker(JoinTreeNode<?> root) {
 		this.root = root;
 	}
-	
+
 	static JoinTreeMarker on(JoinTreeNode<?> root) {
 		return new JoinTreeMarker(root);
 	}
-	
+
 	void visit(Condition condition) {
 		condition.visit(this);
 	}
-		
-	private void visitAll(List<Condition> conditions , String separator) {		
+
+	private void visitAll(List<Condition> conditions , String separator) {
 		for (Condition each : conditions) {
-			each.visit(this);			
-		}		
+			each.visit(this);
+		}
 	}
 
 	public void visitAnd(And and) {
 		visitAll(and.getConditions()," AND ");
 	}
-	
+
 	public void visitOr(Or or) {
 		visitAll(or.getConditions()," OR ");
 	}
-	
-	public void visitComparison(Comparison comparison) {	
+
+	public void visitComparison(Comparison comparison) {
 		markAndTest(comparison.getFieldName());
 	}
 
 	public void visitContains(Contains contains) {
-		markAndTest(contains.getFieldName());		 		
+		markAndTest(contains.getFieldName());
 	}
-	
+
 	public void visitEffective(Effective effective) {
 		markAndTest(effective.getFieldName());
 	}
-	
+
 	private void markAndTest(String fieldName) {
-		boolean markAndTest = root.hasWhereField(fieldName);
-		if (!markAndTest) {
-			throw new IllegalArgumentException("Invalid field name " + fieldName); 
-		} 		
+		if (!root.hasWhereField(fieldName)) {
+			throw new IllegalArgumentException("Invalid field name " + fieldName);
+		}
 	}
 	public void visitNot(Not not) {
 		not.getNegated().visit(this);
 	}
 
 	public void visitTrue(Constant ignored) {
+		// Not of interest for now
 	}
-	
+
 	public void visitFalse(Constant ignored) {
+		// Not of interest for now
 	}
 
 	@Override
@@ -83,14 +84,17 @@ public class JoinTreeMarker implements Visitor {
 
 	@Override
 	public void visitExists(Exists empty) {
+		// Not of interest for now
 	}
 
 	@Override
 	public void visitText(Text expression) {
+		// Not of interest for now
 	}
 
 	@Override
 	public void visitFragmentExpression(FragmentExpression expression) {
+		// Not of interest for now
 	}
-	
+
 }

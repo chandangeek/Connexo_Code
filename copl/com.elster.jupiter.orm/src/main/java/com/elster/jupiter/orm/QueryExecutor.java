@@ -1,10 +1,11 @@
 package com.elster.jupiter.orm;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.sql.SqlFragment;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.time.Instant;
 import java.util.List;
@@ -28,6 +29,8 @@ public interface QueryExecutor<T> extends BasicQuery<T> {
     List<T> select(Condition condition, Order[] orderBy , boolean eager , String[] exceptions , int from , int to);
     Object convert(String fieldName , String value);
 	Subquery asSubquery(Condition condition, String ... fieldNames);
+
+    Subquery asSubquery(Condition condition, int from, int to, String... fieldNames);
     SqlFragment asFragment(Condition condition, String... fieldNames);
     Optional<T> get(Object[] key, boolean eager , String[] exceptions);
 	boolean hasField(String fieldName);

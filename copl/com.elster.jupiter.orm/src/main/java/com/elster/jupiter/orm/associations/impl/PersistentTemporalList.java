@@ -1,19 +1,20 @@
 package com.elster.jupiter.orm.associations.impl;
 
-import java.time.Instant;
-import java.util.List;
-
 import com.elster.jupiter.orm.associations.Effectivity;
 import com.elster.jupiter.orm.associations.TemporalList;
 import com.elster.jupiter.orm.impl.DataMapperImpl;
 import com.elster.jupiter.orm.impl.ForeignKeyConstraintImpl;
+
 import com.google.common.collect.ImmutableList;
+
+import java.time.Instant;
+import java.util.List;
 
 public class PersistentTemporalList<T extends Effectivity> extends AbstractPersistentTemporalAspect<T> implements TemporalList<T> {
 	private Instant effectiveDate;
 	private List<T> effectives;
 
-	public PersistentTemporalList(ForeignKeyConstraintImpl constraint,DataMapperImpl<T> dataMapper, Object owner) {
+	PersistentTemporalList(ForeignKeyConstraintImpl constraint, DataMapperImpl<T> dataMapper, Object owner) {
 		super(constraint, dataMapper, owner);
 	}
 
@@ -40,11 +41,10 @@ public class PersistentTemporalList<T extends Effectivity> extends AbstractPersi
 		}
 		return ImmutableList.copyOf(effectives);
 	}
-	
+
 	public void setCache(Instant effectiveDate, List<T> values) {
 		this.effectiveDate = effectiveDate;
 		this.effectives = values;
 	}
-	
 
 }
