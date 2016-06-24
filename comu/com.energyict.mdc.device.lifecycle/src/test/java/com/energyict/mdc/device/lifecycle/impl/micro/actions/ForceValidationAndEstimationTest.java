@@ -36,8 +36,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anySetOf;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
@@ -180,11 +178,15 @@ public class ForceValidationAndEstimationTest {
         DeviceEstimation deviceEstimation = mock(DeviceEstimation.class);
         when(deviceEstimation.isEstimationActive()).thenReturn(true);
         MeterActivation meterActivation = mock(MeterActivation.class);
-        Channel channel = mock(Channel.class);
+        Channel channel = mock(Channel.class, Answers.RETURNS_DEEP_STUBS.get());
         when(meterActivation.getChannels()).thenReturn(Collections.singletonList(channel));
         ReadingQualityRecord suspect = mock(ReadingQualityRecord.class);
-        when(channel.findReadingQualities(anySetOf(QualityCodeSystem.class), any(QualityCodeIndex.class), any(Range.class), anyBoolean(), anyBoolean()))
-                .thenReturn(Collections.singletonList(suspect));
+        when(channel.findReadingQualities()
+                .ofQualitySystem(QualityCodeSystem.MDC)
+                .ofQualityIndex(QualityCodeIndex.SUSPECT)
+                .actual()
+                .findFirst())
+                .thenReturn(Optional.of(suspect));
         when(this.device.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile1, loadProfile2));
         when(this.device.forValidation()).thenReturn(deviceValidation);
         when(this.device.forEstimation()).thenReturn(deviceEstimation);

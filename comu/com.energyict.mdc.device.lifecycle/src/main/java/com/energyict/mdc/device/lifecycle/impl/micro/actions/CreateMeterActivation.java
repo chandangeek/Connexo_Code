@@ -1,10 +1,10 @@
 package com.energyict.mdc.device.lifecycle.impl.micro.actions;
 
+import com.elster.jupiter.cbo.QualityCodeCategory;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingQualityRecord;
-import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
@@ -18,7 +18,6 @@ import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.impl.ServerMicroAction;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.Collections;
@@ -99,17 +98,19 @@ public class CreateMeterActivation extends TranslatableServerMicroAction {
         return newChannels;
     }
 
+    /** Data have been copied from old to new channels, but we should erase validation related qualities: see COMU-3231
+     *
+     * @param channels
+     */
     private static void removeReadingQualities(List<Channel> channels) {
         channels.stream()
-                // data have been copied from old to new channels, but we should erase validation related qualities: see COMU-3231
-                // TODO: think of what systems should be taken into account when removing validation related qualities
-                .flatMap(channel ->
-                        channel.findReadingQualities(ImmutableSet.of(QualityCodeSystem.MDC, QualityCodeSystem.MDM), null, Range.all(), true, false).stream())
-                .filter(CreateMeterActivation::isValidationRelatedQuality).forEach(ReadingQualityRecord::delete);
-    }
-
-    private static boolean isValidationRelatedQuality(ReadingQualityRecord readingQualityRecord) {
-        ReadingQualityType type = readingQualityRecord.getType();
-        return type.hasReasonabilityCategory() || type.hasValidationCategory();
+                .flatMap(channel -> channel.findReadingQualities()
+                        // TODO: think of what systems should be taken into account when removing validation related qualities
+                        .ofQualitySystems(ImmutableSet.of(QualityCodeSystem.MDC, QualityCodeSystem.MDM))
+                        .actual()
+                        .ofAnyQualityIndexInCategories(ImmutableSet.of(QualityCodeCategory.REASONABILITY, QualityCodeCategory.VALIDATION))
+                        .collect()
+                        .stream())
+                .forEach(ReadingQualityRecord::delete);
     }
 }
