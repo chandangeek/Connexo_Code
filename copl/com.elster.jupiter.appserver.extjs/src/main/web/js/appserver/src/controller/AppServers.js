@@ -1461,7 +1461,7 @@ Ext.define('Apr.controller.AppServers', {
     updateWebserviceCounter: function () {
         var me = this;
         me.getWebservicesGrid().down('pagingtoolbartop #displayItem').setText(
-            Uni.I18n.translatePlural('general.webserviceEndpointsCount', me.getWebservicesGrid().getStore().getCount(), 'APR', 'No webservice endpoints', '{0} webservice endpoints', '{0} webservice endpoints')
+            Uni.I18n.translatePlural('general.webserviceEndpointsCount', me.getWebservicesGrid().getStore().getCount(), 'APR', 'No webservice endpoints', '{0} webservice endpoint', '{0} webservice endpoints')
         );
     },
 
