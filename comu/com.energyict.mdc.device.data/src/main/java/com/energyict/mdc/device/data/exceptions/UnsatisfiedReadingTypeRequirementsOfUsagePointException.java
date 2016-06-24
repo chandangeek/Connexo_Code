@@ -14,11 +14,18 @@ import java.util.stream.Collectors;
 
 public class UnsatisfiedReadingTypeRequirementsOfUsagePointException extends LocalizedException {
 
+    private final Map<MetrologyConfiguration, List<ReadingTypeRequirement>> unsatisfiedRequirements;
+
     public UnsatisfiedReadingTypeRequirementsOfUsagePointException(Thesaurus thesaurus, Map<MetrologyConfiguration, List<ReadingTypeRequirement>> unsatisfiedRequirements) {
         super(thesaurus, MessageSeeds.UNSATISFIED_READING_TYPE_REQUIREMENTS_OF_USAGE_POINT, buildRequirementsString(unsatisfiedRequirements));
+        this.unsatisfiedRequirements = unsatisfiedRequirements;
     }
 
-    private static String buildRequirementsString(Map<MetrologyConfiguration, List<ReadingTypeRequirement>> unsatisfiedRequirements) {
+    public Map<MetrologyConfiguration, List<ReadingTypeRequirement>> getUnsatisfiedRequirements() {
+        return unsatisfiedRequirements;
+    }
+
+    public static String buildRequirementsString(Map<MetrologyConfiguration, List<ReadingTypeRequirement>> unsatisfiedRequirements) {
         return unsatisfiedRequirements.entrySet().stream()
                 .map(entry -> buildDetailsForMetrologyConfiguration(entry.getKey(), entry.getValue()))
                 .collect(Collectors.joining(", "));

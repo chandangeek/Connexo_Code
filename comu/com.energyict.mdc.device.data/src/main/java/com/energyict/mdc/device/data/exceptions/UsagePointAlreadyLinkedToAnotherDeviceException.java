@@ -16,8 +16,15 @@ import java.util.List;
 
 public class UsagePointAlreadyLinkedToAnotherDeviceException extends LocalizedException {
 
+    private final MeterActivation meterActivation;
+
     public UsagePointAlreadyLinkedToAnotherDeviceException(Thesaurus thesaurus, DateTimeFormatter formatter, MeterActivation meterActivation) {
         super(thesaurus, getMessageSeed(meterActivation), getMessageArgs(meterActivation, formatter));
+        this.meterActivation = meterActivation;
+    }
+
+    public MeterActivation getMeterActivation() {
+        return meterActivation;
     }
 
     private static MessageSeed getMessageSeed(MeterActivation meterActivation) {
@@ -25,7 +32,7 @@ public class UsagePointAlreadyLinkedToAnotherDeviceException extends LocalizedEx
                 MessageSeeds.USAGE_POINT_ALREADY_LINKED_TO_ANOTHER_DEVICE : MessageSeeds.USAGE_POINT_ALREADY_LINKED_TO_ANOTHER_DEVICE_UNTIL;
     }
 
-    public static String[] getMessageArgs(MeterActivation meterActivation, DateTimeFormatter formatter) {
+    private static String[] getMessageArgs(MeterActivation meterActivation, DateTimeFormatter formatter) {
         List<String> args = new ArrayList<>(3);
         args.add(meterActivation.getMeter().map(EndDevice::getMRID).orElse(null));
         args.add(getFormattedInstant(formatter, meterActivation.getStart()));
