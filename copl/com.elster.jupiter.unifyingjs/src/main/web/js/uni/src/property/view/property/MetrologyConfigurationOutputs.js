@@ -5,6 +5,7 @@ Ext.define('Uni.property.view.property.MetrologyConfigurationOutputs', {
     ],
 
     msgTarget: 'under',
+    width: 600,
 
     listeners: {
         afterrender: {
@@ -38,7 +39,7 @@ Ext.define('Uni.property.view.property.MetrologyConfigurationOutputs', {
                 xtype: 'grid',
                 itemId: 'metrology-configuration-outputs-grid',
                 store: me.deliverablesStore,
-                width: me.width,
+                width: 600,
                 selModel: {
                     mode: 'MULTI',
                     checkOnly: true,
@@ -74,8 +75,8 @@ Ext.define('Uni.property.view.property.MetrologyConfigurationOutputs', {
         var me = this;
 
         return _.map(me.getField().getSelectionModel().getSelection(), function (record) {
-            return record.getId();
-        });
+            return record.get('readingType').mRID;
+        }).join(';');
     },
 
     markInvalid: function (error) {
