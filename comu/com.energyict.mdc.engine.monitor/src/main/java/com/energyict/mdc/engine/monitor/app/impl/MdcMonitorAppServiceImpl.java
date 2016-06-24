@@ -79,7 +79,7 @@ public class MdcMonitorAppServiceImpl implements MdcMonitorAppService , Translat
             }
         });
 
-        upgradeService.register(InstallIdentifier.identifier(COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier("MultiSense", COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
     }
 
     static class Installer implements FullInstaller, PrivilegesProvider {
