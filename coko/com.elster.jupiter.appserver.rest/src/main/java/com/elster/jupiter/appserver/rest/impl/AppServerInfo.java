@@ -3,6 +3,7 @@ package com.elster.jupiter.appserver.rest.impl;
 import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.appserver.ImportScheduleOnAppServer;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.util.streams.Functions;
 
 import java.util.List;
@@ -46,6 +47,7 @@ public class AppServerInfo {
         exportDirectory = exportPath;
         endPointConfigurations = appServer.supportedEndPoints()
                 .stream()
+                .filter(EndPointConfiguration::isInbound)
                 .map(endPointConfigurationInfoFactory::from)
                 .collect(Collectors.toList());
     }
