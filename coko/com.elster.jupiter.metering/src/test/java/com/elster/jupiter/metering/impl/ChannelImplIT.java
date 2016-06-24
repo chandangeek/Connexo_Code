@@ -79,8 +79,8 @@ import static org.mockito.Mockito.mock;
 public class ChannelImplIT {
 
     private static final ZonedDateTime ACTIVATION = ZonedDateTime.of(2000, 1, 1, 0, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
-    public static final String BULK = "0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
-    public static final String DELTA = "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
+    private static final String BULK = "0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
+    private static final String DELTA = "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
 
     @Rule
     public TestRule mcMurdo = Using.timeZoneOfMcMurdo();
@@ -201,9 +201,9 @@ public class ChannelImplIT {
 
         Channel channel = meter.getMeterActivations().get(0).getChannels().get(0);
 
-        List<BaseReadingRecord> bulkReadingsUpdatedSince = channel.getReadingsUpdatedSince(bulkReadingType, Range.<Instant>all(), since);
+        List<BaseReadingRecord> bulkReadingsUpdatedSince = channel.getReadingsUpdatedSince(bulkReadingType, Range.all(), since);
         assertThat(bulkReadingsUpdatedSince).isEmpty();
-        List<BaseReadingRecord> deltaReadingsUpdatedSince = channel.getReadingsUpdatedSince(deltaReadingType, Range.<Instant>all(), since);
+        List<BaseReadingRecord> deltaReadingsUpdatedSince = channel.getReadingsUpdatedSince(deltaReadingType, Range.all(), since);
         assertThat(deltaReadingsUpdatedSince).hasSize(1);
 
     }

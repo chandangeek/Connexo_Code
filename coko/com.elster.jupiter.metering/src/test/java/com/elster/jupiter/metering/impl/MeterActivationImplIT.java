@@ -301,19 +301,19 @@ public class MeterActivationImplIT {
         ZonedDateTime originalCutOff = ZonedDateTime.of(2012, 12, 25, 0, 0, 0, 0, ZoneId.systemDefault());
         ZonedDateTime newCutOff = ZonedDateTime.of(2012, 12, 20, 0, 0, 0, 0, ZoneId.systemDefault());
         MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
-        Meter meter = null;
-        MeterActivation currentActivation = null;
-        ReadingType readingType = null;
-        MeterActivation meterActivation = null;
+        Meter meter;
+        MeterActivation currentActivation;
+        ReadingType readingType;
+        MeterActivation meterActivation;
         try (TransactionContext ctx = inMemoryBootstrapModule.getTransactionService().getContext()) {
             AmrSystem system = meteringService.findAmrSystem(1).get();
             meter = system.newMeter("testAdvanceWithReadingsAndQualities").create();
             meterActivation = meter.activate(startTime.toInstant());
             meterActivation.endAt(originalCutOff.toInstant());
             readingType = meteringService.getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
-            Channel channel = meterActivation.createChannel(readingType);
+            meterActivation.createChannel(readingType);
             currentActivation = meter.activate(originalCutOff.toInstant());
-            Channel currentChannel = currentActivation.createChannel(readingType);
+            currentActivation.createChannel(readingType);
             MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
             IntervalBlockImpl intervalBlock = IntervalBlockImpl.of("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
             intervalBlock.addIntervalReading(IntervalReadingImpl.of(newCutOff.minusMinutes(15).toInstant(), BigDecimal.valueOf(4025, 2)));
