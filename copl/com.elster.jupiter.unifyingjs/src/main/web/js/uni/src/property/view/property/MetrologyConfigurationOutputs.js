@@ -1,5 +1,8 @@
 Ext.define('Uni.property.view.property.MetrologyConfigurationOutputs', {
     extend: 'Uni.property.view.property.Base',
+    requires: [
+        'Uni.grid.column.ReadingType'
+    ],
 
     msgTarget: 'under',
 
@@ -50,6 +53,7 @@ Ext.define('Uni.property.view.property.MetrologyConfigurationOutputs', {
                         flex: 1
                     },
                     {
+                        xtype: 'reading-type-column',
                         header: Uni.I18n.translate('general.readingType', 'UNI', 'Reading type'),
                         dataIndex: 'readingType',
                         flex: 1
