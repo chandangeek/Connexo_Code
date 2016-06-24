@@ -3077,23 +3077,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         //copy multiplier
         currentMeterActivation.flatMap(ma -> ma.getMultiplier(getDefaultMultiplierType()))
                 .ifPresent(m -> newMeterActivation.setMultiplier(getDefaultMultiplierType(), m));
-        //copy location
-        copyLocationAndGeoCoordinates(usagePoint);
-        save();
         return newMeterActivation;
-    }
-
-    private void copyLocationAndGeoCoordinates(UsagePoint usagePoint) {
-        usagePoint.getLocation().ifPresent(loc -> {
-            if (!location.isPresent()) {
-                setLocation(loc);
-            }
-        });
-        usagePoint.getGeoCoordinates().ifPresent(geo -> {
-            if (!geoCoordinates.isPresent()) {
-                setGeoCoordinates(geo);
-            }
-        });
     }
 
     private MeterRole getDefaultMeterRole() {
