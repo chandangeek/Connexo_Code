@@ -69,6 +69,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
+import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -142,6 +143,7 @@ public class DeviceResource {
     private final TimeOfUseInfoFactory timeOfUseInfoFactory;
     private final CalendarService calendarService;
     private final DeviceMessageService deviceMessageService;
+    private final Clock clock;
 
     @Inject
     public DeviceResource(
@@ -182,7 +184,7 @@ public class DeviceResource {
             CalendarInfoFactory calendarInfoFactory,
             TimeOfUseInfoFactory timeOfUseInfoFactory,
             CalendarService calendarService,
-            DeviceMessageService deviceMessageService) {
+            DeviceMessageService deviceMessageService, Clock clock) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.deviceService = deviceService;
@@ -221,6 +223,7 @@ public class DeviceResource {
         this.timeOfUseInfoFactory = timeOfUseInfoFactory;
         this.calendarService = calendarService;
         this.deviceMessageService = deviceMessageService;
+        this.clock = clock;
     }
 
     @GET
@@ -895,13 +898,16 @@ public class DeviceResource {
         if(!allowedOptions.contains(ProtocolSupportedCalendarOptions.CLEAR_AND_DISABLE_PASSIVE_TARIFF)) {
             throw exceptionFactory.newException(MessageSeeds.COMMAND_NOT_ALLOWED_OR_SUPPORTED);
         }
-        device.newDeviceMessage(DeviceMessageId.ACTIVITY_CALENDAR_CLEAR_AND_DISABLE_PASSIVE_TARIFF);
-        return Response.status(Response.Status.ACCEPTED).build();
+        DeviceMessage<Device> deviceMessage = device.newDeviceMessage(DeviceMessageId.ACTIVITY_CALENDAR_CLEAR_AND_DISABLE_PASSIVE_TARIFF).setReleaseDate(Instant.now(clock)).add();
+        boolean willBePickedUpByPlannedComtask = deviceMessageService.willDeviceMessageBePickedUpByPlannedComTask(device, deviceMessage);
+        boolean willBePickedUpByComtask = willBePickedUpByPlannedComtask || deviceMessageService.willDeviceMessageBePickedUpByComTask(device, deviceMessage);
+        return Response.accepted(new PlannedDeviceMessageInfo(willBePickedUpByPlannedComtask, willBePickedUpByComtask)).build();
     }
 
     private CalendarInfo transformToWeekCalendar(Calendar calendar, LocalDate localDate) {
         return calendarInfoFactory.detailedWeekFromCalendar(calendar, localDate);
     }
+
 
     private Optional<DeviceMessageId> getDeviceMessageId(SendCalendarInfo sendCalendarInfo, Set<ProtocolSupportedCalendarOptions> allowedOptions) {
         CalendarUpdateOption calendarUpdateOption = CalendarUpdateOption.find(sendCalendarInfo.calendarUpdateOption);
