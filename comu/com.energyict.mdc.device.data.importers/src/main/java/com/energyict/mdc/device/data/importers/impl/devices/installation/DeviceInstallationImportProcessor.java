@@ -1,14 +1,16 @@
 package com.energyict.mdc.device.data.importers.impl.devices.installation;
 
 import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.LocationBuilder;
 import com.elster.jupiter.metering.LocationTemplate.TemplateField;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.util.time.DefaultDateTimeFormatters;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.exceptions.UnsatisfiedReadingTypeRequirementsOfUsagePointException;
+import com.energyict.mdc.device.data.exceptions.UsagePointAlreadyLinkedToAnotherDeviceException;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
 import com.energyict.mdc.device.data.importers.impl.FileImportLogger;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
@@ -21,6 +23,10 @@ import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
 import com.energyict.mdc.device.lifecycle.config.DefaultCustomStateTransitionEventType;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +34,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class DeviceInstallationImportProcessor extends DeviceTransitionImportProcessor<DeviceInstallationImportRecord> {
+
+    private static final DateTimeFormatter timeFormatter = DefaultDateTimeFormatters.longDate().withLongTime().build().withZone(ZoneId.systemDefault());
 
     public DeviceInstallationImportProcessor(DeviceDataImporterContext context) {
         super(context);
@@ -141,11 +149,34 @@ public class DeviceInstallationImportProcessor extends DeviceTransitionImportPro
     }
 
     private void setUsagePoint(Device device, UsagePoint usagePoint, DeviceInstallationImportRecord data) {
-        getContext().getMeteringService().findAmrSystem(KnownAmrSystem.MDC.getId()).ifPresent(amrSystem -> {
-            amrSystem.findMeter(String.valueOf(device.getId())).ifPresent(meter -> {
-                usagePoint.activate(meter, data.getTransitionDate().orElse(getContext().getClock().instant()));
-            });
-        });
+        try {
+            device.activate(data.getTransitionDate().orElse(getContext().getClock().instant()), usagePoint);
+        } catch (UsagePointAlreadyLinkedToAnotherDeviceException e) {
+            rethrowAsProcessorException(e, usagePoint);
+        } catch (UnsatisfiedReadingTypeRequirementsOfUsagePointException e) {
+            rethrowAsProcessorException(e, device, usagePoint);
+        }
+    }
+
+    private void rethrowAsProcessorException(UsagePointAlreadyLinkedToAnotherDeviceException cause, UsagePoint usagePoint) {
+        Instant start = cause.getMeterActivation().getStart();
+        Instant end = cause.getMeterActivation().getEnd();
+        if (end == null) {
+            throw new ProcessorException(MessageSeeds.USAGE_POINT_ALREADY_LINKED_TO_ANOTHER_DEVICE,
+                    usagePoint.getMRID(), cause.getMeterActivation().getMeter().get().getMRID(), getFormattedInstant(start));
+        } else {
+            throw new ProcessorException(MessageSeeds.USAGE_POINT_ALREADY_LINKED_TO_ANOTHER_DEVICE_UNTIL,
+                    usagePoint.getMRID(), cause.getMeterActivation().getMeter().get().getMRID(), getFormattedInstant(start), getFormattedInstant(end));
+        }
+    }
+
+    private void rethrowAsProcessorException(UnsatisfiedReadingTypeRequirementsOfUsagePointException ex, Device device, UsagePoint usagePoint) {
+        throw new ProcessorException(MessageSeeds.UNSATISFIED_READING_TYPE_REQUIREMENTS_OF_USAGE_POINT, device.getmRID(), usagePoint.getMRID(),
+                UnsatisfiedReadingTypeRequirementsOfUsagePointException.buildRequirementsString(ex.getUnsatisfiedRequirements()));
+    }
+
+    static String getFormattedInstant(Instant time) {
+        return timeFormatter.format(LocalDateTime.ofInstant(time, ZoneId.systemDefault()));
     }
 
     @Override
