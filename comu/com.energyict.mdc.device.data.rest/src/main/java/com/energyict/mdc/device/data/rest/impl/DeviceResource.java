@@ -332,18 +332,28 @@ public class DeviceResource {
             if (slaveDeviceInfo.id == 0 && slaveDeviceInfo.version == 0) {
                 slave = newDevice(slaveDeviceInfo.deviceConfigurationId, null, slaveDeviceInfo.mRID, slaveDeviceInfo.serialNumber, slaveDeviceInfo.yearOfCertification);
             } else {
+                if (slaveDeviceInfo.isFromExistingLink()) {
+                    // No new link, came along with deviceinfo
+                    return;
+                }
                 slave = deviceService.findByUniqueMrid(slaveDeviceInfo.mRID)
                         .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE, slaveDeviceInfo.mRID));
             }
             final HashMap<Channel, Channel> channelMap = new HashMap<>();
             if (slaveDeviceInfo.dataLoggerSlaveChannelInfos != null) {
-                slaveDeviceInfo.dataLoggerSlaveChannelInfos.stream().map(info -> slaveDataLoggerChannelPair(slave, info)).forEach((pair) -> channelMap.put(pair.getFirst(), pair.getLast()));
+                slaveDeviceInfo.dataLoggerSlaveChannelInfos.stream()
+                        .map(info -> slaveDataLoggerChannelPair(slave, info))
+                        .forEach((pair) -> channelMap.put(pair.getFirst(), pair.getLast()));
             }
             final HashMap<Register, Register> registerMap = new HashMap<>();
             if (slaveDeviceInfo.dataLoggerSlaveRegisterInfos != null) {
-                slaveDeviceInfo.dataLoggerSlaveRegisterInfos.stream().map(info -> slaveDataLoggerRegisterPair(slave, info)).forEach((pair) -> registerMap.put(pair.getFirst(), pair.getLast()));
+                slaveDeviceInfo.dataLoggerSlaveRegisterInfos.stream()
+                        .map(info -> slaveDataLoggerRegisterPair(slave, info))
+                        .forEach((pair) -> registerMap.put(pair.getFirst(), pair.getLast()));
             }
-            topologyService.setDataLogger(slave, dataLogger, Instant.ofEpochSecond(slaveDeviceInfo.arrivalTimeStamp), channelMap, registerMap);
+            if (channelMap.size() + registerMap.size() > 0) {
+                topologyService.setDataLogger(slave, dataLogger, Instant.ofEpochMilli(slaveDeviceInfo.arrivalTimeStamp), channelMap, registerMap);
+            }
         }
     }
 

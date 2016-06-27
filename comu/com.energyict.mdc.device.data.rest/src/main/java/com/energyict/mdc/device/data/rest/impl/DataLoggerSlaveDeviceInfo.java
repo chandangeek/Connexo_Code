@@ -26,6 +26,7 @@ public class DataLoggerSlaveDeviceInfo {
     public long version;
     public long arrivalTimeStamp;
     public long terminationTimeStamp = -1L;
+    private boolean fromExistingLink;
 
     public List<DataLoggerSlaveChannelInfo> dataLoggerSlaveChannelInfos;   //mapping slave channel to data logger channel
     public List<DataLoggerSlaveRegisterInfo> dataLoggerSlaveRegisterInfos;   //mapping slave register to data logger register
@@ -59,6 +60,10 @@ public class DataLoggerSlaveDeviceInfo {
         return terminationTimeStamp >= 0;
     }
 
+    public boolean isFromExistingLink(){
+        return fromExistingLink;
+    }
+
     static DataLoggerSlaveDeviceInfo from(Device device) {
         DataLoggerSlaveDeviceInfo info = new DataLoggerSlaveDeviceInfo();
         info.id = device.getId();
@@ -69,6 +74,7 @@ public class DataLoggerSlaveDeviceInfo {
         info.serialNumber = device.getSerialNumber();
         info.yearOfCertification = device.getYearOfCertification();
         info.version = device.getVersion();
+        info.fromExistingLink = true;
         return info;
     }
 
