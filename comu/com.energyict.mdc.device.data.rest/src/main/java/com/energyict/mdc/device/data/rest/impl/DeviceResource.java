@@ -224,10 +224,10 @@ public class DeviceResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE)
-    public DeviceInfo addDevice(DeviceInfo info, @Context SecurityContext securityContext) {
+    public Response addDevice(DeviceInfo info, @Context SecurityContext securityContext) {
         Device newDevice= newDevice(info.deviceConfigurationId, info.batch, info.mRID, info.serialNumber, info.yearOfCertification );
         //TODO: Device Date should go on the device wharehouse (future development) - or to go on Batch - creation date
-        return deviceInfoFactory.from(newDevice, getSlaveDevicesForDevice(newDevice));
+        return Response.status(Response.Status.CREATED).entity(deviceInfoFactory.from(newDevice, getSlaveDevicesForDevice(newDevice))).build();
     }
 
     private Device newDevice(long deviceConfigurationId, String batch, String mRID, String serialNumber, int yearOfCertification){
@@ -241,6 +241,7 @@ public class DeviceResource {
         newDevice.setSerialNumber(serialNumber);
         newDevice.setYearOfCertification(yearOfCertification);
         newDevice.save();
+        newDevice.getLifecycleDates().setReceivedDate(info.shipmentDate).save();
         return newDevice;
     }
 

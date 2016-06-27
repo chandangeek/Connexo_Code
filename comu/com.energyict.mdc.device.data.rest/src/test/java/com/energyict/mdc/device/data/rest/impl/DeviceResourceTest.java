@@ -25,6 +25,7 @@ import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageBuilder;
 import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
@@ -81,6 +82,8 @@ import com.energyict.mdc.device.topology.impl.DataLoggerLinkException;
 import com.energyict.mdc.device.topology.impl.DataLoggerReferenceImpl;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
+import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
+import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.RegisterType;
@@ -128,6 +131,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.anyLong;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.eq;
@@ -151,6 +155,13 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     public void setupStubs() {
         readingType = mockReadingType("0.1.2.3.5.6.7.8.9.1.2.3.4.5.6.7.8");
         when(readingType.getCalculatedReadingType()).thenReturn(Optional.of(readingType));
+        IssueType dataCollectionIssueType = mock(IssueType.class);
+        when(issueService.findIssueType(IssueDataCollectionService.DATA_COLLECTION_ISSUE)).thenReturn(Optional.of(dataCollectionIssueType));
+        IssueType dataValidationIssueType = mock(IssueType.class);
+        when(issueService.findIssueType(IssueDataValidationService.ISSUE_TYPE_NAME)).thenReturn(Optional.of(dataValidationIssueType));
+        Finder<OpenIssue> issueFinder = mock(Finder.class);
+        when(issueFinder.find()).thenReturn(Collections.emptyList());
+        when(issueService.findOpenIssuesForDevice(any(String.class))).thenReturn(issueFinder);
     }
 
     @Test
@@ -2613,4 +2624,33 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         assertThat(response.getStatus()).isEqualTo(200);
     }
 
+
+    @Test
+    public void createWithShipmentDateTest() {
+        long deviceConfigId = 12L;
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        when(deviceConfigurationService.findDeviceConfiguration(deviceConfigId)).thenReturn(Optional.of(deviceConfiguration));
+        Device device = mock(Device.class, RETURNS_DEEP_STUBS);
+        when(batchService.findBatch(device)).thenReturn(Optional.empty());
+        when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.empty());
+        when(device.getCurrentMeterActivation()).thenReturn(Optional.empty());
+        CIMLifecycleDates cimLifecycleDates = mock(CIMLifecycleDates.class);
+        when(cimLifecycleDates.setReceivedDate(any(Instant.class))).thenReturn(cimLifecycleDates);
+        when(device.getLifecycleDates()).thenReturn(cimLifecycleDates);
+        when(device.getLocation()).thenReturn(Optional.empty());
+        when(device.getGeoCoordinates()).thenReturn(Optional.empty());
+        String mrid = "mrid";
+        when(deviceService.newDevice(deviceConfiguration, mrid, mrid)).thenReturn(device);
+        DeviceInfo deviceInfo = new DeviceInfo();
+        deviceInfo.mRID = mrid;
+        deviceInfo.deviceConfigurationId = deviceConfigId;
+        deviceInfo.serialNumber = "MySerialNumber";
+        deviceInfo.yearOfCertification = 1970;
+        Instant shipmentDate = Instant.ofEpochSecond(1467019262L);
+        deviceInfo.shipmentDate = shipmentDate;
+        when(cimLifecycleDates.getReceivedDate()).thenReturn(Optional.of(shipmentDate));
+        Response response = target("/devices/").request().post(Entity.json(deviceInfo));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
+        verify(cimLifecycleDates, times(1)).setReceivedDate(shipmentDate);
+    }
 }
