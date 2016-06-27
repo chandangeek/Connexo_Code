@@ -80,6 +80,8 @@ public interface ValidationService {
 
     boolean validationEnabled(Meter meter);
 
+    List<Meter> validationEnabledMetersIn(List<String> meterMrids);
+
     boolean validationOnStorageEnabled(Meter meter);
 
     /* last checked */

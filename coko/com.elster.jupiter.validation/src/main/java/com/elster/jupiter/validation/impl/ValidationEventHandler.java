@@ -95,7 +95,7 @@ public class ValidationEventHandler extends EventHandler<LocalEvent> {
                     map.computeIfPresent(entry.getKey().getChannel(), (channel, range) -> range.span(entry.getValue()));
                     map.computeIfAbsent(entry.getKey().getChannel(), channel -> entry.getValue());
                 },
-                (map1, map2) -> {} // no combiner, since we don't do this in parallel
+                (map1, map2) -> {/* no combiner, since we don't do this in parallel */}
         );
         return byChannel.entrySet().stream().collect(
                 HashMap::new,
@@ -106,7 +106,7 @@ public class ValidationEventHandler extends EventHandler<LocalEvent> {
                         return map1;
                     });
                 },
-                (map1, map2) -> {} // no combiner, since we don't do this in parallel
+                (map1, map2) -> {/* no combiner, since we don't do this in parallel */}
         );
     }
 
