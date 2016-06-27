@@ -1,5 +1,15 @@
 package com.elster.jupiter.metering.cim.soap.impl;
 
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.cim.impl.EnumeratedReadingTypeFilter;
+import com.elster.jupiter.metering.cim.impl.MeterReadingsGenerator;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.EndDeviceMembership;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.metering.groups.UsagePointMembership;
+
 import ch.iec.tc57._2011.getmeterreadings.EndDevice;
 import ch.iec.tc57._2011.getmeterreadings.FaultMessage;
 import ch.iec.tc57._2011.getmeterreadings.GetMeterReadings;
@@ -12,15 +22,6 @@ import ch.iec.tc57._2011.getmeterreadingsmessage.MeterReadingsPayloadType;
 import ch.iec.tc57._2011.getmeterreadingsmessage.ObjectFactory;
 import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.schema.message.ReplyType;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.cim.impl.EnumeratedReadingTypeFilter;
-import com.elster.jupiter.metering.cim.impl.MeterReadingsGenerator;
-import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.metering.groups.EndDeviceMembership;
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.metering.groups.UsagePointMembership;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 
@@ -74,6 +75,7 @@ public class GetMeterReadingsHandler implements GetMeterReadingsPort {
             addForRequestedEndDevices(request, meterReadingsPayloadType, range);
             addForRequestedUsagePointGroups(request, meterReadingsPayloadType, range);
             addForRequestedEndDeviceGroups(request, meterReadingsPayloadType, range);
+            throw new IllegalStateException("BVN");
         }
     }
 
