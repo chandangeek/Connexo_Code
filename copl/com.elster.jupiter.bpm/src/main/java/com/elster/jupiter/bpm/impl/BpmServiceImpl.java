@@ -108,7 +108,7 @@ public class BpmServiceImpl implements BpmService, TranslationKeyProvider, Messa
             }
         });
         bpmServer = new BpmServerImpl(context, threadPrincipalService);
-        upgradeService.register(identifier(COMPONENTNAME), dataModel, InstallerImpl.class, ImmutableMap.of(
+        upgradeService.register(identifier("Pulse", COMPONENTNAME), dataModel, InstallerImpl.class, ImmutableMap.of(
                 version(10, 2), UpgraderV10_2.class
         ));
     }
