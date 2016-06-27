@@ -175,7 +175,7 @@ class AverageWithSamplesEstimator extends AbstractEstimator {
         List<EstimationBlock> estimated = new ArrayList<>();
         Set<QualityCodeSystem> systems = Estimator.qualityCodeSystemsToTakeIntoAccount(system);
         for (EstimationBlock block : estimationBlocks) {
-            try (LoggingContext context = initLoggingContext(block)) {
+            try (LoggingContexts contexts = initLoggingContext(block)) {
                 if (!isEstimable(block)) {
                     remain.add(block);
                 } else {

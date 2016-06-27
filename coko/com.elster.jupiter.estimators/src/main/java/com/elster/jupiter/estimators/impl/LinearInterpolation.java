@@ -34,7 +34,7 @@ import java.util.logging.Logger;
 /**
  * Created by igh on 6/03/2015.
  */
-public class LinearInterpolation extends AbstractEstimator {
+class LinearInterpolation extends AbstractEstimator {
 
     public static final String MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS = TranslationKeys.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS.getKey();
     private static final Long MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE = 10L;
@@ -103,7 +103,7 @@ public class LinearInterpolation extends AbstractEstimator {
         List<EstimationBlock> remain = new ArrayList<>();
         List<EstimationBlock> estimated = new ArrayList<>();
         for (EstimationBlock block : estimationBlocks) {
-            try (LoggingContext context = initLoggingContext(block)) {
+            try (LoggingContexts contexts = initLoggingContext(block)) {
                 if (canEstimate(block)) {
                     estimate(block, remain, estimated);
                 } else {
@@ -213,10 +213,8 @@ public class LinearInterpolation extends AbstractEstimator {
 
         ImmutableMap<String, Consumer<Map.Entry<String, Object>>> propertyValidations = builder.build();
 
-        estimatorProperties.entrySet().forEach(property -> {
-            Optional.ofNullable(propertyValidations.get(property.getKey()))
-                    .ifPresent(validator -> validator.accept(property));
-        });
+        estimatorProperties.entrySet().forEach(property -> Optional.ofNullable(propertyValidations.get(property.getKey()))
+                .ifPresent(validator -> validator.accept(property)));
     }
 
 }

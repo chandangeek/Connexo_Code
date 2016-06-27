@@ -46,9 +46,11 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.elster.jupiter.util.streams.Predicates.either;
+
 class EqualDistribution extends AbstractEstimator implements Estimator {
-    static final String MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS = TranslationKeys.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS.getKey();
     static final String ADVANCE_READINGS_SETTINGS = TranslationKeys.ADVANCE_READINGS_SETTINGS.getKey();
+    public static final String MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS = TranslationKeys.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS.getKey();
     private static final long MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS_DEFAULT_VALUE = 10L;
 
     /**
@@ -123,7 +125,7 @@ class EqualDistribution extends AbstractEstimator implements Estimator {
         SimpleEstimationResult.EstimationResultBuilder builder = SimpleEstimationResult.builder();
         Set<QualityCodeSystem> systems = Estimator.qualityCodeSystemsToTakeIntoAccount(system);
         estimationBlocks.forEach(block -> {
-            try (LoggingContext context = initLoggingContext(block)) {
+            try (LoggingContexts contexts = initLoggingContext(block)) {
                 if (estimate(block, systems)) {
                     builder.addEstimated(block);
                 } else {

@@ -78,13 +78,13 @@ public class ValueFillEstimatorTest {
         doReturn(channelsContainer).when(channel).getChannelsContainer();
         doReturn(Optional.of(meter)).when(channelsContainer).getMeter();
 
-        LoggingContext.get().with("rule", "rule");
+        LoggingContext.getCloseableContext().with("rule", "rule");
     }
 
     @After
     public void tearDown() {
         LOGGER.removeHandler(logRecorder);
-        LoggingContext.get().close();
+        LoggingContext.getCloseableContext().close();
     }
 
     @Test
