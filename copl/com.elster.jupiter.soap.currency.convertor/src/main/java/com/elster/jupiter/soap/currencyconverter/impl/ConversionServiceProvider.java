@@ -9,9 +9,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.xml.ws.Service;
-import javax.xml.ws.WebServiceFeature;
-import java.net.URL;
-import java.util.List;
 
 /**
  * Created by bvn on 5/9/16.
@@ -30,9 +27,9 @@ public class ConversionServiceProvider implements OutboundEndPointProvider {
     }
 
     @Override
-    public Service get(URL wsdlUrl, List<WebServiceFeature> webServiceFeatures) {
+    public Service get() {
         try (ContextClassLoaderResource ctx = soapProviderSupportFactory.create()) {
-            return new CurrencyConvertor(wsdlUrl, webServiceFeatures.toArray(new WebServiceFeature[webServiceFeatures.size()]));
+            return new CurrencyConvertor();
         }
     }
 
