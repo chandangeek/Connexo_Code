@@ -124,7 +124,7 @@ public class JemStar extends Jem implements MessageProtocol  {
 				if (partialVals.size()>0)
 					bd = (BigDecimal)partialVals.remove(0);
 				else
-					bd = new BigDecimal(0);
+					bd = BigDecimal.ZERO;
 				values.add(bd.add(new BigDecimal(val)));
 
 			}

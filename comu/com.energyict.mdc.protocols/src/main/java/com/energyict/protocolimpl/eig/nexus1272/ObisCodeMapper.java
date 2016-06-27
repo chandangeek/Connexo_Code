@@ -3,9 +3,10 @@ package com.energyict.protocolimpl.eig.nexus1272;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+
 import com.energyict.protocolimpl.eig.nexus1272.command.AbstractCommand;
 import com.energyict.protocolimpl.eig.nexus1272.command.NexusCommandFactory;
 import com.energyict.protocolimpl.eig.nexus1272.command.ReadCommand;
@@ -184,7 +185,7 @@ public class ObisCodeMapper {
 							outputStream.write(c.build());
 							NexusDataParser ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
 							BigDecimal bd = ndp.parseF64();
-							BigDecimal divisor = new BigDecimal(1);
+							BigDecimal divisor = BigDecimal.ONE;
 							LinePoint lp = new LinePoint(563,0);
 							Unit unitEnergy = Unit.getUndefined();
 							if (lp.isScaled()) {
@@ -209,7 +210,7 @@ public class ObisCodeMapper {
 							outputStream.write(c.build());
 							NexusDataParser ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
 							BigDecimal bd = ndp.parseF64();
-							BigDecimal divisor = new BigDecimal(1);
+							BigDecimal divisor = BigDecimal.ONE;
 							LinePoint lp = new LinePoint(563,0);
 							Unit unitEnergy = Unit.getUndefined();
 							if (lp.isScaled()) {
@@ -234,7 +235,7 @@ public class ObisCodeMapper {
 							outputStream.write(c.build());
 							NexusDataParser ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
 							BigDecimal bd = ndp.parseF64();
-							BigDecimal divisor = new BigDecimal(1);
+							BigDecimal divisor = BigDecimal.ONE;
 							LinePoint lp = new LinePoint(563,0);
 							Unit unitEnergy = Unit.getUndefined();
 							if (lp.isScaled()) {
@@ -259,7 +260,7 @@ public class ObisCodeMapper {
 							outputStream.write(c.build());
 							NexusDataParser ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
 							BigDecimal bd = ndp.parseF64();
-							BigDecimal divisor = new BigDecimal(1);
+							BigDecimal divisor = BigDecimal.ONE;
 							LinePoint lp = new LinePoint(563,0);
 							Unit unitEnergy = Unit.getUndefined();
 							if (lp.isScaled()) {
@@ -396,7 +397,7 @@ public class ObisCodeMapper {
 							outputStream.write(c.build());
 							NexusDataParser ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
 							BigDecimal bd = ndp.parseF64();
-							BigDecimal divisor = new BigDecimal(1);
+							BigDecimal divisor = BigDecimal.ONE;
 							//TODO Get correct line and point numbers
 							LinePoint lp = new LinePoint(565,0);
 							Unit unitEnergy = Unit.getUndefined();
@@ -422,7 +423,7 @@ public class ObisCodeMapper {
 							outputStream.write(c.build());
 							NexusDataParser ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
 							BigDecimal bd = ndp.parseF64();
-							BigDecimal divisor = new BigDecimal(1);
+							BigDecimal divisor = BigDecimal.ONE;
 							//TODO Get correct line and point numbers
 							LinePoint lp = new LinePoint(565,0);
 							Unit unitEnergy = Unit.getUndefined();
@@ -448,7 +449,7 @@ public class ObisCodeMapper {
 							outputStream.write(c.build());
 							NexusDataParser ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
 							BigDecimal bd = ndp.parseF64();
-							BigDecimal divisor = new BigDecimal(1);
+							BigDecimal divisor = BigDecimal.ONE;
 							//TODO Get correct line and point numbers
 							LinePoint lp = new LinePoint(565,0);
 							Unit unitEnergy = Unit.getUndefined();
@@ -474,7 +475,7 @@ public class ObisCodeMapper {
 							outputStream.write(c.build());
 							NexusDataParser ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
 							BigDecimal bd = ndp.parseF64();
-							BigDecimal divisor = new BigDecimal(1);
+							BigDecimal divisor = BigDecimal.ONE;
 							//TODO Get correct line and point numbers
 							LinePoint lp = new LinePoint(565,0);
 							Unit unitEnergy = Unit.getUndefined();
@@ -517,7 +518,7 @@ public class ObisCodeMapper {
 							outputStream.write(c.build());
 							ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
 							BigDecimal bd2 = ndp.parseF64();
-							BigDecimal divisor = new BigDecimal(1);
+							BigDecimal divisor = BigDecimal.ONE;
 							//TODO Get correct line and point numbers
 							LinePoint lp = new LinePoint(567,0);
 							Unit unitEnergy = Unit.getUndefined();
@@ -553,7 +554,7 @@ public class ObisCodeMapper {
 							ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
 							BigDecimal bd2 = ndp.parseF64();
 
-							BigDecimal divisor = new BigDecimal(1);
+							BigDecimal divisor = BigDecimal.ONE;
 							//TODO Get correct line and point numbers
 							LinePoint lp = new LinePoint(567,0);
 							Unit unitEnergy = Unit.getUndefined();
@@ -589,7 +590,7 @@ public class ObisCodeMapper {
 							ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
 							BigDecimal bd2 = ndp.parseF64();
 
-							BigDecimal divisor = new BigDecimal(1);
+							BigDecimal divisor = BigDecimal.ONE;
 							//TODO Get correct line and point numbers
 							LinePoint lp = new LinePoint(567,0);
 							Unit unitEnergy = Unit.getUndefined();
@@ -636,7 +637,7 @@ public class ObisCodeMapper {
 							ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
 							BigDecimal bd2 = ndp.parseF64();
 
-							BigDecimal divisor = new BigDecimal(1);
+							BigDecimal divisor = BigDecimal.ONE;
 							//TODO Get correct line and point numbers
 							LinePoint lp = new LinePoint(569,0);
 							Unit unitEnergy = Unit.getUndefined();
@@ -672,7 +673,7 @@ public class ObisCodeMapper {
 							ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
 							BigDecimal bd2 = ndp.parseF64();
 
-							BigDecimal divisor = new BigDecimal(1);
+							BigDecimal divisor = BigDecimal.ONE;
 							//TODO Get correct line and point numbers
 							LinePoint lp = new LinePoint(569,0);
 							Unit unitEnergy = Unit.getUndefined();
@@ -708,7 +709,7 @@ public class ObisCodeMapper {
 							ndp = new NexusDataParser(connection.receiveWriteResponse(c).toByteArray());
 							BigDecimal bd2 = ndp.parseF64();
 
-							BigDecimal divisor = new BigDecimal(1);
+							BigDecimal divisor = BigDecimal.ONE;
 							//TODO Get correct line and point numbers
 							LinePoint lp = new LinePoint(569,0);
 							Unit unitEnergy = Unit.getUndefined();

@@ -12,6 +12,7 @@ package com.energyict.protocolimpl.edmi.mk10.loadsurvey;
 
 import com.energyict.mdc.common.Unit;
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.edmi.mk10.command.CommandFactory;
 import com.energyict.protocolimpl.edmi.mk10.core.SurveyChannelTypeParser;
 import com.energyict.protocolimpl.edmi.mk10.registermapping.MK10Register;
@@ -100,7 +101,7 @@ public class LoadSurvey {
 			if ((channel+1) == nrOfChannels) {
 				lsc.setName("Status channel"); //Last channel in loadsurvey is statuschannel.
 				lsc.setScaling(0);
-				lsc.setScalingFactor(new BigDecimal(0));
+				lsc.setScalingFactor(BigDecimal.ZERO);
 				lsc.setUnit(Unit.get(""));
 				lsc.setType('C');
 				lsc.setWidth(1);

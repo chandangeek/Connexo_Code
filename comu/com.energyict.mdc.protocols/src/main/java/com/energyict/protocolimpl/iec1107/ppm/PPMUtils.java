@@ -128,7 +128,7 @@ public class PPMUtils {
 		}
 		BigDecimal bd = BigDecimal.valueOf(Long.parseLong(Long.toHexString(ProtocolUtils.getLong(data, offset, length))));
 		if (scale == null) {
-			bd = new BigDecimal(0);
+			bd = BigDecimal.ZERO;
 		} else {
 			bd = bd.multiply(scale);
 		}

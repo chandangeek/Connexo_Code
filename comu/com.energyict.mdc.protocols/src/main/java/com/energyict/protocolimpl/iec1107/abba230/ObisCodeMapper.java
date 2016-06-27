@@ -9,9 +9,10 @@ package com.energyict.protocolimpl.iec1107.abba230;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+
 import com.energyict.protocolimpl.iec1107.abba230.eventlogs.EndOfBillingEventLog;
 
 import java.io.IOException;
@@ -77,7 +78,7 @@ public class ObisCodeMapper {
                 if (read) {
                     HistoricalRegister hv = (HistoricalRegister)rFactory.getRegister("HistoricalRegister",bp);
 
-                    Quantity quantity = new Quantity( new BigDecimal(0),Unit.get(255) );
+                    Quantity quantity = new Quantity( BigDecimal.ZERO,Unit.get(255) );
                     Date eventTime = hv.getBillingDate();
                     Date fromTime = null;
                     Date toTime = hv.getBillingDate();
@@ -93,7 +94,7 @@ public class ObisCodeMapper {
                 if (read) {
                     HistoricalRegister hv = (HistoricalRegister)rFactory.getRegister("DailyHistoricalRegister",bp);
 
-                    Quantity quantity = new Quantity( new BigDecimal(0),Unit.get(255) );
+                    Quantity quantity = new Quantity( BigDecimal.ZERO,Unit.get(255) );
                     Date eventTime = hv.getBillingDate();
                     Date fromTime = null;
                     Date toTime = hv.getBillingDate();

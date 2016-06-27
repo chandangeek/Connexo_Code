@@ -1,9 +1,10 @@
 package com.energyict.protocolimpl.eig.nexus1272;
 
-import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.common.interval.IntervalStateBits;
+import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.eig.nexus1272.command.Command;
 import com.energyict.protocolimpl.eig.nexus1272.command.NexusCommandFactory;
@@ -102,7 +103,7 @@ public class Historical2LogReader extends AbstractLogReader {
 							found = true;
 							BigDecimal val =new BigDecimal( parseF64(byteArray, offset));
 							offset+=4;
-							BigDecimal divisor = new BigDecimal(1);
+							BigDecimal divisor = BigDecimal.ONE;
 							if (lp.isScaled()) {
 								ScaledEnergySetting ses = sesf.getScaledEnergySetting(lp);
 								int numDecimals = ses.getNumDecimalPlaces();
