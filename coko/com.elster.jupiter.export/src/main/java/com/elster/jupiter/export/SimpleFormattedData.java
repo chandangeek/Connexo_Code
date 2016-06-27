@@ -38,7 +38,7 @@ public class SimpleFormattedData implements FormattedData {
     }
 
     private ImmutableList<FormattedExportData> mergedData(SimpleFormattedData other) {
-        ArrayList<FormattedExportData> datas = new ArrayList<>(data);
+        List<FormattedExportData> datas = new ArrayList<>(data);
         datas.addAll(other.data);
         datas.sort(Comparator.comparing(this::toSortKey));
         return ImmutableList.copyOf(datas);
