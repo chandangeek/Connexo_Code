@@ -57,7 +57,7 @@ public class FunctionCodeFactory {
         else return null;
     }
 
-    public ReadGeneralReferenceRequest readGeneralReferenceRequest(long referenceSpec)throws IOException {
+    public ReadGeneralReferenceRequest readGeneralReferenceRequest(int referenceSpec)throws IOException {
         ReadGeneralReferenceRequest readGeneralReferenceRegistersRequest = new ReadGeneralReferenceRequest(this);
         readGeneralReferenceRegistersRequest.setReferenceSpec(referenceSpec);
         readGeneralReferenceRegistersRequest.build();
