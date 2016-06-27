@@ -20,6 +20,11 @@ import java.util.Optional;
  */
 public class ProtocolDialectPropertiesPersistenceSupport implements PersistenceSupport<DeviceProtocolDialectPropertyProvider, PersistentProtocolDialectProperties> {
     @Override
+    public String application() {
+        return "MultiSense";
+    }
+
+    @Override
     public String componentName() {
         return "T01";
     }
