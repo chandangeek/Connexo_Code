@@ -93,8 +93,8 @@ public enum ReadingQualitiesTranslationKeys implements TranslationKey {
 
     SYSTEM_NOTAPPLICABLE("ReadingQualitySystem_NOTAPPLICABLE", "Not applicable"),
     SYSTEM_ENDDEVICE("ReadingQualitySystem_ENDDEVICE", "Device"),
-    SYSTEM_MDC("ReadingQualitySystem_MDC", "MultiSense"),
-    SYSTEM_MDM("ReadingQualitySystem_MDM", "Insight"),
+    SYSTEM_MDC("ReadingQualitySystem_MDC", "MDC"),
+    SYSTEM_MDM("ReadingQualitySystem_MDM", "MDM"),
     SYSTEM_OTHER("ReadingQualitySystem_OTHER", "Other system (third party)"),
     SYSTEM_EXTERNAL("ReadingQualitySystem_EXTERNAL", "Externally specified (third party)");
 
