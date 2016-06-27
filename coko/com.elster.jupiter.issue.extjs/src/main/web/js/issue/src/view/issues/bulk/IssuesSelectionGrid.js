@@ -19,6 +19,11 @@ Ext.define('Isu.view.issues.bulk.IssuesSelectionGrid', {
     columns: {
         items: [
             {
+                itemId: 'issues-grid-id',
+                header: Uni.I18n.translate('general.title.issueId', 'ISU', 'Id'),
+                dataIndex: 'issueId'
+            },
+            {
                 itemId: 'issues-grid-title',
                 header: Uni.I18n.translate('general.title.issue', 'ISU', 'Issue'),
                 dataIndex: 'title',
