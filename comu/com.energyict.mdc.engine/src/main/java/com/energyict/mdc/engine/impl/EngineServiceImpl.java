@@ -387,9 +387,7 @@ public class EngineServiceImpl implements EngineService, TranslationKeyProvider,
 
         upgradeService.register(InstallIdentifier.identifier(EngineService.COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
 
-        if (this.dataModel.isInstalled()) {
-            this.tryStartComServer();
-        }
+        this.tryStartComServer();
     }
 
     private void setHostNameIfOverruled(BundleContext context) {

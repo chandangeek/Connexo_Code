@@ -1,13 +1,16 @@
 package com.energyict.mdc.engine.impl.commands.offline;
 
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessageAttribute;
 
+import java.io.File;
+
 /**
  * Straightforward implementation of an OfflineDeviceMessageAttribute
- *
+ * <p>
  * Copyrights EnergyICT
  * Date: 11/6/14
  * Time: 8:57 AM
@@ -37,7 +40,19 @@ public class OfflineDeviceMessageAttributeImpl implements OfflineDeviceMessageAt
 
     private void goOffline() {
         this.name = this.deviceMessageAttribute.getName();
-        this.deviceMessageAttributeValue = deviceProtocol.format(this.deviceMessageAttribute.getSpecification(), this.deviceMessageAttribute.getValue());
+        Object value = this.deviceMessageAttribute.getValue();
+
+        if (value instanceof FirmwareVersion) {
+            //If the attribute is a FirmwareVersion, use the caching mechanism of the ComServer.
+            //A temp file will be created for this FirmwareVersion, if it did not exist yet.
+            //The path to this temp file is then provided to the protocols, which can then use it to send the file to the device.
+
+            FirmwareVersion firmwareVersion = (FirmwareVersion) value;
+            File tempFile = FirmwareCache.findOrCreateTempFile(firmwareVersion);
+            value = tempFile.getAbsolutePath();
+        }
+
+        this.deviceMessageAttributeValue = deviceProtocol.format(this.deviceMessageAttribute.getSpecification(), value);
         this.propertySpec = this.deviceMessageAttribute.getSpecification();
     }
 
