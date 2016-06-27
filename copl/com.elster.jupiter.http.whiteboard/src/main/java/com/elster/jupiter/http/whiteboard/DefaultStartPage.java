@@ -94,22 +94,38 @@ public final class DefaultStartPage implements StartPage {
 
     @Override
     public List<Script> getScripts() {
-        return Collections.unmodifiableList(scripts);
+        return this.unmodifiableList(scripts);
     }
 
     @Override
     public List<String> getTranslationComponents() {
-        return Collections.unmodifiableList(translationComponents);
+        return this.unmodifiableList(translationComponents);
     }
 
     @Override
     public List<String> getStyleSheets() {
-        return Collections.unmodifiableList(styleSheets);
+        return this.unmodifiableList(styleSheets);
     }
 
     @Override
     public Map<String, String> getDependencies() {
-        return Collections.unmodifiableMap(dependencies);
+        return this.unmodifiableMap(dependencies);
+    }
+
+    private <T> List<T> unmodifiableList(List<T> list) {
+        if (list != null) {
+            return Collections.unmodifiableList(list);
+        } else {
+            return null;
+        }
+    }
+
+    private <K, V> Map<K, V> unmodifiableMap(Map<K, V> map) {
+        if (map != null) {
+            return Collections.unmodifiableMap(map);
+        } else {
+            return null;
+        }
     }
 
 }
