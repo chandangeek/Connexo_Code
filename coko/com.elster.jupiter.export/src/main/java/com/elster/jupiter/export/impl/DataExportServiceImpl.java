@@ -325,7 +325,7 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
             } else {
                 tempDirectory = fileSystem.getPath(tempDirectoryPath);
             }
-            upgradeService.register(InstallIdentifier.identifier(COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
+            upgradeService.register(InstallIdentifier.identifier("Pulse", COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
         } catch (RuntimeException e) {
             e.printStackTrace();
             throw e;
