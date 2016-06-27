@@ -2204,6 +2204,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(dates.getRemovedDate()).thenReturn(Optional.of(now.minus(3, ChronoUnit.DAYS)));
         when(dates.getRetiredDate()).thenReturn(Optional.of(now.minus(2, ChronoUnit.DAYS)));
         when(device.getLifecycleDates()).thenReturn(dates);
+        when(device.getLocation()).thenReturn(Optional.empty());
+        when(device.getGeoCoordinates()).thenReturn(Optional.empty());
 
         when(deviceService.findByUniqueMrid(name)).thenReturn(Optional.of(device));
         when(deviceService.findAndLockDeviceBymRIDAndVersion(eq(name), anyLong())).thenReturn(Optional.of(device));
