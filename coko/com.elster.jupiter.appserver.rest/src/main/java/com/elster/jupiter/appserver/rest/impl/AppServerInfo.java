@@ -4,6 +4,7 @@ import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.appserver.ImportScheduleOnAppServer;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.util.streams.Functions;
 
 import java.util.List;
@@ -11,7 +12,6 @@ import java.util.stream.Collectors;
 
 public class AppServerInfo {
 
-    private EndPointConfigurationInfoFactory endPointConfigurationInfoFactory;
     public String name;
     public boolean active;
     public List<SubscriberExecutionSpecInfo> executionSpecs;
@@ -24,12 +24,12 @@ public class AppServerInfo {
     public AppServerInfo() {
     }
 
-    public static AppServerInfo of(AppServer appServer, String importPath, String exportPath, Thesaurus thesaurus) {
-        return new AppServerInfo(appServer, importPath, exportPath, thesaurus);
+    public static AppServerInfo of(AppServer appServer, String importPath, String exportPath, Thesaurus thesaurus, WebServicesService webServicesService) {
+        return new AppServerInfo(appServer, importPath, exportPath, thesaurus, webServicesService);
     }
 
-    public AppServerInfo(AppServer appServer, String importPath, String exportPath, Thesaurus thesaurus) {
-        endPointConfigurationInfoFactory = new EndPointConfigurationInfoFactory(thesaurus);
+    public AppServerInfo(AppServer appServer, String importPath, String exportPath, Thesaurus thesaurus, WebServicesService webServicesService) {
+        EndPointConfigurationInfoFactory endPointConfigurationInfoFactory = new EndPointConfigurationInfoFactory(thesaurus, webServicesService);
         name = appServer.getName();
         active = appServer.isActive();
         version = appServer.getVersion();

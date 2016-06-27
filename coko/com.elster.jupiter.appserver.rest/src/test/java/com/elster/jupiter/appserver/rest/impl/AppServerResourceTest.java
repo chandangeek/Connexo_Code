@@ -21,7 +21,6 @@ import com.elster.jupiter.util.cron.CronExpression;
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
-import javax.xml.ws.Endpoint;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -37,7 +36,6 @@ import org.mockito.stubbing.Answer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
@@ -106,7 +104,7 @@ public class AppServerResourceTest extends AppServerApplicationTest {
         when(cronExpressionParser.parse(any(String.class))).thenReturn(Optional.of(cronExpression));
         when(appService.createAppServer(eq("NEW-APP-SERVER"), eq(cronExpression))).thenReturn(newAppServer);
 
-        AppServerInfo info = new AppServerInfo(newAppServer, "bla", "bla", thesaurus);
+        AppServerInfo info = new AppServerInfo(newAppServer, "bla", "bla", thesaurus, webServicesService);
         Entity<AppServerInfo> json = Entity.json(info);
 
         Response response = target("/appserver").request().post(json);
@@ -116,7 +114,7 @@ public class AppServerResourceTest extends AppServerApplicationTest {
     @Test
     public void testUpdateAppServer() {
         AppServer appServer = mockAppServer();
-        AppServerInfo info = new AppServerInfo(appServer, "bla", "bla", thesaurus);
+        AppServerInfo info = new AppServerInfo(appServer, "bla", "bla", thesaurus, webServicesService);
         ImportScheduleInfo updateImportInfo = new ImportScheduleInfo();
         updateImportInfo.id = 2;
         updateImportInfo.name = "UPDATE-IMPORT";
@@ -151,7 +149,7 @@ public class AppServerResourceTest extends AppServerApplicationTest {
     @Test
     public void testRemoveAppServer() {
         AppServer appServer = mockAppServer();
-        AppServerInfo info = new AppServerInfo(appServer, "bla", "bla", thesaurus);
+        AppServerInfo info = new AppServerInfo(appServer, "bla", "bla", thesaurus, webServicesService);
         Entity<AppServerInfo> json = Entity.json(info);
 
         Response response = target("/appserver/APPSERVER").request().build(HttpMethod.DELETE, json).invoke();
@@ -164,7 +162,7 @@ public class AppServerResourceTest extends AppServerApplicationTest {
     public void testActivateAppServer() {
         AppServer appServer = mockAppServer();
         when(appServer.isActive()).thenReturn(false);
-        AppServerInfo info = new AppServerInfo(appServer, null, null, thesaurus);
+        AppServerInfo info = new AppServerInfo(appServer, null, null, thesaurus, webServicesService);
         info.active = true;
         info.exportDirectory = "c:\\export";
         info.importDirectory = "c:\\import";
@@ -180,7 +178,7 @@ public class AppServerResourceTest extends AppServerApplicationTest {
     public void testDeactivateAppServer() {
         AppServer appServer = mockAppServer();
         when(appServer.isActive()).thenReturn(true);
-        AppServerInfo info = new AppServerInfo(appServer, null, null, thesaurus);
+        AppServerInfo info = new AppServerInfo(appServer, null, null, thesaurus, webServicesService);
         info.active = false;
         info.exportDirectory = "c:\\export";
         info.importDirectory = "c:\\import";
@@ -411,7 +409,7 @@ public class AppServerResourceTest extends AppServerApplicationTest {
         when(appService.findAppServer("appserverName")).thenReturn(Optional.empty());
 
         AppServer appServer = mockAppServer();
-        AppServerInfo info = new AppServerInfo(appServer, "bla", "bla", thesaurus);
+        AppServerInfo info = new AppServerInfo(appServer, "bla", "bla", thesaurus, webServicesService);
         info.name = "appserverName";
         info.version = 7;
         Response response = target("appserver/appserverName").request().put(Entity.json(info));

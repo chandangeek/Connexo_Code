@@ -8,6 +8,7 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 
 import javax.ws.rs.core.Application;
@@ -39,6 +40,9 @@ public class AppServerApplicationTest extends FelixRestApplicationJerseyTest {
     static SecurityContext securityContext;
     @Mock
     EndPointConfigurationService endPointConfigurationService;
+    @Mock
+    WebServicesService webServicesService;
+
 
     @Override
     protected Application getApplication() {
@@ -54,6 +58,7 @@ public class AppServerApplicationTest extends FelixRestApplicationJerseyTest {
         application.setNlsService(nlsService);
         application.setDataExportService(dataExportService);
         application.setEndPointConfigurationService(endPointConfigurationService);
+        application.setWebServicesService(webServicesService);
         application.setFileSystem(fileSystem);
         return application;
     }

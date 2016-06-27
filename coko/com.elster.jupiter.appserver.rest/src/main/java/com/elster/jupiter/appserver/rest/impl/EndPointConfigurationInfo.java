@@ -15,6 +15,7 @@ public class EndPointConfigurationInfo {
     public Boolean httpCompression;
     public Boolean schemaValidation;
     public Boolean active;
+    public Boolean available;
     public IdWithLocalizedValueInfo<EndPointAuthentication> authenticationMethod;
     public String password;
     public String type = "SOAP";

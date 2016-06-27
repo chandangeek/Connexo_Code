@@ -75,9 +75,10 @@ public class AppServerResource {
     private final FileSystem fileSystem;
     private final EndPointConfigurationService endPointConfigurationService;
     private final EndPointConfigurationInfoFactory endPointConfigurationInfoFactory;
+    private final WebServicesService webServicesService;
 
     @Inject
-    public AppServerResource(RestQueryService queryService, AppService appService, MessageService messageService, FileImportService fileImportService, TransactionService transactionService, CronExpressionParser cronExpressionParser, Thesaurus thesaurus, DataExportService dataExportService, FileSystem fileSystem, ConcurrentModificationExceptionFactory conflictFactory, EndPointConfigurationService endPointConfigurationService, EndPointConfigurationInfoFactory endPointConfigurationInfoFactory) {
+    public AppServerResource(RestQueryService queryService, AppService appService, MessageService messageService, FileImportService fileImportService, TransactionService transactionService, CronExpressionParser cronExpressionParser, Thesaurus thesaurus, DataExportService dataExportService, FileSystem fileSystem, ConcurrentModificationExceptionFactory conflictFactory, EndPointConfigurationService endPointConfigurationService, EndPointConfigurationInfoFactory endPointConfigurationInfoFactory, WebServicesService webServicesService) {
         this.queryService = queryService;
         this.appService = appService;
         this.messageService = messageService;
@@ -90,6 +91,7 @@ public class AppServerResource {
         this.fileSystem = fileSystem;
         this.endPointConfigurationService = endPointConfigurationService;
         this.endPointConfigurationInfoFactory = endPointConfigurationInfoFactory;
+        this.webServicesService = webServicesService;
     }
 
     private AppServer fetchAppServer(String appServerName) {
@@ -116,7 +118,7 @@ public class AppServerResource {
                 .map(appServer -> {
                     String exportDir = dataExportService.getExportDirectory(appServer).map(Object::toString).orElse(null);
                     String importDir = appServer.getImportDirectory().map(Object::toString).orElse(null);
-                    return AppServerInfo.of(appServer, importDir, exportDir, thesaurus);
+                    return AppServerInfo.of(appServer, importDir, exportDir, thesaurus, webServicesService);
                 })
                 .collect(Collectors.toCollection(ArrayList::new));
 
@@ -132,7 +134,7 @@ public class AppServerResource {
         AppServer appServer = fetchAppServer(appServerName);
         String importPath = appServer.getImportDirectory().map(Object::toString).orElse(null);
         String exportPath = dataExportService.getExportDirectory(appServer).map(Object::toString).orElse(null);
-        return AppServerInfo.of(appServer, importPath, exportPath, thesaurus);
+        return AppServerInfo.of(appServer, importPath, exportPath, thesaurus, webServicesService);
     }
 
     @POST
@@ -185,7 +187,9 @@ public class AppServerResource {
             }
             context.commit();
         }
-        return Response.status(Response.Status.CREATED).entity(AppServerInfo.of(appServer, info.importDirectory, info.exportDirectory, thesaurus)).build();
+        return Response.status(Response.Status.CREATED)
+                .entity(AppServerInfo.of(appServer, info.importDirectory, info.exportDirectory, thesaurus, webServicesService))
+                .build();
     }
 
     @PUT
@@ -217,7 +221,9 @@ public class AppServerResource {
 
             context.commit();
         }
-        return Response.status(Response.Status.CREATED).entity(AppServerInfo.of(appServer, info.importDirectory, info.exportDirectory, thesaurus)).build();
+        return Response.status(Response.Status.CREATED)
+                .entity(AppServerInfo.of(appServer, info.importDirectory, info.exportDirectory, thesaurus, webServicesService))
+                .build();
     }
 
     @DELETE

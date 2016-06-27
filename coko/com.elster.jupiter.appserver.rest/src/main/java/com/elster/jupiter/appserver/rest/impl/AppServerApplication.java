@@ -11,6 +11,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -48,6 +49,7 @@ public class AppServerApplication extends Application implements MessageSeedProv
 
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
+    private volatile WebServicesService webServicesService;
 
     public Set<Class<?>> getClasses() {
         return ImmutableSet.<Class<?>>of(
@@ -58,6 +60,11 @@ public class AppServerApplication extends Application implements MessageSeedProv
     @Reference
     public void setAppService(AppService appService) {
         this.appService = appService;
+    }
+
+    @Reference
+    public void setWebServicesService(WebServicesService webServicesService) {
+        this.webServicesService = webServicesService;
     }
 
     @Reference
@@ -128,6 +135,7 @@ public class AppServerApplication extends Application implements MessageSeedProv
                 bind(dataExportService).to(DataExportService.class);
                 bind(endPointConfigurationService).to(EndPointConfigurationService.class);
                 bind(EndPointConfigurationInfoFactory.class).to(EndPointConfigurationInfoFactory.class);
+                bind(webServicesService).to(WebServicesService.class);
             }
         });
         return Collections.unmodifiableSet(hashSet);
