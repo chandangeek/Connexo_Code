@@ -10,6 +10,7 @@ import org.osgi.framework.ServiceRegistration;
 import javax.inject.Inject;
 import javax.xml.ws.Service;
 import javax.xml.ws.WebServiceFeature;
+import javax.xml.ws.spi.Provider;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -41,15 +42,19 @@ public final class OutboundEndPoint implements ManagedEndpoint {
         if (this.isPublished()) {
             throw new IllegalStateException("Service already published");
         }
-        List<WebServiceFeature> features = new ArrayList<>();
         try {
-            Service service = endPointProvider.get(new URL(endPointConfiguration.getUrl()), features);
+            List<WebServiceFeature> features = new ArrayList<>();
+            Service providedService = endPointProvider.get();
+            Provider.provider().createServiceDelegate(new URL(endPointConfiguration.getUrl()),
+                    providedService.getServiceName(),
+                    providedService.getClass(),
+                    features.toArray(new WebServiceFeature[features.size()]));
             serviceRegistration = bundleContext.registerService(
                     endPointProvider.getService(),
-                    service.getPort(endPointProvider.getService()),
+                    providedService.getPort(endPointProvider.getService()),
                     null);
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            endPointConfiguration.log("Failed to publish endpoint", e);
         }
     }
 
