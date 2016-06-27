@@ -231,8 +231,9 @@ public class DeviceResource {
         newDevice.setSerialNumber(info.serialNumber);
         newDevice.setYearOfCertification(info.yearOfCertification);
         newDevice.save();
+        newDevice.getLifecycleDates().setReceivedDate(info.shipmentDate).save();
 
-        //TODO: Device Date should go on the device wharehouse (future development) - or to go on Batch - creation date
+        //TODO: Device Date should go on the device warehouse (future development) - or to go on Batch - creation date
         return deviceInfoFactory.from(newDevice, getSlaveDevicesForDevice(newDevice));
     }
 
