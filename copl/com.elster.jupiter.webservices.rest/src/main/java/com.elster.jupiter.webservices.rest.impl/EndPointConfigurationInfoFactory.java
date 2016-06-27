@@ -10,6 +10,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.UserService;
 
@@ -24,13 +25,15 @@ public class EndPointConfigurationInfoFactory {
     private final EndPointConfigurationService endPointConfigurationService;
     private final UserService userService;
     private final ExceptionFactory exceptionFactory;
+    private final WebServicesService webServicesService;
 
     @Inject
-    public EndPointConfigurationInfoFactory(Thesaurus thesaurus, EndPointConfigurationService endPointConfigurationService, UserService userService, ExceptionFactory exceptionFactory) {
+    public EndPointConfigurationInfoFactory(Thesaurus thesaurus, EndPointConfigurationService endPointConfigurationService, UserService userService, ExceptionFactory exceptionFactory, WebServicesService webServicesService) {
         this.thesaurus = thesaurus;
         this.endPointConfigurationService = endPointConfigurationService;
         this.userService = userService;
         this.exceptionFactory = exceptionFactory;
+        this.webServicesService = webServicesService;
     }
 
     public EndPointConfigurationInfo from(EndPointConfiguration endPointConfiguration) {
@@ -40,6 +43,7 @@ public class EndPointConfigurationInfoFactory {
         info.version = endPointConfiguration.getVersion();
         info.url = endPointConfiguration.getUrl();
         info.active = endPointConfiguration.isActive();
+        info.available = webServicesService.getWebService(endPointConfiguration.getWebServiceName()).isPresent();
         info.webServiceName = endPointConfiguration.getWebServiceName();
         info.logLevel = new IdWithLocalizedValueInfo<>(endPointConfiguration.getLogLevel()
                 .name(), endPointConfiguration.getLogLevel()

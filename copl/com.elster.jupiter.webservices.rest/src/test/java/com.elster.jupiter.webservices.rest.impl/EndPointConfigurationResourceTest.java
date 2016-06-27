@@ -104,6 +104,7 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
         assertThat(jsonModel.<String>get("authenticationMethod.id")).isEqualTo("NONE");
         assertThat(jsonModel.<Boolean>get("tracing")).isEqualTo(Boolean.TRUE);
         assertThat(jsonModel.<Boolean>get("active")).isEqualTo(Boolean.TRUE);
+        assertThat(jsonModel.<Boolean>get("available")).isEqualTo(Boolean.TRUE);
         assertThat(jsonModel.<Boolean>get("httpCompression")).isEqualTo(Boolean.TRUE);
         assertThat(jsonModel.<String>get("username")).isNull();
         assertThat(jsonModel.<String>get("password")).isNull();
