@@ -220,7 +220,7 @@ public class DeviceResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE)
-    public DeviceInfo addDevice(DeviceInfo info, @Context SecurityContext securityContext) {
+    public Response addDevice(DeviceInfo info, @Context SecurityContext securityContext) {
         Optional<DeviceConfiguration> deviceConfiguration = deviceConfigurationService.findDeviceConfiguration(info.deviceConfigurationId);
         Device newDevice;
         if (!is(info.batch).emptyOrOnlyWhiteSpace()) {
@@ -234,7 +234,7 @@ public class DeviceResource {
         newDevice.getLifecycleDates().setReceivedDate(info.shipmentDate).save();
 
         //TODO: Device Date should go on the device warehouse (future development) - or to go on Batch - creation date
-        return deviceInfoFactory.from(newDevice, getSlaveDevicesForDevice(newDevice));
+        return Response.status(Response.Status.CREATED).entity(deviceInfoFactory.from(newDevice, getSlaveDevicesForDevice(newDevice))).build();
     }
 
     @PUT
