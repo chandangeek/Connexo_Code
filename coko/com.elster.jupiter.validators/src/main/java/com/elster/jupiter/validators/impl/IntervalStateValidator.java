@@ -196,7 +196,7 @@ class IntervalStateValidator extends AbstractValidator {
             this.name = name;
         }
 
-        public Flag getFlag() {
+        Flag getFlag() {
             return flag;
         }
 
