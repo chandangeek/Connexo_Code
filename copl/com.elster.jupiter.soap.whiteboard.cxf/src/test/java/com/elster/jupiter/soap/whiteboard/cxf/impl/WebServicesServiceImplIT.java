@@ -19,6 +19,7 @@ import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -159,7 +160,7 @@ public class WebServicesServiceImplIT {
     public void testCreateInboundEndpoint() {
         try (TransactionContext context = transactionService.getContext()) {
             EndPointConfiguration endPointConfiguration = endPointConfigurationService.newInboundEndPointConfiguration("service", "webservice", "/srv")
-                    .setAuthenticationMethod(EndPointAuthentication.NONE).create();
+                    .setAuthenticationMethod(EndPointAuthentication.NONE).logLevel(LogLevel.SEVERE).create();
             assertThat(endPointConfigurationService.findEndPointConfigurations().find()).hasSize(1);
         }
     }
@@ -168,7 +169,7 @@ public class WebServicesServiceImplIT {
     public void testCreateOutboundEndpoint() {
         try (TransactionContext context = transactionService.getContext()) {
             EndPointConfiguration endPointConfiguration = endPointConfigurationService.newOutboundEndPointConfiguration("service", "webservice", "/srv")
-                    .setAuthenticationMethod(EndPointAuthentication.NONE).create();
+                    .setAuthenticationMethod(EndPointAuthentication.NONE).logLevel(LogLevel.INFO).create();
             assertThat(endPointConfigurationService.findEndPointConfigurations().find()).hasSize(1);
         }
     }
@@ -179,7 +180,10 @@ public class WebServicesServiceImplIT {
         try (TransactionContext context = transactionService.getContext()) {
 
             EndPointConfiguration endPointConfiguration = endPointConfigurationService.newOutboundEndPointConfiguration("service", "webservice", "/srv")
-                    .setAuthenticationMethod(EndPointAuthentication.BASIC_AUTHENTICATION).password("pass").create();
+                    .setAuthenticationMethod(EndPointAuthentication.BASIC_AUTHENTICATION)
+                    .logLevel(LogLevel.INFO)
+                    .password("pass")
+                    .create();
 
         }
     }
