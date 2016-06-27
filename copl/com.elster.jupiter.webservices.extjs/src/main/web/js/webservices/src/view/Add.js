@@ -13,7 +13,7 @@ Ext.define('Wss.view.Add', {
                 xtype: 'panel',
                 ui: 'large',
                 layout: 'vbox',
-                title: this.action === 'edit'?Uni.I18n.translate('endPointAdd.editTitle', 'WSS', 'Edit webservice endpoint'):Uni.I18n.translate('endPointAdd.addTitle', 'WSS', 'Add webservice endpoint'),
+                title: Uni.I18n.translate('endPointAdd.addTitle', 'WSS', 'Add webservice endpoint'),
                 items: [
                     {
                         xtype: 'form',
@@ -105,6 +105,7 @@ Ext.define('Wss.view.Add', {
 
     editMode: function () {
         this.first = true;
+        this.down('panel').setTitle(Ext.String.format(Uni.I18n.translate('endPointAdd.editTitle', 'WSS', 'Edit \'{0}\''),this.record.get('name')));
         this.addFormFields(this.record.get('direction').id, this.record.get('type'));
         var form = this.down('#addForm');
         var values = this.record.data;
