@@ -4,6 +4,10 @@ Ext.define('Uni.property.view.property.MetrologyConfigurationOutputs', {
         'Uni.grid.column.ReadingType'
     ],
 
+    mixins: {
+        field: 'Ext.form.field.Field'
+    },
+
     msgTarget: 'under',
     width: 600,
 
@@ -14,7 +18,7 @@ Ext.define('Uni.property.view.property.MetrologyConfigurationOutputs', {
 
                 me.deliverablesStore.getProxy().url = '/api/ucr/metrologyconfigurations/' + me.up('property-form').context.id + '/deliverables';
                 me.deliverablesStore.load(function () {
-                    me.getField().getSelectionModel().selectAll();
+                    me.getGrid().getSelectionModel().selectAll();
                 });
             }
         }
@@ -33,6 +37,7 @@ Ext.define('Uni.property.view.property.MetrologyConfigurationOutputs', {
                 }
             }
         });
+        me.name = me.getName();
 
         return [
             {
@@ -40,13 +45,15 @@ Ext.define('Uni.property.view.property.MetrologyConfigurationOutputs', {
                 itemId: 'metrology-configuration-outputs-grid',
                 store: me.deliverablesStore,
                 width: 600,
-                selModel: {
+                margin: 0,
+                padding: 0,
+                selModel: Ext.create('Ext.selection.CheckboxModel', {
                     mode: 'MULTI',
                     checkOnly: true,
                     showHeaderCheckbox: false,
                     pruneRemoved: false,
                     updateHeaderState: Ext.emptyFn
-                },
+                }),
                 columns: [
                     {
                         header: Uni.I18n.translate('general.name', 'UNI', 'Name'),
@@ -64,7 +71,7 @@ Ext.define('Uni.property.view.property.MetrologyConfigurationOutputs', {
         ];
     },
 
-    getField: function () {
+    getGrid: function () {
         return this.down('grid');
     },
 
@@ -74,9 +81,15 @@ Ext.define('Uni.property.view.property.MetrologyConfigurationOutputs', {
     getValue: function () {
         var me = this;
 
-        return _.map(me.getField().getSelectionModel().getSelection(), function (record) {
+        return _.map(me.getGrid().getSelectionModel().getSelection(), function (record) {
             return record.get('readingType').mRID;
         }).join(';');
+    },
+
+    getRawValue: function () {
+        var me = this;
+
+        return me.getValue().toString();
     },
 
     markInvalid: function (error) {
@@ -93,18 +106,10 @@ Ext.define('Uni.property.view.property.MetrologyConfigurationOutputs', {
 
     toggleInvalid: function (error) {
         var me = this,
-            oldError = me.getActiveError();
+            oldError = me.getActiveError(),
+            grid = me.getGrid();
 
         Ext.suspendLayouts();
-        me.items.each(function (item) {
-            if (item.isFormField) {
-                if (error) {
-                    item.addCls('x-form-invalid');
-                } else {
-                    item.removeCls('x-form-invalid');
-                }
-            }
-        });
         if (error) {
             me.setActiveErrors(error);
         } else {
