@@ -321,7 +321,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
 
     @Override
     public List<IssueProvider> getIssueProviders() {
-        return issueProviders;
+        return Collections.unmodifiableList(this.issueProviders);
     }
 
     @Override
@@ -470,7 +470,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
 
     @Override
     public List<IssueCreationValidator> getIssueCreationValidators() {
-        return issueCreationValidators;
+        return Collections.unmodifiableList(this.issueCreationValidators);
     }
 
     @Override
