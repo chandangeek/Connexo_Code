@@ -91,7 +91,7 @@ public class YellowfinServiceImpl implements YellowfinService, TranslationKeyPro
                 bind(YellowfinService.class).toInstance(YellowfinServiceImpl.this);
             }
         });
-        upgradeService.register(InstallIdentifier.identifier("YFA"), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier("Pulse", "YFA"), dataModel, Installer.class, Collections.emptyMap());
     }
 
     private void loadProperties(BundleContext context) {
