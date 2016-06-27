@@ -2,11 +2,11 @@ package com.elster.jupiter.export.rest.impl;
 
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.BooleanFactory;
+import com.elster.jupiter.properties.HasIdAndName;
+import com.elster.jupiter.properties.ListValueFactory;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.ThreeStateFactory;
 import com.elster.jupiter.properties.ValueFactory;
-import com.elster.jupiter.properties.HasIdAndName;
-import com.elster.jupiter.properties.ListValueFactory;
 
 public enum PropertyType implements com.elster.jupiter.rest.util.properties.PropertyType {
     UNKNOWN(new NeverMatch()),
@@ -39,14 +39,15 @@ public enum PropertyType implements com.elster.jupiter.rest.util.properties.Prop
     private interface ValueFactoryMachter {
         boolean matches(ValueFactory valueFactory);
     }
-    private static class NeverMatch implements ValueFactoryMachter {
+
+    private static final class NeverMatch implements ValueFactoryMachter {
         @Override
         public boolean matches(ValueFactory valueFactory) {
             return false;
         }
     }
 
-    private static class ClassBasedValueFactoryMatcher implements ValueFactoryMachter {
+    private static final class ClassBasedValueFactoryMatcher implements ValueFactoryMachter {
         private final Class valueFactoryClass;
 
         private ClassBasedValueFactoryMatcher(Class valueFactoryClass) {
@@ -61,7 +62,7 @@ public enum PropertyType implements com.elster.jupiter.rest.util.properties.Prop
         }
     }
 
-    private static class DomainClassValueFactoryMatcher implements ValueFactoryMachter {
+    private static final class DomainClassValueFactoryMatcher implements ValueFactoryMachter {
         private final Class domainClass;
 
         private DomainClassValueFactoryMatcher(Class domainClass) {
