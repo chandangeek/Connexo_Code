@@ -132,12 +132,15 @@ public class EndPointConfigurationServiceImpl implements EndPointConfigurationSe
     public InboundEndPointConfigBuilder newInboundEndPointConfiguration(String name, String webServiceName, String url) {
         InboundEndPointConfigurationImpl instance = dataModel.getInstance(InboundEndPointConfigurationImpl.class);
         instance.initialize(name, webServiceName, url);
+        instance.setLogLevel(LogLevel.INFO);
+        instance.setAuthenticationMethod(EndPointAuthentication.NONE);
         return new InboundEndPointConfigurationBuilderImpl(instance);
     }
 
     @Override
     public OutboundEndPointConfigBuilder newOutboundEndPointConfiguration(String name, String webServiceName, String url) {
         OutboundEndPointConfigurationImpl instance = dataModel.getInstance(OutboundEndPointConfigurationImpl.class);
+        instance.setLogLevel(LogLevel.INFO);
         instance.initialize(name, webServiceName, url);
         return new OutboundEndPointConfigurationBuilderImpl(instance);
     }

@@ -12,6 +12,7 @@ import java.time.Clock;
 /**
  * Created by bvn on 5/4/16.
  */
+@ValidCredentials(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
 public final class OutboundEndPointConfigurationImpl extends EndPointConfigurationImpl implements OutboundEndPointConfiguration {
 
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")

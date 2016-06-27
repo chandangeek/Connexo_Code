@@ -3,6 +3,7 @@ package com.elster.jupiter.soap.whiteboard.cxf.impl;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.devtools.tests.ProgrammableClock;
+import com.elster.jupiter.devtools.tests.rules.Expected;
 import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
@@ -15,8 +16,12 @@ import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
@@ -32,6 +37,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
 
+import javax.validation.ConstraintViolationException;
 import javax.validation.MessageInterpolator;
 import java.time.Clock;
 import java.time.Instant;
@@ -79,6 +85,7 @@ public class WebServicesServiceImplIT {
     private Thesaurus thesaurus;
 
     private WebServicesService webServicesService;
+    private EndPointConfigurationService endPointConfigurationService;
 
     private class MockModule extends AbstractModule {
 
@@ -127,6 +134,7 @@ public class WebServicesServiceImplIT {
                 eventService = injector.getInstance(EventService.class);
                 injector.getInstance(UserService.class);
                 webServicesService = injector.getInstance(WebServicesService.class);
+                endPointConfigurationService = injector.getInstance(EndPointConfigurationService.class);
                 return null;
             }
         });
@@ -140,5 +148,50 @@ public class WebServicesServiceImplIT {
     @Test
     public void findWebServices() {
         assertThat(webServicesService.getWebServices()).isEmpty();
+    }
+
+    @Test
+    public void findEndPoints() {
+        assertThat(endPointConfigurationService.findEndPointConfigurations().find()).isEmpty();
+    }
+
+    @Test
+    public void testCreateInboundEndpoint() {
+        try (TransactionContext context = transactionService.getContext()) {
+            EndPointConfiguration endPointConfiguration = endPointConfigurationService.newInboundEndPointConfiguration("service", "webservice", "/srv")
+                    .setAuthenticationMethod(EndPointAuthentication.NONE).create();
+            assertThat(endPointConfigurationService.findEndPointConfigurations().find()).hasSize(1);
+        }
+    }
+
+    @Test
+    public void testCreateOutboundEndpoint() {
+        try (TransactionContext context = transactionService.getContext()) {
+            EndPointConfiguration endPointConfiguration = endPointConfigurationService.newOutboundEndPointConfiguration("service", "webservice", "/srv")
+                    .setAuthenticationMethod(EndPointAuthentication.NONE).create();
+            assertThat(endPointConfigurationService.findEndPointConfigurations().find()).hasSize(1);
+        }
+    }
+
+    @Test
+    @Expected(ConstraintViolationException.class)
+    public void testCreateOutboundEndpointMissingUserName() {
+        try (TransactionContext context = transactionService.getContext()) {
+
+            EndPointConfiguration endPointConfiguration = endPointConfigurationService.newOutboundEndPointConfiguration("service", "webservice", "/srv")
+                    .setAuthenticationMethod(EndPointAuthentication.BASIC_AUTHENTICATION).password("pass").create();
+
+        }
+    }
+
+    @Test
+    @Expected(ConstraintViolationException.class)
+    public void testCreateOutboundEndpointMissingPassword() {
+        try (TransactionContext context = transactionService.getContext()) {
+
+            EndPointConfiguration endPointConfiguration = endPointConfigurationService.newOutboundEndPointConfiguration("service", "webservice", "/srv")
+                    .setAuthenticationMethod(EndPointAuthentication.BASIC_AUTHENTICATION).username("user").create();
+
+        }
     }
 }
