@@ -18,8 +18,6 @@ import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.impl.MessageSeeds;
 import com.energyict.mdc.device.lifecycle.impl.ServerMicroAction;
 
-import com.google.common.collect.Range;
-
 import java.time.Instant;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -70,9 +68,13 @@ public class ForceValidationAndEstimation extends TranslatableServerMicroAction 
         ChannelsContainer channelsContainer = meterActivation.getChannelsContainer();
         validationService.validate(EnumSet.of(QualityCodeSystem.MDC), channelsContainer);
         estimationService.estimate(QualityCodeSystem.MDC, meterActivation, meterActivation.getRange());
-        boolean hasSuspects = !channelsContainer.getChannels().stream()
-                .allMatch(channel ->
-                        channel.findReadingQualities(Collections.singleton(QualityCodeSystem.MDC), QualityCodeIndex.SUSPECT, Range.all(), true, false).isEmpty());
+        boolean hasSuspects = channelsContainer.getChannels().stream()
+                .anyMatch(channel -> channel.findReadingQualities()
+                        .ofQualitySystem(QualityCodeSystem.MDC)
+                        .ofQualityIndex(QualityCodeIndex.SUSPECT)
+                        .actual()
+                        .findFirst()
+                        .isPresent());
         if (hasSuspects) {
             throw new ForceValidationAndEstimationException(MessageSeeds.NOT_ALL_DATA_VALID_FOR_DEVICE);
         }
@@ -83,8 +85,8 @@ public class ForceValidationAndEstimation extends TranslatableServerMicroAction 
         return MicroAction.FORCE_VALIDATION_AND_ESTIMATION;
     }
 
-    public class ForceValidationAndEstimationException extends BaseException {
-        protected ForceValidationAndEstimationException(MessageSeed messageSeed) {
+    class ForceValidationAndEstimationException extends BaseException {
+        ForceValidationAndEstimationException(MessageSeed messageSeed) {
             super(messageSeed, device.getName());
         }
     }
