@@ -1,7 +1,5 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.device.config.AllowedCalendar;
-import com.energyict.mdc.device.config.DeviceType;
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
@@ -9,12 +7,14 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.energyict.mdc.device.config.AllowedCalendar;
+import com.energyict.mdc.device.config.DeviceType;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
 import java.util.Optional;
 
-public class AllowedCalendarImpl implements AllowedCalendar {
+class AllowedCalendarImpl implements AllowedCalendar {
     public enum Fields {
         ID("id"),
         DEVICETYPE("deviceType"),
@@ -32,6 +32,7 @@ public class AllowedCalendarImpl implements AllowedCalendar {
         }
     }
 
+    @SuppressWarnings("unused") // Managed by ORM
     private long id;
     @IsPresent
     private Reference<DeviceType> deviceType = ValueReference.absent();
@@ -42,7 +43,7 @@ public class AllowedCalendarImpl implements AllowedCalendar {
     private DataModel dataModel;
 
     @Inject
-    public AllowedCalendarImpl (DataModel dataModel) {
+    AllowedCalendarImpl (DataModel dataModel) {
         this.dataModel = dataModel;
     }
 
@@ -89,4 +90,5 @@ public class AllowedCalendarImpl implements AllowedCalendar {
         name = null;
         dataModel.update(this);
     }
+
 }
