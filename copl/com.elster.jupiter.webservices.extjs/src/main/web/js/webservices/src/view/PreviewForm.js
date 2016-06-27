@@ -44,7 +44,18 @@ Ext.define('Wss.view.PreviewForm', {
                 {
                     xtype: 'displayfield',
                     fieldLabel: Uni.I18n.translate('general.webservice', 'WSS', 'Webservice'),
-                    name: 'webServiceName'
+                    name: 'webServiceName',
+                    renderer: function(value) {
+                        var record = this.up().getRecord();
+                        if(record) {
+                            if (value && record.get('available')) {
+                                return value;
+                            } else if (value && !record.get('available')) {
+                                return value + ' (' + Uni.I18n.translate('general.notAvailable', 'WSS', 'not available') + ')';
+                            }
+                        }
+                        return '-';
+                    }
                 },
                 {
                     xtype: 'displayfield',

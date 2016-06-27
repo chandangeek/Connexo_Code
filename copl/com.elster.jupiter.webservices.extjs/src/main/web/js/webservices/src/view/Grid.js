@@ -33,7 +33,17 @@ Ext.define('Wss.view.Grid', {
             {
                 header: Uni.I18n.translate('general.webservice', 'WSS', 'Webservice'),
                 dataIndex: 'webServiceName',
-                flex: 2
+                flex: 2,
+                renderer: function(value, field, record) {
+                    if(record) {
+                        if (value && record.get('available')) {
+                            return value;
+                        } else if (value && !record.get('available')) {
+                            return value + ' (' + Uni.I18n.translate('general.notAvailable', 'WSS', 'Not available') + ')';
+                        }
+                    }
+                    return '-';
+                }
             },
             {
                 header: Uni.I18n.translate('general.status', 'WSS', 'Status'),
