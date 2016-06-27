@@ -103,17 +103,16 @@ public class EndPointConfigurationResource {
                 .orElseThrow(concurrentModificationExceptionFactory.contextDependentConflictOn(info.name)
                         .withActualVersion(() -> endPointConfigurationService.getEndPointConfiguration(info.id).map(EndPointConfiguration::getVersion).orElse(null))
                         .supplier());
-        if (!info.active) { // Changes will be ignored if EndPointConfig is active, all but the actual active-state
-            WebServiceDirection webServiceDirection = webServicesService.getWebService(info.webServiceName)
-                    .get()
-                    .isInbound() ? WebServiceDirection.INBOUND : WebServiceDirection.OUTBOUND;
-            webServiceDirection.applyChanges(endPointConfigurationInfoFactory, endPointConfiguration, info);
-            endPointConfiguration.save();
-        }
-        if (info.active && !endPointConfiguration.isActive()) {
-            endPointConfigurationService.activate(endPointConfiguration);
-        } else if (!info.active && endPointConfiguration.isActive()) {
+        if (endPointConfiguration.isActive()) { // need to deactivate the end point so certain changes will have effect
             endPointConfigurationService.deactivate(endPointConfiguration);
+        }
+        WebServiceDirection webServiceDirection = webServicesService.getWebService(info.webServiceName)
+                .get()
+                .isInbound() ? WebServiceDirection.INBOUND : WebServiceDirection.OUTBOUND;
+        webServiceDirection.applyChanges(endPointConfigurationInfoFactory, endPointConfiguration, info);
+        endPointConfiguration.save();
+        if (info.active) {
+            endPointConfigurationService.activate(endPointConfiguration);
         }
         EndPointConfigurationInfo endPointConfigurationInfo = endPointConfigurationInfoFactory.from(endPointConfiguration);
         return Response.ok(endPointConfigurationInfo).build();
