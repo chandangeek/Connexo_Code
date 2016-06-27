@@ -219,7 +219,7 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
     @Activate
     public void activate() {
         dataModel.register(getModule());
-        upgradeService.register(InstallIdentifier.identifier(COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier("Pulse", COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
     }
 
     @Override
