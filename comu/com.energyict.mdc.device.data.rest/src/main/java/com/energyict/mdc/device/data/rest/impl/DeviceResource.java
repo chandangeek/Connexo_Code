@@ -273,7 +273,7 @@ public class DeviceResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION)
     public Response changeDeviceConfig(BulkRequestInfo request, @BeanParam JsonQueryFilter queryFilter, @Context SecurityContext securityContext) {
-        if (request.action == null || (!request.action.equalsIgnoreCase("ChangeDeviceConfiguration"))) {
+        if (request.action == null || (!"ChangeDeviceConfiguration".equalsIgnoreCase(request.action))) {
             throw exceptionFactory.newException(MessageSeeds.BAD_ACTION);
         }
         DeviceConfiguration destinationConfiguration = deviceConfigurationService.findDeviceConfiguration(request.newDeviceConfiguration)
@@ -741,7 +741,7 @@ public class DeviceResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("{mRID}/runningservicecalls/{id}")
     public Response cancelServiceCall(@PathParam("mRID") String mrid, @PathParam("id") long serviceCallId, ServiceCallInfo info) {
-        if (info.state.id.equals("sclc.default.cancelled")) {
+        if ("sclc.default.cancelled".equals(info.state.id)) {
             serviceCallService.getServiceCall(serviceCallId).ifPresent(ServiceCall::cancel);
             return Response.status(Response.Status.ACCEPTED).build();
         }
@@ -813,7 +813,7 @@ public class DeviceResource {
     @RolesAllowed(Privileges.Constants.VIEW_DEVICE)
     public Response getCalendarInfo(@PathParam("mRID") String id) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
-        TimeOfUseInfo info = timeOfUseInfoFactory.from(device.getActiveCalendar(), device.getPassiveCalendars(), device);
+        TimeOfUseInfo info = timeOfUseInfoFactory.from(device.calendars().getActive(), device.calendars().getPassive(), device);
         return Response.ok(info).build();
     }
 
@@ -835,7 +835,7 @@ public class DeviceResource {
         DeviceMessageId deviceMessageId = getDeviceMessageId(sendCalendarInfo, allowedOptions)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_ALLOWED_CALENDAR_DEVICE_MESSAGE));
         DeviceMessage<Device> deviceMessage = sendNewMessage(device, deviceMessageId, sendCalendarInfo, calendar);
-        device.addPassiveCalendar(calendar, sendCalendarInfo.activationDate, deviceMessage);
+        device.calendars().addPassive(calendar, sendCalendarInfo.activationDate, deviceMessage);
         return Response.ok().build();
     }
 
@@ -846,7 +846,7 @@ public class DeviceResource {
     @RolesAllowed(Privileges.Constants.VIEW_DEVICE)
     public Response getCalendar(@PathParam("mRID") String mRID, @PathParam("calendarId") long calendarId, @QueryParam("weekOf") long milliseconds) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
-        ActiveEffectiveCalendar activeCalendar = device.getActiveCalendar().orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.UNABLE_TO_FIND_CALENDAR));
+        ActiveEffectiveCalendar activeCalendar = device.calendars().getActive().orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.UNABLE_TO_FIND_CALENDAR));
         AllowedCalendar allowedCalendar = activeCalendar.getAllowedCalendar();
         Calendar calendar = allowedCalendar.getCalendar().orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.UNABLE_TO_FIND_CALENDAR));
         if(calendar.getId() != calendarId) {
