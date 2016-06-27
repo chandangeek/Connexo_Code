@@ -31,9 +31,9 @@ class UsagePointImportDescription extends CustomPropertySetDescription implement
     private final BooleanParser booleanParser;
     private final YesNoAnswerParser yesNoAnswerParser;
     private final MeteringDataImporterContext context;
-    NumberParser numberParser;
+    private NumberParser numberParser;
 
-    public UsagePointImportDescription(String dateFormat, String timeZone, SupportedNumberFormat numberFormat, MeteringDataImporterContext context) {
+    UsagePointImportDescription(String dateFormat, String timeZone, SupportedNumberFormat numberFormat, MeteringDataImporterContext context) {
         this.dateParser = new DateParser(dateFormat, timeZone);
         this.bigDecimalParser = new BigDecimalParser(numberFormat);
         this.numberParser = new NumberParser(NumberFormat.getInstance(context.getThreadPrincipalService().getLocale()));
