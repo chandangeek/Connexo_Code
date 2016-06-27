@@ -169,6 +169,11 @@ public class ServiceOperationCustomPropertySet implements CustomPropertySet<Serv
         private final String FK = "FK_DDC_CPS_MSSRVOP_HEITF";
 
         @Override
+        public String application() {
+            return "Demo";
+        }
+
+        @Override
         public String componentName() {
             return "ServiceOperation";
         }

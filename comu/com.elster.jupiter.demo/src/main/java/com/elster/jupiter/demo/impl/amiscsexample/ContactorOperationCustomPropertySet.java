@@ -171,6 +171,11 @@ public class ContactorOperationCustomPropertySet implements CustomPropertySet<Se
         private final String FK = "FK_DDC_CPS_MULTISENSE_HEITF";
 
         @Override
+        public String application() {
+            return "Demo";
+        }
+
+        @Override
         public String componentName() {
             return "MultisenseHEContactorOperation";
         }
