@@ -68,7 +68,7 @@ public class MeterReadingsGenerator {
     }
 
     private List<ReadingQualityRecord> getValidationQualities(Channel channel, Range<Instant> range) {
-        List<com.elster.jupiter.metering.ReadingQualityRecord> qualities = channel.findReadingQualities(null, null, range, false, false);
+        List<ReadingQualityRecord> qualities = channel.findReadingQualities().inTimeInterval(range).collect();
         Collections.sort(qualities, Comparator.comparing(ReadingQualityRecord::getTimestamp));
         return qualities;
     }
