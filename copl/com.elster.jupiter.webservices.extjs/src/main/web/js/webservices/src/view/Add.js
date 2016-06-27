@@ -29,16 +29,21 @@ Ext.define('Wss.view.Add', {
                         },
                         items: [
                             {
-                                name: 'errors',
-                                ui: 'form-error-framed',
+                                xtype: 'uni-form-error-message',
                                 itemId: 'addEndPointFormErrors',
-                                layout: 'hbox',
+                                name: 'form-errors',
                                 margin: '0 0 10 0',
                                 hidden: true,
-                                defaults: {
-                                    xtype: 'container',
-                                    margin: '0 0 0 10'
-                                }
+                                width: 750
+                            },
+                            {
+                                xtype: 'uni-form-info-message',
+                                itemId: 'addEditWarning',
+                                name: 'form-info',
+                                margin: '0 0 10 0',
+                                text: Uni.I18n.translate('general.formErrorEndPointActive', 'WSS', 'Some attributes can only be changed when the status of the webservice endpoint is inactive.'),
+                                hidden: true,
+                                width: 750
                             },
                             {
                                 xtype: 'textfield',
@@ -116,12 +121,7 @@ Ext.define('Wss.view.Add', {
             if (form.down('#userRoleField'))form.down('#userRoleField').select(this.record.getGroup());
         }
         if (this.record.get('active') === true) {
-            formErrorsPlaceHolder = form.down('#addEndPointFormErrors');
-            formErrorsPlaceHolder.hide();
-            formErrorsPlaceHolder.removeAll();
-            formErrorsPlaceHolder.add({
-                html: Uni.I18n.translate('general.formErrorEndPointActive', 'WSS', 'Some attributes can only be changed when the status of the webservice endpoint is inactive.')
-            });
+            formErrorsPlaceHolder = form.down('#addEditWarning');
             formErrorsPlaceHolder.show();
             Ext.Array.each(form.getForm().getFields().items, function (field) {
                 switch (field.itemId) {
@@ -190,7 +190,7 @@ Ext.define('Wss.view.Add', {
         var form = this.down('#addForm');
         var me = this;
         Ext.suspendLayouts();
-        var remove = form.items.items.slice(3,form.items.items.length);
+        var remove = form.items.items.slice(4,form.items.items.length);
         Ext.each(remove, function(removeItem){
             form.remove(removeItem);
         });

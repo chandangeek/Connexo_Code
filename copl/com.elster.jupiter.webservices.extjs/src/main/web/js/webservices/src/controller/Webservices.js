@@ -177,11 +177,11 @@ Ext.define('Wss.controller.Webservices', {
         var me = this,
             formErrorsPlaceHolder = me.getAddForm().down('#addEndPointFormErrors');
 
-        formErrorsPlaceHolder.hide();
-        formErrorsPlaceHolder.removeAll();
-        formErrorsPlaceHolder.add({
-            html: Uni.I18n.translate('general.formErrors', 'WSS', 'There are errors on this page that require your attention.')
-        });
+        //formErrorsPlaceHolder.hide();
+        //formErrorsPlaceHolder.removeAll();
+        //formErrorsPlaceHolder.add({
+        //    html: Uni.I18n.translate('general.formErrors', 'WSS', 'There are errors on this page that require your attention.')
+        //});
         formErrorsPlaceHolder.show();
     },
 
