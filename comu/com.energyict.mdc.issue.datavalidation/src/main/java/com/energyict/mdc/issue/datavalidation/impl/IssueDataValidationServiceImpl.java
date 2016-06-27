@@ -96,7 +96,7 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
                 bind(MessageService.class).toInstance(messageService);
             }
         });
-        upgradeService.register(InstallIdentifier.identifier(IssueDataValidationService.COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier("MultiSense", IssueDataValidationService.COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
     }
 
     @Override
