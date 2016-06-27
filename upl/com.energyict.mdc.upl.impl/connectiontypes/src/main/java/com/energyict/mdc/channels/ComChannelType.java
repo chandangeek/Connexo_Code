@@ -35,6 +35,12 @@ public enum ComChannelType {
 
     public boolean is(ComChannel comChannel) {
         Integer type = comChannel.getProperties().<Integer>getTypedProperty(TYPE);
-        return getType().equals(type);
+        if(type != null){
+            return getType().equals(type);
+        } else {
+            // TODO workaround, this object should be moved to an API package so both protocols and ComServer can access it
+            // See JIRA: https://jira.eict.vpdc/browse/EISERVERSG-4553
+            return this.name().equals(comChannel.getClass().getSimpleName());
+        }
     }
 }
