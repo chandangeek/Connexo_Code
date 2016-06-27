@@ -2,11 +2,15 @@ package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.metering.config.ConstantNode;
 import com.elster.jupiter.metering.config.ExpressionNode;
+import com.elster.jupiter.metering.config.Function;
 import com.elster.jupiter.metering.config.FunctionCallNode;
 import com.elster.jupiter.metering.config.NullNode;
 import com.elster.jupiter.metering.config.OperationNode;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableNode;
 import com.elster.jupiter.metering.config.ReadingTypeRequirementNode;
+
+import java.util.EnumSet;
+import java.util.Set;
 
 /**
  * Analyzes the complexity of an {@link ExpressionNode}
@@ -65,8 +69,16 @@ class IrregularDeliverableComplexityAnalyzer implements ExpressionNode.Visitor<V
 
     @Override
     public Void visitFunctionCall(FunctionCallNode functionCall) {
-        functionCall.getChildren().forEach(argument -> argument.accept(this));
+        if (this.allowedFunctions().contains(functionCall.getFunction())) {
+            functionCall.getChildren().forEach(argument -> argument.accept(this));
+        } else {
+            this.simple = false;
+        }
         return null;
+    }
+
+    private Set<Function> allowedFunctions() {
+        return EnumSet.of(Function.MIN, Function.MAX, Function.POWER, Function.SQRT, Function.FIRST_NOT_NULL);
     }
 
 }

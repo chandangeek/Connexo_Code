@@ -156,6 +156,90 @@ public class IrregularDeliverableComplexityAnalyzerTest {
         assertThat(complexity.isSimple()).isTrue();
     }
 
+    @Test
+    public void minAggregationFunction() {
+        Thesaurus thesaurus = mock(Thesaurus.class);
+        ConstantNodeImpl ten = new ConstantNodeImpl(BigDecimal.TEN);
+        ConstantNodeImpl twenty = new ConstantNodeImpl(BigDecimal.valueOf(20L));
+        ConstantNodeImpl three = new ConstantNodeImpl(BigDecimal.valueOf(3L));
+        FunctionCallNode node =
+                new FunctionCallNodeImpl(
+                        Arrays.asList(ten, twenty, three),
+                        Function.MIN_AGG,
+                        null,
+                        thesaurus);
+        IrregularDeliverableComplexityAnalyzer complexity = this.getTestInstance();
+
+        // Business method
+        node.accept(complexity);
+
+        // Asserts
+        assertThat(complexity.isSimple()).isFalse();
+    }
+
+    @Test
+    public void maxAggregationFunction() {
+        Thesaurus thesaurus = mock(Thesaurus.class);
+        ConstantNodeImpl ten = new ConstantNodeImpl(BigDecimal.TEN);
+        ConstantNodeImpl twenty = new ConstantNodeImpl(BigDecimal.valueOf(20L));
+        ConstantNodeImpl three = new ConstantNodeImpl(BigDecimal.valueOf(3L));
+        FunctionCallNode node =
+                new FunctionCallNodeImpl(
+                        Arrays.asList(ten, twenty, three),
+                        Function.MAX_AGG,
+                        null,
+                        thesaurus);
+        IrregularDeliverableComplexityAnalyzer complexity = this.getTestInstance();
+
+        // Business method
+        node.accept(complexity);
+
+        // Asserts
+        assertThat(complexity.isSimple()).isFalse();
+    }
+
+    @Test
+    public void sumFunction() {
+        Thesaurus thesaurus = mock(Thesaurus.class);
+        ConstantNodeImpl ten = new ConstantNodeImpl(BigDecimal.TEN);
+        ConstantNodeImpl twenty = new ConstantNodeImpl(BigDecimal.valueOf(20L));
+        ConstantNodeImpl three = new ConstantNodeImpl(BigDecimal.valueOf(3L));
+        FunctionCallNode node =
+                new FunctionCallNodeImpl(
+                        Arrays.asList(ten, twenty, three),
+                        Function.SUM,
+                        null,
+                        thesaurus);
+        IrregularDeliverableComplexityAnalyzer complexity = this.getTestInstance();
+
+        // Business method
+        node.accept(complexity);
+
+        // Asserts
+        assertThat(complexity.isSimple()).isFalse();
+    }
+
+    @Test
+    public void avgFunction() {
+        Thesaurus thesaurus = mock(Thesaurus.class);
+        ConstantNodeImpl ten = new ConstantNodeImpl(BigDecimal.TEN);
+        ConstantNodeImpl twenty = new ConstantNodeImpl(BigDecimal.valueOf(20L));
+        ConstantNodeImpl three = new ConstantNodeImpl(BigDecimal.valueOf(3L));
+        FunctionCallNode node =
+                new FunctionCallNodeImpl(
+                        Arrays.asList(ten, twenty, three),
+                        Function.AVG,
+                        null,
+                        thesaurus);
+        IrregularDeliverableComplexityAnalyzer complexity = this.getTestInstance();
+
+        // Business method
+        node.accept(complexity);
+
+        // Asserts
+        assertThat(complexity.isSimple()).isFalse();
+    }
+
     private IrregularDeliverableComplexityAnalyzer getTestInstance() {
         return new IrregularDeliverableComplexityAnalyzer();
     }
