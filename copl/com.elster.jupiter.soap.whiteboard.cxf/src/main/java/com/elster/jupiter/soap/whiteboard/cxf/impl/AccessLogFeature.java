@@ -31,9 +31,10 @@ public class AccessLogFeature extends AbstractFeature {
         super.initializeProvider(provider, bus);
         EndPointAccessInInterceptor endPointAccessInInterceptor = new EndPointAccessInInterceptor(endPointConfiguration, transactionService);
         EndPointAccessOutInterceptor endPointAccessOutInterceptor = new EndPointAccessOutInterceptor(endPointConfiguration, transactionService);
+        EndPointAccessFaultOutInterceptor endPointAccessFaultOutInterceptor = new EndPointAccessFaultOutInterceptor(endPointConfiguration, transactionService);
         provider.getInInterceptors().add(endPointAccessInInterceptor);
         provider.getInFaultInterceptors().add(endPointAccessInInterceptor);
         provider.getOutInterceptors().add(endPointAccessOutInterceptor);
-        provider.getOutFaultInterceptors().add(endPointAccessOutInterceptor);
+        provider.getOutFaultInterceptors().add(endPointAccessFaultOutInterceptor);
     }
 }

@@ -5,14 +5,13 @@ import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 
-import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 
 /**
- * Created by bvn on 6/24/16.
+ * Abstract class intercepting calls on (Apache CXF) endpoints and facilitating logging on the (Connexo) end point configuration
  */
-public class EndPointInterceptor extends AbstractPhaseInterceptor<Message> {
+public abstract class EndPointInterceptor extends AbstractPhaseInterceptor<Message> {
 
     private final EndPointConfiguration endPointConfiguration;
     private final TransactionService transactionService;
@@ -21,11 +20,6 @@ public class EndPointInterceptor extends AbstractPhaseInterceptor<Message> {
         super(phase);
         this.endPointConfiguration = endPointConfiguration;
         this.transactionService = transactionService;
-    }
-
-    @Override
-    public void handleMessage(Message message) throws Fault {
-        endPointConfiguration.log(LogLevel.INFO, "Request received");
     }
 
     void logInTransaction(LogLevel logLevel, String message) {
