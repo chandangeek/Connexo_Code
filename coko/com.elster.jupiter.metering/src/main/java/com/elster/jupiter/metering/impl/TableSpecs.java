@@ -301,7 +301,6 @@ public enum TableSpecs {
             Column locationIdColumn = table.column("LOCATIONID")
                     .number()
                     .conversion(NUMBER2LONGNULLZERO)
-                    .map("location")
                     .since(version(10, 2))
                     .add();
             Column geoCoordinatesIdColumn = table.column("GEOCOORDINATESID")
@@ -330,7 +329,7 @@ public enum TableSpecs {
                     .on(locationIdColumn)
                     .references(Location.class)
                     .onDelete(RESTRICT)
-                    .map("upLocation")
+                    .map("upLocation", LocationMember.class)
                     .since(version(10, 2))
                     .add();
             table.foreignKey("MTR_FK_USAGEPOINTGEOCOORDS")
@@ -413,7 +412,7 @@ public enum TableSpecs {
                     .on(locationIdColumn)
                     .references(Location.class)
                     .onDelete(RESTRICT)
-                    .map("location")
+                    .map("location", LocationMember.class)
                     .since(version(10, 2))
                     .add();
             table.foreignKey("MTR_FK_ENDDEVICEGEOCOORDS")
@@ -486,7 +485,7 @@ public enum TableSpecs {
                     .references(UsagePoint.class)
                     .onDelete(RESTRICT)
                     .map("usagePoint")
-                    .reverseMap("meterActivations")
+                    .reverseMap("meterActivations", EndDevice.class)
                     .reverseMapOrder("interval.start")
                     .reverseMapCurrent("currentMeterActivation")
                     .on(usagePointIdColumn)
@@ -495,7 +494,7 @@ public enum TableSpecs {
                     .references(EndDevice.class)
                     .onDelete(RESTRICT)
                     .map("meter")
-                    .reverseMap("meterActivations")
+                    .reverseMap("meterActivations", UsagePoint.class)
                     .reverseMapOrder("interval.start")
                     .reverseMapCurrent("currentMeterActivation")
                     .on(meterIdColumn)
@@ -676,6 +675,7 @@ public enum TableSpecs {
             Table<MetrologyConfiguration> table = dataModel.addTable(name(), MetrologyConfiguration.class);
             table.map(MetrologyConfigurationImpl.IMPLEMENTERS);
             table.since(version(10, 2));
+            table.cache();
             Column id = table.addAutoIdColumn();
             table.addDiscriminatorColumn("CONFIG_TYPE", "char(1)");
             Column name = table.column(MetrologyConfigurationImpl.Fields.NAME.name())
@@ -1732,7 +1732,6 @@ public enum TableSpecs {
                     .number()
                     .notNull()
                     .conversion(ColumnConversion.NUMBER2LONG)
-                    .map("locationId")
                     .add();
             Column localeColumn = table.column("LOCALE").varChar(Table.NAME_LENGTH).notNull().map("locale").add();
 
@@ -1774,7 +1773,8 @@ public enum TableSpecs {
             table.foreignKey("MTR_FK_LOCATION_MEMBER").on(locationIdColumn)
                     .references(MTR_LOCATION.name())
                     .onDelete(RESTRICT)
-                    .map("locationId")
+                    .map("location")
+                    .reverseMap("members")
                     .add();
 
         }

@@ -3,6 +3,7 @@ package com.elster.jupiter.metering;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.State;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -22,12 +23,13 @@ public class IncompatibleFiniteStateMachineChangeException extends RuntimeExcept
     private final List<State> missingStates;
 
     public IncompatibleFiniteStateMachineChangeException(State... missingStates) {
-        this(Arrays.asList(missingStates));
+        super();
+        this.missingStates = Arrays.asList(missingStates);
     }
 
     public IncompatibleFiniteStateMachineChangeException(List<State> missingStates) {
         super();
-        this.missingStates = missingStates;
+        this.missingStates = new ArrayList<>(missingStates);
     }
 
     public List<State> getMissingStates() {

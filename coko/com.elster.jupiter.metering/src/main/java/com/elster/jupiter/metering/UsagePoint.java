@@ -253,8 +253,7 @@ public interface UsagePoint extends HasId, IdentifiedObject {
 
     // TODO delete start (methods from ReadingContainer) =============================================================
 
-    @Deprecated
-    List<? extends MeterActivation> getMeterActivations();
-
     // TODO delete end ===============================================================================================
+
+    List<? extends MeterActivation> getMeterActivations();
 }
