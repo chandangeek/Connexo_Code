@@ -3,6 +3,8 @@ package com.elster.jupiter.kore.api.rest.impl;
 import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.kore.api.impl.UsagePointInfo;
+import com.elster.jupiter.kore.api.impl.servicecall.UsagePointCommandCallbackInfo;
+import com.elster.jupiter.kore.api.impl.servicecall.UsagePointCommandInfo;
 import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.ElectricityDetailBuilder;
 import com.elster.jupiter.metering.Location;
@@ -270,7 +272,7 @@ public class UsagePointResourceTest extends PlatformPublicApiJerseyTest {
     public void testUsagePointFields() throws Exception {
         Response response = target("/usagepoints").request("application/json").method("PROPFIND", Response.class);
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
-        Assertions.assertThat(model.<List>get("$")).hasSize(19);
+        Assertions.assertThat(model.<List>get("$")).hasSize(20);
         Assertions.assertThat(model.<List<String>>get("$")).containsOnly(
                 "aliasName",
                 "description",
@@ -289,7 +291,28 @@ public class UsagePointResourceTest extends PlatformPublicApiJerseyTest {
                 "servicePriority",
                 "version",
                 "serviceKind",
+                "connectionState",
                 "detail"
         );
+    }
+
+    @Test
+    public void testUsagePointCommand() throws Exception {
+        mockCommands();
+        Instant now = Instant.now(clock);
+        UsagePointCommandInfo info = new UsagePointCommandInfo();
+        info.command = "connect";
+        info.httpCallBack = new UsagePointCommandCallbackInfo();
+        info.httpCallBack.method = "POST";
+        info.httpCallBack.successURL = "http://success";
+        info.httpCallBack.partialSuccessURL = "http://successPartial";
+        info.httpCallBack.failureURL = "http://fail";
+
+        UsagePoint usagePoint = mockUsagePoint(33L, "usage point", 2L, ServiceKind.ELECTRICITY);
+        Response response = target("/usagepoints/33/command").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        JsonModel model = JsonModel.model((InputStream) response.getEntity());
+        Assertions.assertThat(model.<String>get("status")).isEqualTo("SUCCESS");
+        Assertions.assertThat(model.<Integer>get("id")).isEqualTo(33);
     }
 }

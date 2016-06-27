@@ -18,6 +18,7 @@ import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.rest.util.hypermedia.FieldSelection;
 import com.elster.jupiter.rest.util.hypermedia.PagedInfoList;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.util.json.JsonService;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -39,6 +40,8 @@ import java.net.URI;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 
@@ -275,7 +278,7 @@ public class UsagePointResource {
 
         ServiceCall serviceCall = usagePointCommandHelper.getServiceCall(usagePoint, usagePointCommandInfo);
 
-        //sendCommand not implemented yet
+        //commands not implemented yet
         if("connect".equalsIgnoreCase(usagePointCommandInfo.command)) {
             for (CompletionOptions options : usagePoint.connect(Instant.ofEpochMilli(usagePointCommandInfo.effectiveTimestamp), serviceCall)) {
                 if (options != null) {
@@ -299,6 +302,16 @@ public class UsagePointResource {
             }
         } else if ("disableLoadLimit".equalsIgnoreCase(usagePointCommandInfo.command)) {
             for (CompletionOptions options : usagePoint.disableLoadLimit(Instant.ofEpochMilli(usagePointCommandInfo.effectiveTimestamp), serviceCall)) {
+                if (options != null) {
+                    options.whenFinishedSend(new CompletionMessageInfo("success", serviceCall.getId(), true), usagePointCommandHelper
+                            .getDestinationSpec());
+                }
+            }
+        } else if ("readMeters".equalsIgnoreCase(usagePointCommandInfo.command)) {
+            for (CompletionOptions options : usagePoint.readData(Instant.ofEpochMilli(usagePointCommandInfo.effectiveTimestamp),
+                    usagePointCommandInfo.readingTypes.stream().map(meteringService::getReadingType)
+                            .flatMap(rt -> rt.isPresent() ? Stream.of(rt.get()) : Stream.empty()).collect(Collectors.toList())
+                    , serviceCall)) {
                 if (options != null) {
                     options.whenFinishedSend(new CompletionMessageInfo("success", serviceCall.getId(), true), usagePointCommandHelper
                             .getDestinationSpec());
