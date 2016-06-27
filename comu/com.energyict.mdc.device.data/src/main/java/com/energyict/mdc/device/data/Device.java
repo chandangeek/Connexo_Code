@@ -45,6 +45,7 @@ import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.TrackingCategory;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.protocol.api.device.data.CollectedCalendarInformation;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
@@ -444,16 +445,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      */
     CIMLifecycleDates getLifecycleDates();
 
-    List<PassiveEffectiveCalendar> getPassiveCalendars();
-
-    void addPassiveCalendar(AllowedCalendar passiveCalendar);
-
-    void addPassiveCalendar(AllowedCalendar passiveCalendar, Instant activationDate, DeviceMessage deviceMessage);
-
-    Optional<ActiveEffectiveCalendar> getActiveCalendar();
-
-    void setActiveCalendar(AllowedCalendar allowedCalendar, Instant effective, Instant lastVerified);
-
+    CalendarSupport calendars();
 
     Optional<ReadingTypeObisCodeUsage> getReadingTypeObisCodeUsage(ReadingType readingType);
 
@@ -568,6 +560,17 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
          * @return the newly created DeviceMessage
          */
         DeviceMessage<Device> add();
+    }
+
+    @ProviderType
+    interface CalendarSupport {
+        Optional<ActiveEffectiveCalendar> getActive();
+
+        List<PassiveEffectiveCalendar> getPassive();
+
+        void updateCalendars(CollectedCalendarInformation collectedData);
+
+        void addPassive(AllowedCalendar passiveCalendar, Instant activationDate, DeviceMessage deviceMessage);
     }
 
 }

@@ -813,13 +813,13 @@ public enum TableSpecs {
 
             Column device = table.column("DEVICE").number().conversion(NUMBER2LONG).notNull().add();
             List<Column> intervalColumns = table.addIntervalColumns(ActiveEffectiveCalendarImpl.Fields.INTERVAL.fieldName());
-            Column calendarColumn = table.column("ALLOWED_CALENDAR").number().notNull().add();
+            Column calendar = table.column("ALLOWED_CALENDAR").number().notNull().add();
             table.column("LAST_VERIFIED_DATE").number().conversion(NUMBER2INSTANT).map(ActiveEffectiveCalendarImpl.Fields.LASTVERIFIEDDATE.fieldName()).add();
 
             table.primaryKey("DDC_PK_ACTIVE_CAL").on(device, intervalColumns.get(0)).add();
             table.foreignKey("DDC_ACTI_TO_ALLOWED")
                     .references(AllowedCalendar.class)
-                    .on(calendarColumn)
+                    .on(calendar)
                     .onDelete(CASCADE)
                     .map(ActiveEffectiveCalendarImpl.Fields.CALENDAR.fieldName())
                     .add();
