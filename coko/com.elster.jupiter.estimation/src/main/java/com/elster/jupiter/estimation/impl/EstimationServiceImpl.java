@@ -315,7 +315,8 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
                 .filter(EstimationRule::isActive)
                 .filter(rule -> rule.getReadingTypes().contains(readingType))
                 .forEach(rule -> {
-                    try (LoggingContext loggingContext = LoggingContext.get().with("rule", rule.getName())) {
+                    try (LoggingContext parentContext = LoggingContext.getCloseableContext();
+                         LoggingContext loggingContext = parentContext.with("rule", rule.getName())) {
                         loggingContext.info(logger, "Attempting rule {rule}");
                         Estimator estimator = rule.createNewEstimator();
                         estimator.init(logger);
@@ -334,7 +335,8 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
     @Override
     public EstimationResult previewEstimate(QualityCodeSystem system, MeterActivation meterActivation, Range<Instant> period,
                                             ReadingType readingType, Estimator estimator) {
-        try (LoggingContext loggingContext = LoggingContext.get().with("rule", estimator.getDisplayName())) {
+        try (LoggingContext parentContext = LoggingContext.getCloseableContext();
+             LoggingContext loggingContext = parentContext.with("rule", estimator.getDisplayName())) {
             return estimator.estimate(getBlocksToEstimate(system, meterActivation, period, readingType), system);
         }
     }

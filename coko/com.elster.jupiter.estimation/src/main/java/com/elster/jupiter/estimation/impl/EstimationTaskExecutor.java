@@ -45,7 +45,7 @@ class EstimationTaskExecutor implements TaskExecutor {
     @Override
     public void execute(TaskOccurrence occurrence) {
         threadPrincipalService.runAs(user, () -> {
-            try (LoggingContext loggingContext = LoggingContext.get()) {
+            try (LoggingContext loggingContext = LoggingContext.getCloseableContext()) {
                 Logger taskLogger = createTaskLogger(occurrence);
                 try {
                     tryExecute(occurrence, taskLogger);
