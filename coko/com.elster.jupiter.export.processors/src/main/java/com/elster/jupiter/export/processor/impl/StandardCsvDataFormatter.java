@@ -112,8 +112,8 @@ class StandardCsvDataFormatter implements ReadingDataFormatter, StandardFormatte
 
     @Override
     public FormattedData processData(Stream<ExportData> exportData) {
-        // TODO: update this when export is allowed from MDM; null means qualities from all systems taken into account
-        return exportData.map(data -> processData(null, data))
+        // TODO: update this when export is allowed from MDM; empty set means qualities from all systems taken into account
+        return exportData.map(data -> processData(Collections.emptySet(), data))
                 .map(pair -> SimpleFormattedData.of(pair.getLast(), pair.getFirst()))
                 .reduce(SimpleFormattedData::merged)
                 .orElseGet(() -> SimpleFormattedData.of(Collections.emptyList()));
