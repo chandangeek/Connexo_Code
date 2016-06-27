@@ -253,7 +253,7 @@ class EnumeratedUsagePointGroupImpl extends AbstractUsagePointGroup implements E
         }
     }
 
-    private static class ActiveDuring extends Active {
+    private static final class ActiveDuring extends Active {
         private final Range<Instant> range;
 
         private ActiveDuring(Range<Instant> range) {
@@ -267,7 +267,7 @@ class EnumeratedUsagePointGroupImpl extends AbstractUsagePointGroup implements E
     }
 
 
-    private static class ActiveAt extends Active {
+    private static final class ActiveAt extends Active {
         private final Instant instant;
 
         private ActiveAt(Instant instant) {
@@ -290,7 +290,7 @@ class EnumeratedUsagePointGroupImpl extends AbstractUsagePointGroup implements E
         }
     }
 
-    private static class With implements Predicate<UsagePointMembership> {
+    private static final class With implements Predicate<UsagePointMembership> {
 
         private final UsagePoint usagePoint;
 
@@ -307,4 +307,5 @@ class EnumeratedUsagePointGroupImpl extends AbstractUsagePointGroup implements E
             return membership.getUsagePoint().equals(usagePoint);
         }
     }
+
 }
