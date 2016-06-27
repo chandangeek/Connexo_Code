@@ -97,7 +97,7 @@ public class ReadingTypeDeliverableForMeterActivationDefinitionTest {
                     eq(SqlConstants.TimeSeriesColumnNames.TIMESTAMP.sqlName()),
                     eq(SqlConstants.TimeSeriesColumnNames.VERSIONCOUNT.sqlName()),
                     eq(SqlConstants.TimeSeriesColumnNames.RECORDTIME.sqlName()),
-                    eq(SqlConstants.TimeSeriesColumnNames.PROCESSSTATUS.sqlName()),
+                    eq(SqlConstants.TimeSeriesColumnNames.READINGQUALITY.sqlName()),
                     eq(SqlConstants.TimeSeriesColumnNames.VALUE.sqlName()),
                     eq(SqlConstants.TimeSeriesColumnNames.LOCALDATE.sqlName()));
         assertThat(this.withClauseSqlBuilder.getText()).isEqualTo("SELECT -1, 0, 0, 0, 0,  ? , sysdate  FROM dual");

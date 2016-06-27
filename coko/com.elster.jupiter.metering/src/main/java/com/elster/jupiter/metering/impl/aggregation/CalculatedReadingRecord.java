@@ -155,7 +155,6 @@ class CalculatedReadingRecord implements BaseReadingRecord {
 
     @Override
     public ProcessStatus getProcesStatus() {
-        List<ReadingQualityRecord> readingQualityRecords = new ArrayList();
         ProcessStatus processStatus = new ProcessStatus(0);
         if (readingQuality == SUSPECT) {
             return processStatus.with(ProcessStatus.Flag.SUSPECT);
@@ -181,7 +180,7 @@ class CalculatedReadingRecord implements BaseReadingRecord {
     @Override
     public List<? extends ReadingQualityRecord> getReadingQualities() {
         List<ReadingQualityRecord> readingQualityRecords = new ArrayList();
-        ReadingQuality readingQualityValue = ReadingQuality.DERIVED_DETERMINISTIC;
+        ReadingQuality readingQualityValue = null;
         if (readingQuality == SUSPECT) {
             readingQualityValue = ReadingQuality.DERIVED_SUSPECT;
         } else if (readingQuality == MISSING){
@@ -189,8 +188,10 @@ class CalculatedReadingRecord implements BaseReadingRecord {
         } else if (readingQuality == ESTIMATED_EDITED) {
             readingQualityValue = ReadingQuality.DERIVED_INDETERMINISTIC;
         }
-        readingQualityRecords.add(
+        if (readingQualityValue != null) {
+            readingQualityRecords.add(
                     new AggregatedReadingQualityImpl(this.readingType, new ReadingQualityType(readingQualityValue.getCode()), this.timestamp));
+        }
         return readingQualityRecords;
     }
 

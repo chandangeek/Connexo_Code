@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-18 (13:28)
  */
-public class ProcessStatusFromExpressionNode implements ServerExpressionNode.Visitor<String> {
+public class ReadingQualityFromExpressionNode implements ServerExpressionNode.Visitor<String> {
 
     @Override
     public String visitConstant(NumericalConstantNode constant) {
@@ -41,12 +41,12 @@ public class ProcessStatusFromExpressionNode implements ServerExpressionNode.Vis
 
     @Override
     public String visitVirtualDeliverable(VirtualDeliverableNode deliverable) {
-        return deliverable.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.PROCESSSTATUS.sqlName();
+        return deliverable.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.READINGQUALITY.sqlName();
     }
 
     @Override
     public String visitVirtualRequirement(VirtualRequirementNode requirement) {
-        return requirement.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.PROCESSSTATUS.sqlName();
+        return requirement.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.READINGQUALITY.sqlName();
     }
 
     @Override

@@ -9,7 +9,6 @@ import com.elster.jupiter.util.sql.SqlBuilder;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.Optional;
 
@@ -251,14 +250,14 @@ class ReadingTypeDeliverableForMeterActivation {
             this.appendAggregatedProcessStatus(sqlBuilder);
             sqlBuilder.append(", count(*)");
         } else {
-            this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.PROCESSSTATUS, sqlBuilder, this.sqlName());
+            this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.READINGQUALITY, sqlBuilder, this.sqlName());
             sqlBuilder.append(", 1");
         }
     }
 
     private void appendAggregatedProcessStatus(SqlBuilder sqlBuilder) {
         sqlBuilder.append("MAX(");
-        sqlBuilder.append(this.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.PROCESSSTATUS.sqlName());
+        sqlBuilder.append(this.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.READINGQUALITY.sqlName());
         sqlBuilder.append(")");
     }
 

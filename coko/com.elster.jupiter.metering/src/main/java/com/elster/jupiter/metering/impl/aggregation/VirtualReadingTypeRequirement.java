@@ -115,14 +115,15 @@ public class VirtualReadingTypeRequirement {
         sqlBuilder.append(this.getPreferredChannel().getMainReadingType().getMRID());
         sqlBuilder.append("' and readingtimestamp = UTCSTAMP and channelid = ");
         sqlBuilder.append("" + this.getPreferredChannel().getId());
-        sqlBuilder.append(" and (type like '%.5.258' or type like '%.5.259' or type like '%.7.%' or type like '%.8.%')) AS processStatus, value, localdate from (");
+        sqlBuilder.append(" and (type like '%.5.258' or type like '%.5.259' or type like '%.7.%' or type like '%.8.%')) AS ");
+        sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.READINGQUALITY.sqlName());
+        sqlBuilder.append(", value, localdate from (");
 
         sqlBuilder.add(
                 this.getPreferredChannel()
                         .getTimeSeries()
                         .getRawValuesSql(
                                 this.rawDataPeriod,
-                                //this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.PROCESSSTATUS),
                                 this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.VALUE),
                                 this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.LOCALDATE)));
         sqlBuilder.append(") rawdata) GROUP BY TRUNC(");
@@ -141,7 +142,9 @@ public class VirtualReadingTypeRequirement {
         sqlBuilder.append(this.getPreferredChannel().getMainReadingType().getMRID());
         sqlBuilder.append("' and readingtimestamp = UTCSTAMP and channelid = ");
         sqlBuilder.append("" + this.getPreferredChannel().getId());
-        sqlBuilder.append(" and (type like '%.5.258' or type like '%.5.259' or type like '%.7.%' or type like '%.8.%')) AS processStatus, value, localdate");
+        sqlBuilder.append(" and (type like '%.5.258' or type like '%.5.259' or type like '%.7.%' or type like '%.8.%')) AS ");
+        sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.READINGQUALITY.sqlName());
+        sqlBuilder.append(", value, localdate");
 
         sqlBuilder.append(" from(");
         sqlBuilder.add(
@@ -149,7 +152,6 @@ public class VirtualReadingTypeRequirement {
                         .getTimeSeries()
                         .getRawValuesSql(
                                 this.rawDataPeriod,
-                                //this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.PROCESSSTATUS),
                                 this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.VALUE),
                                 this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.LOCALDATE)));
         sqlBuilder.append(") ");
