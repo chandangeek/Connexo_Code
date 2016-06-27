@@ -42,7 +42,10 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
     public enum Fields {
         DATA_VALIDATION_KPI("dataValidationKpi"),
         DATA_VALIDATION_KPI_TASK("dataValidationKpiTask"),
-        END_DEVICE_GROUP("deviceGroup");
+        END_DEVICE_GROUP("deviceGroup"),
+        SUSPECT("SUSPECT_"),
+        REGISTER("REGISTER_"),
+        CHANNELS("CHANNELS_");
 
         private final String javaFieldName;
 
@@ -106,10 +109,17 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
 
     void dataValidationKpiBuilder(KpiBuilder builder){
         builder.interval(this.frequency);
-        this.dataValidationKpi.set(builder.member()
-                .named(MonitoredValidationStatus.SUSPECT.name())
-                .add()
-                .create());
+        deviceGroup.get().getMembers(Instant.now()).stream()
+                .forEach(device -> {
+                    this.dataValidationKpi.set(builder.member().named(Fields.SUSPECT.fieldName() + device.getMRID()).add().create());
+                    this.dataValidationKpi.set(builder.member().named(Fields.REGISTER.fieldName() + device.getMRID()).add().create());
+                    this.dataValidationKpi.set(builder.member().named(Fields.CHANNELS.fieldName() + device.getMRID()).add().create());
+                });
+
+//        this.dataValidationKpi.set(builder.member()
+//                .named(MonitoredValidationStatus.SUSPECT.name())
+//                .add()
+//                .create());
     }
 
     public boolean hasDeviceGroup() {
@@ -185,6 +195,11 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
     public void dropDataValidationKpi() {
         deleteDataValidationKpi();
         this.save();
+    }
+
+    @Override
+    public Kpi getDataValidationKpi(){
+        return this.dataValidationKpi.get();
     }
 
     @Override

@@ -4,6 +4,7 @@ package com.elster.jupiter.validation.impl.kpi;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.validation.kpi.DataValidationKpi;
 import com.elster.jupiter.validation.kpi.DataValidationKpiService;
+import com.elster.jupiter.validation.kpi.DataValidationReportService;
 
 import java.util.Optional;
 import java.util.logging.Logger;
@@ -20,7 +21,7 @@ public enum KpiType {
 
         @Override
         protected DataManagementKpiCalculator newValidationCalculator(DataValidationKpiImpl dataValidationKpi, TaskOccurrence taskOccurrence, ServiceProvider serviceProvider) {
-            return new DataValidationKpiCalculator(dataValidationKpi, taskOccurrence.getTriggerTime(), LOGGER);
+            return new DataValidationKpiCalculator(dataValidationKpi, taskOccurrence.getTriggerTime(), LOGGER, serviceProvider.dataValidationReportService());
         }
     };
 
@@ -38,6 +39,7 @@ public enum KpiType {
 
     public interface ServiceProvider {
         DataValidationKpiService dataValidationKpiService();
+        DataValidationReportService dataValidationReportService();
     }
 
     public static DataManagementKpiCalculator calculatorForRecurrentPayload(TaskOccurrence taskOccurrence, ServiceProvider serviceProvider) {

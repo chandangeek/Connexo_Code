@@ -1,5 +1,6 @@
 package com.elster.jupiter.validation.kpi;
 
+import com.elster.jupiter.kpi.Kpi;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.util.HasId;
 
@@ -26,6 +27,8 @@ public interface DataValidationKpi extends HasId {
     void delete();
 
     Optional<Instant> getLatestCalculation();
+
+    Kpi getDataValidationKpi();
 
     void dropDataValidationKpi();
 

@@ -3,14 +3,17 @@ package com.elster.jupiter.validation.impl.kpi;
 import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.validation.kpi.DataValidationKpiService;
+import com.elster.jupiter.validation.kpi.DataValidationReportService;
 
 
 public class DataManagementKpiCalculatorHandler implements TaskExecutor {
 
     private final DataValidationKpiService dataValidationKpiService;
+    private final DataValidationReportService dataValidationReportService;
 
-    public DataManagementKpiCalculatorHandler(DataValidationKpiService dataValidationKpiService){
+    public DataManagementKpiCalculatorHandler(DataValidationKpiService dataValidationKpiService, DataValidationReportService dataValidationReportService){
         this.dataValidationKpiService = dataValidationKpiService;
+        this.dataValidationReportService = dataValidationReportService;
     }
 
     @Override
@@ -23,6 +26,11 @@ public class DataManagementKpiCalculatorHandler implements TaskExecutor {
         @Override
         public DataValidationKpiService dataValidationKpiService() {
             return dataValidationKpiService;
+        }
+
+        @Override
+        public DataValidationReportService dataValidationReportService() {
+            return dataValidationReportService;
         }
     }
 

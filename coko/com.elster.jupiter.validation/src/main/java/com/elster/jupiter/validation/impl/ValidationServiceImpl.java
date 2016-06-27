@@ -49,7 +49,9 @@ import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.ValidatorFactory;
 import com.elster.jupiter.validation.ValidatorNotFoundException;
 import com.elster.jupiter.validation.impl.kpi.DataValidationKpiServiceImpl;
+import com.elster.jupiter.validation.impl.kpi.DataValidationReportServiceImpl;
 import com.elster.jupiter.validation.kpi.DataValidationKpiService;
+import com.elster.jupiter.validation.kpi.DataValidationReportService;
 
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
@@ -109,6 +111,7 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
     private Optional<DestinationSpec> destinationSpec = Optional.empty();
     private DataValidationKpiService dataValidationKpiService;
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
+    private DataValidationReportService dataValidationReportService;
 
     public ValidationServiceImpl() {
     }
@@ -140,6 +143,7 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
     @Activate
     public final void activate(BundleContext context) {
         this.dataValidationKpiService = new DataValidationKpiServiceImpl(this);
+        this.dataValidationReportService = new DataValidationReportServiceImpl(this);
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {
@@ -157,11 +161,13 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
                 bind(DataValidationKpiService.class).toInstance(dataValidationKpiService);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(UserService.class).toInstance(userService);
+                bind(DataValidationReportService.class).toInstance(dataValidationReportService);
                 bind(DestinationSpec.class).toProvider(ValidationServiceImpl.this::getDestination);
                 bind(MessageService.class).toInstance(messageService);
             }
         });
         this.registerDataValidationKpiService(context);
+        this.registerDataValidationReportService(context);
         upgradeService.register(InstallIdentifier.identifier(COMPONENTNAME), dataModel, InstallerImpl.class, Collections.emptyMap());
     }
 
@@ -765,5 +771,9 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
 
     private void registerDataValidationKpiService(BundleContext bundleContext) {
         this.serviceRegistrations.add(bundleContext.registerService(DataValidationKpiService.class, this.dataValidationKpiService, null));
+    }
+
+    private void registerDataValidationReportService(BundleContext bundleContext) {
+        this.serviceRegistrations.add(bundleContext.registerService(DataValidationReportService.class, this.dataValidationReportService, null));
     }
 }

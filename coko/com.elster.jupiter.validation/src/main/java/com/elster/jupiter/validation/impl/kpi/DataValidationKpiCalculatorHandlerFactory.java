@@ -5,6 +5,7 @@ import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.validation.kpi.DataValidationKpiService;
+import com.elster.jupiter.validation.kpi.DataValidationReportService;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -20,11 +21,12 @@ public class DataValidationKpiCalculatorHandlerFactory implements MessageHandler
 
     private volatile TaskService taskService;
     private volatile DataValidationKpiService dataValidationKpiService;
+    private volatile DataValidationReportService dataValidationReportService;
 
     public DataValidationKpiCalculatorHandlerFactory() {super();}
 
     @Inject
-    public DataValidationKpiCalculatorHandlerFactory(TaskService taskService, DataValidationKpiService dataValidationKpiService) {
+    public DataValidationKpiCalculatorHandlerFactory(TaskService taskService, DataValidationKpiService dataValidationKpiService, DataValidationReportService dataValidationReportService) {
         this();
         this.setTaskService(taskService);
         this.setDataValidationKpiService(dataValidationKpiService);
@@ -34,13 +36,19 @@ public class DataValidationKpiCalculatorHandlerFactory implements MessageHandler
     public MessageHandler newMessageHandler() {
         return this.taskService.createMessageHandler(
                 new DataManagementKpiCalculatorHandler(
-                        dataValidationKpiService
+                        dataValidationKpiService,
+                        dataValidationReportService
                 ));
     }
 
     @Reference
     public void setTaskService(TaskService taskService) {
         this.taskService = taskService;
+    }
+
+    @Reference
+    public void setDataValidationReportService(DataValidationReportService dataValidationReportService){
+        this.dataValidationReportService = dataValidationReportService;
     }
 
     @Reference
