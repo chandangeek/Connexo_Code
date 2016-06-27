@@ -45,16 +45,15 @@ Ext.define('Mdc.view.setup.registerconfig.RulesForRegisterConfigGrid', {
                 header: Uni.I18n.translate('validation.validationRuleSet', 'MDC', 'Validation rule set'),
                 dataIndex: 'ruleSet',
                 renderer: function (value, metaData, record) {
-                   var ruleSetVersion = record.get('ruleSetVersion');
-					if (ruleSetVersion){
-						var ruleSet = ruleSetVersion.ruleSet;
-						if (ruleSet){
-							metaData.tdAttr = 'data-qtip="' + ruleSet.description + '"';
-							return '<a href="#/administration/validation/rulesets/' + ruleSet.id + '">' + Ext.String.htmlEncode(ruleSet.name) + '</a>';
-						}
-					}
-                    
-                    return '';
+                    var ruleSetVersion = record.get('ruleSetVersion');
+                    if (ruleSetVersion){
+                        var ruleSet = ruleSetVersion.ruleSet;
+                        if (ruleSet){
+                            metaData.tdAttr = 'data-qtip="' + ruleSet.description + '"';
+                            return '<a href="#/administration/validation/rulesets/' + ruleSet.id + '">' + Ext.String.htmlEncode(ruleSet.name) + '</a>';
+                        }
+                    }
+                    return '-';
                 },
                 flex: 10
             },

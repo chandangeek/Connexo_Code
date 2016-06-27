@@ -68,7 +68,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                                                 fieldLabel: Uni.I18n.translate('devicecommunicationtaskhistory.startedOn', 'MDC', 'Started on'),
                                                 itemId: 'startTime',
                                                 renderer: function (value) {
-                                                    return value ? Uni.DateTime.formatDateTimeLong(value) : '';
+                                                    return value ? Uni.DateTime.formatDateTimeLong(value) : '-';
                                                 }
                                             },
                                             {
@@ -112,7 +112,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
 
                                                         return '<a href="' + link + '">' + Ext.String.htmlEncode(value.connectionMethod.name) + '</a>'
                                                     } else {
-                                                        return '';
+                                                        return '-';
                                                     }
                                                 }
                                             }

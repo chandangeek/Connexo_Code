@@ -33,7 +33,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.Grid', {
                 header: Uni.I18n.translate('general.dataUntil', 'MDC', 'Data until'),
                 dataIndex: 'dataUntil',
                 renderer: function (value) {
-                    return !Ext.isEmpty(value) ? Uni.DateTime.formatDateTimeShort(new Date(value)) : '';
+                    return !Ext.isEmpty(value) ? Uni.DateTime.formatDateTimeShort(new Date(value)) : '-';
                 },
                 flex: 1
             },
