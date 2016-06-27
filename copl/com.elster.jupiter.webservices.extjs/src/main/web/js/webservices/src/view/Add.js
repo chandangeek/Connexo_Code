@@ -61,6 +61,30 @@ Ext.define('Wss.view.Add', {
                                         me.onSelectWebServiceType(combobox, newValue, oldValue);
                                     }
                                 }
+                            },
+                            {
+                                xtype: 'fieldcontainer',
+                                itemId: 'form-buttons',
+                                fieldLabel: '&nbsp;',
+                                layout: 'hbox',
+                                margin: '20 0 0 0',
+                                items: [
+                                    {
+                                        xtype: 'button',
+                                        itemId: 'btn-add-webservice-endpoint',
+                                        text: this.action === 'edit'?Uni.I18n.translate('general.save', 'WSS', 'Save'):Uni.I18n.translate('general.add', 'WSS', 'Add'),
+                                        ui: 'action',
+                                        action: me.action
+                                    },
+                                    {
+                                        xtype: 'button',
+                                        itemId: 'btn-cancel-webservice-endpoint',
+                                        text: Uni.I18n.translate('general.cancel', 'WSS', 'Cancel'),
+                                        ui: 'link',
+                                        action: 'cancel',
+                                        href: me.returnLink
+                                    }
+                                ]
                             }
 
                         ]
@@ -70,47 +94,50 @@ Ext.define('Wss.view.Add', {
         ];
         me.callParent(arguments);
         if(this.action === 'edit'){
-            this.first = true;
-            this.addFormFields(this.record.get('direction').id,this.record.get('type'));
-            var form = this.down('#addForm');
-         //   form.loadRecord(this.record);
-            var values= this.record.data;
-            values['logLevel'] = null;
-            values['authenticationMethod'] = null;
-            form.getForm().setValues(this.record.data);
-            form.down('#logLevelCombo').select(this.record.getLogLevel());
-            form.down('#authenticationCombo').select(this.record.getAuthenticationMethod());
+            this.editMode();
+        }
+    },
 
-            form.down('#webServiceCombo').disable();
-            if(this.record.getAuthenticationMethod().get('id')!== 'none' && Ext.isEmpty(this.record.getGroup())){
-                if(form.down('#userRoleField'))form.down('#userRoleField').select('all');
-            } else {
-                if(form.down('#userRoleField'))form.down('#userRoleField').select(this.record.getGroup());
-            }
-            if(this.record.get('active')===true){
-                formErrorsPlaceHolder = form.down('#addEndPointFormErrors');
-                formErrorsPlaceHolder.hide();
-                formErrorsPlaceHolder.removeAll();
-                formErrorsPlaceHolder.add({
-                    html: Uni.I18n.translate('general.formErrorEndPointActive', 'WSS', 'Some attributes can only be changed when the status of the webservice endpoint is inactive.')
-                });
-                formErrorsPlaceHolder.show();
-                Ext.Array.each(form.getForm().getFields().items,function(field){
-                    switch(field.itemId){
-                        case 'logLevelCombo':
-                            field.enable();
-                            break;
-                        case 'traceCheck':
-                            field.enable();
-                            break;
-                        case 'traceFile':
-                            field.enable();
-                             break;
-                        default:
-                            field.disable();
-                    }
-                })
-            }
+    editMode: function () {
+        this.first = true;
+        this.addFormFields(this.record.get('direction').id, this.record.get('type'));
+        var form = this.down('#addForm');
+        var values = this.record.data;
+        values['logLevel'] = null;
+        values['authenticationMethod'] = null;
+        form.getForm().setValues(this.record.data);
+        form.down('#logLevelCombo').select(this.record.getLogLevel());
+        form.down('#authenticationCombo').select(this.record.getAuthenticationMethod());
+
+        form.down('#webServiceCombo').disable();
+        if (this.record.getAuthenticationMethod().get('id') !== 'none' && Ext.isEmpty(this.record.getGroup())) {
+            if (form.down('#userRoleField'))form.down('#userRoleField').select('all');
+        } else {
+            if (form.down('#userRoleField'))form.down('#userRoleField').select(this.record.getGroup());
+        }
+        if (this.record.get('active') === true) {
+            formErrorsPlaceHolder = form.down('#addEndPointFormErrors');
+            formErrorsPlaceHolder.hide();
+            formErrorsPlaceHolder.removeAll();
+            formErrorsPlaceHolder.add({
+                html: Uni.I18n.translate('general.formErrorEndPointActive', 'WSS', 'Some attributes can only be changed when the status of the webservice endpoint is inactive.')
+            });
+            formErrorsPlaceHolder.show();
+            Ext.Array.each(form.getForm().getFields().items, function (field) {
+                switch (field.itemId) {
+                    case 'logLevelCombo':
+                        field.enable();
+                        break;
+                    case 'traceCheck':
+                        field.enable();
+                        break;
+                    case 'traceFile':
+                        field.enable();
+                        break;
+                    default:
+                        field.disable();
+                }
+            })
         }
     },
 

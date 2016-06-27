@@ -131,13 +131,17 @@ Ext.define('Wss.controller.Webservices', {
         var form = button.up('form'),
             me = this;
         record.set(form.getValues());
-        var logLevel = form.down('#logLevelCombo').findRecordByValue(record.get('logLevel'));
+        if(form.down('#logLevelCombo')) {
+            var logLevel = form.down('#logLevelCombo').findRecordByValue(record.get('logLevel'));
+        }
         logLevel?record.setLogLevel(logLevel):record.set('logLevel',null);
-        var authenticationMethod = form.down('#authenticationCombo').findRecordByValue(record.get('authenticationMethod'));
+        if(form.down('#authenticationCombo')) {
+            var authenticationMethod = form.down('#authenticationCombo').findRecordByValue(record.get('authenticationMethod'));
+        }
         authenticationMethod?record.setAuthenticationMethod(authenticationMethod):record.set('authenticationMethod',null);
         if(form.down('#userRoleField')) {
             var userGroup = form.down('#userRoleField').findRecordByValue(record.get('group'));
-            if(userGroup && userGroup.get('id')==='all'){;
+            if(userGroup && userGroup.get('id')==='all'){
                 record.setGroup(null);
                 record.set('group', null);
             } else {
