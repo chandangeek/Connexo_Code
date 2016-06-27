@@ -35,15 +35,11 @@ public class UsagePointDecentProdCustomPropertySet implements CustomPropertySet<
     public Thesaurus thesaurus;
 
     public static final String TABLE_NAME = "RVK_CPS_MTR_USAGEPOINT_DEC";
-    public static final String FK_CPS_DEVICE_DECENTRALIZED_PRODUCTION = "FK_CPS_MTR_USAGEPOINT_DEC";
+    private static final String FK_CPS_DEVICE_DECENTRALIZED_PRODUCTION = "FK_CPS_MTR_USAGEPOINT_DEC";
     public static final String COMPONENT_NAME = "DEC_PROD";
 
-    public UsagePointDecentProdCustomPropertySet() {
-        super();
-    }
-
     public UsagePointDecentProdCustomPropertySet(PropertySpecService propertySpecService, Thesaurus thesaurus) {
-        this();
+        super();
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
     }
@@ -99,11 +95,11 @@ public class UsagePointDecentProdCustomPropertySet implements CustomPropertySet<
                 .fromThesaurus(this.getThesaurus())
                 .markEditable()
                 .markRequired()
-                .addValues(Quantity.create(new BigDecimal(0), 0, "W"),
-                        Quantity.create(new BigDecimal(0), 3, "W"),
-                        Quantity.create(new BigDecimal(0), 6, "W"),
-                        Quantity.create(new BigDecimal(0), 9, "W"),
-                        Quantity.create(new BigDecimal(0), 12, "W"))
+                .addValues(Quantity.create(BigDecimal.ZERO, 0, "W"),
+                        Quantity.create(BigDecimal.ZERO, 3, "W"),
+                        Quantity.create(BigDecimal.ZERO, 6, "W"),
+                        Quantity.create(BigDecimal.ZERO, 9, "W"),
+                        Quantity.create(BigDecimal.ZERO, 12, "W"))
                 .finish();
         PropertySpec convertorPowerSpec = propertySpecService
                 .specForValuesOf(new QuantityValueFactory())
@@ -111,11 +107,11 @@ public class UsagePointDecentProdCustomPropertySet implements CustomPropertySet<
                 .fromThesaurus(this.getThesaurus())
                 .markEditable()
                 .markRequired()
-                .addValues(Quantity.create(new BigDecimal(0), 0, "W"),
-                        Quantity.create(new BigDecimal(0), 3, "W"),
-                        Quantity.create(new BigDecimal(0), 6, "W"),
-                        Quantity.create(new BigDecimal(0), 9, "W"),
-                        Quantity.create(new BigDecimal(0), 12, "W"))
+                .addValues(Quantity.create(BigDecimal.ZERO, 0, "W"),
+                        Quantity.create(BigDecimal.ZERO, 3, "W"),
+                        Quantity.create(BigDecimal.ZERO, 6, "W"),
+                        Quantity.create(BigDecimal.ZERO, 9, "W"),
+                        Quantity.create(BigDecimal.ZERO, 12, "W"))
                 .finish();
         PropertySpec typeOfDecentralizedProductionSpec = propertySpecService
                 .stringSpec()
@@ -142,7 +138,7 @@ public class UsagePointDecentProdCustomPropertySet implements CustomPropertySet<
     private static class UsagePointDecentrProdPS implements PersistenceSupport<UsagePoint, UsagePointDecentProdDomExt> {
         private Thesaurus thesaurus;
 
-        public UsagePointDecentrProdPS(Thesaurus thesaurus) {
+        UsagePointDecentrProdPS(Thesaurus thesaurus) {
             this.thesaurus = thesaurus;
         }
 

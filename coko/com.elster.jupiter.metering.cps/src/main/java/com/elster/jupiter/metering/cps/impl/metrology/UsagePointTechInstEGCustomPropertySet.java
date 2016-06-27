@@ -19,7 +19,6 @@ import org.osgi.service.component.annotations.Activate;
 
 import javax.validation.MessageInterpolator;
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -32,15 +31,11 @@ public class UsagePointTechInstEGCustomPropertySet implements CustomPropertySet<
     public Thesaurus thesaurus;
 
     public static final String TABLE_NAME = "RVK_CPS_MTR_USAGEPOINT_INST_EG";
-    public static final String FK_CPS_DEVICE_TECHNICAL_INSTALLATION = "FK_CPS_MTR_USAGEPOINT_INST_EG";
+    private static final String FK_CPS_DEVICE_TECHNICAL_INSTALLATION = "FK_CPS_MTR_USAGEPOINT_INST_EG";
     public static final String COMPONENT_NAME = "INST_EG";
 
-    public UsagePointTechInstEGCustomPropertySet() {
-        super();
-    }
-
     public UsagePointTechInstEGCustomPropertySet(PropertySpecService propertySpecService, Thesaurus thesaurus) {
-        this();
+        super();
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
     }
@@ -97,16 +92,16 @@ public class UsagePointTechInstEGCustomPropertySet implements CustomPropertySet<
                 .named(UsagePointTechInstEGDomExt.Fields.LOSS_FACTOR.javaName(), TranslationKeys.CPS_TECHNICAL_INSTALLATION_LOSS_FACTOR)
                 .describedAs(TranslationKeys.CPS_TECHNICAL_INSTALLATION_LOSS_FACTOR_DESCRIPTION)
                 .fromThesaurus(this.getThesaurus())
-                .addValues(Quantity.create(new BigDecimal(0), 0, "%"))
+                .addValues(Quantity.create(BigDecimal.ZERO, 0, "%"))
                 .finish();
 
-        return Arrays.asList(lossFactorSpec);
+        return Collections.singletonList(lossFactorSpec);
     }
 
     private static class UsagePointTechInstEGPerSupp implements PersistenceSupport<UsagePoint, UsagePointTechInstEGDomExt> {
         private Thesaurus thesaurus;
 
-        public UsagePointTechInstEGPerSupp(Thesaurus thesaurus) {
+        UsagePointTechInstEGPerSupp(Thesaurus thesaurus) {
             this.thesaurus = thesaurus;
         }
 

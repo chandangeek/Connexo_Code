@@ -15,7 +15,6 @@ import com.elster.jupiter.util.units.Quantity;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
-import org.osgi.service.component.annotations.Activate;
 
 import javax.validation.MessageInterpolator;
 import java.math.BigDecimal;
@@ -28,30 +27,21 @@ import java.util.Set;
 
 public class UsagePointTechInstElectrCPS implements CustomPropertySet<UsagePoint, UsagePointTechInstElectrDE> {
 
-
     public PropertySpecService propertySpecService;
     public Thesaurus thesaurus;
 
     public static final String TABLE_NAME = "RVK_CPS_MTR_USAGEPOINT_T_INS";
-    public static final String FK_CPS_DEVICE_LICENSE = "FK_CPS_MTR_USAGEPOINT_T_INS";
+    private static final String FK_CPS_DEVICE_LICENSE = "FK_CPS_MTR_USAGEPOINT_T_INS";
     public static final String COMPONENT_NAME = "MTR_T_INS";
 
-    public UsagePointTechInstElectrCPS() {
-        super();
-    }
-
     public UsagePointTechInstElectrCPS(PropertySpecService propertySpecService, Thesaurus thesaurus) {
-        this();
+        super();
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
     }
 
     public Thesaurus getThesaurus() {
         return this.thesaurus;
-    }
-
-    @Activate
-    public void activate() {
     }
 
     @Override
@@ -99,8 +89,8 @@ public class UsagePointTechInstElectrCPS implements CustomPropertySet<UsagePoint
                 .describedAs(TranslationKeys.CPS_TECHNICAL_INSTALLATION_DISTANCE_FROM_THE_SUBSTATION_DESCRIPTION)
                 .fromThesaurus(this.getThesaurus())
                 .markRequired()
-                .addValues(Quantity.create(new BigDecimal(0), 0, "m"),
-                        Quantity.create(new BigDecimal(0), 3, "m"))
+                .addValues(Quantity.create(BigDecimal.ZERO, 0, "m"),
+                        Quantity.create(BigDecimal.ZERO, 3, "m"))
                 .finish();
         PropertySpec feederSpec = propertySpecService
                 .stringSpec()
@@ -122,7 +112,7 @@ public class UsagePointTechInstElectrCPS implements CustomPropertySet<UsagePoint
 
         private Thesaurus thesaurus;
 
-        public UsagePointTechInstElectyPerSupp(Thesaurus thesaurus) {
+        UsagePointTechInstElectyPerSupp(Thesaurus thesaurus) {
             this.thesaurus = thesaurus;
         }
 
