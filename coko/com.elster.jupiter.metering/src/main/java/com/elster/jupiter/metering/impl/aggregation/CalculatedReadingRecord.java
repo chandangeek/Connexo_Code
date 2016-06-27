@@ -163,7 +163,7 @@ class CalculatedReadingRecord implements BaseReadingRecord {
     }
 
     public Timestamp getLocalDate() {
-        return localDate;
+        return new Timestamp(localDate.getTime());
     }
 
     @Override

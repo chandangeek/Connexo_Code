@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -17,7 +18,7 @@ class Flatten implements ServerExpressionNode.Visitor<Void> {
     private final List<ServerExpressionNode> flattened = new ArrayList<>();
 
     List<ServerExpressionNode> getFlattened() {
-        return flattened;
+        return Collections.unmodifiableList(flattened);
     }
 
     @Override
