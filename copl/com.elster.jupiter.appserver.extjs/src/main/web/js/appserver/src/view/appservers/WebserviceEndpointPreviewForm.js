@@ -22,7 +22,7 @@ Ext.define('Apr.view.appservers.WebserviceEndpointPreviewForm', {
                         if (value && record.get('available')) {
                             return value;
                         } else if (value && !record.get('available')) {
-                            return value + ' (' + Uni.I18n.translate('general.notAvailable', 'APR', 'not available') + ')';
+                            return value + ' (' + Uni.I18n.translate('general.notAvailable', 'APR', 'not available') + ')' + '<span class="icon-warning" style="margin-left:5px; color:#eb5642;"></span>';
                         }
                     }
                     return '-';

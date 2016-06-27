@@ -7,7 +7,7 @@ Ext.define('Apr.model.ImportService', {
             persist: false,
             mapping: function (data) {
                 return data.deleted ? Uni.I18n.translate('general.removed', 'APR', 'Removed') :
-                    !data.importerAvailable ? Uni.I18n.translate('general.notAvailable', 'APR', 'Not available') :
+                    !data.importerAvailable ? Uni.I18n.translate('general.notAvailable', 'APR', 'not available') :
                         data.active ? Uni.I18n.translate('general.active', 'APR', 'Active') : Uni.I18n.translate('general.inactive', 'APR', 'Inactive');
             }
         },
