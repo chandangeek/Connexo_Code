@@ -91,7 +91,7 @@ public class DataVaultServiceImpl implements DataVaultService, MessageSeedProvid
     public void activate() {
         this.dataModel.register(this.getModule());
         LegacyDataVaultProvider.instance.set(() -> dataModel.getInstance(DataVault.class));
-        upgradeService.register(InstallIdentifier.identifier(COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier("Pulse", COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
     }
 
     @Override
