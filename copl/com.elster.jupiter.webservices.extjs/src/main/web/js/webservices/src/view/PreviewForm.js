@@ -107,7 +107,7 @@ Ext.define('Wss.view.PreviewForm', {
                     fieldLabel: Uni.I18n.translate('general.userRole', 'WSS', 'User role'),
                     name: 'group',
                     renderer: function(value,field){
-                        if(field.up('form').down('[name=authenticationMethod]').getValue().id === "BASIC_AUTHENTICATION" && Ext.isEmpty(value)){
+                        if(field.up('form').down('[name=authenticationMethod]').getValue().id === "BASIC_AUTHENTICATION" && Ext.isEmpty(value) && field.up('form').getRecord().get('direction')==='INBOUND'){
                             this.show();
                             return Uni.I18n.translate('endPointAdd.all', 'WSS', 'All');
                         }
