@@ -2,14 +2,16 @@ package com.energyict.protocolimplv2.messages.convertor;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.Password;
-import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.protocol.api.DeviceMessageFile;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
+import com.energyict.protocols.util.TempFileLoader;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.protocols.messaging.DeviceMessageFileStringContentConsumer;
 
 import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -132,8 +134,20 @@ public class EIWebPlusMessageConverter extends AbstractMessageConverter {
                 || propertySpec.getName().equals(DeviceMessageConstants.nodeListUserFile)) {
             return DeviceMessageFileStringContentConsumer.readFrom(((DeviceMessageFile) messageAttribute), "US-ASCII");
         } else if (propertySpec.getName().equals(DeviceMessageConstants.waveCardFirmware) || propertySpec.getName().equals(DeviceMessageConstants.firmwareUpdateFileAttributeName)) {
-            FirmwareVersion firmwareVersion = ((FirmwareVersion) messageAttribute);
-            return GenericMessaging.zipAndB64EncodeContent(firmwareVersion.getFirmwareFile());  //Bytes of the firmwareFile as string
+            //Return the actual content of the file, it will be sent to the RTU+Server using the EIWebPlus servlet.
+            String path = messageAttribute.toString();      //This is the path of the temp file representing the FirmwareVersion
+            byte[] image;
+            try {
+                image = TempFileLoader.loadTempFile(path);
+            } catch (IOException e) {
+                throw new IllegalStateException(e);
+            }
+
+            try {
+                return new String(image, "US-ASCII");
+            } catch (UnsupportedEncodingException e) {
+                return new String(image);
+            }
         } else if (propertySpec.getName().equals(DeviceMessageConstants.newPasswordAttributeName)) {
             return ((Password) messageAttribute).getValue();
         }

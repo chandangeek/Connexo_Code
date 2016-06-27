@@ -37,7 +37,7 @@ public class AS220ImageTransfer {
 	private final ImageTransfer imageTransfer;
 
 	private Unsigned32 size = null; 	// the size of the image
-	private byte[] data = null; // the complete image in byte
+	private byte[]  data = null; // the complete image in byte
 	private int blockCount = -1; // the amount of block numbers
 
 	public AS220ImageTransfer(AS220Messaging messaging, MessageEntry messageEntry) throws IOException {
@@ -48,7 +48,7 @@ public class AS220ImageTransfer {
 
 	public void initiate() throws IOException {
 		getAs220().getLogger().info("Received a firmware upgrade message, using firmware message builder...");
-		final FirmwareUpdateMessageBuilder builder = new FirmwareUpdateMessageBuilder(this.messaging.getAs220().getDeviceMessageFileService());
+		final FirmwareUpdateMessageBuilder builder = new FirmwareUpdateMessageBuilder();
 
 		try {
 		    builder.initFromXml(messageEntry.getContent());
@@ -65,10 +65,10 @@ public class AS220ImageTransfer {
 		}
 
 		// We requested an inlined file...
-		if (builder.getDeviceMessageFile() != null) {
+		if (builder.getPath() != null) {
 			getAs220().getLogger().info("Pulling out user file and dispatching to the device...");
 
-			this.loadFileInByteArray(builder.getDeviceMessageFile());
+			this.data = builder.getFirmwareBytes();
 
 			if (this.data.length == 0) {
                 String errorMessage = "Length of the upgrade file is not valid [" + this.data.length + " bytes], failing message.";
@@ -78,7 +78,7 @@ public class AS220ImageTransfer {
 				throw new IOException(errorMessage);
 			}
 		} else {
-            String errorMessage = "The message did not contain a user file to use for the upgrade, message fails...";
+		    String errorMessage = "The message did not contain a path to use for the upgrade, message fails...";
 		    getAs220().getLogger().log(Level.WARNING, errorMessage);
 
 		    throw new IOException(errorMessage);
@@ -237,9 +237,4 @@ public class AS220ImageTransfer {
 		this.imageTransfer.imageActivation();
         getAs220().getLogger().log(Level.INFO, "Activation of the image was succesfull at : " + new Date());
 	}
-
-	private void loadFileInByteArray(DeviceMessageFile deviceMessageFile) {
-        this.data = DeviceMessageFileByteContentConsumer.readFrom(deviceMessageFile);
-    }
-
 }

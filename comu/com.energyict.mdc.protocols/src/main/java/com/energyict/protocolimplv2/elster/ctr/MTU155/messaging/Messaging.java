@@ -5,7 +5,6 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.Password;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.topology.TopologyService;
-import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.MessageSeeds;
 import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
@@ -134,8 +133,7 @@ public class Messaging implements DeviceMessageSupport {
             case DeviceMessageConstants.loadProfileAttributeName:
                 return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute, this.topologyService);
             case DeviceMessageConstants.firmwareUpdateFileAttributeName:
-                FirmwareVersion firmwareVersion = ((FirmwareVersion) messageAttribute);
-                return new String(firmwareVersion.getFirmwareFile());  //Bytes of the firmwareVersion, as a string
+                return messageAttribute.toString();     //This is the path of the temp file representing the FirmwareVersion
             default:
                 return messageAttribute.toString();
         }

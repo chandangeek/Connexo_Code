@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.firmware.FirmwareVersion;
+import com.energyict.mdc.protocol.api.DeviceMessageFile;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
@@ -9,6 +9,7 @@ import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ABBA230UserFileMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleAttributeMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagMessageEntry;
+import com.energyict.protocols.messaging.DeviceMessageFileStringContentConsumer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,6 +22,8 @@ import java.util.Map;
  * Time: 16:26
  */
 public class ABBA230MessageConverter extends AbstractMessageConverter {
+
+    private static final String CHARSET = "UTF-8";
 
     private static final String CONNECT_LOAD = "ConnectLoad";
     private static final String DISCONNECT_LOAD = "DisconnectLoad";
@@ -38,9 +41,10 @@ public class ABBA230MessageConverter extends AbstractMessageConverter {
 
     @Override
     public String format(PropertySpec propertySpec, Object messageAttribute) {
-        if (propertySpec.getName().equals(DeviceMessageConstants.firmwareUpdateFileAttributeName) || propertySpec.getName().equals(DeviceMessageConstants.MeterScheme)) {
-            FirmwareVersion firmwareVersion = ((FirmwareVersion) messageAttribute);
-            return GenericMessaging.zipAndB64EncodeContent(firmwareVersion.getFirmwareFile());  //Bytes of the firmwareFile as string
+        if (propertySpec.getName().equals(DeviceMessageConstants.firmwareUpdateFileAttributeName)) {
+            return messageAttribute.toString();     //This is the path of the temp file representing the FirmwareVersion
+        } else if (propertySpec.getName().equals(DeviceMessageConstants.MeterScheme)) {
+            return DeviceMessageFileStringContentConsumer.readFrom((DeviceMessageFile) messageAttribute, CHARSET);  //Return the content of the file, should be ASCII (XML)
         } else {
             return messageAttribute.toString();
         }
