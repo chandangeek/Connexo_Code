@@ -2,9 +2,9 @@ package com.elster.jupiter.estimators.impl;
 
 import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.estimation.EstimationResult;
+
 import com.google.common.collect.ImmutableList;
 
-import java.util.Arrays;
 import java.util.List;
 
 class SimpleEstimationResult implements EstimationResult {
@@ -35,40 +35,24 @@ class SimpleEstimationResult implements EstimationResult {
         return new EstimationResultBuilder();
     }
 
-    public static class EstimationResultBuilder {
+    static final class EstimationResultBuilder {
         private ImmutableList.Builder<EstimationBlock> remain = ImmutableList.builder();
         private ImmutableList.Builder<EstimationBlock> estimated = ImmutableList.builder();
 
         private EstimationResultBuilder() {
         }
 
-        public void addRemaining(EstimationBlock block) {
+        void addRemaining(EstimationBlock block) {
             remain.add(block);
         }
 
-        public void addEstimated(EstimationBlock block) {
+        void addEstimated(EstimationBlock block) {
             estimated.add(block);
-        }
-
-        public void addRemaining(EstimationBlock... block) {
-            addRemaining(Arrays.asList(block));
-        }
-
-        public void addEstimated(EstimationBlock... block) {
-            addEstimated(Arrays.asList(block));
-        }
-
-        public void addRemaining(Iterable<? extends EstimationBlock> blocks) {
-            remain.addAll(blocks);
-        }
-
-        public void addEstimated(Iterable<? extends EstimationBlock> blocks) {
-            estimated.addAll(blocks);
         }
 
         public EstimationResult build() {
             return new SimpleEstimationResult(remain.build(), estimated.build());
         }
     }
-}
 
+}
