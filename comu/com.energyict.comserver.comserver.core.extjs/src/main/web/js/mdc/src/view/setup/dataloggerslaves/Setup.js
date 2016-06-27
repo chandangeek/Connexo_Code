@@ -28,7 +28,7 @@ Ext.define('Mdc.view.setup.dataloggerslaves.Setup', {
                         xtype: 'deviceMenu',
                         itemId: 'stepsMenu',
                         device: me.device,
-                        toggleId: 'dataLoggerSlavesLink'
+                        toggleId: 'device-dataLoggerSlaves-link'
                     }
                 ]
             }
