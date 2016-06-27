@@ -75,7 +75,7 @@ public class GetMeterReadingsHandler implements GetMeterReadingsPort {
             addForRequestedEndDevices(request, meterReadingsPayloadType, range);
             addForRequestedUsagePointGroups(request, meterReadingsPayloadType, range);
             addForRequestedEndDeviceGroups(request, meterReadingsPayloadType, range);
-            throw new IllegalStateException("BVN");
+//            throw new IllegalStateException("BVN"); // Test failed SOAP call here
         }
     }
 
