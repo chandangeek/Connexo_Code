@@ -127,6 +127,11 @@ public class UsagePointTechElCPS implements CustomPropertySet<UsagePoint, UsageP
     private static class UsagePointTechnicalElectricityPersistenceSupport implements PersistenceSupport<UsagePoint, UsagePointTechElDomExt> {
         private Thesaurus thesaurus;
 
+        @Override
+        public String application() {
+            return "Example";
+        }
+
         public UsagePointTechnicalElectricityPersistenceSupport(Thesaurus thesaurus) {
             this.thesaurus = thesaurus;
         }

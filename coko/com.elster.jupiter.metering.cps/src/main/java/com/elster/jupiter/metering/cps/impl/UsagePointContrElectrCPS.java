@@ -101,6 +101,11 @@ public class UsagePointContrElectrCPS implements CustomPropertySet<UsagePoint, U
     private class UsagePointContractualPerSupp implements PersistenceSupport<UsagePoint, UsagePointContrElectrDomExt> {
         private Thesaurus thesaurus;
 
+        @Override
+        public String application() {
+            return "Example";
+        }
+
         public UsagePointContractualPerSupp(Thesaurus thesaurus) {
             this.thesaurus = thesaurus;
         }

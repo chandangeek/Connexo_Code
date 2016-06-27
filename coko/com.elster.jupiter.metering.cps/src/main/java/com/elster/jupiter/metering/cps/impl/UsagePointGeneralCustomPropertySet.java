@@ -121,6 +121,11 @@ public class UsagePointGeneralCustomPropertySet implements CustomPropertySet<Usa
     private class UsagePointGeneralPersistenceSupport implements PersistenceSupport<UsagePoint, UsagePointGeneralDomainExtension> {
         private Thesaurus thesaurus;
 
+        @Override
+        public String application() {
+            return "Example";
+        }
+
         public UsagePointGeneralPersistenceSupport(Thesaurus thesaurus) {
             this.thesaurus = thesaurus;
         }
