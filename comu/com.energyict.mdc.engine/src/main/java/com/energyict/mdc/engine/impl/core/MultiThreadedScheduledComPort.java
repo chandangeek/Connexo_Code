@@ -19,6 +19,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadFactory;
+import java.util.stream.Collectors;
 
 /**
  * Provides an implementation for the {@link ScheduledComPort} interface
@@ -149,16 +150,7 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
         @Override
         public void scheduleAll(List<ComJob> jobs) {
             List<ScheduledComTaskExecutionGroup> groups = new ArrayList<>(jobs.size());   // At most all jobs will be groups
-            for (ComJob job : jobs) {
-                if (job.isGroup()) {
-                    groups.add(newComTaskGroup(job));
-                }
-                else {
-                    List<ComTaskExecution> scheduledComTasks = job.getComTaskExecutions();
-                    ComTaskExecution onlyOne = scheduledComTasks.get(0);
-                    this.scheduleNow(onlyOne);
-                }
-            }
+            groups.addAll(jobs.stream().map(MultiThreadedScheduledComPort.this::newComTaskGroup).collect(Collectors.toList()));
             this.scheduleGroups(groups);
             this.giveTheConsumersSomeSpace();
         }
@@ -183,31 +175,6 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-            }
-        }
-
-        /**
-         * Schedules the {@link ComTaskExecution} with the CompletionService now,
-         * i.e. adds it to the list of available {@link ScheduledJob}s
-         * so that it can be picked up by one of the delegates.
-         * Ignores the ScheduledComTask if it is in fact already scheduled.
-         * The latter is possible if the execution of ScheduledComTasks
-         * is slower than the {@link com.energyict.mdc.engine.config.ComServer}'s
-         * scheduling interpoll delay.
-         *
-         * @param comTaskExecution The ComTaskExecution
-         */
-        private void scheduleNow(ComTaskExecution comTaskExecution) {
-            try {
-                ScheduledComTaskExecutionJob job = newComTaskJob(comTaskExecution);
-                try {
-                    jobQueue.put(job);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().isInterrupted();
-                }
-            }
-            catch (RejectedExecutionException e) {
-                MultiThreadedScheduledComPort.this.cannotSchedule(comTaskExecution);
             }
         }
 

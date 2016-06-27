@@ -249,10 +249,6 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
 
     protected abstract JobScheduler getJobScheduler ();
 
-    protected ScheduledComTaskExecutionJob newComTaskJob (ComTaskExecution comTaskExecution) {
-        return new ScheduledComTaskExecutionJob(this.getComPort(), this.getComServerDAO(), this.deviceCommandExecutor, comTaskExecution, this.serviceProvider);
-    }
-
     protected ScheduledComTaskExecutionGroup newComTaskGroup (ScheduledConnectionTask connectionTask) {
         return new ScheduledComTaskExecutionGroup(this.getComPort(), this.getComServerDAO(), this.deviceCommandExecutor, connectionTask, this.serviceProvider);
     }

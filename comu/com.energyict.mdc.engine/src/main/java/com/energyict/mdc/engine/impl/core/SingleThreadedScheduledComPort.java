@@ -8,10 +8,10 @@ import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OutboundComPort;
 import java.util.Optional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ThreadFactory;
+import java.util.stream.Collectors;
 
 /**
  * Provides an implementation for the {@link ScheduledComPort} interface
@@ -74,17 +74,7 @@ public class SingleThreadedScheduledComPort extends ScheduledComPortImpl {
         }
 
         private List<ScheduledJob> toScheduledJobs (List<ComJob> jobs) {
-            List<ScheduledJob> scheduledJobs = new ArrayList<>();
-            for (ComJob job : jobs) {
-                if (job.isGroup()) {
-                    scheduledJobs.add(newComTaskGroup(job));
-                }
-                else {
-                    List<ComTaskExecution> scheduledComTasks = job.getComTaskExecutions();
-                    scheduledJobs.add(newComTaskJob(scheduledComTasks.get(0)));
-                }
-            }
-            return scheduledJobs;
+            return jobs.stream().map(SingleThreadedScheduledComPort.this::newComTaskGroup).collect(Collectors.toList());
         }
 
     }

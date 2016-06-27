@@ -6,32 +6,16 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
-import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
-import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.device.data.tasks.*;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.FakeTransactionService;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComPortPool;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.InboundCapableComServer;
-import com.energyict.mdc.engine.config.OutboundComPort;
-import com.energyict.mdc.engine.config.OutboundComPortPool;
+import com.energyict.mdc.engine.config.*;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
@@ -43,12 +27,7 @@ import com.energyict.mdc.engine.impl.monitor.ServerScheduledComPortOperationalSt
 import com.energyict.mdc.engine.monitor.ScheduledComPortMonitor;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.protocol.api.ComPortType;
-import com.energyict.mdc.protocol.api.ConnectionException;
-import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.*;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
@@ -56,27 +35,8 @@ import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.tasks.ComTask;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.sql.SQLException;
-import java.time.Clock;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.LogManager;
-
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Matchers;
@@ -84,6 +44,17 @@ import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.sql.SQLException;
+import java.time.Clock;
+import java.time.Instant;
+import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.LogManager;
 
 import static com.elster.jupiter.util.Checks.is;
 import static org.junit.Assert.fail;
@@ -93,15 +64,7 @@ import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.atMost;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.withSettings;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the {@link com.energyict.mdc.engine.impl.core.MultiThreadedScheduledComPort} component.
@@ -844,7 +807,9 @@ public class MultiThreadedScheduledComPortTest {
     }
 
     private ComJob toComJob(ComTaskExecution comTask) {
-        return new ComTaskExecutionJob(comTask);
+        ComTaskExecutionGroup comTaskExecutionGroup = new ComTaskExecutionGroup((OutboundConnectionTask) comTask.getConnectionTask().get());
+        comTaskExecutionGroup.add(comTask);
+        return comTaskExecutionGroup;
     }
 
     private List<ComJob> toComJob(List<ComTaskExecution> serialComTasks) {
@@ -889,33 +854,8 @@ public class MultiThreadedScheduledComPortTest {
         }
 
         @Override
-        protected ScheduledComTaskExecutionJob newComTaskJob(ComTaskExecution comTaskExecution) {
-            return new AlwaysAttemptScheduledComTaskExecutionJob(this.getComPort(), this.getComServerDAO(), deviceCommandExecutor, serviceProvider, comTaskExecution);
-        }
-
-        @Override
         protected ScheduledComTaskExecutionGroup newComTaskGroup(ScheduledConnectionTask connectionTask) {
             return new AlwaysAttemptScheduledComTaskExecutionGroup(this.getComPort(), this.getComServerDAO(), deviceCommandExecutor, getServiceProvider(), connectionTask);
-        }
-
-        private class AlwaysAttemptScheduledComTaskExecutionJob extends ScheduledComTaskExecutionJob {
-
-            private AlwaysAttemptScheduledComTaskExecutionJob(OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider, ComTaskExecution comTask) {
-                super(comPort, comServerDAO, deviceCommandExecutor, comTask, serviceProvider);
-            }
-
-            @Override
-            boolean attemptLock(ComTaskExecution comTaskExecution) {
-                workDeliveredLatch.countDown();
-                return true;
-            }
-
-            @Override
-            boolean attemptLock(ScheduledConnectionTask connectionTask) {
-                workDeliveredLatch.countDown();
-                return true;
-            }
-
         }
 
         public class AlwaysAttemptScheduledComTaskExecutionGroup extends ScheduledComTaskExecutionGroup {
@@ -949,33 +889,8 @@ public class MultiThreadedScheduledComPortTest {
         }
 
         @Override
-        protected ScheduledComTaskExecutionJob newComTaskJob(ComTaskExecution comTaskExecution) {
-            return new NeverAttemptScheduledComTaskExecutionJob(this.getComPort(), this.getComServerDAO(), deviceCommandExecutor, getServiceProvider(), comTaskExecution);
-        }
-
-        @Override
         protected ScheduledComTaskExecutionGroup newComTaskGroup(ScheduledConnectionTask connectionTask) {
             return new NeverAttemptScheduledComTaskExecutionGroup(this.getComPort(), this.getComServerDAO(), deviceCommandExecutor, getServiceProvider(), connectionTask);
-        }
-
-        private class NeverAttemptScheduledComTaskExecutionJob extends ScheduledComTaskExecutionJob {
-
-            private NeverAttemptScheduledComTaskExecutionJob(OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider, ComTaskExecution comTask) {
-                super(comPort, comServerDAO, deviceCommandExecutor, comTask, serviceProvider);
-            }
-
-            @Override
-            protected boolean attemptLock(ComTaskExecution comTaskExecution) {
-                workDeliveredLatch.countDown();
-                return false;
-            }
-
-            @Override
-            protected boolean attemptLock(ScheduledConnectionTask connectionTask) {
-                workDeliveredLatch.countDown();
-                return false;
-            }
-
         }
 
         public class NeverAttemptScheduledComTaskExecutionGroup extends ScheduledComTaskExecutionGroup {
@@ -1009,38 +924,8 @@ public class MultiThreadedScheduledComPortTest {
         }
 
         @Override
-        protected ScheduledComTaskExecutionJob newComTaskJob(ComTaskExecution comTaskExecution) {
-            return new AlwaysAttemptScheduledComTaskExecutionJob(this.getComPort(), this.getComServerDAO(), deviceCommandExecutor, serviceProvider, comTaskExecution);
-        }
-
-        @Override
         protected ScheduledComTaskExecutionGroup newComTaskGroup(ScheduledConnectionTask connectionTask) {
             return new AlwaysAttemptScheduledComTaskExecutionGroup(this.getComPort(), this.getComServerDAO(), deviceCommandExecutor, getServiceProvider(), connectionTask);
-        }
-
-        private class AlwaysAttemptScheduledComTaskExecutionJob extends ScheduledComTaskExecutionJob {
-
-            private AlwaysAttemptScheduledComTaskExecutionJob(OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider, ComTaskExecution comTask) {
-                super(comPort, comServerDAO, deviceCommandExecutor, comTask, serviceProvider);
-            }
-
-            @Override
-            protected boolean attemptLock(ComTaskExecution comTaskExecution) {
-                return true;
-            }
-
-            @Override
-            protected boolean attemptLock(ScheduledConnectionTask connectionTask) {
-                return true;
-            }
-
-            @Override
-            public void failed(Throwable t, ExecutionFailureReason failureReason) {
-                super.failed(t, failureReason);
-                if (failureReason.equals(ExecutionFailureReason.CONNECTION_SETUP)) {
-                    connectionError.countDown();
-                }
-            }
         }
 
         public class AlwaysAttemptScheduledComTaskExecutionGroup extends ScheduledComTaskExecutionGroup {
@@ -1079,37 +964,8 @@ public class MultiThreadedScheduledComPortTest {
         }
 
         @Override
-        protected ScheduledComTaskExecutionJob newComTaskJob(ComTaskExecution comTaskExecution) {
-            return new NoLongerPendingScheduledComTaskExecutionJob(this.getComPort(), this.getComServerDAO(), deviceCommandExecutor, serviceProvider, comTaskExecution);
-        }
-
-        @Override
         protected ScheduledComTaskExecutionGroup newComTaskGroup(ScheduledConnectionTask connectionTask) {
             return new NoLongerPendingScheduledComTaskExecutionGroup(this.getComPort(), this.getComServerDAO(), deviceCommandExecutor, getServiceProvider(), connectionTask);
-        }
-
-        private class NoLongerPendingScheduledComTaskExecutionJob extends ScheduledComTaskExecutionJob {
-
-            private NoLongerPendingScheduledComTaskExecutionJob(OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider, ComTaskExecution comTask) {
-                super(comPort, comServerDAO, deviceCommandExecutor, comTask, serviceProvider);
-            }
-
-            @Override
-            public boolean isStillPending() {
-                latch.countDown();
-                return false;
-            }
-
-            @Override
-            protected boolean attemptLock(ComTaskExecution comTaskExecution) {
-                return false;
-            }
-
-            @Override
-            protected boolean attemptLock(ScheduledConnectionTask connectionTask) {
-                return false;
-            }
-
         }
 
         public class NoLongerPendingScheduledComTaskExecutionGroup extends ScheduledComTaskExecutionGroup {
