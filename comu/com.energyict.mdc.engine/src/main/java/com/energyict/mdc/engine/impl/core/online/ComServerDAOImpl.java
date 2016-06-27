@@ -8,7 +8,6 @@ import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.sql.Fetcher;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.SecurityPropertySet;
@@ -793,39 +792,7 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     private void updateCalendars(CollectedCalendar collectedCalendar, Device device) {
-        Instant now = this.now();
-        collectedCalendar.getActiveCalendar().ifPresent(activeCalendarName -> this.setActiveCalendar(device, activeCalendarName, now));
-        collectedCalendar.getPassiveCalendar().ifPresent(passiveCalendarName -> this.setPassiveCalendar(device, passiveCalendarName));
-    }
-
-    private void setActiveCalendar(Device device, String calendarName, Instant now) {
-        Optional<AllowedCalendar> allowedCalendar = this.getAllowedCalendar(device, calendarName);
-        if (allowedCalendar.isPresent()) {
-            device.setActiveCalendar(allowedCalendar.get(), now, now);
-        } else {
-            device.setActiveCalendar(
-                    device.getDeviceType().addGhostCalendar(calendarName),
-                    now,
-                    now);
-        }
-    }
-
-    private void setPassiveCalendar(Device device, String calendarName) {
-        Optional<AllowedCalendar> allowedCalendar = this.getAllowedCalendar(device, calendarName);
-        if (allowedCalendar.isPresent()) {
-            device.addPassiveCalendar(allowedCalendar.get());
-        } else {
-            device.addPassiveCalendar(device.getDeviceType().addGhostCalendar(calendarName));
-        }
-    }
-
-    private Optional<AllowedCalendar> getAllowedCalendar(Device device, String calendarName) {
-        return device
-            .getDeviceType()
-            .getAllowedCalendars()
-            .stream()
-            .filter(each -> each.getName().equals(calendarName))
-            .findFirst();
+        device.calendars().updateCalendars(collectedCalendar);
     }
 
     private Instant now() {
