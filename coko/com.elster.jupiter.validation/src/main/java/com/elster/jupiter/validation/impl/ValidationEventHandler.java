@@ -10,6 +10,7 @@ import com.elster.jupiter.metering.StorerProcess;
 import com.elster.jupiter.pubsub.EventHandler;
 import com.elster.jupiter.pubsub.Subscriber;
 import com.elster.jupiter.validation.ValidationService;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 import org.osgi.service.component.annotations.Component;
@@ -95,7 +96,7 @@ public class ValidationEventHandler extends EventHandler<LocalEvent> {
                     map.computeIfPresent(entry.getKey().getChannel(), (channel, range) -> range.span(entry.getValue()));
                     map.computeIfAbsent(entry.getKey().getChannel(), channel -> entry.getValue());
                 },
-                (map1, map2) -> {} // no combiner, since we don't do this in parallel
+                (map1, map2) -> {/* no combiner, since we don't do this in parallel */}
         );
         return byChannel.entrySet().stream().collect(
                 HashMap::new,
@@ -106,7 +107,7 @@ public class ValidationEventHandler extends EventHandler<LocalEvent> {
                         return map1;
                     });
                 },
-                (map1, map2) -> {} // no combiner, since we don't do this in parallel
+                (map1, map2) -> {/* no combiner, since we don't do this in parallel */}
         );
     }
 
