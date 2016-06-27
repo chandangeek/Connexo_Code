@@ -243,7 +243,7 @@ public class FileImportServiceImpl implements FileImportService, MessageSeedProv
             }
         });
 
-        upgradeService.register(InstallIdentifier.identifier(COMPONENTNAME), dataModel, InstallerImpl.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier("Pulse", COMPONENTNAME), dataModel, InstallerImpl.class, Collections.emptyMap());
 
         createScheduler();
     }
