@@ -16,6 +16,7 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
+import com.elster.jupiter.metering.ReadingQualityWithTypeFilter;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.readings.BaseReading;
@@ -186,6 +187,8 @@ public class ValidationServiceImplTest {
     private ChannelsContainerValidation channelsContainerValidation;
     @Mock
     private ChannelValidation channelValidation1, channelValidation2;
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    private ReadingQualityWithTypeFilter filter;
     @Mock
     private ReadingQualityRecord readingQuality1, readingQuality2, readingQuality3;
     @Mock
@@ -239,6 +242,7 @@ public class ValidationServiceImplTest {
         doReturn(channel1).when(cimChannel1).getChannel();
         doReturn(channel2).when(cimChannel2).getChannel();
         when(meterActivation.getChannelsContainer()).thenReturn(channelsContainer);
+        doReturn(filter).when(cimChannel1).findReadingQualities();
 
         validationService = new ValidationServiceImpl(clock, messageService, eventService, taskService, meteringService, meteringGroupsService, ormService, queryService, nlsService, mock(UserService.class), mock(Publisher.class), upgradeService);
         validationService.addValidationRuleSetResolver(validationRuleSetResolver);
@@ -515,8 +519,10 @@ public class ValidationServiceImplTest {
         ChannelValidation channelValidation = mock(ChannelValidation.class);
         when(channelValidationFactory.find(eq("channel"), eq(channel1))).thenReturn(Arrays.asList(channelValidation));
         when(channelValidation.getLastChecked()).thenReturn(readingDate1);
-        when(cimChannel1.findReadingQualities(Collections.singleton(SYSTEM), null, Range.closed(readingDate1, readingDate2), false))
-                .thenReturn(Collections.<ReadingQualityRecord>emptyList());
+        when(filter.ofQualitySystems(Collections.singleton(SYSTEM))
+                .inTimeInterval(Range.closed(readingDate1, readingDate2))
+                .collect())
+                .thenReturn(Collections.emptyList());
         ReadingQualityRecord readingQualityRecord = mock(ReadingQualityRecord.class);
         when(cimChannel1.createReadingQuality(any(ReadingQualityType.class), eq(readingDate1))).thenReturn(readingQualityRecord);
 
@@ -596,7 +602,10 @@ public class ValidationServiceImplTest {
         ReadingQualityType readingQualityType = new ReadingQualityType("2.6.32131");
         when(readingQuality.getType()).thenReturn(readingQualityType);
         when(readingQuality.getTypeCode()).thenReturn("2.6.32131");
-        when(cimChannel1.findReadingQualities(Collections.singleton(SYSTEM), null, Range.closed(readingDate1, readingDate2), true))
+        when(filter.ofQualitySystems(Collections.singleton(SYSTEM))
+                .inTimeInterval(Range.closed(readingDate1, readingDate2))
+                .actual()
+                .collect())
                 .thenReturn(Collections.singletonList(readingQuality));
         when(cimChannel1.createReadingQuality(any(ReadingQualityType.class), eq(readingDate1))).thenReturn(mock(ReadingQualityRecord.class));
         setupValidationRuleSet(channelValidation1, channel1, true, readingQualityType);
@@ -639,7 +648,10 @@ public class ValidationServiceImplTest {
         when(readingQuality2.getType()).thenReturn(readingQualityType2);
         when(readingQuality2.getTypeCode()).thenReturn("2.6.9856");
         when(readingQuality2.isSuspect()).thenReturn(true);
-        when(cimChannel1.findReadingQualities(Collections.singleton(SYSTEM), null, Range.closed(readingDate1, readingDate2), true))
+        when(filter.ofQualitySystems(Collections.singleton(SYSTEM))
+                .inTimeInterval(Range.closed(readingDate1, readingDate2))
+                .actual()
+                .collect())
                 .thenReturn(Arrays.asList(readingQuality1, readingQuality2));
         ReadingQualityRecord readingDate2ReadingQuality = mock(ReadingQualityRecord.class);
         when(cimChannel1.createReadingQuality(any(ReadingQualityType.class), any(Instant.class))).thenReturn(readingDate2ReadingQuality);
@@ -749,7 +761,7 @@ public class ValidationServiceImplTest {
     public void testDeactivateMeterValidationNoObject() {
         Meter meter = mock(Meter.class);
         when(meter.getId()).thenReturn(ID);
-        when(meterValidationFactory.getOptional(ID)).thenReturn(Optional.<MeterValidationImpl>empty());
+        when(meterValidationFactory.getOptional(ID)).thenReturn(Optional.empty());
         validationService.deactivateValidation(meter);
 
         verify(meterValidation, never()).setActivationStatus(anyBoolean());
@@ -802,6 +814,9 @@ public class ValidationServiceImplTest {
         CimChannel bulkChannel = mock(CimChannel.class);
         when(mainChannel.getChannel()).thenReturn(channel);
         when(bulkChannel.getChannel()).thenReturn(channel);
+        when(mainChannel.findReadingQualities()).thenReturn(filter);
+        ReadingQualityWithTypeFilter bulkFilter = mock(ReadingQualityWithTypeFilter.class, Answers.RETURNS_DEEP_STUBS.get());
+        when(bulkChannel.findReadingQualities()).thenReturn(bulkFilter);
         Instant start = ZonedDateTime.of(2015, 9, 1, 0, 0, 0, 0, ZoneOffset.UTC).toInstant();
         Instant end = ZonedDateTime.of(2015, 9, 5, 0, 0, 0, 0, ZoneOffset.UTC).toInstant();
         Range<Instant> range = Range.openClosed(start, end);
@@ -822,10 +837,18 @@ public class ValidationServiceImplTest {
         List<ReadingQualityRecord> bulkRQs = Arrays.asList(
                 mockReadingQualityRecord("2.5.258", start.plus(2, ChronoUnit.DAYS)), mockReadingQualityRecord("2.5.259", start.plus(2, ChronoUnit.DAYS)),//missing
                 mockReadingQualityRecord("2.5.258", start.plus(3, ChronoUnit.DAYS)), mockReadingQualityRecord("2.5.259", start.plus(3, ChronoUnit.DAYS)));//missing
-        when(bulkChannel.findReadingQualities(Collections.singleton(SYSTEM), null, range, true)).thenReturn(bulkRQs);
+        when(bulkFilter
+                .ofQualitySystems(Collections.singleton(SYSTEM))
+                .inTimeInterval(range)
+                .actual()
+                .collect()).thenReturn(bulkRQs);
         List<ReadingQualityRecord> mainRQs = Arrays.asList(
                 mockReadingQualityRecord("2.5.258", start.plus(4, ChronoUnit.DAYS)), mockReadingQualityRecord("2.6.1003", start.plus(4, ChronoUnit.DAYS)));//rule violation
-        when(mainChannel.findReadingQualities(Collections.singleton(SYSTEM), null, range, true)).thenReturn(mainRQs);
+        when(filter
+                .ofQualitySystems(Collections.singleton(SYSTEM))
+                .inTimeInterval(range)
+                .actual()
+                .collect()).thenReturn(mainRQs);
         List<DataValidationStatus> validationStatus = validationService.getEvaluator().getValidationStatus(
                 Collections.singleton(SYSTEM), ImmutableList.of(mainChannel, bulkChannel), Collections.emptyList(), range);
         assertThat(validationStatus).hasSize(3);

@@ -40,8 +40,14 @@ public abstract class AbstractValidationEvaluator implements ValidationEvaluator
 
     @Override
     public boolean areSuspectsPresent(Set<QualityCodeSystem> qualityCodeSystems, ChannelsContainer channelsContainer) {
-        return !channelsContainer.getChannels().stream()
-                .allMatch(channel -> channel.findReadingQualities(qualityCodeSystems, QualityCodeIndex.SUSPECT, channelsContainer.getRange(), true, false).isEmpty());
+        return channelsContainer.getChannels().stream()
+                .anyMatch(channel -> channel.findReadingQualities()
+                        .ofQualitySystems(qualityCodeSystems)
+                        .ofQualityIndex(QualityCodeIndex.SUSPECT)
+                        .inTimeInterval(channelsContainer.getRange())
+                        .actual()
+                        .findFirst()
+                        .isPresent());
     }
 
     /**
@@ -142,12 +148,16 @@ public abstract class AbstractValidationEvaluator implements ValidationEvaluator
 
     private static ListMultimap<Instant, ReadingQualityRecord> getActualReadingQualities(CimChannel channel, Range<Instant> interval,
                                                                                          Set<QualityCodeSystem> qualityCodeSystems) {
-        return Multimaps.index(channel.findReadingQualities(qualityCodeSystems, null, interval, true), ReadingQualityRecord::getReadingTimestamp);
+        return Multimaps.index(channel.findReadingQualities()
+                .ofQualitySystems(qualityCodeSystems)
+                .inTimeInterval(interval)
+                .actual()
+                .collect(), ReadingQualityRecord::getReadingTimestamp);
     }
 
     private static List<IValidationRule> filterDuplicates(Collection<IValidationRule> iValidationRules) {
         Map<String, IValidationRule> collect = iValidationRules.stream()
-                .collect(Collectors.toMap(IValidationRule::getImplementation, Function.<IValidationRule>identity(), (a, b) -> a.isObsolete() ? b : a));
+                .collect(Collectors.toMap(IValidationRule::getImplementation, Function.identity(), (a, b) -> a.isObsolete() ? b : a));
         return new ArrayList<>(collect.values());
     }
 

@@ -1,5 +1,6 @@
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.cbo.QualityCodeCategory;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ReadingQualityRecord;
@@ -8,11 +9,11 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import java.time.Instant;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -121,9 +122,11 @@ final class ChannelValidationImpl implements ChannelValidation {
         }
         Instant newValue = instant.isBefore(minLastChecked()) ? minLastChecked() : instant;
         if (lastChecked.isAfter(newValue)) {
-            getChannel().findReadingQualities(Collections.singleton(channelsContainerValidation.get().getRuleSet().getQualityCodeSystem()),
-                    null, Range.greaterThan(newValue), false, false).stream()
-                    .filter(ChannelValidationImpl::isValidationRelatedQuality)
+            getChannel().findReadingQualities()
+                    .ofQualitySystem(channelsContainerValidation.get().getRuleSet().getQualityCodeSystem())
+                    .inTimeInterval(Range.greaterThan(newValue))
+                    .ofAnyQualityIndexInCategories(ImmutableSet.of(QualityCodeCategory.REASONABILITY, QualityCodeCategory.VALIDATION))
+                    .collect()
                     .forEach(ReadingQualityRecord::delete);
         }
         this.lastChecked = newValue;
@@ -137,10 +140,6 @@ final class ChannelValidationImpl implements ChannelValidation {
         }
         Optional<BaseReadingRecord> reading = getChannel().getReadingsBefore(instant, 1).stream().findFirst();
         return updateLastChecked(reading.map(BaseReading::getTimeStamp).orElseGet(this::minLastChecked));
-    }
-
-    private static boolean isValidationRelatedQuality(ReadingQualityRecord readingQuality) {
-        return readingQuality.hasReasonabilityCategory() || readingQuality.hasValidationCategory();
     }
 
     @Override
