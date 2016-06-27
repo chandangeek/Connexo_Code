@@ -12,10 +12,11 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class QueryEndDeviceGroupCondition {
+class QueryEndDeviceGroupCondition {
 
     enum Fields {
         GROUP("endDeviceGroup"),
@@ -62,7 +63,7 @@ public class QueryEndDeviceGroupCondition {
         this.conditionValues.addAll(values);
     }
 
-    public SearchablePropertyValue.ValueBean toValueBean() {
+    SearchablePropertyValue.ValueBean toValueBean() {
         SearchablePropertyValue.ValueBean valueBean = new SearchablePropertyValue.ValueBean();
         valueBean.propertyName = searchableProperty;
         valueBean.operator = operator;
@@ -79,6 +80,7 @@ public class QueryEndDeviceGroupCondition {
     }
 
     List<QueryEndDeviceGroupConditionValue> getConditionValues() {
-        return conditionValues;
+        return Collections.unmodifiableList(conditionValues);
     }
+
 }

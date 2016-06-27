@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.groups;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class SearchCriteria {
@@ -18,7 +19,7 @@ public class SearchCriteria {
     }
 
     public List<Object> getCriteriaValues() {
-        return criteriaValues;
+        return Collections.unmodifiableList(criteriaValues);
     }
 
     public void setCriteriaName(String criteriaName) {
