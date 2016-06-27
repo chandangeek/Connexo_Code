@@ -165,6 +165,7 @@ Ext.define('Mdc.view.setup.device.DeviceAdd', {
                             xtype: 'datefield',
                             name: 'shipmentDate',
                             itemId: 'deviceAddShipmentDate',
+                            required: true,
                             maxWidth: 400,
                             editable: false,
                             value: new Date(),
