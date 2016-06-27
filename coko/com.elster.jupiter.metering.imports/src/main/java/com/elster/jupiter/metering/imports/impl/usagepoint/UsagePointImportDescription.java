@@ -22,7 +22,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public class UsagePointImportDescription extends CustomPropertySetDescription implements FileImportDescription<UsagePointImportRecord> {
+class UsagePointImportDescription extends CustomPropertySetDescription implements FileImportDescription<UsagePointImportRecord> {
 
     private final DateParser dateParser;
     private final BigDecimalParser bigDecimalParser;
