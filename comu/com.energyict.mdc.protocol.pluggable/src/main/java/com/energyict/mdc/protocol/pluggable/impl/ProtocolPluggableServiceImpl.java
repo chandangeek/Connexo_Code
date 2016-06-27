@@ -855,7 +855,7 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
         //TODO need a proper implementation of the DataVault!
         this.dataModel.register(this.getModule());
 
-        upgradeService.register(InstallIdentifier.identifier(ProtocolPluggableService.COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier("MultiSense", ProtocolPluggableService.COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
 
         this.installed = true;
         this.registerAllPluggableClasses();
