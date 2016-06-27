@@ -107,17 +107,29 @@ public class VirtualReadingTypeRequirement {
         sqlBuilder.append("SELECT ");
         VirtualReadingType sourceReadingType = this.getSourceReadingType();
         SqlConstants.TimeSeriesColumnNames.appendAllAggregatedSelectValues(sourceReadingType, this.targetReadingType, sqlBuilder);
-        sqlBuilder.append("  FROM (");
+        sqlBuilder.append("  FROM (SELECT ");
 
-        sqlBuilder.append("select ");
+        sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.ID.fieldSpecName());
+        sqlBuilder.append(", ");
+        sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.TIMESTAMP.fieldSpecName());
+        sqlBuilder.append(", ");
+        sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.VERSIONCOUNT.fieldSpecName());
+        sqlBuilder.append(", ");
+        sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.RECORDTIME.fieldSpecName());
 
-        sqlBuilder.append("timeseriesid , utcstamp , versioncount , recordtime, (select nvl(max(case when type like '%.5.258' then 4 when type like '%.5.259' then 3 else 1 end), 0) from mtr_readingquality where readingtype = '");
+        sqlBuilder.append(", (SELECT nvl(max(case when type like '%.5.258' then 4 when type like '%.5.259' then 3 else 1 end), 0) FROM mtr_readingquality where readingtype = '");
         sqlBuilder.append(this.getPreferredChannel().getMainReadingType().getMRID());
-        sqlBuilder.append("' and readingtimestamp = UTCSTAMP and channelid = ");
+        sqlBuilder.append("' and readingtimestamp = ");
+        sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.TIMESTAMP.fieldSpecName());
+        sqlBuilder.append(" and channelid = ");
         sqlBuilder.append("" + this.getPreferredChannel().getId());
         sqlBuilder.append(" and (type like '%.5.258' or type like '%.5.259' or type like '%.7.%' or type like '%.8.%')) AS ");
         sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.READINGQUALITY.sqlName());
-        sqlBuilder.append(", value, localdate from (");
+        sqlBuilder.append(", ");
+        sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.VALUE.fieldSpecName());
+        sqlBuilder.append(", ");
+        sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.LOCALDATE.fieldSpecName());
+        sqlBuilder.append(" FROM (");
 
         sqlBuilder.add(
                 this.getPreferredChannel()
@@ -127,7 +139,7 @@ public class VirtualReadingTypeRequirement {
                                 this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.VALUE),
                                 this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.LOCALDATE)));
         sqlBuilder.append(") rawdata) GROUP BY TRUNC(");
-        sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.LOCALDATE.sqlName());
+        sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.LOCALDATE.fieldSpecName());
         sqlBuilder.append(", ");
         this.targetReadingType.getIntervalLength().appendOracleFormatModelTo(sqlBuilder);
         sqlBuilder.append(")");
@@ -136,17 +148,30 @@ public class VirtualReadingTypeRequirement {
     @SuppressWarnings("unchecked")
     private void appendDefinitionWithoutAggregation(SqlBuilder sqlBuilder) {
 
-        sqlBuilder.append("select ");
+        sqlBuilder.append("SELECT ");
 
-        sqlBuilder.append("timeseriesid , utcstamp , versioncount , recordtime, (select nvl(max(case when type like '%.5.258' then 4 when type like '%.5.259' then 3 else 1 end), 0) from mtr_readingquality where readingtype = '");
+        sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.ID.fieldSpecName());
+        sqlBuilder.append(", ");
+        sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.TIMESTAMP.fieldSpecName());
+        sqlBuilder.append(", ");
+        sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.VERSIONCOUNT.fieldSpecName());
+        sqlBuilder.append(", ");
+        sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.RECORDTIME.fieldSpecName());
+
+        sqlBuilder.append(", (SELECT nvl(max(case when type like '%.5.258' then 4 when type like '%.5.259' then 3 else 1 end), 0) FROM mtr_readingquality where readingtype = '");
         sqlBuilder.append(this.getPreferredChannel().getMainReadingType().getMRID());
-        sqlBuilder.append("' and readingtimestamp = UTCSTAMP and channelid = ");
+        sqlBuilder.append("' and readingtimestamp = ");
+        sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.TIMESTAMP.fieldSpecName());
+        sqlBuilder.append(" and channelid = ");
         sqlBuilder.append("" + this.getPreferredChannel().getId());
         sqlBuilder.append(" and (type like '%.5.258' or type like '%.5.259' or type like '%.7.%' or type like '%.8.%')) AS ");
         sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.READINGQUALITY.sqlName());
-        sqlBuilder.append(", value, localdate");
+        sqlBuilder.append(", ");
+        sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.VALUE.fieldSpecName());
+        sqlBuilder.append(", ");
+        sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.LOCALDATE.fieldSpecName());
 
-        sqlBuilder.append(" from(");
+        sqlBuilder.append(" FROM(");
         sqlBuilder.add(
                 this.getPreferredChannel()
                         .getTimeSeries()

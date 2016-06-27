@@ -27,7 +27,10 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.List;
+import java.util.Locale;
 import java.util.NoSuchElementException;
 
 @Component(name = "com.elster.jupiter.metering.aggregation.console", service = DataAggregationCommands.class, property = {
@@ -128,11 +131,16 @@ public class DataAggregationCommands {
     }
 
     private void showReading(BaseReadingRecord readingRecord) {
+        DateTimeFormatter formatter =
+                DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
+                        .withLocale( Locale.UK )
+                        .withZone( ZoneId.systemDefault() );
+
         List<? extends ReadingQualityRecord> qualities = readingRecord.getReadingQualities();
         if (qualities.isEmpty()) {
-            System.out.println(readingRecord.getTimeStamp() + " : " + readingRecord.getValue());
+            System.out.println(formatter.format(readingRecord.getTimeStamp()) + " : " + readingRecord.getValue());
         } else {
-            System.out.println(readingRecord.getTimeStamp() + " : " + readingRecord.getValue() + " , "
+            System.out.println(formatter.format(readingRecord.getTimeStamp()) + " : " + readingRecord.getValue() + " , "
                     + ReadingQuality.getReadingQuality(qualities.get(0).getType().getCode()).toString());
         }
     }
