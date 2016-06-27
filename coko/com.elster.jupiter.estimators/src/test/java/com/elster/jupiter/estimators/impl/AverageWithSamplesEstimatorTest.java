@@ -552,7 +552,7 @@ public class AverageWithSamplesEstimatorTest {
                 .put(AverageWithSamplesEstimator.ADVANCE_READINGS_SETTINGS, new ReadingTypeAdvanceReadingsSettings(advanceReadingType))
                 .build();
         AverageWithSamplesEstimator estimator = new AverageWithSamplesEstimator(thesaurus, propertySpecService, validationService, meteringService, timeService, props);
-
+        LoggingContext.getCloseableContext().with("rule", "rule");
         estimator.init(LOGGER);
 
         Stream.of(
