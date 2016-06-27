@@ -17,6 +17,7 @@ Ext.define('Apr.model.WebserviceEndpoint', {
         {name: 'httpCompression', type: 'boolean'},
         {name: 'schemaValidation', type: 'boolean'},
         {name: 'active', type: 'boolean'},
+        {name: 'available', type: 'boolean'},
         {name: 'authenticationMethod'},
         {name: 'username', type: 'string'},
         {name: 'password', type: 'string'},

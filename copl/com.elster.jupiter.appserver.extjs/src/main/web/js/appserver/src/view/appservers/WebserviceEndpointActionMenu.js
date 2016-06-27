@@ -8,7 +8,6 @@ Ext.define('Apr.view.appservers.WebserviceEndpointActionMenu', {
         {
             itemId: 'remove-webservice',
             text: Uni.I18n.translate('general.remove', 'APR', 'Remove'),
-            //action: 'removeImportService'
         }
     ]
 });

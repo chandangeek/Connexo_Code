@@ -15,7 +15,18 @@ Ext.define('Apr.view.appservers.WebserviceEndpointPreviewForm', {
             {
                 xtype: 'displayfield',
                 fieldLabel: Uni.I18n.translate('general.webservice', 'APR', 'Webservice'),
-                name: 'webServiceName'
+                name: 'webServiceName',
+                renderer: function(value) {
+                    var record = this.up().getRecord();
+                    if(record) {
+                        if (value && record.get('available')) {
+                            return value;
+                        } else if (value && !record.get('available')) {
+                            return value + ' (' + Uni.I18n.translate('general.notAvailable', 'APR', 'not available') + ')';
+                        }
+                    }
+                    return '-';
+                }
             },
             {
                 xtype: 'displayfield',
