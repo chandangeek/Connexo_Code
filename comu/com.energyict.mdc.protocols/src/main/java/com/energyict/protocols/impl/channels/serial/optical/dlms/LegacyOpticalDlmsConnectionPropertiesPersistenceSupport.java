@@ -24,6 +24,10 @@ import java.util.stream.Stream;
  * @since 2015-11-10 (13:37)
  */
 public class LegacyOpticalDlmsConnectionPropertiesPersistenceSupport implements PersistenceSupport<ConnectionProvider, LegacyOpticalDlmsConnectionProperties> {
+    @Override
+    public String application() {
+        return "MultiSense";
+    }
 
     @Override
     public String componentName() {

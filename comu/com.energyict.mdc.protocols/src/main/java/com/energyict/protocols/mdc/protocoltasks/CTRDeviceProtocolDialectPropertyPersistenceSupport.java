@@ -22,6 +22,10 @@ import java.util.stream.Stream;
  * @since 2015-11-26 (16:50)
  */
 public class CTRDeviceProtocolDialectPropertyPersistenceSupport implements PersistenceSupport<DeviceProtocolDialectPropertyProvider, CTRDeviceProtocolDialectProperties> {
+    @Override
+    public String application() {
+        return "MultiSense";
+    }
 
     @Override
     public String domainFieldName() {

@@ -148,7 +148,7 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Message
         Module module = this.getModule();
         this.dataModel.register(module);
         this.injector = Guice.createInjector(module);
-        upgradeService.register(InstallIdentifier.identifier(DeviceProtocolService.COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier("MultiSense", DeviceProtocolService.COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
     }
 
     private Module getModule() {

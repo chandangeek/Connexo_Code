@@ -22,6 +22,10 @@ import java.util.stream.Stream;
  * @since 2015-11-26 (17:34)
  */
 public class EDPDeviceProtocolDialectPropertyPersistenceSupport implements PersistenceSupport<DeviceProtocolDialectPropertyProvider, EDPDeviceProtocolDialectProperties> {
+    @Override
+    public String application() {
+        return "MultiSense";
+    }
 
     @Override
     public String domainFieldName() {

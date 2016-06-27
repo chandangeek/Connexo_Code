@@ -22,6 +22,10 @@ import java.util.stream.Stream;
  * @since 2015-11-27 (08:58)
  */
 public class EiWebPlusDialectPropertyPersistenceSupport implements PersistenceSupport<DeviceProtocolDialectPropertyProvider, EiWebPlusDialectProperties> {
+    @Override
+    public String application() {
+        return "MultiSense";
+    }
 
     @Override
     public String domainFieldName() {

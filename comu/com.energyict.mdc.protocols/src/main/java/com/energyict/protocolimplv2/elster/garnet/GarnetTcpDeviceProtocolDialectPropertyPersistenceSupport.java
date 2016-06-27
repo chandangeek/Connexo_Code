@@ -22,6 +22,10 @@ import java.util.stream.Stream;
  * @since 2015-11-26 (16:50)
  */
 public class GarnetTcpDeviceProtocolDialectPropertyPersistenceSupport implements PersistenceSupport<DeviceProtocolDialectPropertyProvider, GarnetTcpDeviceProtocolDialectProperties> {
+    @Override
+    public String application() {
+        return "MultiSense";
+    }
 
     @Override
     public String domainFieldName() {

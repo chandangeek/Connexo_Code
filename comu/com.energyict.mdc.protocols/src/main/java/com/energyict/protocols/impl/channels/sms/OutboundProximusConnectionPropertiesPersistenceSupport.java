@@ -22,6 +22,10 @@ import java.util.stream.Stream;
  * @since 2015-11-06 (12:01)
  */
 public class OutboundProximusConnectionPropertiesPersistenceSupport implements PersistenceSupport<ConnectionProvider, OutboundProximusConnectionProperties> {
+    @Override
+    public String application() {
+        return "MultiSense";
+    }
 
     @Override
     public String componentName() {
