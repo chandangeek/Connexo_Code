@@ -10,7 +10,6 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointFilter;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.metering.security.Privileges;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -20,7 +19,6 @@ import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.rest.ServiceCallInfo;
-import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.Checks;
 
 import com.google.common.base.Predicate;
@@ -57,30 +55,25 @@ import java.util.stream.Collectors;
 public class UsagePointResource {
 
     private final MeteringService meteringService;
-    private final TransactionService transactionService;
     private final Clock clock;
     private final ConcurrentModificationExceptionFactory conflictFactory;
     private final UsagePointInfoFactory usagePointInfoFactory;
     private final ServiceCallService serviceCallService;
-    private final Thesaurus thesaurus;
     private final ExceptionFactory exceptionFactory;
 
     @Inject
-    public UsagePointResource(MeteringService meteringService,
-                              ServiceCallService serviceCallService,
-                              TransactionService transactionService,
-                              Clock clock,
-                              ConcurrentModificationExceptionFactory conflictFactory,
-                              UsagePointInfoFactory usagePointInfoFactory,
-                              ExceptionFactory exceptionFactory,
-                              Thesaurus thesaurus) {
+    public UsagePointResource(
+            MeteringService meteringService,
+            ServiceCallService serviceCallService,
+            Clock clock,
+            ConcurrentModificationExceptionFactory conflictFactory,
+            UsagePointInfoFactory usagePointInfoFactory,
+            ExceptionFactory exceptionFactory) {
         this.meteringService = meteringService;
-        this.transactionService = transactionService;
         this.clock = clock;
         this.conflictFactory = conflictFactory;
         this.usagePointInfoFactory = usagePointInfoFactory;
         this.serviceCallService = serviceCallService;
-        this.thesaurus = thesaurus;
         this.exceptionFactory = exceptionFactory;
     }
 
@@ -189,10 +182,10 @@ public class UsagePointResource {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }
         Range<Instant> range = Range.openClosed(Instant.ofEpochMilli(from), Instant.ofEpochMilli(to));
-        return doGetIntervalreadings(mRID, activationId, channelId, securityContext, range);
+        return doGetIntervalreadings(mRID, activationId, channelId, range);
     }
 
-    private ReadingInfos doGetIntervalreadings(String mRID, long activationId, long channelId, SecurityContext securityContext, Range<Instant> range) {
+    private ReadingInfos doGetIntervalreadings(String mRID, long activationId, long channelId, Range<Instant> range) {
         UsagePoint usagePoint = fetchUsagePoint(mRID);
         MeterActivation meterActivation = fetchMeterActivation(usagePoint, activationId);
         for (Channel channel : meterActivation.getChannels()) {
@@ -277,16 +270,12 @@ public class UsagePointResource {
         return readingTypes;
     }
 
-    private UsagePoint fetchUsagePoint(long id) {
-        return meteringService.findUsagePoint(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-    }
-
     private UsagePoint fetchUsagePoint(String mRID) {
         return meteringService.findUsagePoint(mRID)
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_USAGE_POINT_FOR_MRID, mRID));
     }
 
-    private static class HasReadingType implements Predicate<MeterActivation> {
+    private static final class HasReadingType implements Predicate<MeterActivation> {
 
         private final MRIDMatcher mridMatcher;
 
@@ -300,7 +289,7 @@ public class UsagePointResource {
         }
     }
 
-    private static class MRIDMatcher implements Predicate<ReadingType> {
+    private static final class MRIDMatcher implements Predicate<ReadingType> {
 
         private final String mRID;
 
@@ -313,4 +302,5 @@ public class UsagePointResource {
             return input.getMRID().equals(mRID);
         }
     }
+
 }
