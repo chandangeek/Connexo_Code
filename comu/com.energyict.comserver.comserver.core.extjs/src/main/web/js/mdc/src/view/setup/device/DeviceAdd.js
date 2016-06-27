@@ -160,38 +160,39 @@ Ext.define('Mdc.view.setup.device.DeviceAdd', {
                                     loadMask: true,
                                     maxHeight: 300
                                 },
-                                listeners: {
-                                    select: function (field, value) {
-                                        field.up('form').getRecord().set('deviceConfigurationId', value[0].data.id);
-                                    }
+                            listeners: {
+                                select: function (field, value) {
+                                    field.up('form').getRecord().set('deviceConfigurationId', value[0].data.id);
                                 }
-                            },
-                            {
-                                xtype: 'datefield',
-                                name: 'arrivalDate',
-                                itemId: 'deviceAddArrival',
-                                maxWidth: 400,
-                                editable: false,
-                                value: new Date(),
-                                fieldLabel: Uni.I18n.translate('deviceAdd.arrivalDate', 'MDC', 'Arrival date'),
-                                format: Uni.util.Preferences.lookup(Uni.DateTime.dateShortKey, Uni.DateTime.dateShortDefault)
-                            },
-                            {
-                                xtype: 'combobox',
-                                maxWidth: 400,
-                                name: 'yearOfCertification',
-                                itemId: 'deviceAddCertification',
-                                fieldLabel: Uni.I18n.translate('deviceAdd.yearOfCertification', 'MDC', 'Year of certification'),
-                                displayField: 'year',
-                                valueField: 'year',
-                                store: undefined,
-                                editable: false,
-                                listConfig: { maxHeight: 100 },
-                                listeners: {
-                                    beforerender: function (combo) {
-                                        var currentTime = new Date();
-                                        var year = currentTime.getFullYear();
-                                        var years = [];
+                            }
+                        },
+                        {
+                            xtype: 'datefield',
+                            itemId: 'deviceAddShipmentDate',
+                            allowBlank: false,
+                            required: true,
+                            maxWidth: 400,
+                            editable: false,
+                            value: new Date(),
+                            fieldLabel: Uni.I18n.translate('deviceAdd.shipmentDate', 'MDC', 'Shipment date'),
+                            format: Uni.util.Preferences.lookup(Uni.DateTime.dateShortKey, Uni.DateTime.dateShortDefault)
+                        },
+                        {
+                            xtype: 'combobox',
+                            maxWidth: 400,
+                            name: 'yearOfCertification',
+                            itemId: 'deviceAddCertification',
+                            fieldLabel: Uni.I18n.translate('deviceAdd.yearOfCertification', 'MDC', 'Year of certification'),
+                            displayField: 'year',
+                            valueField: 'year',
+                            store: undefined,
+                            editable: false,
+                            listConfig: { maxHeight: 100 },
+                            listeners: {
+                                beforerender: function (combo) {
+                                    var currentTime = new Date();
+                                    var year = currentTime.getFullYear();
+                                    var years = [];
 
                                         for(y=0; y<=20; y++){
                                             years.push([year-y]);

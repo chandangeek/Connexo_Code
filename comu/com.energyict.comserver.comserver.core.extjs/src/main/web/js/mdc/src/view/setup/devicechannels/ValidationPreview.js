@@ -110,7 +110,7 @@ Ext.define('Mdc.view.setup.devicechannels.ValidationPreview', {
                             str += prop + '</span>' + '<br>';
                         }
                     });
-                    return str;
+                    return Ext.isEmpty(str) ? '-' : str;
                 }
                 else {
                     field.hide();

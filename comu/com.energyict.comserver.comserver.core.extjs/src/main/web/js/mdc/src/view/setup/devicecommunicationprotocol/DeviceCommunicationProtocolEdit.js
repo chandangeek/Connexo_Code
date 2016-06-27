@@ -74,7 +74,10 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
                                     },
                                     {
                                         xtype: 'displayfield',
-                                        fieldLabel: Uni.I18n.translate('deviceCommunicationProtocol.protocolDialectDetails', 'MDC', 'Communication protocol details')
+                                        fieldLabel: Uni.I18n.translate('deviceCommunicationProtocol.protocolDialectDetails', 'MDC', 'Communication protocol details'),
+                                        renderer: function() {
+                                            return ''; // No dash!
+                                        }
                                     }
 
                                 ]
