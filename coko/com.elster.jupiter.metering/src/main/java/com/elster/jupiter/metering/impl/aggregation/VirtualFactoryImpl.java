@@ -87,7 +87,7 @@ public class VirtualFactoryImpl implements VirtualFactory {
      * Provides an implementation for the {@link VirtualFactory} interface
      * that works for a single {@link MeterActivation}.
      */
-    private class MeterActivationFactory implements VirtualFactory {
+    private final class MeterActivationFactory implements VirtualFactory {
         private final MeterActivation meterActivation;
         private final Range<Instant> requestedPeriod;
         private final int sequenceNumber;
@@ -141,7 +141,7 @@ public class VirtualFactoryImpl implements VirtualFactory {
      * focusses on a single {@link ReadingTypeRequirement}
      * in the context of a single {@link MeterActivation}.
      */
-    private class MeterActivationAndRequirementFactory {
+    private final class MeterActivationAndRequirementFactory {
         private final MeterActivationFactory parent;
         private final Map<VirtualReadingType, MeterActivationAndRequirementInDeliverableFactory> requirements = new HashMap<>();
 
@@ -156,7 +156,7 @@ public class VirtualFactoryImpl implements VirtualFactory {
                     .requirementFor(mode, requirement, deliverable, readingType);
         }
 
-        public List<VirtualReadingTypeRequirement> allRequirements() {
+        List<VirtualReadingTypeRequirement> allRequirements() {
             return this.requirements
                     .values()
                     .stream()
@@ -183,7 +183,7 @@ public class VirtualFactoryImpl implements VirtualFactory {
      * in the context of a {@link ReadingTypeDeliverable}
      * for a single {@link MeterActivation}.
      */
-    private class MeterActivationAndRequirementInDeliverableFactory {
+    private final class MeterActivationAndRequirementInDeliverableFactory {
         private final MeterActivationAndRequirementFactory parent;
         private final Map<ReadingTypeDeliverable, VirtualReadingTypeRequirement> requirements = new HashMap<>();
 
@@ -210,7 +210,7 @@ public class VirtualFactoryImpl implements VirtualFactory {
                     this.parent.meterActivationSequenceNumber());
         }
 
-        public List<VirtualReadingTypeRequirement> allRequirements() {
+        List<VirtualReadingTypeRequirement> allRequirements() {
             return new ArrayList<>(this.requirements.values());
         }
 
