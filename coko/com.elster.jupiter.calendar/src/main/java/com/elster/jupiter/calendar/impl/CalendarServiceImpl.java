@@ -107,7 +107,7 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
     @Activate
     public void activate() {
         this.dataModel.register(this.getModule());
-        upgradeService.register(InstallIdentifier.identifier(CalendarService.COMPONENTNAME), dataModel, InstallerImpl.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier("Pulse", CalendarService.COMPONENTNAME), dataModel, InstallerImpl.class, Collections.emptyMap());
     }
 
     private Module getModule() {

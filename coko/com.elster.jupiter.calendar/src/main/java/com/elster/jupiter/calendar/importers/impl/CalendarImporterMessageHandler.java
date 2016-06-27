@@ -2,9 +2,7 @@ package com.elster.jupiter.calendar.importers.impl;
 
 import com.elster.jupiter.calendar.MessageSeeds;
 import com.elster.jupiter.fileimport.FileImportService;
-import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.nls.Layer;
@@ -12,12 +10,10 @@ import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.util.exception.ExceptionCatcher;
 import com.elster.jupiter.util.exception.MessageSeed;
+
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -57,7 +53,7 @@ public class CalendarImporterMessageHandler implements MessageHandlerFactory, Tr
                 bind(MessageService.class).toInstance(messageService);
             }
         });
-        upgradeService.register(InstallIdentifier.identifier(CalendarImporterMessageHandler.COMPONENT), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier("Pulse", CalendarImporterMessageHandler.COMPONENT), dataModel, Installer.class, Collections.emptyMap());
     }
 
     @Inject
