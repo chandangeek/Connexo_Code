@@ -1,5 +1,6 @@
 package com.elster.jupiter.estimators.impl;
 
+import com.elster.jupiter.cbo.QualityCodeCategory;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.estimation.AdvanceReadingsSettings;
@@ -16,8 +17,6 @@ import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingQualityRecord;
-import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
@@ -53,7 +52,6 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.elster.jupiter.util.streams.Predicates.either;
 import static java.lang.Math.abs;
 import static java.math.RoundingMode.HALF_UP;
 
@@ -563,9 +561,14 @@ class AverageWithSamplesEstimator extends AbstractEstimator {
     }
 
     private static boolean hasSuspects(CimChannel cimChannel, Range<Instant> interval, Set<QualityCodeSystem> systems) {
-        return !cimChannel
-                .findReadingQualities(systems, QualityCodeIndex.SUSPECT, interval, true)
-                .isEmpty();
+        return cimChannel
+                .findReadingQualities()
+                .ofQualitySystems(systems)
+                .ofQualityIndex(QualityCodeIndex.SUSPECT)
+                .inTimeInterval(interval)
+                .actual()
+                .findFirst()
+                .isPresent();
     }
 
     private static Instant lastOf(List<Instant> instants) {
@@ -646,15 +649,15 @@ class AverageWithSamplesEstimator extends AbstractEstimator {
     }
 
     private static boolean ofRequiredQuality(EstimationBlock estimationBlock, Instant timeStamp, Set<QualityCodeSystem> systems) {
-        return estimationBlock.getCimChannel().findReadingQualities(timeStamp).stream()
-                .filter(ReadingQualityRecord::isActual)
-                .map(ReadingQualityRecord::getType)
-                .filter(readingQualityType -> systems.stream()
-                        .anyMatch(qcs -> qcs.ordinal() == readingQualityType.getSystemCode()))
-                .noneMatch(either(ReadingQualityType::isSuspect)
-                        .or(ReadingQualityType::hasEstimatedCategory)
-                        .or(ReadingQualityType::hasEditCategory)
-                        .or(ReadingQualityType::isConfirmed));
+        return !estimationBlock.getCimChannel().findReadingQualities()
+                .atTimestamp(timeStamp)
+                .actual()
+                .ofQualitySystems(systems)
+                .ofQualityIndices(ImmutableSet.of(QualityCodeIndex.SUSPECT, QualityCodeIndex.ACCEPTED))
+                .orOfAnotherTypeInSameSystems()
+                .ofAnyQualityIndexInCategories(ImmutableSet.of(QualityCodeCategory.ESTIMATED, QualityCodeCategory.EDITED))
+                .findFirst()
+                .isPresent();
     }
 
     private static boolean sameTimeOfWeek(ZonedDateTime first, ZonedDateTime second) {
@@ -674,16 +677,14 @@ class AverageWithSamplesEstimator extends AbstractEstimator {
 
     private static boolean isValidReading(CimChannel advanceCimChannel, BaseReadingRecord readingToEvaluate,
                                           Set<QualityCodeSystem> systems) {
-        return advanceCimChannel.findReadingQualities(readingToEvaluate.getTimeStamp()).stream()
-                .filter(ReadingQualityRecord::isActual)
-                .map(ReadingQualityRecord::getType)
-                .filter(readingQualityType -> systems.stream()
-                        .anyMatch(qcs -> qcs.ordinal() == readingQualityType.getSystemCode()))
-                .noneMatch(
-                        either(ReadingQualityType::isSuspect)
-                                .or(ReadingQualityType::hasEstimatedCategory)
-                                .or(readingQualityType -> readingQualityType.qualityIndex()
-                                        .filter(QualityCodeIndex.OVERFLOWCONDITIONDETECTED::equals).isPresent())
-                );
+        return !advanceCimChannel.findReadingQualities()
+                .atTimestamp(readingToEvaluate.getTimeStamp())
+                .actual()
+                .ofQualitySystems(systems)
+                .ofQualityIndices(ImmutableSet.of(QualityCodeIndex.SUSPECT, QualityCodeIndex.OVERFLOWCONDITIONDETECTED))
+                .orOfAnotherTypeInSameSystems()
+                .ofAnyQualityIndexInCategory(QualityCodeCategory.ESTIMATED)
+                .findFirst()
+                .isPresent();
     }
 }
