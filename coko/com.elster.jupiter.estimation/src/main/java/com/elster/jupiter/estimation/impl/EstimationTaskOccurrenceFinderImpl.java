@@ -5,6 +5,7 @@ import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
+
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -19,10 +20,7 @@ class EstimationTaskOccurrenceFinderImpl implements EstimationTaskOccurrenceFind
     private Integer start;
     private Integer limit;
 
-    public EstimationTaskOccurrenceFinderImpl() {
-    }
-
-    public EstimationTaskOccurrenceFinderImpl(TaskService taskService, Condition condition, Order... orders) {
+    EstimationTaskOccurrenceFinderImpl(TaskService taskService, Condition condition, Order... orders) {
         this.taskService = taskService;
         this.condition = condition;
         this.orders = orders;
