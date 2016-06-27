@@ -4,6 +4,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -109,7 +110,7 @@ public final class ResponseHelper {
         }
 
         public List<T> getData() {
-            return data;
+            return Collections.unmodifiableList(data);
         }
 
         public long getTotal() {
