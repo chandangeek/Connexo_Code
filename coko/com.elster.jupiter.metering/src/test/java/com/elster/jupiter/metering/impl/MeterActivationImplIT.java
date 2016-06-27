@@ -298,19 +298,19 @@ public class MeterActivationImplIT {
         ZonedDateTime originalCutOff = ZonedDateTime.of(2012, 12, 25, 0, 0, 0, 0, ZoneId.systemDefault());
         ZonedDateTime newCutOff = ZonedDateTime.of(2012, 12, 20, 0, 0, 0, 0, ZoneId.systemDefault());
         MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
-        Meter meter = null;
-        MeterActivation currentActivation = null;
-        ReadingType readingType = null;
-        MeterActivation meterActivation = null;
+        Meter meter;
+        MeterActivation currentActivation;
+        ReadingType readingType;
+        MeterActivation meterActivation;
         try (TransactionContext ctx = inMemoryBootstrapModule.getTransactionService().getContext()) {
             AmrSystem system = meteringService.findAmrSystem(1).get();
             meter = system.newMeter("testAdvanceWithReadingsAndQualities").create();
             meterActivation = meter.activate(startTime.toInstant());
             meterActivation.endAt(originalCutOff.toInstant());
             readingType = meteringService.getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
-            Channel channel = meterActivation.getChannelsContainer().createChannel(readingType);
+            meterActivation.getChannelsContainer().createChannel(readingType);
             currentActivation = meter.activate(originalCutOff.toInstant());
-            Channel currentChannel = currentActivation.getChannelsContainer().createChannel(readingType);
+            currentActivation.getChannelsContainer().createChannel(readingType);
             MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
             IntervalBlockImpl intervalBlock = IntervalBlockImpl.of("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
             intervalBlock.addIntervalReading(IntervalReadingImpl.of(newCutOff.minusMinutes(15).toInstant(), BigDecimal.valueOf(4025, 2)));
@@ -387,11 +387,11 @@ public class MeterActivationImplIT {
         assertThat(secondChannelReadings.get(2).getValue()).isEqualTo(BigDecimal.valueOf(4825, 2));
         assertThat(secondChannelReadings.get(2).getTimeStamp()).isEqualTo(originalCutOff.plusMinutes(15).toInstant());
 
-        List<ReadingQualityRecord> firstQualities = first.getChannels().get(0).findReadingQualities(null, null, Range.<Instant>all(), false, true);
+        List<ReadingQualityRecord> firstQualities = first.getChannels().get(0).findReadingQualities().sorted().collect();
         assertThat(firstQualities).hasSize(2);
         assertThat(firstQualities.get(0).getReadingTimestamp()).isEqualTo(newCutOff.minusMinutes(15).toInstant());
         assertThat(firstQualities.get(1).getReadingTimestamp()).isEqualTo(newCutOff.toInstant());
-        List<ReadingQualityRecord> secondQualities = second.getChannels().get(0).findReadingQualities(null, null, Range.<Instant>all(), false, true);
+        List<ReadingQualityRecord> secondQualities = second.getChannels().get(0).findReadingQualities().sorted().collect();
         assertThat(secondQualities).hasSize(3);
         assertThat(secondQualities.get(0).getReadingTimestamp()).isEqualTo(newCutOff.plusMinutes(15).toInstant());
         assertThat(secondQualities.get(0).isActual()).isFalse();

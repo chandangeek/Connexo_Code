@@ -135,8 +135,9 @@ public abstract class BaseReadingRecordImpl implements BaseReadingRecord {
         return channel.getTimePeriod(this, entry.getValues());
     }
 
+    // TODO: check if sorting is always needed here
     public List<? extends ReadingQualityRecord> getReadingQualities() {
-        return getChannel().findReadingQualities(getTimeStamp());
+    	return getChannel().findReadingQualities().atTimestamp(getTimeStamp()).sorted().collect();
     }
 
 }

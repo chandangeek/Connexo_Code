@@ -192,7 +192,12 @@ public abstract class ChannelsContainerImpl implements ChannelsContainer {
     public List<ReadingQualityRecord> getReadingQualities(Set<QualityCodeSystem> qualityCodeSystems, QualityCodeIndex qualityCodeIndex, ReadingType readingType, Range<Instant> interval) {
         return getChannel(readingType)
                 .flatMap(channel -> channel.getCimChannel(readingType))
-                .map(cimChannel -> cimChannel.findReadingQualities(qualityCodeSystems, qualityCodeIndex, interval, true))
+                .map(cimChannel -> cimChannel.findReadingQualities()
+                        .ofQualitySystems(qualityCodeSystems)
+                        .ofQualityIndex(qualityCodeIndex)
+                        .inTimeInterval(interval)
+                        .actual()
+                        .collect())
                 .orElse(Collections.emptyList());
     }
 

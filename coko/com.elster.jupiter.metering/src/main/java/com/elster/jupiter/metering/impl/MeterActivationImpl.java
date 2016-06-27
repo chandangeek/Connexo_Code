@@ -360,7 +360,7 @@ public final class MeterActivationImpl implements IMeterActivation {
     }
 
     private void moveReadingQualities(Channel sourceChannel, ChannelImpl targetChannel, Range<Instant> range) {
-        List<ReadingQualityRecord> sourceQualities = sourceChannel.findReadingQualities(null, null, range, false, false);
+        List<ReadingQualityRecord> sourceQualities = sourceChannel.findReadingQualities().inTimeInterval(range).collect();
         sourceQualities.forEach(targetChannel::copyReadingQuality);
         dataModel.mapper(ReadingQualityRecord.class).remove(sourceQualities);
     }

@@ -1,13 +1,12 @@
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.cbo.QualityCodeIndex;
-import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ProcessStatus;
+import com.elster.jupiter.metering.ReadingQualityFilter;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
@@ -31,7 +30,6 @@ import java.time.temporal.TemporalAmount;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -189,19 +187,8 @@ public class AggregatedChannelImpl implements ChannelContract {
     }
 
     @Override
-    @Deprecated
-    public Optional<ReadingQualityRecord> findReadingQuality(ReadingQualityType type, Instant timestamp) {
-        return persistedChannel.findReadingQuality(type, timestamp);
-    }
-
-    @Override
-    public List<ReadingQualityRecord> findReadingQualities(Set<QualityCodeSystem> qualityCodeSystems, QualityCodeIndex index, Range<Instant> interval, boolean checkIfActual, boolean sort) {
-        return persistedChannel.findReadingQualities(qualityCodeSystems, index, interval, checkIfActual, sort);
-    }
-
-    @Override
-    public List<ReadingQualityRecord> findReadingQualities(Instant timestamp) {
-        return persistedChannel.findReadingQualities(timestamp);
+    public ReadingQualityFilter findReadingQualities() {
+        return persistedChannel.findReadingQualities();
     }
 
     @Override
