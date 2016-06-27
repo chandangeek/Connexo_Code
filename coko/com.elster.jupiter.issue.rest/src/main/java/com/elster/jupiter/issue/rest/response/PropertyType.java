@@ -50,7 +50,7 @@ public enum PropertyType implements com.elster.jupiter.rest.util.properties.Prop
         }
     }
 
-    private static class ClassBasedValueFactoryMatcher implements ValueFactoryMachter {
+    private static final class ClassBasedValueFactoryMatcher implements ValueFactoryMachter {
         private final Class valueFactoryClass;
 
         private ClassBasedValueFactoryMatcher(Class valueFactoryClass) {
@@ -65,7 +65,7 @@ public enum PropertyType implements com.elster.jupiter.rest.util.properties.Prop
         }
     }
 
-    private static class DomainClassValueFactoryMatcher implements ValueFactoryMachter {
+    private static final class DomainClassValueFactoryMatcher implements ValueFactoryMachter {
         private final Class domainClass;
 
         private DomainClassValueFactoryMatcher(Class domainClass) {
