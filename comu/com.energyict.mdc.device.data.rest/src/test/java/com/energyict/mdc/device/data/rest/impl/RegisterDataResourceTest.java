@@ -187,7 +187,7 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         assertThat(jsonModel.<List<?>>get("$.data[0].readingQualities")).hasSize(1);
         assertThat(jsonModel.<String>get("$.data[0].readingQualities[0].cimCode")).isEqualTo("2.7.1");
         assertThat(jsonModel.<String>get("$.data[0].readingQualities[0].indexName")).isEqualTo("Manually added");
-        assertThat(jsonModel.<String>get("$.data[0].readingQualities[0].systemName")).isEqualTo("MultiSense");
+        assertThat(jsonModel.<String>get("$.data[0].readingQualities[0].systemName")).isEqualTo("MDC");
         assertThat(jsonModel.<String>get("$.data[0].readingQualities[0].categoryName")).isEqualTo("Edited");
 
         assertThat(jsonModel.<String>get("$.data[1].type")).isEqualTo("numerical");
@@ -198,7 +198,7 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         assertThat(jsonModel.<List<?>>get("$.data[1].readingQualities")).hasSize(1);
         assertThat(jsonModel.<String>get("$.data[1].readingQualities[0].cimCode")).isEqualTo("2.7.0");
         assertThat(jsonModel.<String>get("$.data[1].readingQualities[0].indexName")).isEqualTo("Manually edited - generic");
-        assertThat(jsonModel.<String>get("$.data[1].readingQualities[0].systemName")).isEqualTo("MultiSense");
+        assertThat(jsonModel.<String>get("$.data[1].readingQualities[0].systemName")).isEqualTo("MDC");
         assertThat(jsonModel.<String>get("$.data[1].readingQualities[0].categoryName")).isEqualTo("Edited");
 
         assertThat(jsonModel.<List<?>>get("$.data[1].estimatedByRule.properties")).isEmpty();
@@ -206,7 +206,7 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         assertThat(jsonModel.<List<?>>get("$.data[2].readingQualities")).hasSize(1);
         assertThat(jsonModel.<String>get("$.data[2].readingQualities[0].cimCode")).isEqualTo("2.10.1");
         assertThat(jsonModel.<String>get("$.data[2].readingQualities[0].indexName")).isEqualTo("Manually accepted");
-        assertThat(jsonModel.<String>get("$.data[0].readingQualities[0].systemName")).isEqualTo("MultiSense");
+        assertThat(jsonModel.<String>get("$.data[0].readingQualities[0].systemName")).isEqualTo("MDC");
         assertThat(jsonModel.<String>get("$.data[2].readingQualities[0].categoryName")).isEqualTo("Questionable");
     }
 
