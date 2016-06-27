@@ -4,6 +4,7 @@ import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
 
 import java.util.List;
+import java.util.SortedSet;
 
 /*
  * Models an index.
@@ -17,6 +18,8 @@ public interface Index {
     int getCompress();
 
     Table<?> getTable();
+
+    SortedSet<Version> changeVersions();
 
     boolean isInVersion(Version version);
 

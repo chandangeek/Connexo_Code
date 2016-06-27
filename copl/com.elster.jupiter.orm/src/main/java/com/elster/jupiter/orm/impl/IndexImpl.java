@@ -4,6 +4,8 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.IllegalTableMappingException;
 import com.elster.jupiter.orm.Index;
 import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.util.Ranges;
+import com.elster.jupiter.util.streams.Functions;
 
 import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.Range;
@@ -13,6 +15,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.Ranges.intersection;
 
@@ -73,6 +79,15 @@ public class IndexImpl implements Index {
 
     RangeSet<Version> versions() {
         return ImmutableRangeSet.copyOf(versions);
+    }
+
+    @Override
+    public SortedSet<Version> changeVersions() {
+        return versions()
+                .asRanges()
+                .stream()
+                .flatMap(range -> Stream.of(Ranges.lowerBound(range), Ranges.upperBound(range)).flatMap(Functions.asStream()))
+                .collect(Collectors.toCollection(TreeSet::new));
     }
 
     static class BuilderImpl implements Index.Builder {

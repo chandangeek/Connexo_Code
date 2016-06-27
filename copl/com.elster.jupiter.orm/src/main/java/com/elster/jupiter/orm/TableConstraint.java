@@ -3,6 +3,7 @@ package com.elster.jupiter.orm;
 import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
+import java.util.SortedSet;
 
 /**
  * Models a table constraint. Is either a primary key, unique or foreign key constraint.
@@ -28,4 +29,6 @@ public interface TableConstraint {
 	boolean noDdl();
 
 	boolean isInVersion(Version version);
+
+	SortedSet<Version> changeVersions();
 }
