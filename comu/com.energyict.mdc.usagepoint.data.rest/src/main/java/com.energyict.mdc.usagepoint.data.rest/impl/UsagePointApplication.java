@@ -50,7 +50,7 @@ public class UsagePointApplication extends Application implements TranslationKey
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
-        this.thesaurus = nlsService.getThesaurus(getComponentName(), getLayer()).join(nlsService.getThesaurus(getComponentName(), Layer.DOMAIN));
+        this.thesaurus = nlsService.getThesaurus(getComponentName(), getLayer()).join(nlsService.getThesaurus(getComponentName(), Layer.DOMAIN)).join(nlsService.getThesaurus("DLR", Layer.REST));
     }
 
     @Reference

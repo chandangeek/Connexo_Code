@@ -66,10 +66,7 @@ public class MeterInfoFactory {
         meterInfo.deviceType = new IdWithNameInfo(device.getDeviceType().getId(), device.getDeviceType().getName());
         Optional<DefaultState> defaultState = DefaultState.from(device.getState());
         if (defaultState.isPresent()) {
-            meterInfo.state = thesaurus.getString(defaultState.get().getKey(), null);
-            if (meterInfo.state == null) {
-                meterInfo.state = thesaurus.getStringBeyondComponent(defaultState.get().getKey(), defaultState.get().getKey());
-            }
+            meterInfo.state = thesaurus.getString(defaultState.get().getKey(), defaultState.get().getKey());
         } else {
             meterInfo.state = device.getState().getName();
         }
