@@ -39,7 +39,7 @@ Ext.define('Wss.view.Grid', {
                         if (value && record.get('available')) {
                             return value;
                         } else if (value && !record.get('available')) {
-                            return value + ' (' + Uni.I18n.translate('general.notAvailable', 'WSS', 'Not available') + ')';
+                            return value + ' (' + Uni.I18n.translate('general.notAvailable', 'WSS', 'not available') + ')' + '<span class="icon-warning" style="margin-left:5px; position:absolute; color:#eb5642;"></span>';
                         }
                     }
                     return '-';
