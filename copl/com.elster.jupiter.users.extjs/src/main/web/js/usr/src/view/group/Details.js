@@ -89,7 +89,7 @@ Ext.define('Usr.view.group.Details', {
                                                 return Uni.DateTime.formatDateTimeLong(createdOnDate);
                                             }
                                         } else {
-                                            return '';
+                                            return '-';
                                         }
                                     }
                                 },
@@ -104,7 +104,7 @@ Ext.define('Usr.view.group.Details', {
                                                 return Uni.DateTime.formatDateTimeLong(modifiedOnDate);
                                             }
                                         } else {
-                                            return '';
+                                            return '-';
                                         }
                                     }
                                 }
