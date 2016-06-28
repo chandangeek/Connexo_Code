@@ -491,7 +491,6 @@ public class UsagePointImpl implements UsagePoint {
                 this.dataModel
                         .getInstance(EffectiveMetrologyConfigurationOnUsagePointImpl.class)
                         .initAndSaveWithInterval(this, metrologyConfiguration, Interval.of(RangeInstantBuilder.closedOpenRange(startDate, endDate))));
-        doSave();
     }
 
     @Override
@@ -518,7 +517,6 @@ public class UsagePointImpl implements UsagePoint {
         Interval newInterval = Interval.of(RangeInstantBuilder.closedOpenRange(startTime, endTime));
 
         metrologyConfigurationVersion.update(metrologyConfiguration, newInterval);
-        doSave();
     }
 
     private void checkOverlapsOfEffectiveMetrologyConfiguations(EffectiveMetrologyConfigurationOnUsagePoint each, Instant start, Instant end) {
@@ -557,6 +555,11 @@ public class UsagePointImpl implements UsagePoint {
             }
             current.get().close(when);
         }
+    }
+
+    @Override
+    public void removeMetrologyConfigurationVersion(EffectiveMetrologyConfigurationOnUsagePoint version) {
+        this.metrologyConfiguration.remove(version);
     }
 
     @Override

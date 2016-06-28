@@ -171,6 +171,8 @@ public interface UsagePoint extends HasId, IdentifiedObject {
 
     void removeMetrologyConfiguration(Instant when);
 
+    void removeMetrologyConfigurationVersion(EffectiveMetrologyConfigurationOnUsagePoint version);
+
     UsagePointCustomPropertySetExtension forCustomProperties();
 
     ConnectionState getConnectionState();
