@@ -28,6 +28,7 @@ import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.validation.ValidationRuleSetVersion;
 import com.elster.jupiter.validation.impl.DataValidationStatusImpl;
 import com.elster.jupiter.validation.impl.IValidationRule;
 import com.energyict.mdc.common.Unit;
@@ -56,6 +57,7 @@ import javax.ws.rs.core.Response;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -120,6 +122,8 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
     @Mock
     private ValidationRuleSet validationRuleSet;
     @Mock
+    private ValidationRuleSetVersion validationRuleSetVersion;
+    @Mock
     private EstimationRuleSet estimationRuleSet;
     @Mock
     private ValidationEvaluator evaluator;
@@ -148,6 +152,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(device.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile));
         when(device.getVersion()).thenReturn(1L);
         when(device.getmRID()).thenReturn("1");
+        when(device.getZone()).thenReturn(ZoneId.systemDefault());
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         LoadProfile.LoadProfileUpdater loadProfileUpdater = mock(LoadProfile.LoadProfileUpdater.class);
         when(device.getLoadProfileUpdaterFor(loadProfile)).thenReturn(loadProfileUpdater);
@@ -211,7 +216,12 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         dataValidationStatus.addReadingQuality(quality1, asList(validationRule));
         dataValidationStatus.addBulkReadingQuality(quality1, asList(validationRule));
         when(quality1.getType()).thenReturn(readingQualityTypeAdded);
+        when(validationRule.getRuleSetVersion()).thenReturn(validationRuleSetVersion);
+        when(validationRule.getRuleSetVersion()).thenReturn(validationRuleSetVersion);
         when(validationRule.getRuleSet()).thenReturn(validationRuleSet);
+        when(validationRuleSetVersion.getId()).thenReturn(1L);
+        when(validationRuleSetVersion.getVersion()).thenReturn(1L);
+        when(validationRuleSetVersion.getRuleSet()).thenReturn(validationRuleSet);
         when(validationRuleSet.getName()).thenReturn("ruleSetName");
         doReturn(Arrays.asList(validationRule)).when(validationRuleSet).getRules();
         when(validationRule.isActive()).thenReturn(true);
@@ -221,6 +231,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(estimationRule.getId()).thenReturn(13L);
         when(estimationRule.getRuleSet()).thenReturn(estimationRuleSet);
         when(estimationRuleSet.getId()).thenReturn(15L);
+        when(estimationRuleSet.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDC);
         when(estimationRule.getName()).thenReturn("EstimationRule");
         ReadingQualityType readingQualityTypeEstimatedByRule = ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.ESTIMATED, (int) estimationRule.getId());
         when(quality2.getType()).thenReturn(readingQualityTypeEstimatedByRule);
@@ -312,7 +323,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         assertThat(jsonModel.<String>get("$.data[0].mainValidationInfo.validationResult")).isEqualTo("validationStatus.suspect");
 
         assertThat(jsonModel.<String>get("$.data[0].bulkValidationInfo.validationResult")).isEqualTo("validationStatus.suspect");
-        assertThat(jsonModel.<Number>get("$.data[0].bulkValidationInfo.estimatedByRule")).isEqualTo(true);
+        assertThat(jsonModel.<Boolean>get("$.data[0].bulkValidationInfo.estimatedByRule")).isEqualTo(true);
 
         assertThat(jsonModel.<String>get("$.data[0].modificationFlag")).isNull();
         assertThat(jsonModel.<Long>get("$.data[0].reportedDateTime")).isEqualTo(LAST_READING.toEpochMilli());
@@ -749,6 +760,25 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         info.objectTypeVersion = 1L;
         response = target("devices/1/channels/1/customproperties/1/versions/1416403197000").queryParam("forced", true).request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(200);
+    }
+
+    @Test
+    public void testChannelReadingEstimationInfoAboutApplication() {
+        Instant readingStart = Instant.ofEpochMilli(1410827730000L);
+        Instant readingEnd = Instant.ofEpochMilli(1410828630000L);
+
+        Range<Instant> interval = Ranges.openClosed(readingStart, readingEnd);
+        when(channel.getChannelData(interval)).thenReturn(Collections.singletonList(loadProfileReading));
+
+        String json = target("devices/1/channels/" + CHANNEL_ID1 + "/data/" + readingEnd.toEpochMilli() + "/validation").request().get(String.class);
+
+        JsonModel jsonModel = JsonModel.create(json);
+
+        assertThat(jsonModel.<Number>get("$.bulkValidationInfo.estimatedByRule.id")).isEqualTo(((Long)estimationRule.getId()).intValue());
+        assertThat(jsonModel.<String>get("$.bulkValidationInfo.estimatedByRule.name")).isEqualTo(estimationRule.getName());
+        assertThat(jsonModel.<Number>get("$.bulkValidationInfo.estimatedByRule.ruleSetId")).isEqualTo(((Long)estimationRule.getRuleSet().getId()).intValue());
+        assertThat(jsonModel.<String>get("$.bulkValidationInfo.estimatedByRule.application.id")).isEqualTo(QualityCodeSystem.MDC.name());
+        assertThat(jsonModel.<String>get("$.bulkValidationInfo.estimatedByRule.application.name")).isEqualTo("MultiSense");
     }
 
 }

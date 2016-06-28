@@ -138,14 +138,15 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         when(deviceValidation.isValidationActive(any(Register.class), any(Instant.class))).thenReturn(false);
 
         EstimationRule estimationRule = mock(EstimationRule.class);
+        when(estimationRule.getId()).thenReturn(13L);
+        when(estimationRule.getName()).thenReturn("EstimationRule");
+        EstimationRuleSet estimationRuleSet = mock(EstimationRuleSet.class);
+        when(estimationRuleSet.getId()).thenReturn(15L);
+        when(estimationRuleSet.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDC);
+        when(estimationRule.getRuleSet()).thenReturn(estimationRuleSet);
         ReadingQualityType readingQualityType = ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.ESTIMATED, (int) estimationRule.getId());
         ReadingQualityRecord readingQualityEstimated = mockReadingQuality(readingQualityType);
         when(readingQualityEstimated.hasEstimatedCategory()).thenReturn(true);
-        when(estimationRule.getId()).thenReturn(13L);
-        EstimationRuleSet estimationRuleSet = mock(EstimationRuleSet.class);
-        when(estimationRule.getRuleSet()).thenReturn(estimationRuleSet);
-        when(estimationRuleSet.getId()).thenReturn(15L);
-        when(estimationRule.getName()).thenReturn("EstimationRule");
         doReturn(Optional.of(estimationRule)).when(estimationService).findEstimationRuleByQualityType(readingQualityType);
         doReturn(Arrays.asList(readingQualityEstimated, readingQualityConfirmed)).when(dataValidationStatus).getReadingQualities();
     }
@@ -204,12 +205,16 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         assertThat(jsonModel.<Number>get("$.data[0].estimatedByRule.ruleSetId")).isEqualTo(15);
         assertThat(jsonModel.<String>get("$.data[0].estimatedByRule.name")).isEqualTo("EstimationRule");
         assertThat(jsonModel.<List<?>>get("$.data[0].estimatedByRule.properties")).isEmpty();
+        assertThat(jsonModel.<String>get("$.data[0].estimatedByRule.application.id")).isEqualTo(QualityCodeSystem.MDC.name());
+        assertThat(jsonModel.<String>get("$.data[0].estimatedByRule.application.name")).isEqualTo("MultiSense");
         assertThat(jsonModel.<String>get("$.data[1].type")).isEqualTo("numerical");
         assertThat(jsonModel.<String>get("$.data[1].modificationFlag")).isEqualTo("EDITED");
         assertThat(jsonModel.<Number>get("$.data[1].estimatedByRule.id")).isEqualTo(13);
         assertThat(jsonModel.<Number>get("$.data[1].estimatedByRule.ruleSetId")).isEqualTo(15);
         assertThat(jsonModel.<String>get("$.data[1].estimatedByRule.name")).isEqualTo("EstimationRule");
         assertThat(jsonModel.<List<?>>get("$.data[1].estimatedByRule.properties")).isEmpty();
+        assertThat(jsonModel.<String>get("$.data[1].estimatedByRule.application.id")).isEqualTo(QualityCodeSystem.MDC.name());
+        assertThat(jsonModel.<String>get("$.data[1].estimatedByRule.application.name")).isEqualTo("MultiSense");
         assertThat(jsonModel.<Boolean>get("$.data[2].isConfirmed")).isEqualTo(true);
     }
 

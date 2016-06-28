@@ -60,13 +60,15 @@ public class ValidationInfoFactory {
     private final EstimationRuleInfoFactory estimationRuleInfoFactory;
     private final PropertyUtils propertyUtils;
     private final Thesaurus thesaurus;
+    private final ResourceHelper resourceHelper;
 
     @Inject
-    public ValidationInfoFactory(ValidationRuleInfoFactory validationRuleInfoFactory, EstimationRuleInfoFactory estimationRuleInfoFactory, PropertyUtils propertyUtils, Thesaurus thesaurus) {
+    public ValidationInfoFactory(ValidationRuleInfoFactory validationRuleInfoFactory, EstimationRuleInfoFactory estimationRuleInfoFactory, PropertyUtils propertyUtils, Thesaurus thesaurus, ResourceHelper resourceHelper) {
         this.validationRuleInfoFactory = validationRuleInfoFactory;
         this.estimationRuleInfoFactory = estimationRuleInfoFactory;
         this.propertyUtils = propertyUtils;
         this.thesaurus = thesaurus;
+        this.resourceHelper = resourceHelper;
     }
 
     DetailedValidationRuleInfo createDetailedValidationRuleInfo(ValidationRule validationRule, Long total) {
@@ -249,7 +251,7 @@ public class ValidationInfoFactory {
                 .filter(type -> type.system().isPresent())
                 .filter(type -> type.qualityIndex().isPresent())
                 .filter(type -> QUALITY_CODE_CATEGORIES.contains(type.category().get()))
-                .map(type -> new ReadingQualityInfo(type, thesaurus))
+                .map(this::createReadingQualityInfo)
                 .collect(Collectors.toList());
     }
 
@@ -397,4 +399,11 @@ public class ValidationInfoFactory {
         return null;
     }
 
+    ReadingQualityInfo createReadingQualityInfo(ReadingQualityType type) {
+        ReadingQualityInfo info = new ReadingQualityInfo();
+        info.id = type.getCode();
+        info.name = thesaurus.getStringBeyondComponent(type.qualityIndex().get().getTranslationKey().getKey(), type.qualityIndex().get().getTranslationKey().getDefaultFormat());
+        info.application = resourceHelper.getApplicationInfo(type.system().get());
+        return info;
+    }
 }
