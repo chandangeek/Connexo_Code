@@ -1,6 +1,6 @@
 package com.elster.jupiter.estimation.impl;
 
-import com.elster.jupiter.domain.util.NotEmpty;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleBuilder;
@@ -51,9 +51,8 @@ class EstimationRuleSetImpl implements IEstimationRuleSet {
     @Size(min = 0, max = Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
     private String description;
     private Instant obsoleteTime;
-    @NotEmpty(groups = {Save.Create.class, Save.Update.class})
-    @Size(min = 0, max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
-    private String applicationName;
+    @NotNull(groups = {Save.Create.class, Save.Update.class})
+    private QualityCodeSystem qualityCodeSystem;
 
     private long version;
     private Instant createTime;
@@ -77,13 +76,13 @@ class EstimationRuleSetImpl implements IEstimationRuleSet {
         this.validationRuleProvider = validationRuleProvider;
     }
 
-    EstimationRuleSetImpl init(String name, String applicationName) {
-        return init(name, applicationName, null);
+    EstimationRuleSetImpl init(String name, QualityCodeSystem qualityCodeSystem) {
+        return init(name, qualityCodeSystem, null);
     }
 
-    EstimationRuleSetImpl init(String name, String applicationName, String description) {
+    EstimationRuleSetImpl init(String name, QualityCodeSystem qualityCodeSystem, String description) {
         this.name = Checks.is(name).emptyOrOnlyWhiteSpace() ? null : name.trim();
-        this.applicationName = Checks.is(applicationName).emptyOrOnlyWhiteSpace() ? null : applicationName.trim();
+        this.qualityCodeSystem = qualityCodeSystem;
         this.description = description;
         return this;
     }
@@ -181,7 +180,7 @@ class EstimationRuleSetImpl implements IEstimationRuleSet {
 
     private void doUpdate() {
         Save.UPDATE.save(dataModel, this);
-        doGetRules().forEach( rule -> rule.save());
+        doGetRules().forEach(rule -> rule.save());
         eventService.postEvent(EventType.ESTIMATIONRULESET_UPDATED.topic(), this);
     }
 
@@ -205,7 +204,7 @@ class EstimationRuleSetImpl implements IEstimationRuleSet {
     }
 
     private void addNewRules() {
-        rulesToSave.forEach( newRule -> {
+        rulesToSave.forEach(newRule -> {
             Save.CREATE.validate(dataModel, newRule);
             rules.add(newRule);
         });
@@ -267,7 +266,7 @@ class EstimationRuleSetImpl implements IEstimationRuleSet {
                 .collect(Collectors.toList());
     }
 
-    private IEstimationRule doUpdateRule(IEstimationRule rule, String name,  boolean activeStatus, List<String> mRIDs, Map<String, Object> properties) {
+    private IEstimationRule doUpdateRule(IEstimationRule rule, String name, boolean activeStatus, List<String> mRIDs, Map<String, Object> properties) {
         rule.rename(name);
 
         if (activeStatus != rule.isActive()) {
@@ -296,7 +295,7 @@ class EstimationRuleSetImpl implements IEstimationRuleSet {
     @Override
     public void deleteRule(EstimationRule rule) {
         IEstimationRule iRule = (IEstimationRule) rule;
-        if (doGetRules().anyMatch( candidate -> candidate.equals(iRule))) {
+        if (doGetRules().anyMatch(candidate -> candidate.equals(iRule))) {
             iRule.delete();
             dataModel.touch(this);
         } else {
@@ -325,6 +324,11 @@ class EstimationRuleSetImpl implements IEstimationRuleSet {
     @Override
     public Instant getObsoleteDate() {
         return this.obsoleteTime;
+    }
+
+    @Override
+    public QualityCodeSystem getQualityCodeSystem() {
+        return this.qualityCodeSystem;
     }
 
     private void setObsoleteTime(Instant obsoleteTime) {

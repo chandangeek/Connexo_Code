@@ -8,7 +8,6 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingQualityRecord;
-import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.beans.ReadingImpl;
@@ -21,6 +20,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -28,32 +28,37 @@ import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 
 class EstimationEngine {
 
-    List<EstimationBlock> findBlocksToEstimate(MeterActivation meterActivation, Range<Instant> period, ReadingType readingType) {
-        return meterActivation.getChannels().stream()
+    List<EstimationBlock> findBlocksToEstimate(QualityCodeSystem system, MeterActivation meterActivation, Range<Instant> period, ReadingType readingType) {
+        return meterActivation.getChannelsContainer().getChannels().stream()
                 .filter(Channel::isRegular)
                 .filter(channel -> channel.getReadingTypes().contains(readingType))
-                .flatMap(channel -> this.findBlocksToEstimate(channel, period, readingType))
+                .flatMap(channel -> findBlocksToEstimate(system, channel, period, readingType))
                 .collect(Collectors.toList());
     }
 
-    private Stream<EstimationBlock> findBlocksToEstimate(Channel channel, Range<Instant> period, ReadingType readingType) {
-        return decorate(findSuspects(channel, period, readingType).stream())
+    private static Stream<EstimationBlock> findBlocksToEstimate(QualityCodeSystem system, Channel channel, Range<Instant> period, ReadingType readingType) {
+        return decorate(findSuspects(Collections.singleton(system), channel, period, readingType).stream())
                 .sorted(Comparator.comparing(ReadingQualityRecord::getReadingTimestamp))
-                .map(this::toEstimatable)
+                .map(EstimationEngine::toEstimatable)
                 .partitionWhen((est1, est2) -> !channel.getNextDateTime(est1.getTimestamp()).equals(est2.getTimestamp()))
-                .map(list -> SimpleEstimationBlock.of(channel, readingType, list));
+                .map(estimableList -> SimpleEstimationBlock.of(channel, readingType, estimableList));
     }
 
-    private List<ReadingQualityRecord> findSuspects(Channel channel, Range<Instant> period, ReadingType readingType) {
+    private static List<ReadingQualityRecord> findSuspects(Set<QualityCodeSystem> systems, Channel channel, Range<Instant> period, ReadingType readingType) {
         return channel.getCimChannel(readingType)
-                .map(cimChannel -> cimChannel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), period))
+                .map(cimChannel -> cimChannel.findReadingQualities()
+                        .ofQualitySystems(systems)
+                        .ofQualityIndex(QualityCodeIndex.SUSPECT)
+                        .inTimeInterval(period)
+                        .collect())
                 .orElse(Collections.emptyList());
     }
 
-    private Estimatable toEstimatable(ReadingQualityRecord readingQualityRecord) {
+    private static Estimatable toEstimatable(ReadingQualityRecord readingQualityRecord) {
         return readingQualityRecord.getBaseReadingRecord()
-                .map((baseReadingRecord) -> (Estimatable) new BaseReadingRecordEstimatable(baseReadingRecord))
-                .orElseGet(() -> new MissingReadingRecordEstimatable(readingQualityRecord.getReadingTimestamp()));
+                .map(BaseReadingRecordEstimatable::new)
+                .map(Estimatable.class::cast)
+                .orElse(new MissingReadingRecordEstimatable(readingQualityRecord.getReadingTimestamp()));
     }
 
     void applyEstimations(EstimationReportImpl report) {

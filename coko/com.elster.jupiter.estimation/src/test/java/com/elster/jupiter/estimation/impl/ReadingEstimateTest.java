@@ -125,9 +125,9 @@ public class ReadingEstimateTest {
                 private AtomicLong value = new AtomicLong(1);
 
                 @Override
-                public EstimationResult estimate(List<EstimationBlock> estimationBlock) {
+                public EstimationResult estimate(List<EstimationBlock> estimationBlocks, QualityCodeSystem system) {
                     SimpleEstimationResult.EstimationResultBuilder builder = SimpleEstimationResult.builder();
-                    estimationBlock.stream()
+                    estimationBlocks.stream()
                             .peek(block -> {
                                 if (block.estimatables().size() > 3) {
                                     builder.addRemaining(block);
@@ -167,7 +167,7 @@ public class ReadingEstimateTest {
                 }
 
                 @Override
-                public Set<String> getSupportedApplications() {
+                public Set<QualityCodeSystem> getSupportedQualityCodeSystems() {
                     return Collections.emptySet();
                 }
             };
@@ -268,23 +268,31 @@ public class ReadingEstimateTest {
         ReadingType readingType = meteringService.getReadingType(readingTypeCode).get();
         try (TransactionContext ctx = transactionService.getContext()) {
             MeterActivation meterActivation = meter.getCurrentMeterActivation().get();
-            Channel channel = meterActivation.getChannels().get(0);
+            Channel channel = meterActivation.getChannelsContainer().getChannels().get(0);
             channel.getCimChannel(readingType).get().createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.KNOWNMISSINGREAD), newDate);
             channel.getCimChannel(readingType).get().createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), newDate);
             ctx.commit();
         }
-        Channel channel = meter.getCurrentMeterActivation().get().getChannels().get(0);
-        assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), existDate).isPresent()).isTrue();
-        assertThat(channel.findReadingQuality(new ReadingQualityType("2.6.1"), existDate).get().isActual()).isTrue();
+        Channel channel = meter.getCurrentMeterActivation().get().getChannelsContainer().getChannels().get(0);
+        assertThat(channel.findReadingQualities()
+                .ofQualitySystem(QualityCodeSystem.MDC)
+                .ofQualityIndex(QualityCodeIndex.SUSPECT)
+                .atTimestamp(existDate)
+                .collect()).hasSize(1);
+        assertThat(channel.findReadingQualities()
+                .ofQualitySystem(QualityCodeSystem.MDC)
+                .ofQualityIndex(QualityCodeIndex.ZEROUSAGE)
+                .atTimestamp(existDate)
+                .collect().get(0).isActual()).isTrue();
         // make sure that editing a value adds an editing rq, removes the suspect rq, and updates the validation rq
         // added a value adds an added rq
 
         estimationService.addEstimatorFactory(new MyEstimatorFactory());
 
-        EstimationRuleSet ruleSet = null;
-        EstimationRule rule = null;
+        EstimationRuleSet ruleSet;
+        EstimationRule rule;
         try (TransactionContext ctx = transactionService.getContext()) {
-            ruleSet = estimationService.createEstimationRuleSet("testRuleSet", "MDC");
+            ruleSet = estimationService.createEstimationRuleSet("testRuleSet", QualityCodeSystem.MDC);
             rule = ruleSet.addRule(IMPLEMENTATION, "testRule")
                     .withReadingType(readingType)
                     .active(true)
@@ -315,20 +323,36 @@ public class ReadingEstimateTest {
         });
 
         try (TransactionContext ctx = transactionService.getContext()) {
-//        	ReadingImpl reading1 = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(2), existDate);
+//            ReadingImpl reading1 = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(2), existDate);
 //            reading1.addQuality("3.8.1"); // estimated by rule 1
-//        	ReadingImpl reading2 = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(2), newDate);
+//            ReadingImpl reading2 = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(2), newDate);
 //            reading2.addQuality("3.8.2"); // estimated by rule 2
 //            channel.getCimChannel(readingType).get().estimateReadings(ImmutableList.of(reading1, reading2));
 
-            estimationService.estimate(meter.getCurrentMeterActivation().get(), Range.<Instant>all());
+            estimationService.estimate(QualityCodeSystem.MDC, meter.getCurrentMeterActivation().get(), Range.all());
 
             ctx.commit();
         }
-        assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.ESTIMATED, (int) rule.getId()), existDate).isPresent()).isTrue();
-        assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), existDate).isPresent()).isFalse();
-        assertThat(channel.findReadingQuality(new ReadingQualityType("2.6.1"), existDate).get().isActual()).isFalse();
-        assertThat(channel.findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.ESTIMATED, (int) rule.getId()), newDate).isPresent()).isTrue();
+        assertThat(channel.findReadingQualities()
+                .ofQualitySystem(QualityCodeSystem.MDC)
+                .ofQualityIndex(QualityCodeCategory.ESTIMATED, (int) rule.getId())
+                .atTimestamp(existDate)
+                .collect()).hasSize(2); // different cim channels
+        assertThat(channel.findReadingQualities()
+                .ofQualitySystem(QualityCodeSystem.MDC)
+                .ofQualityIndex(QualityCodeIndex.SUSPECT)
+                .atTimestamp(existDate)
+                .collect()).isEmpty();
+        assertThat(channel.findReadingQualities()
+                .ofQualitySystem(QualityCodeSystem.MDC)
+                .ofQualityIndex(QualityCodeIndex.ZEROUSAGE)
+                .atTimestamp(existDate)
+                .collect().get(0).isActual()).isFalse();
+        assertThat(channel.findReadingQualities()
+                .ofQualitySystem(QualityCodeSystem.MDC)
+                .ofQualityIndex(QualityCodeCategory.ESTIMATED, (int) rule.getId())
+                .atTimestamp(newDate)
+                .collect()).hasSize(2); // different cim channels
         Optional<BaseReadingRecord> channelReading = channel.getReading(existDate);
         assertThat(channelReading).isPresent();
         Assertions.assertThat(channelReading.get().getQuantity(readingType)).isEqualTo(quantity(BigDecimal.valueOf(1), KILO, WATTHOUR));

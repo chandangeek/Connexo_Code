@@ -1,7 +1,5 @@
 package com.elster.jupiter.estimation.impl;
 
-import com.elster.jupiter.cbo.QualityCodeCategory;
-import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.estimation.EstimationRuleProperties;
 import com.elster.jupiter.estimation.EstimationRuleSet;
@@ -10,7 +8,6 @@ import com.elster.jupiter.estimation.ReadingTypeInEstimationRule;
 import com.elster.jupiter.estimation.impl.MessageSeeds.Constants;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
@@ -344,15 +341,11 @@ class EstimationRuleImpl implements IEstimationRule {
 
     @Override
     public Estimator createNewEstimator() {
-        return new ReadingQualityTypedEstimator(createBaseEstimator(), getReadingQualityType());
+        return new RuleTypedEstimator(createBaseEstimator(), (int)getId());
     }
 
     private Estimator createBaseEstimator() {
         return estimatorCreator.getEstimator(this.implementation, getProps());
-    }
-
-    private ReadingQualityType getReadingQualityType() {
-        return ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.ESTIMATED, (int) getId());
     }
 
     private void doPersist() {
