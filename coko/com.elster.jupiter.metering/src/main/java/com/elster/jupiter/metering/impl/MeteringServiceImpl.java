@@ -11,7 +11,6 @@ import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceControlType;
 import com.elster.jupiter.metering.GeoCoordinates;

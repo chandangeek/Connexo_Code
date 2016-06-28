@@ -47,8 +47,8 @@ class ReadingQualityWithTypeFilterImpl implements ReadingQualityWithTypeFilter {
     public ReadingQualityWithTypeFilter ofQualityIndices(QualityCodeCategory category, Set<Integer> indices) {
         this.indicesRegexp += Integer.toString(category.ordinal()) + "\\." +
                 (indices.isEmpty() ? "\\d+" : "(" + indices.stream()
-                .map(index -> Integer.toString(index))
-                .collect(Collectors.joining("|")) + ")");
+                        .map(index -> Integer.toString(index))
+                        .collect(Collectors.joining("|")) + ")");
         return this;
     }
 
@@ -136,7 +136,7 @@ class ReadingQualityWithTypeFilterImpl implements ReadingQualityWithTypeFilter {
 
     private String buildRegexp() {
         return (systemsRegexp.isEmpty() ? "\\d+" : "(" + systemsRegexp + ")")
-                + "\\." + (indicesRegexp.isEmpty() ? "\\d+\\.\\d+" : "(" +  indicesRegexp + ")");
+                + "\\." + (indicesRegexp.isEmpty() ? "\\d+\\.\\d+" : "(" + indicesRegexp + ")");
     }
 
     /**
