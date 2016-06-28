@@ -3,7 +3,7 @@ Ext.define('Mdc.usagepointmanagement.store.MetrologyConfigurationVersions', {
     model: 'Mdc.usagepointmanagement.model.MetrologyConfigurationVersion',
     proxy: {
         type: 'rest',
-        urlTpl: '/api/mtr/usagepoints/{mRID}/history/metrologyconfiguration',
+        urlTpl: '/api/mtr/usagepoints/{mRID}/history/metrologyconfigurations',
         timeout: 240000,
         reader: {
             type: 'json',
