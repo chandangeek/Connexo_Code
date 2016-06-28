@@ -34,7 +34,7 @@ import java.util.List;
         service = {DataVaultService.class, MessageSeedProvider.class},
         property = "name=" + DataVaultService.COMPONENT_NAME,
         immediate = true)
-public class DataVaultServiceImpl implements DataVaultService, MessageSeedProvider {
+public final class DataVaultServiceImpl implements DataVaultService, MessageSeedProvider {
 
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
