@@ -116,10 +116,10 @@ public abstract class CompositeComCommandImpl extends SimpleComCommand implement
      * @return true if we can perform the command of the given commandKey
      */
     private boolean areWeStillAllowedToPerformTheCommand(ComCommandKey commandKey, boolean canWeStillDoADisconnect) {
-        return (    canWeStillDoADisconnect
-                && (commandKey.equals(ComCommandTypes.DAISY_CHAINED_LOGOFF) || commandKey.equals(ComCommandTypes.LOGOFF)))
-            || commandKey.equals(ComCommandTypes.DEVICE_PROTOCOL_TERMINATE)
-            || commandKey.equals(ComCommandTypes.DEVICE_PROTOCOL_UPDATE_CACHE_COMMAND);
+        return (canWeStillDoADisconnect
+                && (ComCommandTypes.DAISY_CHAINED_LOGOFF.equals(commandKey.getCommandType()) || ComCommandTypes.LOGOFF.equals(commandKey.getCommandType())))
+                || ComCommandTypes.DEVICE_PROTOCOL_TERMINATE.equals(commandKey.getCommandType())
+                || ComCommandTypes.DEVICE_PROTOCOL_UPDATE_CACHE_COMMAND.equals(commandKey.getCommandType());
     }
 
     private boolean areWeStillAbleToPerformAProperDisconnect(Exception e) {
