@@ -36,7 +36,7 @@ public class UsagePointInfo {
         version = usagePoint.getVersion();
         createTime = usagePoint.getCreateDate().toEpochMilli();
         modTime = usagePoint.getModificationDate().toEpochMilli();
-        location = usagePoint.getLocation().map(Location::toString).orElse(usagePoint.getSpatialCooridnates()
+        location = usagePoint.getLocation().map(Location::toString).orElse(usagePoint.getSpatialCoordinates()
                 .map(coordinates -> coordinates.toString()).orElse(""));
     }
 
