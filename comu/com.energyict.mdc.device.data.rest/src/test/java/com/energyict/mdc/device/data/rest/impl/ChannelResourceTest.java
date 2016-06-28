@@ -9,8 +9,11 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.ValuesRangeConflict;
 import com.elster.jupiter.cps.ValuesRangeConflictType;
 import com.elster.jupiter.devtools.ExtjsFilter;
+import com.elster.jupiter.estimation.EstimationBlock;
+import com.elster.jupiter.estimation.EstimationResult;
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleSet;
+import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingQualityRecord;
@@ -19,6 +22,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
+import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
 import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Ranges;
@@ -45,6 +49,7 @@ import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.NotEstimatedBlock;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
+import com.energyict.mdc.pluggable.rest.impl.properties.SimplePropertyType;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
@@ -60,6 +65,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -139,6 +145,8 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
     public void setUpStubs() {
         when(device.getMeterActivationsMostRecentFirst()).thenReturn(Arrays.asList(meterActivation));
         when(meterActivation.getStart()).thenReturn(NOW);
+        Interval intervalActivation = Interval.of(Ranges.openClosed(Instant.ofEpochMilli(intervalStart), Instant.ofEpochMilli(intervalEnd)));
+        when(meterActivation.getInterval()).thenReturn(intervalActivation);
         when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
         when(deviceService.findAndLockDeviceBymRIDAndVersion("1", 1L)).thenReturn(Optional.of(device));
         when(device.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile));
@@ -747,6 +755,48 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         info.objectTypeVersion = 1L;
         response = target("devices/1/channels/1/customproperties/1/versions/1416403197000").queryParam("forced", true).request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(200);
+    }
+
+    @Test
+    public void testSaveEstimatedData() {
+        MeterActivation meterActivation = mock(MeterActivation.class);
+        com.elster.jupiter.metering.Channel meteringChannel = mock(com.elster.jupiter.metering.Channel.class);
+        ReadingType readingType = mock(ReadingType.class);
+        List list = mock(List.class);
+        when(channel.getReadingType()).thenReturn(readingType);
+        ChannelDataUpdater channelDataUpdater = mock(ChannelDataUpdater.class);
+        when(channelDataUpdater.editBulkChannelData(anyList())).thenReturn(channelDataUpdater);
+        when(channel.startEditingData()).thenReturn(channelDataUpdater);
+        when(device.getId()).thenReturn(1L);
+        when(meterActivation.getChannels()).thenReturn(Arrays.asList(meteringChannel));
+        doReturn(Arrays.asList(readingType)).when(meteringChannel).getReadingTypes();
+        when(list.contains(readingType)).thenReturn(true);
+
+        EstimateChannelDataInfo estimateChannelDataInfo = new EstimateChannelDataInfo();
+        estimateChannelDataInfo.estimatorImpl = "com.elster.jupiter.estimators.impl.ValueFillEstimator";
+        estimateChannelDataInfo.estimateBulk = true;
+        IntervalInfo intervalInfo = new IntervalInfo();
+
+        intervalInfo.start = 1410804630000L;
+        intervalInfo.end = 1410814630000L;
+        estimateChannelDataInfo.intervals = new ArrayList<>();
+        estimateChannelDataInfo.intervals.add(intervalInfo);
+        estimateChannelDataInfo.properties = new ArrayList<>();
+        estimateChannelDataInfo.properties.add(new PropertyInfo("valuefill.maxNumberOfConsecutiveSuspects", "Max number of consecutive suspects", new PropertyValueInfo<>(123L, null, 10L, true), new PropertyTypeInfo(SimplePropertyType.NUMBER, null, null, null), true));
+        estimateChannelDataInfo.properties.add(new PropertyInfo("valuefill.fillValue", "Fill value", new PropertyValueInfo<>(123L, null, 10L, true), new PropertyTypeInfo(SimplePropertyType.NUMBER, null, null, null), true));
+
+        EstimationHelper estimationHelper = mock(EstimationHelper.class);
+        Estimator estimator = mock(Estimator.class);
+        EstimationResult estimationResult = mock(EstimationResult.class);
+        when(estimationResult.remainingToBeEstimated()).thenReturn(new ArrayList<EstimationBlock>());
+
+        when(estimationService.getEstimator(estimateChannelDataInfo.estimatorImpl)).thenReturn(Optional.of(estimator));
+        when(estimationService.getEstimator(estimateChannelDataInfo.estimatorImpl, new HashMap<>())).thenReturn(Optional.of(estimator));
+        when(estimationService.previewEstimate(any(MeterActivation.class), any(Range.class), any(ReadingType.class), any(Estimator.class))).thenReturn(estimationResult);
+
+        Response response = target("devices/1/channels/" + CHANNEL_ID1 + "/data/issue/estimate").request().post(Entity.json(estimateChannelDataInfo));
+        verify(channelDataUpdater).complete();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 
 }
