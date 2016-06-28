@@ -77,8 +77,6 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
     void setLocation(Location location);
 
-    void updateLocation(long id);
-
     Optional<SpatialCoordinates> getSpatialCoordinates();
 
     void setSpatialCoordinates(SpatialCoordinates geoCoordinates);

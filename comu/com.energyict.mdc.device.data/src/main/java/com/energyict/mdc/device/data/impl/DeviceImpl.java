@@ -411,15 +411,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     @Override
-    public void updateLocation(long id){
-            Optional<Meter> meter = findKoreMeter(getMdcAmrSystem());
-            if (meter.isPresent()) {
-                meter.get().updateLocation(id);
-                this.dirtyMeter = true;
-            }
-    }
-
-    @Override
     public Optional<SpatialCoordinates> getSpatialCoordinates() {
         Optional<Meter> meter = findKoreMeter(getMdcAmrSystem());
         if (meter.isPresent()) {
@@ -1670,7 +1661,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                             setLocation(loc);
                         }
                     });
-                    usagePoint.getSpatialCooridnates().ifPresent(geo -> {
+                    usagePoint.getSpatialCoordinates().ifPresent(geo -> {
                         if(!spatialCoordinates.isPresent()) {
                             setSpatialCoordinates(geo);
                         }
