@@ -4,9 +4,10 @@ import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.EMCO.frame.RegisterRequestFrame;
 import com.energyict.protocolimpl.EMCO.frame.RegisterResponseFrame;
 import com.energyict.protocolimpl.EMCO.frame.ResponseFrame;
@@ -209,8 +210,8 @@ public class ObisCodeMapper {
     }
 
     private void initTotalizerAssignment() {
-        totalizerAssignmentMap.put(new BigDecimal(0), "None");
-        totalizerAssignmentMap.put(new BigDecimal(1), "Volume flow");
+        totalizerAssignmentMap.put(BigDecimal.ZERO, "None");
+        totalizerAssignmentMap.put(BigDecimal.ONE, "Volume flow");
         totalizerAssignmentMap.put(new BigDecimal(2), "Compensated volume flow");
         totalizerAssignmentMap.put(new BigDecimal(3), "Mass flow");
         totalizerAssignmentMap.put(new BigDecimal(4), "Energy flow");
