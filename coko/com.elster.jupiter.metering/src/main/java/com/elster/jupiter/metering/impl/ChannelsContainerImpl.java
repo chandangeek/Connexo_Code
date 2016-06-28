@@ -34,8 +34,6 @@ public abstract class ChannelsContainerImpl implements ChannelsContainer {
     @SuppressWarnings("unused")
     private long id;
     @SuppressWarnings("unused")
-    private Interval interval;
-    @SuppressWarnings("unused")
     private long version;
     @SuppressWarnings("unused")
     private Instant createTime;
@@ -55,10 +53,6 @@ public abstract class ChannelsContainerImpl implements ChannelsContainer {
         this.meteringService = meteringService;
         this.eventService = eventService;
         this.channelBuilder = channelBuilder;
-    }
-
-    protected void setInterval(Interval interval) {
-        this.interval = interval;
     }
 
     protected ServerMeteringService getMeteringService() {
@@ -101,11 +95,6 @@ public abstract class ChannelsContainerImpl implements ChannelsContainer {
     @Override
     public Optional<UsagePoint> getUsagePoint() {
         return getUsagePoint(this.meteringService.getClock().instant());
-    }
-
-    @Override
-    public Interval getInterval() {
-        return this.interval;
     }
 
     @Override

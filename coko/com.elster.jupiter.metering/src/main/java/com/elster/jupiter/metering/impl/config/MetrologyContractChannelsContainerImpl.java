@@ -1,6 +1,5 @@
 package com.elster.jupiter.metering.impl.config;
 
-import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.Meter;
@@ -17,6 +16,7 @@ import com.elster.jupiter.metering.impl.IReadingType;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.time.Interval;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -62,7 +62,6 @@ public class MetrologyContractChannelsContainerImpl extends ChannelsContainerImp
     public MetrologyContractChannelsContainerImpl init(EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint, MetrologyContract metrologyContract) {
         this.effectiveMetrologyConfiguration.set(effectiveMetrologyConfigurationOnUsagePoint);
         this.metrologyContract.set(metrologyContract);
-        setInterval(effectiveMetrologyConfigurationOnUsagePoint.getInterval());
         // Each channel must have just one reading type (main), which is equal to reading type from deliverable.
         metrologyContract.getDeliverables()
                 .stream()
@@ -70,16 +69,13 @@ public class MetrologyContractChannelsContainerImpl extends ChannelsContainerImp
         return this;
     }
 
-    public MetrologyContract getMetrologyContract() {
-        return this.metrologyContract.get();
+    @Override
+    public Interval getInterval() {
+        return this.effectiveMetrologyConfiguration.get().getInterval();
     }
 
-    public void save() {
-        if (getId() == 0) {
-            Save.CREATE.save(getMeteringService().getDataModel(), this);
-        } else {
-            Save.UPDATE.save(getMeteringService().getDataModel(), this);
-        }
+    public MetrologyContract getMetrologyContract() {
+        return this.metrologyContract.get();
     }
 
     @Override

@@ -7,6 +7,7 @@ import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.time.Interval;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -24,20 +25,7 @@ public class MeterActivationChannelsContainerImpl extends ChannelsContainerImpl 
 
     public MeterActivationChannelsContainerImpl init(MeterActivation meterActivation) {
         this.meterActivation.set(meterActivation);
-        setInterval(meterActivation.getInterval());
         return this;
-    }
-
-    public void save(Provider<MeterActivation> savedMeterActivation) {
-        if (getId() == 0) {
-            this.meterActivation.setNull();
-            getMeteringService().getDataModel().persist(this);
-            init(savedMeterActivation.get());
-            getMeteringService().getDataModel().update(this);
-        } else {
-            init(savedMeterActivation.get());
-            getMeteringService().getDataModel().update(this);
-        }
     }
 
     @Override
@@ -55,5 +43,10 @@ public class MeterActivationChannelsContainerImpl extends ChannelsContainerImpl 
     public Optional<UsagePoint> getUsagePoint(Instant instant) {
         MeterActivation meterActivation = this.meterActivation.get();
         return meterActivation.isEffectiveAt(instant) ? meterActivation.getUsagePoint() : Optional.empty();
+    }
+
+    @Override
+    public Interval getInterval() {
+        return this.meterActivation.get().getInterval();
     }
 }

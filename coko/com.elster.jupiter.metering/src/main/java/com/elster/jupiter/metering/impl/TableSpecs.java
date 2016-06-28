@@ -1522,7 +1522,7 @@ public enum TableSpecs {
             table.map(implementers);
 
             Column idColumn = table.addAutoIdColumn();
-            List<Column> intervalColumns = table.addIntervalColumns("interval");
+            Column startUsagePointTime = table.column("STARTTIME").number().add();
             table.addDiscriminatorColumn("CONTAINER_TYPE", "varchar(80)");
             Column meterActivationColumn = table.column("METER_ACTIVATION").number().add();
 
@@ -1532,11 +1532,13 @@ public enum TableSpecs {
             table.addAuditColumns();
 
             table.primaryKey("MTR_CONTRACT_CHANNEL_PK").on(idColumn).add();
+            table.unique("MTR_CH_CONTAINER_MA_UQ").on(meterActivationColumn).add();
             table.foreignKey("MTR_CH_CONTAINER_2_MA")
                     .on(meterActivationColumn)
                     .references(MeterActivation.class)
                     .map("meterActivation")
-                    .onDelete(CASCADE)
+                    .reverseMap("channelsContainer")
+                    .composition()
                     .add();
             table.foreignKey("MTR_CH_CONTAINER_2_MC")
                     .on(metrologyContractColumn)
@@ -1545,13 +1547,15 @@ public enum TableSpecs {
                     .onDelete(CASCADE)
                     .add();
             table.foreignKey("MTR_CH_CONTAINER_2_UP")
-                    .on(effectiveMetrologyConfigurationUsagePointColumn, intervalColumns.get(0))
+                    .on(effectiveMetrologyConfigurationUsagePointColumn, startUsagePointTime)
                     .references(EffectiveMetrologyConfigurationOnUsagePoint.class)
                     .map(MetrologyContractChannelsContainerImpl.Fields.METROLOGY_CONFIG.fieldName())
+                    .reverseMap("channelsContainers")
+                    .composition()
                     .onDelete(CASCADE)
                     .add();
             table.unique("UQ_CH_CT_FOR_M_CONTRACT")
-                    .on(effectiveMetrologyConfigurationUsagePointColumn, intervalColumns.get(0), metrologyContractColumn)
+                    .on(effectiveMetrologyConfigurationUsagePointColumn, startUsagePointTime, metrologyContractColumn)
                     .add();
         }
     },
@@ -1570,12 +1574,13 @@ public enum TableSpecs {
             table.column("BULKDERIVATIONRULE").number().conversion(ColumnConversion.NUMBER2ENUM).map("bulkDerivationRule").add();
             table.addAuditColumns();
             table.primaryKey("MTR_PK_CHANNEL").on(idColumn).add();
-//            table.foreignKey("MTR_FK_CHANNELACTIVATION")
-//                    .references(MeterActivation.class)
-//                    .on(meterActivationIdColumn)
-//                    .onDelete(RESTRICT)
-//                    .upTo(version(10, 2))
-//                    .add();
+            table.foreignKey("MTR_FK_CHANNELACTIVATION")
+                    .references(MeterActivation.class)
+                    .on(meterActivationIdColumn)
+                    .onDelete(RESTRICT)
+                    .upTo(version(10, 2))
+                    .map("meterActivation;")
+                    .add();
             table.foreignKey("MTR_FK_CHANNEL_CONTAINER")
                     .references(ChannelsContainer.class)
                     .onDelete(RESTRICT)
@@ -1687,19 +1692,6 @@ public enum TableSpecs {
                     .on(readingTypeRequirementColumn)
                     .onDelete(CASCADE)
                     .map("readingTypeRequirement")
-                    .add();
-        }
-    },
-    ADD_METER_ACTIVATION_DEPENDENCIES {
-        @Override
-        void addTo(DataModel dataModel) {
-            Table<?> table = dataModel.getTable(MTR_METERACTIVATION.name());
-            Column channelContainerId = table.column("CHANNEL_CONTAINER").number().conversion(NUMBER2LONG).since(version(10, 2)).add();
-            table.foreignKey("MTR_FK_MA_2_CH_CT")
-                    .references(ChannelsContainer.class)
-                    .map("channelsContainer")
-                    .on(channelContainerId)
-                    .since(version(10, 2))
                     .add();
         }
     },

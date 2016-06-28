@@ -1,5 +1,7 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.cbo.QualityCodeIndex;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
@@ -12,6 +14,7 @@ import com.elster.jupiter.metering.MeterAlreadyLinkedToUsagePoint;
 import com.elster.jupiter.metering.MeterConfiguration;
 import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.MultiplierUsage;
+import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
@@ -35,6 +38,7 @@ import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -214,15 +218,9 @@ public final class MeterActivationImpl implements IMeterActivation {
 
     public void save() {
         if (id == 0) {
-            this.channelsContainer.get().save(() -> {
-                this.dataModel.persist(this);
-                return MeterActivationImpl.this;
-            });
+            this.dataModel.persist(this);
         } else {
-            this.channelsContainer.get().save(() -> {
-                this.dataModel.update(this);
-                return MeterActivationImpl.this;
-            });
+            this.dataModel.update(this);
         }
     }
 
@@ -460,5 +458,60 @@ public final class MeterActivationImpl implements IMeterActivation {
         public ChannelDataPresentException() {
             super(thesaurus, MessageSeeds.CHANNEL_DATA_PRESENT);
         }
+    }
+
+    @Override
+    public Set<ReadingType> getReadingTypes(Range<Instant> range) {
+        return getChannelsContainer().getReadingTypes(range);
+    }
+
+    @Override
+    public List<? extends BaseReadingRecord> getReadings(Range<Instant> range, ReadingType readingType) {
+        return getChannelsContainer().getReadings(range, readingType);
+    }
+
+    @Override
+    public List<? extends BaseReadingRecord> getReadingsUpdatedSince(Range<Instant> range, ReadingType readingType, Instant since) {
+        return getChannelsContainer().getReadingsUpdatedSince(range, readingType, since);
+    }
+
+    @Override
+    public List<? extends BaseReadingRecord> getReadingsBefore(Instant when, ReadingType readingType, int count) {
+        return getChannelsContainer().getReadingsBefore(when, readingType, count);
+    }
+
+    @Override
+    public List<? extends BaseReadingRecord> getReadingsOnOrBefore(Instant when, ReadingType readingType, int count) {
+        return getChannelsContainer().getReadingsOnOrBefore(when, readingType, count);
+    }
+
+    @Override
+    public boolean hasData() {
+        return getChannelsContainer().hasData();
+    }
+
+    @Override
+    public boolean is(ReadingContainer other) {
+        return getChannelsContainer().is(other);
+    }
+
+    @Override
+    public ZoneId getZoneId() {
+        return getChannelsContainer().getZoneId();
+    }
+
+    @Override
+    public List<Instant> toList(ReadingType readingType, Range<Instant> exportInterval) {
+        return getChannelsContainer().toList(readingType, exportInterval);
+    }
+
+    @Override
+    public List<ReadingQualityRecord> getReadingQualities(Set<QualityCodeSystem> qualityCodeSystems, QualityCodeIndex qualityCodeIndex, ReadingType readingType, Range<Instant> interval) {
+        return getChannelsContainer().getReadingQualities(qualityCodeSystems, qualityCodeIndex, readingType, interval);
+    }
+
+    @Override
+    public List<ChannelsContainer> getChannelsContainers() {
+        return Collections.singletonList(getChannelsContainer());
     }
 }
