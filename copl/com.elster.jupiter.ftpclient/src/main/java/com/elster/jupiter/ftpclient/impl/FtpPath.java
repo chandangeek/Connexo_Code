@@ -48,7 +48,7 @@ final class FtpPath implements Path {
             this.names = Collections.emptyList();
             return;
         }
-        ImmutableList.Builder<String> builder = ImmutableList.<String>builder();
+        ImmutableList.Builder<String> builder = ImmutableList.builder();
         if (names.get(0).startsWith("/")) {
             builder.add("/");
         }
@@ -232,7 +232,7 @@ final class FtpPath implements Path {
     }
 
     @Override
-    public Path toRealPath(LinkOption... options) throws IOException {
+    public Path toRealPath(LinkOption... options) {
         //TODO automatically generated method body, provide implementation.
         return null;
     }
@@ -243,12 +243,12 @@ final class FtpPath implements Path {
     }
 
     @Override
-    public WatchKey register(WatchService watcher, WatchEvent.Kind<?>[] events, WatchEvent.Modifier... modifiers) throws IOException {
+    public WatchKey register(WatchService watcher, WatchEvent.Kind<?>[] events, WatchEvent.Modifier... modifiers) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public WatchKey register(WatchService watcher, WatchEvent.Kind<?>... events) throws IOException {
+    public WatchKey register(WatchService watcher, WatchEvent.Kind<?>... events) {
         throw new UnsupportedOperationException();
     }
 
@@ -271,8 +271,12 @@ final class FtpPath implements Path {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         FtpPath paths = (FtpPath) o;
         return Objects.equals(fileSystem, paths.fileSystem) &&
                 Objects.equals(names, paths.names);
@@ -316,4 +320,5 @@ final class FtpPath implements Path {
     long size() throws IOException {
         return fileSystem.size(this);
     }
+
 }
