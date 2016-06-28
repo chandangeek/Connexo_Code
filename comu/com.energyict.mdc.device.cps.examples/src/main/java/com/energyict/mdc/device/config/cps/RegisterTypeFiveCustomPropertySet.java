@@ -129,7 +129,7 @@ public class RegisterTypeFiveCustomPropertySet implements CustomPropertySet<Regi
 
         @Override
         public String componentName() {
-            return "RVK10";
+            return "RKA";
         }
 
         @Override

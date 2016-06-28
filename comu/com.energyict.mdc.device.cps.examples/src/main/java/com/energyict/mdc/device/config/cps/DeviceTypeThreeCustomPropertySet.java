@@ -123,7 +123,7 @@ public class DeviceTypeThreeCustomPropertySet implements CustomPropertySet<Devic
 
         @Override
         public String componentName() {
-            return "RVK3";
+            return "RK3";
         }
 
         @Override

@@ -143,7 +143,7 @@ public class DeviceTypeOneCustomPropertySet implements CustomPropertySet<Device,
 
         @Override
         public String componentName() {
-            return "RVK1";
+            return "RK1";
         }
 
         @Override

@@ -143,7 +143,7 @@ public class LoadProfileTypeTwoCustomPropertySet implements CustomPropertySet<Ch
 
         @Override
         public String componentName() {
-            return "RVK9";
+            return "RK9";
         }
 
         @Override

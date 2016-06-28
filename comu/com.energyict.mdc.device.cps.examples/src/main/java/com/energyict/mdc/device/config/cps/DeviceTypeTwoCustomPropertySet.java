@@ -131,7 +131,7 @@ public class DeviceTypeTwoCustomPropertySet implements CustomPropertySet<Device,
 
         @Override
         public String componentName() {
-            return "RVK4";
+            return "RK4";
         }
 
         @Override

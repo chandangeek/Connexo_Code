@@ -130,7 +130,7 @@ public class LoadProfileTwoVersionedCustomPropertySet implements CustomPropertyS
 
         @Override
         public String componentName() {
-            return "RVK7";
+            return "RK7";
         }
 
         @Override

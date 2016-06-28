@@ -130,7 +130,7 @@ public class DeviceTypeOneVersionedCustomPropertySet implements CustomPropertySe
 
         @Override
         public String componentName() {
-            return "RVK2";
+            return "RK2";
         }
 
         @Override

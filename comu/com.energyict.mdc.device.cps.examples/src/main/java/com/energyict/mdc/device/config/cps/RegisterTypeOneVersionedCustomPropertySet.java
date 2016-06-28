@@ -143,7 +143,7 @@ public class RegisterTypeOneVersionedCustomPropertySet implements CustomProperty
 
         @Override
         public String componentName() {
-            return "RVK12";
+            return "RKC";
         }
 
         @Override
