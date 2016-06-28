@@ -6,12 +6,12 @@ import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 
-import java.util.ArrayList;
 import javax.inject.Inject;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -62,16 +62,17 @@ public class NTASimToolBuilder implements Builder<Void> {
             serialNumbers.addAll(newSerialNumbers);
         }
         try (Connection connection = dataModel.getConnection(false)){
-            connection.prepareStatement(DISABLE_COMTASK_RETRY).execute();
+            prepareAndExecuteStatement(connection, DISABLE_COMTASK_RETRY);
             createNtaSimTable(connection);
-            PreparedStatement statement = connection.prepareStatement(CREATE_NTA_SIM_TOOL_RECORD);
-            long id = getNext(connection, NTA_SIM_TOOL_TABLE_NAME + "ID");
-            for (String serialNumber : serialNumbers) {
-                statement.setLong(1, id++);
-                statement.setString(2, serialNumber);
-                statement.addBatch();
+            try (PreparedStatement statement = connection.prepareStatement(CREATE_NTA_SIM_TOOL_RECORD)) {
+                long id = getNext(connection, NTA_SIM_TOOL_TABLE_NAME + "ID");
+                for (String serialNumber : serialNumbers) {
+                    statement.setLong(1, id++);
+                    statement.setString(2, serialNumber);
+                    statement.addBatch();
+                }
+                statement.executeBatch();
             }
-            statement.executeBatch();
         } catch (SQLException e) {
             throw new UnableToCreate("Unable to execute native sql command for NTA tool configuration: " + e.getMessage());
         }
@@ -80,14 +81,20 @@ public class NTASimToolBuilder implements Builder<Void> {
 
     private void createNtaSimTable(Connection connection) throws SQLException {
         try {
-            connection.prepareStatement(DROP_NTA_SIM_TOOL_TABLE).execute();
-            connection.prepareStatement(DROP_NTA_SIM_TOOL_SEQUENCE).execute();
+            prepareAndExecuteStatement(connection, DROP_NTA_SIM_TOOL_TABLE);
+            prepareAndExecuteStatement(connection, DROP_NTA_SIM_TOOL_SEQUENCE);
         } catch(SQLException ex){
             // ignore it
         }
-        connection.prepareStatement(CREATE_NTA_SIM_TOOL_TABLE).execute();
-        connection.prepareStatement(CREATE_NTA_SIM_TOOL_INDEX).execute();
-        connection.prepareStatement(CREATE_NTA_SIM_TOOL_SEQUENCE).execute();
+        prepareAndExecuteStatement(connection, CREATE_NTA_SIM_TOOL_TABLE);
+        prepareAndExecuteStatement(connection, CREATE_NTA_SIM_TOOL_INDEX);
+        prepareAndExecuteStatement(connection, CREATE_NTA_SIM_TOOL_SEQUENCE);
+    }
+
+    private void prepareAndExecuteStatement(Connection connection, String sql) throws SQLException {
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.execute();
+        }
     }
 
     private long getNext(Connection connection, String sequence) throws SQLException {
