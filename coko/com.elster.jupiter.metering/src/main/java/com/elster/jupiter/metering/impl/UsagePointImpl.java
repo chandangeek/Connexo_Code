@@ -455,7 +455,7 @@ public class UsagePointImpl implements UsagePoint {
                 .getInstance(EffectiveMetrologyConfigurationOnUsagePointImpl.class);
         effectiveMetrologyConfiguration.init(this, metrologyConfiguration, when);
         this.metrologyConfiguration.add(effectiveMetrologyConfiguration);
-        effectiveMetrologyConfiguration.createChannelsContainers();
+        effectiveMetrologyConfiguration.createEffectiveMetrologyContracts();
     }
 
     @Override

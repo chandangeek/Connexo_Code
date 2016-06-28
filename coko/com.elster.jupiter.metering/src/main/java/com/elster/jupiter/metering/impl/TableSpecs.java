@@ -44,6 +44,8 @@ import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.impl.config.AbstractNode;
 import com.elster.jupiter.metering.impl.config.EffectiveMetrologyConfigurationOnUsagePointImpl;
+import com.elster.jupiter.metering.impl.config.EffectiveMetrologyContractOnUsagePoint;
+import com.elster.jupiter.metering.impl.config.EffectiveMetrologyContractOnUsagePointImpl;
 import com.elster.jupiter.metering.impl.config.FormulaImpl;
 import com.elster.jupiter.metering.impl.config.MeterRoleImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationCustomPropertySetUsage;
@@ -1510,6 +1512,35 @@ public enum TableSpecs {
                     .add();
         }
     },
+    MTR_EFFECTIVE_CONTRACT {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<EffectiveMetrologyContractOnUsagePoint> table = dataModel.addTable(name(), EffectiveMetrologyContractOnUsagePoint.class);
+            table.map(EffectiveMetrologyContractOnUsagePointImpl.class);
+            table.since(version(10, 2));
+
+            Column idColumn = table.addAutoIdColumn();
+            List<Column> intervalColumns = table.addIntervalColumns(EffectiveMetrologyContractOnUsagePointImpl.Fields.INTERVAL.fieldName());
+            Column effectiveConfColumn = table.column(EffectiveMetrologyContractOnUsagePointImpl.Fields.EFFECTIVE_CONF.name()).number().add();
+            Column metrologyContractColumn = table.column(EffectiveMetrologyContractOnUsagePointImpl.Fields.METROLOGY_CONTRACT.name()).number().add();
+
+            table.primaryKey("MTR_EFFECTIVE_CONTRACT_PK").on(idColumn).add();
+            table.foreignKey("MTR_EF_CONTRACT_2_EF_CONF")
+                    .on(effectiveConfColumn, intervalColumns.get(0))
+                    .references(EffectiveMetrologyConfigurationOnUsagePoint.class)
+                    .map(EffectiveMetrologyContractOnUsagePointImpl.Fields.EFFECTIVE_CONF.fieldName())
+                    .reverseMap("effectiveContracts")
+                    .composition()
+                    .onDelete(CASCADE)
+                    .add();
+            table.foreignKey("MTR_EF_CONTRACT_2_CONTRACT")
+                    .on(metrologyContractColumn)
+                    .references(MetrologyContract.class)
+                    .map(EffectiveMetrologyContractOnUsagePointImpl.Fields.METROLOGY_CONTRACT.fieldName())
+                    .onDelete(CASCADE)
+                    .add();
+        }
+    },
     MTR_CHANNEL_CONTAINER {
         @Override
         void addTo(DataModel dataModel) {
@@ -1522,12 +1553,9 @@ public enum TableSpecs {
             table.map(implementers);
 
             Column idColumn = table.addAutoIdColumn();
-            Column startUsagePointTime = table.column("STARTTIME").number().add();
             table.addDiscriminatorColumn("CONTAINER_TYPE", "varchar(80)");
             Column meterActivationColumn = table.column("METER_ACTIVATION").number().add();
-
-            Column effectiveMetrologyConfigurationUsagePointColumn = table.column("USAGE_POINT").number().add();
-            Column metrologyContractColumn = table.column("METROLOGY_CONTRACT").number().add();
+            Column effectiveMetrologyContractColumn = table.column("EFFECTIVE_CONTRACT").number().add();
 
             table.addAuditColumns();
 
@@ -1540,22 +1568,13 @@ public enum TableSpecs {
                     .reverseMap("channelsContainer")
                     .composition()
                     .add();
-            table.foreignKey("MTR_CH_CONTAINER_2_MC")
-                    .on(metrologyContractColumn)
-                    .references(MetrologyContract.class)
-                    .map(MetrologyContractChannelsContainerImpl.Fields.METROLOGY_CONTRACT.fieldName())
-                    .onDelete(CASCADE)
-                    .add();
-            table.foreignKey("MTR_CH_CONTAINER_2_UP")
-                    .on(effectiveMetrologyConfigurationUsagePointColumn, startUsagePointTime)
-                    .references(EffectiveMetrologyConfigurationOnUsagePoint.class)
-                    .map(MetrologyContractChannelsContainerImpl.Fields.METROLOGY_CONFIG.fieldName())
-                    .reverseMap("channelsContainers")
+            table.unique("MTR_CH_CONTAINER_EF_CONTR_UK").on(effectiveMetrologyContractColumn).add();
+            table.foreignKey("MTR_CH_CONTAINER_2_EF_CONTR")
+                    .on(effectiveMetrologyContractColumn)
+                    .references(EffectiveMetrologyContractOnUsagePoint.class)
+                    .map(MetrologyContractChannelsContainerImpl.Fields.EFFECTIVE_CONTRACT.fieldName())
+                    .reverseMap(EffectiveMetrologyContractOnUsagePointImpl.Fields.CHANNELS_CONTAINER.fieldName())
                     .composition()
-                    .onDelete(CASCADE)
-                    .add();
-            table.unique("UQ_CH_CT_FOR_M_CONTRACT")
-                    .on(effectiveMetrologyConfigurationUsagePointColumn, startUsagePointTime, metrologyContractColumn)
                     .add();
         }
     },
