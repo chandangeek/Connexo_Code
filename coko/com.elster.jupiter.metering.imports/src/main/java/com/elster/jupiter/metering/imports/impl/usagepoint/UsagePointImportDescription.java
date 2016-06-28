@@ -22,7 +22,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public class UsagePointImportDescription extends CustomPropertySetDescription implements FileImportDescription<UsagePointImportRecord> {
+class UsagePointImportDescription extends CustomPropertySetDescription implements FileImportDescription<UsagePointImportRecord> {
 
     private final DateParser dateParser;
     private final BigDecimalParser bigDecimalParser;
@@ -31,9 +31,9 @@ public class UsagePointImportDescription extends CustomPropertySetDescription im
     private final BooleanParser booleanParser;
     private final YesNoAnswerParser yesNoAnswerParser;
     private final MeteringDataImporterContext context;
-    NumberParser numberParser;
+    private NumberParser numberParser;
 
-    public UsagePointImportDescription(String dateFormat, String timeZone, SupportedNumberFormat numberFormat, MeteringDataImporterContext context) {
+    UsagePointImportDescription(String dateFormat, String timeZone, SupportedNumberFormat numberFormat, MeteringDataImporterContext context) {
         this.dateParser = new DateParser(dateFormat, timeZone);
         this.bigDecimalParser = new BigDecimalParser(numberFormat);
         this.numberParser = new NumberParser(NumberFormat.getInstance(context.getThreadPrincipalService().getLocale()));
