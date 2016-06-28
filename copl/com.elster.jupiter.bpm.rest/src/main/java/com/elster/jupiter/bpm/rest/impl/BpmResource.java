@@ -481,6 +481,36 @@ public class BpmResource {
         return PagedInfoListCustomized.fromPagedList("data", assigneeFilterListInfo.getData(), queryParameters, params.getStart() == 0 ? 1 : 0);
     }
 
+    @POST
+    @Path("tasks/{id}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.ASSIGN_TASK)
+    public Response assignUser(@Context UriInfo uriInfo, @PathParam("id") long id, @HeaderParam("Authorization") String auth) {
+        String priority = getQueryValue(uriInfo, "priority");
+        String date = getQueryValue(uriInfo, "duedate");
+        String rest = "/rest/tasks/";
+        rest += String.valueOf(id) + "/set";
+        if (priority != null || date != null) {
+            if (priority != null) {
+                rest += "?priority=" + priority;
+                if (date != null) {
+                    rest += "&duedate=" + date;
+                }
+            } else {
+                rest += "?duedate=" + date;
+            }
+            try {
+                bpmService.getBpmServer().doPost(rest, null, auth);
+            } catch (RuntimeException e) {
+                throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
+                        .entity(this.errorNotFoundMessage)
+                        .build());
+            }
+            return Response.ok().build();
+        }
+        return Response.notModified().build();
+    }
+
     @GET
     @Path("/process/associations")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -972,7 +1002,7 @@ public class BpmResource {
     }
 
     @GET
-    @Path("/processcontent/{id}/{deploymentId}")
+    @Path("/processcontent/{deploymentId}/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_BPM, Privileges.Constants.ADMINISTRATE_BPM})
     public TaskContentInfos getProcessContent(@PathParam("id") String id,
@@ -1005,7 +1035,7 @@ public class BpmResource {
     }
 
     @PUT
-    @Path("/processcontent/{id}/{deploymentId}")
+    @Path("/processcontent/{deploymentId}/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_BPM, Privileges.Constants.ADMINISTRATE_BPM})
     public Response startProcessContent(TaskContentInfos taskContentInfos, @PathParam("id") String id,
@@ -1086,7 +1116,7 @@ public class BpmResource {
           return  Response.status(Response.Status.BAD_REQUEST).entity(new LocalizedFieldException(err)).build();
         }
         if ("startTask".equals(taskContentInfos.action)) {
-            String rest = "/rest/tasks/" + id + "/contentstart/" + userName + "/";
+            String rest = "/rest/tasks/" + id + "/contentstart/";
             postResult = bpmService.getBpmServer().doPost(rest, null, auth, 0);
         }
         if ("completeTask".equals(taskContentInfos.action)) {
@@ -1095,7 +1125,7 @@ public class BpmResource {
             ObjectMapper mapper = new ObjectMapper();
             try {
                 String stringJson = mapper.writeValueAsString(taskOutputContentInfo);
-                String rest = "/rest/tasks/" + id + "/contentcomplete/" + userName + "/";
+                String rest = "/rest/tasks/" + id + "/contentcomplete/";
                 postResult = bpmService.getBpmServer().doPost(rest, stringJson, auth, 0);
             } catch (JsonProcessingException e) {
                 throw new WebApplicationException(Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(this.errorInvalidMessage).build());
