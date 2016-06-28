@@ -15,6 +15,7 @@ Ext.define('Mdc.model.Device', {
         {name: 'deviceTypeName', type: 'string', useNull: true},
         {name: 'deviceConfigurationId', type: 'number', useNull: true},
         {name: 'deviceConfigurationName', type: 'string', useNull: true},
+        {name: 'shipmentDate', type: 'number'},
         {name: 'yearOfCertification', type: 'string', useNull: true},
         {name: 'batch', type: 'string', useNull: true},
         {name: 'masterDevicemRID', defaultValue: null},

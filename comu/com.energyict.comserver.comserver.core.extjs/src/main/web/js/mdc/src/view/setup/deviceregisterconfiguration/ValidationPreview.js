@@ -48,7 +48,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.ValidationPreview', {
                                 result += ' - ' + Uni.I18n.translate('general.xsuspects', 'MDC', '{0} suspects',[rule.value]) + '<br>';
                             }
                         });
-                        return result;
+                        return Ext.isEmpty(result) ? '-' : result;
                     } else {
                         field.hide();
                     }
