@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.ace4000;
 
+import com.energyict.cbo.ApplicationException;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.messages.DeviceMessageStatus;
 import com.energyict.mdc.meterdata.*;
@@ -100,11 +101,11 @@ public class ACE4000MessageExecutor {
                     collectedMessage.setFailureInformation(ResultType.NotSupported, createMessageFailedIssue(pendingMessage, msg));
                     collectedMessage.setDeviceProtocolInformation(msg);
                 }
-            } catch (Exception e) {
-                log(Level.INFO, "Message has failed. " + e.getMessage());
+            } catch (ApplicationException | NumberFormatException | IndexOutOfBoundsException e) {
+                log(Level.INFO, "Message has failed. " + e.toString());
                 collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                 collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));
-                collectedMessage.setDeviceProtocolInformation(e.getMessage());
+                collectedMessage.setDeviceProtocolInformation(e.toString());
             }
 
             result.addCollectedMessage(collectedMessage);
@@ -176,8 +177,8 @@ public class ACE4000MessageExecutor {
 
             List<CollectedLogBook> collectedLogBooks = readMeterEventsRequest.request(logBookReader);
             return createCollectedMessageWithLogbookData(pendingMessage, collectedLogBooks.get(0));
-        } catch (Exception e) {
-            String message = "Read events request failed: " + e.getMessage();
+        } catch (ApplicationException | NumberFormatException | IndexOutOfBoundsException e) {
+            String message = "Read events request failed: " + e.toString();
             Issue issue = createMessageFailedIssue(pendingMessage, message);
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
             collectedMessage.setFailureInformation(ResultType.InCompatible, issue);
@@ -201,7 +202,7 @@ public class ACE4000MessageExecutor {
                 pendingMessage.getSpecification().getName());
     }
 
-    public Issue createMessageFailedIssue(OfflineDeviceMessage pendingMessage, Exception e) {
+    public Issue createMessageFailedIssue(OfflineDeviceMessage pendingMessage, Throwable e) {
         return createMessageFailedIssue(pendingMessage, e.getMessage());
     }
 
