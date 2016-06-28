@@ -30,7 +30,7 @@ import java.util.logging.Logger;
 
 @Component(name = "com.elster.jupiter.upgrade", immediate = true, service = UpgradeService.class,
         property = {"osgi.command.scope=upgrade", "osgi.command.function=init"})
-public class UpgradeServiceImpl implements UpgradeService {
+public final class UpgradeServiceImpl implements UpgradeService {
 
     private volatile BootstrapService bootstrapService;
     private volatile TransactionService transactionService;
@@ -45,6 +45,7 @@ public class UpgradeServiceImpl implements UpgradeService {
 
     @Inject
     public UpgradeServiceImpl(BootstrapService bootstrapService, TransactionService transactionService, OrmService ormService, BundleContext bundleContext) {
+        this();
         setBootstrapService(bootstrapService);
         setOrmService(ormService);
         setTransactionService(transactionService);
