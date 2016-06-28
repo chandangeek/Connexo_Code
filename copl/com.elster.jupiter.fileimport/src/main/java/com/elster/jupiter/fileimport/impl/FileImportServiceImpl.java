@@ -73,7 +73,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
         service = {FileImportService.class, MessageSeedProvider.class, TranslationKeyProvider.class},
         property = {"name=" + FileImportService.COMPONENT_NAME},
         immediate = true)
-public class FileImportServiceImpl implements FileImportService, MessageSeedProvider, TranslationKeyProvider {
+public final class FileImportServiceImpl implements FileImportService, MessageSeedProvider, TranslationKeyProvider {
 
     private static final Logger LOGGER = Logger.getLogger(FileImportServiceImpl.class.getName());
     private static final String COMPONENTNAME = "FIS";
@@ -121,7 +121,6 @@ public class FileImportServiceImpl implements FileImportService, MessageSeedProv
         setUpgradeService(upgradeService);
         activate();
     }
-
 
     private void createScheduler() {
         try {
