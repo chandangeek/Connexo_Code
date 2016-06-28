@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDevice;
@@ -97,7 +98,9 @@ final class AmrSystemImpl implements AmrSystem {
 	public Optional<Meter> findMeter(String amrId) {
 		Condition condition = Operator.EQUAL.compare("amrSystemId", getId());
 		condition = condition.and(Operator.EQUAL.compare("amrId",amrId));
-		List<Meter> candidates = meteringService.getMeterQuery().select(condition);
+		Query<Meter> meterQuery = meteringService.getMeterQuery();
+		meterQuery.setEager();
+		List<Meter> candidates = meterQuery.select(condition);
 		switch(candidates.size()) {
 			case 0:
 				return Optional.empty();

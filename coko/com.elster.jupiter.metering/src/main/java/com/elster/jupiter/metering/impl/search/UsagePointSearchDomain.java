@@ -80,7 +80,7 @@ public class UsagePointSearchDomain implements SearchDomain {
     }
 
     @Reference
-    public final void setServerMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
+    public void setServerMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
         this.metrologyConfigurationService = (ServerMetrologyConfigurationService) metrologyConfigurationService;
     }
 
@@ -256,7 +256,7 @@ public class UsagePointSearchDomain implements SearchDomain {
         // 2) check properties which affect available domain properties
         List<SearchablePropertyConstriction> constrictions = fixedProperties.stream()
                 .filter(SearchableProperty::affectsAvailableDomainProperties)
-                .map(mapper::apply)
+                .map(mapper)
                 .filter(propertyValue -> propertyValue != null && propertyValue.getValueBean() != null && propertyValue
                         .getValueBean().values != null)
                 .map(SearchablePropertyValue::asConstriction)
@@ -264,7 +264,7 @@ public class UsagePointSearchDomain implements SearchDomain {
         // 3) update list of available properties and convert these properties into properties values
         Map<String, SearchablePropertyValue> valuesMap = (constrictions.isEmpty() ? fixedProperties : addDynamicProperties(fixedProperties, constrictions))
                 .stream()
-                .map(mapper::apply)
+                .map(mapper)
                 .filter(propertyValue -> propertyValue != null && propertyValue.getValueBean() != null && propertyValue
                         .getValueBean().values != null)
                 .collect(Collectors.toMap(propertyValue -> propertyValue.getProperty()
