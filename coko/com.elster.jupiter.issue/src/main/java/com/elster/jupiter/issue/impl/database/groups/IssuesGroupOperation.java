@@ -3,7 +3,6 @@ package com.elster.jupiter.issue.impl.database.groups;
 import com.elster.jupiter.issue.impl.database.DatabaseConst;
 import com.elster.jupiter.issue.impl.database.TableSpecs;
 import com.elster.jupiter.issue.impl.records.IssueGroupImpl;
-
 import com.elster.jupiter.issue.share.IssueGroupFilter;
 import com.elster.jupiter.issue.share.entity.AssigneeDetails;
 import com.elster.jupiter.issue.share.entity.AssigneeType;
@@ -29,23 +28,23 @@ import java.util.logging.Logger;
 public abstract class IssuesGroupOperation {
     protected static final Logger LOG = Logger.getLogger(IssuesGroupOperation.class.getName());
 
-    protected static final String GROUP_KEY = "key0";
-    protected static final String GROUP_TITLE = "title0";
-    protected static final String GROUP_COUNT = "count0";
+    static final String GROUP_KEY = "key0";
+    static final String GROUP_TITLE = "title0";
+    static final String GROUP_COUNT = "count0";
 
     private final DataModel dataModel;
     private IssueGroupFilter filter;
     private Thesaurus thesaurus;
 
     public static IssuesGroupOperation from(IssueGroupFilter filter, DataModel dataModel, Thesaurus thesaurus) {
-        if (dataModel == null){
+        if (dataModel == null) {
             throw new IllegalArgumentException("Data model can't be null");
         }
-        if (filter == null){
+        if (filter == null) {
             throw new IllegalArgumentException("You must specify the correct filter instance");
         }
         Optional<IssueGroupRealization> groupByRealizationRef = IssueGroupRealization.of(filter.getGroupBy());
-        if (!groupByRealizationRef.isPresent()){
+        if (!groupByRealizationRef.isPresent()) {
             throw new IllegalArgumentException("We can't group issues by this column: " + filter.getGroupBy());
         }
         IssuesGroupOperation operation = groupByRealizationRef.get().getOperation(dataModel, thesaurus);
@@ -53,7 +52,7 @@ public abstract class IssuesGroupOperation {
         return operation;
     }
 
-    protected IssuesGroupOperation(DataModel dataModel, Thesaurus thesaurus){
+    IssuesGroupOperation(DataModel dataModel, Thesaurus thesaurus) {
         this.dataModel = dataModel;
         this.thesaurus = thesaurus;
     }
@@ -77,7 +76,7 @@ public abstract class IssuesGroupOperation {
                             .init(rs.getObject(GROUP_KEY), rs.getString(GROUP_TITLE), rs.getLong(GROUP_COUNT)));
                 }
             }
-        } catch (SQLException sqlEx){
+        } catch (SQLException sqlEx) {
             LOG.log(Level.SEVERE, "Unable to retrieve grouped list from database", sqlEx);
         }
         return groups;
@@ -85,12 +84,11 @@ public abstract class IssuesGroupOperation {
 
     protected abstract SqlBuilder buildSQL();
 
-    protected PreparedStatement buildStatement(Connection connection, SqlBuilder sql) throws SQLException{
-        if (connection == null){
+    private PreparedStatement buildStatement(Connection connection, SqlBuilder sql) throws SQLException {
+        if (connection == null) {
             throw new IllegalArgumentException("[ GroupIssuesOperation ] Connection can't be null");
         }
-        PreparedStatement statement = sql.prepare(connection);
-        return statement;
+        return sql.prepare(connection);
     }
 
     protected String getTableName() {
@@ -106,38 +104,38 @@ public abstract class IssuesGroupOperation {
         return TableSpecs.ISU_ISSUE_ALL.name();
     }
 
-    protected String getIssueTypeCondition(){
+    String getIssueTypeCondition() {
             StringBuilder builder = new StringBuilder();
             for (String issueType : getFilter().getIssueTypes()) {
-                if (builder.length() != 0){
+                if (builder.length() != 0) {
                     builder.append(" OR ");
                 }
                 builder.append("reason." + DatabaseConst.ISSUE_REASON_COLUMN_TYPE).append(" = '").append(issueType).append("'");
             }
-            if (builder.length() != 0){
+            if (builder.length() != 0) {
                 builder.insert(0, " AND (").append(") ");
                 return builder.toString();
             }
         return  "";
     }
 
-    protected String getStatusCondition(){
+    String getStatusCondition() {
             StringBuilder builder = new StringBuilder();
             for (String status : getFilter().getStatuses()) {
-                if (builder.length() != 0){
+                if (builder.length() != 0) {
                     builder.append(" OR ");
                 }
                 builder.append("isu." + DatabaseConst.ISSUE_COLUMN_STATUS_ID).append(" = '").append(status).append("'");
             }
-            if (builder.length() != 0){
+            if (builder.length() != 0) {
                 builder.insert(0, " AND (").append(") ");
                 return builder.toString();
             }
         return "";
     }
 
-    protected String getMeterCondition() {
-        if (getFilter().getMeterMrid() != null){
+    String getMeterCondition() {
+        if (getFilter().getMeterMrid() != null) {
             StringBuilder builder = new StringBuilder();
             builder.append("device.MRID = '").append(getFilter().getMeterMrid()).append("'");
             builder.insert(0, " AND (").append(") ");
@@ -146,10 +144,10 @@ public abstract class IssuesGroupOperation {
         return "";
     }
 
-    protected String getAssigneeCondition(){
+    String getAssigneeCondition() {
             StringBuilder builder = new StringBuilder();
             for (AssigneeDetails assigneeDetails : getFilter().getAssignees()) {
-                if (builder.length() != 0){
+                if (builder.length() != 0) {
                     builder.append(" OR ");
                 }
                 AssigneeType type = AssigneeType.fromString(assigneeDetails.getAssigneeType());
@@ -169,10 +167,10 @@ public abstract class IssuesGroupOperation {
         return "";
     }
 
-    protected String getDueDateCondition() {
+    String getDueDateCondition() {
             StringBuilder builder = new StringBuilder();
             for (DueDateRange dueDateRange : getFilter().getDueDates()) {
-                if (builder.length() != 0){
+                if (builder.length() != 0) {
                     builder.append(" OR ");
                 }
                 builder.append("isu.");
@@ -192,4 +190,5 @@ public abstract class IssuesGroupOperation {
     protected DataModel getDataModel() {
         return dataModel;
     }
+
 }
