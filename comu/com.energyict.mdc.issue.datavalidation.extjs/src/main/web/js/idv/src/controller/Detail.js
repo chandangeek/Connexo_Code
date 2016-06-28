@@ -46,16 +46,16 @@ Ext.define('Idv.controller.Detail', {
     init: function () {
         this.control({
             'data-validation-issue-detail #data-validation-issue-comments #issue-comments-add-comment-button': {
-                click: this.showCommentForm
+                click: this.showCommentFormValidation
             },
             'data-validation-issue-detail #data-validation-issue-comments #empty-message-add-comment-button': {
-                click: this.showCommentForm
+                click: this.showCommentFormValidation
             },
             'data-validation-issue-detail #data-validation-issue-comments #issue-comment-cancel-adding-button': {
                 click: this.hideCommentForm
             },
             'data-validation-issue-detail #data-validation-issue-comments #issue-comment-save-button': {
-                click: this.addComment
+                click: this.addCommentValidation
             },
             'data-validation-issue-detail #data-validation-issue-comments #issue-add-comment-area': {
                 change: this.validateCommentForm
