@@ -57,12 +57,11 @@ import java.util.stream.Collectors;
 import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.upgrade.InstallIdentifier.identifier;
 
-
 @Component(
         name = "com.elster.jupiter.bpm",
         service = {BpmService.class, TranslationKeyProvider.class, MessageSeedProvider.class},
         property = {"name=" + BpmService.COMPONENTNAME}, immediate = true)
-public class BpmServiceImpl implements BpmService, TranslationKeyProvider, MessageSeedProvider {
+public final class BpmServiceImpl implements BpmService, TranslationKeyProvider, MessageSeedProvider {
 
     private volatile DataModel dataModel;
     private volatile MessageService messageService;
