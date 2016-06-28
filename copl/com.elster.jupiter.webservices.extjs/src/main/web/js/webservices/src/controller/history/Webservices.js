@@ -42,14 +42,7 @@ Ext.define('Wss.controller.history.Webservices', {
                                     route: 'logs',
                                     title: Uni.I18n.translate('general.Logging', 'WSS', 'Logging'),
                                     controller: 'Wss.controller.Webservices',
-                                    action: 'showLoggingPage',
-                                    callback: function (route) {
-                                        this.getApplication().on('endpointload', function (name) {
-                                            route.setTitle(Ext.String.htmlEncode(name));
-                                            return true;
-                                        }, {single: true});
-                                        return this;
-                                    }
+                                    action: 'showLoggingPage'
                                 },
                                 edit: {
                                     route: 'edit',
@@ -59,7 +52,7 @@ Ext.define('Wss.controller.history.Webservices', {
                                     action: 'showEditPage',
                                     callback: function (route) {
                                         this.getApplication().on('endpointload', function (name) {
-                                            route.setTitle(Ext.String.format(Uni.I18n.translate('general.EditEndpoint', 'WSS', 'Edit {0}'),Ext.String.htmlEncode(name)));
+                                            route.setTitle(Ext.String.format(Uni.I18n.translate('endPointAdd.editTitle', 'WSS', 'Edit \'{0}\''),Ext.String.htmlEncode(name)));
                                             return true;
                                         }, {single: true});
                                         return this;
