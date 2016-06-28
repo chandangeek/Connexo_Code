@@ -1,5 +1,6 @@
 package com.elster.jupiter.mail.impl;
 
+import com.elster.jupiter.mail.InvalidAddressException;
 import com.elster.jupiter.mail.MailAddress;
 import com.elster.jupiter.mail.MailMessageBuilder;
 import com.elster.jupiter.mail.MailService;
@@ -9,10 +10,10 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.exception.MessageSeed;
+
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.activation.CommandMap;
@@ -69,7 +70,11 @@ public class MailServiceImpl implements IMailService, MessageSeedProvider {
 
     @Override
     public MailAddress mailAddress(String mailAddress) {
-        return MailAddressImpl.of(mailAddress);
+        try {
+            return MailAddressImpl.of(mailAddress);
+        } catch (AddressException e) {
+            throw new InvalidAddressException(this.thesaurus, MessageSeeds.INVALID_ADDRESS, e);
+        }
     }
 
     @Activate

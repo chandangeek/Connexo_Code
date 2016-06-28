@@ -1,6 +1,5 @@
 package com.elster.jupiter.mail.impl;
 
-import com.elster.jupiter.mail.InvalidAddressException;
 import com.elster.jupiter.mail.MailAddress;
 
 import javax.mail.Address;
@@ -16,13 +15,8 @@ public final class MailAddressImpl implements MailAddress {
         this.internetAddress = internetAddress;
     }
 
-    public static MailAddress of(String mailAddress) {
-        try {
-            return new MailAddressImpl(new InternetAddress(mailAddress));
-        } catch (AddressException e) {
-            // TODO
-            throw new InvalidAddressException(null, null, e);
-        }
+    public static MailAddress of(String mailAddress) throws AddressException {
+        return new MailAddressImpl(new InternetAddress(mailAddress));
     }
 
     @Override
@@ -32,8 +26,12 @@ public final class MailAddressImpl implements MailAddress {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         MailAddressImpl that = (MailAddressImpl) o;
         return Objects.equals(internetAddress, that.internetAddress);
     }
@@ -47,4 +45,5 @@ public final class MailAddressImpl implements MailAddress {
     public String toString() {
         return internetAddress.toString();
     }
+
 }

@@ -6,6 +6,7 @@ import java.util.logging.Level;
 
 public enum MessageSeeds implements MessageSeed {
     INCOMPLETE_MAIL_CONFIG(1, "mail.incomplete.config", "Mail configuration is incomplete, these properties are missing: {0}"),
+    INVALID_ADDRESS(2, "mail.invalid.address", "Not a valid email address"),
     ;
 
     private  int errorCode;
@@ -42,4 +43,5 @@ public enum MessageSeeds implements MessageSeed {
     public Level getLevel() {
         return Level.SEVERE;
     }
+
 }
