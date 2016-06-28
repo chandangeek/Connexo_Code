@@ -356,18 +356,18 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
 
         Map<Version, Class<? extends Upgrader>> versionClassMap = dataModel.changeVersions()
                 .stream()
-                .collect(Collectors.toMap(Function.identity(), version -> Installer.class));
+                .collect(Collectors.toMap(Function.identity(), version -> CustomPropertySetInstaller.class));
 
-        upgradeService.register(InstallIdentifier.identifier(persistenceSupport.application(), persistenceSupport.componentName()), dataModel, Installer.class, versionClassMap);
+        upgradeService.register(InstallIdentifier.identifier(persistenceSupport.application(), persistenceSupport.componentName()), dataModel, CustomPropertySetInstaller.class, versionClassMap);
         return dataModel;
     }
 
-    static class Installer implements FullInstaller, Upgrader {
+    static class CustomPropertySetInstaller implements FullInstaller, Upgrader {
 
         private final DataModel dataModel;
 
         @Inject
-        Installer(DataModel dataModel) {
+        CustomPropertySetInstaller(DataModel dataModel) {
             this.dataModel = dataModel;
         }
 
