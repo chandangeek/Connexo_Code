@@ -2,7 +2,8 @@ Ext.define('Imt.processes.controller.MonitorProcesses', {
     extend: 'Ext.app.Controller',
     requires: [
         'Bpm.startprocess.controller.StartProcess',
-        'Bpm.monitorprocesses.controller.MonitorProcesses'
+        'Bpm.monitorprocesses.controller.MonitorProcesses',
+        'Uni.property.controller.Registry'
     ],
     controllers: [
         'Bpm.startprocess.controller.StartProcess',
@@ -12,7 +13,8 @@ Ext.define('Imt.processes.controller.MonitorProcesses', {
     ],
     views: [
         'Imt.processes.view.UsagePointProcessesMainView',
-        'Imt.processes.view.UsagePointStartProcess'
+        'Imt.processes.view.UsagePointStartProcess',
+        'Imt.processes.view.MetrologyConfigurationOutputs'
     ],
     refs: [
         {ref: 'overviewLink', selector: '#usage-point-overview-link'}
@@ -63,6 +65,7 @@ Ext.define('Imt.processes.controller.MonitorProcesses', {
             success: function (types, usagePoint) {
                 var widget;
 
+                Uni.property.controller.Registry.addProperty('METROLOGYCONFIGOUTPUT', 'Imt.processes.view.MetrologyConfigurationOutputs');
                 me.getApplication().fireEvent('usagePointLoaded', usagePoint);
                 viewport.setLoading(false);
                 widget = Ext.widget('usage-point-processes-start', {
