@@ -29,7 +29,6 @@ import java.util.stream.Collectors;
  */
 class MissingValuesValidator extends AbstractValidator {
 
-    private static final String READING_QUALITY_TYPE_CODE = "3.5.259";
     private static final Set<String> SUPPORTED_APPLICATIONS = ImmutableSet.of("MDC", "INS");
 
     private Set<Instant> instants;
