@@ -85,7 +85,7 @@ public class EndPointConfigurationInfoFactory {
         }
         builder.setAuthenticationMethod(info.authenticationMethod.id);
         if (EndPointAuthentication.BASIC_AUTHENTICATION.equals(info.authenticationMethod.id)) {
-            if (info.group != null && info.group.id == null) {
+            if (info.group != null && info.group.id != null) {
                 Group group = userService.getGroup(info.group.id)
                         .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.BAD_REQUEST, MessageSeeds.NO_SUCH_GROUP));
                 builder.group(group);

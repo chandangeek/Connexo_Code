@@ -127,8 +127,36 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
         info.schemaValidation = true;
         info.tracing = false;
         info.authenticationMethod = new IdWithLocalizedValueInfo<>(EndPointAuthentication.NONE, null);
+
         info.url = "/srv";
         info.active = false;
+
+        InboundEndPointConfiguration endPointConfig = mockInboundEndPointConfig(10, 11, "new", "/url", "new service");
+        EndPointConfigurationService.InboundEndPointConfigBuilder builder = FakeBuilder.initBuilderStub(endPointConfig, EndPointConfigurationService.InboundEndPointConfigBuilder.class);
+        when(endPointConfigurationService.newInboundEndPointConfiguration(anyString(), anyString(), anyString())).thenReturn(builder);
+
+        Response response = target("/endpointconfigurations").request().post(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
+    }
+
+    @Test
+    public void testCreateEndpointWithAuthentication() throws Exception {
+        EndPointConfigurationInfo info = new EndPointConfigurationInfo();
+
+        Group group = mock(Group.class);
+        when(group.getId()).thenReturn(1L);
+        info.name = "new endpoint";
+        info.webServiceName = "someInboundService";
+        info.logLevel = new IdWithLocalizedValueInfo<>();
+        info.logLevel.id = "FINEST";
+        info.httpCompression = true;
+        info.schemaValidation = true;
+        info.tracing = false;
+        info.authenticationMethod = new IdWithLocalizedValueInfo<>(EndPointAuthentication.BASIC_AUTHENTICATION, null);
+        info.url = "/srv";
+        info.group = new LongIdWithNameInfo(group.getId(), "none");
+        info.active = false;
+        when(userService.getGroup(1L)).thenReturn(Optional.of(group));
 
         InboundEndPointConfiguration endPointConfig = mockInboundEndPointConfig(10, 11, "new", "/url", "new service");
         EndPointConfigurationService.InboundEndPointConfigBuilder builder = FakeBuilder.initBuilderStub(endPointConfig, EndPointConfigurationService.InboundEndPointConfigBuilder.class);
