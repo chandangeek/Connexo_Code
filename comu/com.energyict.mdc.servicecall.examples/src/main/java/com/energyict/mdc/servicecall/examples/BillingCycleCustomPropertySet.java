@@ -112,7 +112,7 @@ public class BillingCycleCustomPropertySet implements CustomPropertySet<ServiceC
 
         @Override
         public String componentName() {
-            return "SCExamples1";
+            return "SC1";
         }
 
         @Override

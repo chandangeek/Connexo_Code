@@ -117,7 +117,7 @@ public class DeviceCertificationCustomPropertySet implements CustomPropertySet<S
 
         @Override
         public String componentName() {
-            return "DeviceCertification";
+            return "SC4";
         }
 
         @Override

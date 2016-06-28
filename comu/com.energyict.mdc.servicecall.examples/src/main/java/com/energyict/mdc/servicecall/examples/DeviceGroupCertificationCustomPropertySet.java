@@ -117,7 +117,7 @@ public class DeviceGroupCertificationCustomPropertySet implements CustomProperty
 
         @Override
         public String componentName() {
-            return "DeviceGroupCertification";
+            return "SC3";
         }
 
         @Override

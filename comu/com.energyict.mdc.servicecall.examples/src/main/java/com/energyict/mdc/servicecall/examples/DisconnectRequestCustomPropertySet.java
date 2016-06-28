@@ -129,7 +129,7 @@ public class DisconnectRequestCustomPropertySet implements CustomPropertySet<Ser
 
         @Override
         public String componentName() {
-            return "SCExamples2";
+            return "SC2";
         }
 
         @Override
