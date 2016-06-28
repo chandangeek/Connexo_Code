@@ -330,8 +330,7 @@ public class DeviceResource {
         if (!slaveDeviceInfo.placeHolderForUnlinkedDataLoggerChannelsAndRegisters()) {
             Device slave;
             if (slaveDeviceInfo.id == 0 && slaveDeviceInfo.version == 0) {
-                //TODO fix and align what we need to provide there
-                slave = newDevice(slaveDeviceInfo.deviceConfigurationId, null, slaveDeviceInfo.mRID, slaveDeviceInfo.serialNumber, slaveDeviceInfo.yearOfCertification, Instant.now());
+                slave = newDevice(slaveDeviceInfo.deviceConfigurationId, null, slaveDeviceInfo.mRID, slaveDeviceInfo.serialNumber, slaveDeviceInfo.yearOfCertification, Instant.ofEpochSecond(slaveDeviceInfo.shipmentTimeStamp));
             } else {
                 if (slaveDeviceInfo.isFromExistingLink()) {
                     // No new link, came along with deviceinfo
