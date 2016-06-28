@@ -38,6 +38,7 @@ import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.data.Batch;
 import com.energyict.mdc.device.data.BatchService;
+import com.energyict.mdc.device.data.CIMLifecycleDates;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceEstimation;
@@ -56,6 +57,9 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Currency;
@@ -146,6 +150,8 @@ public class DeviceInfoFactoryTest {
     private AmrSystem amrSystem;
     @Mock
     private BatchService batchService;
+    @Mock
+    DeviceDataInfoFactory deviceDataInfoFactory;
     @Mock
     private Batch batch;
     @Mock
@@ -263,6 +269,11 @@ public class DeviceInfoFactoryTest {
         when(slave1.getId()).thenReturn(1L);
         when(slave1.getmRID()).thenReturn(SLAVE_MRID_1);
         when(slave1.getVersion()).thenReturn(1L);
+        CIMLifecycleDates lifecycleDatesSlave1 = mock(CIMLifecycleDates.class);
+        when(lifecycleDatesSlave1.getReceivedDate()).thenReturn(Optional.of(LocalDateTime.of(2015, 8, 19, 0, 0).toInstant(ZoneOffset.UTC)));
+        when(slave1.getLifecycleDates()).thenReturn(lifecycleDatesSlave1);
+
+
         when(slave2.getDeviceType()).thenReturn(slaveDeviceType2);
         when(slaveDeviceType2.getName()).thenReturn(SLAVE_DEVICE_TYPE_NAME_2);
         when(slave2.getDeviceConfiguration()).thenReturn(slaveDeviceConfiguration2);
@@ -270,6 +281,9 @@ public class DeviceInfoFactoryTest {
         when(slave2.getId()).thenReturn(2L);
         when(slave2.getmRID()).thenReturn(SLAVE_MRID_2);
         when(slave2.getVersion()).thenReturn(2L);
+        CIMLifecycleDates lifecycleDatesSlave2 = mock(CIMLifecycleDates.class);
+        when(lifecycleDatesSlave2.getReceivedDate()).thenReturn(Optional.of(LocalDateTime.of(2015, 9, 1, 0, 0).toInstant(ZoneOffset.UTC)));
+        when(slave2.getLifecycleDates()).thenReturn(lifecycleDatesSlave2);
 
         when(slaveChn1.getDevice()).thenReturn(slave1);
         when(slaveChn1.getReadingType()).thenReturn(readingTypeForChannel1);
@@ -399,6 +413,10 @@ public class DeviceInfoFactoryTest {
         when(dataLogger.getChannels()).thenReturn(Arrays.asList(dataLoggerChn1, dataLoggerChn2, dataLoggerChn3, dataLoggerChn4, dataLoggerChn5, dataLoggerChn6));
         when(dataLogger.getLocation()).thenReturn(Optional.empty());
         when(dataLogger.getGeoCoordinates()).thenReturn(Optional.empty());
+
+        CIMLifecycleDates lifecycleDates = mock(CIMLifecycleDates.class);
+        when(lifecycleDates.getReceivedDate()).thenReturn(Optional.of(LocalDateTime.of(2015, 7, 13, 12, 0).toInstant(ZoneOffset.UTC)));
+        when(dataLogger.getLifecycleDates()).thenReturn(lifecycleDates);
     }
 
     private OpenIssue mockIssue(IssueType dataCollectionIssueType) {
@@ -447,7 +465,7 @@ public class DeviceInfoFactoryTest {
 
     @Test
     public void fromDataLoggerTest() {
-        DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory = new DataLoggerSlaveDeviceInfoFactory(Clock.systemUTC(), topologyService);
+        DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory = new DataLoggerSlaveDeviceInfoFactory(Clock.systemUTC(), topologyService, deviceDataInfoFactory);
 
         DeviceInfoFactory deviceInfoFactory = new DeviceInfoFactory(thesaurus, batchService, topologyService, issueService, dataLoggerSlaveDeviceInfoFactory, deviceService);
         DeviceInfo info = deviceInfoFactory.deviceInfo(dataLogger);

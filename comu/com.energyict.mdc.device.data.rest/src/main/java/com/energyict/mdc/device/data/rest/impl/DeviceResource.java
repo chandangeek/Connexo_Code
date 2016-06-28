@@ -320,9 +320,9 @@ public class DeviceResource {
             currentSlaves
                     .stream()
                     .filter((slave) -> getTerminatedSlaveDeviceInfo(slave, info).isPresent())
-                    .forEach((slave) -> topologyService.clearDataLogger(slave, Instant.ofEpochSecond(getTerminatedSlaveDeviceInfo(slave, info).get().terminationTimeStamp)));
+                    .forEach((slave) -> topologyService.clearDataLogger(slave, Instant.ofEpochSecond(getTerminatedSlaveDeviceInfo(slave, info).get().unlinkingTimeStamp)));
 
-            info.dataLoggerSlaveDevices.stream().filter(((Predicate<DataLoggerSlaveDeviceInfo>) DataLoggerSlaveDeviceInfo::terminating).negate()).forEach((slaveDeviceInfo) -> setDataLogger(slaveDeviceInfo, dataLogger));
+            info.dataLoggerSlaveDevices.stream().filter(((Predicate<DataLoggerSlaveDeviceInfo>) DataLoggerSlaveDeviceInfo::unlinked).negate()).forEach((slaveDeviceInfo) -> setDataLogger(slaveDeviceInfo, dataLogger));
         }
     }
 
@@ -352,7 +352,7 @@ public class DeviceResource {
                         .forEach((pair) -> registerMap.put(pair.getFirst(), pair.getLast()));
             }
             if (channelMap.size() + registerMap.size() > 0) {
-                topologyService.setDataLogger(slave, dataLogger, Instant.ofEpochMilli(slaveDeviceInfo.arrivalTimeStamp), channelMap, registerMap);
+                topologyService.setDataLogger(slave, dataLogger, Instant.ofEpochMilli(slaveDeviceInfo.linkingTimeStamp), channelMap, registerMap);
             }
         }
     }
@@ -362,7 +362,7 @@ public class DeviceResource {
     }
 
     private Optional<DataLoggerSlaveDeviceInfo> getTerminatedSlaveDeviceInfo(Device slave, DeviceInfo info){
-        return info.dataLoggerSlaveDevices.stream().filter((dataLoggerSlaveDeviceInfo) -> dataLoggerSlaveDeviceInfo.id == slave.getId() && dataLoggerSlaveDeviceInfo.terminating()).findFirst();
+        return info.dataLoggerSlaveDevices.stream().filter((dataLoggerSlaveDeviceInfo) -> dataLoggerSlaveDeviceInfo.id == slave.getId() && dataLoggerSlaveDeviceInfo.unlinked()).findFirst();
     }
 
     private Pair<Register, Register> slaveDataLoggerRegisterPair(Device slave, DataLoggerSlaveRegisterInfo info){

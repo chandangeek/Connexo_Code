@@ -1,8 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.rest.ReadingTypeInfo;
-import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
@@ -11,13 +9,10 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
-import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.NumericalRegister;
-import com.energyict.mdc.device.data.Reading;
-import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.RegisterType;
 
@@ -47,11 +42,12 @@ public class DataLoggerSlaveDeviceInfoFactoryTest extends DeviceDataRestApplicat
 
     private final static long DATA_LOGGER_ID = 6666L;
     private final static long REGISTER_TYPE_ID = 121L;
-    private final static long REGISTER_SPEC_ID = 21L;
     private final static String DATA_LOGGER_DEVICE_TYPE_NAME = "Data logger device type";
     private final static String collectedReadingTypeMrid = "0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0";
     private final static String calculatedReadingTypeMrid = "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0";
 
+    @Mock
+    DeviceDataInfoFactory deviceDataInfoFactory;
     @Mock
     private RegisterType registerType;
     @Mock
@@ -93,7 +89,7 @@ public class DataLoggerSlaveDeviceInfoFactoryTest extends DeviceDataRestApplicat
         when(topologyService.getSlaveRegister(eq(dataLoggerRegister4), any(Instant.class))).thenReturn(Optional.empty());
         when(topologyService.availabilityDate(eq(dataLoggerRegister4))).thenReturn(Optional.of(Instant.EPOCH));
 
-        List<DataLoggerSlaveDeviceInfo> infos = new DataLoggerSlaveDeviceInfoFactory(clock, topologyService).from(dataLogger);
+        List<DataLoggerSlaveDeviceInfo> infos = new DataLoggerSlaveDeviceInfoFactory(clock, topologyService, deviceDataInfoFactory).from(dataLogger);
 
         assertThat(infos).hasSize(1);
         assertThat(infos.get(0).dataLoggerSlaveChannelInfos).hasSize(3);

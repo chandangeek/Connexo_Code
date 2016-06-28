@@ -1362,7 +1362,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         slaveInfo1.yearOfCertification = 1960;
         slaveInfo1.version = 1;
         slaveInfo1.dataLoggerSlaveChannelInfos = Collections.singletonList(channelMappingForSlave1);
-        slaveInfo1.arrivalTimeStamp = Instant.now().getEpochSecond();
+        slaveInfo1.linkingTimeStamp = Instant.now().toEpochMilli();
 
         DeviceInfo info = new DeviceInfo();
         info.id = 1L;
@@ -1376,7 +1376,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         Response response = target("/devices/1").request().put(Entity.json(info));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(topologyService).setDataLogger(eq(slave1), eq(dataLogger), eq(Instant.ofEpochSecond(slaveInfo1.arrivalTimeStamp)), any(Map.class), any(Map.class));
+        verify(topologyService).setDataLogger(eq(slave1), eq(dataLogger), eq(Instant.ofEpochMilli(slaveInfo1.linkingTimeStamp)), any(Map.class), any(Map.class));
     }
 
     @Test
@@ -1507,7 +1507,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         slaveInfo1.yearOfCertification = 1960;
         slaveInfo1.version = 1;
         slaveInfo1.dataLoggerSlaveChannelInfos = Collections.singletonList(channelMappingForSlave1);
-        slaveInfo1.arrivalTimeStamp = Instant.now().getEpochSecond();
+        slaveInfo1.linkingTimeStamp = Instant.now().toEpochMilli();
 
         DeviceInfo info = new DeviceInfo();
         info.id = 1L;
@@ -1519,13 +1519,13 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(topologyService.getSlaveChannel(eq(dataLoggerChannel), any(Instant.class))).thenReturn(Optional.of(slaveChannel1));
         Mockito.doThrow(DataLoggerLinkException.noPhysicalChannelForReadingType(thesaurus, readingType))
                 .when(topologyService)
-                .setDataLogger(eq(slave1), eq(dataLogger), eq(Instant.ofEpochSecond(slaveInfo1.arrivalTimeStamp)), any(Map.class), any(Map.class));
+                .setDataLogger(eq(slave1), eq(dataLogger), eq(Instant.ofEpochMilli(slaveInfo1.linkingTimeStamp)), any(Map.class), any(Map.class));
 
 
         Response response = target("/devices/1").request().put(Entity.json(info));
 
         // Simulating a mismatch between mdc-channels and pulse channels: e.g. pulse channel having the mdc-channels' readingtype does not exist
-        verify(topologyService).setDataLogger(eq(slave1), eq(dataLogger), eq(Instant.ofEpochSecond(slaveInfo1.arrivalTimeStamp)), any(Map.class), any(Map.class));
+        verify(topologyService).setDataLogger(eq(slave1), eq(dataLogger), eq(Instant.ofEpochMilli(slaveInfo1.linkingTimeStamp)), any(Map.class), any(Map.class));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         assertThat(response.hasEntity()).isTrue();
@@ -1714,7 +1714,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         DataLoggerSlaveDeviceInfo slaveInfo1 = new DataLoggerSlaveDeviceInfo();
         Instant now = Instant.now();
-        slaveInfo1.arrivalTimeStamp = now.getEpochSecond();
+        slaveInfo1.linkingTimeStamp = now.toEpochMilli();
         slaveInfo1.dataLoggerSlaveChannelInfos = Collections.singletonList(channelMappingForSlave1);
 
         DeviceInfo info = new DeviceInfo();
@@ -1759,7 +1759,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         DataLoggerSlaveDeviceInfo slaveInfo1 = new DataLoggerSlaveDeviceInfo();
         Instant now = Instant.now();
-        slaveInfo1.arrivalTimeStamp = now.getEpochSecond();
+        slaveInfo1.linkingTimeStamp = now.toEpochMilli();
         slaveInfo1.dataLoggerSlaveChannelInfos = Collections.singletonList(channelMappingForSlave1);
 
         DeviceInfo info = new DeviceInfo();
@@ -1839,7 +1839,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         slaveInfo1.yearOfCertification = 1960;
         slaveInfo1.version = 1;
         slaveInfo1.dataLoggerSlaveRegisterInfos = Collections.singletonList(registerMappingForSlave1);
-        slaveInfo1.arrivalTimeStamp = Instant.now().getEpochSecond();
+        slaveInfo1.linkingTimeStamp = Instant.now().toEpochMilli();
 
         DeviceInfo info = new DeviceInfo();
         info.id = 1L;
@@ -1853,7 +1853,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         Response response = target("/devices/1").request().put(Entity.json(info));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(topologyService).setDataLogger(eq(slave1), eq(dataLogger), eq(Instant.ofEpochSecond(slaveInfo1.arrivalTimeStamp)), any(Map.class), any(Map.class));
+        verify(topologyService).setDataLogger(eq(slave1), eq(dataLogger), eq(Instant.ofEpochMilli(slaveInfo1.linkingTimeStamp)), any(Map.class), any(Map.class));
     }
 
     @Test
@@ -1941,7 +1941,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         slaveInfo1.version = 1;
         slaveInfo1.dataLoggerSlaveChannelInfos = Collections.singletonList(channelMappingForSlave1);
         slaveInfo1.dataLoggerSlaveRegisterInfos = Collections.singletonList(registerMappingForSlave1);
-        slaveInfo1.arrivalTimeStamp = Instant.now().getEpochSecond();
+        slaveInfo1.linkingTimeStamp = Instant.now().toEpochMilli();
 
         DeviceInfo info = new DeviceInfo();
         info.id = 1L;
@@ -1956,7 +1956,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         Response response = target("/devices/1").request().put(Entity.json(info));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(topologyService).setDataLogger(eq(slave1), eq(dataLogger), eq(Instant.ofEpochSecond(slaveInfo1.arrivalTimeStamp)) , any(Map.class), any(Map.class));
+        verify(topologyService).setDataLogger(eq(slave1), eq(dataLogger), eq(Instant.ofEpochMilli(slaveInfo1.linkingTimeStamp)) , any(Map.class), any(Map.class));
     }
 
 
@@ -2026,7 +2026,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         slaveInfo1.yearOfCertification = 1960;
         slaveInfo1.version = 1;
         slaveInfo1.dataLoggerSlaveRegisterInfos = Collections.singletonList(registerMappingForSlave1);
-        slaveInfo1.arrivalTimeStamp = Instant.now().getEpochSecond();
+        slaveInfo1.linkingTimeStamp = Instant.now().toEpochMilli();
 
         DeviceInfo info = new DeviceInfo();
         info.id = 1L;
@@ -2038,12 +2038,12 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(topologyService.getSlaveRegister(eq(dataLoggerRegister), any(Instant.class))).thenReturn(Optional.of(slaveRegister1));
         Mockito.doThrow(DataLoggerLinkException.noPhysicalChannelForReadingType(thesaurus, readingType))
                 .when(topologyService)
-                .setDataLogger(eq(slave1), eq(dataLogger), eq(Instant.ofEpochSecond(slaveInfo1.arrivalTimeStamp)), any(Map.class), any(Map.class));
+                .setDataLogger(eq(slave1), eq(dataLogger), eq(Instant.ofEpochMilli(slaveInfo1.linkingTimeStamp)), any(Map.class), any(Map.class));
 
         Response response = target("/devices/1").request().put(Entity.json(info));
 
         // Simulating a mismatch between mdc-channels and pulse channels: e.g. pulse channel having the mdc-channels' readingtype does not exist
-        verify(topologyService).setDataLogger(eq(slave1), eq(dataLogger), eq(Instant.ofEpochSecond(slaveInfo1.arrivalTimeStamp)), any(Map.class), any(Map.class));
+        verify(topologyService).setDataLogger(eq(slave1), eq(dataLogger), eq(Instant.ofEpochMilli(slaveInfo1.linkingTimeStamp)), any(Map.class), any(Map.class));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         assertThat(response.hasEntity()).isTrue();
@@ -2088,7 +2088,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         DataLoggerSlaveDeviceInfo slaveInfo1 = new DataLoggerSlaveDeviceInfo();
         slaveInfo1.id = 111L;
         Instant now = Instant.now();
-        slaveInfo1.terminationTimeStamp = now.getEpochSecond();
+        slaveInfo1.unlinkingTimeStamp = now.getEpochSecond();
         slaveInfo1.dataLoggerSlaveChannelInfos = Collections.singletonList(channelMappingForSlave1);
 
         DeviceInfo info = new DeviceInfo();
@@ -2104,7 +2104,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         Response response = target("/devices/1").request().put(Entity.json(info));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(topologyService, times(1)).clearDataLogger(slave1, Instant.ofEpochSecond(slaveInfo1.terminationTimeStamp));
+        verify(topologyService, times(1)).clearDataLogger(slave1, Instant.ofEpochSecond(slaveInfo1.unlinkingTimeStamp));
     }
 
     private NumericalRegister prepareMockedRegister(NumericalRegister mockedRegister, Device device) {

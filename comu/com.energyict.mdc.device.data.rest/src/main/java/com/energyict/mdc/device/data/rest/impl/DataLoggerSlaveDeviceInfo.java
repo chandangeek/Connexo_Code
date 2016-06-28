@@ -2,7 +2,6 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.energyict.mdc.device.data.Device;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,9 +23,11 @@ public class DataLoggerSlaveDeviceInfo {
     public String serialNumber;
     public int yearOfCertification;
     public long version;
-    public long arrivalTimeStamp;
-    public long terminationTimeStamp = -1L;
-    private boolean fromExistingLink;
+    public long shipmentTimeStamp;
+    public long linkingTimeStamp;
+    public long unlinkingTimeStamp = -1L;
+    private boolean fromExistingLink;      // as indicator that this dataloggerSlaveDeviceInfo was created when creating its parent Device Info (Should not be taken into account whe
+                                            // updating the device (with an updated device info)
 
     public List<DataLoggerSlaveChannelInfo> dataLoggerSlaveChannelInfos;   //mapping slave channel to data logger channel
     public List<DataLoggerSlaveRegisterInfo> dataLoggerSlaveRegisterInfos;   //mapping slave register to data logger register
@@ -56,8 +57,8 @@ public class DataLoggerSlaveDeviceInfo {
         return is(mRID).emptyOrOnlyWhiteSpace();
     }
 
-    public boolean terminating(){
-        return terminationTimeStamp >= 0;
+    public boolean unlinked(){
+        return unlinkingTimeStamp >= 0;
     }
 
     public boolean isFromExistingLink(){
@@ -75,6 +76,7 @@ public class DataLoggerSlaveDeviceInfo {
         info.yearOfCertification = device.getYearOfCertification();
         info.version = device.getVersion();
         info.fromExistingLink = true;
+        device.getLifecycleDates().getReceivedDate().ifPresent((shipmentDate) -> info.shipmentTimeStamp = shipmentDate.toEpochMilli());
         return info;
     }
 
