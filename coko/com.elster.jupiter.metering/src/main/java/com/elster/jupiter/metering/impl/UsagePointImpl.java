@@ -121,7 +121,6 @@ public class UsagePointImpl implements UsagePoint {
     private final List<UsagePointAccountability> accountabilities = new ArrayList<>();
     private List<UsagePointConfigurationImpl> usagePointConfigurations = new ArrayList<>();
     private final Reference<Location> upLocation = ValueReference.absent();
-    //private final Reference<GeoCoordinates> spatialCoordinates = ValueReference.absent();
 
     private final Clock clock;
     private final DataModel dataModel;
@@ -616,7 +615,7 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
-    public Optional<SpatialCoordinates> getSpatialCooridnates() {
+    public Optional<SpatialCoordinates> getSpatialCoordinates() {
         return spatialCoordinates == null ? Optional.empty() : Optional.of(spatialCoordinates);
     }
 
@@ -633,10 +632,10 @@ public class UsagePointImpl implements UsagePoint {
     @Override
     public Optional<MeterActivation> getMeterActivation(Instant when) {
         return getMeterActivations(when).stream()
-                .filter(ma -> ma.getMeterRole().isPresent() && ma.getMeterRole()
-                        .get()
-                        .getKey()
-                        .equals(DefaultMeterRole.DEFAULT.getKey()))
+                .filter(ma -> ma.getMeterRole()
+                        .map(MeterRole::getKey)
+                        .map(DefaultMeterRole.DEFAULT.getKey()::equals)
+                        .orElse(true))
                 .findFirst();
     }
 
@@ -761,9 +760,9 @@ public class UsagePointImpl implements UsagePoint {
                     }
                     if (spatialCoordinates!=null) {
                         dataModel.mapper(UsagePoint.class).getOptional(this.getId()).ifPresent(up -> {
-                            if (up.getSpatialCooridnates().isPresent()) {
+                            if (up.getSpatialCoordinates().isPresent()) {
                                 if (!meter.getSpatialCoordinates().isPresent() || meter.getSpatialCoordinates()
-                                        .get().equals(up.getSpatialCooridnates().get())) {
+                                        .get().equals(up.getSpatialCoordinates().get())) {
                                     meter.setSpatialCoordinates(spatialCoordinates);
                                 }
                             } else {

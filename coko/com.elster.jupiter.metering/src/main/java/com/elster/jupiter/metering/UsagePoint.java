@@ -120,7 +120,7 @@ public interface UsagePoint extends HasId, IdentifiedObject {
 
     void setLocation(long locationId);
 
-    Optional<SpatialCoordinates> getSpatialCooridnates();
+    Optional<SpatialCoordinates> getSpatialCoordinates();
 
     void setSpatialCoordinates(SpatialCoordinates spatialCoordinates);
 

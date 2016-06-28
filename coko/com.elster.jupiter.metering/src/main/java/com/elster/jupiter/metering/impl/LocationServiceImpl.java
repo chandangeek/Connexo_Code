@@ -5,6 +5,7 @@ import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -19,8 +20,10 @@ import java.util.Optional;
 public class LocationServiceImpl implements LocationService {
 
     private volatile DataModel dataModel;
+    private volatile MeteringService meteringService;
 
-    public LocationServiceImpl(){}
+    public LocationServiceImpl() {
+    }
 
     @Inject
     public LocationServiceImpl(OrmService ormService) {
@@ -28,23 +31,19 @@ public class LocationServiceImpl implements LocationService {
     }
 
     @Reference
+    public final void setMeteringService(MeteringService meteringService) {
+        this.meteringService = meteringService;
+    }
+
+    @Reference
     public final void setOrmService(OrmService ormService) {
-        //dataModel = ormService.newDataModel(MeteringService.COMPONENTNAME, "Location");
+        //dataModel = ormService.newDataModel(MeteringService.COMPONENTNAME, "LocationService");
         ormService.getDataModel("MTR").ifPresent(found ->
-            this.dataModel = found);
+                this.dataModel = found);
     }
 
     @Activate
     public final void activate() {
-        System.out.println("LocationService bundle activating");
-       /* dataModel.register(new AbstractModule() {
-            @Override
-            protected void configure() {
-                //bind(LocationServiceImpl.class).toInstance(LocationServiceImpl.this);
-                bind(LocationService.class).toInstance(LocationServiceImpl.this);
-                bind(DataModel.class).toInstance(dataModel);
-            }
-        }); */
     }
 
     @Override

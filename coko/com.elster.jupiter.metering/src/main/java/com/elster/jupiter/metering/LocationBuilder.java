@@ -12,7 +12,7 @@ public interface LocationBuilder {
     LocationBuilder named(String name);
 
     LocationMemberBuilder member();
-    Optional<LocationMemberBuilder> getMember(String locale);
+    Optional<LocationMemberBuilder> getMemberBuilder(String locale);
 
     /**
      * Intermediate builder for members

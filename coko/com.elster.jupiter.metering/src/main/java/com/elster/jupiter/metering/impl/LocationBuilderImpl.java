@@ -3,7 +3,9 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.LocationBuilder;
+import com.elster.jupiter.metering.LocationMember;
 import com.elster.jupiter.orm.DataModel;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -38,17 +40,11 @@ public class LocationBuilderImpl implements LocationBuilder {
     }
 
 
-
-    public Optional<LocationMemberBuilder> getMember(String locale) {
+    public Optional<LocationMemberBuilder> getMemberBuilder(String locale) {
         Optional<LocationMemberBuilderImpl> member = members.stream()
                 .filter(location -> location.getLocale().equalsIgnoreCase(locale))
                 .findFirst();
-        if(member.isPresent()){
-            return Optional.of(member.get());
-        }
-        return Optional.empty();
-
-
+        return member.map(LocationMemberBuilder.class::cast);
     }
 
 
@@ -98,7 +94,7 @@ public class LocationBuilderImpl implements LocationBuilder {
 
         @Override
         public LocationMemberBuilder setAdministrativeArea(String administrativeArea) {
-            this.administrativeArea=administrativeArea;
+            this.administrativeArea = administrativeArea;
             return this;
         }
 
@@ -188,15 +184,16 @@ public class LocationBuilderImpl implements LocationBuilder {
 
 
         @Override
-        public String getLocale(){
+        public String getLocale() {
             return this.locale;
         }
 
-
         private LocationMemberImpl createMember(LocationImpl location) {
-            return location.setMember (countryCode, countryName,
-                            administrativeArea,locality,subLocality,streetType,streetName,streetNumber,establishmentType,
-                            establishmentName,establishmentNumber,addressDetail,zipCode,defaultLocation,locale);
+            LocationMemberImpl locationMember = LocationMemberImpl.from(dataModel, location.getId(), countryCode, countryName, administrativeArea, locality, subLocality,
+                    streetType, streetName, streetNumber, establishmentType, establishmentName, establishmentNumber, addressDetail, zipCode,
+                    defaultLocation, locale);
+            locationMember.doSave();
+            return locationMember;
         }
     }
 }

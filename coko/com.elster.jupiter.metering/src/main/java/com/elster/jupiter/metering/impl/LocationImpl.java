@@ -1,6 +1,5 @@
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.LocationMember;
 import com.elster.jupiter.metering.MeteringService;
@@ -8,7 +7,14 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.conditions.Operator;
 
 import javax.inject.Inject;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class LocationImpl implements Location {
@@ -20,7 +26,7 @@ public class LocationImpl implements Location {
 
 
     @Inject
-    LocationImpl(DataModel dataModel,  MeteringService meteringService) {
+    LocationImpl(DataModel dataModel, MeteringService meteringService) {
         this.dataModel = dataModel;
         this.meteringService = meteringService;
     }
@@ -61,28 +67,6 @@ public class LocationImpl implements Location {
         return id != 0L;
     }
 
-    LocationMemberImpl setMember(String countryCode,
-                                        String countryName,
-                                        String administrativeArea,
-                                        String locality,
-                                        String subLocality,
-                                        String streetType,
-                                        String streetName,
-                                        String streetNumber,
-                                        String establishmentType,
-                                        String establishmentName,
-                                        String establishmentNumber,
-                                        String addressDetail,
-                                        String zipCode,
-                                        boolean defaultLocation,
-                                        String locale) {
-        LocationMemberImpl locationMember = LocationMemberImpl.from(dataModel, this.getId(), countryCode, countryName, administrativeArea, locality, subLocality,
-                streetType, streetName, streetNumber, establishmentType, establishmentName, establishmentNumber, addressDetail, zipCode,
-                defaultLocation, locale);
-        locationMember.doSave();
-        return locationMember;
-    }
-
     LocationMemberImpl add(LocationMemberImpl member) {
         members.add(member);
         return member;
@@ -90,8 +74,12 @@ public class LocationImpl implements Location {
 
     @Override
     public final boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof LocationImpl)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof LocationImpl)) {
+            return false;
+        }
         LocationImpl kpi = (LocationImpl) o;
         return Objects.equals(id, kpi.id);
     }
@@ -102,15 +90,14 @@ public class LocationImpl implements Location {
     }
 
     @Override
-    public final String toString(){
+    public final String toString() {
         return this.format().stream()
                 .flatMap(List::stream).filter(Objects::nonNull).collect(Collectors.joining(", "));
 
     }
 
     @Override
-
-    public List<List<String>> format(){
+    public List<List<String>> format() {
         List<LocationMember> members = dataModel.query(LocationMember.class)
                 .select(Operator.EQUAL.compare("locationId", id));
         List<List<String>> formattedLocation = new LinkedList<>();

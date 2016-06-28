@@ -398,7 +398,7 @@ public class MeteringConsoleCommands {
             IntStream.range(0, args.length)
                     .forEach(i -> location.put(templateElements.get(i), args[i]));
             LocationBuilder builder = new LocationBuilderImpl(dataModel);
-            Optional<LocationMemberBuilder> memberBuilder = builder.getMember(location.get("locale"));
+            Optional<LocationMemberBuilder> memberBuilder = builder.getMemberBuilder(location.get("locale"));
             if (memberBuilder.isPresent()) {
                 setLocationAttributes(memberBuilder.get(), location);
 
