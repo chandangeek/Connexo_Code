@@ -7,7 +7,6 @@ import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimplv2.ace4000.objects.ObjectFactory;
-import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 import com.energyict.protocolimplv2.security.NoOrPasswordSecuritySupport;
 
 import java.util.ArrayList;
@@ -45,12 +44,10 @@ public abstract class ACE4000 extends NoOrPasswordSecuritySupport implements Ser
     //Used by both inbound and outbound protocols
     protected ObjectFactory objectFactory;
 
+    public abstract DeviceIdentifier getDeviceIdentifier();
+
     public ACE4000Connection getAce4000Connection() {
         return ace4000Connection;
-    }
-
-    public DeviceIdentifier getDeviceIdentifier() {
-        return new DialHomeIdDeviceIdentifier(serialNumber);
     }
 
     public String getSerialNumber() {

@@ -43,10 +43,7 @@ public enum LogBookDeviceMessage implements DeviceMessageSpec {
     ResetCommunicationLogbook(15),
     ResetLQILogbook(16),
     ResetVoltageCutLogbook(17),
-    ReadLogBook(18,
-            PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.fromDateAttributeName),
-            PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.toDateAttributeName)
-    );
+    ReadLogBook(18);
 
     private static final DeviceMessageCategory category = DeviceMessageCategories.LOG_BOOKS;
 

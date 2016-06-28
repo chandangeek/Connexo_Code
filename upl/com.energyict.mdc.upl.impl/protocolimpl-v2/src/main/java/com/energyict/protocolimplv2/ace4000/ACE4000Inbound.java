@@ -4,10 +4,12 @@ import com.energyict.mdc.meterdata.CollectedData;
 import com.energyict.mdc.meterdata.CollectedLogBook;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.inbound.BinaryInboundDeviceProtocol;
+import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.tasks.support.DeviceLoadProfileSupport;
 import com.energyict.mdw.core.LogBookTypeFactory;
 import com.energyict.protocolimplv2.ace4000.objects.ObjectFactory;
+import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 import com.energyict.protocolimplv2.identifiers.LogBookIdentifierByObisCodeAndDevice;
 
 import java.util.ArrayList;
@@ -85,7 +87,7 @@ public class ACE4000Inbound extends ACE4000 implements BinaryInboundDeviceProtoc
     }
 
     public String getVersion() {
-        return "$Date: 2016-06-23 18:11:25 +0200 (Thu, 23 Jun 2016)$";
+        return "$Date: 2016-06-28 15:46:16 +0200 (Tue, 28 Jun 2016)$";
     }
 
     /**
@@ -114,6 +116,10 @@ public class ACE4000Inbound extends ACE4000 implements BinaryInboundDeviceProtoc
     @Override
     public void initComChannel(ComChannel comChannel) {
         setAce4000Connection(new ACE4000Connection(comChannel, this, true));
+    }
+
+    public DeviceIdentifier getDeviceIdentifier() {
+        return new DialHomeIdDeviceIdentifier(serialNumber);
     }
 
     /**
