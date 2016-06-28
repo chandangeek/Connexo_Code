@@ -2,6 +2,7 @@ package com.elster.jupiter.orm.fields.impl;
 
 import com.elster.jupiter.orm.impl.ColumnImpl;
 import com.elster.jupiter.util.conditions.Contains;
+import com.elster.jupiter.util.conditions.ListOperator;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -30,7 +31,7 @@ public class ColumnContainsFragment extends ColumnFragment {
 	@SuppressWarnings("unused")
 	@Override
 	public String getText() {
-		return contains.getCollection().isEmpty() ? "1=0" : decorate(contains.getCollection().stream()).partitionPer(1000)
+		return contains.getCollection().isEmpty() ? (ListOperator.IN.equals(contains.getOperator()) ? "1=0" : "1=1") : decorate(contains.getCollection().stream()).partitionPer(1000)
 				.map(this::getSqlText)
 				.collect(Collectors.joining(" OR ", "(", ")"));
 	}
