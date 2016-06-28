@@ -25,13 +25,15 @@ import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.config.AggregationLevel;
+import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.Formula;
-import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableBuilder;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
@@ -109,6 +111,7 @@ public class DataAggregationServiceImplExpertModeIT {
     private static ReadingType ENERGY_daily;
     private static ServiceCategory ELECTRICITY;
     private static MetrologyPurpose METROLOGY_PURPOSE;
+    private static MeterRole METER_ROLE;
     private static Instant jan1st2016 = Instant.ofEpochMilli(1451602800000L);
     private static SqlBuilderFactory sqlBuilderFactory = mock(SqlBuilderFactory.class);
     private static ClauseAwareSqlBuilder clauseAwareSqlBuilder = mock(ClauseAwareSqlBuilder.class);
@@ -120,8 +123,7 @@ public class DataAggregationServiceImplExpertModeIT {
     @Rule
     public TransactionalRule transactionalRule = new TransactionalRule(injector.getInstance(TransactionService.class));
 
-    private MetrologyConfiguration configuration;
-    private MetrologyPurpose metrologyPurpose;
+    private UsagePointMetrologyConfiguration configuration;
     private MetrologyContract contract;
     private SqlBuilder temperatureWithClauseBuilder;
     private SqlBuilder pressureWithClauseBuilder;
@@ -185,7 +187,8 @@ public class DataAggregationServiceImplExpertModeIT {
                     new BpmModule(),
                     new FiniteStateMachineModule(),
                     new NlsModule(),
-                    new CustomPropertySetsModule()
+                    new CustomPropertySetsModule(),
+                    new BasicPropertiesModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -237,6 +240,9 @@ public class DataAggregationServiceImplExpertModeIT {
             when(description.getComponent()).thenReturn(MeteringService.COMPONENTNAME);
             when(description.getLayer()).thenReturn(Layer.DOMAIN);
             METROLOGY_PURPOSE = getMetrologyConfigurationService().createMetrologyPurpose(name, description);
+            ELECTRICITY = getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
+            METER_ROLE = getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT);
+            ELECTRICITY.addMeterRole(METER_ROLE);
             ctx.commit();
         }
     }
@@ -301,14 +307,15 @@ public class DataAggregationServiceImplExpertModeIT {
         this.activateMeter();
 
         // Setup MetrologyConfiguration
-        this.configuration = getMetrologyConfigurationService().newMetrologyConfiguration("energyFromGasVolume", ELECTRICITY).create();
+        this.configuration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("energyFromGasVolume", ELECTRICITY).create();
+        this.configuration.addMeterRole(METER_ROLE);
 
         // Setup configuration requirements
-        ReadingTypeRequirement temperature = this.configuration.newReadingTypeRequirement("T").withReadingType(CELCIUS_15min);
+        ReadingTypeRequirement temperature = this.configuration.newReadingTypeRequirement("T").withMeterRole(METER_ROLE).withReadingType(CELCIUS_15min);
         this.temperatureRequirementId = temperature.getId();
-        ReadingTypeRequirement pressure = this.configuration.newReadingTypeRequirement("P").withReadingType(PRESSURE_15min);
+        ReadingTypeRequirement pressure = this.configuration.newReadingTypeRequirement("P").withMeterRole(METER_ROLE).withReadingType(PRESSURE_15min);
         this.pressureRequirementId = pressure.getId();
-        ReadingTypeRequirement volume = this.configuration.newReadingTypeRequirement("V").withReadingType(VOLUME_15min);
+        ReadingTypeRequirement volume = this.configuration.newReadingTypeRequirement("V").withMeterRole(METER_ROLE).withReadingType(VOLUME_15min);
         this.volumeRequirementId = volume.getId();
 
         // Setup configuration deliverables
@@ -344,27 +351,27 @@ public class DataAggregationServiceImplExpertModeIT {
             // Asserts:
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + temperatureRequirementId + ".*" + deliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + temperatureRequirementId + ".*" + deliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(temperatureWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + pressureRequirementId + ".*" + deliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + pressureRequirementId + ".*" + deliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(pressureWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + volumeRequirementId + ".*" + deliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + volumeRequirementId + ".*" + deliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(volumeWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rod" + deliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rod" + deliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             // Assert that one of the requirements is used as source for the timeline
             String deliverableWithClauseSql = this.deliverableWithClauseBuilder.getText().replace("\n", " ");
             assertThat(deliverableWithClauseSql)
@@ -410,14 +417,15 @@ public class DataAggregationServiceImplExpertModeIT {
         this.activateMeter();
 
         // Setup MetrologyConfiguration
-        this.configuration = getMetrologyConfigurationService().newMetrologyConfiguration("energyFromGasVolume", ELECTRICITY).create();
+        this.configuration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("energyFromGasVolume", ELECTRICITY).create();
+        this.configuration.addMeterRole(METER_ROLE);
 
         // Setup configuration requirements
-        ReadingTypeRequirement temperature = this.configuration.newReadingTypeRequirement("T").withReadingType(CELCIUS_15min);
+        ReadingTypeRequirement temperature = this.configuration.newReadingTypeRequirement("T").withMeterRole(METER_ROLE).withReadingType(CELCIUS_15min);
         this.temperatureRequirementId = temperature.getId();
-        ReadingTypeRequirement pressure = this.configuration.newReadingTypeRequirement("P").withReadingType(PRESSURE_15min);
+        ReadingTypeRequirement pressure = this.configuration.newReadingTypeRequirement("P").withMeterRole(METER_ROLE).withReadingType(PRESSURE_15min);
         this.pressureRequirementId = pressure.getId();
-        ReadingTypeRequirement volume = this.configuration.newReadingTypeRequirement("V").withReadingType(VOLUME_15min);
+        ReadingTypeRequirement volume = this.configuration.newReadingTypeRequirement("V").withMeterRole(METER_ROLE).withReadingType(VOLUME_15min);
         this.volumeRequirementId = volume.getId();
 
         // Setup configuration deliverables
@@ -427,18 +435,18 @@ public class DataAggregationServiceImplExpertModeIT {
                 Formula.Mode.EXPERT);
         ReadingTypeDeliverable energy =
                 builder.build(
-                    builder.aggregate(   // Note how the expert is required to define when the aggregation is done
-                        builder.multiply(
-                            builder.constant(BigDecimal.valueOf(40L)),   // calorific value
-                            builder.multiply(
-                                builder.requirement(volume),
+                        builder.aggregate(   // Note how the expert is required to define when the aggregation is done
                                 builder.multiply(
-                                    builder.divide(
-                                        builder.requirement(temperature),
-                                        builder.requirement(pressure)),
-                                    builder.divide(
-                                        builder.constant(BigDecimal.valueOf(101325L, 2)),    // 1013,25 normal pressure at sea level
-                                        builder.constant(BigDecimal.valueOf(15L))))))));     // 15 normalized gas is measured at 15 °Celcius
+                                        builder.constant(BigDecimal.valueOf(40L)),   // calorific value
+                                        builder.multiply(
+                                                builder.requirement(volume),
+                                                builder.multiply(
+                                                        builder.divide(
+                                                                builder.requirement(temperature),
+                                                                builder.requirement(pressure)),
+                                                        builder.divide(
+                                                                builder.constant(BigDecimal.valueOf(101325L, 2)),    // 1013,25 normal pressure at sea level
+                                                                builder.constant(BigDecimal.valueOf(15L))))))));     // 15 normalized gas is measured at 15 °Celcius
         this.deliverableId = energy.getId();
 
         // Now that all requirements and deliverables have been created, we can mock the SqlBuilders
@@ -458,27 +466,27 @@ public class DataAggregationServiceImplExpertModeIT {
             // Asserts:
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + temperatureRequirementId + ".*" + deliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + temperatureRequirementId + ".*" + deliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(temperatureWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + pressureRequirementId + ".*" + deliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + pressureRequirementId + ".*" + deliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(pressureWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + volumeRequirementId + ".*" + deliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + volumeRequirementId + ".*" + deliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(volumeWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rod" + deliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rod" + deliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             // Assert that one of the requirements is used as source for the timeline
             String deliverableWithClauseSql = this.deliverableWithClauseBuilder.getText().replace("\n", " ");
             assertThat(deliverableWithClauseSql).startsWith("SELECT -1,");
@@ -530,16 +538,17 @@ public class DataAggregationServiceImplExpertModeIT {
         this.activateMeter();
 
         // Setup MetrologyConfiguration
-        this.configuration = getMetrologyConfigurationService().newMetrologyConfiguration("energyFromGasVolume", ELECTRICITY).create();
+        this.configuration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("energyFromGasVolume", ELECTRICITY).create();
+        this.configuration.addMeterRole(METER_ROLE);
 
         // Setup configuration requirements
-        ReadingTypeRequirement temperature = this.configuration.newReadingTypeRequirement("T").withReadingType(CELCIUS_15min);
+        ReadingTypeRequirement temperature = this.configuration.newReadingTypeRequirement("T").withMeterRole(METER_ROLE).withReadingType(CELCIUS_15min);
         this.temperatureRequirementId = temperature.getId();
         System.out.println("temperatureRequirementId = " + this.temperatureRequirementId);
-        ReadingTypeRequirement pressure = this.configuration.newReadingTypeRequirement("P").withReadingType(PRESSURE_15min);
+        ReadingTypeRequirement pressure = this.configuration.newReadingTypeRequirement("P").withMeterRole(METER_ROLE).withReadingType(PRESSURE_15min);
         this.pressureRequirementId = pressure.getId();
         System.out.println("pressureRequirementId = " + this.pressureRequirementId);
-        ReadingTypeRequirement volume = this.configuration.newReadingTypeRequirement("V").withReadingType(VOLUME_15min);
+        ReadingTypeRequirement volume = this.configuration.newReadingTypeRequirement("V").withMeterRole(METER_ROLE).withReadingType(VOLUME_15min);
         this.volumeRequirementId = volume.getId();
         System.out.println("volumeRequirementId = " + this.volumeRequirementId);
 
@@ -550,17 +559,17 @@ public class DataAggregationServiceImplExpertModeIT {
                 Formula.Mode.EXPERT);
         ReadingTypeDeliverable energy =
                 builder.build(
-                    builder.multiply(
-                        builder.constant(BigDecimal.valueOf(40L)),   // calorific value
                         builder.multiply(
-                            builder.sum(AggregationLevel.DAY, builder.requirement(volume)),
-                            builder.multiply(
-                                builder.divide(
-                                    builder.average(AggregationLevel.DAY, builder.requirement(temperature)),
-                                    builder.requirement(pressure)),
-                                builder.divide(
-                                    builder.constant(BigDecimal.valueOf(101325L, 2)),    // 1013,25 normal pressure at sea level
-                                    builder.constant(BigDecimal.valueOf(15L)))))));     // 15 normalized gas is measured at 15 °Celcius
+                                builder.constant(BigDecimal.valueOf(40L)),   // calorific value
+                                builder.multiply(
+                                        builder.sum(AggregationLevel.DAY, builder.requirement(volume)),
+                                        builder.multiply(
+                                                builder.divide(
+                                                        builder.average(AggregationLevel.DAY, builder.requirement(temperature)),
+                                                        builder.requirement(pressure)),
+                                                builder.divide(
+                                                        builder.constant(BigDecimal.valueOf(101325L, 2)),    // 1013,25 normal pressure at sea level
+                                                        builder.constant(BigDecimal.valueOf(15L)))))));     // 15 normalized gas is measured at 15 °Celcius
         this.deliverableId = energy.getId();
 
         // Now that all requirements and deliverables have been created, we can mock the SqlBuilders
@@ -580,27 +589,27 @@ public class DataAggregationServiceImplExpertModeIT {
             // Asserts:
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + temperatureRequirementId + ".*" + deliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + temperatureRequirementId + ".*" + deliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(temperatureWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + pressureRequirementId + ".*" + deliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + pressureRequirementId + ".*" + deliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(pressureWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + volumeRequirementId + ".*" + deliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + volumeRequirementId + ".*" + deliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(volumeWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rod" + deliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rod" + deliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             // Assert that one of the requirements is used as source for the timeline
             String deliverableWithClauseSql = this.deliverableWithClauseBuilder.getText().replace("\n", " ");
             assertThat(deliverableWithClauseSql).startsWith("SELECT -1,");
@@ -649,9 +658,9 @@ public class DataAggregationServiceImplExpertModeIT {
 
     private void activateMeter() {
         this.meterActivation = this.usagePoint.activate(this.meter, jan1st2016);
-        this.temperatureChannel = this.meterActivation.createChannel(CELCIUS_15min);
-        this.pressureChannel = this.meterActivation.createChannel(PRESSURE_15min);
-        this.volumeChannel = this.meterActivation.createChannel(VOLUME_15min);
+        this.temperatureChannel = this.meterActivation.getChannelsContainer().createChannel(CELCIUS_15min);
+        this.pressureChannel = this.meterActivation.getChannelsContainer().createChannel(PRESSURE_15min);
+        this.volumeChannel = this.meterActivation.getChannelsContainer().createChannel(VOLUME_15min);
     }
 
     private String mRID2GrepPattern(String mRID) {

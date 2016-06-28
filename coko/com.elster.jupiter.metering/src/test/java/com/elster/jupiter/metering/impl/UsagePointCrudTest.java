@@ -106,7 +106,8 @@ public class UsagePointCrudTest {
                 new BpmModule(),
                 new FiniteStateMachineModule(),
                 new NlsModule(),
-                new CustomPropertySetsModule()
+                new CustomPropertySetsModule(),
+                new BasicPropertiesModule()
         );
         injector.getInstance(TransactionService.class).execute(() -> {
             injector.getInstance(CustomPropertySetService.class);

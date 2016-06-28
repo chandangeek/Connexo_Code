@@ -118,7 +118,7 @@ class VirtualRequirementNode implements ServerExpressionNode {
     }
 
     private String verboseAvailableMainReadingTypesOnMeterActivation(MeterActivation meterActivation) {
-        List<Channel> channels = meterActivation.getChannels();
+        List<Channel> channels = meterActivation.getChannelsContainer().getChannels();
         if (!channels.isEmpty()) {
             return "The following (main) reading types are available:\n\t"
                  + channels

@@ -135,7 +135,8 @@ public class UsagePointConfigurationIT {
                     new BpmModule(),
                     new FiniteStateMachineModule(),
                     new NlsModule(),
-                    new CustomPropertySetsModule()
+                    new CustomPropertySetsModule(),
+                    new BasicPropertiesModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);

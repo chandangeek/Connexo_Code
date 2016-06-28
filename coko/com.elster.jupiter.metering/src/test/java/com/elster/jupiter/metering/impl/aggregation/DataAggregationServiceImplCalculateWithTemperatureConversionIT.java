@@ -24,13 +24,16 @@ import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
+import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.Formula;
+import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableBuilder;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.impl.config.ServerFormulaBuilder;
@@ -109,6 +112,7 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
     private static ReadingType F_daily;
     private static ServiceCategory ELECTRICITY;
     private static MetrologyPurpose METROLOGY_PURPOSE;
+    private static MeterRole METER_ROLE;
     private static Instant jan1st2016 = Instant.ofEpochMilli(1451602800000L);
     private static SqlBuilderFactory sqlBuilderFactory = mock(SqlBuilderFactory.class);
     private static ClauseAwareSqlBuilder clauseAwareSqlBuilder = mock(ClauseAwareSqlBuilder.class);
@@ -120,7 +124,7 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
     public TransactionalRule transactionalRule = new TransactionalRule(injector.getInstance(TransactionService.class));
 
     @Mock
-    private MetrologyConfiguration configuration;
+    private UsagePointMetrologyConfiguration configuration;
     @Mock
     private MetrologyPurpose metrologyPurpose;
     @Mock
@@ -151,7 +155,6 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
         setupServices();
         setupReadingTypes();
         setupMetrologyPurpose();
-        ELECTRICITY = getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
     }
 
     private static void setupServices() {
@@ -184,7 +187,8 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
                     new BpmModule(),
                     new FiniteStateMachineModule(),
                     new NlsModule(),
-                    new CustomPropertySetsModule()
+                    new CustomPropertySetsModule(),
+                    new BasicPropertiesModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -237,6 +241,9 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
             when(description.getComponent()).thenReturn(MeteringService.COMPONENTNAME);
             when(description.getLayer()).thenReturn(Layer.DOMAIN);
             METROLOGY_PURPOSE = getMetrologyConfigurationService().createMetrologyPurpose(name, description);
+            ELECTRICITY = getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
+            METER_ROLE = getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT);
+            ELECTRICITY.addMeterRole(METER_ROLE);
             ctx.commit();
         }
     }
@@ -293,10 +300,11 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
         this.activateMeterWithKelvin();
 
         // Setup MetrologyConfiguration
-        this.configuration = getMetrologyConfigurationService().newMetrologyConfiguration("kelvinToCelcius", ELECTRICITY).create();
+        this.configuration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("kelvinToCelcius", ELECTRICITY).create();
+        this.configuration.addMeterRole(METER_ROLE);
 
         // Setup configuration requirements
-        ReadingTypeRequirement temperature = this.configuration.newReadingTypeRequirement("T").withReadingType(K_15min);
+        ReadingTypeRequirement temperature = this.configuration.newReadingTypeRequirement("T").withMeterRole(METER_ROLE).withReadingType(K_15min);
         this.temperature1RequirementId = temperature.getId();
 
         // Setup configuration deliverables
@@ -378,10 +386,11 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
         this.activateMeterWithKelvin();
 
         // Setup MetrologyConfiguration
-        this.configuration = getMetrologyConfigurationService().newMetrologyConfiguration("kelvingToFahrenheit", ELECTRICITY).create();
+        this.configuration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("kelvingToFahrenheit", ELECTRICITY).create();
+        this.configuration.addMeterRole(METER_ROLE);
 
         // Setup configuration requirements
-        ReadingTypeRequirement temperature = this.configuration.newReadingTypeRequirement("T").withReadingType(K_15min);
+        ReadingTypeRequirement temperature = this.configuration.newReadingTypeRequirement("T").withMeterRole(METER_ROLE).withReadingType(K_15min);
         this.temperature1RequirementId = temperature.getId();
 
         // Setup configuration deliverables
@@ -464,16 +473,17 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
         this.setupMeter("celciusAndFahrenheitToKelvin");
         this.setupUsagePoint("celciusAndFahrenheitToKelvin");
         this.meterActivation = this.usagePoint.activate(this.meter, jan1st2016);
-        Channel minTChannel = this.meterActivation.createChannel(C_15min);
-        Channel maxTChannel = this.meterActivation.createChannel(F_15min);
+        Channel minTChannel = this.meterActivation.getChannelsContainer().createChannel(C_15min);
+        Channel maxTChannel = this.meterActivation.getChannelsContainer().createChannel(F_15min);
 
         // Setup MetrologyConfiguration
-        this.configuration = getMetrologyConfigurationService().newMetrologyConfiguration("celciusAndFahrenheitToKelvin", ELECTRICITY).create();
+        this.configuration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("celciusAndFahrenheitToKelvin", ELECTRICITY).create();
+        this.configuration.addMeterRole(METER_ROLE);
 
         // Setup configuration requirements
-        ReadingTypeRequirement minTemperature = this.configuration.newReadingTypeRequirement("minT").withReadingType(C_15min);
+        ReadingTypeRequirement minTemperature = this.configuration.newReadingTypeRequirement("minT").withMeterRole(METER_ROLE).withReadingType(C_15min);
         this.temperature1RequirementId = minTemperature.getId();
-        ReadingTypeRequirement maxTemperature = this.configuration.newReadingTypeRequirement("maxT").withReadingType(F_15min);
+        ReadingTypeRequirement maxTemperature = this.configuration.newReadingTypeRequirement("maxT").withMeterRole(METER_ROLE).withReadingType(F_15min);
         this.temperature2RequirementId = maxTemperature.getId();
 
         // Setup configuration deliverables
@@ -578,7 +588,7 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
 
     private void activateMeter(ReadingType readingType) {
         this.meterActivation = this.usagePoint.activate(this.meter, jan1st2016);
-        this.temperatureChannel = this.meterActivation.createChannel(readingType);
+        this.temperatureChannel = this.meterActivation.getChannelsContainer().createChannel(readingType);
     }
 
     private String mRID2GrepPattern(String mRID) {

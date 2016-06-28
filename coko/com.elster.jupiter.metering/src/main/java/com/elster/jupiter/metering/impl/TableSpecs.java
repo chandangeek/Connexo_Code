@@ -6,6 +6,7 @@ import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceControlType;
 import com.elster.jupiter.metering.GeoCoordinates;
@@ -26,6 +27,7 @@ import com.elster.jupiter.metering.UsagePointAccountability;
 import com.elster.jupiter.metering.UsagePointConfiguration;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointReadingTypeConfiguration;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MeterRole;
@@ -41,7 +43,6 @@ import com.elster.jupiter.metering.config.UsagePointRequirement;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.impl.config.AbstractNode;
-import com.elster.jupiter.metering.impl.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.impl.config.EffectiveMetrologyConfigurationOnUsagePointImpl;
 import com.elster.jupiter.metering.impl.config.FormulaImpl;
 import com.elster.jupiter.metering.impl.config.MeterRoleImpl;
@@ -49,6 +50,7 @@ import com.elster.jupiter.metering.impl.config.MetrologyConfigurationCustomPrope
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationCustomPropertySetUsageImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationMeterRoleUsageImpl;
+import com.elster.jupiter.metering.impl.config.MetrologyContractChannelsContainerImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyContractImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyContractReadingTypeDeliverableUsage;
 import com.elster.jupiter.metering.impl.config.MetrologyPurposeImpl;
@@ -67,12 +69,15 @@ import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
 
 import com.google.common.collect.Range;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2ENUM;
@@ -502,77 +507,6 @@ public enum TableSpecs {
                     .add();
         }
     },
-    MTR_CHANNEL {
-        @Override
-        void addTo(DataModel dataModel) {
-            Table<Channel> table = dataModel.addTable(name(), Channel.class);
-            table.map(ChannelImpl.class);
-            Column idColumn = table.addAutoIdColumn();
-            Column meterActivationIdColumn = table.column("METERACTIVATIONID").type("number").notNull().conversion(NUMBER2LONG).add();
-            Column timeSeriesIdColumn = table.column("TIMESERIESID").type("number").notNull().conversion(NUMBER2LONG).add();
-            Column mainReadingTypeMRIDColumn = table.column("MAINREADINGTYPEMRID").varChar(NAME_LENGTH).notNull().add();
-            table.column("MAINDERIVATIONRULE").number().conversion(ColumnConversion.NUMBER2ENUM).map("mainDerivationRule").notNull().add();
-            Column bulkQuantityReadingTypeMRIDColumn = table.column("BULKQUANTITYREADINGTYPEMRID").varChar(NAME_LENGTH).add();
-            table.column("BULKDERIVATIONRULE").number().conversion(ColumnConversion.NUMBER2ENUM).map("bulkDerivationRule").add();
-            table.addAuditColumns();
-            table.primaryKey("MTR_PK_CHANNEL").on(idColumn).add();
-            table.foreignKey("MTR_FK_CHANNELACTIVATION")
-                    .references(MeterActivation.class)
-                    .onDelete(RESTRICT)
-                    .map("meterActivation")
-                    .reverseMap("channels", TimeSeries
-                            .class, ReadingTypeInChannel
-                            .class)
-                    .on(meterActivationIdColumn)
-                    .composition()
-                    .add();
-            table.foreignKey("MTR_FK_CHANNELMAINTYPE")
-                    .references(ReadingType.class)
-                    .onDelete(RESTRICT)
-                    .map("mainReadingType")
-                    .on(mainReadingTypeMRIDColumn)
-                    .add();
-            table.foreignKey("MTR_FK_CHANNELBULQUANTITYTYPE")
-                    .references(ReadingType.class)
-                    .onDelete(RESTRICT)
-                    .map("bulkQuantityReadingType")
-                    .on(bulkQuantityReadingTypeMRIDColumn)
-                    .add();
-            table.foreignKey("MTR_FK_CHANNELTIMESERIES")
-                    .on(timeSeriesIdColumn)
-                    .references(TimeSeries.class)
-                    .onDelete(RESTRICT)
-                    .map("timeSeries")
-                    .add();
-        }
-    },
-    MTR_READINGTYPEINCHANNEL {
-        @Override
-        void addTo(DataModel dataModel) {
-            Table<ReadingTypeInChannel> table = dataModel.addTable(name(), ReadingTypeInChannel.class);
-            table.map(ReadingTypeInChannel.class);
-            Column channelIdColumn = table.column("CHANNNELID").type("number").notNull().conversion(NUMBER2LONG).add();
-            Column positionColumn = table.column("POSITION").type("number").notNull().conversion(NUMBER2INT).map("position").add();
-            Column readingTypeMRidColumn = table.column("READINGTYPEMRID").varChar(NAME_LENGTH).notNull().add();
-            table.column("DERIVATIONRULE").number().conversion(ColumnConversion.NUMBER2ENUM).map("derivationRule").notNull().add();
-            table.primaryKey("MTR_PK_READINGTYPEINCHANNEL").on(channelIdColumn, positionColumn).add();
-            table.foreignKey("MTR_FK_READINGTYPEINCHANNEL1")
-                    .on(channelIdColumn)
-                    .references(Channel.class)
-                    .composition()
-                    .onDelete(CASCADE)
-                    .map("channel")
-                    .reverseMap("readingTypeInChannels")
-                    .reverseMapOrder("position")
-                    .add();
-            table.foreignKey("MTR_FK_READINGTYPEINCHANNEL2")
-                    .on(readingTypeMRidColumn)
-                    .references(ReadingType.class)
-                    .onDelete(RESTRICT)
-                    .map("readingType")
-                    .add();
-        }
-    },
     MTR_UPACCOUNTABILITY {
         @Override
         void addTo(DataModel dataModel) {
@@ -605,42 +539,6 @@ public enum TableSpecs {
                     .references(PartyRole.class)
                     .onDelete(RESTRICT)
                     .map("role")
-                    .add();
-        }
-    },
-    MTR_READINGQUALITY {
-        @Override
-        void addTo(DataModel dataModel) {
-            Table<ReadingQualityRecord> table = dataModel.addTable(name(), ReadingQualityRecord.class);
-            table.map(ReadingQualityRecordImpl.class);
-            table.setJournalTableName("MTR_READINGQUALITYJRNL");
-            Column idColumn = table.addAutoIdColumn();
-            Column channelColumn = table.column("CHANNELID").type("number").notNull().conversion(NUMBER2LONG).add();
-            Column timestampColumn = table.column("READINGTIMESTAMP").type("number").notNull().conversion(NUMBER2INSTANT).map("readingTimestamp").add();
-            Column typeColumn = table.column("TYPE").type("varchar(64)").notNull().map("typeCode").add();
-            Column readingTypeColumn = table.column("READINGTYPE").varChar(NAME_LENGTH).notNull().add();
-            Column actual = table.column("ACTUAL").bool().notNull().map("actual").add();
-            table.addAuditColumns();
-            table.column("COMMENTS").type("varchar(4000)").map("comment").add();
-            table.primaryKey("MTR_PK_READINGQUALITY").on(idColumn).add();
-            table.foreignKey("MTR_FK_RQ_CHANNEL")
-                    .references(Channel.class)
-                    .onDelete(DeleteRule.RESTRICT)
-                    .map("channel")
-                    .on(channelColumn)
-                    .add();
-            table.foreignKey("MTR_FK_RQ_READINGTYPE")
-                    .references(ReadingType.class)
-                    .onDelete(DeleteRule.RESTRICT)
-                    .map("readingType")
-                    .on(readingTypeColumn)
-                    .add();
-            table.unique("MTR_U_READINGQUALITY")
-                    .on(channelColumn, timestampColumn, typeColumn, readingTypeColumn)
-                    .add();
-            table
-                    .index("MTR_READINGQUALITY_VAL_OVERVW")
-                    .on(channelColumn, typeColumn, actual)
                     .add();
         }
     },
@@ -864,7 +762,7 @@ public enum TableSpecs {
                     .add();
             table.foreignKey("MTR_FK_UPMTRCONFIG_MC")
                     .on(metrologyConfiguration)
-                    .references(MetrologyConfiguration.class)
+                    .references(UsagePointMetrologyConfiguration.class)
                     .map("metrologyConfiguration")
                     .add();
         }
@@ -1609,6 +1507,169 @@ public enum TableSpecs {
                     .reverseMapOrder(UsagePointRequirementValue.Fields.POSITION.fieldName())
                     .composition()
                     .onDelete(CASCADE)
+                    .add();
+        }
+    },
+    MTR_CHANNEL_CONTAINER {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<ChannelsContainer> table = dataModel.addTable(name(), ChannelsContainer.class);
+            table.since(version(10, 2));
+
+            Map<String, Class<? extends ChannelsContainer>> implementers = new HashMap<>();
+            implementers.put("MeterActivation", MeterActivationChannelsContainerImpl.class);
+            implementers.put("MetrologyContract", MetrologyContractChannelsContainerImpl.class);
+            table.map(implementers);
+
+            Column idColumn = table.addAutoIdColumn();
+            Column startUsagePointTime = table.column("STARTTIME").number().add();
+            table.addDiscriminatorColumn("CONTAINER_TYPE", "varchar(80)");
+            Column meterActivationColumn = table.column("METER_ACTIVATION").number().add();
+
+            Column effectiveMetrologyConfigurationUsagePointColumn = table.column("USAGE_POINT").number().add();
+            Column metrologyContractColumn = table.column("METROLOGY_CONTRACT").number().add();
+
+            table.addAuditColumns();
+
+            table.primaryKey("MTR_CONTRACT_CHANNEL_PK").on(idColumn).add();
+            table.unique("MTR_CH_CONTAINER_MA_UQ").on(meterActivationColumn).add();
+            table.foreignKey("MTR_CH_CONTAINER_2_MA")
+                    .on(meterActivationColumn)
+                    .references(MeterActivation.class)
+                    .map("meterActivation")
+                    .reverseMap("channelsContainer")
+                    .composition()
+                    .add();
+            table.foreignKey("MTR_CH_CONTAINER_2_MC")
+                    .on(metrologyContractColumn)
+                    .references(MetrologyContract.class)
+                    .map(MetrologyContractChannelsContainerImpl.Fields.METROLOGY_CONTRACT.fieldName())
+                    .onDelete(CASCADE)
+                    .add();
+            table.foreignKey("MTR_CH_CONTAINER_2_UP")
+                    .on(effectiveMetrologyConfigurationUsagePointColumn, startUsagePointTime)
+                    .references(EffectiveMetrologyConfigurationOnUsagePoint.class)
+                    .map(MetrologyContractChannelsContainerImpl.Fields.METROLOGY_CONFIG.fieldName())
+                    .reverseMap("channelsContainers")
+                    .composition()
+                    .onDelete(CASCADE)
+                    .add();
+            table.unique("UQ_CH_CT_FOR_M_CONTRACT")
+                    .on(effectiveMetrologyConfigurationUsagePointColumn, startUsagePointTime, metrologyContractColumn)
+                    .add();
+        }
+    },
+    MTR_CHANNEL {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<Channel> table = dataModel.addTable(name(), Channel.class);
+            table.map(ChannelImpl.class);
+            Column idColumn = table.addAutoIdColumn();
+            Column meterActivationIdColumn = table.column("METERACTIVATIONID").type("number").notNull().conversion(NUMBER2LONG).upTo(version(10, 2)).add();
+            Column channelsContainerId = table.column("CHANNEL_CONTAINER").type("number").conversion(NUMBER2LONG).previously(meterActivationIdColumn).since(Version.version(10, 2)).add();
+            Column timeSeriesIdColumn = table.column("TIMESERIESID").type("number").notNull().conversion(NUMBER2LONG).add();
+            Column mainReadingTypeMRIDColumn = table.column("MAINREADINGTYPEMRID").varChar(NAME_LENGTH).notNull().add();
+            table.column("MAINDERIVATIONRULE").number().conversion(ColumnConversion.NUMBER2ENUM).map("mainDerivationRule").notNull().add();
+            Column bulkQuantityReadingTypeMRIDColumn = table.column("BULKQUANTITYREADINGTYPEMRID").varChar(NAME_LENGTH).add();
+            table.column("BULKDERIVATIONRULE").number().conversion(ColumnConversion.NUMBER2ENUM).map("bulkDerivationRule").add();
+            table.addAuditColumns();
+            table.primaryKey("MTR_PK_CHANNEL").on(idColumn).add();
+            table.foreignKey("MTR_FK_CHANNELACTIVATION")
+                    .references(MeterActivation.class)
+                    .on(meterActivationIdColumn)
+                    .onDelete(RESTRICT)
+                    .upTo(version(10, 2))
+                    .map("meterActivation;")
+                    .add();
+            table.foreignKey("MTR_FK_CHANNEL_CONTAINER")
+                    .references(ChannelsContainer.class)
+                    .onDelete(RESTRICT)
+                    .map("channelsContainer")
+                    .reverseMap("channels", TimeSeries.class, ReadingTypeInChannel.class)
+                    .on(channelsContainerId)
+                    .composition()
+                    .since(version(10, 2))
+                    .add();
+            table.foreignKey("MTR_FK_CHANNELMAINTYPE")
+                    .references(ReadingType.class)
+                    .onDelete(RESTRICT)
+                    .map("mainReadingType")
+                    .on(mainReadingTypeMRIDColumn)
+                    .add();
+            table.foreignKey("MTR_FK_CHANNELBULQUANTITYTYPE")
+                    .references(ReadingType.class)
+                    .onDelete(RESTRICT)
+                    .map("bulkQuantityReadingType")
+                    .on(bulkQuantityReadingTypeMRIDColumn)
+                    .add();
+            table.foreignKey("MTR_FK_CHANNELTIMESERIES")
+                    .on(timeSeriesIdColumn)
+                    .references(TimeSeries.class)
+                    .onDelete(RESTRICT)
+                    .map("timeSeries")
+                    .add();
+        }
+    },
+    MTR_READINGTYPEINCHANNEL {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<ReadingTypeInChannel> table = dataModel.addTable(name(), ReadingTypeInChannel.class);
+            table.map(ReadingTypeInChannel.class);
+            Column channelIdColumn = table.column("CHANNNELID").type("number").notNull().conversion(NUMBER2LONG).add();
+            Column positionColumn = table.column("POSITION").type("number").notNull().conversion(NUMBER2INT).map("position").add();
+            Column readingTypeMRidColumn = table.column("READINGTYPEMRID").varChar(NAME_LENGTH).notNull().add();
+            table.column("DERIVATIONRULE").number().conversion(ColumnConversion.NUMBER2ENUM).map("derivationRule").notNull().add();
+            table.primaryKey("MTR_PK_READINGTYPEINCHANNEL").on(channelIdColumn, positionColumn).add();
+            table.foreignKey("MTR_FK_READINGTYPEINCHANNEL1")
+                    .on(channelIdColumn)
+                    .references(Channel.class)
+                    .composition()
+                    .onDelete(CASCADE)
+                    .map("channel")
+                    .reverseMap("readingTypeInChannels")
+                    .reverseMapOrder("position")
+                    .add();
+            table.foreignKey("MTR_FK_READINGTYPEINCHANNEL2")
+                    .on(readingTypeMRidColumn)
+                    .references(ReadingType.class)
+                    .onDelete(RESTRICT)
+                    .map("readingType")
+                    .add();
+        }
+    },
+    MTR_READINGQUALITY {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<ReadingQualityRecord> table = dataModel.addTable(name(), ReadingQualityRecord.class);
+            table.map(ReadingQualityRecordImpl.class);
+            table.setJournalTableName("MTR_READINGQUALITYJRNL");
+            Column idColumn = table.addAutoIdColumn();
+            Column channelColumn = table.column("CHANNELID").type("number").notNull().conversion(NUMBER2LONG).add();
+            Column timestampColumn = table.column("READINGTIMESTAMP").type("number").notNull().conversion(NUMBER2INSTANT).map("readingTimestamp").add();
+            Column typeColumn = table.column("TYPE").type("varchar(64)").notNull().map("typeCode").add();
+            Column readingTypeColumn = table.column("READINGTYPE").varChar(NAME_LENGTH).notNull().add();
+            Column actual = table.column("ACTUAL").bool().notNull().map("actual").add();
+            table.addAuditColumns();
+            table.column("COMMENTS").type("varchar(4000)").map("comment").add();
+            table.primaryKey("MTR_PK_READINGQUALITY").on(idColumn).add();
+            table.foreignKey("MTR_FK_RQ_CHANNEL")
+                    .references(Channel.class)
+                    .onDelete(DeleteRule.RESTRICT)
+                    .map("channel")
+                    .on(channelColumn)
+                    .add();
+            table.foreignKey("MTR_FK_RQ_READINGTYPE")
+                    .references(ReadingType.class)
+                    .onDelete(DeleteRule.RESTRICT)
+                    .map("readingType")
+                    .on(readingTypeColumn)
+                    .add();
+            table.unique("MTR_U_READINGQUALITY")
+                    .on(channelColumn, timestampColumn, typeColumn, readingTypeColumn)
+                    .add();
+            table
+                    .index("MTR_READINGQUALITY_VAL_OVERVW")
+                    .on(channelColumn, typeColumn, actual)
                     .add();
         }
     },

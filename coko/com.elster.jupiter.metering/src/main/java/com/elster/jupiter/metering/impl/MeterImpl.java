@@ -1,9 +1,12 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.cbo.QualityCodeIndex;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.CannotDeleteMeter;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
@@ -12,7 +15,6 @@ import com.elster.jupiter.metering.MeterConfiguration;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingQualityRecord;
-import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
@@ -46,13 +48,13 @@ class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter {
 
     private final MeteringService meteringService;
     private final Thesaurus thesaurus;
-    private final Provider<IMeterActivation> meterActivationFactory;
+    private final Provider<MeterActivationImpl> meterActivationFactory;
     private final Provider<EndDeviceEventRecordImpl> deviceEventFactory;
     private final ServerMetrologyConfigurationService metrologyConfigurationService;
 
     @Inject
     MeterImpl(Clock clock, DataModel dataModel, EventService eventService, Provider<EndDeviceEventRecordImpl> deviceEventFactory,
-              MeteringService meteringService, Thesaurus thesaurus, Provider<IMeterActivation> meterActivationFactory, ServerMetrologyConfigurationService metrologyConfigurationService) {
+              MeteringService meteringService, Thesaurus thesaurus, Provider<MeterActivationImpl> meterActivationFactory, ServerMetrologyConfigurationService metrologyConfigurationService) {
         super(clock, dataModel, eventService, deviceEventFactory, MeterImpl.class);
         this.meteringService = meteringService;
         this.thesaurus = thesaurus;
@@ -95,8 +97,8 @@ class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter {
 
     private MeterActivation activate(UsagePoint usagePoint, MeterRole meterRole, Range<Instant> range) {
         checkOverlaps(range);
-        IMeterActivation result = meterActivationFactory.get().init(this, meterRole, usagePoint, range);
-        getDataModel().persist(result);
+        MeterActivationImpl result = meterActivationFactory.get().init(this, meterRole, usagePoint, range);
+        result.save();
         meterActivations.add(result);
         return result;
     }
@@ -190,8 +192,8 @@ class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter {
         if (!range.hasLowerBound() && !range.hasUpperBound()) {
             throw new IllegalArgumentException();
         }
-        QueryExecutor<ReadingQualityRecord> query = getDataModel().query(ReadingQualityRecord.class, Channel.class, MeterActivation.class);
-        Condition condition = Where.where("channel.meterActivation.meter").isEqualTo(this);
+        QueryExecutor<ReadingQualityRecord> query = getDataModel().query(ReadingQualityRecord.class, Channel.class, ChannelsContainer.class, MeterActivation.class);
+        Condition condition = Where.where("channel.channelsContainer.meterActivation.meter").isEqualTo(this);
         condition = condition.and(Where.where("readingTimestamp").in(range));
         return query.select(condition);
     }
@@ -214,22 +216,31 @@ class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter {
     @Override
     public ZoneId getZoneId() {
         return getCurrentMeterActivation()
-                .map(MeterActivation::getZoneId)
+                .map(MeterActivation::getChannelsContainer)
+                .map(ChannelsContainer::getZoneId)
                 .orElse(ZoneId.systemDefault());
     }
 
     @Override
     public List<Instant> toList(ReadingType readingType, Range<Instant> exportInterval) {
         return getCurrentMeterActivation()
-                .map(meterActivation -> meterActivation.toList(readingType, exportInterval))
+                .map(MeterActivation::getChannelsContainer)
+                .map(channelsContainer -> channelsContainer.toList(readingType, exportInterval))
                 .orElseGet(Collections::emptyList);
     }
 
     @Override
-    public List<ReadingQualityRecord> getReadingQualities(ReadingQualityType readingQualityType, ReadingType readingType, Range<Instant> interval) {
+    public List<ReadingQualityRecord> getReadingQualities(Set<QualityCodeSystem> qualityCodeSystems, QualityCodeIndex qualityCodeIndex,
+                                                          ReadingType readingType, Range<Instant> interval) {
         return meterActivations.stream()
-                .flatMap(meterActivation -> meterActivation.getReadingQualities(readingQualityType, readingType, interval).stream())
+                .map(MeterActivation::getChannelsContainer)
+                .flatMap(channelsContainer -> channelsContainer.getReadingQualities(qualityCodeSystems, qualityCodeIndex, readingType, interval).stream())
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ChannelsContainer> getChannelsContainers() {
+        return getMeterActivations().stream().map(MeterActivation::getChannelsContainer).collect(Collectors.toList());
     }
 
     void addConfiguration(MeterConfigurationImpl meterConfiguration) {

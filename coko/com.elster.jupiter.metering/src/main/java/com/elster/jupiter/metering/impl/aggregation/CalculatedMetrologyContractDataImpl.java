@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
@@ -79,11 +80,12 @@ public class CalculatedMetrologyContractDataImpl implements CalculatedMetrologyC
         return new ArrayList<>(merged.values());
     }
 
-    private void merge(CalculatedReadingRecord record,  IntervalLength intervalLength, Map<Instant,CalculatedReadingRecord> merged) {
+    private void merge(CalculatedReadingRecord record, IntervalLength intervalLength, Map<Instant, CalculatedReadingRecord> merged) {
         ZoneId zone = this.getUsagePoint()
-                            .getMeterActivation(record.getTimeStamp())
-                            .map(MeterActivation::getZoneId)
-                            .orElseGet(this.usagePoint::getZoneId);
+                .getMeterActivation(record.getTimeStamp())
+                .map(MeterActivation::getChannelsContainer)
+                .map(ChannelsContainer::getZoneId)
+                .orElseGet(this.usagePoint::getZoneId);
         final Instant endOfInterval;
         Instant endOfIntervalCandidate = intervalLength.truncate(record.getTimeStamp(), zone);
         if (!endOfIntervalCandidate.equals(record.getTimeStamp())) {

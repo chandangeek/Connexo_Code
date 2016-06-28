@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.MessageSeeds;
@@ -9,7 +10,6 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
-import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingStorer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
@@ -25,6 +25,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+
 import com.google.common.collect.Range;
 
 import javax.inject.Provider;
@@ -203,15 +204,15 @@ public class MeterReadingStorer {
     }
 
     private void store(Reading reading) {
-        for (MeterActivation meterActivation : meter.getMeterActivations()) {
-            if (meterActivation.getInterval().toClosedRange().contains(reading.getTimeStamp())) {
-                store(reading, meterActivation);
+        for (ChannelsContainer channelsContainer : meter.getChannelsContainers()) {
+            if (channelsContainer.getInterval().toClosedRange().contains(reading.getTimeStamp())) {
+                store(reading, channelsContainer);
             }
         }
     }
 
-    private void store(Reading reading, MeterActivation meterActivation) {
-        Channel channel = findOrCreateChannel(reading, meterActivation);
+    private void store(Reading reading, ChannelsContainer channelsContainer) {
+        Channel channel = findOrCreateChannel(reading, channelsContainer);
         if (channel != null) {
             ReadingType readingType = channel.getReadingTypes().stream()
                     .filter(type -> type.getMRID().equals(reading.getReadingTypeCode()))
@@ -267,22 +268,22 @@ public class MeterReadingStorer {
         }
     }
 
-    private Channel findOrCreateChannel(Reading reading, MeterActivation meterActivation) {
+    private Channel findOrCreateChannel(Reading reading, ChannelsContainer channelsContainer) {
         ReadingType readingType = Objects.requireNonNull(readingTypes.get(reading.getReadingTypeCode()));
-        for (Channel each : meterActivation.getChannels()) {
+        for (Channel each : channelsContainer.getChannels()) {
             if (each.getReadingTypes().contains(readingType)) {
                 return each;
             }
         }
-        return meterActivation.createChannel(readingType);
+        return channelsContainer.createChannel(readingType);
     }
 
     private Channel findOrCreateChannel(IntervalReading reading, ReadingType readingType) {        
         Channel channel = getChannel(reading, readingType);
         if (channel == null) {
-            for (MeterActivation meterActivation : meter.getMeterActivations()) {
-                if (meterActivation.getInterval().toOpenClosedRange().contains(reading.getTimeStamp())) {
-                    return meterActivation.createChannel(readingType);
+            for (ChannelsContainer channelsContainer : meter.getChannelsContainers()) {
+                if (channelsContainer.getInterval().toOpenClosedRange().contains(reading.getTimeStamp())) {
+                    return channelsContainer.createChannel(readingType);
                 }
             }
             MessageSeeds.NOMETERACTIVATION.log(logger, thesaurus, meter.getMRID(), reading.getTimeStamp());
@@ -293,9 +294,9 @@ public class MeterReadingStorer {
     }
 
     private Channel getChannel(IntervalReading reading, ReadingType readingType) {
-        for (MeterActivation meterActivation : meter.getMeterActivations()) {
-            if (meterActivation.getInterval().toOpenClosedRange().contains(reading.getTimeStamp())) {
-                for (Channel channel : meterActivation.getChannels()) {
+        for (ChannelsContainer channelsContainer : meter.getChannelsContainers()) {
+            if (channelsContainer.getInterval().toOpenClosedRange().contains(reading.getTimeStamp())) {
+                for (Channel channel : channelsContainer.getChannels()) {
                     if (channel.getReadingTypes().contains(readingType)) {
                         return channel;
                     }
@@ -314,7 +315,7 @@ public class MeterReadingStorer {
         dataModel.mapper(ReadingQualityRecord.class).persist(
                 channelReadings.entrySet().stream()
                         .flatMap(entry -> buildReadingQualities(entry.getKey(), entry.getValue().values()))
-                        .collect(Collectors.<ReadingQualityRecord>toList()));
+                        .collect(Collectors.toList()));
     }
 
     private Stream<ReadingQualityRecord> buildReadingQualities(Channel channel, Collection<BaseReading> readings) {
@@ -326,7 +327,9 @@ public class MeterReadingStorer {
     }
 
     private ReadingQualityRecord buildReadingQualityRecord(Channel channel, BaseReading reading, ReadingQuality readingQuality) {
-        CimChannel cimChannel = channel.getCimChannel(channel.getMainReadingType()).get();
+        CimChannel cimChannel = channel.getCimChannel(channel.getMainReadingType())
+                // should never happen normally
+                .orElseThrow(() -> new IllegalArgumentException("Channel " + channel.getId() + " has its main reading type but doesn't return a CimChannel for it"));
         if (reading instanceof Reading) {
             Optional<ReadingType> found = meteringService.getReadingType(((Reading) reading).getReadingTypeCode());
             if (found.isPresent()) {
@@ -336,7 +339,7 @@ public class MeterReadingStorer {
                 }
             }
         }
-        ReadingQualityRecordImpl newReadingQuality = ReadingQualityRecordImpl.from(dataModel, new ReadingQualityType(readingQuality.getTypeCode()), cimChannel, reading.getTimeStamp());
+        ReadingQualityRecordImpl newReadingQuality = ReadingQualityRecordImpl.from(dataModel, readingQuality.getType(), cimChannel, reading.getTimeStamp());
         newReadingQuality.setComment(readingQuality.getComment());
         return newReadingQuality;
     }

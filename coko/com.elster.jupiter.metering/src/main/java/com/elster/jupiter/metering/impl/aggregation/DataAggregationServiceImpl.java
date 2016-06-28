@@ -6,13 +6,13 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.aggregation.CalculatedMetrologyContractData;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.aggregation.MetrologyContractDoesNotApplyToUsagePointException;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
-import com.elster.jupiter.metering.impl.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.impl.config.ServerFormula;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -21,8 +21,6 @@ import com.elster.jupiter.util.sql.SqlBuilder;
 
 import com.google.common.collect.Range;
 import com.google.inject.Provider;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.sql.Connection;
@@ -45,7 +43,6 @@ import static com.elster.jupiter.util.conditions.Where.where;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-04 (12:56)
  */
-@Component(name = "com.elster.jupiter.metering.aggregation", service = {DataAggregationService.class})
 public class DataAggregationServiceImpl implements DataAggregationService {
 
     private volatile ServerMeteringService meteringService;
@@ -55,15 +52,16 @@ public class DataAggregationServiceImpl implements DataAggregationService {
 
     // For OSGi only
     @SuppressWarnings("unused")
-    public DataAggregationServiceImpl() {
+    public DataAggregationServiceImpl(ServerMeteringService meteringService) {
         this(SqlBuilderFactoryImpl::new, VirtualFactoryImpl::new, ReadingTypeDeliverableForMeterActivationFactoryImpl::new);
+        this.meteringService = meteringService;
     }
 
     // For testing purposes only
     @Inject
     public DataAggregationServiceImpl(ServerMeteringService meteringService, Provider<SqlBuilderFactory> sqlBuilderFactoryProvider, Provider<VirtualFactory> virtualFactoryProvider, Provider<ReadingTypeDeliverableForMeterActivationFactory> readingTypeDeliverableForMeterActivationFactoryProvider) {
         this(sqlBuilderFactoryProvider, virtualFactoryProvider, readingTypeDeliverableForMeterActivationFactoryProvider);
-        this.setMeteringService(meteringService);
+        this.meteringService = meteringService;
     }
 
     private DataAggregationServiceImpl(Provider<SqlBuilderFactory> sqlBuilderFactoryProvider, Provider<VirtualFactory> virtualFactoryProvider, Provider<ReadingTypeDeliverableForMeterActivationFactory> readingTypeDeliverableForMeterActivationFactoryProvider) {
@@ -73,28 +71,23 @@ public class DataAggregationServiceImpl implements DataAggregationService {
         this.readingTypeDeliverableForMeterActivationFactory = readingTypeDeliverableForMeterActivationFactoryProvider.get();
     }
 
-    @Reference
-    public void setMeteringService(ServerMeteringService meteringService) {
-        this.meteringService = meteringService;
-    }
-
     @Override
     public CalculatedMetrologyContractData calculate(UsagePoint usagePoint, MetrologyContract contract, Range<Instant> period) {
         List<EffectiveMetrologyConfigurationOnUsagePoint> effectivities = this.getEffectiveMetrologyConfigurationForUsagePointInPeriod(usagePoint, period);
         this.validateContractAppliesToUsagePoint(effectivities, usagePoint, contract, period);
         Range<Instant> clippedPeriod = this.clipToContractActivePeriod(effectivities, contract, period);
         Map<MeterActivation, List<ReadingTypeDeliverableForMeterActivation>> deliverablesPerMeterActivation = new HashMap<>();
-        this.getOverlappingMeterActivations(usagePoint, clippedPeriod).forEach(meterActivation -> this.prepare(meterActivation, contract, clippedPeriod, this.virtualFactory, deliverablesPerMeterActivation));
+        this.getOverlappingMeterActivations(usagePoint, clippedPeriod)
+                .forEach(meterActivation -> this.prepare(meterActivation, contract, clippedPeriod, this.virtualFactory, deliverablesPerMeterActivation));
         try {
             return this.postProcess(
-                            usagePoint,
-                            contract,
-                            this.execute(
-                                    this.generateSql(
-                                            this.sqlBuilderFactory.newClauseAwareSqlBuilder(),
-                                            deliverablesPerMeterActivation)));
-        }
-        catch (SQLException e) {
+                    usagePoint,
+                    contract,
+                    this.execute(
+                            this.generateSql(
+                                    this.sqlBuilderFactory.newClauseAwareSqlBuilder(),
+                                    deliverablesPerMeterActivation)));
+        } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
     }
@@ -103,7 +96,7 @@ public class DataAggregationServiceImpl implements DataAggregationService {
         return this.getDataModel()
                 .query(EffectiveMetrologyConfigurationOnUsagePoint.class, MetrologyConfiguration.class, MetrologyContract.class)
                 .select(where("usagePoint").isEqualTo(usagePoint)
-                   .and(where("interval").isEffective(period)));
+                        .and(where("interval").isEffective(period)));
     }
 
     private void validateContractAppliesToUsagePoint(List<EffectiveMetrologyConfigurationOnUsagePoint> effectivities, UsagePoint usagePoint, MetrologyContract contract, Range<Instant> period) {
@@ -167,14 +160,14 @@ public class DataAggregationServiceImpl implements DataAggregationService {
         deliverablesPerMeterActivation
                 .get(meterActivation)
                 .add(this.readingTypeDeliverableForMeterActivationFactory
-                    .from(
-                        deliverable.getFormula().getMode(),
-                        deliverable,
-                        meterActivation,
-                        period,
-                        virtualFactory.meterActivationSequenceNumber(),
-                        withMultipliers,
-                        readingType));
+                        .from(
+                                deliverable.getFormula().getMode(),
+                                deliverable,
+                                meterActivation,
+                                period,
+                                virtualFactory.meterActivationSequenceNumber(),
+                                withMultipliers,
+                                readingType));
     }
 
     /**
@@ -183,7 +176,7 @@ public class DataAggregationServiceImpl implements DataAggregationService {
      * @param deliverable The ReadingTypeDeliverable
      * @param meterActivation The MeterActivation
      * @param deliverablesPerMeterActivation The Map that provides a {@link ReadingTypeDeliverableForMeterActivation} for each {@link MeterActivation}
-     *@param mode The mode  @return The copied formula with virtual requirements and deliverables
+     * @param mode The mode  @return The copied formula with virtual requirements and deliverables
      */
     private ServerExpressionNode copy(ReadingTypeDeliverable deliverable, MeterActivation meterActivation, VirtualFactory virtualFactory, Map<MeterActivation, List<ReadingTypeDeliverableForMeterActivation>> deliverablesPerMeterActivation, Formula.Mode mode) {
         ServerFormula formula = (ServerFormula) deliverable.getFormula();
@@ -202,7 +195,7 @@ public class DataAggregationServiceImpl implements DataAggregationService {
      * Uses information provided by
      * <ul>
      * <li>the {@link ReadingTypeDeliverable} (for which the expression tree defines the calculation)
-     *     that specifies the requested or desired reading type</li>
+     * that specifies the requested or desired reading type</li>
      * <li>other ReadingTypeDeliverable that are found in the expression tree</li>
      * <li>ReadingTypeRequirements that are not using wildcards in the interval or unit multiplier</li>
      * </ul>

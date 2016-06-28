@@ -30,9 +30,10 @@ import com.elster.jupiter.metering.UsagePointDetailBuilder;
 import com.elster.jupiter.metering.UsagePointMeterActivator;
 import com.elster.jupiter.metering.WaterDetailBuilder;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
-import com.elster.jupiter.metering.impl.config.EffectiveMetrologyConfigurationOnUsagePoint;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.config.EffectiveMetrologyConfigurationOnUsagePointImpl;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -126,7 +127,7 @@ public class UsagePointImpl implements UsagePoint {
     private final EventService eventService;
     private final MeteringService meteringService;
     private final Thesaurus thesaurus;
-    private final Provider<IMeterActivation> meterActivationFactory;
+    private final Provider<MeterActivationImpl> meterActivationFactory;
     private final Provider<UsagePointAccountabilityImpl> accountabilityFactory;
     private final CustomPropertySetService customPropertySetService;
     private final ServerMetrologyConfigurationService metrologyConfigurationService;
@@ -135,7 +136,7 @@ public class UsagePointImpl implements UsagePoint {
     @Inject
     UsagePointImpl(
             Clock clock, DataModel dataModel, EventService eventService,
-            Thesaurus thesaurus, Provider<IMeterActivation> meterActivationFactory,
+            Thesaurus thesaurus, Provider<MeterActivationImpl> meterActivationFactory,
             Provider<UsagePointAccountabilityImpl> accountabilityFactory,
             CustomPropertySetService customPropertySetService, MeteringService meteringService, ServerMetrologyConfigurationService metrologyConfigurationService) {
         this.clock = clock;
@@ -413,22 +414,28 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
-    public Optional<MetrologyConfiguration> getMetrologyConfiguration() {
+    public Optional<UsagePointMetrologyConfiguration> getMetrologyConfiguration() {
         return this.getMetrologyConfiguration(this.clock.instant());
     }
 
     @Override
-    public Optional<MetrologyConfiguration> getMetrologyConfiguration(Instant when) {
+    public Optional<UsagePointMetrologyConfiguration> getMetrologyConfiguration(Instant when) {
         return this.metrologyConfiguration.effective(when)
                 .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration);
     }
 
-    Optional<EffectiveMetrologyConfigurationOnUsagePoint> getEffectiveMetrologyConfiguration(Instant when) {
+    @Override
+    public Optional<EffectiveMetrologyConfigurationOnUsagePoint> getEffectiveMetrologyConfiguration() {
+        return getEffectiveMetrologyConfiguration(clock.instant());
+    }
+
+    @Override
+    public Optional<EffectiveMetrologyConfigurationOnUsagePoint> getEffectiveMetrologyConfiguration(Instant when) {
         return this.metrologyConfiguration.effective(when);
     }
 
     @Override
-    public List<MetrologyConfiguration> getMetrologyConfigurations(Range<Instant> period) {
+    public List<UsagePointMetrologyConfiguration> getMetrologyConfigurations(Range<Instant> period) {
         return this.metrologyConfiguration
                 .effective(period)
                 .stream()
@@ -437,17 +444,18 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
-    public void apply(MetrologyConfiguration metrologyConfiguration) {
+    public void apply(UsagePointMetrologyConfiguration metrologyConfiguration) {
         this.apply(metrologyConfiguration, this.clock.instant());
     }
 
     @Override
-    public void apply(MetrologyConfiguration metrologyConfiguration, Instant when) {
+    public void apply(UsagePointMetrologyConfiguration metrologyConfiguration, Instant when) {
         this.removeMetrologyConfiguration(when);
-        this.metrologyConfiguration.add(
-                this.dataModel
-                        .getInstance(EffectiveMetrologyConfigurationOnUsagePointImpl.class)
-                        .initAndSave(this, metrologyConfiguration, when));
+        EffectiveMetrologyConfigurationOnUsagePointImpl effectiveMetrologyConfiguration = this.dataModel
+                .getInstance(EffectiveMetrologyConfigurationOnUsagePointImpl.class);
+        effectiveMetrologyConfiguration.init(this, metrologyConfiguration, when);
+        this.metrologyConfiguration.add(effectiveMetrologyConfiguration);
+        effectiveMetrologyConfiguration.createChannelsContainers();
     }
 
     @Override
@@ -583,7 +591,12 @@ public class UsagePointImpl implements UsagePoint {
 
     @Override
     public ZoneId getZoneId() {
-        return ZoneId.systemDefault();
+        return getCurrentMeterActivations()
+                .stream()
+                .filter(ma -> ma.getMeter().isPresent())
+                .map(ma -> ma.getMeter().get().getZoneId())
+                .findAny()
+                .orElse(ZoneId.systemDefault());
     }
 
     void addConfiguration(UsagePointConfigurationImpl usagePointConfiguration) {
@@ -659,16 +672,6 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
-    public Optional<MeterActivation> getCurrentMeterActivation() {
-        return getCurrentMeterActivations().stream()
-                .filter(ma -> ma.getMeterRole().isPresent() && ma.getMeterRole()
-                        .get()
-                        .getKey()
-                        .equals(DefaultMeterRole.DEFAULT.getKey()))
-                .findFirst();
-    }
-
-    @Override
     public List<MeterActivation> getCurrentMeterActivations() {
         return this.meterActivations.stream()
                 .filter(MeterActivation::isCurrent)
@@ -691,7 +694,7 @@ public class UsagePointImpl implements UsagePoint {
     @Override
     public MeterActivation activate(Meter meter, MeterRole meterRole, Instant from) {
         MeterActivationImpl result = meterActivationFactory.get().init(meter, meterRole, this, from);
-        dataModel.persist(result);
+        result.save();
         adopt(result);
         return result;
     }

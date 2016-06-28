@@ -6,6 +6,7 @@ import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.AggregationLevel;
@@ -15,15 +16,15 @@ import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
-import com.elster.jupiter.metering.impl.ServerMeteringService;
+import com.elster.jupiter.metering.impl.MeteringDataModelService;
 import com.elster.jupiter.metering.impl.config.FunctionCallNodeImpl;
-import com.elster.jupiter.metering.impl.config.MeterActivationValidatorsWhiteboard;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
 import com.elster.jupiter.metering.impl.config.ServerFormulaBuilder;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.units.Dimension;
@@ -66,9 +67,11 @@ public class CopyTest {
     @Mock
     private MeterActivation meterActivation;
     @Mock
+    private ChannelsContainer channelsContainer;
+    @Mock
     private ReadingTypeDeliverableForMeterActivationProvider readingTypeDeliverableForMeterActivationProvider;
     @Mock
-    private ServerMeteringService meteringService;
+    private DataModel dataModel;
     @Mock
     private EventService eventService;
     @Mock
@@ -80,7 +83,7 @@ public class CopyTest {
     @Mock
     private ReadingType readingType;
     @Mock
-    private MeterActivationValidatorsWhiteboard meterActivationValidatorsWhiteboard;
+    private MeteringDataModelService meteringDataModelService;
 
     private ServerMetrologyConfigurationService metrologyConfigurationService;
 
@@ -91,14 +94,14 @@ public class CopyTest {
         when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
         when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
         when(this.deliverable.getReadingType()).thenReturn(readingType);
-        when(this.meteringService.getThesaurus()).thenReturn(this.thesaurus);
         NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
         when(messageFormat.format(anyVararg())).thenReturn("Translation not supported in unit testing");
         when(this.thesaurus.getFormat(any(TranslationKey.class))).thenReturn(messageFormat);
         when(this.thesaurus.getFormat(any(MessageSeed.class))).thenReturn(messageFormat);
-        this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this.meteringService, this.userService, this.meterActivationValidatorsWhiteboard);
+        this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this.meteringDataModelService, this.dataModel, this.thesaurus);
         when(this.meterActivation.getRange()).thenReturn(Range.atLeast(Instant.EPOCH));
         when(this.readingType.getMRID()).thenReturn("CopyTest");
+        when(this.meterActivation.getChannelsContainer()).thenReturn(this.channelsContainer);
     }
 
     @Test
@@ -277,8 +280,8 @@ public class CopyTest {
         FunctionCallNodeImpl node =
                 (FunctionCallNodeImpl) formulaBuilder.aggregate(
                         formulaBuilder.plus(
-                            formulaBuilder.constant(BigDecimal.TEN),
-                            formulaBuilder.constant(BigDecimal.ZERO))).create();
+                                formulaBuilder.constant(BigDecimal.TEN),
+                                formulaBuilder.constant(BigDecimal.ZERO))).create();
 
         // Business method
         ServerExpressionNode copied = node.accept(visitor);
@@ -309,13 +312,13 @@ public class CopyTest {
         when(requirement.getReadingType()).thenReturn(readingType);
         Channel channel = mock(Channel.class);
         when(channel.getMainReadingType()).thenReturn(readingType);
-        when(requirement.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(channel));
+        when(requirement.getMatchingChannelsFor(this.channelsContainer)).thenReturn(Collections.singletonList(channel));
         ExpressionNode formulaPart =
                 formulaBuilder.plus(
-                    formulaBuilder.requirement(requirement),
-                    formulaBuilder.maximum(Arrays.asList(
-                            formulaBuilder.deliverable(readingTypeDeliverable),
-                            formulaBuilder.constant(BigDecimal.TEN)))).create();
+                        formulaBuilder.requirement(requirement),
+                        formulaBuilder.maximum(Arrays.asList(
+                                formulaBuilder.deliverable(readingTypeDeliverable),
+                                formulaBuilder.constant(BigDecimal.TEN)))).create();
         com.elster.jupiter.metering.config.OperationNode node = (com.elster.jupiter.metering.config.OperationNode) formulaPart;
         ReadingTypeDeliverableForMeterActivation readingTypeDeliverableForMeterActivation =
                 new ReadingTypeDeliverableForMeterActivation(

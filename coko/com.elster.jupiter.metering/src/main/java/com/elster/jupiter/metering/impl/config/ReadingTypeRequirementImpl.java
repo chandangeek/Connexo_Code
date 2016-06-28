@@ -4,8 +4,8 @@ import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MessageSeeds;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.aggregation.IntervalLength;
@@ -126,11 +126,13 @@ public abstract class ReadingTypeRequirementImpl implements ReadingTypeRequireme
     }
 
     @Override
-    public List<Channel> getMatchingChannelsFor(MeterActivation meterActivation) {
-        return meterActivation.getChannels().stream()
-                .filter(channel -> channel.getMainReadingType().getMacroPeriod() != MacroPeriod.NOTAPPLICABLE
-                        || channel.getMainReadingType().getMeasuringPeriod() != TimeAttribute.NOTAPPLICABLE)
-                .filter(channel -> matches(channel.getMainReadingType()))
+    public List<Channel> getMatchingChannelsFor(ChannelsContainer channelsContainer) {
+        return channelsContainer.getChannels().stream()
+                .filter(channel -> channel.getReadingTypes()
+                        .stream()
+                        .filter(readingType -> readingType.getMacroPeriod() != MacroPeriod.NOTAPPLICABLE
+                                || readingType.getMeasuringPeriod() != TimeAttribute.NOTAPPLICABLE)
+                        .anyMatch(this::matches))
                 .collect(Collectors.toList());
     }
 

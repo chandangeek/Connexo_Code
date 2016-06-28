@@ -29,7 +29,7 @@ class MatchingChannelSelector {
     private final Formula.Mode mode;
 
     MatchingChannelSelector(ReadingTypeRequirement requirement, MeterActivation meterActivation) {
-        this(requirement.getMatchingChannelsFor(meterActivation), Formula.Mode.AUTO);
+        this(requirement.getMatchingChannelsFor(meterActivation.getChannelsContainer()), Formula.Mode.AUTO);
     }
 
     MatchingChannelSelector(List<Channel> matchingChannels, Formula.Mode mode) {

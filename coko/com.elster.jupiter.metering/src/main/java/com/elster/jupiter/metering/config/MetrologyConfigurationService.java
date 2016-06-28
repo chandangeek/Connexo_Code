@@ -21,8 +21,6 @@ import java.util.Optional;
 @ProviderType
 public interface MetrologyConfigurationService {
 
-    String COMPONENT_NAME = "MCF";
-
     MetrologyConfigurationBuilder newMetrologyConfiguration(String name, ServiceCategory serviceCategory);
 
     Optional<MetrologyConfiguration> findMetrologyConfiguration(long id);

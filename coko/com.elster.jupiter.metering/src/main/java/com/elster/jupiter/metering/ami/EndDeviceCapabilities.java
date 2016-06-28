@@ -2,7 +2,6 @@ package com.elster.jupiter.metering.ami;
 
 import com.elster.jupiter.metering.EndDeviceControlType;
 import com.elster.jupiter.metering.ReadingType;
-
 import com.google.common.collect.ImmutableList;
 
 import java.util.List;

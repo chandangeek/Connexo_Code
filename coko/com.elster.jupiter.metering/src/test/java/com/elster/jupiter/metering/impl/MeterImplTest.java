@@ -53,13 +53,13 @@ public class MeterImplTest {
     @Mock
     private Provider<EndDeviceEventRecordImpl> deviceEventFactory;
     @Mock
-    private MeteringService meteringService;
+    private ServerMeteringService meteringService;
     @Mock
     private ServerMetrologyConfigurationService metrologyConfigurationService;
     @Mock
     private Thesaurus thesaurus;
     @Mock
-    private Provider<IMeterActivation> meterActivationFactory;
+    private Provider<MeterActivationImpl> meterActivationFactory;
     @Mock
     private Clock clock;
     @Mock
@@ -75,8 +75,11 @@ public class MeterImplTest {
 
     @Before
     public void setUp() {
-        doAnswer(invocation -> new MeterActivationImpl(dataModel, eventService, clock, channelBuilderFactory, thesaurus)).when(meterActivationFactory).get();
+        when(meteringService.getClock()).thenReturn(clock);
+        when(meteringService.getDataModel()).thenReturn(dataModel);
 
+        doAnswer(invocation -> new MeterActivationImpl(dataModel, eventService, clock, thesaurus)).when(meterActivationFactory).get();
+        when(dataModel.getInstance(MeterActivationChannelsContainerImpl.class)).then(invocation -> new MeterActivationChannelsContainerImpl(meteringService, eventService, channelBuilderFactory));
         when(thesaurus.forLocale(any())).thenAnswer(invocation -> invocation.getArguments()[0]);
         when(metrologyConfigurationService.findDefaultMeterRole(DefaultMeterRole.DEFAULT)).thenReturn(meterRole);
         when(dataModel.getInstance(MeteringService.class)).thenReturn(meteringService);

@@ -23,13 +23,15 @@ import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
+import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
-import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableBuilder;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
@@ -107,6 +109,7 @@ public class DataAggregationServiceImplCalculateIT {
     private static ReadingType thirtyMinuteskWhReverse;
     private static ServiceCategory ELECTRICITY;
     private static MetrologyPurpose METROLOGY_PURPOSE;
+    private static MeterRole METER_ROLE;
     private static Instant jan1st2016 = Instant.ofEpochMilli(1451602800000L);
     private static Instant feb1st2016 = Instant.ofEpochMilli(1454281200000L);
     private static SqlBuilderFactory sqlBuilderFactory = mock(SqlBuilderFactory.class);
@@ -117,7 +120,7 @@ public class DataAggregationServiceImplCalculateIT {
 
     private MetrologyContract contract;
     private UsagePoint usagePoint;
-    private MetrologyConfiguration configuration;
+    private UsagePointMetrologyConfiguration configuration;
     private long productionRequirementId;
     private long consumptionRequirementId;
     private long netConsumptionDeliverableId;
@@ -155,7 +158,6 @@ public class DataAggregationServiceImplCalculateIT {
         setupServices();
         setupReadingTypes();
         setupMetrologyPurpose();
-        ELECTRICITY = getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
     }
 
     private static void setupServices() {
@@ -248,6 +250,9 @@ public class DataAggregationServiceImplCalculateIT {
             when(description.getComponent()).thenReturn(MeteringService.COMPONENTNAME);
             when(description.getLayer()).thenReturn(Layer.DOMAIN);
             METROLOGY_PURPOSE = getMetrologyConfigurationService().createMetrologyPurpose(description, description);
+            ELECTRICITY = getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
+            METER_ROLE = getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT);
+            ELECTRICITY.addMeterRole(METER_ROLE);
             ctx.commit();
         }
     }
@@ -313,12 +318,13 @@ public class DataAggregationServiceImplCalculateIT {
         this.activateMeterWithAll15MinChannels();
 
         // Setup MetrologyConfiguration
-        this.configuration = getMetrologyConfigurationService().newMetrologyConfiguration("simplestNetConsumptionOfProsumer", ELECTRICITY).create();
+        this.configuration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("simplestNetConsumptionOfProsumer", ELECTRICITY).create();
+        this.configuration.addMeterRole(METER_ROLE);
 
         // Setup configuration requirements
-        FullySpecifiedReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("A-").withReadingType(fifteenMinuteskWhForward);
+        FullySpecifiedReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("A-").withMeterRole(METER_ROLE).withReadingType(fifteenMinuteskWhForward);
         this.consumptionRequirementId = consumption.getId();
-        FullySpecifiedReadingTypeRequirement production = this.configuration.newReadingTypeRequirement("A+").withReadingType(fifteenMinuteskWhReverse);
+        FullySpecifiedReadingTypeRequirement production = this.configuration.newReadingTypeRequirement("A+").withMeterRole(METER_ROLE).withReadingType(fifteenMinuteskWhReverse);
         this.productionRequirementId = production.getId();
         System.out.println("simplestNetConsumptionOfProsumer::CONSUMPTION_REQUIREMENT_ID = " + consumptionRequirementId);
         System.out.println("simplestNetConsumptionOfProsumer::PRODUCTION_REQUIREMENT_ID = " + productionRequirementId);
@@ -327,9 +333,9 @@ public class DataAggregationServiceImplCalculateIT {
         ReadingTypeDeliverableBuilder builder = this.configuration.newReadingTypeDeliverable("consumption", fifteenMinutesNetConsumption, Formula.Mode.AUTO);
         ReadingTypeDeliverable netConsumption =
                 builder.build(
-                    builder.plus(
-                        builder.requirement(production),
-                        builder.requirement(consumption)));
+                        builder.plus(
+                                builder.requirement(production),
+                                builder.requirement(consumption)));
 
         this.netConsumptionDeliverableId = netConsumption.getId();
         System.out.println("simplestNetConsumptionOfProsumer::NET_CONSUMPTION_DELIVERABLE_ID = " + this.netConsumptionDeliverableId);
@@ -351,21 +357,21 @@ public class DataAggregationServiceImplCalculateIT {
             // Asserts:
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + consumptionRequirementId + ".*" + netConsumptionDeliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + consumptionRequirementId + ".*" + netConsumptionDeliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(consumptionWithClauseBuilder1.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + productionRequirementId + ".*" + netConsumptionDeliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + productionRequirementId + ".*" + netConsumptionDeliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(productionWithClauseBuilder1.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rod" + netConsumptionDeliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rod" + netConsumptionDeliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             // Assert that one of the requirements is used as source for the timeline
             assertThat(this.netConsumptionWithClauseBuilder1.getText())
                     .matches("SELECT -1, rid" + productionRequirementId + "_" + netConsumptionDeliverableId + "_1\\.timestamp,.*");
@@ -400,6 +406,7 @@ public class DataAggregationServiceImplCalculateIT {
      *           A+ -> 15 min kWh
      * In other words, simple sum of 2 requirements that are provided
      * by exactly one matching channel with a single meter activation.
+     *
      * @see #simplestNetConsumptionOfProsumer()
      */
     @Test
@@ -411,12 +418,13 @@ public class DataAggregationServiceImplCalculateIT {
         this.activateMeterWithAll15MinChannels();
 
         // Setup MetrologyConfiguration
-        this.configuration = getMetrologyConfigurationService().newMetrologyConfiguration("simplestNetConsumptionOfProsumer", ELECTRICITY).create();
+        this.configuration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("simplestNetConsumptionOfProsumer", ELECTRICITY).create();
+        this.configuration.addMeterRole(METER_ROLE);
 
         // Setup configuration requirements
-        FullySpecifiedReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("A-").withReadingType(fifteenMinuteskWhForward);
+        FullySpecifiedReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("A-").withMeterRole(METER_ROLE).withReadingType(fifteenMinuteskWhForward);
         this.consumptionRequirementId = consumption.getId();
-        FullySpecifiedReadingTypeRequirement production = this.configuration.newReadingTypeRequirement("A+").withReadingType(fifteenMinuteskWhReverse);
+        FullySpecifiedReadingTypeRequirement production = this.configuration.newReadingTypeRequirement("A+").withMeterRole(METER_ROLE).withReadingType(fifteenMinuteskWhReverse);
         this.productionRequirementId = production.getId();
         System.out.println("monthlyNetConsumptionBasedOn15MinValuesOfProsumer::CONSUMPTION_REQUIREMENT_ID = " + consumptionRequirementId);
         System.out.println("monthlyNetConsumptionBasedOn15MinValuesOfProsumer::PRODUCTION_REQUIREMENT_ID = " + productionRequirementId);
@@ -425,9 +433,9 @@ public class DataAggregationServiceImplCalculateIT {
         ReadingTypeDeliverableBuilder builder = this.configuration.newReadingTypeDeliverable("consumption", monthlyNetConsumption, Formula.Mode.AUTO);
         ReadingTypeDeliverable netConsumption =
                 builder.build(
-                    builder.plus(
-                        builder.requirement(production),
-                        builder.requirement(consumption)));
+                        builder.plus(
+                                builder.requirement(production),
+                                builder.requirement(consumption)));
 
         this.netConsumptionDeliverableId = netConsumption.getId();
         System.out.println("monthlyNetConsumptionBasedOn15MinValuesOfProsumer::NET_CONSUMPTION_DELIVERABLE_ID = " + this.netConsumptionDeliverableId);
@@ -449,21 +457,21 @@ public class DataAggregationServiceImplCalculateIT {
             // Asserts:
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + consumptionRequirementId + ".*" + netConsumptionDeliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + consumptionRequirementId + ".*" + netConsumptionDeliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(consumptionWithClauseBuilder1.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + productionRequirementId + ".*" + netConsumptionDeliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + productionRequirementId + ".*" + netConsumptionDeliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(productionWithClauseBuilder1.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rod" + netConsumptionDeliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rod" + netConsumptionDeliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             // Assert that one of the requirements is used as source for the timeline
             assertThat(this.netConsumptionWithClauseBuilder1.getText())
                     .matches("SELECT -1, rid" + productionRequirementId + "_" + netConsumptionDeliverableId + "_1\\.timestamp,.*");
@@ -504,6 +512,7 @@ public class DataAggregationServiceImplCalculateIT {
      *           A+ -> 30 min kWh
      * In other words, A+ and A- need aggregation to monthly values
      * before summing up but that achieves the requested monthly level.
+     *
      * @see #monthlyNetConsumptionBasedOn15MinValuesOfProsumer()
      */
     @Test
@@ -515,12 +524,13 @@ public class DataAggregationServiceImplCalculateIT {
         this.activateMeterWithAll15And30MinChannels();
 
         // Setup MetrologyConfiguration
-        this.configuration = getMetrologyConfigurationService().newMetrologyConfiguration("simplestNetConsumptionOfProsumer", ELECTRICITY).create();
+        this.configuration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("simplestNetConsumptionOfProsumer", ELECTRICITY).create();
+        this.configuration.addMeterRole(METER_ROLE);
 
         // Setup configuration requirements
-        FullySpecifiedReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("A-").withReadingType(fifteenMinuteskWhForward);
+        FullySpecifiedReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("A-").withMeterRole(METER_ROLE).withReadingType(fifteenMinuteskWhForward);
         this.consumptionRequirementId = consumption.getId();
-        FullySpecifiedReadingTypeRequirement production = this.configuration.newReadingTypeRequirement("A+").withReadingType(thirtyMinuteskWhReverse);
+        FullySpecifiedReadingTypeRequirement production = this.configuration.newReadingTypeRequirement("A+").withMeterRole(METER_ROLE).withReadingType(thirtyMinuteskWhReverse);
         this.productionRequirementId = production.getId();
         System.out.println("monthlyNetConsumptionBasedOn15And30MinValuesOfProsumer::CONSUMPTION_REQUIREMENT_ID = " + consumptionRequirementId);
         System.out.println("monthlyNetConsumptionBasedOn15And30MinValuesOfProsumer::PRODUCTION_REQUIREMENT_ID = " + productionRequirementId);
@@ -555,21 +565,21 @@ public class DataAggregationServiceImplCalculateIT {
             // Asserts:
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + consumptionRequirementId + ".*" + netConsumptionDeliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + consumptionRequirementId + ".*" + netConsumptionDeliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(consumptionWithClauseBuilder1.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + productionRequirementId + ".*" + netConsumptionDeliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + productionRequirementId + ".*" + netConsumptionDeliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(productionWithClauseBuilder1.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rod" + netConsumptionDeliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rod" + netConsumptionDeliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             // Assert that the with clause for the the production requirement is aggregated to monthly values
             String productionWithSelectClause = this.productionWithClauseBuilder1.getText();
             assertThat(productionWithSelectClause).matches(".*[sum|SUM]\\(value\\).*");
@@ -626,12 +636,13 @@ public class DataAggregationServiceImplCalculateIT {
         this.activateMetersWithAll15MinChannels();
 
         // Setup MetrologyConfiguration
-        this.configuration = getMetrologyConfigurationService().newMetrologyConfiguration("simplestNetConsumptionOfProsumer", ELECTRICITY).create();
+        this.configuration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("simplestNetConsumptionOfProsumer", ELECTRICITY).create();
+        this.configuration.addMeterRole(METER_ROLE);
 
         // Setup configuration requirements
-        FullySpecifiedReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("A-").withReadingType(fifteenMinuteskWhForward);
+        FullySpecifiedReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("A-").withMeterRole(METER_ROLE).withReadingType(fifteenMinuteskWhForward);
         this.consumptionRequirementId = consumption.getId();
-        FullySpecifiedReadingTypeRequirement production = this.configuration.newReadingTypeRequirement("A+").withReadingType(fifteenMinuteskWhReverse);
+        FullySpecifiedReadingTypeRequirement production = this.configuration.newReadingTypeRequirement("A+").withMeterRole(METER_ROLE).withReadingType(fifteenMinuteskWhReverse);
         this.productionRequirementId = production.getId();
         System.out.println("simplestNetConsumptionOfProsumerWithMultipleMeterActivations::CONSUMPTION_REQUIREMENT_ID = " + consumptionRequirementId);
         System.out.println("simplestNetConsumptionOfProsumerWithMultipleMeterActivations::PRODUCTION_REQUIREMENT_ID = " + productionRequirementId);
@@ -640,9 +651,9 @@ public class DataAggregationServiceImplCalculateIT {
         ReadingTypeDeliverableBuilder builder = this.configuration.newReadingTypeDeliverable("consumption", fifteenMinutesNetConsumption, Formula.Mode.AUTO);
         ReadingTypeDeliverable netConsumption =
                 builder.build(
-                    builder.plus(
-                        builder.requirement(production),
-                        builder.requirement(consumption)));
+                        builder.plus(
+                                builder.requirement(production),
+                                builder.requirement(consumption)));
 
         this.netConsumptionDeliverableId = netConsumption.getId();
         System.out.println("simplestNetConsumptionOfProsumerWithMultipleMeterActivations::NET_CONSUMPTION_DELIVERABLE_ID = " + this.netConsumptionDeliverableId);
@@ -665,39 +676,39 @@ public class DataAggregationServiceImplCalculateIT {
             // First meter activation
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + consumptionRequirementId + ".*" + netConsumptionDeliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + consumptionRequirementId + ".*" + netConsumptionDeliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(consumptionWithClauseBuilder1.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + productionRequirementId + ".*" + netConsumptionDeliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + productionRequirementId + ".*" + netConsumptionDeliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(productionWithClauseBuilder1.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rod" + netConsumptionDeliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rod" + netConsumptionDeliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             // Second meter activation
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + consumptionRequirementId + ".*" + netConsumptionDeliverableId + ".*2"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + consumptionRequirementId + ".*" + netConsumptionDeliverableId + ".*2"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(consumptionWithClauseBuilder2.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + productionRequirementId + ".*" + netConsumptionDeliverableId + ".*2"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + productionRequirementId + ".*" + netConsumptionDeliverableId + ".*2"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(productionWithClauseBuilder2.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rod" + netConsumptionDeliverableId + ".*2"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rod" + netConsumptionDeliverableId + ".*2"),
+                            any(Optional.class),
+                            anyVararg());
             // Assert that one of the requirements is used as source for the timeline in the first meter activation
             assertThat(this.netConsumptionWithClauseBuilder1.getText())
                     .matches("SELECT -1, rid" + productionRequirementId + "_" + netConsumptionDeliverableId + "_1\\.timestamp,.*");
@@ -755,23 +766,23 @@ public class DataAggregationServiceImplCalculateIT {
 
     private void activateMeterWithAll15MinChannels() {
         this.meterActivation1 = this.usagePoint.activate(this.meter1, jan1st2016);
-        this.meterActivation1.createChannel(fifteenMinuteskWhReverse);
-        this.meterActivation1.createChannel(fifteenMinuteskWhForward);
+        this.meterActivation1.getChannelsContainer().createChannel(fifteenMinuteskWhReverse);
+        this.meterActivation1.getChannelsContainer().createChannel(fifteenMinuteskWhForward);
     }
 
     private void activateMetersWithAll15MinChannels() {
         this.meterActivation1 = this.usagePoint.activate(this.meter1, jan1st2016);
         this.meterActivation2 = this.usagePoint.activate(this.meter2, feb1st2016);
-        this.meterActivation1.createChannel(fifteenMinuteskWhReverse);
-        this.meterActivation1.createChannel(fifteenMinuteskWhForward);
-        this.meterActivation2.createChannel(fifteenMinuteskWhReverse);
-        this.meterActivation2.createChannel(fifteenMinuteskWhForward);
+        this.meterActivation1.getChannelsContainer().createChannel(fifteenMinuteskWhReverse);
+        this.meterActivation1.getChannelsContainer().createChannel(fifteenMinuteskWhForward);
+        this.meterActivation2.getChannelsContainer().createChannel(fifteenMinuteskWhReverse);
+        this.meterActivation2.getChannelsContainer().createChannel(fifteenMinuteskWhForward);
     }
 
     private void activateMeterWithAll15And30MinChannels() {
         this.meterActivation1 = this.usagePoint.activate(this.meter1, jan1st2016);
-        this.meterActivation1.createChannel(thirtyMinuteskWhReverse);
-        this.meterActivation1.createChannel(fifteenMinuteskWhForward);
+        this.meterActivation1.getChannelsContainer().createChannel(thirtyMinuteskWhReverse);
+        this.meterActivation1.getChannelsContainer().createChannel(fifteenMinuteskWhForward);
     }
 
     private String mRID2GrepPattern(String mRID) {
