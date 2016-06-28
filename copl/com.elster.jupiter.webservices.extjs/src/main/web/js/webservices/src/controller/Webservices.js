@@ -24,7 +24,8 @@ Ext.define('Wss.controller.Webservices', {
 
     refs: [
         {ref: 'preview', selector: 'webservices-preview'},
-        {ref: 'addForm', selector: '#addForm'}
+        {ref: 'addForm', selector: '#addForm'},
+        {ref: 'landingPageForm', selector: 'webservice-landing-page webservices-preview-form form'}
     ],
 
     init: function () {
@@ -97,7 +98,8 @@ Ext.define('Wss.controller.Webservices', {
                                 view = Ext.widget('endpoint-add', {
                                     action: type,
                                     record: record,
-                                    returnLink: me.getController('Uni.controller.history.Router').getRoute('administration/webserviceendpoints').buildUrl(),
+                                    returnLink: record === null ? me.getController('Uni.controller.history.Router').getRoute('administration/webserviceendpoints').buildUrl()
+                                        : me.getController('Uni.controller.history.Router').getRoute('administration/webserviceendpoints/view').buildUrl({endpointId: record.get('id')}),
                                     authenticationMethodStore: authenticationMethodStore,
                                     rolesStore: rolesStore,
                                     logLevelsStore: logLevelsStore
@@ -255,6 +257,9 @@ Ext.define('Wss.controller.Webservices', {
                         Uni.I18n.translate('general.xActivated', 'WSS', '{0} activated ', [record.get('name')]) :
                         Uni.I18n.translate('general.xDeactivated', 'WSS', '{0} deactivated ', [record.get('name')])
                     );
+                    if(me.getLandingPageForm()) {
+                        me.getLandingPageForm().loadRecord(record);
+                    }
                 }
             }
         );
