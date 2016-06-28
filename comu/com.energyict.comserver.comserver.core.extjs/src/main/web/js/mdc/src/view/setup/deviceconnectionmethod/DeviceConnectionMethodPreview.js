@@ -59,7 +59,6 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodPreview'
                     xtype: 'container',
                     layout: {
                         type: 'column'
-//                        align: 'stretch'
                     },
                     items: [
                         {
@@ -196,8 +195,6 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodPreview'
                                 }
                             ]
                         }
-
-
                     ]
                 },
                 {
@@ -216,8 +213,10 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodPreview'
                     items: [
                         {
                             xtype: 'displayfield',
-                            fieldLabel: '<h3>' + Uni.I18n.translate('deviceconnectionmethod.connectionDetails', 'MDC', 'Connection details') + '</h3>',
-                            text: ''
+                            fieldLabel: Uni.I18n.translate('deviceconnectionmethod.connectionDetails', 'MDC', 'Connection details'),
+                            renderer: function() {
+                                return ''; // No dash!
+                            }
                         }
                     ]
                 },
@@ -228,16 +227,12 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodPreview'
                     layout: 'column',
 
                     defaults: {
-                        xtype: 'container',
                         layout: 'form',
                         resetButtonHidden: true,
                         labelWidth: 250,
-                        columnWidth: 0.5
+                        columnWidth: 0.49
                     }
                 }
-//                {
-//                    xtype: 'propertyView'
-//                }
             ]
         }
     ],
