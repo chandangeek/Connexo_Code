@@ -40,7 +40,7 @@ public class UrlValidator implements ConstraintValidator<ValidUrl, EndPointConfi
                 return false;
             }
 
-            if (usesInvalidCharacters(endPointConfiguration.getUrl()) || hasSpaces(endPointConfiguration.getUrl())) {
+            if (usesInvalidCharacters(endPointConfiguration.getUrl()) || hasSpaces(endPointConfiguration.getUrl()) || hasDots(endPointConfiguration.getUrl())) {
                 context
                         .buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.INVALID_PATH + "}")
                         .addPropertyNode(EndPointConfigurationImpl.Fields.URL.fieldName())
@@ -69,5 +69,9 @@ public class UrlValidator implements ConstraintValidator<ValidUrl, EndPointConfi
 
     private boolean hasSpaces(String url) {
         return url.contains(" ");
+    }
+
+    private boolean hasDots(String url) {
+        return url.contains(".");
     }
 }
