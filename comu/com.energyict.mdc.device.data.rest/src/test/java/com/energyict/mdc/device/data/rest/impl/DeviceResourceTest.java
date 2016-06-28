@@ -2627,6 +2627,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     @Test
     public void createWithShipmentDateTest() {
+        Instant shipmentDate = Instant.ofEpochSecond(1467019262L);
         long deviceConfigId = 12L;
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(deviceConfigurationService.findDeviceConfiguration(deviceConfigId)).thenReturn(Optional.of(deviceConfiguration));
@@ -2640,13 +2641,12 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(device.getLocation()).thenReturn(Optional.empty());
         when(device.getGeoCoordinates()).thenReturn(Optional.empty());
         String mrid = "mrid";
-        when(deviceService.newDevice(deviceConfiguration, mrid, mrid)).thenReturn(device);
+        when(deviceService.newDevice(deviceConfiguration, mrid, mrid, shipmentDate)).thenReturn(device);
         DeviceInfo deviceInfo = new DeviceInfo();
         deviceInfo.mRID = mrid;
         deviceInfo.deviceConfigurationId = deviceConfigId;
         deviceInfo.serialNumber = "MySerialNumber";
         deviceInfo.yearOfCertification = 1970;
-        Instant shipmentDate = Instant.ofEpochSecond(1467019262L);
         deviceInfo.shipmentDate = shipmentDate;
         when(cimLifecycleDates.getReceivedDate()).thenReturn(Optional.of(shipmentDate));
         Response response = target("/devices/").request().post(Entity.json(deviceInfo));

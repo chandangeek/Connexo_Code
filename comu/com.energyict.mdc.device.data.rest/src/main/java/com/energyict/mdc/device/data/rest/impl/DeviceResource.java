@@ -225,12 +225,11 @@ public class DeviceResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE)
     public Response addDevice(DeviceInfo info, @Context SecurityContext securityContext) {
-        Device newDevice= newDevice(info.deviceConfigurationId, info.batch, info.mRID, info.serialNumber, info.yearOfCertification );
-        //TODO: Device Date should go on the device wharehouse (future development) - or to go on Batch - creation date
+        Device newDevice = newDevice(info.deviceConfigurationId, info.batch, info.mRID, info.serialNumber, info.yearOfCertification, info.shipmentDate);
         return Response.status(Response.Status.CREATED).entity(deviceInfoFactory.from(newDevice, getSlaveDevicesForDevice(newDevice))).build();
     }
 
-    private Device newDevice(long deviceConfigurationId, String batch, String mRID, String serialNumber, int yearOfCertification){
+    private Device newDevice(long deviceConfigurationId, String batch, String mRID, String serialNumber, int yearOfCertification, Instant shipmentDate) {
         Optional<DeviceConfiguration> deviceConfiguration = deviceConfigurationService.findDeviceConfiguration(deviceConfigurationId);
         Device newDevice;
         if (!is(batch).emptyOrOnlyWhiteSpace()) {
@@ -241,7 +240,7 @@ public class DeviceResource {
         newDevice.setSerialNumber(serialNumber);
         newDevice.setYearOfCertification(yearOfCertification);
         newDevice.save();
-        newDevice.getLifecycleDates().setReceivedDate(info.shipmentDate).save();
+        newDevice.getLifecycleDates().setReceivedDate(shipmentDate).save();
         return newDevice;
     }
 
@@ -331,7 +330,8 @@ public class DeviceResource {
         if (!slaveDeviceInfo.placeHolderForUnlinkedDataLoggerChannelsAndRegisters()) {
             Device slave;
             if (slaveDeviceInfo.id == 0 && slaveDeviceInfo.version == 0) {
-                slave = newDevice(slaveDeviceInfo.deviceConfigurationId, null, slaveDeviceInfo.mRID, slaveDeviceInfo.serialNumber, slaveDeviceInfo.yearOfCertification);
+                //TODO fix and align what we need to provide there
+                slave = newDevice(slaveDeviceInfo.deviceConfigurationId, null, slaveDeviceInfo.mRID, slaveDeviceInfo.serialNumber, slaveDeviceInfo.yearOfCertification, Instant.now());
             } else {
                 slave = deviceService.findByUniqueMrid(slaveDeviceInfo.mRID)
                         .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE, slaveDeviceInfo.mRID));
