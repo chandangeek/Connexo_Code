@@ -338,9 +338,9 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     }
 
     @Override
-    public void setDataLogger(Device slave, Device dataLogger, Instant arrivalDate, Map<Channel, Channel> slaveDataLoggerChannelMap, Map<Register, Register> slaveDataLoggerRegisterMap){
-        this.getPhysicalGatewayReference(slave, arrivalDate).ifPresent(r -> terminateTemporal(r, arrivalDate));
-        final DataLoggerReferenceImpl dataLoggerReference = this.newDataLoggerReference(slave, dataLogger, arrivalDate);
+    public void setDataLogger(Device slave, Device dataLogger, Instant linkingDate, Map<Channel, Channel> slaveDataLoggerChannelMap, Map<Register, Register> slaveDataLoggerRegisterMap){
+        this.getPhysicalGatewayReference(slave, linkingDate).ifPresent(r -> terminateTemporal(r, linkingDate));
+        final DataLoggerReferenceImpl dataLoggerReference = this.newDataLoggerReference(slave, dataLogger, linkingDate);
         slaveDataLoggerChannelMap.forEach((slaveChannel, dataLoggerChannel) -> this.addChannelDataLoggerUsage(dataLoggerReference, slaveChannel, dataLoggerChannel));
         slaveDataLoggerRegisterMap.forEach((slaveRegister, dataLoggerRegister) -> this.addRegisterDataLoggerUsage(dataLoggerReference, slaveRegister, dataLoggerRegister));
         Save.CREATE.validate(this.dataModel, dataLoggerReference);
@@ -427,18 +427,18 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
 
     @Override
     public Optional<Instant> availabilityDate(Channel dataLoggerChannel) {
-        return availabilityDate(getMeteringChannel(dataLoggerChannel));
+        return availabilityDate(getMeteringChannel(dataLoggerChannel), dataLoggerChannel.getDevice().getLifecycleDates().getReceivedDate() );
     }
 
     @Override
     public Optional<Instant> availabilityDate(Register dataLoggerRegister) {
-         return availabilityDate(getMeteringChannel(dataLoggerRegister));
+         return availabilityDate(getMeteringChannel(dataLoggerRegister), dataLoggerRegister.getDevice().getLifecycleDates().getReceivedDate());
     }
 
-    private Optional<Instant> availabilityDate(com.elster.jupiter.metering.Channel dataLoggerChannel) {
+    private Optional<Instant> availabilityDate(com.elster.jupiter.metering.Channel dataLoggerChannel, Optional<Instant> atLeast) {
         List<DataLoggerChannelUsage> usages = this.findDataLoggerChannelUsages((dataLoggerChannel));
         if (usages.isEmpty()){
-            return Optional.of(Instant.EPOCH);
+            return Optional.of(atLeast.orElse(Instant.EPOCH));
         }else{
             usages.sort(Comparator.<DataLoggerChannelUsage>comparingLong((usage) -> usage.getRange().hasUpperBound() ? usage.getRange().upperEndpoint().toEpochMilli() : Long.MAX_VALUE).reversed());
             if (usages.get(0).getRange().hasUpperBound()) {
