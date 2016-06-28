@@ -11,6 +11,7 @@ import com.elster.jupiter.cps.ValuesRangeConflictType;
 import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleSet;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingQualityRecord;
@@ -128,6 +129,8 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
     private DeviceConfiguration deviceConfiguration;
     @Mock
     private MeterActivation meterActivation;
+    @Mock
+    private ChannelsContainer channelsContainer;
 
     private ReadingQualityType readingQualityTypeAdded = new ReadingQualityType("3.7.1");
     private ReadingQualityType readingQualityTypeEdited = new ReadingQualityType("3.7.0");
@@ -138,6 +141,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
     @Before
     public void setUpStubs() {
         when(device.getMeterActivationsMostRecentFirst()).thenReturn(Arrays.asList(meterActivation));
+        when(meterActivation.getChannelsContainer()).thenReturn(channelsContainer);
         when(meterActivation.getStart()).thenReturn(NOW);
         when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
         when(deviceService.findAndLockDeviceBymRIDAndVersion("1", 1L)).thenReturn(Optional.of(device));
@@ -236,7 +240,6 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(removedProfileReading.getChannelValidationStates()).thenReturn(ImmutableMap.of(channel, statusForValueRemoved));
 
         when(validationService.getEvaluator()).thenReturn(evaluator);
-        when(evaluator.getValidationResult(any())).thenReturn(ValidationResult.SUSPECT);
         when(validationRule.getImplementation()).thenReturn("isPrime");
         when(validationRule.getDisplayName()).thenReturn("Primes only");
         when(channelSpec.getNbrOfFractionDigits()).thenReturn(3);
@@ -351,7 +354,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(channelDataUpdater.removeChannelData(anyList())).thenReturn(channelDataUpdater);
         when(channel.startEditingData()).thenReturn(channelDataUpdater);
         when(device.getId()).thenReturn(1L);
-        when(meterActivation.getChannels()).thenReturn(Arrays.asList(meteringChannel));
+        when(channelsContainer.getChannels()).thenReturn(Arrays.asList(meteringChannel));
         doReturn(Arrays.asList(readingType)).when(meteringChannel).getReadingTypes();
         when(list.contains(readingType)).thenReturn(true);
 
@@ -371,7 +374,6 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     @Test
     public void testChannelDataFiltered() throws UnsupportedEncodingException {
-        when(evaluator.getValidationResult(any())).thenReturn(ValidationResult.VALID);
         when(deviceValidation.getValidationResult(any())).thenReturn(ValidationResult.VALID);
 
         String filter = ExtjsFilter.filter()

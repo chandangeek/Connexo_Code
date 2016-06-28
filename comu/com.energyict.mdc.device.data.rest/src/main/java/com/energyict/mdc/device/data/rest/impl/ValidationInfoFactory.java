@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.cbo.QualityCodeCategory;
 import com.elster.jupiter.cbo.QualityCodeIndex;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingQualityRecord;
@@ -9,8 +10,6 @@ import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.rest.util.IdWithNameInfo;
-import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationRule;
@@ -238,7 +237,7 @@ public class ValidationInfoFactory {
         return veeReadingInfo;
     }
 
-    private List<IdWithNameInfo> getReadingQualities(IntervalReadingRecord intervalReadingRecord) {
+    private List<ReadingQualityInfo> getReadingQualities(IntervalReadingRecord intervalReadingRecord) {
         if (intervalReadingRecord == null) {
             return Collections.emptyList();
         }
@@ -246,12 +245,11 @@ public class ValidationInfoFactory {
                 .filter(ReadingQualityRecord::isActual)
                 .map(ReadingQuality::getType)
                 .distinct()
+                // TODO: the place for refactoring of CXO-1437/CXO-1438
                 .filter(type -> type.system().isPresent())
                 .filter(type -> type.qualityIndex().isPresent())
                 .filter(type -> QUALITY_CODE_CATEGORIES.contains(type.category().get()))
-                .map(type -> Pair.of(type.getCode(), type.qualityIndex().get()))
-                .map(pair -> new IdWithNameInfo(pair.getFirst(),
-                        thesaurus.getStringBeyondComponent(pair.getLast().getTranslationKey().getKey(), pair.getLast().getTranslationKey().getDefaultFormat())))
+                .map(type -> new ReadingQualityInfo(type, thesaurus))
                 .collect(Collectors.toList());
     }
 
@@ -264,7 +262,7 @@ public class ValidationInfoFactory {
         veeReadingInfo.action = decorate(dataValidationStatus.getReadingQualities()
                 .stream())
                 .filter(quality -> quality.getType().hasValidationCategory() || quality.getType().isSuspect())
-                .map(quality -> quality.getType().isSuspect() ? ValidationAction.FAIL : ValidationAction.WARN_ONLY)
+                .map(readingQuality -> getReadingQualityValidationAction(readingQuality, veeReadingInfo))
                 .sorted(Comparator.<ValidationAction>reverseOrder())
                 .findFirst()
                 .orElse(null);
@@ -283,7 +281,7 @@ public class ValidationInfoFactory {
             veeReadingInfo.action = decorate(dataValidationStatus.getBulkReadingQualities()
                     .stream())
                     .filter(quality -> quality.getType().hasValidationCategory() || quality.getType().isSuspect())
-                    .map(quality -> quality.getType().isSuspect() ? ValidationAction.FAIL : ValidationAction.WARN_ONLY)
+                    .map(readingQuality -> getReadingQualityValidationAction(readingQuality, veeReadingInfo))
                     .sorted(Comparator.<ValidationAction>reverseOrder())
                     .findFirst()
                     .orElse(null);
@@ -293,6 +291,16 @@ public class ValidationInfoFactory {
             return veeReadingInfo;
         }
         return null;
+    }
+
+    private ValidationAction getReadingQualityValidationAction(ReadingQuality readingQuality, MinimalVeeReadingValueInfo veeReadingValueInfo) {
+        if (readingQuality.getType().system().isPresent()) {
+            if (readingQuality.getType().system().get() == QualityCodeSystem.MDM) {
+                veeReadingValueInfo.validationResult = ValidationStatus.OK;
+                return ValidationAction.WARN_ONLY;
+            }
+        }
+        return readingQuality.getType().isSuspect() ? ValidationAction.FAIL : ValidationAction.WARN_ONLY;
     }
 
     boolean isConfirmedData(BaseReadingRecord reading, Collection<? extends ReadingQuality> qualities) {

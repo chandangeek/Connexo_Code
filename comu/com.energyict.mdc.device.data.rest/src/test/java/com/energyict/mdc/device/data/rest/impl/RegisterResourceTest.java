@@ -67,8 +67,6 @@ public class RegisterResourceTest extends DeviceDataRestApplicationJerseyTest {
     private DeviceConfiguration deviceConfiguration;
     private ObisCode registerSpecObisCode = ObisCode.fromString("1.0.1.8.0.255");
 
-
-
     @Before
     public void setUpStubs() {
         when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
