@@ -161,7 +161,7 @@ public class UsagePointResource {
     public ChannelInfos getChannels(@PathParam("mRID") String mRID, @PathParam("activationId") long activationId, @Context SecurityContext securityContext) {
         UsagePoint usagePoint = fetchUsagePoint(mRID);
         MeterActivation meterActivation = fetchMeterActivation(usagePoint, activationId);
-        return new ChannelInfos(meterActivation.getChannels());
+        return new ChannelInfos(meterActivation.getChannelsContainer().getChannels());
     }
 
     private MeterActivation fetchMeterActivation(UsagePoint usagePoint, long activationId) {
@@ -188,7 +188,7 @@ public class UsagePointResource {
     private ReadingInfos doGetIntervalreadings(String mRID, long activationId, long channelId, Range<Instant> range) {
         UsagePoint usagePoint = fetchUsagePoint(mRID);
         MeterActivation meterActivation = fetchMeterActivation(usagePoint, activationId);
-        for (Channel channel : meterActivation.getChannels()) {
+        for (Channel channel : meterActivation.getChannelsContainer().getChannels()) {
             if (channel.getId() == channelId) {
                 List<IntervalReadingRecord> intervalReadings = channel.getIntervalReadings(range);
                 return new ReadingInfos(intervalReadings);
@@ -249,7 +249,7 @@ public class UsagePointResource {
             if (readingType == null) {
                 readingType = FluentIterable.from(meterActivation.getReadingTypes()).firstMatch(new MRIDMatcher(rtMrid)).get();
             }
-            for (Channel channel : meterActivation.getChannels()) {
+            for (Channel channel : meterActivation.getChannelsContainer().getChannels()) {
                 readings.addAll(channel.getIntervalReadings(readingType, range));
             }
         }
