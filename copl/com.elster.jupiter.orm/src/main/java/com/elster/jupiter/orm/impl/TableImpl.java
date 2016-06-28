@@ -306,22 +306,13 @@ public class TableImpl<T> implements Table<T> {
 
     @Override
     public List<String> getDdl() {
-        return new TableDdlGenerator(this, getDataModel().getSqlDialect(), getDataModel().getVersion()).getDdl();
+        return TableDdlGenerator.cautious(this, getDataModel().getSqlDialect(), getDataModel().getVersion()).getDdl();
     }
 
     @Override
     public List<String> getDdl(Version version) {
-        return new TableDdlGenerator(this, getDataModel().getSqlDialect(), version).getDdl();
+        return TableDdlGenerator.cautious(this, getDataModel().getSqlDialect(), version).getDdl();
     }
-
-    public List<String> upgradeDdl(TableImpl<?> toTable, Version version) {
-        return new TableDdlGenerator(this, getDataModel().getSqlDialect(), version).upgradeDdl(toTable);
-    }
-
-    public List<String> upgradeSequenceDdl(ColumnImpl column, long startValue, Version version) {
-        return new TableDdlGenerator(this, getDataModel().getSqlDialect(), version).upgradeSequenceDdl(column, startValue);
-    }
-
 
     String getExtraJournalPrimaryKeyColumnNames() {
         String base = JOURNALTIMECOLUMNNAME;
@@ -948,13 +939,10 @@ public class TableImpl<T> implements Table<T> {
         return realColumns;
     }
 
-    IndexImpl getIndex(String name) {
-        for (IndexImpl index : indexes) {
-            if (index.getName().equals(name)) {
-                return index;
-            }
-        }
-        return null;
+    Optional<IndexImpl> getIndex(String name) {
+        return indexes.stream()
+                .filter(index -> index.getName().equals(name))
+                .findAny();
     }
 
     TableConstraintImpl getConstraint(String name) {

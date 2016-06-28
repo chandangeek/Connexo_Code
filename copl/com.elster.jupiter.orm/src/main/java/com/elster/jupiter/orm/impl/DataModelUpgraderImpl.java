@@ -15,8 +15,14 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static com.elster.jupiter.util.streams.Predicates.not;
 
 public class DataModelUpgraderImpl implements DataModelUpgrader {
 
@@ -28,21 +34,126 @@ public class DataModelUpgraderImpl implements DataModelUpgrader {
     private final State state;
 
     private interface State {
-        void handleSqlStatements(Statement statement, List<String> sqlStatements);
+        Context createContext(DataModelImpl dataModel);
+
+        void handleSqlStatements(Context context, List<String> sqlStatements);
+
+        TableDdlGenerator ddlGenerator(TableImpl<?> table, Version version);
+
+        String removeTable(TableImpl<?> table);
+
+        Stream<TableImpl<?>> dropCandidates(DataModelImpl dataModel);
 
     }
 
-    private static class PerformCautiousUpgrade implements State {
+    private interface Context extends AutoCloseable {
+        Statement getStatement();
+
         @Override
-        public void handleSqlStatements(Statement statement, List<String> sqlStatements) {
+        void close();
+    }
+
+    private static class PerformCautiousUpgrade implements State {
+
+        @Override
+        public Context createContext(DataModelImpl dataModel) {
+            return new LongContext(dataModel);
+        }
+
+        @Override
+        public void handleSqlStatements(Context context, List<String> sqlStatements) {
             for (String each : sqlStatements) {
                 try {
-                    statement.execute(each);
+                    context.getStatement().execute(each);
                 } catch (SQLException sqe) {
                     throw new UnderlyingSQLFailedException(sqe);
                 }
             }
         }
+
+        @Override
+        public TableDdlGenerator ddlGenerator(TableImpl<?> table, Version version) {
+            return TableDdlGenerator.cautious(table, table.getDataModel()
+                    .getSqlDialect(), version);
+        }
+
+        @Override
+        public Stream<TableImpl<?>> dropCandidates(DataModelImpl dataModel) {
+            return Stream.empty();
+        }
+
+        @Override
+        public String removeTable(TableImpl<?> table) {
+            // let it live
+            return null;
+        }
+
+    }
+
+    private static class LongContext implements Context {
+        private final Connection connection;
+        private final Statement statement;
+
+        public LongContext(DataModelImpl dataModel) {
+            try {
+                connection = dataModel.getConnection(false);
+                statement = connection.createStatement();
+            } catch (SQLException e) {
+                throw new UnderlyingSQLFailedException(e);
+            }
+        }
+
+        @Override
+        public Statement getStatement() {
+            return statement;
+        }
+
+        @Override
+        public void close() {
+            SQLException thrown = null;
+            try {
+                statement.close();
+            } catch (SQLException e) {
+                thrown = e;
+            }
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                if (thrown != null) {
+                    e.addSuppressed(thrown);
+                }
+                throw new UnderlyingSQLFailedException(e);
+            }
+        }
+    }
+
+    private static class CollectStrictUpgrade implements State {
+        @Override
+        public Context createContext(DataModelImpl dataModel) {
+            return new LongContext(dataModel);
+        }
+
+        @Override
+        public void handleSqlStatements(Context context, List<String> sqlStatements) {
+            // TODO
+        }
+
+        @Override
+        public Stream<TableImpl<?>> dropCandidates(DataModelImpl dataModel) {
+            return dataModel.getTables().stream();
+        }
+
+        @Override
+        public TableDdlGenerator ddlGenerator(TableImpl<?> table, Version version) {
+            return TableDdlGenerator.strict(table, table.getDataModel()
+                    .getSqlDialect(), version);
+        }
+
+        @Override
+        public String removeTable(TableImpl<?> table) {
+            return "drop table " + table.getName().toUpperCase() + " cascade constraints";
+        }
+
     }
 
     public static DataModelUpgrader forUpgrade(SchemaInfoProvider schemaInfoProvider, OrmServiceImpl ormService, Logger logger) {
@@ -71,7 +182,10 @@ public class DataModelUpgraderImpl implements DataModelUpgrader {
             for (TableImpl<?> table : model.getTables(version)) {
                 String existingJournalTableName =
                         table.hasJournal()
-                                ? schemaMetaDataModel.mapper(ExistingTable.class).getEager(table.getJournalTableName()).map(ExistingTable::getName).orElse(null)
+                                ? schemaMetaDataModel.mapper(ExistingTable.class)
+                                .getEager(table.getJournalTableName())
+                                .map(ExistingTable::getName)
+                                .orElse(null)
                                 : null;
                 table.getHistoricalNames()
                         .stream()
@@ -101,7 +215,8 @@ public class DataModelUpgraderImpl implements DataModelUpgrader {
                                 .stream()
                                 .filter(ExistingConstraint::isForeignKey)
                                 .map(ExistingConstraint::getReferencedTableName)
-                                .filter(referencedTableName -> !tableName.equalsIgnoreCase(referencedTableName) && currentDataModel.getTable(referencedTableName) == null)
+                                .filter(referencedTableName -> !tableName.equalsIgnoreCase(referencedTableName) && currentDataModel
+                                        .getTable(referencedTableName) == null)
                                 .forEach(referencedTableName -> addTableToExistingModel(currentDataModel, schemaMetaDataModel, referencedTableName, null, processedTables));
                         userTable.addConstraintsTo(currentDataModel);
                     });
@@ -109,87 +224,118 @@ public class DataModelUpgraderImpl implements DataModelUpgrader {
     }
 
     private void upgradeTo(DataModelImpl fromDataModel, DataModelImpl toDataModel, Version version) {
-        try (Connection connection = fromDataModel.getConnection(false)) {
-            upgradeTo(fromDataModel, toDataModel, version, connection);
+        try (Context context = state.createContext(fromDataModel)) {
+            upgradeTo(fromDataModel, toDataModel, version, context);
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
 
     }
 
-    private void upgradeTo(DataModelImpl fromDataModel, DataModelImpl toDataModel, Version version, Connection connection) throws
+    private void upgradeTo(DataModelImpl fromDataModel, DataModelImpl toDataModel, Version version, Context context) throws
             SQLException {
-        try (Statement statement = connection.createStatement()) {
-            toDataModel.getTables(version)
-                    .stream()
-                    .filter(Table::isAutoInstall)
-                    .forEach(toTable -> upgradeTo(fromDataModel, toTable, version, statement));
-        }
+        Stream<String> upgradeTableDdl = upgradeDdl(fromDataModel, toDataModel, version, context);
+        Stream<String> dropTableDdl = dropTableDdl(fromDataModel, toDataModel, version);
+        List<String> allDdl = Stream.of(upgradeTableDdl, dropTableDdl)
+                .flatMap(Function.identity())
+                .collect(Collectors.toList());
+        state.handleSqlStatements(context, allDdl);
     }
 
-    private void upgradeTo(DataModelImpl fromDataModel, TableImpl<?> toTable, Version version, Statement statement) {
+    private Stream<String> dropTableDdl(DataModelImpl fromDataModel, DataModelImpl toDataModel, Version version) {
+        Set<TableImpl<?>> stillExist = toDataModel.getTables()
+                .stream()
+                .map(table -> findFromTable(fromDataModel, table, version))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+        return state.dropCandidates(fromDataModel)
+                .filter(not(stillExist::contains))
+                .map(state::removeTable)
+                .filter(Objects::nonNull);
+    }
+
+    private Stream<String> upgradeDdl(DataModelImpl fromDataModel, DataModelImpl toDataModel, Version version, Context context) {
+        return toDataModel.getTables(version)
+                .stream()
+                .filter(Table::isAutoInstall)
+                .map(toTable -> upgradeTo(fromDataModel, toTable, version, context))
+                .flatMap(List::stream);
+    }
+
+    private List<String> upgradeTo(DataModelImpl fromDataModel, TableImpl<?> toTable, Version version, Context context) {
         try {
-            tryUpgradeTo(fromDataModel, toTable, version, statement);
+            return tryUpgradeTo(fromDataModel, toTable, version, context);
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
     }
 
-    private void tryUpgradeTo(DataModelImpl fromDataModel, TableImpl<?> toTable, Version version, Statement statement) throws SQLException {
-        TableImpl<?> fromTable = fromDataModel.getTable(toTable.getName(version), version);
-        if (fromTable == null) {
-            fromTable = toTable.previousTo(version)
-                    .map(previousVersion -> fromDataModel.getTable(toTable.getName(previousVersion), previousVersion))
-                    .orElse(null);
-        }
+    private List<String> tryUpgradeTo(DataModelImpl fromDataModel, TableImpl<?> toTable, Version version, Context context) throws
+            SQLException {
+        TableImpl<?> fromTable = findFromTable(fromDataModel, toTable, version);
         if (fromTable != null) {
-            upgradeTable(toTable, statement, fromTable, version);
+            return upgradeTable(toTable, fromTable, version, context);
         } else {
-            createTable(toTable, statement, version);
+            return createTable(toTable, version);
         }
     }
 
-    private void createTable(TableImpl<?> toTable, Statement statement, Version version) throws SQLException {
-        List<String> ddl = toTable.getDdl(version);
-        executeSqlStatements(statement, ddl);
+    private TableImpl<?> findFromTable(DataModelImpl fromDataModel, TableImpl<?> toTable, Version version) {
+        TableImpl<?> fromTable = fromDataModel.getTable(toTable.getName(version), version);
+        if (fromTable != null) {
+            return fromTable;
+        }
+        return toTable.previousTo(version)
+                .map(previousVersion -> fromDataModel.getTable(toTable.getName(previousVersion), previousVersion))
+                .orElse(null);
     }
 
-    private void upgradeTable(TableImpl<?> toTable, Statement statement, TableImpl<?> fromTable, Version version) throws SQLException {
-        List<String> upgradeDdl = fromTable.upgradeDdl(toTable, version);
+    private List<String> createTable(TableImpl<?> toTable, Version version) throws SQLException {
+        return toTable.getDdl(version);
+    }
+
+    private List<String> upgradeTable(TableImpl<?> toTable, TableImpl<?> fromTable, Version version, Context context) throws
+            SQLException {
+        List<String> upgradeDdl = state.ddlGenerator(fromTable, version).upgradeDdl(toTable);
         for (ColumnImpl sequenceColumn : toTable.getAutoUpdateColumns()) {
             if (sequenceColumn.getQualifiedSequenceName() != null) {
-                long sequenceValue = getLastSequenceValue(statement, sequenceColumn.getQualifiedSequenceName());
-                long maxColumnValue = fromTable.getColumn(sequenceColumn.getName()) != null ? maxColumnValue(sequenceColumn, statement) : 0;
+                long sequenceValue = getLastSequenceValue(context, sequenceColumn.getQualifiedSequenceName());
+                long maxColumnValue = fromTable.getColumn(sequenceColumn.getName()) != null ? maxColumnValue(context, sequenceColumn) : 0;
                 if (maxColumnValue > sequenceValue) {
-                    upgradeDdl.addAll(toTable.upgradeSequenceDdl(sequenceColumn, maxColumnValue + 1, version));
+                    upgradeDdl.addAll(state.ddlGenerator(toTable, version)
+                            .upgradeSequenceDdl(sequenceColumn, maxColumnValue + 1));
                 }
             }
         }
-        executeSqlStatements(statement, upgradeDdl);
+        return upgradeDdl;
     }
 
-    private long maxColumnValue(ColumnImpl sequenceColumn, Statement statement) throws SQLException {
-        try (ResultSet resultSet = statement.executeQuery("select nvl(max(" + sequenceColumn.getName() + ") ,0) from " + sequenceColumn.getTable().getName())) {
+    private long maxColumnValue(Context context, ColumnImpl sequenceColumn) {
+        try (ResultSet resultSet = context.getStatement()
+                .executeQuery("select nvl(max(" + sequenceColumn.getName() + ") ,0) from " + sequenceColumn
+                        .getTable()
+                        .getName())) {
             if (resultSet.next()) {
                 return resultSet.getLong(1);
             } else {
                 return 0;
             }
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
         }
     }
 
-    private long getLastSequenceValue(Statement statement, String sequenceName) throws SQLException {
-        try (ResultSet resultSet = statement.executeQuery("select last_number from user_sequences where sequence_name = '" + sequenceName + "'")) {
+    private long getLastSequenceValue(Context context, String sequenceName) {
+        try (ResultSet resultSet = context.getStatement()
+                .executeQuery("select last_number from user_sequences where sequence_name = '" + sequenceName + "'")) {
             if (resultSet.next()) {
                 return resultSet.getLong(1);
             }
             // to indicate that the sequence is not there
             return -1;
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
         }
-    }
-
-    private void executeSqlStatements(Statement statement, List<String> sqlStatements) {
-        state.handleSqlStatements(statement, sqlStatements);
     }
 
 }

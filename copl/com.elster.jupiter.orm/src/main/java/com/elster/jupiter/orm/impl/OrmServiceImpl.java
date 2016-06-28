@@ -163,20 +163,18 @@ public class OrmServiceImpl implements OrmService {
         this.fileSystem = fileSystem;
     }
 
-    private DataModel createDataModel(boolean register) {
+    private DataModel createDataModel() {
         DataModelImpl result = newDataModel(OrmService.COMPONENTNAME, "Object Relational Mapper");
         for (TableSpecs spec : TableSpecs.values()) {
             spec.addTo(result);
         }
-        if (register) {
-            result.register();
-        }
+        result.register();
         return result;
     }
 
     @Activate
     public void activate() {
-        createDataModel(true);
+        createDataModel();
         createExistingTableDataModel();
     }
 

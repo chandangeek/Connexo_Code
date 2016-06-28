@@ -203,13 +203,15 @@ public class DataModelImpl implements DataModel {
                 if (toTable.isAutoInstall()) {
                     TableImpl<?> fromTable = getTable(toTable.getName());
                     if (fromTable != null) {
-                        List<String> upgradeDdl = fromTable.upgradeDdl(toTable, version);
+                        List<String> upgradeDdl = TableDdlGenerator.cautious(fromTable, fromTable.getDataModel()
+                                .getSqlDialect(), version).upgradeDdl(toTable);
                         for (ColumnImpl sequenceColumn : toTable.getAutoUpdateColumns()) {
                             if (sequenceColumn.getQualifiedSequenceName() != null) {
                                 long sequenceValue = getLastSequenceValue(statement, sequenceColumn.getQualifiedSequenceName());
                                 long maxColumnValue = fromTable.getColumn(sequenceColumn.getName()) != null ? maxColumnValue(sequenceColumn, statement) : 0;
                                 if (maxColumnValue > sequenceValue) {
-                                    upgradeDdl.addAll(toTable.upgradeSequenceDdl(sequenceColumn, maxColumnValue + 1, version));
+                                    upgradeDdl.addAll(TableDdlGenerator.cautious(toTable, toTable.getDataModel()
+                                            .getSqlDialect(), version).upgradeSequenceDdl(sequenceColumn, maxColumnValue + 1));
                                 }
                             }
                         }
@@ -551,4 +553,9 @@ public class DataModelImpl implements DataModel {
         return new PartitionCreatorImpl(this, tableName, logger);
     }
 
+    void addAllTables(DataModelImpl other) {
+        other.getTables()
+                .stream()
+                .forEach(this::add);
+    }
 }
