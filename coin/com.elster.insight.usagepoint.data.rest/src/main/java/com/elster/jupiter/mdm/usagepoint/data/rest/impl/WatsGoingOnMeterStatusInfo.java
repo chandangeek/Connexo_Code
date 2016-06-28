@@ -4,8 +4,4 @@ public class WatsGoingOnMeterStatusInfo {
     public long openIssues;
     public long ongoingProcesses;
     public long ongoingServiceCalls;
-
-    public WatsGoingOnMeterStatusInfo(){
-
-    }
 }

@@ -329,7 +329,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
     }
 
 
-    public List<MeterActivationInfo> getMetersOnUsagePointInfo(UsagePoint usagePoint, String auth) {
+    public List<MeterActivationInfo> getMetersOnUsagePointInfo(UsagePoint usagePoint, String authorization) {
         Map<MeterRole, MeterRoleInfo> mandatoryMeterRoles = new LinkedHashMap<>();
         usagePoint.getCurrentEffectiveMetrologyConfiguration()
                 .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration)
@@ -357,7 +357,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                         meterActivationInfo.meter.mRID = meter.getMRID();
                         meterActivationInfo.meter.name = meter.getName();
                         meterActivationInfo.meter.version = meter.getVersion();
-                        meterActivationInfo.meter.watsGoingOnMeterStatus = getWatsGoingOnMeterStatus(meter, auth);
+                        meterActivationInfo.meter.watsGoingOnMeterStatus = getWatsGoingOnMeterStatus(meter, authorization);
                         meterActivationInfo.meterRole.activationTime = meterActivationForMeterRole.getStart();
                         meterActivationInfo.id = meterActivationForMeterRole.getId();
                         meterActivationInfo.meter.url = meter.getHeadEndInterface()
@@ -371,14 +371,14 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                 .collect(Collectors.toList());
     }
 
-    public WatsGoingOnMeterStatusInfo getWatsGoingOnMeterStatus(Meter meter, String auth) {
+    public WatsGoingOnMeterStatusInfo getWatsGoingOnMeterStatus(Meter meter, String authorization) {
         WatsGoingOnMeterStatusInfo info = new WatsGoingOnMeterStatusInfo();
         IssueFilter issueFilter = issueService.newIssueFilter();
         issueFilter.addDevice(meter);
         issueFilter.addStatus(issueService.findStatus(IssueStatus.OPEN).get());
         info.openIssues = issueService.findIssues(issueFilter).find().size();
         info.ongoingServiceCalls = serviceCallService.findServiceCalls(meter, EnumSet.of(DefaultState.ONGOING)).size();
-        info.ongoingProcesses = bpmService.getRunningProcesses(auth, filterFor(meter)).total;
+        info.ongoingProcesses = bpmService.getRunningProcesses(authorization, filterFor(meter)).total;
         return info;
     }
 
