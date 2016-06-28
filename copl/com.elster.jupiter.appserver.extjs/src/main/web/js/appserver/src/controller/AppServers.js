@@ -970,7 +970,8 @@ Ext.define('Apr.controller.AppServers', {
         view = Ext.widget('appserver-webservices', {
             router: router,
             appServerName: me.appServer.get('name'),
-            store: servedWebserviceEndpoints
+            store: servedWebserviceEndpoints,
+            needLink: true
         });
         me.getApplication().fireEvent('appserverload', me.appServer.get('name'));
         me.getApplication().fireEvent('changecontentevent', view);
