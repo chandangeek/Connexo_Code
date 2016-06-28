@@ -12,6 +12,7 @@ import com.energyict.mdc.device.config.DeviceType;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
+import java.util.Objects;
 import java.util.Optional;
 
 class AllowedCalendarImpl implements AllowedCalendar {
@@ -89,6 +90,23 @@ class AllowedCalendarImpl implements AllowedCalendar {
         calendar.set(newCalendar);
         name = null;
         dataModel.update(this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        AllowedCalendarImpl that = (AllowedCalendarImpl) o;
+        return id == that.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 
 }
