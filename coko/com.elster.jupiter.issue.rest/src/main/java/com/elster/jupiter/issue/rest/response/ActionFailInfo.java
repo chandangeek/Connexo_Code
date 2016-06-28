@@ -3,11 +3,12 @@ package com.elster.jupiter.issue.rest.response;
 import com.elster.jupiter.issue.rest.response.issue.IssueShortInfo;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ActionFailInfo {
     private String reason;
-    private List<IssueShortInfo> issues;
+    private final List<IssueShortInfo> issues = new ArrayList<>();
 
     public String getReason() {
         return reason;
@@ -18,14 +19,16 @@ public class ActionFailInfo {
     }
 
     public List<IssueShortInfo> getIssues() {
-        if (issues == null){
-            issues = new ArrayList<IssueShortInfo>();
-        }
-        return issues;
+        return Collections.unmodifiableList(issues);
+    }
+
+    public void add(IssueShortInfo issue) {
+        this.issues.add(issue);
     }
 
     public void setIssues(List<IssueShortInfo> issues) {
-        this.issues = issues;
+        this.issues.clear();
+        this.issues.addAll(issues);
     }
 
 }

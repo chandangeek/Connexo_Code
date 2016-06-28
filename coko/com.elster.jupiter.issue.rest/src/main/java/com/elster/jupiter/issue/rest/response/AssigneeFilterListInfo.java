@@ -6,6 +6,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.users.User;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,7 +28,7 @@ public class AssigneeFilterListInfo {
     }
 
     public List<IssueAssigneeInfo> getData() {
-        return data;
+        return Collections.unmodifiableList(data);
     }
 
     public long getTotal() {

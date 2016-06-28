@@ -1,6 +1,7 @@
 package com.elster.jupiter.issue.rest.response;
 
 import com.elster.jupiter.domain.util.QueryParameters;
+
 import com.google.common.collect.ImmutableList;
 
 import java.util.ArrayList;
@@ -8,19 +9,13 @@ import java.util.List;
 
 public class PagedInfoListCustomized {
     private final String jsonListName;
-    private List<?> data = new ArrayList<>();
+    private final List data = new ArrayList<>();
     private final int total;
 
-    public int getTotal() {
-        return total;
-    }
-
-    public List<?> getData() {
-        return ImmutableList.copyOf(data);
-    }
+    @SuppressWarnings("unchecked")
     public PagedInfoListCustomized(String jsonListName, List<?> data, int total) {
         this.jsonListName = jsonListName;
-        this.data = data;
+        this.data.addAll(data);
         this.total = total;
     }
 
@@ -39,4 +34,13 @@ public class PagedInfoListCustomized {
 
         return new PagedInfoListCustomized(jsonListName, infos, total);
     }
+
+    public int getTotal() {
+        return total;
+    }
+
+    public List<?> getData() {
+        return ImmutableList.copyOf(data);
+    }
+
 }
