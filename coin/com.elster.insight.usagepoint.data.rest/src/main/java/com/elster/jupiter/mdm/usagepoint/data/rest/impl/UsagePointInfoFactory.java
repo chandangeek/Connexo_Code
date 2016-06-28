@@ -35,6 +35,7 @@ import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.util.HasName;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -145,7 +146,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         info.id = usagePoint.getId();
         info.mRID = usagePoint.getMRID();
         info.displayServiceCategory = usagePoint.getServiceCategory().getDisplayName();
-        info.displayMetrologyConfiguration = usagePoint.getMetrologyConfiguration().map(mc -> mc.getName()).orElse(null);
+        info.displayMetrologyConfiguration = usagePoint.getMetrologyConfiguration().map(HasName::getName).orElse(null);
         info.displayType = this.getUsagePointDisplayType(usagePoint);
         info.displayConnectionState = usagePoint.getConnectionState().getName();
         info.geoCoordinates = usagePoint.getGeoCoordinates().map(GeoCoordinates::toString).orElse(null);
@@ -350,11 +351,9 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         usagePoint.getMetrologyConfiguration()
                 .filter(metrologyConfiguration -> metrologyConfiguration instanceof UsagePointMetrologyConfiguration)
                 .map(UsagePointMetrologyConfiguration.class::cast)
-                .ifPresent(metrologyConfiguration -> {
-                    metrologyConfiguration.getMeterRoles()
-                            .stream()
-                            .forEach(meterRole -> mandatoryMeterRoles.put(meterRole, new MeterRoleInfo(meterRole)));
-                });
+                .ifPresent(metrologyConfiguration -> metrologyConfiguration.getMeterRoles()
+                        .stream()
+                        .forEach(meterRole -> mandatoryMeterRoles.put(meterRole, new MeterRoleInfo(meterRole))));
 
         Map<MeterRole, MeterActivation> meterRoleToMeterInfoMapping = usagePoint.getMeterActivations(usagePoint.getInstallationTime())
                 .stream()
