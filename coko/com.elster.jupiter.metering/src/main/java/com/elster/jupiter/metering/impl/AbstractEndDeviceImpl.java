@@ -526,11 +526,6 @@ abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> impleme
     }
 
     @Override
-    public void updateLocation(long id){
-        dataModel.mapper(Location.class).getOptional(id).ifPresent(foundLocation -> this.location.set(foundLocation));
-    }
-
-    @Override
     public Optional<Location> getLocation() {
         return location.getOptional();
     }
