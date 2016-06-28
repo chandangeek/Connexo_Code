@@ -21,6 +21,7 @@ Ext.define('Isu.view.issues.Grid', {
                 itemId: 'issues-grid-id',
                 header: Uni.I18n.translate('general.title.issueId', 'ISU', 'Id'),
                 dataIndex: 'issueId',
+                flex: 1,
                 renderer: function (value, metaData, record) {
                     var url = me.router.getRoute(me.router.currentRoute + '/view').buildUrl({issueId: record.getId()}, {issueType: record.get('issueType').uid});
                     return '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
@@ -40,7 +41,7 @@ Ext.define('Isu.view.issues.Grid', {
                 itemId: 'issues-grid-type',
                 header: Uni.I18n.translate('general.type', 'ISU', 'Type'),
                 dataIndex: 'issueType_name',
-                width: 140
+                flex: 1.2
             },
             {
                 itemId: 'issues-grid-due-date',
@@ -64,7 +65,8 @@ Ext.define('Isu.view.issues.Grid', {
                 itemId: 'issues-grid-status',
                 header: Uni.I18n.translate('general.status', 'ISU', 'Status'),
                 dataIndex: 'status_name',
-                width: 100
+                //width: 100
+                flex: 1
             },
             {
                 itemId: 'issues-grid-assignee',

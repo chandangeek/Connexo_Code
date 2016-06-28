@@ -74,7 +74,7 @@ Ext.define('Isu.controller.IssueDetail', {
                     }
                     Ext.resumeLayouts(true);
                     widget.down('issues-action-menu').record = record;
-                    me.loadComments(record);
+                    me.loadComments(record, issueType);
                 }
             },
             failure: function () {
@@ -145,7 +145,7 @@ Ext.define('Isu.controller.IssueDetail', {
         return Ext.String.format(link, router.getRoute('workspace/issues').buildUrl(null, queryParams));
     },
 
-    loadComments: function (record) {
+    loadComments: function (record, issueType) {
         var
             me = this,
             commentsView = this.widget ? this.widget.down('#issue-comments-view') : this.getPage().down('#issue-comments-view'),
@@ -163,13 +163,17 @@ Ext.define('Isu.controller.IssueDetail', {
                 commentsView.show();
                 commentsView.previousSibling('#no-issue-comments').setVisible(!records.length && !router.queryParams.addComment);
                 commentsView.up('issue-comments').down('#issue-comments-add-comment-button').setVisible(records.length && !router.queryParams.addComment && Isu.privileges.Issue.canComment());
-                me.loadTimeline(commentsStore);
+                if (issueType == 'datacollection')
+                    me.loadTimeline(commentsStore);
                 Ext.resumeLayouts(true);
                 commentsView.setLoading(false);
             }
         });
         if (router.queryParams.addComment) {
-            this.showCommentForm();
+            if (issueType == 'datacollection')
+                this.showCommentForm();
+            else
+                this.showCommentFormValidation();
         }
     },
 
@@ -181,10 +185,23 @@ Ext.define('Isu.controller.IssueDetail', {
         page.down('#issue-add-comment-area').focus();
         page.down('#no-issue-comments').hide();
         page.down('#issue-comments-add-comment-button').hide();
+
         if(page.down('#tab-issue-context'))
             page.down('#tab-issue-context').setActiveTab(1);
         else
             page.up('#tab-issue-context').setActiveTab(1);
+        Ext.resumeLayouts(true);
+    },
+
+    showCommentFormValidation: function () {
+        var page = this.widget ? this.widget : this.getCommentsPanel();
+
+        Ext.suspendLayouts();
+        page.down('#issue-add-comment-form').show();
+        page.down('#issue-add-comment-area').focus();
+        page.down('#no-issue-comments').hide();
+        page.down('#issue-comments-add-comment-button').hide();
+
         Ext.resumeLayouts(true);
     },
 
@@ -217,6 +234,24 @@ Ext.define('Isu.controller.IssueDetail', {
                 this.add(records);
                 commentsView.setLoading(false);
                 me.loadTimeline(commentsStore);
+            })
+        }});
+
+        me.hideCommentForm();
+    },
+
+    addCommentValidation: function () {
+        var me = this,
+            commentsPanel = me.getCommentsPanel(),
+            commentsView = commentsPanel.down('#issue-comments-view'),
+            commentsStore = commentsView.getStore();
+
+        commentsView.setLoading();
+        commentsStore.add(commentsPanel.down('#issue-add-comment-form').getValues());
+        commentsStore.sync({callback: function () {
+            commentsStore.load(function (records) {
+                this.add(records);
+                commentsView.setLoading(false);
             })
         }});
 
