@@ -27,10 +27,10 @@ public class DataLoggerSlaveDeviceInfoFactory {
     private DataLoggerSlaveDeviceInfo slaveDeviceInfoForUnlinkedDataLoggerElements;
 
     @Inject
-    public DataLoggerSlaveDeviceInfoFactory(Clock clock, TopologyService topologyService ) {
+    public DataLoggerSlaveDeviceInfoFactory(Clock clock, TopologyService topologyService, DeviceDataInfoFactory deviceDataInfoFactory ) {
         this.clock = clock;
         this.topologyService = topologyService;
-        this.deviceDataInfoFactory = new DeviceDataInfoFactory(clock);
+        this.deviceDataInfoFactory = deviceDataInfoFactory;
         this.slaveChannelInfoFactory = new DataLoggerSlaveChannelInfoFactory();
         this.slaveRegisterInfoFactory = new DataLoggerSlaveRegisterInfoFactory();
     }
@@ -76,7 +76,7 @@ public class DataLoggerSlaveDeviceInfoFactory {
         Optional<Register> slaveRegister = topologyService.getSlaveRegister(dataLoggerRegister, clock.instant());
         Optional<DataLoggerSlaveDeviceInfo> existingSlaveDeviceInfo;
         DataLoggerSlaveRegisterInfo slaveRegisterInfo =  slaveRegisterInfoFactory.from(deviceDataInfoFactory.createRegisterInfo(dataLoggerRegister, null),
-                slaveRegister.map((register) -> deviceDataInfoFactory.createRegisterInfo(dataLoggerRegister, null)));
+                slaveRegister.map((register) -> deviceDataInfoFactory.createRegisterInfo(register, null)));
         if (slaveRegister.isPresent()){
             Device slave = slaveRegister.get().getDevice();
             existingSlaveDeviceInfo = slaveDeviceInfos.stream().filter(slaveDeviceInfo -> slaveDeviceInfo.id == slave.getId()).findFirst();

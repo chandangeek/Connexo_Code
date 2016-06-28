@@ -320,9 +320,9 @@ public class DeviceResource {
             currentSlaves
                     .stream()
                     .filter((slave) -> getTerminatedSlaveDeviceInfo(slave, info).isPresent())
-                    .forEach((slave) -> topologyService.clearDataLogger(slave, Instant.ofEpochSecond(getTerminatedSlaveDeviceInfo(slave, info).get().terminationTimeStamp)));
+                    .forEach((slave) -> topologyService.clearDataLogger(slave, Instant.ofEpochSecond(getTerminatedSlaveDeviceInfo(slave, info).get().unlinkingTimeStamp)));
 
-            info.dataLoggerSlaveDevices.stream().filter(((Predicate<DataLoggerSlaveDeviceInfo>) DataLoggerSlaveDeviceInfo::terminating).negate()).forEach((slaveDeviceInfo) -> setDataLogger(slaveDeviceInfo, dataLogger));
+            info.dataLoggerSlaveDevices.stream().filter(((Predicate<DataLoggerSlaveDeviceInfo>) DataLoggerSlaveDeviceInfo::unlinked).negate()).forEach((slaveDeviceInfo) -> setDataLogger(slaveDeviceInfo, dataLogger));
         }
     }
 
@@ -333,18 +333,28 @@ public class DeviceResource {
                 //TODO fix and align what we need to provide there
                 slave = newDevice(slaveDeviceInfo.deviceConfigurationId, null, slaveDeviceInfo.mRID, slaveDeviceInfo.serialNumber, slaveDeviceInfo.yearOfCertification, Instant.now());
             } else {
+                if (slaveDeviceInfo.isFromExistingLink()) {
+                    // No new link, came along with deviceinfo
+                    return;
+                }
                 slave = deviceService.findByUniqueMrid(slaveDeviceInfo.mRID)
                         .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE, slaveDeviceInfo.mRID));
             }
             final HashMap<Channel, Channel> channelMap = new HashMap<>();
             if (slaveDeviceInfo.dataLoggerSlaveChannelInfos != null) {
-                slaveDeviceInfo.dataLoggerSlaveChannelInfos.stream().map(info -> slaveDataLoggerChannelPair(slave, info)).forEach((pair) -> channelMap.put(pair.getFirst(), pair.getLast()));
+                slaveDeviceInfo.dataLoggerSlaveChannelInfos.stream()
+                        .map(info -> slaveDataLoggerChannelPair(slave, info))
+                        .forEach((pair) -> channelMap.put(pair.getFirst(), pair.getLast()));
             }
             final HashMap<Register, Register> registerMap = new HashMap<>();
             if (slaveDeviceInfo.dataLoggerSlaveRegisterInfos != null) {
-                slaveDeviceInfo.dataLoggerSlaveRegisterInfos.stream().map(info -> slaveDataLoggerRegisterPair(slave, info)).forEach((pair) -> registerMap.put(pair.getFirst(), pair.getLast()));
+                slaveDeviceInfo.dataLoggerSlaveRegisterInfos.stream()
+                        .map(info -> slaveDataLoggerRegisterPair(slave, info))
+                        .forEach((pair) -> registerMap.put(pair.getFirst(), pair.getLast()));
             }
-            topologyService.setDataLogger(slave, dataLogger, Instant.ofEpochSecond(slaveDeviceInfo.arrivalTimeStamp), channelMap, registerMap);
+            if (channelMap.size() + registerMap.size() > 0) {
+                topologyService.setDataLogger(slave, dataLogger, Instant.ofEpochMilli(slaveDeviceInfo.linkingTimeStamp), channelMap, registerMap);
+            }
         }
     }
 
@@ -353,7 +363,7 @@ public class DeviceResource {
     }
 
     private Optional<DataLoggerSlaveDeviceInfo> getTerminatedSlaveDeviceInfo(Device slave, DeviceInfo info){
-        return info.dataLoggerSlaveDevices.stream().filter((dataLoggerSlaveDeviceInfo) -> dataLoggerSlaveDeviceInfo.id == slave.getId() && dataLoggerSlaveDeviceInfo.terminating()).findFirst();
+        return info.dataLoggerSlaveDevices.stream().filter((dataLoggerSlaveDeviceInfo) -> dataLoggerSlaveDeviceInfo.id == slave.getId() && dataLoggerSlaveDeviceInfo.unlinked()).findFirst();
     }
 
     private Pair<Register, Register> slaveDataLoggerRegisterPair(Device slave, DataLoggerSlaveRegisterInfo info){
