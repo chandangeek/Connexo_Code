@@ -18,14 +18,11 @@ public class CoordinatesInfo {
     public CoordinatesInfo(MeteringService meteringService, String mRID) {
         meteringService.findUsagePoint(mRID).ifPresent(usagePoint ->
         {
-            Optional<SpatialCoordinates> geoCoordinates = usagePoint.getSpatialCooridnates();
+            Optional<SpatialCoordinates> geoCoordinates = usagePoint.getSpatialCoordinates();
             coordinatesDisplay = geoCoordinates.isPresent() ? geoCoordinates.get().toString() : null;
             spatialCoordinates = geoCoordinates.isPresent() ?
-                    String.format("%s:%s:%s", geoCoordinates.get().getLatitude().getValue().toString(),
-                            geoCoordinates.get().getLongitude().getValue().toString(),
-                            geoCoordinates.get().getElevation().getValue().toString()) : null;
+                    geoCoordinates.get().toString() : null;
         });
-
-
     }
+
 }

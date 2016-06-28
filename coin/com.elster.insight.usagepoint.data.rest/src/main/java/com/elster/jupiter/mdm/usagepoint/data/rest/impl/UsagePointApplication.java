@@ -14,7 +14,11 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.nls.*;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
@@ -31,7 +35,11 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
 import java.time.Clock;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Component(name = "com.elster.insight.udr.rest",
         service = {Application.class, TranslationKeyProvider.class},
@@ -62,9 +70,6 @@ public class UsagePointApplication extends Application implements TranslationKey
     private volatile ServiceCallService serviceCallService;
     private volatile MetrologyConfigurationService metrologyConfigurationService;
     private volatile DataAggregationService dataAggregationService;
-
-    public UsagePointApplication() {
-    }
 
     @Override
     public Set<Class<?>> getClasses() {

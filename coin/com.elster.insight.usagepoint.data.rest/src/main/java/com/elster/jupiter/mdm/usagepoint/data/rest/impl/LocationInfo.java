@@ -11,7 +11,11 @@ import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.elster.jupiter.rest.util.properties.StringValidationRules;
 import com.elster.jupiter.validation.rest.BasicPropertyTypes;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -44,13 +48,8 @@ public class LocationInfo {
             List<List<String>> locationMembers = location.get().format();
             locationMembers.stream()
                     .flatMap(Collection::stream)
-                    .forEach(el -> {
-                        if (el == null) {
-                            unformattedList.add("");
-                        } else {
-                            unformattedList.add(el);
-                        }
-                    });
+                    .map(element -> element == null ? "" : element)
+                    .forEach(unformattedList::add);
             unformattedLocationValue = unformattedList.stream().collect(Collectors.joining(", "));
 
             List<List<String>> formattedLocationMembers = locationMembers;
