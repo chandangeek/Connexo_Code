@@ -57,14 +57,6 @@ public class DeviceDataInfoFactory {
         this.clock = clock;
     }
 
-    DeviceDataInfoFactory(Clock clock){
-        this.validationInfoFactory = null;
-        this.estimationRuleInfoFactory = null;
-        this.thesaurus = null;
-        this.validationRuleInfoFactory = null;
-        this.clock = clock;
-    }
-
     public ChannelDataInfo createChannelDataInfo(Channel channel, LoadProfileReading loadProfileReading, boolean isValidationActive, DeviceValidation deviceValidation) {
         ChannelDataInfo channelIntervalInfo = new ChannelDataInfo();
         channelIntervalInfo.interval = IntervalInfo.from(loadProfileReading.getRange());

@@ -27,10 +27,10 @@ public class DataLoggerSlaveDeviceInfoFactory {
     private DataLoggerSlaveDeviceInfo slaveDeviceInfoForUnlinkedDataLoggerElements;
 
     @Inject
-    public DataLoggerSlaveDeviceInfoFactory(Clock clock, TopologyService topologyService ) {
+    public DataLoggerSlaveDeviceInfoFactory(Clock clock, TopologyService topologyService, DeviceDataInfoFactory deviceDataInfoFactory ) {
         this.clock = clock;
         this.topologyService = topologyService;
-        this.deviceDataInfoFactory = new DeviceDataInfoFactory(clock);
+        this.deviceDataInfoFactory = deviceDataInfoFactory;
         this.slaveChannelInfoFactory = new DataLoggerSlaveChannelInfoFactory();
         this.slaveRegisterInfoFactory = new DataLoggerSlaveRegisterInfoFactory();
     }
