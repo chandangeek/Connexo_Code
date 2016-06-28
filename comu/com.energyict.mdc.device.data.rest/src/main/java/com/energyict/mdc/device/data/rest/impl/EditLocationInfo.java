@@ -37,7 +37,7 @@ public class EditLocationInfo {
         });
     }
 
-    public void createLocationInfo(MeteringService meteringService,LocationService locationService, Thesaurus thesaurus, Long locationId, Device device) {
+    public void createLocationInfo(MeteringService meteringService, LocationService locationService, Thesaurus thesaurus, Long locationId, Device device) {
         createLocationInfo(meteringService, locationService, thesaurus, locationId);
         device.getUsagePoint().ifPresent(usagePoint -> {
             usagePoint.getLocation().ifPresent(usagePointLocation -> {
@@ -58,13 +58,8 @@ public class EditLocationInfo {
             List<List<String>> locationMembers = location.get().format();
             locationMembers.stream()
                     .flatMap(Collection::stream)
-                    .forEach(el -> {
-                        if (el == null) {
-                            unformattedList.add("");
-                        } else {
-                            unformattedList.add(el);
-                        }
-                    });
+                    .map(element -> element == null ? "" : element)
+                    .forEach(unformattedList::add);
             unformattedLocationValue = unformattedList.stream().collect(Collectors.joining(", "));
 
             List<List<String>> formattedLocationMembers = locationMembers;

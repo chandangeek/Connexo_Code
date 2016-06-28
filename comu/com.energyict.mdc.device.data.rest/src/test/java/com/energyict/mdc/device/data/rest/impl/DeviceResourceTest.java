@@ -97,7 +97,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.assertj.core.data.MapEntry;
@@ -871,7 +870,9 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(deviceService.findByUniqueMrid("mrid")).thenReturn(Optional.of(device));
         when(device.getLogBooks()).thenReturn(Arrays.asList(logBook));
 
-        Response response = target("/devices/mrid/logbooks/1/data").queryParam("filter", "[%7B%22property%22:%22intervalStart%22,%22value%22:2%7D,%7B%22property%22:%22intervalEnd%22,%22value%22:1%7D]").request().get();
+        Response response = target("/devices/mrid/logbooks/1/data").queryParam("filter", "[%7B%22property%22:%22intervalStart%22,%22value%22:2%7D,%7B%22property%22:%22intervalEnd%22,%22value%22:1%7D]")
+                .request()
+                .get();
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
@@ -1229,6 +1230,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     @Test
     public void testUpdateMasterDevice() {
         Device device = mockDeviceForTopologyTest("device");
+        when(device.getLocation()).thenReturn(Optional.empty());
+        when(device.getSpatialCoordinates()).thenReturn(Optional.empty());
         DeviceConfiguration deviceConfig = device.getDeviceConfiguration();
         when(device.getCurrentMeterActivation()).thenReturn(Optional.empty());
         Device gateway = mockDeviceForTopologyTest("gateway");
@@ -1237,6 +1240,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(batchService.findBatch(device)).thenReturn(Optional.empty());
         Device oldGateway = mockDeviceForTopologyTest("oldGateway");
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.of(oldGateway));
+        when(locationService.findLocationById(anyLong())).thenReturn(Optional.empty());
         when(deviceConfigurationService.findTimeOfUseOptions(any())).thenReturn(Optional.empty());
 
         DeviceInfo info = new DeviceInfo();
@@ -1276,6 +1280,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     @Test
     public void testDeleteMasterDevice() {
         Device device = mockDeviceForTopologyTest("device");
+        when(device.getLocation()).thenReturn(Optional.empty());
+        when(device.getSpatialCoordinates()).thenReturn(Optional.empty());
         when(device.getCurrentMeterActivation()).thenReturn(Optional.empty());
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.of(deviceConfiguration));
@@ -1752,6 +1758,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     @Test
     public void testGetDeviceLocation() throws Exception {
+        when(locationService.findLocationById(anyLong())).thenReturn(Optional.empty());
         LocationTemplate locationTemplate = mock(LocationTemplate.class);
         List<String> templateElementsNames = new ArrayList<>();
 

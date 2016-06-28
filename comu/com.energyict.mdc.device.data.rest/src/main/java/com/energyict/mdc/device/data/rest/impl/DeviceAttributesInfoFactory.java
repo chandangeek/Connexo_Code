@@ -1,9 +1,14 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.metering.Location;
+import com.elster.jupiter.metering.LocationBuilder;
+import com.elster.jupiter.metering.LocationTemplate;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.rest.util.RestValidationBuilder;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -312,7 +317,7 @@ public class DeviceAttributesInfoFactory {
                         .stream()
                         .collect(Collectors.toMap(LocationTemplate.TemplateField::getName,
                                 LocationTemplate.TemplateField::getRanking));
-                Optional<LocationBuilder.LocationMemberBuilder> memberBuilder = builder.getMember(threadPrincipalService.getLocale().getLanguage());
+                Optional<LocationBuilder.LocationMemberBuilder> memberBuilder = builder.getMemberBuilder(threadPrincipalService.getLocale().getLanguage());
                 if (memberBuilder.isPresent()) {
                     setLocationAttributes(memberBuilder.get(), locationData, ranking);
                 } else {
@@ -321,9 +326,9 @@ public class DeviceAttributesInfoFactory {
                 device.setLocation(builder.create());
 
             } else if ((info.location.displayValue.isInherited) && (info.location.displayValue.usagePointLocationId != null)) {
-                device.updateLocation(info.location.displayValue.usagePointLocationId);
+                device.setLocation(locationService.findLocationById(info.location.displayValue.usagePointLocationId).orElse(null));
             } else if ((info.location.displayValue.locationId != null) && (info.location.displayValue.locationId > 0) && (!info.location.displayValue.isInherited)) {
-                device.updateLocation(info.location.displayValue.locationId);
+                device.setLocation(locationService.findLocationById(info.location.displayValue.locationId).orElse(null));
             }
         }
         device.save();
