@@ -225,8 +225,8 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
                     new BigDecimal(1),
                     new BigDecimal(2),
                     new BigDecimal(3)),
-            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.DISPLAY_SEQUENCE),
-            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.DISPLAY_CYCLE_TIME)
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.DISPLAY_SEQUENCE),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.DISPLAY_CYCLE_TIME)
     ),
     ConfigureLoadProfileDataRecording(73,
             PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.ENABLE_DISABLE,
@@ -329,13 +329,13 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SWITCHING_MOMENTS_DAILY_PROFILE0),
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.THRESHOLDS_MOMENTS_DAILY_PROFILE0),
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.THRESHOLDS_MOMENTS),
-            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.ACTIONS_IN_HEX_DAILY_PROFILE0),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.ACTIONS_IN_HEX_DAILY_PROFILE0),
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SWITCHING_MOMENTS_DAILY_PROFILE1),
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.THRESHOLDS_MOMENTS_DAILY_PROFILE1),
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.THRESHOLDS_MOMENTS),
-            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.ACTIONS_IN_HEX_DAILY_PROFILE1),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.ACTIONS_IN_HEX_DAILY_PROFILE1),
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.DAY_PROFILES),
-            PropertySpecFactory.datePropertySpec(DeviceMessageConstants.ACTIVATION_DATE)
+            PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.ACTIVATION_DATE)
 
     ),
     ConfigureEmergencyConsumptionLimitation(77,

@@ -12,7 +12,8 @@ public class Reject extends AbstractActarisObject {
     }
 
     protected void parse(Element element) {
-        reason = Integer.parseInt(element.getTextContent(), 16);         //Parent class contains description method
+        //Add the newly received reject code
+        reason |= Integer.parseInt(element.getTextContent(), 16);         //Parent class contains description method
     }
 
     @Override
