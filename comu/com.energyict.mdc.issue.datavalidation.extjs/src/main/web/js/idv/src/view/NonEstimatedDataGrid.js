@@ -71,12 +71,17 @@ Ext.define('Idv.view.NonEstimatedDataGrid', {
                     xtype: 'menu',
                     defaultAlign: 'tr-br?',
                     plain: true,
-                    items: {
+                    items: [{
                         text: Uni.I18n.translate('issues.actionMenu.viewData', 'IDV', 'View data'),
                         itemId: 'datavalidation-view-data-mnu',
                         action: 'viewData',
                         hrefTarget: '_blank'
+                    }, {
+                        text: Uni.I18n.translate('issues.actionMenu.estimateValues', 'IDV', 'Estimate values'),
+                        itemId: 'datavalidation-estimate-values-mnu',
+                        action: 'estimateValues'
                     }
+                    ]
                 }
             }
         ];
