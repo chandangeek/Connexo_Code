@@ -13,9 +13,6 @@ import com.google.common.collect.Range;
 
 import java.time.Clock;
 import java.time.Instant;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Optional;
 
 import static com.elster.jupiter.util.Checks.is;
@@ -46,15 +43,25 @@ class DeviceCalendarSupport implements Device.CalendarSupport {
     }
 
     @Override
-    public List<PassiveEffectiveCalendar> getPassive() {
-        return Collections.unmodifiableList(this.device.getPassiveCalendars());
+    public Optional<PassiveEffectiveCalendar> getPassive() {
+        return this.device.getPassiveCalendar();
     }
 
     @Override
-    public void addPassive(AllowedCalendar passiveCalendar, Instant activationDate, DeviceMessage deviceMessage) {
+    public Optional<PassiveEffectiveCalendar> getPlannedPassive() {
+        return this.device.getPlannedPassiveCalendar();
+    }
+
+    @Override
+    public void setPassive(AllowedCalendar passiveCalendar, Instant activationDate, DeviceMessage deviceMessage) {
+        this.validateCalendarAllowed(passiveCalendar);
         PassiveEffectiveCalendarImpl passiveEffectiveCalendar = new PassiveEffectiveCalendarImpl();
         passiveEffectiveCalendar.setDeviceMessage(deviceMessage);
-        this.addPassiveCalendar(passiveCalendar, activationDate, passiveEffectiveCalendar);
+        passiveEffectiveCalendar.setAllowedCalendar(passiveCalendar);
+        passiveEffectiveCalendar.setActivationDate(activationDate);
+        this.dataModel.persist(passiveEffectiveCalendar);
+        this.device.setPlannedPassiveCalendar(passiveEffectiveCalendar);
+        this.dataModel.update(this.device);
     }
 
     @Override
@@ -62,10 +69,13 @@ class DeviceCalendarSupport implements Device.CalendarSupport {
         Instant now = this.clock.instant();
         if (is(collectedData.getActiveCalendar()).presentAndEqualTo(collectedData.getPassiveCalendar())) {
             this.setActiveCalendar(collectedData.getActiveCalendar().get(), now);
+            this.device.clearPassiveCalendar();
+            this.device.clearPlannedPassiveCalendar();
         } else {
             collectedData.getActiveCalendar().ifPresent(activeCalendarName -> this.setActiveCalendar(activeCalendarName, now));
             collectedData.getPassiveCalendar().ifPresent(passiveCalendarName -> this.setPassiveCalendar(passiveCalendarName, now));
         }
+        this.dataModel.update(this.device);
     }
 
     private void setActiveCalendar(String calendarName, Instant now) {
@@ -81,21 +91,25 @@ class DeviceCalendarSupport implements Device.CalendarSupport {
 
     private void setActiveCalendar(AllowedCalendar calendar, Instant now) {
         this.setActiveCalendar(calendar, now, now);
-        Iterator<PassiveEffectiveCalendar> passiveCalendars = this.device.getPassiveCalendars().iterator();
-        while (passiveCalendars.hasNext()) {
-            PassiveEffectiveCalendar each = passiveCalendars.next();
-            if (each.getAllowedCalendar().getId() == calendar.getId()) {
-                passiveCalendars.remove();
-            }
-        }
     }
 
     private void setActiveCalendar(AllowedCalendar allowedCalendar, Instant effective, Instant lastVerified) {
         Interval effectivityInterval = Interval.of(Range.atLeast(effective));
-        this.closeCurrentActiveCalendar(effective);
-        this.createNewActiveCalendar(allowedCalendar, lastVerified, effectivityInterval);
-        if (this.device.getId() != 0) {
-            this.dataModel.touch(this.device);
+        Optional<ServerActiveEffectiveCalendar> activeEffectiveCalendar = this.device.activeEffectiveCalendar().effective(effective);
+        Optional<AllowedCalendar> currentAllowedCalendar = activeEffectiveCalendar.map(ActiveEffectiveCalendar::getAllowedCalendar);
+        if (currentAllowedCalendar.isPresent()) {
+            if (!currentAllowedCalendar.get().equals(allowedCalendar)) {
+                this.closeCurrentActiveCalendar(effective);
+                this.createNewActiveCalendar(allowedCalendar, lastVerified, effectivityInterval);
+                if (this.device.getId() != 0) {
+                    this.dataModel.touch(this.device);
+                }
+            }
+        } else {
+            this.createNewActiveCalendar(allowedCalendar, lastVerified, effectivityInterval);
+            if (this.device.getId() != 0) {
+                this.dataModel.touch(this.device);
+            }
         }
     }
 
@@ -115,33 +129,38 @@ class DeviceCalendarSupport implements Device.CalendarSupport {
         if (this.notPassiveYet(calendarName)) {
             Optional<AllowedCalendar> allowedCalendar = this.getAllowedCalendar(this.device, calendarName);
             if (allowedCalendar.isPresent()) {
-                this.addPassiveCalendar(allowedCalendar.get(), now);
+                this.setPassiveCalendar(allowedCalendar.get(), now);
             } else {
-                this.addPassiveCalendar(this.device.getDeviceType().addGhostCalendar(calendarName), now);
+                this.setPassiveCalendar(this.device.getDeviceType().addGhostCalendar(calendarName), now);
             }
         }
     }
 
     private boolean notPassiveYet(String calendarName) {
-        return !this.device.getPassiveCalendars()
-                    .stream()
+        return !this.device.getPassiveCalendar()
                     .map(PassiveEffectiveCalendar::getAllowedCalendar)
                     .map(AllowedCalendar::getName)
-                    .anyMatch(allowedCalendarName -> allowedCalendarName.equals(calendarName));
+                    .map(allowedCalendarName -> allowedCalendarName.equals(calendarName))
+                    .orElse(false);
     }
 
-    private void addPassiveCalendar(AllowedCalendar passiveCalendar, Instant now) {
-        this.addPassiveCalendar(passiveCalendar, now, new PassiveEffectiveCalendarImpl());
+    private void setPassiveCalendar(AllowedCalendar passiveCalendar, Instant now) {
+        this.validateCalendarAllowed(passiveCalendar);
+        PassiveEffectiveCalendarImpl passiveEffectiveCalendar = new PassiveEffectiveCalendarImpl();
+        passiveEffectiveCalendar.setAllowedCalendar(passiveCalendar);
+        passiveEffectiveCalendar.setActivationDate(now);
+        this.dataModel.persist(passiveEffectiveCalendar);
+        this.device.setPassiveCalendar(passiveEffectiveCalendar);
+        Optional<AllowedCalendar> plannedAllowedCalendar = this.device.getPlannedPassiveCalendar().map(PassiveEffectiveCalendar::getAllowedCalendar);
+        if (is(plannedAllowedCalendar).presentAndEqualTo(Optional.of(passiveCalendar))) {
+            this.device.clearPlannedPassiveCalendar();
+        }
     }
 
-    private void addPassiveCalendar(AllowedCalendar calendar, Instant activationDate, PassiveEffectiveCalendarImpl passiveEffectiveCalendar) {
+    private void validateCalendarAllowed(AllowedCalendar calendar) {
         if (!this.device.getDeviceType().getAllowedCalendars().stream().anyMatch(each -> each.equals(calendar))) {
             throw new IllegalArgumentException("Calendar is not allowed on device type");
         }
-        passiveEffectiveCalendar.setAllowedCalendar(calendar);
-        passiveEffectiveCalendar.setActivationDate(activationDate);
-        passiveEffectiveCalendar.setDevice(this.device);
-        this.device.getPassiveCalendars().add(passiveEffectiveCalendar);
     }
 
     private Optional<AllowedCalendar> getAllowedCalendar(Device device, String calendarName) {

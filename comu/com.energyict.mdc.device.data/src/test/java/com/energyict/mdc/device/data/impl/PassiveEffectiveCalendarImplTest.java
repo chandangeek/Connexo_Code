@@ -41,8 +41,8 @@ public class PassiveEffectiveCalendarImplTest extends PersistenceIntegrationTest
     @Transactional
     public void testDeviceEffectiveCalendar() {
         Device device = createSimpleDeviceWithOneCalendar();
-        assertThat(device.calendars().getPassive()).hasSize(1);
-        PassiveEffectiveCalendar passiveEffectiveCalendar = device.calendars().getPassive().get(0);
+        assertThat(device.calendars().getPassive()).isPresent();
+        PassiveEffectiveCalendar passiveEffectiveCalendar = device.calendars().getPassive().get();
         assertThat(passiveEffectiveCalendar.getAllowedCalendar().getCalendar().get().getName()).isEqualTo("Calendar");
     }
 

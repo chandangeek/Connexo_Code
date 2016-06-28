@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.impl;
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.data.ActiveEffectiveCalendar;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.PassiveEffectiveCalendar;
 import com.energyict.mdc.protocol.api.device.data.CollectedCalendarInformation;
@@ -24,12 +25,12 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests the {@link com.energyict.mdc.device.data.Device.CalendarSupport#updateCalendars(CollectedCalendarInformation)} method.
+ * Integration test for the {@link com.energyict.mdc.device.data.Device.CalendarSupport} component.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-06-27 (09:44)
  */
-public class UpdateCalendarsIT extends PersistenceIntegrationTest {
+public class CalendarSupportIT extends PersistenceIntegrationTest {
 
     private static final String CALENDAR_NAME = "Calendar";
 
@@ -50,10 +51,11 @@ public class UpdateCalendarsIT extends PersistenceIntegrationTest {
 
         // Asserts
         assertThat(device.calendars().getActive()).isPresent();
-        assertThat(device.calendars().getActive().get().getRange()).isEqualTo(Range.atLeast(june1st2016));
-        assertThat(device.calendars().getActive().get().getLastVerifiedDate()).isEqualTo(june1st2016);
-        assertThat(device.calendars().getActive().get().getAllowedCalendar().isGhost()).isTrue();
-        assertThat(device.calendars().getActive().get().getAllowedCalendar().getName()).isEqualTo(expectedCalendarName);
+        ActiveEffectiveCalendar activeEffectiveCalendar = device.calendars().getActive().get();
+        assertThat(activeEffectiveCalendar.getRange()).isEqualTo(Range.atLeast(june1st2016));
+        assertThat(activeEffectiveCalendar.getLastVerifiedDate()).isEqualTo(june1st2016);
+        assertThat(activeEffectiveCalendar.getAllowedCalendar().isGhost()).isTrue();
+        assertThat(activeEffectiveCalendar.getAllowedCalendar().getName()).isEqualTo(expectedCalendarName);
         assertThat(device.calendars().getPassive()).isEmpty();
     }
 
@@ -74,8 +76,8 @@ public class UpdateCalendarsIT extends PersistenceIntegrationTest {
 
         // Asserts
         assertThat(device.calendars().getActive()).isEmpty();
-        assertThat(device.calendars().getPassive()).hasSize(1);
-        PassiveEffectiveCalendar passiveEffectiveCalendar = device.calendars().getPassive().get(0);
+        assertThat(device.calendars().getPassive()).isPresent();
+        PassiveEffectiveCalendar passiveEffectiveCalendar = device.calendars().getPassive().get();
         assertThat(passiveEffectiveCalendar.getActivationDate()).isEqualTo(june1st2016);
         assertThat(passiveEffectiveCalendar.getAllowedCalendar().isGhost()).isTrue();
         assertThat(passiveEffectiveCalendar.getAllowedCalendar().getName()).isEqualTo(expectedCalendarName);
@@ -99,12 +101,13 @@ public class UpdateCalendarsIT extends PersistenceIntegrationTest {
 
         // Asserts
         assertThat(device.calendars().getActive()).isPresent();
-        assertThat(device.calendars().getActive().get().getRange()).isEqualTo(Range.atLeast(june1st2016));
-        assertThat(device.calendars().getActive().get().getLastVerifiedDate()).isEqualTo(june1st2016);
-        assertThat(device.calendars().getActive().get().getAllowedCalendar().isGhost()).isTrue();
-        assertThat(device.calendars().getActive().get().getAllowedCalendar().getName()).isEqualTo(expectedActiveCalendarName);
-        assertThat(device.calendars().getPassive()).hasSize(1);
-        PassiveEffectiveCalendar passiveEffectiveCalendar = device.calendars().getPassive().get(0);
+        ActiveEffectiveCalendar activeEffectiveCalendar = device.calendars().getActive().get();
+        assertThat(activeEffectiveCalendar.getRange()).isEqualTo(Range.atLeast(june1st2016));
+        assertThat(activeEffectiveCalendar.getLastVerifiedDate()).isEqualTo(june1st2016);
+        assertThat(activeEffectiveCalendar.getAllowedCalendar().isGhost()).isTrue();
+        assertThat(activeEffectiveCalendar.getAllowedCalendar().getName()).isEqualTo(expectedActiveCalendarName);
+        assertThat(device.calendars().getPassive()).isPresent();
+        PassiveEffectiveCalendar passiveEffectiveCalendar = device.calendars().getPassive().get();
         assertThat(passiveEffectiveCalendar.getActivationDate()).isEqualTo(june1st2016);
         assertThat(passiveEffectiveCalendar.getAllowedCalendar().isGhost()).isTrue();
         assertThat(passiveEffectiveCalendar.getAllowedCalendar().getName()).isEqualTo(expectedPassiveCalendarName);
@@ -128,10 +131,11 @@ public class UpdateCalendarsIT extends PersistenceIntegrationTest {
 
         // Asserts
         assertThat(device.calendars().getActive()).isPresent();
-        assertThat(device.calendars().getActive().get().getRange()).isEqualTo(Range.atLeast(june1st2016));
-        assertThat(device.calendars().getActive().get().getLastVerifiedDate()).isEqualTo(june1st2016);
-        assertThat(device.calendars().getActive().get().getAllowedCalendar().isGhost()).isFalse();
-        assertThat(device.calendars().getActive().get().getAllowedCalendar().getName()).isEqualTo(calendar.getName());
+        ActiveEffectiveCalendar activeEffectiveCalendar = device.calendars().getActive().get();
+        assertThat(activeEffectiveCalendar.getRange()).isEqualTo(Range.atLeast(june1st2016));
+        assertThat(activeEffectiveCalendar.getLastVerifiedDate()).isEqualTo(june1st2016);
+        assertThat(activeEffectiveCalendar.getAllowedCalendar().isGhost()).isFalse();
+        assertThat(activeEffectiveCalendar.getAllowedCalendar().getName()).isEqualTo(calendar.getName());
         assertThat(device.calendars().getPassive()).isEmpty();
     }
 
@@ -153,8 +157,8 @@ public class UpdateCalendarsIT extends PersistenceIntegrationTest {
 
         // Asserts
         assertThat(device.calendars().getActive()).isEmpty();
-        assertThat(device.calendars().getPassive()).hasSize(1);
-        PassiveEffectiveCalendar passiveEffectiveCalendar = device.calendars().getPassive().get(0);
+        assertThat(device.calendars().getPassive()).isPresent();
+        PassiveEffectiveCalendar passiveEffectiveCalendar = device.calendars().getPassive().get();
         assertThat(passiveEffectiveCalendar.getActivationDate()).isEqualTo(june1st2016);
         assertThat(passiveEffectiveCalendar.getAllowedCalendar().isGhost()).isFalse();
         assertThat(passiveEffectiveCalendar.getAllowedCalendar().getName()).isEqualTo(calendar.getName());
@@ -178,10 +182,11 @@ public class UpdateCalendarsIT extends PersistenceIntegrationTest {
 
         // Asserts
         assertThat(device.calendars().getActive()).isPresent();
-        assertThat(device.calendars().getActive().get().getRange()).isEqualTo(Range.atLeast(june1st2016));
-        assertThat(device.calendars().getActive().get().getLastVerifiedDate()).isEqualTo(june1st2016);
-        assertThat(device.calendars().getActive().get().getAllowedCalendar().isGhost()).isFalse();
-        assertThat(device.calendars().getActive().get().getAllowedCalendar().getName()).isEqualTo(CALENDAR_NAME);
+        ActiveEffectiveCalendar activeEffectiveCalendar = device.calendars().getActive().get();
+        assertThat(activeEffectiveCalendar.getRange()).isEqualTo(Range.atLeast(june1st2016));
+        assertThat(activeEffectiveCalendar.getLastVerifiedDate()).isEqualTo(june1st2016);
+        assertThat(activeEffectiveCalendar.getAllowedCalendar().isGhost()).isFalse();
+        assertThat(activeEffectiveCalendar.getAllowedCalendar().getName()).isEqualTo(CALENDAR_NAME);
         assertThat(device.calendars().getPassive()).isEmpty();
     }
 
@@ -203,8 +208,8 @@ public class UpdateCalendarsIT extends PersistenceIntegrationTest {
 
         // Asserts
         assertThat(device.calendars().getActive()).isEmpty();
-        assertThat(device.calendars().getPassive()).hasSize(1);
-        PassiveEffectiveCalendar passiveEffectiveCalendar = device.calendars().getPassive().get(0);
+        assertThat(device.calendars().getPassive()).isPresent();
+        PassiveEffectiveCalendar passiveEffectiveCalendar = device.calendars().getPassive().get();
         assertThat(passiveEffectiveCalendar.getActivationDate()).isEqualTo(may1st2016);
         assertThat(passiveEffectiveCalendar.getAllowedCalendar().isGhost()).isFalse();
         assertThat(passiveEffectiveCalendar.getAllowedCalendar().getName()).isEqualTo(CALENDAR_NAME);
@@ -230,10 +235,11 @@ public class UpdateCalendarsIT extends PersistenceIntegrationTest {
 
         // Asserts
         assertThat(device.calendars().getActive()).isPresent();
-        assertThat(device.calendars().getActive().get().getRange()).isEqualTo(Range.atLeast(june1st2016));
-        assertThat(device.calendars().getActive().get().getLastVerifiedDate()).isEqualTo(june1st2016);
-        assertThat(device.calendars().getActive().get().getAllowedCalendar().isGhost()).isTrue();
-        assertThat(device.calendars().getActive().get().getAllowedCalendar().getName()).isEqualTo(expectedCalendarName);
+        ActiveEffectiveCalendar activeEffectiveCalendar = device.calendars().getActive().get();
+        assertThat(activeEffectiveCalendar.getRange()).isEqualTo(Range.atLeast(june1st2016));
+        assertThat(activeEffectiveCalendar.getLastVerifiedDate()).isEqualTo(june1st2016);
+        assertThat(activeEffectiveCalendar.getAllowedCalendar().isGhost()).isTrue();
+        assertThat(activeEffectiveCalendar.getAllowedCalendar().getName()).isEqualTo(expectedCalendarName);
         assertThat(device.calendars().getPassive()).isEmpty();
     }
 
@@ -258,11 +264,48 @@ public class UpdateCalendarsIT extends PersistenceIntegrationTest {
 
         // Asserts
         assertThat(device.calendars().getActive()).isPresent();
-        assertThat(device.calendars().getActive().get().getRange()).isEqualTo(Range.atLeast(june1st2016));
-        assertThat(device.calendars().getActive().get().getLastVerifiedDate()).isEqualTo(june1st2016);
-        assertThat(device.calendars().getActive().get().getAllowedCalendar().isGhost()).isFalse();
-        assertThat(device.calendars().getActive().get().getAllowedCalendar().getName()).isEqualTo(expectedCalendarName);
+        ActiveEffectiveCalendar activeEffectiveCalendar = device.calendars().getActive().get();
+        assertThat(activeEffectiveCalendar.getRange()).isEqualTo(Range.atLeast(june1st2016));
+        assertThat(activeEffectiveCalendar.getLastVerifiedDate()).isEqualTo(june1st2016);
+        assertThat(activeEffectiveCalendar.getAllowedCalendar().isGhost()).isFalse();
+        assertThat(activeEffectiveCalendar.getAllowedCalendar().getName()).isEqualTo(expectedCalendarName);
         assertThat(device.calendars().getPassive()).isEmpty();
+    }
+
+    @Test
+    @Transactional
+    public void jiraCXO2126() {
+        Instant may1st2016 = Instant.ofEpochMilli(1462053600000L);
+        when(inMemoryPersistence.getClock().instant()).thenReturn(may1st2016);
+        Device device = this.createSimpleDeviceWithActiveAndPassiveGhostCalendar("DeviceName", "jiraCXO2126");
+        // Initial state described in jira issue is now in effect
+
+        // Step 1-3: add calendar and simulate reading status information (the business method)
+        String expectedCalendarName = "Second";
+        Calendar calendar = this.createCalendar(expectedCalendarName);
+        this.addCalendarToDeviceType(device, calendar);
+        CollectedCalendarInformation collectedCalendarInformation = mock(CollectedCalendarInformation.class);
+        when(collectedCalendarInformation.isEmpty()).thenReturn(false);
+        when(collectedCalendarInformation.getActiveCalendar()).thenReturn(Optional.of("Casper1"));
+        when(collectedCalendarInformation.getPassiveCalendar()).thenReturn(Optional.of(expectedCalendarName));
+        Instant june1st2016 = Instant.ofEpochMilli(1464732000000L);
+        when(inMemoryPersistence.getClock().instant()).thenReturn(june1st2016);
+
+        // Business method: simulates reading status information
+        device.calendars().updateCalendars(collectedCalendarInformation);
+
+        // Asserts
+        assertThat(device.calendars().getActive()).isPresent();
+        ActiveEffectiveCalendar activeEffectiveCalendar = device.calendars().getActive().get();
+        assertThat(activeEffectiveCalendar.getRange()).isEqualTo(Range.atLeast(may1st2016));
+        assertThat(activeEffectiveCalendar.getLastVerifiedDate()).isEqualTo(may1st2016);
+        assertThat(activeEffectiveCalendar.getAllowedCalendar().isGhost()).isTrue();
+        assertThat(activeEffectiveCalendar.getAllowedCalendar().getName()).isEqualTo("Casper1");
+        assertThat(device.calendars().getPassive()).isPresent();
+        PassiveEffectiveCalendar passiveEffectiveCalendar = device.calendars().getPassive().get();
+        assertThat(passiveEffectiveCalendar.getActivationDate()).isEqualTo(june1st2016);
+        assertThat(passiveEffectiveCalendar.getAllowedCalendar().isGhost()).isFalse();
+        assertThat(passiveEffectiveCalendar.getAllowedCalendar().getName()).isEqualTo(expectedCalendarName);
     }
 
     private Calendar addCalendarToDeviceType(Device device) {
@@ -293,6 +336,16 @@ public class UpdateCalendarsIT extends PersistenceIntegrationTest {
         when(collected.isEmpty()).thenReturn(false);
         when(collected.getActiveCalendar()).thenReturn(Optional.empty());
         when(collected.getPassiveCalendar()).thenReturn(Optional.of(calendar.getName()));
+        device.calendars().updateCalendars(collected);
+        return device;
+    }
+
+    private Device createSimpleDeviceWithActiveAndPassiveGhostCalendar(String name, String mRID) {
+        Device device = inMemoryPersistence.getDeviceService().newDevice(this.deviceConfiguration, name, mRID);
+        CollectedCalendarInformation collected = mock(CollectedCalendarInformation.class);
+        when(collected.isEmpty()).thenReturn(false);
+        when(collected.getActiveCalendar()).thenReturn(Optional.of("Casper1"));
+        when(collected.getPassiveCalendar()).thenReturn(Optional.of("Casper2"));
         device.calendars().updateCalendars(collected);
         return device;
     }

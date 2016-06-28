@@ -11,7 +11,7 @@ import com.energyict.mdc.device.data.Device;
 import javax.inject.Inject;
 import java.time.Instant;
 
-public class ActiveEffectiveCalendarImpl implements ServerActiveEffectiveCalendar {
+class ActiveEffectiveCalendarImpl implements ServerActiveEffectiveCalendar {
 
     public enum Fields {
         CALENDAR("allowedCalendar"),
@@ -30,6 +30,7 @@ public class ActiveEffectiveCalendarImpl implements ServerActiveEffectiveCalenda
         }
     }
 
+    @SuppressWarnings("unused") // Managed by ORM
     private long id;
     private DataModel dataModel;
     @IsPresent
@@ -40,7 +41,7 @@ public class ActiveEffectiveCalendarImpl implements ServerActiveEffectiveCalenda
     private Instant lastVerifiedDate;
 
     @Inject
-    public ActiveEffectiveCalendarImpl(DataModel dataModel) {
+    ActiveEffectiveCalendarImpl(DataModel dataModel) {
         super();
         this.dataModel = dataModel;
     }

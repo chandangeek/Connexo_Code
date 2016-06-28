@@ -268,7 +268,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private List<ProtocolDialectPropertiesImpl> dialectPropertiesList = new ArrayList<>();
     private List<ProtocolDialectPropertiesImpl> newDialectProperties = new ArrayList<>();
     private List<ProtocolDialectPropertiesImpl> dirtyDialectProperties = new ArrayList<>();
-    private List<PassiveEffectiveCalendar> passiveCalendars = new ArrayList<>();
+    private Reference<PassiveEffectiveCalendar> passiveCalendar = ValueReference.absent();
+    private Reference<PassiveEffectiveCalendar> plannedPassiveCalendar = ValueReference.absent();
     private TemporalReference<ServerActiveEffectiveCalendar> activeCalendar = Temporals.absent();
 
     private Map<SecurityPropertySet, TypedProperties> dirtySecurityProperties = new HashMap<>();
@@ -652,6 +653,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         removeDeviceFromStaticGroups();
         closeCurrentMeterActivation();
         this.obsoleteKoreDevice();
+        this.clearPassiveCalendar();
         this.getDataMapper().remove(this);
     }
 
@@ -2022,8 +2024,32 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return this.activeCalendar;
     }
 
-    List<PassiveEffectiveCalendar> getPassiveCalendars() {
-        return this.passiveCalendars;
+    Optional<PassiveEffectiveCalendar> getPassiveCalendar() {
+        return this.passiveCalendar.getOptional();
+    }
+
+    void setPassiveCalendar(PassiveEffectiveCalendar calendar) {
+        this.clearPassiveCalendar();
+        this.passiveCalendar.set(calendar);
+    }
+
+    void clearPassiveCalendar() {
+        this.passiveCalendar.set(null);
+        this.getPassiveCalendar().ifPresent(this.dataModel::remove);
+    }
+
+    Optional<PassiveEffectiveCalendar> getPlannedPassiveCalendar() {
+        return this.plannedPassiveCalendar.getOptional();
+    }
+
+    void setPlannedPassiveCalendar(PassiveEffectiveCalendar calendar) {
+        this.clearPlannedPassiveCalendar();
+        this.plannedPassiveCalendar.set(calendar);
+    }
+
+    void clearPlannedPassiveCalendar() {
+        this.plannedPassiveCalendar.set(null);
+        this.getPlannedPassiveCalendar().ifPresent(this.dataModel::remove);
     }
 
     @Override
