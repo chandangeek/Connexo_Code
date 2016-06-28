@@ -76,6 +76,7 @@ Ext.define('Wss.controller.Webservices', {
             success: function (record) {
                 me.record = record;
                 me.showAddEditView(record, 'edit');
+                me.getApplication().fireEvent('endpointload', record.get('name'));
             }
         });
     },
