@@ -110,7 +110,7 @@ public class DeviceInstallationImporterFactoryTest {
         locationTemplate.parseTemplate(templateMembers,templateMembers);
         when(context.getMeteringService().getLocationTemplate()).thenReturn(locationTemplate);
         when(meteringService.findEndDevice("VPB0002")).thenReturn(Optional.of(endDevice));
-        when(locationBuilder.getMember("locale")).thenReturn(Optional.empty());
+        when(locationBuilder.getMemberBuilder("locale")).thenReturn(Optional.empty());
         when(locationBuilder.member()).thenReturn(locationMemberBuilder);
         when(locationMemberBuilder.setCountryName(anyString())).thenReturn(locationMemberBuilder);
         when(locationMemberBuilder.setCountryCode(anyString())).thenReturn(locationMemberBuilder);

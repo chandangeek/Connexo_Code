@@ -73,7 +73,7 @@ public class DeviceInstallationImportProcessor extends DeviceTransitionImportPro
                             }
                         });
             }
-            Optional<LocationBuilder.LocationMemberBuilder> memberBuilder = builder.getMember(locationData
+            Optional<LocationBuilder.LocationMemberBuilder> memberBuilder = builder.getMemberBuilder(locationData
                     .get(ranking.get("locale")));
             if (memberBuilder.isPresent()) {
                 setLocationAttributes(memberBuilder.get(), data, ranking);
