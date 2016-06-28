@@ -38,7 +38,6 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -208,19 +207,15 @@ public class UpgradeServiceImpl implements UpgradeService, EventHandler {
 
     private void verifyExpected(InstallIdentifier installIdentifier) {
         checked.add(installIdentifier);
-        try {
-            checkLists.get(test(this::matchApplication).with(installIdentifier), Duration.ofMinutes(1))
-                    .map(upgradeCheckList -> (Runnable) () -> {
-                        if (!expected(upgradeCheckList, installIdentifier)) {
-                            //TODO end startup, but first CXO-2089 needs to be addressed, for now just log a warning
-                            logger.severe("Unexpected component installed : " + installIdentifier);
-                        }
-                    }).orElse(() -> {
-                logger.severe("Unexpected component installed : " + installIdentifier);
-            }).run();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+        checkLists.poll(test(this::matchApplication).with(installIdentifier))
+                .map(upgradeCheckList -> (Runnable) () -> {
+                    if (!expected(upgradeCheckList, installIdentifier)) {
+                        //TODO end startup, but first CXO-2089 needs to be addressed, for now just log a warning
+                        logger.severe("Unexpected component installed : " + installIdentifier);
+                    }
+                }).orElse(() -> {
+            logger.severe("Unexpected component installed : " + installIdentifier);
+        }).run();
     }
 
     @Override
