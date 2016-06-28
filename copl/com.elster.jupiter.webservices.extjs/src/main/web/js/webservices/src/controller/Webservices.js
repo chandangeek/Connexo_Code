@@ -98,7 +98,8 @@ Ext.define('Wss.controller.Webservices', {
                                 view = Ext.widget('endpoint-add', {
                                     action: type,
                                     record: record,
-                                    returnLink: me.getController('Uni.controller.history.Router').getRoute('administration/webserviceendpoints').buildUrl(),
+                                    returnLink: record === null ? me.getController('Uni.controller.history.Router').getRoute('administration/webserviceendpoints').buildUrl()
+                                        : me.getController('Uni.controller.history.Router').getRoute('administration/webserviceendpoints/view').buildUrl({endpointId: record.get('id')}),
                                     authenticationMethodStore: authenticationMethodStore,
                                     rolesStore: rolesStore,
                                     logLevelsStore: logLevelsStore
