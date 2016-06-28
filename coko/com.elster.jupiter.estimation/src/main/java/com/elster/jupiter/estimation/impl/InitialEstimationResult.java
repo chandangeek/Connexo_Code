@@ -3,15 +3,17 @@ package com.elster.jupiter.estimation.impl;
 import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.estimation.EstimationResult;
 
+import com.google.common.collect.ImmutableList;
+
 import java.util.Collections;
 import java.util.List;
 
-public class InitialEstimationResult implements EstimationResult {
+class InitialEstimationResult implements EstimationResult {
 
     private final List<EstimationBlock> toBeEstimated;
 
-    public InitialEstimationResult(List<EstimationBlock> toBeEstimated) {
-        this.toBeEstimated = toBeEstimated;
+    InitialEstimationResult(List<EstimationBlock> toBeEstimated) {
+        this.toBeEstimated = ImmutableList.copyOf(toBeEstimated);
     }
 
     @Override
@@ -23,4 +25,5 @@ public class InitialEstimationResult implements EstimationResult {
     public List<EstimationBlock> estimated() {
         return Collections.emptyList();
     }
+
 }
