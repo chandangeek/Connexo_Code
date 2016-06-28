@@ -469,6 +469,7 @@ public enum TableSpecs {
             Column idColumn = table.addAutoIdColumn();
             Column usagePointIdColumn = table.column("USAGEPOINTID").type("number").conversion(NUMBER2LONGNULLZERO).add();
             Column meterIdColumn = table.column("METERID").type("number").conversion(NUMBER2LONGNULLZERO).add();
+
             Column meterRoleIdColumn = table.column("METERROLE")
                     .type(MeterRoleImpl.Fields.KEY.name())
                     .varChar(NAME_LENGTH)
@@ -849,11 +850,12 @@ public enum TableSpecs {
             Table<EffectiveMetrologyConfigurationOnUsagePoint> table = dataModel.addTable(name(), EffectiveMetrologyConfigurationOnUsagePoint.class);
             table.map(EffectiveMetrologyConfigurationOnUsagePointImpl.class);
             table.since(version(10, 2));
+            Column id = table.addAutoIdColumn();
             Column usagePoint = table.column("USAGEPOINT").type("number").notNull().add();
             List<Column> intervalColumns = table.addIntervalColumns("interval");
             Column metrologyConfiguration = table.column("METROLOGYCONFIG").number().notNull().add();
             table.column("ACTIVE").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map("active").add();
-            table.primaryKey("MTR_PK_UPMTRCONFIG").on(usagePoint, intervalColumns.get(0)).add();
+            table.primaryKey("MTR_PK_UPMTRCONFIG").on(id).add();
             table.foreignKey("MTR_FK_UPMTRCONFIG_UP")
                     .on(usagePoint)
                     .references(UsagePoint.class)
@@ -867,6 +869,7 @@ public enum TableSpecs {
                     .references(MetrologyConfiguration.class)
                     .map("metrologyConfiguration")
                     .add();
+            table.unique("MTR_UK_UPMTRCONFIG_STARTTIME").on(intervalColumns.get(0)).add();
         }
     },
     MTR_MULTIPLIERTYPE {

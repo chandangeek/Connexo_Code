@@ -33,7 +33,10 @@ import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.OverlapsOnMetrologyConfigurationVersionEnd;
+import com.elster.jupiter.metering.config.OverlapsOnMetrologyConfigurationVersionStart;
 import com.elster.jupiter.metering.config.UnsatisfiedMerologyConfigurationEndDate;
+import com.elster.jupiter.metering.config.UnsatisfiedMerologyConfigurationEndDateInThePast;
 import com.elster.jupiter.metering.config.UnsatisfiedMerologyConfigurationStartDateRelativelyLatestEnd;
 import com.elster.jupiter.metering.config.UnsatisfiedMerologyConfigurationStartDateRelativelyLatestStart;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
@@ -52,6 +55,7 @@ import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.util.time.RangeInstantBuilder;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
@@ -66,7 +70,6 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -458,29 +461,80 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
-    public void applyWithInterval(UsagePointMetrologyConfiguration metrologyConfiguration, Instant start, Instant end){
+    public void applyWithInterval(UsagePointMetrologyConfiguration metrologyConfiguration, Instant start, Instant end) {
         Thesaurus thesaurus = this.metrologyConfigurationService.getThesaurus();
-        List<MeterActivation> meterActivations = this.getMeterActivations(start);
+        Long startDate = start.toEpochMilli();
+        Long endDate = end != null ? end.toEpochMilli() : null;
+
+        basicCheckEffectiveMetrologyConfiguration(metrologyConfiguration, start, end);
+
 
         Optional<EffectiveMetrologyConfigurationOnUsagePoint> latest = this.metrologyConfiguration.all().stream()
                 .sorted((m1, m2) -> -m1.getStart().compareTo(m2.getStart())).findFirst();
         if (latest.isPresent()) {
-            Instant startDate = latest.get().getStart();
-            Instant endDate = latest.get().getEnd();
-            if(end!= null && end.isBefore(start)){
-                throw new UnsatisfiedMerologyConfigurationEndDate(thesaurus);
-            }
-            if (endDate != null) {
-                if (start.isBefore(endDate)) {
+            Instant latestStartDate = latest.get().getStart();
+            Instant latestEndDate = latest.get().getEnd();
+
+            if (latestEndDate != null) {
+                if (start.isBefore(latestEndDate)) {
                     throw new UnsatisfiedMerologyConfigurationStartDateRelativelyLatestEnd(thesaurus);
                 }
 
-            } else{
-                if (start.isBefore(startDate) || start.equals(startDate)) {
+            } else {
+                if (start.isBefore(latestStartDate) || start.equals(latestStartDate)) {
                     throw new UnsatisfiedMerologyConfigurationStartDateRelativelyLatestStart(thesaurus);
                 }
                 latest.get().close(start);
             }
+        }
+        this.metrologyConfiguration.add(
+                this.dataModel
+                        .getInstance(EffectiveMetrologyConfigurationOnUsagePointImpl.class)
+                        .initAndSaveWithInterval(this, metrologyConfiguration, Interval.of(RangeInstantBuilder.closedOpenRange(startDate, endDate))));
+        doSave();
+    }
+
+    @Override
+    public void updateWithInterval(EffectiveMetrologyConfigurationOnUsagePoint metrologyConfigurationVersion, Instant start, Instant end) {
+        Thesaurus thesaurus = this.metrologyConfigurationService.getThesaurus();
+        UsagePointMetrologyConfiguration metrologyConfiguration = metrologyConfigurationVersion.getMetrologyConfiguration();
+        Long startTime = start.toEpochMilli();
+        Long endTime = end != null ? end.toEpochMilli() : null;
+        Instant startTimeOfCurrent = this.getCurrentEffectiveMetrologyConfiguration()
+                .map(EffectiveMetrologyConfigurationOnUsagePoint::getStart)
+                .orElse(null);
+
+        basicCheckEffectiveMetrologyConfiguration(metrologyConfiguration, start, end);
+        if (end != null && metrologyConfigurationVersion.getStart().equals(startTimeOfCurrent) && end.isBefore(this.clock.instant())) {
+            throw new UnsatisfiedMerologyConfigurationEndDateInThePast(thesaurus);
+        }
+        List<EffectiveMetrologyConfigurationOnUsagePoint> otherVersions = this.getEffectiveMetrologyConfigurations()
+                .stream()
+                .filter(v -> !v.getStart().equals(metrologyConfigurationVersion.getStart()))
+                .collect(Collectors.toList());
+
+
+        otherVersions.forEach(each -> checkOverlapsOfEffectiveMetrologyConfiguations(each, start, end));
+        Interval newInterval = Interval.of(RangeInstantBuilder.closedOpenRange(startTime, endTime));
+
+        metrologyConfigurationVersion.update(metrologyConfiguration, newInterval);
+        doSave();
+    }
+
+    private void checkOverlapsOfEffectiveMetrologyConfiguations(EffectiveMetrologyConfigurationOnUsagePoint each, Instant start, Instant end) {
+
+        if (each.isEffectiveAt(start)) {
+            throw new OverlapsOnMetrologyConfigurationVersionStart(thesaurus);
+        } else if (each.isEffectiveAt(end)) {
+            throw new OverlapsOnMetrologyConfigurationVersionEnd(thesaurus);
+        }
+    }
+
+    private void basicCheckEffectiveMetrologyConfiguration(UsagePointMetrologyConfiguration metrologyConfiguration, Instant start, Instant end) {
+
+        List<MeterActivation> meterActivations = this.getMeterActivations(start);
+        if (end != null && (end.isBefore(start) || end.equals(start))) {
+            throw new UnsatisfiedMerologyConfigurationEndDate(thesaurus);
         }
 
         List<Pair<MeterRole, Meter>> pairs = new ArrayList<>();
@@ -492,12 +546,6 @@ public class UsagePointImpl implements UsagePoint {
                     .ifPresent(meterActivation -> pairs.add(Pair.of(meterRole, meterActivation.getMeter().get())));
         });
         metrologyConfiguration.validateMeterCapabilities(pairs);
-
-
-        this.metrologyConfiguration.add(
-                this.dataModel
-                        .getInstance(EffectiveMetrologyConfigurationOnUsagePointImpl.class)
-                        .initAndSaveWithInterval(this, metrologyConfiguration, start, end));
     }
 
     @Override
