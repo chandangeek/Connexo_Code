@@ -29,7 +29,7 @@ public class ConstraintContainsFragment extends ConstraintFragment {
 
     @Override
     public String getText() {
-        return contains.getCollection().isEmpty() ? getSqlText(contains.getCollection()) : decorate(contains.getCollection().stream()).partitionPer(1000)
+        return contains.getCollection().isEmpty() ? "1=0" : decorate(contains.getCollection().stream()).partitionPer(1000)
                 .map(this::getSqlText)
                 .collect(Collectors.joining(" OR ", "(", ")"));
     }
