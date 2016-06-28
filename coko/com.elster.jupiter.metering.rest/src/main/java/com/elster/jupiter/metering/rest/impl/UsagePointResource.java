@@ -271,7 +271,7 @@ public class UsagePointResource {
 
     @GET
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
-    @Path("/{mRID}/history/metrologyconfiguration")
+    @Path("/{mRID}/history/metrologyconfigurations")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public PagedInfoList getUsagePointMetrologyConfigurationHistory(@PathParam("mRID") String mRID,
                                                                     @BeanParam JsonQueryParameters queryParameters) {
@@ -308,12 +308,12 @@ public class UsagePointResource {
     }
 
     @PUT
-    @Path("/{mRID}/metrologyconfigurations")
+    @Path("/{mRID}/metrologyconfiguration")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Transactional
-    public Response addMetrologyConfigurationVersion(UsagePointInfo info) {
+    public Response updateMetrologyConfigurationVersions(UsagePointInfo info, @QueryParam("delete") boolean delete) {
         UsagePoint usagePoint = resourceHelper.findAndLockUsagePoint(info);
         UsagePointMetrologyConfiguration metrologyConfiguration = resourceHelper.findMetrologyConfiguration(info.metrologyConfigurationVersion.metrologyConfiguration.id);
         Instant start = Instant.ofEpochMilli(info.metrologyConfigurationVersion.start);
@@ -321,7 +321,10 @@ public class UsagePointResource {
         Instant newStart = info.metrologyConfigurationVersion.newStart != null ? Instant.ofEpochMilli(info.metrologyConfigurationVersion.newStart): null;
         Instant newEnd = info.metrologyConfigurationVersion.newEnd != null ? Instant.ofEpochMilli(info.metrologyConfigurationVersion.newEnd): null;
         UsagePointInfo updatedInfo = usagePointInfoFactory.from(usagePoint);
-        if(newStart == null && newEnd == null){
+        EffectiveMetrologyConfigurationOnUsagePoint versionToChange = usagePoint.getEffectiveMetrologyConfiguration(start).orElse(null);
+        if(delete && info.metrologyConfigurationVersion.editable && !info.metrologyConfigurationVersion.current){
+            usagePoint.removeMetrologyConfigurationVersion(versionToChange);
+        } else if(newStart == null && newEnd == null){
             try {
                 usagePoint.applyWithInterval(metrologyConfiguration, start, end);
             } catch (UnsatisfiedReadingTypeRequirements ex) {
@@ -331,13 +334,9 @@ public class UsagePointResource {
             } catch (UnsatisfiedMerologyConfigurationStartDateRelativelyLatestStart | UnsatisfiedMerologyConfigurationStartDateRelativelyLatestEnd ex){
                 throw new FormValidationException().addException("start", ex.getMessage());
             }
-
             updatedInfo.metrologyConfigurationVersion = usagePoint.getEffectiveMetrologyConfiguration(start)
                     .map(metrologyConfigurationInfoFactory::asInfo).orElse(null);
-
-
         } else if (info.metrologyConfigurationVersion.editable) {
-            EffectiveMetrologyConfigurationOnUsagePoint versionToChange = usagePoint.getEffectiveMetrologyConfiguration(start).orElse(null);
             try {
                 usagePoint.updateWithInterval(versionToChange, newStart, newEnd);
             } catch (UnsatisfiedReadingTypeRequirements ex) {
@@ -347,9 +346,11 @@ public class UsagePointResource {
             } catch (OverlapsOnMetrologyConfigurationVersionStart ex){
                 throw new FormValidationException().addException("start", ex.getMessage());
             }
-
             updatedInfo.metrologyConfigurationVersion = metrologyConfigurationInfoFactory.asInfo(versionToChange);
+        } else {
+            throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }
+        usagePoint.update();
         return Response.status(Response.Status.OK).entity(updatedInfo).build();
     }
 
