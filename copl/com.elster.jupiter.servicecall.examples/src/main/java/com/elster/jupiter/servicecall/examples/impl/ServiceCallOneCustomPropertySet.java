@@ -115,7 +115,7 @@ public class ServiceCallOneCustomPropertySet implements CustomPropertySet<Servic
 
         @Override
         public String componentName() {
-            return "OMFG.1";
+            return "OM1";
         }
 
         @Override
