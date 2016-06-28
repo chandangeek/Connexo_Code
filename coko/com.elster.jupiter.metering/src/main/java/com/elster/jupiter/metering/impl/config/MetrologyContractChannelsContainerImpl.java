@@ -8,6 +8,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.MetrologyContractChannelsContainer;
 import com.elster.jupiter.metering.impl.AggregatedChannelImpl;
 import com.elster.jupiter.metering.impl.ChannelContract;
 import com.elster.jupiter.metering.impl.ChannelImpl;
@@ -30,7 +31,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class MetrologyContractChannelsContainerImpl extends ChannelsContainerImpl {
+public class MetrologyContractChannelsContainerImpl extends ChannelsContainerImpl implements MetrologyContractChannelsContainer {
 
     public enum Fields {
         METROLOGY_CONFIG("effectiveMetrologyConfiguration"),
@@ -74,6 +75,7 @@ public class MetrologyContractChannelsContainerImpl extends ChannelsContainerImp
         return this.effectiveMetrologyConfiguration.get().getInterval();
     }
 
+    @Override
     public MetrologyContract getMetrologyContract() {
         return this.metrologyContract.get();
     }
