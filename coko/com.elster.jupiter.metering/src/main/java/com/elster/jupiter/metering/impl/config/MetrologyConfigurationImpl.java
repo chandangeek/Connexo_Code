@@ -32,6 +32,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -402,8 +403,11 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
         this.getContracts()
                 .stream()
                 .filter(MetrologyContract::isMandatory)
-                .flatMap(contract -> contract.getDeliverables().stream())
-                .forEach(deliverable -> deliverable.getFormula().getExpressionNode().accept(requirementChecker));
+                .map(MetrologyContract::getDeliverables)
+                .flatMap(Collection::stream)
+                .map(ReadingTypeDeliverable::getFormula)
+                .map(Formula::getExpressionNode)
+                .forEach(expressionNode -> expressionNode.accept(requirementChecker));
         return requirementChecker.getReadingTypeRequirements();
     }
 }
