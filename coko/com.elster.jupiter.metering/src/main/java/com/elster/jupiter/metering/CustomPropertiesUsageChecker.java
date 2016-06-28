@@ -1,4 +1,4 @@
-package com.elster.jupiter.metering.impl.config;
+package com.elster.jupiter.metering;
 
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.config.ConstantNode;
