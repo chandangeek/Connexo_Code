@@ -1,8 +1,22 @@
 package com.elster.jupiter.users.rest.impl;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
+import com.elster.jupiter.rest.util.QueryParameters;
+import com.elster.jupiter.rest.util.RestQuery;
+import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.FailToActivateUser;
+import com.elster.jupiter.users.Privilege;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.rest.PrivilegeInfos;
+import com.elster.jupiter.users.rest.UserInfo;
+import com.elster.jupiter.users.rest.UserInfos;
+import com.elster.jupiter.users.rest.actions.UpdateUserTransaction;
+import com.elster.jupiter.users.security.Privileges;
+import com.elster.jupiter.util.conditions.Order;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -18,22 +32,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
-
-import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
-import com.elster.jupiter.rest.util.QueryParameters;
-import com.elster.jupiter.rest.util.RestQuery;
-import com.elster.jupiter.rest.util.RestQueryService;
-import com.elster.jupiter.transaction.TransactionContext;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.users.*;
-import com.elster.jupiter.users.rest.PrivilegeInfos;
-import com.elster.jupiter.users.rest.UserInfo;
-import com.elster.jupiter.users.rest.UserInfos;
-import com.elster.jupiter.users.rest.actions.UpdateUserTransaction;
-import com.elster.jupiter.users.security.Privileges;
-import com.elster.jupiter.util.conditions.Order;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Path("/users")
 public class UserResource {
@@ -130,9 +131,10 @@ public class UserResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE})
     public UserInfos activateUser(UserInfo info, @PathParam("id") long id) {
         Optional<User> user = userService.getUser(id);
-        if(!userService.findUserDirectory(user.get().getDomain()).get().getType().equals("INT")  &&
-                !userService.findUserDirectory(user.get().getDomain()).get().getLdapUserStatus(user.get().getName()))
+        if (   !"INT".equals(userService.findUserDirectory(user.get().getDomain()).get().getType())
+            && !userService.findUserDirectory(user.get().getDomain()).get().getLdapUserStatus(user.get().getName())) {
             throw new FailToActivateUser(userService.getThesaurus());
+        }
         info.active = true;
         info.id = id;
         transactionService.execute(new UpdateUserTransaction(info, userService, conflictFactory));
