@@ -358,5 +358,49 @@ Ext.define('Isu.controller.IssueDetail', {
         }, me, {
             single: true
         });
+    },
+
+    refreshGrid: function (widget) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            queryString = Uni.util.QueryString.getQueryStringValues(false),
+            issueType = queryString.issueType,
+            issueId = router.arguments.issueId,
+            issueModel;
+
+
+        if (issueType == 'datacollection') {
+            issueModel = 'Idc.model.Issue';
+        } else if (issueType == 'datavalidation') {
+            issueModel = 'Idv.model.Issue';
+        }
+
+        widget.setLoading(true);
+
+        me.getModel(issueModel).load(issueId, {
+            callback: function () {
+                widget.setLoading(false);
+            },
+            success: function (record) {
+                if (!widget.isDestroyed) {
+                    Ext.getStore('Isu.store.Clipboard').set('issue', record);
+                    me.getApplication().fireEvent('issueLoad', record);
+                    Ext.suspendLayouts();
+                    widget.down('#issue-detail-top-title').setTitle(record.get('title'));
+                    if (issueType == 'datacollection') {
+                        me.loadDataCollectionIssueDetails(widget, record);
+                    } else {
+                        widget.down('#issue-detail-form').loadRecord(record);
+                    }
+                    Ext.resumeLayouts(true);
+                    widget.down('issues-action-menu').record = record;
+                    me.loadComments(record, issueType);
+                }
+            }
+        });
+
+        if (issueType == 'datavalidation') {
+            me.addValidationBlocksWidget(widget);
+        }
     }
 });
