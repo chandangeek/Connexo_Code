@@ -47,5 +47,33 @@ public class CronTabStyleConverterTest {
         when(nextExecutionSpecs.getTemporalExpression()).thenReturn(new TemporalExpression(new TimeDuration(3, TimeDuration.MONTHS), new TimeDuration(15, TimeDuration.DAYS)));
         convert = CronTabStyleConverter.convert(nextExecutionSpecs, timeZone, timeZone);
         assertEquals("0 0 0 16 */3 *", convert);
+
+    }
+
+    @Test
+    public void testWithDiffTimeZone() {
+        TimeZone timeZone1 = TimeZone.getTimeZone("Europe/Bucharest");
+        TimeZone timeZone2 = TimeZone.getTimeZone("Europe/Brussels");
+        NextExecutionSpecs nextExecutionSpecs = spy(new NextExecutionSpecsImpl(0));
+        when(nextExecutionSpecs.getTemporalExpression()).thenReturn(new TemporalExpression(new TimeDuration(5, TimeDuration.MINUTES), new TimeDuration(0)));
+        String convert = CronTabStyleConverter.convert(nextExecutionSpecs, timeZone1, timeZone2);
+        assertEquals("0 */5 * * * *", convert);
+
+        when(nextExecutionSpecs.getTemporalExpression()).thenReturn(new TemporalExpression(new TimeDuration(2, TimeDuration.HOURS), new TimeDuration(3, TimeDuration.MINUTES)));
+        convert = CronTabStyleConverter.convert(nextExecutionSpecs, timeZone1, timeZone2);
+        assertEquals("0 3 */2 * * *", convert);
+
+        when(nextExecutionSpecs.getTemporalExpression()).thenReturn(new TemporalExpression(new TimeDuration(2, TimeDuration.DAYS), new TimeDuration(6, TimeDuration.HOURS)));
+        convert = CronTabStyleConverter.convert(nextExecutionSpecs, timeZone1, timeZone2);
+        assertEquals("0 0 7 */2 * *", convert);
+
+        when(nextExecutionSpecs.getTemporalExpression()).thenReturn(new TemporalExpression(new TimeDuration(2, TimeDuration.WEEKS), new TimeDuration(6, TimeDuration.HOURS)));
+        convert = CronTabStyleConverter.convert(nextExecutionSpecs, timeZone1, timeZone2);
+        assertEquals("0 0 7 */14 * 1", convert);
+
+        when(nextExecutionSpecs.getTemporalExpression()).thenReturn(new TemporalExpression(new TimeDuration(3, TimeDuration.MONTHS), new TimeDuration(15, TimeDuration.DAYS)));
+        convert = CronTabStyleConverter.convert(nextExecutionSpecs, timeZone1, timeZone2);
+        assertEquals("0 0 1 16 */3 *", convert);
+
     }
 }
