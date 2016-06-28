@@ -102,7 +102,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             '#deviceLoadProfileChannelData #undo-button': {
                 click: this.undoChannelDataChanges
             },
-            '#estimate-reading-button': {
+            '#channel-reading-estimation-window #estimate-reading-button': {
                 click: this.estimateReading
             },
             'channel-data-bulk-action-menu': {
@@ -550,6 +550,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         me.getStore('Mdc.store.Estimators').load(function () {
             me.getPage().setLoading(false);
             Ext.widget('reading-estimation-window', {
+                itemId: 'channel-reading-estimation-window',
                 record: record,
                 bothSuspected: bothSuspected
             }).show();
