@@ -89,11 +89,6 @@ public class MetrologyContractChannelsContainerImpl extends ChannelsContainerImp
 
     @Override
     public Optional<Meter> getMeter(Instant instant) {
-        /*
-        It is important to return empty optional here, because validation service uses that for validation status check:
-        ValidationServerImpl#isValidationActive(ChannelsContainer).
-        In other words if you want to get a meter, be ready to change the logic in ValidationServerImpl.
-        */
         return Optional.empty();
     }
 
