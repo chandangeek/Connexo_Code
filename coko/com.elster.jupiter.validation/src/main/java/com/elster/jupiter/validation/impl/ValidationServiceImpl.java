@@ -443,8 +443,12 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
                         .filter(channel -> !channelsContainerValidation.getChannelValidation(channel).isPresent())
                         .forEach(channelsContainerValidation::addChannelValidation));
         persistedChannelsContainerValidations.stream()
-                .filter(channelsContainerValidation -> !ruleSets.contains(channelsContainerValidation.getRuleSet()))
-                .filter(channelsContainerValidation -> targetQualityCodeSystems.isEmpty() || targetQualityCodeSystems.contains(channelsContainerValidation.getRuleSet().getQualityCodeSystem()))
+                .filter(channelsContainerValidation -> {
+                    ValidationRuleSet validationRuleSet = channelsContainerValidation.getRuleSet();
+                    return !ruleSets.contains(validationRuleSet)
+                            && (targetQualityCodeSystems.isEmpty() || targetQualityCodeSystems.contains(validationRuleSet.getQualityCodeSystem()))
+                            && (validationRuleSet.getObsoleteDate() != null || !isValidationRuleSetInUse(validationRuleSet));
+                })
                 .forEach(ChannelsContainerValidation::makeObsolete);
         return returnList;
     }

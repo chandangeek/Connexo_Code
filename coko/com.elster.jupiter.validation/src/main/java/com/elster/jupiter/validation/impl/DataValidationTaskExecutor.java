@@ -139,7 +139,7 @@ public class DataValidationTaskExecutor implements TaskExecutor {
                                     .map(MeterActivation::getChannelsContainer)
                                     .forEach(channelsContainer -> {
                                         try (TransactionContext transactionContext = transactionService.getContext()) {
-                                            validationService.validate(EnumSet.of(task.getQualityCodeSystem()), channelsContainer);
+                                            validationService.validate(EnumSet.of(task.getQualityCodeSystem()), MetrologyContractChannelsContainerWrapper.from(channelsContainer, metrologyContract));
                                             transactionContext.commit();
                                         }
                                     });
