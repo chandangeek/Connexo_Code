@@ -46,7 +46,7 @@ public class QuantityValueFactory extends AbstractValueFactory<Quantity> {
             if (quantityParameters.length == 3) {
                 BigDecimal bigDecimalValue;
                 if (quantityParameters[0].equals("null")) {
-                    bigDecimalValue = new BigDecimal(0);
+                    bigDecimalValue = BigDecimal.ZERO;
                 } else {
                     bigDecimalValue = new BigDecimal(quantityParameters[0]);
                 }
