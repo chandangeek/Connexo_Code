@@ -61,7 +61,7 @@ import static com.elster.jupiter.upgrade.InstallIdentifier.identifier;
         service = {LicenseService.class, MessageSeedProvider.class, TranslationKeyProvider.class},
         property = {"name=" + LicenseService.COMPONENTNAME},
         immediate = true)
-public class LicenseServiceImpl implements LicenseService, MessageSeedProvider, TranslationKeyProvider {
+public final class LicenseServiceImpl implements LicenseService, MessageSeedProvider, TranslationKeyProvider {
 
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
