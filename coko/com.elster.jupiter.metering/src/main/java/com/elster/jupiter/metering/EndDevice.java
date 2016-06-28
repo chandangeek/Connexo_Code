@@ -62,8 +62,6 @@ public interface EndDevice extends IdentifiedObject {
 
     void setLocation(Location location);
 
-    void updateLocation(long id);
-
     Optional<Location> getLocation();
 
     Optional<SpatialCoordinates> getSpatialCoordinates();
