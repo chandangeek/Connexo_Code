@@ -813,7 +813,7 @@ public class DeviceResource {
     @RolesAllowed(Privileges.Constants.VIEW_DEVICE)
     public Response getCalendarInfo(@PathParam("mRID") String id) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
-        TimeOfUseInfo info = timeOfUseInfoFactory.from(device.calendars().getActive(), device.calendars().getPassive(), device);
+        TimeOfUseInfo info = timeOfUseInfoFactory.from(device);
         return Response.ok(info).build();
     }
 
@@ -835,7 +835,7 @@ public class DeviceResource {
         DeviceMessageId deviceMessageId = getDeviceMessageId(sendCalendarInfo, allowedOptions)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_ALLOWED_CALENDAR_DEVICE_MESSAGE));
         DeviceMessage<Device> deviceMessage = sendNewMessage(device, deviceMessageId, sendCalendarInfo, calendar);
-        device.calendars().addPassive(calendar, sendCalendarInfo.activationDate, deviceMessage);
+        device.calendars().setPassive(calendar, sendCalendarInfo.activationDate, deviceMessage);
         return Response.ok().build();
     }
 

@@ -7,14 +7,11 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.PassiveEffectiveCalendar;
 import com.energyict.mdc.device.data.rest.DeviceMessageStatusTranslationKeys;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class TimeOfUseInfoFactory {
     private Thesaurus thesaurus;
@@ -28,64 +25,55 @@ public class TimeOfUseInfoFactory {
         this.deviceMessageService = deviceMessageService;
     }
 
-    public TimeOfUseInfo from(Optional<ActiveEffectiveCalendar> activeCalendar, List<PassiveEffectiveCalendar> passiveCalendars, Device device) {
+    public TimeOfUseInfo from(Device device) {
+        return this.from(device.calendars(), device);
+    }
+
+    private TimeOfUseInfo from(Device.CalendarSupport calendarSupport, Device device) {
+        return this.from(calendarSupport.getActive(), calendarSupport.getPassive(), calendarSupport.getPlannedPassive(), device);
+    }
+
+    private TimeOfUseInfo from(Optional<ActiveEffectiveCalendar> activeCalendar, Optional<PassiveEffectiveCalendar> passiveCalendar, Optional<PassiveEffectiveCalendar> plannedPassiveCalendar, Device device) {
         TimeOfUseInfo info = new TimeOfUseInfo();
-        if(activeCalendar.isPresent()) {
-            if(activeCalendar.get().getAllowedCalendar().getCalendar().isPresent()) {
+        if (activeCalendar.isPresent()) {
+            if (activeCalendar.get().getAllowedCalendar().getCalendar().isPresent()) {
                 info.activeCalendar = this.calendarInfoFactory.detailedFromCalendar(activeCalendar.get().getAllowedCalendar().getCalendar().get());
             } else {
                 info.activeCalendar =  this.calendarInfoFactory.nameOnly(activeCalendar.get().getAllowedCalendar().getName());
                 info.activeIsGhost = true;
             }
-            if(activeCalendar.get().getLastVerifiedDate() != null) {
+            if (activeCalendar.get().getLastVerifiedDate() != null) {
                 info.lastVerified = activeCalendar.get().getLastVerifiedDate().toEpochMilli();
             }
         }
 
-        if (!passiveCalendars.isEmpty()) {
+        if (passiveCalendar.isPresent()) {
+            this.addPassiveCalendar(info, new PassiveCalendarInfo(passiveCalendar.get().getAllowedCalendar().getName(), passiveCalendar.get().getAllowedCalendar().isGhost()));
+        }
 
-            info.passiveCalendars = new ArrayList<>();
-            info.passiveCalendars = passiveCalendars.stream()
-                    .distinct()
-                    .map(PEC -> new PassiveCalendarInfo(PEC.getAllowedCalendar().getName(), PEC.getAllowedCalendar().isGhost()))
-                    .collect(Collectors.toList());
-
-            Optional<PassiveEffectiveCalendar> nextInLine = passiveCalendars.stream()
-                    .filter(passiveCalendar -> passiveCalendar.getDeviceMessage().isPresent())
-                    .sorted(this::compareCreationDate)
-                    .findFirst();
-
-            if(nextInLine.isPresent() && nextInLineDifferentFromActive(nextInLine.get(), activeCalendar)) {
-                PassiveEffectiveCalendar next = nextInLine.get();
-                Instant activationDate = next.getActivationDate();
-                boolean willBePickedUpByPlannedComtask = deviceMessageService.willDeviceMessageBePickedUpByPlannedComTask(device, next.getDeviceMessage().get());
-                boolean willBePickedUpByComtask = willBePickedUpByPlannedComtask || deviceMessageService.willDeviceMessageBePickedUpByComTask(device, next.getDeviceMessage().get());
-                info.nextPassiveCalendar = new NextCalendarInfo(next.getAllowedCalendar().getName(), next.getDeviceMessage().get().getReleaseDate().toEpochMilli(),
-                        (activationDate != null) ? activationDate.toEpochMilli() : 0, DeviceMessageStatusTranslationKeys.translationFor(next.getDeviceMessage().get().getStatus(), thesaurus),
-                        willBePickedUpByPlannedComtask, willBePickedUpByComtask);
-            }
+        if (plannedPassiveCalendar.isPresent()) {
+            PassiveEffectiveCalendar next = plannedPassiveCalendar.get();
+            Instant activationDate = next.getActivationDate();
+            boolean willBePickedUpByPlannedComtask = deviceMessageService.willDeviceMessageBePickedUpByPlannedComTask(device, next.getDeviceMessage().get());
+            boolean willBePickedUpByComtask = willBePickedUpByPlannedComtask || deviceMessageService.willDeviceMessageBePickedUpByComTask(device, next.getDeviceMessage().get());
+            info.nextPassiveCalendar =
+                    new NextCalendarInfo(
+                            next.getAllowedCalendar().getName(),
+                            next.getDeviceMessage().get().getReleaseDate().toEpochMilli(),
+                            (activationDate != null) ? activationDate.toEpochMilli() : 0,
+                            DeviceMessageStatusTranslationKeys.translationFor(next.getDeviceMessage().get().getStatus(), thesaurus),
+                            willBePickedUpByPlannedComtask,
+                            willBePickedUpByComtask);
         }
 
         return info;
     }
 
-    private boolean nextInLineDifferentFromActive(PassiveEffectiveCalendar passiveEffectiveCalendar, Optional<ActiveEffectiveCalendar> optionalActiveEffectiveCalendar) {
-        if(!optionalActiveEffectiveCalendar.isPresent()) {
-            return true;
+    private void addPassiveCalendar(TimeOfUseInfo info, PassiveCalendarInfo passiveCalendar) {
+        if (info.passiveCalendars == null) {
+            info.passiveCalendars = new ArrayList<>();
         }
-        ActiveEffectiveCalendar activeEffectiveCalendar = optionalActiveEffectiveCalendar.get();
-        if(activeEffectiveCalendar.getAllowedCalendar().isGhost()) {
-            return true;
-        }
-
-        return !(passiveEffectiveCalendar.getAllowedCalendar().getName().equals(activeEffectiveCalendar.getAllowedCalendar().getName())
-                && activeEffectiveCalendar.getAllowedCalendar().getCalendar().get().getVersion() == passiveEffectiveCalendar.getAllowedCalendar().getCalendar().get().getVersion()
-                && (passiveEffectiveCalendar.getActivationDate() == null || passiveEffectiveCalendar.getActivationDate().isBefore(activeEffectiveCalendar.getLastVerifiedDate()))
-                && passiveEffectiveCalendar.getDeviceMessage().get().getReleaseDate().isBefore(activeEffectiveCalendar.getLastVerifiedDate())
-                && passiveEffectiveCalendar.getDeviceMessage().get().getStatus().equals(DeviceMessageStatus.CONFIRMED));
+        info.passiveCalendars.add(passiveCalendar);
     }
 
-    private int compareCreationDate(PassiveEffectiveCalendar p1, PassiveEffectiveCalendar p2) {
-        return p2.getDeviceMessage().get().getCreationDate().compareTo(p1.getDeviceMessage().get().getCreationDate());
-    }
 }
