@@ -11,9 +11,9 @@ import java.util.Optional;
  * Self made thesaurus cache implementation. caches thesaurus objects
  */
 public class ThesaurusCache {
-    private final Map<ThesaurusKey, Thesaurus> map = new HashMap();
+    private final Map<ThesaurusKey, Thesaurus> map = new HashMap<>();
 
-    public Optional<Thesaurus> get(String componentName, Layer layer) {
+    Optional<Thesaurus> get(String componentName, Layer layer) {
         ThesaurusKey key = new ThesaurusKey(layer, componentName);
         return map.containsKey(key)?Optional.of(map.get(key)):Optional.empty();
     }
@@ -29,12 +29,12 @@ public class ThesaurusCache {
         map.clear();
     }
 
-    public Thesaurus put(String componentName, Layer layer, Thesaurus thesaurus) {
+    Thesaurus put(String componentName, Layer layer, Thesaurus thesaurus) {
         ThesaurusKey key = new ThesaurusKey(layer, componentName);
         return map.put(key, thesaurus);
     }
 
-    class ThesaurusKey {
+    private class ThesaurusKey {
         private final Layer layer;
         private final String component;
 
@@ -45,12 +45,18 @@ public class ThesaurusCache {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
 
             ThesaurusKey that = (ThesaurusKey) o;
 
-            if (layer != that.layer) return false;
+            if (layer != that.layer) {
+                return false;
+            }
             return component != null ? component.equals(that.component) : that.component == null;
 
         }
