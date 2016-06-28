@@ -91,6 +91,11 @@ public class MeteringCustomPropertySetsDemoInstaller implements TranslationKeyPr
         this.transactionService = transactionService;
     }
 
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
+    }
+
     @Activate
     public void activate() {
         this.registerCustomPropertySets();

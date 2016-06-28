@@ -33,7 +33,7 @@ public class UsagePointTechInstEGCustomPropertySet implements CustomPropertySet<
 
     public static final String TABLE_NAME = "RVK_CPS_MTR_USAGEPOINT_INST_EG";
     public static final String FK_CPS_DEVICE_TECHNICAL_INSTALLATION = "FK_CPS_MTR_USAGEPOINT_INST_EG";
-    public static final String COMPONENT_NAME = "INST_EG";
+    public static final String COMPONENT_NAME = "IEG";
 
     public UsagePointTechInstEGCustomPropertySet() {
         super();

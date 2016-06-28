@@ -32,7 +32,7 @@ public class UsagePointContrElectrCPS implements CustomPropertySet<UsagePoint, U
 
     public static final String TABLE_NAME = "RVK_CPS_USAGEPOINT_EL_CON";
     public static final String FK_CPS_DEVICE_CONTR_ELECTRICITY = "FK_CPS_USAGEPOINT_EL_CON";
-    public static final String COMPONENT_NAME = "EL_CON";
+    public static final String COMPONENT_NAME = "ELC";
 
     public UsagePointContrElectrCPS() {
         super();

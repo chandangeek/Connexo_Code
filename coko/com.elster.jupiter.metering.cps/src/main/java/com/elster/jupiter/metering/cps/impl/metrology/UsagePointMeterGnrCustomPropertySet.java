@@ -31,7 +31,7 @@ public class UsagePointMeterGnrCustomPropertySet implements CustomPropertySet<Us
 
     public static final String TABLE_NAME = "RVK_CPS_MTR_USAGEPOINT_MET_GEN";
     public static final String FK_CPS_DEVICE_MTR_GEN = "FK_CPS_MTR_USAGEPOINT_MET_GEN";
-    public static final String COMPONENT_NAME = "MET_GEN";
+    public static final String COMPONENT_NAME = "MET";
 
     public UsagePointMeterGnrCustomPropertySet() {
         super();

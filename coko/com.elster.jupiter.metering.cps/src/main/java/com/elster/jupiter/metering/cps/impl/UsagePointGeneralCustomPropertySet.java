@@ -30,7 +30,7 @@ public class UsagePointGeneralCustomPropertySet implements CustomPropertySet<Usa
 
     public static final String TABLE_NAME = "RVK_CPS_USAGEPOINT_GENER";
     public static final String FK_CPS_DEVICE_GENERAL = "FK_CPS_USAGEPOINT_GENER";
-    public static final String COMPONENT_NAME = "GENER";
+    public static final String COMPONENT_NAME = "GEN";
 
     public UsagePointGeneralCustomPropertySet() {
         super();

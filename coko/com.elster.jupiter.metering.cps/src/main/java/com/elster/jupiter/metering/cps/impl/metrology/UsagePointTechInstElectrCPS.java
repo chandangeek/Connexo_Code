@@ -34,7 +34,7 @@ public class UsagePointTechInstElectrCPS implements CustomPropertySet<UsagePoint
 
     public static final String TABLE_NAME = "RVK_CPS_MTR_USAGEPOINT_T_INS";
     public static final String FK_CPS_DEVICE_LICENSE = "FK_CPS_MTR_USAGEPOINT_T_INS";
-    public static final String COMPONENT_NAME = "MTR_T_INS";
+    public static final String COMPONENT_NAME = "MIS";
 
     public UsagePointTechInstElectrCPS() {
         super();

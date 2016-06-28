@@ -36,7 +36,7 @@ public class UsagePointDecentProdCustomPropertySet implements CustomPropertySet<
 
     public static final String TABLE_NAME = "RVK_CPS_MTR_USAGEPOINT_DEC";
     public static final String FK_CPS_DEVICE_DECENTRALIZED_PRODUCTION = "FK_CPS_MTR_USAGEPOINT_DEC";
-    public static final String COMPONENT_NAME = "DEC_PROD";
+    public static final String COMPONENT_NAME = "DEC";
 
     public UsagePointDecentProdCustomPropertySet() {
         super();

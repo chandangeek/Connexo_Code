@@ -31,7 +31,7 @@ public class UsagePointMeterTechInfAllCPS implements CustomPropertySet<UsagePoin
 
     public static final String TABLE_NAME = "RVK_CPS_MTR_USAGEPOINT_T_IN";
     public static final String FK_CPS_DEVICE_METER_TECH_INFORM = "FK_CPS_MTR_USAGEPOINT_T_IN";
-    public static final String COMPONENT_NAME = "TECH_INF";
+    public static final String COMPONENT_NAME = "TEC";
 
     public UsagePointMeterTechInfAllCPS() {
         super();
