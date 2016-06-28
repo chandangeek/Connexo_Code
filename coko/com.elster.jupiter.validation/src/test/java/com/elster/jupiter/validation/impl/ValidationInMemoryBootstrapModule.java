@@ -9,6 +9,7 @@ import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.impl.NlsModule;
@@ -25,6 +26,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
+import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.ValidationService;
 
@@ -41,6 +43,7 @@ import static org.mockito.Mockito.mock;
 public class ValidationInMemoryBootstrapModule {
     private final Clock clock;
     private final String[] readingTypeRequirements;
+    private final DataAggregationService dataAggregationService;
 
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private Injector injector;
@@ -61,6 +64,7 @@ public class ValidationInMemoryBootstrapModule {
     public ValidationInMemoryBootstrapModule(Clock clock, String... requiredReadingTypes) {
         this.clock = clock;
         this.readingTypeRequirements = requiredReadingTypes;
+        this.dataAggregationService = mock(DataAggregationService.class);
     }
 
 
@@ -71,7 +75,7 @@ public class ValidationInMemoryBootstrapModule {
                 new InMemoryMessagingModule(),
                 new IdsModule(),
                 new FiniteStateMachineModule(),
-                new MeteringModule(readingTypeRequirements),
+                new MeteringModule(readingTypeRequirements).withDataAggregationService(this.dataAggregationService),
                 new BasicPropertiesModule(),
                 new TimeModule(),
                 new MeteringGroupsModule(),
@@ -88,7 +92,8 @@ public class ValidationInMemoryBootstrapModule {
                 new ValidationModule(),
                 new NlsModule(),
                 new DataVaultModule(),
-                new CustomPropertySetsModule()
+                new CustomPropertySetsModule(),
+                new UserModule()
         );
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             injector.getInstance(ValidationService.class);
@@ -102,6 +107,10 @@ public class ValidationInMemoryBootstrapModule {
 
     public <T> T get(Class<T> clazz) {
         return this.injector.getInstance(clazz);
+    }
+
+    public DataAggregationService getDataAggregationMock() {
+        return this.dataAggregationService;
     }
 
     private class MockModule extends AbstractModule {
