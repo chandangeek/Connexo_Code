@@ -10,10 +10,10 @@ import java.io.FilePermission;
 /**
  * Created by bvn on 6/13/16.
  */
-public class TraceFileNameValidator implements ConstraintValidator<ValidTarceFileName, EndPointConfigurationImpl> {
+public class TraceFileNameValidator implements ConstraintValidator<ValidTraceFileName, EndPointConfigurationImpl> {
 
     @Override
-    public void initialize(ValidTarceFileName validTarceFileName) {
+    public void initialize(ValidTraceFileName validTarceFileName) {
 
     }
 
