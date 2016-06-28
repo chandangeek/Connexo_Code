@@ -116,7 +116,7 @@ public class EndPointConfigurationInfoFactory {
             builder.tracing();
         }
         builder.username(info.username);
-        builder.username(info.password);
+        builder.password(info.password);
         builder.setAuthenticationMethod(info.authenticationMethod.id);
         builder.traceFile(info.traceFile);
         EndPointConfiguration endPointConfiguration = builder.create();
