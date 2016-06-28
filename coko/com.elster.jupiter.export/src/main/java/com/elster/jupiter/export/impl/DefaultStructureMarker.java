@@ -2,6 +2,7 @@ package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.export.StructureMarker;
 import com.elster.jupiter.util.UpdatableHolder;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
@@ -44,7 +45,7 @@ final class DefaultStructureMarker implements StructureMarker {
 
     @Override
     public List<String> getStructurePath() {
-        return path;
+        return Collections.unmodifiableList(path);
     }
 
     @Override
@@ -73,7 +74,7 @@ final class DefaultStructureMarker implements StructureMarker {
             return false;
         }
         DefaultStructureMarker that = (DefaultStructureMarker) o;
-        return Objects.equals(path, that.path);
+        return Objects.equals(this.path, that.path);
     }
 
     @Override
