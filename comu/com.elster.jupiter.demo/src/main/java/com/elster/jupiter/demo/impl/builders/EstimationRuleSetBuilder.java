@@ -1,5 +1,6 @@
 package com.elster.jupiter.demo.impl.builders;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.EstimationService;
@@ -40,7 +41,7 @@ public class EstimationRuleSetBuilder extends NamedBuilder<EstimationRuleSet, Es
 
     @Override
     public EstimationRuleSet create() {
-        EstimationRuleSet ruleSet = estimationService.createEstimationRuleSet(getName(), "MDC", description);
+        EstimationRuleSet ruleSet = estimationService.createEstimationRuleSet(getName(), QualityCodeSystem.MDC, description);
         addEstimateWithSamplesEstimationRule(ruleSet);
         addValueFillEstimationRule(ruleSet);
         ruleSet.save();
