@@ -1,5 +1,6 @@
 package com.elster.jupiter.estimators.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.devtools.tests.fakes.LogRecorder;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.devtools.tests.rules.Using;
@@ -10,6 +11,7 @@ import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleProperties;
 import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
@@ -24,7 +26,6 @@ import com.elster.jupiter.util.units.Unit;
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -42,10 +43,13 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
 import static com.elster.jupiter.estimators.impl.PowerGapFill.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS;
+import static java.util.Collections.singletonList;
+import static java.util.Collections.singletonMap;
 import static org.mockito.AdditionalMatchers.cmpEq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PowerGapFillTest {
@@ -79,11 +83,14 @@ public class PowerGapFillTest {
     private CimChannel bulkCimChannel;
     @Mock
     private MeterActivation meterActivation;
+    @Mock
+    private ChannelsContainer channelsContainer;
 
     @Before
     public void setUp() {
-        doReturn(meterActivation).when(channel).getMeterActivation();
-        doReturn(Optional.empty()).when(meterActivation).getMeter();
+        when(meterActivation.getChannelsContainer()).thenReturn(channelsContainer);
+        doReturn(channelsContainer).when(channel).getChannelsContainer();
+        doReturn(Optional.empty()).when(channelsContainer).getMeter();
         doReturn("deltaReadingType").when(deltaReadingType).getMRID();
         doReturn("bulkReadingType").when(bulkReadingType).getMRID();
         doReturn(Arrays.asList(estimatable1, estimatable2, estimatable3)).when(estimationBlock).estimatables();
@@ -137,7 +144,7 @@ public class PowerGapFillTest {
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
         estimator.init(LOGGER);
 
-        EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
+        EstimationResult estimationResult = estimator.estimate(singletonList(estimationBlock), QualityCodeSystem.OTHER);
 
         assertThat(estimationResult.remainingToBeEstimated()).isEmpty();
         assertThat(estimationResult.estimated()).containsExactly(estimationBlock);
@@ -158,7 +165,7 @@ public class PowerGapFillTest {
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
         estimator.init(LOGGER);
 
-        EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
+        EstimationResult estimationResult = estimator.estimate(singletonList(estimationBlock), QualityCodeSystem.OTHER);
 
         assertThat(estimationResult.remainingToBeEstimated()).isEmpty();
         assertThat(estimationResult.estimated()).containsExactly(estimationBlock);
@@ -178,7 +185,7 @@ public class PowerGapFillTest {
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
         estimator.init(LOGGER);
 
-        EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
+        EstimationResult estimationResult = estimator.estimate(singletonList(estimationBlock), QualityCodeSystem.OTHER);
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
@@ -196,7 +203,7 @@ public class PowerGapFillTest {
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
         estimator.init(LOGGER);
 
-        EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
+        EstimationResult estimationResult = estimator.estimate(singletonList(estimationBlock), QualityCodeSystem.OTHER);
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
@@ -214,7 +221,7 @@ public class PowerGapFillTest {
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
         estimator.init(LOGGER);
 
-        EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
+        EstimationResult estimationResult = estimator.estimate(singletonList(estimationBlock), QualityCodeSystem.OTHER);
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
@@ -232,7 +239,7 @@ public class PowerGapFillTest {
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
         estimator.init(LOGGER);
 
-        EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
+        EstimationResult estimationResult = estimator.estimate(singletonList(estimationBlock), QualityCodeSystem.OTHER);
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
@@ -250,7 +257,7 @@ public class PowerGapFillTest {
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
         estimator.init(LOGGER);
 
-        EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
+        EstimationResult estimationResult = estimator.estimate(singletonList(estimationBlock), QualityCodeSystem.OTHER);
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
@@ -267,7 +274,7 @@ public class PowerGapFillTest {
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
         estimator.init(LOGGER);
 
-        EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
+        EstimationResult estimationResult = estimator.estimate(singletonList(estimationBlock), QualityCodeSystem.OTHER);
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
@@ -284,7 +291,7 @@ public class PowerGapFillTest {
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
         estimator.init(LOGGER);
 
-        EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
+        EstimationResult estimationResult = estimator.estimate(singletonList(estimationBlock), QualityCodeSystem.OTHER);
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
@@ -301,7 +308,7 @@ public class PowerGapFillTest {
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
         estimator.init(LOGGER);
 
-        EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
+        EstimationResult estimationResult = estimator.estimate(singletonList(estimationBlock), QualityCodeSystem.OTHER);
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
@@ -318,7 +325,7 @@ public class PowerGapFillTest {
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
         estimator.init(LOGGER);
 
-        EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
+        EstimationResult estimationResult = estimator.estimate(singletonList(estimationBlock), QualityCodeSystem.OTHER);
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
@@ -337,7 +344,7 @@ public class PowerGapFillTest {
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
         estimator.init(LOGGER);
 
-        EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
+        EstimationResult estimationResult = estimator.estimate(singletonList(estimationBlock), QualityCodeSystem.OTHER);
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
@@ -356,7 +363,7 @@ public class PowerGapFillTest {
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
         estimator.init(LOGGER);
 
-        EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
+        EstimationResult estimationResult = estimator.estimate(singletonList(estimationBlock), QualityCodeSystem.OTHER);
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
@@ -375,7 +382,7 @@ public class PowerGapFillTest {
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
         estimator.init(LOGGER);
 
-        EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
+        EstimationResult estimationResult = estimator.estimate(singletonList(estimationBlock), QualityCodeSystem.OTHER);
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
@@ -394,7 +401,7 @@ public class PowerGapFillTest {
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
         estimator.init(LOGGER);
 
-        EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
+        EstimationResult estimationResult = estimator.estimate(singletonList(estimationBlock), QualityCodeSystem.OTHER);
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
@@ -413,7 +420,7 @@ public class PowerGapFillTest {
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
         estimator.init(LOGGER);
 
-        EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
+        EstimationResult estimationResult = estimator.estimate(singletonList(estimationBlock), QualityCodeSystem.OTHER);
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
@@ -432,7 +439,7 @@ public class PowerGapFillTest {
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
         estimator.init(LOGGER);
 
-        EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
+        EstimationResult estimationResult = estimator.estimate(singletonList(estimationBlock), QualityCodeSystem.OTHER);
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
@@ -450,7 +457,7 @@ public class PowerGapFillTest {
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService, properties);
         estimator.init(LOGGER);
 
-        EstimationResult estimationResult = estimator.estimate(Arrays.asList(estimationBlock));
+        EstimationResult estimationResult = estimator.estimate(singletonList(estimationBlock), QualityCodeSystem.OTHER);
 
         assertThat(estimationResult.estimated()).isEmpty();
         assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
@@ -464,7 +471,7 @@ public class PowerGapFillTest {
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService);
 
-        estimator.validateProperties(Collections.singletonMap(property.getName(), property.getValue()));
+        estimator.validateProperties(singletonMap(property.getName(), property.getValue()));
     }
 
     @Test(expected = LocalizedFieldValidationException.class)
@@ -473,13 +480,13 @@ public class PowerGapFillTest {
 
         Estimator estimator = new PowerGapFill(thesaurus, propertySpecService);
 
-        estimator.validateProperties(Collections.singletonMap(property.getName(), property.getValue()));
+        estimator.validateProperties(singletonMap(property.getName(), property.getValue()));
     }
 
     @Test
     public void testGetSupportedApplications() {
-        assertThat(new PowerGapFill(thesaurus, propertySpecService).getSupportedApplications())
-                .containsOnly("INS", "MDC");
+        assertThat(new PowerGapFill(thesaurus, propertySpecService).getSupportedQualityCodeSystems())
+                .containsOnly(QualityCodeSystem.MDC, QualityCodeSystem.MDM);
     }
 
     private EstimationRuleProperties estimationRuleProperty(final String name, final Object value) {
