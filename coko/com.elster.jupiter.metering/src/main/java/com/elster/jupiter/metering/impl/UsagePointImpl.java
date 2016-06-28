@@ -14,6 +14,7 @@ import com.elster.jupiter.metering.HeatDetailBuilder;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.LocationBuilder;
+import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
@@ -779,6 +780,6 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     private Optional<Location> findLocation(long id) {
-        return dataModel.mapper(Location.class).getOptional(id);
+        return dataModel.getInstance(LocationService.class).findLocationById(id);
     }
 }
