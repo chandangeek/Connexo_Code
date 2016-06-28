@@ -42,11 +42,7 @@ public final class RelativeOperation implements Comparable<RelativeOperation>{
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append(field.getId()).append(SEPARATOR)
-                .append(operator.toString()).append(SEPARATOR)
-                .append(shift);
-        return builder.toString();
+        return String.valueOf(field.getId()) + SEPARATOR + operator.toString() + SEPARATOR + shift;
     }
 
     @Override
@@ -80,8 +76,12 @@ public final class RelativeOperation implements Comparable<RelativeOperation>{
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         RelativeOperation that = (RelativeOperation) o;
 
@@ -99,4 +99,5 @@ public final class RelativeOperation implements Comparable<RelativeOperation>{
             throw new IllegalArgumentException("Provided value is incorrect");
         }
     }
+
 }
