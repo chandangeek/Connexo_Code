@@ -228,7 +228,7 @@ public class UsagePointProcessorTest {
         when(locationTemplate.getTemplateMembers()).thenReturn(Arrays.asList(templateFieldCountryCode, templateFieldCountryName, templateFieldAdministrativeArea,
                 templateFieldSubLocality, templateFieldLocality, templateFieldStreetType, templateFieldStreetName, templateFieldStreetNumber, templateFieldEstablishmentType, templateFieldLocale,
                 templateFieldEstablishmentName, templateFieldEstablishmentNumber, templateFieldAddressDetail, templateFieldZipCode));
-        when(locationBuilder.getMember(anyString())).thenReturn(Optional.empty());
+        when(locationBuilder.getMemberBuilder(anyString())).thenReturn(Optional.empty());
         when(locationBuilder.member()).thenReturn(locationMemberBuilder);
         when(locationMemberBuilder.setCountryCode(anyString())).thenReturn(locationMemberBuilder);
         when(locationMemberBuilder.setCountryName(anyString())).thenReturn(locationMemberBuilder);
