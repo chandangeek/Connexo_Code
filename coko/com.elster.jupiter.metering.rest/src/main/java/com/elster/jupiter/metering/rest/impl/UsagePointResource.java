@@ -12,7 +12,10 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointFilter;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.config.OverlapsOnMetrologyConfigurationVersionEnd;
+import com.elster.jupiter.metering.config.OverlapsOnMetrologyConfigurationVersionStart;
 import com.elster.jupiter.metering.config.UnsatisfiedMerologyConfigurationEndDate;
+import com.elster.jupiter.metering.config.UnsatisfiedMerologyConfigurationEndDateInThePast;
 import com.elster.jupiter.metering.config.UnsatisfiedMerologyConfigurationStartDateRelativelyLatestEnd;
 import com.elster.jupiter.metering.config.UnsatisfiedMerologyConfigurationStartDateRelativelyLatestStart;
 import com.elster.jupiter.metering.config.UnsatisfiedReadingTypeRequirements;
@@ -39,7 +42,6 @@ import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.inject.Provider;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -58,7 +60,6 @@ import javax.ws.rs.core.UriInfo;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -317,21 +318,38 @@ public class UsagePointResource {
         UsagePointMetrologyConfiguration metrologyConfiguration = resourceHelper.findMetrologyConfiguration(info.metrologyConfigurationVersion.metrologyConfiguration.id);
         Instant start = Instant.ofEpochMilli(info.metrologyConfigurationVersion.start);
         Instant end = info.metrologyConfigurationVersion.end != null ? Instant.ofEpochMilli(info.metrologyConfigurationVersion.end): null;
-
-        try {
-            usagePoint.applyWithInterval(metrologyConfiguration, start, end);
-        } catch (UnsatisfiedReadingTypeRequirements ex) {
-            throw new FormValidationException().addException("metrologyConfiguration", ex.getMessage());
-        } catch (UnsatisfiedMerologyConfigurationEndDate ex) {
-            throw new FormValidationException().addException("end", ex.getMessage());
-        } catch (UnsatisfiedMerologyConfigurationStartDateRelativelyLatestStart | UnsatisfiedMerologyConfigurationStartDateRelativelyLatestEnd ex){
-            throw new FormValidationException().addException("start", ex.getMessage());
-        }
-
+        Instant newStart = info.metrologyConfigurationVersion.newStart != null ? Instant.ofEpochMilli(info.metrologyConfigurationVersion.newStart): null;
+        Instant newEnd = info.metrologyConfigurationVersion.newEnd != null ? Instant.ofEpochMilli(info.metrologyConfigurationVersion.newEnd): null;
         UsagePointInfo updatedInfo = usagePointInfoFactory.from(usagePoint);
-        updatedInfo.metrologyConfigurationVersion = usagePoint.getEffectiveMetrologyConfiguration(start)
-                .map(EffectiveMetrologyConfigurationOnUsagePointInfo::new).orElse(null);
+        if(newStart == null && newEnd == null){
+            try {
+                usagePoint.applyWithInterval(metrologyConfiguration, start, end);
+            } catch (UnsatisfiedReadingTypeRequirements ex) {
+                throw new FormValidationException().addException("metrologyConfiguration", ex.getMessage());
+            } catch (UnsatisfiedMerologyConfigurationEndDate ex) {
+                throw new FormValidationException().addException("end", ex.getMessage());
+            } catch (UnsatisfiedMerologyConfigurationStartDateRelativelyLatestStart | UnsatisfiedMerologyConfigurationStartDateRelativelyLatestEnd ex){
+                throw new FormValidationException().addException("start", ex.getMessage());
+            }
 
+            updatedInfo.metrologyConfigurationVersion = usagePoint.getEffectiveMetrologyConfiguration(start)
+                    .map(metrologyConfigurationInfoFactory::asInfo).orElse(null);
+
+
+        } else if (info.metrologyConfigurationVersion.editable) {
+            EffectiveMetrologyConfigurationOnUsagePoint versionToChange = usagePoint.getEffectiveMetrologyConfiguration(start).orElse(null);
+            try {
+                usagePoint.updateWithInterval(versionToChange, newStart, newEnd);
+            } catch (UnsatisfiedReadingTypeRequirements ex) {
+                throw new FormValidationException().addException("metrologyConfiguration", ex.getMessage());
+            } catch (OverlapsOnMetrologyConfigurationVersionEnd | UnsatisfiedMerologyConfigurationEndDateInThePast | UnsatisfiedMerologyConfigurationEndDate ex) {
+                throw new FormValidationException().addException("end", ex.getMessage());
+            } catch (OverlapsOnMetrologyConfigurationVersionStart ex){
+                throw new FormValidationException().addException("start", ex.getMessage());
+            }
+
+            updatedInfo.metrologyConfigurationVersion = metrologyConfigurationInfoFactory.asInfo(versionToChange);
+        }
         return Response.status(Response.Status.OK).entity(updatedInfo).build();
     }
 

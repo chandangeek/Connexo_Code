@@ -10,17 +10,20 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 
 import javax.inject.Inject;
+import java.time.Clock;
 import java.util.stream.Collectors;
 
 public class MetrologyConfigurationInfoFactory {
 
     private final Thesaurus thesaurus;
     private final ReadingTypeInfoFactory readingTypeInfoFactory;
+    private final Clock clock;
 
     @Inject
-    public MetrologyConfigurationInfoFactory(Thesaurus thesaurus, ReadingTypeInfoFactory readingTypeInfoFactory) {
+    public MetrologyConfigurationInfoFactory(Thesaurus thesaurus, ReadingTypeInfoFactory readingTypeInfoFactory, Clock clock) {
         this.thesaurus = thesaurus;
         this.readingTypeInfoFactory = readingTypeInfoFactory;
+        this.clock = clock;
     }
 
     public MetrologyConfigurationInfo asInfo(UsagePointMetrologyConfiguration metrologyConfiguration) {
@@ -58,15 +61,9 @@ public class MetrologyConfigurationInfoFactory {
     }
 
     public EffectiveMetrologyConfigurationOnUsagePointInfo asInfo(EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration) {
-        EffectiveMetrologyConfigurationOnUsagePointInfo info = new EffectiveMetrologyConfigurationOnUsagePointInfo();
+        EffectiveMetrologyConfigurationOnUsagePointInfo info = new EffectiveMetrologyConfigurationOnUsagePointInfo(effectiveMetrologyConfiguration, clock);
         UsagePointMetrologyConfiguration config = effectiveMetrologyConfiguration.getMetrologyConfiguration();
         info.metrologyConfiguration = asInfo(config);
-        info.start = effectiveMetrologyConfiguration.getStart() == null
-                ? null
-                : effectiveMetrologyConfiguration.getStart().toEpochMilli();
-        info.end = effectiveMetrologyConfiguration.getEnd() == null
-                ? null
-                : effectiveMetrologyConfiguration.getEnd().toEpochMilli();
-       return info;
+        return info;
     }
 }

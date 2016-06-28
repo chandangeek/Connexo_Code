@@ -44,7 +44,7 @@ public class UsagePointInfo {
                 .map(MeterActivationInfo::new)
                 .orElse(null);
         metrologyConfigurationVersion = usagePoint.getCurrentEffectiveMetrologyConfiguration()
-                .map(EffectiveMetrologyConfigurationOnUsagePointInfo::new)
+                .map(v-> new EffectiveMetrologyConfigurationOnUsagePointInfo(v, clock))
                 .orElse(null);
     }
 
