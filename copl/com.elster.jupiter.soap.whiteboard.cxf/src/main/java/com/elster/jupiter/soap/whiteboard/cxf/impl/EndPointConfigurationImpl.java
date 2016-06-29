@@ -18,6 +18,7 @@ import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.PrintWriter;
 import java.time.Clock;
 import java.time.Instant;
@@ -179,7 +180,11 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
 
     @Override
     public void setUrl(String url) {
-        this.url = url;
+        if (url != null && !url.startsWith(File.pathSeparator)) {
+            this.url = File.pathSeparator + url;
+        } else {
+            this.url = url;
+        }
     }
 
     @Override

@@ -16,6 +16,7 @@ import org.apache.cxf.transport.common.gzip.GZIPFeature;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;
+import java.io.File;
 
 /**
  * This endpoint manager knows how to set up and tear down an inbound SOAP endpoint
@@ -65,7 +66,7 @@ public final class InboundEndPoint implements ManagedEndpoint {
             svrFactory.setAddress(endPointConfiguration.getUrl());
             svrFactory.setServiceBean(implementor);
             if (endPointConfiguration.isTracing()) {
-                String logFile = logDirectory + "/" + endPointConfiguration.getTraceFile();
+                String logFile = logDirectory + File.pathSeparator + endPointConfiguration.getTraceFile();
                 svrFactory.getFeatures().add(new LoggingFeature(logFile, logFile));
             }
             if (EndPointAuthentication.BASIC_AUTHENTICATION.equals(endPointConfiguration.getAuthenticationMethod())) {
