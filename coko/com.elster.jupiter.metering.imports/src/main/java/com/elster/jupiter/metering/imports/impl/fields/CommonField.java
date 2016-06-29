@@ -1,9 +1,8 @@
 package com.elster.jupiter.metering.imports.impl.fields;
 
-
 import com.elster.jupiter.metering.imports.impl.FieldParser;
 
-public class CommonField<R> implements FileImportField<R> {
+public final class CommonField<R> implements FileImportField<R> {
 
     private String fieldName;
     private FieldParser<R> parser;
@@ -45,12 +44,12 @@ public class CommonField<R> implements FileImportField<R> {
         return builder;
     }
 
-    public static class FieldBuilder<R> {
+    public static final class FieldBuilder<R> {
 
-        private CommonField field;
+        private CommonField<R> field;
 
         private FieldBuilder() {
-            this.field = new CommonField();
+            this.field = new CommonField<>();
         }
 
         public FieldBuilder<R> markMandatory() {
@@ -77,4 +76,5 @@ public class CommonField<R> implements FileImportField<R> {
             return this.field;
         }
     }
+
 }

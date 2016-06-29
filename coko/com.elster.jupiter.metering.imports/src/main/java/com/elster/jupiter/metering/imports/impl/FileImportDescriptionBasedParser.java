@@ -77,11 +77,11 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
                     throw new FileImportParserException(MessageSeeds.LINE_MISSING_VALUE_ERROR, csvRecord.getRecordNumber(), field
                             .getFieldName());
                 }
-                if(context.getMeteringService().getLocationTemplate().getTemplateMembers().stream()
+                if (context.getMeteringService().getLocationTemplate().getTemplateMembers().stream()
                         .map(LocationTemplate.TemplateField::getName)
-                        .anyMatch(s -> s.equals(entry.getKey()))){
+                        .anyMatch(s -> s.equals(entry.getKey()))) {
                     locations.put(entry.getKey(), entry.getValue());
-                }else {
+                } else {
                     try {
                         FieldSetter fieldSetter = field.getSetter();
                         FieldParser parser = field.getParser();
@@ -212,13 +212,6 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
                 .count();
     }
 
-    private String getHeaderColumn(int position) {
-        if (position >= 0 && position < this.headers.size()) {
-            return this.headers.get(position);
-        }
-        return "#" + (position + 1);
-    }
-
     private List<String> getRawValuesSkipTrailingNulls(CSVRecord csvRecord) {
         List<String> rawValues = new ArrayList<>();
         for (int i = csvRecord.size() - 1; i >= 0; i--) {//reverse bypass
@@ -230,4 +223,5 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
         Collections.reverse(rawValues);
         return rawValues;
     }
+
 }
