@@ -139,7 +139,7 @@ Ext.define('Mdc.usagepointmanagement.controller.History', {
             versionRecord.set('metrologyConfiguration', metrologyConfig.getData());
             me.usagePoint.set('metrologyConfigurationVersion', versionRecord.getData());
             Ext.Ajax.request({
-                url: Ext.String.format("/api/mtr/usagepoints/{0}/metrologyconfiguration",me.usagePoint.get('mRID')),
+                url: Ext.String.format("/api/mtr/usagepoints/{0}/metrologyconfigurationversion",me.usagePoint.get('mRID')),
                 method: 'PUT',
                 jsonData: me.usagePoint.getRecordData(),
                 success: function () {
