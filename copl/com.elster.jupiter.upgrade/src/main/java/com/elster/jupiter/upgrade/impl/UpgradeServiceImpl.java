@@ -61,7 +61,7 @@ import static com.elster.jupiter.util.streams.Predicates.not;
 
 @Component(name = "com.elster.jupiter.upgrade", immediate = true, service = {UpgradeService.class, EventHandler.class},
         property = {"osgi.command.scope=upgrade", "osgi.command.function=init", EventConstants.EVENT_TOPIC + "=org/osgi/framework/FrameworkEvent/STARTED"})
-public class UpgradeServiceImpl implements UpgradeService, EventHandler {
+public final class UpgradeServiceImpl implements UpgradeService, EventHandler {
 
     private volatile BootstrapService bootstrapService;
     private volatile TransactionService transactionService;
