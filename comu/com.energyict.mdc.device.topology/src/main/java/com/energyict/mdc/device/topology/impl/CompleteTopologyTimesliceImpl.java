@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.topology.impl;
 
 import com.elster.jupiter.util.time.Interval;
-
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.topology.TopologyTimeslice;
 
@@ -45,11 +44,11 @@ public final class CompleteTopologyTimesliceImpl implements ServerTopologyTimesl
         return this;
     }
 
-    public void add (Device... devices) {
+    public void add(Device... devices) {
         this.addAll(Arrays.asList(devices));
     }
 
-    public void addAll (List<Device> devices) {
+    public void addAll(List<Device> devices) {
         for (Device device : devices) {
             if (!this.deviceIds.contains(device.getId())) {
                 this.devices.add(device);
@@ -71,21 +70,18 @@ public final class CompleteTopologyTimesliceImpl implements ServerTopologyTimesl
     @Override
     public boolean equals(Object other) {
         if (other instanceof CompleteTopologyTimesliceImpl) {
-            return this.equals((CompleteTopologyTimesliceImpl) other);
-        }
-        else {
+            return this.doEquals((CompleteTopologyTimesliceImpl) other);
+        } else {
             return false;
         }
     }
 
-    public boolean equals(CompleteTopologyTimesliceImpl other) {
+    private boolean doEquals(CompleteTopologyTimesliceImpl other) {
         if (this == other) {
             return true;
-        }
-        else if (other == null) {
+        } else if (other == null) {
             return false;
-        }
-        else {
+        } else {
             return this.range.equals(other.range);
         }
 

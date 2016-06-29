@@ -1,17 +1,19 @@
 package com.energyict.mdc.device.topology;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.CommunicationErrorType;
+
+import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -28,6 +30,8 @@ public interface TopologyService {
     public Optional<Device> getPhysicalGateway(Device slave);
 
     public Optional<Device> getPhysicalGateway(Device slave, Instant when);
+
+    Map<Device, Device> getPhycicalGateways(List<Device> deviceList);
 
     /**
      * Sets the physical gateway of the slave {@link Device} to the specified Device.
