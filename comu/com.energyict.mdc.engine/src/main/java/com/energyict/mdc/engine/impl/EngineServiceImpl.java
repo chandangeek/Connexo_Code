@@ -616,6 +616,11 @@ public class EngineServiceImpl implements EngineService, TranslationKeyProvider,
 
     private class RunningComServerServiceProvider implements RunningComServerImpl.ServiceProvider {
         @Override
+        public Thesaurus thesaurus() {
+            return thesaurus;
+        }
+
+        @Override
         public DeviceConfigurationService deviceConfigurationService() {
             return deviceConfigurationService;
         }
