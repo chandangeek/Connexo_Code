@@ -206,11 +206,11 @@ public class AvailabilityDateTest extends PersistenceIntegrationTest {
 
         List<Instant> availabilityOfChannels = dataLogger.getChannels().stream().map((each)-> inMemoryPersistence.getTopologyService().availabilityDate(each).get()).distinct().collect(Collectors.toList());
         assertThat(availabilityOfChannels).hasSize(1);
-        assertThat((availabilityOfChannels).get(0)).isEqualTo(Instant.EPOCH); // Never linked
+        assertThat((availabilityOfChannels).get(0)).isEqualTo(start); // Never linked
 
         List<Instant> availabilityOfRegisters = dataLogger.getRegisters().stream().map((each)-> inMemoryPersistence.getTopologyService().availabilityDate(each).get()).distinct().collect(Collectors.toList());
         assertThat(availabilityOfRegisters).hasSize(1);
-        assertThat((availabilityOfRegisters).get(0)).isEqualTo(Instant.EPOCH); // Never linked
+        assertThat((availabilityOfRegisters).get(0)).isEqualTo(start); // Never linked
     }
 
     @Test
@@ -241,13 +241,13 @@ public class AvailabilityDateTest extends PersistenceIntegrationTest {
         assertThat(availabilityChannel1.isPresent()).isFalse();
         Optional<Instant> availabilityChannel2 = inMemoryPersistence.getTopologyService().availabilityDate(dataLogger.getChannels().get(2));
         assertThat(availabilityChannel2.isPresent()).isFalse();
-        // The other 3 channels were never linked
+        // The other 3 channels were never linked and can be linked from the 'shipmentDate' of the datalogger
         Optional<Instant> availabilityChannel3 = inMemoryPersistence.getTopologyService().availabilityDate(dataLogger.getChannels().get(3));
-        assertThat(availabilityChannel3.get()).isEqualTo(Instant.EPOCH);
+        assertThat(availabilityChannel3.get()).isEqualTo(start);
         Optional<Instant> availabilityChannel4 = inMemoryPersistence.getTopologyService().availabilityDate(dataLogger.getChannels().get(4));
-        assertThat(availabilityChannel4.get()).isEqualTo(Instant.EPOCH);
+        assertThat(availabilityChannel4.get()).isEqualTo(start);
         Optional<Instant> availabilityChannel5 = inMemoryPersistence.getTopologyService().availabilityDate(dataLogger.getChannels().get(5));
-        assertThat(availabilityChannel5.get()).isEqualTo(Instant.EPOCH);
+        assertThat(availabilityChannel5.get()).isEqualTo(start);
     }
 
     @Test
@@ -280,13 +280,13 @@ public class AvailabilityDateTest extends PersistenceIntegrationTest {
         assertThat(availabilityChannel1.get()).isEqualTo(endLink);
         Optional<Instant> availabilityChannel2 = inMemoryPersistence.getTopologyService().availabilityDate(dataLogger.getChannels().get(2));
         assertThat(availabilityChannel2.get()).isEqualTo(endLink);
-        // The other 3 channels were never linked
+        // The other 3 channels were never linked and can be linked from the 'shipmentDate' of the datalogger
         Optional<Instant> availabilityChannel3 = inMemoryPersistence.getTopologyService().availabilityDate(dataLogger.getChannels().get(3));
-        assertThat(availabilityChannel3.get()).isEqualTo(Instant.EPOCH);
+        assertThat(availabilityChannel3.get()).isEqualTo(start);
         Optional<Instant> availabilityChannel4 = inMemoryPersistence.getTopologyService().availabilityDate(dataLogger.getChannels().get(4));
-        assertThat(availabilityChannel4.get()).isEqualTo(Instant.EPOCH);
+        assertThat(availabilityChannel4.get()).isEqualTo(start);
         Optional<Instant> availabilityChannel5 = inMemoryPersistence.getTopologyService().availabilityDate(dataLogger.getChannels().get(5));
-        assertThat(availabilityChannel5.get()).isEqualTo(Instant.EPOCH);
+        assertThat(availabilityChannel5.get()).isEqualTo(start);
     }
 
     @Test
