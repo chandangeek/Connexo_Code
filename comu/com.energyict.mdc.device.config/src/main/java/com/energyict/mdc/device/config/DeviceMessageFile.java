@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.config;
 
+import java.time.Instant;
+
 /**
  * Extends the definition of a DeviceMessageFile as provided by the protocol api bundle
  * to add information that is known/defined by this bundle.
@@ -9,4 +11,6 @@ package com.energyict.mdc.device.config;
  */
 public interface DeviceMessageFile extends com.energyict.mdc.protocol.api.DeviceMessageFile {
     DeviceType getDeviceType();
+
+    Instant getCreateTime();
 }
