@@ -3,6 +3,7 @@ Ext.define('Mdc.view.setup.device.DeviceAttributesForm', {
     alias: 'widget.deviceAttributesForm',
     router: null,
     fullInfo: false,
+    dataLoggerSlave: undefined,
 
     requires: [
         'Mdc.view.setup.device.form.DeviceDateField',
@@ -119,28 +120,19 @@ Ext.define('Mdc.view.setup.device.DeviceAttributesForm', {
 
                 }
             },
-            //{
-            //    name: 'dataLogger',
-            //    itemId: 'fld-data-logger',
-            //    fieldLabel: Uni.I18n.translate('general.dataLogger', 'MDC', 'Data logger'),
-            //    renderer: function (value) {
-            //        if (value && (value.available || me.fullInfo)) {
-            //            this.show();
-            //            if (Ext.isEmpty(value.displayValue)) {
-            //                return '-'
-            //            } else {
-            //                if (Mdc.privileges.DeviceType.canView()) {
-            //                    return '<a href="' + me.router.getRoute('administration/devices/view').buildUrl({deviceTypeId: value.attributeId}) + '">' + Ext.String.htmlEncode(value.displayValue) + '</a>'
-            //                } else {
-            //                    return value.displayValue
-            //                }
-            //            }
-            //        } else {
-            //            this.hide();
-            //            return null;
-            //        }
-            //    }
-            //},
+            {
+                itemId: 'fld-data-logger',
+                fieldLabel: Uni.I18n.translate('general.dataLogger', 'MDC', 'Data logger'),
+                hidden: Ext.isEmpty(me.dataLoggerSlave),
+                renderer: function() {
+                    var dataLoggerMRID = me.dataLoggerSlave.get('dataloggermRID');
+                    return Ext.String.format(
+                        '<a href="{0}">{1}</a>',
+                        '#/devices/' + encodeURIComponent(dataLoggerMRID),
+                        Ext.String.htmlEncode(dataLoggerMRID)
+                    );
+                }
+            },
             {
                 name: 'location',
                 itemId: 'fld-device-location',

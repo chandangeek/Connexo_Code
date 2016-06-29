@@ -6,6 +6,7 @@ Ext.define('Mdc.view.setup.device.DeviceGeneralInformationPanel', {
     title: Uni.I18n.translate('deviceGeneralInformation.title', 'MDC', 'Device summary'),
     ui: 'tile',
     router: null,
+    dataLoggerSlave: undefined,
 
     requires: [
       'Mdc.view.setup.device.DeviceAttributesForm'
@@ -18,7 +19,8 @@ Ext.define('Mdc.view.setup.device.DeviceGeneralInformationPanel', {
             {
                 xtype: 'deviceAttributesForm',
                 itemId: 'deviceGeneralInformationForm',
-                router: me.router
+                router: me.router,
+                dataLoggerSlave: me.dataLoggerSlave
             },
             {
                 xtype: 'button',

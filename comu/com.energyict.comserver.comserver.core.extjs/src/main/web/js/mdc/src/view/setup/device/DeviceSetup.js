@@ -309,6 +309,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                     },
                     {
                         xtype: 'deviceGeneralInformationPanel',
+                        dataLoggerSlave: me.device.get('isDataLoggerSlave') ? me.device : undefined,
                         router: me.router,
                         style: {
                             marginRight: '20px'
