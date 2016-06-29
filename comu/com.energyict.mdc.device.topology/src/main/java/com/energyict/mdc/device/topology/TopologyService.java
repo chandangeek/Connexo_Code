@@ -1,18 +1,16 @@
 package com.energyict.mdc.device.topology;
 
-import aQute.bnd.annotation.ProviderType;
-
-
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.util.time.Interval;
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.CommunicationErrorType;
-import com.energyict.mdc.device.topology.impl.PhysicalGatewayReference;
 
+import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
 
 import java.time.Duration;
@@ -222,24 +220,25 @@ public interface TopologyService {
 
     /**
      * Link the slave device to the data logger device
+     *
      * @param datalogger which can have slave devices
      * @param slave device to link to the datalogger
      * @param linkingDate datetime at which the logger-slave relation becomes effective
-     * @param slaveDataLoggerChannelMap  mapping of data logger (mdc) channels to slave (mdc) channels
+     * @param slaveDataLoggerChannelMap mapping of data logger (mdc) channels to slave (mdc) channels
      * @param slaveDataLoggerRegisterMap mapping of data logger registers to slave registers
-     *
+     * <p>
      * The datalogger's {@link com.energyict.mdc.device.config.DeviceType} purpose must be REGULAR{@link com.energyict.mdc.device.config.DeviceTypePurpose} and its actual
      * {@link DeviceConfiguration} must be set as datalogger enabled.
      * The slave device's DeviceType must have the DATALOGGER_SLAVE {@link com.energyict.mdc.device.config.DeviceTypePurpose}
-     *
+     * <p>
      * Technically the link is persisted as a {@link com.energyict.mdc.device.topology.impl.PhysicalGatewayReference} object.
      * This PhysicalGateWayReference holds a List of DataLoggerChannelUsage linking the slave (pulse) channel to the datalogger (pulse) channel
      */
     void setDataLogger(Device slave, Device datalogger, Instant linkingDate, Map<Channel, Channel> slaveDataLoggerChannelMap, Map<Register, Register> slaveDataLoggerRegisterMap);
 
     /**
-     *
      * Unlink the slave device from its data logger device
+     *
      * @param slave to remove from its logger device;
      */
     void clearDataLogger(Device slave, Instant when);
@@ -247,7 +246,7 @@ public interface TopologyService {
     /**
      * Finds the {@link Device}s that are data logger slave devices using to the specified data logger Device.
      *
-     * @param device the 'data logger' device
+     * @param dataLogger the 'data logger' device
      * @return The List of data logger slaves using the data logger device
      */
     List<Device> findDataLoggerSlaves(Device dataLogger);
@@ -259,13 +258,22 @@ public interface TopologyService {
     boolean isDataLoggerSlaveCandidate(Device device);
 
     /**
+     * Finds the dataloggerReference which is effective at the given timestamp.
+     * If no reference was active, an empty optional will be returned
      *
-     * @return all data logger data slave devices which at this moment are effectively linked to a datalogger
+     * @param dataloggerSlaveDevice the datalogger slave device which has potentially a dataloggerReference for the given timestamp
+     * @param effective the timeStamp at which you want the reference
+     * @return the datalogger reference which was active at the given timestamp
      */
-    Finder<? extends DataLoggerReference>  findAllEffectiveDataLoggerSlaveDevices();
+    Optional<DataLoggerReference> findCurrentDataloggerReference(Device dataloggerSlaveDevice, Instant effective);
 
     /**
-     * @param dataLoggerChannel
+     * @return all data logger data slave devices which at this moment are effectively linked to a datalogger
+     */
+    Finder<? extends DataLoggerReference> findAllEffectiveDataLoggerSlaveDevices();
+
+    /**
+     * @param dataLoggerChannel the channel of the datalogger
      * @param when Time at which the link should be effective
      * @return an Optional channel of the slave device to which the data logger channel is linked. Optional<empty> if the $
      * dataLogger channel is not linked
@@ -274,16 +282,17 @@ public interface TopologyService {
 
     /**
      * Checks whether a (datalogger Channel) is referenced
+     *
      * @param dataLoggerChannel channel to inspect
      * @return true if the channel is already present as gateway channel in one or more DataLoggerChannelUsages
-     *         false if not DataloggerChannelUsages were found having the given ('pulse') channel as gateway channel;
+     * false if not DataloggerChannelUsages were found having the given ('pulse') channel as gateway channel;
      */
     boolean isReferenced(Channel dataLoggerChannel);
 
     /**
      * Returns the date for which the (data logger) channel is free to be used to link with any slave channel
+     *
      * @param dataLoggerChannel to check the 'availability' of
-     * @param when check point at which the data logger channel should be available
      * @return (Optional.of) time at which the data logger channel is free to use (is available for linking). When the data logger channel was never linked (Optional.of) Instant.EPOCH is returned.
      * If the data logger channel is linked yet Optional.empty() will be returned
      */
@@ -291,8 +300,8 @@ public interface TopologyService {
 
     /**
      * Returns the date for which the (data logger) channel is free to be used to link with any slave channel
-     * @param dataLoggerChannel to check the 'availability' of
-     * @param when check point at which the data logger channel should be available
+     *
+     * @param dataLoggerRegister to check the 'availability' of
      * @return (Optional.of) time at which the data logger channel is free to use (is available for linking). When the data logger channel was never linked (Optional.of) Instant.EPOCH is returned.
      * If the data logger channel is linked yet Optional.empty() will be returned
      */
@@ -300,15 +309,16 @@ public interface TopologyService {
 
     /**
      * Retrieve all DataLoggerChannelUsages for given dataLoggerChannel for given period
+     *
      * @param dataLoggerChannel channel to inspect
      * @param referencePeriod period to inspect
      * @return true if the channel is already present as gateway channel in one or more DataLoggerChannelUsages
-     *         false if not DataloggerChannelUsages were found having the given ('pulse') channel as gateway channel;
+     * false if not DataloggerChannelUsages were found having the given ('pulse') channel as gateway channel;
      */
     List<DataLoggerChannelUsage> findDataLoggerChannelUsages(Channel dataLoggerChannel, Range<Instant> referencePeriod);
 
     /**
-     * @param dataLoggerRegister
+     * @param dataLoggerRegister the register of the datalogger
      * @param when Time at which the link should be effective
      * @return an Optional channel of the slave device to which the data logger register is linked. Optional<empty> if the $
      * dataLogger register is not linked
@@ -317,9 +327,10 @@ public interface TopologyService {
 
     /**
      * Checks whether a (datalogger Register) is referenced
+     *
      * @param dataLoggerRegister register to inspect
      * @return true if the channel is already present as gateway channel in one or more DataLoggerChannelUsages
-     *         false if no DataloggerChannelUsages were found having the given register (pulse channel) as gateway channel;
+     * false if no DataloggerChannelUsages were found having the given register (pulse channel) as gateway channel;
      */
     boolean isReferenced(Register dataLoggerRegister);
 
@@ -388,11 +399,17 @@ public interface TopologyService {
 
     public interface G3NeighborBuilder {
         G3NeighborBuilder txGain(int txGain);
+
         G3NeighborBuilder txResolution(int txResolution);
+
         G3NeighborBuilder txCoefficient(int txCoefficient);
+
         G3NeighborBuilder linkQualityIndicator(int linkQualityIndicator);
+
         G3NeighborBuilder timeToLiveSeconds(int seconds);
+
         G3NeighborBuilder toneMap(long toneMap);
+
         G3NeighborBuilder toneMapTimeToLiveSeconds(int seconds);
     }
 
