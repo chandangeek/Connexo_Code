@@ -30,6 +30,7 @@ public enum MessageSeeds implements MessageSeed {
     EXECUTE_COM_TASK_LEVEL4(24, Privileges.Constants.EXECUTE_COM_TASK_4, "Execute com task (level 4)"),
     UNKNOWN_PRIVILEGE_ID(33, "NoSuchExecutionLevels", "No such execution levels: {0}"),
     NO_SUCH_DEVICE_MESSAGE_SPEC(34, "NoSuchDeviceMessageSpec", "No such device message spec: {0}"),
+    FILE_IO(35, Keys.FILE_IO, "Failure while doing IO on file"),
     ANSIC12SECURITYSUPPORT_AUTHENTICATIONLEVEL_0(100, Keys.ANSIC12SECURITYSUPPORT_AUTHENTICATIONLEVEL_0, "Unrestricted authentication"),
     ANSIC12SECURITYSUPPORT_AUTHENTICATIONLEVEL_1(103, Keys.ANSIC12SECURITYSUPPORT_AUTHENTICATIONLEVEL_1, "Restricted authentication"),
     ANSIC12SECURITYSUPPORT_AUTHENTICATIONLEVEL_2(105, Keys.ANSIC12SECURITYSUPPORT_AUTHENTICATIONLEVEL_2, "Read only authentication"),
@@ -266,6 +267,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String WAVENISSECURITYSUPPORT_ENCRYPTIONLEVEL_0 = "WavenisSecuritySupport.encryptionlevel.0";
         public static final String SOLVED = "Solved";
         public static final String UNSOLVED = "Unsolved";
+        public static final String FILE_IO = "file.IO";
 
         public static final String CALENDAR_OPTION_SEND = ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR.getId();
         public static final String CALENDAR_OPTION_SEND_WITH_DATE= ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR_WITH_DATE.getId();

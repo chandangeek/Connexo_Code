@@ -40,6 +40,7 @@ import com.energyict.mdc.tasks.TaskService;
 
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -107,7 +108,8 @@ public class DeviceConfigurationApplication extends Application implements Messa
                 DeviceMessagesResource.class,
                 DeviceMessagePrivilegesResource.class,
                 ProtocolPropertiesResource.class,
-                DeviceConfigurationEstimationRuleSetResource.class
+                DeviceConfigurationEstimationRuleSetResource.class,
+                MultiPartFeature.class
         );
     }
 
