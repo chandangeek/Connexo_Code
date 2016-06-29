@@ -542,7 +542,7 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
                                     if ( Ext.isEmpty(me.wizardInformation.minimalLinkingDate) ||
                                          me.wizardInformation.minimalLinkingDate < dataLoggerSlaveRegisterInfoRecord.availabilityDate ) {
                                         me.wizardInformation.minimalLinkingDate = dataLoggerSlaveRegisterInfoRecord.availabilityDate;
-                                        me.wizardInformation.noData = true;
+                                        me.wizardInformation.noData = false;
                                     }
                                 }
                             }, me);
@@ -640,7 +640,7 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
             linkingDateToSuggest = new Date();
 
         if ( !Ext.isEmpty(me.wizardInformation.minimalLinkingDate) && me.wizardInformation.minimalLinkingDate!==0 ) {
-            // To avoid the disabling of certain hours, we pass midnight:
+            // To avoid the disabling of certain hours, we (should) pass midnight:
             var momentOfDate = moment(me.wizardInformation.minimalLinkingDate);
             momentOfDate.startOf('day');
             minimalLinkingDateMidnight = momentOfDate.unix() * 1000;
@@ -653,11 +653,9 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
             } else if (me.wizardInformation.noData) {
                 if (me.wizardInformation.useExisting) {
                     linkingDateToSuggest = me.wizardInformation.slaveShipmentDate;
-                } else {
-                    linkingDateToSuggest = new Date();
                 }
             } else {
-                linkingDateToSuggest = minimalLinkingDateMidnight;
+                linkingDateToSuggest = me.wizardInformation.minimalLinkingDate;
             }
         }
         wizard.down('dataloggerslave-link-wizard-step4').initialize(minimalLinkingDateMidnight, linkingDateToSuggest);
@@ -673,7 +671,7 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
                 }
             };
 
-        me.wizardInformation.linkingDate = dateField.getValue();
+        me.wizardInformation.linkingDate = dateField.getValue().getTime();
 
         if (me.wizardInformation.linkingDate < me.wizardInformation.minimalLinkingDate) {
             me.getStep4FormErrorMessage().show();
@@ -693,7 +691,7 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
 
         } else {
             Ext.Array.forEach(me.wizardInformation.dataLogger.get('dataLoggerSlaveDevices'), function(dataLoggerSlaveDeviceRecord){
-                dataLoggerSlaveDeviceRecord["linkingTimeStamp"] = me.wizardInformation.linkingDate.getTime()/1000;
+                dataLoggerSlaveDeviceRecord["linkingTimeStamp"] = me.wizardInformation.linkingDate/1000;
             }, me);
             endMethod();
         }
