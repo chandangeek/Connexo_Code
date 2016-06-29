@@ -50,6 +50,7 @@ Ext.define('Wss.view.Add', {
                                 name: 'name',
                                 itemId: 'endPointName',
                                 fieldLabel: Uni.I18n.translate('endPointAdd.name', 'WSS', 'Name'),
+                                allowBlank: false,
                                 required: true
                             },
                             {
@@ -57,6 +58,7 @@ Ext.define('Wss.view.Add', {
                                 name: 'webServiceName',
                                 itemId: 'webServiceCombo',
                                 required: true,
+                                allowBlank: false,
                                 fieldLabel: Uni.I18n.translate('endPointAdd.Webservice', 'WSS', 'Webservice'),
                                 store: 'Wss.store.Webservices',
                                 displayField: 'name',

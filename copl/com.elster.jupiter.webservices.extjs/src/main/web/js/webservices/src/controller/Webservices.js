@@ -132,7 +132,14 @@ Ext.define('Wss.controller.Webservices', {
 
     saveEndPoint: function (button, record, acknowledgement) {
         var form = button.up('form'),
-            me = this;
+            me = this,
+            formErrorsPanel = form.down('#addEndPointFormErrors');
+        if(!form.isValid() && form.down('#logLevelCombo') === null) {
+            formErrorsPanel.show();
+            return;
+        } else {
+            formErrorsPanel.hide();
+        }
         record.set(form.getForm().getFieldValues());
         if(form.down('#logLevelCombo')) {
             var logLevel = form.down('#logLevelCombo').findRecordByValue(record.get('logLevel'));
