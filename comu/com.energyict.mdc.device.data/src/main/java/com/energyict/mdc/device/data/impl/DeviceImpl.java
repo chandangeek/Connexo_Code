@@ -1858,8 +1858,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     private ComTaskExecution add(ComTaskExecutionImpl comTaskExecution) {
-        Save.CREATE.validate(DeviceImpl.this.dataModel, comTaskExecution, Save.Create.class, Save.Update.class);
-        Save.UPDATE.validate(DeviceImpl.this.dataModel, this, Save.Create.class, Save.Update.class);
+        Save.CREATE.validate(DeviceImpl.this.dataModel, comTaskExecution, Save.Create.class);
+        Save.UPDATE.validate(DeviceImpl.this.dataModel, this, Save.Update.class);
         this.comTaskExecutions.add(comTaskExecution);
         if (this.id != 0) {
             comTaskExecution.notifyCreated();

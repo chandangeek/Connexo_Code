@@ -227,7 +227,7 @@ public class DeviceMultiplierTest {
         doReturn(Optional.of(meterActivation)).when(meter).getCurrentMeterActivation();
         doReturn(Collections.singletonList(meterActivation)).when(meter).getMeterActivations();
 
-        Device mockedDevice = createMockedDevice(null);
+        Device mockedDevice = createMockedDevice(now);
 
         assertThat(mockedDevice.getMultiplier()).isEqualTo(BigDecimal.ONE);
     }
@@ -237,7 +237,7 @@ public class DeviceMultiplierTest {
         doReturn(Optional.of(meterActivation)).when(meter).getCurrentMeterActivation();
         doReturn(Collections.singletonList(meterActivation)).when(meter).getMeterActivations();
 
-        Device mockedDevice = createMockedDevice(null);
+        Device mockedDevice = createMockedDevice(Instant.now());
         mockedDevice.setMultiplier(BigDecimal.ONE);
 
         verify(meterActivation, never()).endAt(any(Instant.class));
@@ -301,7 +301,7 @@ public class DeviceMultiplierTest {
         doReturn(Optional.of(meterActivation)).when(meter).getCurrentMeterActivation();
         doReturn(Collections.singletonList(meterActivation)).when(meter).getMeterActivations();
 
-        Device mockedDevice = createMockedDevice(null);
+        Device mockedDevice = createMockedDevice(now);
 
         when(meter.hasData()).thenReturn(true);
         Instant past = now.minus(1, ChronoUnit.DAYS);
@@ -345,7 +345,7 @@ public class DeviceMultiplierTest {
         doReturn(Optional.of(meterActivation)).when(meter).getCurrentMeterActivation();
         doReturn(Collections.singletonList(meterActivation)).when(meter).getMeterActivations();
 
-        Device mockedDevice = createMockedDevice(null);
+        Device mockedDevice = createMockedDevice(now);
 
         when(meterActivation.getRange()).thenReturn(Range.openClosed(startOfMeterActivation, now));
         when(meter.hasData()).thenReturn(true);
@@ -365,7 +365,7 @@ public class DeviceMultiplierTest {
         doReturn(Optional.of(meterActivation)).when(meter).getCurrentMeterActivation();
         doReturn(Collections.singletonList(meterActivation)).when(meter).getMeterActivations();
 
-        Device mockedDevice = createMockedDevice(null);
+        Device mockedDevice = createMockedDevice(startOfMeterActivation);
 
         when(meterActivation.getRange()).thenReturn(Range.openClosed(startOfMeterActivation, now));
         Instant from = startOfMeterActivation.minus(1, ChronoUnit.DAYS);

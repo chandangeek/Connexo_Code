@@ -47,8 +47,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -335,7 +336,7 @@ public class DeviceLifeCycleChangeEventsTest {
                 this.meteringGroupsService,
                 customPropertySetService,
                 this.readingTypeUtilService)
-            .initialize(this.deviceConfiguration, "Hello world", "mRID", null);
+                .initialize(this.deviceConfiguration, "Hello world", "mRID", Instant.now());
         device.save();
         return device;
     }
