@@ -677,12 +677,12 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
             me.getStep4FormErrorMessage().show();
 
             if (me.wizardInformation.noData) {
-                errorMsg = Uni.I18n.translate('general.linkingDateShouldLieAfterX', 'MDC',
+                errorMsg = Uni.I18n.translate('general.linkingDateShouldLieAfterShipmentDateX', 'MDC',
                     'The linking date should be equal to or lie after the shipment date of the data logger ({0})',
                     Uni.DateTime.formatDateTime(new Date(me.wizardInformation.minimalLinkingDate), Uni.DateTime.SHORT, Uni.DateTime.SHORT)
                 );
             } else {
-                errorMsg = Uni.I18n.translate('general.linkingDateShouldLieAfterX', 'MDC',
+                errorMsg = Uni.I18n.translate('general.linkingDateShouldLieAfterReadingDateX', 'MDC',
                     'The linking date should be equal to or lie after the date of the most recent unlinked reading of the channels and registers of the data logger ({0})',
                     Uni.DateTime.formatDateTime(new Date(me.wizardInformation.minimalLinkingDate), Uni.DateTime.SHORT, Uni.DateTime.SHORT)
                 );
