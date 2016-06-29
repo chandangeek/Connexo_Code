@@ -1,15 +1,14 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
+import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException;
 import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
-
-
-import org.junit.*;
+import org.fest.assertions.api.Assertions;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -53,7 +52,7 @@ public class VerifySerialNumberCommandImplTest extends CommonCommandImplTests {
         assertEquals("There should be no warning logged", 0, verifySerialNumberCommand.getWarnings().size());
     }
 
-    @Test(expected = DeviceConfigurationException.class)
+    @Test
     public void verifyIncorrectSerialNumberTest() {
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         when(offlineDevice.getSerialNumber()).thenReturn(CORRECT_METER_SERIAL_NUMBER);
@@ -62,7 +61,9 @@ public class VerifySerialNumberCommandImplTest extends CommonCommandImplTests {
         VerifySerialNumberCommandImpl verifySerialNumberCommand = new VerifySerialNumberCommandImpl(offlineDevice, createCommandRoot(offlineDevice));
         verifySerialNumberCommand.execute(deviceProtocol, newTestExecutionContext());
 
-        // we should have gotten the DeviceConfigurationException
+        Assertions.assertThat(verifySerialNumberCommand.getIssues().size()).isEqualTo(1);
+        Assertions.assertThat(verifySerialNumberCommand.getIssues().get(0).getDescription()).isEqualTo("serialNumberMismatch");
+        Assertions.assertThat(verifySerialNumberCommand.getCompletionCode()).isEqualTo(CompletionCode.ConfigurationError);
     }
 
     @Test

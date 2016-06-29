@@ -255,8 +255,8 @@ public final class ExecutionContext implements JournalEntryFactory {
             this.comPortRelatedComChannel.logRemainingBytes();
         }
         if (basickCheckHasFailed()) {
-            String commandDescription = "ComTask will be rescheduled due to the failure of the BasicCheck task.";
-            this.currentTaskExecutionBuilder.ifPresent(b -> b.addComCommandJournalEntry(now(), CompletionCode.Rescheduled, "", commandDescription));
+            String commandDescription = "ComTask will not be executed, due to the failure of the BasicCheck task.";
+            this.currentTaskExecutionBuilder.ifPresent(b -> b.addComCommandJournalEntry(now(), CompletionCode.NotExecuted, "", commandDescription));
         }
         this.currentTaskExecutionBuilder.ifPresent(b -> b.add(now(), successIndicator));
     }

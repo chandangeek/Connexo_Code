@@ -60,7 +60,6 @@ public class VerifyTimeDifferenceCommandImpl extends SimpleComCommand implements
                     this.timeDifference,
                     this.maximumClockDifference),
                     CompletionCode.TimeError);
-            throw DeviceConfigurationException.timeDifferenceExceeded(MessageSeeds.MAXIMUM_TIME_DIFFERENCE_EXCEEDED, this.timeDifference.getMilliSeconds(), this.maximumClockDifference.getMilliSeconds());
         }
     }
 

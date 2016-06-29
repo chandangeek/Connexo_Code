@@ -36,7 +36,7 @@ public class VerifySerialNumberCommandImpl extends SimpleComCommand implements V
      * If the serialNumbers don't match, then a {@link DeviceConfigurationException} will be thrown.
      * </p>
      *
-     * @param deviceProtocol the {@link DeviceProtocol} which will perform the actions
+     * @param deviceProtocol   the {@link DeviceProtocol} which will perform the actions
      * @param executionContext The ExecutionContext
      */
     @Override
@@ -45,10 +45,8 @@ public class VerifySerialNumberCommandImpl extends SimpleComCommand implements V
             String meterSerialNumber = deviceProtocol.getSerialNumber();
             if (!meterSerialNumber.equals(offlineDevice.getSerialNumber())) {
                 addIssue(getIssueService().newProblem(getCommandType(), MessageSeeds.CONFIG_SERIAL_NUMBER_MISMATCH.getKey(), meterSerialNumber, offlineDevice.getSerialNumber()), CompletionCode.ConfigurationError);
-                throw DeviceConfigurationException.serialNumberMisMatch(meterSerialNumber, offlineDevice.getSerialNumber(), MessageSeeds.CONFIG_SERIAL_NUMBER_MISMATCH);
             }
-        }
-        else {
+        } else {
             addIssue(getIssueService().newWarning(deviceProtocol, MessageSeeds.NOT_POSSIBLE_TO_VERIFY_SERIALNUMBER.getKey(), deviceProtocol.getSerialNumber(), deviceProtocol.getClass().getSimpleName()));
         }
     }
