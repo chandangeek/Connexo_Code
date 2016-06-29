@@ -17,6 +17,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,19 +34,22 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
     private volatile TopologyService topologyService;
     private volatile IssueService issueService;
     private volatile DeviceService deviceService;
+    private volatile Clock clock;
     private volatile DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory;
 
 
-    public DeviceInfoFactory() {}
+    public DeviceInfoFactory() {
+    }
 
     @Inject
-    public DeviceInfoFactory(Thesaurus thesaurus, BatchService batchService, TopologyService topologyService, IssueService issueService, DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory, DeviceService deviceService) {
+    public DeviceInfoFactory(Thesaurus thesaurus, BatchService batchService, TopologyService topologyService, IssueService issueService, DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory, DeviceService deviceService, Clock clock) {
         this.thesaurus = thesaurus;
         this.batchService = batchService;
         this.topologyService = topologyService;
         this.issueService = issueService;
         this.dataLoggerSlaveDeviceInfoFactory = dataLoggerSlaveDeviceInfoFactory;
         this.deviceService = deviceService;
+        this.clock = clock;
     }
 
     @Reference
@@ -105,7 +109,7 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
         Optional<GeoCoordinates> geoCoordinates = device.getGeoCoordinates();
         String formattedLocation = location.map(Location::toString).orElse("");
         return DeviceInfo.from(device, slaveDevices, batchService, topologyService, new IssueRetriever(issueService), thesaurus,
-                dataLoggerSlaveDeviceInfoFactory, formattedLocation, geoCoordinates.map(coord -> coord.getCoordinates().toString()).orElse(null));
+                dataLoggerSlaveDeviceInfoFactory, formattedLocation, geoCoordinates.map(coord -> coord.getCoordinates().toString()).orElse(null), clock);
     }
 
     @Override

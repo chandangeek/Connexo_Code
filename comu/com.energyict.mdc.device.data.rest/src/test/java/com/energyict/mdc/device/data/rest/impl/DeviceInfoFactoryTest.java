@@ -57,7 +57,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Arrays;
@@ -197,6 +196,7 @@ public class DeviceInfoFactoryTest {
     private State state;
     @Mock
     private DeviceService deviceService;
+    private Clock clock = Clock.systemDefaultZone();
 
     @Before
     public void initMocks() {
@@ -465,9 +465,9 @@ public class DeviceInfoFactoryTest {
 
     @Test
     public void fromDataLoggerTest() {
-        DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory = new DataLoggerSlaveDeviceInfoFactory(Clock.systemUTC(), topologyService, deviceDataInfoFactory);
+        DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory = new DataLoggerSlaveDeviceInfoFactory(Clock.systemUTC(), topologyService, deviceDataInfoFactory, batchService);
 
-        DeviceInfoFactory deviceInfoFactory = new DeviceInfoFactory(thesaurus, batchService, topologyService, issueService, dataLoggerSlaveDeviceInfoFactory, deviceService);
+        DeviceInfoFactory deviceInfoFactory = new DeviceInfoFactory(thesaurus, batchService, topologyService, issueService, dataLoggerSlaveDeviceInfoFactory, deviceService, clock);
         DeviceInfo info = deviceInfoFactory.deviceInfo(dataLogger);
 
         assertThat(info.id).isEqualTo(DATALOGGER_ID);

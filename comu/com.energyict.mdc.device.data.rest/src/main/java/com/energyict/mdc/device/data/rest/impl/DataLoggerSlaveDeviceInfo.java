@@ -1,7 +1,11 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.energyict.mdc.device.data.Batch;
+import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.topology.TopologyService;
 
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,9 +27,10 @@ public class DataLoggerSlaveDeviceInfo {
     public String serialNumber;
     public int yearOfCertification;
     public long version;
-    public long shipmentTimeStamp;
-    public long linkingTimeStamp;
+    public long shipmentDate;
+    public Long linkingTimeStamp;
     public long unlinkingTimeStamp = -1L;
+    public String batch;
     private boolean fromExistingLink;      // as indicator that this dataloggerSlaveDeviceInfo was created when creating its parent Device Info (Should not be taken into account whe
                                             // updating the device (with an updated device info)
 
@@ -65,7 +70,7 @@ public class DataLoggerSlaveDeviceInfo {
         return fromExistingLink;
     }
 
-    static DataLoggerSlaveDeviceInfo from(Device device) {
+    static DataLoggerSlaveDeviceInfo from(Device device, BatchService batchService, TopologyService topologyService, Clock clock) {
         DataLoggerSlaveDeviceInfo info = new DataLoggerSlaveDeviceInfo();
         info.id = device.getId();
         info.mRID = device.getmRID();
@@ -76,7 +81,11 @@ public class DataLoggerSlaveDeviceInfo {
         info.yearOfCertification = device.getYearOfCertification();
         info.version = device.getVersion();
         info.fromExistingLink = true;
-        device.getLifecycleDates().getReceivedDate().ifPresent((shipmentDate) -> info.shipmentTimeStamp = shipmentDate.toEpochMilli());
+        info.batch = batchService.findBatch(device).map(Batch::getName).orElse(null);
+        info.linkingTimeStamp = topologyService.findCurrentDataloggerReference(device, clock.instant())
+                .map(dataLoggerReference -> dataLoggerReference.getRange().lowerEndpoint().toEpochMilli())
+                .orElse(null);
+        device.getLifecycleDates().getReceivedDate().ifPresent((shipmentDate) -> info.shipmentDate = shipmentDate.toEpochMilli());
         return info;
     }
 

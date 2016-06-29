@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.junit.Test;
-
 import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -89,7 +88,7 @@ public class DataLoggerSlaveDeviceInfoFactoryTest extends DeviceDataRestApplicat
         when(topologyService.getSlaveRegister(eq(dataLoggerRegister4), any(Instant.class))).thenReturn(Optional.empty());
         when(topologyService.availabilityDate(eq(dataLoggerRegister4))).thenReturn(Optional.of(Instant.EPOCH));
 
-        List<DataLoggerSlaveDeviceInfo> infos = new DataLoggerSlaveDeviceInfoFactory(clock, topologyService, deviceDataInfoFactory).from(dataLogger);
+        List<DataLoggerSlaveDeviceInfo> infos = new DataLoggerSlaveDeviceInfoFactory(clock, topologyService, deviceDataInfoFactory, batchService).from(dataLogger);
 
         assertThat(infos).hasSize(1);
         assertThat(infos.get(0).dataLoggerSlaveChannelInfos).hasSize(3);

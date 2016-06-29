@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Register;
@@ -19,20 +20,22 @@ import java.util.Optional;
  */
 public class DataLoggerSlaveDeviceInfoFactory {
 
-    private final DeviceDataInfoFactory deviceDataInfoFactory;
-    private final DataLoggerSlaveChannelInfoFactory slaveChannelInfoFactory;
-    private final DataLoggerSlaveRegisterInfoFactory slaveRegisterInfoFactory;
-    private final Clock clock;
-    private final TopologyService topologyService;
+    private volatile DeviceDataInfoFactory deviceDataInfoFactory;
+    private volatile DataLoggerSlaveChannelInfoFactory slaveChannelInfoFactory;
+    private volatile DataLoggerSlaveRegisterInfoFactory slaveRegisterInfoFactory;
+    private volatile Clock clock;
+    private volatile TopologyService topologyService;
+    private volatile BatchService batchService;
     private DataLoggerSlaveDeviceInfo slaveDeviceInfoForUnlinkedDataLoggerElements;
 
     @Inject
-    public DataLoggerSlaveDeviceInfoFactory(Clock clock, TopologyService topologyService, DeviceDataInfoFactory deviceDataInfoFactory ) {
+    public DataLoggerSlaveDeviceInfoFactory(Clock clock, TopologyService topologyService, DeviceDataInfoFactory deviceDataInfoFactory, BatchService batchService) {
         this.clock = clock;
         this.topologyService = topologyService;
         this.deviceDataInfoFactory = deviceDataInfoFactory;
         this.slaveChannelInfoFactory = new DataLoggerSlaveChannelInfoFactory();
         this.slaveRegisterInfoFactory = new DataLoggerSlaveRegisterInfoFactory();
+        this.batchService = batchService;
     }
 
     public List<DataLoggerSlaveDeviceInfo> from(Device dataLogger) {
@@ -57,7 +60,7 @@ public class DataLoggerSlaveDeviceInfoFactory {
 
             existingSlaveDeviceInfo = slaveDeviceInfos.stream().filter(slaveDeviceInfo -> slaveDeviceInfo.id == slave.getId()).findFirst();
             if (!existingSlaveDeviceInfo.isPresent()){
-                DataLoggerSlaveDeviceInfo newSlaveDeviceInfo = DataLoggerSlaveDeviceInfo.from(slave);
+                DataLoggerSlaveDeviceInfo newSlaveDeviceInfo = DataLoggerSlaveDeviceInfo.from(slave, batchService, topologyService, clock);
                 existingSlaveDeviceInfo = Optional.of(newSlaveDeviceInfo);
                 slaveDeviceInfos.add(newSlaveDeviceInfo);
             }
@@ -81,7 +84,7 @@ public class DataLoggerSlaveDeviceInfoFactory {
             Device slave = slaveRegister.get().getDevice();
             existingSlaveDeviceInfo = slaveDeviceInfos.stream().filter(slaveDeviceInfo -> slaveDeviceInfo.id == slave.getId()).findFirst();
             if (!existingSlaveDeviceInfo.isPresent()){
-                DataLoggerSlaveDeviceInfo newSlaveDeviceInfo = DataLoggerSlaveDeviceInfo.from(slave);
+                DataLoggerSlaveDeviceInfo newSlaveDeviceInfo = DataLoggerSlaveDeviceInfo.from(slave, batchService, topologyService, clock);
                 existingSlaveDeviceInfo = Optional.of(newSlaveDeviceInfo);
                 slaveDeviceInfos.add(newSlaveDeviceInfo);
             }

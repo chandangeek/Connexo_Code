@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -36,6 +37,7 @@ public class DeviceInfo extends DeviceVersionInfo {
     public Integer yearOfCertification;
     public String batch;
     public String masterDevicemRID;
+    public String dataloggermRID; // only available when we are a dataloggerslave
     public Long masterDeviceId;
     public List<DeviceTopologyInfo> slaveDevices;
     public int nbrOfDataCollectionIssues;
@@ -62,7 +64,7 @@ public class DeviceInfo extends DeviceVersionInfo {
     public DeviceInfo() {
     }
 
-    public static DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices, BatchService batchService, TopologyService topologyService, IssueRetriever issueRetriever, Thesaurus thesaurus, DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory, String location, String geoCoordinates) {
+    public static DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices, BatchService batchService, TopologyService topologyService, IssueRetriever issueRetriever, Thesaurus thesaurus, DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory, String location, String geoCoordinates, Clock clock) {
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         DeviceInfo deviceInfo = new DeviceInfo();
         deviceInfo.id = device.getId();
@@ -81,6 +83,8 @@ public class DeviceInfo extends DeviceVersionInfo {
             deviceInfo.masterDeviceId = physicalGateway.get().getId();
             deviceInfo.masterDevicemRID = physicalGateway.get().getmRID();
         }
+
+        topologyService.findCurrentDataloggerReference(device, clock.instant()).ifPresent(dataLoggerReference -> deviceInfo.dataloggermRID = dataLoggerReference.getGateway().getmRID());
 
         deviceInfo.gatewayType = device.getConfigurationGatewayType();
         deviceInfo.slaveDevices = slaveDevices;
