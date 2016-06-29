@@ -7,6 +7,7 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
         'Mdc.timeofuse.view.SpecificationsForm',
         'Mdc.timeofuse.view.EditSpecificationsSetup',
         'Mdc.timeofuse.view.ViewCalendarSetup',
+        'Mdc.timeofuse.view.EditSpecificationsForm',
         'Uni.view.error.NotFound'
     ],
 
@@ -42,7 +43,7 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
         },
         {
             ref: 'editForm',
-            selector: 'tou-devicetype-edit-specs-form'
+            selector: '#tou-devicetype-edit-specs-form'
         },
         {
             ref: 'breadCrumbs',
@@ -247,7 +248,7 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
                                 deviceTypeId: deviceTypeId,
                                 timeOfUseAllowed: options.get('isAllowed')
                             });
-                            view.down('tou-devicetype-edit-specs-form').fillOptions(options);
+                            view.down('#tou-devicetype-edit-specs-form').fillOptions(options);
 
                             me.deviceTypeId = deviceTypeId;
                             view.setLoading(true);
