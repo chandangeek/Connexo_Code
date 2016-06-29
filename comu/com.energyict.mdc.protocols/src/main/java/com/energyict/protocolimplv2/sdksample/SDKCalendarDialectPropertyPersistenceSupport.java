@@ -24,6 +24,11 @@ import java.util.stream.Stream;
 class SDKCalendarDialectPropertyPersistenceSupport implements PersistenceSupport<DeviceProtocolDialectPropertyProvider, SDKCalendarDialectProperties> {
 
     @Override
+    public String application() {
+        return "MultiSense";
+    }
+
+    @Override
     public String domainFieldName() {
         return CommonDeviceProtocolDialectProperties.Fields.DIALECT_PROPERTY_PROVIDER.javaName();
     }
