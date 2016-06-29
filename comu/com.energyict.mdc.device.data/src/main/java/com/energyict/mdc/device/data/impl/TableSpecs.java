@@ -2,8 +2,8 @@ package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.kpi.Kpi;
-import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
@@ -104,7 +104,7 @@ public enum TableSpecs {
             table.column("CERTIF_YEAR").number().map("yearOfCertification").conversion(ColumnConversion.NUMBER2INT).add();
             Column deviceType = table.column("DEVICETYPE").number().notNull().add();
             Column configuration = table.column("DEVICECONFIGID").number().notNull().add();
-            Column meterId = table.column("METERID").number().add();
+            Column meterId = table.column("METERID").number().since(version(10, 2)).add();
             table.foreignKey("FK_DDC_DEVICE_DEVICECONFIG").
                     on(configuration).
                     references(DeviceConfiguration.class).
@@ -119,6 +119,7 @@ public enum TableSpecs {
                     .on(meterId)
                     .references(EndDevice.class)
                     .map(DeviceFields.METER.fieldName())
+                    .since(version(10, 2))
                     .add();
 
             table.unique("UK_DDC_DEVICE_MRID").on(mRID).add();
@@ -598,6 +599,7 @@ public enum TableSpecs {
                     .number()
                     .conversion(NUMBER2ENUM)
                     .map(DeviceMessageImpl.Fields.TRACKINGCATEGORY.fieldName())
+                    .since(version(10, 2))
                     .add();
             table.column("PROTOCOLINFO").varChar(Table.DESCRIPTION_LENGTH).map(DeviceMessageImpl.Fields.PROTOCOLINFO.fieldName()).add();
             table.column("RELEASEDATE").number().map(DeviceMessageImpl.Fields.RELEASEDATE.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).add();
@@ -625,10 +627,19 @@ public enum TableSpecs {
             table.foreignKey("FK_DDC_DEVMESATTR_DEV")
                     .on(deviceMessage)
                     .references(DDC_DEVICEMESSAGE.name())
+                    .map("deviceMessage")
+                    .composition()
+                    .reverseMap(DeviceMessageImpl.Fields.DEVICEMESSAGEATTRIBUTES.fieldName())
+                    .upTo(version(10, 2))
+                    .add();
+            table.foreignKey("FK_DDC_DEVMESATTR_DEV")
+                    .on(deviceMessage)
+                    .references(DDC_DEVICEMESSAGE.name())
                     .onDelete(CASCADE)
                     .map("deviceMessage")
                     .composition()
                     .reverseMap(DeviceMessageImpl.Fields.DEVICEMESSAGEATTRIBUTES.fieldName())
+                    .since(version(10, 2))
                     .add();
             table.unique("UK_DDC_DEVMESATTR_NAME").on(deviceMessage, name).add();
         }
@@ -782,6 +793,7 @@ public enum TableSpecs {
         @Override
         void addTo(DataModel dataModel) {
             Table<PassiveEffectiveCalendar> table = dataModel.addTable(name(), PassiveEffectiveCalendar.class);
+            table.since(version(10, 2));
             table.map(PassiveEffectiveCalendarImpl.class);
 
             Column idColumn = table.addAutoIdColumn();
@@ -816,6 +828,7 @@ public enum TableSpecs {
         @Override
         void addTo(DataModel dataModel) {
             Table<ActiveEffectiveCalendar> table = dataModel.addTable(name(), ActiveEffectiveCalendar.class);
+            table.since(version(10, 2));
             table.map(ActiveEffectiveCalendarImpl.class);
 
             Column device = table.column("DEVICE").number().conversion(NUMBER2LONG).notNull().add();
