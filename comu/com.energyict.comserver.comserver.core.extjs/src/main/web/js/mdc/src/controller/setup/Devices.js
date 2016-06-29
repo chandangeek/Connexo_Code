@@ -279,7 +279,27 @@ Ext.define('Mdc.controller.setup.Devices', {
 
     createDataLoggerSlavesStore: function(device) {
         var me = this,
-            maxNumberOfStoreRecords = 5;
+            counter,
+            maxNumberOfStoreRecords = 5,
+            store,
+            slaves = [];
+
+        // 1. Collect all datalogger slaves in an array
+        Ext.Array.forEach(device.get('dataLoggerSlaveDevices'), function(slaveRecord){
+            if (slaveRecord.id > 0) {
+                slaves.push(slaveRecord);
+            }
+        }, me);
+        // 2. Sort that array descending
+        Ext.Array.sort(slaves, function(slave1, slave2) {
+            return slave2.linkingTimeStamp - slave1.linkingTimeStamp;
+        });
+        // 3. If the array contains too much items, only keep the first <maxNumberOfStoreRecords>
+        if (slaves.length > maxNumberOfStoreRecords) {
+            slaves = Ext.Array.splice(slaves, maxNumberOfStoreRecords, slaves.length - maxNumberOfStoreRecords);
+        }
+
+        // 4. Create the store
         Ext.define('DataLoggerSlave', {
             extend: 'Ext.data.Model',
             fields: [
@@ -289,30 +309,18 @@ Ext.define('Mdc.controller.setup.Devices', {
                 {name: 'linkingTimeStamp', type: 'number'}
             ]
         });
-
-        var store = Ext.create('Ext.data.Store', {
+        store = Ext.create('Ext.data.Store', {
             model: 'DataLoggerSlave',
-            sorters: [{
-                property: 'linkingTimeStamp',
-                direction: 'DESC'
-            }],
             autoLoad: false
         });
-
-        Ext.Array.forEach(device.get('dataLoggerSlaveDevices'), function(slaveRecord){
-            if (slaveRecord.id > 0) {
-                store.add({
-                        mRID: slaveRecord.mRID,
-                        deviceTypeName: slaveRecord.deviceTypeName,
-                        deviceConfigurationName: slaveRecord.deviceConfigurationName,
-                        linkingTimeStamp: slaveRecord.linkingTimeStamp
-                    }
-                );
-            }
+        Ext.Array.forEach(slaves, function(slaveRecord){
+            store.add({
+                mRID: slaveRecord.mRID,
+                deviceTypeName: slaveRecord.deviceTypeName,
+                deviceConfigurationName: slaveRecord.deviceConfigurationName,
+                linkingTimeStamp: slaveRecord.linkingTimeStamp
+            });
         }, me);
-        if (store.getCount() > maxNumberOfStoreRecords) {
-            store.removeAt(maxNumberOfStoreRecords, store.getCount() - maxNumberOfStoreRecords);
-        }
         return store;
     },
 
