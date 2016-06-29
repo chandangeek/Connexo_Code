@@ -154,8 +154,10 @@ Ext.define('Wss.view.Add', {
             var values = form.getValues();
             values.webServiceName = newValue;
             var record = combobox.findRecordByValue(newValue);
-            this.addFormFields(record.get('direction').id, record.get('type'));
-            form.getForm().setValues(values);
+            if(record){
+                this.addFormFields(record.get('direction').id, record.get('type'));
+                form.getForm().setValues(values);
+            }
         }
     },
 
