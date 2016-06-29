@@ -1,6 +1,5 @@
 package com.elster.jupiter.util.logging;
 
-
 import com.elster.jupiter.util.Pair;
 
 import java.text.MessageFormat;
@@ -10,7 +9,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public final class LoggingContext implements AutoCloseable {
+public final class LoggingContext implements LogContext, AutoCloseable {
 
     private static ThreadLocal<LoggingContext> context = ThreadLocal.withInitial(LoggingContext::new);
 
@@ -26,13 +25,17 @@ public final class LoggingContext implements AutoCloseable {
         this.parent = parent;
     }
 
-    public static LoggingContext get() {
+    public static LoggingContext getCloseableContext() {
         LoggingContext context = LoggingContext.context.get();
         if (context == null) {
             context = new LoggingContext();
             LoggingContext.context.set(context);
         }
         return context;
+    }
+
+    public static LogContext get() {
+        return LoggingContext.context.get();
     }
 
     public LoggingContext with(String key, String value) {
@@ -58,8 +61,9 @@ public final class LoggingContext implements AutoCloseable {
         }
     }
 
+    @Override
     public void log(Level level, Object logger, String message, Throwable throwable, Object... args) {
-        Logger theLogger = null;
+        Logger theLogger;
         if (logger instanceof Logger) {
             theLogger = (Logger) logger;
         } else {
@@ -73,35 +77,43 @@ public final class LoggingContext implements AutoCloseable {
         theLogger.log(level, resolvedMessage, throwable);
     }
 
+    @Override
     public void severe(Object logger, String message, Throwable throwable, Object... args) {
         log(Level.SEVERE, logger, message, throwable, args);
     }
 
+    @Override
     public void severe(Object logger, Throwable throwable) {
         String message = throwable.getMessage() == null ? throwable.toString() : throwable.getMessage();
         severe(logger, message, throwable);
     }
 
+    @Override
     public void severe(Object logger, String message, Object... args) {
         log(Level.SEVERE, logger, message, null, args);
     }
 
+    @Override
     public void warning(Object logger, String message, Object... args) {
         log(Level.WARNING, logger, message, null, args);
     }
 
+    @Override
     public void info(Object logger, String message, Object... args) {
         log(Level.INFO, logger, message, null, args);
     }
 
+    @Override
     public void fine(Object logger, String message, Object... args) {
         log(Level.FINE, logger, message, null, args);
     }
 
+    @Override
     public void finer(Object logger, String message, Object... args) {
         log(Level.FINE, logger, message, null, args);
     }
 
+    @Override
     public void finest(Object logger, String message, Object... args) {
         log(Level.FINE, logger, message, null, args);
     }
@@ -120,4 +132,3 @@ public final class LoggingContext implements AutoCloseable {
     }
 
 }
-
