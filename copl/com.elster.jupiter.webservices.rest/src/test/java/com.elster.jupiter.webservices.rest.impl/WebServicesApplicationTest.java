@@ -78,6 +78,7 @@ public class WebServicesApplicationTest extends FelixRestApplicationJerseyTest {
         when(mock.getGroup()).thenReturn(Optional.of(group));
         when(mock.isTracing()).thenReturn(true);
         when(mock.getTraceFile()).thenReturn("webservices.log");
+        when(mock.isInbound()).thenReturn(true);
         when(endPointConfigurationService.getEndPointConfiguration(name)).thenReturn(Optional.of(mock));
         when(endPointConfigurationService.getEndPointConfiguration(id)).thenReturn(Optional.of(mock));
         when(endPointConfigurationService.findAndLockEndPointConfigurationByIdAndVersion(id, version)).thenReturn(Optional
@@ -105,6 +106,7 @@ public class WebServicesApplicationTest extends FelixRestApplicationJerseyTest {
         when(mock.getTraceFile()).thenReturn("webservices.log");
         when(mock.getPassword()).thenReturn("password");
         when(mock.getUsername()).thenReturn("username");
+        when(mock.isInbound()).thenReturn(false);
         when(endPointConfigurationService.getEndPointConfiguration(name)).thenReturn(Optional.of(mock));
         when(endPointConfigurationService.getEndPointConfiguration(id)).thenReturn(Optional.of(mock));
         when(endPointConfigurationService.findAndLockEndPointConfigurationByIdAndVersion(id, version)).thenReturn(Optional

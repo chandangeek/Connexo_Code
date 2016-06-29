@@ -43,9 +43,6 @@ public class EndPointConfigurationInfoFactory {
         info.name = endPointConfiguration.getName();
         info.version = endPointConfiguration.getVersion();
         info.url = endPointConfiguration.getUrl();
-        info.previewUrl = uriInfo.getBaseUriBuilder()
-                .path("/soap") // don't want to hardcode this.
-                .path(endPointConfiguration.getUrl()).build();
         info.active = endPointConfiguration.isActive();
         info.available = webServicesService.getWebService(endPointConfiguration.getWebServiceName()).isPresent();
         info.webServiceName = endPointConfiguration.getWebServiceName();
@@ -60,8 +57,11 @@ public class EndPointConfigurationInfoFactory {
                 .getAuthenticationMethod(),
                 endPointConfiguration.getAuthenticationMethod()
                         .getDisplayName(thesaurus));
-        if (InboundEndPointConfiguration.class.isAssignableFrom(endPointConfiguration.getClass())) {
+        if (endPointConfiguration.isInbound()) {
             info.direction = new IdWithLocalizedValueInfo<>(WebServiceDirection.INBOUND, WebServiceDirection.INBOUND.getDisplayName(thesaurus));
+            info.previewUrl = uriInfo.getBaseUri().getScheme() + "://" + uriInfo.getBaseUri().getAuthority()
+                    + "/soap" // don't want to hardcode this.
+                    + endPointConfiguration.getUrl();
             ((InboundEndPointConfiguration) endPointConfiguration).getGroup()
                     .ifPresent(g -> info.group = new LongIdWithNameInfo(g.getId(), g.getName()));
         } else {
