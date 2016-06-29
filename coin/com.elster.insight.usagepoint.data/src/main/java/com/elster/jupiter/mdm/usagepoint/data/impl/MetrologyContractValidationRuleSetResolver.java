@@ -26,14 +26,13 @@ public class MetrologyContractValidationRuleSetResolver implements ValidationRul
     public List<ValidationRuleSet> resolve(ChannelsContainer channelsContainer) {
         if (channelsContainer instanceof MetrologyContractChannelsContainer) {
             MetrologyContract metrologyContract = ((MetrologyContractChannelsContainer) channelsContainer).getMetrologyContract();
-            // TODO provide a list of validation rulesets assigned to that metrology contract.
-            return Collections.emptyList();
+            return this.usagePointConfigurationService.getValidationRuleSets(metrologyContract);
         }
         return Collections.emptyList();
     }
 
     @Override
     public boolean isValidationRuleSetInUse(ValidationRuleSet ruleset) {
-        return false;
+        return this.isValidationRuleSetInUse(ruleset);
     }
 }

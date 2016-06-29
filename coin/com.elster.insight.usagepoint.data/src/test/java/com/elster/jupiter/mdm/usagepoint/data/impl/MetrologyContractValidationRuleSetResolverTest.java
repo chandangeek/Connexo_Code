@@ -6,9 +6,9 @@ import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyContractChannelsContainer;
 import com.elster.jupiter.validation.ValidationRuleSet;
 
+import java.util.Collections;
 import java.util.List;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -24,12 +24,14 @@ public class MetrologyContractValidationRuleSetResolverTest {
     @Mock
     private UsagePointConfigurationService usagePointConfigurationService;
 
-    private MetrologyContractValidationRuleSetResolver testInstance(){
-        return new MetrologyContractValidationRuleSetResolver();
+    private MetrologyContractValidationRuleSetResolver testInstance() {
+        MetrologyContractValidationRuleSetResolver ruleSetResolver = new MetrologyContractValidationRuleSetResolver();
+        ruleSetResolver.setUsagePointConfigurationService(usagePointConfigurationService);
+        return ruleSetResolver;
     }
 
     @Test
-    public void testEmptyRuleSetsForSimpleChannelContainer(){
+    public void testEmptyRuleSetsForSimpleChannelContainer() {
         ChannelsContainer channelsContainer = mock(ChannelsContainer.class);
 
         List<ValidationRuleSet> validationRuleSets = testInstance().resolve(channelsContainer);
@@ -38,14 +40,15 @@ public class MetrologyContractValidationRuleSetResolverTest {
     }
 
     @Test
-    @Ignore
-    public void testCorrectRuleSetsForMetrologyContractChannelsContainer(){
+    public void testCorrectRuleSetsForMetrologyContractChannelsContainer() {
         MetrologyContract metrologyContract = mock(MetrologyContract.class);
         MetrologyContractChannelsContainer channelsContainer = mock(MetrologyContractChannelsContainer.class);
         when(channelsContainer.getMetrologyContract()).thenReturn(metrologyContract);
+        List<ValidationRuleSet> validationRuleSets = Collections.singletonList(mock(ValidationRuleSet.class));
+        when(usagePointConfigurationService.getValidationRuleSets(metrologyContract)).thenReturn(validationRuleSets);
 
-        List<ValidationRuleSet> validationRuleSets = testInstance().resolve(channelsContainer);
+        List<ValidationRuleSet> resolvedValidationRuleSets = testInstance().resolve(channelsContainer);
 
-        assertThat(validationRuleSets).isNotEmpty();
+        assertThat(resolvedValidationRuleSets).isNotEmpty();
     }
 }
