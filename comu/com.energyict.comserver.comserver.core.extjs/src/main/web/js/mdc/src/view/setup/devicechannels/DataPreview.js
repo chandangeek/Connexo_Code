@@ -6,7 +6,8 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
         'Mdc.view.setup.devicechannels.DataActionMenu',
         'Uni.form.field.IntervalFlagsDisplay',
         'Mdc.view.setup.devicechannels.ValidationPreview',
-        'Uni.form.field.EditedDisplay'
+        'Uni.form.field.EditedDisplay',
+        'Mdc.view.field.ReadingQualities'
     ],
     channelRecord: null,
     channels: null,
@@ -23,7 +24,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             router = me.router;
 
         me.setLoading();
-        record.refresh(router.arguments.mRID, router.arguments.channelId, function(){
+        record.refresh(router.arguments.mRID, router.arguments.channelId, function() {
             Ext.suspendLayouts();
             me.down('#general-panel').setTitle(title);
             me.down('#values-panel').setTitle(title);
@@ -45,12 +46,12 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                     if (record.get('channelValidationData')[channel.id]) {
                         mainValidationInfo = record.get('channelValidationData')[channel.id].mainValidationInfo;
                         bulkValidationInfo = record.get('channelValidationData')[channel.id].bulkValidationInfo;
-                        if (mainReadingQualitiesField) {
-                            me.setReadingQualities(mainReadingQualitiesField, mainValidationInfo);
-                        }
-                        if (bulkValidationInfo) {
-                            me.setReadingQualities(me.down('#bulkReadingQualities' + channel.id), bulkValidationInfo);
-                        }
+                        //if (mainReadingQualitiesField) {
+                        //    me.setReadingQualities(mainReadingQualitiesField, mainValidationInfo);
+                        //}
+                        //if (bulkValidationInfo) {
+                        //    me.setReadingQualities(me.down('#bulkReadingQualities' + channel.id), bulkValidationInfo);
+                        //}
                         if (me.down('#channelValue' + channel.id)) {
                             me.down('#channelValue' + channel.id).setValue(record.get('channelData')[channel.id]);
                         }
@@ -72,109 +73,15 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                 });
                 me.setGeneralReadingQualities(me.down('#generalReadingQualities'), me.up('deviceLoadProfilesData').loadProfile.get('validationInfo'));
             } else {
-                var mainReadingQualitiesField = me.down('#mainReadingQualities');
-                if (mainReadingQualitiesField) {
-                    me.setReadingQualities(mainReadingQualitiesField, record.get('mainValidationInfo'));
-                }
-                me.setReadingQualities(me.down('#bulkReadingQualities'), record.get('bulkValidationInfo'));
                 me.setGeneralReadingQualities(me.down('#generalReadingQualities'), record.get('readingQualities'));
                 me.down('#readingDataValidated').setValue(record.get('dataValidated'));
             }
 
             Ext.resumeLayouts(true);
             me.setLoading(false);
+
+            me.down('#values-panel').loadRecord(record);
         });
-    },
-
-    setReadingQualities: function (field, info) {
-        var me = this,
-            estimatedRule,
-            estimatedRuleName,
-            url;
-
-        if (!field || !info) {
-            return;
-        }
-        field.show();
-        if (info.isConfirmed) {
-            field.setValue(Uni.I18n.translate('general.confirmed', 'MDC', 'Confirmed'));
-        } else if (!Ext.isEmpty(info.validationRules)) {
-            me.setValidationRules(field, info.validationRules);
-        } else if (info.estimatedByRule) {
-            estimatedRule = info.estimatedByRule;
-            url = me.router.getRoute('administration/estimationrulesets/estimationruleset/rules/rule').buildUrl({ruleSetId: estimatedRule.ruleSetId, ruleId: estimatedRule.id});
-            estimatedRuleName = estimatedRule.deleted ? estimatedRule.name + ' ' + Uni.I18n.translate('device.registerData.removedRule', 'MDC', '(removed rule)') :
-                '<a href="' + url + '">' + estimatedRule.name + '</a>';
-            field.setValue(Uni.I18n.translate('deviceChannelData.estimatedAccordingTo', 'MDC', 'Estimated according to {0}',[estimatedRuleName], false));
-        } else {
-            field.hide();
-        }
-    },
-
-    setValidationRules: function (field, value) {
-        var str = '',
-            prop,
-            me = this,
-            failEqualDataValue,
-            intervalFlagsValue = '';
-
-        Ext.Array.each(value, function (rule) {
-            var application = rule.application
-                ? '<span class="application">'+ Uni.I18n.translate('general.application', 'MDC', '({0})', [rule.application.name]) + '</span>'
-                : '';
-            if (!Ext.isEmpty(rule.properties)) {
-                switch (rule.implementation) {
-                    case 'com.elster.jupiter.validators.impl.ThresholdValidator':
-                        prop = ' - ' + rule.properties[0].key.charAt(0).toUpperCase() + rule.properties[0].key.substring(1) + ': ' + rule.properties[0].propertyValueInfo.value + ', ' +
-                            rule.properties[1].key.charAt(0).toUpperCase() + rule.properties[1].key.substring(1) + ': ' + rule.properties[1].propertyValueInfo.value;
-                        break;
-                    case 'com.elster.jupiter.validators.impl.RegisterIncreaseValidator':
-                        if (rule.properties[0].propertyValueInfo.value) {
-                            failEqualDataValue = Uni.I18n.translate('general.yes', 'MDC', 'Yes');
-                        } else {
-                            failEqualDataValue = Uni.I18n.translate('general.no', 'MDC', 'No');
-                        }
-                        prop = ' - ' + Uni.I18n.translate('device.registerData.failEqualData', 'MDC', 'Fail equal data') + ': ' + failEqualDataValue;
-                        break;
-                    case 'com.elster.jupiter.validators.impl.IntervalStateValidator':
-                        Ext.Array.each(rule.properties[0].propertyValueInfo.value, function (idValue) {
-                            Ext.Array.each(rule.properties[0].propertyTypeInfo.predefinedPropertyValuesInfo.possibleValues, function (item) {
-                                if (idValue === item.id) {
-                                    intervalFlagsValue += item.name + ', ';
-                                }
-                            });
-                        });
-                        intervalFlagsValue = intervalFlagsValue.slice(0, -2);
-                        prop = ' - ' + Uni.I18n.translate('deviceloadprofiles.intervalFlags', 'MDC', 'Interval flags') + ': ' + intervalFlagsValue;
-                        break;
-                    default:
-                        prop = '';
-                        break;
-                }
-            } else {
-                prop = '';
-            }
-            if (rule.deleted) {
-                str += '<span style="word-wrap: break-word; display: inline-block; width: 800px">' + rule.name + ' ' + Uni.I18n.translate('device.registerData.removedRule', 'MDC', '(removed rule)') + prop + '</span>' + '&nbsp;' + application  + '<br>';
-            } else {
-                str = '<span style="word-wrap: break-word; display: inline-block; width: 800px">';
-
-                if (Cfg.privileges.Validation.canViewOrAdministrate()) {
-                    var url = me.router.getRoute('administration/rulesets/overview/versions/overview/rules').buildUrl({ruleSetId: rule.ruleSetVersion.ruleSet.id, versionId: rule.ruleSetVersion.id, ruleId: rule.id}).slice(1),
-                        appUrl = rule.application ? Uni.store.Apps.getAppUrl(rule.application.name) : null;
-
-                    if (Ext.isObject(appUrl)) {
-                        appUrl = null;
-                    }
-
-                    str += appUrl ? ('<a href="' + appUrl + url +  '">' + rule.name + '</a>') : rule.name;
-                } else {
-                    str += rule.name;
-                }
-                str += prop + '&nbsp;' + application + '</span><br>';
-            }
-        });
-        field.setValue(str);
     },
 
     setGeneralReadingQualities: function (field, value) {
@@ -440,11 +347,11 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                     ]
                 },
                 {
-                    xtype: 'displayfield',
+                    xtype: 'reading-qualities-field',
                     labelWidth: 200,
-                    fieldLabel: Uni.I18n.translate('devicechannelsreadings.readingqualities.title', 'MDC', 'Reading qualities'),
-                    itemId: calculatedReadingType ? 'mainReadingQualities' : 'bulkReadingQualities',
-                    htmlEncode: false
+                    name: 'mainValidationInfo',
+                    router: me.router,
+                    itemId: 'mainReadingQualities'
                 }
             );
             if (calculatedReadingType) {
@@ -470,11 +377,11 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                         ]
                     },
                     {
-                        xtype: 'displayfield',
+                        xtype: 'reading-qualities-field',
                         labelWidth: 200,
-                        fieldLabel: Uni.I18n.translate('devicechannelsreadings.readingqualities.title', 'MDC', 'Reading qualities'),
-                        itemId: 'bulkReadingQualities',
-                        htmlEncode: false
+                        name: 'bulkValidationInfo',
+                        router: me.router,
+                        itemId: 'bulkReadingQualities'
                     }
                 );
             }
@@ -516,6 +423,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                 }
             }
         ];
+
         me.callParent(arguments);
     }
 });
