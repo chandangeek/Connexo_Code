@@ -233,6 +233,13 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}", property = "shipmentDate")
+    public void createWithoutShipmentDateTest() {
+        inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "MyNameWithoutShipment", MRID, null);
+    }
+
+    @Test
+    @Transactional
     public void createWithSerialNumberTest() {
         String serialNumber = "MyTestSerialNumber";
 

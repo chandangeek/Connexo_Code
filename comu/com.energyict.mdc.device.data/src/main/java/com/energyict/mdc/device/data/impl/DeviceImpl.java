@@ -49,6 +49,7 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.TemporalReference;
 import com.elster.jupiter.orm.associations.Temporals;
@@ -152,8 +153,16 @@ import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+import javax.validation.Constraint;
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
+import javax.validation.Payload;
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Duration;
@@ -187,11 +196,13 @@ import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 import static com.elster.jupiter.util.streams.Functions.asStream;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import static java.util.stream.Collectors.toList;
 
 @LiteralSql
 @UniqueMrid(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_DEVICE_MRID + "}")
 @UniqueComTaskScheduling(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_COMTASK + "}")
+@DeviceImpl.HasValidShipmentDate(groups = {Save.Create.class})
 @ValidSecurityProperties(groups = {Save.Update.class})
 @ValidOverruledAttributes(groups = {Save.Update.class})
 public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDeviceForValidation {
@@ -324,15 +335,13 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         this.setDeviceTypeFromDeviceConfiguration();
         setName(name);
         this.setmRID(mRID);
-        if (startDate != null) {
-            this.koreHelper.setInitialMeterActivationStartDate(startDate);
-        }
+        this.koreHelper.setInitialMeterActivationStartDate(startDate);
         createLoadProfiles();
         createLogBooks();
         return this;
     }
 
-    boolean syncWithKore(SyncDeviceWithKoreMeter syncDeviceWithKore){
+    boolean syncWithKore(SyncDeviceWithKoreMeter syncDeviceWithKore) {
         return syncsWithKore.add(syncDeviceWithKore);
     }
 
@@ -373,7 +382,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         }
     }
 
-    void postSave(){
+    void postSave() {
         if (this.meter.isPresent()) {
             this.meter.get().setMRID(getmRID());
             this.meter.get().update();
@@ -405,11 +414,11 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         executeSyncs();
     }
 
-    void validateForUpdate(){
+    void validateForUpdate() {
         Save.UPDATE.save(dataModel, this);
     }
 
-    void executeSyncs(){
+    void executeSyncs() {
         // We order the synchronisation actions: first those which create a meter activation, followed
         // by those which reuse the last created meter activation (and just update it).
         syncsWithKore.stream().sorted(new CanUpdateMeterActivationLast()).forEach((x) -> x.syncWithKore(DeviceImpl.this));
@@ -1196,7 +1205,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 .setStateMachine(stateMachine)
                 .setSerialNumber(getSerialNumber())
                 .create();
-        newMeter.getLifecycleDates().setReceivedDate(this.clock.instant());
+        newMeter.getLifecycleDates().setReceivedDate(koreHelper.getInitialMeterActivationStartDate().get()); // date should be present
         newMeter.update();
         return newMeter;
     }
@@ -2123,7 +2132,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         readingTypeObisCodeUsages.add(readingTypeObisCodeUsage);
     }
 
-     void removeReadingTypeObisCodeUsage(ReadingType readingType) {
+    void removeReadingTypeObisCodeUsage(ReadingType readingType) {
         for (java.util.Iterator<ReadingTypeObisCodeUsageImpl> iterator = readingTypeObisCodeUsages.iterator(); iterator.hasNext(); ) {
             ReadingTypeObisCodeUsageImpl readingTypeObisCodeUsage = iterator.next();
             if (readingTypeObisCodeUsage.getReadingType().getMRID().equals(readingType.getMRID())) {
@@ -2617,6 +2626,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private class SyncDeviceWithKoreForInfo extends AbstractSyncDeviceWithKoreMeter {
 
         private Optional<MeterActivation> currentMeterActivation = null;
+        @IsPresent
         private Optional<Instant> initialMeterActivationStartDate = Optional.empty();
 
         public SyncDeviceWithKoreForInfo(MeteringService meteringService, MdcReadingTypeUtilService readingTypeUtilService) {
@@ -2628,7 +2638,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         }
 
         public void setInitialMeterActivationStartDate(Instant initialMeterActivationStartDate) {
-            this.initialMeterActivationStartDate = Optional.of(initialMeterActivationStartDate);
+            this.initialMeterActivationStartDate = Optional.ofNullable(initialMeterActivationStartDate);
         }
 
         @Override
@@ -2949,4 +2959,34 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         }
     }
 
+    @Target({java.lang.annotation.ElementType.TYPE, ElementType.FIELD})
+    @Retention(RUNTIME)
+    @Documented
+    @Constraint(validatedBy = {ShipmentDateValidator.class})
+    @interface HasValidShipmentDate {
+        String message() default "";
+
+        Class<?>[] groups() default {};
+
+        Class<? extends Payload>[] payload() default {};
+    }
+
+    private static class ShipmentDateValidator implements ConstraintValidator<HasValidShipmentDate, DeviceImpl> {
+
+        @Override
+        public void initialize(HasValidShipmentDate constraintAnnotation) {
+
+        }
+
+        @Override
+        public boolean isValid(DeviceImpl device, ConstraintValidatorContext context) {
+            if (!device.koreHelper.getInitialMeterActivationStartDate().isPresent()) {
+                context.disableDefaultConstraintViolation();
+                context.buildConstraintViolationWithTemplate("{" + MessageSeeds.FIELD_IS_REQUIRED.getKey() + "}")
+                        .addPropertyNode("shipmentDate").addConstraintViolation();
+                return false;
+            }
+            return true;
+        }
+    }
 }

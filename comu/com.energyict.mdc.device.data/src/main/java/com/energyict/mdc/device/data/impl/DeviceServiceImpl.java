@@ -201,7 +201,7 @@ public class DeviceServiceImpl implements ServerDeviceService {
 
     @Override
     public Device newDevice(DeviceConfiguration deviceConfiguration, String name, String mRID, String batch, Instant startDate) {
-        Device device = newDevice(deviceConfiguration, name, mRID, Instant.now());
+        Device device = newDevice(deviceConfiguration, name, mRID, startDate);
         this.deviceDataModelService.batchService().findOrCreateBatch(batch).addDevice(device);
         return device;
     }
