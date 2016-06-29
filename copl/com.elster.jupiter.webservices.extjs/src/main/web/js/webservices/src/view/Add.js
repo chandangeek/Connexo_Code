@@ -61,6 +61,7 @@ Ext.define('Wss.view.Add', {
                                 allowBlank: false,
                                 fieldLabel: Uni.I18n.translate('endPointAdd.Webservice', 'WSS', 'Webservice'),
                                 store: 'Wss.store.Webservices',
+                                forceSelection: true,
                                 displayField: 'name',
                                 valueField: 'name',
                                 listeners: {
@@ -215,6 +216,7 @@ Ext.define('Wss.view.Add', {
                 name: 'logLevel',
                 store: this.logLevelsStore,
                 displayField: 'localizedValue',
+                forceSelection: true,
                 queryMode: 'local',
                 valueField: 'id',
                 fieldLabel: Uni.I18n.translate('endPointAdd.logLevel', 'WSS', 'Log level'),
