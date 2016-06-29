@@ -136,7 +136,7 @@ public final class ConnectionTypePluggableClassImpl extends PluggableClassWrappe
 
     @Override
     public boolean isInstance (ConnectionType connectionType) {
-        return this.getJavaClassName().getClass().equals(connectionType.getClass().getName());
+        return this.getJavaClassName().equals(connectionType.getClass().getName());
     }
 
     @Override
