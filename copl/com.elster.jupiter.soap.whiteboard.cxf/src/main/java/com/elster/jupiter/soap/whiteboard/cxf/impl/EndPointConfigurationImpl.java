@@ -28,8 +28,8 @@ import java.util.Objects;
  * Created by bvn on 4/29/16.
  */
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_MUST_BE_UNIQUE + "}")
-@UniqueUrl(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_MUST_BE_UNIQUE + "}")
-@ValidTarceFileName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.INVALID_FILE_NAME + "}")
+@ValidTraceFileName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.INVALID_FILE_NAME + "}")
+@ValidUrl(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.INVALID_FILE_NAME + "}")
 public abstract class EndPointConfigurationImpl implements EndPointConfiguration {
     private final Clock clock;
 

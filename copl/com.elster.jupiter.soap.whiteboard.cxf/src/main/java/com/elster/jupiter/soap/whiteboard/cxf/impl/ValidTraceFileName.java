@@ -15,9 +15,9 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  */
 @Target({TYPE, ANNOTATION_TYPE})
 @Retention(RUNTIME)
-@Constraint(validatedBy = UniqueUrlValidator.class)
+@Constraint(validatedBy = TraceFileNameValidator.class)
 @Documented
-public @interface UniqueUrl {
+public @interface ValidTraceFileName {
     String message() default "";
 
     Class<?>[] groups() default {};

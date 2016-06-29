@@ -24,21 +24,22 @@ public class ValidCredentialsValidator implements ConstraintValidator<ValidCrede
 
     @Override
     public boolean isValid(OutboundEndPointConfigurationImpl endPointConfiguration, ConstraintValidatorContext context) {
+        boolean valid = true;
         if (EndPointAuthentication.BASIC_AUTHENTICATION.equals(endPointConfiguration.getAuthenticationMethod())) {
             if (Checks.is(endPointConfiguration.getUsername()).emptyOrOnlyWhiteSpace()) {
                 context.disableDefaultConstraintViolation();
                 context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
                         .addPropertyNode(EndPointConfigurationImpl.Fields.USERNAME.fieldName())
                         .addConstraintViolation();
-                return false;
+                valid = false;
             }
             if (Checks.is(endPointConfiguration.getPassword()).emptyOrOnlyWhiteSpace()) {
                 context.disableDefaultConstraintViolation();
                 context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
                         .addPropertyNode(EndPointConfigurationImpl.Fields.PASSWD.fieldName()).addConstraintViolation();
-                return false;
+                valid = false;
             }
         }
-        return true;
+        return valid;
     }
 }

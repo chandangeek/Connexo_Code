@@ -10,18 +10,14 @@ import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-/**
- * Created by bvn on 6/13/16.
- */
 @Target({TYPE, ANNOTATION_TYPE})
 @Retention(RUNTIME)
-@Constraint(validatedBy = TraceFileNameValidator.class)
+@Constraint(validatedBy = UrlValidator.class)
 @Documented
-public @interface ValidTarceFileName {
+public @interface ValidUrl {
     String message() default "";
 
     Class<?>[] groups() default {};
 
     Class<? extends Payload>[] payload() default {};
-
 }
