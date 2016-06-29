@@ -19,6 +19,7 @@ class MdmAppPrivileges {
                 //validation
                 com.elster.jupiter.validation.security.Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION,
                 com.elster.jupiter.validation.security.Privileges.Constants.VIEW_VALIDATION_CONFIGURATION,
+                com.elster.jupiter.validation.security.Privileges.Constants.VALIDATE_MANUAL,
 
                 //metrology configuration
                 com.elster.jupiter.metering.security.Privileges.Constants.ADMINISTER_METROLOGY_CONFIGURATION,
