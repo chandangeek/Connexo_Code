@@ -16,13 +16,11 @@ import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
-import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
-import com.elster.jupiter.metering.config.ReadingTypeDeliverableBuilder;
 import com.elster.jupiter.metering.config.ReadingTypeTemplate;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.config.DefaultReadingTypeTemplate;
@@ -34,8 +32,6 @@ import com.elster.jupiter.metering.readings.beans.EndDeviceEventImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.search.SearchablePropertyOperator;
-import com.elster.jupiter.search.SearchablePropertyValue;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -46,13 +42,10 @@ import org.osgi.service.component.annotations.Reference;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -714,47 +707,6 @@ public class MeteringConsoleCommands {
                     .orElseThrow(() -> new IllegalArgumentException("No such deliverable"));
             MetrologyContract contract = metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigId).get().addMetrologyContract(purpose);
             contract.removeDeliverable(deliverable);
-            context.commit();
-        }
-    }
-
-    /**
-     * Creates test configuration for CXO-1877
-     *
-     * @param suffix
-     */
-    public void addMetrologyConfigurationForValidation(String suffix) {
-        threadPrincipalService.set(() -> "Console");
-        try (TransactionContext context = transactionService.getContext()) {
-            MeterRole meterRole = metrologyConfigurationService.findMeterRole(DefaultMeterRole.MAIN.getKey()).get();
-            MetrologyPurpose metrologyPurpose = metrologyConfigurationService.createMetrologyPurpose(DefaultMetrologyPurpose.BILLING);
-            ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
-            serviceCategory.addMeterRole(meterRole);
-            UsagePointMetrologyConfiguration metrologyConfiguration = metrologyConfigurationService.newUsagePointMetrologyConfiguration("MC for validation " + suffix, serviceCategory)
-                    .create();
-            metrologyConfiguration.addMeterRole(meterRole);
-            MetrologyContract metrologyContract = metrologyConfiguration.addMandatoryMetrologyContract(metrologyPurpose);
-            FullySpecifiedReadingTypeRequirement aPlusReq = metrologyConfiguration.newReadingTypeRequirement("15min Bulk A+ Wh")
-                    .withMeterRole(meterRole)
-                    .withReadingType(meteringService.getReadingType("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0").get());
-            FullySpecifiedReadingTypeRequirement aMinusReq = metrologyConfiguration.newReadingTypeRequirement("15min Bulk A- Wh")
-                    .withMeterRole(meterRole)
-                    .withReadingType(meteringService.getReadingType("0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0").get());
-            ReadingTypeDeliverableBuilder deliverableBuilder = metrologyConfiguration.newReadingTypeDeliverable("15min Bulk A+ kWh", meteringService.getReadingType("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0")
-                    .get(), Formula.Mode.AUTO);
-            metrologyContract.addDeliverable(deliverableBuilder.build(deliverableBuilder.divide(deliverableBuilder.requirement(aPlusReq), deliverableBuilder.constant(new BigDecimal(1000)))));
-            deliverableBuilder = metrologyConfiguration.newReadingTypeDeliverable("15min Bulk A- kWh", meteringService.getReadingType("0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0")
-                    .get(), Formula.Mode.AUTO);
-            metrologyContract.addDeliverable(deliverableBuilder.build(deliverableBuilder.divide(deliverableBuilder.requirement(aMinusReq), deliverableBuilder.constant(new BigDecimal(1000)))));
-            SearchablePropertyValue.ValueBean valueBean = new SearchablePropertyValue.ValueBean();
-            valueBean.values = Collections.singletonList("ELECTRICITY");
-            valueBean.operator = SearchablePropertyOperator.EQUAL;
-            valueBean.propertyName = "SERVICEKIND";
-            metrologyConfiguration.addUsagePointRequirement(valueBean);
-            metrologyConfiguration.activate();
-            Instant installationTime = meteringService.getClock().instant().minus(1, ChronoUnit.DAYS);
-            UsagePoint usagePoint = serviceCategory.newUsagePoint("UP for validation " + suffix, installationTime).create();
-            usagePoint.apply(metrologyConfiguration, installationTime);
             context.commit();
         }
     }
