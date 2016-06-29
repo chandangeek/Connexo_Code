@@ -19,27 +19,22 @@ import com.google.inject.Module;
 
 import javax.validation.MessageInterpolator;
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-public class UsagePointContrElectrCPS implements CustomPropertySet<UsagePoint, UsagePointContrElectrDomExt> {
+class UsagePointContrElectrCPS implements CustomPropertySet<UsagePoint, UsagePointContrElectrDomExt> {
     public PropertySpecService propertySpecService;
     public Thesaurus thesaurus;
 
     public static final String TABLE_NAME = "RVK_CPS_USAGEPOINT_EL_CON";
-    public static final String FK_CPS_DEVICE_CONTR_ELECTRICITY = "FK_CPS_USAGEPOINT_EL_CON";
+    private static final String FK_CPS_DEVICE_CONTR_ELECTRICITY = "FK_CPS_USAGEPOINT_EL_CON";
     public static final String COMPONENT_NAME = "ELC";
 
-    public UsagePointContrElectrCPS() {
+    UsagePointContrElectrCPS(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super();
-    }
-
-    public UsagePointContrElectrCPS(PropertySpecService propertySpecService, Thesaurus thesaurus) {
-        this();
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
     }
@@ -89,13 +84,13 @@ public class UsagePointContrElectrCPS implements CustomPropertySet<UsagePoint, U
                 .specForValuesOf(new QuantityValueFactory())
                 .named(UsagePointContrElectrDomExt.Fields.CONTRACTED_POWER.javaName(), TranslationKeys.CPS_CUSTOM_CONTRACTUAL_CONTRACTED_POWER)
                 .fromThesaurus(this.getThesaurus())
-                .addValues(Quantity.create(new BigDecimal(0), 0, "W"),
-                        Quantity.create(new BigDecimal(0), 3, "W"),
-                        Quantity.create(new BigDecimal(0), 6, "W"),
-                        Quantity.create(new BigDecimal(0), 9, "W"),
-                        Quantity.create(new BigDecimal(0), 12, "W"))
+                .addValues(Quantity.create(BigDecimal.ZERO, 0, "W"),
+                        Quantity.create(BigDecimal.ZERO, 3, "W"),
+                        Quantity.create(BigDecimal.ZERO, 6, "W"),
+                        Quantity.create(BigDecimal.ZERO, 9, "W"),
+                        Quantity.create(BigDecimal.ZERO, 12, "W"))
                 .finish();
-        return Arrays.asList(contractedPowerSpec);
+        return Collections.singletonList(contractedPowerSpec);
     }
 
     private class UsagePointContractualPerSupp implements PersistenceSupport<UsagePoint, UsagePointContrElectrDomExt> {
@@ -106,7 +101,7 @@ public class UsagePointContrElectrCPS implements CustomPropertySet<UsagePoint, U
             return "Example";
         }
 
-        public UsagePointContractualPerSupp(Thesaurus thesaurus) {
+        UsagePointContractualPerSupp(Thesaurus thesaurus) {
             this.thesaurus = thesaurus;
         }
 

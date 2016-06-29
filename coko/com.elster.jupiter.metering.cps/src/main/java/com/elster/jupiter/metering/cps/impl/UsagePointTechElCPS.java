@@ -28,20 +28,16 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-public class UsagePointTechElCPS implements CustomPropertySet<UsagePoint, UsagePointTechElDomExt> {
+class UsagePointTechElCPS implements CustomPropertySet<UsagePoint, UsagePointTechElDomExt> {
 
     public static final String TABLE_NAME = "RVK_CPS_TECH_EL";
-    public static final String FK_CPS_DEVICE_ONE = "FK_CPS_TECH_EL";
+    private static final String FK_CPS_DEVICE_ONE = "FK_CPS_TECH_EL";
 
     public PropertySpecService propertySpecService;
     public Thesaurus thesaurus;
 
-    public UsagePointTechElCPS() {
+    UsagePointTechElCPS(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super();
-    }
-
-    public UsagePointTechElCPS(PropertySpecService propertySpecService, Thesaurus thesaurus) {
-        this();
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
     }
@@ -114,8 +110,8 @@ public class UsagePointTechElCPS implements CustomPropertySet<UsagePoint, UsageP
                 .named(UsagePointTechElDomExt.FieldNames.CABLE_LOCATION.javaName(), TranslationKeys.CPS_TECHNICAL_PROPERTIES_CABLE_LOCATION)
                 .describedAs(TranslationKeys.CPS_TECHNICAL_PROPERTIES_CABLE_LOCATION_DESCRIPTION)
                 .fromThesaurus(this.getThesaurus())
-                .addValues(Quantity.create(new BigDecimal(0), 0, "m"),
-                        Quantity.create(new BigDecimal(0), 3, "m"))
+                .addValues(Quantity.create(BigDecimal.ZERO, 0, "m"),
+                        Quantity.create(BigDecimal.ZERO, 3, "m"))
                 .finish();
 
         return Arrays.asList(
@@ -132,10 +128,9 @@ public class UsagePointTechElCPS implements CustomPropertySet<UsagePoint, UsageP
             return "Example";
         }
 
-        public UsagePointTechnicalElectricityPersistenceSupport(Thesaurus thesaurus) {
+        UsagePointTechnicalElectricityPersistenceSupport(Thesaurus thesaurus) {
             this.thesaurus = thesaurus;
         }
-
 
         @Override
         public String componentName() {
