@@ -165,6 +165,7 @@ public class CustomPropertySetServiceImplTest {
         when(this.customPropertySet.getPersistenceSupport()).thenReturn(this.persistenceSupport);
         when(this.customPropertySet.getDomainClass()).thenReturn(TestDomain.class);
         when(this.customPropertySetDataModel.addTable(TABLE_NAME, DomainExtensionForTestingPurposes.class)).thenReturn(this.table);
+        when(this.persistenceSupport.application()).thenReturn("Example");
         when(this.persistenceSupport.componentName()).thenReturn(CUSTOM_PROPERTY_SET_COMPONENT_ID);
         when(this.persistenceSupport.tableName()).thenReturn(TABLE_NAME);
         when(this.persistenceSupport.domainColumnName()).thenReturn(DOMAIN_COLUMN_NAME);
@@ -183,6 +184,7 @@ public class CustomPropertySetServiceImplTest {
         when(this.versionedCustomPropertySet.getPersistenceSupport()).thenReturn(this.versionedPersistenceSupport);
         when(this.versionedCustomPropertySetDataModel.addTable(VERSIONED_TABLE_NAME, VersionedDomainExtensionForTestingPurposes.class)).thenReturn(this.versionedTable);
         when(this.versionedTable.column(DOMAIN_COLUMN_NAME)).thenReturn(this.domainColumnBuilder);
+        when(this.versionedPersistenceSupport.application()).thenReturn("Example");
         when(this.versionedPersistenceSupport.componentName()).thenReturn(VERSIONED_CUSTOM_PROPERTY_SET_COMPONENT_ID);
         when(this.versionedPersistenceSupport.tableName()).thenReturn(VERSIONED_TABLE_NAME);
         when(this.versionedPersistenceSupport.domainColumnName()).thenReturn(DOMAIN_COLUMN_NAME);
