@@ -46,7 +46,7 @@ class DataExportTaskExecutor implements TaskExecutor {
     private final LocalFileWriter localFileWriter;
     private final Clock clock;
 
-    public DataExportTaskExecutor(IDataExportService dataExportService, TransactionService transactionService, LocalFileWriter localFileWriter, Thesaurus thesaurus, Clock clock) {
+    DataExportTaskExecutor(IDataExportService dataExportService, TransactionService transactionService, LocalFileWriter localFileWriter, Thesaurus thesaurus, Clock clock) {
         this.dataExportService = dataExportService;
         this.transactionService = transactionService;
         this.localFileWriter = localFileWriter;
@@ -56,7 +56,7 @@ class DataExportTaskExecutor implements TaskExecutor {
 
     @Override
     public void execute(TaskOccurrence occurrence) {
-        IDataExportOccurrence dataExportOccurrence = createOccurrence(occurrence);
+        createOccurrence(occurrence);
     }
 
     @Override
@@ -123,7 +123,7 @@ class DataExportTaskExecutor implements TaskExecutor {
         catchingUnexpected(() -> {
             FormattedData formattedData;
             if (task.hasDefaultSelector() && task.getReadingTypeDataSelector().isPresent()) {
-                formattedData = doProcessFromDefaultReadingSelector(dataFormatter, occurrence, data, itemExporter);
+                formattedData = doProcessFromDefaultReadingSelector(occurrence, data, itemExporter);
             } else {
                 formattedData = dataFormatter.processData(data);
             }
@@ -193,7 +193,7 @@ class DataExportTaskExecutor implements TaskExecutor {
         return dataExportService.getDataSelectorFactory(dataSelector).orElseThrow(() -> new NoSuchDataSelector(thesaurus, dataSelector));
     }
 
-    private FormattedData doProcessFromDefaultReadingSelector(DataFormatter dataFormatter, DataExportOccurrence occurrence, Stream<ExportData> exportDatas, ItemExporter itemExporter) {
+    private FormattedData doProcessFromDefaultReadingSelector(DataExportOccurrence occurrence, Stream<ExportData> exportDatas, ItemExporter itemExporter) {
         List<FormattedExportData> formattedDatas = exportDatas
                 .map(MeterReadingData.class::cast)
                 .flatMap(meterReadingData -> doProcess(occurrence, meterReadingData, itemExporter).stream())
@@ -211,7 +211,7 @@ class DataExportTaskExecutor implements TaskExecutor {
         }
     }
 
-    private static class ExceptionsToFatallyFailed implements Runnable {
+    private static final class ExceptionsToFatallyFailed implements Runnable {
 
         private final Runnable decorated;
 
@@ -231,7 +231,7 @@ class DataExportTaskExecutor implements TaskExecutor {
         }
     }
 
-    private class LoggingExceptions implements Runnable {
+    private final class LoggingExceptions implements Runnable {
 
         private final Runnable decorated;
         private final Logger logger;
@@ -261,7 +261,7 @@ class DataExportTaskExecutor implements TaskExecutor {
         private final Logger logger;
         private ItemExporter lazy;
 
-        public LazyItemExporter(DataFormatter dataFormatter, Logger logger) {
+        LazyItemExporter(DataFormatter dataFormatter, Logger logger) {
             this.dataFormatter = dataFormatter;
             this.logger = logger;
         }
@@ -282,10 +282,10 @@ class DataExportTaskExecutor implements TaskExecutor {
         }
     }
 
-    private class TagReplacerFactoryForOccurrence implements TagReplacerFactory {
+    private final class TagReplacerFactoryForOccurrence implements TagReplacerFactory {
         private final int sequenceNumber;
 
-        public TagReplacerFactoryForOccurrence(IDataExportOccurrence occurrence) {
+        TagReplacerFactoryForOccurrence(IDataExportOccurrence occurrence) {
             Instant startOfDay = ZonedDateTime.ofInstant(clock.instant(), clock.getZone()).with(ChronoField.MILLI_OF_DAY, 0L).toInstant();
             this.sequenceNumber = occurrence.nthSince(startOfDay);
         }
@@ -295,4 +295,5 @@ class DataExportTaskExecutor implements TaskExecutor {
             return TagReplacerImpl.asTagReplacer(clock, structureMarker, sequenceNumber);
         }
     }
+
 }
