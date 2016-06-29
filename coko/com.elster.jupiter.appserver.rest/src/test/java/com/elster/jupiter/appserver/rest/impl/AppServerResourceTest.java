@@ -6,6 +6,7 @@ import com.elster.jupiter.appserver.SubscriberExecutionSpec;
 import com.elster.jupiter.appserver.impl.ImportScheduleOnAppServerImpl;
 import com.elster.jupiter.appserver.impl.SubscriberExecutionSpecImpl;
 import com.elster.jupiter.devtools.tests.FakeBuilder;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.messaging.DestinationSpec;
@@ -15,19 +16,25 @@ import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
+import com.elster.jupiter.soap.whiteboard.cxf.WebService;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.cron.CronExpression;
 
+import com.jayway.jsonpath.JsonModel;
+import javassist.tools.web.Webserver;
+
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
+import java.io.InputStream;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -40,6 +47,8 @@ import org.mockito.stubbing.Answer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
@@ -360,6 +369,40 @@ public class AppServerResourceTest extends AppServerApplicationTest {
         verify(updatedAppServer, never()).dropEndPointSupport(epc2);
     }
 
+    @Test
+    public void testGetUnusedEndpoints() throws Exception {
+        AppServer appserver = mock(AppServer.class);
+        AppServer.BatchUpdate batchUpdate = mock(AppServer.BatchUpdate.class);
+        when(appserver.getName()).thenReturn("cxo");
+        when(appserver.isActive()).thenReturn(false);
+        when(appserver.forBatchUpdate()).thenReturn(batchUpdate);
+        when(appserver.getImportSchedulesOnAppServer()).thenReturn(Collections.emptyList());
+        when(appserver.getSubscriberExecutionSpecs()).thenReturn(Collections.emptyList());
+        CronExpression cronExpression = mock(CronExpression.class);
+        when(cronExpressionParser.parse(any(String.class))).thenReturn(Optional.of(cronExpression));
+        when(appService.findAppServer("cxo")).thenReturn(Optional.of(appserver));
+        when(dataExportService.getExportDirectory(appserver)).thenReturn(Optional.of(Paths.get("X")));
+        when(appserver.getImportDirectory()).thenReturn(Optional.of(Paths.get("X")));
+        EndPointConfiguration epc = mockEndpointConfiguration("cim");
+        when(epc.isInbound()).thenReturn(true);
+        EndPointConfiguration epc2 = mockEndpointConfiguration("cim2");
+        when(epc2.isInbound()).thenReturn(true);
+        List<EndPointConfiguration> list = new ArrayList<>();
+        list.add(epc);
+        list.add(epc2);
+        Finder<EndPointConfiguration> finder = mockFinder(list);
+        when(appserver.supportedEndPoints()).thenReturn(Collections.singletonList(epc));
+        when(endPointConfigurationService.findEndPointConfigurations()).thenReturn(finder);
+        WebService webService = mock(WebService.class);
+        when(webServicesService.getWebService(any())).thenReturn(Optional.of(webService));
+        Response response = target("/appserver/cxo/unusedendpoints").request().get();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        JsonModel jsonModel = JsonModel.model((InputStream) response.getEntity());
+
+        assertThat(jsonModel.<String>get("[0].name")).isEqualTo("cim2");
+        assertThat(jsonModel.hasPath("[1]")).isFalse();
+    }
+
     private EndPointConfiguration mockEndpointConfiguration(String endpointConfigurationName) {
         EndPointConfiguration endPointConfiguration = mock(EndPointConfiguration.class);
         when(endPointConfiguration.getName()).thenReturn(endpointConfigurationName);
@@ -456,5 +499,16 @@ public class AppServerResourceTest extends AppServerApplicationTest {
         Response response = target("/appserver").request().post(Entity.json(info));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    <T> Finder<T> mockFinder(List<T> list) {
+        Finder<T> finder = mock(Finder.class);
+
+        when(finder.paged(anyInt(), anyInt())).thenReturn(finder);
+        when(finder.sorted(anyString(), any(Boolean.class))).thenReturn(finder);
+        when(finder.from(any(com.elster.jupiter.domain.util.QueryParameters.class))).thenReturn(finder);
+        when(finder.find()).thenReturn(list);
+        when(finder.stream()).thenReturn(list.stream());
+        return finder;
     }
 }
