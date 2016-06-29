@@ -246,9 +246,15 @@ public class DeviceDataInfoFactory {
             readingInfo.validationResult = ValidationStatus.forResult(ValidationResult.getValidationResult(status.getReadingQualities()));
             readingInfo.suspectReason = validationRuleInfoFactory.createInfosForDataValidationStatus(status);
             readingInfo.estimatedByRule = estimationRuleInfoFactory.createEstimationRuleInfo(status.getReadingQualities());
-            Optional<? extends ReadingQuality> confirmedQuality = validationInfoFactory.getConfirmedQuality(reading.getActualReading(), status.getReadingQualities());
-            readingInfo.isConfirmed = confirmedQuality.isPresent();
-            readingInfo.confirmedInApp = confirmedQuality.map(ReadingQuality::getType).flatMap(ReadingQualityType::system).map(resourceHelper::getApplicationInfo).orElse(null);
+            List<? extends ReadingQuality> confirmedQualities = validationInfoFactory.getConfirmedQualities(reading.getActualReading(), status.getReadingQualities());
+            readingInfo.isConfirmed = !confirmedQualities.isEmpty();
+            readingInfo.confirmedInApp = confirmedQualities.stream()
+                    .map(ReadingQuality::getType)
+                    .map(ReadingQualityType::system)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .map(resourceHelper::getApplicationInfo)
+                    .collect(Collectors.toSet());
         });
     }
 

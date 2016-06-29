@@ -46,7 +46,7 @@ public class NumericalReadingInfo extends ReadingInfo {
     @JsonProperty("isConfirmed")
     public Boolean isConfirmed;
     @JsonProperty("confirmedInApp")
-    public IdWithNameInfo confirmedInApp;
+    public Set<IdWithNameInfo> confirmedInApp;
     @JsonProperty("multiplier")
     public BigDecimal multiplier;
     public NumericalReadingInfo() {}

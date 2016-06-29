@@ -239,9 +239,15 @@ public class ValidationInfoFactory {
 
     private void setVeeReadingValueInfo(VeeReadingValueInfo info, IntervalReadingRecord reading, Collection<? extends ReadingQuality> readingQualities) {
         info.valueModificationFlag = ReadingModificationFlag.getModificationFlag(reading, readingQualities);
-        Optional<? extends ReadingQuality> confirmedQuality = getConfirmedQuality(reading, readingQualities);
-        info.isConfirmed = confirmedQuality.isPresent();
-        info.confirmedInApp = confirmedQuality.map(ReadingQuality::getType).flatMap(ReadingQualityType::system).map(resourceHelper::getApplicationInfo).orElse(null);
+        List<? extends ReadingQuality> confirmedQualities = getConfirmedQualities(reading, readingQualities);
+        info.isConfirmed = !confirmedQualities.isEmpty();
+        info.confirmedInApp = confirmedQualities.stream()
+                .map(ReadingQuality::getType)
+                .map(ReadingQualityType::system)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(resourceHelper::getApplicationInfo)
+                .collect(Collectors.toSet());
     }
 
     private List<ReadingQualityInfo> getReadingQualities(IntervalReadingRecord intervalReadingRecord) {
@@ -311,14 +317,14 @@ public class ValidationInfoFactory {
     }
 
     boolean isConfirmedData(BaseReadingRecord reading, Collection<? extends ReadingQuality> qualities) {
-        return getConfirmedQuality(reading, qualities).isPresent();
+        return !getConfirmedQualities(reading, qualities).isEmpty();
     }
 
-    Optional<? extends ReadingQuality> getConfirmedQuality(BaseReadingRecord reading, Collection<? extends ReadingQuality> qualities) {
+    List<? extends ReadingQuality> getConfirmedQualities(BaseReadingRecord reading, Collection<? extends ReadingQuality> qualities) {
         if (reading != null && reading.confirmed()) {
-            return qualities.stream().filter(this::confirmedReadingQuality).findFirst();
+            return qualities.stream().filter(this::confirmedReadingQuality).collect(Collectors.toList());
         }
-        return Optional.empty();
+        return Collections.emptyList();
     }
 
     private boolean confirmedReadingQuality(ReadingQuality readingQuality) {

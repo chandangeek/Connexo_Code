@@ -65,6 +65,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -116,7 +117,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
     @Mock
     private EstimationRule estimationRule;
     @Mock
-    private ReadingQualityRecord quality1, quality2, quality3;
+    private ReadingQualityRecord quality1, quality2, quality3, quality4;
     /*    @Mock
         private ReadingQualityRecord quality2;*/
     @Mock
@@ -139,8 +140,8 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
     private ReadingQualityType readingQualityTypeAdded = new ReadingQualityType("3.7.1");
     private ReadingQualityType readingQualityTypeEdited = new ReadingQualityType("3.7.0");
     private ReadingQualityType readingQualityTypeRejected = new ReadingQualityType("3.7.3");
-    private ReadingQualityType readingQualityTypeConfirmed = new ReadingQualityType("3.10.1");
-    private ReadingQualityType readingQualityTypeValidated = new ReadingQualityType("3.0.1");
+    private ReadingQualityType readingQualityTypeConfirmedInMDC = new ReadingQualityType("2.10.1");
+    private ReadingQualityType readingQualityTypeConfirmedInMDM = new ReadingQualityType("3.10.1");
 
     @Before
     public void setUpStubs() {
@@ -239,15 +240,19 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         //add confirm quality
         dataValidationStatus.addBulkReadingQuality(quality3, Collections.emptyList());
         when(quality3.isConfirmed()).thenReturn(true);
-        when(quality3.getType()).thenReturn(readingQualityTypeConfirmed);
+        when(quality3.getType()).thenReturn(readingQualityTypeConfirmedInMDM);
+        dataValidationStatus.addBulkReadingQuality(quality4, Collections.emptyList());
+        when(quality4.isConfirmed()).thenReturn(true);
+        when(quality4.getType()).thenReturn(readingQualityTypeConfirmedInMDC);
+
 
         when(loadProfileReading.getChannelValidationStates()).thenReturn(ImmutableMap.of(channel, dataValidationStatus));
         when(addedloadProfileReading.getChannelValidationStates()).thenReturn(ImmutableMap.of(channel, dataValidationStatus));
-        DataValidationStatus statusForBulkEdited = mockDataValidationStatus(readingQualityTypeEdited, true);
+        DataValidationStatus statusForBulkEdited = mockDataValidationStatus(true, readingQualityTypeEdited);
         when(editedProfileReading.getChannelValidationStates()).thenReturn(ImmutableMap.of(channel, statusForBulkEdited));
-        DataValidationStatus statusForBulkConfirmed = mockDataValidationStatus(readingQualityTypeConfirmed, true);
+        DataValidationStatus statusForBulkConfirmed = mockDataValidationStatus(true, readingQualityTypeConfirmedInMDC, readingQualityTypeConfirmedInMDM);
         when(confirmedProfileReading.getChannelValidationStates()).thenReturn(ImmutableMap.of(channel, statusForBulkConfirmed));
-        DataValidationStatus statusForValueRemoved = mockDataValidationStatus(readingQualityTypeRejected, false);
+        DataValidationStatus statusForValueRemoved = mockDataValidationStatus(false, readingQualityTypeRejected);
         when(removedProfileReading.getChannelValidationStates()).thenReturn(ImmutableMap.of(channel, statusForValueRemoved));
 
         when(validationService.getEvaluator()).thenReturn(evaluator);
@@ -291,17 +296,21 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         return readingQuality;
     }
 
-    private DataValidationStatus mockDataValidationStatus(ReadingQualityType readingQualityType, boolean isBulk) {
+    private DataValidationStatus mockDataValidationStatus(boolean isBulk, ReadingQualityType... readingQualityTypes) {
         DataValidationStatus status = mock(DataValidationStatus.class);
-        ReadingQualityRecord readingQualityRecord = mock(ReadingQualityRecord.class);
-        when(readingQualityRecord.getType()).thenReturn(readingQualityType);
-        List<? extends ReadingQualityRecord> readingQualities = Arrays.asList(readingQualityRecord);
+        List<? extends ReadingQualityRecord> readingQualities = Arrays.asList(readingQualityTypes).stream().map(this::mockReadingQualityRecord).collect(Collectors.toList());
         if (isBulk) {
             doReturn(readingQualities).when(status).getBulkReadingQualities();
         } else {
             doReturn(readingQualities).when(status).getReadingQualities();
         }
         return status;
+    }
+
+    private ReadingQualityRecord mockReadingQualityRecord(ReadingQualityType readingQualityType) {
+        ReadingQualityRecord readingQualityRecord = mock(ReadingQualityRecord.class);
+        when(readingQualityRecord.getType()).thenReturn(readingQualityType);
+        return readingQualityRecord;
     }
 
     @Test
@@ -795,7 +804,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         assertThat(jsonModel.<Boolean>get("$.mainValidationInfo.isConfirmed")).isFalse();
         assertThat(jsonModel.<Boolean>get("$.bulkValidationInfo.isConfirmed")).isTrue();
-        assertThat(jsonModel.<String>get("$.bulkValidationInfo.confirmedInApp.id")).isEqualTo(QualityCodeSystem.MDM.name());
-        assertThat(jsonModel.<String>get("$.bulkValidationInfo.confirmedInApp.name")).isEqualTo("Insight");
+        assertThat(jsonModel.<List<String>>get("$.bulkValidationInfo.confirmedInApp[*].id")).contains(QualityCodeSystem.MDM.name(), QualityCodeSystem.MDC.name());
+        assertThat(jsonModel.<List<String>>get("$.bulkValidationInfo.confirmedInApp[*].name")).contains("Insight", "MultiSense");
     }
 }

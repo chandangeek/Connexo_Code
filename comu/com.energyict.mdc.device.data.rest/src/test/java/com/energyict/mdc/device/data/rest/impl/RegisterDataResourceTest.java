@@ -216,8 +216,8 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         assertThat(jsonModel.<String>get("$.data[1].estimatedByRule.application.id")).isEqualTo(QualityCodeSystem.MDC.name());
         assertThat(jsonModel.<String>get("$.data[1].estimatedByRule.application.name")).isEqualTo("MultiSense");
         assertThat(jsonModel.<Boolean>get("$.data[2].isConfirmed")).isEqualTo(true);
-        assertThat(jsonModel.<String>get("$.data[2].confirmedInApp.id")).isEqualTo(QualityCodeSystem.MDC.name());
-        assertThat(jsonModel.<String>get("$.data[2].confirmedInApp.name")).isEqualTo("MultiSense");
+        assertThat(jsonModel.<String>get("$.data[2].confirmedInApp[0].id")).isEqualTo(QualityCodeSystem.MDC.name());
+        assertThat(jsonModel.<String>get("$.data[2].confirmedInApp[0].name")).isEqualTo("MultiSense");
     }
 
     @Test
