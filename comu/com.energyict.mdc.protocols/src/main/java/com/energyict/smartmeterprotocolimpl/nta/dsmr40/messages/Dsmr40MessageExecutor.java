@@ -26,13 +26,14 @@ import com.energyict.dlms.cosem.Limiter;
 import com.energyict.dlms.cosem.ScriptTable;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.protocolimpl.generic.messages.ActivityCalendarMessage;
-import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 import com.energyict.protocolimpl.generic.messages.MessageHandler;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23MessageExecutor;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
@@ -77,9 +78,8 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
     protected void doFirmwareUpgrade(MessageHandler messageHandler, MessageEntry messageEntry) throws IOException {
         log(Level.INFO, "Handling message Firmware upgrade");
 
-        String firmwareContent = messageHandler.getFirmwareContent();
+        String path = messageHandler.getFirmwareFilePath();
 
-        byte[] imageData = GenericMessaging.b64DecodeAndUnZipToOriginalContent(firmwareContent);
         ImageTransfer it = getCosemObjectFactory().getImageTransfer();
         if (isResume(messageEntry)) {
             int lastTransferredBlockNumber = it.readFirstNotTransferedBlockNumber().intValue();
@@ -94,10 +94,13 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
         it.setPollingRetries(30);
         it.setDelayBeforeSendingBlocks(5000);
         String imageIdentifier = messageHandler.getImageIdentifier();
-        if (imageIdentifier != null && !imageIdentifier.isEmpty()) {
-            it.upgrade(imageData, false, imageIdentifier, false);
-        } else {
-            it.upgrade(imageData, false);
+
+        try (final RandomAccessFile file = new RandomAccessFile(new File(path), "r")) {
+            if (imageIdentifier != null && !imageIdentifier.isEmpty()) {
+                it.upgrade(new ImageTransfer.RandomAccessFileImageBlockSupplier(file), false, imageIdentifier, false);
+            } else {
+                it.upgrade(new ImageTransfer.RandomAccessFileImageBlockSupplier(file), false, ImageTransfer.DEFAULT_IMAGE_NAME, false);
+            }
         }
         if ("".equalsIgnoreCase(messageHandler.getActivationDate())) { // Do an execute now
             try {

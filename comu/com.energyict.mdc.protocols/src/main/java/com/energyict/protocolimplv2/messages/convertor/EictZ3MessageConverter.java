@@ -2,9 +2,7 @@ package com.energyict.protocolimplv2.messages.convertor;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.HexString;
-import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ConnectControlModeMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ConnectLoadWithActivationDateMessageEntry;
@@ -46,8 +44,7 @@ public class EictZ3MessageConverter extends AbstractMessageConverter {
             HexString hex = (HexString) messageAttribute;
             return hex.getContent();
         } else if (propertySpec.getName().equals(firmwareUpdateFileAttributeName)) {
-            FirmwareVersion firmwareVersion = ((FirmwareVersion) messageAttribute);
-            return GenericMessaging.zipAndB64EncodeContent(firmwareVersion.getFirmwareFile());  //Bytes of the firmwareFile as string
+            return messageAttribute.toString();     //This is the path of the temp file representing the FirmwareVersion
         }
         return EMPTY_FORMAT;
     }

@@ -97,7 +97,7 @@ public class ActarisSL7000MessageConverterTest extends AbstractMessageConverterT
                     return 4;
                 case DeviceMessageConstants.activityCalendarNameAttributeName:
                     return "MyActivityCal";
-                case DeviceMessageConstants.activityCalendarCodeTableAttributeName:
+                case DeviceMessageConstants.activityCalendarAttributeName:
                     Code code = mock(Code.class);
                     when(code.getId()).thenReturn(8);
                     return code;

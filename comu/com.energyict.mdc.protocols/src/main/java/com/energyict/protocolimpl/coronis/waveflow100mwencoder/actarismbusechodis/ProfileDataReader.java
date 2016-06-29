@@ -1,11 +1,12 @@
 package com.energyict.protocolimpl.coronis.waveflow100mwencoder.actarismbusechodis;
 
+import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.IntervalValue;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
-import com.energyict.mdc.protocol.api.UnsupportedException;
+
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.ActarisMBusInternalData;
 import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.EncoderDataloggingTable;
@@ -103,7 +104,7 @@ public class ProfileDataReader {
                     bd = new BigDecimal(readings[index]);
                     bd = bd.movePointLeft(encoderDataloggingTable.getEncoderGenericHeader().getEncoderUnitInfos()[portId].getNrOfDigitsBeforeDecimalPoint());
                 } else {
-                    bd = new BigDecimal(0);
+                    bd = BigDecimal.ZERO;
                 }
                 List<IntervalValue> intervalValues = new ArrayList<IntervalValue>();
                 intervalValues.add(new IntervalValue(bd, 0, 0));
@@ -121,7 +122,7 @@ public class ProfileDataReader {
                     bdA = new BigDecimal(encoderDataloggingTable.getEncoderReadingsPortA()[index]);
                     bdA = bdA.movePointLeft(encoderDataloggingTable.getEncoderGenericHeader().getEncoderUnitInfos()[0].getNrOfDigitsBeforeDecimalPoint());
                 } else {
-                    bdA = new BigDecimal(0);
+                    bdA = BigDecimal.ZERO;
                 }
 
                 BigDecimal bdB = null;
@@ -129,7 +130,7 @@ public class ProfileDataReader {
                     bdB = new BigDecimal(encoderDataloggingTable.getEncoderReadingsPortB()[index]);
                     bdB = bdB.movePointLeft(encoderDataloggingTable.getEncoderGenericHeader().getEncoderUnitInfos()[1].getNrOfDigitsBeforeDecimalPoint());
                 } else {
-                    bdB = new BigDecimal(0);
+                    bdB = BigDecimal.ZERO;
                 }
                 List<IntervalValue> intervalValues = new ArrayList<IntervalValue>();
                 intervalValues.add(new IntervalValue(bdA, 0, 0));

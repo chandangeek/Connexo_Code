@@ -25,6 +25,14 @@ import com.energyict.dlms.cosem.DataAccessResultCode;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.SecuritySetup;
+import com.energyict.mdc.common.ApplicationException;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.device.data.MessageEntry;
+import com.energyict.mdc.protocol.api.device.data.MessageResult;
+import com.energyict.protocols.util.TempFileLoader;
+import com.energyict.mdc.protocol.api.messaging.MessageAttribute;
+import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
+import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimpl.dlms.g3.G3Clock;
@@ -363,7 +371,10 @@ public class G3Messaging extends AnnotatedMessaging {
         }
 
         this.session.getLogger().info("Sending firmware upgrade message");
-        byte[] firmwareBytes = new Base64EncoderDecoder().decode(splitContent2[0]);
+        String path = splitContent2[0];
+
+        String base64EncodedImage = new String(TempFileLoader.loadTempFile(path));
+        byte[] firmwareBytes = new Base64EncoderDecoder().decode(base64EncodedImage);
         ImageTransfer imageTransfer = this.session.getCosemObjectFactory().getImageTransfer(imageTransferObisCode);
         imageTransfer.setUsePollingVerifyAndActivate(true);         //Use polling to check the result of the image verification
         if (resume) {

@@ -1,13 +1,10 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.protocol.api.DeviceMessageFile;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-import com.energyict.protocols.messaging.DeviceMessageFileZipAndB64Encode;
 
-import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.WebRTUFirmwareUpgradeWithUserFileActivationDateMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.WebRTUFirmwareUpgradeWithUserFileMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.XmlConfigMessageEntry;
@@ -41,16 +38,13 @@ public class UkHubMessageConverter extends AbstractMessageConverter {
             case DeviceMessageConstants.firmwareUpdateActivationDateAttributeName:
             case DeviceMessageConstants.ZigBeeConfigurationActivationDateAttributeName:
                 return europeanDateTimeFormat.format((Date) messageAttribute);
-            case DeviceMessageConstants.UserFileConfigAttributeName:
             case DeviceMessageConstants.firmwareUpdateFileAttributeName:
             case DeviceMessageConstants.ZigBeeConfigurationFirmwareUpdateUserFileAttributeName:
-                FirmwareVersion firmwareVersion = ((FirmwareVersion) messageAttribute);
-                return GenericMessaging.zipAndB64EncodeContent(firmwareVersion.getFirmwareFile());  //Bytes of the firmwareFile as string
+                return messageAttribute.toString();     //This is the path of the temp file representing the FirmwareVersion
+            case DeviceMessageConstants.UserFileConfigAttributeName:
             case DeviceMessageConstants.ZigBeeConfigurationHANRestoreUserFileAttributeName: {
                 DeviceMessageFile deviceMessageFile = (DeviceMessageFile) messageAttribute;
-                DeviceMessageFileZipAndB64Encode consumer = new DeviceMessageFileZipAndB64Encode();
-                deviceMessageFile.readWith(consumer);
-                return consumer.getZippedAndB64Encoded();
+                return String.valueOf(deviceMessageFile.getId());
             }
             default:
                 return messageAttribute.toString();

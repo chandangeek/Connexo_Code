@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.dlms.idis;
 
+import com.energyict.dlms.axrdencoding.*;
 import com.elster.jupiter.calendar.CalendarService;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.io.CommunicationException;
@@ -27,18 +28,15 @@ import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.Data;
-import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.dlms.cosem.GenericInvoke;
-import com.energyict.dlms.cosem.GenericWrite;
-import com.energyict.dlms.cosem.ImageTransfer;
-import com.energyict.dlms.cosem.Limiter;
-import com.energyict.dlms.cosem.MBusClient;
-import com.energyict.dlms.cosem.ProfileGeneric;
-import com.energyict.dlms.cosem.RegisterMonitor;
-import com.energyict.dlms.cosem.SingleActionSchedule;
+import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.io.CommunicationException;
+import com.energyict.mdc.protocol.api.MessageProtocol;
+import com.energyict.mdc.protocol.api.device.data.MessageEntry;
+import com.energyict.mdc.protocol.api.device.data.MessageResult;
+import com.energyict.protocols.util.TempFileLoader;
+import com.energyict.mdc.protocol.api.messaging.*;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimpl.dlms.common.DLMSActivityCalendarController;
@@ -52,11 +50,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Level;
 
 /**
@@ -285,9 +279,11 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
             resume = false;
         }
 
-        String imageData = getIncludedContent(messageEntry.getContent());
+        String path = getIncludedContent(messageEntry.getContent());
+        String base64EncodedImage = new String(TempFileLoader.loadTempFile(path));
+
         Base64EncoderDecoder decoder = new Base64EncoderDecoder();
-        byte[] binaryImage = decoder.decode(imageData);
+        byte[] binaryImage = decoder.decode(base64EncodedImage);
         String firmwareIdentifier;
         int length = binaryImage[0];
         firmwareIdentifier = new String(ProtocolTools.getSubArray(binaryImage, 1, 1 + length));   //The image_identifier is included in the header of the bin file

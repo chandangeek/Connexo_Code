@@ -200,7 +200,7 @@ public class SDKDeviceProtocolTestWithAllProperties extends SDKDeviceProtocol {
                         .finish());
         optionalProperties.add(
                 this.propertySpecService
-                        .boundedBigDecimalSpec(new BigDecimal(2), new BigDecimal(10))
+                        .boundedBigDecimalSpec(new BigDecimal(2), BigDecimal.TEN)
                         .named(SDKTranslationKeys.SDKBOUNDEDDECIMAL)
                         .fromThesaurus(this.getThesaurus())
                         .finish());
