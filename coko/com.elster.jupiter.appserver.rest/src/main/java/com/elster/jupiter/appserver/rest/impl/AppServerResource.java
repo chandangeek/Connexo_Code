@@ -475,13 +475,13 @@ public class AppServerResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/{appserverName}/unusedendpoints")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_APPSEVER)
-    public Response getEndPointsOnAppServer(@PathParam("appserverName") String appServerName) {
+    public Response getEndPointsOnAppServer(@PathParam("appserverName") String appServerName, @Context UriInfo uriInfo) {
         List<EndPointConfiguration> available = endPointConfigurationService.findEndPointConfigurations().stream()
                 .filter(EndPointConfiguration::isInbound)
                 .collect(Collectors.toList());
-        available.removeAll(getEndpointsOnAppServer(appServerName));
+        available.removeAll(fetchAppServer(appServerName).supportedEndPoints());
         List<EndPointConfigurationInfo> infos = available.stream()
-                .map(endPointConfigurationInfoFactory::from)
+                .map(epc -> endPointConfigurationInfoFactory.from(epc, uriInfo))
                 .collect(Collectors.toList());
 
         return Response.ok(infos).build();
@@ -501,14 +501,6 @@ public class AppServerResource {
                 .stream()
                 .map(ImportScheduleOnAppServer::getImportSchedule)
                 .flatMap(Functions.asStream())
-                .collect(toList());
-    }
-
-    private List<EndPointConfiguration> getEndpointsOnAppServer(String appServerName){
-        return appService.findAppServer(appServerName)
-                .map(AppServer::supportedEndPoints)
-                .orElseGet(Collections::emptyList)
-                .stream()
                 .collect(toList());
     }
 

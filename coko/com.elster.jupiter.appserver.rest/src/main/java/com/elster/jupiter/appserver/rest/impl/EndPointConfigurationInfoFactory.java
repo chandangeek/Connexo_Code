@@ -6,6 +6,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 
 import javax.inject.Inject;
+import javax.ws.rs.core.UriInfo;
 
 public class EndPointConfigurationInfoFactory {
     Thesaurus thesaurus;
@@ -17,21 +18,15 @@ public class EndPointConfigurationInfoFactory {
         this.webServicesService = webServicesService;
     }
 
-    public EndPointConfigurationInfo summary(EndPointConfiguration endPointConfiguration) {
-        EndPointConfigurationInfo info = new EndPointConfigurationInfo();
-        info.id = endPointConfiguration.getId();
-        info.name = endPointConfiguration.getName();
-        info.webServiceName = endPointConfiguration.getWebServiceName();
-        info.active = endPointConfiguration.isActive();
-        return info;
-    }
-
-    public EndPointConfigurationInfo from(EndPointConfiguration endPointConfiguration) {
+    public EndPointConfigurationInfo from(EndPointConfiguration endPointConfiguration, UriInfo uriInfo) {
         EndPointConfigurationInfo info = new EndPointConfigurationInfo();
         info.id = endPointConfiguration.getId();
         info.name = endPointConfiguration.getName();
         info.version = endPointConfiguration.getVersion();
         info.url = endPointConfiguration.getUrl();
+        info.previewUrl = uriInfo.getBaseUriBuilder()
+                .path("/soap") // don't want to hardcode this.
+                .path(endPointConfiguration.getUrl()).build();
         info.active = endPointConfiguration.isActive();
         info.available = webServicesService.getWebService(endPointConfiguration.getWebServiceName()).isPresent();
         info.webServiceName = endPointConfiguration.getWebServiceName();
