@@ -23,21 +23,4 @@ public enum QualityCodeSystem {
                         .findAny()
                         .orElse(OTHER);
     }
-
-    public static QualityCodeSystem ofApplication(String applicationName) {
-        // TODO: bad architecture; somehow need to move such a mapper out of kore
-        if(applicationName == null) {
-            return NOTAPPLICABLE;
-        }
-        switch(applicationName) {
-            case "MDC":
-                return MDC;
-            case "INS":
-                return MDM;
-            case "":
-                return NOTAPPLICABLE;
-            default:
-                return OTHER;
-        }
-    }
 }
