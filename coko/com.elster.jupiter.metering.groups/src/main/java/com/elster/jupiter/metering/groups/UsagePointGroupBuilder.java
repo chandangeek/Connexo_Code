@@ -3,14 +3,18 @@ package com.elster.jupiter.metering.groups;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.util.conditions.Condition;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.time.Instant;
 
+@ProviderType
 public interface UsagePointGroupBuilder {
 
     EnumeratedUsagePointGroupBuilder enumerated();
 
     QueryUsagePointGroupBuilder withConditions(Condition... conditions);
 
+    @ProviderType
     interface EnumeratedUsagePointGroupBuilder {
         EnumeratedUsagePointGroup create();
 
@@ -24,6 +28,7 @@ public interface UsagePointGroupBuilder {
         EnumeratedUsagePointGroupBuilder setType(String type);
     }
 
+    @ProviderType
     interface QueryUsagePointGroupBuilder {
         QueryUsagePointGroup create();
 
@@ -35,5 +40,5 @@ public interface UsagePointGroupBuilder {
         QueryUsagePointGroupBuilder setAliasName(String aliasName);
         QueryUsagePointGroupBuilder setType(String type);
     }
-}
 
+}
