@@ -180,8 +180,8 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
 
     @Override
     public void setUrl(String url) {
-        if (url != null && !url.startsWith(File.pathSeparator)) {
-            this.url = File.pathSeparator + url;
+        if (url != null && !url.startsWith(File.separator)) {
+            this.url = File.separator + url;
         } else {
             this.url = url;
         }
