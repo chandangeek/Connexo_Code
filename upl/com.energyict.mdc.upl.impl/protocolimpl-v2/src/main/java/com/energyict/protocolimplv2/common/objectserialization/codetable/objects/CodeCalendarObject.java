@@ -15,15 +15,7 @@ import java.util.Date;
  */
 public class CodeCalendarObject implements Serializable {
 
-    private int codeId;
-    private String dayTypeName;
-    private int year;
-    private int month;
-    private int day;
-    private int dayOfWeek;
-    private int seasonId;
-
-    private static final Calendar[] HOLIDAYS = new Calendar[] {
+    private static final Calendar[] HOLIDAYS = new Calendar[]{
             ProtocolTools.createCalendar(2000, 1, 1),
             ProtocolTools.createCalendar(2000, 1, 6),
             null, // Easter monday has no fixed date!
@@ -36,6 +28,13 @@ public class CodeCalendarObject implements Serializable {
             ProtocolTools.createCalendar(2000, 12, 25),
             ProtocolTools.createCalendar(2000, 12, 26)
     };
+    private int codeId;
+    private String dayTypeName;
+    private int year;
+    private int month;
+    private int day;
+    private int dayOfWeek;
+    private int seasonId;
 
     public static CodeCalendarObject fromCodeCalendar(CodeCalendar codeCalendar) {
         CodeCalendarObject cc = new CodeCalendarObject();
@@ -191,8 +190,7 @@ public class CodeCalendarObject implements Serializable {
             same &= (this.year == that.year);
             same &= (this.month == that.month);
             same &= (this.day == that.day);
-            same &= that.dayTypeName.startsWith(this.dayTypeName.substring(0, 2));
-            same &= that.dayTypeName.startsWith(this.dayTypeName.substring(3, dayTypeName.length()-1), 3);
+            same &= that.dayTypeName.equals(this.dayTypeName);
             return same;
         }
         return false;

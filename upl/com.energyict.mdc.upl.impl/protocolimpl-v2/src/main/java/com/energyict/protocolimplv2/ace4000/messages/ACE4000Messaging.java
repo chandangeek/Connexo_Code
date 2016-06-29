@@ -14,7 +14,7 @@ import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.ace4000.ACE4000MessageExecutor;
 import com.energyict.protocolimplv2.ace4000.ACE4000Outbound;
-import com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.CodeTableBase64Builder;
+import com.energyict.protocolimplv2.common.objectserialization.codetable.CodeTableBase64Builder;
 import com.energyict.protocolimplv2.messages.*;
 
 import java.text.SimpleDateFormat;
@@ -99,7 +99,7 @@ public class ACE4000Messaging implements DeviceMessageSupport {
             return String.valueOf(((Date) messageAttribute).getTime());
         } else if (propertySpec.getName().equals(CODE_TABLE_ID)) {
             Environment.getDefault();
-            Code codeTable = mw().getCodeFactory().find((Integer) messageAttribute);
+            Code codeTable = mw().getCodeFactory().find(Integer.valueOf(messageAttribute.toString()));
             return CodeTableBase64Builder.getXmlStringFromCodeTable(codeTable);
         } else {
             return messageAttribute.toString();     //Works for BigDecimal, boolean and (hex)string property specs
