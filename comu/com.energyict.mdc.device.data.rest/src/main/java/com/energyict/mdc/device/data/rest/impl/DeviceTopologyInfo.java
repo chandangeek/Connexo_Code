@@ -1,9 +1,12 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.TopologyTimeline;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
@@ -16,13 +19,14 @@ public class DeviceTopologyInfo {
     public String mRID;
     public String deviceTypeName;
     public String deviceConfigurationName;
+    public Long linkingTimeStamp;
     public String serialNumber;
     public long creationTime;
 
-    public static List<DeviceTopologyInfo> from(TopologyTimeline timeline) {
+    public static List<DeviceTopologyInfo> from(TopologyTimeline timeline, TopologyService topologyService, Clock clock) {
         return timeline.getAllDevices().stream()
                 .sorted(new DeviceRecentlyAddedComporator(timeline))
-                .map(d -> from(d, timeline.mostRecentlyAddedOn(d)))
+                .map(d -> from(d, timeline.mostRecentlyAddedOn(d), topologyService, clock))
                 .collect(Collectors.toList());
     }
 
@@ -30,7 +34,7 @@ public class DeviceTopologyInfo {
         return devices.stream().map(DeviceTopologyInfo::from).collect(Collectors.toList());
     }
 
-    public static DeviceTopologyInfo from(Device device, Optional<Instant> addTime) {
+    public static DeviceTopologyInfo from(Device device, Optional<Instant> addTime, TopologyService topologyService, Clock clock) {
         DeviceTopologyInfo info = new DeviceTopologyInfo();
         info.id =device.getId();
         info.mRID = device.getmRID();
@@ -38,6 +42,9 @@ public class DeviceTopologyInfo {
         info.deviceConfigurationName = device.getDeviceConfiguration().getName();
         info.serialNumber = device.getSerialNumber();
         info.creationTime = addTime.orElse(Instant.EPOCH).toEpochMilli();
+        info.linkingTimeStamp = topologyService.findCurrentDataloggerReference(device, clock.instant())
+                .map(dataLoggerReference -> dataLoggerReference.getRange().lowerEndpoint().toEpochMilli())
+                .orElse(null);
         return info;
     }
 

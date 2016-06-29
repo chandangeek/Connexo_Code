@@ -41,6 +41,7 @@ import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
@@ -1035,7 +1036,7 @@ public class ResourceHelper {
 
     public List<DeviceTopologyInfo> getDataLoggerSlaves(Device device){
         List<Device> slaves = topologyService.findDataLoggerSlaves(device);
-        return slaves.stream().map((slave) -> DeviceTopologyInfo.from(slave, Optional.of(slave.getCreateTime()))).collect(Collectors.toList());
+        return slaves.stream().map((slave) -> DeviceTopologyInfo.from(slave, Optional.of(slave.getCreateTime()), topologyService, clock)).collect(Collectors.toList());
     }
 
 }

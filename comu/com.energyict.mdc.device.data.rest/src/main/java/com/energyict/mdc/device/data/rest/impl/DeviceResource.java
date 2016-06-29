@@ -63,6 +63,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
+import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -124,6 +125,7 @@ public class DeviceResource {
     private final CalendarInfoFactory calendarInfoFactory;
     private final TimeOfUseInfoFactory timeOfUseInfoFactory;
     private final CalendarService calendarService;
+    private final Clock clock;
 
     @Inject
     public DeviceResource(
@@ -163,7 +165,7 @@ public class DeviceResource {
             ServiceCallService serviceCallService,
             CalendarInfoFactory calendarInfoFactory,
             TimeOfUseInfoFactory timeOfUseInfoFactory,
-            CalendarService calendarService) {
+            CalendarService calendarService, Clock clock) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.deviceService = deviceService;
@@ -201,6 +203,7 @@ public class DeviceResource {
         this.calendarInfoFactory = calendarInfoFactory;
         this.timeOfUseInfoFactory = timeOfUseInfoFactory;
         this.calendarService = calendarService;
+        this.clock = clock;
     }
 
     @GET @Transactional
@@ -409,7 +412,7 @@ public class DeviceResource {
     private List<DeviceTopologyInfo> getSlaveDevicesForDevice(Device device) {
         List<DeviceTopologyInfo> slaves;
         if (GatewayType.LOCAL_AREA_NETWORK.equals(device.getConfigurationGatewayType())) {
-            slaves = DeviceTopologyInfo.from(topologyService.getPhysicalTopologyTimelineAdditions(device, RECENTLY_ADDED_COUNT));
+            slaves = DeviceTopologyInfo.from(topologyService.getPhysicalTopologyTimelineAdditions(device, RECENTLY_ADDED_COUNT), topologyService, clock);
         } else {
             slaves = DeviceTopologyInfo.from(topologyService.findPhysicalConnectedDevices(device));
         }
@@ -832,7 +835,7 @@ public class DeviceResource {
         if (queryParameters.getLimit().isPresent() && queryParameters.getLimit().get() > 0) {
             stream = stream.limit(queryParameters.getLimit().get() + 1);
         }
-        List<DeviceTopologyInfo> topologyList = stream.map(d -> DeviceTopologyInfo.from(d, timeline.mostRecentlyAddedOn(d))).collect(Collectors.toList());
+        List<DeviceTopologyInfo> topologyList = stream.map(d -> DeviceTopologyInfo.from(d, timeline.mostRecentlyAddedOn(d), topologyService, clock)).collect(Collectors.toList());
         return PagedInfoList.fromPagedList("slaveDevices", topologyList, queryParameters);
     }
 

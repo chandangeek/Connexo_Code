@@ -3,11 +3,12 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.topology.TopologyService;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.time.temporal.ChronoField;
 import java.util.Optional;
 
 import org.junit.Test;
@@ -38,6 +39,10 @@ public class DeviceTopologyInfoTest {
     private DeviceType deviceType;
     @Mock
     private Device device;
+    @Mock
+    private TopologyService topologyService;
+    @Mock
+    private Clock clock;
 
     @Test
     public void testFromDevice(){
@@ -52,7 +57,7 @@ public class DeviceTopologyInfoTest {
 
         Instant initialTimestamp = LocalDateTime.of(2014, 12, 1, 12, 0).toInstant(ZoneOffset.UTC);
 
-        DeviceTopologyInfo info = DeviceTopologyInfo.from(device, Optional.of(initialTimestamp));
+        DeviceTopologyInfo info = DeviceTopologyInfo.from(device, Optional.of(initialTimestamp), topologyService, clock);
 
         assertThat(info.id).isEqualTo(DEVICE_ID);
         assertThat(info.mRID).isEqualTo(DEVICE_MRID);
