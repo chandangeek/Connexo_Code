@@ -6,6 +6,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
@@ -22,6 +23,7 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
@@ -31,6 +33,7 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -286,6 +289,15 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
     }
 
     @Override
+    public List<Meter> validationEnabledMetersIn(List<String> meterMrids) {
+        Condition isActive = ListOperator.IN.contains("meter.mRID", meterMrids).and(where("isActive").isEqualTo(true));
+        QueryExecutor<MeterValidationImpl> query = dataModel.query(MeterValidationImpl.class, EndDevice.class);
+        return query.select(isActive).stream()
+                .map(MeterValidationImpl::getMeter)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public boolean validationOnStorageEnabled(Meter meter) {
         return getMeterValidation(meter).filter(MeterValidationImpl::getValidateOnStorage).isPresent();
     }
@@ -371,13 +383,13 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
     }
 
     public void validate(MeterActivation meterActivation, Map<Channel, Range<Instant>> ranges) {
-            MeterActivationValidationContainer container = updatedMeterActivationValidationsFor(meterActivation);
-            container.moveLastCheckedBefore(ranges);
-            if (isValidationActiveOnStorage(meterActivation)) {
-                container.validate();
-            } else {
-                container.update();
-            }
+        MeterActivationValidationContainer container = updatedMeterActivationValidationsFor(meterActivation);
+        container.moveLastCheckedBefore(ranges);
+        if (isValidationActiveOnStorage(meterActivation)) {
+            container.validate();
+        } else {
+            container.update();
+        }
     }
 
     private boolean isValidationActive(MeterActivation meterActivation) {
@@ -406,7 +418,7 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
                 .map(r -> Pair.of(r, getForRuleSet(existingMeterActivationValidations, r)))
                 .map(p -> p.getLast().orElseGet(() -> applyRuleSet(p.getFirst(), meterActivation)))
                 .collect(Collectors.toList());
-        returnList.stream().forEach(m-> m.getChannels().stream().filter(c -> !m.getRuleSet()
+        returnList.stream().forEach(m -> m.getChannels().stream().filter(c -> !m.getRuleSet()
                 .getRules(c.getReadingTypes()).isEmpty())
                 .filter(c -> !m.getChannelValidation(c).isPresent())
                 .forEach(m::addChannelValidation));
