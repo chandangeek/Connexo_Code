@@ -349,7 +349,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
     ConfigureTariffSettings(78,
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.UNIQUE_TARIFF_ID_NO),
             PropertySpecFactory.boundedDecimalPropertySpec(DeviceMessageConstants.NUMBER_OF_TARIFF_RATES, new BigDecimal(0), new BigDecimal(4)),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.CODE_TABLE_ID)
+            PropertySpecFactory.codeTableReferencePropertySpec(DeviceMessageConstants.CODE_TABLE_ID)
     );
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
