@@ -15,18 +15,7 @@ Ext.define('Cfg.view.validation.RulePreview', {
         type: 'vbox'
     },
 
-    tools: [
-        {
-            xtype: 'button',
-            itemId: 'rulePreviewActionsButton',
-            text: Uni.I18n.translate('general.actions', 'CFG', 'Actions'),
-            privileges: Cfg.privileges.Validation.admin,
-            iconCls: 'x-uni-action-iconD',
-            menu: {
-                xtype: 'validation-rule-action-menu'
-            }
-        }
-    ],
+    noActionsButton: false,
 
     defaults: {
         xtype: 'displayfield',
@@ -82,7 +71,21 @@ Ext.define('Cfg.view.validation.RulePreview', {
     ],
 
     initComponent: function () {
-        this.callParent(arguments);
+        var me = this;        
+        me.tools = [
+            {
+                xtype: 'button',
+                itemId: 'rulePreviewActionsButton',
+                text: Uni.I18n.translate('general.actions', 'CFG', 'Actions'),
+                privileges: Cfg.privileges.Validation.admin,
+                iconCls: 'x-uni-action-iconD',
+                hidden: me.noActionsButton,
+                menu: {
+                    xtype: 'validation-rule-action-menu'
+                }
+            }
+        ];
+        me.callParent(arguments);
     },
 
     updateValidationRule: function (validationRule) {
