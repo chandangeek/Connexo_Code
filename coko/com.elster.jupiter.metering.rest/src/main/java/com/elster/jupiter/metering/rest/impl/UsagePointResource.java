@@ -44,6 +44,7 @@ import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -115,8 +116,8 @@ public class UsagePointResource {
                                         @BeanParam JsonQueryParameters queryParameters,
                                         @QueryParam("like") String like) {
         UsagePointFilter usagePointFilter = new UsagePointFilter();
-        if (!Checks.is(like).emptyOrOnlyWhiteSpace()){
-            usagePointFilter.setMrid("*"+like+"*");
+        if (!Checks.is(like).emptyOrOnlyWhiteSpace()) {
+            usagePointFilter.setMrid("*" + like + "*");
         }
         usagePointFilter.setAccountabilityOnly(!maySeeAny(securityContext));
         List<UsagePointInfo> usagePoints = meteringService.getUsagePoints(usagePointFilter).from(queryParameters)
@@ -146,7 +147,7 @@ public class UsagePointResource {
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT,
             Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Path("/{mRID}/")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public UsagePointInfo getUsagePoint(@PathParam("mRID") String mRID, @Context SecurityContext securityContext) {
         UsagePoint usagePoint = fetchUsagePoint(mRID);
         return new UsagePointInfo(usagePoint, clock);
@@ -175,7 +176,7 @@ public class UsagePointResource {
     @GET
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
     @Path("/{mRID}/meteractivations")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public MeterActivationInfos getMeterActivations(@PathParam("mRID") String mRID, @Context SecurityContext securityContext) {
         UsagePoint usagePoint = fetchUsagePoint(mRID);
         return new MeterActivationInfos(usagePoint.getMeterActivations());
@@ -184,7 +185,7 @@ public class UsagePointResource {
     @GET
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
     @Path("/{mRID}/meteractivations/{activationId}/channels")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public ChannelInfos getChannels(@PathParam("mRID") String mRID, @PathParam("activationId") long activationId, @Context SecurityContext securityContext) {
         UsagePoint usagePoint = fetchUsagePoint(mRID);
         MeterActivation meterActivation = fetchMeterActivation(usagePoint, activationId);
@@ -203,7 +204,7 @@ public class UsagePointResource {
     @GET
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
     @Path("/{mRID}/meteractivations/{activationId}/channels/{channelId}/intervalreadings")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public ReadingInfos getIntervalReadings(@PathParam("mRID") String mRID, @PathParam("activationId") long activationId, @PathParam("channelId") long channelId, @QueryParam("from") long from, @QueryParam("to") long to, @Context SecurityContext securityContext) {
         if (from == 0 || to == 0) {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
@@ -227,7 +228,7 @@ public class UsagePointResource {
     @GET
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
     @Path("/{mRID}/readingtypes")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public ReadingTypeInfos getReadingTypes(@PathParam("mRID") String mRID, @Context SecurityContext securityContext) {
         UsagePoint usagePoint = fetchUsagePoint(mRID);
         return new ReadingTypeInfos(collectReadingTypes(usagePoint));
@@ -236,7 +237,7 @@ public class UsagePointResource {
     @GET
     @Path("/readingtypes")
     @RolesAllowed({Privileges.Constants.VIEW_READINGTYPE, Privileges.Constants.ADMINISTER_READINGTYPE})
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public ReadingTypeInfos getReadingTypes(@Context UriInfo uriInfo) {
         return new ReadingTypeInfos(meteringService.getAvailableReadingTypes());
     }
@@ -244,7 +245,7 @@ public class UsagePointResource {
     @GET
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
     @Path("/{mRID}/readingtypes/{rtMrid}/readings")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public ReadingInfos getReadingTypeReadings(@PathParam("mRID") String mRID, @PathParam("rtMrid") String rtMrid, @QueryParam("from") long from, @QueryParam("to") long to, @Context SecurityContext securityContext) {
         if (from == 0 || to == 0) {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
@@ -254,7 +255,7 @@ public class UsagePointResource {
     }
 
     @PUT
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT})
     @Path("/{mRID}/servicecalls")
     public Response cancelServiceCallsFor(@PathParam("mRID") String mRID, ServiceCallInfo serviceCallInfo, @Context SecurityContext securityContext) {
@@ -272,7 +273,7 @@ public class UsagePointResource {
     @GET
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
     @Path("/{mRID}/history/metrologyconfigurations")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getUsagePointMetrologyConfigurationHistory(@PathParam("mRID") String mRID,
                                                                     @BeanParam JsonQueryParameters queryParameters) {
         UsagePoint usagePoint = fetchUsagePoint(mRID);
@@ -307,8 +308,8 @@ public class UsagePointResource {
         return PagedInfoList.fromPagedList("metrologyConfigurations", metrologyConfigurationsInfos, queryParameters);
     }
 
-    @PUT
-    @Path("/{mRID}/metrologyconfiguration")
+    @POST
+    @Path("/{mRID}/metrologyconfigurationversion")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
@@ -317,41 +318,68 @@ public class UsagePointResource {
         UsagePoint usagePoint = resourceHelper.findAndLockUsagePoint(info);
         UsagePointMetrologyConfiguration metrologyConfiguration = resourceHelper.findMetrologyConfiguration(info.metrologyConfigurationVersion.metrologyConfiguration.id);
         Instant start = Instant.ofEpochMilli(info.metrologyConfigurationVersion.start);
-        Instant end = info.metrologyConfigurationVersion.end != null ? Instant.ofEpochMilli(info.metrologyConfigurationVersion.end): null;
-        Instant newStart = info.metrologyConfigurationVersion.newStart != null ? Instant.ofEpochMilli(info.metrologyConfigurationVersion.newStart): null;
-        Instant newEnd = info.metrologyConfigurationVersion.newEnd != null ? Instant.ofEpochMilli(info.metrologyConfigurationVersion.newEnd): null;
-        UsagePointInfo updatedInfo = usagePointInfoFactory.from(usagePoint);
-        EffectiveMetrologyConfigurationOnUsagePoint versionToChange = usagePoint.getEffectiveMetrologyConfiguration(start).orElse(null);
-        if(delete && info.metrologyConfigurationVersion.editable && !info.metrologyConfigurationVersion.current){
-            usagePoint.removeMetrologyConfigurationVersion(versionToChange);
-        } else if(newStart == null && newEnd == null){
-            try {
-                usagePoint.applyWithInterval(metrologyConfiguration, start, end);
-            } catch (UnsatisfiedReadingTypeRequirements ex) {
-                throw new FormValidationException().addException("metrologyConfiguration", ex.getMessage());
-            } catch (UnsatisfiedMerologyConfigurationEndDate ex) {
-                throw new FormValidationException().addException("end", ex.getMessage());
-            } catch (UnsatisfiedMerologyConfigurationStartDateRelativelyLatestStart | UnsatisfiedMerologyConfigurationStartDateRelativelyLatestEnd ex){
-                throw new FormValidationException().addException("start", ex.getMessage());
-            }
-            updatedInfo.metrologyConfigurationVersion = usagePoint.getEffectiveMetrologyConfiguration(start)
-                    .map(metrologyConfigurationInfoFactory::asInfo).orElse(null);
-        } else if (info.metrologyConfigurationVersion.editable) {
-            try {
-                usagePoint.updateWithInterval(versionToChange, newStart, newEnd);
-            } catch (UnsatisfiedReadingTypeRequirements ex) {
-                throw new FormValidationException().addException("metrologyConfiguration", ex.getMessage());
-            } catch (OverlapsOnMetrologyConfigurationVersionEnd | UnsatisfiedMerologyConfigurationEndDateInThePast | UnsatisfiedMerologyConfigurationEndDate ex) {
-                throw new FormValidationException().addException("end", ex.getMessage());
-            } catch (OverlapsOnMetrologyConfigurationVersionStart ex){
-                throw new FormValidationException().addException("start", ex.getMessage());
-            }
-            updatedInfo.metrologyConfigurationVersion = metrologyConfigurationInfoFactory.asInfo(versionToChange);
-        } else {
-            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+        Instant end = info.metrologyConfigurationVersion.end != null ? Instant.ofEpochMilli(info.metrologyConfigurationVersion.end) : null;
+        try {
+            usagePoint.applyWithInterval(metrologyConfiguration, start, end);
+        } catch (UnsatisfiedReadingTypeRequirements ex) {
+            throw new FormValidationException().addException("metrologyConfiguration", ex.getMessage());
+        } catch (UnsatisfiedMerologyConfigurationEndDate ex) {
+            throw new FormValidationException().addException("end", ex.getMessage());
+        } catch (UnsatisfiedMerologyConfigurationStartDateRelativelyLatestStart | UnsatisfiedMerologyConfigurationStartDateRelativelyLatestEnd ex) {
+            throw new FormValidationException().addException("start", ex.getMessage());
         }
+        info.metrologyConfigurationVersion = usagePoint.getEffectiveMetrologyConfiguration(start)
+                .map(metrologyConfigurationInfoFactory::asInfo).orElse(null);
         usagePoint.update();
-        return Response.status(Response.Status.OK).entity(updatedInfo).build();
+        return Response.status(Response.Status.OK).entity(info).build();
+    }
+
+    @GET
+    @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
+    @Path("/{mRID}/metrologyconfigurationversion/{versionId}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public EffectiveMetrologyConfigurationOnUsagePointInfo getMetrologyConfigurationVersion(@PathParam("mRID") String mRID, @PathParam("versionId") Long versionId) {
+        return metrologyConfigurationInfoFactory.asInfo(fetchUsagePointVersion(versionId));
+    }
+
+    @PUT
+    @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
+    @Path("/{mRID}/metrologyconfigurationversion/{versionId}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Transactional
+    public Response updateMetrologyConfigurationVersion(UsagePointInfo info, @PathParam("mRID") String mRID, @PathParam("versionId") Long versionId) {
+        UsagePoint usagePoint = resourceHelper.findAndLockUsagePoint(info);
+        EffectiveMetrologyConfigurationOnUsagePoint version = fetchUsagePointVersion(versionId);
+        Instant start = info.metrologyConfigurationVersion.start != null ? Instant.ofEpochMilli(info.metrologyConfigurationVersion.start) : null;
+        Instant end = info.metrologyConfigurationVersion.end != null ? Instant.ofEpochMilli(info.metrologyConfigurationVersion.end) : null;
+
+        try {
+            usagePoint.updateWithInterval(version, start, end);
+        } catch (UnsatisfiedReadingTypeRequirements ex) {
+            throw new FormValidationException().addException("metrologyConfiguration", ex.getMessage());
+        } catch (OverlapsOnMetrologyConfigurationVersionEnd | UnsatisfiedMerologyConfigurationEndDateInThePast | UnsatisfiedMerologyConfigurationEndDate ex) {
+            throw new FormValidationException().addException("end", ex.getMessage());
+        } catch (OverlapsOnMetrologyConfigurationVersionStart ex) {
+            throw new FormValidationException().addException("start", ex.getMessage());
+        }
+        info.metrologyConfigurationVersion = metrologyConfigurationInfoFactory.asInfo(version);
+        usagePoint.update();
+
+        return Response.status(Response.Status.OK).entity(info).build();
+    }
+
+    @DELETE
+    @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
+    @Path("/{mRID}/metrologyconfigurationversion/{versionId}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Transactional
+    public Response removeMetrologyConfigurationVersion(UsagePointInfo info, @PathParam("mRID") String mRID, @PathParam("versionId") Long versionId) {
+        UsagePoint usagePoint = resourceHelper.findAndLockUsagePoint(info);
+        EffectiveMetrologyConfigurationOnUsagePoint version = fetchUsagePointVersion(versionId);
+        usagePoint.removeMetrologyConfigurationVersion(version);
+        usagePoint.update();
+
+        return Response.status(Response.Status.OK).entity(info).build();
     }
 
     private ReadingInfos doGetReadingTypeReadings(String mRID, String rtMrid, Range<Instant> range) {
@@ -389,6 +417,11 @@ public class UsagePointResource {
     private UsagePoint fetchUsagePoint(String mRID) {
         return meteringService.findUsagePoint(mRID)
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_USAGE_POINT_FOR_MRID, mRID));
+    }
+
+    private EffectiveMetrologyConfigurationOnUsagePoint fetchUsagePointVersion(long id) {
+        return meteringService.findUsagePointVersion(id)
+                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
     private static class HasReadingType implements Predicate<MeterActivation> {

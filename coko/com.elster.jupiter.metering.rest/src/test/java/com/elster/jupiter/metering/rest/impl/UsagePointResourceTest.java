@@ -207,8 +207,6 @@ public class UsagePointResourceTest extends MeteringApplicationJerseyTest {
         assertThat(response.getStatus()).isEqualTo(200);
         verify(usagePoint, times(1)).applyWithInterval(config, Instant.EPOCH, Instant.EPOCH);
 
-        effectiveMCInfo.newStart = Instant.EPOCH.toEpochMilli();
-        effectiveMCInfo.newEnd = Instant.EPOCH.toEpochMilli();
         effectiveMCInfo.editable = true;
 
         response = target("usagepoints/upd/metrologyconfiguration").request().put(Entity.json(info));
