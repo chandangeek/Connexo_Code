@@ -30,6 +30,7 @@ Ext.define('Mdc.controller.setup.Devices', {
     refs: [
         {ref: 'deviceGeneralInformationForm', selector: '#deviceGeneralInformationForm'},
         {ref: 'deviceCommunicationTopologyPanel', selector: '#devicecommicationtopologypanel'},
+        {ref: 'dataLoggerSlavesPanel', selector: '#mdc-dataLoggerSlavesPanel'},
         {ref: 'deviceOpenIssuesPanel', selector: '#deviceopenissuespanel'},
         {ref: 'deviceDataValidationPanel', selector: '#deviceDataValidationPanel'},
         {ref: 'deviceSetup', selector: '#deviceSetup'},
@@ -248,21 +249,67 @@ Ext.define('Mdc.controller.setup.Devices', {
                             .update(Uni.I18n.translate('general.lastUpdatedAt', 'MDC', 'Last updated at {0}', [Uni.DateTime.formatTimeShort(new Date())]));
                     }
                 });
-                !!me.getDeviceCommunicationTopologyPanel() && me.getDeviceCommunicationTopologyPanel().setRecord(device);
-                !!me.getDeviceOpenIssuesPanel() && me.getDeviceOpenIssuesPanel().setDataCollectionIssues(device);
-
-                !!me.getDeviceValidationResultFieldLink() && me.getDeviceValidationResultFieldLink().getEl().set({href: '#/devices/' + mRID + '/validationresults/data'});
-
-                if ((device.get('hasLoadProfiles') || device.get('hasLogBooks') || device.get('hasRegisters'))
-                    && Cfg.privileges.Validation.canUpdateDeviceValidation()) {
+                if (!Ext.isEmpty(me.getDeviceCommunicationTopologyPanel())) {
+                    if (device.get('isDataLoggerSlave')) {
+                        me.getDeviceCommunicationTopologyPanel().hide();
+                    } else {
+                        me.getDeviceCommunicationTopologyPanel().setRecord(device);
+                    }
+                }
+                if (!Ext.isEmpty(me.getDataLoggerSlavesPanel())) {
+                    me.getDataLoggerSlavesPanel().setSlaveStore(me.createDataLoggerSlavesStore(device));
+                }
+                if (!Ext.isEmpty(me.getDeviceOpenIssuesPanel())) {
+                    me.getDeviceOpenIssuesPanel().setDataCollectionIssues(device);
+                }
+                if (!Ext.isEmpty(me.getDeviceValidationResultFieldLink())) {
+                    me.getDeviceValidationResultFieldLink().getEl().set({href: '#/devices/' + mRID + '/validationresults/data'});
+                }
+                if ( (device.get('hasLoadProfiles') || device.get('hasLogBooks') || device.get('hasRegisters'))
+                     && Cfg.privileges.Validation.canUpdateDeviceValidation() ) {
                     me.updateDataValidationStatusSection(mRID, widget);
                 } else {
-                    !!widget.down('device-data-validation-panel') && widget.down('device-data-validation-panel').hide();
+                    !Ext.isEmpty(widget.down('device-data-validation-panel')) && widget.down('device-data-validation-panel').hide();
                 }
                 viewport.setLoading(false);
 
             }
         });
+    },
+
+    createDataLoggerSlavesStore: function(device) {
+        var me = this;
+        Ext.define('DataLoggerSlave', {
+            extend: 'Ext.data.Model',
+            fields: [
+                {name: 'mRID', type: 'string'},
+                {name: 'deviceTypeName', type: 'string'},
+                {name: 'deviceConfigurationName', type: 'string'},
+                {name: 'linkingTimeStamp', type: 'number'}
+            ]
+        });
+
+        var store = Ext.create('Ext.data.Store', {
+            model: 'DataLoggerSlave',
+            sorters: [{
+                property: 'creationTime',
+                direction: 'DESC'
+            }],
+            autoLoad: false
+        });
+
+        Ext.Array.forEach(device.get('dataLoggerSlaveDevices'), function(slaveRecord){
+            if (slaveRecord.id > 0) {
+                store.add({
+                        mRID: slaveRecord.mRID,
+                        deviceTypeName: slaveRecord.deviceTypeName,
+                        deviceConfigurationName: slaveRecord.deviceConfigurationName,
+                        linkingTimeStamp: slaveRecord.linkingTimeStamp
+                    }
+                );
+            }
+        }, me);
+        return store;
     },
 
     doRefresh: function () {

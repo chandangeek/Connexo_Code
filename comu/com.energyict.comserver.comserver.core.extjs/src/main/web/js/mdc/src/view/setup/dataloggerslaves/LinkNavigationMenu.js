@@ -25,7 +25,7 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkNavigationMenu', {
             },
             {
                 itemId: 'mdc-confirm-arrival-date',
-                text: Uni.I18n.translate('general.confirmArrivalDate', 'MDC', 'Confirm arrival date')
+                text: Uni.I18n.translate('general.selectLinkingDate', 'MDC', 'Select linking date')
             },
             {
                 itemId: 'mdc-confirmation',

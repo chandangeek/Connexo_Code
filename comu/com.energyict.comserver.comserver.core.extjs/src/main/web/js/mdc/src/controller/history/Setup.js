@@ -1376,7 +1376,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             action: 'showDeviceAttributesView',
                             items: {
                                 edit: {
-                                    title: Uni.I18n.translate('deviceconfiguration.deviceAttributes.edit.general', 'MDC', 'Edit \'General\''),
+                                    title: Uni.I18n.translate('deviceAttributes.edit', 'MDC', 'Edit device attributes'),
                                     route: 'edit',
                                     privileges: Mdc.privileges.Device.editDeviceAttributes,
                                     controller: 'Mdc.controller.setup.DeviceAttributes',
@@ -2149,16 +2149,6 @@ Ext.define('Mdc.controller.history.Setup', {
                         }
                     }
                 }
-            },
-            callback: function (route) {
-                this.getApplication().on('loadDevice', function (record) {
-                    if ( !Ext.isEmpty(record.get('isDataLogger')) && record.get('isDataLogger') ) {
-                        route.setTitle(Uni.I18n.translate('general.dataLoggers', 'MDC', 'Data loggers'));
-                    } else {
-                        route.setTitle(Uni.I18n.translate('general.devices', 'MDC', 'Devices'));
-                    }
-                });
-                return this;
             }
         },
         search: {

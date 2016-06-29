@@ -83,7 +83,8 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
         Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
             success: function (device) {
                 me.wizardInformation = {};
-                me.wizardInformation.minimalArrivalDate = 0;  // TODO: shipment date of data logger?
+                me.wizardInformation.minimalLinkingDate = device.get('shipmentDate');
+                me.wizardInformation.noData = true;
                 me.wizardInformation.dataLogger = device;
                 me.getApplication().fireEvent('loadDevice', device);
                 slavesStore.getProxy().setUrl(device.get('mRID'));
@@ -149,8 +150,6 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
                 deviceTypeStore.load(function(records){
                     addDevicePanel = Ext.widget('deviceAdd', { labelWidth: 145, formWidth: 545, deviceTypeStore:deviceTypeStore });
                     addDevicePanel.down('panel').title = '';
-                    addDevicePanel.down('#deviceAddBatch').hide();
-                    addDevicePanel.down('#deviceAddArrival').hide();
                     addDevicePanel.down('#deviceAddMRID').allowBlank = false;
                     addDevicePanel.down('#deviceAddType').allowBlank = false;
                     addDevicePanel.down('#deviceAddConfig').allowBlank = false;
@@ -343,10 +342,13 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
                 slaveDeviceModel.deviceTypeName = slaveDevice.get('deviceTypeName');
                 slaveDeviceModel.deviceConfigurationId = slaveDevice.get('deviceConfigurationId');
                 slaveDeviceModel.deviceConfigurationName = slaveDevice.get('deviceConfigurationName');
+                slaveDeviceModel.shipmentTimeStamp = slaveDevice.get('shipmentDate');
                 slaveDeviceModel.yearOfCertification = slaveDevice.get('yearOfCertification');
+                //TODO slaveDeviceModel.batch = slaveDevice.get('batch');
                 slaveDeviceModel.version = slaveDevice.get('version');
 
                 me.wizardInformation.slaveMRID = slaveDevice.get('mRID');
+                me.wizardInformation.slaveShipmentDate = slaveDevice.get('shipmentDate');
                 me.wizardInformation.slaveDeviceTypeId = slaveDevice.get('deviceTypeId');
                 me.wizardInformation.slaveDeviceConfigurationId = slaveDevice.get('deviceConfigurationId');
                 endMethod();
@@ -383,9 +385,12 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
                                 wizard.down('#deviceAdd #deviceAddType').findRecordByValue(wizard.down('#deviceAdd #deviceAddType').getValue()).get('name');
                             slaveDeviceModel.deviceConfigurationId = formRecord.get('deviceConfigurationId');
                             slaveDeviceModel.yearOfCertification = formRecord.get('yearOfCertification');
+                            //TODO slaveDeviceModel.batch = formRecord.get('batch');
+                            slaveDeviceModel.shipmentTimeStamp = wizard.down('#deviceAdd #deviceAddShipmentDate').getValue().getTime();
                             slaveDeviceModel.version = formRecord.get('version');
 
                             me.wizardInformation.slaveMRID = formRecord.get('mRID');
+                            me.wizardInformation.slaveShipmentDate = slaveDeviceModel.shipmentDate;
                             me.wizardInformation.slaveDeviceTypeId = formRecord.get('deviceTypeId');
                             me.wizardInformation.slaveDeviceConfigurationId = formRecord.get('deviceConfigurationId');
                             endMethod();
@@ -423,9 +428,10 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
                             Ext.Array.forEach(dataLoggerSlaveDeviceRecord.dataLoggerSlaveChannelInfos, function(dataLoggerSlaveChannelInfoRecord){
                                 channelRecords.push(dataLoggerSlaveChannelInfoRecord.dataLoggerChannel);
                                 if ( !Ext.isEmpty(dataLoggerSlaveChannelInfoRecord.availabilityDate) && dataLoggerSlaveChannelInfoRecord.availabilityDate !== 0) {
-                                    if ( Ext.isEmpty(me.wizardInformation.minimalArrivalDate) ||
-                                         me.wizardInformation.minimalArrivalDate < dataLoggerSlaveChannelInfoRecord.availabilityDate ) {
-                                        me.wizardInformation.minimalArrivalDate = dataLoggerSlaveChannelInfoRecord.availabilityDate;
+                                    if ( Ext.isEmpty(me.wizardInformation.minimalLinkingDate) ||
+                                         me.wizardInformation.minimalLinkingDate < dataLoggerSlaveChannelInfoRecord.availabilityDate ) {
+                                        me.wizardInformation.minimalLinkingDate = dataLoggerSlaveChannelInfoRecord.availabilityDate;
+                                        me.wizardInformation.noData = false;
                                     }
                                 }
                             }, me);
@@ -533,9 +539,10 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
                             Ext.Array.forEach(dataLoggerSlaveDeviceRecord.dataLoggerSlaveRegisterInfos, function(dataLoggerSlaveRegisterInfoRecord){
                                 registerRecords.push(dataLoggerSlaveRegisterInfoRecord.dataLoggerRegister);
                                 if ( !Ext.isEmpty(dataLoggerSlaveRegisterInfoRecord.availabilityDate) && dataLoggerSlaveRegisterInfoRecord.availabilityDate !== 0) {
-                                    if ( Ext.isEmpty(me.wizardInformation.minimalArrivalDate) ||
-                                         me.wizardInformation.minimalArrivalDate < dataLoggerSlaveRegisterInfoRecord.availabilityDate ) {
-                                        me.wizardInformation.minimalArrivalDate = dataLoggerSlaveRegisterInfoRecord.availabilityDate;
+                                    if ( Ext.isEmpty(me.wizardInformation.minimalLinkingDate) ||
+                                         me.wizardInformation.minimalLinkingDate < dataLoggerSlaveRegisterInfoRecord.availabilityDate ) {
+                                        me.wizardInformation.minimalLinkingDate = dataLoggerSlaveRegisterInfoRecord.availabilityDate;
+                                        me.wizardInformation.noData = true;
                                     }
                                 }
                             }, me);
@@ -626,53 +633,67 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
     },
 
     prepareStep4: function() {
-        // a. Determine the minimal arrival date
+        // a. Determine the minimal linking date
         var me = this,
             wizard = me.getWizard(),
-            minimalArrivalDateMidnight = 0,
-            arrivalDateToSuggest = new Date();
+            minimalLinkingDateMidnight = 0,
+            linkingDateToSuggest = new Date();
 
-        if ( !Ext.isEmpty(me.wizardInformation.minimalArrivalDate) && me.wizardInformation.minimalArrivalDate!==0 ) {
-            // To avoid the disabling of certain hours we pass midnight:
-            var momentOfDate = moment(me.wizardInformation.minimalArrivalDate);
+        if ( !Ext.isEmpty(me.wizardInformation.minimalLinkingDate) && me.wizardInformation.minimalLinkingDate!==0 ) {
+            // To avoid the disabling of certain hours, we pass midnight:
+            var momentOfDate = moment(me.wizardInformation.minimalLinkingDate);
             momentOfDate.startOf('day');
-            minimalArrivalDateMidnight = momentOfDate.unix() * 1000;
+            minimalLinkingDateMidnight = momentOfDate.unix() * 1000;
         }
 
-        // b. Determine the arrival date to suggest
+        // b. Determine the linking date to suggest
         if (me.wizardInformation) {
-            if (me.wizardInformation.arrivalDate) {
-                arrivalDateToSuggest = me.wizardInformation.arrivalDate;
-            } else if (me.wizardInformation.useExisting) {
-                // TODO arrivalDateToSuggest = ???? arrival date of slave?
+            if (me.wizardInformation.linkingDate) {
+                linkingDateToSuggest = me.wizardInformation.linkingDate;
+            } else if (me.wizardInformation.noData) {
+                if (me.wizardInformation.useExisting) {
+                    linkingDateToSuggest = me.wizardInformation.slaveShipmentDate;
+                } else {
+                    linkingDateToSuggest = new Date();
+                }
+            } else {
+                linkingDateToSuggest = minimalLinkingDateMidnight;
             }
         }
-
-        wizard.down('dataloggerslave-link-wizard-step4').initialize(minimalArrivalDateMidnight, arrivalDateToSuggest);
+        wizard.down('dataloggerslave-link-wizard-step4').initialize(minimalLinkingDateMidnight, linkingDateToSuggest);
     },
 
     validateStep4: function(callback) {
         var me = this,
-            dateField = me.getWizard().down('#mdc-step4-arrival-date'),
+            dateField = me.getWizard().down('#mdc-step4-linking-date'),
+            errorMsg,
             endMethod = function() {
                 if (Ext.isFunction(callback)) {
                     callback();
                 }
             };
 
-        me.wizardInformation.arrivalDate = dateField.getValue();
+        me.wizardInformation.linkingDate = dateField.getValue();
 
-        if (me.wizardInformation.arrivalDate < me.wizardInformation.minimalArrivalDate) {
+        if (me.wizardInformation.linkingDate < me.wizardInformation.minimalLinkingDate) {
             me.getStep4FormErrorMessage().show();
-            me.getWizard().down('#mdc-step4-arrival-date').markInvalid(
-                Uni.I18n.translate('general.arrivalDateShouldBeAfterX', 'MDC',
-                    'Arival date should be after {0}',
-                    Uni.DateTime.formatDateTime(new Date(me.wizardInformation.minimalArrivalDate), Uni.DateTime.LONG, Uni.DateTime.SHORT)
-                )
-            );
+
+            if (me.wizardInformation.noData) {
+                errorMsg = Uni.I18n.translate('general.linkingDateShouldLieAfterX', 'MDC',
+                    'The linking date should be equal to or lie after the shipment date of the data logger ({0})',
+                    Uni.DateTime.formatDateTime(new Date(me.wizardInformation.minimalLinkingDate), Uni.DateTime.SHORT, Uni.DateTime.SHORT)
+                );
+            } else {
+                errorMsg = Uni.I18n.translate('general.linkingDateShouldLieAfterX', 'MDC',
+                    'The linking date should be equal to or lie after the date of the most recent unlinked reading of the channels and registers of the data logger ({0})',
+                    Uni.DateTime.formatDateTime(new Date(me.wizardInformation.minimalLinkingDate), Uni.DateTime.SHORT, Uni.DateTime.SHORT)
+                );
+            }
+            me.getWizard().down('#mdc-step4-linking-date').markInvalid(errorMsg);
+
         } else {
             Ext.Array.forEach(me.wizardInformation.dataLogger.get('dataLoggerSlaveDevices'), function(dataLoggerSlaveDeviceRecord){
-                dataLoggerSlaveDeviceRecord["arrivalTimeStamp"] = me.wizardInformation.arrivalDate.getTime()/1000;
+                dataLoggerSlaveDeviceRecord["linkingTimeStamp"] = me.wizardInformation.linkingDate.getTime()/1000;
             }, me);
             endMethod();
         }
@@ -698,7 +719,8 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
         var me = this,
             wizard = me.getWizard(),
             progressbar = wizard.down('#mdc-dataloggerslave-link-wizard-step6-progressbar'),
-            infoMessagePanel = wizard.down('dataloggerslave-link-wizard-step6');
+            infoMessagePanel = wizard.down('dataloggerslave-link-wizard-step6'),
+            message;
 
         Ext.suspendLayouts();
         progressbar.show();
@@ -711,24 +733,30 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
 
         me.wizardInformation.dataLogger.save({
             success: function (record) {
-                Ext.suspendLayouts();
-                infoMessagePanel.update(
-                    Ext.String.format(
-                        Uni.I18n.translate('general.slaveXLinkedToDataLoggerY.success', 'MDC', "Slave '{0}' has been linked to data logger '{1}'."),
-                        me.getSlaveMRID(),
-                        me.wizardInformation.dataLogger.get('mRID')
-                    )
+                message = Ext.String.format(
+                    Uni.I18n.translate('general.slaveXLinkedToDataLoggerY.success', 'MDC', "Slave '{0}' has been linked to data logger '{1}'."),
+                    me.getSlaveMRID(),
+                    me.wizardInformation.dataLogger.get('mRID')
                 );
+                Ext.suspendLayouts();
+                infoMessagePanel.update(message);
                 finishBtn.show();
                 progressbar.hide();
                 Ext.resumeLayouts(true);
             },
             failure: function (record, operation) {
+                message = Ext.String.format(
+                    Uni.I18n.translate('general.slaveXLinkedToDataLoggerY.noSuccess', 'MDC',
+                        "Slave '{0}' has not been linked to data logger '{1}' due to a failure. Please try again.",
+                        me.getSlaveMRID(),
+                        me.wizardInformation.dataLogger.get('mRID')
+                    )
+                );
                 Ext.suspendLayouts();
                 infoMessagePanel.update('');
                 infoMessagePanel.add({
                     xtype: 'displayfield',
-                    value: Uni.I18n.translate('general.slaveXLinkedToDataLoggerY.noSuccess', 'MDC', "Linking was unsuccessful.")
+                    value: message
                 });
                 finishBtn.show();
                 progressbar.hide();
@@ -772,7 +800,8 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
             thereIsSomethingToClear =
                 !Ext.isEmpty(me.wizardInformation.mappedChannels) ||
                 !Ext.isEmpty(me.wizardInformation.mappedRegisters) ||
-                !Ext.isEmpty(me.wizardInformation.arrivalDate);
+                !Ext.isEmpty(me.wizardInformation.linkingDate) ||
+                !Ext.isEmpty(me.wizardInformation.minimalLinkingDate);
 
         if (!thereIsSomethingToClear) {
             return;
@@ -790,19 +819,19 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
         }
         this.wizardInformation.mappedChannels = undefined;
         this.wizardInformation.mappedRegisters = undefined;
-        this.wizardInformation.arrivalDate = undefined;
-        this.wizardInformation.minimalArrivalDate = 0;
+        this.wizardInformation.linkingDate = undefined;
+        this.wizardInformation.minimalLinkingDate = 0;
     },
 
     onUnlinkDataLoggerSlave: function() {
         var me = this,
             unlinkWindow = me.getUnlinkWindow(),
-            unlinkDate = unlinkWindow.down('#mdc-dataloggerslave-unlink-window-date-picker').getValue();
+            unlinkDate = unlinkWindow.down('#mdc-dataloggerslave-unlink-window-date-picker').getValue(),
             mainView = Ext.ComponentQuery.query('#contentPanel')[0],
             doUnlink = function() {
                 Ext.Array.forEach(me.wizardInformation.dataLogger.get('dataLoggerSlaveDevices'), function(dataLoggerSlaveDeviceRecord){
                     if (dataLoggerSlaveDeviceRecord.id !== 0) { // the container of the unlinked channels
-                        dataLoggerSlaveDeviceRecord['terminationTimeStamp'] = unlinkDate.getTime()/1000;
+                        dataLoggerSlaveDeviceRecord['unlinkingTimeStamp'] = unlinkDate.getTime()/1000;
                     }
                 }, me);
 

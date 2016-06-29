@@ -38,11 +38,11 @@ Ext.define('Mdc.view.setup.dataloggerslaves.DataLoggerSlavesGrid', {
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('general.addedOn', 'MDC', 'Added on'),
-                dataIndex: 'creationTime',
+                header: Uni.I18n.translate('general.linkedOn', 'MDC', 'Linked on'),
+                dataIndex: 'linkingTimeStamp',
                 flex: 1,
                 renderer: function (value) {
-                    return value ? Uni.DateTime.formatDateTimeShort(value) : '';
+                    return value ? Uni.DateTime.formatDateTimeShort(value) : '-';
                 }
             },
             {

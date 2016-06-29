@@ -50,6 +50,10 @@ Ext.define('Mdc.view.setup.device.DeviceCommunicationTopologyPanel', {
                 xtype: 'gridpanel',
                 margin: '5 0 0 0',
                 itemId: 'communication-topology-grid',
+                viewConfig: {
+                    disableSelection: true,
+                    enableTextSelection: true
+                },
                 columns: [
                     {
                         header: Uni.I18n.translate('deviceCommunicationTopology.mRID', 'MDC', 'MRID'),
@@ -66,12 +70,12 @@ Ext.define('Mdc.view.setup.device.DeviceCommunicationTopologyPanel', {
                         flex: 1
                     },
                     {
-                        header: Uni.I18n.translate('deviceCommunicationTopology.configuration', 'MDC', 'Configuration'),
+                        header: Uni.I18n.translate('general.configuration', 'MDC', 'Configuration'),
                         dataIndex: 'deviceConfigurationName',
                         flex: 1
                     },
                     {
-                        header: Uni.I18n.translate('deviceCommunicationTopology.addedOn', 'MDC', 'Added on'),
+                        header: Uni.I18n.translate('general.addedOn', 'MDC', 'Added on'),
                         dataIndex: 'creationTime',
                         flex: 1,
                         renderer: function (value) {

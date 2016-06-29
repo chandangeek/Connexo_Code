@@ -32,12 +32,12 @@ Ext.define('Mdc.view.setup.devicetopology.Grid', {
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('deviceCommunicationTopology.configuration', 'MDC', 'Configuration'),
+                header: Uni.I18n.translate('general.configuration', 'MDC', 'Configuration'),
                 dataIndex: 'deviceConfigurationName',
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('deviceCommunicationTopology.addedOn', 'MDC', 'Added on'),
+                header: Uni.I18n.translate('general.addedOn', 'MDC', 'Added on'),
                 dataIndex: 'creationTime',
                 flex: 1,
                 renderer: function (value) {

@@ -16,7 +16,7 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizardStep4', {
             {
                 itemId: 'mdc-dataloggerslave-link-wizard-step4-errors',
                 xtype: 'uni-form-error-message',
-                width: 700,
+                width: 1050,
                 hidden: true
             },
             {
@@ -30,11 +30,12 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizardStep4', {
                     {
                         xtype: 'date-time',
                         layout: 'hbox',
-                        itemId: 'mdc-step4-arrival-date',
+                        itemId: 'mdc-step4-linking-date',
                         required: true,
                         margin: '20 0 20 0',
                         msgTarget: 'under',
-                        fieldLabel: Uni.I18n.translate('general.arrivalDate', 'MDC', 'Arrival date')
+                        fieldLabel: Uni.I18n.translate('general.linkingDate', 'MDC', 'Linking date'),
+                        width: 1050
                     }
                 ]
             }
@@ -54,10 +55,10 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizardStep4', {
         }
     },
 
-    doConfigureArrivalDate: function(minimalArrivalDateInMillis, arrivalDateToSuggest) {
+    doConfigureArrivalDate: function(minimalLinkingDateInMillis, linkingDateToSuggest) {
         var me = this;
 
-        me.down('#mdc-step4-arrival-date').setMinValue(minimalArrivalDateInMillis);
-        me.down('#mdc-step4-arrival-date').setValue(arrivalDateToSuggest);
+        me.down('#mdc-step4-linking-date').setMinValue(minimalLinkingDateInMillis);
+        me.down('#mdc-step4-linking-date').setValue(linkingDateToSuggest);
     }
 });

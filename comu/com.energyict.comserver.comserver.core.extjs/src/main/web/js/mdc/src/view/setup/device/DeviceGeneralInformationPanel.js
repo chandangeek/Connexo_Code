@@ -3,7 +3,7 @@ Ext.define('Mdc.view.setup.device.DeviceGeneralInformationPanel', {
     alias: 'widget.deviceGeneralInformationPanel',
     overflowY: 'auto',
     itemId: 'devicegeneralinformationpanel',
-    title: Uni.I18n.translate('deviceGeneralInformation.generalInformationTitle', 'MDC', 'General information'),
+    title: Uni.I18n.translate('deviceGeneralInformation.title', 'MDC', 'Device summary'),
     ui: 'tile',
     router: null,
 
@@ -22,8 +22,7 @@ Ext.define('Mdc.view.setup.device.DeviceGeneralInformationPanel', {
             },
             {
                 xtype: 'button',
-                margin: '0 0 0 65',
-                text: Uni.I18n.translate('deviceGeneralInformation.viewmorelinktext', 'MDC', 'View more'),
+                text: Uni.I18n.translate('deviceGeneralInformation.viewMoreLinkText', 'MDC', 'More attributes'),
                 ui: 'link',
                 itemId: 'view-more-general-information-link',
                 handler: function() {

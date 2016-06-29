@@ -38,7 +38,8 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                 {
                     text: Uni.I18n.translate('devicemenu.dataLoggerSlaves', 'MDC', 'Data logger slaves'),
                     itemId: 'device-dataLoggerSlaves-link',
-                    href: '#/devices/' + encodeURIComponent(mRID) + '/dataloggerslaves'
+                    href: '#/devices/' + encodeURIComponent(mRID) + '/dataloggerslaves',
+                    privileges: Mdc.privileges.Device.viewDevice
                 }
             );
         }

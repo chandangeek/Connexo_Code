@@ -42,7 +42,7 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizard', {
             {
                 xtype: 'dataloggerslave-link-wizard-step4',
                 itemId: 'mdc-dataloggerslave-link-wizard-step4',
-                title: Uni.I18n.translate('linkwizard.step4.title', 'MDC', 'Step 4: Confirm arrival date'),
+                title: Uni.I18n.translate('linkwizard.step4.title', 'MDC', 'Step 4: Select linking date'),
                 navigationIndex: 4
             },
             {
