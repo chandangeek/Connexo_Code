@@ -398,6 +398,11 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         return this.messagingService;
     }
 
+    @Override
+    public ValidationService validationService() {
+        return this.validationService;
+    }
+
     @Reference
     public void setJsonService(JsonService jsonService) {
         this.jsonService = jsonService;
