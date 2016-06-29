@@ -34,7 +34,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.security.SignedObject;
-import java.sql.SQLException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
@@ -72,7 +71,6 @@ public class LicenseServiceTest {
             bind(BundleContext.class).toInstance(mock(BundleContext.class));
             bind(LicenseService.class).to(LicenseServiceImpl.class).in(Scopes.SINGLETON);
             bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
-            //  bind(Clock.class).toInstance(new ProgrammableClock().frozenAt(new DateTime(2014, 4, 14, 12, 32, 13, 200).toDate()));
         }
     };
 
@@ -98,16 +96,12 @@ public class LicenseServiceTest {
         return injector.getInstance(LicenseService.class);
     }
 
-    private TransactionService getTransactionService() {
-        return injector.getInstance(TransactionService.class);
-    }
-
     private static UserService getUserService() {
         return injector.getInstance(UserService.class);
     }
 
     @AfterClass
-    public static void tearDown() throws SQLException {
+    public static void tearDown() {
         inMemoryBootstrapModule.deactivate();
     }
 
@@ -176,8 +170,6 @@ public class LicenseServiceTest {
 
         licensedValue = getLicenseService().getLicensedValue("ISU", "key1");
         assertThat(licensedValue.isPresent()).isFalse();
-
-
     }
 
     @Test
@@ -239,4 +231,5 @@ public class LicenseServiceTest {
         assertThat(licenseForApplication.get().getGracePeriodInDays()).isEqualTo(0);
         assertThat(licenseForApplication.get().getLicensedValues()).isEmpty();
     }
+
 }

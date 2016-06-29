@@ -54,9 +54,11 @@ public class LicenseImpl implements License {
     private String info;
     @SuppressWarnings("unused")
     private Instant createTime;
+    @SuppressWarnings("unused")
     private Instant modTime;
     @SuppressWarnings("unused")
     private String userName;
+    @SuppressWarnings("unused")
     private long version;
 
     private SignedObject getSignedObject() throws IOException, ClassNotFoundException {
