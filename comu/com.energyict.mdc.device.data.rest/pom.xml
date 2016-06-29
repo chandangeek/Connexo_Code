@@ -284,6 +284,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>upgrade</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.issue.datacollection</artifactId>
+        </dependency>
 
         <!--INTEGRATION TESTS-->
         <dependency>
@@ -404,6 +408,7 @@
             <artifactId>devtools.persistence</artifactId>
             <scope>test</scope>
         </dependency>
+
     </dependencies>
 
     <profiles>

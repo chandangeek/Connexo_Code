@@ -33,7 +33,6 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.DevicesForConfigChangeSearch;
 import com.energyict.mdc.device.data.exceptions.CannotChangeDeviceConfigStillUnresolvedConflicts;
-import com.energyict.mdc.device.data.rest.DeviceInfoFactory;
 import com.energyict.mdc.device.data.rest.DevicePrivileges;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.topology.TopologyService;
@@ -212,7 +211,7 @@ public class DeviceResource {
         }
         Finder<Device> allDevicesFinder = deviceService.findAllDevices(condition);
         List<Device> allDevices = allDevicesFinder.from(queryParameters).find();
-        List<DeviceInfo> deviceInfos = deviceInfoFactory.from(allDevices); //DeviceInfo.from(allDevices);
+        List<DeviceInfo> deviceInfos = deviceInfoFactory.fromDevices(allDevices); //DeviceInfo.from(allDevices);
         return PagedInfoList.fromPagedList("devices", deviceInfos, queryParameters);
     }
 
@@ -221,7 +220,7 @@ public class DeviceResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE)
-    public DeviceInfo addDevice(DeviceInfo info, @Context SecurityContext securityContext) {
+    public Response addDevice(DeviceInfo info, @Context SecurityContext securityContext) {
         Optional<DeviceConfiguration> deviceConfiguration = deviceConfigurationService.findDeviceConfiguration(info.deviceConfigurationId);
         Device newDevice;
         if (!is(info.batch).emptyOrOnlyWhiteSpace()) {
@@ -232,9 +231,10 @@ public class DeviceResource {
         newDevice.setSerialNumber(info.serialNumber);
         newDevice.setYearOfCertification(info.yearOfCertification);
         newDevice.save();
+        newDevice.getLifecycleDates().setReceivedDate(info.shipmentDate).save();
 
-        //TODO: Device Date should go on the device wharehouse (future development) - or to go on Batch - creation date
-        return deviceInfoFactory.from(newDevice, getSlaveDevicesForDevice(newDevice));
+        //TODO: Device Date should go on the device warehouse (future development) - or to go on Batch - creation date
+        return Response.status(Response.Status.CREATED).entity(deviceInfoFactory.from(newDevice, getSlaveDevicesForDevice(newDevice))).build();
     }
 
     @PUT
