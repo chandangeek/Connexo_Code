@@ -37,6 +37,7 @@ import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.impl.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.impl.config.EffectiveMetrologyConfigurationOnUsagePointImpl;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
+import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
@@ -338,9 +339,6 @@ public class UsagePointImpl implements UsagePoint {
 
     void doSave() {
         if (id == 0) {
-            if(installationTime==null) {
-                throw new IllegalStateException();
-            }
             this.setConnectionState(ConnectionState.UNDER_CONSTRUCTION, installationTime);
             Save.CREATE.save(dataModel, this);
             eventService.postEvent(EventType.USAGEPOINT_CREATED.topic(), this);
@@ -485,17 +483,18 @@ public class UsagePointImpl implements UsagePoint {
 
     @Override
     public void setConnectionState(ConnectionState connectionState) {
-        Instant effective = this.clock.instant();
-        this.setConnectionState(connectionState, effective);
+        this.setConnectionState(connectionState, this.clock.instant());
     }
 
     @Override
     public void setConnectionState(ConnectionState connectionState, Instant effective) {
-        if(!this.connectionState.effective(Range.all()).isEmpty()) {
-            this.closeCurrentConnectionState(effective);
+        if(!this.connectionState.effective(effective).filter(cs -> cs.getConnectionState().equals(connectionState)).isPresent()) {
+            if (!this.connectionState.effective(Range.all()).isEmpty()) {
+                this.closeCurrentConnectionState(effective);
+            }
+            this.createNewState(effective, connectionState);
+            this.touch();
         }
-        this.createNewState(effective,connectionState);
-        this.touch();
     }
 
     private void closeCurrentConnectionState(Instant now){
@@ -570,8 +569,15 @@ public class UsagePointImpl implements UsagePoint {
 
     @Override
     public List<CompletionOptions> readData(Instant when, List<ReadingType> readingTypes, ServiceCall serviceCall) {
-        //not implemented yet
-        return null;
+        return this.getMeterActivations(when)
+                .stream()
+                .flatMap(meterActivation -> meterActivation.getMeter()
+                        .isPresent() ? Stream.of(meterActivation.getMeter().get()) : Stream.empty())
+                .map(meter -> meter.getHeadEndInterface()
+                        .map(headEndInterface -> headEndInterface.scheduleMeterRead(meter, readingTypes, when, serviceCall)))
+                .flatMap(completionOptions -> completionOptions.isPresent() ? Stream.of(completionOptions.get()) : Stream
+                        .empty())
+                .collect(Collectors.toList());
     }
 
     @Override

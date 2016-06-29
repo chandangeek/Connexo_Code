@@ -5,6 +5,9 @@ import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.cbo.PhaseCode;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
@@ -59,7 +62,10 @@ import java.util.List;
 import java.util.Optional;
 
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -71,18 +77,8 @@ import static org.mockito.Mockito.mock;
 @RunWith(MockitoJUnitRunner.class)
 public class UsagePointConnectionStateImplIT {
 
-    private static final Quantity VOLTAGE = Unit.VOLT.amount(BigDecimal.valueOf(220));
-    private static final Quantity RATED_CURRENT = Unit.AMPERE.amount(BigDecimal.valueOf(14));
-    private static final Quantity RATED_POWER = Unit.WATT.amount(BigDecimal.valueOf(156156));
-    private static final Quantity RATED_POWER2 = Unit.WATT.amount(BigDecimal.valueOf(156157));
-    private static final Quantity LOAD = Unit.VOLT_AMPERE.amount(BigDecimal.valueOf(12345));
-
     private static final Instant JANUARY_2014 = ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
     private static final Instant FEBRUARY_2014 = ZonedDateTime.of(2014, 2, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
-    private static final Instant JANUARY_2013 = ZonedDateTime.of(2013, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
-    private static final Instant MARCH_2014 = ZonedDateTime.of(2014, 3, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
-
-    private Injector injector;
 
     @Mock
     private BundleContext bundleContext;
@@ -91,73 +87,28 @@ public class UsagePointConnectionStateImplIT {
     @Mock
     private EventAdmin eventAdmin;
 
+    private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = new MeteringInMemoryBootstrapModule();
 
-    private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
+    @Rule
+    public ExpectedConstraintViolationRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
+    @Rule
+    public TransactionalRule transactionalRule = new TransactionalRule(inMemoryBootstrapModule.getTransactionService());
 
-
-    private class MockModule extends AbstractModule {
-
-        @Override
-        protected void configure() {
-            bind(UserService.class).toInstance(userService);
-            bind(BundleContext.class).toInstance(bundleContext);
-            bind(EventAdmin.class).toInstance(eventAdmin);
-            bind(SearchService.class).toInstance(mock(SearchService.class));
-            bind(LicenseService.class).toInstance(mock(LicenseService.class));
-            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
-        }
+    @BeforeClass
+    public static void setUp() {
+        inMemoryBootstrapModule.activate();
     }
 
-    @Before
-    public void setUp() throws SQLException {
-        try {
-            try {
-                injector = Guice.createInjector(
-                        new MockModule(),
-                        inMemoryBootstrapModule,
-                        new InMemoryMessagingModule(),
-                        new IdsModule(),
-                        new MeteringModule(),
-                        new BasicPropertiesModule(),
-                        new TimeModule(),
-                        new PartyModule(),
-                        new EventsModule(),
-                        new DomainUtilModule(),
-                        new OrmModule(),
-                        new UtilModule(),
-                        new ThreadSecurityModule(),
-                        new PubSubModule(),
-                        new TransactionModule(false),
-                        new BpmModule(),
-                        new FiniteStateMachineModule(),
-                        new NlsModule(),
-                        new CustomPropertySetsModule()
-                );
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        injector.getInstance(TransactionService.class).execute(() -> {
-            injector.getInstance(CustomPropertySetService.class);
-            injector.getInstance(FiniteStateMachineService.class);
-            injector.getInstance(MeteringService.class);
-            return null;
-        });
-    }
-
-    @After
-    public void tearDown() throws SQLException {
+    @AfterClass
+    public static void tearDown() {
         inMemoryBootstrapModule.deactivate();
     }
 
     @Test
+    @Transactional
     public void testConnectionState() {
-        TransactionService transactionService = injector.getInstance(TransactionService.class);
 
-        try (TransactionContext context = transactionService.getContext()) {
-            ServerMeteringService meteringService = injector.getInstance(ServerMeteringService.class);
+            ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
             DataModel dataModel = meteringService.getDataModel();
             ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
             UsagePoint usagePoint = serviceCategory.newUsagePoint("mrID", Instant.EPOCH).create();
@@ -177,12 +128,10 @@ public class UsagePointConnectionStateImplIT {
             //add connection state valid from 1 february 2014 (this closes the previous detail on this date)
             usagePoint.setConnectionState(ConnectionState.LOGICALLY_DISCONNECTED, FEBRUARY_2014);
 
-            context.commit();
 
             //get connection state
             connectionState =  usagePoint.getConnectionState();
             assertThat(connectionState.equals(ConnectionState.LOGICALLY_DISCONNECTED)).isTrue();
-        }
     }
 }
 

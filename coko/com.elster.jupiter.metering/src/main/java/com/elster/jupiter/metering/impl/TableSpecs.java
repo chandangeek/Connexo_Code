@@ -780,16 +780,16 @@ public enum TableSpecs {
             Column usagePoint = table.column("USAGEPOINT").notNull().number().add();
             List<Column> intervalColumns = table.addIntervalColumns("interval");
             table.addAuditColumns();
-            table.column("CONNECTIONSTATE").type("varchar2(30)").conversion(CHAR2ENUM).map("connectionState").add();
+            table.column("CONNECTIONSTATE").type("varchar2(30)").conversion(CHAR2ENUM).map("connectionState").since(version(10, 2)).add();
             table.primaryKey("PK_MTR_USAGEPOINTSTATE").on(usagePoint, intervalColumns.get(0)).add();
-            table.foreignKey("FK_MTR_USAGEPOINTSTATE").
-                    on(usagePoint).
-                    references(UsagePoint.class).
-                    onDelete(CASCADE).
-                    map("usagePoint").
-                    reverseMap("connectionState").
-                    composition().
-                    add();
+            table.foreignKey("FK_MTR_USAGEPOINTSTATE")
+                    .on(usagePoint)
+                    .references(UsagePoint.class)
+                    .onDelete(CASCADE)
+                    .map("usagePoint")
+                    .reverseMap("connectionState")
+                    .composition()
+                    .add();
         }
     },
     MTR_METROLOGYCONFIG {

@@ -1,7 +1,6 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.metering.ConnectionState;
 import com.elster.jupiter.metering.GeoCoordinates;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.ServiceCategory;
