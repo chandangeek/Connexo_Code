@@ -214,18 +214,10 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
         usagePoint.setServicePriority(usagePointInfo.servicePriority);
 
         if (usagePointInfo.connectionState!=null && usagePointInfo.connectionState.startDate != null) {
-            usagePoint.setConnectionState(Arrays.stream(ConnectionState.values())
-                    .filter(connectionState -> connectionState.getId()
-                            .equalsIgnoreCase(usagePointInfo.connectionState.connectionStateId))
-                    .findFirst()
-                    .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.BAD_REQUEST, MessageSeeds.NO_SUCH_CONNECTION_STATE)),
+            usagePoint.setConnectionState(findConnectionState(usagePointInfo),
                     Instant.ofEpochMilli(usagePointInfo.connectionState.startDate));
         } else if (usagePointInfo.connectionState != null && !usagePoint.getConnectionState().getId().equalsIgnoreCase(usagePointInfo.connectionState.connectionStateId)) {
-            usagePoint.setConnectionState(Arrays.stream(ConnectionState.values())
-                    .filter(connectionState -> connectionState.getId()
-                            .equalsIgnoreCase(usagePointInfo.connectionState.connectionStateId))
-                    .findFirst()
-                    .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.BAD_REQUEST, MessageSeeds.NO_SUCH_CONNECTION_STATE)));
+            usagePoint.setConnectionState(findConnectionState(usagePointInfo));
         }
 
         usagePoint.update();
@@ -252,5 +244,13 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
                 usagePoint.removeMetrologyConfiguration(now);
             }
         }
+    }
+
+    private ConnectionState findConnectionState(UsagePointInfo usagePointInfo){
+       return Arrays.stream(ConnectionState.values())
+                .filter(connectionState -> connectionState.getId()
+                        .equalsIgnoreCase(usagePointInfo.connectionState.connectionStateId))
+                .findFirst()
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.BAD_REQUEST, MessageSeeds.NO_SUCH_CONNECTION_STATE));
     }
 }

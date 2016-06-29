@@ -6,6 +6,7 @@ import java.util.List;
 public class CommandRunStatusInfo {
     public long id;
     public CommandStatus status;
+    public String system;
     public List<CommandRunStatusInfo> childrenCommands;
 
     public CommandRunStatusInfo() {

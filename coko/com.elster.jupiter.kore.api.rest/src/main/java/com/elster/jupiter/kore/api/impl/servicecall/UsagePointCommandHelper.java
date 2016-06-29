@@ -5,6 +5,8 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
+import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -40,7 +42,23 @@ public class UsagePointCommandHelper {
 
         long expectedCommands = getExpectedNumberOfCommands(usagePoint, Instant.ofEpochMilli(commandInfo.effectiveTimestamp));
 
-        return new CommandRunStatusInfo(usagePoint.getId(), childrenCommands.size()<expectedCommands ? CommandStatus.FAILED : CommandStatus.SUCCESS, childrenCommands.toArray(new CommandRunStatusInfo[childrenCommands.size()]));
+        if(childrenCommands.size()<expectedCommands){
+
+            CommandRunStatusInfo commandRunStatusInfo = new CommandRunStatusInfo(usagePoint.getId(), CommandStatus.FAILED, childrenCommands.toArray(new CommandRunStatusInfo[childrenCommands.size()]));
+
+           commandRunStatusInfo.system =  usagePoint.getMeterActivations(Instant.ofEpochMilli(commandInfo.effectiveTimestamp))
+                    .stream()
+                    .flatMap(meterActivation -> meterActivation.getMeter()
+                            .isPresent() ? Stream.of(meterActivation.getMeter().get()) : Stream.empty())
+                    .filter(meter -> !meter.getHeadEndInterface().isPresent()).findFirst().map(EndDevice::getAmrId).orElse("MDC");
+
+            return commandRunStatusInfo;
+
+        } else {
+            return new CommandRunStatusInfo(usagePoint.getId(), CommandStatus.SUCCESS, childrenCommands.toArray(new CommandRunStatusInfo[childrenCommands.size()]));
+
+        }
+
     }
 
     public ServiceCall getServiceCall(UsagePoint usagePoint, UsagePointCommandInfo commandInfo){
