@@ -37,11 +37,11 @@ import static com.elster.jupiter.util.Checks.is;
 @Component(name = "com.elster.jupiter.http.whiteboard.HttpAutenticationService",
         property = {"name=HTW", "osgi.command.scope=jupiter", "osgi.command.function=createNewTokenKey"},
         immediate = true, service = {HttpAuthenticationService.class})
-public class BasicAuthentication implements HttpAuthenticationService {
+public final class BasicAuthentication implements HttpAuthenticationService {
 
-    private final static String TIMEOUT = "com.elster.jupiter.timeout";
-    private final static String TOKEN_REFRESH_MAX_COUNT = "com.elster.jupiter.token.refresh.maxcount";
-    private final static String TOKEN_EXPIRATION_TIME = "com.elster.jupiter.token.expirationtime";
+    private static final String TIMEOUT = "com.elster.jupiter.timeout";
+    private static final String TOKEN_REFRESH_MAX_COUNT = "com.elster.jupiter.token.refresh.maxcount";
+    private static final String TOKEN_EXPIRATION_TIME = "com.elster.jupiter.token.expirationtime";
     private static final String LOGIN_URI = "/apps/login/index.html";
     // Resources used by the login page so access is required before authenticating
     private static final String[] RESOURCES_NOT_SECURED = {

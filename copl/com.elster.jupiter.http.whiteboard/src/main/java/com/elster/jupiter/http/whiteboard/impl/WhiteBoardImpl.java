@@ -46,7 +46,7 @@ import java.util.logging.Logger;
         service = {Application.class, TranslationKeyProvider.class},
         property = {"alias=/apps", "name=HTW"},
         immediate = true)
-public class WhiteBoardImpl extends Application implements BinderProvider, TranslationKeyProvider {
+public final class WhiteBoardImpl extends Application implements BinderProvider, TranslationKeyProvider {
     static String COMPONENTNAME = "HTW";
 
     private volatile HttpService httpService;
@@ -71,7 +71,7 @@ public class WhiteBoardImpl extends Application implements BinderProvider, Trans
     }
 
     @Inject
-    public WhiteBoardImpl(TransactionService transactionService, QueryService queryService, HttpAuthenticationService httpAuthenticationService) {
+    WhiteBoardImpl(TransactionService transactionService, QueryService queryService, HttpAuthenticationService httpAuthenticationService) {
         this();
         setTransactionService(transactionService);
         setQueryService(queryService);
@@ -219,4 +219,4 @@ public class WhiteBoardImpl extends Application implements BinderProvider, Trans
 
 }
 
-	
+

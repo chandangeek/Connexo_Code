@@ -13,41 +13,42 @@ import java.util.List;
 
 @Path("/pages")
 public class PageResource {
-	@Inject
-	private WhiteBoardImpl whiteBoard;
-	
-	@GET
-	@Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-	public List<PageInfo> getPages() {
-		List<PageInfo> result = new ArrayList<>();
-		for (HttpResource each : whiteBoard.getResources()) {
-			StartPage startPage = each.getStartPage();
-			if (startPage != null) {
-				PageInfo info = new PageInfo();
-				info.name = startPage.getName();
-				info.basePath = whiteBoard.getAlias(each.getAlias());
+    @Inject
+    private WhiteBoardImpl whiteBoard;
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public List<PageInfo> getPages() {
+        List<PageInfo> result = new ArrayList<>();
+        for (HttpResource each : whiteBoard.getResources()) {
+            StartPage startPage = each.getStartPage();
+            if (startPage != null) {
+                PageInfo info = new PageInfo();
+                info.name = startPage.getName();
+                info.basePath = whiteBoard.getAlias(each.getAlias());
                 info.startPage = startPage.getHtmlPath();
-				if (startPage.getIconPath() != null) {
-					info.icon = startPage.getIconPath();
-				}
-                if(startPage.getMainController()!=null){
+                if (startPage.getIconPath() != null) {
+                    info.icon = startPage.getIconPath();
+                }
+                if (startPage.getMainController() != null) {
                     info.mainController = startPage.getMainController();
                 }
-                if(startPage.getScripts()!=null && !startPage.getScripts().isEmpty()){
+                if (startPage.getScripts() != null && !startPage.getScripts().isEmpty()) {
                     info.scripts = startPage.getScripts();
                 }
-                if(startPage.getTranslationComponents()!=null && !startPage.getTranslationComponents().isEmpty()){
+                if (startPage.getTranslationComponents() != null && !startPage.getTranslationComponents().isEmpty()) {
                     info.translationComponents = startPage.getTranslationComponents();
                 }
-                if(startPage.getStyleSheets()!=null && !startPage.getStyleSheets().isEmpty()){
+                if (startPage.getStyleSheets() != null && !startPage.getStyleSheets().isEmpty()) {
                     info.styleSheets = startPage.getStyleSheets();
                 }
-                if(startPage.getDependencies()!=null && !startPage.getDependencies().isEmpty()){
+                if (startPage.getDependencies() != null && !startPage.getDependencies().isEmpty()) {
                     info.dependencies = startPage.getDependencies();
                 }
-				result.add(info);
-			}				
-		}
-		return result;
-	}
+                result.add(info);
+            }
+        }
+        return result;
+    }
+
 }

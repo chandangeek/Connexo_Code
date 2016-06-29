@@ -32,7 +32,7 @@ public final class KeyStoreImpl {
 
     void init(DataVaultService dataVaultService) throws NoSuchAlgorithmException {
         Pair<String, String> keyMap = generateKeys(dataVaultService);
-        this.id = new BigDecimal(1);
+        this.id = BigDecimal.ONE;
         this.publicKey = keyMap.getFirst();
         this.privateKey = keyMap.getLast();
         save();
