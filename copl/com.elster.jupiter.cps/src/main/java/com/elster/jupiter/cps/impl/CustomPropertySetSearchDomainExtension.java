@@ -14,12 +14,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class CustomPropertySetSearchDomainExtension implements SearchDomainExtension {
+class CustomPropertySetSearchDomainExtension implements SearchDomainExtension {
     private final CustomPropertySetServiceImpl customPropertySetService;
     private final CustomPropertySet<?, ?> customPropertySet;
     private final DataModel dataModel;
 
-    public CustomPropertySetSearchDomainExtension(CustomPropertySetServiceImpl customPropertySetService, ActiveCustomPropertySet activeCustomPropertySet) {
+    CustomPropertySetSearchDomainExtension(CustomPropertySetServiceImpl customPropertySetService, ActiveCustomPropertySet activeCustomPropertySet) {
         this.customPropertySetService = customPropertySetService;
         this.customPropertySet = activeCustomPropertySet.getCustomPropertySet();
         this.dataModel = activeCustomPropertySet.getDataModel();
