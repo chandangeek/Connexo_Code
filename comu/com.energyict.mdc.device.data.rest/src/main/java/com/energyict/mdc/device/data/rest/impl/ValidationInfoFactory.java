@@ -423,7 +423,7 @@ public class ValidationInfoFactory {
     ReadingQualityInfo createReadingQualityInfo(ReadingQualityType type) {
         ReadingQualityInfo info = new ReadingQualityInfo();
         info.id = type.getCode();
-        info.name = thesaurus.getStringBeyondComponent(type.qualityIndex().get().getTranslationKey().getKey(), type.qualityIndex().get().getTranslationKey().getDefaultFormat());
+        info.name = thesaurus.getString(type.qualityIndex().get().getTranslationKey().getKey(), type.qualityIndex().get().getTranslationKey().getDefaultFormat());
         info.application = resourceHelper.getApplicationInfo(type.system().get());
         return info;
     }
