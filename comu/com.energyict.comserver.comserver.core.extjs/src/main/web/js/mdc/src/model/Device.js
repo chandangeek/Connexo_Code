@@ -23,7 +23,7 @@ Ext.define('Mdc.model.Device', {
         {name: 'nbrOfDataCollectionIssues', type: 'number', useNull: true},
         {name: 'openDataValidationIssue', type: 'number', useNull: true},
         {name: 'gatewayType', type: 'string', useNull: true},
-        {name: 'creationTime', type: 'date', dateFormat: 'time', useNull: true},
+        {name: 'creationTime', type: 'number', useNull: true},
         {name: 'linkingTimeStamp', type: 'number', useNull: true}, // Only for a data logger slave device
         {name: 'dataloggermRID', type: 'string', useNull: true}, // Only for a data logger slave device
         {name: 'isDirectlyAddressed', type: 'boolean'},
