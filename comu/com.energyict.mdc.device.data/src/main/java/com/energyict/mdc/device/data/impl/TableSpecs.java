@@ -777,29 +777,39 @@ public enum TableSpecs {
             table.map(PassiveEffectiveCalendarImpl.class);
 
             Column idColumn = table.addAutoIdColumn();
-            Column calendarColumn = table.column("ALLOWED_CALENDAR").number().notNull().add();
-            Column deviceColumn = table.column("DEVICE").number().conversion(NUMBER2LONG).notNull().add();
-            table.column("ACTIVATION_DATE").type("number").conversion(NUMBER2INSTANT).map(PassiveEffectiveCalendarImpl.Fields.ACTIVATIONDATE.fieldName()).add();
-            Column comTaskExecColumn = table.column("COM_TASK_EXEC").number().conversion(NUMBER2LONG).add();
+            Column calendar = table.column("ALLOWED_CALENDAR").number().notNull().add();
+            table.column("ACTIVATION_DATE").number().conversion(NUMBER2INSTANT).map(PassiveEffectiveCalendarImpl.Fields.ACTIVATIONDATE.fieldName()).add();
+            Column deviceMessage = table.column("DEVICE_MESSAGE").number().conversion(NUMBER2LONG).add();
 
-            table.primaryKey("DDC_PK_PASSIVE_CAL").on(idColumn).add();
-            table.foreignKey("DDC_PASS_TO_ALLOWED")
+            table.primaryKey("PK_DDC_PASSIVE_CAL").on(idColumn).add();
+            table.foreignKey("FK_DDC_PASSIVECAL_ALLOWEDCAL")
                     .references(AllowedCalendar.class)
-                    .on(calendarColumn)
+                    .on(calendar)
                     .onDelete(CASCADE)
                     .map(PassiveEffectiveCalendarImpl.Fields.CALENDAR.fieldName())
                     .add();
-            table.foreignKey("DDC_PASS_TO_DEVICE")
-                    .on(deviceColumn)
-                    .references(DDC_DEVICE.name())
-                    .map(PassiveEffectiveCalendarImpl.Fields.DEVICE.fieldName())
-                    .reverseMap("passiveCalendars")
-                    .onDelete(CASCADE)
+            table.foreignKey("FK_DDC_PASSCAL_DEVICEMSG")
+                    .on(deviceMessage)
+                    .references(DDC_DEVICEMESSAGE.name())
+                    .map(PassiveEffectiveCalendarImpl.Fields.DEVICEMESSAGE.fieldName())
                     .add();
-            table.foreignKey("DDC_PASS_TO_COMTASK")
-                    .on(comTaskExecColumn)
-                    .references(DDC_COMTASKEXEC.name())
-                    .map(PassiveEffectiveCalendarImpl.Fields.COMTASKEXECUTION.fieldName())
+        }
+    },
+    ADD_DDC_PASSIVE_CALENDAR_TO_DEVICE {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<?> table = dataModel.getTable(DDC_DEVICE.name());
+            Column passiveCalendar = table.column("PASSIVE_CAL").number().conversion(NUMBER2LONG).add();
+            table.foreignKey("FK_DDC_DEVICE_PASSIVECAL")
+                    .references(DDC_PASSIVE_CALENDAR.name())
+                    .on(passiveCalendar)
+                    .map("passiveCalendar")
+                    .add();
+            Column plannedPassiveCalendar = table.column("PLANNED_PASSIVE_CAL").number().conversion(NUMBER2LONG).add();
+            table.foreignKey("FK_DDC_DEVICE_PLANNEDPASSCAL")
+                    .references(DDC_PASSIVE_CALENDAR.name())
+                    .on(plannedPassiveCalendar)
+                    .map("plannedPassiveCalendar")
                     .add();
         }
     },
@@ -812,21 +822,22 @@ public enum TableSpecs {
 
             Column device = table.column("DEVICE").number().conversion(NUMBER2LONG).notNull().add();
             List<Column> intervalColumns = table.addIntervalColumns(ActiveEffectiveCalendarImpl.Fields.INTERVAL.fieldName());
-            Column calendarColumn = table.column("ALLOWED_CALENDAR").number().notNull().add();
-            table.column("LAST_VERIFIED_DATE").type("number").conversion(NUMBER2INSTANT).map(ActiveEffectiveCalendarImpl.Fields.LASTVERIFIEDDATE.fieldName()).add();
+            Column calendar = table.column("ALLOWED_CALENDAR").number().notNull().add();
+            table.column("LAST_VERIFIED_DATE").number().conversion(NUMBER2INSTANT).map(ActiveEffectiveCalendarImpl.Fields.LASTVERIFIEDDATE.fieldName()).add();
 
             table.primaryKey("DDC_PK_ACTIVE_CAL").on(device, intervalColumns.get(0)).add();
-            table.foreignKey("DDC_ACTI_TO_ALLOWED")
+            table.foreignKey("FK_DDC_ACTIVECAL_ALLOWEDCAL")
                     .references(AllowedCalendar.class)
-                    .on(calendarColumn)
+                    .on(calendar)
                     .onDelete(CASCADE)
                     .map(ActiveEffectiveCalendarImpl.Fields.CALENDAR.fieldName())
                     .add();
-            table.foreignKey("DDC_ACTI_TO_DEVICE")
+            table.foreignKey("FK_DDC_ACTIVECAL_DEVICE")
                     .on(device)
                     .references(DDC_DEVICE.name())
                     .map(ActiveEffectiveCalendarImpl.Fields.DEVICE.fieldName())
                     .reverseMap("activeCalendar")
+                    .composition()
                     .onDelete(CASCADE)
                     .add();
         }

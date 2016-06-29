@@ -361,7 +361,8 @@ public class DeviceImplDoSomethingWithEventsTest {
                                 injector.getInstance(JsonService.class),
                                 mdcIssueService,
                                 injector.getInstance(MdcReadingTypeUtilService.class),
-                                UpgradeModule.FakeUpgradeService.getInstance());
+                                UpgradeModule.FakeUpgradeService.getInstance()
+                        );
                 this.dataModel = this.deviceDataModelService.dataModel();
                 ctx.commit();
             }
