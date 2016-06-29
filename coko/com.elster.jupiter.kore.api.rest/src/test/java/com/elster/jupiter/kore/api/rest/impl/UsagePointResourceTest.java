@@ -3,6 +3,7 @@ package com.elster.jupiter.kore.api.rest.impl;
 import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.kore.api.impl.UsagePointInfo;
+import com.elster.jupiter.kore.api.impl.servicecall.UsagePointCommand;
 import com.elster.jupiter.kore.api.impl.servicecall.UsagePointCommandCallbackInfo;
 import com.elster.jupiter.kore.api.impl.servicecall.UsagePointCommandInfo;
 import com.elster.jupiter.metering.ElectricityDetail;
@@ -301,7 +302,7 @@ public class UsagePointResourceTest extends PlatformPublicApiJerseyTest {
         mockCommands();
         Instant now = Instant.now(clock);
         UsagePointCommandInfo info = new UsagePointCommandInfo();
-        info.command = "connect";
+        info.command = UsagePointCommand.CONNECT;
         info.httpCallBack = new UsagePointCommandCallbackInfo();
         info.httpCallBack.method = "POST";
         info.httpCallBack.successURL = "http://success";

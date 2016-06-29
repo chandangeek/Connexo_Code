@@ -5,9 +5,11 @@ import com.elster.jupiter.util.units.Quantity;
 import java.util.List;
 
 public class UsagePointCommandInfo {
-    public String command;
+    public UsagePointCommand command;
     public long effectiveTimestamp;
     public List<String> readingTypes;
     public Quantity loadLimit;
     public UsagePointCommandCallbackInfo httpCallBack;
+
+
 }

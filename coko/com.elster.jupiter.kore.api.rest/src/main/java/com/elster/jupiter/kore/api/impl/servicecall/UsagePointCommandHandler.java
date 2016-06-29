@@ -104,7 +104,7 @@ public class UsagePointCommandHandler  implements ServiceCallHandler {
                 throw new RuntimeException(Integer.toString(responseCode));
             }
         } catch (IOException e) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Unable to send responce.");
         } finally {
             if (httpConnection != null) {
                 httpConnection.disconnect();

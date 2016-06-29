@@ -7,6 +7,7 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -24,12 +25,15 @@ public class UsagePointCommandHelper {
     private final CustomPropertySetService customPropertySetService;
     private final ServiceCallService serviceCallService;
     private final MessageService messageService;
+    private final MeteringService meteringService;
+
 
     @Inject
-    public UsagePointCommandHelper(CustomPropertySetService customPropertySetService, ServiceCallService serviceCallService, MessageService messageService) {
+    public UsagePointCommandHelper(CustomPropertySetService customPropertySetService, ServiceCallService serviceCallService, MessageService messageService, MeteringService meteringService) {
         this.customPropertySetService = customPropertySetService;
         this.serviceCallService = serviceCallService;
         this.messageService = messageService;
+        this.meteringService = meteringService;
     }
 
     public CommandRunStatusInfo checkHeadEndSupport(UsagePoint usagePoint, UsagePointCommandInfo commandInfo){
@@ -86,6 +90,7 @@ public class UsagePointCommandHelper {
         ServiceCall serviceCall = serviceCallType.newServiceCall()
                 .origin("PublicAPI")
                 .extendedWith(usagePointCommandDomainExtension)
+                .targetObject(usagePoint)
                 .create();
         serviceCall.requestTransition(DefaultState.PENDING);
         return serviceCall;
@@ -111,5 +116,7 @@ public class UsagePointCommandHelper {
         return destinationSpec;
     }
 
-
+    public MeteringService getMeteringService() {
+        return meteringService;
+    }
 }

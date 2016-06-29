@@ -273,6 +273,7 @@ public class PlatformPublicApiJerseyTest extends FelixRestApplicationJerseyTest 
         when(serviceCallType.newServiceCall()).thenReturn(serviceCallBuilder);
         when(serviceCallBuilder.origin(anyString())).thenReturn(serviceCallBuilder);
         when(serviceCallBuilder.extendedWith(any())).thenReturn(serviceCallBuilder);
+        when(serviceCallBuilder.targetObject(any())).thenReturn(serviceCallBuilder);
         when(serviceCallBuilder.create()).thenReturn(serviceCall);
 
         DestinationSpec destinationSpec = mock(DestinationSpec.class);

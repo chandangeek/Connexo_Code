@@ -48,8 +48,6 @@ public class UsagePointCommandCustomPropertySet implements CustomPropertySet<Ser
 
     @Activate
     public void activate(){
-        System.out.println("sc activate");
-//        customPropertySetService.addCustomPropertySet(this);
     }
 
     @Override
