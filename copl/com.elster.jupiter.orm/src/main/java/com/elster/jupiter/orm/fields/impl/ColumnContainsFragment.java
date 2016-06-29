@@ -1,10 +1,15 @@
 package com.elster.jupiter.orm.fields.impl;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-
 import com.elster.jupiter.orm.impl.ColumnImpl;
 import com.elster.jupiter.util.conditions.Contains;
+import com.elster.jupiter.util.conditions.ListOperator;
+
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.Collection;
+import java.util.stream.Collectors;
+
+import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 
 public class ColumnContainsFragment extends ColumnFragment {
 
@@ -26,13 +31,19 @@ public class ColumnContainsFragment extends ColumnFragment {
 	@SuppressWarnings("unused")
 	@Override
 	public String getText() {
+		return contains.getCollection().isEmpty() ? (ListOperator.IN.equals(contains.getOperator()) ? "1=0" : "1=1") : decorate(contains.getCollection().stream()).partitionPer(1000)
+				.map(this::getSqlText)
+				.collect(Collectors.joining(" OR ", "(", ")"));
+	}
+
+	private String getSqlText(Collection collection) {
 		StringBuilder builder = new StringBuilder();
 		builder.append(getColumn().getName(getAlias()));
 		builder.append(" ");
 		builder.append(contains.getOperator().getSymbol());
 		builder.append("  (");
 		String separator = "";
-		for (Object each : contains.getCollection()) {
+		for (Object each : collection) {
 			builder.append(separator);
 			builder.append("?");
 			separator = ",";
