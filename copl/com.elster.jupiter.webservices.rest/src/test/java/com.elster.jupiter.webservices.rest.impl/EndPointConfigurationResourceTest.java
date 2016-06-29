@@ -112,6 +112,7 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
         assertThat(jsonModel.<String>get("traceFile")).isEqualTo("webservices.log");
         assertThat(jsonModel.<String>get("webServiceName")).isEqualTo("CIM");
         assertThat(jsonModel.<String>get("url")).isEqualTo("/cim");
+        assertThat(jsonModel.<String>get("previewUrl")).isEqualTo("http://localhost:9998/soap/cim");
         assertThat(jsonModel.<String>get("logLevel.id")).isEqualTo("INFO");
         assertThat(jsonModel.<String>get("logLevel.localizedValue")).isEqualTo("Information");
     }

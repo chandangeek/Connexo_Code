@@ -22,8 +22,10 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
@@ -55,11 +57,11 @@ public class EndPointConfigurationResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
     @RolesAllowed(Privileges.Constants.VIEW_WEB_SERVICES)
-    public PagedInfoList getEndPointConfigurations(@BeanParam JsonQueryParameters queryParams) {
+    public PagedInfoList getEndPointConfigurations(@BeanParam JsonQueryParameters queryParams, @Context UriInfo uriInfo) {
         List<EndPointConfigurationInfo> infoList = endPointConfigurationService.findEndPointConfigurations()
                 .from(queryParams)
                 .stream()
-                .map(endPointConfigurationInfoFactory::from)
+                .map(epc -> endPointConfigurationInfoFactory.from(epc, uriInfo))
                 .collect(toList());
         return PagedInfoList.fromPagedList("endpoints", infoList, queryParams);
     }
@@ -70,9 +72,9 @@ public class EndPointConfigurationResource {
     @Path("/{id}")
     @Transactional
     @RolesAllowed(Privileges.Constants.VIEW_WEB_SERVICES)
-    public EndPointConfigurationInfo getEndPointConfiguration(@PathParam("id") long id) {
+    public EndPointConfigurationInfo getEndPointConfiguration(@PathParam("id") long id, @Context UriInfo uriInfo) {
         return endPointConfigurationService.getEndPointConfiguration(id)
-                .map(endPointConfigurationInfoFactory::from)
+                .map(epc -> endPointConfigurationInfoFactory.from(epc, uriInfo))
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_END_POINT_CONFIG));
     }
 
@@ -81,13 +83,13 @@ public class EndPointConfigurationResource {
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_WEB_SERVICES)
-    public Response createEndPointConfiguration(EndPointConfigurationInfo info) {
+    public Response createEndPointConfiguration(EndPointConfigurationInfo info, @Context UriInfo uriInfo) {
         validatePayload(info);
         WebServiceDirection strategy = webServicesService.getWebService(info.webServiceName)
                 .get()
                 .isInbound() ? WebServiceDirection.INBOUND : WebServiceDirection.OUTBOUND;
         EndPointConfiguration endPointConfiguration = strategy.create(endPointConfigurationInfoFactory, info);
-        EndPointConfigurationInfo endPointConfigurationInfo = endPointConfigurationInfoFactory.from(endPointConfiguration);
+        EndPointConfigurationInfo endPointConfigurationInfo = endPointConfigurationInfoFactory.from(endPointConfiguration, uriInfo);
         return Response.status(Response.Status.CREATED).entity(endPointConfigurationInfo).build();
     }
 
@@ -97,7 +99,7 @@ public class EndPointConfigurationResource {
     @Path("/{id}")
     @Transactional
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_WEB_SERVICES)
-    public Response updateEndPointConfiguration(@PathParam("id") long id, EndPointConfigurationInfo info) {
+    public Response updateEndPointConfiguration(@PathParam("id") long id, EndPointConfigurationInfo info, @Context UriInfo uriInfo) {
         validatePayload(info);
         EndPointConfiguration endPointConfiguration = endPointConfigurationService.findAndLockEndPointConfigurationByIdAndVersion(id, info.version)
                 .orElseThrow(concurrentModificationExceptionFactory.contextDependentConflictOn(info.name)
@@ -114,7 +116,7 @@ public class EndPointConfigurationResource {
         if (info.active) {
             endPointConfigurationService.activate(endPointConfiguration);
         }
-        EndPointConfigurationInfo endPointConfigurationInfo = endPointConfigurationInfoFactory.from(endPointConfiguration);
+        EndPointConfigurationInfo endPointConfigurationInfo = endPointConfigurationInfoFactory.from(endPointConfiguration, uriInfo);
         return Response.ok(endPointConfigurationInfo).build();
     }
 

@@ -16,6 +16,7 @@ import com.elster.jupiter.users.UserService;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
 /**
  * Created by bvn on 6/8/16.
@@ -36,12 +37,15 @@ public class EndPointConfigurationInfoFactory {
         this.webServicesService = webServicesService;
     }
 
-    public EndPointConfigurationInfo from(EndPointConfiguration endPointConfiguration) {
+    public EndPointConfigurationInfo from(EndPointConfiguration endPointConfiguration, UriInfo uriInfo) {
         EndPointConfigurationInfo info = new EndPointConfigurationInfo();
         info.id = endPointConfiguration.getId();
         info.name = endPointConfiguration.getName();
         info.version = endPointConfiguration.getVersion();
         info.url = endPointConfiguration.getUrl();
+        info.previewUrl = uriInfo.getBaseUriBuilder()
+                .path("/soap") // don't want to hardcode this.
+                .path(endPointConfiguration.getUrl()).build();
         info.active = endPointConfiguration.isActive();
         info.available = webServicesService.getWebService(endPointConfiguration.getWebServiceName()).isPresent();
         info.webServiceName = endPointConfiguration.getWebServiceName();
