@@ -228,15 +228,20 @@ public class ValidationInfoFactory {
 
     VeeReadingInfo createVeeReadingInfoWithModificationFlags(Channel channel, DataValidationStatus dataValidationStatus, DeviceValidation deviceValidation, IntervalReadingRecord reading, Boolean validationActive) {
         VeeReadingInfo veeReadingInfo = createVeeReadingInfo(channel, dataValidationStatus, deviceValidation);
-        veeReadingInfo.mainValidationInfo.valueModificationFlag = ReadingModificationFlag.getModificationFlag(reading, dataValidationStatus.getReadingQualities());
-        veeReadingInfo.mainValidationInfo.isConfirmed = isConfirmedData(reading, dataValidationStatus.getReadingQualities());
         veeReadingInfo.readingQualities = getReadingQualities(reading);
         veeReadingInfo.validationActive = validationActive;
+        setVeeReadingValueInfo(veeReadingInfo.mainValidationInfo, reading, dataValidationStatus.getReadingQualities());
         if (channel.getReadingType().getCalculatedReadingType().isPresent()) {
-            veeReadingInfo.bulkValidationInfo.valueModificationFlag = ReadingModificationFlag.getModificationFlag(reading, dataValidationStatus.getBulkReadingQualities());
-            veeReadingInfo.bulkValidationInfo.isConfirmed = isConfirmedData(reading, dataValidationStatus.getBulkReadingQualities());
+            setVeeReadingValueInfo(veeReadingInfo.bulkValidationInfo, reading, dataValidationStatus.getBulkReadingQualities());
         }
         return veeReadingInfo;
+    }
+
+    private void setVeeReadingValueInfo(VeeReadingValueInfo info, IntervalReadingRecord reading, Collection<? extends ReadingQuality> readingQualities) {
+        info.valueModificationFlag = ReadingModificationFlag.getModificationFlag(reading, readingQualities);
+        Optional<? extends ReadingQuality> confirmedQuality = getConfirmedQuality(reading, readingQualities);
+        info.isConfirmed = confirmedQuality.isPresent();
+        info.confirmedInApp = confirmedQuality.map(ReadingQuality::getType).flatMap(ReadingQualityType::system).map(resourceHelper::getApplicationInfo).orElse(null);
     }
 
     private List<ReadingQualityInfo> getReadingQualities(IntervalReadingRecord intervalReadingRecord) {
@@ -306,8 +311,18 @@ public class ValidationInfoFactory {
     }
 
     boolean isConfirmedData(BaseReadingRecord reading, Collection<? extends ReadingQuality> qualities) {
-        return reading != null && reading.confirmed() &&
-                qualities.stream().anyMatch(quality -> quality.getType().qualityIndex().orElse(null) == QualityCodeIndex.ACCEPTED);
+        return getConfirmedQuality(reading, qualities).isPresent();
+    }
+
+    Optional<? extends ReadingQuality> getConfirmedQuality(BaseReadingRecord reading, Collection<? extends ReadingQuality> qualities) {
+        if (reading != null && reading.confirmed()) {
+            return qualities.stream().filter(this::confirmedReadingQuality).findFirst();
+        }
+        return Optional.empty();
+    }
+
+    private boolean confirmedReadingQuality(ReadingQuality readingQuality) {
+        return readingQuality.getType().qualityIndex().orElse(null) == QualityCodeIndex.ACCEPTED;
     }
 
     DetailedValidationInfo createMinimalValidationInfo(Boolean active) {

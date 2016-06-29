@@ -323,7 +323,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         assertThat(jsonModel.<String>get("$.data[0].mainValidationInfo.validationResult")).isEqualTo("validationStatus.suspect");
 
         assertThat(jsonModel.<String>get("$.data[0].bulkValidationInfo.validationResult")).isEqualTo("validationStatus.suspect");
-        assertThat(jsonModel.<Boolean>get("$.data[0].bulkValidationInfo.estimatedByRule")).isEqualTo(true);
+        assertThat(jsonModel.<Boolean>get("$.data[0].bulkValidationInfo.estimatedByRule")).isTrue();
 
         assertThat(jsonModel.<String>get("$.data[0].modificationFlag")).isNull();
         assertThat(jsonModel.<Long>get("$.data[0].reportedDateTime")).isEqualTo(LAST_READING.toEpochMilli());
@@ -343,8 +343,8 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         assertThat(jsonModel.<String>get("$.data[3].bulkValidationInfo.valueModificationFlag")).isNull();
         assertThat(jsonModel.<Long>get("$.data[3].reportedDateTime")).isEqualTo(LAST_READING.toEpochMilli());
 
-        assertThat(jsonModel.<Boolean>get("$.data[4].mainValidationInfo.isConfirmed")).isEqualTo(false);
-        assertThat(jsonModel.<Boolean>get("$.data[4].bulkValidationInfo.isConfirmed")).isEqualTo(true);
+        assertThat(jsonModel.<Boolean>get("$.data[4].mainValidationInfo.isConfirmed")).isFalse();
+        assertThat(jsonModel.<Boolean>get("$.data[4].bulkValidationInfo.isConfirmed")).isTrue();
         assertThat(jsonModel.<Long>get("$.data[4].reportedDateTime")).isEqualTo(LAST_READING.toEpochMilli());
 
         assertThat(jsonModel.<String>get("$.data[5].mainValidationInfo.validationResult")).isEqualTo("validationStatus.notValidated");
@@ -781,4 +781,21 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         assertThat(jsonModel.<String>get("$.bulkValidationInfo.estimatedByRule.application.name")).isEqualTo("MultiSense");
     }
 
+    @Test
+    public void testChannelReadingConfirmedInfoAboutApplication() {
+        Instant readingStart = Instant.ofEpochMilli(1410827730000L);
+        Instant readingEnd = Instant.ofEpochMilli(1410828630000L);
+
+        Range<Instant> interval = Ranges.openClosed(readingStart, readingEnd);
+        when(channel.getChannelData(interval)).thenReturn(Collections.singletonList(confirmedProfileReading));
+
+        String json = target("devices/1/channels/" + CHANNEL_ID1 + "/data/" + readingEnd.toEpochMilli() + "/validation").request().get(String.class);
+
+        JsonModel jsonModel = JsonModel.create(json);
+
+        assertThat(jsonModel.<Boolean>get("$.mainValidationInfo.isConfirmed")).isFalse();
+        assertThat(jsonModel.<Boolean>get("$.bulkValidationInfo.isConfirmed")).isTrue();
+        assertThat(jsonModel.<String>get("$.bulkValidationInfo.confirmedInApp.id")).isEqualTo(QualityCodeSystem.MDM.name());
+        assertThat(jsonModel.<String>get("$.bulkValidationInfo.confirmedInApp.name")).isEqualTo("Insight");
+    }
 }

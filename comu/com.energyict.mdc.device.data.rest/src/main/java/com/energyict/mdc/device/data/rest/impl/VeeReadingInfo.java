@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.validation.rest.ValidationRuleInfo;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -48,6 +49,9 @@ class VeeReadingValueInfo {
 
     @JsonProperty("isConfirmed")
     public Boolean isConfirmed;
+
+    @JsonProperty("confirmedInApp")
+    public IdWithNameInfo confirmedInApp;
 
     public VeeReadingValueInfo() {
     }

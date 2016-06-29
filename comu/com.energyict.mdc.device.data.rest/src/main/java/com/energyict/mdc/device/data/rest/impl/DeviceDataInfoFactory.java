@@ -1,6 +1,8 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.ReadingQualityType;
+import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.VersionInfo;
@@ -47,14 +49,16 @@ public class DeviceDataInfoFactory {
     private final Thesaurus thesaurus;
     private final ValidationRuleInfoFactory validationRuleInfoFactory;
     private final Clock clock;
+    private final ResourceHelper resourceHelper;
 
     @Inject
-    public DeviceDataInfoFactory(ValidationInfoFactory validationInfoFactory, EstimationRuleInfoFactory estimationRuleInfoFactory, Thesaurus thesaurus, ValidationRuleInfoFactory validationRuleInfoFactory, Clock clock) {
+    public DeviceDataInfoFactory(ValidationInfoFactory validationInfoFactory, EstimationRuleInfoFactory estimationRuleInfoFactory, Thesaurus thesaurus, ValidationRuleInfoFactory validationRuleInfoFactory, Clock clock, ResourceHelper resourceHelper) {
         this.validationInfoFactory = validationInfoFactory;
         this.estimationRuleInfoFactory = estimationRuleInfoFactory;
         this.thesaurus = thesaurus;
         this.validationRuleInfoFactory = validationRuleInfoFactory;
         this.clock = clock;
+        this.resourceHelper = resourceHelper;
     }
 
     public ChannelDataInfo createChannelDataInfo(Channel channel, LoadProfileReading loadProfileReading, boolean isValidationActive, DeviceValidation deviceValidation) {
@@ -242,7 +246,9 @@ public class DeviceDataInfoFactory {
             readingInfo.validationResult = ValidationStatus.forResult(ValidationResult.getValidationResult(status.getReadingQualities()));
             readingInfo.suspectReason = validationRuleInfoFactory.createInfosForDataValidationStatus(status);
             readingInfo.estimatedByRule = estimationRuleInfoFactory.createEstimationRuleInfo(status.getReadingQualities());
-            readingInfo.isConfirmed = validationInfoFactory.isConfirmedData(reading.getActualReading(), status.getReadingQualities());
+            Optional<? extends ReadingQuality> confirmedQuality = validationInfoFactory.getConfirmedQuality(reading.getActualReading(), status.getReadingQualities());
+            readingInfo.isConfirmed = confirmedQuality.isPresent();
+            readingInfo.confirmedInApp = confirmedQuality.map(ReadingQuality::getType).flatMap(ReadingQualityType::system).map(resourceHelper::getApplicationInfo).orElse(null);
         });
     }
 
