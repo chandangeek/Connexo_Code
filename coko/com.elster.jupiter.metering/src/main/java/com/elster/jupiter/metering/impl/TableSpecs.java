@@ -1342,6 +1342,7 @@ public enum TableSpecs {
                     .map(MetrologyContractImpl.Fields.MANDATORY.fieldName())
                     .add();
 
+            table.addAuditColumns();
             table.primaryKey("MTR_METROLOGY_CONTRACT_PK").on(idColumn).add();
             table.unique("MTR_METROLOGY_CONTRACT_UQ").on(metrologyConfigColumn, metrologyPurposeColumn).add();
             table.foreignKey("MTR_CONTRACT_TO_M_CONFIG")

@@ -35,8 +35,6 @@ public interface MetrologyConfigurationService {
 
     List<UsagePointMetrologyConfiguration> findLinkableMetrologyConfigurations(UsagePoint usagePoint);
 
-    Optional<MetrologyContract> findMetrologyContract(long id);
-
     boolean isInUse(MetrologyConfiguration metrologyConfiguration);
 
     MeterRole newMeterRole(NlsKey name);
@@ -65,4 +63,8 @@ public interface MetrologyConfigurationService {
 
     void validateUsagePointMeterActivation(MeterRole meterRole, Meter meter, UsagePoint usagePoint) throws
             CustomUsagePointMeterActivationValidationException;
+
+    Optional<MetrologyContract> findMetrologyContract(long id);
+
+    Optional<MetrologyContract> findAndLockMetrologyContract(long id, long version);
 }
