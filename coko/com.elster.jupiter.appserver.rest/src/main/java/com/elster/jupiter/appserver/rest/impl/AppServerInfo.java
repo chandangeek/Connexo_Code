@@ -7,6 +7,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.util.streams.Functions;
 
+import javax.ws.rs.core.UriInfo;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,11 +25,11 @@ public class AppServerInfo {
     public AppServerInfo() {
     }
 
-    public static AppServerInfo of(AppServer appServer, String importPath, String exportPath, Thesaurus thesaurus, WebServicesService webServicesService) {
-        return new AppServerInfo(appServer, importPath, exportPath, thesaurus, webServicesService);
+    public static AppServerInfo of(AppServer appServer, String importPath, String exportPath, Thesaurus thesaurus, WebServicesService webServicesService, UriInfo uriInfo) {
+        return new AppServerInfo(appServer, importPath, exportPath, thesaurus, webServicesService, uriInfo);
     }
 
-    public AppServerInfo(AppServer appServer, String importPath, String exportPath, Thesaurus thesaurus, WebServicesService webServicesService) {
+    public AppServerInfo(AppServer appServer, String importPath, String exportPath, Thesaurus thesaurus, WebServicesService webServicesService, UriInfo uriInfo) {
         EndPointConfigurationInfoFactory endPointConfigurationInfoFactory = new EndPointConfigurationInfoFactory(thesaurus, webServicesService);
         name = appServer.getName();
         active = appServer.isActive();
@@ -48,7 +49,7 @@ public class AppServerInfo {
         endPointConfigurations = appServer.supportedEndPoints()
                 .stream()
                 .filter(EndPointConfiguration::isInbound)
-                .map(endPointConfigurationInfoFactory::from)
+                .map(epc -> endPointConfigurationInfoFactory.from(epc, uriInfo))
                 .collect(Collectors.toList());
     }
 

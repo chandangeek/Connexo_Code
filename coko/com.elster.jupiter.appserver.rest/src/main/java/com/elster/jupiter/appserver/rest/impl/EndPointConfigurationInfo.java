@@ -3,8 +3,6 @@ package com.elster.jupiter.appserver.rest.impl;
 import com.elster.jupiter.rest.util.IdWithLocalizedValueInfo;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
 
-import java.net.URI;
-
 
 public class EndPointConfigurationInfo {
     public long id;
@@ -21,5 +19,5 @@ public class EndPointConfigurationInfo {
     public Boolean available;
     public IdWithLocalizedValueInfo<EndPointAuthentication> authenticationMethod;
     public String type = "SOAP";
-    public URI previewUrl;
+    public String previewUrl;
 }

@@ -24,9 +24,11 @@ public class EndPointConfigurationInfoFactory {
         info.name = endPointConfiguration.getName();
         info.version = endPointConfiguration.getVersion();
         info.url = endPointConfiguration.getUrl();
-        info.previewUrl = uriInfo.getBaseUriBuilder()
-                .path("/soap") // don't want to hardcode this.
-                .path(endPointConfiguration.getUrl()).build();
+        if (endPointConfiguration.isInbound()) {
+            info.previewUrl = uriInfo.getBaseUri().getScheme() + "://" + uriInfo.getBaseUri().getAuthority()
+                    + "/soap" // don't want to hardcode this.
+                    + endPointConfiguration.getUrl();
+        }
         info.active = endPointConfiguration.isActive();
         info.available = webServicesService.getWebService(endPointConfiguration.getWebServiceName()).isPresent();
         info.webServiceName = endPointConfiguration.getWebServiceName();

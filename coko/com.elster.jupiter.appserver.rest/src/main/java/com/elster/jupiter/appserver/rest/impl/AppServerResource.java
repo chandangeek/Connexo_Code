@@ -118,7 +118,7 @@ public class AppServerResource {
                 .map(appServer -> {
                     String exportDir = dataExportService.getExportDirectory(appServer).map(Object::toString).orElse(null);
                     String importDir = appServer.getImportDirectory().map(Object::toString).orElse(null);
-                    return AppServerInfo.of(appServer, importDir, exportDir, thesaurus, webServicesService);
+                    return AppServerInfo.of(appServer, importDir, exportDir, thesaurus, webServicesService, uriInfo);
                 })
                 .collect(Collectors.toCollection(ArrayList::new));
 
@@ -130,18 +130,18 @@ public class AppServerResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/{appserverName}")
     @RolesAllowed({Privileges.Constants.VIEW_APPSEVER, Privileges.Constants.ADMINISTRATE_APPSEVER})
-    public AppServerInfo getAppServer(@PathParam("appserverName") String appServerName) {
+    public AppServerInfo getAppServer(@PathParam("appserverName") String appServerName, @Context UriInfo uriInfo) {
         AppServer appServer = fetchAppServer(appServerName);
         String importPath = appServer.getImportDirectory().map(Object::toString).orElse(null);
         String exportPath = dataExportService.getExportDirectory(appServer).map(Object::toString).orElse(null);
-        return AppServerInfo.of(appServer, importPath, exportPath, thesaurus, webServicesService);
+        return AppServerInfo.of(appServer, importPath, exportPath, thesaurus, webServicesService, uriInfo);
     }
 
     @POST
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_APPSEVER})
-    public Response addAppServer(AppServerInfo info) {
+    public Response addAppServer(AppServerInfo info, @Context UriInfo uriInfo) {
         validatePath(info.exportDirectory, "exportDirectory");
         validatePath(info.importDirectory, "importDirectory");
         AppServer appServer;
@@ -188,7 +188,7 @@ public class AppServerResource {
             context.commit();
         }
         return Response.status(Response.Status.CREATED)
-                .entity(AppServerInfo.of(appServer, info.importDirectory, info.exportDirectory, thesaurus, webServicesService))
+                .entity(AppServerInfo.of(appServer, info.importDirectory, info.exportDirectory, thesaurus, webServicesService, uriInfo))
                 .build();
     }
 
@@ -197,7 +197,7 @@ public class AppServerResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/{appserverName}")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_APPSEVER})
-    public Response updateAppServer(@PathParam("appserverName") String appServerName, AppServerInfo info) {
+    public Response updateAppServer(@PathParam("appserverName") String appServerName, AppServerInfo info, @Context UriInfo uriInfo) {
         validatePath(info.exportDirectory, "exportDirectory");
         validatePath(info.importDirectory, "importDirectory");
         AppServer appServer = null;
@@ -222,7 +222,7 @@ public class AppServerResource {
             context.commit();
         }
         return Response.status(Response.Status.CREATED)
-                .entity(AppServerInfo.of(appServer, info.importDirectory, info.exportDirectory, thesaurus, webServicesService))
+                .entity(AppServerInfo.of(appServer, info.importDirectory, info.exportDirectory, thesaurus, webServicesService, uriInfo))
                 .build();
     }
 
