@@ -74,7 +74,7 @@ public final class PeriodicalScheduleExpression implements ScheduleExpression {
 
         @Override
         public List<String> stringElements() {
-            ArrayList<String> strings = new ArrayList<>();
+            List<String> strings = new ArrayList<>();
             strings.add(period.name());
             strings.add(String.valueOf(secondOfMinute));
             return strings;
@@ -92,8 +92,12 @@ public final class PeriodicalScheduleExpression implements ScheduleExpression {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
 
             Minutely minutely = (Minutely) o;
 
@@ -140,9 +144,15 @@ public final class PeriodicalScheduleExpression implements ScheduleExpression {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            if (!super.equals(o)) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            if (!super.equals(o)) {
+                return false;
+            }
 
             Hourly hourly = (Hourly) o;
 
@@ -189,9 +199,15 @@ public final class PeriodicalScheduleExpression implements ScheduleExpression {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            if (!super.equals(o)) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            if (!super.equals(o)) {
+                return false;
+            }
 
             Daily daily = (Daily) o;
 
@@ -236,9 +252,15 @@ public final class PeriodicalScheduleExpression implements ScheduleExpression {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            if (!super.equals(o)) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            if (!super.equals(o)) {
+                return false;
+            }
 
             Weekly weekly = (Weekly) o;
 
@@ -284,9 +306,15 @@ public final class PeriodicalScheduleExpression implements ScheduleExpression {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            if (!super.equals(o)) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            if (!super.equals(o)) {
+                return false;
+            }
 
             Monthly monthly = (Monthly) o;
 
@@ -333,9 +361,15 @@ public final class PeriodicalScheduleExpression implements ScheduleExpression {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            if (!super.equals(o)) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            if (!super.equals(o)) {
+                return false;
+            }
 
             Yearly yearly = (Yearly) o;
 
@@ -426,8 +460,12 @@ public final class PeriodicalScheduleExpression implements ScheduleExpression {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
 
             NthDayOfMonth that = (NthDayOfMonth) o;
 
@@ -569,8 +607,12 @@ public final class PeriodicalScheduleExpression implements ScheduleExpression {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         PeriodicalScheduleExpression that = (PeriodicalScheduleExpression) o;
 
@@ -597,4 +639,5 @@ public final class PeriodicalScheduleExpression implements ScheduleExpression {
             throw new IllegalArgumentException(MessageFormat.format("Value {0} is outside bounds : {1} - {2}", actual, lower, upper));
         }
     }
+
 }

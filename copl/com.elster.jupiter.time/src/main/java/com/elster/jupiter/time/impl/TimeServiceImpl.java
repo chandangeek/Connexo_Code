@@ -48,7 +48,7 @@ import java.util.stream.Stream;
         service = {TimeService.class, TranslationKeyProvider.class, MessageSeedProvider.class},
         property = "name=" + TimeService.COMPONENT_NAME,
         immediate = true)
-public class TimeServiceImpl implements TimeService, TranslationKeyProvider, MessageSeedProvider {
+public final class TimeServiceImpl implements TimeService, TranslationKeyProvider, MessageSeedProvider {
     private volatile DataModel dataModel;
     private volatile QueryService queryService;
     private volatile OrmService ormService;
