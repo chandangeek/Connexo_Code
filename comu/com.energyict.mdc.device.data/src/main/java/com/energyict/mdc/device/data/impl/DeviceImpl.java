@@ -2688,7 +2688,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         }
 
         Optional<BigDecimal> getMultiplierAt(Instant multiplierEffectiveTimeStamp) {
-            return getMultiplier(Optional.of(this.getDevice().meter.get().getMeterActivation(multiplierEffectiveTimeStamp).get()));
+            return getMultiplier(this.getDevice().meter.get().getMeterActivation(multiplierEffectiveTimeStamp));
         }
 
         Instant getMultiplierEffectiveTimeStamp() {

@@ -155,7 +155,7 @@ public abstract class AbstractSyncDeviceWithKoreMeter implements SyncDeviceWithK
         }
     }
 
-    protected Optional<BigDecimal> getMultiplier(Optional<MeterActivation> activation) {
+    protected Optional<BigDecimal> getMultiplier(Optional<? extends MeterActivation> activation) {
         if (activation.isPresent() && activation.get().getMultiplier(multiplierType).isPresent()){
             return activation.get().getMultiplier(multiplierType);
         }
