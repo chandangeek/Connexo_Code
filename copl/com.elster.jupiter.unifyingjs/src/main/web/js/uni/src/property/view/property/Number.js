@@ -54,7 +54,10 @@ Ext.define('Uni.property.view.property.Number', {
         return {
             xtype: 'displayfield',
             name: this.getName(),
-            itemId: this.key + 'displayfield'
+            itemId: this.key + 'displayfield',
+            renderer: function(value) {
+                return Ext.isEmpty(value) ? '-' : value;
+            }
         }
     },
 
