@@ -10,6 +10,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.soap.whiteboard.cxf.security.Privileges;
+import com.elster.jupiter.util.Checks;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -152,7 +153,7 @@ public class EndPointConfigurationResource {
 
     private void validatePayload(EndPointConfigurationInfo info) {
         validateBasicPayload(info);
-        if (info.webServiceName == null) {
+        if (Checks.is(info.webServiceName).emptyOrOnlyWhiteSpace()) {
             throw new LocalizedFieldValidationException(MessageSeeds.FIELD_EXPECTED, "webServiceName");
         } else if (!webServicesService.getWebService(info.webServiceName).isPresent()) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.NO_SUCH_WEB_SERVICE);
