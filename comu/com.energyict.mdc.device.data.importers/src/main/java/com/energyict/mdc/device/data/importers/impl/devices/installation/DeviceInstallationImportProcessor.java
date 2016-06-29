@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.importers.impl.devices.installation;
 
+import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.LocationBuilder;
@@ -27,9 +28,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class DeviceInstallationImportProcessor extends DeviceTransitionImportProcessor<DeviceInstallationImportRecord> {
+class DeviceInstallationImportProcessor extends DeviceTransitionImportProcessor<DeviceInstallationImportRecord> {
 
-    public DeviceInstallationImportProcessor(DeviceDataImporterContext context) {
+    DeviceInstallationImportProcessor(DeviceDataImporterContext context) {
         super(context);
     }
 
@@ -39,7 +40,7 @@ public class DeviceInstallationImportProcessor extends DeviceTransitionImportPro
         List<String> geoCoordinatesData = data.getGeoCoordinates();
         EndDevice endDevice = super.getContext().getMeteringService().findEndDevice(data.getDeviceMRID())
                 .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_DEVICE, data.getLineNumber(), data.getDeviceMRID()));
-        if(locationData!=null && !locationData.isEmpty()){
+        if (locationData!=null && !locationData.isEmpty()) {
             LocationBuilder builder = super.getContext().getMeteringService().newLocationBuilder();
             Map<String, Integer> ranking = super.getContext()
                     .getMeteringService()
@@ -48,7 +49,7 @@ public class DeviceInstallationImportProcessor extends DeviceTransitionImportPro
                     .stream()
                     .collect(Collectors.toMap(TemplateField::getName,
                             TemplateField::getRanking));
-            if(ranking.entrySet().size() != locationData.size()){
+            if (ranking.entrySet().size() != locationData.size()) {
                 String fields = super.getContext()
                         .getMeteringService()
                         .getLocationTemplate()
@@ -59,7 +60,7 @@ public class DeviceInstallationImportProcessor extends DeviceTransitionImportPro
                         .map(s -> s = "<" + s + ">")
                         .collect(Collectors.joining(" "));
                 throw new ProcessorException(MessageSeeds.INCORRECT_LOCATION_FORMAT, fields);
-            }else{
+            } else {
                 super.getContext()
                         .getMeteringService()
                         .getLocationTemplate()
@@ -67,7 +68,7 @@ public class DeviceInstallationImportProcessor extends DeviceTransitionImportPro
                         .stream()
                         .filter(TemplateField::isMandatory)
                         .forEach(field -> {
-                            if(locationData.get(field.getRanking()) == null){
+                            if (locationData.get(field.getRanking()) == null) {
                                 throw new ProcessorException(MessageSeeds.LINE_MISSING_LOCATION_VALUE, data.getLineNumber(), field.getName());
                             }
                         });
@@ -82,7 +83,7 @@ public class DeviceInstallationImportProcessor extends DeviceTransitionImportPro
             endDevice.setLocation(builder.create());
         }
 
-        if(geoCoordinatesData!=null && !geoCoordinatesData.isEmpty() && validateGeoCoordinatesData(geoCoordinatesData)){
+        if (geoCoordinatesData!=null && !geoCoordinatesData.isEmpty() && validateGeoCoordinatesData(geoCoordinatesData)) {
             endDevice.setGeoCoordinates(super.getContext().getMeteringService()
                     .createGeoCoordinates(geoCoordinatesData.stream().reduce((s, t) -> s + ":" + t).get()));
         }
@@ -90,8 +91,7 @@ public class DeviceInstallationImportProcessor extends DeviceTransitionImportPro
     }
 
     @Override
-    protected void afterTransition(Device device, DeviceInstallationImportRecord data, FileImportLogger logger) throws
-            ProcessorException {
+    protected void afterTransition(Device device, DeviceInstallationImportRecord data, FileImportLogger logger) throws ProcessorException {
         super.afterTransition(device, data, logger);
         processUsagePoint(device, data, logger);
     }
@@ -141,11 +141,15 @@ public class DeviceInstallationImportProcessor extends DeviceTransitionImportPro
     }
 
     private void setUsagePoint(Device device, UsagePoint usagePoint, DeviceInstallationImportRecord data) {
-        getContext().getMeteringService().findAmrSystem(KnownAmrSystem.MDC.getId()).ifPresent(amrSystem -> {
-            amrSystem.findMeter(String.valueOf(device.getId())).ifPresent(meter -> {
-                usagePoint.activate(meter, data.getTransitionDate().orElse(getContext().getClock().instant()));
-            });
-        });
+        getContext().getMeteringService()
+                .findAmrSystem(KnownAmrSystem.MDC.getId())
+                .ifPresent(amrSystem -> this.setUsagePoint(device, usagePoint, data, amrSystem));
+    }
+
+    private void setUsagePoint(Device device, UsagePoint usagePoint, DeviceInstallationImportRecord data, AmrSystem amrSystem) {
+        amrSystem
+            .findMeter(String.valueOf(device.getId()))
+            .ifPresent(meter -> usagePoint.activate(meter, data.getTransitionDate().orElse(getContext().getClock().instant())));
     }
 
     @Override
@@ -192,11 +196,12 @@ public class DeviceInstallationImportProcessor extends DeviceTransitionImportPro
 
     private boolean validateGeoCoordinatesData(List<String> geoCoordinatesData){
         int count = 0;
-        for(String geoElement : geoCoordinatesData){
+        for (String geoElement : geoCoordinatesData) {
             if (geoElement == null){
                 count++;
             }
         }
         return count < 2;
     }
+
 }
