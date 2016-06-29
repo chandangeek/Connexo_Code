@@ -30,10 +30,10 @@ public class WaterPhysicalCapacitySearchableProperty extends PhysicalCapacitySea
                 .specForValuesOf(new QuantityValueFactory())
                 .named(this.uniqueName, PropertyTranslationKeys.USAGEPOINT_PHYSICAL_CAPACITY)
                 .fromThesaurus(this.thesaurus)
-                .addValues(Quantity.create(new BigDecimal(0), 0, "Wh"),
-                        Quantity.create(new BigDecimal(0), 3, "Wh"),
-                        Quantity.create(new BigDecimal(0), 6, "Wh"),
-                        Quantity.create(new BigDecimal(0), 9, "Wh"))
+                .addValues(Quantity.create(BigDecimal.ZERO, 0, "Wh"),
+                        Quantity.create(BigDecimal.ZERO, 3, "Wh"),
+                        Quantity.create(BigDecimal.ZERO, 6, "Wh"),
+                        Quantity.create(BigDecimal.ZERO, 9, "Wh"))
                 .finish();
     }
 }

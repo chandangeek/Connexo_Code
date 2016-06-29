@@ -21,16 +21,16 @@ import java.util.stream.Collectors;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-08 (12:13)
  */
-public class InferReadingType implements ServerExpressionNode.Visitor<VirtualReadingType> {
+class InferReadingType implements ServerExpressionNode.Visitor<VirtualReadingType> {
 
     private final VirtualReadingType requestedReadingType;
 
-    public InferReadingType(VirtualReadingType requestedReadingType) {
+    InferReadingType(VirtualReadingType requestedReadingType) {
         super();
         this.requestedReadingType = requestedReadingType;
     }
 
-    protected VirtualReadingType getRequestedReadingType() {
+    VirtualReadingType getRequestedReadingType() {
         return requestedReadingType;
     }
 
@@ -193,7 +193,7 @@ public class InferReadingType implements ServerExpressionNode.Visitor<VirtualRea
      *
      * @see CheckEnforceReadingTypeImpl
      */
-    private class EnforceReadingType implements ServerExpressionNode.Visitor<Void> {
+    private final class EnforceReadingType implements ServerExpressionNode.Visitor<Void> {
         private final VirtualReadingType readingType;
 
         private EnforceReadingType(VirtualReadingType readingType) {
@@ -271,7 +271,7 @@ public class InferReadingType implements ServerExpressionNode.Visitor<VirtualRea
      *
      * @see CheckEnforceReadingTypeImpl
      */
-    private class EnforceIntervalMultiplierAndCommodity implements ServerExpressionNode.Visitor<Void> {
+    private final class EnforceIntervalMultiplierAndCommodity implements ServerExpressionNode.Visitor<Void> {
         private final IntervalLength intervalLength;
         private final MetricMultiplier multiplier;
         private final Commodity commodity;
