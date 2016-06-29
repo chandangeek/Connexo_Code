@@ -15,6 +15,8 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 
 import aQute.bnd.annotation.ProviderType;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.List;
@@ -225,6 +227,8 @@ public interface DeviceType extends HasId, HasName {
      * @throws DuplicateDeviceMessageFileException Thrown if the name part of the Path conflicts with the name of another DeviceMessageFile that was added before
      */
     DeviceMessageFile addDeviceMessageFile(Path path);
+
+    DeviceMessageFile addDeviceMessageFile(InputStream inputStream, String fileName);
 
     void removeDeviceMessageFile(DeviceMessageFile obsolete);
 
