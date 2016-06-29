@@ -11,7 +11,9 @@ import com.elster.jupiter.cbo.Phase;
 import com.elster.jupiter.cbo.RationalNumber;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.devtools.tests.Matcher;
 import com.elster.jupiter.domain.util.Finder;
@@ -19,6 +21,10 @@ import com.elster.jupiter.domain.util.QueryParameters;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.metering.ElectricityDetail;
+import com.elster.jupiter.metering.GasDetail;
+import com.elster.jupiter.metering.HeatDetail;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
@@ -92,6 +98,8 @@ import javax.ws.rs.core.Application;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Currency;
@@ -106,6 +114,7 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.longThat;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -147,6 +156,10 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
     CommunicationTaskService communicationTaskService;
     @Mock
     CustomPropertySetService customPropertySetService;
+    @Mock
+    MeteringService meteringService;
+    @Mock
+    MetrologyConfigurationService metrologyConfigurationService;
 
     @Override
     protected Application getApplication() {
@@ -170,6 +183,8 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         application.setDeviceMessageService(deviceMessageService);
         application.setCommunicationTaskService(communicationTaskService);
         application.setCustomPropertySetService(customPropertySetService);
+        application.setMeteringService(meteringService);
+        application.setMetrologyConfigurationService(metrologyConfigurationService);
         return application;
     }
 
