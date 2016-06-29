@@ -31,15 +31,18 @@ import static com.elster.jupiter.util.Checks.is;
 public final class UserImpl implements User {
 
     private static final int MINIMAL_PASSWORD_STRENGTH = 4;
-    // persistent fields
+    @SuppressWarnings("unused") // Managed by ORM
     private long id;
     private String authenticationName;
     private String description;
     private String ha1;
     private int salt;
+    @SuppressWarnings("unused") // Managed by ORM
     private long version;
     private boolean status;
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant createTime;
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant modTime;
     private Instant lastSuccessfulLogin;
     private Instant lastUnSuccessfulLogin;

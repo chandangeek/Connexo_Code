@@ -29,13 +29,17 @@ public abstract class AbstractUserDirectoryImpl implements UserDirectory {
     @Size(max = 128, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_128 + "}")
     private String prefix;
     protected final DataModel dataModel;
+    @SuppressWarnings("unused") // Managed by ORM
     private long version;
+    @SuppressWarnings("unused") // Managed by ORM
     private long id;
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     private String type;
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant createTime;
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant modTime;
-    @SuppressWarnings("unused")
+    @SuppressWarnings("unused") // Managed by ORM
     private String userName;
 
     static final Map<String, Class<? extends UserDirectory>> IMPLEMENTERS = ImmutableMap.<String, Class<? extends UserDirectory>>of(
@@ -97,7 +101,7 @@ public abstract class AbstractUserDirectoryImpl implements UserDirectory {
     }
 
     public void delete(){
-        if(!isDefault()) {
+        if (!isDefault()) {
             dataModel.remove(this);
         }
     }
@@ -117,17 +121,21 @@ public abstract class AbstractUserDirectoryImpl implements UserDirectory {
         Condition domainCondition = Operator.EQUALIGNORECASE.compare("userDirectory.name", this.name);
         Condition activeCondition = Operator.EQUALIGNORECASE.compare("status", true);
         List<User> users = dataModel.query(User.class, UserDirectory.class).select(userCondition.and(domainCondition).and(activeCondition));
-        if(users.isEmpty()){
+        if (users.isEmpty()) {
             return Optional.empty();
-        }else {
+        } else {
             return Optional.of(users.get(0));
         }
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         AbstractUserDirectoryImpl intDir = (AbstractUserDirectoryImpl) o;
         return Objects.equals(getId(), intDir.getId());
     }
@@ -136,4 +144,5 @@ public abstract class AbstractUserDirectoryImpl implements UserDirectory {
     public int hashCode() {
         return Objects.hash(getId());
     }
+
 }

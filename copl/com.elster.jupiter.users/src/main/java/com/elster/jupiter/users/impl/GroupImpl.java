@@ -10,6 +10,7 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.MessageSeeds;
 import com.elster.jupiter.users.Privilege;
+
 import com.google.common.collect.ImmutableList;
 
 import javax.inject.Inject;
@@ -107,7 +108,7 @@ final class GroupImpl implements Group {
     private List<PrivilegeInGroup> getPrivilegeInGroups(String applicationName) {
         return getPrivilegeInGroups()
                 .stream()
-                .filter(p -> (applicationName == null) ? true : p.getApplicationName().equalsIgnoreCase(applicationName))
+                .filter(p -> (applicationName == null) || p.getApplicationName().equalsIgnoreCase(applicationName))
                 .collect(Collectors.toList());
     }
 

@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public final class ResourceImpl implements Resource {
-    // persistent fields
+final class ResourceImpl implements Resource {
+    @SuppressWarnings("unused") // Managed by ORM
     private long id;
     private String componentName;
     private String name;
