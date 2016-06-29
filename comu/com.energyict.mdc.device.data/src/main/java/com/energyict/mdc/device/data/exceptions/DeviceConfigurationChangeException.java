@@ -32,7 +32,7 @@ public class DeviceConfigurationChangeException extends LocalizedException imple
     public static DeviceConfigurationChangeException unsatisfiedRequirements(Thesaurus thesaurus, Device device, DeviceConfiguration destinationDeviceConfig, Map<MetrologyConfiguration, List<ReadingTypeRequirement>> unsatisfiedRequirements) {
         HashSet<String> uniqReadingTypes = new HashSet<>();
         unsatisfiedRequirements.forEach((mc, rtList) -> rtList.stream().forEach(rtr -> uniqReadingTypes.add(rtr.getDescription())));
-        return new DeviceConfigurationChangeException(thesaurus, MessageSeeds.CANNOT_CHANGE_DEVICE_CONFIG_TO_SAME_CONFIG, device.getmRID(), destinationDeviceConfig.getName(), uniqReadingTypes.toString());
+        return new DeviceConfigurationChangeException(thesaurus, MessageSeeds.CHANGE_DEVICE_CONFIG_UNSATISFIED_REQUIREMENTS, device.getmRID(), destinationDeviceConfig.getName(), uniqReadingTypes.toString());
     }
 
     public static DeviceConfigurationChangeException cannotChangeToConfigOfOtherDeviceType(Thesaurus thesaurus) {
