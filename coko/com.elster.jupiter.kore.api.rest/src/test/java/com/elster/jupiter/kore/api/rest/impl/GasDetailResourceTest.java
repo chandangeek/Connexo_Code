@@ -6,7 +6,9 @@ import com.elster.jupiter.metering.BypassStatus;
 import com.elster.jupiter.metering.GasDetail;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.rest.util.hypermedia.Relation;
 import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.units.Quantity;
@@ -125,8 +127,10 @@ public class GasDetailResourceTest extends PlatformPublicApiJerseyTest {
         when(gasDetail.isCollarInstalled()).thenReturn(YesNoAnswer.YES);
         when(gasDetail.getRange()).thenReturn(Range.downTo(clock.instant(), BoundType.CLOSED));
         UsagePoint usagePoint = mockUsagePoint(31L, "usage point", 2L, ServiceKind.GAS, gasDetail);
-        MetrologyConfiguration metrologyConfiguration = mockMetrologyConfiguration(13L, "metro", 1);
-        when(usagePoint.getMetrologyConfiguration()).thenReturn(Optional.of(metrologyConfiguration)); //TODO: fix tests
+        UsagePointMetrologyConfiguration metrologyConfiguration = mockMetrologyConfiguration(13L, "metro", 1);
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
+        when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfigurationOnUsagePoint));
+        when(effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
         Response response = target("/usagepoints/31/details").request().get();
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());

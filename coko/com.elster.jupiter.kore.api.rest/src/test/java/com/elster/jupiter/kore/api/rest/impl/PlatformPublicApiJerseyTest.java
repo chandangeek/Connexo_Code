@@ -192,7 +192,7 @@ public class PlatformPublicApiJerseyTest extends FelixRestApplicationJerseyTest 
     }
 
 
-    protected MetrologyConfiguration mockMetrologyConfiguration(long id, String name, long version) {
+    protected UsagePointMetrologyConfiguration mockMetrologyConfiguration(long id, String name, long version) {
         UsagePointMetrologyConfiguration metrologyConfiguration = mock(UsagePointMetrologyConfiguration.class);
         when(metrologyConfiguration.getId()).thenReturn(id);
         when(metrologyConfiguration.getName()).thenReturn(name);

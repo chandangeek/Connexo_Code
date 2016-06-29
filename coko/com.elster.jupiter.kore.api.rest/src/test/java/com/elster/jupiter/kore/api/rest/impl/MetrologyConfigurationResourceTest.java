@@ -1,6 +1,7 @@
 package com.elster.jupiter.kore.api.rest.impl;
 
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.rest.util.hypermedia.Relation;
 
 import com.jayway.jsonpath.JsonModel;
@@ -24,13 +25,13 @@ public class MetrologyConfigurationResourceTest extends PlatformPublicApiJerseyT
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        MetrologyConfiguration metrologyConfiguration = mockMetrologyConfiguration(31, "metro", 1);
+        UsagePointMetrologyConfiguration metrologyConfiguration = mockMetrologyConfiguration(31, "metro", 1);
     }
 
     @Test
     public void testAllGetMetrologysPaged() throws Exception {
-        MetrologyConfiguration metrologyConfiguration1 = mockMetrologyConfiguration(31, "metro", 1);
-        MetrologyConfiguration metrologyConfiguration2 = mockMetrologyConfiguration(32, "metro", 1);
+        UsagePointMetrologyConfiguration metrologyConfiguration1 = mockMetrologyConfiguration(31, "metro", 1);
+        UsagePointMetrologyConfiguration metrologyConfiguration2 = mockMetrologyConfiguration(32, "metro", 1);
         when(metrologyConfigurationService.findAllMetrologyConfigurations()).thenReturn(Arrays.asList(metrologyConfiguration1, metrologyConfiguration2));
         Response response = target("/metrologyconfigurations").queryParam("start", 0)
                 .queryParam("limit", 10)
