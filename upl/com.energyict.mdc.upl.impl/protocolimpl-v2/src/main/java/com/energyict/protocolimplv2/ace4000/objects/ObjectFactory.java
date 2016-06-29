@@ -700,7 +700,9 @@ public class ObjectFactory {
         getSyncTime().setMeterTime(meterTime);
         getSyncTime().setReceiveTime(receiveTime);
         getSyncTime().request();
-        //No need to track the result, this only serves as an ack for the meter after receiving its date and time
+
+        //Read in the ack for this sync request and move on.
+        getAce4000().getAce4000Connection().readFrames(false);
     }
 
     /**

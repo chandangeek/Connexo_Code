@@ -75,7 +75,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
     }
 
     public String getVersion() {
-        return "$Date: 2016-06-29 11:13:10 +0200 (Wed, 29 Jun 2016)$";
+        return "$Date: 2016-06-29 13:42:57 +0200 (Wed, 29 Jun 2016)$";
     }
 
     @Override
