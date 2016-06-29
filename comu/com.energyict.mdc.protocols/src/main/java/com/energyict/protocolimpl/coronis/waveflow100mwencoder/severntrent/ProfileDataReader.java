@@ -106,7 +106,7 @@ public class ProfileDataReader {
                     bd = new BigDecimal(readings[index]);
                     bd = bd.movePointLeft(8 - encoderDataloggingTable.getEncoderGenericHeader().getEncoderUnitInfos()[portId].getNrOfDigitsBeforeDecimalPoint());
                 } else {
-                    bd = new BigDecimal(0);
+                    bd = BigDecimal.ZERO;
                 }
                 List<IntervalValue> intervalValues = new ArrayList<IntervalValue>();
                 intervalValues.add(new IntervalValue(bd, 0, 0));
@@ -122,14 +122,14 @@ public class ProfileDataReader {
                     bdA = new BigDecimal(encoderDataloggingTable.getEncoderReadingsPortA()[index]);
                     bdA = bdA.movePointLeft(8 - encoderDataloggingTable.getEncoderGenericHeader().getEncoderUnitInfos()[0].getNrOfDigitsBeforeDecimalPoint());
                 } else {
-                    bdA = new BigDecimal(0);
+                    bdA = BigDecimal.ZERO;
                 }
                 BigDecimal bdB = null;
                 if (encoderDataloggingTable.getEncoderGenericHeader().getEncoderUnitInfos()[1].getEncoderUnitType() != EncoderUnitType.Unknown) {
                     bdB = new BigDecimal(encoderDataloggingTable.getEncoderReadingsPortB()[index]);
                     bdB = bdB.movePointLeft(8 - encoderDataloggingTable.getEncoderGenericHeader().getEncoderUnitInfos()[1].getNrOfDigitsBeforeDecimalPoint());
                 } else {
-                    bdB = new BigDecimal(0);
+                    bdB = BigDecimal.ZERO;
                 }
                 List<IntervalValue> intervalValues = new ArrayList<IntervalValue>();
                 intervalValues.add(new IntervalValue(bdA, 0, 0));

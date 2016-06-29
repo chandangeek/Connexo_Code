@@ -1,16 +1,14 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.ihd.messaging;
 
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.cosem.ImageTransfer;
+import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
-
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.cosem.ImageTransfer;
-import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.protocolimpl.generic.MessageParser;
-import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 import com.energyict.protocolimpl.generic.messages.MessageHandler;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.smartmeterprotocolimpl.eict.NTAMessageHandler;
@@ -18,7 +16,9 @@ import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.ihd.InHomeDisplay;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
+import java.io.File;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -78,9 +78,7 @@ public class InHomeDisplayMessageExecutor extends MessageParser {
     private void updateFirmware(MessageHandler messageHandler, String content) throws IOException {
         log(Level.INFO, "Handling message Firmware upgrade");
 
-        String firmwareContent = messageHandler.getFirmwareContent();
-
-        byte[] imageData = GenericMessaging.b64DecodeAndUnZipToOriginalContent(firmwareContent);
+        String path = messageHandler.getFirmwareFilePath();
 
         String[] parts = content.split("=");
         Date date = null;
@@ -100,7 +98,9 @@ public class InHomeDisplayMessageExecutor extends MessageParser {
         }
 
         ImageTransfer it = ((InHomeDisplay) protocol).getCosemObjectFactory().getImageTransfer(IMAGE_TRANSFER_OBIS);
-        it.upgrade(imageData);
+        try (final RandomAccessFile file = new RandomAccessFile(new File(path), "r")) {
+            it.upgrade(new ImageTransfer.RandomAccessFileImageBlockSupplier(file), true, ImageTransfer.DEFAULT_IMAGE_NAME, false);
+        }
         if (date != null) {
             SingleActionSchedule sas = ((InHomeDisplay) protocol).getCosemObjectFactory().getSingleActionSchedule(IMAGE_ACTIVATION_SCHEDULER);
             Array dateArray = convertUnixToDateTimeArray(String.valueOf(date.getTime() / 1000));
