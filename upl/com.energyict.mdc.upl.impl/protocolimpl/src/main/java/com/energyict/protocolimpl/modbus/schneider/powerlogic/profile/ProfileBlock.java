@@ -37,8 +37,6 @@ public class ProfileBlock {
         channelInfos.add(new ChannelInfo(channelInfos.size(), "Active Energy Delivered", Unit.get(BaseUnit.WATTHOUR)));
         channelInfos.add(new ChannelInfo(channelInfos.size(), "Active Energy Received", Unit.get(BaseUnit.WATTHOUR)));
         channelInfos.add(new ChannelInfo(channelInfos.size(), "Active Power A", Unit.get(BaseUnit.WATT)));
-        channelInfos.add(new ChannelInfo(channelInfos.size(), "Active Power B", Unit.get(BaseUnit.WATT)));
-        channelInfos.add(new ChannelInfo(channelInfos.size(), "Active Power C", Unit.get(BaseUnit.WATT)));
         channelInfos.add(new ChannelInfo(channelInfos.size(), "Active Power Total", Unit.get(BaseUnit.WATT)));
         channelInfos.add(new ChannelInfo(channelInfos.size(), "Apparent Energy Delivered", Unit.get(BaseUnit.WATTHOUR)));
         channelInfos.add(new ChannelInfo(channelInfos.size(), "Apparent Energy Received", Unit.get(BaseUnit.WATTHOUR)));
@@ -51,13 +49,12 @@ public class ProfileBlock {
         List<IntervalData> intervalDatas = new ArrayList<>();
         for (ProfileRecord profileRecord : getProfileRecords().getProfileRecords()) {
             List<IntervalValue> intervalValues = new ArrayList<>();
-
             for(Object value: profileRecord.getValues()){
-                intervalValues.add(new IntervalValue(
-                        (Long)value,
-                        0,
-                        0
-                ));
+                    intervalValues.add(new IntervalValue(
+                            (Number)value,
+                            0,
+                            0
+                    ));
             }
 
             intervalDatas.add(
@@ -72,19 +69,8 @@ public class ProfileBlock {
 
         }
 
-        sortIntervalData(intervalDatas);
         return intervalDatas;
     }
-
-    private void sortIntervalData(List<IntervalData> intervalDatas) {
-        Collections.sort(intervalDatas,
-                new Comparator<IntervalData>() {
-                    public int compare(IntervalData o1, IntervalData o2) {
-                        return o1.getEndTime().compareTo(o2.getEndTime());
-                    }
-                });
-    }
-
 
     public Date getOldestProfileRecordDate() {
         Date oldestDate = null;

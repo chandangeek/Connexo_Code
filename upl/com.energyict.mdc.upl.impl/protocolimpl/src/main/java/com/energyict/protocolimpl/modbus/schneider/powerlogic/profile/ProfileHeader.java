@@ -38,6 +38,10 @@ public class ProfileHeader {
     }
 
 
+    public void setIntegrationPeriod(int integrationPeriod) {
+        this.integrationPeriod = integrationPeriod;
+    }
+
     public int getIntegrationPeriod() {
         return integrationPeriod;
     }

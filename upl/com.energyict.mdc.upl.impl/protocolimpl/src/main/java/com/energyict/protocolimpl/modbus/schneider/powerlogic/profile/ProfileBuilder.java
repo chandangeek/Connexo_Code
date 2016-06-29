@@ -18,8 +18,7 @@ import java.util.List;
 public class ProfileBuilder {
 
     private static final int SECONDS_PER_MINUTE = 60;
-    private static final int REGULAR_NUMBER_OF_PROFILE_RECORDS_PER_PROFILE_BLOCK = 1;
-    private static final int REGULAR_NUMBER_OF_CHANNELS = 9;
+    private static final int REGULAR_NUMBER_OF_CHANNELS = 8;
     private PM5561 protocol;
     private ProfileBlock lastProfileBlock;
     private double ratio = 1;
@@ -52,8 +51,6 @@ public class ProfileBuilder {
             firstRecord = (BigDecimal) protocol.getRegisterFactory().findRegister(PM5561RegisterFactory.LOAD_PROFILE_FIRST_RECORD).value();
         }
         List<ProfileBlock> profileDataBlocks = new ArrayList<ProfileBlock>();
-
-        profileDataBlocks.add(getLastProfileBlock());
         ProfileBlock profileBlock = getLastProfileBlock();
         if(numberOfRecords == null) {
             numberOfRecords = (BigDecimal) protocol.getRegisterFactory().findRegister(PM5561RegisterFactory.LOAD_PROFILE_NUMBER_OF_RECORDS).value();
