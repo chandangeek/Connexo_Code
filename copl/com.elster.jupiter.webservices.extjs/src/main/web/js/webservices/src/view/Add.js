@@ -285,6 +285,7 @@ Ext.define('Wss.view.Add', {
                     name: 'group',
                     itemId: 'userRoleField',
                     store: this.rolesStore,
+                    value: 'all',
                     fieldLabel: Uni.I18n.translate('endPointAdd.userRole', 'WSS', 'User role'),
                     required: true,
                     displayField: 'name',
