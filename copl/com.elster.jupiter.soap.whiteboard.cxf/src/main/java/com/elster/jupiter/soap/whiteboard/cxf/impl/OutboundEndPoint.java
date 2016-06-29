@@ -3,6 +3,8 @@ package com.elster.jupiter.soap.whiteboard.cxf.impl;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.SoapProviderSupportFactory;
+import com.elster.jupiter.util.osgi.ContextClassLoaderResource;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
@@ -19,15 +21,17 @@ import java.util.List;
  * Created by bvn on 5/10/16.
  */
 public final class OutboundEndPoint implements ManagedEndpoint {
+    private final BundleContext bundleContext;
+    private final SoapProviderSupportFactory soapProviderSupportFactory;
+
     private OutboundEndPointProvider endPointProvider;
     private EndPointConfiguration endPointConfiguration;
-    private final BundleContext bundleContext;
-
     private ServiceRegistration<?> serviceRegistration;
 
     @Inject
-    public OutboundEndPoint(BundleContext bundleContext) {
+    public OutboundEndPoint(BundleContext bundleContext, SoapProviderSupportFactory soapProviderSupportFactory) {
         this.bundleContext = bundleContext;
+        this.soapProviderSupportFactory = soapProviderSupportFactory;
     }
 
     OutboundEndPoint init(OutboundEndPointProvider endPointProvider, OutboundEndPointConfiguration endPointConfiguration) {
@@ -41,11 +45,10 @@ public final class OutboundEndPoint implements ManagedEndpoint {
         if (this.isPublished()) {
             throw new IllegalStateException("Service already published");
         }
-        try {
+        try (ContextClassLoaderResource ctx = soapProviderSupportFactory.create()) {
             List<WebServiceFeature> features = new ArrayList<>();
             Service service = Service.create(new URL(endPointConfiguration.getUrl()), endPointProvider.get()
                     .getServiceName());
-
             serviceRegistration = bundleContext.registerService(
                     endPointProvider.getService(),
                     service.getPort(endPointProvider.getService(), features.toArray(new WebServiceFeature[features
