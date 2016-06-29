@@ -57,12 +57,11 @@ import java.util.stream.Collectors;
 import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.upgrade.InstallIdentifier.identifier;
 
-
 @Component(
         name = "com.elster.jupiter.bpm",
         service = {BpmService.class, TranslationKeyProvider.class, MessageSeedProvider.class},
         property = {"name=" + BpmService.COMPONENTNAME}, immediate = true)
-public class BpmServiceImpl implements BpmService, TranslationKeyProvider, MessageSeedProvider {
+public final class BpmServiceImpl implements BpmService, TranslationKeyProvider, MessageSeedProvider {
 
     private volatile DataModel dataModel;
     private volatile MessageService messageService;
@@ -79,7 +78,7 @@ public class BpmServiceImpl implements BpmService, TranslationKeyProvider, Messa
     }
 
     @Inject
-    public BpmServiceImpl(OrmService ormService, MessageService messageService, JsonService jsonService, NlsService nlsService, UserService userService, QueryService queryService, ThreadPrincipalService threadPrincipalService, UpgradeService upgradeService) {
+    BpmServiceImpl(OrmService ormService, MessageService messageService, JsonService jsonService, NlsService nlsService, UserService userService, QueryService queryService, ThreadPrincipalService threadPrincipalService, UpgradeService upgradeService) {
         this();
         setOrmService(ormService);
         setMessageService(messageService);
@@ -227,7 +226,7 @@ public class BpmServiceImpl implements BpmService, TranslationKeyProvider, Messa
         List<BpmProcessDefinition> bpmProcessDefinitions = dataModel.query(BpmProcessDefinition.class)
                 .select(nameCondition.and(versionCondition));
         if (bpmProcessDefinitions.isEmpty()) {
-            return BpmProcessDefinitionImpl.from(dataModel, processName, association, version, status, "MDC");
+            return BpmProcessDefinitionImpl.from(dataModel, processName, association, version, status, "MDC", Collections.emptyList());
         }
         bpmProcessDefinitions.get(0).setStatus(status);
         return bpmProcessDefinitions.get(0);
@@ -301,11 +300,11 @@ public class BpmServiceImpl implements BpmService, TranslationKeyProvider, Messa
 
     @Override
     public BpmProcessDefinitionBuilder newProcessBuilder() {
-        return new BpmProcessDefinitionBuilderImpl(dataModel, this);
+        return new BpmProcessDefinitionBuilderImpl(dataModel);
     }
 
     public List<ProcessAssociationProvider> getProcessAssociationProviders() {
-        return processAssociationProviders;
+        return Collections.unmodifiableList(processAssociationProviders);
     }
 
     @Override
