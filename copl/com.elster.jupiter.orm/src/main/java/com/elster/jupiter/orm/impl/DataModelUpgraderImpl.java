@@ -13,6 +13,8 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -170,7 +172,10 @@ public class DataModelUpgraderImpl implements DataModelUpgrader {
     @Override
     public void upgrade(DataModel dataModel, Version version) {
         DataModelImpl current = getCurrentDataModel((DataModelImpl) dataModel, version);
-        upgradeTo(current, (DataModelImpl) dataModel, version);
+        try (Context context = state.createContext(current)) {
+            List<Difference> allDdl = determineDdl(current, (DataModelImpl) dataModel, version, context);
+            state.handleSqlStatements(context, allDdl);
+        }
     }
 
     private DataModelImpl getCurrentDataModel(DataModelImpl model, Version version) {
@@ -180,19 +185,20 @@ public class DataModelUpgraderImpl implements DataModelUpgrader {
         Set<String> processedTables = new HashSet<>();
         if (schemaMetaDataModel != null) {
             for (TableImpl<?> table : model.getTables(version)) {
-                String existingJournalTableName =
-                        table.hasJournal()
-                                ? schemaMetaDataModel.mapper(ExistingTable.class)
-                                .getEager(table.getJournalTableName())
-                                .map(ExistingTable::getName)
-                                .orElse(null)
-                                : null;
+                String existingJournalTableName = table.hasJournal() ? getExistingJournalTableName(schemaMetaDataModel, table) : null;
                 table.getHistoricalNames()
                         .stream()
                         .forEach(tableName -> addTableToExistingModel(currentDataModel, schemaMetaDataModel, tableName, existingJournalTableName, processedTables));
             }
         }
         return currentDataModel;
+    }
+
+    private String getExistingJournalTableName(DataModel schemaMetaDataModel, TableImpl<?> table) {
+        return schemaMetaDataModel.mapper(ExistingTable.class)
+                .getEager(table.getJournalTableName())
+                .map(ExistingTable::getName)
+                .orElse(null);
     }
 
     private DataModel getSchemaDataModel() {
@@ -223,23 +229,12 @@ public class DataModelUpgraderImpl implements DataModelUpgrader {
         }
     }
 
-    private void upgradeTo(DataModelImpl fromDataModel, DataModelImpl toDataModel, Version version) {
-        try (Context context = state.createContext(fromDataModel)) {
-            upgradeTo(fromDataModel, toDataModel, version, context);
-        } catch (SQLException e) {
-            throw new UnderlyingSQLFailedException(e);
-        }
-
-    }
-
-    private void upgradeTo(DataModelImpl fromDataModel, DataModelImpl toDataModel, Version version, Context context) throws
-            SQLException {
-        Stream<String> upgradeTableDdl = upgradeDdl(fromDataModel, toDataModel, version, context);
-        Stream<String> dropTableDdl = dropTableDdl(fromDataModel, toDataModel, version);
-        List<String> allDdl = Stream.of(upgradeTableDdl, dropTableDdl)
+    private List<Difference> determineDdl(DataModelImpl fromDataModel, DataModelImpl toDataModel, Version version, Context context) {
+        Stream<Difference> upgradeTableDdl = upgradeDdl(fromDataModel, toDataModel, version, context);
+        Stream<Difference> dropTableDdl = dropTableDdl(fromDataModel, toDataModel, version);
+        return Stream.of(upgradeTableDdl, dropTableDdl)
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());
-        state.handleSqlStatements(context, allDdl);
     }
 
     private Stream<String> dropTableDdl(DataModelImpl fromDataModel, DataModelImpl toDataModel, Version version) {
@@ -254,7 +249,7 @@ public class DataModelUpgraderImpl implements DataModelUpgrader {
                 .filter(Objects::nonNull);
     }
 
-    private Stream<String> upgradeDdl(DataModelImpl fromDataModel, DataModelImpl toDataModel, Version version, Context context) {
+    private Stream<Difference> upgradeDdl(DataModelImpl fromDataModel, DataModelImpl toDataModel, Version version, Context context) {
         return toDataModel.getTables(version)
                 .stream()
                 .filter(Table::isAutoInstall)
@@ -262,7 +257,7 @@ public class DataModelUpgraderImpl implements DataModelUpgrader {
                 .flatMap(List::stream);
     }
 
-    private List<String> upgradeTo(DataModelImpl fromDataModel, TableImpl<?> toTable, Version version, Context context) {
+    private List<Difference> upgradeTo(DataModelImpl fromDataModel, TableImpl<?> toTable, Version version, Context context) {
         try {
             return tryUpgradeTo(fromDataModel, toTable, version, context);
         } catch (SQLException e) {
@@ -270,7 +265,7 @@ public class DataModelUpgraderImpl implements DataModelUpgrader {
         }
     }
 
-    private List<String> tryUpgradeTo(DataModelImpl fromDataModel, TableImpl<?> toTable, Version version, Context context) throws
+    private List<Difference> tryUpgradeTo(DataModelImpl fromDataModel, TableImpl<?> toTable, Version version, Context context) throws
             SQLException {
         TableImpl<?> fromTable = findFromTable(fromDataModel, toTable, version);
         if (fromTable != null) {
@@ -296,7 +291,7 @@ public class DataModelUpgraderImpl implements DataModelUpgrader {
 
     private List<String> upgradeTable(TableImpl<?> toTable, TableImpl<?> fromTable, Version version, Context context) throws
             SQLException {
-        List<String> upgradeDdl = state.ddlGenerator(fromTable, version).upgradeDdl(toTable);
+        List<Difference> upgradeDdl = state.ddlGenerator(fromTable, version).upgradeDdl(toTable);
         for (ColumnImpl sequenceColumn : toTable.getAutoUpdateColumns()) {
             if (sequenceColumn.getQualifiedSequenceName() != null) {
                 long sequenceValue = getLastSequenceValue(context, sequenceColumn.getQualifiedSequenceName());
