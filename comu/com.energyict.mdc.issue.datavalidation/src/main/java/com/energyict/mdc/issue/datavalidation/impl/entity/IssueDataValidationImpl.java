@@ -96,10 +96,7 @@ public class IssueDataValidationImpl implements IssueDataValidation {
     public Optional<UsagePoint> getUsagePoint() {
         return getBaseIssue().getUsagePoint();
     }
-    @Override
-    public String getIssueId() {
-        return getBaseIssue().getIssueId();
-    }
+
     @Override
     public Instant getDueDate() {
         return getBaseIssue().getDueDate();

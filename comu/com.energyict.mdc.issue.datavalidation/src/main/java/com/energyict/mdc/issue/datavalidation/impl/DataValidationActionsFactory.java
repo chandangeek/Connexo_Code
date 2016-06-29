@@ -1,5 +1,6 @@
 package com.energyict.mdc.issue.datavalidation.impl;
 
+import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.IssueActionFactory;
 import com.elster.jupiter.issue.share.entity.IssueActionClassLoadFailedException;
@@ -12,7 +13,12 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.issue.datavalidation.impl.actions.RetryEstimationAction;
-import com.google.inject.*;
+
+import com.google.inject.AbstractModule;
+import com.google.inject.ConfigurationException;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.ProvisionException;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -35,6 +41,7 @@ public class DataValidationActionsFactory implements IssueActionFactory {
     private volatile PropertySpecService propertySpecService;
     private volatile DataModel dataModel;
     private volatile ThreadPrincipalService threadPrincipalService;
+    private volatile EstimationService estimationService;
 
     private Injector injector;
     private Map<String, Provider<? extends IssueAction>> actionProviders = new HashMap<>();
@@ -50,14 +57,15 @@ public class DataValidationActionsFactory implements IssueActionFactory {
                                         NlsService nlsService,
                                         IssueService issueService,
                                         PropertySpecService propertySpecService,
-                                        ThreadPrincipalService threadPrincipalService) {
+                                        ThreadPrincipalService threadPrincipalService,
+                                        EstimationService estimationService) {
         this();
         setOrmService(ormService);
         setThesaurus(nlsService);
         setIssueService(issueService);
         setPropertySpecService(propertySpecService);
         setThreadPrincipalService(threadPrincipalService);
-
+        setEstimationService(estimationService);
         activate();
     }
 
@@ -73,6 +81,7 @@ public class DataValidationActionsFactory implements IssueActionFactory {
                 bind(IssueService.class).toInstance(issueService);
                 bind(PropertySpecService.class).toInstance(propertySpecService);
                 bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
+                bind(EstimationService.class).toInstance(estimationService);
             }
         });
 
@@ -116,6 +125,11 @@ public class DataValidationActionsFactory implements IssueActionFactory {
     @Reference
     public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
         this.threadPrincipalService = threadPrincipalService;
+    }
+
+    @Reference
+    public void setEstimationService(EstimationService estimationService) {
+        this.estimationService = estimationService;
     }
 
     private void addDefaultActions() {

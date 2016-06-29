@@ -1,12 +1,18 @@
 package com.energyict.mdc.issue.datavalidation.impl.actions;
 
 
+import com.elster.jupiter.estimation.EstimationBlock;
+import com.elster.jupiter.estimation.EstimationReport;
+import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.issue.share.AbstractIssueAction;
 import com.elster.jupiter.issue.share.IssueActionResult;
 import com.elster.jupiter.issue.share.IssueActionResult.DefaultActionResult;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.readings.BaseReading;
+import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
@@ -14,7 +20,10 @@ import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.impl.TranslationKeys;
 
+import com.google.common.collect.Range;
+
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -22,13 +31,14 @@ public class RetryEstimationAction extends AbstractIssueAction {
 
     private static final String NAME = "RetryEstimationAction";
 
-
     private IssueService issueService;
+    private EstimationService estimationService;
 
     @Inject
-    public RetryEstimationAction(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService, IssueService issueService) {
+    public RetryEstimationAction(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService, IssueService issueService, EstimationService estimationService) {
         super(dataModel, thesaurus, propertySpecService);
         this.issueService = issueService;
+        this.estimationService = estimationService;
     }
 
     @Override
@@ -37,8 +47,11 @@ public class RetryEstimationAction extends AbstractIssueAction {
         if (isApplicable(issue)){
             issue.setStatus(issueService.findStatus(IssueStatus.IN_PROGRESS).get());
             issue.update();
-
-            result.success(getThesaurus().getFormat(TranslationKeys.ACTION_RETRY_ESTIMATION_SUCCESS).format());
+            if (retry(issue)) {
+                result.success(getThesaurus().getFormat(TranslationKeys.ACTION_RETRY_ESTIMATION_SUCCESS).format());
+            } else {
+                result.fail(getThesaurus().getFormat(TranslationKeys.ACTION_RETRY_ESTIMATION_FAIL).format());
+            }
         }
         return result;
     }
@@ -62,5 +75,28 @@ public class RetryEstimationAction extends AbstractIssueAction {
     @Override
     public String getDisplayName() {
         return getThesaurus().getFormat(TranslationKeys.ACTION_RETRY_ESTIMATION).format();
+    }
+
+    private boolean retry(Issue issue) {
+        IssueDataValidation dviIssue = (IssueDataValidation) issue;
+
+        List<EstimationBlock> nonEstimatedBlocks = new ArrayList<>();
+        dviIssue.getNotEstimatedBlocks().stream().forEach(block -> {
+            Channel channel = block.getChannel();
+            EstimationReport estimationReport = estimationService.previewEstimate(channel.getMeterActivation(), Range.openClosed(block.getStartTime(), block.getEndTime()));
+
+            List<BaseReading> editedBulkReadings = new ArrayList<>();
+            estimationReport.getResults().entrySet().forEach(result -> {
+                nonEstimatedBlocks.addAll(result.getValue().remainingToBeEstimated());
+                result.getValue().estimated()
+                        .forEach(estimated -> estimated.estimatables()
+                                .forEach(value -> {
+                                    editedBulkReadings.add(IntervalReadingImpl.of(value.getTimestamp(), value.getEstimation(), null));
+                                }));
+            });
+            channel.editReadings(editedBulkReadings);
+        });
+
+        return (nonEstimatedBlocks.size() == 0);
     }
 }

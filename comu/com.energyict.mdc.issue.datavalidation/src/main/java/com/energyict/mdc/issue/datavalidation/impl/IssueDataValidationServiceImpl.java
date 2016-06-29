@@ -173,6 +173,10 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
         }
     }
 
+    public DataModel getDataModel() {
+        return this.dataModel;
+    }
+
     @Reference
     public void setIssueService(IssueService issueService) {
         this.issueService = issueService;
