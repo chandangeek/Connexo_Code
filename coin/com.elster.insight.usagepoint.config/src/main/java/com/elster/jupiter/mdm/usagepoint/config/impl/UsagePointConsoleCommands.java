@@ -1,6 +1,7 @@
 package com.elster.jupiter.mdm.usagepoint.config.impl;
 
 import com.elster.jupiter.cbo.PhaseCode;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Meter;
@@ -11,8 +12,8 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
-import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
@@ -124,12 +125,12 @@ public class UsagePointConsoleCommands {
         }
     }
 
-    public void createValidationRuleSet(String name, String applicationName) {
+    public void createValidationRuleSet(String name, String qualityCodeSystem) {
         try {
             transactionService.builder()
                     .principal(() -> "console")
                     .run(() -> {
-                        validationService.createValidationRuleSet(name, applicationName);
+                        validationService.createValidationRuleSet(name, QualityCodeSystem.of(qualityCodeSystem));
                     });
         } catch (Exception e) {
             e.printStackTrace();

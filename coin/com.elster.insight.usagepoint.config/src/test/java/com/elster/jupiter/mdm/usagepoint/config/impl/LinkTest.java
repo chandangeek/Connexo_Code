@@ -49,11 +49,11 @@ public class LinkTest {
                     .newUsagePointMetrologyConfiguration("Test residential prosumer with 2 meters", serviceCategory).create();
             MetrologyPurpose purposeBilling = serverMetrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.BILLING).get();
             MetrologyContract contractBilling = usagePointMetrologyConfiguration.addMandatoryMetrologyContract(purposeBilling);
-            ValidationRuleSet vrs1 = validationService.createValidationRuleSet("Rule #1", "INS");
+            ValidationRuleSet vrs1 = validationService.createValidationRuleSet("Rule #1", QualityCodeSystem.MDM);
             usagePointConfigurationService.addValidationRuleSet(contractBilling, vrs1);
             assertThat(serverMetrologyConfigurationService.findMetrologyConfiguration(usagePointMetrologyConfiguration.getId())).isPresent();
             assertThat(usagePointConfigurationService.getValidationRuleSets(contractBilling)).hasSize(1);
-            ValidationRuleSet vrs2 = validationService.createValidationRuleSet("Rule #2", "INS");
+            ValidationRuleSet vrs2 = validationService.createValidationRuleSet("Rule #2", QualityCodeSystem.MDM);
             usagePointConfigurationService.addValidationRuleSet(contractBilling, vrs2);
             assertThat(usagePointConfigurationService.getValidationRuleSets(contractBilling)).hasSize(2);
             usagePointConfigurationService.removeValidationRuleSet(contractBilling, vrs1);

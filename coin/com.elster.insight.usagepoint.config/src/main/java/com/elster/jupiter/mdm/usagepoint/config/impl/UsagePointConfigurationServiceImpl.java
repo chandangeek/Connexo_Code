@@ -9,13 +9,13 @@ import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
-import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.PartiallySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeRequirementChecker;
 import com.elster.jupiter.metering.config.ReadingTypeTemplate;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -25,8 +25,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.users.PrivilegesProvider;
-import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.validation.ValidationRuleSet;
@@ -55,10 +53,10 @@ import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(
         name = "UsagePointConfigurationServiceImpl",
-        service = {UsagePointConfigurationService.class, PrivilegesProvider.class, TranslationKeyProvider.class},
+        service = {UsagePointConfigurationService.class, TranslationKeyProvider.class},
         property = {"name=" + UsagePointConfigurationService.COMPONENTNAME},
         immediate = true)
-public class UsagePointConfigurationServiceImpl implements UsagePointConfigurationService, PrivilegesProvider, TranslationKeyProvider {
+public class UsagePointConfigurationServiceImpl implements UsagePointConfigurationService, TranslationKeyProvider {
 
     private volatile DataModel dataModel;
     private volatile Clock clock;
@@ -162,20 +160,6 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
 
     DataModel getDataModel() {
         return dataModel;
-    }
-
-    @Override
-    public String getModuleName() {
-        return UsagePointConfigurationService.COMPONENTNAME;
-    }
-
-    @Override
-    public List<ResourceDefinition> getModuleResources() {
-        List<ResourceDefinition> resources = new ArrayList<>();
-        resources.add(userService.createModuleResourceWithPrivileges(UsagePointConfigurationService.COMPONENTNAME, DefaultTranslationKey.RESOURCE_VALIDATION_CONFIGURATION
-                        .getKey(), DefaultTranslationKey.RESOURCE_VALIDATION_CONFIGURATION_DESCRIPTION.getKey(),
-                Arrays.asList(Privileges.Constants.VIEW_VALIDATION_ON_METROLOGY_CONFIGURATION, Privileges.Constants.ADMINISTER_VALIDATION_ON_METROLOGY_CONFIGURATION)));
-        return resources;
     }
 
     @Override
@@ -288,5 +272,15 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
             }
         }
         return false;
+    }
+
+    @Override
+    public boolean isValidationRuleSetInUse(ValidationRuleSet ruleset) {
+        Condition condition = where(MetrologyContractValidationRuleSetUsageImpl.Fields.VALIDATION_RULE_SET.fieldName())
+                .isEqualTo(ruleset);
+        return !this.dataModel
+                .query(MetrologyContractValidationRuleSetUsage.class)
+                .select(condition)
+                .isEmpty();
     }
 }

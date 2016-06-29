@@ -47,4 +47,6 @@ public interface UsagePointConfigurationService {
     void removeValidationRuleSet(MetrologyContract metrologyContract, ValidationRuleSet validationRuleSet);
 
     boolean isLinkableValidationRuleSet(MetrologyContract metrologyContract, ValidationRuleSet validationRuleSet, List<ValidationRuleSet> linkedValidationRuleSets);
+
+    boolean isValidationRuleSetInUse(ValidationRuleSet ruleset);
 }
