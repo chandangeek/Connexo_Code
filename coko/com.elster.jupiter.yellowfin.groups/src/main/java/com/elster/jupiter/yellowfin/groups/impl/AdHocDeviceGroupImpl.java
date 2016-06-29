@@ -2,6 +2,7 @@ package com.elster.jupiter.yellowfin.groups.impl;
 
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.yellowfin.groups.AdHocDeviceGroup;
 
@@ -18,14 +19,15 @@ import java.util.stream.Collectors;
 final class AdHocDeviceGroupImpl implements AdHocDeviceGroup {
 
     private String ADHOC_GROUP_NAME_PREFIX = "__##SEARCH_RESULTS##__";
-    private int SECONDS_IN_DAY = 24*60*60;
-    private int ROWCOUNT_ITEMS = 100;
+    private static final int SECONDS_IN_DAY = 24 * 60 * 60;
+    private static final int ROWCOUNT_ITEMS = 100;
 
     private long id;
     private String name;
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant createTime;
 
-    private List<AdHocEntryImpl> entries = new ArrayList<AdHocEntryImpl>();
+    private List<AdHocEntryImpl> entries = new ArrayList<>();
     private final DataModel dataModel;
 
     @Inject
@@ -33,55 +35,48 @@ final class AdHocDeviceGroupImpl implements AdHocDeviceGroup {
         this.dataModel = dataModel;
     }
 
-    AdHocDeviceGroupImpl init(long id, List<Long> devices) {
+    static AdHocDeviceGroupImpl from(DataModel dataModel, long id, List<Long> devices) {
+        return dataModel.getInstance(AdHocDeviceGroupImpl.class).init(id, devices);
+    }
+
+    private AdHocDeviceGroupImpl init(long id, List<Long> devices) {
         this.id = id;
         this.name = String.format(ADHOC_GROUP_NAME_PREFIX + "%d", id);
         entries.addAll(devices.stream().map(deviceId -> AdHocEntryImpl.from(dataModel, id, deviceId)).collect(Collectors.toList()));
-
         return this;
-    }
-
-    static AdHocDeviceGroupImpl from(DataModel dataModel, long id, List<Long> devices) {
-        return dataModel.getInstance(AdHocDeviceGroupImpl.class).init(id, devices);
     }
 
     static AdHocDeviceGroupImpl from(DataModel dataModel) {
         return dataModel.getInstance(AdHocDeviceGroupImpl.class);
     }
 
-    public void purgeAdHocSearch(int lastDays){
-
+    void purgeAdHocSearch(int lastDays) {
         Instant instant = Instant.now();
-        instant = instant.minusSeconds(lastDays*SECONDS_IN_DAY);
-
+        instant = instant.minusSeconds(lastDays * SECONDS_IN_DAY);
         try (Connection conn = dataModel.getConnection(false)) {
             PreparedStatement statement = buildStatement(conn, buildCreateSQL(instant));
-
-            int removedItems = 0;
-            do{
+            int removedItems;
+            do {
                 removedItems = statement.executeUpdate();
-            }while (removedItems>0);
-
-        } catch (SQLException sqlEx){
-
+            } while (removedItems > 0);
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
         }
     }
 
-    private SqlBuilder buildCreateSQL(Instant instant){
+    private SqlBuilder buildCreateSQL(Instant instant) {
         SqlBuilder builder = new SqlBuilder();
-        builder.append("delete from " + TableSpecs.YFN_ADHOC_DG );
+        builder.append("delete from " + TableSpecs.YFN_ADHOC_DG);
         builder.append(" where CREATETIME < " + instant.getEpochSecond() * 1000 + " and rownum < " + ROWCOUNT_ITEMS);
         return builder;
     }
 
-    private PreparedStatement buildStatement(Connection connection, SqlBuilder sql) throws SQLException{
-        if (connection == null){
+    private PreparedStatement buildStatement(Connection connection, SqlBuilder sql) throws SQLException {
+        if (connection == null) {
             throw new IllegalArgumentException("Connection can't be null");
         }
         return sql.prepare(connection);
     }
-
-
 
     @Override
     public long getId() {
@@ -94,16 +89,8 @@ final class AdHocDeviceGroupImpl implements AdHocDeviceGroup {
     }
 
     static class AdHocEntryImpl {
-
         private long groupId;
         private long deviceId;
-
-        private final DataModel dataModel;
-
-        @Inject
-        AdHocEntryImpl(DataModel dataModel) {
-            this.dataModel = dataModel;
-        }
 
         AdHocEntryImpl init(long groupId, long deviceId) {
             this.groupId = groupId;
@@ -115,7 +102,7 @@ final class AdHocDeviceGroupImpl implements AdHocDeviceGroup {
             return dataModel.getInstance(AdHocEntryImpl.class).init(groupId, deviceId);
         }
 
-        public long getDeviceId() {
+        long getDeviceId() {
             return deviceId;
         }
 
@@ -123,7 +110,7 @@ final class AdHocDeviceGroupImpl implements AdHocDeviceGroup {
             return groupId;
         }
 
-        public void setGroupId(long id){
+        public void setGroupId(long id) {
             this.groupId = id;
         }
 
@@ -161,21 +148,25 @@ final class AdHocDeviceGroupImpl implements AdHocDeviceGroup {
     }
 
     private DataMapper<AdHocDeviceGroupImpl> factory() {
-         return dataModel.mapper(AdHocDeviceGroupImpl.class);
+        return dataModel.mapper(AdHocDeviceGroupImpl.class);
     }
 
     private DataMapper<AdHocEntryImpl> entryFactory() {
         return dataModel.mapper(AdHocEntryImpl.class);
     }
 
-    public List<AdHocEntryImpl> getEntries(){
+    List<AdHocEntryImpl> getEntries() {
         return this.entries;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof AdHocDeviceGroupImpl)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof AdHocDeviceGroupImpl)) {
+            return false;
+        }
         AdHocDeviceGroupImpl that = (AdHocDeviceGroupImpl) o;
         return id == that.id;
     }
@@ -184,4 +175,5 @@ final class AdHocDeviceGroupImpl implements AdHocDeviceGroup {
     public int hashCode() {
         return Objects.hash(id);
     }
+
 }

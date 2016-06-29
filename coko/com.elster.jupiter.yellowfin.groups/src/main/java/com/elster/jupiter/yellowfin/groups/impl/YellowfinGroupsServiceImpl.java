@@ -22,7 +22,6 @@ import com.google.inject.AbstractModule;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
@@ -43,7 +42,6 @@ public class YellowfinGroupsServiceImpl implements YellowfinGroupsService, Trans
     private static final int DEFAULT_LAST = 2;
 
     private volatile DataModel dataModel;
-    private volatile OrmService ormService;
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile MessageService messageService;
     private volatile TaskService taskService;
@@ -52,12 +50,15 @@ public class YellowfinGroupsServiceImpl implements YellowfinGroupsService, Trans
 
     private int lastDays;
 
+    // For OSGi purposes
     public YellowfinGroupsServiceImpl() {
         lastDays = DEFAULT_LAST;
     }
 
+    // For testing purposes
     @Inject
     public YellowfinGroupsServiceImpl(OrmService ormService, MeteringGroupsService meteringGroupsService, MessageService messageService, TaskService taskService, NlsService nlsService, UpgradeService upgradeService) {
+        this();
         setOrmService(ormService);
         setNlsService(nlsService);
         setMeteringGroupsService(meteringGroupsService);
@@ -92,27 +93,23 @@ public class YellowfinGroupsServiceImpl implements YellowfinGroupsService, Trans
                 }
             });
 
-            try {
-                String readLastDays;
-                if (context != null) {
-                    readLastDays = context.getProperty(YELLOWFIN_LAST_DAYS);
-
-                    if (readLastDays != null) {
+            String readLastDays;
+            if (context != null) {
+                readLastDays = context.getProperty(YELLOWFIN_LAST_DAYS);
+                if (readLastDays != null) {
+                    try {
                         lastDays = Integer.parseInt(readLastDays);
+                    } catch (NumberFormatException e) {
+                        e.printStackTrace(System.err);
+                        lastDays = DEFAULT_LAST;
                     }
                 }
-            } catch (Exception e) {
             }
             upgradeService.register(InstallIdentifier.identifier("Pulse", COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
-
         } catch (Exception e) {
-            e.printStackTrace();
+            e.printStackTrace(System.err);
             throw e;
         }
-    }
-
-    @Deactivate
-    public void deactivate() {
     }
 
     @Reference
@@ -121,7 +118,6 @@ public class YellowfinGroupsServiceImpl implements YellowfinGroupsService, Trans
         for (TableSpecs spec : TableSpecs.values()) {
             spec.addTo(dataModel);
         }
-        this.ormService = ormService;
     }
 
     @Reference
@@ -147,7 +143,7 @@ public class YellowfinGroupsServiceImpl implements YellowfinGroupsService, Trans
     @Override
     public Optional<DynamicDeviceGroupImpl> cacheDynamicDeviceGroup(String groupName) {
         Optional<EndDeviceGroup> found = meteringGroupsService.findEndDeviceGroupByName(groupName);
-        if(found.isPresent() && found.get().isDynamic()){
+        if (found.isPresent() && found.get().isDynamic()) {
             QueryEndDeviceGroup group = (QueryEndDeviceGroup)found.get();
 
             DynamicDeviceGroupImpl cachedDeviceGroup = DynamicDeviceGroupImpl.from(dataModel, group.getId(), group.getMembers(Instant.now()));
@@ -185,4 +181,5 @@ public class YellowfinGroupsServiceImpl implements YellowfinGroupsService, Trans
     public List<TranslationKey> getKeys() {
         return Arrays.asList(new SimpleTranslationKey(YellowfinGroupsService.ADHOC_SEARCH_LIFE_CYCLE_QUEUE_DEST, YellowfinGroupsService.ADHOC_SEARCH_LIFE_CYCLE_QUEUE_DEST_DISPLAYNAME));
     }
+
 }
