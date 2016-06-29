@@ -6,6 +6,7 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.orm.JournalEntry;
@@ -88,6 +89,8 @@ public interface MeteringService {
     Query<Meter> getMeterQuery();
 
     Optional<UsagePoint> findUsagePoint(String mRID);
+
+    Optional<EffectiveMetrologyConfigurationOnUsagePoint> findUsagePointVersion(long id);
 
     Query<EndDevice> getEndDeviceQuery();
 

@@ -551,7 +551,7 @@ public class UsagePointImpl implements UsagePoint {
         Optional<EffectiveMetrologyConfigurationOnUsagePoint> current = this.metrologyConfiguration.effective(this.clock.instant());
         if (current.isPresent()) {
             if (!current.get().getRange().contains(when)) {
-                throw new UnsatisfiedMerologyConfigurationEndDate(thesaurus);
+                throw new IllegalArgumentException("Time of metrology configuration removal is before it was actually applied");
             }
             current.get().close(when);
         }
