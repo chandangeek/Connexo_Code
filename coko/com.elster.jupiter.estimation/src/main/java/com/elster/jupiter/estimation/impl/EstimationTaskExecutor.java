@@ -15,6 +15,7 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.logging.LoggingContext;
 import com.elster.jupiter.util.streams.Functions;
+
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -43,7 +44,7 @@ class EstimationTaskExecutor implements TaskExecutor {
     @Override
     public void execute(TaskOccurrence occurrence) {
         threadPrincipalService.runAs(user, () -> {
-            try (LoggingContext loggingContext = LoggingContext.get()) {
+            try (LoggingContext loggingContext = LoggingContext.getCloseableContext()) {
                 Logger taskLogger = createTaskLogger(occurrence);
                 try {
                     tryExecute(occurrence, taskLogger);
