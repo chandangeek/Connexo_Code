@@ -217,7 +217,6 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         dataValidationStatus.addBulkReadingQuality(quality1, asList(validationRule));
         when(quality1.getType()).thenReturn(readingQualityTypeAdded);
         when(validationRule.getRuleSetVersion()).thenReturn(validationRuleSetVersion);
-        when(validationRule.getRuleSetVersion()).thenReturn(validationRuleSetVersion);
         when(validationRule.getRuleSet()).thenReturn(validationRuleSet);
         when(validationRuleSetVersion.getId()).thenReturn(1L);
         when(validationRuleSetVersion.getVersion()).thenReturn(1L);
