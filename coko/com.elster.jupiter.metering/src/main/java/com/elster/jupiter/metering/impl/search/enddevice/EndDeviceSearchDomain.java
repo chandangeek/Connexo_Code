@@ -138,7 +138,7 @@ public class EndDeviceSearchDomain implements SearchDomain {
                     Condition::and);
     }
 
-    private class ConditionBuilder {
+    private final class ConditionBuilder {
         private final SearchablePropertyCondition spec;
         private final SearchableEndDeviceProperty property;
 
@@ -154,7 +154,7 @@ public class EndDeviceSearchDomain implements SearchDomain {
 
     }
 
-    private class EndDeviceFinder implements Finder<EndDevice> {
+    private final class EndDeviceFinder implements Finder<EndDevice> {
         private final Finder<EndDevice> finder;
 
         private EndDeviceFinder(Condition condition) {
