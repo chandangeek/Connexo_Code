@@ -61,7 +61,8 @@ Ext.define('Mdc.timeofuseondevice.view.Setup', {
                 },
                 {
                     title: Uni.I18n.translate('general.plannedOn', 'MDC', 'Planned on'),
-                    ui: 'large',
+                    ui: 'medium',
+                    cls: 'no-side-padding',
                     xtype: 'device-tou-planned-on-form'
                 },
                 {

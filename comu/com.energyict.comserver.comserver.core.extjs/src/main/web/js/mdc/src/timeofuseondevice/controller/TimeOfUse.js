@@ -71,7 +71,8 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
             }),
             result,
             resultSet,
-            view;
+            view,
+            noActiveCalendar = false;
 
         deviceModel.load(mRID, {
             success: function (record) {
@@ -90,7 +91,7 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
                         success: function (response, opt) {
                             result = JSON.parse(response.responseText);
                             resultSet = reader.read(result);
-                            if (resultSet.records[0].getActiveCalendar() === null && resultSet.records[0].get('passiveCalendars') === null) {
+                            if (resultSet.records[0].getActiveCalendar() === null && resultSet.records[0].get('passiveCalendars') === null && resultSet.records[0].getNextPassiveCalendar() === null) {
                                 view.showEmptyComponent();
                                 view.down('tou-device-action-menu').showPreview = false;
                                 view.down('#tou-device-actions-button').hide();
@@ -106,11 +107,17 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
                                         view.down('tou-device-action-menu').record = resultSet.records[0].getActiveCalendar();
 
                                     } else {
+
                                         view.down('device-tou-preview-form').fillWithDashes();
                                         view.down('tou-device-action-menu').showPreview = false;
+                                        noActiveCalendar = true;
                                     }
                                     view.down('device-tou-preview-form').fillPassiveCalendars(resultSet.records[0].get('passiveCalendars'));
                                     view.down('#wrappingPanel').setLoading(false);
+
+                                    if(resultSet.records[0].get('passiveCalendars') === null && noActiveCalendar) {
+                                        view.down('device-tou-preview-form').hide();
+                                    }
                                 }
 
                                 if (view.down('device-tou-planned-on-form')) {
