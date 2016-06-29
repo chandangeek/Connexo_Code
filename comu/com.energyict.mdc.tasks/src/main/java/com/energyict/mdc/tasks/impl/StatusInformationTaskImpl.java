@@ -3,6 +3,7 @@ package com.energyict.mdc.tasks.impl;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
 import com.energyict.mdc.tasks.StatusInformationTask;
+
 import javax.inject.Inject;
 
 import static com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags.REGISTERS_FLAG;
@@ -19,7 +20,7 @@ class StatusInformationTaskImpl extends ProtocolTaskImpl implements StatusInform
     private static final DeviceOfflineFlags FLAGS = new DeviceOfflineFlags(SLAVE_DEVICES_FLAG, REGISTERS_FLAG);
 
     @Inject
-    public StatusInformationTaskImpl(DataModel dataModel) {
+    StatusInformationTaskImpl(DataModel dataModel) {
         super(dataModel);
         setFlags(FLAGS);
     }

@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * An implementation for a User defined ComTask
@@ -264,6 +265,23 @@ public abstract class ComTaskImpl implements ComTask {
         this.protocolTasks.clear(); // delete dependents
         this.dataModel.remove(this);
         this.eventService.postEvent(EventType.COMTASK_DELETED.topic(), this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ComTaskImpl comTask = (ComTaskImpl) o;
+        return id == comTask.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 
     class BasicCheckTaskBuilderImpl implements BasicCheckTask.BasicCheckTaskBuilder {
