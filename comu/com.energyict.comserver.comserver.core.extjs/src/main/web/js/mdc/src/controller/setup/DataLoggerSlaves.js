@@ -691,7 +691,7 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
 
         } else {
             Ext.Array.forEach(me.wizardInformation.dataLogger.get('dataLoggerSlaveDevices'), function(dataLoggerSlaveDeviceRecord){
-                dataLoggerSlaveDeviceRecord["linkingTimeStamp"] = me.wizardInformation.linkingDate/1000;
+                dataLoggerSlaveDeviceRecord["linkingTimeStamp"] = me.wizardInformation.linkingDate;
             }, me);
             endMethod();
         }
@@ -829,7 +829,7 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
             doUnlink = function() {
                 Ext.Array.forEach(me.wizardInformation.dataLogger.get('dataLoggerSlaveDevices'), function(dataLoggerSlaveDeviceRecord){
                     if (dataLoggerSlaveDeviceRecord.id !== 0) { // the container of the unlinked channels
-                        dataLoggerSlaveDeviceRecord['unlinkingTimeStamp'] = unlinkDate.getTime()/1000;
+                        dataLoggerSlaveDeviceRecord['unlinkingTimeStamp'] = unlinkDate.getTime();
                     }
                 }, me);
 
