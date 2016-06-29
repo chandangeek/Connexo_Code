@@ -43,7 +43,11 @@ class MdmAppPrivileges {
                 com.elster.jupiter.servicecall.security.Privileges.Constants.CHANGE_SERVICE_CALL_STATE,
 
                 //Relative periods
-                com.elster.jupiter.time.security.Privileges.Constants.VIEW_RELATIVE_PERIOD
+                com.elster.jupiter.time.security.Privileges.Constants.VIEW_RELATIVE_PERIOD,
+
+                //Validation configuration on metrology configuration
+                com.elster.jupiter.mdm.usagepoint.config.security.Privileges.Constants.VIEW_VALIDATION_ON_METROLOGY_CONFIGURATION,
+                com.elster.jupiter.mdm.usagepoint.config.security.Privileges.Constants.ADMINISTER_VALIDATION_ON_METROLOGY_CONFIGURATION
         );
     }
 }
