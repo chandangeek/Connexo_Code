@@ -113,7 +113,7 @@ Ext.define('Isu.controller.ApplyIssueAction', {
                     me.getApplication().fireEvent('acknowledge', responseText.actions[0].message);
                     window.location.href = backUrl;
                 } else {
-                    me.getApplication().getController('Uni.controller.Error').showError(form.getRecord().get('name'), responseText.actions[0].message);
+                    me.getApplication().getController('Uni.controller.Error').showError(actionRecord.get('issue').title, responseText.actions[0].message);
                 }
             },
             failure: function (record, operation) {
@@ -122,6 +122,10 @@ Ext.define('Isu.controller.ApplyIssueAction', {
                 if (operation.response.status === 400 && responseText.errors && !actionRecord) {
                     errorPanel.show();
                     basicForm.markInvalid(responseText.errors);
+                }
+                if (operation.response.status === 200 && responseText.actions) {
+                    window.location.href = backUrl;
+                    me.getApplication().getController('Uni.controller.Error').showError(actionRecord.get('issue').title, responseText.actions[0].message);
                 }
             },
             callback: function () {
