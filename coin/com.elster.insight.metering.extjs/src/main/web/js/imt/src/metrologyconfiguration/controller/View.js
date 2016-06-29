@@ -7,12 +7,9 @@ Ext.define('Imt.metrologyconfiguration.controller.View', {
         'Ext.container.Container'
     ],
     models: [
-             'Imt.metrologyconfiguration.model.MetrologyConfiguration',
-             'Imt.metrologyconfiguration.model.ValidationRuleSet'
-    ],
-    stores: [
-        //'Imt.metrologyconfiguration.store.MetrologyConfiguration',
-        'Imt.metrologyconfiguration.store.LinkedValidationRulesSet'
+        'Imt.metrologyconfiguration.model.MetrologyConfiguration',
+        'Imt.metrologyconfiguration.model.ValidationRuleSet',
+        'Imt.metrologyconfiguration.model.MetrologyConfiguration'
     ],
     views: [
         'Imt.metrologyconfiguration.view.Setup',
@@ -31,7 +28,7 @@ Ext.define('Imt.metrologyconfiguration.controller.View', {
                 deleteCAS: this.removeCustomAttributeSet
             },
             '#custom-attribute-sets cas-detail-form menuitem[action=removeCustomAttributeSet]': {
-                click: function(elm) {
+                click: function (elm) {
                     this.removeCustomAttributeSet(elm.up('cas-detail-form').getRecord());
                 }
             },
@@ -41,6 +38,20 @@ Ext.define('Imt.metrologyconfiguration.controller.View', {
         });
     },
 
+    loadMetrologyConfiguration: function (id, callback) {
+        var me = this,
+            app = me.getApplication(),
+            failure = callback.failure;            
+
+        me.getModel('Imt.metrologyconfiguration.model.MetrologyConfiguration').load(id, {
+            success: function (metrologyConfiguration) {
+                app.fireEvent('metrologyConfigurationLoaded', metrologyConfiguration);
+                callback.success(metrologyConfiguration);
+            },
+            failure: failure            
+        });        
+    },
+
     showMetrologyConfiguration: function (id) {
         var me = this,
             app = me.getApplication(),
@@ -48,23 +59,23 @@ Ext.define('Imt.metrologyconfiguration.controller.View', {
             pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
 
         pageMainContent.setLoading();
-        me.getModel('Imt.metrologyconfiguration.model.MetrologyConfiguration').load(id, {
-            success: function (record) {
+        me.loadMetrologyConfiguration(id, {
+            success: function (metrologyConfiguration) {
                 var widget = Ext.widget('metrology-configuration-setup', {
                         itemId: 'metrology-configuration-setup',
                         router: router,
-                        metrologyConfig: record
+                        metrologyConfig: metrologyConfiguration
                     }),
                     menu = widget.down('#metrology-configuration-action-menu');
-
-                app.fireEvent('metrologyConfigurationLoaded', record);
-                widget.down('#metrology-config-setup-general-info').loadRecord(record);
+                
+                widget.down('#metrology-config-setup-general-info').loadRecord(metrologyConfiguration);
                 app.fireEvent('changecontentevent', widget);
+                pageMainContent.setLoading(false);
             },
-            callback: function () {
+            failure: function () {
                 pageMainContent.setLoading(false);
             }
-        });
+        });        
     },
 
     showPurposePreview: function (selectionModel, record) {
@@ -92,9 +103,11 @@ Ext.define('Imt.metrologyconfiguration.controller.View', {
                 me.getApplication().fireEvent('changecontentevent', widget);
                 store.getProxy().extraParams.id = id;
                 store.getProxy().extraParams.linked = true;
-                store.on('load', (function(){
-                    store.each(function(r) {
-                        r.set('parent', record.getRecordData()); return record});
+                store.on('load', (function () {
+                    store.each(function (r) {
+                        r.set('parent', record.getRecordData());
+                        return record
+                    });
                 }));
                 store.load();
                 pageMainContent.setLoading(false);
@@ -113,7 +126,7 @@ Ext.define('Imt.metrologyconfiguration.controller.View', {
         Ext.resumeLayouts(true);
     },
 
-    showAddCustomAttributeSets: function(id) {
+    showAddCustomAttributeSets: function (id) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             metrologyConfigurationModel = me.getModel('Imt.metrologyconfiguration.model.MetrologyConfiguration'),
@@ -131,11 +144,11 @@ Ext.define('Imt.metrologyconfiguration.controller.View', {
                 store.load();
                 pageMainContent.setLoading(false);
 
-                widget.getAddButton().on('click', function() {
+                widget.getAddButton().on('click', function () {
                     var records = widget.down('cas-selection-grid').getSelectionModel().getSelection();
                     me.addCAStoMetrologyConfiguration(record, records);
                 });
-                widget.getCancelButton().on('click', function() {
+                widget.getCancelButton().on('click', function () {
                     router.getRoute('administration/metrologyconfiguration/view/customAttributeSets').forward();
                 });
             }
@@ -145,11 +158,13 @@ Ext.define('Imt.metrologyconfiguration.controller.View', {
     addCAStoMetrologyConfiguration: function (mc, records) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
-            sets = _.map(records, function(r) {return _.pick(r.getData(), 'customPropertySetId')});
+            sets = _.map(records, function (r) {
+                return _.pick(r.getData(), 'customPropertySetId')
+            });
 
         mc.set('customPropertySets', mc.get('customPropertySets').concat(sets));
         mc.save({
-            success: function(record, operation) {
+            success: function (record, operation) {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('metrologyconfiguration.label.CAS.added', 'IMT', 'Custom attribute sets added'));
                 router.getRoute('administration/metrologyconfiguration/view/customAttributeSets').forward();
             },
@@ -162,8 +177,8 @@ Ext.define('Imt.metrologyconfiguration.controller.View', {
 
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('metrologyconfiguration.label.CAS.removeCustomAttributeSet', 'IMT', 'This custom attribute set will no longer be available.'),
-            title: Uni.I18n.translate('metrologyconfiguration.label.CAS.removeCustomAttributeSet.title', 'IMT', "Remove '{0}'?",[record.get('name')]),
-            fn: function(btn){
+            title: Uni.I18n.translate('metrologyconfiguration.label.CAS.removeCustomAttributeSet.title', 'IMT', "Remove '{0}'?", [record.get('name')]),
+            fn: function (btn) {
                 if (btn === 'confirm') {
                     me.destroyCustomAttributeSet(record);
                 }
@@ -175,7 +190,7 @@ Ext.define('Imt.metrologyconfiguration.controller.View', {
         var me = this,
             router = me.getController('Uni.controller.history.Router');
 
-        record.getProxy().extraParams.mcid =  router.arguments.mcid;
+        record.getProxy().extraParams.mcid = router.arguments.mcid;
         record.destroy({
             success: function () {
                 me.getController('Uni.controller.history.Router').getRoute().forward();

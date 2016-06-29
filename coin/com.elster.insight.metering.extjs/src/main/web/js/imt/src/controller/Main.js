@@ -10,9 +10,7 @@ Ext.define('Imt.controller.Main', {
         'Imt.usagepointmanagement.controller.Edit',
         'Imt.devicemanagement.controller.Device',
         'Imt.usagepointmanagement.model.UsagePoint',
-        'Imt.devicemanagement.model.Device',
-        'Imt.validation.controller.UsagePointDataValidation',
-        'Imt.metrologyconfiguration.controller.ValidationRuleSets',
+        'Imt.devicemanagement.model.Device',              
         'Imt.dynamicprivileges.UsagePoint',
         'Imt.dynamicprivileges.Stores',
         'Imt.processes.controller.MonitorProcesses',
@@ -35,8 +33,7 @@ Ext.define('Imt.controller.Main', {
         'Imt.metrologyconfiguration.controller.Edit',
         'Imt.metrologyconfiguration.controller.ViewList',
         'Imt.controller.History',
-        'Imt.controller.Search',
-        'Imt.validation.controller.UsagePointDataValidation',
+        'Imt.controller.Search',        
         'Imt.servicecategories.controller.ServiceCategories',
         'Imt.usagepointhistory.controller.History',
         'Imt.usagepointhistory.controller.CasVersionEdit',
@@ -45,7 +42,8 @@ Ext.define('Imt.controller.Main', {
         'Imt.usagepointmanagement.controller.Attributes',
         'Imt.usagepointsetup.controller.MetrologyConfig',
         'Imt.purpose.controller.Purpose',
-        'Imt.usagepointmanagement.controller.MetrologyConfigurationDetails'
+        'Imt.usagepointmanagement.controller.MetrologyConfigurationDetails',
+        'Imt.metrologyconfiguration.controller.ValidationConfiguration'
     ],
     stores: [
         'Imt.customattributesonvaluesobjects.store.MetrologyConfigurationCustomAttributeSets',
