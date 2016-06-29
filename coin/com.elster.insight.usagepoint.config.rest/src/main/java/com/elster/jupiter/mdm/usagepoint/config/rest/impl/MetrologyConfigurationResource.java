@@ -1,5 +1,6 @@
 package com.elster.jupiter.mdm.usagepoint.config.rest.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
@@ -228,10 +229,11 @@ public class MetrologyConfigurationResource {
     public MetrologyContractInfo getLinkableValidationRuleSetsForMetrologyContract(@PathParam("id") long id, @PathParam("contractId") long contractId,
                                                                                    @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName) {
         MetrologyContract metrologyContract = metrologyConfigurationService.findMetrologyContract(contractId).get();
-        List<ValidationRuleSet> insightValidationRuleSets = validationService.getValidationRuleSets().stream().filter(validationRuleSet -> validationRuleSet.getApplicationName().equals(applicationName)).collect(Collectors.toList());
-        List<ValidationRuleSetInfo> linkableValidationRuleSets = insightValidationRuleSets
+        List<ValidationRuleSetInfo> linkableValidationRuleSets = validationService.getValidationRuleSets()
                 .stream()
-                .filter(validationRuleSet -> usagePointConfigurationService.isLinkableValidationRuleSet(metrologyContract, validationRuleSet, usagePointConfigurationService.getValidationRuleSets(metrologyContract)))
+                .filter(validationRuleSet -> validationRuleSet.getQualityCodeSystem().equals(QualityCodeSystem.MDM))
+                .filter(validationRuleSet -> usagePointConfigurationService.isLinkableValidationRuleSet(metrologyContract, validationRuleSet,
+                        usagePointConfigurationService.getValidationRuleSets(metrologyContract)))
                 .map(ValidationRuleSetInfo::new)
                 .collect(Collectors.toList());
         return new MetrologyContractInfo(metrologyContract, linkableValidationRuleSets);

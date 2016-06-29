@@ -1,5 +1,6 @@
 package com.elster.jupiter.mdm.usagepoint.config.rest.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
@@ -84,18 +85,18 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         metrologyContract = config1.getContracts().stream().findFirst().get();
         metrologyContractInfo = new MetrologyContractInfo(metrologyContract, Collections.singletonList(new ValidationRuleSetInfo(vrs3)));
         when(vrs3.getId()).thenReturn(2L);
-        when(vrs3.getApplicationName()).thenReturn("INS");
+        when(vrs3.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDM);
         doReturn(Collections.singletonList(validationRuleSetVersion3)).when(vrs3).getRuleSetVersions();
         when(vrs.getName()).thenReturn("ValidationRuleSet");
         when(vrs.getId()).thenReturn(1L);
-        when(vrs.getApplicationName()).thenReturn("INS");
+        when(vrs.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDM);
         doReturn(Collections.singletonList(validationRuleSetVersion)).when(vrs).getRuleSetVersions();
         when(metrologyConfigurationService.findAndLockMetrologyContract(metrologyContractInfo.id, metrologyContractInfo.version)).thenReturn(Optional.of(metrologyContract));
         when(metrologyConfigurationService.findMetrologyContract(1L)).thenReturn(Optional.of(metrologyContract));
         when(usagePointConfigurationService.getValidationRuleSets(metrologyContract)).thenReturn(Collections.singletonList(vrs));
         when(vrs2.getName()).thenReturn("LinkableValidationRuleSet");
         when(vrs2.getId()).thenReturn(31L);
-        when(vrs2.getApplicationName()).thenReturn("INS");
+        when(vrs2.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDM);
         doReturn(Collections.singletonList(validationRuleSetVersion2)).when(vrs2).getRuleSetVersions();
         doReturn(Optional.of(vrs3)).when(validationService).getValidationRuleSet(anyLong());
         when(validationService.getValidationRuleSets()).thenReturn(Arrays.asList(vrs, vrs2));
