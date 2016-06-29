@@ -84,7 +84,9 @@ public class DeviceInfo extends DeviceVersionInfo {
             deviceInfo.masterDevicemRID = physicalGateway.get().getmRID();
         }
 
-        topologyService.findCurrentDataloggerReference(device, clock.instant()).ifPresent(dataLoggerReference -> deviceInfo.dataloggermRID = dataLoggerReference.getGateway().getmRID());
+        if (device.getDeviceType().isDataloggerSlave()) {
+            topologyService.findCurrentDataloggerReference(device, clock.instant()).ifPresent(dataLoggerReference -> deviceInfo.dataloggermRID = dataLoggerReference.getGateway().getmRID());
+        }
 
         deviceInfo.gatewayType = device.getConfigurationGatewayType();
         deviceInfo.slaveDevices = slaveDevices;

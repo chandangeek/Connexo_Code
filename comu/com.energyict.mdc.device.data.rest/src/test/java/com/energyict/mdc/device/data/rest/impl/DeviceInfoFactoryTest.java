@@ -299,6 +299,7 @@ public class DeviceInfoFactoryTest {
         when(slaveChn2.getName()).thenReturn(SLAVE_CHANNEL_NAME_2);
         prepareMockedChannel(slaveChn2);
 
+        when(batchService.findBatch(any(Device.class))).thenReturn(Optional.empty());
         when(batchService.findBatch(dataLogger)).thenReturn(Optional.of(batch));
         when(batch.getName()).thenReturn(BATCH_NAME);
 
@@ -417,6 +418,7 @@ public class DeviceInfoFactoryTest {
         CIMLifecycleDates lifecycleDates = mock(CIMLifecycleDates.class);
         when(lifecycleDates.getReceivedDate()).thenReturn(Optional.of(LocalDateTime.of(2015, 7, 13, 12, 0).toInstant(ZoneOffset.UTC)));
         when(dataLogger.getLifecycleDates()).thenReturn(lifecycleDates);
+        when(topologyService.findCurrentDataloggerReference(any(Device.class), any(Instant.class))).thenReturn(Optional.empty());
     }
 
     private OpenIssue mockIssue(IssueType dataCollectionIssueType) {

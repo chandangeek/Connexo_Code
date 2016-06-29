@@ -162,6 +162,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         Finder<OpenIssue> issueFinder = mock(Finder.class);
         when(issueFinder.find()).thenReturn(Collections.emptyList());
         when(issueService.findOpenIssuesForDevice(any(String.class))).thenReturn(issueFinder);
+        when(batchService.findBatch(any(Device.class))).thenReturn(Optional.empty());
+        when(topologyService.findCurrentDataloggerReference(any(Device.class), any(Instant.class))).thenReturn(Optional.empty());
     }
 
     @Test
@@ -1675,6 +1677,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         slaveInfo1.yearOfCertification = 1960;
         slaveInfo1.version = 0;
         slaveInfo1.dataLoggerSlaveChannelInfos = Collections.singletonList(channelMappingForSlave1);
+        slaveInfo1.linkingTimeStamp = 1234567890L;
 
         DeviceInfo info = new DeviceInfo();
         info.id = 1L;

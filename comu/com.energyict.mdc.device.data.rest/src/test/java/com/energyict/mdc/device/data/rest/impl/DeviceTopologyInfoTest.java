@@ -11,12 +11,14 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Optional;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
 /**
@@ -43,6 +45,11 @@ public class DeviceTopologyInfoTest {
     private TopologyService topologyService;
     @Mock
     private Clock clock;
+
+    @Before
+    public void setup() {
+        when(topologyService.findCurrentDataloggerReference(any(Device.class), any(Instant.class))).thenReturn(Optional.empty());
+    }
 
     @Test
     public void testFromDevice(){
