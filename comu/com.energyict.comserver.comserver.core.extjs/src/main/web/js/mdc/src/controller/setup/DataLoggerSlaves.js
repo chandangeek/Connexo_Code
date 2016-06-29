@@ -344,7 +344,7 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
                 slaveDeviceModel.deviceConfigurationName = slaveDevice.get('deviceConfigurationName');
                 slaveDeviceModel.shipmentDate = slaveDevice.get('shipmentDate');
                 slaveDeviceModel.yearOfCertification = slaveDevice.get('yearOfCertification');
-                //TODO slaveDeviceModel.batch = slaveDevice.get('batch');
+                slaveDeviceModel.batch = slaveDevice.get('batch');
                 slaveDeviceModel.version = slaveDevice.get('version');
 
                 me.wizardInformation.slaveMRID = slaveDevice.get('mRID');
@@ -385,7 +385,7 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
                                 wizard.down('#deviceAdd #deviceAddType').findRecordByValue(wizard.down('#deviceAdd #deviceAddType').getValue()).get('name');
                             slaveDeviceModel.deviceConfigurationId = formRecord.get('deviceConfigurationId');
                             slaveDeviceModel.yearOfCertification = formRecord.get('yearOfCertification');
-                            //TODO slaveDeviceModel.batch = formRecord.get('batch');
+                            slaveDeviceModel.batch = formRecord.get('batch');
                             slaveDeviceModel.shipmentDate = wizard.down('#deviceAdd #deviceAddShipmentDate').getValue().getTime();
                             slaveDeviceModel.version = formRecord.get('version');
 

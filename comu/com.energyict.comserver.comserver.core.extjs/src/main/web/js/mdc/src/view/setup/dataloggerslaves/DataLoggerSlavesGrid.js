@@ -42,7 +42,7 @@ Ext.define('Mdc.view.setup.dataloggerslaves.DataLoggerSlavesGrid', {
                 dataIndex: 'linkingTimeStamp',
                 flex: 1,
                 renderer: function (value) {
-                    return value ? Uni.DateTime.formatDateTimeShort(value) : '-';
+                    return value ? Uni.DateTime.formatDateTimeShort(new Date(value)) : '-';
                 }
             },
             {

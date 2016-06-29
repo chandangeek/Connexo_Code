@@ -278,7 +278,8 @@ Ext.define('Mdc.controller.setup.Devices', {
     },
 
     createDataLoggerSlavesStore: function(device) {
-        var me = this;
+        var me = this,
+            maxNumberOfStoreRecords = 5;
         Ext.define('DataLoggerSlave', {
             extend: 'Ext.data.Model',
             fields: [
@@ -292,7 +293,7 @@ Ext.define('Mdc.controller.setup.Devices', {
         var store = Ext.create('Ext.data.Store', {
             model: 'DataLoggerSlave',
             sorters: [{
-                property: 'creationTime',
+                property: 'linkingTimeStamp',
                 direction: 'DESC'
             }],
             autoLoad: false
@@ -309,6 +310,9 @@ Ext.define('Mdc.controller.setup.Devices', {
                 );
             }
         }, me);
+        if (store.getCount() > maxNumberOfStoreRecords) {
+            store.removeAt(maxNumberOfStoreRecords, store.getCount() - maxNumberOfStoreRecords);
+        }
         return store;
     },
 
