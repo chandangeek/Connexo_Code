@@ -50,6 +50,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Component(name = "com.elster.jupiter.yellowfin", service = {YellowfinService.class, TranslationKeyProvider.class}, immediate = true, property = "name=" + YellowfinService.COMPONENTNAME)
+@SuppressWarnings("unused")
 public class YellowfinServiceImpl implements YellowfinService, TranslationKeyProvider {
     private static final String YELLOWFIN_URL = "com.elster.jupiter.yellowfin.url";
     private static final String YELLOWFIN_EXTERNAL_URL = "com.elster.jupiter.yellowfin.externalurl";
@@ -78,9 +79,6 @@ public class YellowfinServiceImpl implements YellowfinService, TranslationKeyPro
     private volatile UserService userService;
     private volatile UpgradeService upgradeService;
 
-    public YellowfinServiceImpl(){
-    }
-
     @Activate
     public void activate(BundleContext context) {
         loadProperties(context);
@@ -96,7 +94,7 @@ public class YellowfinServiceImpl implements YellowfinService, TranslationKeyPro
         upgradeService.register(InstallIdentifier.identifier("Pulse", "YFA"), dataModel, Installer.class, Collections.emptyMap());
     }
 
-    private void loadProperties(BundleContext context){
+    private void loadProperties(BundleContext context) {
         yellowfinUrl = context.getProperty(YELLOWFIN_URL);
         yellowfinExternalUrl = context.getProperty(YELLOWFIN_EXTERNAL_URL);
 
@@ -108,23 +106,20 @@ public class YellowfinServiceImpl implements YellowfinService, TranslationKeyPro
     }
 
     private void parseUrl() {
-        if(yellowfinUrl != null){
+        if (yellowfinUrl != null) {
             Pattern pattern = Pattern.compile("(https?://)([^:^/]*):?([0-9]\\d*)?(.*)?");
             Matcher matcher = pattern.matcher(yellowfinUrl);
-            matcher.find();
-            if(matcher.matches()){
-                yellowfinHost   = matcher.group(2);
-                if(matcher.group(3) != null){
-                    yellowfinPort   = Integer.parseInt(matcher.group(3));
+            if (matcher.matches()) {
+                yellowfinHost = matcher.group(2);
+                if (matcher.group(3) != null) {
+                    yellowfinPort = Integer.parseInt(matcher.group(3));
                 }
-                yellowfinRoot   = matcher.group(4);
-
-                if(yellowfinUrl.startsWith("https")){
+                yellowfinRoot = matcher.group(4);
+                if (yellowfinUrl.startsWith("https")) {
                     useSecureConnection = true;
                 }
             }
         }
-
         yellowfinUrl = (yellowfinUrl == null) ? DEFAULT_YELLOWFIN_URL : yellowfinUrl;
         yellowfinExternalUrl = (yellowfinExternalUrl == null) ? yellowfinUrl : yellowfinExternalUrl;
     }
@@ -140,21 +135,17 @@ public class YellowfinServiceImpl implements YellowfinService, TranslationKeyPro
     }
 
     @Override
-    public String getYellowfinUrl(){
+    public String getYellowfinUrl() {
         return yellowfinExternalUrl;
     }
 
     @Override
     public boolean importContent(String filePath) {
-
-        FileInputStream inputStream = null;
-        try {
-            File file = new File(filePath);
-            inputStream = new FileInputStream(file);
-            byte[] data = new byte[(int)file.length()];
+        File file = new File(filePath);
+        try (FileInputStream inputStream = new FileInputStream(file)) {
+            byte[] data = new byte[(int) file.length()];
             inputStream.read(data);
 
-            AdministrationServiceResponse rs = null;
             AdministrationServiceRequest rsr = new AdministrationServiceRequest();
             AdministrationServiceService ts = new AdministrationServiceServiceLocator(yellowfinHost, yellowfinPort, yellowfinRoot + "/services/AdministrationService", useSecureConnection);
             AdministrationServiceSoapBindingStub rssbs = null;
@@ -166,47 +157,33 @@ public class YellowfinServiceImpl implements YellowfinService, TranslationKeyPro
 
             rsr.setLoginId(yellowfinWebServiceUser);
             rsr.setPassword(yellowfinWebServicePassword);
-            rsr.setOrgId(new Integer(1));
+            rsr.setOrgId(1);
             rsr.setFunction("IMPORTCONTENT");
-            rsr.setParameters( new String[] { Base64.encodeBytes(data) } );
+            rsr.setParameters(new String[]{Base64.encodeBytes(data)});
 
             if (rssbs != null) {
                 try {
-                    rs = rssbs.remoteAdministrationCall(rsr);
-                    if (rs != null){
-                        if("SUCCESS".equals(rs.getStatusCode()) ) {
+                    AdministrationServiceResponse rs = rssbs.remoteAdministrationCall(rsr);
+                    if (rs != null) {
+                        if ("SUCCESS".equals(rs.getStatusCode())) {
                             return true;
                         }
                     }
-
                 } catch (RemoteException e) {
                     e.printStackTrace();
                 }
             }
-
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        finally {
-            try {
-                if (inputStream != null) {
-                    inputStream.close();
-                }
-            }
-            catch (IOException ioe) {
-                ioe.printStackTrace();
-            }
-        }
-
         return false;
     }
 
     @Override
-    public Optional<String> getUser(String username)  {
-
-        AdministrationServiceResponse rs = null;
+    public Optional<String> getUser(String username) {
+        AdministrationServiceResponse rs;
         AdministrationServiceRequest rsr = new AdministrationServiceRequest();
         AdministrationServiceService ts = new AdministrationServiceServiceLocator(yellowfinHost, yellowfinPort, yellowfinRoot + "/services/AdministrationService", useSecureConnection);
         AdministrationServiceSoapBindingStub rssbs = null;
@@ -229,11 +206,11 @@ public class YellowfinServiceImpl implements YellowfinService, TranslationKeyPro
         if (rssbs != null) {
             try {
                 rs = rssbs.remoteAdministrationCall(rsr);
-                if (rs != null){
-                    if("SUCCESS".equals(rs.getStatusCode()) ) {
+                if (rs != null) {
+                    if ("SUCCESS".equals(rs.getStatusCode())) {
                         return Optional.of("SUCCESS");
                     }
-                    if(rs.getErrorCode() == 9) { // license breach
+                    if (rs.getErrorCode() == 9) { // license breach
                         return Optional.of("LICENSE_BREACH");
                     }
                     return Optional.of("NOT_FOUND");
@@ -248,9 +225,8 @@ public class YellowfinServiceImpl implements YellowfinService, TranslationKeyPro
     }
 
     @Override
-    public Optional<String> createUser(String username)  {
+    public Optional<String> createUser(String username) {
 
-        AdministrationServiceResponse rs = null;
         AdministrationServiceRequest rsr = new AdministrationServiceRequest();
         AdministrationServiceService ts = new AdministrationServiceServiceLocator(yellowfinHost, yellowfinPort, yellowfinRoot + "/services/AdministrationService", useSecureConnection);
         AdministrationServiceSoapBindingStub rssbs = null;
@@ -277,12 +253,12 @@ public class YellowfinServiceImpl implements YellowfinService, TranslationKeyPro
 
         if (rssbs != null) {
             try {
-                rs = rssbs.remoteAdministrationCall(rsr);
-                if (rs != null){
-                    if("SUCCESS".equals(rs.getStatusCode()) ) {
+                AdministrationServiceResponse rs = rssbs.remoteAdministrationCall(rsr);
+                if (rs != null) {
+                    if ("SUCCESS".equals(rs.getStatusCode())) {
                         return Optional.of("SUCCESS");
                     }
-                    if(rs.getErrorCode() == 9) { // license breach
+                    if (rs.getErrorCode() == 9) { // license breach
                         return Optional.of("LICENSE_BREACH");
                     }
                 }
@@ -296,9 +272,7 @@ public class YellowfinServiceImpl implements YellowfinService, TranslationKeyPro
     }
 
     @Override
-    public Optional<String> login(String username)  {
-
-        AdministrationServiceResponse rs = null;
+    public Optional<String> login(String username) {
         AdministrationServiceRequest rsr = new AdministrationServiceRequest();
         AdministrationServiceService ts = new AdministrationServiceServiceLocator(yellowfinHost, yellowfinPort, yellowfinRoot + "/services/AdministrationService", useSecureConnection);
         AdministrationServiceSoapBindingStub rssbs = null;
@@ -318,12 +292,12 @@ public class YellowfinServiceImpl implements YellowfinService, TranslationKeyPro
 
         if (rssbs != null) {
             try {
-                rs = rssbs.remoteAdministrationCall(rsr);
-                if (rs != null){
-                    if("SUCCESS".equals(rs.getStatusCode()) ) {
+                AdministrationServiceResponse rs = rssbs.remoteAdministrationCall(rsr);
+                if (rs != null) {
+                    if ("SUCCESS".equals(rs.getStatusCode())) {
                         return Optional.of(rs.getLoginSessionId());
                     }
-                    if(rs.getErrorCode() == 9) { // license breach
+                    if (rs.getErrorCode() == 9) { // license breach
                         return Optional.of("LICENSE_BREACH");
                     }
                 }
@@ -337,10 +311,8 @@ public class YellowfinServiceImpl implements YellowfinService, TranslationKeyPro
     }
 
 
-
     @Override
-    public Optional<Boolean> logout(String username)  {
-        AdministrationServiceResponse rs = null;
+    public Optional<Boolean> logout(String username) {
         AdministrationServiceRequest rsr = new AdministrationServiceRequest();
         AdministrationServiceService ts = new AdministrationServiceServiceLocator(yellowfinHost, yellowfinPort, yellowfinRoot + "/services/AdministrationService", useSecureConnection);
         AdministrationServiceSoapBindingStub rssbs = null;
@@ -360,11 +332,10 @@ public class YellowfinServiceImpl implements YellowfinService, TranslationKeyPro
 
         if (rssbs != null) {
             try {
-                rs = rssbs.remoteAdministrationCall(rsr);
-                if (rs != null && "SUCCESS".equals(rs.getStatusCode()) ) {
+                AdministrationServiceResponse rs = rssbs.remoteAdministrationCall(rsr);
+                if (rs != null && "SUCCESS".equals(rs.getStatusCode())) {
                     return Optional.of(true);
-                }
-                else{
+                } else {
                     return Optional.of(false);
                 }
             } catch (RemoteException e) {
@@ -375,9 +346,7 @@ public class YellowfinServiceImpl implements YellowfinService, TranslationKeyPro
         return Optional.empty();
     }
 
-   public String reloadLicense(String username)  {
-
-        AdministrationServiceResponse rs = null;
+    public String reloadLicense(String username) {
         AdministrationServiceRequest rsr = new AdministrationServiceRequest();
         AdministrationServiceService ts = new AdministrationServiceServiceLocator(yellowfinHost, yellowfinPort, yellowfinRoot + "/services/AdministrationService", useSecureConnection);
         AdministrationServiceSoapBindingStub rssbs = null;
@@ -396,9 +365,9 @@ public class YellowfinServiceImpl implements YellowfinService, TranslationKeyPro
 
         if (rssbs != null) {
             try {
-                rs = rssbs.remoteAdministrationCall(rsr);
-                if (rs != null){
-                    if("SUCCESS".equals(rs.getStatusCode()) ) {
+                AdministrationServiceResponse rs = rssbs.remoteAdministrationCall(rsr);
+                if (rs != null) {
+                    if ("SUCCESS".equals(rs.getStatusCode())) {
                         return rs.getSessionId();
                     }
                 }
@@ -409,19 +378,16 @@ public class YellowfinServiceImpl implements YellowfinService, TranslationKeyPro
         }
 
         return null;
-   }
+    }
 
     @Override
-    public Optional<List<YellowfinReportInfo>> getUserReports(String username, String category, String subCategory,String reportUUId)  {
+    public Optional<List<YellowfinReportInfo>> getUserReports(String username, String category, String subCategory, String reportUUId) {
 
         List<YellowfinReportInfo> userReports = new ArrayList<>();
         try {
-            AdministrationServiceResponse rs = null;
             AdministrationServiceRequest rsr = new AdministrationServiceRequest();
             AdministrationServiceService ts = new AdministrationServiceServiceLocator(yellowfinHost, yellowfinPort, yellowfinRoot + "/services/AdministrationService", useSecureConnection);
-            AdministrationServiceSoapBindingStub rssbs = null;
-
-            rssbs = (AdministrationServiceSoapBindingStub) ts.getAdministrationService();
+            AdministrationServiceSoapBindingStub rssbs = (AdministrationServiceSoapBindingStub) ts.getAdministrationService();
 
             rsr.setLoginId(yellowfinWebServiceUser);
             rsr.setPassword(yellowfinWebServicePassword);
@@ -433,9 +399,9 @@ public class YellowfinServiceImpl implements YellowfinService, TranslationKeyPro
             rsr.setPerson(ap);
             if (rssbs != null) {
                 try {
-                    rs = rssbs.remoteAdministrationCall(rsr);
-                    if (rs != null){
-                        if("SUCCESS".equals(rs.getStatusCode()) ) {
+                    AdministrationServiceResponse rs = rssbs.remoteAdministrationCall(rsr);
+                    if (rs != null) {
+                        if ("SUCCESS".equals(rs.getStatusCode())) {
                             AdministrationReport[] reports = rs.getReports();
                             for (int i = 0; i < reports.length; i++) {
                                 AdministrationReport report = reports[i];
@@ -480,19 +446,18 @@ public class YellowfinServiceImpl implements YellowfinService, TranslationKeyPro
             ReportServiceRequest rsr = new ReportServiceRequest();
 
             rssbs = (ReportServiceSoapBindingStub) ts.getReportService();
-            ReportServiceResponse reportServiceResponse = null;
             rsr.setLoginId(yellowfinWebServiceUser);
             rsr.setPassword(yellowfinWebServicePassword);
             rsr.setOrgId(new Integer(1));
             rsr.setReportRequest("SCHEMA");
             rsr.setReportId(reportId);
             try {
-                reportServiceResponse = rssbs.remoteReportCall(rsr);
-                if(reportServiceResponse != null){
-                    if("SUCCESS".equals(reportServiceResponse.getStatusCode())){
+                ReportServiceResponse reportServiceResponse = rssbs.remoteReportCall(rsr);
+                if (reportServiceResponse != null) {
+                    if ("SUCCESS".equals(reportServiceResponse.getStatusCode())) {
                         ReportSchema[] rs = reportServiceResponse.getColumns();
-                        for(int i = 0 ; i<rs.length;i++){
-                            if(rs[i].getFilterId()!=null){
+                        for (int i = 0; i < rs.length; i++) {
+                            if (rs[i].getFilterId() != null) {
                                 YellowfinFilterInfoImpl userFilter = new YellowfinFilterInfoImpl();
                                 userFilter.setId(rs[i].getFilterId());
                                 userFilter.setFilterDataValue1(rs[i].getDefaultValue1());
@@ -523,14 +488,13 @@ public class YellowfinServiceImpl implements YellowfinService, TranslationKeyPro
 
     }
 
-    public ReportRow[] getFilterList(String filterId,int reportId) {
+    public ReportRow[] getFilterList(String filterId, int reportId) {
         ReportServiceService ts = new ReportServiceServiceLocator(yellowfinHost, yellowfinPort, yellowfinRoot + "/services/ReportService", useSecureConnection);
         ReportServiceSoapBindingStub rssbs;
         ReportServiceRequest rsr = new ReportServiceRequest();
         ReportRow[] reportRows = null;
         try {
             rssbs = (ReportServiceSoapBindingStub) ts.getReportService();
-            ReportServiceResponse reportServiceResponse = null;
             rsr.setLoginId(yellowfinWebServiceUser);
             rsr.setPassword(yellowfinWebServicePassword);
             rsr.setOrgId(new Integer(1));
@@ -538,10 +502,10 @@ public class YellowfinServiceImpl implements YellowfinService, TranslationKeyPro
             rsr.setObjectName(filterId);
             rsr.setReportId(reportId);
             try {
-                reportServiceResponse = rssbs.remoteReportCall(rsr);
+                ReportServiceResponse reportServiceResponse = rssbs.remoteReportCall(rsr);
                 if (reportServiceResponse != null) {
                     if ("SUCCESS".equals(reportServiceResponse.getStatusCode())) {
-                        reportRows= reportServiceResponse.getResults();
+                        reportRows = reportServiceResponse.getResults();
                     }
                 }
 
@@ -555,7 +519,7 @@ public class YellowfinServiceImpl implements YellowfinService, TranslationKeyPro
     }
 
 
-    public Optional<List<YellowfinFilterListItemInfo>> getFilterListItems(String filterId,int reportId) {
+    public Optional<List<YellowfinFilterListItemInfo>> getFilterListItems(String filterId, int reportId) {
         List<YellowfinFilterListItemInfo> listItems = new ArrayList<>();
         try {
             ReportServiceService ts = new ReportServiceServiceLocator(yellowfinHost, yellowfinPort, yellowfinRoot + "/services/ReportService", useSecureConnection);
@@ -564,7 +528,6 @@ public class YellowfinServiceImpl implements YellowfinService, TranslationKeyPro
 
 
             rssbs = (ReportServiceSoapBindingStub) ts.getReportService();
-            ReportServiceResponse reportServiceResponse = null;
             rsr.setLoginId(yellowfinWebServiceUser);
             rsr.setPassword(yellowfinWebServicePassword);
             rsr.setOrgId(new Integer(1));
@@ -572,15 +535,16 @@ public class YellowfinServiceImpl implements YellowfinService, TranslationKeyPro
             rsr.setObjectName(filterId);
             rsr.setReportId(reportId);
             try {
-                reportServiceResponse = rssbs.remoteReportCall(rsr);
+                ReportServiceResponse reportServiceResponse = rssbs.remoteReportCall(rsr);
                 if (reportServiceResponse != null) {
                     if ("SUCCESS".equals(reportServiceResponse.getStatusCode())) {
                         ReportRow[] reportRows = reportServiceResponse.getResults();
-                        for(int i=0;i<reportRows.length;i++){
+                        for (int i = 0; i < reportRows.length; i++) {
                             String[] dataValues = reportRows[i].getDataValue();
                             YellowfinFilterListItemInfo listItem = new YellowfinFilterListItemInfoImpl();
-                            if(dataValues[0].contains("__##SEARCH_RESULTS##__"))
+                            if (dataValues[0].contains("__##SEARCH_RESULTS##__")) {
                                 continue;
+                            }
                             listItem.setValue1(dataValues[0]);
                             listItem.setValue2(dataValues[1]);
                             listItems.add(listItem);
