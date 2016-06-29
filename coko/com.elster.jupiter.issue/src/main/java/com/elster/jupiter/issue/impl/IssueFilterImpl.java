@@ -1,7 +1,5 @@
 package com.elster.jupiter.issue.impl;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.elster.jupiter.issue.share.IssueFilter;
 import com.elster.jupiter.issue.share.entity.DueDateRange;
 import com.elster.jupiter.issue.share.entity.IssueReason;
@@ -11,12 +9,12 @@ import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.users.User;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-@ProviderType
 public class IssueFilterImpl implements IssueFilter {
-    private Optional<String> issueId = Optional.empty();
+    private String issueId;
     private List<IssueStatus> statuses = new ArrayList<>();
     private List<IssueReason> reasons = new ArrayList<>();
     private List<EndDevice> devices = new ArrayList<>();
@@ -25,17 +23,14 @@ public class IssueFilterImpl implements IssueFilter {
     private List<IssueType> issueTypes = new ArrayList<>();
     private boolean unassignedSelected = false;
 
-    public IssueFilterImpl() {
-    }
-
     @Override
     public void setIssueId(String issueId) {
-        this.issueId = Optional.of(issueId);
+        this.issueId = issueId;
     }
 
     @Override
     public Optional<String> getIssueId() {
-        return this.issueId;
+        return Optional.ofNullable(this.issueId);
     }
 
     @Override
@@ -106,11 +101,12 @@ public class IssueFilterImpl implements IssueFilter {
 
     @Override
     public List<IssueType> getIssueTypes() {
-        return issueTypes;
+        return Collections.unmodifiableList(issueTypes);
     }
 
     @Override
     public void addIssueType(IssueType issueType) {
         this.issueTypes.add(issueType);
     }
+
 }
