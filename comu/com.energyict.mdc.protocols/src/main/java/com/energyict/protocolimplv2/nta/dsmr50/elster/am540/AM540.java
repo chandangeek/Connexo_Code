@@ -24,7 +24,9 @@ import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
+import com.energyict.mdc.protocol.api.ProtocolException;
 import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
+import com.energyict.mdc.protocol.api.device.data.CollectedCalendar;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
@@ -52,9 +54,12 @@ import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.ApplicationServiceObject;
+import com.energyict.dlms.cosem.ActivityCalendar;
+import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.protocolimplv2.ApplicationServiceObjectV2;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
+import com.energyict.protocolimpl.dlms.common.DLMSActivityCalendarController;
 import com.energyict.protocolimpl.dlms.idis.AM540ObjectList;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.g3.common.G3Topology;
@@ -427,80 +432,132 @@ public class AM540 extends AbstractDlmsProtocol {
         return getIssueService().newProblem(
                 firmwareRegister,
                 getThesaurus(),
-                com.energyict.mdc.protocol.api.MessageSeeds.COULD_NOT_READOUT_FIRMWARE_VERSION,
+                com.energyict.mdc.protocol.api.MessageSeeds.COULD_NOT_READ_FIRMWARE_VERSION,
                 firmwareRegister.getObisCode());
     }
 
+    @Override
+    public CollectedCalendar getCollectedCalendar() {
+        CollectedCalendar collectedCalendar = this.getCollectedDataFactory().createCalendarCollectedData(this.offlineDevice.getDeviceIdentifier());
+        try {
+            ActivityCalendar activityCalendar = this.getCosemObjectFactory().getActivityCalendar(DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE);
+            this.updateCollectedCalendar(activityCalendar, collectedCalendar);
+        } catch (ProtocolException e) {
+            this.getIssueService().newProblem(
+                    this.getCalendarRegister(DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE),
+                    this.getThesaurus(),
+                    com.energyict.mdc.protocol.api.MessageSeeds.COULD_NOT_READ_CALENDAR_INFO,
+                    DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE);
+        }
+        return collectedCalendar;
+    }
+
+    private void updateCollectedCalendar(ActivityCalendar activityCalendar, CollectedCalendar collectedCalendar) {
+        try {
+            collectedCalendar.setActiveCalendar(activityCalendar.readCalendarNameActive().stringValue());
+        } catch (IOException e) {
+            this.getIssueService().newProblem(
+                    this.getCalendarRegister(DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE),
+                    this.getThesaurus(),
+                    com.energyict.mdc.protocol.api.MessageSeeds.COULD_NOT_READ_CALENDAR_INFO,
+                    DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE);
+        }
+        try {
+            collectedCalendar.setPassiveCalendar(activityCalendar.readCalendarNamePassive().stringValue());
+        } catch (IOException e) {
+            this.getIssueService().newProblem(
+                    this.getCalendarRegister(DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE),
+                    this.getThesaurus(),
+                    com.energyict.mdc.protocol.api.MessageSeeds.COULD_NOT_READ_CALENDAR_INFO,
+                    DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE);
+        }
+    }
+
+    private CosemObjectFactory getCosemObjectFactory() {
+        return this.getDlmsSession().getCosemObjectFactory();
+    }
+
     private OfflineRegister getFirmwareRegister() {
-        return new OfflineRegister() {
+        return new MyOwnPrivateRegister(this.getOfflineDevice(), ObisCode.fromString("1.1.0.2.0.255"));
+    }
 
-            // Module Version identification
-            private ObisCode firmwareObisCode = ObisCode.fromString("1.1.0.2.0.255");
-
-            @Override
-            public long getRegisterId() {
-                return 0;
-            }
-
-            @Override
-            public ObisCode getObisCode() {
-                return firmwareObisCode;
-            }
-
-            @Override
-            public boolean inGroup(long registerGroupId) {
-                return false;
-            }
-
-            @Override
-            public boolean inAtLeastOneGroup(Collection<Long> registerGroupIds) {
-                return false;
-            }
-
-            @Override
-            public Unit getUnit() {
-                return Unit.getUndefined();
-            }
-
-            @Override
-            public String getDeviceMRID() {
-                return null;
-            }
-
-            @Override
-            public String getDeviceSerialNumber() {
-                return AM540.this.getOfflineDevice().getSerialNumber();
-            }
-
-            @Override
-            public ObisCode getAmrRegisterObisCode() {
-                return firmwareObisCode;
-            }
-
-            @Override
-            public DeviceIdentifier<?> getDeviceIdentifier() {
-                return AM540.this.getOfflineDevice().getDeviceIdentifier();
-            }
-
-            @Override
-            public ReadingType getReadingType() {
-                return null;
-            }
-
-            @Override
-            public BigDecimal getOverFlowValue() {
-                return null;
-            }
-
-            @Override
-            public boolean isText() {
-                return true;
-            }
-        };
+    private OfflineRegister getCalendarRegister(ObisCode obisCode) {
+        return new MyOwnPrivateRegister(this.getOfflineDevice(), obisCode);
     }
 
     @Override
     public boolean supportsCommunicationFirmwareVersion() {
         return true;
+    }
+
+    private static class MyOwnPrivateRegister implements OfflineRegister {
+
+        private final OfflineDevice device;
+        private final ObisCode obisCode;
+
+        private MyOwnPrivateRegister(OfflineDevice device, ObisCode obisCode) {
+            this.device = device;
+            this.obisCode = obisCode;
+        }
+
+        @Override
+        public long getRegisterId() {
+            return 0;
+        }
+
+        @Override
+        public ObisCode getObisCode() {
+            return this.obisCode;
+        }
+
+        @Override
+        public boolean inGroup(long registerGroupId) {
+            return false;
+        }
+
+        @Override
+        public boolean inAtLeastOneGroup(Collection<Long> registerGroupIds) {
+            return false;
+        }
+
+        @Override
+        public Unit getUnit() {
+            return Unit.getUndefined();
+        }
+
+        @Override
+        public String getDeviceMRID() {
+            return null;
+        }
+
+        @Override
+        public String getDeviceSerialNumber() {
+            return this.device.getSerialNumber();
+        }
+
+        @Override
+        public ObisCode getAmrRegisterObisCode() {
+            return obisCode;
+        }
+
+        @Override
+        public DeviceIdentifier<?> getDeviceIdentifier() {
+            return this.device.getDeviceIdentifier();
+        }
+
+        @Override
+        public ReadingType getReadingType() {
+            return null;
+        }
+
+        @Override
+        public BigDecimal getOverFlowValue() {
+            return null;
+        }
+
+        @Override
+        public boolean isText() {
+            return true;
+        }
     }
 }

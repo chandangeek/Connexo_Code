@@ -1,9 +1,9 @@
 package com.energyict.protocolimpl.messaging;
 
 import com.energyict.mdc.common.NestedIOException;
+import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
-import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.messaging.Message;
 import com.energyict.mdc.protocol.api.messaging.MessageAttribute;
 import com.energyict.mdc.protocol.api.messaging.MessageAttributeSpec;
@@ -13,6 +13,7 @@ import com.energyict.mdc.protocol.api.messaging.MessageSpec;
 import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageTagSpec;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
+
 import com.energyict.protocolimpl.messaging.proxy.ProxyMessageInvocationHandler;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -172,7 +173,7 @@ public abstract class AnnotatedMessaging implements MessageProtocol {
     }
 
     /**
-     * Create a new {@link com.energyict.protocol.messaging.MessageCategorySpec} containing all messages for a given category.
+     * Create a new {@link com.energyict.mdc.protocol.api.messaging.MessageCategorySpec} containing all messages for a given category.
      * If the category contains no messages, return an empty MessageCategorySpec
      *
      * @param category The category to use.
@@ -194,7 +195,7 @@ public abstract class AnnotatedMessaging implements MessageProtocol {
     }
 
     /**
-     * Create a new {@link com.energyict.protocol.messaging.MessageSpec} from a given class, using the annotations on the class
+     * Create a new {@link com.energyict.mdc.protocol.api.messaging.MessageSpec} from a given class, using the annotations on the class
      * For this method, it's REQUIRED that the message class is annotated with {@link RtuMessageDescription}
      *
      * @param message The message class containing the messaging annotations
@@ -228,10 +229,10 @@ public abstract class AnnotatedMessaging implements MessageProtocol {
      * Creates a new message attribute spec from a given method using the {@link RtuMessageAttribute} annotation
      * If the annotation is not present, this method will return 'null';
      *
-     * @param method The method to create the new {@link com.energyict.protocol.messaging.MessageAttributeSpec} for
+     * @param method The method to create the new {@link com.energyict.mdc.protocol.api.messaging.MessageAttributeSpec} for
      * @return The new MessageAttributeSpec
      */
-    private final MessageAttributeSpec createMessageAttributeSpec(Method method) {
+    private MessageAttributeSpec createMessageAttributeSpec(Method method) {
         if (method.isAnnotationPresent(RtuMessageAttribute.class)) {
             final RtuMessageAttribute rtuMessageAttribute = method.getAnnotation(RtuMessageAttribute.class);
             return new MessageAttributeSpec(rtuMessageAttribute.tag(), rtuMessageAttribute.required());
@@ -245,8 +246,8 @@ public abstract class AnnotatedMessaging implements MessageProtocol {
      * @param category The message category to look
      * @return The list of message classes with the given category or an empty list if category was not found
      */
-    private final List<Class<? extends AnnotatedMessage>> getMessagesWithCategory(String category) {
-        final List<Class<? extends AnnotatedMessage>> messagesByCategory = new ArrayList<Class<? extends AnnotatedMessage>>();
+    private List<Class<? extends AnnotatedMessage>> getMessagesWithCategory(String category) {
+        final List<Class<? extends AnnotatedMessage>> messagesByCategory = new ArrayList<>();
         for (Class<? extends AnnotatedMessage> messageDescription : this.messages) {
             final List<RtuMessageDescription> descriptions = AnnotatedMessaging.getDescriptionsForMessageClass(messageDescription);
 
@@ -268,7 +269,7 @@ public abstract class AnnotatedMessaging implements MessageProtocol {
      * @return The matching unique message, or null if no message was found with this tag
      * @throws IllegalArgumentException If the tagName parameter is null
      */
-    private final Class<? extends AnnotatedMessage> getMessageByTag(final String tagName) {
+    private Class<? extends AnnotatedMessage> getMessageByTag(final String tagName) {
         if (tagName == null) {
             throw new IllegalArgumentException("Unable to find message by tag name if tagName if ['null']");
         }
@@ -292,8 +293,8 @@ public abstract class AnnotatedMessaging implements MessageProtocol {
      *
      * @return A {@link java.util.List} containing all the unique categories as {@link String}.
      */
-    private final List<String> getCategories() {
-        final List<String> categories = new ArrayList<String>();
+    private List<String> getCategories() {
+        final List<String> categories = new ArrayList<>();
         for (Class<? extends AnnotatedMessage> rtuMessageDescription : this.messages) {
             final List<RtuMessageDescription> descriptions = AnnotatedMessaging.getDescriptionsForMessageClass(rtuMessageDescription);
 
@@ -319,7 +320,7 @@ public abstract class AnnotatedMessaging implements MessageProtocol {
     }
 
     public String writeTag(MessageTag tag) {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
 
         // a. Opening tag
         buf.append("<");
@@ -328,7 +329,7 @@ public abstract class AnnotatedMessaging implements MessageProtocol {
         // b. Attributes
         for (Iterator it = tag.getAttributes().iterator(); it.hasNext(); ) {
             MessageAttribute att = (MessageAttribute) it.next();
-            if ((att.getValue() == null) || (att.getValue().length() == 0)) {
+            if ((att.getValue() == null) || (att.getValue().isEmpty())) {
                 continue;
             }
             buf.append(" ").append(att.getSpec().getName());
