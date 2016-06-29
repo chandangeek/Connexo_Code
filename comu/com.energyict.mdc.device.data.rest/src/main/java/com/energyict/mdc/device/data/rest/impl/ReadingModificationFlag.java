@@ -1,19 +1,18 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.cbo.QualityCodeIndex;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
-import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.readings.ReadingQuality;
+import com.elster.jupiter.util.Pair;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.EnumSet;
+import java.util.EnumMap;
+import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
-
-import static com.elster.jupiter.util.streams.Functions.asStream;
 
 public enum ReadingModificationFlag {
 
@@ -33,29 +32,30 @@ public enum ReadingModificationFlag {
                 .findFirst();
     }
 
-    public static ReadingModificationFlag getModificationFlag(ReadingRecord reading) {
+    public static Pair<ReadingModificationFlag, QualityCodeSystem> getModificationFlag(ReadingRecord reading) {
         return getModificationFlag(reading, reading.getReadingQualities());
     }
 
-    public static ReadingModificationFlag getModificationFlag(BaseReadingRecord reading, Collection<? extends ReadingQuality> readingQualities) {
-        Set<ReadingModificationFlag> flags = readingQualities.stream()
+    public static Pair<ReadingModificationFlag, QualityCodeSystem> getModificationFlag(BaseReadingRecord reading, Collection<? extends ReadingQuality> readingQualities) {
+        Map<ReadingModificationFlag, QualityCodeSystem> flags = readingQualities.stream()
                 .map(ReadingQuality::getType)
-                .map(ReadingQualityType::qualityIndex)
-                .flatMap(asStream())
-                .map(ReadingModificationFlag::forQualityCodeIndex)
-                .flatMap(asStream())
-                .collect(Collectors.toCollection(() -> EnumSet.noneOf(ReadingModificationFlag.class)));
+                .filter(type -> type.qualityIndex().flatMap(ReadingModificationFlag::forQualityCodeIndex).isPresent())
+                .collect(Collectors.toMap(
+                        type -> ReadingModificationFlag.forQualityCodeIndex(type.qualityIndex().get()).get(),
+                        type -> type.system().orElse(null),
+                        (s1, s2) -> s1,
+                        () -> new EnumMap<>(ReadingModificationFlag.class)));
         if (reading != null) {
             if (reading.edited()) {
-                if (flags.contains(ADDED)) {
-                    return ADDED;
+                if (flags.containsKey(ADDED)) {
+                    return Pair.of(ADDED, flags.get(ADDED));
                 }
-                if (flags.contains(EDITED)) {
-                    return EDITED;
+                if (flags.containsKey(EDITED)) {
+                    return Pair.of(EDITED, flags.get(EDITED));
                 }
             }
-        } else if (flags.contains(REMOVED)) {
-            return REMOVED;
+        } else if (flags.containsKey(REMOVED)) {
+            return Pair.of(REMOVED, flags.get(REMOVED));
         }
         return null;
     }

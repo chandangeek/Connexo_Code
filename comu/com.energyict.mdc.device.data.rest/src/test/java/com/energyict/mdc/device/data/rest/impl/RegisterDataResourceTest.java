@@ -92,8 +92,6 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
 
     public static final Instant NOW = ZonedDateTime.of(2014, 10, 01, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
 
-    private ReadingQualityType readingQualityTypeConfirmed = new ReadingQualityType("2.10.1");
-
     public RegisterDataResourceTest() {
     }
 
@@ -200,7 +198,9 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<List<?>>get("$.data")).hasSize(3);
         assertThat(jsonModel.<String>get("$.data[0].type")).isEqualTo("billing");
-        assertThat(jsonModel.<String>get("$.data[0].modificationFlag")).isEqualTo("ADDED");
+        assertThat(jsonModel.<String>get("$.data[0].modificationFlag")).isEqualTo(ReadingModificationFlag.ADDED.name());
+        assertThat(jsonModel.<String>get("$.data[0].editedInApp.id")).isEqualTo(QualityCodeSystem.MDC.name());
+        assertThat(jsonModel.<String>get("$.data[0].editedInApp.name")).isEqualTo("MultiSense");
         assertThat(jsonModel.<Number>get("$.data[0].estimatedByRule.id")).isEqualTo(13);
         assertThat(jsonModel.<Number>get("$.data[0].estimatedByRule.ruleSetId")).isEqualTo(15);
         assertThat(jsonModel.<String>get("$.data[0].estimatedByRule.name")).isEqualTo("EstimationRule");
@@ -208,7 +208,9 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         assertThat(jsonModel.<String>get("$.data[0].estimatedByRule.application.id")).isEqualTo(QualityCodeSystem.MDC.name());
         assertThat(jsonModel.<String>get("$.data[0].estimatedByRule.application.name")).isEqualTo("MultiSense");
         assertThat(jsonModel.<String>get("$.data[1].type")).isEqualTo("numerical");
-        assertThat(jsonModel.<String>get("$.data[1].modificationFlag")).isEqualTo("EDITED");
+        assertThat(jsonModel.<String>get("$.data[1].modificationFlag")).isEqualTo(ReadingModificationFlag.EDITED.name());
+        assertThat(jsonModel.<String>get("$.data[1].editedInApp.id")).isEqualTo(QualityCodeSystem.MDC.name());
+        assertThat(jsonModel.<String>get("$.data[1].editedInApp.name")).isEqualTo("MultiSense");
         assertThat(jsonModel.<Number>get("$.data[1].estimatedByRule.id")).isEqualTo(13);
         assertThat(jsonModel.<Number>get("$.data[1].estimatedByRule.ruleSetId")).isEqualTo(15);
         assertThat(jsonModel.<String>get("$.data[1].estimatedByRule.name")).isEqualTo("EstimationRule");

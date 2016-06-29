@@ -1,11 +1,13 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.VersionInfo;
+import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationResult;
@@ -187,7 +189,11 @@ public class DeviceDataInfoFactory {
         readingInfo.id = reading.getTimeStamp();
         readingInfo.timeStamp = reading.getTimeStamp();
         readingInfo.reportedDateTime = reading.getReportedDateTime();
-        readingInfo.modificationFlag = ReadingModificationFlag.getModificationFlag(reading.getActualReading());
+        Pair<ReadingModificationFlag, QualityCodeSystem> modificationFlag = ReadingModificationFlag.getModificationFlag(reading.getActualReading());
+        if (modificationFlag != null) {
+            readingInfo.modificationFlag = modificationFlag.getFirst();
+            readingInfo.editedInApp = resourceHelper.getApplicationInfo(modificationFlag.getLast());
+        }
     }
 
     private BillingReadingInfo createBillingReadingInfo(BillingReading reading, Register<?, ?> register, boolean isValidationStatusActive) {

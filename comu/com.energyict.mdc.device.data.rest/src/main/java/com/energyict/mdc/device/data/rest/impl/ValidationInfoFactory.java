@@ -10,6 +10,7 @@ import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationRule;
@@ -238,7 +239,11 @@ public class ValidationInfoFactory {
     }
 
     private void setVeeReadingValueInfo(VeeReadingValueInfo info, IntervalReadingRecord reading, Collection<? extends ReadingQuality> readingQualities) {
-        info.valueModificationFlag = ReadingModificationFlag.getModificationFlag(reading, readingQualities);
+        Pair<ReadingModificationFlag, QualityCodeSystem> modificationFlag = ReadingModificationFlag.getModificationFlag(reading, readingQualities);
+        if (modificationFlag != null) {
+            info.valueModificationFlag = modificationFlag.getFirst();
+            info.editedInApp = resourceHelper.getApplicationInfo(modificationFlag.getLast());
+        }
         List<? extends ReadingQuality> confirmedQualities = getConfirmedQualities(reading, readingQualities);
         info.isConfirmed = !confirmedQualities.isEmpty();
         info.confirmedInApp = confirmedQualities.stream()
@@ -270,7 +275,11 @@ public class ValidationInfoFactory {
     MinimalVeeReadingValueInfo createMainVeeReadingInfo(DataValidationStatus dataValidationStatus, DeviceValidation deviceValidation, IntervalReadingRecord reading) {
         MinimalVeeReadingValueInfo veeReadingInfo = new MinimalVeeReadingValueInfo();
         veeReadingInfo.validationResult = ValidationStatus.forResult(deviceValidation.getValidationResult(dataValidationStatus.getReadingQualities()));
-        veeReadingInfo.valueModificationFlag = ReadingModificationFlag.getModificationFlag(reading, dataValidationStatus.getReadingQualities());
+        Pair<ReadingModificationFlag, QualityCodeSystem> modificationFlag = ReadingModificationFlag.getModificationFlag(reading, dataValidationStatus.getReadingQualities());
+        if (modificationFlag != null) {
+            veeReadingInfo.valueModificationFlag = modificationFlag.getFirst();
+            veeReadingInfo.editedInApp = resourceHelper.getApplicationInfo(modificationFlag.getLast());
+        }
         veeReadingInfo.isConfirmed = isConfirmedData(reading, dataValidationStatus.getReadingQualities());
         veeReadingInfo.action = decorate(dataValidationStatus.getReadingQualities()
                 .stream())
@@ -289,7 +298,13 @@ public class ValidationInfoFactory {
         if (channel.getCalculatedReadingType(dataValidationStatus.getReadingTimestamp()).isPresent()) {
             MinimalVeeReadingValueInfo veeReadingInfo = new MinimalVeeReadingValueInfo();
             veeReadingInfo.validationResult = ValidationStatus.forResult(deviceValidation.getValidationResult(dataValidationStatus.getBulkReadingQualities()));
-            veeReadingInfo.valueModificationFlag = ReadingModificationFlag.getModificationFlag(reading, dataValidationStatus.getBulkReadingQualities());
+
+            Pair<ReadingModificationFlag, QualityCodeSystem> modificationFlag = ReadingModificationFlag.getModificationFlag(reading, dataValidationStatus.getBulkReadingQualities());
+            if (modificationFlag != null) {
+                veeReadingInfo.valueModificationFlag = modificationFlag.getFirst();
+                veeReadingInfo.editedInApp = resourceHelper.getApplicationInfo(modificationFlag.getLast());
+            }
+
             veeReadingInfo.isConfirmed = isConfirmedData(reading, dataValidationStatus.getBulkReadingQualities());
             veeReadingInfo.action = decorate(dataValidationStatus.getBulkReadingQualities()
                     .stream())

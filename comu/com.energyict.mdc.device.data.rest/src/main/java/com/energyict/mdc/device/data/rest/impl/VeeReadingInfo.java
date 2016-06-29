@@ -47,6 +47,9 @@ class VeeReadingValueInfo {
     @XmlJavaTypeAdapter(ReadingModificationFlagAdapter.class)
     public ReadingModificationFlag valueModificationFlag;
 
+    @JsonProperty("editedInApp")
+    public IdWithNameInfo editedInApp;
+
     @JsonProperty("isConfirmed")
     public Boolean isConfirmed;
 
