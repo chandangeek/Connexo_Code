@@ -233,9 +233,9 @@ public class DeviceResource {
         Optional<DeviceConfiguration> deviceConfiguration = deviceConfigurationService.findDeviceConfiguration(deviceConfigurationId);
         Device newDevice;
         if (!is(batch).emptyOrOnlyWhiteSpace()) {
-            newDevice = deviceService.newDevice(deviceConfiguration.orElse(null), mRID, mRID, batch, Instant.now());
+            newDevice = deviceService.newDevice(deviceConfiguration.orElse(null), mRID, mRID, batch, shipmentDate);
         } else {
-            newDevice = deviceService.newDevice(deviceConfiguration.orElse(null), mRID, mRID, Instant.now());
+            newDevice = deviceService.newDevice(deviceConfiguration.orElse(null), mRID, mRID, shipmentDate);
         }
         newDevice.setSerialNumber(serialNumber);
         newDevice.setYearOfCertification(yearOfCertification);

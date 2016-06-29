@@ -2217,6 +2217,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(device.getLifecycleDates()).thenReturn(dates);
         when(device.getLocation()).thenReturn(Optional.empty());
         when(device.getGeoCoordinates()).thenReturn(Optional.empty());
+        when(dates.setReceivedDate(any(Instant.class))).thenReturn(dates);
 
         when(deviceService.findByUniqueMrid(name)).thenReturn(Optional.of(device));
         when(deviceService.findAndLockDeviceBymRIDAndVersion(eq(name), anyLong())).thenReturn(Optional.of(device));
@@ -2632,6 +2633,9 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(deviceConfigurationService.findDeviceConfiguration(deviceConfigId)).thenReturn(Optional.of(deviceConfiguration));
         Device device = mock(Device.class, RETURNS_DEEP_STUBS);
+        DeviceType deviceType = mock(DeviceType.class);
+        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.empty());
+        when(device.getDeviceType()).thenReturn(deviceType);
         when(batchService.findBatch(device)).thenReturn(Optional.empty());
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.empty());
         when(device.getCurrentMeterActivation()).thenReturn(Optional.empty());
