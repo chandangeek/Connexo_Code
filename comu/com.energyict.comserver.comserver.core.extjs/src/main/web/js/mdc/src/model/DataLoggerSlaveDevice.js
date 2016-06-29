@@ -13,7 +13,7 @@ Ext.define('Mdc.model.DataLoggerSlaveDevice', {
         {name: 'yearOfCertification', type: 'string', useNull: true},
         //TODO {name: 'batch', type: 'string', useNull: true},
         {name: 'version', type: 'number', useNull: true},
-        {name: 'shipmentTimeStamp',type: 'number', useNull: true},
+        {name: 'shipmentDate',type: 'number', useNull: true},
         {name: 'linkingTimeStamp',type: 'number', useNull: true},
         {name: 'unlinkingTimeStamp',type: 'number', useNull: true},
         {name: 'dataLoggerSlaveChannelInfos', type: 'auto', defaultValue: null}
