@@ -10,6 +10,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.json.JsonService;
+
 import com.google.common.collect.ImmutableList;
 
 import javax.inject.Inject;
@@ -19,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public final class EventTypeImpl implements EventType, PersistenceAware {
+final class EventTypeImpl implements EventType, PersistenceAware {
 
     private String topic;
     private String component;
@@ -37,10 +38,14 @@ public final class EventTypeImpl implements EventType, PersistenceAware {
     private final BeanService beanService;
     private final Thesaurus thesaurus;
 
-    //audit columns
+    //audit columns: all managed by ORM
+    @SuppressWarnings("unused")
     private long version;
+    @SuppressWarnings("unused")
     private Instant createTime;
+    @SuppressWarnings("unused")
     private Instant modTime;
+    @SuppressWarnings("unused")
     private String userName;
 
     @Inject
@@ -176,8 +181,12 @@ public final class EventTypeImpl implements EventType, PersistenceAware {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         EventTypeImpl eventType = (EventTypeImpl) o;
         return Objects.equals(topic, eventType.topic);
     }
@@ -186,9 +195,10 @@ public final class EventTypeImpl implements EventType, PersistenceAware {
     public int hashCode() {
         return Objects.hash(topic);
     }
-    
+
     @Override
     public long getVersion() {
         return this.version;
     }
+
 }

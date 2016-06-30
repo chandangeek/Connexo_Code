@@ -149,7 +149,7 @@ public class EventServiceImpl implements EventService, MessageSeedProvider {
                 bind(MessageInterpolator.class).toInstance(thesaurus);
             }
         });
-        upgradeService.register(InstallIdentifier.identifier(COMPONENTNAME), dataModel, InstallerImpl.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier("Pulse", COMPONENTNAME), dataModel, InstallerImpl.class, Collections.emptyMap());
     }
 
     @Deactivate
@@ -178,7 +178,7 @@ public class EventServiceImpl implements EventService, MessageSeedProvider {
     @Override
     public List<EventType> getEventTypes() {
         // check if dataModel is installed because this method can be/us called before the install is run
-        return dataModel.isInstalled() ? eventTypeFactory().find() : Collections.<EventType>emptyList();
+        return eventTypeFactory().find();
     }
 
     @Override
