@@ -271,54 +271,40 @@ public class ValidationInfoFactory {
                 .collect(Collectors.toList());
     }
 
-
     MinimalVeeReadingValueInfo createMainVeeReadingInfo(DataValidationStatus dataValidationStatus, DeviceValidation deviceValidation, IntervalReadingRecord reading) {
-        MinimalVeeReadingValueInfo veeReadingInfo = new MinimalVeeReadingValueInfo();
-        veeReadingInfo.validationResult = ValidationStatus.forResult(deviceValidation.getValidationResult(dataValidationStatus.getReadingQualities()));
-        Pair<ReadingModificationFlag, QualityCodeSystem> modificationFlag = ReadingModificationFlag.getModificationFlag(reading, dataValidationStatus.getReadingQualities());
-        if (modificationFlag != null) {
-            veeReadingInfo.valueModificationFlag = modificationFlag.getFirst();
-            veeReadingInfo.editedInApp = resourceHelper.getApplicationInfo(modificationFlag.getLast());
+        return createMinimalVeeReadingInfo(deviceValidation, reading, dataValidationStatus.getReadingQualities());
+    }
+
+    MinimalVeeReadingValueInfo createBulkVeeReadingInfo(Channel channel, DataValidationStatus dataValidationStatus, DeviceValidation deviceValidation, IntervalReadingRecord reading) {
+        if (channel.getCalculatedReadingType(dataValidationStatus.getReadingTimestamp()).isPresent()) {
+            return createMinimalVeeReadingInfo(deviceValidation, reading, dataValidationStatus.getBulkReadingQualities());
         }
-        veeReadingInfo.isConfirmed = isConfirmedData(reading, dataValidationStatus.getReadingQualities());
-        veeReadingInfo.action = decorate(dataValidationStatus.getReadingQualities()
+        return null;
+    }
+
+    private MinimalVeeReadingValueInfo createMinimalVeeReadingInfo(DeviceValidation deviceValidation, IntervalReadingRecord reading, Collection<? extends ReadingQuality> readingQualities) {
+        MinimalVeeReadingValueInfo veeReadingInfo = new MinimalVeeReadingValueInfo();
+        // Validation
+        veeReadingInfo.validationResult = ValidationStatus.forResult(deviceValidation.getValidationResult(readingQualities));
+        veeReadingInfo.action = decorate(readingQualities
                 .stream())
                 .filter(quality -> quality.getType().hasValidationCategory() || quality.getType().isSuspect())
                 .map(readingQuality -> getReadingQualityValidationAction(readingQuality, veeReadingInfo))
                 .sorted(Comparator.<ValidationAction>reverseOrder())
                 .findFirst()
                 .orElse(null);
-        veeReadingInfo.estimatedByRule = dataValidationStatus.getReadingQualities().stream()
+        // Estimation
+        veeReadingInfo.estimatedByRule = readingQualities.stream()
                 .map(ReadingQuality::getType)
                 .anyMatch(ReadingQualityType::hasEstimatedCategory);
-        return veeReadingInfo;
-    }
-
-    MinimalVeeReadingValueInfo createBulkVeeReadingInfo(Channel channel, DataValidationStatus dataValidationStatus, DeviceValidation deviceValidation, IntervalReadingRecord reading) {
-        if (channel.getCalculatedReadingType(dataValidationStatus.getReadingTimestamp()).isPresent()) {
-            MinimalVeeReadingValueInfo veeReadingInfo = new MinimalVeeReadingValueInfo();
-            veeReadingInfo.validationResult = ValidationStatus.forResult(deviceValidation.getValidationResult(dataValidationStatus.getBulkReadingQualities()));
-
-            Pair<ReadingModificationFlag, QualityCodeSystem> modificationFlag = ReadingModificationFlag.getModificationFlag(reading, dataValidationStatus.getBulkReadingQualities());
-            if (modificationFlag != null) {
-                veeReadingInfo.valueModificationFlag = modificationFlag.getFirst();
-                veeReadingInfo.editedInApp = resourceHelper.getApplicationInfo(modificationFlag.getLast());
-            }
-
-            veeReadingInfo.isConfirmed = isConfirmedData(reading, dataValidationStatus.getBulkReadingQualities());
-            veeReadingInfo.action = decorate(dataValidationStatus.getBulkReadingQualities()
-                    .stream())
-                    .filter(quality -> quality.getType().hasValidationCategory() || quality.getType().isSuspect())
-                    .map(readingQuality -> getReadingQualityValidationAction(readingQuality, veeReadingInfo))
-                    .sorted(Comparator.<ValidationAction>reverseOrder())
-                    .findFirst()
-                    .orElse(null);
-            veeReadingInfo.estimatedByRule = dataValidationStatus.getBulkReadingQualities().stream()
-                    .map(ReadingQuality::getType)
-                    .anyMatch(ReadingQualityType::hasEstimatedCategory);
-            return veeReadingInfo;
+        // Editing
+        Pair<ReadingModificationFlag, QualityCodeSystem> modificationFlag = ReadingModificationFlag.getModificationFlag(reading, readingQualities);
+        if (modificationFlag != null) {
+            veeReadingInfo.valueModificationFlag = modificationFlag.getFirst();
+            veeReadingInfo.editedInApp = resourceHelper.getApplicationInfo(modificationFlag.getLast());
         }
-        return null;
+        veeReadingInfo.isConfirmed = isConfirmedData(reading, readingQualities);
+        return veeReadingInfo;
     }
 
     private ValidationAction getReadingQualityValidationAction(ReadingQuality readingQuality, MinimalVeeReadingValueInfo veeReadingValueInfo) {
