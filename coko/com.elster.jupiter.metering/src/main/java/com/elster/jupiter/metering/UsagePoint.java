@@ -259,4 +259,6 @@ public interface UsagePoint extends HasId, IdentifiedObject {
     ZoneId getZoneId(); // dependency in data aggregation
 
     // TODO delete end ===============================================================================================
+
+    List<? extends MeterActivation> getMeterActivations();
 }

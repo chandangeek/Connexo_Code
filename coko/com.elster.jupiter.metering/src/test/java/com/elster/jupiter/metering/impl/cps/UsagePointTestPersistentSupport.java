@@ -11,6 +11,10 @@ import java.util.List;
 import java.util.Optional;
 
 public class UsagePointTestPersistentSupport implements PersistenceSupport<UsagePoint, UsagePointTestPersistentDomainExtension> {
+    @Override
+    public String application() {
+        return "Example";
+    }
 
     @Override
     public String componentName() {

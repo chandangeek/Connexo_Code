@@ -1858,7 +1858,7 @@ public class FormulaCrudTest {
         OperationNode operationNode = (OperationNode) myNode;
         assertThat(operationNode.getOperator()).isEqualTo(Operator.SAFE_DIVIDE);
         assertThat(operationNode.getLeftOperand()).isInstanceOf(ConstantNodeImpl.class);
-        assertThat(((ConstantNode) operationNode.getLeftOperand()).getValue()).isEqualTo(new BigDecimal(10));
+        assertThat(((ConstantNode) operationNode.getLeftOperand()).getValue()).isEqualTo(BigDecimal.TEN);
         assertThat(operationNode.getRightOperand()).isInstanceOf(ConstantNodeImpl.class);
         assertThat(((ConstantNode) operationNode.getRightOperand()).getValue()).isEqualTo(new BigDecimal(20));
         assertThat(operationNode.getChildren().get(2)).isInstanceOf(ConstantNodeImpl.class);
@@ -1888,7 +1888,7 @@ public class FormulaCrudTest {
         OperationNode operationNode = (OperationNode) myNode;
         assertThat(operationNode.getOperator()).isEqualTo(Operator.SAFE_DIVIDE);
         assertThat(operationNode.getLeftOperand()).isInstanceOf(ConstantNodeImpl.class);
-        assertThat(((ConstantNode) operationNode.getLeftOperand()).getValue()).isEqualTo(new BigDecimal(10));
+        assertThat(((ConstantNode) operationNode.getLeftOperand()).getValue()).isEqualTo(BigDecimal.TEN);
         assertThat(operationNode.getRightOperand()).isInstanceOf(ConstantNodeImpl.class);
         assertThat(((ConstantNode) operationNode.getRightOperand()).getValue()).isEqualTo(new BigDecimal(20));
         assertThat(operationNode.getChildren().get(2)).isInstanceOf(NullNodeImpl.class);
@@ -1926,7 +1926,7 @@ public class FormulaCrudTest {
         OperationNode operationNode = (OperationNode) myNode;
         assertThat(operationNode.getOperator()).isEqualTo(Operator.SAFE_DIVIDE);
         assertThat(operationNode.getLeftOperand()).isInstanceOf(ConstantNodeImpl.class);
-        assertThat(((ConstantNode) operationNode.getLeftOperand()).getValue()).isEqualTo(new BigDecimal(10));
+        assertThat(((ConstantNode) operationNode.getLeftOperand()).getValue()).isEqualTo(BigDecimal.TEN);
         assertThat(operationNode.getRightOperand()).isInstanceOf(ConstantNodeImpl.class);
         assertThat(((ConstantNode) operationNode.getRightOperand()).getValue()).isEqualTo(new BigDecimal(20));
         assertThat(operationNode.getChildren().get(2)).isInstanceOf(NullNodeImpl.class);
