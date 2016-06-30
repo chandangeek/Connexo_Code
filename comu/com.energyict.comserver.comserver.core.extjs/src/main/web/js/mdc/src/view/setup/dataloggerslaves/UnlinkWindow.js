@@ -11,8 +11,13 @@ Ext.define('Mdc.view.setup.dataloggerslaves.UnlinkWindow', {
 
     initComponent: function () {
         var me = this,
-            currentNextReadingBlockStart = me.loadProfileRecord && me.loadProfileRecord.get('lastReading')
-                ? me.loadProfileRecord.get('lastReading') : new Date();
+            minimalUnlinkDate = 0;
+
+        if (me.dataLoggerSlaveRecord && me.dataLoggerSlaveRecord.get('linkingTimeStamp')) {
+            var momentOfDate = moment(me.dataLoggerSlaveRecord.get('linkingTimeStamp'));
+            momentOfDate.startOf('day');
+            minimalUnlinkDate = momentOfDate.unix() * 1000;
+        }
 
         me.items = {
             xtype: 'form',
@@ -56,6 +61,7 @@ Ext.define('Mdc.view.setup.dataloggerslaves.UnlinkWindow', {
                             },
                             dateConfig: {
                                 format: Uni.util.Preferences.lookup(Uni.DateTime.dateShortKey, Uni.DateTime.dateShortDefault),
+                                minValue: new Date(minimalUnlinkDate),
                                 width: 155
                             },
                             hoursConfig: {

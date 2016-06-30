@@ -8,7 +8,7 @@ Ext.define('Mdc.view.setup.dataloggerslaves.DataLoggerSlavesActionMenu', {
         {
             itemId: 'mdc-unlink-slave',
             text: Uni.I18n.translate('general.unlink', 'MDC', 'Unlink'),
-            //privileges : Mdc.privileges.xxx,
+            privileges: Mdc.privileges.Device.administrateDevice,
             action: 'unlinkSlave'
         }
     ]

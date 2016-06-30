@@ -83,8 +83,6 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
         Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
             success: function (device) {
                 me.wizardInformation = {};
-                me.wizardInformation.minimalLinkingDate = device.get('shipmentDate');
-                me.wizardInformation.noData = true;
                 me.wizardInformation.dataLogger = device;
                 me.getApplication().fireEvent('loadDevice', device);
                 slavesStore.getProxy().setUrl(device.get('mRID'));
@@ -116,6 +114,9 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
         widget.down('dataloggerslave-link-wizard').loadRecord(Ext.create('Mdc.model.Device'));
         Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
             success: function (device) {
+                me.wizardInformation = {};
+                me.wizardInformation.minimalLinkingDate = device.get('shipmentDate');
+                me.wizardInformation.noData = true;
                 me.wizardInformation.dataLogger = device;
                 me.wizardInformation.dataLogger.get('dataLoggerSlaveDevices').push(Ext.create('Mdc.model.DataLoggerSlaveDevice'));
                 me.getApplication().fireEvent('loadDevice', device);
@@ -766,19 +767,6 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
         });
     },
 
-    doUnlinkTheSlave: function() {
-        var me = this;
-
-        me.wizardInformation.dataLogger.save({
-            success: function (record) {
-                // Nothing to do here
-            },
-            failure: function (record, operation) {
-                // According to the specs this can't occur
-            }
-        });
-    },
-
     getSlaveMRID: function() {
         var me = this,
             wizard = me.getWizard(),
@@ -824,32 +812,36 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
         this.wizardInformation.minimalLinkingDate = 0;
     },
 
-    onUnlinkDataLoggerSlave: function() {
+    onUnlinkDataLoggerSlave: function(unlinkButton) {
         var me = this,
             unlinkWindow = me.getUnlinkWindow(),
             unlinkDate = unlinkWindow.down('#mdc-dataloggerslave-unlink-window-date-picker').getValue(),
             mainView = Ext.ComponentQuery.query('#contentPanel')[0],
-            doUnlink = function() {
-                Ext.Array.forEach(me.wizardInformation.dataLogger.get('dataLoggerSlaveDevices'), function(dataLoggerSlaveDeviceRecord){
-                    if (dataLoggerSlaveDeviceRecord.id !== 0) { // the container of the unlinked channels
-                        dataLoggerSlaveDeviceRecord['unlinkingTimeStamp'] = unlinkDate.getTime();
-                    }
-                }, me);
-
-                me.doUnlinkTheSlave();
-
-                // Update grid:
-                me.getSlavesGrid().getStore().removeAt(
-                    me.getSlavesGrid().getStore().findBy(function(record) {
-                        return record.get('mRID') === unlinkWindow.dataLoggerSlaveRecord.get('mRID');
-                    })
-                );
-                mainView.setLoading(false);
-            };
+            mRIDOfSlaveToUnlink = unlinkWindow.dataLoggerSlaveRecord.get('mRID');
 
         unlinkWindow.close();
         mainView.setLoading();
-        setTimeout(doUnlink, 1500);
+        Ext.Array.forEach(me.wizardInformation.dataLogger.get('dataLoggerSlaveDevices'), function(dataLoggerSlaveDeviceRecord){
+            if ( dataLoggerSlaveDeviceRecord.mRID === mRIDOfSlaveToUnlink ) {
+                dataLoggerSlaveDeviceRecord['unlinkingTimeStamp'] = unlinkDate.getTime();
+            }
+        }, me);
+
+        me.wizardInformation.dataLogger.save({
+            success: function (record) {
+                // Update grid:
+                me.getSlavesGrid().getStore().removeAt(
+                    me.getSlavesGrid().getStore().findBy(function(record) {
+                        return record.get('mRID') === mRIDOfSlaveToUnlink;
+                    })
+                );
+                mainView.setLoading(false);
+            },
+            failure: function (record, operation) {
+                // According to the specs this can't occur
+                mainView.setLoading(false);
+            }
+        });
     }
 
 });

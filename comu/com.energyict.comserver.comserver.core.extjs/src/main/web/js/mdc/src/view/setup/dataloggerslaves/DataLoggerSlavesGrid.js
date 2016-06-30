@@ -68,9 +68,8 @@ Ext.define('Mdc.view.setup.dataloggerslaves.DataLoggerSlavesGrid', {
                     {
                         xtype: 'button',
                         text: Uni.I18n.translate('dataLoggerSlaves.linkSlave', 'MDC', 'Link slave'),
-                        itemId: 'mdc-dataloggerslavesgrid-link-slave-btn'
-                        //privileges: Mdc.privileges.Device.administrateDeviceCommunication,
-                        //dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.connectionMethodsActions,
+                        itemId: 'mdc-dataloggerslavesgrid-link-slave-btn',
+                        privileges: Mdc.privileges.Device.administrateDevice
                     }
                 ]
             },
