@@ -53,7 +53,6 @@ public class MockCollectedMessage implements CollectedMessage {
     @Override
     public void setNewDeviceMessageStatus(DeviceMessageStatus deviceMessageStatus) {
         this.deviceMessageStatus = deviceMessageStatus;
-        this.sentDate = Instant.now();
     }
 
     @Override
