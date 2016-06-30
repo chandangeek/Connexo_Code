@@ -66,7 +66,7 @@ public final class InboundEndPoint implements ManagedEndpoint {
             svrFactory.setAddress(endPointConfiguration.getUrl());
             svrFactory.setServiceBean(implementor);
             if (endPointConfiguration.isTracing()) {
-                String logFile = logDirectory + File.separator + endPointConfiguration.getTraceFile();
+                String logFile = "file:" + logDirectory + File.separator + endPointConfiguration.getTraceFile();
                 svrFactory.getFeatures().add(new LoggingFeature(logFile, logFile));
             }
             if (EndPointAuthentication.BASIC_AUTHENTICATION.equals(endPointConfiguration.getAuthenticationMethod())) {
