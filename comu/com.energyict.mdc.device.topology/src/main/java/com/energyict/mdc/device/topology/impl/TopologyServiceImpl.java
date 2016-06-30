@@ -477,7 +477,11 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     }
 
     public void clearDataLogger(Device slave, Instant when){
-        this.clearPhysicalGateway(slave, when);
+        getPhysicalGatewayReference(slave, clock.instant()).map(dataloggerReference -> {
+            terminateTemporal(dataloggerReference, when);
+            this.slaveTopologyChanged(slave, Optional.empty());
+            return null;
+        }).orElseThrow(() -> DataLoggerLinkException.slaveWasNotLinkedAt(thesaurus, slave, when));
     }
 
     private void addChannelDataLoggerUsage(DataLoggerReferenceImpl dataLoggerReference, Channel slave, Channel dataLogger){

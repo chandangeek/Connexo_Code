@@ -4,6 +4,9 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.device.data.Device;
+
+import java.time.Instant;
 
 /**
  * Copyrights EnergyICT
@@ -22,7 +25,15 @@ public class DataLoggerLinkException extends LocalizedException {
         super(thesaurus, messageSeed, args);
     }
 
-    public static DataLoggerLinkException noPhysicalChannelForReadingType(Thesaurus thesaurus, ReadingType readingType){
+    public static DataLoggerLinkException noPhysicalChannelForReadingType(Thesaurus thesaurus, ReadingType readingType) {
         return new DataLoggerLinkException(thesaurus, MessageSeeds.forKey(NO_PHYSICAL_CHANNEL_FOR_READING_TYPE_X), readingType.getMRID());
+    }
+
+    public static DataLoggerLinkException invalidTerminationDate(Thesaurus thesaurus) {
+        return new DataLoggerLinkException(thesaurus, MessageSeeds.DATA_LOGGER_LINK_INVALID_TERMINATION_DATE);
+    }
+
+    public static DataLoggerLinkException slaveWasNotLinkedAt(Thesaurus thesaurus, Device slave, Instant when) {
+        return new DataLoggerLinkException(thesaurus, MessageSeeds.DATA_LOGGER_SLAVE_NOT_LINKED_AT, slave.getmRID(), when);
     }
 }

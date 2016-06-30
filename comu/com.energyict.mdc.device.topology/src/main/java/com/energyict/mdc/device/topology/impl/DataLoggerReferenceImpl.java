@@ -11,6 +11,7 @@ import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.metering.readings.ReadingQuality;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
@@ -20,6 +21,7 @@ import com.energyict.mdc.device.topology.DataLoggerReference;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 
+import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -44,7 +46,13 @@ import java.util.stream.Collectors;
 @AllDataLoggerChannelsAvailable(groups = {Save.Create.class}, message = "{" + MessageSeeds.Keys.DATA_LOGGER_CHANNEL_ALREADY_REFERENCED + "}")
 public class DataLoggerReferenceImpl extends AbstractPhysicalGatewayReferenceImpl implements DataLoggerReference {
 
+    private final Thesaurus thesaurus;
     private List<DataLoggerChannelUsage> dataLoggerChannelUsages = new ArrayList<>();
+
+    @Inject
+    public DataLoggerReferenceImpl(Thesaurus thesaurus) {
+        this.thesaurus = thesaurus;
+    }
 
     public DataLoggerReferenceImpl createFor(Device origin, Device master, Interval interval) {
         super.createFor(origin, master, interval);
@@ -70,6 +78,10 @@ public class DataLoggerReferenceImpl extends AbstractPhysicalGatewayReferenceImp
      * Closes the current interval.
      */
     public void terminate(Instant closingDate) {
+        if (!isEffectiveAt(closingDate)) {
+            throw DataLoggerLinkException.invalidTerminationDate(thesaurus);
+        }
+
         // Data on the slave channels having a dat
         this.dataLoggerChannelUsages.stream().forEach((usage) -> transferChannelDataToDataLogger(usage, closingDate));
         this.getOrigin().activate(closingDate);   //current Meter Activation is stopped and a new one is started

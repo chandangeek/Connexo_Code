@@ -1,8 +1,7 @@
 package com.energyict.mdc.device.topology.impl;
 
-import com.energyict.mdc.device.topology.TopologyService;
-
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.device.topology.TopologyService;
 
 import java.util.logging.Level;
 import java.util.stream.Stream;
@@ -29,7 +28,9 @@ public enum MessageSeeds implements MessageSeed {
     DATA_LOGGER_LINK_EXCEPTION_DEVICE_NOT_LINKED(1003, DataLoggerLinkException.DEVICE_NOT_LINKED, "Device {0} was not linked"),
     DATA_LOGGER_LINK_EXCEPTION_NO_MAPPING_FOR_ALL_SLAVE_CHANNELS(1004, DataLoggerLinkException.NO_MAPPING_FOR_ALL_SLAVE_CHANNELS, "All channels and registers of the slave should be included in the mapping"),
     DATA_LOGGER_LINK_EXCEPTION_DATALOGGER_CHANNEL_ALREADY_REFERENCED(1005, Keys.DATA_LOGGER_CHANNEL_ALREADY_REFERENCED, "The channel {0} is referenced by another slave channel"),
-    DATA_LOGGER_LINK_EXCEPTION_NO_PHYSICAL_CHANNEL_FOR_READING_TYPE_X(1006,DataLoggerLinkException.NO_PHYSICAL_CHANNEL_FOR_READING_TYPE_X, "No physical channel found for reading type {0}");
+    DATA_LOGGER_LINK_EXCEPTION_NO_PHYSICAL_CHANNEL_FOR_READING_TYPE_X(1006, DataLoggerLinkException.NO_PHYSICAL_CHANNEL_FOR_READING_TYPE_X, "No physical channel found for reading type {0}"),
+    DATA_LOGGER_LINK_INVALID_TERMINATION_DATE(1007, Keys.INVALID_TERMINATION_DATE, "You can not unlink a slave before it's linking date"),
+    DATA_LOGGER_SLAVE_NOT_LINKED_AT(1008, Keys.DATA_LOGGER_SLAVE_NOT_LINKED_AT, "Slave {0} is was not linked at {1}"),
     ;
 
     private final int number;
@@ -92,6 +93,8 @@ public enum MessageSeeds implements MessageSeed {
         public static final String NOT_ALL_SLAVE_CHANNELS_INCLUDED = "datalogger.not.all.slave.channels.included";
         public static final String DATA_LOGGER_CHANNEL_ALREADY_REFERENCED = "datalogger.channel.already.referenced";
         public static final String NO_PHYSICAL_CHANNEL_FOR_READING_TYPE_X = "DataLoggerLinkException.noPhysicalSlaveChannelForReadingTypeX";
+        public static final String INVALID_TERMINATION_DATE = "DataLoggerLinkException.invalid.termination.date";
+        public static final String DATA_LOGGER_SLAVE_NOT_LINKED_AT = "DataLoggerLinkException.slave.already.unlinked";
     }
 
 }
