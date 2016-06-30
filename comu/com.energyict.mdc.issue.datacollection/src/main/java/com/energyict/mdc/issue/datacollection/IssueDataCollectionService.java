@@ -15,6 +15,7 @@ public interface IssueDataCollectionService {
 
     String COMPONENT_NAME = "IDC";
     String DATA_COLLECTION_ISSUE = "datacollection";
+    String DATA_COLLECTION_ISSUE_PREFIX = "DCI";
 
     Optional<? extends IssueDataCollection> findIssue(long id);
 

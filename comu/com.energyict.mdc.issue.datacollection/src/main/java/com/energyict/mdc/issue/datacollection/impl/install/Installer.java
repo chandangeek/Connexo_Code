@@ -82,7 +82,7 @@ public class Installer implements FullInstaller {
     }
 
     private IssueType setSupportedIssueType() {
-        return issueService.createIssueType(IssueDataCollectionService.DATA_COLLECTION_ISSUE, TranslationKeys.ISSUE_TYPE_DATA_COLLECTION);
+        return issueService.createIssueType(IssueDataCollectionService.DATA_COLLECTION_ISSUE, TranslationKeys.ISSUE_TYPE_DATA_COLLECTION, IssueDataCollectionService.DATA_COLLECTION_ISSUE_PREFIX);
     }
 
     private void setAQSubscriber() {

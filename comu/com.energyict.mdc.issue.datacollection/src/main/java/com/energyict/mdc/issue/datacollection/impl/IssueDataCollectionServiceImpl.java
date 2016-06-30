@@ -124,7 +124,7 @@ public class IssueDataCollectionServiceImpl implements TranslationKeyProvider, M
                 bind(EventService.class).toInstance(eventService);
             }
         });
-        upgradeService.register(identifier(IssueDataCollectionService.COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(
+        upgradeService.register(identifier("MultiSense", IssueDataCollectionService.COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(
                 version(10, 2), UpgraderV10_2.class
         ));
     }
