@@ -320,11 +320,10 @@ public class DeviceResource {
         if (dataLogger.getDeviceConfiguration().isDataloggerEnabled()) {
             List<Device> currentSlaves = topologyService.findDataLoggerSlaves(dataLogger);
 
-            currentSlaves
-                    .stream()
-                    .filter((slave) -> getTerminatedSlaveDeviceInfo(slave, info).isPresent())
-                    .forEach((slave) -> topologyService.clearDataLogger(slave, Instant.ofEpochMilli(getTerminatedSlaveDeviceInfo(slave, info).get().unlinkingTimeStamp)));
-
+            info.dataLoggerSlaveDevices.stream()
+                    .filter(DataLoggerSlaveDeviceInfo::unlinked)
+                    .forEach(dataLoggerSlaveDeviceInfo -> currentSlaves.stream().filter(slave -> slave.getId() == dataLoggerSlaveDeviceInfo.id).findAny()
+                            .ifPresent(slaveToRemove -> topologyService.clearDataLogger(slaveToRemove, Instant.ofEpochMilli(dataLoggerSlaveDeviceInfo.unlinkingTimeStamp))));
             info.dataLoggerSlaveDevices.stream().filter(((Predicate<DataLoggerSlaveDeviceInfo>) DataLoggerSlaveDeviceInfo::unlinked).negate()).forEach((slaveDeviceInfo) -> setDataLogger(slaveDeviceInfo, dataLogger));
         }
     }
