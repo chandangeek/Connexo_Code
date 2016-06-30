@@ -515,13 +515,14 @@ public class UsagePointImpl implements UsagePoint {
     public List<CompletionOptions> connect(Instant when, ServiceCall serviceCall) {
         return this.getMeterActivations(when)
                 .stream()
-                .flatMap(meterActivation -> meterActivation.getMeter()
-                        .isPresent() ? Stream.of(meterActivation.getMeter().get()) : Stream.empty())
+                .map(MeterActivation::getMeter)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
                 .map(meter -> meter.getHeadEndInterface()
                         .map(headEndInterface -> headEndInterface.sendCommand(headEndInterface.getCommandFactory()
                                 .createConnectCommand(meter, when), when, serviceCall)))
-                .flatMap(completionOptions -> completionOptions.isPresent() ? Stream.of(completionOptions.get()) : Stream
-                        .empty())
+                .filter(Optional::isPresent)
+                .map(Optional::get)
                 .collect(Collectors.toList());
     }
 
@@ -529,13 +530,14 @@ public class UsagePointImpl implements UsagePoint {
     public List<CompletionOptions> disconnect(Instant when, ServiceCall serviceCall) {
         return this.getMeterActivations(when)
                 .stream()
-                .flatMap(meterActivation -> meterActivation.getMeter()
-                        .isPresent() ? Stream.of(meterActivation.getMeter().get()) : Stream.empty())
+                .map(MeterActivation::getMeter)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
                 .map(meter -> meter.getHeadEndInterface()
                         .map(headEndInterface -> headEndInterface.sendCommand(headEndInterface.getCommandFactory()
                                 .createDisconnectCommand(meter, when), when, serviceCall)))
-                .flatMap(completionOptions -> completionOptions.isPresent() ? Stream.of(completionOptions.get()) : Stream
-                        .empty())
+                .filter(Optional::isPresent)
+                .map(Optional::get)
                 .collect(Collectors.toList());
     }
 
@@ -543,13 +545,14 @@ public class UsagePointImpl implements UsagePoint {
     public List<CompletionOptions> enableLoadLimit(Instant when, Quantity loadLimit, ServiceCall serviceCall) {
         return this.getMeterActivations(when)
                 .stream()
-                .flatMap(meterActivation -> meterActivation.getMeter()
-                        .isPresent() ? Stream.of(meterActivation.getMeter().get()) : Stream.empty())
+                .map(MeterActivation::getMeter)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
                 .map(meter -> meter.getHeadEndInterface()
                         .map(headEndInterface -> headEndInterface.sendCommand(headEndInterface.getCommandFactory()
                                 .createEnableLoadLimitCommand(meter, loadLimit), when, serviceCall)))
-                .flatMap(completionOptions -> completionOptions.isPresent() ? Stream.of(completionOptions.get()) : Stream
-                        .empty())
+                .filter(Optional::isPresent)
+                .map(Optional::get)
                 .collect(Collectors.toList());
     }
 
@@ -557,13 +560,14 @@ public class UsagePointImpl implements UsagePoint {
     public List<CompletionOptions> disableLoadLimit(Instant when, ServiceCall serviceCall) {
         return this.getMeterActivations(when)
                 .stream()
-                .flatMap(meterActivation -> meterActivation.getMeter()
-                        .isPresent() ? Stream.of(meterActivation.getMeter().get()) : Stream.empty())
+                .map(MeterActivation::getMeter)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
                 .map(meter -> meter.getHeadEndInterface()
                         .map(headEndInterface -> headEndInterface.sendCommand(headEndInterface.getCommandFactory()
                                 .createDisableLoadLimitCommand(meter), when, serviceCall)))
-                .flatMap(completionOptions -> completionOptions.isPresent() ? Stream.of(completionOptions.get()) : Stream
-                        .empty())
+                .filter(Optional::isPresent)
+                .map(Optional::get)
                 .collect(Collectors.toList());
     }
 
@@ -571,12 +575,13 @@ public class UsagePointImpl implements UsagePoint {
     public List<CompletionOptions> readData(Instant when, List<ReadingType> readingTypes, ServiceCall serviceCall) {
         return this.getMeterActivations(when)
                 .stream()
-                .flatMap(meterActivation -> meterActivation.getMeter()
-                        .isPresent() ? Stream.of(meterActivation.getMeter().get()) : Stream.empty())
+                .map(MeterActivation::getMeter)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
                 .map(meter -> meter.getHeadEndInterface()
                         .map(headEndInterface -> headEndInterface.scheduleMeterRead(meter, readingTypes, when, serviceCall)))
-                .flatMap(completionOptions -> completionOptions.isPresent() ? Stream.of(completionOptions.get()) : Stream
-                        .empty())
+                .filter(Optional::isPresent)
+                .map(Optional::get)
                 .collect(Collectors.toList());
     }
 
