@@ -20,9 +20,11 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.search.SearchableProperty;
@@ -30,10 +32,10 @@ import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.transaction.CommitException;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.users.PrivilegesProvider;
-import com.elster.jupiter.users.ResourceDefinition;
+import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.sql.SqlBuilder;
@@ -58,6 +60,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -73,8 +76,8 @@ import java.util.stream.Stream;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-08-10 (13:35)
  */
-@Component(name = "com.elster.jupiter.cps", service = {CustomPropertySetService.class, ServerCustomPropertySetService.class, TranslationKeyProvider.class, PrivilegesProvider.class}, property = "name=" + CustomPropertySetService.COMPONENT_NAME)
-public class CustomPropertySetServiceImpl implements ServerCustomPropertySetService, TranslationKeyProvider, PrivilegesProvider {
+@Component(name = "com.elster.jupiter.cps", service = {CustomPropertySetService.class, ServerCustomPropertySetService.class, TranslationKeyProvider.class}, property = "name=" + CustomPropertySetService.COMPONENT_NAME)
+public class CustomPropertySetServiceImpl implements ServerCustomPropertySetService, TranslationKeyProvider {
 
     private static final Logger LOGGER = Logger.getLogger(CustomPropertySetServiceImpl.class.getName());
 
@@ -133,27 +136,6 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
             }
         }
         this.dataModel = dataModel;
-    }
-
-    @Override
-    public String getModuleName() {
-        return CustomPropertySetService.COMPONENT_NAME;
-    }
-
-    @Override
-    public List<ResourceDefinition> getModuleResources() {
-        List<ResourceDefinition> resources = new ArrayList<>();
-        resources.add(userService.createModuleResourceWithPrivileges(getModuleName(),
-                Privileges.RESOURCE_CUSTOM_PROPERTIES.getKey(), Privileges.RESOURCE_CUSTOM_PROPERTIES_DESCRIPTION.getKey(),
-                Arrays.asList(Privileges.Constants.ADMINISTER_PRIVILEGES, Privileges.Constants.VIEW_PRIVILEGES)));
-        resources.add(userService.createModuleResourceWithPrivileges(getModuleName(),
-                Privileges.RESOURCE_CUSTOM_PRIVILEGES.getKey(), Privileges.RESOURCE_CUSTOM_PRIVILEGES_DESCRIPTION.getKey(),
-                Arrays.asList(
-                        Privileges.Constants.VIEW_CUSTOM_PROPERTIES_1, Privileges.Constants.VIEW_CUSTOM_PROPERTIES_2,
-                        Privileges.Constants.VIEW_CUSTOM_PROPERTIES_3, Privileges.Constants.VIEW_CUSTOM_PROPERTIES_4,
-                        Privileges.Constants.EDIT_CUSTOM_PROPERTIES_1, Privileges.Constants.EDIT_CUSTOM_PROPERTIES_2,
-                        Privileges.Constants.EDIT_CUSTOM_PROPERTIES_3, Privileges.Constants.EDIT_CUSTOM_PROPERTIES_4)));
-        return resources;
     }
 
     @Reference
@@ -224,6 +206,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
                 bind(TransactionService.class).toInstance(transactionService);
                 bind(CustomPropertySetService.class).toInstance(CustomPropertySetServiceImpl.this);
                 bind(ServerCustomPropertySetService.class).toInstance(CustomPropertySetServiceImpl.this);
+                bind(UserService.class).toInstance(userService);
             }
         };
     }
@@ -231,7 +214,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     @Activate
     public void activate() {
         this.dataModel.register(this.getModule());
-        upgradeService.register(InstallIdentifier.identifier(COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier("Pulse", COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
         this.installed = true;
         this.registerAllCustomPropertySets();
     }
@@ -375,8 +358,34 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         DataModel dataModel = this.newDataModelFor(customPropertySet);
         this.addTableFor(customPropertySet, dataModel);
         dataModel.register(this.getCustomPropertySetModule(dataModel, customPropertySet));
-        dataModel.install(executeDdl, false); // TODO
+        PersistenceSupport persistenceSupport = customPropertySet.getPersistenceSupport();
+
+        Map<Version, Class<? extends Upgrader>> versionClassMap = dataModel.changeVersions()
+                .stream()
+                .collect(Collectors.toMap(Function.identity(), version -> CustomPropertySetInstaller.class));
+
+        upgradeService.register(InstallIdentifier.identifier(persistenceSupport.application(), persistenceSupport.componentName()), dataModel, CustomPropertySetInstaller.class, versionClassMap);
         return dataModel;
+    }
+
+    static class CustomPropertySetInstaller implements FullInstaller, Upgrader {
+
+        private final DataModel dataModel;
+
+        @Inject
+        CustomPropertySetInstaller(DataModel dataModel) {
+            this.dataModel = dataModel;
+        }
+
+        @Override
+        public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
+            dataModelUpgrader.upgrade(dataModel, Version.latest());
+        }
+
+        @Override
+        public void migrate(DataModelUpgrader dataModelUpgrader) {
+            dataModelUpgrader.upgrade(dataModel, Version.latest());
+        }
     }
 
     private DataModel newDataModelFor(CustomPropertySet customPropertySet) {
