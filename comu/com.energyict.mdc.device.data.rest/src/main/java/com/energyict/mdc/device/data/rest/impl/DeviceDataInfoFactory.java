@@ -6,6 +6,7 @@ import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.VersionInfo;
+import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationResult;
@@ -253,8 +254,7 @@ public class DeviceDataInfoFactory {
             readingInfo.confirmedInApps = confirmedQualities.stream()
                     .map(ReadingQuality::getType)
                     .map(ReadingQualityType::system)
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
+                    .flatMap(Functions.asStream())
                     .map(resourceHelper::getApplicationInfo)
                     .collect(Collectors.collectingAndThen(Collectors.toSet(), s -> s.isEmpty() ? null : s));
         });
