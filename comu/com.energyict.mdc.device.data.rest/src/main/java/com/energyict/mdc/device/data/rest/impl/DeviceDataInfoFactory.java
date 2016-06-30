@@ -34,6 +34,7 @@ import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -243,10 +244,11 @@ public class DeviceDataInfoFactory {
         readingInfo.validationStatus = isValidationStatusActive;
         reading.getValidationStatus().ifPresent(status -> {
             readingInfo.dataValidated = status.completelyValidated();
-            readingInfo.validationResult = ValidationStatus.forResult(ValidationResult.getValidationResult(status.getReadingQualities()));
+            Collection<? extends ReadingQuality> readingQualities = status.getReadingQualities();
+            readingInfo.validationResult = ValidationStatus.forResult(ValidationResult.getValidationResult(readingQualities));
             readingInfo.suspectReason = validationRuleInfoFactory.createInfosForDataValidationStatus(status);
-            readingInfo.estimatedByRule = estimationRuleInfoFactory.createEstimationRuleInfo(status.getReadingQualities());
-            List<? extends ReadingQuality> confirmedQualities = validationInfoFactory.getConfirmedQualities(reading.getActualReading(), status.getReadingQualities());
+            readingInfo.estimatedByRule = estimationRuleInfoFactory.createEstimationRuleInfo(readingQualities);
+            List<? extends ReadingQuality> confirmedQualities = validationInfoFactory.getConfirmedQualities(reading.getActualReading(), readingQualities);
             readingInfo.isConfirmed = !confirmedQualities.isEmpty();
             readingInfo.confirmedInApp = confirmedQualities.stream()
                     .map(ReadingQuality::getType)
