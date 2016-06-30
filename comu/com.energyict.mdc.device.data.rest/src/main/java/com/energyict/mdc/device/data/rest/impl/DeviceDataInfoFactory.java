@@ -250,13 +250,13 @@ public class DeviceDataInfoFactory {
             readingInfo.estimatedByRule = estimationRuleInfoFactory.createEstimationRuleInfo(readingQualities);
             List<? extends ReadingQuality> confirmedQualities = validationInfoFactory.getConfirmedQualities(reading.getActualReading(), readingQualities);
             readingInfo.isConfirmed = !confirmedQualities.isEmpty();
-            readingInfo.confirmedInApp = confirmedQualities.stream()
+            readingInfo.confirmedInApps = confirmedQualities.stream()
                     .map(ReadingQuality::getType)
                     .map(ReadingQualityType::system)
                     .filter(Optional::isPresent)
                     .map(Optional::get)
                     .map(resourceHelper::getApplicationInfo)
-                    .collect(Collectors.toSet());
+                    .collect(Collectors.collectingAndThen(Collectors.toSet(), s -> s.isEmpty() ? null : s));
         });
     }
 
