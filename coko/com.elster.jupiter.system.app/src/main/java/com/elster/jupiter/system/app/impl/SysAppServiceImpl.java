@@ -117,7 +117,7 @@ public class SysAppServiceImpl implements SysAppService, TranslationKeyProvider,
                     bind(UserService.class).toInstance(userService);
                 }
             });
-            upgradeService.register(InstallIdentifier.identifier("SSA"), dataModel, Installer.class, Collections.emptyMap());
+            upgradeService.register(InstallIdentifier.identifier("Pulse", "SSA"), dataModel, Installer.class, Collections.emptyMap());
         } catch (RuntimeException e) {
             e.printStackTrace();
             throw e;
