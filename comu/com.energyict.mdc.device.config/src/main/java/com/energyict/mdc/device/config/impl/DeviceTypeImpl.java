@@ -51,6 +51,7 @@ import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import com.google.common.collect.ImmutableList;
@@ -59,14 +60,18 @@ import com.google.common.collect.Range;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @ValidChangesWithExistingConfigurations(groups = {Save.Update.class})
@@ -494,18 +499,25 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     @Override
-    public void addCalendar(Calendar calendar) {
-        AllowedCalendar allowedCalendar = getDataModel().getInstance(AllowedCalendarImpl.class)
-                .initialize(calendar, this);
-        this.allowedCalendars.add(allowedCalendar);
+    public AllowedCalendar addCalendar(Calendar calendar) {
+        return this.addCalendar(this.getDataModel().getInstance(AllowedCalendarImpl.class).initialize(calendar, this));
     }
 
     @Override
-    public void removeCalendar(long allowedCalendarId) {
-        Optional<AllowedCalendar> allowedCalendar = allowedCalendars.stream()
-                .filter(cal -> cal.getId() == allowedCalendarId)
-                .findFirst();
-        allowedCalendar.ifPresent(calendar -> allowedCalendars.remove(calendar));
+    public AllowedCalendar addGhostCalendar(String name) {
+        return this.addCalendar(this.getDataModel().getInstance(AllowedCalendarImpl.class).initialize(name, this));
+    }
+
+    private AllowedCalendar addCalendar(AllowedCalendar calendar) {
+        this.allowedCalendars.add(calendar);
+        this.touch();
+        return calendar;
+    }
+
+    @Override
+    public void removeCalendar(AllowedCalendar allowedCalendar) {
+        this.allowedCalendars.remove(allowedCalendar);
+        this.touch();
     }
 
     @Override
@@ -784,7 +796,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     @Override
     public void enableFileManagement() {
-        if (!this.fileManagementEnabled) {
+        if (!this.fileManagementEnabled && getDeviceProtocolPluggableClass().supportsFileManagement()) {
             this.fileManagementEnabled = true;
             this.update();
         }
@@ -809,6 +821,17 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     @Override
     public DeviceMessageFile addDeviceMessageFile(Path path) {
         DeviceMessageFileImpl file = this.getDataModel().getInstance(DeviceMessageFileImpl.class).init(this, path);
+        return createFile(file);
+
+    }
+
+    @Override
+    public DeviceMessageFile addDeviceMessageFile(InputStream inputStream, String fileName) {
+        DeviceMessageFileImpl file = this.getDataModel().getInstance(DeviceMessageFileImpl.class).init(this, inputStream, fileName);
+        return createFile(file);
+    }
+
+    private DeviceMessageFile createFile(DeviceMessageFileImpl file) {
         if (this.deviceMessageFiles.stream().anyMatch(other -> other.getName().equals(file.getName()))) {
             throw new DuplicateDeviceMessageFileException(this, file.getName(), this.getThesaurus());
         }

@@ -46,6 +46,7 @@ import java.util.List;
 
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2BOOLEAN;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
@@ -847,10 +848,11 @@ public enum TableSpecs {
                             .notNull()
                             .add();
             table
-                .column("CONTENTS")
-                .blob()
-                .map(DeviceMessageFileImpl.Fields.CONTENTS.fieldName())
-                .add();
+                    .column("CONTENTS")
+                    .blob()
+                    .map(DeviceMessageFileImpl.Fields.CONTENTS.fieldName())
+                    .add();
+            table.addAuditColumns();
             table.primaryKey("PK_DTC_DEVICEMESSAGEFILE").on(id).add();
             table
                 .foreignKey("FK_DTC_DEVMSGFILE_DEVTYPE")
