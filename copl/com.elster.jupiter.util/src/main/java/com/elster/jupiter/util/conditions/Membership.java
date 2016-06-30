@@ -20,7 +20,7 @@ public class Membership extends Leaf {
 	}
 
 	public String[] getFieldNames() {
-		return fieldNames;
+		return Arrays.copyOf(fieldNames, fieldNames.length);
 	}
 
 	public ListOperator getOperator() {
