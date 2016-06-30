@@ -480,7 +480,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
         getPhysicalGatewayReference(slave, clock.instant()).map(dataloggerReference -> {
             terminateTemporal(dataloggerReference, when);
             this.slaveTopologyChanged(slave, Optional.empty());
-            return null;
+            return true;
         }).orElseThrow(() -> DataLoggerLinkException.slaveWasNotLinkedAt(thesaurus, slave, when));
     }
 

@@ -30,7 +30,7 @@ public enum MessageSeeds implements MessageSeed {
     DATA_LOGGER_LINK_EXCEPTION_DATALOGGER_CHANNEL_ALREADY_REFERENCED(1005, Keys.DATA_LOGGER_CHANNEL_ALREADY_REFERENCED, "The channel {0} is referenced by another slave channel"),
     DATA_LOGGER_LINK_EXCEPTION_NO_PHYSICAL_CHANNEL_FOR_READING_TYPE_X(1006, DataLoggerLinkException.NO_PHYSICAL_CHANNEL_FOR_READING_TYPE_X, "No physical channel found for reading type {0}"),
     DATA_LOGGER_LINK_INVALID_TERMINATION_DATE(1007, Keys.INVALID_TERMINATION_DATE, "You can not unlink a slave before it's linking date"),
-    DATA_LOGGER_SLAVE_NOT_LINKED_AT(1008, Keys.DATA_LOGGER_SLAVE_NOT_LINKED_AT, "Slave {0} is was not linked at {1}"),
+    DATA_LOGGER_SLAVE_NOT_LINKED_AT(1008, Keys.DATA_LOGGER_SLAVE_NOT_LINKED_AT, "Slave {0} is not linked at {1}"),
     ;
 
     private final int number;
