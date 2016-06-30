@@ -19,6 +19,9 @@ public class TaskGroupsInfo {
     public TaskContentInfos tasksForm;
     public Map<String, Object> outputBindingContents;
 
+    public TaskGroupsInfo() {
+    }
+
     public TaskGroupsInfo(JSONObject jsonObject) {
         try {
             this.name = jsonObject.getString("name");
