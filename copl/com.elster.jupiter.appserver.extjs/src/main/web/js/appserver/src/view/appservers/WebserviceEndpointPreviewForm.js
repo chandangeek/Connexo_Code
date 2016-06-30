@@ -51,7 +51,15 @@ Ext.define('Apr.view.appservers.WebserviceEndpointPreviewForm', {
             {
                 xtype: 'displayfield',
                 fieldLabel: Uni.I18n.translate('webservices.traceRequestsFileName', 'APR', 'Trace requests file name'),
-                name: 'traceFile'
+                name: 'traceFile',
+                renderer: function(value,field){
+                    if(field.up('form').down('[name=tracing]').getValue()===''){
+                        this.hide();
+                    } else {
+                        this.show();
+                    }
+                    return value;
+                }
             },
             {
                 xtype: 'displayfield',
