@@ -107,6 +107,8 @@ public class PropertyTypeInfo {
     private void createCustomField(JSONObject field) {
         if ("quantity".equalsIgnoreCase(getComboBoxValues(field, "param1"))) {
             createQuantityField(field);
+        } else if ("readingType".equalsIgnoreCase(getComboBoxValues(field, "param1"))) {
+            simplePropertyType = "METROLOGYCONFIGOUTPUT";
         }
     }
 

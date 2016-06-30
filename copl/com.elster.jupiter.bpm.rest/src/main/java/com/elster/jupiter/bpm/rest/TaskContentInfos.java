@@ -23,6 +23,9 @@ public class TaskContentInfos {
     public String processName;
     public String processVersion;
 
+    public TaskContentInfos() {
+    }
+
     public TaskContentInfos(JSONObject obj) throws JSONException {
         addAll(obj);
     }
@@ -30,8 +33,8 @@ public class TaskContentInfos {
     private void addAll(JSONObject obj) throws JSONException {
         status = obj.getString("taskStatus");
         JSONArray contentProperties = obj.getJSONArray("fields");
-        JSONObject content = obj.getJSONObject("content");
-        JSONObject outputContent = obj.getJSONObject("outContent");
+        JSONObject content = obj.optJSONObject("content");
+        JSONObject outputContent = obj.optJSONObject("outContent");
         if (outputContent != null) {
             setOutputContent(outputContent);
         }
