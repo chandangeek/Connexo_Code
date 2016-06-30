@@ -188,7 +188,7 @@ Ext.define('Idv.controller.Detail', {
                     else {
                         me.getReadingEstimationWindow().down('#error-label').show();
                         me.getReadingEstimationWindow().down('#error-label').setText('<div style="color: #EB5642">' +
-                            Uni.I18n.translate('devicechannels.saveEstimationErrorMessage', 'MDC', 'Could not estimate with {0}',
+                            Uni.I18n.translate('devicechannels.saveEstimationErrorMessage', 'IDV', 'Could not estimate with {0}',
                                 me.getReadingEstimationWindow().down('#estimator-field').getRawValue().toLowerCase()) + '</div>', false);
 
                     }
