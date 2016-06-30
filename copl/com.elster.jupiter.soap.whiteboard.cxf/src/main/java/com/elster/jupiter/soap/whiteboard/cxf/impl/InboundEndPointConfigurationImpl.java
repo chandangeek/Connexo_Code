@@ -35,4 +35,13 @@ public final class InboundEndPointConfigurationImpl extends EndPointConfiguratio
     public boolean isInbound() {
         return true;
     }
+
+    @Override
+    public void setUrl(String url) {
+        if (url != null && !url.startsWith("/")) {
+            this.url = "/" + url;
+        } else {
+            this.url = url;
+        }
+    }
 }

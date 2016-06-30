@@ -20,6 +20,7 @@ import javax.validation.constraints.Size;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintWriter;
+import java.net.URL;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Map;
@@ -41,7 +42,7 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
     private String name;
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     @Size(max = Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
-    private String url;
+    protected String url;
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String webServiceName;
@@ -180,11 +181,7 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
 
     @Override
     public void setUrl(String url) {
-        if (url != null && !url.startsWith(File.separator)) {
-            this.url = File.separator + url;
-        } else {
-            this.url = url;
-        }
+        this.url = url;
     }
 
     @Override
