@@ -927,7 +927,7 @@ public enum TableSpecs {
                     .add();
             table.foreignKey("MTR_FK_UPMTRCONFIG_MC")
                     .on(metrologyConfiguration)
-                    .references(MetrologyConfiguration.class)
+                    .references(UsagePointMetrologyConfiguration.class)
                     .map("metrologyConfiguration")
                     .add();
         }

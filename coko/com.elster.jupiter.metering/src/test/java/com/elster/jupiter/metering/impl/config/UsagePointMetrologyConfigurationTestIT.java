@@ -169,16 +169,15 @@ public class UsagePointMetrologyConfigurationTestIT {
         serviceCategory.addMeterRole(meterRole);
         metrologyConfiguration.addMeterRole(meterRole);
         ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Zero reading type");
-        metrologyConfiguration.newReadingTypeRequirement("Reading type requirement")
-                .withMeterRole(meterRole)
+        metrologyConfiguration
+                .newReadingTypeRequirement("Reading type requirement", meterRole)
                 .withReadingType(readingType);
 
         metrologyConfiguration.removeMeterRole(meterRole);
     }
 
-    @Test
+    @Test(expected = UnsupportedOperationException.class)
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.REQUIRED + "}", property = "meterRole")
     public void testCanNotCreateFullySpecifiedReadingTypeRequirementWithoutMeterRole() {
         ServiceCategory serviceCategory = getServiceCategory();
         UsagePointMetrologyConfiguration metrologyConfiguration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("config", serviceCategory).create();
@@ -186,13 +185,15 @@ public class UsagePointMetrologyConfigurationTestIT {
         serviceCategory.addMeterRole(meterRole);
         metrologyConfiguration.addMeterRole(meterRole);
         ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Zero reading type");
-        metrologyConfiguration.newReadingTypeRequirement("Reading type requirement")
+
+        // Business method
+        metrologyConfiguration
+                .newReadingTypeRequirement("Reading type requirement")
                 .withReadingType(readingType);
     }
 
-    @Test
+    @Test(expected = UnsupportedOperationException.class)
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.REQUIRED + "}", property = "meterRole")
     public void testCanNotCreatePartiallySpecifiedReadingTypeRequirementWithoutMeterRole() {
         ServiceCategory serviceCategory = getServiceCategory();
         UsagePointMetrologyConfiguration metrologyConfiguration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("config", serviceCategory).create();
@@ -202,28 +203,23 @@ public class UsagePointMetrologyConfigurationTestIT {
         ReadingTypeTemplate readingTypeTemplate = getMetrologyConfigurationService()
                 .createReadingTypeTemplate("Zero reading type template")
                 .done();
-        metrologyConfiguration.newReadingTypeRequirement("Reading type requirement")
+
+        // Business method
+        metrologyConfiguration
+                .newReadingTypeRequirement("Reading type requirement")
                 .withReadingTypeTemplate(readingTypeTemplate);
     }
 
     @Test(expected = ConstraintViolationException.class)
     @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.ROLE_IS_NOT_ALLOWED_ON_CONFIGURATION + "}", property = "meterRole")
     public void testCanNotCreateReadingTypeRequirementWithUnassignedMeterRole() {
         UsagePointMetrologyConfiguration metrologyConfiguration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("config", getServiceCategory()).create();
         MeterRole meterRole = getMetrologyConfigurationService().findMeterRole(DefaultMeterRole.DEFAULT.getKey()).get();
         ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Zero reading type");
-
-        try {
-            // Business method
-            metrologyConfiguration
-                    .newReadingTypeRequirement("Reading type requirement")
-                    .withMeterRole(meterRole)
-                    .withReadingType(readingType);
-        } catch (ConstraintViolationException e) {
-            // Expected
-            assertThat(e.getConstraintViolations()).hasSize(1);
-            throw e;
-        }
+        metrologyConfiguration
+                .newReadingTypeRequirement("Reading type requirement", meterRole)
+                .withReadingType(readingType);
     }
 
     @Test
@@ -236,9 +232,10 @@ public class UsagePointMetrologyConfigurationTestIT {
         metrologyConfiguration.addMeterRole(meterRole);
         ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Zero reading type");
         String name = "Reading type requirement";
-        FullySpecifiedReadingTypeRequirement readingTypeRequirement = metrologyConfiguration.newReadingTypeRequirement(name)
-                .withMeterRole(meterRole)
-                .withReadingType(readingType);
+        FullySpecifiedReadingTypeRequirement readingTypeRequirement =
+                metrologyConfiguration
+                        .newReadingTypeRequirement(name, meterRole)
+                        .withReadingType(readingType);
         assertThat(readingTypeRequirement.getName()).isEqualTo(name);
         assertThat(readingTypeRequirement.getMetrologyConfiguration()).isEqualTo(metrologyConfiguration);
     }
@@ -253,9 +250,10 @@ public class UsagePointMetrologyConfigurationTestIT {
         metrologyConfiguration.addMeterRole(meterRole);
         ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Zero reading type");
         String name = "Reading type requirement";
-        FullySpecifiedReadingTypeRequirement readingTypeRequirement = metrologyConfiguration.newReadingTypeRequirement(name)
-                .withMeterRole(meterRole)
-                .withReadingType(readingType);
+        FullySpecifiedReadingTypeRequirement readingTypeRequirement =
+                metrologyConfiguration
+                        .newReadingTypeRequirement(name, meterRole)
+                        .withReadingType(readingType);
 
         UsagePointMetrologyConfiguration mc = (UsagePointMetrologyConfiguration) getMetrologyConfigurationService().findMetrologyConfiguration(metrologyConfiguration.getId()).get();
         Optional<MeterRole> meterRoleRef = mc.getMeterRoleFor(readingTypeRequirement);
@@ -348,9 +346,10 @@ public class UsagePointMetrologyConfigurationTestIT {
         metrologyConfiguration.addMeterRole(meterRole);
         ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Zero reading type");
         String name = "Reading type requirement";
-        FullySpecifiedReadingTypeRequirement readingTypeRequirement = metrologyConfiguration.newReadingTypeRequirement(name)
-                .withMeterRole(meterRole)
-                .withReadingType(readingType);
+        FullySpecifiedReadingTypeRequirement readingTypeRequirement =
+                metrologyConfiguration
+                        .newReadingTypeRequirement(name, meterRole)
+                        .withReadingType(readingType);
 
         List<ReadingTypeRequirement> requirements = metrologyConfiguration.getRequirements(meterRole);
 
@@ -418,7 +417,9 @@ public class UsagePointMetrologyConfigurationTestIT {
         serviceCategory.addMeterRole(meterRole);
         metrologyConfiguration.addMeterRole(meterRole);
         ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Zero reading type");
-        metrologyConfiguration.newReadingTypeRequirement("Reading type requirement").withMeterRole(meterRole).withReadingType(readingType);
+        metrologyConfiguration
+                .newReadingTypeRequirement("Reading type requirement", meterRole)
+                .withReadingType(readingType);
 
         metrologyConfiguration.delete();
 

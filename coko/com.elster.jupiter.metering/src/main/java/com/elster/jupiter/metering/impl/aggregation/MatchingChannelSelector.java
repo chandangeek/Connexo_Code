@@ -28,8 +28,8 @@ class MatchingChannelSelector {
     private final List<Channel> matchingChannels;
     private final Formula.Mode mode;
 
-    MatchingChannelSelector(ReadingTypeRequirement requirement, MeterActivation meterActivation) {
-        this(requirement.getMatchingChannelsFor(meterActivation), Formula.Mode.AUTO);
+    MatchingChannelSelector(ReadingTypeRequirement requirement, MeterActivationSet meterActivationSet) {
+        this(meterActivationSet.getMatchingChannelsFor(requirement), Formula.Mode.AUTO);
     }
 
     MatchingChannelSelector(List<Channel> matchingChannels, Formula.Mode mode) {
