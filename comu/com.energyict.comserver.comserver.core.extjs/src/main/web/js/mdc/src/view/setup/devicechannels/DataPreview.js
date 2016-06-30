@@ -484,14 +484,14 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                     },
                     {
                         xtype: 'displayfield',
-                        fieldLabel: Uni.I18n.translate('general.multiSenseQuality', 'MDC', 'MultiSense quality'),
+                        fieldLabel: Uni.I18n.translate('general.MDCQuality', 'MDC', 'MDC quality'),
                         itemId: 'mdc-multiSense-quality-' + channel.id,
                         labelWidth: 200,
                         htmlEncode: false
                     },
                     {
                         xtype: 'displayfield',
-                        fieldLabel: Uni.I18n.translate('general.insightQuality', 'MDC', 'Insight quality'),
+                        fieldLabel: Uni.I18n.translate('general.MDMQuality', 'MDC', 'MDM quality'),
                         itemId: 'mdc-insight-quality-' + channel.id,
                         labelWidth: 200,
                         htmlEncode: false
@@ -599,14 +599,14 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                 },
                 {
                     xtype: 'displayfield',
-                    fieldLabel: Uni.I18n.translate('general.multiSenseQuality', 'MDC', 'MultiSense quality'),
+                    fieldLabel: Uni.I18n.translate('general.MDCQuality', 'MDC', 'MDC quality'),
                     itemId: 'mdc-multiSense-quality',
                     labelWidth: 200,
                     htmlEncode: false
                 },
                 {
                     xtype: 'displayfield',
-                    fieldLabel: Uni.I18n.translate('general.insightQuality', 'MDC', 'Insight quality'),
+                    fieldLabel: Uni.I18n.translate('general.MDMQuality', 'MDC', 'MDM quality'),
                     itemId: 'mdc-insight-quality',
                     labelWidth: 200,
                     htmlEncode: false

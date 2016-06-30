@@ -45,14 +45,14 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainPreview', {
                 },
                 {
                     xtype: 'displayfield',
-                    fieldLabel: Uni.I18n.translate('general.multiSenseQuality', 'MDC', 'MultiSense quality'),
+                    fieldLabel: Uni.I18n.translate('general.MDCQuality', 'MDC', 'MDC quality'),
                     itemId: 'mdc-multiSense-quality',
                     labelWidth: 200,
                     htmlEncode: false
                 },
                 {
                     xtype: 'displayfield',
-                    fieldLabel: Uni.I18n.translate('general.insightQuality', 'MDC', 'Insight quality'),
+                    fieldLabel: Uni.I18n.translate('general.MDMQuality', 'MDC', 'MDM quality'),
                     itemId: 'mdc-insight-quality',
                     labelWidth: 200,
                     htmlEncode: false
