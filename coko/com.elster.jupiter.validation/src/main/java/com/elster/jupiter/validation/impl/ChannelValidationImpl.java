@@ -35,7 +35,7 @@ final class ChannelValidationImpl implements ChannelValidation {
     }
 
     ChannelValidationImpl init(ChannelsContainerValidation channelsContainerValidation, Channel channel) {
-        if (!channel.getChannelsContainer().equals(channelsContainerValidation.getChannelsContainer())) {
+        if (channel.getChannelsContainer().getId() != channelsContainerValidation.getChannelsContainer().getId()) {
             throw new IllegalArgumentException();
         }
         this.channelsContainerValidation.set(channelsContainerValidation);
