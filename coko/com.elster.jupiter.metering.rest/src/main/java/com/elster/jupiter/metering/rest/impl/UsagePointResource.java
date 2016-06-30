@@ -64,12 +64,12 @@ public class UsagePointResource {
 
     @Inject
     public UsagePointResource(
-                    MeteringService meteringService,
-                    ServiceCallService serviceCallService,
-                    Clock clock,
-                    ConcurrentModificationExceptionFactory conflictFactory,
-                    UsagePointInfoFactory usagePointInfoFactory,
-                    ExceptionFactory exceptionFactory) {
+            MeteringService meteringService,
+            ServiceCallService serviceCallService,
+            Clock clock,
+            ConcurrentModificationExceptionFactory conflictFactory,
+            UsagePointInfoFactory usagePointInfoFactory,
+            ExceptionFactory exceptionFactory) {
         this.meteringService = meteringService;
         this.clock = clock;
         this.conflictFactory = conflictFactory;
@@ -278,7 +278,7 @@ public class UsagePointResource {
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_USAGE_POINT_FOR_MRID, mRID));
     }
 
-    private static class HasReadingType implements Predicate<MeterActivation> {
+    private static final class HasReadingType implements Predicate<MeterActivation> {
 
         private final MRIDMatcher mridMatcher;
 
@@ -292,7 +292,7 @@ public class UsagePointResource {
         }
     }
 
-    private static class MRIDMatcher implements Predicate<ReadingType> {
+    private static final class MRIDMatcher implements Predicate<ReadingType> {
 
         private final String mRID;
 
@@ -305,4 +305,5 @@ public class UsagePointResource {
             return input.getMRID().equals(mRID);
         }
     }
+
 }
