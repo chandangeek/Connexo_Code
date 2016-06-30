@@ -54,7 +54,7 @@ public class DataLoggerSlaveDeviceInfoFactory {
         Instant checkPoint = clock.instant();
         Optional<Channel> slaveChannel = topologyService.getSlaveChannel(dataLoggerChannel,checkPoint);
         Optional<DataLoggerSlaveDeviceInfo> existingSlaveDeviceInfo;
-        DataLoggerSlaveChannelInfo slaveChannelInfo =  slaveChannelInfoFactory.from(ChannelInfo.from(dataLoggerChannel, clock), slaveChannel.map((channel) -> ChannelInfo.from(channel, clock)));
+        DataLoggerSlaveChannelInfo slaveChannelInfo = slaveChannelInfoFactory.from(ChannelInfo.from(dataLoggerChannel, clock, topologyService), slaveChannel.map((channel) -> ChannelInfo.from(channel, clock, topologyService)));
         if (slaveChannel.isPresent()){
             Device slave = slaveChannel.get().getDevice();
 
@@ -78,8 +78,8 @@ public class DataLoggerSlaveDeviceInfoFactory {
     private List<DataLoggerSlaveDeviceInfo> addDataLoggerRegisterInfo(Register dataLoggerRegister, List<DataLoggerSlaveDeviceInfo> slaveDeviceInfos){
         Optional<Register> slaveRegister = topologyService.getSlaveRegister(dataLoggerRegister, clock.instant());
         Optional<DataLoggerSlaveDeviceInfo> existingSlaveDeviceInfo;
-        DataLoggerSlaveRegisterInfo slaveRegisterInfo =  slaveRegisterInfoFactory.from(deviceDataInfoFactory.createRegisterInfo(dataLoggerRegister, null),
-                slaveRegister.map((register) -> deviceDataInfoFactory.createRegisterInfo(register, null)));
+        DataLoggerSlaveRegisterInfo slaveRegisterInfo = slaveRegisterInfoFactory.from(deviceDataInfoFactory.createRegisterInfo(dataLoggerRegister, null, topologyService),
+                slaveRegister.map((register) -> deviceDataInfoFactory.createRegisterInfo(register, null, topologyService)));
         if (slaveRegister.isPresent()){
             Device slave = slaveRegister.get().getDevice();
             existingSlaveDeviceInfo = slaveDeviceInfos.stream().filter(slaveDeviceInfo -> slaveDeviceInfo.id == slave.getId()).findFirst();

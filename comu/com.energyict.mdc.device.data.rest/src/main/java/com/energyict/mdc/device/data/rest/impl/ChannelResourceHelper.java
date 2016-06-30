@@ -6,6 +6,8 @@ import com.elster.jupiter.validation.DataValidationStatus;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.topology.TopologyService;
+
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
@@ -15,7 +17,11 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -34,29 +40,29 @@ public class ChannelResourceHelper {
         this.validationInfoFactory = validationInfoFactory;
     }
 
-    public Response getChannels(String mrid, Function<Device, List<Channel>> channelsProvider, JsonQueryParameters queryParameters) {
+    public Response getChannels(String mrid, Function<Device, List<Channel>> channelsProvider, JsonQueryParameters queryParameters, TopologyService topologyService) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         List<Channel> channelsPage = ListPager.of(channelsProvider.apply(device), CHANNEL_COMPARATOR_BY_NAME).from(queryParameters).find();
 
         List<ChannelInfo> channelInfos = new ArrayList<>();
         for (Channel channel : channelsPage) {
-            ChannelInfo channelInfo = ChannelInfo.from(channel, clock);
+            ChannelInfo channelInfo = ChannelInfo.from(channel, clock, topologyService);
             addValidationInfo(channel, channelInfo);
             channelInfos.add(channelInfo);
         }
         return Response.ok(PagedInfoList.fromPagedList("channels", channelInfos, queryParameters)).build();
     }
 
-    public Response getChannel(Supplier<Channel> channelSupplier) {
+    public Response getChannel(Supplier<Channel> channelSupplier, TopologyService topologyService) {
         Channel channel = channelSupplier.get();
-        ChannelInfo channelInfo = ChannelInfo.from(channel, clock);
+        ChannelInfo channelInfo = ChannelInfo.from(channel, clock, topologyService);
         addValidationInfo(channel, channelInfo);
         return Response.ok(channelInfo).build();
     }
 
-    public Response getChannelValidationInfo(Supplier<Channel> channelSupplier) {
+    public Response getChannelValidationInfo(Supplier<Channel> channelSupplier, TopologyService topologyService) {
         Channel channel = channelSupplier.get();
-        ChannelInfo channelInfo = ChannelInfo.from(channel, clock);
+        ChannelInfo channelInfo = ChannelInfo.from(channel, clock, topologyService);
         addValidationInfo(channel, channelInfo);
         return Response.ok(channelInfo.validationInfo).build();
     }

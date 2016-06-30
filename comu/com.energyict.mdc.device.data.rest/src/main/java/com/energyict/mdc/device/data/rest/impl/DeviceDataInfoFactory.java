@@ -26,6 +26,7 @@ import com.energyict.mdc.device.data.Reading;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.TextReading;
 import com.energyict.mdc.device.data.TextRegister;
+import com.energyict.mdc.device.topology.TopologyService;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
@@ -261,39 +262,39 @@ public class DeviceDataInfoFactory {
         return flagsReadingInfo;
     }
 
-    public RegisterInfo createRegisterInfo(Register register, DetailedValidationInfo registerValidationInfo) {
+    public RegisterInfo createRegisterInfo(Register register, DetailedValidationInfo registerValidationInfo, TopologyService topologyService) {
         if (register instanceof BillingRegister) {
-            BillingRegisterInfo info = createBillingRegisterInfo((BillingRegister) register);
+            BillingRegisterInfo info = createBillingRegisterInfo((BillingRegister) register, topologyService);
             info.detailedValidationInfo = registerValidationInfo;
             return info;
         } else if (register instanceof NumericalRegister) {
-            NumericalRegisterInfo info = createNumericalRegisterInfo((NumericalRegister) register);
+            NumericalRegisterInfo info = createNumericalRegisterInfo((NumericalRegister) register, topologyService);
             info.detailedValidationInfo = registerValidationInfo;
             return info;
         } else if (register instanceof TextRegister) {
-            return createTextRegisterInfo((TextRegister) register);
+            return createTextRegisterInfo((TextRegister) register, topologyService);
         } else if (register instanceof FlagsRegister) {
-            return createFlagsRegisterInfo((FlagsRegister) register);
+            return createFlagsRegisterInfo((FlagsRegister) register, topologyService);
         }
 
         throw new IllegalArgumentException("Unsupported register type: " + register.getClass().getSimpleName());
     }
 
-    public RegisterInfo createLeanRegisterInfo(Register register){
+    public RegisterInfo createLeanRegisterInfo(Register register, TopologyService topologyService) {
         if (register instanceof BillingRegister) {
-            return createBillingRegisterInfo((BillingRegister) register);
+            return createBillingRegisterInfo((BillingRegister) register, topologyService);
         } else if (register instanceof NumericalRegister) {
-            return createNumericalRegisterInfo((NumericalRegister) register);
+            return createNumericalRegisterInfo((NumericalRegister) register, topologyService);
         } else if (register instanceof TextRegister) {
-            return createTextRegisterInfo((TextRegister) register);
+            return createTextRegisterInfo((TextRegister) register, topologyService);
         } else if (register instanceof FlagsRegister) {
-            return createFlagsRegisterInfo((FlagsRegister) register);
+            return createFlagsRegisterInfo((FlagsRegister) register, topologyService);
         }
 
         throw new IllegalArgumentException("Unsupported register type: " + register.getClass().getSimpleName());
     }
 
-    private void addCommonRegisterInfo(Register register, RegisterInfo registerInfo) {
+    private void addCommonRegisterInfo(Register register, RegisterInfo registerInfo, TopologyService topologyService) {
         RegisterSpec registerSpec = register.getRegisterSpec();
         Device device = register.getDevice();
         registerInfo.id = registerSpec.getId();
@@ -309,11 +310,14 @@ public class DeviceDataInfoFactory {
         registerInfo.parent = new VersionInfo(deviceConfiguration.getId(), deviceConfiguration.getVersion());
         Optional<? extends Reading> lastReading = register.getLastReading();
         lastReading.ifPresent(reading -> registerInfo.lastReading = createReadingInfo(reading, register, false));
+        if (device.getDeviceType().isDataloggerSlave()) {
+            topologyService.findCurrentDataloggerReference(device, clock.instant()).ifPresent(dataLoggerReference -> registerInfo.dataloggermRID = dataLoggerReference.getGateway().getmRID());
+        }
     }
 
-    public BillingRegisterInfo createBillingRegisterInfo(BillingRegister register) {
+    public BillingRegisterInfo createBillingRegisterInfo(BillingRegister register, TopologyService topologyService) {
         BillingRegisterInfo billingRegisterInfo = new BillingRegisterInfo();
-        addCommonRegisterInfo(register, billingRegisterInfo);
+        addCommonRegisterInfo(register, billingRegisterInfo, topologyService);
         Instant timeStamp = register.getLastReadingDate().orElse(clock.instant());
         register.getCalculatedReadingType(timeStamp).ifPresent(calculatedReadingType -> billingRegisterInfo.calculatedReadingType = new ReadingTypeInfo(calculatedReadingType));
         billingRegisterInfo.multiplier = register.getMultiplier(timeStamp).orElseGet(() -> null);
@@ -321,21 +325,21 @@ public class DeviceDataInfoFactory {
         return billingRegisterInfo;
     }
 
-    public FlagsRegisterInfo createFlagsRegisterInfo(FlagsRegister flagsRegister) {
+    public FlagsRegisterInfo createFlagsRegisterInfo(FlagsRegister flagsRegister, TopologyService topologyService) {
         FlagsRegisterInfo flagsRegisterInfo = new FlagsRegisterInfo();
-        addCommonRegisterInfo(flagsRegister, flagsRegisterInfo);
+        addCommonRegisterInfo(flagsRegister, flagsRegisterInfo, topologyService);
         return flagsRegisterInfo;
     }
 
-    private TextRegisterInfo createTextRegisterInfo(TextRegister textRegister){
+    private TextRegisterInfo createTextRegisterInfo(TextRegister textRegister, TopologyService topologyService) {
         TextRegisterInfo textRegisterInfo = new TextRegisterInfo();
-        addCommonRegisterInfo(textRegister, textRegisterInfo);
+        addCommonRegisterInfo(textRegister, textRegisterInfo, topologyService);
         return textRegisterInfo;
     }
 
-    public NumericalRegisterInfo createNumericalRegisterInfo(NumericalRegister numericalRegister) {
+    public NumericalRegisterInfo createNumericalRegisterInfo(NumericalRegister numericalRegister, TopologyService topologyService) {
         NumericalRegisterInfo numericalRegisterInfo = new NumericalRegisterInfo();
-        addCommonRegisterInfo(numericalRegister, numericalRegisterInfo);
+        addCommonRegisterInfo(numericalRegister, numericalRegisterInfo, topologyService);
         NumericalRegisterSpec registerSpec = numericalRegister.getRegisterSpec();
         numericalRegisterInfo.numberOfFractionDigits = registerSpec.getNumberOfFractionDigits();
         numericalRegisterInfo.overruledNumberOfFractionDigits = numericalRegister.getNumberOfFractionDigits();

@@ -24,6 +24,7 @@ import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.rest.DeviceStatesRestricted;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.issue.datavalidation.NotEstimatedBlock;
@@ -76,9 +77,10 @@ public class ChannelResource {
     private final ValidationInfoFactory validationInfoFactory;
     private final IssueDataValidationService issueDataValidationService;
     private final EstimationHelper estimationHelper;
+    private final TopologyService topologyService;
 
     @Inject
-    public ChannelResource(ExceptionFactory exceptionFactory, Provider<ChannelResourceHelper> channelHelper, ResourceHelper resourceHelper, Clock clock, DeviceDataInfoFactory deviceDataInfoFactory, ValidationInfoFactory validationInfoFactory, IssueDataValidationService issueDataValidationService, EstimationHelper estimationHelper) {
+    public ChannelResource(ExceptionFactory exceptionFactory, Provider<ChannelResourceHelper> channelHelper, ResourceHelper resourceHelper, Clock clock, DeviceDataInfoFactory deviceDataInfoFactory, ValidationInfoFactory validationInfoFactory, IssueDataValidationService issueDataValidationService, EstimationHelper estimationHelper, TopologyService topologyService) {
         this.exceptionFactory = exceptionFactory;
         this.channelHelper = channelHelper;
         this.resourceHelper = resourceHelper;
@@ -87,6 +89,7 @@ public class ChannelResource {
         this.validationInfoFactory = validationInfoFactory;
         this.issueDataValidationService = issueDataValidationService;
         this.estimationHelper = estimationHelper;
+        this.topologyService = topologyService;
     }
 
     @GET
@@ -94,7 +97,7 @@ public class ChannelResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION})
     public Response getChannels(@PathParam("mRID") String mRID, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
-        return channelHelper.get().getChannels(mRID, (d -> this.getFilteredChannels(d, filter)), queryParameters);
+        return channelHelper.get().getChannels(mRID, (d -> this.getFilteredChannels(d, filter)), queryParameters, topologyService);
     }
 
     @GET
@@ -104,7 +107,7 @@ public class ChannelResource {
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION})
     public Response getChannel(@PathParam("mRID") String mRID, @PathParam("channelid") long channelId) {
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
-        return channelHelper.get().getChannel(() -> channel);
+        return channelHelper.get().getChannel(() -> channel, topologyService);
     }
 
     @PUT
@@ -519,7 +522,7 @@ public class ChannelResource {
     @RolesAllowed({com.elster.jupiter.validation.security.Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.Constants.VIEW_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
     public Response getValidationStatusPreview(@PathParam("mRID") String mRID, @PathParam("channelid") long channelId) {
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
-        return channelHelper.get().getChannelValidationInfo(() -> channel);
+        return channelHelper.get().getChannelValidationInfo(() -> channel, topologyService);
     }
 
     @PUT

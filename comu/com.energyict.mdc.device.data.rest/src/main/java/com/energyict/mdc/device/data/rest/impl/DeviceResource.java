@@ -323,7 +323,7 @@ public class DeviceResource {
             currentSlaves
                     .stream()
                     .filter((slave) -> getTerminatedSlaveDeviceInfo(slave, info).isPresent())
-                    .forEach((slave) -> topologyService.clearDataLogger(slave, Instant.ofEpochSecond(getTerminatedSlaveDeviceInfo(slave, info).get().unlinkingTimeStamp)));
+                    .forEach((slave) -> topologyService.clearDataLogger(slave, Instant.ofEpochMilli(getTerminatedSlaveDeviceInfo(slave, info).get().unlinkingTimeStamp)));
 
             info.dataLoggerSlaveDevices.stream().filter(((Predicate<DataLoggerSlaveDeviceInfo>) DataLoggerSlaveDeviceInfo::unlinked).negate()).forEach((slaveDeviceInfo) -> setDataLogger(slaveDeviceInfo, dataLogger));
         }
@@ -334,8 +334,7 @@ public class DeviceResource {
             Device slave;
             if (slaveDeviceInfo.id == 0 && slaveDeviceInfo.version == 0) {
                 slave = newDevice(slaveDeviceInfo.deviceConfigurationId, slaveDeviceInfo.batch, slaveDeviceInfo.mRID, slaveDeviceInfo.serialNumber, slaveDeviceInfo.yearOfCertification, Instant
-                        .ofEpochSecond
-                                (slaveDeviceInfo.shipmentDate));
+                        .ofEpochMilli(slaveDeviceInfo.shipmentDate));
             } else {
                 if (slaveDeviceInfo.isFromExistingLink()) {
                     // No new link, came along with deviceinfo

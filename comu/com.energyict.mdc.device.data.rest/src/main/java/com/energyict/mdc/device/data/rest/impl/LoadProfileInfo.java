@@ -7,6 +7,7 @@ import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.topology.TopologyService;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.time.Clock;
@@ -36,21 +37,21 @@ public class LoadProfileInfo {
     // optionally filled if requesting details
     public DetailedValidationInfo validationInfo;
 
-    public static LoadProfileInfo from(LoadProfile loadProfile, Clock clock) {
+    public static LoadProfileInfo from(LoadProfile loadProfile, Clock clock, TopologyService topologyService) {
         LoadProfileInfo info = createLoadProfileInfo(loadProfile);
         List<Channel> channels = loadProfile.getChannels();
         Collections.sort(channels, CHANNEL_COMPARATOR);
-        info.channels=ChannelInfo.from(channels, clock);
+        info.channels = ChannelInfo.from(channels, clock, topologyService);
         return info;
     }
 
     private static LoadProfileInfo createLoadProfileInfo(LoadProfile loadProfile) {
         LoadProfileInfo info = new LoadProfileInfo();
-        info.id=loadProfile.getId();
-        info.name=loadProfile.getLoadProfileSpec().getLoadProfileType().getName();
-        info.obisCode=loadProfile.getDeviceObisCode();
-        info.interval=new TimeDurationInfo(loadProfile.getInterval());
-        info.lastReading=loadProfile.getLastReading().orElse(null);
+        info.id = loadProfile.getId();
+        info.name = loadProfile.getLoadProfileSpec().getLoadProfileType().getName();
+        info.obisCode = loadProfile.getDeviceObisCode();
+        info.interval = new TimeDurationInfo(loadProfile.getInterval());
+        info.lastReading = loadProfile.getLastReading().orElse(null);
         info.version = loadProfile.getVersion();
         Device device = loadProfile.getDevice();
         info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
@@ -63,7 +64,7 @@ public class LoadProfileInfo {
             LoadProfileInfo loadProfileInfo = createLoadProfileInfo(loadProfile);
             List<Channel> channels = loadProfile.getChannels();
             Collections.sort(channels, CHANNEL_COMPARATOR);
-            loadProfileInfo.channels=ChannelInfo.asSimpleInfoFrom(channels);
+            loadProfileInfo.channels = ChannelInfo.asSimpleInfoFrom(channels);
             loadProfileInfos.add(loadProfileInfo);
         }
         return loadProfileInfos;

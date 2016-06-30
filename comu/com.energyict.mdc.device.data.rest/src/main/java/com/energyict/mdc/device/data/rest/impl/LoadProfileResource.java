@@ -15,6 +15,7 @@ import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.rest.DeviceStatesRestricted;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.device.topology.TopologyService;
 
 import com.google.common.collect.Range;
 
@@ -56,13 +57,15 @@ public class LoadProfileResource {
     private final Clock clock;
     private final DeviceDataInfoFactory deviceDataInfoFactory;
     private final ValidationInfoFactory validationInfoFactory;
+    private final TopologyService topologyService;
 
     @Inject
-    public LoadProfileResource(ResourceHelper resourceHelper, Clock clock, DeviceDataInfoFactory deviceDataInfoFactory, ValidationInfoFactory validationInfoFactory) {
+    public LoadProfileResource(ResourceHelper resourceHelper, Clock clock, DeviceDataInfoFactory deviceDataInfoFactory, ValidationInfoFactory validationInfoFactory, TopologyService topologyService) {
         this.resourceHelper = resourceHelper;
         this.clock = clock;
         this.deviceDataInfoFactory = deviceDataInfoFactory;
         this.validationInfoFactory = validationInfoFactory;
+        this.topologyService = topologyService;
     }
 
     @GET @Transactional
@@ -82,7 +85,7 @@ public class LoadProfileResource {
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
     public Response getLoadProfile(@PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId) {
         LoadProfile loadProfile = doGetLoadProfile(mrid, loadProfileId);
-        LoadProfileInfo loadProfileInfo = LoadProfileInfo.from(loadProfile, clock);
+        LoadProfileInfo loadProfileInfo = LoadProfileInfo.from(loadProfile, clock, topologyService);
 
         addValidationInfo(loadProfile, loadProfileInfo);
 
