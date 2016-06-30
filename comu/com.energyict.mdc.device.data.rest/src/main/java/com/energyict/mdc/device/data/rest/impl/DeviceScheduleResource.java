@@ -129,7 +129,15 @@ public class DeviceScheduleResource {
         ComTaskExecution comTaskExecution = resourceHelper.lockComTaskExecutionOrThrowException(info);
         Device device = comTaskExecution.getDevice();
         if (info.schedule == null) {
-            device.removeComTaskExecution(comTaskExecution);
+            if (comTaskExecution instanceof ManuallyScheduledComTaskExecution) {
+                ((ManuallyScheduledComTaskExecution) comTaskExecution).getUpdater().removeSchedule().update();
+            } else {
+                device.removeComTaskExecution(comTaskExecution);
+                // If the ComTaskExecution was not a ManuallyScheduledComTaskExecution, it was one related to a shared communication schedule.
+                // Note that in this case, as side effect of removal of the ComTaskExecution:
+                // - the still outstanding ComTaskExecutionTriggers for the shared schedule are no longer taken into account
+                // - the communication logging of the shared ComTaskExecution is no longer shown in the communication task history
+            }
         } else {
             ((ManuallyScheduledComTaskExecution) comTaskExecution).getUpdater().scheduleAccordingTo(info.schedule.asTemporalExpression()).update();
         }
