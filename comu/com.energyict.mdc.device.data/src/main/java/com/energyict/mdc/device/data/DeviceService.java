@@ -144,4 +144,11 @@ public interface DeviceService {
     Finder<DeviceEstimation> findDeviceEstimations(List<Device> deviceList);
 
     List<Device> findActiveValidatedDevices(List<Device> domainObjects);
+
+    /**
+     * Deletes all outdated {@link com.energyict.mdc.device.data.tasks.ComTaskExecutionTrigger}s<br/>
+     * More specific, all ComTaskExecutionTriggers who have a trigger date more than 1 day in the past will be deleted
+     */
+    void deleteOutdatedComTaskExecutionTriggers();
+
 }

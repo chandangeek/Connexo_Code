@@ -1,5 +1,9 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.TaskPriorityConstants;
@@ -16,17 +20,14 @@ import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecutionUpda
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.time.TemporalExpression;
-import com.elster.jupiter.time.TimeDuration;
-
 import java.time.Instant;
+import java.util.Calendar;
 import java.util.TimeZone;
 
-import org.junit.*;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -655,6 +656,74 @@ Irrelevant as delete is not supported any more
         assertThat(reloadedComTaskExecution.getLastExecutionStartTimestamp()).isNull();
         assertThat(reloadedComTaskExecution.getLastSuccessfulCompletionTimestamp()).isNull();
         assertThat(reloadedComTaskExecution.getExecutionStartedTimestamp()).isNull();
+    }
+
+    @Test
+    @Transactional
+    public void removeNextExecutionSpecsTest() {
+        TemporalExpression temporalExpression = new TemporalExpression(TimeDuration.hours(1));
+        ComTaskEnablement comTaskEnablement = enableComTask(true);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "WithoutViolations", "WithoutViolations");
+        ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = device.newManuallyScheduledComTaskExecution(comTaskEnablement, temporalExpression);
+        ManuallyScheduledComTaskExecutionImpl comTaskExecution = (ManuallyScheduledComTaskExecutionImpl) comTaskExecutionBuilder.add();
+        device.save();
+
+        assertThat(comTaskExecution.getNextExecutionTimestamp()).isEqualTo(Instant.ofEpochMilli(temporalExpression.nextOccurrence(Calendar.getInstance(utcTimeZone)).getTime()));
+
+        // Business method
+        comTaskExecution.setNextExecutionSpecsFrom(null);
+
+        // Asserts
+        assertThat(comTaskExecution.getNextExecutionTimestamp()).isNull();
+        assertThat(comTaskExecution.getPlannedNextExecutionTimestamp()).isNull();
+        assertThat(comTaskExecution.getNextExecutionSpecs()).isEmpty();
+    }
+
+    @Test
+    @Transactional
+    public void updateNextExecutionSpecsTest() {
+        TemporalExpression temporalExpression = new TemporalExpression(TimeDuration.days(1));
+        ComTaskEnablement comTaskEnablement = enableComTask(true);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "WithoutViolations", "WithoutViolations");
+        ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = device.newManuallyScheduledComTaskExecution(comTaskEnablement, temporalExpression);
+        ManuallyScheduledComTaskExecutionImpl comTaskExecution = (ManuallyScheduledComTaskExecutionImpl) comTaskExecutionBuilder.add();
+        device.save();
+
+        assertThat(comTaskExecution.getNextExecutionTimestamp()).isEqualTo(Instant.ofEpochMilli(temporalExpression.nextOccurrence(Calendar.getInstance(utcTimeZone)).getTime()));
+
+        // Business method
+        temporalExpression = new TemporalExpression(TimeDuration.hours(1));
+        comTaskExecution.setNextExecutionSpecsFrom(temporalExpression);
+
+        // Asserts
+        assertThat(comTaskExecution.getNextExecutionTimestamp()).isEqualTo(Instant.ofEpochMilli(temporalExpression.nextOccurrence(Calendar.getInstance(utcTimeZone)).getTime()));
+        assertThat(comTaskExecution.getPlannedNextExecutionTimestamp()).isEqualTo(Instant.ofEpochMilli(temporalExpression.nextOccurrence(Calendar.getInstance(utcTimeZone)).getTime()));
+        assertThat(comTaskExecution.getNextExecutionSpecs()).isPresent();
+        NextExecutionSpecs nextExecutionSpecs = comTaskExecution.getNextExecutionSpecs().get();
+        assertThat(nextExecutionSpecs.getTemporalExpression()).isEqualTo(temporalExpression);
+    }
+
+    @Test
+    @Transactional
+    public void setNextExecutionSpecsTest() {
+        ComTaskEnablement comTaskEnablement = enableComTask(true);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "WithoutViolations", "WithoutViolations");
+        ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = device.newManuallyScheduledComTaskExecution(comTaskEnablement, null);
+        ManuallyScheduledComTaskExecutionImpl comTaskExecution = (ManuallyScheduledComTaskExecutionImpl) comTaskExecutionBuilder.add();
+        device.save();
+
+        assertThat(comTaskExecution.getNextExecutionTimestamp()).isNull();
+
+        // Business method
+        TemporalExpression temporalExpression = new TemporalExpression(TimeDuration.hours(1));
+        comTaskExecution.setNextExecutionSpecsFrom(temporalExpression);
+
+        // Asserts
+        assertThat(comTaskExecution.getNextExecutionTimestamp()).isEqualTo(Instant.ofEpochMilli(temporalExpression.nextOccurrence(Calendar.getInstance(utcTimeZone)).getTime()));
+        assertThat(comTaskExecution.getPlannedNextExecutionTimestamp()).isEqualTo(Instant.ofEpochMilli(temporalExpression.nextOccurrence(Calendar.getInstance(utcTimeZone)).getTime()));
+        assertThat(comTaskExecution.getNextExecutionSpecs()).isPresent();
+        NextExecutionSpecs nextExecutionSpecs = comTaskExecution.getNextExecutionSpecs().get();
+        assertThat(nextExecutionSpecs.getTemporalExpression()).isEqualTo(temporalExpression);
     }
 
 }

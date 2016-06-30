@@ -51,6 +51,9 @@ public enum EventType {
                     .withProperty("maxId", ValueType.LONG, "maxId").withProperty("comScheduleId", ValueType.LONG, "comScheduleId");
         }
     },
+    COMTASKEXECUTIONTRIGGER_CREATED("comTaskExecutionTrigger/CREATED"),
+    COMTASKEXECUTIONTRIGGER_UPDATED("comTaskExecutionTrigger/UPDATED"),
+    COMTASKEXECUTIONTRIGGER_DELETED("comTaskExecutionTrigger/DELETED"),
     DEVICEMESSAGE_CREATED("deviceMessage/CREATED"),
     DEVICEMESSAGE_UPDATED("deviceMessage/UPDATED") {
         @Override

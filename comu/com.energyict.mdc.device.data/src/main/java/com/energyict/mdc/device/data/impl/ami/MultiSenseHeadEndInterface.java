@@ -234,12 +234,13 @@ public class MultiSenseHeadEndInterface implements HeadEndInterface {
             Optional<ComTaskExecution> existingComTaskExecution = device.getComTaskExecutions().stream()
                     .filter(cte -> cte.getComTasks().stream().anyMatch(comTask -> comTask.getId() == comTaskEnablement.getComTask().getId()))
                     .findFirst();
-            existingComTaskExecution.orElseGet(() -> createAdHocComTaskExecution(device, comTaskEnablement)).schedule(getEarliestReleaseDateOf(deviceMessages));
+            ComTaskExecution comTaskExecution = existingComTaskExecution.orElseGet(() -> createAdHocComTaskExecution(device, comTaskEnablement));
+            deviceMessages.stream()
+                    .map(DeviceMessage::getReleaseDate)
+                    .distinct()
+                    .forEach(comTaskExecution::addNewComTaskExecutionTrigger);
+            comTaskExecution.updateNextExecutionTimestamp();
         });
-    }
-
-    private Instant getEarliestReleaseDateOf(List<DeviceMessage<Device>> deviceMessages) {
-        return deviceMessages.stream().map(DeviceMessage::getReleaseDate).min(Instant::compareTo).get();
     }
 
     private ManuallyScheduledComTaskExecution createAdHocComTaskExecution(Device device, ComTaskEnablement comTaskEnablement) {
@@ -280,7 +281,7 @@ public class MultiSenseHeadEndInterface implements HeadEndInterface {
         serviceCall.update(domainExtension);
     }
 
-    private ServiceCallCommands getServiceCallCommands() {
+    protected ServiceCallCommands getServiceCallCommands() {
         return new ServiceCallCommands(serviceCallService, customPropertySetService);
     }
 
