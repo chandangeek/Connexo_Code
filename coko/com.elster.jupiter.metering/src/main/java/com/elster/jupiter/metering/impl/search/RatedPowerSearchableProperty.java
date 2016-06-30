@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public class RatedPowerSearchableProperty implements SearchableUsagePointProperty {
+class RatedPowerSearchableProperty implements SearchableUsagePointProperty {
 
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
@@ -31,7 +31,7 @@ public class RatedPowerSearchableProperty implements SearchableUsagePointPropert
     private static final String FIELD_NAME = "detail.ratedPower";
 
     @Inject
-    public RatedPowerSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+    RatedPowerSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
     }

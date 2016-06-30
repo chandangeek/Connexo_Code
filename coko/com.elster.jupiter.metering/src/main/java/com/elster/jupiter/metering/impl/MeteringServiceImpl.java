@@ -74,8 +74,6 @@ import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.users.PrivilegesProvider;
-import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Pair;
@@ -134,10 +132,10 @@ import static com.elster.jupiter.util.conditions.Where.where;
 
 
 @Component(name = "com.elster.jupiter.metering",
-        service = {MeteringService.class, ServerMeteringService.class, PrivilegesProvider.class, MessageSeedProvider.class, TranslationKeyProvider.class},
+        service = {MeteringService.class, ServerMeteringService.class, MessageSeedProvider.class, TranslationKeyProvider.class},
         property = "name=" + MeteringService.COMPONENTNAME)
 @Singleton
-public class MeteringServiceImpl implements ServerMeteringService, PrivilegesProvider, TranslationKeyProvider, MessageSeedProvider {
+public class MeteringServiceImpl implements ServerMeteringService, TranslationKeyProvider, MessageSeedProvider {
 
     private volatile IdsService idsService;
     private volatile QueryService queryService;
@@ -228,7 +226,7 @@ public class MeteringServiceImpl implements ServerMeteringService, PrivilegesPro
 
     @Override
     public List<HeadEndInterface> getHeadEndInterfaces() {
-        return headEndInterfaces;
+        return Collections.unmodifiableList(this.headEndInterfaces);
     }
 
     @Override
@@ -236,7 +234,6 @@ public class MeteringServiceImpl implements ServerMeteringService, PrivilegesPro
         return headEndInterfaces.stream()
                 .filter(itf -> itf.getAmrSystem().equalsIgnoreCase(amrSystem)).findFirst();
     }
-
 
     @Override
     public Optional<ServiceCategory> getServiceCategory(ServiceKind kind) {
@@ -349,6 +346,7 @@ public class MeteringServiceImpl implements ServerMeteringService, PrivilegesPro
         return queryService.wrap(
                 dataModel.query(
                         UsagePoint.class,
+                        Location.class, LocationMember.class,
                         UsagePointDetail.class,
                         ServiceLocation.class,
                         MeterActivation.class,
@@ -370,11 +368,7 @@ public class MeteringServiceImpl implements ServerMeteringService, PrivilegesPro
 
     @Override
     public Query<Meter> getMeterQuery() {
-        QueryExecutor<?> executor = dataModel.query(EndDevice.class,
-                MeterActivation.class,
-                UsagePoint.class,
-                ServiceLocation.class,
-                Channel.class);
+        QueryExecutor<?> executor = dataModel.query(EndDevice.class, Location.class, LocationMember.class, EndDeviceLifeCycleStatus.class);
         executor.setRestriction(Operator.EQUAL.compare("class", Meter.TYPE_IDENTIFIER));
         return queryService.wrap((QueryExecutor<Meter>) executor);
     }
@@ -523,13 +517,13 @@ public class MeteringServiceImpl implements ServerMeteringService, PrivilegesPro
             }
         });
 
-        if (upgradeService.isInstalled(identifier(COMPONENTNAME), version(10, 2))) {
+        if (upgradeService.isInstalled(identifier("Pulse", COMPONENTNAME), version(10, 2))) {
             getLocationTemplateFromDB().ifPresent(template -> {
                 locationTemplate = template;
                 locationTemplateMembers = ImmutableList.copyOf((template.getTemplateMembers()));
             });
         }
-        upgradeService.register(identifier(COMPONENTNAME), dataModel, InstallerImpl.class, ImmutableMap.of(
+        upgradeService.register(identifier("Pulse", COMPONENTNAME), dataModel, InstallerImpl.class, ImmutableMap.of(
                 version(10, 2), UpgraderV10_2.class
         ));
     }
@@ -542,7 +536,6 @@ public class MeteringServiceImpl implements ServerMeteringService, PrivilegesPro
                     new String[]{
                             MetrologyConfigurationService.class.getName(),
                             ServerMetrologyConfigurationService.class.getName(),
-                            PrivilegesProvider.class.getName(),
                             TranslationKeyProvider.class.getName()},
                     this.metrologyConfigurationService,
                     properties));
@@ -772,29 +765,6 @@ public class MeteringServiceImpl implements ServerMeteringService, PrivilegesPro
     }
 
     @Override
-    public String getModuleName() {
-        return MeteringService.COMPONENTNAME;
-    }
-
-    @Override
-    public List<ResourceDefinition> getModuleResources() {
-        List<ResourceDefinition> resources = new ArrayList<>();
-        resources.add(userService.createModuleResourceWithPrivileges(MeteringService.COMPONENTNAME, DefaultTranslationKey.RESOURCE_USAGE_POINT
-                        .getKey(), DefaultTranslationKey.RESOURCE_USAGE_POINT_DESCRIPTION.getKey(),
-                Arrays.asList(
-                        Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT,
-                        Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_OWN_USAGEPOINT,
-                        Privileges.Constants.ADMINISTER_USAGEPOINT_TIME_SLICED_CPS)));
-        resources.add(userService.createModuleResourceWithPrivileges(MeteringService.COMPONENTNAME, DefaultTranslationKey.RESOURCE_READING_TYPE
-                        .getKey(), DefaultTranslationKey.RESOURCE_READING_TYPE_DESCRIPTION.getKey(),
-                Arrays.asList(Privileges.Constants.ADMINISTER_READINGTYPE, Privileges.Constants.VIEW_READINGTYPE)));
-        resources.add(userService.createModuleResourceWithPrivileges(MeteringService.COMPONENTNAME, DefaultTranslationKey.RESOURCE_SERVICE_CATEGORY
-                        .getKey(), DefaultTranslationKey.RESOURCE_SERVICE_CATEGORY_DESCRIPTION.getKey(),
-                Arrays.asList(Privileges.Constants.VIEW_SERVICECATEGORY)));
-        return resources;
-    }
-
-    @Override
     public String getComponentName() {
         return MeteringService.COMPONENTNAME;
     }
@@ -902,11 +872,10 @@ public class MeteringServiceImpl implements ServerMeteringService, PrivilegesPro
 
     @Override
     public List<List<String>> getFormattedLocationMembers(long id) {
-        List<LocationMember> members = dataModel.query(LocationMember.class)
-                .select(Operator.EQUAL.compare("locationId", id));
+        Optional<Location> optional = dataModel.mapper(Location.class).getOptional(id);
         List<List<String>> formattedLocation = new LinkedList<>();
-        if (!members.isEmpty()) {
-            LocationMember member = members.get(0);
+        if (optional.isPresent() && !optional.get().getMembers().isEmpty()) {
+            LocationMember member = optional.get().getMembers().get(0);
             Map<String, String> memberValues = new LinkedHashMap<>();
             memberValues.put("countryCode", member.getCountryCode());
             memberValues.put("countryName", member.getCountryName());
@@ -925,7 +894,7 @@ public class MeteringServiceImpl implements ServerMeteringService, PrivilegesPro
             formattedLocation = locationTemplate.getTemplateMembers()
                     .stream()
                     .sorted((m1, m2) -> Integer.compare(m1.getRanking(), m2.getRanking()))
-                    .filter(m -> !m.getName().equalsIgnoreCase("locale"))
+                    .filter(m -> !"locale".equalsIgnoreCase(m.getName()))
                     .collect(() -> {
                                 List<List<String>> list = new ArrayList<>();
                                 list.add(new ArrayList<>());

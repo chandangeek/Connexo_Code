@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public class EstimatedLoadSearchableProperty implements SearchableUsagePointProperty {
+class EstimatedLoadSearchableProperty implements SearchableUsagePointProperty {
 
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
@@ -31,7 +31,7 @@ public class EstimatedLoadSearchableProperty implements SearchableUsagePointProp
     private static final String FIELD_NAME = "detail.estimatedLoad";
 
     @Inject
-    public EstimatedLoadSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+    EstimatedLoadSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
     }
