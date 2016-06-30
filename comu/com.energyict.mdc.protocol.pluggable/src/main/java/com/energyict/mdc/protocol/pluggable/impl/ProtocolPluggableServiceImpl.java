@@ -38,6 +38,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.LicensedProtocol;
 import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
+import com.energyict.mdc.protocol.api.device.data.CollectedCalendar;
 import com.energyict.mdc.protocol.api.device.data.CollectedConfigurationInformation;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
@@ -855,7 +856,7 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
         //TODO need a proper implementation of the DataVault!
         this.dataModel.register(this.getModule());
 
-        upgradeService.register(InstallIdentifier.identifier(ProtocolPluggableService.COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier("MultiSense", ProtocolPluggableService.COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
 
         this.installed = true;
         this.registerAllPluggableClasses();
@@ -1058,6 +1059,11 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
         @Override
         public CollectedBreakerStatus createBreakerStatusCollectedData(DeviceIdentifier<?> deviceIdentifier) {
             return this.getCollectedDataFactory().createBreakerStatusCollectedData(deviceIdentifier);
+        }
+
+        @Override
+        public CollectedCalendar createCalendarCollectedData(DeviceIdentifier<?> deviceIdentifier) {
+            return this.getCollectedDataFactory().createCalendarCollectedData(deviceIdentifier);
         }
     }
 
