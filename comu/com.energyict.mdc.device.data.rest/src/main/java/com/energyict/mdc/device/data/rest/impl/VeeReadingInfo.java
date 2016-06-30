@@ -53,8 +53,8 @@ class VeeReadingValueInfo {
     @JsonProperty("isConfirmed")
     public Boolean isConfirmed;
 
-    @JsonProperty("confirmedInApp")
-    public Set<IdWithNameInfo> confirmedInApp;
+    @JsonProperty("confirmedInApps")
+    public Set<IdWithNameInfo> confirmedInApps;
 
     public VeeReadingValueInfo() {
     }

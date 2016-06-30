@@ -246,13 +246,13 @@ public class ValidationInfoFactory {
         }
         List<? extends ReadingQuality> confirmedQualities = getConfirmedQualities(reading, readingQualities);
         info.isConfirmed = !confirmedQualities.isEmpty();
-        info.confirmedInApp = confirmedQualities.stream()
+        info.confirmedInApps = confirmedQualities.stream()
                 .map(ReadingQuality::getType)
                 .map(ReadingQualityType::system)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .map(resourceHelper::getApplicationInfo)
-                .collect(Collectors.toSet());
+                .collect(Collectors.collectingAndThen(Collectors.toSet(), s -> s.isEmpty() ? null : s));
     }
 
     private List<ReadingQualityInfo> getReadingQualities(IntervalReadingRecord intervalReadingRecord) {

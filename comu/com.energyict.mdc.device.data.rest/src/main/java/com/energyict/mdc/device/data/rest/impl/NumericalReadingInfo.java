@@ -45,8 +45,8 @@ public class NumericalReadingInfo extends ReadingInfo {
     public EstimationRuleInfo estimatedByRule;
     @JsonProperty("isConfirmed")
     public Boolean isConfirmed;
-    @JsonProperty("confirmedInApp")
-    public Set<IdWithNameInfo> confirmedInApp;
+    @JsonProperty("confirmedInApps")
+    public Set<IdWithNameInfo> confirmedInApps;
     @JsonProperty("multiplier")
     public BigDecimal multiplier;
     public NumericalReadingInfo() {}

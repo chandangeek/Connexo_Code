@@ -811,8 +811,8 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         assertThat(jsonModel.<Boolean>get("$.mainValidationInfo.isConfirmed")).isFalse();
         assertThat(jsonModel.<Boolean>get("$.bulkValidationInfo.isConfirmed")).isTrue();
-        assertThat(jsonModel.<List<String>>get("$.bulkValidationInfo.confirmedInApp[*].id")).contains(QualityCodeSystem.MDM.name(), QualityCodeSystem.MDC.name());
-        assertThat(jsonModel.<List<String>>get("$.bulkValidationInfo.confirmedInApp[*].name")).contains("Insight", "MultiSense");
+        assertThat(jsonModel.<List<String>>get("$.bulkValidationInfo.confirmedInApps[*].id")).contains(QualityCodeSystem.MDM.name(), QualityCodeSystem.MDC.name());
+        assertThat(jsonModel.<List<String>>get("$.bulkValidationInfo.confirmedInApps[*].name")).contains("Insight", "MultiSense");
     }
 
     @Test
