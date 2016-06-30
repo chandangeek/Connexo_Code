@@ -260,5 +260,4 @@ public interface UsagePoint extends HasId, IdentifiedObject {
 
     // TODO delete end ===============================================================================================
 
-    List<? extends MeterActivation> getMeterActivations();
 }
