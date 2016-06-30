@@ -99,6 +99,8 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
     @Mock
     private Device device;
     @Mock
+    private DeviceType deviceType;
+    @Mock
     private LoadProfile loadProfile;
     @Mock
     private LoadProfileType loadProfileType;
@@ -274,6 +276,9 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(loadProfileService.findById(loadProfile.getId())).thenReturn(Optional.of(loadProfile));
         when(loadProfileService.findAndLockLoadProfileByIdAndVersion(loadProfile.getId(), loadProfile.getVersion())).thenReturn(Optional.of(loadProfile));
         when(loadProfile.getDevice()).thenReturn(device);
+
+        when(device.getDeviceType()).thenReturn(deviceType);
+        when(deviceType.isDataloggerSlave()).thenReturn(false);
     }
 
     private ReadingQualityRecord mockReadingQuality(String code) {

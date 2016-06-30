@@ -629,6 +629,9 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     @Test
     public void testGetOneLoadProfile() throws Exception {
         Device device1 = mock(Device.class);
+        DeviceType deviceType = mock(DeviceType.class);
+        when(device1.getDeviceType()).thenReturn(deviceType);
+        when(deviceType.isDataloggerSlave()).thenReturn(false);
         Channel channel1 = mockChannel("Z-channel1", "1.1", 0);
         Channel channel2 = mockChannel("A-channel2", "1.2", 1);
         LoadProfile loadProfile1 = mockLoadProfile("lp1", 1, new TimeDuration(15, TimeDuration.TimeUnit.MINUTES), channel1, channel2);
@@ -2118,7 +2121,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         Response response = target("/devices/1").request().put(Entity.json(info));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(topologyService, times(1)).clearDataLogger(slave1, Instant.ofEpochSecond(slaveInfo1.unlinkingTimeStamp));
+        verify(topologyService, times(1)).clearDataLogger(slave1, Instant.ofEpochMilli(slaveInfo1.unlinkingTimeStamp));
     }
 
     private NumericalRegister prepareMockedRegister(NumericalRegister mockedRegister, Device device) {
@@ -2631,7 +2634,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     @Test
     public void createWithShipmentDateTest() {
-        Instant shipmentDate = Instant.ofEpochSecond(1467019262L);
+        Instant shipmentDate = Instant.ofEpochMilli(1467019262000L);
         long deviceConfigId = 12L;
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(deviceConfigurationService.findDeviceConfiguration(deviceConfigId)).thenReturn(Optional.of(deviceConfiguration));

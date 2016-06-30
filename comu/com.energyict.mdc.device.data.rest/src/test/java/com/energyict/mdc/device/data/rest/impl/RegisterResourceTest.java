@@ -62,6 +62,8 @@ public class RegisterResourceTest extends DeviceDataRestApplicationJerseyTest {
     @Mock
     private Device device;
     @Mock
+    private DeviceType deviceType;
+    @Mock
     private DeviceValidation deviceValidation;
     @Mock
     private DeviceConfiguration deviceConfiguration;
@@ -81,6 +83,8 @@ public class RegisterResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(deviceValidation.getValidationResult(any())).thenReturn(ValidationResult.VALID);
         when(deviceValidation.getLastChecked(any(Register.class))).thenReturn(Optional.empty());
         when(clock.instant()).thenReturn(NOW);
+        when(device.getDeviceType()).thenReturn(deviceType);
+        when(deviceType.isDataloggerSlave()).thenReturn(false);
     }
 
     public CustomPropertySet mockCustomPropertySet() {
