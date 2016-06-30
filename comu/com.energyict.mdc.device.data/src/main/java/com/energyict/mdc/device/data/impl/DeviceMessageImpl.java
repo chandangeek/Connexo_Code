@@ -249,7 +249,7 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
 
     @Override
     public void setProtocolInformation(String protocolInformation) {
-        this.protocolInfo = protocolInformation;
+        this.setProtocolInfo(protocolInformation);
     }
 
     @Override
