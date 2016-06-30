@@ -759,5 +759,10 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
                     .map(AntennaFields::databaseName)
                     .orElseThrow(() -> new IllegalArgumentException("Unknown property spec: " + propertySpec.getName()));
         }
+
+        @Override
+        public String application() {
+            return "Testing";
+        }
     }
 }
