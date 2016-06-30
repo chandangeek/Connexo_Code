@@ -78,7 +78,7 @@ public class ObisCodeMapper {
                 if (read) {
                     HistoricalRegister hv = (HistoricalRegister)rFactory.getRegister("HistoricalRegister",bp);
 
-                    Quantity quantity = new Quantity(BigDecimal.ZERO, Unit.get(255) );
+                    Quantity quantity = new Quantity(BigDecimal.ZERO,Unit.get(255) );
                     Date eventTime = hv.getBillingDate();
                     Date fromTime = null;
                     Date toTime = hv.getBillingDate();
@@ -94,7 +94,7 @@ public class ObisCodeMapper {
                 if (read) {
                     HistoricalRegister hv = (HistoricalRegister)rFactory.getRegister("DailyHistoricalRegister",bp);
 
-                    Quantity quantity = new Quantity(BigDecimal.ZERO, Unit.get(255) );
+                    Quantity quantity = new Quantity(BigDecimal.ZERO,Unit.get(255) );
                     Date eventTime = hv.getBillingDate();
                     Date fromTime = null;
                     Date toTime = hv.getBillingDate();

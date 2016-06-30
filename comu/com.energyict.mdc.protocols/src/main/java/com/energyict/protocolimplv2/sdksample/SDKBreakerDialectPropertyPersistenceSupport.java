@@ -22,6 +22,10 @@ import java.util.stream.Stream;
  * @since 8/04/2016 - 13:10
  */
 class SDKBreakerDialectPropertyPersistenceSupport implements PersistenceSupport<DeviceProtocolDialectPropertyProvider, SDKBreakerDialectProperties> {
+    @Override
+    public String application() {
+        return "MultiSense";
+    }
 
     @Override
     public String domainFieldName() {

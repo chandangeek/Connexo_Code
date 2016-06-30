@@ -6,7 +6,6 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessageAttribu
 import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
 import com.energyict.mdc.protocol.api.messaging.Messaging;
-
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
@@ -14,11 +13,11 @@ import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.gene
 
 /**
  * Creates a MessageEntry for the protocols that implement the FirmwareUpdateMessaging interface.
- * The contents of the message are the bytes of the userFile!
+ * The content of the message is the path to the temp file, representing the FirmwareVersion bytes.
  * The message is parsed by the FirmwareUpdateMessageBuilder.
- * <p/>
- * E.g.: <FirmwareUpdate><IncludedFile> (bytes as string) </IncludedFile></FirmwareUpdate>
- * <p/>
+ * <p>
+ * E.g.: <FirmwareUpdate><IncludedFile>path</IncludedFile></FirmwareUpdate>
+ * <p>
  * Copyrights EnergyICT
  * Date: 12/03/13
  * Time: 16:54
@@ -65,7 +64,7 @@ public class FirmwareUdateWithUserFileMessageEntry implements MessageEntryCreato
 
         MessageTag mainTag = new MessageTag(RtuMessageConstant.FIRMWARE_UPDATE);
         MessageTag subTag = new MessageTag(RtuMessageConstant.FIRMWARE_UPDATE_INCLUDED_FILE);
-        subTag.add(new MessageValue(userFileBytesAttribute.getDeviceMessageAttributeValue()));  //The userFile bytes
+        subTag.add(new MessageValue(userFileBytesAttribute.getDeviceMessageAttributeValue()));  //The path to the temp firmware file
         mainTag.add(subTag);
         return new MessageEntry(SimpleTagWriter.writeTag(mainTag), extraTrackingId + extraTrackingId2 + offlineDeviceMessage.getTrackingId());
     }

@@ -98,7 +98,7 @@ public class IDISMessageConverterTest extends AbstractMessageConverterTest {
     protected Object getPropertySpecValue(PropertySpec propertySpec) {
         if (propertySpec.getName().equals(activityCalendarActivationDateAttributeName) || propertySpec.getName().equals(contactorActivationDateAttributeName)) {
             return new Date(1382702607L);
-        } else if (propertySpec.getName().equals(specialDaysCodeTableAttributeName) || propertySpec.getName().equals(activityCalendarCodeTableAttributeName)) {
+        } else if (propertySpec.getName().equals(specialDaysAttributeName) || propertySpec.getName().equals(activityCalendarAttributeName)) {
             return mock(Code.class);
         } else if (propertySpec.getName().equals(activityCalendarNameAttributeName)) {
             return "KHE";

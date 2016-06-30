@@ -37,7 +37,7 @@ public class MultiplierFactory {
 
 
     public BigDecimal getMultiplier(int scale) throws IOException {
-        BigDecimal scalefactor;
+        BigDecimal scalefactor = BigDecimal.ZERO;
         if (scale == (char)'I') {
            scalefactor = getI();
         }

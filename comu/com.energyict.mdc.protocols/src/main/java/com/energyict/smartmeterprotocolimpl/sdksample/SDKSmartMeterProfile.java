@@ -1,14 +1,15 @@
 package com.energyict.smartmeterprotocolimpl.sdksample;
 
-import com.energyict.mdc.common.ObisCode;
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.legacy.MultipleLoadProfileSupport;
+
 import com.energyict.protocolimpl.base.ParseUtils;
 
 import java.io.IOException;
@@ -80,11 +81,11 @@ public class SDKSmartMeterProfile implements MultipleLoadProfileSupport {
     private static final String Slave1SerialNumber = "Slave1";
     private static final String Slave2SerialNumber = "Slave2";
 
-    private static final List<ChannelInfo> QuarterlyHourChannelInfos = new ArrayList<ChannelInfo>();
-    private static final List<ChannelInfo> DailyChannelInfos = new ArrayList<ChannelInfo>();
-    private static final List<ChannelInfo> MonthlyHourChannelInfos = new ArrayList<ChannelInfo>();
-    private static final List<ChannelInfo> HourlyChannelInfosSlave1 = new ArrayList<ChannelInfo>();
-    private static final List<ChannelInfo> HourlyChannelInfosSlave2 = new ArrayList<ChannelInfo>();
+    private static final List<ChannelInfo> QuarterlyHourChannelInfos = new ArrayList<>();
+    private static final List<ChannelInfo> DailyChannelInfos = new ArrayList<>();
+    private static final List<ChannelInfo> MonthlyHourChannelInfos = new ArrayList<>();
+    private static final List<ChannelInfo> HourlyChannelInfosSlave1 = new ArrayList<>();
+    private static final List<ChannelInfo> HourlyChannelInfosSlave2 = new ArrayList<>();
 
     static {
         QuarterlyHourChannelInfos.add(new ChannelInfo(0, "1.0.1.8.0.255", Unit.get("kWh"), MasterSerialNumber, true, null));
@@ -113,10 +114,10 @@ public class SDKSmartMeterProfile implements MultipleLoadProfileSupport {
     private static final ObisCode MonthlyObisCode = ObisCode.fromString("0.0.98.1.0.255");
     private static final ObisCode HourlyObisCode = ObisCode.fromString("0.x.24.3.0.255");
 
-    private static final Map<String, Map<ObisCode, List<ChannelInfo>>> LoadProfileSerialNumberChannelInfoMap = new HashMap<String, Map<ObisCode, List<ChannelInfo>>>();
-    private static final Map<ObisCode, List<ChannelInfo>> ChannelInfoMapMaster = new HashMap<ObisCode, List<ChannelInfo>>();
-    private static final Map<ObisCode, List<ChannelInfo>> ChannelInfoMapSlave1 = new HashMap<ObisCode, List<ChannelInfo>>();
-    private static final Map<ObisCode, List<ChannelInfo>> ChannelInfoMapSlave2 = new HashMap<ObisCode, List<ChannelInfo>>();
+    private static final Map<String, Map<ObisCode, List<ChannelInfo>>> LoadProfileSerialNumberChannelInfoMap = new HashMap<>();
+    private static final Map<ObisCode, List<ChannelInfo>> ChannelInfoMapMaster = new HashMap<>();
+    private static final Map<ObisCode, List<ChannelInfo>> ChannelInfoMapSlave1 = new HashMap<>();
+    private static final Map<ObisCode, List<ChannelInfo>> ChannelInfoMapSlave2 = new HashMap<>();
 
     static {
         ChannelInfoMapMaster.put(QuarterlyObisCode, QuarterlyHourChannelInfos);
@@ -136,7 +137,7 @@ public class SDKSmartMeterProfile implements MultipleLoadProfileSupport {
         LoadProfileSerialNumberChannelInfoMap.put(Slave2SerialNumber, ChannelInfoMapSlave2);
     }
 
-    private static final Map<ObisCode, Integer> LoadProfileIntervalMap = new HashMap<ObisCode, Integer>();
+    private static final Map<ObisCode, Integer> LoadProfileIntervalMap = new HashMap<>();
 
     static {
         LoadProfileIntervalMap.put(QuarterlyObisCode, 900);
@@ -168,7 +169,7 @@ public class SDKSmartMeterProfile implements MultipleLoadProfileSupport {
      */
     public List<LoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) {
 
-        loadProfileConfigurationList = new ArrayList<LoadProfileConfiguration>();
+        loadProfileConfigurationList = new ArrayList<>();
 
         for (LoadProfileReader lpr : loadProfilesToRead) {
             LoadProfileConfiguration lpc = new LoadProfileConfiguration(lpr.getProfileObisCode(), lpr.getDeviceIdentifier());
@@ -200,7 +201,7 @@ public class SDKSmartMeterProfile implements MultipleLoadProfileSupport {
      * @throws java.io.IOException if a communication or parsing error occurred
      */
     public List<ProfileData> getLoadProfileData(List<LoadProfileReader> loadProfiles) throws IOException {
-        List<ProfileData> profileDataList = new ArrayList<ProfileData>();
+        List<ProfileData> profileDataList = new ArrayList<>();
         for (LoadProfileReader loadProfile : loadProfiles) {
             ProfileData pd = getRawProfileData(loadProfile);
             if(pd != null){
@@ -232,9 +233,8 @@ public class SDKSmartMeterProfile implements MultipleLoadProfileSupport {
      *
      * @param lpro the identification of which LoadProfile to read
      * @return a {@link com.energyict.mdc.protocol.api.device.data.ProfileData} object with the necessary intervals filled in.
-     * @throws IOException when a error happens during parsing
      */
-    private ProfileData getRawProfileData(LoadProfileReader lpro) throws IOException {
+    private ProfileData getRawProfileData(LoadProfileReader lpro) {
 
         LoadProfileConfiguration lpc = getLoadProfileConfigurationForGivenReadObject(lpro);
         if(lpc != null){

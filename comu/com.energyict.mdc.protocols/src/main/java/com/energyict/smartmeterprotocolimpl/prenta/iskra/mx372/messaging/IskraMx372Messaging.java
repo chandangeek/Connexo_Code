@@ -235,6 +235,12 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
         return catWakeUp;
     }
 
+    private MessageCategorySpec getFirmwareCategory() {
+        MessageCategorySpec catFirmware = new MessageCategorySpec(RtuMessageCategoryConstants.FIRMWARE);
+        catFirmware.addMessageSpec(addMessageWithValue("Upgrade Firmware", RtuMessageConstant.FIRMWARE_PATH, false));
+        return catFirmware;
+    }
+
     private MessageSpec addMsgWithPhoneNumbers(String keyId, String tagName, boolean advanced) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec;

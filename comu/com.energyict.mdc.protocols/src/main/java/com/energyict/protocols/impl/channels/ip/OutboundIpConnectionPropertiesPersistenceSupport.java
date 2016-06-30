@@ -23,6 +23,10 @@ import java.util.stream.Stream;
  * @since 2015-11-06 (13:04)
  */
 public class OutboundIpConnectionPropertiesPersistenceSupport implements PersistenceSupport<ConnectionProvider, OutboundIpConnectionProperties> {
+    @Override
+    public String application() {
+        return "MultiSense";
+    }
 
     @Override
     public String componentName() {

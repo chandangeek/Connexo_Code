@@ -15,14 +15,16 @@ import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
+import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 import com.energyict.protocolimplv2.nta.dsmr40.messages.DSMR40ActivityCalendarController;
 import com.energyict.protocolimplv2.nta.dsmr40.messages.Dsmr40MessageExecutor;
 import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.DSMR50Properties;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.time.Clock;
 import java.util.Calendar;
 import java.util.logging.Level;
@@ -31,7 +33,7 @@ import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConsta
 
 /**
  * Message executor implementation for DSMR 5.0
- * <p/>
+ * <p>
  * Mostly reuses the DSMR4.0 functionality, but changes a few things.<br/>
  * <b>Important:</b> for DSMR5.0, the new keys (message to change AK and/or EK) are used immediately, instead of only at the start of the next message!
  * Also, when changing the encryption key, the framecounter is restarted.
@@ -39,7 +41,7 @@ import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConsta
  * @author sva
  * @since 6/01/2015 - 16:52
  */
-public class Dsmr50MessageExecutor  extends Dsmr40MessageExecutor {
+public class Dsmr50MessageExecutor extends Dsmr40MessageExecutor {
 
     private static final String RESUME = "resume";
     private AbstractMessageExecutor mbusMessageExecutor;
@@ -55,10 +57,9 @@ public class Dsmr50MessageExecutor  extends Dsmr40MessageExecutor {
 
     @Override
     protected void upgradeFirmwareWithActivationDateAndImageIdentifier(OfflineDeviceMessage pendingMessage) throws IOException {
-        String userFile = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateFileAttributeName).getDeviceMessageAttributeValue();
+        String path = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateFileAttributeName).getDeviceMessageAttributeValue();
         String activationDate = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateActivationDateAttributeName).getDeviceMessageAttributeValue();   // Will return empty string if the MessageAttribute could not be found
         String imageIdentifier = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateImageIdentifierAttributeName).getDeviceMessageAttributeValue(); // Will return empty string if the MessageAttribute could not be found
-        byte[] image = ProtocolTools.getBytesFromHexString(userFile, "");
 
         ImageTransfer it = getCosemObjectFactory().getImageTransfer();
         if (isResume(pendingMessage)) {
@@ -74,10 +75,12 @@ public class Dsmr50MessageExecutor  extends Dsmr40MessageExecutor {
         it.setPollingRetries(30);
         it.setDelayBeforeSendingBlocks(5000);
         it.setCheckNumberOfBlocksInPreviousSession(((DSMR50Properties) getProtocol().getPropertySpecs()).getCheckNumberOfBlocksDuringFirmwareResume());
-        if (imageIdentifier.isEmpty()) {
-            it.upgrade(image, false);
-        } else {
-            it.upgrade(image, false, imageIdentifier, false);
+        try (RandomAccessFile file = new RandomAccessFile(new File(path), "r")) {
+            if (imageIdentifier.isEmpty()) {
+                it.upgrade(new ImageTransfer.RandomAccessFileImageBlockSupplier(file), false, ImageTransfer.DEFAULT_IMAGE_NAME, false);
+            } else {
+                it.upgrade(new ImageTransfer.RandomAccessFileImageBlockSupplier(file), false, imageIdentifier, false);
+            }
         }
 
         if (activationDate.isEmpty()) {

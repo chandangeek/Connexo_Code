@@ -21,6 +21,10 @@ import java.util.stream.Stream;
  * @since 2015-11-19 (15:08)
  */
 public class DlmsSecurityPerClientPersistenceSupport extends CommonBaseDeviceSecuritySupport<DlmsSecurityPerClientProperties> {
+    @Override
+    public String application() {
+        return "MultiSense";
+    }
 
     @Override
     public String componentName() {

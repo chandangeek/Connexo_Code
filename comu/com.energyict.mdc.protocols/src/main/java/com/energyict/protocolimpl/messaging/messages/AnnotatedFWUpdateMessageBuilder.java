@@ -4,7 +4,6 @@ import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.protocols.messaging.FirmwareUpdateMessageBuilder;
 import com.energyict.protocols.messaging.MessageBuilder;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -27,8 +26,8 @@ public class AnnotatedFWUpdateMessageBuilder extends FirmwareUpdateMessageBuilde
     public static final String ATTR_USER_FILE_CONTENT = "userFileContent";
     public static final String ATTR_URL = "url";
 
-    public AnnotatedFWUpdateMessageBuilder(DeviceMessageFileService deviceMessageFileService) {
-        super(deviceMessageFileService);
+    public AnnotatedFWUpdateMessageBuilder() {
+        super();
     }
 
     @Override
@@ -41,9 +40,9 @@ public class AnnotatedFWUpdateMessageBuilder extends FirmwareUpdateMessageBuilde
             sb.append(getUrl());
             sb.append("', ");
         }
-        if (getDeviceMessageFile() != null) {
-            sb.append("UserFile='");
-            sb.append(getDeviceMessageFile().getName());
+        if (getPath() != null) {
+            sb.append("Path='");
+            sb.append(getPath());
             sb.append('\'');
         }
         return sb.toString();
