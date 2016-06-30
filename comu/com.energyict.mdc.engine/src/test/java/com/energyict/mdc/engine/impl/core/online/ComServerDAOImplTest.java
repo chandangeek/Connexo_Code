@@ -606,21 +606,21 @@ public class ComServerDAOImplTest {
     }
 
     @Test
-       public void updateDeviceMessageInformationTest() {
-           MessageIdentifier messageIdentifier = mock(MessageIdentifier.class);
-           DeviceMessage deviceMessage = mock(DeviceMessage.class);
-           when(messageIdentifier.getDeviceMessage()).thenReturn(deviceMessage);
+    public void updateDeviceMessageInformationTest() {
+        MessageIdentifier messageIdentifier = mock(MessageIdentifier.class);
+        DeviceMessage deviceMessage = mock(DeviceMessage.class);
+        when(messageIdentifier.getDeviceMessage()).thenReturn(deviceMessage);
 
-           DeviceMessageStatus deviceMessageStatus = DeviceMessageStatus.CONFIRMED;
-           Instant sentDate = Instant.now();
-           String protocolInfo = "protocolInfo";
+        DeviceMessageStatus deviceMessageStatus = DeviceMessageStatus.CONFIRMED;
+        Instant sentDate = Instant.now();
+        String protocolInfo = "protocolInfo";
 
-           // business method
-           this.comServerDAO.updateDeviceMessageInformation(messageIdentifier, deviceMessageStatus, sentDate, protocolInfo);
+        // business method
+        this.comServerDAO.updateDeviceMessageInformation(messageIdentifier, deviceMessageStatus, sentDate, protocolInfo);
 
-           // asserts
-           verify(deviceMessage).setSentDate(sentDate);
-           verify(deviceMessage).setProtocolInformation(protocolInfo);
-           verify(deviceMessage).updateDeviceMessageStatus(deviceMessageStatus);
-       }
+        // asserts
+        verify(deviceMessage).setSentDate(sentDate);
+        verify(deviceMessage).setProtocolInformation(protocolInfo);
+        verify(deviceMessage).updateDeviceMessageStatus(deviceMessageStatus);
+    }
 }
