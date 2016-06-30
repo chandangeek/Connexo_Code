@@ -22,10 +22,12 @@ public enum TableSpecs {
         void describeTable(Table table) {
             table.map(BpmProcessDefinitionImpl.class);
             Column idColumn = table.addAutoIdColumn();
+            table.addVersionCountColumn("VERSIONCOUNT", "number", "versionDB");
             table.column("PROCESSNAME").varChar(NAME_LENGTH).notNull().map("processName").add();
             table.column("ASSOCIATION").varChar(NAME_LENGTH).notNull().map("association").add();
             table.column("VERSION").varChar(NAME_LENGTH).notNull().map("version").add();
             table.column("STATUS").varChar(NAME_LENGTH).notNull().map("status").add();
+            table.column("APPKEY").varChar(NAME_LENGTH).notNull().map("appKey").add();
             table.primaryKey("BPM_PK_PROCESS").on(idColumn).add();
         }
     },
