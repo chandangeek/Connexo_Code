@@ -105,10 +105,10 @@ Ext.define('Uni.service.Search', {
         'Quantity': 'uni-grid-column-search-quantity'
     },
 
-    defaultColumns: {
+    /*defaultColumns: {
         'com.energyict.mdc.device.data.Device': ['id', 'mRID', 'serialNumber', 'deviceTypeName', 'deviceConfigurationName', 'state.name', 'location'],
         'com.elster.jupiter.metering.UsagePoint': ['mRID', 'displayServiceCategory', 'displayMetrologyConfiguration']
-    },
+     },*/
 
     getDomain: function() {
         return this.searchDomain;
