@@ -43,6 +43,7 @@ import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.validation.DataValidationOccurrence;
 import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.DataValidationTaskBuilder;
+import com.elster.jupiter.validation.ValidationContext;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
@@ -245,14 +246,14 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
                 meterValidation.get().save();
                 meter.getCurrentMeterActivation()
                         .map(MeterActivation::getChannelsContainer)
-                        .map(channelsContainer -> updatedChannelsContainerValidationsFor(EnumSet.of(QualityCodeSystem.MDC), channelsContainer))
+                        .map(channelsContainer -> updatedChannelsContainerValidationsFor(new ValidationContextImpl(EnumSet.of(QualityCodeSystem.MDC), channelsContainer)))
                         .ifPresent(ChannelsContainerValidationList::activate);
             } // else already active
         } else {
             createMeterValidation(meter, true, false);
             meter.getCurrentMeterActivation()
                     .map(MeterActivation::getChannelsContainer)
-                    .ifPresent(channelsContainer -> updatedChannelsContainerValidationsFor(EnumSet.of(QualityCodeSystem.MDC), channelsContainer));
+                    .ifPresent(channelsContainer -> updatedChannelsContainerValidationsFor(new ValidationContextImpl(EnumSet.of(QualityCodeSystem.MDC), channelsContainer)));
         }
     }
 
@@ -319,7 +320,7 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
 
     @Override
     public void updateLastChecked(ChannelsContainer channelsContainer, Instant date) {
-        updatedChannelsContainerValidationsFor(Collections.emptySet(), channelsContainer).updateLastChecked(Objects.requireNonNull(date));
+        updatedChannelsContainerValidationsFor(new ValidationContextImpl(channelsContainer)).updateLastChecked(Objects.requireNonNull(date));
     }
 
     @Override
@@ -373,22 +374,29 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
 
     @Override
     public void validate(Set<QualityCodeSystem> targetQualityCodeSystems, ChannelsContainer channelsContainer) {
-        targetQualityCodeSystems = getQualityCodeSystemsWithAllowedValidation(targetQualityCodeSystems, channelsContainer);
-        if (!targetQualityCodeSystems.isEmpty()) {
-            updatedChannelsContainerValidationsFor(targetQualityCodeSystems, channelsContainer).validate();
-        }
+        validate(new ValidationContextImpl(targetQualityCodeSystems, channelsContainer));
     }
 
     @Override
     public void validate(Set<QualityCodeSystem> targetQualityCodeSystems, ChannelsContainer channelsContainer, ReadingType readingType) {
-        targetQualityCodeSystems = getQualityCodeSystemsWithAllowedValidation(targetQualityCodeSystems, channelsContainer);
-        if (!targetQualityCodeSystems.isEmpty()) {
-            updatedChannelsContainerValidationsFor(targetQualityCodeSystems, channelsContainer).validate(readingType);
+        validate(new ValidationContextImpl(targetQualityCodeSystems, channelsContainer).setReadingType(readingType));
+    }
+
+    public void validate(ValidationContextImpl validationContext) {
+        Set<QualityCodeSystem> allowedQualityCodeSystems = getQualityCodeSystemsWithAllowedValidation(validationContext);
+        if (!allowedQualityCodeSystems.isEmpty()) {
+            // Update the list of requested quality systems, because it is possible that some of them was restricted
+            validationContext.setQualityCodeSystems(allowedQualityCodeSystems);
+            if (validationContext.getReadingType().isPresent()) {
+                updatedChannelsContainerValidationsFor(validationContext).validate(validationContext.getReadingType().get());
+            } else {
+                updatedChannelsContainerValidationsFor(validationContext).validate();
+            }
         }
     }
 
     public void validate(ChannelsContainer channelsContainer, Map<Channel, Range<Instant>> ranges) {
-        ChannelsContainerValidationList container = updatedChannelsContainerValidationsFor(Collections.emptySet(), channelsContainer);
+        ChannelsContainerValidationList container = updatedChannelsContainerValidationsFor(new ValidationContextImpl(channelsContainer));
         container.moveLastCheckedBefore(ranges);
         if (isValidationActiveOnStorage(channelsContainer)) {
             container.validate();
@@ -397,14 +405,14 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
         }
     }
 
-    private Set<QualityCodeSystem> getQualityCodeSystemsWithAllowedValidation(Set<QualityCodeSystem> sourceQualityCodeSystems, ChannelsContainer channelsContainer) {
-        Set<QualityCodeSystem> toValidate;
-        if (sourceQualityCodeSystems == null || sourceQualityCodeSystems.isEmpty()) {
+    private Set<QualityCodeSystem> getQualityCodeSystemsWithAllowedValidation(ValidationContext validationContext) {
+        Set<QualityCodeSystem> toValidate = validationContext.getQualityCodeSystems();
+        if (toValidate == null || toValidate.isEmpty()) {
             toValidate = EnumSet.allOf(QualityCodeSystem.class);
         } else {
-            toValidate = EnumSet.copyOf(sourceQualityCodeSystems);
+            toValidate = EnumSet.copyOf(toValidate); // make an editable copy
         }
-        if (toValidate.contains(QualityCodeSystem.MDC) && !isValidationActiveOnMeter(channelsContainer.getMeter())) {
+        if (toValidate.contains(QualityCodeSystem.MDC) && !isValidationActiveOnMeter(validationContext.getMeter())) {
             toValidate.remove(QualityCodeSystem.MDC);
         }
         return toValidate;
@@ -426,15 +434,15 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
                 .orElse(!meter.isPresent());
     }
 
-    List<ChannelsContainerValidation> getUpdatedChannelsContainerValidations(Set<QualityCodeSystem> targetQualityCodeSystems, ChannelsContainer channelsContainer) {
+    List<ChannelsContainerValidation> getUpdatedChannelsContainerValidations(ValidationContext validationContext) {
         List<ValidationRuleSet> ruleSets = ruleSetResolvers.stream()
-                .flatMap(r -> r.resolve(channelsContainer).stream())
-                .filter(ruleSet -> targetQualityCodeSystems.isEmpty() || targetQualityCodeSystems.contains(ruleSet.getQualityCodeSystem()))
+                .flatMap(r -> r.resolve(validationContext).stream())
+                .filter(ruleSet -> validationContext.getQualityCodeSystems().isEmpty() || validationContext.getQualityCodeSystems().contains(ruleSet.getQualityCodeSystem()))
                 .collect(Collectors.toList());
-        List<ChannelsContainerValidation> persistedChannelsContainerValidations = getPersistedChannelsContainerValidations(channelsContainer);
+        List<ChannelsContainerValidation> persistedChannelsContainerValidations = getPersistedChannelsContainerValidations(validationContext.getChannelsContainer());
         List<ChannelsContainerValidation> returnList = ruleSets.stream()
                 .map(ruleSet -> Pair.of(ruleSet, getForRuleSet(persistedChannelsContainerValidations, ruleSet)))
-                .map(validationPair -> validationPair.getLast().orElseGet(() -> applyRuleSet(validationPair.getFirst(), channelsContainer)))
+                .map(validationPair -> validationPair.getLast().orElseGet(() -> applyRuleSet(validationPair.getFirst(), validationContext.getChannelsContainer())))
                 .collect(Collectors.toList());
         returnList.stream()
                 .forEach(channelsContainerValidation -> channelsContainerValidation.getChannelsContainer().getChannels()
@@ -446,7 +454,7 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
                 .filter(channelsContainerValidation -> {
                     ValidationRuleSet validationRuleSet = channelsContainerValidation.getRuleSet();
                     return !ruleSets.contains(validationRuleSet)
-                            && (targetQualityCodeSystems.isEmpty() || targetQualityCodeSystems.contains(validationRuleSet.getQualityCodeSystem()))
+                            && (validationContext.getQualityCodeSystems().isEmpty() || validationContext.getQualityCodeSystems().contains(validationRuleSet.getQualityCodeSystem()))
                             && (validationRuleSet.getObsoleteDate() != null || !isValidationRuleSetInUse(validationRuleSet));
                 })
                 .forEach(ChannelsContainerValidation::makeObsolete);
@@ -457,8 +465,8 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
         return ChannelsContainerValidationList.of(getActivePersistedChannelsContainerValidations(channelsContainer));
     }
 
-    ChannelsContainerValidationList updatedChannelsContainerValidationsFor(Set<QualityCodeSystem> targetQualityCodeSystems, ChannelsContainer channelsContainer) {
-        return ChannelsContainerValidationList.of(getUpdatedChannelsContainerValidations(targetQualityCodeSystems, channelsContainer));
+    ChannelsContainerValidationList updatedChannelsContainerValidationsFor(ValidationContext validationContext) {
+        return ChannelsContainerValidationList.of(getUpdatedChannelsContainerValidations(validationContext));
     }
 
     private Optional<ChannelsContainerValidation> getForRuleSet(List<ChannelsContainerValidation> channelsContainerValidations, ValidationRuleSet ruleSet) {
@@ -489,7 +497,7 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
     }
 
     public List<? extends ChannelsContainerValidation> getChannelsContainerValidations(ChannelsContainer channelsContainer) {
-        return getUpdatedChannelsContainerValidations(Collections.emptySet(), channelsContainer);
+        return getUpdatedChannelsContainerValidations(new ValidationContextImpl(channelsContainer));
     }
 
     @Override

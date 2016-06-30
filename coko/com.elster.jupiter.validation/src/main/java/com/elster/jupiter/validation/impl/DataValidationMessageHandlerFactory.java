@@ -9,6 +9,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.validation.ValidationService;
+
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -33,12 +34,12 @@ public class DataValidationMessageHandlerFactory implements MessageHandlerFactor
 
     @Override
     public MessageHandler newMessageHandler() {
-        return taskService.createMessageHandler(new DataValidationTaskExecutor(validationService, meteringService, transactionService, validationService.getThesaurus(), threadPrincipalService, getUser()));
+        return taskService.createMessageHandler(new DataValidationTaskExecutor((ValidationServiceImpl) validationService, meteringService, transactionService, validationService.getThesaurus(), threadPrincipalService, getUser()));
     }
 
     @Reference
     public void setValidationService(ValidationService validationService) {
-        this.validationService = (ValidationService) validationService;
+        this.validationService = validationService;
     }
 
     @Reference

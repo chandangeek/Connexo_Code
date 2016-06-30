@@ -33,6 +33,7 @@ import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.validation.ValidationAction;
+import com.elster.jupiter.validation.ValidationContext;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.ValidationRuleBuilder;
 import com.elster.jupiter.validation.ValidationRuleSet;
@@ -178,7 +179,7 @@ public class ValidateMetrologyConfigurationChannelsContainerTestIT {
 
         validationService.addValidationRuleSetResolver(new ValidationRuleSetResolver() {
             @Override
-            public List<ValidationRuleSet> resolve(ChannelsContainer channelsContainer) {
+            public List<ValidationRuleSet> resolve(ValidationContext validationContext) {
                 return Collections.singletonList(validationRuleSet);
             }
 

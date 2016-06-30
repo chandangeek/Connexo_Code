@@ -1,7 +1,5 @@
 package com.elster.jupiter.validation;
 
-import com.elster.jupiter.metering.ChannelsContainer;
-
 import java.util.List;
 
 /**
@@ -13,7 +11,7 @@ import java.util.List;
  */
 public interface ValidationRuleSetResolver {
 
-    List<ValidationRuleSet> resolve(ChannelsContainer channelsContainer);
+    List<ValidationRuleSet> resolve(ValidationContext validationContext);
 
     boolean isValidationRuleSetInUse(ValidationRuleSet ruleset);
 }
