@@ -346,8 +346,6 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
     public List<MeterActivationInfo> getMetersOnUsagePointInfo(UsagePoint usagePoint, String auth) {
         Map<MeterRole, MeterRoleInfo> mandatoryMeterRoles = new LinkedHashMap<>();
         usagePoint.getMetrologyConfiguration()
-                .filter(metrologyConfiguration -> metrologyConfiguration instanceof UsagePointMetrologyConfiguration)
-                .map(UsagePointMetrologyConfiguration.class::cast)
                 .ifPresent(metrologyConfiguration -> metrologyConfiguration.getMeterRoles()
                         .stream()
                         .forEach(meterRole -> mandatoryMeterRoles.put(meterRole, new MeterRoleInfo(meterRole))));
