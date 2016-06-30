@@ -11,6 +11,7 @@ import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationRule;
@@ -138,12 +139,20 @@ public class ValidationInfoFactory {
         monitorValidationInfo.detailedValidationLoadProfile = new ArrayList<>();
         monitorValidationInfo.detailedValidationRegister = new ArrayList<>();
         loadProfileStatus.entrySet().stream()
-                .sorted((lps1, lps2) -> lps1.getKey().getLoadProfileSpec().getLoadProfileType().getName().compareTo(lps2.getKey().getLoadProfileSpec().getLoadProfileType().getName()))
+                .sorted((lps1, lps2) -> lps1.getKey()
+                        .getLoadProfileSpec()
+                        .getLoadProfileType()
+                        .getName()
+                        .compareTo(lps2.getKey().getLoadProfileSpec().getLoadProfileType().getName()))
                 .forEach(lp -> {
                     monitorValidationInfo.detailedValidationLoadProfile.add(new DetailedValidationLoadProfileInfo(lp.getKey(), new Long(lp.getValue().size())));
                 });
         registerStatus.entrySet().stream()
-                .sorted((regs1, regs2) -> regs1.getKey().getRegisterSpec().getReadingType().getFullAliasName().compareTo(regs2.getKey().getRegisterSpec().getReadingType().getFullAliasName()))
+                .sorted((regs1, regs2) -> regs1.getKey()
+                        .getRegisterSpec()
+                        .getReadingType()
+                        .getFullAliasName()
+                        .compareTo(regs2.getKey().getRegisterSpec().getReadingType().getFullAliasName()))
                 .forEach(reg -> {
                     monitorValidationInfo.detailedValidationRegister.add(new DetailedValidationRegisterInfo(reg.getKey(), new Long(reg
                             .getValue()
@@ -249,8 +258,7 @@ public class ValidationInfoFactory {
         info.confirmedInApps = confirmedQualities.stream()
                 .map(ReadingQuality::getType)
                 .map(ReadingQualityType::system)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
+                .flatMap(Functions.asStream())
                 .map(resourceHelper::getApplicationInfo)
                 .collect(Collectors.collectingAndThen(Collectors.toSet(), s -> s.isEmpty() ? null : s));
     }

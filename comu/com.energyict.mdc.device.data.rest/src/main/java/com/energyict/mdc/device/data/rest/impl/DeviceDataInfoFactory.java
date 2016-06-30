@@ -8,6 +8,7 @@ import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationResult;
@@ -71,7 +72,11 @@ public class DeviceDataInfoFactory {
         channelIntervalInfo.intervalFlags = new ArrayList<>();
         channelIntervalInfo.validationActive = isValidationActive;
         channelIntervalInfo.intervalFlags.addAll(loadProfileReading.getFlags().stream().map(flag -> thesaurus.getString(flag.name(), flag.name())).collect(Collectors.toList()));
-        Optional<IntervalReadingRecord> channelReading = loadProfileReading.getChannelValues().entrySet().stream().map(Map.Entry::getValue).findFirst();// There can be only one channel (or no channel at all if the channel has no dta for this interval)
+        Optional<IntervalReadingRecord> channelReading = loadProfileReading.getChannelValues()
+                .entrySet()
+                .stream()
+                .map(Map.Entry::getValue)
+                .findFirst();// There can be only one channel (or no channel at all if the channel has no dta for this interval)
         channelReading.ifPresent(reading -> {
             channelIntervalInfo.multiplier = channel.getMultiplier(reading.getTimeStamp()).orElseGet(() -> null);
             channelIntervalInfo.value = getRoundedBigDecimal(reading.getValue(), channel);
@@ -105,7 +110,7 @@ public class DeviceDataInfoFactory {
         channel.getCalculatedReadingType(reading.getTimeStamp()).ifPresent(readingType -> {
             channelIntervalInfo.collectedValue = channelIntervalInfo.value;
             Quantity quantity = reading.getQuantity(readingType);
-            channelIntervalInfo.value = getRoundedBigDecimal(quantity != null? quantity.getValue(): null, channel);
+            channelIntervalInfo.value = getRoundedBigDecimal(quantity != null ? quantity.getValue() : null, channel);
         });
     }
 
@@ -144,7 +149,8 @@ public class DeviceDataInfoFactory {
         }
 
         for (Map.Entry<Channel, DataValidationStatus> entry : loadProfileReading.getChannelValidationStates().entrySet()) {
-            channelIntervalInfo.channelValidationData.put(entry.getKey().getId(), validationInfoFactory.createMinimalVeeReadingInfo(entry.getKey(), entry.getValue(), deviceValidation));
+            channelIntervalInfo.channelValidationData.put(entry.getKey()
+                    .getId(), validationInfoFactory.createMinimalVeeReadingInfo(entry.getKey(), entry.getValue(), deviceValidation));
         }
 
         for (Channel channel : channels) {
@@ -201,7 +207,7 @@ public class DeviceDataInfoFactory {
         BillingReadingInfo billingReadingInfo = new BillingReadingInfo();
         setCommonReadingInfo(reading, billingReadingInfo);
         Instant timeStamp = reading.getTimeStamp();
-        if(timeStamp != null){
+        if (timeStamp != null) {
             billingReadingInfo.multiplier = register.getMultiplier(timeStamp).orElseGet(() -> null);
         }
         if (reading.getQuantity() != null) {
@@ -220,13 +226,13 @@ public class DeviceDataInfoFactory {
         NumericalReadingInfo numericalReadingInfo = new NumericalReadingInfo();
         setCommonReadingInfo(reading, numericalReadingInfo);
         Instant timeStamp = reading.getTimeStamp();
-        if(timeStamp != null){
+        if (timeStamp != null) {
             numericalReadingInfo.multiplier = register.getMultiplier(timeStamp).orElseGet(() -> null);
         }
 
         Quantity collectedValue = reading.getQuantityFor(register.getReadingType());
         int numberOfFractionDigits = ((NumericalRegister) register).getNumberOfFractionDigits();
-        if(collectedValue != null){
+        if (collectedValue != null) {
             numericalReadingInfo.value = collectedValue.getValue().setScale(numberOfFractionDigits, BigDecimal.ROUND_UP);
             numericalReadingInfo.unit = register.getRegisterSpec().getRegisterType().getUnit();
             numericalReadingInfo.rawValue = numericalReadingInfo.value;
@@ -237,9 +243,9 @@ public class DeviceDataInfoFactory {
     }
 
     private void setCalculatedValueIfApplicable(NumericalReading reading, Register<?, ?> register, NumericalReadingInfo numericalReadingInfo, int numberOfFractionDigits) {
-        if(register.getCalculatedReadingType(reading.getTimeStamp()).isPresent() ){
+        if (register.getCalculatedReadingType(reading.getTimeStamp()).isPresent()) {
             Quantity calculatedQuantity = reading.getQuantityFor(register.getCalculatedReadingType(reading.getTimeStamp()).get());
-            if(calculatedQuantity != null){
+            if (calculatedQuantity != null) {
                 numericalReadingInfo.calculatedValue = calculatedQuantity.getValue().setScale(numberOfFractionDigits, BigDecimal.ROUND_UP);
                 numericalReadingInfo.calculatedUnit = register.getRegisterSpec().getRegisterType().getUnit();
             }
@@ -259,8 +265,7 @@ public class DeviceDataInfoFactory {
             readingInfo.confirmedInApps = confirmedQualities.stream()
                     .map(ReadingQuality::getType)
                     .map(ReadingQualityType::system)
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
+                    .flatMap(Functions.asStream())
                     .map(resourceHelper::getApplicationInfo)
                     .collect(Collectors.collectingAndThen(Collectors.toSet(), s -> s.isEmpty() ? null : s));
         });
@@ -333,7 +338,7 @@ public class DeviceDataInfoFactory {
         return flagsRegisterInfo;
     }
 
-    private TextRegisterInfo createTextRegisterInfo(TextRegister textRegister){
+    private TextRegisterInfo createTextRegisterInfo(TextRegister textRegister) {
         TextRegisterInfo textRegisterInfo = new TextRegisterInfo();
         addCommonRegisterInfo(textRegister, textRegisterInfo);
         return textRegisterInfo;
@@ -348,7 +353,8 @@ public class DeviceDataInfoFactory {
         registerSpec.getOverflowValue().ifPresent(overflow -> numericalRegisterInfo.overflow = overflow);
         numericalRegister.getOverflow().ifPresent(overruledOverflowValue -> numericalRegisterInfo.overruledOverflow = overruledOverflowValue);
         Instant timeStamp = numericalRegister.getLastReadingDate().orElse(clock.instant());
-        numericalRegister.getCalculatedReadingType(timeStamp).ifPresent(calculatedReadingType -> numericalRegisterInfo.calculatedReadingType = new ReadingTypeInfo(calculatedReadingType));
+        numericalRegister.getCalculatedReadingType(timeStamp)
+                .ifPresent(calculatedReadingType -> numericalRegisterInfo.calculatedReadingType = new ReadingTypeInfo(calculatedReadingType));
         numericalRegisterInfo.multiplier = numericalRegister.getMultiplier(timeStamp).orElseGet(() -> null);
         numericalRegisterInfo.useMultiplier = registerSpec.isUseMultiplier();
         return numericalRegisterInfo;
