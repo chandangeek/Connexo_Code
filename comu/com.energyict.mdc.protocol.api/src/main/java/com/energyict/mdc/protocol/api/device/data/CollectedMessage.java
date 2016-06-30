@@ -7,7 +7,7 @@ import java.time.Instant;
 
 /**
  * A collectedMessages identifies a DeviceMessage executed by the device and the
- * result from the execution
+ * result from the execution.
  *
  * @author gna
  * @since 5/04/12 - 11:19
@@ -20,7 +20,7 @@ public interface CollectedMessage extends CollectedData {
      * @return the {@link MessageIdentifier messageIdentifier}
      *         of the BusinessObject which is actionHolder of the request
      */
-    public MessageIdentifier getMessageIdentifier();
+    MessageIdentifier getMessageIdentifier();
 
     /**
      * Provides the {@link DeviceMessageStatus status} the
@@ -29,12 +29,12 @@ public interface CollectedMessage extends CollectedData {
      *
      * @return the new DeviceMessageStatus
      */
-    public DeviceMessageStatus getNewDeviceMessageStatus();
+    DeviceMessageStatus getNewDeviceMessageStatus();
 
     /**
      * Set the {@link DeviceMessageStatus status} the DeviceMessage should have after it has been forwarded to the device
      */
-    public void setNewDeviceMessageStatus(DeviceMessageStatus deviceMessageStatus);
+    void setNewDeviceMessageStatus(DeviceMessageStatus deviceMessageStatus);
 
     /**
      * Additional information from the DeviceProtocol regarding this
@@ -42,7 +42,7 @@ public interface CollectedMessage extends CollectedData {
      *
      * @return the deviceProtocolInformation
      */
-    public String getDeviceProtocolInformation();
+    String getDeviceProtocolInformation();
 
     /**
      * Set the additional information from the DeviceProtocol regarding this
@@ -50,9 +50,9 @@ public interface CollectedMessage extends CollectedData {
      *
      * @param deviceProtocolInformation the additional information text
      */
-    public void setDeviceProtocolInformation(String deviceProtocolInformation);
+    void setDeviceProtocolInformation(String deviceProtocolInformation);
 
-    public void setDataCollectionConfiguration (DataCollectionConfiguration configuration);
+    void setDataCollectionConfiguration(DataCollectionConfiguration configuration);
 
     /**
      * Gets the date the DeviceMessage has been send out to the device by the ComServer

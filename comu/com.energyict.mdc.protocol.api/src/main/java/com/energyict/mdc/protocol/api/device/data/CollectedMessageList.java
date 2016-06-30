@@ -20,12 +20,12 @@ public interface CollectedMessageList extends CollectedData {
      * this Message, we did not process this message. Next time another
      * ComTask will pick up this message and try again.
      */
-    public static final String REASON_FOR_PENDING_STATE = "This message was picked up by a ComTask, but not executed due to an error before executing this message.";
+    String REASON_FOR_PENDING_STATE = "This message was picked up by a ComTask, but not executed due to an error before executing this message.";
 
-    public void addCollectedMessages(CollectedMessage collectedMessage);
+    void addCollectedMessages(CollectedMessage collectedMessage);
 
-    public List<CollectedMessage> getCollectedMessages();
+    List<CollectedMessage> getCollectedMessages();
 
-    public List<CollectedMessage> getCollectedMessages(MessageIdentifier messageIdentifier);
+    List<CollectedMessage> getCollectedMessages(MessageIdentifier messageIdentifier);
 
 }

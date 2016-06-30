@@ -16,58 +16,59 @@ import java.math.BigDecimal;
 public interface OfflineLoadProfileChannel extends Offline {
 
     /**
-     * Returns the {@link ObisCode} for this Channel in the LoadProfile
+     * Returns the {@link ObisCode} for this Channel in the LoadProfile.
      *
      * @return the {@link ObisCode}
      */
-    public ObisCode getObisCode();
+    ObisCode getObisCode();
 
     /**
      * Returns the ID of the Device for the LoadProfile object.
      *
      * @return the ID of the Device.
      */
-    public int getRtuId();
+    int getRtuId();
 
     /**
-     * Returns the ID of the LoadProfile
+     * Returns the ID of the LoadProfile.
      *
      * @return the ID of the LoadProfile.
      */
-    public int getLoadProfileId();
+    int getLoadProfileId();
 
     /**
      * Returns the receiver's configured unit.
      *
      * @return the configured unit.
      */
-    public Unit getUnit();
+    Unit getUnit();
 
     /**
-     * Indication whether we should store data for this channel
+     * Indication whether we should store data for this channel.
      *
      * @return true if we should store data for this channel, false otherwise
      */
-    public boolean isStoreData();
+    boolean isStoreData();
 
     /**
-     * Returns the SerialNumber of the Device
+     * Returns the SerialNumber of the Device.
      *
      * @return the SerialNumber of the Device
      */
-    public String getMasterSerialNumber();
+    String getMasterSerialNumber();
 
     /**
-     * Returns the ReadingType of the Kore channel that will store the data
+     * Returns the ReadingType of the Kore channel that will store the data.
      *
      * @return the ReadingType
      */
-    public ReadingType getReadingType();
+    ReadingType getReadingType();
 
     /**
-     * Gets the configured overflow value for this channel
+     * Gets the configured overflow value for this channel.
      *
      * @return the configured overflow value
      */
-    public BigDecimal getOverflow();
+    BigDecimal getOverflow();
+
 }
