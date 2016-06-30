@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
+import com.energyict.mdc.protocol.api.device.data.CollectedCalendar;
 import com.energyict.mdc.protocol.api.device.data.CollectedConfigurationInformation;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
@@ -150,4 +151,10 @@ public class CollectedDataFactoryImpl implements CollectedDataFactory {
     public CollectedBreakerStatus createBreakerStatusCollectedData(DeviceIdentifier<?> deviceIdentifier) {
         return new DeviceBreakerStatus(deviceIdentifier);
     }
+
+    @Override
+    public CollectedCalendar createCalendarCollectedData(DeviceIdentifier<?> deviceIdentifier) {
+        return new DeviceCalendar(deviceIdentifier);
+    }
+
 }

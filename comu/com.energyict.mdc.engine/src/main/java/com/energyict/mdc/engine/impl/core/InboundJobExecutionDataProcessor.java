@@ -1,5 +1,9 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -39,11 +43,6 @@ import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.TopologyTask;
-
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.streams.Functions;
 
 import java.time.Clock;
 import java.util.ArrayList;
@@ -187,7 +186,7 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
     private void addCommandFor(ComTaskExecution comTaskExecution, ProtocolTask protocolTask, CommandRoot root, List<ServerCollectedData> data) {
         ComCommand command;
         if (ComCommandTypes.MESSAGES_COMMAND.appliesTo(protocolTask)) {
-            command = new InboundCollectedMessageListCommandImpl(((MessagesTask) protocolTask), this.offlineDevice, root, data, comTaskExecution);
+            command = new InboundCollectedMessageListCommandImpl(((MessagesTask) protocolTask), this.offlineDevice, root, data, comTaskExecution, this.serviceProvider.issueService(), this.serviceProvider.thesaurus());
         } else if (ComCommandTypes.LOGBOOKS_COMMAND.appliesTo(protocolTask)) {
             command = new InboundCollectedLogBookCommandImpl((LogBooksTask) protocolTask, this.offlineDevice, root, comTaskExecution, data, this.serviceProvider.deviceService());
         } else if (ComCommandTypes.LOAD_PROFILE_COMMAND.appliesTo(protocolTask)) {
