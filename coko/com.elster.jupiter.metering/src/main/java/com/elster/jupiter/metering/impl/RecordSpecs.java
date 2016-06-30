@@ -68,7 +68,7 @@ public enum RecordSpecs {
 		@Override
 		void addFieldSpecs(RecordSpecBuilder recordSpec) {
 			recordSpec.addFieldSpec(VALUE, NUMBER);
-			recordSpec.addFieldSpec("Bulk", NUMBER);
+			recordSpec.addFieldSpec(BULK, NUMBER);
 		}
 
 		@Override
@@ -299,9 +299,10 @@ public enum RecordSpecs {
     },
 	;
 
-    public static final String PROCESS_STATUS = "ProcesStatus";
+	public static final String PROCESS_STATUS = "ProcesStatus";
 	public static final String PROFILE_STATUS = "ProfileStatus";
 	public static final String VALUE = "Value";
+	public static final String BULK = "Bulk";
 
 	private final String specName;
 	private final boolean interval;

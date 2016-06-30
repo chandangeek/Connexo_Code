@@ -17,7 +17,7 @@ import java.util.stream.Stream;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-11 (14:45)
  */
-public class ClauseAwareSqlBuilderImpl implements ClauseAwareSqlBuilder {
+class ClauseAwareSqlBuilderImpl implements ClauseAwareSqlBuilder {
 
     private Set<String> aliasNames = new HashSet<>();
     private List<SqlBuilder> withClauses = new ArrayList<>();

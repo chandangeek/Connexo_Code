@@ -86,11 +86,19 @@ class MatchingChannelSelector {
     }
 
     private boolean areCompatible(VirtualReadingType first, VirtualReadingType second) {
-        /* Todo: uncomment when adding support for disaggregation
-         * return first.getIntervalLength().isMultipleOf(second.getIntervalLength()) || first.getIntervalLength().multipliesTo(second.getIntervalLength());
-         */
-        return first.getIntervalLength().multipliesTo(second.getIntervalLength())
-                && UnitConversionSupport.areCompatibleForAutomaticUnitConversion(first.getUnit(), second.getUnit());
+        if (first.isRegular() && second.isRegular()) {
+            /* Both are regular so they are compatible if
+             *      interval lengths are compatible
+             *  and units are compatible for unit conversion. */
+            return first.getIntervalLength().multipliesTo(second.getIntervalLength())
+                    && UnitConversionSupport.areCompatibleForAutomaticUnitConversion(first.getUnit(), second.getUnit());
+        } else if (!first.isRegular() && !second.isRegular()) {
+            // Both are irregular so they are compatible if units are compatible for unit conversion
+            return UnitConversionSupport.areCompatibleForAutomaticUnitConversion(first.getUnit(), second.getUnit());
+        } else {
+            // One is regular and the other is not so they are not compatible
+            return false;
+        }
     }
 
     /**

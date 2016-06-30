@@ -13,11 +13,11 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-03-21 (11:35)
  */
-public class Flatten implements ServerExpressionNode.Visitor<Void> {
+class Flatten implements ServerExpressionNode.Visitor<Void> {
 
     private final List<ServerExpressionNode> flattened = new ArrayList<>();
 
-    public List<ServerExpressionNode> getFlattened() {
+    List<ServerExpressionNode> getFlattened() {
         return Collections.unmodifiableList(flattened);
     }
 

@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
+import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.Commodity;
 import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.MetricMultiplier;
@@ -199,6 +200,7 @@ public class ExpressionNodeToSqlTest {
                                 IntervalLength.DAY1,
                                 MetricMultiplier.ZERO,
                                 ReadingTypeUnit.WATT,
+                                Accumulation.BULKQUANTITY,
                                 Commodity.ELECTRICITY_PRIMARY_METERED));
 
         // Business method
@@ -221,6 +223,7 @@ public class ExpressionNodeToSqlTest {
                                 IntervalLength.DAY1,
                                 MetricMultiplier.ZERO,
                                 ReadingTypeUnit.WATTHOUR,
+                                Accumulation.DELTADELTA,
                                 Commodity.ELECTRICITY_PRIMARY_METERED));
 
         // Business method
@@ -243,6 +246,7 @@ public class ExpressionNodeToSqlTest {
                                 IntervalLength.DAY1,
                                 MetricMultiplier.ZERO,
                                 ReadingTypeUnit.DEGREESCELSIUS,
+                                Accumulation.BULKQUANTITY,
                                 Commodity.WEATHER));
 
         // Business method
@@ -265,6 +269,7 @@ public class ExpressionNodeToSqlTest {
                                 IntervalLength.DAY1,
                                 MetricMultiplier.ZERO,
                                 ReadingTypeUnit.PASCAL,
+                                Accumulation.BULKQUANTITY,
                                 Commodity.WEATHER));
 
         // Business method
@@ -324,7 +329,7 @@ public class ExpressionNodeToSqlTest {
         testInstance().visitVirtualDeliverable(node);
 
         // Asserts
-        verify(deliverable).appendReferenceTo(any(SqlBuilder.class), eq(VirtualReadingType.from(IntervalLength.HOUR1, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Commodity.ELECTRICITY_PRIMARY_METERED)));
+        verify(deliverable).appendReferenceTo(any(SqlBuilder.class), eq(VirtualReadingType.from(IntervalLength.HOUR1, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.ELECTRICITY_PRIMARY_METERED)));
     }
 
     @Test
@@ -354,7 +359,7 @@ public class ExpressionNodeToSqlTest {
                         deliverable,
                         meterActivation);
         // Similate effect of InferReadingType
-        current.setTargetReadingType(VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.AMPERE, Commodity.ELECTRICITY_PRIMARY_METERED));
+        current.setTargetReadingType(VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.AMPERE, Accumulation.BULKQUANTITY, Commodity.ELECTRICITY_PRIMARY_METERED));
 
         ReadingType voltReadingType = this.mock15MinutesVoltReadingType();
         FullySpecifiedReadingTypeRequirement voltageRequirement = mock(FullySpecifiedReadingTypeRequirement.class);
@@ -374,7 +379,7 @@ public class ExpressionNodeToSqlTest {
                         deliverable,
                         meterActivation);
         // Similate effect of InferReadingType
-        voltage.setTargetReadingType(VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.VOLT, Commodity.ELECTRICITY_PRIMARY_METERED));
+        voltage.setTargetReadingType(VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.VOLT, Accumulation.BULKQUANTITY, Commodity.ELECTRICITY_PRIMARY_METERED));
 
         UnitConversionNode node = new UnitConversionNode(
                 Operator.MULTIPLY.node(current, voltage),
@@ -383,6 +388,7 @@ public class ExpressionNodeToSqlTest {
                         IntervalLength.HOUR1,
                         MetricMultiplier.KILO,
                         ReadingTypeUnit.WATTHOUR,
+                        Accumulation.DELTADELTA,
                         Commodity.ELECTRICITY_PRIMARY_METERED));
 
         // Business method

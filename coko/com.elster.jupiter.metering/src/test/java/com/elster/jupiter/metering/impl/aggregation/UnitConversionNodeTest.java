@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
+import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.Commodity;
 import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.MeasurementKind;
@@ -101,12 +102,14 @@ public class UnitConversionNodeTest {
                 IntervalLength.MONTH1,
                 MetricMultiplier.KILO,
                 ReadingTypeUnit.WATTHOUR,
+                Accumulation.DELTADELTA,
                 Commodity.ELECTRICITY_PRIMARY_METERED);
         VirtualReadingType expectedSourceReadingType =
                 VirtualReadingType.from(
                         IntervalLength.MINUTE15,
                         MetricMultiplier.KILO,
                         ReadingTypeUnit.WATTHOUR,
+                        Accumulation.DELTADELTA,
                         Commodity.ELECTRICITY_PRIMARY_METERED);
 
         // Business method
@@ -138,12 +141,14 @@ public class UnitConversionNodeTest {
                 IntervalLength.MONTH1,
                 MetricMultiplier.KILO,
                 ReadingTypeUnit.WATTHOUR,
+                Accumulation.DELTADELTA,
                 Commodity.ELECTRICITY_PRIMARY_METERED);
         VirtualReadingType expectedSourceReadingType =
                 VirtualReadingType.from(
                         IntervalLength.HOUR1,
                         MetricMultiplier.KILO,
                         ReadingTypeUnit.WATTHOUR,
+                        Accumulation.DELTADELTA,
                         Commodity.ELECTRICITY_PRIMARY_METERED);
 
         // Business method
@@ -176,6 +181,7 @@ public class UnitConversionNodeTest {
                 IntervalLength.HOUR1,
                 MetricMultiplier.KILO,
                 ReadingTypeUnit.WATTHOUR,
+                Accumulation.DELTADELTA,
                 Commodity.ELECTRICITY_PRIMARY_METERED);
 
         // Business method

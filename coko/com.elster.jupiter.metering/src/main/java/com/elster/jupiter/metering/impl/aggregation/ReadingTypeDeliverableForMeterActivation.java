@@ -89,7 +89,15 @@ class ReadingTypeDeliverableForMeterActivation {
 
     private String prettyPrintedReadingType() {
         VirtualReadingType readingType = VirtualReadingType.from(this.getReadingType());
-        return " as " + readingType.getIntervalLength() + " " + readingType.getUnitMultiplier().getSymbol() + readingType.getUnit().getSymbol();
+        StringBuilder prettyPrinted = new StringBuilder(" as ");
+        if (!readingType.getIntervalLength().equals(IntervalLength.NOT_SUPPORTED)) {
+            prettyPrinted.append(readingType.getIntervalLength());
+        }
+        prettyPrinted
+                .append(" ")
+                .append(readingType.getUnitMultiplier().getSymbol())
+                .append(readingType.getUnit().getSymbol());
+        return prettyPrinted.toString();
     }
 
     private String prettyPrintMeterActivationPeriod() {

@@ -28,10 +28,10 @@ import java.util.Comparator;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-03-03 (08:34)
  */
-public class VirtualReadingTypeRelativeComparator implements Comparator<VirtualReadingType> {
+class VirtualReadingTypeRelativeComparator implements Comparator<VirtualReadingType> {
     private final VirtualReadingType target;
 
-    public VirtualReadingTypeRelativeComparator(VirtualReadingType target) {
+    VirtualReadingTypeRelativeComparator(VirtualReadingType target) {
         this.target = target;
     }
 

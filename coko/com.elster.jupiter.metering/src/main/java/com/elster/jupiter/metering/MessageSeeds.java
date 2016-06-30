@@ -72,8 +72,8 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_METROLOGYCONFIGURATION_FOR_DELIVERABLE(6009, Constants.INVALID_METROLOGYCONFIGURATION_FOR_DELIVERABLE, "The deliverable with id ''{0}'' cannot be used because it has a different metrology configuration."),
     READINGTYPE_OF_DELIVERABLE_IS_NOT_COMPATIBLE_WITH_FORMULA(6010, Constants.READINGTYPE_OF_DELIVERABLE_IS_NOT_COMPATIBLE_WITH_FORMULA, "The readingtype \"{0}\" is not compatible with the dimension of the formula of deliverable \"{2} = {1}\"."),
     FUNCTION_NOT_ALLOWED_IN_AUTOMODE(6011, Constants.FUNCTION_NOT_ALLOWED_IN_AUTOMODE, "Function ''{0}'' is not allowed in auto mode."),
-    IRREGULAR_READINGTYPE_IN_DELIVERABLE(6012, Constants.IRREGULAR_READINGTYPE_IN_DELIVERABLE, "Irregular readingtypes are not allowed for a deliverable."),
-    IRREGULAR_READINGTYPE_IN_REQUIREMENT(6013, Constants.IRREGULAR_READINGTYPE_IN_REQUIREMENT, "Irregular readingtypes are not allowed for a requirement."),
+    IRREGULAR_READING_TYPE_DELIVERABLE_ONLY_SUPPORTS_SIMPLE_FORMULAS(6012, Constants.IRREGULAR_READING_TYPE_DELIVERABLE_ONLY_SUPPORTS_SIMPLE_FORMULAS, "Irregular deliverables only support simple formulas that operate on at most one irregular requirement"),
+    REGULAR_READING_TYPE_DELIVERABLE_DOES_NOT_SUPPORT_IRREGULAR_REQUIREMENTS(6013, Constants.REGULAR_READING_TYPE_DELIVERABLE_DOES_NOT_SUPPORT_IRREGULAR_REQUIREMENTS, "Regular deliverable does not support irregular requirements"),
     INTERVAL_OF_READINGTYPE_SHOULD_BE_GREATER_OR_EQUAL_TO_INTERVAL_OF_REQUIREMENTS(6014, Constants.INTERVAL_OF_READINGTYPE_SHOULD_BE_GREATER_OR_EQUAL_TO_INTERVAL_OF_REQUIREMENTS, "The interval of the output reading type should be larger or equal to interval of the requirements in the formula."),
     AUTO_AND_EXPERT_MODE_CANNOT_BE_COMBINED(6015, Constants.AUTO_AND_EXPERT_MODE_CANNOT_BE_COMBINED, "Auto mode and export mode cannot be combined."),
     INVALID_READINGTYPE_IN_DELIVERABLE(6016, Constants.INVALID_READINGTYPE_IN_DELIVERABLE, "The readingtype for the deliverable is not valid, it should represent a numerical value."),
@@ -186,8 +186,8 @@ public enum MessageSeeds implements MessageSeed {
         public static final String REQUIREMENT_MUST_HAVE_UNIQUE_RT = "requirement.must.have.unique.rt";
         public static final String FUNCTION_NOT_ALLOWED_IN_AUTOMODE = "no.functions.allowed.in.automode";
         public static final String CAN_NOT_DELETE_FORMULA_IN_USE = "can.not.delete.formula.in.use";
-        public static final String IRREGULAR_READINGTYPE_IN_DELIVERABLE = "irregular.readingtype.not.allowed.for.deliverable";
-        public static final String IRREGULAR_READINGTYPE_IN_REQUIREMENT = "irregular.readingtype.not.allowed.for.requirement";
+        public static final String IRREGULAR_READING_TYPE_DELIVERABLE_ONLY_SUPPORTS_SIMPLE_FORMULAS = "irregular.readingtype.deliverable";
+        public static final String REGULAR_READING_TYPE_DELIVERABLE_DOES_NOT_SUPPORT_IRREGULAR_REQUIREMENTS = "regular.readingtype.deliverable";
         public static final String INTERVAL_OF_READINGTYPE_SHOULD_BE_GREATER_OR_EQUAL_TO_INTERVAL_OF_REQUIREMENTS = "interval.of.readingtype.should.be.greater.or.equal.to.interval.of.requirements";
         public static final String AUTO_AND_EXPERT_MODE_CANNOT_BE_COMBINED = "auto.and.expert.mode.cannot.be.combined";
         public static final String INVALID_READINGTYPE_IN_DELIVERABLE = "invalid.readingtype.in.deliverable";
