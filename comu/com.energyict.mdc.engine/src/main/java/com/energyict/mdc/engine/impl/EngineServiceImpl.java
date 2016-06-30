@@ -385,7 +385,7 @@ public class EngineServiceImpl implements EngineService, TranslationKeyProvider,
         this.dataModel.register(this.getModule());
         this.setHostNameIfOverruled(bundleContext);
 
-        upgradeService.register(InstallIdentifier.identifier(EngineService.COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier("MultiSense", EngineService.COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
 
         this.tryStartComServer();
     }
@@ -615,6 +615,11 @@ public class EngineServiceImpl implements EngineService, TranslationKeyProvider,
     }
 
     private class RunningComServerServiceProvider implements RunningComServerImpl.ServiceProvider {
+        @Override
+        public Thesaurus thesaurus() {
+            return thesaurus;
+        }
+
         @Override
         public DeviceConfigurationService deviceConfigurationService() {
             return deviceConfigurationService;

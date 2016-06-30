@@ -27,7 +27,7 @@ import java.util.Optional;
  */
 public class CollectedMessageListDeviceCommand extends DeviceCommandImpl<CollectedMessageListEvent> {
 
-    public final static String DESCRIPTION_TITLE = "Collected message data";
+    public static final String DESCRIPTION_TITLE = "Collected message data";
 
     private final DeviceProtocolMessageList deviceProtocolMessageList;
     private final List<OfflineDeviceMessage> allDeviceMessages;
