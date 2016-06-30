@@ -55,7 +55,6 @@ public class DeviceProtocolMessageWithCollectedTopology extends CollectedDeviceD
     @Override
     public void setNewDeviceMessageStatus(DeviceMessageStatus deviceMessageStatus) {
         this.deviceMessageStatus = deviceMessageStatus;
-        this.sentDate = Instant.now();
     }
 
     @Override

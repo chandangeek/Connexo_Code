@@ -69,6 +69,7 @@ public class CollectedMessageListDeviceCommandTest extends AbstractCollectedData
         OfflineDeviceMessage offlineDeviceMessage = mock(OfflineDeviceMessage.class);
         when(offlineDeviceMessage.getIdentifier()).thenReturn(deviceMessageIdentifier);
         DeviceProtocolMessage collectedMessage1 = new DeviceProtocolMessage(deviceMessageIdentifier);
+        collectedMessage1.setSentDate(getClock().instant());
         collectedMessage1.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
 
         DeviceProtocolMessageList deviceProtocolMessageList = new DeviceProtocolMessageList(Arrays.asList(offlineDeviceMessage));
@@ -90,10 +91,12 @@ public class CollectedMessageListDeviceCommandTest extends AbstractCollectedData
         freezeClock(new Date());
         final DeviceMessageIdentifierForAlreadyKnownMessage deviceMessageIdentifier1 = new DeviceMessageIdentifierForAlreadyKnownMessage(deviceMessage1);
         DeviceProtocolMessage collectedMessage1 = new DeviceProtocolMessage(deviceMessageIdentifier1);
+        collectedMessage1.setSentDate(getClock().instant());
         collectedMessage1.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
 
         final DeviceMessageIdentifierForAlreadyKnownMessage deviceMessageIdentifier2 = new DeviceMessageIdentifierForAlreadyKnownMessage(deviceMessage2);
         DeviceProtocolMessage collectedMessage2 = new DeviceProtocolMessage(deviceMessageIdentifier2);
+        collectedMessage2.setSentDate(getClock().instant());
         collectedMessage2.setNewDeviceMessageStatus(DeviceMessageStatus.INDOUBT);
 
         OfflineDeviceMessage offlineDeviceMessage1 = mock(OfflineDeviceMessage.class);
@@ -144,10 +147,12 @@ public class CollectedMessageListDeviceCommandTest extends AbstractCollectedData
         freezeClock(new Date());
         final DeviceMessageIdentifierForAlreadyKnownMessage deviceMessageIdentifier1 = new DeviceMessageIdentifierForAlreadyKnownMessage(deviceMessage1);
         DeviceProtocolMessage collectedMessage1 = new DeviceProtocolMessage(deviceMessageIdentifier1);
+        collectedMessage1.setSentDate(getClock().instant());
         collectedMessage1.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
 
         final DeviceMessageIdentifierForAlreadyKnownMessage deviceMessageIdentifier2 = new DeviceMessageIdentifierForAlreadyKnownMessage(deviceMessage2);
         DeviceProtocolMessage collectedMessage2 = new DeviceProtocolMessage(deviceMessageIdentifier2);
+        collectedMessage2.setSentDate(getClock().instant());
         collectedMessage2.setNewDeviceMessageStatus(DeviceMessageStatus.INDOUBT);
 
         OfflineDeviceMessage offlineDeviceMessage1 = mock(OfflineDeviceMessage.class);

@@ -59,7 +59,6 @@ public class DeviceProtocolMessageWithCollectedLoadProfileData extends Collected
 
     public void setNewDeviceMessageStatus(DeviceMessageStatus deviceMessageStatus) {
         this.deviceMessageStatus = deviceMessageStatus;
-        this.sentDate = Instant.now();
     }
 
     @Override

@@ -64,7 +64,6 @@ public class DeviceProtocolMessageWithCollectedRegisterData extends CollectedDev
 
     public void setNewDeviceMessageStatus (DeviceMessageStatus deviceMessageStatus) {
         this.deviceMessageStatus = deviceMessageStatus;
-        this.sentDate = Instant.now();
     }
 
     @Override

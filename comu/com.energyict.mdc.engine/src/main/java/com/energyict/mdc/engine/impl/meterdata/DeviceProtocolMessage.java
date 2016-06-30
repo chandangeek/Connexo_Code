@@ -53,7 +53,6 @@ public class DeviceProtocolMessage extends CollectedDeviceData implements Collec
 
     public void setNewDeviceMessageStatus(DeviceMessageStatus deviceMessageStatus) {
         this.deviceMessageStatus = deviceMessageStatus;
-        this.sentDate = Instant.now();
     }
 
     @Override
