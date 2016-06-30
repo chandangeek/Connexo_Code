@@ -41,7 +41,7 @@ public class EnumeratedUsagePointGroupTest {
     @Mock
     private UsagePoint usagePoint1, usagePoint2, usagePoint3;
     @Mock
-    private DataMapper<EnumeratedUsagePointGroup.Entry> entryFactory;
+    private DataMapper<EnumeratedUsagePointGroupImpl.EntryImpl> entryFactory;
     @Mock
     private DataModel dataModel;
     @Mock
@@ -51,7 +51,7 @@ public class EnumeratedUsagePointGroupTest {
 
     @Before
     public void setUp() {
-        when(dataModel.mapper(EnumeratedUsagePointGroup.Entry.class)).thenReturn(entryFactory);
+        when(dataModel.mapper(EnumeratedUsagePointGroupImpl.EntryImpl.class)).thenReturn(entryFactory);
         when(dataModel.getInstance(EnumeratedUsagePointGroupImpl.EntryImpl.class)).thenAnswer(invocationOnMock -> new EnumeratedUsagePointGroupImpl.EntryImpl(dataModel, meteringService));
         when(dataModel.mapper(EnumeratedUsagePointGroup.class)).thenReturn(groupFactory);
 
@@ -202,8 +202,8 @@ public class EnumeratedUsagePointGroupTest {
     public void testSaveUpdateWithEntries() {
         simulateSaved();
 
-        EnumeratedUsagePointGroup.Entry entry1 = EnumeratedUsagePointGroupImpl.EntryImpl.from(dataModel, usagePointGroup, usagePoint1, Range.atLeast(START));
-        EnumeratedUsagePointGroup.Entry entry2 = EnumeratedUsagePointGroupImpl.EntryImpl.from(dataModel, usagePointGroup, usagePoint2, Range.atLeast(START));
+        EnumeratedUsagePointGroupImpl.EntryImpl entry1 = EnumeratedUsagePointGroupImpl.EntryImpl.from(dataModel, usagePointGroup, usagePoint1, Range.atLeast(START));
+        EnumeratedUsagePointGroupImpl.EntryImpl entry2 = EnumeratedUsagePointGroupImpl.EntryImpl.from(dataModel, usagePointGroup, usagePoint2, Range.atLeast(START));
 
         when(entryFactory.find("usagePointGroup", usagePointGroup)).thenReturn(Arrays.asList(entry1, entry2));
 

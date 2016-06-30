@@ -36,10 +36,11 @@ import java.sql.SQLException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class QueryEndDeviceGroupImpl extends AbstractEndDeviceGroup implements QueryEndDeviceGroup {
+class QueryEndDeviceGroupImpl extends AbstractEndDeviceGroup implements QueryEndDeviceGroup {
 
     enum Fields {
         SEARCH_DOMAIN("searchDomain"),
@@ -70,7 +71,7 @@ public class QueryEndDeviceGroupImpl extends AbstractEndDeviceGroup implements Q
     private final Thesaurus thesaurus;
 
     @Inject
-    public QueryEndDeviceGroupImpl(DataModel dataModel, MeteringGroupsService meteringGroupService, EventService eventService, SearchService searchService, ExecutionTimer endDeviceGroupMemberCountTimer, Thesaurus thesaurus) {
+    QueryEndDeviceGroupImpl(DataModel dataModel, MeteringGroupsService meteringGroupService, EventService eventService, SearchService searchService, ExecutionTimer endDeviceGroupMemberCountTimer, Thesaurus thesaurus) {
         super(eventService, dataModel);
         this.meteringGroupService = meteringGroupService;
         this.searchService = searchService;
@@ -184,7 +185,7 @@ public class QueryEndDeviceGroupImpl extends AbstractEndDeviceGroup implements Q
                 }).orElse(null);
     }
 
-    public void addQueryEndDeviceGroupCondition(SearchablePropertyValue searchablePropertyValue) {
+    void addQueryEndDeviceGroupCondition(SearchablePropertyValue searchablePropertyValue) {
         conditions.add(new QueryEndDeviceGroupCondition().init(
                         this,
                         searchablePropertyValue.getValueBean().propertyName,
@@ -216,10 +217,11 @@ public class QueryEndDeviceGroupImpl extends AbstractEndDeviceGroup implements Q
     }
 
     List<QueryEndDeviceGroupCondition> getConditions() {
-        return conditions;
+        return Collections.unmodifiableList(conditions);
     }
 
     void setQueryProviderName(String queryProviderName) {
         this.queryProviderName = queryProviderName;
     }
+
 }

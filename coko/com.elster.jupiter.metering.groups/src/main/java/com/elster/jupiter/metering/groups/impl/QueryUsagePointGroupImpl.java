@@ -8,17 +8,17 @@ import com.elster.jupiter.metering.groups.impl.query.QueryBuilder;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.conditions.Condition;
+
 import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 
 import javax.inject.Inject;
-
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-public class QueryUsagePointGroupImpl extends AbstractUsagePointGroup implements QueryUsagePointGroup {
+class QueryUsagePointGroupImpl extends AbstractUsagePointGroup implements QueryUsagePointGroup {
 
     private List<UsagePointQueryBuilderOperation> operations;
     private transient QueryBuilder queryBuilder;
@@ -27,7 +27,7 @@ public class QueryUsagePointGroupImpl extends AbstractUsagePointGroup implements
     private final DataModel dataModel;
 
     @Inject
-    public QueryUsagePointGroupImpl(DataModel dataModel, MeteringService meteringService) {
+    QueryUsagePointGroupImpl(DataModel dataModel, MeteringService meteringService) {
         this.dataModel = dataModel;
         this.meteringService = meteringService;
     }

@@ -45,7 +45,7 @@ import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
-public class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup implements EnumeratedEndDeviceGroup {
+class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup implements EnumeratedEndDeviceGroup {
 
     private final QueryService queryService;
     private final ExecutionTimer endDeviceGroupMemberCountTimer;
@@ -312,7 +312,7 @@ public class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup impleme
         }
     }
 
-    private static class ActiveDuring extends Active {
+    private static final class ActiveDuring extends Active {
         private final Range<Instant> range;
 
         private ActiveDuring(Range<Instant> range) {
@@ -326,7 +326,7 @@ public class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup impleme
     }
 
 
-    private static class ActiveAt extends Active {
+    private static final class ActiveAt extends Active {
         private final Instant instant;
 
         private ActiveAt(Instant instant) {
@@ -349,7 +349,7 @@ public class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup impleme
         }
     }
 
-    private static class With implements Predicate<EndDeviceMembership> {
+    private static final class With implements Predicate<EndDeviceMembership> {
 
         private final EndDevice endDevice;
 
@@ -366,4 +366,5 @@ public class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup impleme
             return membership.getEndDevice().equals(endDevice);
         }
     }
+
 }
