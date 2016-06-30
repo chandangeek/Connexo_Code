@@ -224,8 +224,8 @@ public class WebServicesServiceImpl implements WebServicesService {
             logDirectory = System.getProperty("java.io.tmpdir");
         }
         this.dataModel.register(this.getModule(logDirectory));
-        upgradeService.register(InstallIdentifier.identifier(WebServicesService.COMPONENT_NAME), dataModel, Installer.class, Collections
-                .emptyMap());
+        upgradeService.register(InstallIdentifier.identifier("Pulse", WebServicesService.COMPONENT_NAME), dataModel,
+                Installer.class, Collections.emptyMap());
     }
 
     @Deactivate

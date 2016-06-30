@@ -39,10 +39,10 @@ public final class InboundEndPointConfigurationImpl extends EndPointConfiguratio
 
     @Override
     public void setUrl(String url) {
-        if (url != null && !url.startsWith(File.separator)) {
-            super.setUrl(File.separator + url);
+        if (url != null && !url.startsWith("/")) {
+            this.url = "/" + url;
         } else {
-            super.setUrl(url);
+            this.url = url;
         }
     }
 }
