@@ -479,7 +479,7 @@ public class AppServerResource {
         List<EndPointConfiguration> available = endPointConfigurationService.findEndPointConfigurations().stream()
                 .filter(EndPointConfiguration::isInbound)
                 .collect(Collectors.toList());
-        available.removeAll(fetchAppServer(appServerName).supportedEndPoints());
+        available.removeAll(getEndpointsAlreadyOnAppServer(appServerName));
         List<EndPointConfigurationInfo> infos = available.stream()
                 .map(epc -> endPointConfigurationInfoFactory.from(epc, uriInfo))
                 .collect(Collectors.toList());
@@ -502,6 +502,12 @@ public class AppServerResource {
                 .map(ImportScheduleOnAppServer::getImportSchedule)
                 .flatMap(Functions.asStream())
                 .collect(toList());
+    }
+
+    private List<EndPointConfiguration> getEndpointsAlreadyOnAppServer(String appServerName){
+        return appService.findAppServer(appServerName)
+                .map(AppServer::supportedEndPoints)
+                .orElseGet(Collections::emptyList);
     }
 
     private void validatePath(String path, String field) {
