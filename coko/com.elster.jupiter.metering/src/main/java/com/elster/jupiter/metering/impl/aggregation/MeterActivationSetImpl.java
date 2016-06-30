@@ -28,16 +28,18 @@ import java.util.stream.Stream;
 class MeterActivationSetImpl implements MeterActivationSet {
     private final UsagePointMetrologyConfiguration configuration;
     private final Collection<MeterActivation> meterActivations = new ArrayList<>();
+    private final int sequenceNumber;
     private final Instant start;
     private Instant end;
 
-    MeterActivationSetImpl(UsagePointMetrologyConfiguration configuration, Instant start) {
+    MeterActivationSetImpl(UsagePointMetrologyConfiguration configuration, int sequenceNumber, Instant start) {
         this.configuration = configuration;
+        this.sequenceNumber = sequenceNumber;
         this.start = start;
     }
 
-    MeterActivationSetImpl(UsagePointMetrologyConfiguration configuration, MeterActivation singleMeterActivation) {
-        this(configuration, singleMeterActivation.getStart());
+    MeterActivationSetImpl(UsagePointMetrologyConfiguration configuration, MeterActivation singleMeterActivation, int sequenceNumber) {
+        this(configuration, sequenceNumber, singleMeterActivation.getStart());
         this.add(singleMeterActivation);
         if (singleMeterActivation.getEnd() != null) {
             this.endAt(singleMeterActivation.getEnd());
@@ -46,6 +48,11 @@ class MeterActivationSetImpl implements MeterActivationSet {
 
     void endAt(Instant end) {
         this.end = end;
+    }
+
+    @Override
+    public int sequenceNumber() {
+        return this.sequenceNumber;
     }
 
     @Override

@@ -2135,7 +2135,7 @@ public class FormulaCrudTest {
         when(propertySpec.getName()).thenReturn("dummy");
         when(propertySpec.getValueFactory()).thenReturn(new StringFactory());
         PersistenceSupport persistenceSupport = mock(PersistenceSupport.class);
-        when(persistenceSupport.componentName()).thenReturn("MTR_TST");
+        when(persistenceSupport.componentName()).thenReturn("TST");
         when(persistenceSupport.addCustomPropertyPrimaryKeyColumnsTo(any(Table.class))).thenReturn(Collections.emptyList());
         when(persistenceSupport.tableName()).thenReturn("MTR_TST_CPS_FORMULA_CRUD");
         when(persistenceSupport.domainColumnName()).thenReturn("usagepoint");
@@ -2181,7 +2181,7 @@ public class FormulaCrudTest {
         PropertySpec propertySpec = mock(PropertySpec.class);
         when(propertySpec.getName()).thenReturn("dummy");
         PersistenceSupport persistenceSupport = mock(PersistenceSupport.class);
-        when(persistenceSupport.componentName()).thenReturn("MTR_TST");
+        when(persistenceSupport.componentName()).thenReturn("TST");
         when(persistenceSupport.addCustomPropertyPrimaryKeyColumnsTo(any(Table.class))).thenReturn(Collections.emptyList());
         when(persistenceSupport.tableName()).thenReturn("MTR_TST_CPS_FORMULA_CRUD");
         when(persistenceSupport.domainColumnName()).thenReturn("usagepoint");
@@ -2226,7 +2226,7 @@ public class FormulaCrudTest {
         when(propertySpec.getName()).thenReturn("dummy");
         when(propertySpec.getValueFactory()).thenReturn(new BigDecimalFactory());
         PersistenceSupport persistenceSupport = mock(PersistenceSupport.class);
-        when(persistenceSupport.componentName()).thenReturn("MTR_TST");
+        when(persistenceSupport.componentName()).thenReturn("TST");
         when(persistenceSupport.addCustomPropertyPrimaryKeyColumnsTo(any(Table.class))).thenReturn(Collections.emptyList());
         when(persistenceSupport.tableName()).thenReturn("MTR_TST_CPS_FORMULA_CRUD");
         when(persistenceSupport.domainColumnName()).thenReturn("usagepoint");
@@ -2269,7 +2269,7 @@ public class FormulaCrudTest {
         when(propertySpec.getName()).thenReturn("dummy");
         when(propertySpec.getValueFactory()).thenReturn(new StringFactory());
         PersistenceSupport persistenceSupport = mock(PersistenceSupport.class);
-        when(persistenceSupport.componentName()).thenReturn("MTR_TST");
+        when(persistenceSupport.componentName()).thenReturn("TST");
         when(persistenceSupport.addCustomPropertyPrimaryKeyColumnsTo(any(Table.class))).thenReturn(Collections.emptyList());
         when(persistenceSupport.tableName()).thenReturn("MTR_TST_CPS_FORMULA_CRUD");
         when(persistenceSupport.domainColumnName()).thenReturn("usagepoint");

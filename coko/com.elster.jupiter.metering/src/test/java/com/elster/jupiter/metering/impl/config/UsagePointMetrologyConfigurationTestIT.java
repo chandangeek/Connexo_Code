@@ -1,10 +1,8 @@
 package com.elster.jupiter.metering.impl.config;
 
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
@@ -22,6 +20,7 @@ import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
 import com.elster.jupiter.search.SearchablePropertyOperator;
 import com.elster.jupiter.search.SearchablePropertyValue;
 
+import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import java.util.Collections;
 import java.util.List;
@@ -212,14 +211,23 @@ public class UsagePointMetrologyConfigurationTestIT {
 
     @Test(expected = ConstraintViolationException.class)
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.ROLE_IS_NOT_ALLOWED_ON_CONFIGURATION + "}", property = "meterRole")
     public void testCanNotCreateReadingTypeRequirementWithUnassignedMeterRole() {
         UsagePointMetrologyConfiguration metrologyConfiguration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("config", getServiceCategory()).create();
         MeterRole meterRole = getMetrologyConfigurationService().findMeterRole(DefaultMeterRole.DEFAULT.getKey()).get();
         ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Zero reading type");
-        metrologyConfiguration
-                .newReadingTypeRequirement("Reading type requirement", meterRole)
-                .withReadingType(readingType);
+        try {
+            metrologyConfiguration
+                    .newReadingTypeRequirement("Reading type requirement", meterRole)
+                    .withReadingType(readingType);
+        } catch (ConstraintViolationException e) {
+            // Asserts
+            assertThat(e.getConstraintViolations()).hasSize(1);
+            ConstraintViolation<?> violation = e.getConstraintViolations().iterator().next();
+            assertThat(violation.getPropertyPath().toString()).isEqualTo("meterRole");
+
+            // Rethrow for the expected exception rule
+            throw e;
+        }
     }
 
     @Test

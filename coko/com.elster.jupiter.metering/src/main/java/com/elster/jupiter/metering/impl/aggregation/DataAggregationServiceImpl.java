@@ -14,6 +14,7 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.impl.config.EffectiveMetrologyConfigurationOnUsagePoint;
+import com.elster.jupiter.metering.impl.config.ServerFormula;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
@@ -93,7 +94,7 @@ public class DataAggregationServiceImpl implements DataAggregationService {
         Range<Instant> clippedPeriod = this.clipToContractActivePeriod(effectivities, contract, period);
         Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation = new HashMap<>();
         this.getMeterActivationSets(usagePoint, clippedPeriod)
-            .forEach(set -> this.prepare(set, contract, clippedPeriod, this.virtualFactory, deliverablesPerMeterActivation));
+            .forEach(set -> this.prepare(usagePoint, set, contract, clippedPeriod, this.virtualFactory, deliverablesPerMeterActivation));
         if (deliverablesPerMeterActivation.isEmpty()) {
             return new CalculatedMetrologyContractDataImpl(usagePoint, contract, period, Collections.emptyMap());
         } else {
@@ -101,6 +102,7 @@ public class DataAggregationServiceImpl implements DataAggregationService {
                 return this.postProcess(
                         usagePoint,
                         contract,
+                        period,
                         this.execute(
                                 this.generateSql(
                                         this.sqlBuilderFactory.newClauseAwareSqlBuilder(),
@@ -142,13 +144,13 @@ public class DataAggregationServiceImpl implements DataAggregationService {
         return new MeterActivationSetStreamBuilder(usagePoint, period).build();
     }
 
-    private void prepare(UsagePoint usagePoint, MeterActivationSet meterActivationSet, MetrologyContract contract, Range<Instant> period, VirtualFactory virtualFactory, Map<MeterActivation, List<ReadingTypeDeliverableForMeterActivation>> deliverablesPerMeterActivation) {
+    private void prepare(UsagePoint usagePoint, MeterActivationSet meterActivationSet, MetrologyContract contract, Range<Instant> period, VirtualFactory virtualFactory, Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation) {
         virtualFactory.nextMeterActivationSet(meterActivationSet, period);
         deliverablesPerMeterActivation.put(meterActivationSet, new ArrayList<>());
         contract
-                .getDeliverables()
-                .stream()
-                .forEach(deliverable -> this.prepare(usagePoint, meterActivationSet, deliverable, period, virtualFactory, deliverablesPerMeterActivation));
+            .getDeliverables()
+            .stream()
+            .forEach(deliverable -> this.prepare(usagePoint, meterActivationSet, deliverable, period, virtualFactory, deliverablesPerMeterActivation));
     }
 
     /**
@@ -210,6 +212,7 @@ public class DataAggregationServiceImpl implements DataAggregationService {
                         this.customPropertySetService,
                         new ReadingTypeDeliverablePerMeterActivationSetProviderImpl(deliverablesPerMeterActivationSet),
                         deliverable,
+                        usagePoint,
                         meterActivationSet);
         return formula.getExpressionNode().accept(visitor);
     }

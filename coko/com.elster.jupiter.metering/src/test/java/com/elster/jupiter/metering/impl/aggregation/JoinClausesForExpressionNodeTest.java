@@ -6,7 +6,6 @@ import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.Formula;
@@ -267,8 +266,8 @@ public class JoinClausesForExpressionNodeTest {
         when(propertySpec.getName()).thenReturn("example");
         RegisteredCustomPropertySet customPropertySet = mock(RegisteredCustomPropertySet.class);
         when(customPropertySet.getId()).thenReturn(97L);
-        MeterActivation meterActivation = mock(MeterActivation.class);
-        when(meterActivation.getId()).thenReturn(101L);
+        MeterActivationSet meterActivation = mock(MeterActivationSet.class);
+        when(meterActivation.sequenceNumber()).thenReturn(101);
         ServerExpressionNode node = new CustomPropertyNode(mock(CustomPropertySetService.class), propertySpec, customPropertySet, mock(UsagePoint.class), meterActivation);
         String expectedJoinTableName = "cps97_example_101";
 

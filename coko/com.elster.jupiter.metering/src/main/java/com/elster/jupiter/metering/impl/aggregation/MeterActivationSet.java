@@ -26,6 +26,8 @@ interface MeterActivationSet {
 
     void add(MeterActivation meterActivation);
 
+    int sequenceNumber();
+
     Range<Instant> getRange();
 
     /**

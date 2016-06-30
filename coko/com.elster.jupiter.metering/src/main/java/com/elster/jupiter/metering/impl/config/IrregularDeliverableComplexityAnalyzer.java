@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.metering.config.ConstantNode;
+import com.elster.jupiter.metering.config.CustomPropertyNode;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Function;
 import com.elster.jupiter.metering.config.FunctionCallNode;
@@ -30,6 +31,11 @@ class IrregularDeliverableComplexityAnalyzer implements ExpressionNode.Visitor<V
 
     @Override
     public Void visitConstant(ConstantNode constant) {
+        return null;
+    }
+
+    @Override
+    public Void visitProperty(CustomPropertyNode property) {
         return null;
     }
 

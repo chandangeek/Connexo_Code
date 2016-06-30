@@ -59,10 +59,14 @@ class MeterActivationSetStreamBuilder {
     }
 
     private MeterActivationSet createMeterActivationSet(Instant startDate, Stream<MeterActivation> meterActivations) {
+        int sequenceNumber;
         if (this.lastBuilt != null) {
             this.lastBuilt.endAt(startDate);
+            sequenceNumber = this.lastBuilt.sequenceNumber() + 1;
+        } else {
+            sequenceNumber = 1;
         }
-        MeterActivationSetImpl set = new MeterActivationSetImpl(this.usagePoint.getMetrologyConfiguration(this.period.lowerEndpoint()).get(), startDate);
+        MeterActivationSetImpl set = new MeterActivationSetImpl(this.usagePoint.getMetrologyConfiguration(this.period.lowerEndpoint()).get(), sequenceNumber, startDate);
         meterActivations.forEach(set::add);
         this.lastBuilt = set;
         return set;

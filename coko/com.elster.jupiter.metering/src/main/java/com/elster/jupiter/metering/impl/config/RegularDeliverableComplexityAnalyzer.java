@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.metering.config.ConstantNode;
+import com.elster.jupiter.metering.config.CustomPropertyNode;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.FunctionCallNode;
 import com.elster.jupiter.metering.config.NullNode;
@@ -20,6 +21,11 @@ class RegularDeliverableComplexityAnalyzer implements ExpressionNode.Visitor<Boo
 
     @Override
     public Boolean visitConstant(ConstantNode constant) {
+        return Boolean.TRUE;
+    }
+
+    @Override
+    public Boolean visitProperty(CustomPropertyNode property) {
         return Boolean.TRUE;
     }
 

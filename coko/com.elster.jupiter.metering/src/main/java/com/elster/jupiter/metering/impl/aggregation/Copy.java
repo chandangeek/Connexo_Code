@@ -1,7 +1,6 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
@@ -56,7 +55,7 @@ class Copy implements ExpressionNode.Visitor<ServerExpressionNode> {
 
     @Override
     public ServerExpressionNode visitProperty(com.elster.jupiter.metering.config.CustomPropertyNode property) {
-        return new CustomPropertyNode(this.customPropertySetService, property.getPropertySpec(), property.getRegisteredCustomPropertySet(), this.usagePoint, this.meterActivation);
+        return new CustomPropertyNode(this.customPropertySetService, property.getPropertySpec(), property.getRegisteredCustomPropertySet(), this.usagePoint, this.meterActivationSet);
     }
 
     @Override
