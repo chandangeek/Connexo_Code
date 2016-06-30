@@ -29,6 +29,7 @@ import com.energyict.mdc.engine.impl.core.RemoteComServerQueryJSonPropertyNames;
 import com.energyict.mdc.engine.impl.core.ServerProcess;
 import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
 import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
+import com.energyict.mdc.protocol.api.device.data.CollectedCalendar;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.data.G3TopologyDeviceAddressInformation;
 import com.energyict.mdc.protocol.api.device.data.TopologyNeighbour;
@@ -264,6 +265,11 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void updateBreakerStatus(CollectedBreakerStatus collectedBreakerStatus) {
+
+    }
+
+    @Override
+    public void updateCalendars(CollectedCalendar collectedCalendar) {
 
     }
 
@@ -639,7 +645,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
             lock.lock();
             try {
                 boolean timedOut = false;
-                while (!done || timedOut) {
+                while (!done || !timedOut) {
                     timedOut = !condition.await(timeout, unit);
                 }
                 return this.getValue();

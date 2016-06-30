@@ -139,6 +139,11 @@ public class InboundCommunicationHandler {
     private class OfflineDeviceServiceProvider implements OfflineDeviceImpl.ServiceProvider {
 
         @Override
+        public Thesaurus thesaurus() {
+            return serviceProvider.thesaurus();
+        }
+
+        @Override
         public TopologyService topologyService() {
             return serviceProvider.topologyService();
         }
