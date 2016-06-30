@@ -113,7 +113,7 @@ public class ServiceCallTypeOneCustomPropertySet implements CustomPropertySet<Se
 
         @Override
         public String componentName() {
-            return "OMFG.1";
+            return "OM1";
         }
 
         @Override
