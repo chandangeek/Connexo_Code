@@ -148,7 +148,7 @@ public class IdsServiceImpl implements IdsService, MessageSeedProvider {
     public final void activate() {
         dataModel.register(getModule());
 
-        upgradeService.register(identifier(COMPONENTNAME), dataModel, InstallerImpl.class, Collections.emptyMap());
+        upgradeService.register(identifier("Pulse", COMPONENTNAME), dataModel, InstallerImpl.class, Collections.emptyMap());
     }
 
     private Module getModule() {
