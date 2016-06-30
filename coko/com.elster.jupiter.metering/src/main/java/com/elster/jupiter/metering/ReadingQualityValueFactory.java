@@ -33,7 +33,7 @@ public class ReadingQualityValueFactory implements ValueFactory<ReadingQualityPr
     /**
      * Validate that the CIM code of the given reading quality is valid.
      * It be formatted as x.y.z, where every field is numerical.
-     * The system (x) and the category (y) should be known CIM codes.
+     * The system (x) and the category (y) should be known CIM codes, or the wildcard '*'.
      * The index (z) can be any number.
      */
     @Override
@@ -47,8 +47,8 @@ public class ReadingQualityValueFactory implements ValueFactory<ReadingQualityPr
         ReadingQualityType readingQualityType = new ReadingQualityType(cimCode);
 
         try {
-            //System code should be known in CIM
-            if (!readingQualityType.system().isPresent()) {
+            //System code should be known in CIM, or a wildcard
+            if (!isWildCard(parts[0]) && !readingQualityType.system().isPresent()) {
                 return false;
             }
 
@@ -57,17 +57,23 @@ public class ReadingQualityValueFactory implements ValueFactory<ReadingQualityPr
                 return false;
             }
 
-            //Index code should be numerical
-            try {
-                int index = Integer.parseInt(parts[2]);
-            } catch (NumberFormatException e) {
-                return false;
+            //Index code should be numerical, or a wildcard
+            if (!isWildCard(parts[2])) {
+                try {
+                    int index = Integer.parseInt(parts[2]);
+                } catch (NumberFormatException e) {
+                    return false;
+                }
             }
         } catch (NoSuchElementException e) {
             return false;
         }
 
         return true;
+    }
+
+    private boolean isWildCard(String part) {
+        return part.equals(ReadingQualityPropertyValue.WILDCARD);
     }
 
     @Override
